@@ -1,0 +1,1749 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Hydrogen handleiding</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="Hydrogen-handleiding"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Hydrogen handleiding</A
+></H1
+>		<H3
+CLASS="AUTHOR"
+><A
+NAME="AEN5"
+></A
+>Pieter Van Isacker</H3
+>
+		<H3
+CLASS="AUTHOR"
+><A
+NAME="AEN8"
+></A
+>Alessandro Cominu</H3
+>
+	<DIV
+><DIV
+CLASS="ABSTRACT"
+><P
+></P
+><A
+NAME="AEN12"
+></A
+>		<P
+>&#13;			Hydrogen is een software synthesizer die op zichzelf kan gebruikt worden als drum machine gebaseerd op patronen, via een extern MIDI klavier of via sequencer software.
+
+		</P
+>
+	<P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Inhoudsopgave</B
+></DT
+><DT
+>1. <A
+HREF="#inleiding"
+>Inleiding</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="#download"
+>Downloaden</A
+></DT
+><DT
+>1.2. <A
+HREF="#compileren"
+>Compileren</A
+></DT
+><DT
+>1.3. <A
+HREF="#configurazioneAudioDriver"
+>Audio driver configuratie</A
+></DT
+><DD
+><DL
+><DT
+>1.3.1. <A
+HREF="#ossDriver"
+>OSS audio driver</A
+></DT
+><DT
+>1.3.2. <A
+HREF="#alsaDriver"
+>ALSA audio driver</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>2. <A
+HREF="#GUI"
+>Grafische interface</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="#main"
+>De hoofd werkbalk</A
+></DT
+><DT
+>2.2. <A
+HREF="#songEditor"
+>De Opname editor</A
+></DT
+><DT
+>2.3. <A
+HREF="#patternEditor"
+>De Patroon Editor</A
+></DT
+><DT
+>2.4. <A
+HREF="#mixer"
+>Mixer</A
+></DT
+><DT
+>2.5. <A
+HREF="#instrument"
+>De Instrument Editor</A
+></DT
+><DT
+>2.6. <A
+HREF="#ladspa"
+>LADSPA plugins</A
+></DT
+><DT
+>2.7. <A
+HREF="#menu"
+>Menu</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+>
+
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="inleiding"
+></A
+>Hoofdstuk 1. Inleiding</H1
+>	
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="download"
+>1.1. Downloaden</A
+></H2
+>		
+		<P
+>		De laatste stabiele versie van hydrogen is beschikbaar op
+		<A
+HREF="http://www.hydrogen-music.org"
+TARGET="_top"
+>http://www.hydrogen-music.org</A
+>
+		</P
+>
+
+		<P
+>                Het is mogelijk om de bron bestanden direct van de CVS snapshot te downloaden met:
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/hydrogen co -P hydrogen</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cd hydrogen</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./autogen.sh</B
+></PRE
+>
+		Nadien kun je de instructies volgen zoals hieronder beschreven                         
+		</P
+>
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="compileren"
+>1.2. Compileren</A
+></H2
+>		
+                <P
+>                        Het compileren van hydrogen is afhankelijk van de volgende libraries
+			<P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+>					<P
+>libsndfile: <A
+HREF="http://www.mega-nerd.com/libsndfile/"
+TARGET="_top"
+>http://www.mega-nerd.com/libsndfile/</A
+></P
+>
+				</LI
+><LI
+STYLE="list-style-type: opencircle"
+>					<P
+>qt (&#62;= 3.2): <A
+HREF="http://www.trolltech.com"
+TARGET="_top"
+>http://www.trolltech.com</A
+></P
+>
+				</LI
+><LI
+STYLE="list-style-type: opencircle"
+>					<P
+>ALSA (&#62;= 1.x): <A
+HREF="http://www.alsa-project.com"
+TARGET="_top"
+>http://www.alsa-project.com</A
+> (enkel als je ALSA als audio driver wil gebruiken)</P
+>
+				</LI
+><LI
+STYLE="list-style-type: opencircle"
+>					<P
+>Jack Audio Connection Kit (&#62;= 0.80): <A
+HREF="http://jackit.sourceforge.net"
+TARGET="_top"
+>http://jackit.sourceforge.net</A
+> (enkel als je Jack als audio driver wil gebruiken)</P
+>
+				</LI
+></UL
+>
+                </P
+>
+
+		<P
+>		Na het afhalen en uitpakken van het tar.gz bestand moet je enkel dit uitvoeren:
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cd hydrogen-*</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./configure</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>make</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>su -c "make install"</B
+></PRE
+>
+		</P
+>
+
+		<P
+>		Bekijk voor het compileren eerst nog eens de opties:
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./configure --help</B
+></PRE
+>
+		</P
+>
+
+                <P
+>                Als er zich bij het uitvoeren fouten voordoen kun je best hydrogen compileren met de debug optie. Zo kun je de ontwikkelaars op de hoogte brengen van de fout.
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./configure --enable-debug</B
+></PRE
+>
+                </P
+>
+
+                <P
+>                Voorlopig zijn er nog geen binaire versies van hydrogen (.rpm,.deb...) Helpers zijn altijd welkom! Compileer hydrogen met gcc versie 3.*. zo voorkom je potentile problemen.
+                </P
+>
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="configurazioneAudioDriver"
+>1.3. Audio driver configuratie</A
+></H2
+>            
+	    <P
+>            Het is zeer belangrijk dat je de juiste audio driver kiest voor jouw systeem,
+            omdat de keuze de perfomantie van je systeem benvloed.
+            Je hebt de keuze tussen Oss, Alsa, Jack en PortAudio. Om het beste uit Hydrogen te halen gebruik je best Jack
+	    </P
+>
+	    <DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="ossDriver"
+>1.3.1. OSS audio driver</A
+></H3
+>		
+		<P
+>                De Oss audio driver gebruikt /dev/dsp en is gebaseerd op de OSS interface die ondersteund
+                wordt door een groot aantal geluidskaarten die beschikbaar zijn voor linux; zoals gezegd
+                blokeerd Hydrogen het gebruik van /dev/dsp tot Hydrogen gesloten is /dev/dsp is dus onbruikbaar
+                voor andere software.
+                </P
+>
+	    </DIV
+>
+            <DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="alsaDriver"
+>1.3.2. ALSA audio driver</A
+></H3
+>                
+                <P
+>                Hydrogen werkt ook met de ALSA (Advanced Linux Sound Architecture) driver
+                Voor ALSA gelden dezelfde regels als voor OSS, als een programma bijvoorbeeld hw:0,0 gebruikt 
+                kan een ander programma deze niet meet gebruiken.
+                </P
+>
+	    <DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="jackDriver"
+>1.3.1. Jack audio driver</A
+></H3
+>		
+		<P
+>                Om met de Jack audio driver te werken moet de server werken. <A
+HREF="http://jackit.sourceforge.net"
+TARGET="_top"
+>Jack Audio Connection Kit</A
+>, een professionele audio server met een zeer lage response tijd en die interactie mogelijk maakt met andere audio software.<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>We raden Jack sterk aan om zo het beste uit Hydrogen te halen</I
+></SPAN
+>.
+		</P
+>
+	    </DIV
+>
+            <DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="portaudioDriver"
+>1.3.2. PortAudio audio driver</A
+></H3
+>                
+                <P
+>                PortAudio is een driver die kan gebruikt worden op verschillende systemen zoals Linux, Unix, BeOS, Mac OS 8,9,X en Windows
+                Iemand die een Mac OS 8,9 of X gebruikt zal dus waarschijnlijk PortAudio moeten gebruiken.
+                </P
+>
+            </DIV
+>
+	</DIV
+></DIV
+></DIV
+>
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="GUI"
+></A
+>Hoofdstuk 2. Grafische interface</H1
+>	
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="main"
+>2.1. De hoofd werkbalk</A
+></H2
+>		
+		<P
+>Voor we de belangrijkste vensters overlopen gaan we snel eens kijken naar de werkbalk:</P
+>
+		
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/MainToolbar.png"></P
+></DIV
+>
+
+
+	<P
+></P
+><UL
+><LI
+STYLE="list-style-type: none"
+>                    <P
+>                    <SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/background_Control.png"></SPAN
+>
+                    Alle knoppen om te starten, stoppen, doorspoelen, terugspoelen en om het het patroon of de opname te herhalen.
+                    Je kunt ook de spatiebalk gebruiken om te starten en te stoppen.
+                    </P
+>
+                </LI
+><LI
+STYLE="list-style-type: none"
+>                    <P
+>                    <SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/background_Mode.png"></SPAN
+>
+                    Hier kun je schakelen tussen de patroon en opname mode.
+                    </P
+>
+                </LI
+><LI
+STYLE="list-style-type: none"
+>                    <P
+>                    <SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/background_BPM.png"></SPAN
+>
+                    Als je het tempo van een nummer wil aanpassen klik je op de + of - knop. Om de metronoom aan of uit te schakelen kan je het onderste knopje gebruiken.
+                     </P
+>
+                </LI
+><LI
+STYLE="list-style-type: none"
+>                    <P
+>                    <SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/background_Load.png"></SPAN
+>
+                    Op het laatste paneel kun je naast Jack transport aan of uit schakelen ook de MIDI en CPU activiteit zien.
+        	    Als Jack transport aan staat zal Hydrogen als 'slaaf' van een ander 'master' programma (vb: Ardour) werken. Dit is enkel mogelijk als de Jack Audio driver geselecteerd is.
+                    </P
+>
+                </LI
+></UL
+>
+
+	<P
+>Andere handige sneltoetsen:</P
+>
+		
+		<P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + N]</B
+></SPAN
+> = Nieuwe opname starten
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + O]</B
+></SPAN
+> = Opname openen
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + S]</B
+></SPAN
+> = Opname opslaan
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + E]</B
+></SPAN
+> = Opname exporteren
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + I]</B
+></SPAN
+> = Instelling
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + Q]</B
+></SPAN
+> = Hydrogen afsluiten
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + H]</B
+></SPAN
+> = De documentatie tonen
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[Backspace]</B
+></SPAN
+> = Liedje of patroon herstarten vanaf het begin.
+			</P
+>
+		</LI
+></UL
+>
+
+	</DIV
+>
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="songEditor"
+>2.2. De Opname editor</A
+></H2
+>		
+
+<P
+>De Opname Editor (Fig. 1) toont het liedje dat we aan het maken zijn. Je ziet de verschillende lagen. Elk gekleurd vierkantje dat in het venster verschijnt vertegenwoordigd een patroon dat zal afgespeeld worden. De patronen kun je bewerken met de Patroon Editor, de lagen kunnen verschillende delen van de opname bevatten (vb intro, refrein, strofe enz...).</P
+>
+
+<P
+>De Opname Editor heeft 6 knoppen:
+
+<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>        <IMG
+SRC="img/SongEditorButtons.png"></SPAN
+></P
+>
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/SongEditorAddLayer.png"></SPAN
+>
+	Maak een nieuw patroon, er wordt naar een naam voor het nieuwe patroon gevraagd.</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/SongEditorLayerDownUp.png"></SPAN
+>
+        Met deze 2 knoppen verplaatst je een laag naar beneden of naar boven.</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/SongEditorLayerClear.png"></SPAN
+>
+        Wist alle sequenties van een layer.</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/SongEditorSelectInsertMode.png"></SPAN
+>
+        Door middel van deze 2 knoppen kun je wisselen tussen de Selectie(<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/SongEditorSelectMode.png"></SPAN
+>) en de Teken (<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/SongEditorInsertMode.png"></SPAN
+>) mode van de Opname Editor. </P
+>
+<P
+>De Teken Mode:
+In deze mode kan je door gewoon te klikken patronenen toevoegen of verwijderen.</P
+>
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/nl/SongEditorInsertMode.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 1</B
+></SPAN
+> De Opname Editor in de teken mode
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+<P
+>De Selectie Mode:
+In deze mode kun je stukken selecteren en daarna verplaatsen, kopiren of verwijderen. De geselecteerde stukken worden iets donkerder gekleurd.</P
+>
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/nl/SongEditorSelectMode.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 2</B
+></SPAN
+> De Opname Editor met de 2 geselecteerd
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+<P
+>Daarna kun je het geselecteerde gebied verplaatsen door het te verslepen. Kopiren doe je door de Ctrl toets in te houden en dan te verslepen. En om de selectie te verwijderen druk je de delete toets in.</P
+>
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/nl/SongEditorSelectModeCopy.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 3</B
+></SPAN
+> De Opname Editor nadat de 2 gekopierd werd met de Ctrl toets.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+<P
+>Door rechts op de naam van een laag te klikken kun je het patroon bewerken, kopiren, wissen en de naam van de laag wijzigen.</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/nl/SongEditor.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 4</B
+></SPAN
+> De Opname Editor
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="patternEditor"
+>2.3. De Patroon Editor</A
+></H2
+>		
+		<P
+>		Het Patroon Editor venster (Fig. 5) laat toe om een patroon te bewerken. Je ziet de verschillende instrument aan de linkerkant. Je kunt beats toevoegen, verwijderen en het volume aanpassen. Beats toevoegen of verwijderen kan eenvoudig door op het rooster te klikken. Het volume pas je aan door de vertikale balk die onder elke noot te vergroten of te verkleinen.
+                </P
+>
+
+                <P
+>                Ook de Patroon Editor heeft enkele knoppen: 
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/PatternEditorButtons.png"></SPAN
+>
+                </P
+>
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/PatternEditorPattern.png"></SPAN
+>
+        Door op +/- te drukken selecteer je het vorige of volgende patroon, daarnaast zie je de naam verschijnen.</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/PatternEditorSizeRes.png"></SPAN
+>
+	Door een andere <SPAN
+CLASS="QUOTE"
+>"Size"</SPAN
+> te selecteren verander je de lengte van het patroon, de lengte kan gaan van 1 tel tot 32 tellen. Bij de <SPAN
+CLASS="QUOTE"
+>"Resolution"</SPAN
+> kun je het aantal beats per tel instellen.</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/PatternEditorRecording.png"></SPAN
+>
+	Hier zie je 3 knoppen. Als de eerste knop geselecteerd is zul je nieuwe noten die toegevoegd worden aan het patroon horen. Met de tweede knop maak je het mogelijk om noten toe te voegen met behulp van een keyboard of een toetsenbord. De laatste zorgt ervoor dat nieuwe noten op het raster geplaatst worden.</P
+>
+<P
+>Naast de algemene knoppen heb je nog deze 2 knoppen:</P
+>
+<P
+><SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/PatternEditorDownUp.png"></SPAN
+>
+Met deze 2 knoppen kun je een instrument naar boven of naar beneden verplaatsen.</P
+>
+<P
+>Op de volgende screenshot zie je dat door rechts te klikken op een instrumentnaam je een menu met verschillende mogelijkheden krijgt. Je kunt het instrument dempen of solo laten spelen. Je kunt snel je rooster opvullen met noten. Je kunt een instrument vastleggen, na het wisselen van een drumkit zal het gekozen instrument blijven bestaan, zo kun je samples uit verschillende drumkits gebruiken. En de laatste mogelijkheid kiest een willekeurig volume om zo een natuurlijk klank te bereiken voor het instrument.</P
+>	
+
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/PatternEditor.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 5</B
+></SPAN
+> De Patroon Editor
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+		
+		<P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Merk op dat de naam van het afgespeelde instrument afhangt van de geselecteerd drumkit. Deze lijst is gebaseerd op de GMKit, dit is de standaard kit.</I
+></SPAN
+></P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Z = Kick</P
+></LI
+><LI
+><P
+>X = Snaar Jazz</P
+></LI
+><LI
+><P
+>C = Snaar Rock</P
+></LI
+><LI
+><P
+>V = Lage Tom</P
+></LI
+><LI
+><P
+>B = Mid Tom</P
+></LI
+><LI
+><P
+>N = Hoge Tom</P
+></LI
+><LI
+><P
+>M = Koe bel</P
+></LI
+><LI
+><P
+>Q = Ride Jazz</P
+></LI
+><LI
+><P
+>W = Ride Rock</P
+></LI
+><LI
+><P
+>E = Instrument Nr. 17 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>R = Instrument Nr. 18 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>T = Instrument Nr. 20 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>Y = Instrument Nr. 22 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>U = Instrument Nr. 24 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>S = Stok</P
+></LI
+><LI
+><P
+>D = Handen klap</P
+></LI
+><LI
+><P
+>G = Gesloten HH</P
+></LI
+><LI
+><P
+>H = Pedaal HH</P
+></LI
+><LI
+><P
+>J = Open HH</P
+></LI
+><LI
+><P
+>2 = Crash</P
+></LI
+><LI
+><P
+>3 = Crash Jazz</P
+></LI
+><LI
+><P
+>5 = Instrument Nr. 19 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>6 = Instrument Nr. 21 (momenteel niet in gebruik)</P
+></LI
+><LI
+><P
+>7 = Instrument Nr. 23 (momenteel niet in gebruik)</P
+></LI
+></UL
+>
+
+	<P
+>Hier is een kleine voorstelling van wat toetsen voor het gemak.</P
+>
+	
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/tastiera.png"></P
+></DIV
+>	
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="mixer"
+>2.4. Mixer</A
+></H2
+>		
+<P
+>Het Mixer venster (Fig. 6) is handig om het master volume of het instrument volume in te stellen. Je kunt het huidig volume weergeven of verbergen door op   
+
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/showPeaks_on.png"></SPAN
+>	
+
+	 te klikken. Deze knop   
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerPan.png"></SPAN
+>	
+			
+	laat je toe om de balans te regelen,  
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerSolo.png"></SPAN
+>
+	
+	om dit instrument solo te laten spelen, 
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerMute.png"></SPAN
+>
+	
+	
+	om het instrument te dempen en
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerPlayTest.png"></SPAN
+>
+
+	 om enkel dit instrument eens af te spelen. Als het instrument gespeeld wordt blinkt deze knop. Een instrument in de Patroon Editor selecteren zorgt ervoor dat deze led
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerLED.png"></SPAN
+>
+gaat oplichten.
+
+	</P
+>
+	<P
+>		Na het dubbelklikken op de naam van een instrument in de Mixer zie je de Instrument Editor, in het volgende hoofdstuk wordt deze uitvoerig besproken.
+	</P
+>
+
+			<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/nl/Mixer.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 6</B
+></SPAN
+> De Mixer
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	
+        <P
+>            De 3 draaiknoppen aan de rechterkant van de master fader dienen om je opname menselijker te laten klinken, zo kun je een beetje swing toevoegen.
+        </P
+>
+
+        <P
+>        Als je op
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerFXButton.png"></SPAN
+>
+        klikt krijg je een extra scherm in je mixer, dit scherm dient samen met de 4 draaiknoppen die je per instrument beschikbaar hebt om de effecten te regelen voor een instrument. In het hoofdstuk over de LADSPA plugins kom je meer te weten over deze knoppen.
+        </P
+>
+			<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/nl/MixerFX.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 7</B
+></SPAN
+> De Mixer met de FX instellingen
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	
+
+
+	</DIV
+>
+
+        <DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="instrument"
+>2.5. De Instrument Editor</A
+></H2
+>            
+            <P
+>De Instrument Editor heeft 2 tabbladen. Het Instrument tabblad bevat verschillende knoppen om basis effecten op het instrument toe te passen. In het tweede tabblad kun je een nieuwe laag een instrument toevoegen.</P
+>
+            		<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/nl/InstrumentEditorInstrument.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 8</B
+></SPAN
+> De Instrument Editor
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	    
+            		<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/nl/InstrumentEditorLayer.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 9</B
+></SPAN
+> De Instrument Editor
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	    
+
+        </DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="ladspa"
+>2.6. LADSPA plugins</A
+></H2
+>		
+                <P
+>Hydrogen kan ook effecten toevoegen aan de instrumenten door gebruik te maken van LADSPA plugins. Je moet LADPSA genstalleerd hebben op je computer, je kan het hier afhalen: <A
+HREF="http://www.ladspa.org"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://www.ladspa.org</I
+></A
+>
+. Het wordt pas echt leuk als je meer van deze paketten gaat installeren, het enige wat je moet uitvoeren is "make &#38;&#38; make install"
+                </P
+>
+	<P
+></P
+><UL
+><LI
+><P
+>SWH-Plugin beschikbaar op <A
+HREF="http://plugin.org.uk"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://plugin.org.uk</I
+></A
+>. Merk op dat je voor het installeren eerst FFTW (<A
+HREF="http://www.fftw.org"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://www.fftw.org</I
+></A
+>) installeert.</P
+></LI
+><LI
+><P
+>CMT beschikbaar op <A
+HREF="http://www.ladspa.org"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://www.ladspa.org</I
+></A
+>.</P
+></LI
+><LI
+><P
+>TAP beschikbaar op <A
+HREF="http://tap-plugins.sf.net"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://tap-plugins.sf.net</I
+></A
+>.</P
+></LI
+></UL
+>
+
+        <P
+>Als ze genstalleerd zijn open dan een liedje waar je enkele effecten wil aan toevoegen. Open de Mixer en klik op 
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/showFX_on.png"></SPAN
+>
+	
+	je krijgt het volgende te zien:
+	</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>		<IMG
+SRC="img/MixerFX.png"><DIV
+CLASS="CAPTION"
+>		<P
+>		<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 10</B
+></SPAN
+> De effecten van de mixer
+		</P
+>
+	</DIV
+></P
+></DIV
+>
+<P
+>Selecteer een van de vier effect kanalen en klik op deze knop 
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/edit_off.png"></SPAN
+>
+	
+	, daarna op <SPAN
+CLASS="QUOTE"
+>"Selecteer FX"</SPAN
+>: dit toont een ander venster (Fig. 12) dat je laat kiezen tussen de genstalleerde effecten, ze zijn alfabetisch gesorteerd en gegroepeerd. Als je een effect hebt geselecteerd vergeet dan niet om op <SPAN
+CLASS="QUOTE"
+>"Schakel aan"</SPAN
+> te drukken, wijzig enkele parameters en keer uiteindelijk terug naar de Mixer en start de opname! Elke ronde knop op een Instrument kanaal in de Mixer regelt het volume van een effect op het instrument. De bovenste knop is voor effect 0 en de onderste voor effect 3. 	</P
+>
+
+			<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/nl/MixerFXEdit.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 11</B
+></SPAN
+> Het LADSPA eigenschappen venster.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	
+
+			<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/nl/MixerFXSelect.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 12</B
+></SPAN
+> Selecteer een effect.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	
+	
+	
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="menu"
+>2.7. Menu</A
+></H2
+>	    
+
+            <P
+>Bestand --&#62;
+                <P
+></P
+><UL
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Nieuw: maakt een nieuw liedje aan.</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Open: om een liedje openen</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Open voorbeeld: op een voorbeld liedje</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Open recent: toont een lijst van de 4 laatst geopende bestanden</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Opslaan: slaat het huidige liedje op.</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Opslaan als: slaat het liedje op onder een andere bestandsnaam.</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Exporteer: exporteer het liedje naar een wav bestand</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Exporteer naar MIDI: exporteer het liedje naar een mid bestand</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Instellingen: hier kun je de voorkeuren aanpassen</P
+>
+                                </LI
+><LI
+STYLE="list-style-type: circle"
+>                                    <P
+>Afsluiten: sluit Hydrogen af.</P
+>
+                                </LI
+></UL
+>
+            </P
+>
+            <P
+>Beeld --&#62;
+                <P
+></P
+><UL
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Toon mixer</P
+>
+                            </LI
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Toon opname editor</P
+>
+                            </LI
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Toon patroon editor</P
+>
+                            </LI
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Toon drumkit manager</P
+>
+                            </LI
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Toon instrument editor</P
+>
+                            </LI
+></UL
+>
+            <P
+>Help --&#62;
+                <P
+></P
+><UL
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Handleiding</P
+>
+                            </LI
+><LI
+STYLE="list-style-type: circle"
+>                                <P
+>Over</P
+>
+                            </LI
+></UL
+>
+            </P
+>
+					
+
+	<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="prefs"
+>2.7.1. Instellingen</A
+></H3
+>		
+		<P
+>		In de <SPAN
+CLASS="QUOTE"
+>"Audio Systeem"</SPAN
+> tab (Fig. 13) is het mogelijk om een andere audio driver te selecteren. Je kan ook de buffergroote instellen en de sample rate. Als je JACK selecteerd en <SPAN
+CLASS="QUOTE"
+>"Maak Track Outputs mogelijk"</SPAN
+> geslecteerd is zal elk instrument op een ander JACK kanaal spelen. Als <SPAN
+CLASS="QUOTE"
+>"Verbind Standaard uitvoer paar"</SPAN
+> aangevinkt is zal je Hydrogen een master kanaal maken waarin alle instrumenten worden afgespeeld. Als je op de <SPAN
+CLASS="QUOTE"
+>"Midi Systeem"</SPAN
+> (Fig. 14) tab klikt heb je de mogelijkheid om een MIDI apparaat te kiezen en één of alle kanalen te selecteren. In de <SPAN
+CLASS="QUOTE"
+>"Voorkomen"</SPAN
+> (Fig. 15) tab kun je de groote van het lettertype veranderen, de snelheid van de Mixer falloff, de ordening van de vensters en de stijl van de QT elementen.
+		</P
+>
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/PreferencesAudioSystem.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 13</B
+></SPAN
+> De <SPAN
+CLASS="QUOTE"
+>"Audio Systeem"</SPAN
+> tab
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/PreferencesMidiSystem.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 14</B
+></SPAN
+> De <SPAN
+CLASS="QUOTE"
+>"Midi Systeem"</SPAN
+> tab
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/PreferencesAppearance.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 15</B
+></SPAN
+> De <SPAN
+CLASS="QUOTE"
+>"Voorkomen"</SPAN
+> tab
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="drumkit"
+>2.7.2. Drumkit manager</A
+></H3
+>		
+	<P
+>		De drumkit manager toont alle opties van drumkits, de geluiden die gebruikt worden per spoor dat beschikbaar is om zo een gepaste <SPAN
+CLASS="QUOTE"
+>"groove"</SPAN
+> te bekomen die aangepast is aan het genre zoals bijvoorbeeld disco, rock,... Om een goed idee te krijgen van de gebruikte geluiden is het aangeraden om eens naar het voorbeeld liedje te luisteren dat meegeleverd is met de drumkit.
+	</P
+>
+
+	<P
+>	In het eerste tabblad (Fig. 16) kun je drumkits laden of verwijderen. Je ziet ook een korte beschrijving per drumkit.
+        Op figuur 17 kun je zien hoe je extra info over de drumkit kunt opslaan. Via het tabblad <SPAN
+CLASS="QUOTE"
+>"Importeer"</SPAN
+> (Fig. 18) kun je een drumkit (.h2drumkit) importeren. Zoals je een drumkit importeert kun je ook een drumkit exporteren (Fig. 19).
+
+	</P
+>
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/DrumkitLoad.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 16</B
+></SPAN
+> Drumkit laden. Kies een drumkit uit de lijst.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+			
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/DrumkitSave.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 17</B
+></SPAN
+> Een drumkit opslaan.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/DrumkitImport.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 18</B
+></SPAN
+> Een drumkit importeren.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/nl/DrumkitExport.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 19</B
+></SPAN
+> Een drumkit exporteren.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+		
+
+	</DIV
+></P
+></DIV
+>&#13;</DIV
+>&#13;</DIV
+></BODY
+></HTML
+>

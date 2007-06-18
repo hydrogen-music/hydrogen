@@ -1,0 +1,130 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#ifndef INSTRUMENT_EDITOR_DIALOG_H
+#define INSTRUMENT_EDITOR_DIALOG_H
+
+#include <hydrogen/Object.h>
+
+#include "../EventListener.h"
+#include "../widgets/PixmapWidget.h"
+
+class Fader;
+class LCDDisplay;
+class Button;
+class ToggleButton;
+class ClickableLabel;
+class Rotary;
+class WaveDisplay;
+class LayerPreview;
+
+#include <hydrogen/Instrument.h>
+#include <QWidget>
+#include <QLabel>
+
+///
+/// Instrument Editor
+///
+class InstrumentEditor : public QWidget, public Object, public EventListener
+{
+	Q_OBJECT
+
+	public:
+		InstrumentEditor( QWidget* parent );
+		~InstrumentEditor();
+
+		void selectLayer( int nLayer );
+
+	private slots:
+		void rotaryChanged(Rotary *ref);
+		void filterActiveBtnClicked(Button *ref);
+		void buttonClicked(Button*);
+		void labelClicked( ClickableLabel* pRef );
+
+		void muteGroupBtnClicked(Button *pRef);
+
+	private:
+		H2Core::Instrument *m_pInstrument;
+		int m_nSelectedLayer;
+
+		ToggleButton *m_pShowInstrumentBtn;
+		ToggleButton *m_pShowLayersBtn;
+
+		// Instrument properties
+		PixmapWidget *m_pInstrumentProp;
+		ClickableLabel *m_pNameLbl;
+
+		// ADSR
+		Rotary *m_pAttackRotary;
+		Rotary *m_pDecayRotary;
+		Rotary *m_pSustainRotary;
+		Rotary *m_pReleaseRotary;
+
+		// Random pitch
+		Rotary *m_pRandomPitchRotary;
+
+		// Low pass filter
+		ToggleButton *m_pFilterBypassBtn;
+		Rotary *m_pCutoffRotary;
+		Rotary *m_pResonanceRotary;
+
+		// Instrument gain
+		LCDDisplay *m_pInstrumentGainLCD;
+		Rotary *m_pInstrumentGain;
+
+		// Instrument mute group
+		LCDDisplay *m_pMuteGroupLCD;
+		Button *m_pAddMuteGroupBtn;
+		Button *m_pDelMuteGroupBtn;
+
+
+		//~ Instrument properties
+
+		// Layer properties
+		LayerPreview *m_pLayerPreview;
+
+		PixmapWidget *m_pLayerProp;
+		Rotary *m_pLayerGainRotary;
+		LCDDisplay *m_pLayerGainLCD;
+
+		Rotary *m_pLayerPitchCoarseRotary;
+		Rotary *m_pLayerPitchFineRotary;
+
+		LCDDisplay *m_pLayerPitchCoarseLCD;
+		LCDDisplay *m_pLayerPitchFineLCD;
+
+		WaveDisplay *m_pWaveDisplay;
+
+		Button *m_pLoadLayerBtn;
+		Button *m_pRemoveLayerBtn;
+		//~ Layer properties
+
+
+		// implements EventListener interface
+		virtual void selectedInstrumentChangedEvent();
+		//~ implements EventListener interface
+
+		void loadLayer();
+};
+
+
+#endif

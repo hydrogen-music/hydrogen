@@ -1,0 +1,42 @@
+=================================================================
+                Hydrogen Installation Notes
+=================================================================
+
+This file gives you hints how to set up, build and install
+Hydrogen properly.
+
+
+-----------------------------------------------------------------
+1. Supported architectures and requirements.
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+2. How to build from source distribution.
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+3. How to install.
+-----------------------------------------------------------------
+
+Hydrogen will be installed in /usr/local/ prefix by default,
+you can override this setting with:
+
+make prefix=/my/prefix install
+
+
+Note: If you use prefix parameter in make install then you also need
+to use this parameter in previous make commands. If you fail to do
+this then Hydrogen will look for the default configuration and data
+files in a wrong directory, because the directory is hard coded into
+Hydrogen during compile time.
+
+For example:
+make prefix=/my/prefix
+make prefix=/my/prefix install
+
+
+-----------------------------------------------------------------
+4. Troubleshooting.
+-----------------------------------------------------------------

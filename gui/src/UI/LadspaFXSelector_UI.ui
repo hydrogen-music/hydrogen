@@ -1,0 +1,481 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>LadspaFXSelector_UI</class>
+ <widget class="QDialog" name="LadspaFXSelector_UI" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>659</width>
+    <height>408</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>5</hsizetype>
+    <vsizetype>5</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <widget class="QWidget" name="Layout33" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>370</y>
+     <width>640</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType" >
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="m_pCancelBtn" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>5</hsizetype>
+        <vsizetype>5</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize" >
+       <size>
+        <width>0</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="text" >
+       <string>&amp;Cancel</string>
+      </property>
+      <property name="shortcut" >
+       <string>Alt+C</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="m_pOkBtn" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>5</hsizetype>
+        <vsizetype>5</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize" >
+       <size>
+        <width>0</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="text" >
+       <string>&amp;OK</string>
+      </property>
+      <property name="shortcut" >
+       <string>Alt+O</string>
+      </property>
+      <property name="default" >
+       <bool>true</bool>
+      </property>
+      <property name="flat" >
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType" >
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>201</width>
+     <height>351</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string/>
+   </property>
+   <widget class="QTreeWidget" name="m_pGroupsListView" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>181</width>
+      <height>331</height>
+     </rect>
+    </property>
+    <property name="alternatingRowColors" >
+     <bool>true</bool>
+    </property>
+    <property name="sortingEnabled" >
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2" >
+   <property name="geometry" >
+    <rect>
+     <x>220</x>
+     <y>10</y>
+     <width>221</width>
+     <height>351</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string/>
+   </property>
+   <widget class="QListWidget" name="m_pPluginsListBox" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>201</width>
+      <height>331</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3" >
+   <property name="geometry" >
+    <rect>
+     <x>450</x>
+     <y>10</y>
+     <width>201</width>
+     <height>351</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string/>
+   </property>
+   <widget class="QLabel" name="textLabel1" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>180</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font" >
+     <font>
+      <family></family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="text" >
+     <string>Name:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="m_nameLbl" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>180</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>### fx name</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignTop</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="textLabel2" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>180</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font" >
+     <font>
+      <family></family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="text" >
+     <string>Label:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="m_labelLbl" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>180</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>### fx label</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignTop</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="textLabel3" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>80</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font" >
+     <font>
+      <family></family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="text" >
+     <string>Type:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="textLabel1_2" >
+    <property name="geometry" >
+     <rect>
+      <x>100</x>
+      <y>100</y>
+      <width>90</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font" >
+     <font>
+      <family></family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="text" >
+     <string>ID:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="m_typeLbl" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>80</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>### fx type</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignTop</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="m_pIDLbl" >
+    <property name="geometry" >
+     <rect>
+      <x>100</x>
+      <y>120</y>
+      <width>90</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>### fx ID</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignTop</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="textLabel3_2" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>180</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font" >
+     <font>
+      <family></family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="text" >
+     <string>Maker:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="m_pMakerLbl" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>180</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>### FX maker
+1
+2
+3
+4</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignTop</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="textLabel5" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>180</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font" >
+     <font>
+      <family></family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="text" >
+     <string>Copyright:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="m_pCopyrightLbl" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>180</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>### copyright
+1
+2
+3
+4</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignTop</set>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_pCancelBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>LadspaFXSelector_UI</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>272</x>
+     <y>371</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>149</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_pOkBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>LadspaFXSelector_UI</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>417</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>509</x>
+     <y>381</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,81 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>PatternPropertiesDialog_UI</class>
+ <widget class="QDialog" name="PatternPropertiesDialog_UI" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>261</width>
+    <height>106</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <widget class="QLineEdit" name="patternNameTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>36</y>
+     <width>240</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="cancelBtn" >
+   <property name="geometry" >
+    <rect>
+     <x>40</x>
+     <y>72</y>
+     <width>90</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>&amp;Cancel</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+C</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="okBtn" >
+   <property name="geometry" >
+    <rect>
+     <x>130</x>
+     <y>72</y>
+     <width>90</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>&amp;OK</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+O</string>
+   </property>
+   <property name="default" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="TextLabel1" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>12</y>
+     <width>240</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>New Pattern Name</string>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>
