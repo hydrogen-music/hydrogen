@@ -1,0 +1,147 @@
+.\" Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.\" Please adjust this date whenever revising the manpage.
+.\" 
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.TH "HYDROGEN" "1" "v0.9.0" "Cominu A. , Prokoudine A." ""
+.SH "NAME"
+hydrogen \- Modern Drum Machine
+.SH "SYNOPSIS"
+.B hydrogen
+.RI [ options ] 
+.SH "DESCRIPTION"
+This manual page briefly documents the
+.B hydrogen
+command.
+.PP 
+\fBhydrogen\fP is a drum machine that has numerous features 
+and a modern graphical user interface based on QT 3. Hydrogen 
+incorporates a sample\-based stereo audio engine, which can 
+load sound samples in .wav, .au, .aiff and .flac formats.
+.PP 
+Hydrogen features a pattern\-based sequencer, unlimited number 
+of patterns and ability to chain patterns into a song. There 
+can be up to 64 ticks per pattern with induvidual level per 
+event and variable pattern length there.
+.PP 
+You can create up to 32 instrument tracks and control their 
+volume, mute, solo and pan.
+.PP 
+You can make use of layering ability in Hydrogen. If you have ever 
+dealed with real acoustic drums, then you know that if you 
+kick a drum harder or softer it won't sound just louder or 
+quieter. It will also sound a bit different. This is where 
+layers step onto the stage. A layer represents a definable 
+range of a level you kick a drum \-\- so called velocity. You 
+assign appropriate samples to each layer (up to 16) of an 
+instrument and in pattern editor you define velocity for each 
+kick. The instrument will sound then exactly like the real one. 
+Which is the point.
+.PP 
+Your song can be bounced to a WAV track in a non\-realtime mode. 
+This is quite convenient if you are low on CPU and/or RAM and 
+you don't want to run any JACKified multitrack recorder in order 
+just to capture Hydrogen's output.
+.PP 
+If your drum line sounds too fine and too precise, you can use 
+unique human velocity, human time and swing functions. You can 
+make people think you have hired a dumb drummer for your band, 
+if you let those sliders go to the very top.
+.PP 
+Hydrogen has drivers for both OSS (also, emulated by ALSA) and 
+audio server JACK plus assignable JACK ports. There also is 
+ALSA MIDI input with assignable midi\-in channel (1..16, ALL) for 
+you to record events for pattern editor from a MIDI keyboard. 
+Hydrogen can be synced with other JACK capable applications via 
+JACK Transport mechanism.
+.PP 
+One of the ways to arrange your song is to try a different 
+instrument set which is called a drumkit. A drumkit is a archive 
+file which contains all the samples for a pattern editor and 
+some metadata like the order their appear in a pattern editor. 
+You can easily create your own drumkits and share them with 
+anyone. Currently the most recommendable file format for samples 
+is FLAC, which provides lossless compression up to fair 35%.
+.SH "OPTIONS"
+This program follow the usual GNU command line syntax, with long
+options starting with two dashes (`\-\-').
+A summary of options is included below.
+For a complete description, see the Info files.
+
+.TP 
+.B \-d, \-\-driver AUDIODRIVER
+Use the selected audio driver (jack, oss). Choosing 'jack' will 
+give you realtime processing and low latency, if JACK server is 
+running with the same privilegies. Choosing 'oss' will give you 
+usual sad perfomance.
+.TP 
+.B \-s, \-\-song FILE
+Load a song (*.h2song) at startup. Hydrogen will open a song file 
+you define.
+.TP 
+.B \-n, \-\-nosplash
+Start without splash screen.
+.TP 
+.B \-V, \-\-verbose
+Print a lot of details about what Hydrogen is actually doing. This 
+is good for fancy testing, while for a gdb test you will need to 
+compile Hydrogen with \fB\-\-enable\-debugging\-messages\fR option. 
+If ever you want to.
+.TP 
+.B \-v, \-\-version
+Show version of program and quit. Use this option, if you are running 
+a Linux distro that is not based on either RPM or DEB, so that there 
+is no packages database to find out, what version of Hydrogen is 
+currently installed in your system.
+.TP 
+.B \-h, \-\-help
+Show this help message
+
+You can read thorough documentation from within Hydrogen. 
+Go to 'Help' menu and choose 'User manual' menu item.
+
+.SH "EXAMPLES"
+Here is just a short example of using command line for Hydrogen
+.PP 
+\fB$ hydrogen \-d jack \-N \-v \-s /home/alexandre/hydrogen_songs/oh_my.h2song\fR
+.PP 
+In this case Hydrogen will start as JACK client, without 
+a splash screen, with debbugging info and it will load a 
+song called \fIoh_my.h2song\fR from 
+\fI/home/alexandre/hydrogen_songs/\fR directory.
+.SH "SEE ALSO"
+Following manpages are of use: 
+.br 
+\fBhydrogenPlayer(1)\fR, \fBjackd(1)\fR, \fBjackstart(1)\fR
+.PP 
+You will find latest development news, docs and additional drumkits at
+.br 
+.I http://hydrogen.sourceforge.net
+.PP 
+Feel free to subscribe to a mailing list at 
+.br 
+.I http://sourceforge.net/projects/hydrogen
+.br 
+and take part in discussion of Hydrogen's development. 
+The more you communicate, the sooner new features will 
+be expected. Don't hesitate to give voice!
+.SH "AUTHORS"
+This manual page was written by
+.br 
+Alessandro Cominu <comix@users.sourceforge.net>
+.br 
+and updated by
+.br 
+Alexandre Prokoudine <avp@lrn.ru> 
+

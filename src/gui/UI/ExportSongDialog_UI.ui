@@ -1,0 +1,253 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ExportSongDialog_UI</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ExportSongDialog_UI</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>462</width>
+            <height>202</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Export Whole Song to WAV</string>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>TextLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>12</y>
+                <width>440</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Export filename</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>exportNameTxt</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>36</y>
+                <width>340</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>browseBtn</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>360</x>
+                <y>36</y>
+                <width>90</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Browse...</string>
+        </property>
+        <property name="accel">
+            <string>Alt+B</string>
+        </property>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>70</y>
+                <width>441</width>
+                <height>80</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string></string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_pSamplerateLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>415</width>
+                    <height>25</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>textLabel1</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>okBtn</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>45</y>
+                    <width>72</width>
+                    <height>25</height>
+                </rect>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>25</height>
+                </size>
+            </property>
+            <property name="text">
+                <string>&amp;Export</string>
+            </property>
+            <property name="accel">
+                <string>Alt+E</string>
+            </property>
+        </widget>
+        <widget class="QProgressBar">
+            <property name="name">
+                <cstring>m_pProgressBar</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>90</x>
+                    <y>45</y>
+                    <width>340</width>
+                    <height>25</height>
+                </rect>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>165</y>
+                <width>445</width>
+                <height>28</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>126</width>
+                        <height>16</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>closeBtn</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>1</hsizetype>
+                        <vsizetype>0</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>0</width>
+                        <height>26</height>
+                    </size>
+                </property>
+                <property name="text">
+                    <string>&amp;Close</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+C</string>
+                </property>
+            </widget>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>126</width>
+                        <height>16</height>
+                    </size>
+                </property>
+            </spacer>
+        </hbox>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>browseBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>ExportSongDialog_UI</receiver>
+        <slot>browseBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>closeBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>ExportSongDialog_UI</receiver>
+        <slot>closeBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>okBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>ExportSongDialog_UI</receiver>
+        <slot>okBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>exportNameTxt</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>ExportSongDialog_UI</receiver>
+        <slot>filenameTxtChanged()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot specifier="pure virtual">browseBtnClicked()</slot>
+    <slot specifier="pure virtual">filenameTxtChanged()</slot>
+    <slot specifier="pure virtual">okBtnClicked()</slot>
+    <slot>closeBtnClicked()</slot>
+</slots>
+<layoutdefaults spacing="0" margin="0"/>
+</UI>

@@ -1,0 +1,98 @@
+2004-dic-05 Alessandro Cominu  <comix@users.sourceforge.net>
+	* Release 0.9.2
+	* New graphics
+	* Bug fix in export song (using JACK driver)
+	* Bug fix in export song (wrong samplerate)
+	* Follow playhead in song editor
+	* Automatic audio driver selection
+	* New PortAudio and PortMidi drivers
+	* Mac Os X port
+	* Pattern size increased: up to 4 bars
+	* Random pitch variations
+	* New instrument editor
+	* Low pass filter
+	* Insert/delete a range of patterns in song editor
+
+2004-nov-28 Alessandro Cominu  <comix@users.sourceforge.net>
+	* Release 0.9.1
+	* New ALSA driver
+	* New french tutorial and manual page (thanks to Pierre 'AlSim'	Chapuis)
+	* Various bug fixes
+
+2004-sep-08 Alessandro Cominu  <comix@users.sourceforge.net>
+
+	* Release 0.9.0
+	* Multi layer support for instruments (up to 16 samples).
+	* Multiple patterns playing at once.
+	* Added FLAC files support for songs and drumkits.
+	* Added pitch and gain properties per instrument.
+	* Improved song and pattern editor (selections, copy/move, etc..).
+	* Added a new selectable user interface (single panel).
+	* Better jack-transport support.
+	* Ability to set the note length in pattern editor
+	* Export song to standard midi file
+
+2004-mar-15 Alessandro Cominu  <comix@users.sourceforge.net>
+
+	* Release 0.8.2
+	* Audio file preview in load instrument dialog
+	* Jack transport improvements
+	* 4 Ladspa FX send per instrument
+	* Show recent used songs
+	* QT Style selection option in Preferences Dialog
+	* New keybindings
+	* Bug fix in load/save song
+	* LRDF support (optional)
+	* Several GUI improvements
+	* Better Midi-in support
+	* virtual keyboard (using qwertyuiop...)
+	* Ability to record midi-in or virtual keyboard notes in a pattern
+
+2003-dic-18  Alessandro Cominu  <comix@users.sourceforge.net>
+
+	* Release 0.8.1
+	* Midi and CPU activity widgets
+	* Jack transport slave mode
+	* Multiple jack outputs
+	* Resizable song editor
+	* Seek in song clicking in the song editor
+	* New mixer
+	* 32 instruments
+	* Custom pattern size
+	* Per instrument output (jack driver)
+	* MMC/MTC support (experimental)
+	* i18n support
+
+2003-05-25  Alessandro Cominu  <comix@users.sourceforge.net>
+
+	* Release 0.8.0
+	* Delay FX
+	* Bug fix in Alsa Midi Driver
+	* Assignable Jack ports in preferences file
+	* Assignable midi-in channel (1..16, ALL)
+	* Drumkit support (load, save, import, export)
+	* Acoustic drumkit included
+	* various GUI improvements
+
+2003-03-24  Alessandro Cominu  <comix@users.sourceforge.net>
+
+	* Release 0.7.6
+	* Bug fix in note velocity editor
+	* Improved pattern editor
+	* Humanize function
+	* Swing function
+	* New child frame interface
+	* Stereo peak visualization in mixer
+	* New song editor
+
+2003-02-23  Alessandro Cominu  <comix@users.sourceforge.net>
+
+	* Release 0.7.5
+	* thread safe audio engine
+	* Song loop button
+	* Velocity bar in pattern editor
+	* Instrument pan in mixer
+	* Better graphical user interface
+	* Demo songs
+
+

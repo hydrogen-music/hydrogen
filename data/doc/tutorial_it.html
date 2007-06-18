@@ -1,0 +1,907 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Hydrogen Tutorial</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="Hydrogen-tutorial"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Hydrogen Tutorial</A
+></H1
+>                <H3
+CLASS="AUTHOR"
+><A
+NAME="AEN5"
+></A
+>Antonio Piraino</H3
+>
+		<DIV
+><DIV
+CLASS="ABSTRACT"
+><P
+></P
+><A
+NAME="AEN9"
+></A
+>                <P
+>Ok, avete scaricato l'ultima versione di Hydrogen e l'avete installata con successo. Ora volete provare a usare il programma per ricreare la vostra canzone preferita, questo puo' essere utile per aiutarvi ad impararla, mettendo nero su bianco alcuni passaggi difficili per poterli ripetere fino all'esaurimento o per assicurarvi che in un futuro un'occhiata al file vi aiuti a ricordare velocemente come suonare quella canzone. Hydrogen puo' anche essere usato semplicemente come un <SPAN
+CLASS="QUOTE"
+>"click"</SPAN
+> evoluto che, insieme a un pattern di base (che vi potete create a parte), vi aiuti a prendere pratica con la batteria (velocita', precisione ma anche studio dei rudimenti). Questo tutorial rappresenta quindi un compendio al manuale e cerchera' di guidare l'utente di Hydrogen nella creazione di un canzone completa partendo da zero e l'uso del programma per altri scopi: in questa sede verra' analizzata la canzone "Georgy Porgy" dei Toto che e' abbastanza lineare come struttura e quindi piu' adatta per una guida. Questo comunque non significa che sia una canzone _facile_ da riprendere fedelmente poiche' il batterista (il grande Jeff Porcaro) arricchisce il groove con una miriade di aggiunte personali e con un 'tocco' senza paragoni. Dal momento che Hydrogen non suonera' meglio del batterista che alla tastiera gli passa le istruzioni, e' evidente che parte del lavoro va fatto dalla persona stessa, guidato dalla propria sensibilita' ed esperienza tecnica.</P
+>
+        <P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Sommario</B
+></DT
+><DT
+>1. <A
+HREF="#needed"
+>Si comincia</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="#intro"
+>Intro</A
+></DT
+><DT
+>1.2. <A
+HREF="#verse"
+>Prima strofa</A
+></DT
+><DT
+>1.3. <A
+HREF="#verse2"
+>Bridge e seguenti</A
+></DT
+><DT
+>1.4. <A
+HREF="#riffraff"
+>Il Riff</A
+></DT
+><DT
+>1.5. <A
+HREF="#resto"
+>L'altra meta' della canzone</A
+></DT
+><DT
+>1.6. <A
+HREF="#riffraff2"
+>Il riff finale</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+>
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="needed"
+></A
+>Capitolo 1. Si comincia</H1
+>        
+		<P
+>Prima di iniziare la stesura della canzone assicuratevi di avere alcuni strumenti necessari:</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>La canzone da studiare: puo' andar bene un cd-audio ma sarebbe preferibile scaricarla sul PC in formato .ogg o .mp3 per una maggior flessibilita'.</P
+></LI
+><LI
+><P
+>Opzionalmente anche uno spartito di batteria oppure mettere su carta una struttura di massima per quella canzone: puo' far comodo controllare il numero delle battute o le varie parti del pezzo musicale che si inseriranno in Hydrogen.</P
+></LI
+></UL
+>
+
+		<P
+>La canzone in esame ha la seguente struttura:</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Intro:</B
+></SPAN
+> 4 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Strofa:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Bridge:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Strofa:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Bridge:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Ritornello:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Riff:</B
+></SPAN
+> 4 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Strofa (con chitarra):</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Strofa (con voce):</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Bridge:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Ritornello:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Ritornello:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Ritornello:</B
+></SPAN
+> 8 battute</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Riff finale:</B
+></SPAN
+> 4 battute</P
+></LI
+></UL
+>
+		
+		<P
+>Da questo schema si evidenzia come alcuni pattern si ripetono nella canzone quindi useremo questa legenda, tornera' comodo con Hydrogen:</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Strofa -&#62; A</P
+></LI
+><LI
+><P
+>Bridge -&#62; B</P
+></LI
+><LI
+><P
+>Ritornello -&#62; C</P
+></LI
+></UL
+>
+		<P
+>E per accorciare le spiegazioni useremo anche questi due classici TLA (Three Letters Acronym ^_^):</P
+>
+		<P
+></P
+><UL
+><LI
+><P
+>LMB: left mouse button</P
+></LI
+><LI
+><P
+>RMB: right mouse button</P
+></LI
+></UL
+>
+		
+		<P
+>Bene, adesso staccate il telefono e lanciate Hydrogen dalla shell: e' il momento di mettersi al lavoro!</P
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="intro"
+>1.1. Intro</A
+></H2
+>		
+		<P
+>Il pattern base (Fig. 1 e 2) e' di 4 battute (suddivise in 2 battute differenti ciascuna ripetuta per due volte, quindi [2a*2]+[2b*2]), e dura per tutto il pezzo, dall'inizio alla fine, riff inclusi; nella maggior parte dei casi (escluso l'intro e i riff) questo pattern base viene ripetuto 2 volte per arrivare alle classiche 8 battute per ciascuna parte (A,B,C) del brano. Prima di tutto pero' due piccole operazioni preliminari: settate la velocita' a 98 bpm (SUGGERIMENTO: potete scoprire da voi la velocita' della canzone mettendola in esecuzione col vostro player preferito e tenendo il tempo col tasto backslash di Hydrogen) e dal menu <SPAN
+CLASS="QUOTE"
+>"Grid Resolution"</SPAN
+> selezionate '16'. Per creare il pattern selezionate lo strumento <SPAN
+CLASS="QUOTE"
+>"Closed HH"</SPAN
+>, click su RMB e scegliete <SPAN
+CLASS="QUOTE"
+>"Fill Notes"</SPAN
+>: le due battute correntemente visualizzate saranno riempite di sedicesimi, voila'! Inserite poi a mano i colpi di rullante e di cassa come indicato nelle due figure sottostanti e abbiamo ottenuto il ritmo base per la nostra canzone. Notare come i colpi sul charleston siano accentati in maniera differenziata: i colpi che cascano sui quarti hanno un'intensita' di [0.78], gli altri di [0.50] (visualizzata nella barra di stato in fondo alla schermata del programma), in maniera da vivacizzare la resa globale del pezzo.</P
+>
+		
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/PatternBase1.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 1</B
+></SPAN
+> Il pattern base, prima battuta.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/PatternBase2.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 2</B
+></SPAN
+> Il pattern base, seconda battuta.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+			<P
+>Prima di cominciare la stesura delle strofe ci sono le 4 battute di intro, tutte uguali, eccezion fatta per la quarta che in fondo ha l'apertura del charleston. La procedura quindi e':</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Rinominare il primo pattern nel Song Editor con clic di RMB sul nome <SPAN
+CLASS="QUOTE"
+>"Empty Pattern"</SPAN
+> sostituendolo, per esempio, con <SPAN
+CLASS="QUOTE"
+>"intro_a"</SPAN
+>.</P
+></LI
+><LI
+><P
+>Aggiungere altre due crocette accanto alla prima (che rappresentano rispettivamente la seconda e la terza battuta)</P
+></LI
+><LI
+><P
+>Create nel Pattern Editor il pattern base (Fig. 1)</P
+></LI
+></UL
+>
+		
+		<P
+>Per la quarta battuta invece c'e' da aggiungere l'apertura del charleston; si puo' procedere cosi' (Fig. 3):</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Click di RMB Nel Song Editor sul pattern appena creato, scegliere <SPAN
+CLASS="QUOTE"
+>"copy"</SPAN
+>, scegliere un nome (es. <SPAN
+CLASS="QUOTE"
+>"intro_b"</SPAN
+>) e automaticamente ne verra' creato uno gemello proprio sotto.</P
+></LI
+><LI
+><P
+>Selezionare il nuovo pattern creato (IMPORTANTE!)</P
+></LI
+><LI
+><P
+>Cancellare gli ultimi due sedicesimi del <SPAN
+CLASS="QUOTE"
+>"Closed HH"</SPAN
+> e riportarli sul <SPAN
+CLASS="QUOTE"
+>"Open HH"</SPAN
+>.</P
+></LI
+><LI
+><P
+>Selezionare '32' dalla <SPAN
+CLASS="QUOTE"
+>"Grid Resolution"</SPAN
+> e aggiungere altri due colpi a fianco dei sedicesimi gia' esistenti.</P
+></LI
+><LI
+><P
+>Aggiustate l'intensita' in maniera che il primo dei 4 trendaduesimi sia [0.78] mentre gli altri 3 siano [0.20] per simulare un'apertura piu' lunga.</P
+></LI
+></UL
+>
+		
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Intro4th.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 3</B
+></SPAN
+> Dettaglio dell'intro, quarta battuta.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="verse"
+>1.2. Prima strofa</A
+></H2
+>		
+		<P
+>Abbiamo gia' visto come creare il pattern base, dunque per cominciare la stesura della prima strofa basta copiare dal Song Editor il pattern <SPAN
+CLASS="QUOTE"
+>"intro_a"</SPAN
+> e rinominarlo, per esempio <SPAN
+CLASS="QUOTE"
+>"A-B-C_1"</SPAN
+>, poiche' rappresenta la prima battuta della strofa che poi andra' bene anche per il bridge (B) e il ritornello (C). <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+> Attenzione</B
+></SPAN
+>, perche' non aggiungere due crocette consecutive in corrispondenza di questo pattern appena creato? Poiche' nella prima battuta c'e' un colpo di <SPAN
+CLASS="QUOTE"
+>"Crash"</SPAN
+> che conclude l'intro precedente, il risultato e' che le prime due battute non sono completamente identiche. Per aggiungere la seconda battuta si deve quindi copiare il pattern <SPAN
+CLASS="QUOTE"
+>"A-B-C_1"</SPAN
+> e rinominarlo <SPAN
+CLASS="QUOTE"
+>"A-B-C_2"</SPAN
+>, togliendo poi il colpo di <SPAN
+CLASS="QUOTE"
+>"Crash"</SPAN
+> citato prima.</P
+>
+		
+		<P
+>Alla stessa maniera per ottenere le 2 battute seguenti e' sufficiente copiare nel Song Editor il pattern in Fig. 2, rinominarlo secondo la serie e aggiungere due crocette fino al numero '8' (poiche' sono identiche): il risultato ottenuto dovrebbe essere come da Fig. 4.</P
+>
+		<P
+>Le rimanenti 4 battute della strofa sommariamente sono una ripetizione di cio' che abbiamo appena scritto, dunque perche' rifare tutto? La battuta 5,6,7 sono identiche alle precedenti, quindi e' sufficiente aggiungere in sequenza due crocette sul pattern <SPAN
+CLASS="QUOTE"
+>"A-B-C_2"</SPAN
+> e una sul pattern <SPAN
+CLASS="QUOTE"
+>"A-B-C_3+4"</SPAN
+> avendo cura di rinominare di conseguenza i nomi dei pattern per capire come la canzone si muove nel Song Editor, mentre nell'ottava battuta c'e' il fill che conclude la strofa quindi dobbiamo creare una nuova riga nel Song Editor, magari copiando il pattern <SPAN
+CLASS="QUOTE"
+>"A-B-C_3+4"</SPAN
+> e rinominandolo <SPAN
+CLASS="QUOTE"
+>"A-B-C_8"</SPAN
+>, e modificarlo come da Fig. 4. Notate come anche in questo caso i tre colpi di rullante (<SPAN
+CLASS="QUOTE"
+>"Snare Jazz"</SPAN
+>) finali siano stati opportunamente accentati rispettivamente con [0.10], [0.20] e [0.78]; nell'immagine non si vede ma anche i due colpi finali di <SPAN
+CLASS="QUOTE"
+>"Tom Mid"</SPAN
+> hanno un'intensita' di [0.50]. Si tratta solo di un piccolo passaggio, forse e' meglio non picchiare troppo sulle pelli :)</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Verse8th.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 4</B
+></SPAN
+> Ottava battuta della prima strofa.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<P
+>Il risultato finale nel Song Editor dovrebbe essere simile alla Fig. 5.</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/VerseAll.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 5</B
+></SPAN
+> Intro e prima strofa nel Song Editor.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>ATTENZIONE!</B
+></SPAN
+> Se siete giunti fino qui senza mai salvare potrebbe essere un'ottima idea farlo adesso. Un semplice [CTRL+S] seguito dal nome che volete dare al vostro lavoro in corso vi togliera' ogni preoccupazione. Se volete aggiungere anche qualche informazione supplementare fate click con LMB sul pulsante 'S' del Song Editor e modificate i campi a vostro piacimento, queste sono le informazioni che verranno automaticamente visualizzate all'apertura del brano.</P
+>
+	
+	</DIV
+>
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="verse2"
+>1.3. Bridge e seguenti</A
+></H2
+>		
+		<P
+>Ora che abbiamo riportato la prima strofa per intero dovreste avere un'idea del meccanismo con cui creare i pattern successivi: il primo bridge e' composto dalle solite 8 battute (4+4) con una piccola variazione alla fine della quarta, quale cosa ci impone di creare una "quarta battuta" differente, mentre per le altre basta aggiungere le nostre crocette amiche per sveltire il lavoro.</P
+>
+		
+		<P
+>Prendiamo dunque come campione proprio l'ultimo pattern creato (<SPAN
+CLASS="QUOTE"
+>"A-B-C_8"</SPAN
+>) e rinominiamolo <SPAN
+CLASS="QUOTE"
+>"Bridge1_4"</SPAN
+> (per indicare che e' la quarta battuta del primo bridge) e lo modifichiamo come da Fig. 6. In poco tempo abbiamo quindi gia' completato la stesura del primo bridge! Il Song Editor adesso dovrebbe apparire simile alla Fig. 7. Osservando attentamente la figura ci si potrebbe domandare come mai la quinta battuta del bridge (corrispondente alla 17esima battuta del Song Editor) non sia stata assegnata al pattern <SPAN
+CLASS="QUOTE"
+>"A-B-C_1"</SPAN
+>; quel pattern ha infatti un colpo di crash sul primo quarto che non e' presente nel pattern <SPAN
+CLASS="QUOTE"
+>"A-B-C_2+5+6"</SPAN
+>.</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Bridge1_4th.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 6</B
+></SPAN
+> Quarta battuta del primo Bridge.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/VerseBridge.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 7</B
+></SPAN
+> Il Song Editor con il primo bridge.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<P
+>Procedendo cosi' potremo creare velocemente le successive parti del pezzo: dopo questo bridge c'e' infatti di nuovo una strofa, un altro bridge e il ritornello, sono tutti molto simili quindi basta creare dei pattern differenziati solo per quelle battute che effettivamente differiscono. Insieme a questa guida c'e' comunque il file con il tutto il pezzo. Logicamente si possono creare righe tante quante sono le battute, ma una canzone completa poi rischia di diventare difficile da seguire e il file relativo occupa piu' spazio.</P
+>
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="riffraff"
+>1.4. Il Riff</A
+></H2
+>		
+		<P
+>Verso meta' pezzo poi ci sono due riff consecutivi: ciascuno e' lungo 2 battute ma in realta' la sostanza non cambia poi molto. Il pattern musicale per la batteria e' lo stesso, sono solo tutti gli altri strumenti che eseguono qualcosa di simile a quello che verra' poi rappresentato dal riff finale, in cui partecipa anche la batteria.</P
+>
+		
+		<P
+>Piu' semplicemente in questo riff la batteria esegue il solito pattern per una battuta (vedi Fig. 1) mentre nella seconda accenta insieme agli altri strumenti (Fig. 8), poi ripete il solito pattern per una battuta e di nuovo nella seconda ci sono solo due accenti con un piccolo fill a chiusura del tutto (Fig. 9); ancora una volta l'apertura del charleston finale e' simulata con due intensita' differenziate di [0.78] e [0.20].</P
+>
+
+		
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Riff1b.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 8</B
+></SPAN
+> Seconda battuta del riff.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Riff1c.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 9</B
+></SPAN
+> Quarta battuta del riff.
+			</P
+>
+		</DIV
+></P
+></DIV
+>	
+	</DIV
+>
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="resto"
+>1.5. L'altra meta' della canzone</A
+></H2
+>		
+		<P
+>Una volta analizzato il riff abbiamo girato la boa della meta' del pezzo. Cio' che resta da scrivere e' la solita strofa ripetuta due volte consecutive, un bridge  e il ritornello ripetuto 3 volte con in coda il solito riff finale.</P
+>
+		
+		<P
+>Questa seconda meta' della canzone differisce lievemente dalla precedente poiche' nelle due strofe ci sono alcune aperture del charleston e ogni 4 battute c'e' quasi sempre un piccolo passaggio, il tutto tradotto nel linguaggio di Hydrogen significa ricreare da capo un'altra sezione <SPAN
+CLASS="QUOTE"
+>"A-B-C-*"</SPAN
+> perche' a questo punto non conviene piu' sforzarsi di incastrare dei pattern precedentemente creati, ci sono troppe differenze. Copiare quindi i pattern creati in precedenza per la strofa e rinominarli per esempio con un suffisso '_hh' per indicare la presenza dello strumento <SPAN
+CLASS="QUOTE"
+>"Open HH"</SPAN
+>. Come viene accennato nell'introduzione il batterista originale del pezzo aggiunge anche del suo ed e' questo che fa la differenza fra un pezzo suonato e un pezzo riportato su carta (o su Hydrogen): tutto questo per dire che le parti seguenti della canzone sono riportate cercando di essere fedeli al pezzo originale, ma un altro orecchio potra' dare un'altra interpretazione, in fondo stiamo solo cercando di insegnare a usare un programma, non a emulare Jeff Porcaro :)</P
+>
+		
+		<P
+>Comunque ecco in Fig. 10 come appare la sezione del Song Editor relativa alle strofe e al bridge che seguono il riff; come si puo' notare le prime battute (48-50 secondo la numerazione del Song Editor) sono prese dal vecchio pattern mentre le altre (51-71) sono nuove. In piu' sono state create anche due battute 'ad hoc' identificate con <SPAN
+CLASS="QUOTE"
+>"A-B-C-3a_hh"</SPAN
+> (Fig. 11 per vedere un esempio) e <SPAN
+CLASS="QUOTE"
+>"A-B-C-4a_hh"</SPAN
+> poiche' hanno alcune singolarita' non presenti in nessun pattern finora scritto.</P
+>
+		
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/VerseBridge_hh.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 10</B
+></SPAN
+> Terza e quarta strofa nel Song Editor.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Bridge3_3a_hh.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 11</B
+></SPAN
+> Settima battuta del terzo bridge.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	<P
+>In seguito al terzo bridge abbiamo tre volte il ritornello: la prima volta il rullante e' sostituito dallo strumento <SPAN
+CLASS="QUOTE"
+>"Stick"</SPAN
+> e la cassa non viene suonata (potrebbe sembrare il contrario perche' il basso invece suona, ad ogni buon conto lo strumento c'e' lo stesso smorzando l'intensita' a [0.50]), mentre la seconda e la terza volta ci sono alcune battute fuori dal coro come segnalato dai pattern <SPAN
+CLASS="QUOTE"
+>"C3_*"</SPAN
+>, in Figura 12 il pattern <SPAN
+CLASS="QUOTE"
+>"C3_6+7 &#38; C4_3"</SPAN
+> (lievemente diverso ma pur sempre tale) che cripticamente identifica la sesta e settima battuta del terzo ritornello e la terza battuta del quarto ritornello: se una notazione del genere puo' confondere e' sufficiente adattarla al proprio sistema.</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/C3_6+7.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 12</B
+></SPAN
+> Il pattern <SPAN
+CLASS="QUOTE"
+>"C3_6+7 &#38; C4_3"</SPAN
+>.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+	
+	</DIV
+>
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="riffraff2"
+>1.6. Il riff finale</A
+></H2
+>			
+		<P
+>Il pezzo si conclude ripetendo una variazione del riff di prima: la prime due battute sono uguali (cioe' pattern normale + battuta con solo un paio di accenti), mentre nella terza battuta la batteria invece di suonare per conto proprio accenta tutta la melodia degli altri strumenti (Fig. 13) per poi concludere alla maniera classica.</P
+>
+		
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Riff1d.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 13</B
+></SPAN
+> Il pattern del riff finale.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+<P
+>E con questo siamo arrivati alla fine della canzone. L'obiettivo di questo breve tutorial era dare una rapida panoramica sulle funzioni che tipicamente si andranno a utilizzare di Hydrogen nell'uso comune: come accennato nell'introduzione, questo programma puo' comunque essere usato come un semplice click accompagnando la batteria dal solo metronomo oppure ancora si puo' isolare un pezzo particolarmente ostico di un brano, riportarlo nel Pattern Editor di Hydrogen e metterlo in loop: come in molte altre cose ci si accorge che anche la sola analisi di un brano da studiare ne rende piu' facile la comprensione e l'esecuzione e anche in questo Hydrogen puo' aiutare sveltendo il lavoro di una semplice stesura di un pattern e successiva raffinazione.</P
+>
+
+<P
+>Per commenti, suggerimenti, correzioni si puo' utilizzare le mailing list attivate per Hydrogen (hydrogen.sf.net)</P
+>
+	
+	</DIV
+></DIV
+>
+&#13;</DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,1178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Manual de Hydrogen</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="Hydrogen-manual"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Manual de Hydrogen</A
+></H1
+>		<H3
+CLASS="AUTHOR"
+><A
+NAME="AEN5"
+></A
+>Antonio Piraino</H3
+>
+		<H3
+CLASS="AUTHOR"
+><A
+NAME="AEN8"
+></A
+>Alessandro Cominu</H3
+>
+	<DIV
+><DIV
+CLASS="ABSTRACT"
+><P
+></P
+><A
+NAME="AEN12"
+></A
+>		<P
+>			Hydrogen es un sintetizador de software que se puede usar por sí solo, 
+			emulando una caja de ritmo basada en patrones, o via un teclado/secuenciador 
+			MIDI externo por software.
+		</P
+>
+	<P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Tabla de contenidos</B
+></DT
+><DT
+>1. <A
+HREF="#introduccion"
+>Introducción</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="#descarga"
+>Descarga</A
+></DT
+><DT
+>1.2. <A
+HREF="#compilacion"
+>Compilación</A
+></DT
+><DT
+>1.3. <A
+HREF="#config_Audio"
+>Configuración de audio</A
+></DT
+><DD
+><DL
+><DT
+>1.3.1. <A
+HREF="#controladorOss"
+>Controlador OSS</A
+></DT
+><DT
+>1.3.2. <A
+HREF="#controladorJack"
+>Controlador Jack</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>2. <A
+HREF="#interfaz"
+>Interfaz</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="#editorCanciones"
+>Editor de canciones</A
+></DT
+><DT
+>2.2. <A
+HREF="#editorPatrones"
+>Editor de Patrones</A
+></DT
+><DT
+>2.3. <A
+HREF="#mezclador"
+>Mezclador</A
+></DT
+><DT
+>2.4. <A
+HREF="#menu"
+>Menú</A
+></DT
+><DD
+><DL
+><DT
+>2.4.1. <A
+HREF="#preferencias"
+>Preferencias</A
+></DT
+><DT
+>2.4.2. <A
+HREF="#sistema_Audio"
+>Sistema de sonido</A
+></DT
+><DT
+>2.4.3. <A
+HREF="#drumkit"
+>Gestor de Drumkits</A
+></DT
+></DL
+></DD
+><DT
+>2.5. <A
+HREF="#atajos"
+>Atajos</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="#crearcancion"
+>Nueva Canción</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="#patron_cancion"
+>Modos de "Patrón" y "Canción"</A
+></DT
+><DT
+>3.2. <A
+HREF="#crearPatrones"
+>Patrón nuevo</A
+></DT
+><DT
+>3.3. <A
+HREF="#crearSecuencia"
+>Nueva secuencia</A
+></DT
+><DT
+>3.4. <A
+HREF="#operacionMezclador"
+>Ajustar el mezclador</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+>
+
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="introduccion"
+></A
+>Capítulo 1. Introducción</H1
+>	
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="descarga"
+>1.1. Descarga</A
+></H2
+>		
+		<P
+>			La versión estable más reciente se puede conseguir en 
+			<A
+HREF="http://hydrogen.sourceforge.net"
+TARGET="_top"
+>http://hydrogen.sourceforge.net</A
+>.
+		</P
+>
+		<P
+>			Es posible descargar el código fuente directamente de snapshots CVS con: 
+		
+			<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cvs -z3 -d:pserver:anonymous@cvs.hydrogen.sourceforge.net:/cvsroot/hydrogen co libhydrogen</B
+></PRE
+>
+			<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cvs -z3 -d:pserver:anonymous@cvs.hydrogen.sourceforge.net:/cvsroot/hydrogen co hydrogen</B
+></PRE
+>
+		
+		</P
+>
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="compilacion"
+>1.2. Compilación</A
+></H2
+>		
+		<P
+>			Una vez descargado y descomprimido el archivo tar.gz sólo es necesario: 
+			
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cd libhydrogen-*</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./configure</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>make</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>su -c "make install"</B
+></PRE
+>
+
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>cd hydrogen-*</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./configure</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>make</B
+>
+<SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>su -c "make install"</B
+></PRE
+>
+
+		</P
+>
+
+		<P
+>		Antes de compilar, revise las opciones adicionales con: 
+
+<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>bash$</SAMP
+> <B
+CLASS="COMMAND"
+>./configure --help</B
+></PRE
+>
+		
+		</P
+>
+
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="config_Audio"
+>1.3. Configuración de audio</A
+></H2
+>		
+		<P
+>			Es muy importante escoger el controlador de audio apropiado para su sistema, 
+			dado que la elección puede influenciar el desmpeño general. Las alternativas 
+			para el controlador son el controlador OSS Audio Driver y el controlador Jack 
+			Audio Driver.
+
+		</P
+>
+		<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="controladorOss"
+>1.3.1. Controlador OSS</A
+></H3
+>			
+			<P
+>			El controlador OSS usa el dispositivo /dev/dsp y se basa en la interface OSS que 
+			es soportada por la vasta mayoría de las tarjetas de sonido accesibles para Linux; 
+			dicho esto, el uso de este contorlador bloquea /dev/dsp hasta que se cierre hydrogen 
+			i.e. el dispostivo no podrá ser usado por otras aplicaciones.
+			</P
+>
+		</DIV
+>
+		<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="controladorJack"
+>1.3.2. Controlador Jack</A
+></H3
+>			
+			<P
+>			El controlador de Jack requiere que el servidor Jack esté corriendo: 
+			(<A
+HREF="http://jackit.sourceforge.net"
+TARGET="_top"
+>Jack Audio Connection Kit</A
+>),
+			un servidor de audio profesional que permite baja latencia e intercambios con 
+			otros programas de audio.
+
+			</P
+>
+		</DIV
+>
+	</DIV
+></DIV
+>
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="interfaz"
+></A
+>Capítulo 2. Interfaz</H1
+>	
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="editorCanciones"
+>2.1. Editor de canciones</A
+></H2
+>		
+
+<P
+>En el marco "Song Editor" se encuentra la canción que estamos creando con 5 botones:</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/CreateNewPattern.png"></SPAN
+>
+	Crear nuevo patrón (solicita un nombre para el patrón)</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MovePatternDown.png"></SPAN
+>
+	Mover el patrón seleccionado hacia abajo</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MovePatternUp.png"></SPAN
+>
+	Mover el patrón seleccionado hacia arriba</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/SongOperations.png"></SPAN
+>
+	Despliega un menú para modificar las propiedades relevantes a la canción (nombre, autor, 
+	comentarios), para poder vorrar la secuencia de patrones o todos los patrones creados.</P
+>
+
+<P
+>	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/SongLoop.png"></SPAN
+>
+
+	Repetir la canción&#13;</P
+>
+
+<P
+>	Abajo de los botones se encuentra una lista de patrones creados y el momento en que serán 
+	ejecutados. Haga click en una caja vacía para insertar o cancelar un patrón (indicado con una 
+	'X'). Haciendo clic derecho con el ratón sobre un patrón lanzará un menú para cambiar el nombre 
+	del patrón, copiarlo o borrarlo.	</P
+>
+
+	<P
+>	Al hacer clic derecho con el ratón sobre un patrón en el marco "Song Editor", y escoger "Propiedades de patrón", cambiará el 
+	nombre. No se permiten patrones con nombres duplicados.
+	</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img/SongEditor.png"></P
+></DIV
+>
+
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="editorPatrones"
+>2.2. Editor de Patrones</A
+></H2
+>		
+		<P
+>		El marco "editor de patrones", permite crear o modificar el patrón actual, añadir o 
+		borrar notas y afinar la intensidad (beats duros o suaves). La caja de combo "Grid Resolution" 
+		modificará la resolución al añadir notas: es posible definir la resolución a 4, 8, 16 o 32 beats y 
+		usar beats de tresillos con las opciones de 4T, 8T, 16T, 32T y 64T. Se puede indicar el número de compases 
+		tocados por el menú "tamaño de patrón" a la derecha (1 a 8). Seleccionar un instrumento que tenga un beat en 
+		la cuadrícula mostrará líneas verticales en la parte inferior del marco que le permitirán ajustar la intensidad 
+		del beat 'fuerte' o 'débil'. El botón 
+
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>				<IMG
+SRC="img/HearNewNotes.png"></SPAN
+>
+
+		(hear new notes) Escuchar nuevas notas tocará el sonido conforme se agregue al patrón.
+
+		</P
+>
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/PatternEditor.png"></P
+></DIV
+>
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="mezclador"
+>2.3. Mezclador</A
+></H2
+>		
+
+<P
+>	El marco de "Mezclador" (mixer) permite ajustar volúmenes generales o individuales del kit de batería actual. 
+	Muestra información como el pico actual y el pico máximo, permite editar atributos como el paneo y el volúmen,
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerPan.png"></SPAN
+>	
+			
+	, play solo 
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerSolo.png"></SPAN
+>
+	
+	, mute 
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerMute.png"></SPAN
+>
+	
+	, cargar un sampleo de audio WAV/AU/AIFF para un instrumento
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerLoadSample.png"></SPAN
+>
+	o tocar sólo este instrumento
+
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerPlayTest.png"></SPAN
+>
+
+	.&#13;</P
+>
+
+
+<P
+>	
+	Al hacer doble clic en el nombre de un instrumento en el "Mezclador" mostrará un 
+	diálogo para modificar las propiedades. Active los botones MIX/FX para modificar los efectos.&#13;</P
+>
+
+			<DIV
+CLASS="MEDIAOBJECT"
+><P
+>				<IMG
+SRC="img/Mixer.png"></P
+></DIV
+>
+	
+
+	</DIV
+>
+
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="menu"
+>2.4. Menú</A
+></H2
+>		
+	<P
+>	Vale la pena notar en los menús: Archivo--&#62;'Guardar como...' para guardar la canción actual en formato h2song, Archivo-&#62;Exportar para exportar la canción en formato de audio WAV, archivo --&#62;
+
+		Preferencias, Window--&#62;
+		
+		Sistema de sonido y Ventana--&#62;
+
+		Gestor de drumkits.
+
+	</P
+>
+		
+	<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="preferencias"
+>2.4.1. Preferencias</A
+></H3
+>		
+		<P
+>			En esta pestaña es posible modifica el controlador de audio que se va 
+			a usar y la tasa de sampleo, además del metrónomo (Activado/desactivado) y su volúmen. También se pueden modificar otros parámetros como activar el modo "Jack Transport Slave", permitiendo que otro programa lo use como esclavo, "Activar salida por pista" que es útil cuando se desea agregar efectos a un instrumento individual por medio de jack-rack. Note el valor de "Polifonía": dependiendo de su CPU, puede desear cambiar el número de notas simultáneas máximo para evitar que hydrogen cause xruns.			
+		</P
+>
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/PreferencesAudioSystem.png"></P
+></DIV
+>
+		
+		
+		<P
+>		Seleccionar la pestaña "Sistema Midi" le permitirá especificar un dispositivo MIDI, un canal específico o todos.
+		
+		</P
+>
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/PreferencesMidiSystem.png"></P
+></DIV
+>
+		
+		
+		<P
+>		Al hacer clic en la pestaña "Apariencia", podrá modificar el tamaño de la fuente, tipo de marco (Child o Top LEvel) y velocidad de refresco de los picos del mezclador.
+
+		</P
+> 
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/PreferencesAppearance.png"></P
+></DIV
+>
+		
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="sistema_Audio"
+>2.4.2. Sistema de sonido</A
+></H3
+>		
+		<P
+>		Esta pestaña mostrará la información general de hydrogen y el controlador de audio. La tasa de sampleo y el controlador de audio se pueden configurar cuando se lanza el servidor jack a partir de una shell.
+
+		</P
+>
+			
+							<DIV
+CLASS="MEDIAOBJECT"
+><P
+>						<IMG
+SRC="img/AudioEngineInfoDialog.png"></P
+></DIV
+>
+			
+	</DIV
+>
+	
+	
+	<DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="drumkit"
+>2.4.3. Gestor de Drumkits</A
+></H3
+>		
+	<P
+>		El gestor de drumkits muestra las opciones relativas a los drumkits, i.e. los grupos de sonidos (wav) que se asociarán con cada instrumento accesible, de acuerdo a una situación (música disco, hip hop, etc). Para que se de una idea del sonido de cada drumkit es aconsejable tocar el demo .h2song asociado.
+		  
+	</P
+>
+
+	<P
+>	En la primer pantalla podemos se puede cargar/borrar un drumkit, junto con una breve descripción 	
+
+	</P
+>
+		
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/DrumkitLoad.png"></P
+></DIV
+>
+		
+			
+	<P
+>		Aquí se puede guarda la información sobre el drumkit actual		.
+	
+	</P
+>
+				
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/DrumkitSave.png"></P
+></DIV
+>
+		
+		
+	<P
+>	Aquí se puede importar un drumkit (.h2drumkit) ...
+
+	</P
+>
+
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/DrumkitImport.png"></P
+></DIV
+>
+		
+
+	<P
+>	... y exportarlo.
+
+	</P
+>
+
+					<DIV
+CLASS="MEDIAOBJECT"
+><P
+>					<IMG
+SRC="img/DrumkitExport.png"></P
+></DIV
+>
+		
+
+	</DIV
+></DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="atajos"
+>2.5. Atajos</A
+></H2
+>		
+		
+		<P
+>		Para interactuar con Hydrogen de manera rápida durante su sesión, hay unos "atajos útiles" que se pueden usar: 
+
+		</P
+>
+		
+		<P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + O]</B
+></SPAN
+> = Abrir archivo
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[CTRL + S]</B
+></SPAN
+> = Guardar archivo
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[Keypad +]</B
+></SPAN
+> = Incrementar la velocidad en un bpm
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[Keypad -]</B
+></SPAN
+> = Disminuir la velocidad en un 1 bpm
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[Spacebar]</B
+></SPAN
+> = Iniciar/Parar la ejecución del lpatrón actual 
+			</P
+>
+		</LI
+><LI
+STYLE="list-style-type: opencircle"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>[Backspace]</B
+></SPAN
+> = Iniciar la ejecución del patrón
+			</P
+>
+		</LI
+></UL
+>
+
+			<P
+>			De momento no se pueden modificar estos atajos.
+
+			</P
+>
+	</DIV
+>
+&#13;</DIV
+>
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="crearcancion"
+></A
+>Capítulo 3. Nueva Canción</H1
+>	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="patron_cancion"
+>3.1. Modos de "Patrón" y "Canción"</A
+></H2
+>		
+		<P
+>		Hydrogen tiene dos modos principales: Modo "Patrón" (seleccionar
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MainModePattern.png"></SPAN
+>
+		
+		) y modo de "Canción" (al seleccionar 
+		
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MainModeSong.png"></SPAN
+>
+		
+		). Cuando se activa el modo de "patrón", el patrón actual se repite continuamente, 
+		para poderlo editar hasta que nos agrade. Cuando se está en modo de canción se 
+		repite una sóla vez. Este modo es útil cuando se está componiendo y ensamblando 
+		patrones juntos, para crear la estructura de la canción.
+		</P
+>
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="crearPatrones"
+>3.2. Patrón nuevo</A
+></H2
+>		
+		<P
+>		Iniciaremos con una canción vacía con un patrón vacío, como se crea por defecto: se debe 
+		seleccionar el modo "patrón" ahora. Es posible cambiar el nombre del patrón. Note la carga del 
+		CPU y MIDI en el applet.
+	
+		</P
+>
+
+						<DIV
+CLASS="MEDIAOBJECT"
+><P
+>						<IMG
+SRC="img/TutorialStart.png"></P
+></DIV
+>
+		
+
+		<P
+>		Hagamos clic en 
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MainPlay.png"></SPAN
+>
+		y mientras se toca el patrón añadamos notas a la cuadrícula simplemente haciendo clic izquierdo en ella: 
+		ajuste la resolución y BPM si es necesario. La resolución por defecto de de 32 y la velocidad es de 120 (en un rango de 
+		40-300). Haga clic en 
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MainStop.png"></SPAN
+>
+		para detener el patrón. Para crear un nuevo patrón sólo haga clic en 		
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/CreateNewPattern.png"></SPAN
+>
+		y proceda como se mencionó antes para aladir notas,  <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>¡asegúrese de seleccionar el patrón 
+		correcto antes de añadir notas!</B
+></SPAN
+> Nota también que - por ejemplo - si ha seleccionado una resolución 
+		de 16, al llenar la cuadrícula y luego bajar la resolución (digamos 8), no podrá borrar las notas fuera de la 
+		cuadrícula.
+		
+		</P
+>
+
+						<DIV
+CLASS="MEDIAOBJECT"
+><P
+>						<IMG
+SRC="img/PatternEditor.png"></P
+></DIV
+>
+		
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="crearSecuencia"
+>3.3. Nueva secuencia</A
+></H2
+>		
+		<P
+>		Una vez que se han creado patrones, para copiar/pegar/borrar o moverlos en la cuadrícula de patrones 
+		se pueden usar los botones en el "Editor de canciones" 		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MovePatternUp.png"></SPAN
+>
+				
+		, 
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MovePatternDown.png"></SPAN
+>
+		y el comando de copiar/borrar que se muestra al hacer clic derecho en el patrón seleccionado.
+		
+		</P
+>
+
+						<DIV
+CLASS="MEDIAOBJECT"
+><P
+>						<IMG
+SRC="img/TutorialEnd.png"></P
+></DIV
+>
+				
+
+	</DIV
+>
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="operacionMezclador"
+>3.4. Ajustar el mezclador</A
+></H2
+>		
+		<P
+>		Podemos abrir y usar la ventana de mezclador cuando se ejecutan o crean patrones.		
+		</P
+>
+		
+		<P
+>		El mezcaldor es un marco compuesto de 32 pistas independientes, cada una asociada a un instrumento, 
+		además de una salida "Maestra" para ajustar la salida de volúmen general y el botón "FX" 
+		para asignar efectos. Cada línea tiene cuatro botones (
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerPlayTest.png"></SPAN
+>
+ 		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerSolo.png"></SPAN
+>
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerMute.png"></SPAN
+>
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerLoadSample.png"></SPAN
+>
+		
+		), delay y ajuste de paneo (
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerPan.png"></SPAN
+>
+		
+		), pico máximo actual,fader de volúmen y nombre del instrumento. Hacer clic en 
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerSolo.png"></SPAN
+>
+		tocará el instrumento seleccionado, silenciando los demás. El botón "Silencio" 
+		
+		<SPAN
+CLASS="INLINEMEDIAOBJECT"
+>			<IMG
+SRC="img/MixerMute.png"></SPAN
+>
+
+		, simplemente enmudece <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ese</I
+></SPAN
+> instrumento. El pìco máximo 
+		debe estar en un rango de 0.0 y 1.0, de otra manera se puede obtener distorsión 
+		produciendo un sonido extraño (especialmente con los controladores de audio OSS), 
+		en estos casos es mejor bajar el volúmen.
+	
+		</P
+>
+		
+		<P
+>		Finalmente está el fader del volúmen para ajustar el volúmen de ese instrumento y revisar 
+		el dial VU, atrás de la perilla.		
+
+		</P
+>
+
+						<DIV
+CLASS="MEDIAOBJECT"
+><P
+>						<IMG
+SRC="img/Mixer.png"></P
+></DIV
+>
+		
+
+	</DIV
+>&#13;</DIV
+>&#13;</DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,115 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>PatternPropertiesDialog_UI</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>PatternPropertiesDialog_UI</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>261</width>
+            <height>106</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>patternNameTxt</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>36</y>
+                <width>240</width>
+                <height>24</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancelBtn</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>40</x>
+                <y>72</y>
+                <width>90</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Cancel</string>
+        </property>
+        <property name="accel">
+            <string>Alt+C</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okBtn</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>130</x>
+                <y>72</y>
+                <width>90</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;OK</string>
+        </property>
+        <property name="accel">
+            <string>Alt+O</string>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>TextLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>12</y>
+                <width>240</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>New Pattern Name</string>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>okBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>PatternPropertiesDialog_UI</receiver>
+        <slot>okButtonClicked()</slot>
+    </connection>
+    <connection>
+        <sender>cancelBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>PatternPropertiesDialog_UI</receiver>
+        <slot>cancelButtonClicked()</slot>
+    </connection>
+    <connection>
+        <sender>patternNameTxt</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>PatternPropertiesDialog_UI</receiver>
+        <slot>textChanged()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot specifier="pure virtual">cancelButtonClicked()</slot>
+    <slot access="private" specifier="pure virtual">textChanged()</slot>
+    <slot specifier="pure virtual">okButtonClicked()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

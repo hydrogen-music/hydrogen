@@ -1,0 +1,804 @@
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
+
+<book id="Hydrogen-manual" lang="en">
+
+<bookinfo>
+	<title>Hydrogen Manual</title>
+	<authorgroup>
+		<author>
+			<firstname>Antonio</firstname>
+			<surname>Piraino</surname>
+		</author>
+		<author>
+			<firstname>Alessandro</firstname>
+			<surname>Cominu</surname>
+		</author>
+	</authorgroup>
+
+	<date>22/may/2005</date>
+
+	<abstract>
+		<para>
+			Hydrogen is a software synthetizer which is able to be used either by itself,
+			emulating a drum machine based on patterns, or via an external MIDI
+			keyboard/sequencer software. Hydrogen compiles on Linux/x86 and MAC OSX, although the latter is still experimental, so ask in our devel mailing list for further details.
+		</para>
+	</abstract>
+</bookinfo>
+
+<!--
+###################
+# PRIMO CAPITOLO  #
+###################
+-->
+
+<chapter id="introduction">
+	<title>Introduction</title>
+
+	<sect1 id="download">
+		<title>Download</title>
+		<para>
+			The latest stable version of hydrogen is available at
+			<ulink url="http://hydrogen.sourceforge.net">http://hydrogen.sourceforge.net</ulink> or <ulink url="http://hydrogen-music.org">http://hydrogen-music.org</ulink>
+		</para>
+		<para>
+			It is possible to download the source files directly from CVS snapshots with:
+		
+			<screen><prompt>bash$</prompt> <command>cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/hydrogen co hydrogen</command></screen>
+		                                          
+		</para>
+		
+		<para>
+			Compiling Hydrogen depends on the following libraries:
+			<itemizedlist mark='opencircle'>
+				<listitem>
+					<para>libsndfile at <ulink url='http://www.mega-nerd.com/libsndfile/'>http://www.mega-nerd.com/libsndfile/</ulink></para>
+				</listitem>
+				<listitem>
+					<para>qt (>= 3.2) at <ulink url='http://www.trolltech.com'>http://www.trolltech.com</ulink></para>
+				</listitem>
+				<listitem>
+					<para>ALSA (>= 1.x) at <ulink url='http://www.alsa-project.com'>http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)</para>
+				</listitem>
+				<listitem>
+					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url='http://jackit.sourceforge.net'>http://jackit.sourceforge.net</ulink> (only if you wish to use Jack as audio driver)</para>
+				</listitem>
+			</itemizedlist>
+		</para>
+	</sect1>
+
+	<sect1 id="compilazione">
+		<title>Build</title>
+		<para>
+			After having downloaded and decompressed the tar.gz file there's only to:
+		
+		<screen>
+		<prompt>$</prompt> <command>cd hydrogen-*</command>
+		<prompt>$</prompt> <command>./configure</command>
+		<prompt>$</prompt> <command>make</command>
+		<prompt>$</prompt> <command>su -c "make install"</command>
+		</screen>
+		</para>
+
+		<para>
+		Before compiling, check for additional options with:
+		<screen>
+		<prompt>$</prompt><command>./configure --help</command>
+		</screen>
+		Namely, if you get some error while running Hydrogen and you want to report it remember to configure the makefile with:
+		<screen>
+		<prompt>$</prompt><command>./configure --enable-debug</command>
+		</screen>
+		
+		Please note that at the moment no binary packaging (.rpm, .deb, ...) is available. Contributors are welcome. Also remember to compile with at least a GCC 3.x to be 100% sure to avoid any possible problem.
+		</para>
+	</sect1>
+
+<!-- prokoudine ?
+	<sect1 id='basics'>
+		<title>[TODO] BASICS</title>
+		<para>
+		explain and develop basics about the technology behind software of this kind
+		</para>
+	</sect1>
+-->
+
+	<sect1 id="configurazioneAudioDriver">
+		<title>Audio driver configuration</title>
+		<para>
+			It's very important to choose the proper audio driver for our system, since 
+			the choice may influence quite much general performances. The choice is between
+			Oss audio driver, ALSA and Jack audio driver.
+		</para>
+		<sect2 id="ossDriver">
+			<title>OSS audio driver</title>
+			<para>
+			The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
+			supported by the vast majority of sound cards available for linux; this said, 
+			the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
+			by any other software. Use it as last resource.
+			</para>
+		</sect2>
+		<sect2 id="jackDriver">
+			<title>Jack audio driver</title>
+			<para>
+			The Jack driver is a professional audio server which permits very low lag and exchanges with other
+			audio software. <emphasis>We strongly recommend using this driver to have the best out of Hydrogen</emphasis>.
+			It needs its server running, so remember to launch it before Hydrogen. [TODO INSERT notes about features of jack related and possible binding with other software like ardour]
+			</para>
+		</sect2>
+		<sect2 id="alsaDriver">
+			<title>ALSA audio driver</title>
+			<para>
+			NEW! Now Hydrogen works also with ALSA, the new Linux standard audio drivers.
+			</para>
+		</sect2>
+	</sect1>
+</chapter>
+
+<!--
+####################
+# SECONDO CAPITOLO #
+####################
+-->
+
+<chapter id="GUI">
+	<title>GUI</title>
+	
+	<sect1 id="main">
+		<title>The main toolbar</title>
+		<para>Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar:</para>
+
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img/MainToolbar.png" format="png">
+		</imageobject>
+	</mediaobject>
+
+	<itemizedlist mark="opencircle">
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/background_Control.png" format="png">
+		</imageobject></inlinemediaobject>
+			</para><para>Main controls to start <emphasis role="bold">[Hotkey = Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a pattern.</para>
+		</listitem>
+		
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/background_Mode.png" format="png">
+		</imageobject></inlinemediaobject></para><para>Set Pattern/Song Mode.</para></listitem>
+ 
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/background_BPM.png" format="png">
+		</imageobject></inlinemediaobject></para><para>Set speed of playing (range: 30-400 bpm) <emphasis role="bold">[Hotkey = mouse wheel]</emphasis> and button to enable/disable metronome</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/cpuload.png" format="png">
+		</imageobject></inlinemediaobject></para><para>Shows CPU load.</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/midi_in.png" format="png">
+		</imageobject></inlinemediaobject></para><para>Shows MIDI events.</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/jack_transport.png" format="png">
+		</imageobject></inlinemediaobject></para><para>Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected.</para></listitem>
+	</itemizedlist>
+
+	<para>Other useful keybindings (not customizable for the moment):</para>
+		
+	<itemizedlist mark='opencircle'>
+		<listitem>
+			<para>
+			<emphasis role="bold">[CTRL + O]</emphasis> = Open File
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+			<emphasis role="bold">[CTRL + S]</emphasis> = Save File
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+			<emphasis role="bold">[Backspace]</emphasis> = Restart song or pattern from the beginning
+			</para>
+		</listitem>
+		</itemizedlist>
+
+	</sect1>
+	
+	<sect1 id="songEditor">
+		<title>Song Editor</title>
+
+		<para>
+		The frame "Song Editor" (Fig. 1) shows the song we are creating; each blue coloured square appearing on this frame means a complete bar as shown in the Pattern Editor, which gathers the different parts of the song (e.g. intro, verse, bridge, chorus and so on). We have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
+		</para>
+
+<para>
+The Song Editor comes with 5 buttons:
+</para>
+<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/bg_topPanel.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+</para>
+
+<itemizedlist mark='opencircle'>
+		<listitem>
+		<para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/btn_new_on.png" format="png">
+		</imageobject></inlinemediaobject> Create a new pattern (and asks for a name).
+		</para>
+		</listitem>
+
+		<listitem>
+		<para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/btn_updown.png" format="png">
+		</imageobject></inlinemediaobject> Move currently selected pattern up or down.
+		</para>
+		</listitem>
+
+		<listitem>
+		<para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/btn_clear_off.png" format="png">
+		</imageobject></inlinemediaobject> Completely delete all patterns (asks for confirmation!).
+		</para>
+		</listitem>
+
+		<listitem>
+		<para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/btn_select_off.png" format="png">
+		</imageobject></inlinemediaobject> Enable selecting patterns for copy & paste.
+		</para>
+		</listitem>
+
+		<listitem>
+		<para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/btn_select_off.png" format="png">
+		</imageobject></inlinemediaobject> Enable add/remove patterns.
+		</para>
+		</listitem>
+</itemizedlist>
+ 
+	<para>
+	Under these buttons there is a list of patterns created and when they will played (each square == 1 bar). Click
+	on an squarebox to add or cancel the pattern. Clicking on right mouse button over the name of a pattern will bring up a menu to change name of the pattern or to allow copying/deleting it. Patterns with very same name are not allowed.
+	</para>
+
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img/SongEditor.png" format="png">
+		</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 1</emphasis> The Song Editor
+			</para>
+		</caption>
+	</mediaobject>
+
+	</sect1>
+
+	<sect1 id="patternEditor">
+		<title>Pattern Editor</title>
+		<para>
+		The "Pattern Editor" frame (Fig. 2) let us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose a pattern to play between those created while the second represents the current grid resolution (4 through 64) and the 'three beats' bars (4T, 8T, 16T and 32T) plus a menu marked "size" which will let you visualize play only a part of the complete bar. Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame to allow tuning 'hard' or 'soft' beat. The button
+
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/btn_hear_on.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+
+		(hear new notes) will play the sample as it's been added to the pattern. Finally you can move an instrument up and down in the sequence with the buttons
+		
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/btn_updown.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+
+. A useful <quote>Quantize</quote> feature is available activating
+	
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/btn_quant_over.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+	
+	. This way the beats inserted will automatically respect the grid resolution currently applied.
+		</para>
+
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PatternEditor.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 2</emphasis> The Pattern Editor
+			</para>
+		</caption>
+				
+			</mediaobject>
+
+		<para>
+		Each instrument has its own set of features accessible right-clicking with your mouse on it; <quote><emphasis role="bold">Mute</emphasis></quote>, <quote><emphasis role="bold">Solo</emphasis></quote> are self-explaining while <quote><emphasis role="bold">Lock</emphasis></quote> locks the instrument belonging to a drumkit on that pattern even if you change drumkit: this way you can easily mess up more drumkits together and create your own! <quote><emphasis role="bold">Fill/Clear notes</emphasis></quote> fills or deletes every note of that instrument in the current pattern (remember that filling a pattern is always relative to the grid resolution set) and finally <quote><emphasis role="bold">Randomize velocity</emphasis></quote> automatically apply a pseudo-random velocity to each note of that instrument in the pattern. The more velocity you set on the instrument, the more hydrogen will hit <quote>hard</quote> on that instrument when played.
+		</para>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/PatternEditorInstr.png" format="png">
+			</imageobject>
+		</mediaobject>
+
+		<para>Also, you can set new beats clicking on
+		
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/btn_record_off.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		which enables direct input by MIDI events or by keyboard according to the following map key=instrument:</para>
+		
+		<para><emphasis>Note that the name of the instrument depends on the drumkit loaded. This list refers to the GMKit loaded by default. The position of the instrument, however, is the same.</emphasis></para>
+		
+		<itemizedlist>
+		<listitem><para>Z = Kick</para></listitem>
+		<listitem><para>X = Snare Jazz</para></listitem>
+		<listitem><para>C = Snare Rock</para></listitem>
+		<listitem><para>V = Tom Low</para></listitem>
+		<listitem><para>B = Tom Mid</para></listitem>		
+		<listitem><para>N = Tom Hi</para></listitem>
+		<listitem><para>M = Cowbell</para></listitem>		
+		<listitem><para>Q = Ride Jazz</para></listitem>
+		<listitem><para>W = Ride Rock</para></listitem>		
+		<listitem><para>E = Instrument No. 17 (currently not assigned)</para></listitem>
+		<listitem><para>R = Instrument No. 18 (currently not assigned)</para></listitem>		
+		<listitem><para>T = Instrument No. 20 (currently not assigned)</para></listitem>
+		<listitem><para>Y = Instrument No. 22 (currently not assigned)</para></listitem>		
+		<listitem><para>U = Instrument No. 24 (currently not assigned)</para></listitem>
+		<listitem><para>S = Stick</para></listitem>		
+		<listitem><para>D = Hand Clap</para></listitem>
+		<listitem><para>G = Closed HH</para></listitem>		
+		<listitem><para>H = Pedal HH</para></listitem>
+		<listitem><para>J = Open HH</para></listitem>		
+		<listitem><para>2 = Crash</para></listitem>
+		<listitem><para>3 = Crash Jazz</para></listitem>		
+		<listitem><para>5 = Instrument No. 19 (currently not assigned)</para></listitem>
+		<listitem><para>6 = Instrument No. 21 (currently not assigned)</para></listitem>		
+		<listitem><para>7 = Instrument No. 23 (currently not assigned)</para></listitem>
+		</itemizedlist>
+
+	
+	<para>Here's a quick reference of the above bindings for your convenience. See <link linkend='creazioneSong'>Chapter 3</link> for a basic walkthrough of how the pattern editor works.</para>
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img/tastiera.png" format="png">
+		</imageobject>
+	</mediaobject>
+	
+	</sect1>
+
+	<sect1 id="mixer">
+		<title>Mixer</title>
+		
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/Mixer.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 3</emphasis> The Mixer
+			</para>
+		</caption>
+		</mediaobject>
+
+<para>The Mixer frame (Fig. 3) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
+
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/showPeaks_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>	
+
+	 to disable, useful on old CPUs) and let you set the maximum peak allowed (tune with the fader knob of the instrument), lets you modify attributes like pan  
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerPan.png" format="png">
+		</imageobject>
+	</inlinemediaobject>	
+			
+	, play solo 
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/btn_solo_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	, mute 
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/btn_mute_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	or test play only that instrument
+
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/btn_play_on_mixer.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+
+	; selecting in the Pattern Editor an instrument causes a blue LED to light on (near the play button). Near the global volume knob, you can set 3 global effect such a swing (shifts a few notes back or forward not randomly), timing (modify timings of the notes) and humanize effect (random velocity editing).
+	</para>
+
+	<para>
+		Double clicking over the name of an instrument in the Mixer frame will bring up	a doubled face tool to modify many properties of that instrument.
+	</para>
+	
+	<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/instr_ed1.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+		
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/instr_ed0.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	</para>
+	
+	<para>
+		The first tab ('Instrument') lets you fine tune the instrument: you can adjust Attack, Decay, Sustain, Release, Cutoff and Resonance (both of which can be excluded) or even add a random pitch.
+	</para>
+
+	<para>
+		The second tab ('Layer') can add WAV/AU/AIFF/FLAC samples up to 16 layers to the instrument according to the level of its velocity and tune pitch and gain.
+	</para>
+		
+	
+	<para>
+		In addition to all this you can set up to 4 special LADSPA effects for each instrument switching the
+		
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/showFX_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	button. See next section for a detailed overview.
+	
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/MixerFX.png" format="png">
+			</imageobject>
+		</mediaobject>	
+	
+	</para>
+
+	</sect1>
+
+	<sect1 id="ladspa">
+		<title>LADSPA plugins</title>
+		<para>Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more of these libraries, it's as simple as a "make && make install":</para>
+
+	<itemizedlist>
+	<listitem><para>SWH-Plugins available at <ulink url="http://plugin.org.uk"><citetitle>http://plugin.org.uk</citetitle></ulink>. Note that before compiling these plugins you need the FFTW tarball from <ulink url="http://www.fftw.org"><citetitle>http://www.fftw.org</citetitle></ulink>.</para></listitem>
+	
+	<listitem><para>CMT available at <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>.</para></listitem>
+	
+	<listitem><para>TAP available at <ulink url="http://tap-plugins.sf.net"><citetitle>http://tap-plugins.sf.net</citetitle></ulink>.</para></listitem>
+	
+	</itemizedlist>
+	
+	<para>Once you have installed a few plugins open a song you'd like add an effect to and select an instrument that has a few beats in the pattern. In the Mixer click on 
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/showFX_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	and select one of the four available effect line Click on the Edit button (
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/edit_off.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	), than on <quote>Select the FX</quote>: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect. If you want to quickly enable/disable the effect click the Bypass (
+	
+	<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/bypass_over.png" format="png">
+			</imageobject>
+		</inlinemediaobject>) 
+		
+		
+		button.</para>
+
+
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/MixerFXSelect.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 3</emphasis> Select an effect.
+			</para>
+		</caption>
+		</mediaobject>
+	
+	</sect1>
+
+	<sect1 id="menu">
+		<title>Menu</title>
+	<para>
+	From the pull-down menus it's worth noticing: File-->'Save as' to save the current song in .h2song format, File-->Export to export it in WAV/MID format, File-->
+
+
+		<link linkend="prefs">Preferences</link>, Window-->
+		
+		<link linkend="audioengine">Audio Engine Info</link> and Window-->
+
+		<link linkend="drumkit">Drumkit manager</link>.
+
+	</para>
+
+	<sect2 id="prefs">
+		<title>Preferences</title>
+		<para>
+		From the "Audio System" tab (Fig. 4) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate. We can also set some features of Hydrogen like <quote>Enable track outputs</quote> useful if you want to add effects to a single instrument with jack-rack; <quote>Connect to Default Output Pair</quote> simply connects ALSA output to the default ports: uncheck this if you want to connect jack output to other ports without disconnecting them first. Keep an eye also on the value of "Polyphony": depending on your CPU you may want to change the max simultaneous notes in order to prevent hydrogen from xrun. Clicking on the "Midi System" tab (Fig. 5) will select a menu to enable a MIDI device, a specific channel or all of them, while clicking on "Appearance" tab (Fig. 6) let's you to modify font size, type of frame (Child or Top Level) and speed of mixer's peaks falloff and QT style of the windows.
+		</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PreferencesAudioSystem.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 4</emphasis> The Audio System tab
+			</para>
+		</caption>
+
+			</mediaobject>
+
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PreferencesMidiSystem.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 5</emphasis> The MIDI System tab
+			</para>
+		</caption>
+				
+			</mediaobject>
+
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PreferencesAppearance.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 6</emphasis> The Appeareance tab
+			</para>
+		</caption>
+			</mediaobject>
+		
+	</sect2>
+
+	<sect2 id="audioengine">
+		<title>Audio engine info</title>
+		<para>
+		This tab (Fig. 7) will bring up a window with general infos about Hydrogen and audio driver. Buffer and sampling rate of Jack audio driver are customizable when the server is started from the shell.
+		</para>
+			
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/AudioEngineInfoDialog.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 7</emphasis> The Audio Engine Info window. Better check that cpu-meter on old systems and crowded /proc dir ;)
+			</para>
+		</caption>
+		</mediaobject>
+	</sect2>
+	
+	
+	<sect2 id="drumkit">
+		<title>Drumkit manager</title>
+	<para>
+		
+		The drumkit manager shows all the options concerning drumkits, i.e. groups of sounds (WAV or FLAC) to be binded with every track available so to obtain a proper "groove" according to the situation (disco music, rock, hip hop, etc.). To let you have a rough idea of a good example of use of these drumkits, it is advisable to play the associated .h2song sample song.
+	</para>
+
+	<para>
+	From the first screen (Fig. 8) we can load/delete the drumkit, with a short description. Here (Fig. 9) we can save some infos about the current drumkit and from here (Fig. 10) we can import a drumkit (.h2drumkit) (Fig. 11) or export it (Fig. 12).
+	</para>
+		
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitLoad.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 8</emphasis> Load drumkit. Choose from those installed.
+			</para>
+		</caption>
+
+			</mediaobject>
+
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitSave.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 9</emphasis> Save drumkit.
+			</para>
+		</caption>
+			</mediaobject>
+
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitImport.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 10</emphasis> Import drumkit.
+			</para>
+		</caption>
+			</mediaobject>
+
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitExport.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 11</emphasis> Export drumkit.
+			</para>
+		</caption>
+			</mediaobject>
+
+	</sect2>
+</sect1>
+
+</chapter>
+
+<!--
+##################
+# CAPITOLO TERZO #
+#################
+-->
+
+<chapter id="creazioneSong">
+	<title>A new song</title>
+	<sect1 id="SongVSpattern">
+		<title>"Song" mode and "Pattern" mode</title>
+		<para>
+			This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the tutorial for a more detailed overview.
+		</para>
+		
+		<para>
+			Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to <link linkend="main">this section</link> for the buttons to activate). When "Pattern" mode is activated the current pattern is continously repeated, so to help changing it until we don't like it, while "Song" mode repeats only the current pattern: this is useful when putting together the patterns, to create the whole structure for the song.
+		</para>
+	</sect1>
+
+	<sect1 id="creazionePattern">
+		<title>A new pattern</title>
+		<para>
+		We'll start from an empty song with an empty pattern, as created by default: "pattern" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <quote>Play</quote> button and while the pattern is playing let's add notes in the grid of the Song Editor (Fig. 12) simply left_mouse_clicking on it: adjust grid resolution and BPM speed if needed. Rememeber some constraints of the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; same thing happens if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision): they will be placed on the previous or on the following 8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, in this case you're free to place notes wherever you prefer). <emphasis role="bold">Be sure to select the correct pattern in the Song Editor before adding notes in the Pattern Editor!</emphasis>
+		</para>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/PatternEditor.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 12</emphasis> The Pattern Editor
+			</para>
+		</caption>
+		</mediaobject>
+	</sect1>
+
+	<sect1 id="creazioneSequenza">
+		<title>A new sequence</title>
+		<para>
+		Once patterns are created (Fig. 13), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy).
+		</para>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/SongEditor.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 13</emphasis> Inserting notes in a pattern
+			</para>
+		</caption>
+				</mediaobject>
+
+	</sect1>
+	
+	<sect1 id="operazioniMixer">
+		<title>Adjust from the mixer</title>
+		<para>
+		Of course we can always use the mixer window, either when creating or playing patterns.
+		</para>
+		
+		<para>
+		The Mixer frame (Fig. 14) is made of 32 independent tracks, each of these is binded to an
+instrument, plus a "Master Output" line to adjust general output volume and a "FX" button to set effects. Every line features 3 buttons (
+	
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/btn_play_on_mixer.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+ 		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/btn_solo_on.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/btn_mute_on.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		), pan adjust (
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerPan.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		), current maximum peak, volume fader and name of the track. Clicking on 
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/btn_solo_on.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		will play the selected instrument, cutting the others. The "Mute" 
+button
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/btn_mute_on.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+
+		, simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates the maximun volume reached
+from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter.
+		</para>
+		
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/Mixer.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 14</emphasis> The mixer
+			</para>
+		</caption>
+		</mediaobject>
+	</sect1>
+</chapter>
+</book>
+	

@@ -1,0 +1,31 @@
+INCLUDES	=	-I/usr/local/include/ -Iinclude
+CC		=	gcc
+CFLAGS		=	$(INCLUDES) -fPIC -DPIC -Wall -O2 -g -c
+prefix  = /usr/local
+
+all: wasp_booster.so wasp_noisifier.so wasp_xshaper.so
+
+wasp_booster.so: plugins/booster.c
+	$(CC) $(CFLAGS) -o plugins/booster.o plugins/booster.c
+	ld -shared -o wasp_booster.so plugins/booster.o
+
+wasp_noisifier.so: plugins/noisifier.c
+	$(CC) $(CFLAGS) -o plugins/noisifier.o plugins/noisifier.c
+	ld -shared -o wasp_noisifier.so plugins/noisifier.o
+
+wasp_xshaper.so: plugins/x-shaper.c
+	$(CC) $(CFLAGS) -o plugins/xshaper.o plugins/x-shaper.c
+	ld -shared -o wasp_xshaper.so plugins/xshaper.o
+	
+clean:
+	@rm -f `find . -name "*.o"`
+	@rm -f `find . -name "*.so"`
+
+install:
+	@echo "Installing WASP plugins"
+	mkdir -p $(DESTDIR)$(prefix)/lib/hydrogen/plugins/
+	@install -vD *.so $(DESTDIR)$(prefix)/lib/hydrogen/plugins
+
+uninstall:
+	@rm -rf $(DESTDIR)$(prefix)/lib/hydrogen
+	

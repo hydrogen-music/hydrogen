@@ -1,0 +1,526 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>LadspaFXSelector_UI</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>LadspaFXSelector_UI</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>659</width>
+            <height>408</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>200</width>
+                <height>350</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>Categories</string>
+        </property>
+        <widget class="QListView">
+            <column>
+                <property name="text">
+                    <string>Groups</string>
+                </property>
+                <property name="clickable">
+                    <bool>false</bool>
+                </property>
+                <property name="resizable">
+                    <bool>true</bool>
+                </property>
+            </column>
+        <item>
+            <property name="text">
+                <string>test</string>
+            </property>
+            <property name="pixmap">
+                <pixmap></pixmap>
+            </property>
+            <item>
+                <property name="text">
+                    <string>Subitem-------</string>
+                </property>
+                <property name="pixmap">
+                    <pixmap></pixmap>
+                </property>
+            </item>
+        </item>
+            <property name="name">
+                <cstring>m_pGroupsListView</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>180</width>
+                    <height>320</height>
+                </rect>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>220</x>
+                <y>10</y>
+                <width>220</width>
+                <height>350</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>LADSPA plugins</string>
+        </property>
+        <widget class="QListBox">
+            <item>
+                <property name="text">
+                    <string>New Item</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>m_pPluginsListBox</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>200</width>
+                    <height>320</height>
+                </rect>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>Layout33</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>370</y>
+                <width>640</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>0</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <spacer>
+                <property name="name">
+                    <cstring>Spacer2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>0</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>m_pCancelBtn</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>5</hsizetype>
+                        <vsizetype>5</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>0</width>
+                        <height>22</height>
+                    </size>
+                </property>
+                <property name="text">
+                    <string>&amp;Cancel</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+C</string>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>m_pOkBtn</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>5</hsizetype>
+                        <vsizetype>5</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>0</width>
+                        <height>22</height>
+                    </size>
+                </property>
+                <property name="text">
+                    <string>&amp;OK</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+O</string>
+                </property>
+                <property name="default">
+                    <bool>true</bool>
+                </property>
+                <property name="flat">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <spacer>
+                <property name="name">
+                    <cstring>Spacer1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>0</height>
+                    </size>
+                </property>
+            </spacer>
+        </hbox>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>450</x>
+                <y>10</y>
+                <width>200</width>
+                <height>350</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>Plugin info</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="text">
+                <string>Name:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_nameLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>40</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>### fx name</string>
+            </property>
+            <property name="alignment">
+                <set>AlignTop</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>60</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="text">
+                <string>Label:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_labelLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>80</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>### fx label</string>
+            </property>
+            <property name="alignment">
+                <set>AlignTop</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>100</y>
+                    <width>80</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="text">
+                <string>Type:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>100</x>
+                    <y>100</y>
+                    <width>90</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="text">
+                <string>ID:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_typeLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>120</y>
+                    <width>80</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>### fx type</string>
+            </property>
+            <property name="alignment">
+                <set>AlignTop</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_pIDLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>100</x>
+                    <y>120</y>
+                    <width>90</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>### fx ID</string>
+            </property>
+            <property name="alignment">
+                <set>AlignTop</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>140</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="text">
+                <string>Maker:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_pMakerLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>160</y>
+                    <width>180</width>
+                    <height>80</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>### FX maker
+1
+2
+3
+4</string>
+            </property>
+            <property name="alignment">
+                <set>WordBreak|AlignTop</set>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel5</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>240</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="text">
+                <string>Copyright:</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>m_pCopyrightLbl</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>260</y>
+                    <width>180</width>
+                    <height>80</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>### copyright
+1
+2
+3
+4</string>
+            </property>
+            <property name="alignment">
+                <set>WordBreak|AlignTop</set>
+            </property>
+        </widget>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>m_pCancelBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>LadspaFXSelector_UI</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>m_pOkBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>LadspaFXSelector_UI</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>m_pPluginsListBox</sender>
+        <signal>selectionChanged()</signal>
+        <receiver>LadspaFXSelector_UI</receiver>
+        <slot>pluginSelected()</slot>
+    </connection>
+    <connection>
+        <sender>m_pGroupsListView</sender>
+        <signal>selectionChanged()</signal>
+        <receiver>LadspaFXSelector_UI</receiver>
+        <slot>groupSelected()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>pluginSelected()</slot>
+    <slot>groupSelected()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

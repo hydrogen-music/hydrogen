@@ -1,0 +1,657 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Tutoriel de Hydrogen</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="Hydrogen-tutorial"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Tutoriel de Hydrogen</A
+></H1
+>                <H3
+CLASS="AUTHOR"
+><A
+NAME="AEN5"
+></A
+>Antonio Piraino</H3
+>
+		<DIV
+><DIV
+CLASS="ABSTRACT"
+><P
+></P
+><A
+NAME="AEN9"
+></A
+>       		<P
+>Vous venez de tlcharger la dernire version du logiciel Hydrogen et l'installation s'est bien droule. Maintenant vous voulez l'essayer et recrer votre chanson favorite. Ceci pourrait en effet vous aider  l'apprendre d'crire les parties les plus difficiles, pour pouvoir les couter plusieurs fois ou tre sur que vous pouvez, d'un coup d'oeil rapide dans le fichier du morceau, vous le remmorer immdiatement.</P
+>
+		<P
+>Hydrogen peut tre utilis comme une machine de "click" avance qui peut vous aider dans votre pratique musicale (dans la vitesse, la precision et autres bases), peut tre avec un motif dfini par vos soins.</P
+>
+		<P
+>Cette petite introduction vous guidera dans la cration d'une chanson complte. Nous travaillerons sur le morceau "Georgy Porgy" de Toto (dsol) qui a une structure assez directe, ce qui le rend appropri pour ce guide, mais cela ne veut pas dire que le morceau est _vraiment_ facile  crire vu que le batteur, Jeff Porcaro, enrichit le groove avec son touch personnel et son feeling. Hydrogen ne jouera pas mieux que le batteur, la majeure partie de la tâche doit tre accomplie par  la sensibilit et l'exprience du programmeur.</P
+>
+        <P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table des matières</B
+></DT
+><DT
+>1. <A
+HREF="#needed"
+>Action</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="#intro"
+>Introduction</A
+></DT
+><DT
+>1.2. <A
+HREF="#verse"
+>Premier Couplet</A
+></DT
+><DT
+>1.3. <A
+HREF="#verse2"
+>Le pont et la suite</A
+></DT
+><DT
+>1.4. <A
+HREF="#riffraff"
+>Le Riff</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+>
+
+
+<DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="needed"
+></A
+>Chapitre 1. Action</H1
+>        
+		<P
+>Avant de commencer assurez vous d'avoir ces diffrentes choses :</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Le morceau tudi : sur CD audio, ou, mieux, au format .wav, .ogg ou .mp3 pour une flexibilit optimale. </P
+></LI
+><LI
+><P
+>Eventuellement la partition de batterie ou un schma aproximatif de la structure de la chanson : il peut tre utile de compter les mesures et de viualiser les differentes parties du morceau.</P
+></LI
+></UL
+>
+		
+		<P
+>La chanson que nous travaillons a la structure suivante :</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Intro :</B
+></SPAN
+> 4 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Couplet :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Pont :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Couplet :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Pont :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Refrain :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Riff :</B
+></SPAN
+> 4 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Couplet (avec guitare) :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Couplet (avec voix) :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Pont :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Refrain :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Refrain :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Refrain :</B
+></SPAN
+> 8 mesures</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Riff final :</B
+></SPAN
+> 4 mesures</P
+></LI
+></UL
+>
+		
+		<P
+>En regardant cet arrangement nous pouvons voir que quelques motifs se rptent, ainsi nous emploierons cette lgende avec Hydrogen :</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Couplet -&#62; A</P
+></LI
+><LI
+><P
+>Pont -&#62; B</P
+></LI
+><LI
+><P
+>Refrain -&#62; C</P
+></LI
+></UL
+>
+		
+		<P
+>Bien, maintenant dbranchez votre tlphone et lancez Hydrogen : Au travail !</P
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="intro"
+>1.1. Introduction</A
+></H2
+>		
+		<P
+>Le motif de base (Fig. 1 and 2) se compose de 4 mesures (divis en 2 mesures diffrents, chacun rptes 2 fois, donc [2a*2]+[2b*2]) et dure la chanson entire, du dbut  la fin, riff inclus ; la pluspart du temps (intro et riff exclus) ce pattern de base est rpt 2 fois pour arriver a une structure classique de 8 mesures pour chaque partie du morceau (A,B,C).</P
+>
+		<P
+>Avant de commencer plaez la vitesse  98bpm (Remarque : vous pouvez trouver la vitesse (en Bpm) du morceau par vous mme en la jouant avec votre player prfr, XMMS, et en tapant le rythme avec la touche antislash dans Hydrogen).</P
+>
+		<P
+>A partir du menu "Rsolution de la grille" choisissez  '16'.</P
+>
+		<P
+>Pour crer un nouveau motif, cliquez droit sur l'instrument "Closed HH" et choisisez "Fill Notes": les deux premires mesures seront remplies. Insrez alors manuellement les notes de la caisse claire Jazz ("Snare Jazz") et de la grosse caisse ("Kick") comme indiqu sur les 2 images ci-dessous. Nous avons le motif de base pour notre morceau.</P
+>
+		<P
+>Notez comment les coups de charleston sont accentus de manire diffrente :  ceux qui tombent sur les temps ( au dbut d'une mesure) ont une intensit de [0,78 ], les autres de [0.50] (vous pouvez vrifier cela sur la barre de statut infrieure d'Hydrogen), afin de donner du groove au morceau.</P
+>
+		
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/PatternBase1.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 1</B
+></SPAN
+> Motif de base, premire mesure.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/PatternBase2.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 2</B
+></SPAN
+> Motif de base, seconde mesure.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	
+			<P
+>Avant que nous commencions  crire les couplets il y a 4 mesures d'intro, toutes identiques, except pour la dernire,  la fin de laquelle il y a un coup de charleston ouvert . Faites ce qui suit :</P
+>
+		
+		<P
+></P
+><UL
+><LI
+><P
+>Renommez le premier motif dans l'diteur de morceau en cliquant avec le bouton droit de la souris sur "Empty Pattern". Changez le, par exemple, en "intro_a".</P
+></LI
+><LI
+><P
+>Ajoutez 2 'X' prs du premier (qui reprsentent les deuxime et troisime mesures)</P
+></LI
+><LI
+><P
+>Crez dans l'diteur de motif le motif de base (Fig. 1)</P
+></LI
+></UL
+>
+
+		
+		<P
+>Pour la quetrime mesure l'ouverture de charleston (Fig. 3) :</P
+>
+	
+		<P
+></P
+><UL
+><LI
+><P
+>Cliquez droit dans l'diteur de morceau sur le pattern nouvellement cr, slectionnez "copier", puis choissisez un nom (ex."intro_b"). Un nouveau motif apparait automagiquement !</P
+></LI
+><LI
+><P
+>Slectionnez le pattern qui vient d'tre cr (IMPORTANT !)</P
+></LI
+><LI
+><P
+>Remplacez les 2 dernires notes de charleston ferm par des charleston ouverts.</P
+></LI
+><LI
+><P
+>Slectionnez '32' dans le menu "Rsolution de la grille" et ajoutez 2 nouvelles notes juste  cot des prcdents.</P
+></LI
+><LI
+><P
+>Ajustez l'intensit de ces 4 notes de sorte que le premier soit  [0.78] et que les 3 autres soient  [0.20] pour simuler une ouverture plus longue.</P
+></LI
+></UL
+>
+		
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Intro4th.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 3</B
+></SPAN
+> Dtail de l'intro, quatrime mesure.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="verse"
+>1.2. Premier Couplet</A
+></H2
+>		
+		<P
+>Nous venons de crer le motif qui nous servira de base, nous devrions donc connaître ... les bases !</P
+>
+		<P
+>Pour crer le premier couplet il suffit de copier dans l'diteur de motif le motif "intro_a" et de le renommer en  "A-B-C_1",</P
+>
+		<P
+>Ceci est la premire mesure du couplet qui par la suite s'adaptera au pont (B) et au refrain (C).</P
+>
+		<P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Attention</B
+></SPAN
+>, Pourquoi ne pas juste ajoutez 2 autres croix a la suite de ce motif ?</P
+>
+		<P
+>Parce que dans la premire mesure il y a un coup de cymbale crash qui fini l'intro prcdente, donc les deux mesure ne sont pas compltement quivalentes. Vous devez donc copier le motif "A-B-C_1" et le renommer en "A-B-C_2" puis couper ce susdit coup de crash.</P
+>
+		
+		<P
+>Faire la mme chose pour les 2 mesures suivantes : copiez juste dans l'diteur de motif le motif de la fig. 2, renommez le comme les deux prcdents et ajoutez 2 croix (les deux mesures tant les mmes), vous devriez donc atteindre le nombre '8' comme indiqu sur la fig. 4.</P
+>
+		<P
+>Les 4 mesures restantes du couplet sont plus ou moins les mmes que ce que vous venez d'crire, alors pourquoi devriez vous tout refaire de zro ?</P
+>
+		<P
+>Les mesures  5,6,7 sont identiques aux prcdentes ainsi vous avez juste ajouter 2 croix au motif "A-B-C_2" et une  "A-B-C_3+4"en prenant soin de renommer les motifs logiquement (pour comprendre par la suite comment le morceau se droule dans l'diteur de morceau), car la huitime mesure se termine par un fill qui clôture le couplet. Vous devez copier/coller dans une nouvelle ligne un motif dj cr (ex. "A-B-C_3+4"), le renommer en "A-B-C_8" et le modifier comme sur la Fig. 4.</P
+>
+		<P
+>Notez que dont les trois caisses claires Jazz de la quatrime mesure ont une intensit respective [ 0.10 ], [ 0.20 ] et [ 0.78 ].</P
+>
+		<P
+>Vous ne pouvez pas le voir sur l'image mais les deux notes finales du tom mdium ("Tom Mid") ont une intensit de [0.50], aprs tout ce n'est qu'un tout petit fill, autant ne pas exploser les peaux des toms :)</P
+>
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Verse8th.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 4</B
+></SPAN
+> Huitime mesure du premier couplet.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+
+	<P
+>Le rsultat dans l'diteur de chanson devrait ressembler  la Fig. 5.</P
+>
+
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/VerseAll.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 5</B
+></SPAN
+> Intro et premier couplet dans l'diteur de morceau.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+
+	<P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>ATTENTION!</B
+></SPAN
+> si vous atteignez ce point sans avoir sauvegard votre travail, Il est temps de le faire,  l'aide d'un simple [CTRL+S].</P
+>
+	<P
+>Si vous voulez ajouter des infos, cliquez sur le bouton 'S' de l'diteur de morceau et modifiez les champs comme vous le voulez : ces infos seront affiches lors de l'ouverture du projet.</P
+>
+	
+	</DIV
+>
+	
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="verse2"
+>1.3. Le pont et la suite</A
+></H2
+>		
+		<P
+>Maintenant que vous avez ralis le premier couplet vous devriez avoir une ide du mode de fonctionnement global de ce morceau : le premier pont est fait des mmes 8 mesures (4+4) avec un lger changement  la fin dd la quatrim, ce qui nous oblige  crer une mesure spciale alors que les autres seront tout simplement ajoutes  l'aide de notre gniale petite croix ...</P
+>
+		
+		<P
+>Utilisons le dernier motif cr comme un sample ("A-B-C_8"). Copiez le et renommez le en "Bridge1_4" (c'est  dire quatrime mesure du pont 1) et modifiez le comme sur la Fig. 6. Nous avons rapidement termin le pont ! L'diteur de morceau devrait ressembler  la fig. 7.</P
+>
+		<P
+>En regardant attentivement l'illustration on pourrait se demander pourquoi la cinquime mesure du pont (la 17me du morceau) n'est pas assign au motif "A-B-C_1". La rponse est que le pattern a galement un coup de crash final qui n'est pas prsent dans "A-B-C_2+5+6".</P
+>
+
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/Bridge1_4th.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 6</B
+></SPAN
+> Quatrime mesure du pont.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+
+	<DIV
+CLASS="MEDIAOBJECT"
+><P
+>			<IMG
+SRC="img_tutorial/VerseBridge.png"><DIV
+CLASS="CAPTION"
+>			<P
+>			<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 7</B
+></SPAN
+> L'diteur de morceau avec le premier pont.
+			</P
+>
+		</DIV
+></P
+></DIV
+>
+
+
+	<P
+>Maintenant vous pouvez crer rapidement les parties restantes du morceau : aprs le pont il y a un autre couplet, puis un pont et un refrain, qui sont la plupart du temps identiques, vous devrez juste crer des motifs diffrents dans quelques cas (sinon, nous le verrons plus tard).</P
+>
+	<P
+>Naturellement vous pouvez crire autant de lignes dans l'diteur de morceau que de mesures dans le morceau, mais un morceau complet risquerait d'tre difficile  suivre, et il prendrait beaucoup de place.</P
+>
+		
+	</DIV
+>
+
+	<DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="riffraff"
+>1.4. Le Riff</A
+></H2
+>		
+		<P
+>Vers le milieu du morceau il y a deux riffs : ils sont tous deux composs de 2 mesures et en fait le motif est toujours le mme, et seul les autres instruments jouent quelque chose que nous verrons dans le dernier riff de ce morceau (où la batterie joue elle aussi le motif du riff).</P
+>
+		
+		<P
+>Dans ce riff la batterire joue le motif que nous connaissons dj</P
+></DIV
+></DIV
+></DIV
+></BODY
+></HTML
+>

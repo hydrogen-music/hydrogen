@@ -1,0 +1,23 @@
+[Desktop Entry]
+Name=Hydrogen Drum Machine
+Name[de]=Hydrogen Drumsequencer
+Name[ru]=Драм-машина Hydrogen
+Comment=Create drum sequences
+Comment[de]=Schlagzeugsequenzen erstellen
+Comment[ru]=Создание партий ударных инструментов
+
+Encoding=UTF-8
+Version=1.0
+
+Type=Application
+Categories=Application;AudioVideo;Sound;Audio;Qt;
+
+MimeType=text/xml
+
+FilePattern=hydrogen
+Exec=hydrogen %F
+TryExec=hydrogen
+Terminal=false
+StartupNotify=true
+
+Icon=/usr/local/share/hydrogen/data/img/gray/icon64.png

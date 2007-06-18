@@ -1,0 +1,616 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>DrumkitManager_UI</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>DrumkitManager_UI</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>522</width>
+            <height>415</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <widget class="QTabWidget">
+        <property name="name">
+            <cstring>tabWidget</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>5</x>
+                <y>5</y>
+                <width>510</width>
+                <height>400</height>
+            </rect>
+        </property>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>Load</string>
+            </attribute>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>loadTab_loadDrumkitBtn</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>340</y>
+                        <width>205</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Load drumkit</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <widget class="QListBox">
+                <item>
+                    <property name="text">
+                        <string>New Item</string>
+                    </property>
+                </item>
+                <property name="name">
+                    <cstring>loadTab_drumkitListBox</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>5</y>
+                        <width>205</width>
+                        <height>335</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>groupBox7</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>220</x>
+                        <y>0</y>
+                        <width>280</width>
+                        <height>365</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>Drumkit info</string>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>loadTab_deleteDrumkitBtn</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>160</x>
+                            <y>335</y>
+                            <width>110</width>
+                            <height>24</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Delete drumkit</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>loadTab_drumkitInfoLbl</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>105</y>
+                            <width>260</width>
+                            <height>220</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>### Drumkit info</string>
+                    </property>
+                    <property name="alignment">
+                        <set>WordBreak|AlignTop</set>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>loadTab_drumkitAuthorLbl</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>60</y>
+                            <width>260</width>
+                            <height>35</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>### Drumkit author</string>
+                    </property>
+                    <property name="alignment">
+                        <set>WordBreak|AlignVCenter</set>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>loadTab_drumkitNameLbl</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>20</y>
+                            <width>260</width>
+                            <height>35</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>### Drumkit name</string>
+                    </property>
+                </widget>
+            </widget>
+        </widget>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>Save</string>
+            </attribute>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel2</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>45</y>
+                        <width>130</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Author</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>saveTab_authorTxt</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>140</x>
+                        <y>45</y>
+                        <width>250</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="frameShape">
+                    <enum>LineEditPanel</enum>
+                </property>
+                <property name="frameShadow">
+                    <enum>Sunken</enum>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>saveTab_saveBtn</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>400</x>
+                        <y>10</y>
+                        <width>100</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Save</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>saveTab_nameTxt</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>140</x>
+                        <y>10</y>
+                        <width>250</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel3</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>85</y>
+                        <width>130</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Info</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1_2</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>10</y>
+                        <width>130</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Drumkit name</string>
+                </property>
+            </widget>
+            <widget class="QTextEdit">
+                <property name="name">
+                    <cstring>saveTab_infoTxt</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>140</x>
+                        <y>80</y>
+                        <width>250</width>
+                        <height>285</height>
+                    </rect>
+                </property>
+            </widget>
+        </widget>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>Import</string>
+            </attribute>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>importTab_browseBtn</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>400</x>
+                        <y>30</y>
+                        <width>100</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Browse</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>importTab_importBtn</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>400</x>
+                        <y>65</y>
+                        <width>100</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Import</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>importTab_drumkitPathTxt</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>30</y>
+                        <width>380</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1_3</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>10</y>
+                        <width>380</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Drumkit filename</string>
+                </property>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>groupBox2</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>64</y>
+                        <width>380</width>
+                        <height>300</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string></string>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>importTab_infoLbl</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>12</y>
+                            <width>360</width>
+                            <height>50</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>### The drumkit will be installed zncxbmzbxcmznxbcmz</string>
+                    </property>
+                    <property name="alignment">
+                        <set>WordBreak|AlignTop</set>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel1_4</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>72</y>
+                            <width>360</width>
+                            <height>115</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>&lt;b&gt;
+Download more drumkits at &lt;br&gt;
+http://www.hydrogen-music.org
+&lt;/b&gt;</string>
+                    </property>
+                    <property name="alignment">
+                        <set>WordBreak|AlignTop</set>
+                    </property>
+                </widget>
+            </widget>
+        </widget>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>Export</string>
+            </attribute>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>exportTab_browseBtn</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>400</x>
+                        <y>30</y>
+                        <width>100</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Browse</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>false</bool>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>exportTab_drumkitPathTxt</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>30</y>
+                        <width>380</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>10</y>
+                        <width>375</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Drumkit directory</string>
+                </property>
+            </widget>
+            <widget class="QComboBox">
+                <property name="name">
+                    <cstring>exportTab_drumkitList</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>65</y>
+                        <width>380</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>exportTab_exportBtn</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>400</x>
+                        <y>65</y>
+                        <width>100</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Export</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>false</bool>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>loadTab_drumkitListBox</sender>
+        <signal>selectionChanged()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>loadTab_selectionChanged()</slot>
+    </connection>
+    <connection>
+        <sender>loadTab_loadDrumkitBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>loadTab_loadDrumkitBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>importTab_browseBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>importTab_browseBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>importTab_importBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>importTab_importBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>saveTab_saveBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>saveTab_saveBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>tabWidget</sender>
+        <signal>currentChanged(QWidget*)</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>tabChanged()</slot>
+    </connection>
+    <connection>
+        <sender>exportTab_browseBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>exportTab_browseBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>exportTab_exportBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>exportTab_exportBtnClicked()</slot>
+    </connection>
+    <connection>
+        <sender>exportTab_drumkitPathTxt</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>exportTab_drumkitPathChanged()</slot>
+    </connection>
+    <connection>
+        <sender>importTab_drumkitPathTxt</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>importTab_drumkitPathChanged()</slot>
+    </connection>
+    <connection>
+        <sender>saveTab_nameTxt</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>saveTab_nameChanged()</slot>
+    </connection>
+    <connection>
+        <sender>loadTab_deleteDrumkitBtn</sender>
+        <signal>clicked()</signal>
+        <receiver>DrumkitManager_UI</receiver>
+        <slot>loadTab_deleteDrumkitBtnClicked()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>loadTab_drumkitListBox</tabstop>
+    <tabstop>loadTab_loadDrumkitBtn</tabstop>
+    <tabstop>loadTab_deleteDrumkitBtn</tabstop>
+    <tabstop>saveTab_nameTxt</tabstop>
+    <tabstop>saveTab_authorTxt</tabstop>
+    <tabstop>saveTab_infoTxt</tabstop>
+    <tabstop>saveTab_saveBtn</tabstop>
+    <tabstop>importTab_drumkitPathTxt</tabstop>
+    <tabstop>importTab_browseBtn</tabstop>
+    <tabstop>importTab_importBtn</tabstop>
+    <tabstop>exportTab_drumkitPathTxt</tabstop>
+    <tabstop>exportTab_drumkitList</tabstop>
+    <tabstop>exportTab_browseBtn</tabstop>
+    <tabstop>exportTab_exportBtn</tabstop>
+    <tabstop>tabWidget</tabstop>
+</tabstops>
+<slots>
+    <slot>okBtnClicked()</slot>
+    <slot>loadTab_selectionChanged()</slot>
+    <slot>loadTab_loadDrumkitBtnClicked()</slot>
+    <slot>importTab_browseBtnClicked()</slot>
+    <slot>importTab_importBtnClicked()</slot>
+    <slot>saveTab_saveBtnClicked()</slot>
+    <slot>tabChanged()</slot>
+    <slot>exportTab_browseBtnClicked()</slot>
+    <slot>exportTab_exportBtnClicked()</slot>
+    <slot>exportTab_drumkitPathChanged()</slot>
+    <slot>importTab_drumkitPathChanged()</slot>
+    <slot>saveTab_nameChanged()</slot>
+    <slot>loadTab_deleteDrumkitBtnClicked()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

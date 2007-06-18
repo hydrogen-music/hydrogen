@@ -1,0 +1,918 @@
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
+
+<book id="Hydrogen-manual" lang="fr">
+
+<bookinfo>
+	<title>Manuel de Hydrogen</title>
+	<authorgroup>
+		<author>
+			<firstname>Antonio</firstname>
+			<surname>Piraino</surname>
+		</author>
+		<author>
+			<firstname>Alessandro</firstname>
+			<surname>Cominu</surname>
+		</author>
+	</authorgroup>
+
+	<date>03/nov/2003</date>
+
+	<abstract>
+		<para>
+
+			Hydrogen est un synth&eacute;tiseur logiciel utilisable soit ind&eacute;pendament,
+			comme &eacute;mulateur d'une boite &agrave; rythme bas&eacute;e sur des motifs, soit via un
+			synth&eacute;tiseur ou s&eacute;quenceur logiciel MIDI externe.
+
+		</para>
+	</abstract>
+
+</bookinfo>
+
+<!--
+################
+# CHAPITRE UN  #
+################
+-->
+
+<chapter id="introduction">
+	<title>Introduction</title>
+
+	<sect1 id="telechargement">
+		<title>T&eacute;l&eacute;chargement</title>
+		<para>
+			La derni&egrave;re version stable de Hydrogen est disponible &agrave; l'adresse
+			<ulink url="http://hydrogen.sourceforge.net">http://hydrogen.sourceforge.net</ulink>
+		</para>
+		<para>
+			Vous pouvez &eacute;galement t&eacute;l&eacute;charger directement les sources depuis les 
+			snapshots CVS avec :
+		
+			<screen><prompt>bash$</prompt> <command>cvs -z3 -d:pserver:anonymous@cvs.hydrogen.sourceforge.net:/cvsroot/hydrogen co libhydrogen</command></screen>
+			<screen><prompt>bash$</prompt> <command>cvs -z3 -d:pserver:anonymous@cvs.hydrogen.sourceforge.net:/cvsroot/hydrogen co hydrogen</command></screen>
+		
+		</para>
+	</sect1>
+
+	<sect1 id="compilation">
+		<title>Compilation</title>
+		<para>
+			Apr&egrave;s avoir t&eacute;l&eacute;charg&eacute; et d&eacute;compress&eacute; les archives .tar.gz, il n'y a plus 
+			qu'&agrave; tapper :
+			
+<screen>
+<prompt>bash$</prompt> <command>cd hydrogen-*</command>
+<prompt>bash$</prompt> <command>./configure</command>
+<prompt>bash$</prompt> <command>make</command>
+<prompt>bash$</prompt> <command>su -c "make install"</command>
+</screen>
+
+		</para>
+
+		<para>
+		Avant de compiler, v&eacute;rifiez si vous ne souhaitez pas utiliser l'une des options 
+		additionnelles avec :
+
+<screen>
+<prompt>bash$</prompt> <command>./configure --help</command>
+</screen>
+		
+		</para>
+
+	</sect1>
+
+	<sect1 id="configurationPiloteAudio">
+		<title>Configuration du pilote audio</title>
+		<para>
+			Il est tr&egrave;s important de choisir le bon pilote audio pour votre syst&egrave;me 
+			car ce choix peut avoir une importance non n&eacute;gligeable sur les 
+			performances g&eacute;n&eacute;rales du logiciel.
+			Vous avez le choix entre les pilotes OSS et Jack. 
+
+		</para>
+		<sect2 id="PiloteOSS">
+			<title>Le pilote OSS</title>
+			<para>
+			Le pilote OSS utilise /dev/dsp et est bas&eacute; sur l'interface OSS qui 
+			est utilisable avec la pluspart des cartes sons disponibles sous 
+			Linux. Cela dit, l'utilisation de OSS bloque /dev/dsp jusqu'&agrave; ce que 
+			Hydrogen soit ferm&eacute;, rendant son utilisation par d'autres logiciels 				impossible.
+			</para>
+		</sect2>
+		<sect2 id="PiloteJack">
+			<title>Le pilote Jack</title>
+			<para>
+			Le pilote Jack n&eacute;cessite que son serveur (<ulink url="http://jackit.sourceforge.net">Jack Audio Connection Kit</ulink>) 
+			soit actif pour fonctionner. Il s'agit d'un serveur audio professionel qui 
+			permet une latence tr&egrave;s faible et des &eacute;changes avec d'autres logiciels musicaux. 
+         <emphasis>Nous vous recommandons fortement son usage si vous voulez tirer le meilleur d'Hydrogen</emphasis>.
+			</para>
+		</sect2>
+	</sect1>
+</chapter>
+
+<!--
+#################
+# CHAPITRE DEUX #
+#################
+-->
+
+<chapter id="GUI">
+	<title>Interface graphique</title>
+
+	<sect1 id="main">
+		<title>La bare d'outils principale</title>
+		<para>Avant de nous occuper des deux fen&ecirc;tres principales, jetons un coup d'oeil sur la barre d'outils :</para>
+		
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img/MainToolbar.png" format="png">
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+
+	<itemizedlist mark="none">
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/MainPlay.png" format="png">
+		</imageobject></inlinemediaobject> Joue un morceau ou un motif <emphasis role="bold">[Hotkey = Spacebar]</emphasis></para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/MainStop.png" format="png">
+		</imageobject></inlinemediaobject> Stoppe un morceau ou un motif <emphasis role="bold">[Hotkey = Spacebar]</emphasis></para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/MainModePattern.png" format="png">
+		</imageobject></inlinemediaobject> Active le mode 'Motif'.</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/MainModeSong.png" format="png">
+		</imageobject></inlinemediaobject> Active le mode 'Morceau'.</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/bpm.png" format="png">
+		</imageobject></inlinemediaobject> Change le tempo (&eacute;chelle : 40-300 bpm) <emphasis role="bold">[Vous pouvez &eacute;galement le faire &agrave; l'aide des touches +/- du clavier et de la molette de la souris !]</emphasis></para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/cpuload.png" format="png">
+		</imageobject></inlinemediaobject> Indicateur de charge CPU.</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/midi_in.png" format="png">
+		</imageobject></inlinemediaobject> Indicateur d'&eacute;v&egrave;nements MIDI.</para></listitem>
+
+		<listitem><para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/jack_transport.png" format="png">
+		</imageobject></inlinemediaobject> Cliquez pour activer le mode Jack esclave : Hydrogen fonctionnera comme 'esclave' d'un autre programme maître (ex. Ardour). Cet applet est utilisable uniquement si vous utilisez le pilote audio Jack.</para></listitem>
+
+	</itemizedlist>
+
+	<para> Autres raccourcis clavier utiles (non configurables pour l'instant) :</para>
+		
+		<itemizedlist mark='opencircle'>
+		<listitem>
+			<para>
+			<emphasis role="bold">[CTRL + O]</emphasis> = Ouvrir un morceau
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+			<emphasis role="bold">[CTRL + S]</emphasis> = Enregistrer un morceau
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+			<emphasis role="bold">[Backspace]</emphasis> = Relancer le morceau (ou motif) depuis le d&eacute;but.
+			</para>
+		</listitem>
+		</itemizedlist>
+
+	</sect1>
+
+	<sect1 id="EditeurDeMorceau">
+		<title>Editeur de Morceau</title>
+
+<para>
+La fen&ecirc;tre "Editeur de morceau" (Fig. 1) montre le morceau en cours d'&eacute;dition ; chaque ligne repr&eacute;sentant un motif, ce qui permet de les combiner pour cr&eacute;er le morceau, la lecture d'un motif &eacute;tant repr&eacute;sent&eacute;e par une croix. Avec ce syst&egrave;me, m&ecirc;me un changement mineur (par example une ouverture de charleston sur le quatri&egrave;me temps) oblige &agrave; cr&eacute;er une nouvelle ligne. Vous pouvez ajouter ou supprimer ces croix seulement de mani&egrave;re s&eacute;quentielle, et une fois cr&eacute;&eacute;es, elles ne peuvent &ecirc;tre effac&eacute;es que si une autre est pr&eacute;sente dans la m&ecirc;me colonne (par exemple si vous voulez choisir un autre motif parmi ceux cr&eacute;&eacute;s). Pour laisser un blanc de une mesure, utilisez un motif vide !
+</para>
+
+<para>
+La fen&ecirc;tre comprend &eacute;galement 5 boutons :
+</para>
+
+<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/CreateNewPattern.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	Cr&eacute;e un nouveau motif (vous demande un nom)
+</para>
+
+<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MovePatternDown.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	D&eacute;place le motif s&eacute;lectionn&eacute; d'un rang vers le bas
+</para>
+
+<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MovePatternUp.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	D&eacute;place le motif s&eacute;lectionn&eacute; d'un rang vers le haut
+</para>
+
+<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/SongOperations.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	Ouvre le menu permettant de modifier les propri&eacute;t&eacute;s du morceau (nom, auteur, 
+	commentaires), d'effacer la s&eacute;quence de motifs ou tous les motifs du morceau.
+</para>
+
+<para>
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/SongLoop.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+
+	Joue le morceau en boucle
+
+</para>
+
+<para>
+Sous ces boutons, vous trouverez une liste des motifs cr&eacute;&eacute;s et quand ils seront jou&eacute;s. Cliquez sur 
+une case vide pour jouer le motif (apparition d'une croix) ou sur une case contenant une croix 
+pour l'effacer. Cliquer avec le bouton droit de la souris sur un motif ouvrira un menu permettant 
+de modifier son nom, de le copier ou de le supprimer. Notez qu'il est impossible de cr&eacute;er deux motifs portant le m&ecirc;me nom !
+</para>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img/SongEditor.png" format="png">
+		</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 1</emphasis> L'&eacute;diteur de morceau
+			</para>
+		</caption>
+
+	</mediaobject>
+</screenshot>
+
+
+	</sect1>
+
+	<sect1 id="Editeur_de_motif">
+		<title>Editeur de motif</title>
+		<para>
+
+		La fen&ecirc;tre "Editeur de motif" (Fig. 2) permet de cr&eacute;er ou de modifier le motif actif, 
+d'ajouter ou de supprimer des notes et de r&eacute;gler l'intensit&eacute; des notes. Le menu d&eacute;roulant 
+"R&eacute;solution de la grille" sert &agrave; modifier la r&eacute;solution pour pouvoir ajouter des notes de valeur 
+plus faible. Il est possible de la r&egrave;gler sur les modes 4 (noires), 8 (croches), 16 (doubles 
+croches), 32 (triples croches) et 64 (quadruples croches) ou sur les modes ternaires 
+correspondants 4T (triolets de noires), 8T (triolets de croches), 16T (triolets de doubles), 32T 
+(triolets de triples) et 64T (triolets de quadruples). Vous pouvez &eacute;galement r&eacute;gler la dur&eacute;e effective du motif grâce au menu "Taille du motif" situ&eacute; en haut &agrave; droite de la fen&egrave;tre 
+(attention, il est gradu&eacute; en demi-temps !).
+S&eacute;lectionner un instrument qui a au moins une note fera apparaitre des barres verticales en 
+dessous de chacune d'entre elles dans la partie la plus inf&eacute;rieure de la fen&ecirc;tre. Elles servent &agrave; 
+modifier l'intensit&eacute; des notes. 
+Le bouton
+
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/HearNewNotes.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+
+		(entendre les notes ajout&eacute;es) active ou d&eacute;sactive la pr&eacute;audition des notes 
+		ajout&eacute;es au motif.
+
+		</para>
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PatternEditor.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 2</emphasis> L'&eacute;diteur de motif
+			</para>
+		</caption>
+				
+			</mediaobject>
+		</screenshot>
+
+		<para>Vous pouvez &eacute;galement enregistrer directement une partie en cliquant sur
+		
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/recBtn_on.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		qui active l'enregistrement direct depuis une source MIDI ou le clavier selon la liste suivante (touche/instrument) :</para>
+		
+		<para><emphasis>Notez que le nom de l'instrument d&eacute;pend du drumkit utilis&eacute;. Cette liste concerne GMKit, le kit par d&eacute;faut. La position de l'instrument, cependant, reste la m&ecirc;me.</emphasis></para>
+		
+		<itemizedlist>
+		<listitem><para>Z = Kick (grosse caisse)</para></listitem>
+		<listitem><para>X = Snare Jazz (caisse claire jazz)</para></listitem>
+		<listitem><para>C = Snare Rock (caisse claire rock)</para></listitem>
+		<listitem><para>V = Tom Low (tom grave)</para></listitem>
+		<listitem><para>B = Tom Mid (tom m&eacute;dium)</para></listitem>		
+		<listitem><para>N = Tom Hi (tom basse)</para></listitem>
+		<listitem><para>M = Cowbell (cloche)</para></listitem>		
+		<listitem><para>Q = Ride Jazz</para></listitem>
+		<listitem><para>W = Ride Rock</para></listitem>		
+		<listitem><para>E = Instrument No. 17 (non assign&eacute; actuellement)</para></listitem>
+		<listitem><para>R = Instrument No. 18 (non assign&eacute; actuellement)</para></listitem>		
+		<listitem><para>T = Instrument No. 20 (non assign&eacute; actuellement)</para></listitem>
+		<listitem><para>Y = Instrument No. 22 (non assign&eacute; actuellement)</para></listitem>		
+		<listitem><para>U = Instrument No. 24 (non assign&eacute; actuellement)</para></listitem>
+		<listitem><para>S = Stick (clap baguettes)</para></listitem>		
+		<listitem><para>D = Hand Clap (clap mains)</para></listitem>
+		<listitem><para>G = Closed HH (charleston ferm&eacute;e)</para></listitem>		
+		<listitem><para>H = Pedal HH (charleston au pied)</para></listitem>
+		<listitem><para>J = Open HH (charleston ouvert)</para></listitem>		
+		<listitem><para>2 = Crash</para></listitem>
+		<listitem><para>3 = Crash Jazz</para></listitem>		
+		<listitem><para>5 = Instrument No. 19 (non assign&eacute; actuellement)</para></listitem>
+		<listitem><para>6 = Instrument No. 21 (non assign&eacute; actuellement)</para></listitem>		
+		<listitem><para>7 = Instrument No. 23 (non assign&eacute; actuellement)</para></listitem>
+		</itemizedlist>
+
+	<para>Un mode <quote>Quantize</quote> tr&egrave;s utile est activable en cliquant sur
+	
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata fileref="img/quantBtn_off.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+	
+	. Lorsqu'il est activ&eacute;, vos sons se placeront automatiquement sur les valeurs autoris&eacute;es par la grille s&eacute;lectionn&eacute;e.</para>
+	
+	<para>Voici une r&eacute;f&eacute;rence rapide adaptant la liste ci-dessus &agrave; un clavier MIDI.</para>
+	
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img/tastiera.png" format="png">
+		</imageobject>
+	</mediaobject>
+</screenshot>	
+
+	</sect1>
+
+	<sect1 id="mixer">
+		<title>Table de mixage</title>
+<para>La fen&ecirc;tre "Table de mixage" (Fig. 3) est utile pour r&egrave;gler le volume global du kit de percussions ou 
+	celui de chaque instrument du kit.
+	Elle affiche le niveau actuel (cliquez sur 
+
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/showPeaks_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>	
+
+	 pour le d&eacute;sactiver, utile sur des vieux CPUs) et le volume maximal autoris&eacute; (utilisez le bouton pour le modifier), permet de modifier le panoramique  
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerPan.png" format="png">
+		</imageobject>
+	</inlinemediaobject>	
+			
+	, de jouer une piste seule
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerSolo.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	, couper une piste 
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerMute.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	
+	, charger un sample au format WAV/AU/AIFF pour un instrument 
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerLoadSample.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+
+	ou pr&eacute;visualiser cet instrument
+
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerPlayTest.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+
+	. Ce dernier boutons s'illumine lorsque l'instrument est jou&eacute;. Selectionner un instrument dans l'&eacute;diteur de motif provoque l'affichage d'une bordure verte autours de celui-ci dans la table de mixage.
+
+	</para>
+
+
+	<para>
+
+	Double cliquer sur le nom d'un instrument ouvrira une boite de dialogue pour modifier ses 
+	propri&eacute;t&eacute;s. Cliquer sur FX (dans la colonne de gauche) vous permettra d'appliquer quelques 
+	effets.
+
+</para>
+
+	<screenshot>
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/Mixer.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 3</emphasis> La table de mixage
+			</para>
+		</caption>
+		</mediaobject>
+	</screenshot>
+
+	<para><emphasis>Ces quatre boutons ronds dans chaque piste sont les niveaux pour les plug-ins LADSPA. Lisez la section suivante pour plus d'informations sur ces derniers.</emphasis></para>
+
+	</sect1>
+
+	<sect1 id="ladspa">
+		<title>Les plug-ins LADSPA</title>
+		<para>Hydrogen peut appliquer des effets aux sons en utilisant n'importe quel plug-in LADSPA. Vous devez pour cela avoir install&eacute; les sources de LADSPA (tarball/rpm/apt disponibles &agrave; l'adresse <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>). Installez ensuite un ou plusieurs de ces plug-ins &agrave; l'aide de la commande "make && make install" :</para>
+
+	<itemizedlist>
+	<listitem><para>Des plug-ins SWH sont disponibles &agrave; l'adresse <ulink url="http://plugin.org.uk"><citetitle>http://plugin.org.uk</citetitle></ulink>. Notez que pour les compiler, vous aurez besoin de l'archive de FFTW disponible sur <ulink url="http://www.fftw.org"><citetitle>http://www.fftw.org</citetitle></ulink>.</para></listitem>
+	
+	<listitem><para>CMT t&eacute;l&eacute;chargeables sur <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>.</para></listitem>
+	
+	<listitem><para>TAP t&eacute;l&eacute;chargeables sur <ulink url="http://tap-plugins.sf.net"><citetitle>http://tap-plugins.sf.net</citetitle></ulink>.</para></listitem>
+	
+	</itemizedlist>
+	
+	<para>Une fois quelques plug-ins install&eacute;e, ouvrez Fichier -> Pr&eacute;f&eacute;rences -> G&eacute;n&eacute;ral et v&eacute;rifiez si le chemin est correct (l'installation depuis les sources se fait par d&eacute;faut dans /usr/local/lib/ladspa, par example), puis ouvrez un morceau auquel vous aimeriez ajouter un effet et s&eacute;lectionnez un instrument. Dans la table de mixage, cliquez sur
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/showFX_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	et s&eacute;lectionnez une des quatre pistes d'effets disponibles (Fig. 3a). Cliquez sur le bouton
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/btn_edit_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	, puis sur <quote>Choisir effet</quote>: ceci ouvrira une autre fen&ecirc;tre (Fig. 3b) qui vous permettra de choisir un effet parmi ceux install&eacute;s, ils sont list&eacute;s par ordre alphab&eacute;tique et par cat&eacute;gorie. Ensuite <quote>Activez</quote> l'effet, ajustez les niveaux si vous voulez et retournez &agrave; la table de mixage : lancez le morceau et &eacute;clatez vous ! Chaque bouton rond dans la piste de la table de mixage contrôle le niveau d'un effet de haut en bas : le premier est l'effet 0, tle deuxi&egrave;me l'effet 1 et ainsi de suite. Si vous voulez rapidement activer ou d&eacute;sactiver l'effet, cliquez sur 
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/btn_on_on.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	.</para>
+
+	<screenshot>
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/MixerFXEdit.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 3a</emphasis> La boite de dialogue "Propri&eacute;t&eacute;s de l'effet LADSPA".
+			</para>
+		</caption>
+		</mediaobject>
+	</screenshot>
+
+	<screenshot>
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="img/MixerFXSelect.png" format="png">
+			</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 3b</emphasis> Selectionnez un effet.
+			</para>
+		</caption>
+		</mediaobject>
+	</screenshot>
+
+	</sect1>
+
+
+	<sect1 id="menu">
+		<title>Menu</title>
+	<para>
+	Depuis les menus d&eacute;roulants, vous pouvez s&eacute;lectionner : Fichier-->'Enregistrer sous...' pour sauvegarder le morceau en cours au format .h2song, Fichier-->Exporter pour l'exporter au format WAV, Fichier-->
+
+
+		<link linkend="prefs">Pr&eacute;f&eacute;rences</link>, Fen&ecirc;tres-->
+		
+		<link linkend="audioengine">Montrer les informations du syst&egrave;me audio</link> et Fen&ecirc;tres-->
+
+		<link linkend="drumkit">Montrer le gestionnaire du kit de batterie</link>.
+
+	</para>
+		
+	<sect2 id="prefs">
+		<title>Pr&eacute;f&eacute;rences</title>
+		<para>
+			
+			Depuis cet onglet (Fig. 4), vous pouvez configurer le pilote audio (OSS ou Jack) en changeant son la taille de son tampon ou son taux d'&eacute;chantillonage ainsi qu'activer ou d&eacute;sactiver le m&eacute;tronome et r&eacute;gler son volume.Vous pouvez &eacute;galement activer certaines options comme "se connecter &agrave; la sortie audio par d&eacute;faut" qui connecte simplement la sortie ALSA aux ports par d&eacute;faut (d&eacute;cochez la case si vous voulez connecter la sortie jack &agrave; d'autre ports sans les d&eacute;connecter) ou activer la sortie des pistes, utile si vous voulez appliquer des effets &agrave; un instrument avec jack-rack. Gardez &eacute;galement un oeil sur la valeur "Nombre maximum de notes" : selon votre processeur vous pourriez vouloir &eacute;viter qu'un trop grand nombre de notes ne soit jou&eacute;es simultan&eacute;ment afin d'&eacute;viter un plantage de l'application. Cliquer sur "Syst&egrave;me Midi" (Fig. 5) ouvrira un onglet vous permettant de choisir un p&eacute;riph&eacute;rique d'entr&eacute;e MIDI, ainsi qu'une piste de sortie sp&eacute;cifique ou toutes les pistes, alors que l'onglet "Apparence" (Fig. 6) vous permettra de modifier la taille de la police, le comportement des fen&ecirc;tres (Parent-Enfant ou Vue G&eacute;n&eacute;rale) et la vitesse de d&eacute;croissance des vum&egrave;tres de la table de mixage, ainsi que le th&egrave;me QT utilis&eacute; pour les fen&ecirc;tres.
+			
+		</para>
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PreferencesAudioSystem.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 4</emphasis> L'onglet "Syst&egrave;me audio"
+			</para>
+		</caption>
+
+			</mediaobject>
+		</screenshot>
+		
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PreferencesMidiSystem.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 5</emphasis> L'onglet "Syst&egrave;me Midi"
+			</para>
+		</caption>
+				
+			</mediaobject>
+		</screenshot>
+		
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/PreferencesAppearance.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 6</emphasis> L'onglet "Apparence"
+			</para>
+		</caption>
+			</mediaobject>
+		</screenshot>
+		
+	</sect2>
+
+
+	<sect2 id="audioengine">
+		<title>Informations du système audio</title>
+		<para>
+		
+		Cette option du menu fen&ecirc;tres (Fig. 7) fera apparaitre une fen&ecirc;tre contenant des informations d'ordre g&eacute;n&eacute;ral sur Hydrogen et le pilote audio. Le tampon et le taux d'&eacute;chantillonage du pilote Jack sont configurables si le serveur est lanc&eacute; depuis la console.
+
+		</para>
+			
+			<screenshot>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="img/AudioEngineInfoDialog.png" format="png">
+					</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 7</emphasis> La fen&ecirc;tre "Informations du syst&egrave;me audio. Mieux que les CPUm&egrave;tres des vieux PC et que les r&eacute;pertoires /proc surcharg&eacute;s ;)
+			</para>
+		</caption>
+				</mediaobject>
+			</screenshot>
+	</sect2>
+	
+	<sect2 id="drumkit">
+		<title>Gestionnaire de kit de batterie (drumkit)</title>
+	<para>
+		
+		Le gersionnaire de kit de batterie affiche toutes les options sur les kits de batterie, dont les groupes de samples (wav) qui seront associ&eacute;s &agrave; chaque piste disponible afin d'obtenir un groove correspondant au genre musical (disco, rock, hip hop, etc ...). Pour se faire une id&eacute;e de comment utiliser ces kits, il est recommand&eacute; d'&eacute;couter le fichier d'example .h2song correspondant.
+		  
+	</para>
+
+	<para>
+	
+	A partir du premier &eacute;cran (Fig. 8) il est possible de charger/supprimer un kit, avec une courte description. Ici (Fig. 9) vous pouvez enregistrer les infos sur le drumkit utilis&eacute; et l&agrave; (Fig. 10) importer un kit au format .h2drumkit (Fig. 11) ao l'exporter (Fig. 12).
+
+	</para>
+		
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitLoad.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 8</emphasis> Charger un kit. Choisissez parmi les diff&eacute;rents install&eacute;s.
+			</para>
+		</caption>
+
+			</mediaobject>
+		</screenshot>
+			
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitSave.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 9</emphasis> Sauvegarder un kit.
+			</para>
+		</caption>
+			</mediaobject>
+		</screenshot>
+		
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitImport.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 10</emphasis> Importer un kit.
+			</para>
+		</caption>
+			</mediaobject>
+		</screenshot>
+
+		<screenshot>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="img/DrumkitExport.png" format="png">
+				</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 11</emphasis> Exporter un kit.
+			</para>
+		</caption>
+			</mediaobject>
+		</screenshot>
+
+	</sect2>
+</sect1>
+
+</chapter>
+
+
+<!--
+##################
+# CHAPITRE TROIS #
+##################
+-->
+
+<chapter id="creazioneSong">
+	<title>Cr&eacute;er un nouveau morceau</title>
+	<sect1 id="SongVSpattern">
+		<title>Mode "Morceau" contre mode "Motif"</title>
+		<para>
+		
+		Hydrogen a 2 modes principaux : le mode "Motif" (accessible en cliquant sur  
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MainModePattern.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		) et le mode "Morceau" (accessible en cliquant sur
+		
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MainModeSong.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		 pour Song). Quand vous travaillez en mode "Motif", le motif actif est continuellement r&eacute;p&eacute;t&eacute;, afin de permettre d'entendre les changements qui lui sont apport&eacute;s, alors que le mode "Morceau" joue les motifs dans l'ordre sp&eacute;cifi&eacute; dans l'&eacute;diteur de morceau, ce qui est utile lors du travail sur la structure de la musique.
+		
+		</para>
+		
+	</sect1>
+
+	<sect1 id="creazionePattern">
+		<title>Un nouveau motif</title>
+		<para>
+		
+		Nous allons d&eacute;marrer &agrave; partir d'un morceau vide avec un motif vierge, comme lors de la cr&eacute;ation d'un nouveau morceau par d&eacute;faut (Fig. 12). Cliquez sur Fichier --> Nouveau. Le mode "Motif" devrait &ecirc;tre automatiquement s&eacute;lectionn&eacute;. Il est possible de changer le nom du motif (par d&eacute;faut "Empty Pattern") comme indiqu&eacute; pr&eacute;c&eacute;demment. 
+		</para>
+
+		<screenshot>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="img/TutorialStart.png" format="png">
+					</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 12</emphasis> C'est parti ! Hydrogen pr&egrave;t &agrave; l'emploi. Remarquez l'affichage de la charge CPU et l'applet MIDI.
+			</para>
+		</caption>
+				</mediaobject>
+		</screenshot>
+
+		<para>
+		
+		Cliquez sur   
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MainPlay.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		et ajoutez des notes dans l'&eacute;diteur de motif en cliquant avec le bouton gauche de la souris (ajustez la r&eacute;solution de la grille et le tempo si n&eacute;cessaire : la r&eacute;solution par d&eacute;faut est 32 et le tempo 120 bpm sur une &eacute;chelle de 40 &agrave; 300). 
+Cliquez sur 
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MainStop.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		pour interrompre la lecture. Pour cr&eacute;er un nouveau motif, cliquez simplement sur
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/CreateNewPattern.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+
+		et ajoutez des notes comme indiqu&eacute; pr&eacute;c&eacute;demment, <emphasis role="bold">apr&egrave;s avoir v&eacute;rifi&eacute; que vous avez bien s&eacute;lectionn&eacute; le bon motif</emphasis> Remarquez &eacute;galement que si, par exemple, vous s&eacute;lectionnez une r&eacute;solution de 16, remplissez le motif puis optez pour une r&eacute;solution plus faible (disons 8), vous ne pourrez plus supprimer les notes en dehors de la grille.
+		
+		</para>
+
+		<screenshot>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="img/PatternEditor.png" format="png">
+					</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 13</emphasis> L'&eacute;diteur de motif
+			</para>
+		</caption>
+				</mediaobject>
+		</screenshot>
+		
+	</sect1>
+
+	<sect1 id="creazioneSequenza">
+		<title>Un nouveau morceau</title>
+		<para>
+		
+		Une fois les motifs cr&eacute;&eacute;s, pour les copier, coller, supprimer ou d&eacute;placer dans l'&eacute;diteur de morceau (Fig. 14), vous devez utiliser les boutons de la fen&ecirc;tre "Editeur de morceau"
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MovePatternUp.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+				
+		, 
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MovePatternDown.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		ainsi que la commande copier/supprimer qui apparait lors d'un clic droit sur le motif s&eacute;lectionn&eacute;.
+		
+		</para>
+
+		<screenshot>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="img/TutorialEnd.png" format="png">
+					</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 14</emphasis> Insertion de notes dans un motif
+			</para>
+		</caption>
+				</mediaobject>
+		</screenshot>		
+
+	</sect1>
+	
+	<sect1 id="operazioniMixer">
+		<title>Utiliser la table de mixage</title>
+		<para>
+		
+		Il est toujours possible de se servit de la table de mixage, m&ecirc;me lors de la cr&eacute;ation ou de la lecture de motifs.
+		
+		</para>
+		
+		<para>
+		
+		Elle est compos&eacute;e de 32 pistes ind&eacute;pendantes (Fig. 15), chacune d'entre elles correspondant &agrave; un instrument, ainsi que d'une piste "Volume g&eacute;n&eacute;ral" et de boutons pour r&eacute;gler les effets.
+Chaque ligne se compose de quatre boutons (
+	
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerPlayTest.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+ 		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerSolo.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerMute.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerLoadSample.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		), d'un r&eacute;glage de l'echo et de la st&eacute;r&eacute;o (pan) (
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerPan.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		), d'un afficheur du volume maximal atteint , d'un r&eacute;glage du volume et du nom de la piste. Cliquer sur 
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerSolo.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+		
+		jouera l'instrument correspondant en solo. Le bouton "Couper"
+		
+		<inlinemediaobject>
+			<imageobject>
+			<imagedata fileref="img/MixerMute.png" format="png">
+			</imageobject>
+		</inlinemediaobject>
+
+		, rend simplement <emphasis>cet</emphasis> instrument inaudible. Le nombre indiquant le volume maximal atteint par cet instrument doit toujours &ecirc;tre compris entre 0.0 et 1.0, sinon, il produira un son d&eacute;form&eacute; (en particulier avec OSS). Il est alors n&eacute;cessaire de r&eacute;duire son volume..
+	
+		</para>
+		
+		<para>
+		
+		Enfin, vous disposez d'un r&eacute;glage du volume pour chaque instrument et d'un vum&egrave;tre qui vous aideront &agrave; faire votre mix.
+
+		</para>
+
+		<screenshot>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="img/Mixer.png" format="png">
+					</imageobject>
+		<caption>
+			<para>
+			<emphasis role="bold">Fig. 15</emphasis> D&eacute;tails de la table de mixage
+			</para>
+		</caption>
+
+				</mediaobject>
+		</screenshot>
+
+	</sect1>
+
+</chapter>
+
+</book>

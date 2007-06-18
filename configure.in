@@ -1,0 +1,557 @@
+d added Qt .dylib search for OS X systems (2004/12/17 Jonathan Dempsey)
+
+
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(README)
+#AC_PREREQ(2.58)
+
+extra_version=""
+hydrogenVersion="0.9.3$extra_version"
+
+echo "
+
+-----------------------------------------------------------------
+Starting Hydrogen $hydrogenVersion configuration...
+-----------------------------------------------------------------
+
+"
+#ac_qmake_lflags="-static"
+#AC_SUBST(ac_qmake_lflags)
+
+
+# static build
+#ac_libraries=-static
+
+
+AC_DEFINE_UNQUOTED(VERSION, "${hydrogenVersion}", [Version])
+
+
+AC_CONFIG_HEADER(config.h)
+
+dnl Set default installation prefix.
+AC_PREFIX_DEFAULT(/usr/local)
+ac_prefix=$prefix
+if test "x$ac_prefix" = "xNONE"; then
+    ac_prefix=$ac_default_prefix
+fi
+AC_SUBST(ac_prefix)
+AC_DEFINE_UNQUOTED(CONFIG_PREFIX, ["$ac_prefix"], [Default installation prefix.])
+
+
+AC_ARG_ENABLE(profile, [  --enable-profile     enable profile info (default=no)], [useProfile="yes"], [useProfile="no"])
+if test "x$useProfile" = "xyes"; then
+	ac_qmake_cflags="-pg"
+	ac_qmake_cxxflags="-pg"
+	ac_qmake_lflags="-pg"
+	AC_SUBST(ac_qmake_cflags)
+	AC_SUBST(ac_qmake_cxxflags)
+	AC_SUBST(ac_qmake_lflags)
+fi
+
+dnl Enable debugging argument option.
+AC_ARG_ENABLE(debug, [  --enable-debug          enable debugging (default=no)], [ac_debug="debug"], [ac_debug="release"])
+AC_SUBST(ac_debug)
+if test "x$ac_debug" = "xdebug"; then
+	AC_DEFINE(CONFIG_DEBUG, 1, [Define if debugging is enabled.])
+	features_list="${features_list} (Debug)"
+	echo " * Debug mode enabled."
+#	CXXFLAGS="${CXXFLAGS} -g -O3"
+#else
+#	CXXFLAGS="${CXXFLAGS} -O3"
+fi
+
+ladspa_enabled=yes
+AC_ARG_ENABLE(ladspa, [  --disable-ladspa          disable LADSPA support (default=no)], [ladspa_enabled=$enableval])
+
+if test "x$ladspa_enabled" = "xyes"; then
+	AC_DEFINE(LADSPA_SUPPORT, 1, [Define if LADSPA support is enabled.])
+else
+	echo " * LADSPA support disabled."
+fi
+
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_GCC_TRADITIONAL
+
+dnl Checks for languages.
+AC_LANG_C
+AC_LANG_CPLUSPLUS
+
+
+
+########################
+#
+# QT
+#
+#####################
+echo ""
+echo "--- Checking for QT Libs ----------------------------------------"
+
+#dnl Check for QTDIR environment variable.
+AC_MSG_CHECKING([whether QTDIR environment variable is set])
+if test "x$QTDIR" = "x"; then
+	# is not set
+	AC_MSG_RESULT([no])
+	AC_MSG_WARN([QTDIR must be properly set.])
+
+	echo " * Searching for Qt library"
+	ac_qtlib=""
+	for X in /usr/share/qt /usr/share/qt3 /usr/lib/qt3 /usr/lib/qt-3.1; do
+		if test "x$ac_qtlib" = "x"; then
+			if test -f $X/lib/libqt-mt.so -o -f $X/lib/libqt-mt.a -o -f $X/lib/libqt-mt.dylib; then
+				ac_qtlib=$X
+				QTDIR=$X
+				echo "   |-> searching QT in $X *** Found ***"
+			else
+				echo "   |-> searching QT in $X *** Not found ***"
+			fi
+		fi
+	done
+else
+	AC_MSG_RESULT([$QTDIR])
+	echo " * Searching for Qt library"
+	ac_qtlib=""
+	if test "x$ac_qtlib" = "x"; then
+		if test -f $QTDIR/lib/libqt-mt.so -o -f $QTDIR/lib/libqt-mt.a -o -f $QTDIR/lib/libqt-mt.dylib; then
+			ac_qtlib=$QTDIR
+			echo "   |-> searching QT in $QTDIR *** Found ***"
+		else
+			echo "   |-> searching QT in $QTDIR *** Not found ***"
+		fi
+	fi
+fi
+
+#dnl Checks for Qt library.
+#AC_CACHE_CHECK([for Qt library],
+#	ac_qtlib, [
+#	for X in qt-mt qt; do
+#		if test "x$ac_qtlib" = "x"; then
+#			if test -f $QTDIR/lib/lib$X.so -o -f $QTDIR/lib/lib$X.a; then
+#				ac_qtlib=$X
+#			fi
+#		fi
+#	done
+#])
+
+if test "x$ac_qtlib" = "x"; then
+	AC_MSG_WARN([Qt library not found. Maybe QTDIR isn't properly set.])
+fi
+AC_SUBST(ac_qtlib)
+
+
+#dnl Check for Qt multi-thread support.
+#if test "x$ac_qtlib" = "xqt-mt"; then
+#  ac_thread="thread"
+#fi
+#AC_SUBST(ac_thread)
+#
+CFLAGS="$CFLAGS -I$QTDIR/include"
+CPPFLAGS="$CPPFLAGS -I$QTDIR/include"
+LIBS="-L$QTDIR/lib -L/usr/X11R6/lib"
+
+#AC_CACHE_CHECK([for Qt library version >= 3.1.1],
+#  ac_qtlib_version, [
+#  AC_TRY_LINK([#include "qglobal.h"], [
+#if QT_VERSION < 0x030101
+#error Qt library 3.1.1 or greater required.
+#endif
+#    ],
+#    ac_qtlib_version="yes", [
+#      echo "no; Qt 3.1.1 or greater is required"
+#      exit
+#    ])
+#])
+
+dnl A common error message:
+ac_qtdir_errmsg="not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
+
+# Check for Qt qmake utility.
+#AC_PATH_PROG(ac_qmake, qmake, [no], $QTDIR/bin:${PATH})
+AC_PATH_PROG(ac_qmake, qmake, [no], $QTDIR/bin)
+if test "x$ac_qmake" = "xno"; then
+	AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
+fi
+AC_SUBST(ac_qmake)
+
+# Check for Qt moc utility.
+#AC_PATH_PROG(ac_moc, moc, [no], $QTDIR/bin:${PATH})
+AC_PATH_PROG(ac_moc, moc, [no], $QTDIR/bin)
+if test "x$ac_moc" = "xno"; then
+	AC_MSG_ERROR([moc $ac_qtdir_errmsg])
+fi
+AC_SUBST(ac_moc)
+
+# Check for Qt uic utility.
+#AC_PATH_PROG(ac_uic, uic, [no], $QTDIR/bin:${PATH})
+AC_PATH_PROG(ac_uic, uic, [no], $QTDIR/bin)
+if test "x$ac_uic" = "xno"; then
+	AC_MSG_ERROR([uic $ac_qtdir_errmsg])
+fi
+AC_SUBST(ac_uic)
+
+
+
+echo ""
+echo "-----------------------------------------------------------------"
+echo "Checking for libraries.."
+echo "-----------------------------------------------------------------"
+
+
+
+dnl Checks for libraries.
+AC_CHECK_LIB(m, main)
+AC_CHECK_LIB(X11, main)
+AC_CHECK_LIB(Xext, main)
+AC_CHECK_LIB($ac_qtlib, main)
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h sys/ioctl.h unistd.h poll.h)
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(system)
+
+
+
+#################################
+#
+# libSndFile
+#
+#################################
+echo ""
+echo "--- Checking for libsndfile -------------------------------------"
+sndfile_found=false
+AC_CHECK_LIB([sndfile], sf_open, sndfile_found=yes)
+#PKG_CHECK_MODULES(LIBSNDFILE, sndfile, sndfile_found=true, sndfile_found=false)
+if test "$sndfile_found" = "false"; then
+	AC_MSG_ERROR("sndfile library not found. Website: http://www.mega-nerd.com/libsndfile/")
+else
+	ac_libraries="${ac_libraries} $( pkg-config --libs sndfile )"
+fi
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+
+
+######################
+#
+# FLAC
+#
+########################
+echo ""
+echo "--- Checking for FLAC++ Libs ------------------------------------"
+flac_support=yes
+AC_ARG_ENABLE(flac_support, [  --disable-flac-support  Compile without FLAC support], [flac_support=$enableval])
+
+if test "$flac_support" != "no"; then
+
+	flac_found=no
+	#AC_CHECK_HEADERS(FLAC/file_decoder.h)
+	#AC_CHECK_LIB(FLAC, FLAC__file_decoder_new, flac_found=yes)
+
+	AC_CHECK_HEADERS(FLAC++/all.h, flac_found=yes)
+	#AC_CHECK_LIB(FLAC++, FLAC::Decoder::File, flac_found=yes)
+
+	if test "$flac_found" = "no"; then
+		AC_MSG_ERROR("FLAC++ library not found. FLAC website: http://flac.sourceforge.net")
+	else
+		AC_DEFINE(FLAC_SUPPORT, 1, [Define to enable FLAC support])
+		ac_libraries="${ac_libraries} -lFLAC++ -lFLAC"
+		features_list="${features_list} (FLAC)"
+	fi
+else
+	AC_MSG_WARN("FLAC++ library disabled. WARNING: Many drumkits will not work without FLAC support!!")
+fi
+
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+
+
+##############################
+#
+#	JACK SUPPORT
+#
+################################
+echo ""
+echo "--- Checking for JACK -------------------------------------------"
+jack_support=yes
+AC_ARG_ENABLE(jack-support, [  --disable-jack-support   Compile without JACK support], [jack_support=$enableval])
+
+JACK_SUPPORT=0
+
+if test "$jack_support" != "no"; then
+	AC_CHECK_LIB(jack, main, [ac_jack_lib="yes"], [ac_jack_lib="no"])
+	if test "x$ac_jack_lib" = "xno"; then
+		AC_MSG_WARN([ *** Could not find the JACK library, disabling JACK driver])
+	else
+		JACK_SUPPORT=1
+		AC_DEFINE(JACK_SUPPORT, 1, [Define to enable JACK driver])
+		features_list="${features_list} (Jack)"
+		ac_libraries="${ac_libraries} -ljack"
+	fi
+else
+	echo "JACK support disabled"
+fi
+echo "-----------------------------------------------------------------"
+echo ""
+
+##########################
+#
+# ALSA
+#
+##########################
+echo ""
+echo "--- Checking for ALSA Libs --------------------------------------"
+
+use_alsa=yes
+
+AC_ARG_ENABLE(alsa, [  --disable-alsa   Compile without ALSA support], [use_alsa=$enableval])
+if test "$use_alsa" = "yes"; then
+	alsa_found=no
+	AC_CHECK_HEADERS(alsa/asoundlib.h)
+dnl	if test "x${ac_cv_header_alsa_asoundlib_h}" = xyes ; then
+dnl	fi
+
+	AC_CHECK_LIB(asound, snd_seq_open, alsa_found=yes)
+	if test "$alsa_found" = "no" ; then
+		AC_MSG_WARN([ *** Could not find the ALSA library, disabling ALSA support])
+	else
+		AC_DEFINE( ALSA_SUPPORT, 1, [Define to use ALSA Audio support])
+		features_list="${features_list} (Alsa)"
+		ac_libraries="${ac_libraries} -lasound"
+	fi
+else
+	echo "ALSA support disabled."
+fi
+
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+##########################
+#
+#	OSS SUPPORT
+#
+##########################
+echo ""
+echo "--- Checking for OSS --------------------------------------------"
+oss_support=yes
+
+AC_ARG_ENABLE(oss-support, [  --disable-oss-support   Compile without OSS support], [oss_support=$enableval])
+if test "$oss_support" = "yes"; then
+	AC_DEFINE(OSS_SUPPORT, 1, [Define to enable OSS driver])
+	features_list="${features_list} (OSS)"
+else
+	echo "OSS support disabled."
+fi
+
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+
+#################################
+#
+# PortAudio
+#
+#################################
+echo ""
+echo "--- Checking for PortAudio -------------------------------------"
+
+portaudio_support=false
+AC_MSG_CHECKING([whether PORTAUDIOPATH environment variable is set])
+if test "x$PORTAUDIOPATH" = "x"; then
+	AC_MSG_RESULT(PORTAUDIOPATH is not set. No PortAudio support.)
+else
+	AC_MSG_RESULT("[$PORTAUDIOPATH]")
+	if test -f $PORTAUDIOPATH/pa_unix_oss/libportaudio.so; then
+		echo "   |-> searching PortAudio in $PORTAUDIOPATH *** Found ***"
+		ac_libraries="${ac_libraries} -L${PORTAUDIOPATH}/pa_unix_oss -lportaudio"
+		features_list="${features_list} (PortAudio)"
+		AC_DEFINE(PORTAUDIO_SUPPORT, 1, [Define to enable PortAudio driver])
+
+		ac_qmake_cxxflags="$ac_qmake_cxxflags -I$PORTAUDIOPATH/pa_common"
+		AC_SUBST(ac_qmake_cxxflags)
+		portaudio_support=true
+	else
+		echo "   |-> searching PortAudio in $PORTAUDIOPATH *** Not found ***"
+	fi
+
+fi
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+
+
+#################################
+#
+# PortMidi
+#
+#################################
+echo ""
+echo "--- Checking for PortMidi -------------------------------------"
+portmidi_support=false
+AC_MSG_CHECKING([whether PORTMIDIPATH environment variable is set])
+if test "x$PORTMIDIPATH" = "x"; then
+	AC_MSG_RESULT(PORTMIDIPATH is not set. No PortMidi support.)
+else
+	AC_MSG_RESULT("[$PORTMIDIPATH]")
+	if test -f $PORTMIDIPATH/pm_linux/libportmidi.a; then
+		echo "   |-> searching PortMidi in $PORTMIDIPATH *** Found ***"
+		ac_libraries="${ac_libraries} ${PORTMIDIPATH}/pm_linux/libportmidi.a ${PORTMIDIPATH}/porttime/libporttime.a"
+		features_list="${features_list} (PortMidi)"
+		AC_DEFINE(PORTMIDI_SUPPORT, 1, [Define to enable PortMidi driver])
+
+		ac_qmake_cxxflags="$ac_qmake_cxxflags -I$PORTMIDIPATH/pm_common -I$PORTMIDIPATH/porttime"
+		AC_SUBST(ac_qmake_cxxflags)
+		portmidi_support=true
+	else
+		echo "   |-> searching PortMidi in $PORTMIDIPATH *** Not found ***"
+	fi
+
+fi
+
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+
+
+##################################
+#
+# LRDF
+#
+###################################
+echo ""
+echo "--- Checking for LRDF -------------------------------------------"
+LRDF_SUPPORT=0
+lrdf_check=yes
+AC_ARG_ENABLE(lrdf-support, [  --disable-lrdf-support   Compile without LRDF support], [lrdf_check=$enableval])
+if test "$lrdf_check" = "yes"; then
+	lrdf_found=no
+	AC_CHECK_HEADERS(lrdf.h, lrdf_found=yes)
+#	AC_CHECK_LIB(lrdf, lrdf_init, lrdf_found=yes)
+	if test "$lrdf_found" = "no" ; then
+		AC_MSG_WARN([ *** Could not find the LRDF library])
+	else
+		LRDF_SUPPORT=1
+		AC_DEFINE(LRDF_SUPPORT, 1, [Define to enable LRDF support])
+		ac_libraries="${ac_libraries} -llrdf -lraptor -lxml2"
+		features_list="${features_list} (LRDF)"
+	fi
+fi
+echo "-----------------------------------------------------------------"
+echo ""
+
+
+
+##################################
+#
+# define the DATA path
+#
+###################################
+AC_DEFINE_UNQUOTED(DATA_PATH, "${ac_prefix}/share/hydrogen/data", [Data dir])
+AC_DEFINE_UNQUOTED(COMPILED_FEATURES, "${features_list}", [Compiled features])
+
+
+
+
+AC_SUBST(ac_libraries)
+
+
+AC_OUTPUT(
+Makefile 
+hydrogen.pro 
+hydrogenPlayer.pro 
+hydrogenBenchmark.pro 
+hydrogen2Midi.pro 
+hydrogenCUI.pro 
+hydrogen.desktop 
+plugins/Makefile
+plugins/wasp/Makefile
+)
+
+
+echo "
+
+-----------------------------------------------------------------
+ Hydrogen ${hydrogenVersion} configuration:
+-----------------------------------------------------------------
+
+	Source code location:	${srcdir}
+	Prefix			${ac_prefix}
+	Data path		${ac_prefix}/share/hydrogen
+	LDFLAGS			${ac_libraries}
+"
+if test "x$ac_debug" = "xdebug"; then
+	echo "	Debug messages:		yes"
+else
+  	echo "	Debug messages:		no"
+fi
+
+if test "${flac_found}" = "yes"; then
+  	echo "	FLAC:			yes"
+else
+  	echo "	FLAC:			no"
+fi
+
+if test "${LRDF_SUPPORT}" = "1"; then
+  	echo "	LRDF:			yes"
+else
+  	echo "	LRDF:			no"
+fi
+
+echo ""
+
+if test "${JACK_SUPPORT}" = "1"; then
+  	echo "	Jack:			yes"
+else
+  	echo "	Jack:			no"
+fi
+
+if test "${alsa_found}" = "yes"; then
+  	echo "	ALSA :			yes"
+else
+  	echo "	ALSA :			no"
+fi
+
+if test "${oss_support}" = "yes"; then
+  	echo "	OSS:			yes"
+else
+  	echo "	OSS:			no"
+fi
+
+
+if test "${portaudio_support}" = "true"; then
+	echo "	PortAudio		yes"
+else
+	echo "	PortAudio		no"
+fi
+
+if test "${portmidi_support}" = "true"; then
+  	echo "	PortMidi:		yes"
+else
+  	echo "	PortMidi:		no"
+fi
+
+
+echo "
+	Features list = ${features_list}
+
+-----------------------------------------------------------------
+Now type make to build Hydrogen.
+-----------------------------------------------------------------
+
+If you're not a member of hydrogen-dev mailing list yet, please join.
+Please see http://www.hydrogen-music.org for details.
+
+"

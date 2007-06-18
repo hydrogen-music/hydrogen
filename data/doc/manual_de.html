@@ -1,0 +1,455 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+
+<HEAD>
+<TITLE>Hydrogen Manual</TITLE>
+<METANAME="GENERATOR" CONTENT="mcedit / emacs">
+<meta name="author" content="Joe the Fishnapper">
+</HEAD>
+
+<BODY CLASS="BOOK" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#840084" ALINK="#0000FF">
+
+<DIV CLASS="BOOK">
+    <A NAME="HYDROGEN-MANUAL"></A>
+    <DIV CLASS="TITLEPAGE">
+        <H1 CLASS="TITLE"><A NAME="AEN2">Hydrogen Manual</A></H1>
+        <H3 CLASS="AUTHOR"><A NAME="AEN5"></A>Antonio Piraino</H3>
+        <H3 CLASS="AUTHOR"><A NAME="AEN8"></A>Alessandro Cominu</H3>
+
+	<p><b>deutsche &Uuml;bersetzung: Jonas Melzer (joe42@web.de)</b></p>
+    <!-- DIV -->
+        <DIV CLASS="ABSTRACT"><P></P><A NAME="AEN12"></A>
+    
+    	    <P>&#13;
+		    Hydrogen ist ein Software-Synthesizer, welcher als eigenst&auml;ndige
+		    Drum-Maschine mit Wave-Patterns oder mit einem externen MIDI-Keyboard
+		    sowie Software-Sequenzern arbeitet.
+	    </P>
+    	    <P>
+    	    </P>
+        </DIV>
+    <!-- /DIV -->
+    <HR>
+    </DIV>
+
+    <DIVCLASS="TOC">
+    <DL><DT><B>Inhalt</B></DT>
+        <DT>1. <A HREF="#INTRODUCTION">Einleitung</A></DT>
+        <DD>
+	<DL><DT>1.1. <A HREF="#DOWNLOAD">Download</A></DT>
+	    <DT>1.2. <A HREF="#COMPILAZIONE">Installation</A></DT>
+	    <DT>1.3. <A HREF="#CONFIGURAZIONEAUDIODRIVER">Konfiguration des Audiotreibers</A></DT>
+	    <DD>
+	    <DL><DT>1.3.1. <A HREF="#OSSDRIVER">OSS-Audiotreiber</A></DT>
+	        <DT>1.3.2. <A HREF="#JACKDRIVER">Jack-Audiotreiber</A></DT>
+	    </DL>
+	    </DD>
+        </DL>
+        </DD>
+        <DT>2. <A HREF="#GUI" >GUI</A ></DT>
+        <DD>
+        <DL><DT>2.1. <A HREF="#SONGEDITOR" >Song-Editor</A></DT>
+            <DT>2.2. <A HREF="#PATTERNEDITOR">Pattern-Editor</A></DT>
+    	    <DT>2.3. <A HREF="#MIXER">Das Mischpult (Mixer)</A></DT>
+    	    <DT>2.4. <A HREF="#MENU">Men&uuml;</A></DT>
+	    <DD>
+	    <DL><DT>2.4.1. <A HREF="#PREFS">Preferences-Dialog</A></DT>
+	        <DT>2.4.2. <A HREF="#AUDIOENGINE">Audio Engine Info</A></DT>
+	        <DT>2.4.3. <A HREF="#DRUMKIT">Drumkit Manager</A></DT>
+	    </DL>
+	    </DD>
+	</DL>
+        </DD>
+	<DT>3. <A HREF="#CREAZIONESONG">Erstellen eines Songs</A></DT>
+	<DD>
+	<DL><DT>3.1. <A HREF="#SONGVSLIVE">"Song" und "Live"-Modus</A></DT>
+	    <DT>3.2. <A HREF="#CREAZIONEPATTERN">Ein Pattern entwerfen</A></DT>
+	    <DT>3.3. <A HREF="#CREAZIONESEQUENZA">Eine Sequenz gestalten</A></DT>
+	    <DT>3.4. <A HREF="#OPERAZIONIMIXER">Einstellungen am Mischpult</A></DT>
+        </DL>
+	</DD>
+    </DL>
+</DIV> <!-- DIV CLASS="BOOK"-->
+
+
+<DIV CLASS="CHAPTER">
+<HR>
+
+<H1><A NAME="INTRODUCTION"></A>Chapter 1. Einleitung</H1>
+
+<DIV CLASS="SECT1">
+<H2 CLASS="SECT1"><A NAME="DOWNLOAD">1.1. Download</A></H2>
+<P>
+    Die neueste stabile Version von Hydrogen ist unter
+    <A HREF="http://hydrogen.sourceforge.net" TARGET="_top">http://hydrogen.sourceforge.net</A>
+    verf&uuml;gbar.
+</P>
+
+<P>
+    Der aktuellen CVS-snapshot des Sourcecodes kann direkt mit den folgenden Kommandozeilen abgerufen werden:
+<PRE CLASS="SCREEN"><SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">cvs -z3 -d:pserver:anonymous@cvs.hydrogen.sourceforge.net:/cvsroot/hydrogen co libhydrogen</B></PRE>
+<PRE CLASS="SCREEN"><SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">cvs -z3 -d:pserver:anonymous@cvs.hydrogen.sourceforge.net:/cvsroot/hydrogen co hydrogen</B></PRE>
+</P>
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR>
+
+<H2 CLASS="SECT1"><A NAME="COMPILAZIONE">1.2. Installation</A></H2>
+
+<P>
+    Die gezogenen .tar.gz-Pakete m&uuml;ssen entpackt und dann lediglich mit den folgenden Zeilen &uuml;bersetzt
+    und compiliert werden:
+
+<PRE CLASS="SCREEN">
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">cd libhydrogen-*</B>
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">./configure</B>
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">make</B>
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">su -c "make install"</B>
+</PRE>
+
+<PRE CLASS="SCREEN">
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">cd hydrogen-*</B>
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">./configure</B>
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">make</B>
+<SAMP CLASS="PROMPT">bash$</SAMP> <B CLASS="COMMAND">su -c "make install"</B>
+</PRE>
+
+</P>
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR>
+
+<H2 CLASS="SECT1"><A NAME="CONFIGURAZIONEAUDIODRIVER">1.3. Konfiguration des Audiotreibers</A></H2>
+<P>
+    Es ist sehr wichtig sich f&uuml;r den passenden Audiotreiber zu entscheiden,
+    da von der Auswahl die Gesamtperformance abh&auml;ngt. Zur Wahl stehen der 
+    OSS-Audiotreiber und der Jack-Audiotreiber
+</P>
+
+<DIV CLASS="SECT2"><HR><H3 CLASS="SECT2"><A NAME="OSSDRIVER">1.3.1. OSS-Audiotreiber</A></H3>
+<P>
+    Der OSS-Audiotreiber nutzt /dev/dsp und basiert auf dem OSS-Interface, welches von einer 
+    breiten Auswahl von Soundkarten unter Linux unterst&uuml;tzt wird. Das hei&szlig;t, die
+    Nutzung dieses Audiotreibers blockiert das Device /dev/dsp solange bis Hydrogen geschlossen
+    wird und sperrt es f&uuml;r diesen Zeitraum auch f&uuml;r andere Software.
+</P>
+</DIV>
+
+
+<DIV CLASS="SECT2"><HR><H3 CLASS="SECT2"><A NAME="JACKDRIVER">1.3.2. Jack-Audiotreiber</A></H3>
+<P>
+    Der Jack-Audiotreiber verlangt einen laufenden Jack-Audioserver
+    (<A HREF="http://jackit.sourceforge.net" TARGET="_top">Jack Audio Connection Kit</A>),
+    ein professioneller Audioserver mit minimalen Verz&ouml;gerungszeiten und der
+    Austauschm&ouml;glichkeit mit anderer Audiosoftware.
+</P>
+</DIV>
+
+</DIV>
+</DIV>
+
+
+<DIV CLASS="CHAPTER">
+<HR><H1><A NAME="GUI"></A>Chapter 2. GUI</H1>
+
+<DIV CLASS="SECT1"><H2 CLASS="SECT1"><A NAME="SONGEDITOR">2.1. Song-Editor</A> </H2>
+<P>
+    Im Fenster "Song Editor" befindet sich der zu Erstellende Song. Es enth&auml;lt die f&uuml;nf Kn&ouml;pfe:
+</P>
+
+<P><SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/CreateNewPattern.png"></SPAN> Ein neues Pattern erstellen (nach den Namen wird gefragt).</P>
+<P><SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MovePatternDown.png"></SPAN>Das ausgew&auml;hlte Pattern absenken.</P>
+<P><SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MovePatternUp.png"></SPAN>Das ausgew&auml;hlte Pattern anheben.</P>
+<P><SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/SongOperations.png"></SPAN>
+    Ruft ein Men&uuml; auf, zur &Auml;nderung von Daten den Song betreffend (Name, Author, Kommentare) 
+    und zum L&ouml;schen der Pattern-Sequenz oder allen erstellten Patterns.
+</P>
+<P><SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/SongLoop.png"></SPAN>Den gesamten Song abspielen &#13;</P>
+<P>
+    Unter den Kn&ouml;pfen befindet sich die Liste mit den erstellten Patterns. In ihr wird
+    festgelegt wann ein Pattern in der Sequenz vorkommt. &Uuml;ber einem Klick mit der linken
+    Maustaste wird das Pattern an- oder abgew&auml;hlt. Die Auswahl wird &uuml;ber ein "X" 
+    angezeigt. Ein Klick mit der rechnten Maustaste auf den Namen eines Patterns, &ouml;ffnet
+    ein Men&uuml; zum Kopieren, L&ouml;schen des Patterns oder &Auml;nderung des Namens. &#13; 
+</P>
+
+<P>
+    Die Auswahl von "pattern properties" &auml;ndert den Namen. Jedoch k&ouml;nnen zwei
+    verschiedene Patterns nicht den gleiche Namen haben.&#13;
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMGSRC="img/SongEditor.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR><H2 CLASS="SECT1"><A NAME="PATTERNEDITOR">2.2. Pattern-Editor</A></H2>
+
+<P>
+    Das Fenster "pattern Editor" erm&ouml;glicht das erstellen und &auml;ndern des Patterns
+    welches gerade abgespielt wird. Man kann Noten hinzuf&uuml;gen oder entfernen und die
+    Intensit&auml;t jeder einzelnen abstimmen (laut oder leise). Die Combobox "Grid Resolution"
+    legt die Gitteraufl&ouml;sung fest und hilft so beim hinzuf&uuml;gen der Noten. M&ouml;gliche
+    Einstellungen f&uuml;r das Gitter liegen bei 4, 8, 16, 32 und 64 Schl&auml;gen. Bei der Auswahl
+    eines Instruments (gesamte Spalte) erscheinen im unterem Teil ein paar vertikale Balken, an
+    denen, dann die Intensit&auml;t der einzelnen Noten eingestellt werden kann.
+    Der Knopf
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MovePatternUp.png"></SPAN>
+    (hear new notes) legt fest ob die Noten beim Neuhinzugef&uuml;gen gleich abgespielt werden sollen.
+</P>
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/PatternEditor.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR><H2 CLASS="SECT1"><A NAME="MIXER">2.3. Das Mischpult (Mixer)</A></H2>
+
+<P>
+    Das Fenster "Mixer" erlaubt es Anpassungen bei der Lautst&auml;rke von jedem Instrument
+    des aktuellen Drumkits vorzunehmen. Es werden diverse Informationen, wie die aktuellen
+    Tonamplitude und die Maximalspitze angezeigt. Man kann die Attribute Balance
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerPan.png"></SPAN>, Lautst&auml;rke, Solo 
+    (ein Instrument, alle anderen sind auf Mute)
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerSolo.png"></SPAN>,
+    Mute	
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerMute.png"></SPAN> &auml;ndern,
+    das Sample f&uuml;r ein Instrument laden
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerLoadSample.png"></SPAN>
+    oder einfach nur ein Instrument anspielen
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerPlayTest.png"></SPAN>.	
+</P>
+
+<P>
+    Ein Doppelklick auf den Namen eines Instrumentes im "Mixer"-Fenster &ouml;ffnet einen
+    Dialog zum &Auml;ndern der Einstellungen. &#13;
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMGSRC="img/Mixer.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR>
+
+<H2 CLASS="SECT1"><A NAME="MENU">2.4. Men&uuml;</A></H2>
+
+<P>
+    Aus den Pull-Down-Men&uuml;s sind folgende Punkte zu betonen: "save as" speichert den 
+    aktuellen Song im .h2song-Format, "Export" exportiert den aktuellen Song als WAV,
+    <A HREF="#PREFS">Preferences</A>, <A HREF="#AUDIOENGINE">Audio Engine Info</A>, 
+    <A HREF="#DRUMKIT">Drumkit Manager</A>,
+</P>
+
+<DIV CLASS="SECT2">
+<HR>
+
+<H3 CLASS="SECT2"><A NAME="PREFS">2.4.1. Preferences-Dialog</A></H3>
+
+<P>
+    Dieser Dialog (File -&gt; Preferences) erm&ouml;glicht es den zu verwendenden
+    Audiotreiber auszuw&auml;hlen und Einstellungen wie Samplingrate, Puffergr&ouml;&szlig;e,
+    Metronom (an/aus) sowie dessen Lautst&auml;rke vorzunehmen.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/PreferencesAudioSystem.png"></P></DIV>
+
+<P>
+    Die Registerkarte "Midi System" enth&auml;lt die Einstellung zum verwendetem MIDI-Kanal.
+    Man hat die Wahl zwischen einem bestimmten (1-16) oder allen (all).
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/PreferencesMidiSystem.png"></P></DIV>
+
+<P>
+    Unter "Appearance" kann man die Schriftart und Schriftgr&ouml;&szlig;e, den Fenstertyp
+    (Programm mit "Child" oder "Top Level"-Fenstern starten) und die Fallgeschwindigkeit der 
+    Peaks am Mischpult festlegen.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/PreferencesAppearance.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT2">
+<HR>
+
+<H3 CLASS="SECT2"><A NAME="AUDIOENGINE">2.4.2. Audio Engine Info</A></H3>
+
+<P>
+	Der Men&uuml;punkt (Window -&gt; Audio Engine Info) &ouml;ffnet ein Fenster,
+	welches die Hauptinformationen &uuml;ber Hydrogen und den verwendeten Audiotreiber
+	liefert. Puffer und Samplingrate des "jack audio river" sind ver&auml;nderbar, wenn
+	der Server von der Shell aus gestartet wurde.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/AudioEngineInfoDialog.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT2">
+<HR>
+
+<H3 CLASS="SECT2"><A NAME="DRUMKIT">2.4.3. Drumkit Manager</A></H3>
+
+<P>
+    &Uuml;ber das Men&uuml; (Window -&gt; show drumkit manager) &ouml;ffnet man das Fenster des
+    Drumkitmanagers. Es steuert alle Einstellungen, die die Drumkits betreffen. Wie z. B. das
+    Binden der Samples (.wav) an die verf&uuml;gbaren Spuren, um den "Groove" der Zielsituation
+    anzupassen (Discomusik, Rock, Hiphop, etc.). Um eine grobe Vorstellung &uuml;ber die verwendung
+    der einzelnen Drumkits zu erhalten, ist es ratsam sich die .h2song-Demo-Dateien anzuh&ouml;ren.
+</P>
+
+<P>&#13;
+    Auf der ersten Registerkarte erh&auml;lt man die installierten Drumkits aufgelistet.
+    Man kann Drumkits aus der Liste laden, sich rechts daneben eine Kurzbeschreibung durchlesen
+    und bei Bedarf auch die nicht mehr ben&ouml;tigten Drumkits l&ouml;schen.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/DrumkitLoad.png"></P></DIV>
+
+<P>Hier ist es m&ouml;glich das aktuell verwendete Drumkit mit einer Kurzbeschreibung abzuspeichern.</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/DrumkitSave.png"></P></DIV>
+
+<P>&#13; Hier kann man ein Drumkit importieren (.h2drumkit) ...</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/DrumkitImport.png"></P></DIV>
+
+<P>... und hier exportieren.</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/DrumkitExport.png"></P></DIV>
+
+</DIV>
+</DIV>
+</DIV>
+
+
+<DIV CLASS="CHAPTER">
+<HR>
+
+<H1><A NAME="CREAZIONESONG"></A>Chapter 3. Erstellen eines Songs</H1>
+
+<DIV CLASS="SECT1">
+<H2 CLASS="SECT1"><A NAME="SONGVSLIVE">3.1. "Song" und "Live"-Modus</A></H2>
+
+<P>
+    Hydrogen hat zwei Hauptmodi: "Live"-Modus (Auswahl &uuml;ber 
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MainModeLive.png"></SPAN>
+    ) und den "Song"-Modus (Auswahl &uuml;ber 
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MainModeSong.png"></SPAN>).
+    Im aktivem "Live"-Modus wird kontinuierlich das aktuelle Pattern wiederholt. Er ist
+    zum Erstellen bzw. &Auml;ndern der einzelnen Patterns gedacht. Der "Song"-Modus 
+    wiederholt hingegen das gesamte Werk und eignet sich zum arrangieren der gesamten Sequenz.
+</P>
+
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR>
+
+<H2 CLASS="SECT1"><A NAME="CREAZIONEPATTERN">3.2. Ein Pattern entwerfen</A></H2>
+
+<P>&#13;
+    Wir fangen mit einem leerem Song und leeren Patterns an, so wie er standardm&auml;&szlig;ig
+    beim Start vom Hydrogen vorliegt. Jetzt sollte der "Live"-Modus ausgew&auml;hlt werden.
+    Es ist auch m&ouml;glich den Namen des leeren Patterns zu &auml;ndern.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/TutorialStart.png"></P></DIV>
+
+<P>
+    Wir klicken auf <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MainPlay.png"></SPAN>
+    und w&auml;hrend das Pattern abgespielt wird, f&uuml;gen wir einfach ein paar Noten mit der
+    linken Maustaste im Gitter ein. &Auml;ndere die Gitteraufl&ouml;sung und die BPM-Geschwindigkeit
+    wie es genehm ist. Standardm&auml;&szlig;ig ist die Aufl&ouml;sung des Gitters auf 8 und die 
+    Geschwindigkeit auf 120 BPM (der Bereich geht von 40 bis 300 BPM).
+    Klicke auf <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MainStop.png"></SPAN>
+    um das Abspielen zu beenden. Um ein weiteres Pattern zu erstellen dr&uuml;cke einfach auf
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/CreateNewPattern.png"></SPAN>
+    und wiederhole die obigen Schritte.
+<SPAN CLASS="emphasis"><I CLASS="EMPHASIS">
+Beachte jedoch vor dem setzen weiterer Noten, welches Pattern ausgew&auml;hlt ist!
+</I>
+</SPAN>		
+		
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/PatternEditor.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR>
+
+<H2 CLASS="SECT1"><A NAME="CREAZIONESEQUENZA">3.3. Eine Sequenz gestalten</A></H2>
+
+<P>
+    Sobald die Pattern erstellt sind, kann mann sie kopieren, l&ouml;schen oder in der Liste
+    mit 	
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MovePatternUp.png"></SPAN> und
+    <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MovePatternDown.png"></SPAN> umbewegen.
+    Das Kopier-/L&ouml;schkommando erscheint beim klicken mit der rechten Maustaste auf
+    den Namen des Patterns.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/TutorialEnd.png"></P></DIV>
+
+</DIV>
+
+
+<DIV CLASS="SECT1">
+<HR>
+
+<H2 CLASS="SECT1"><A NAME="OPERAZIONIMIXER">3.4. Einstellungen am Mischpult</A></H2>
+
+<P>&#13;
+    Man kann jederzeit das "Mixer"-Fenster &ouml;ffnen, egal ob wir Patterns editieren oder
+    nur abspielen.
+</P>
+
+<P>
+    Das Mischpultfenster ist in 16 unabh&auml;ngige Spuren unterteilt, wovon jede einzelne
+    an ein Instrument gekoppelt ist. Hinzu kommt noch ein "Master Output"-Regler, der f&uuml;r
+    die Gesamtlautst&auml;rke steht. Jeder Spur hat die folgenden Funktionen. Die 4 Kn&ouml;pfe (
+<SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerPlayTest.png"></SPAN>
+<SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerSolo.png"></SPAN>
+<SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerMute.png"></SPAN>
+<SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerLoadSample.png"></SPAN>	), ein Verz&ouml;gerungregler
+<SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerDelay.png"></SPAN>		, ein Balanceregler
+<SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerPan.png"></SPAN>
+    , eine Anzeige des Maximalausschlags, einem Lautst&auml;rkeregler und dem Namen der Spur.
+    Mit Klick auf <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerSolo.png"></SPAN>
+    ist nur das entsprechende Instrument h&ouml;rbar, alle anderen sind auf Mute.
+    Der "Mute"-Knopf <SPAN CLASS="INLINEMEDIAOBJECT"><IMG SRC="img/MixerMute.png"></SPAN>
+    blendet einfach das gew&auml;hlte Instrument aus.
+    Der maximale Ausschlag (Peak) zeigt an, da&szlig; die maximale Lautst&auml;rke des Instruments 
+    erreicht ist. Der maximale Ausschlag mu&szlig; im Bereich von 0.0 bis 1.0 liegen. Andernfalls
+    kommt es zu St&ouml;rungen und Verzerrungen (besonders beim OSS-Audiotreiber). In einem solchem 
+    Fall ist es besser, die Lautst&auml;rke etwas abzusenken.
+</P>
+
+<P>
+    Zu guter letzt befinden sich die Lautst&auml;rkeregler &uuml;ber einem VU-Meter. So ist
+    es einfach den Maximalausschlag(Peak) der Lautst&auml;rke von jedem Instrument anzupassen.
+</P>
+
+<DIV CLASS="MEDIAOBJECT"><P><IMG SRC="img/Mixer.png"></P></DIV>
+
+</DIV>
+</DIV>
+</DIV>
+
+</BODY>
+
+</HTML>
