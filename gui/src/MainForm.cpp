@@ -20,7 +20,7 @@
  *
  */
 #include <hydrogen/Hydrogen.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/LocalFileMng.h>

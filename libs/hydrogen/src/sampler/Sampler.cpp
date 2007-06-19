@@ -24,9 +24,9 @@
 #include <cmath>
 
 #include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/DataPath.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/IO/JackOutput.h>
 
 #include <hydrogen/Globals.h>

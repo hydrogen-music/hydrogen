@@ -21,7 +21,7 @@
  */
 
 #include <hydrogen/Instrument.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/LocalFileMng.h>

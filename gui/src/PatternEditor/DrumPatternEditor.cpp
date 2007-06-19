@@ -31,14 +31,14 @@
 #include <hydrogen/EventQueue.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Pattern.h>
-#include <hydrogen/Note.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/note.h>
+#include <hydrogen/audio_engine.h>
 
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 #include "../Skin.h"
 
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 #include <QRect>

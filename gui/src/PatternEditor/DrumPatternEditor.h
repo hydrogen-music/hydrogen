@@ -27,7 +27,7 @@
 #include "../EventListener.h"
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 #include <hydrogen/Pattern.h>
 
 #include <QWidget>

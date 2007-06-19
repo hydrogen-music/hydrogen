@@ -36,7 +36,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 using namespace H2Core;
 
 #include "Skin.h"

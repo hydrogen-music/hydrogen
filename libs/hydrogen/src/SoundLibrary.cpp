@@ -28,7 +28,7 @@
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/H2Exception.h>
 #include <hydrogen/Hydrogen.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/Preferences.h>
 
 #include <zlib.h>	// used for drumkit install

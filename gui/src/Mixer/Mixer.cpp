@@ -35,8 +35,8 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/Instrument.h>
-#include <hydrogen/Note.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/note.h>
+#include <hydrogen/audio_engine.h>
 using namespace H2Core;
 
 #include <QInputDialog>

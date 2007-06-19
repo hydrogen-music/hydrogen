@@ -31,10 +31,10 @@
 #include <hydrogen/Song.h>
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Globals.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/Instrument.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/EventQueue.h>
 using namespace H2Core;
 
@@ -89,7 +89,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 
-	
+
 // Instrument properties
 	m_pInstrumentProp = new PixmapWidget( this );
 	m_pInstrumentProp->move(0, 20);
@@ -444,7 +444,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		m_pShowLayersBtn->setPressed( false );
 		m_pInstrumentProp->show();
 		m_pLayerProp->hide();
-		
+
 		m_pShowLayersBtn->show();
 		m_pShowInstrumentBtn->show();
 	}

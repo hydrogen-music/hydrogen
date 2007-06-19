@@ -29,7 +29,7 @@
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/H2Exception.h>
@@ -246,7 +246,7 @@ void OldDrumkitManager::on_saveTab_saveBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	H2Core::Drumkit::save( 
+	H2Core::Drumkit::save(
 			saveTab_nameTxt->text().toStdString(),
 			saveTab_authorTxt->text().toStdString(),
 			saveTab_infoTxt->toPlainText().toStdString()

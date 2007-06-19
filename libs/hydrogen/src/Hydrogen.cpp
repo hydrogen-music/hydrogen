@@ -38,10 +38,10 @@
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/EventQueue.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/H2Exception.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/Hydrogen.h>

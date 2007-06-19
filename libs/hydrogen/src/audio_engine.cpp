@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sequencer/Sequencer.h>

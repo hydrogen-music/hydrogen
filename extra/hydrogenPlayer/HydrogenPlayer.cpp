@@ -30,7 +30,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/EventQueue.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 
 using std::string;
 using std::cout;

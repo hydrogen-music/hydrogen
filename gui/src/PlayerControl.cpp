@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/IO/JackOutput.h>
 #include <hydrogen/Preferences.h>
 using namespace H2Core;

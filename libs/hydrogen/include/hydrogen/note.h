@@ -24,7 +24,7 @@
 #define H2_NOTE_H
 
 #include <hydrogen/Object.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 
 
 namespace H2Core {

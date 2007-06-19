@@ -42,6 +42,8 @@ message( H2 defines: $$H2DEFINES )
 HEADERS += \
 		src/Precompiled.h \
 		\
+		include/hydrogen/adsr.h \
+		include/hydrogen/audio_engine.h \
 		include/hydrogen/note.h \
 		\
 		include/hydrogen/Object.h \
@@ -53,8 +55,6 @@ HEADERS += \
 		include/hydrogen/Instrument.h \
 		include/hydrogen/Pattern.h \
 		include/hydrogen/Sample.h \
-		include/hydrogen/AudioEngine.h \
-		include/hydrogen/ADSR.h \
 		include/hydrogen/DataPath.h \
 		include/hydrogen/EventQueue.h \
 		include/hydrogen/SoundLibrary.h \
@@ -126,8 +126,8 @@ SOURCES += \
 		\
 		src/synth/Synth.cpp \
 		\
-		src/ADSR.cpp \
-		src/AudioEngine.cpp \
+		src/adsr.cpp \
+		src/audio_engine.cpp \
 		src/DataPath.cpp \
 		src/EventQueue.cpp \
 		src/FLACFile.cpp \

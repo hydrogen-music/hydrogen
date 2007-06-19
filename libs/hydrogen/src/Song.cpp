@@ -23,7 +23,7 @@
 
 #include "xml/tinyxml.h"
 
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/DataPath.h>
 #include <hydrogen/LocalFileMng.h>
 

@@ -27,8 +27,8 @@
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/EventQueue.h>
 #include <hydrogen/Instrument.h>
-#include <hydrogen/Note.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/note.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/Pattern.h>
 using namespace H2Core;
 

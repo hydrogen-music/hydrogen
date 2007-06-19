@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/EventQueue.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/Preferences.h>

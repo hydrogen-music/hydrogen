@@ -46,11 +46,11 @@
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/DataPath.h>
 #include <hydrogen/Sample.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/H2Exception.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/Preferences.h>
 using namespace H2Core;
 

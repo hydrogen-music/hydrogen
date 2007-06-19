@@ -31,7 +31,7 @@
 
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 using namespace H2Core;
 
 #include <QMessageBox>

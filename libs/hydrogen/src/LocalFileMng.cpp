@@ -33,7 +33,7 @@
 #include "xml/tinyxml.h"
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Sample.h>
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include <hydrogen/note.h>
 #include <hydrogen/fx/Effects.h>
 

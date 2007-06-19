@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/ADSR.h>
+#include <hydrogen/adsr.h>
 #include "table/getTableValue.h"
 #include "table/TableExponential.h"
 

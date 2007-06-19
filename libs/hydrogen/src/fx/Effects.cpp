@@ -25,7 +25,7 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 
 #include <QDir>
 #include <QLibrary>

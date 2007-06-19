@@ -35,7 +35,7 @@
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Pattern.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/EventQueue.h>
 using namespace H2Core;
 
@@ -653,7 +653,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( trUtf8("Delete"),  this, SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
-	
+
 	HydrogenApp::getInstance()->addEventListener( this );
 
 	createBackground();
@@ -720,12 +720,12 @@ void SongEditorPatternList::togglePattern( int row ) {
 	Hydrogen *engine = Hydrogen::getInstance();
 /*	Song *song = engine->getSong();
 	PatternList *patternList = song->getPatternList();*/
-	
+
 // 	PatternList *pCurrentPatternList = engine->getCurrentPatternList();
 
 // 	bool isPatternPlaying = false;
 	engine->sequencer_setNextPattern( row, false, true );
-	
+
 // 	for ( uint i = 0; i < pCurrentPatternList->getSize(); ++i ) {
 // 		if ( pCurrentPatternList->get( i ) == patternList->get( row ) ) {
 // 			// the pattern is already playing, stop it!
@@ -733,7 +733,7 @@ void SongEditorPatternList::togglePattern( int row ) {
 // 			break;
 // 		}
 // 	}
-// 
+//
 // 	if ( isPatternPlaying ) {
 // 		//pCurrentPatternList->del( patternList->get( row ) );
 // 		engine->sequencer_setNextPattern( row, false, true );	// remove from the playing pattern list
@@ -754,11 +754,11 @@ void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 	int row = (ev->y() / m_nGridHeight);
 
 // 	WARNINGLOG( "double clicked " + toString( row ) );
-	
+
 	Hydrogen *engine = Hydrogen::getInstance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->getPatternList();
-	
+
 	if ( row >= (int)patternList->getSize() ) {
 		return;
 	}
@@ -853,7 +853,7 @@ void SongEditorPatternList::createBackground()
 				break;
 			}
 		}*/
-		if ( pCurrentPatternList->indexOf( pPattern ) != -1 ) bActive = true;		
+		if ( pCurrentPatternList->indexOf( pPattern ) != -1 ) bActive = true;
 		if ( pEngine->getNextPatterns()->indexOf( pPattern ) != -1 ) bNext = true;
 
 		if ( i == nSelectedPattern ) {
@@ -1133,7 +1133,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	setAttribute(Qt::WA_NoBackground);
 
 	m_nGridWidth = 16;
-	
+
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
 

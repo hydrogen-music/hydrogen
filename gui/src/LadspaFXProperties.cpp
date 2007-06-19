@@ -21,7 +21,7 @@
  */
 
 #include <hydrogen/Hydrogen.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/IO/AudioOutput.h>

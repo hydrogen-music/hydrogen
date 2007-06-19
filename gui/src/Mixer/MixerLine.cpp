@@ -33,7 +33,7 @@
 
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 using namespace H2Core;
 
 #include "MixerLine.h"
@@ -270,14 +270,14 @@ void MixerLine::setSoloClicked(bool isClicked) {
 
 
 
-float MixerLine::getVolume() 
+float MixerLine::getVolume()
 {
 	return m_pFader->getValue();
 }
 
 
 
-void MixerLine::setVolume( float value ) 
+void MixerLine::setVolume( float value )
 {
 	m_pFader->setValue( value );
 }
@@ -816,21 +816,21 @@ void FxMixerLine::faderChanged(Fader *ref)
 
 
 
-float FxMixerLine::getVolume() 
+float FxMixerLine::getVolume()
 {
 	return m_pFader->getValue();
 }
 
 
 
-void FxMixerLine::setVolume( float value ) 
+void FxMixerLine::setVolume( float value )
 {
 	m_pFader->setValue( value );
 }
 
 
 
-void FxMixerLine::setPeak_L( float peak ) 
+void FxMixerLine::setPeak_L( float peak )
 {
 	if (peak != getPeak_L() ) {
 		m_pFader->setPeak_L( peak );
@@ -852,7 +852,7 @@ void FxMixerLine::setPeak_L( float peak )
 
 
 
-float FxMixerLine::getPeak_L() 
+float FxMixerLine::getPeak_L()
 {
 	return m_pFader->getPeak_L();
 }
@@ -860,7 +860,7 @@ float FxMixerLine::getPeak_L()
 
 
 
-void FxMixerLine::setPeak_R(float peak) 
+void FxMixerLine::setPeak_R(float peak)
 {
 	if (peak != getPeak_R() ) {
 		m_pFader->setPeak_R( peak );
@@ -883,7 +883,7 @@ void FxMixerLine::setPeak_R(float peak)
 
 
 
-float FxMixerLine::getPeak_R() 
+float FxMixerLine::getPeak_R()
 {
 	return m_pFader->getPeak_R();
 }
@@ -891,7 +891,7 @@ float FxMixerLine::getPeak_R()
 
 
 
-bool FxMixerLine::isFxActive() 
+bool FxMixerLine::isFxActive()
 {
 	return activeBtn->isPressed();
 }
@@ -899,7 +899,7 @@ bool FxMixerLine::isFxActive()
 
 
 
-void FxMixerLine::setFxActive( bool active ) 
+void FxMixerLine::setFxActive( bool active )
 {
 	activeBtn->setPressed( active );
 }
@@ -1051,7 +1051,7 @@ LadspaFXMixerLine::~LadspaFXMixerLine()
 
 
 
-void LadspaFXMixerLine::click(Button *ref) 
+void LadspaFXMixerLine::click(Button *ref)
 {
 	if ( ref == m_pActiveBtn ) {
 		emit activeBtnClicked( this );

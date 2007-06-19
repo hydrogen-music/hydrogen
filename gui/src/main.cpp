@@ -34,7 +34,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 
-#include <hydrogen/AudioEngine.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Globals.h>
 #include <hydrogen/EventQueue.h>
