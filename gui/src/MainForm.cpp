@@ -145,8 +145,8 @@ MainForm::~MainForm()
 	QFile file( getAutoSaveFilename().c_str() );
 	file.remove();
 
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+	if ( (Hydrogen::getInstance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	// remove the autosave file
@@ -160,7 +160,7 @@ MainForm::~MainForm()
 		delete h2app;
 		h2app = NULL;
 	}
-	
+
 }
 
 
@@ -218,7 +218,7 @@ void MainForm::createMenuBar()
 	m_pInstrumentsMenu->addAction( trUtf8( "Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
 
 
-	
+
 
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
@@ -257,20 +257,20 @@ void MainForm::createMenuBar()
 
 
 /// return true if the app needs to be closed.
-bool MainForm::action_file_exit() 
+bool MainForm::action_file_exit()
 {
 	if ( Hydrogen::getInstance()->getSong()->m_bIsModified ) {
-		int res = QMessageBox::information( 
-				this, 
+		int res = QMessageBox::information(
+				this,
 				"Hydrogen",
 				trUtf8("\nThe song has unsaved changes\n Do you want to save the changes before exiting?\n"),
-				trUtf8("&Save"), 
-				trUtf8("&Discard"), 
+				trUtf8("&Save"),
+				trUtf8("&Discard"),
 				trUtf8("&Cancel"),
 				0,	// Enter == button 0
 				2 	// Escape == button 2
 		);
-		switch( res ) { 
+		switch( res ) {
 			case 0:
 				// Save clicked or Alt+S pressed or Enter pressed.
 				if ( Hydrogen::getInstance()->getSong()->getFilename() != "") {
@@ -300,10 +300,10 @@ bool MainForm::action_file_exit()
 
 
 
-void MainForm::action_file_new() 
+void MainForm::action_file_new()
 {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	if ( Hydrogen::getInstance()->getSong()->m_bIsModified ) {
@@ -344,7 +344,7 @@ void MainForm::action_file_new()
 void MainForm::action_file_save_as()
 {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	QFileDialog *fd = new QFileDialog(this);
@@ -443,7 +443,7 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_open() {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	if ( Hydrogen::getInstance()->getSong()->m_bIsModified ) {
@@ -507,7 +507,7 @@ void MainForm::action_file_open() {
 void MainForm::action_file_openDemo()
 {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	if ( ( Hydrogen::getInstance()->getSong())->m_bIsModified ) {
@@ -571,7 +571,7 @@ void MainForm::action_file_openDemo()
 void MainForm::showPreferencesDialog()
 {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	h2app->showPreferencesDialog();
@@ -644,7 +644,7 @@ void MainForm::action_instruments_clearAll()
 	       QMessageBox::information( this,
 					 "Hydrogen",
 					 trUtf8("Clear all instruments?"),
-					 trUtf8("Ok"), 
+					 trUtf8("Ok"),
 					 trUtf8("Cancel"),
 					 0,      // Enter == button 0
 					 1 )) { // Escape == button 2
@@ -654,7 +654,7 @@ void MainForm::action_instruments_clearAll()
 	case 1:
 	  // cancel btn pressed
 	  return;
-	}	
+	}
 
 	// Remove all layers
 	AudioEngine::getInstance()->lock("MainForm::action_instruments_clearAll");
@@ -709,14 +709,14 @@ void MainForm::action_instruments_saveLibrary()
 ///
 /// Window close event
 ///
-void MainForm::closeEvent( QCloseEvent* ev ) 
+void MainForm::closeEvent( QCloseEvent* ev )
 {
 	if ( action_file_exit() == false ) {
 		// don't close!!!
 		ev->ignore();
 		return;
 	}
-	
+
 	ev->accept();
 }
 
@@ -724,7 +724,7 @@ void MainForm::closeEvent( QCloseEvent* ev )
 
 void MainForm::action_file_export() {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	ExportSongDialog *dialog = new ExportSongDialog(this);
@@ -835,11 +835,11 @@ void MainForm::onPlayStopAccelEvent()
 	int nState = Hydrogen::getInstance()->getState();
 	switch (nState) {
 		case STATE_READY:
-			Hydrogen::getInstance()->start();
+			Hydrogen::getInstance()->sequencer_play();
 			break;
 
 		case STATE_PLAYING:
-			Hydrogen::getInstance()->stop();
+			Hydrogen::getInstance()->sequencer_stop();
 			break;
 
 		default:
@@ -961,7 +961,7 @@ void MainForm::openSongFile( const std::string& sFilename )
 {
  	Hydrogen *engine = Hydrogen::getInstance();
 	if ( engine->getState() == STATE_PLAYING ) {
-                engine->stop();
+                engine->sequencer_stop();
 	}
 
 	LocalFileMng mng;
@@ -1198,7 +1198,7 @@ void MainForm::action_debug_debugCommand()
 void MainForm::action_file_export_midi()
 {
 	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		(Hydrogen::getInstance())->stop();
+		Hydrogen::getInstance()->sequencer_stop();
 	}
 
 	QFileDialog *fd = new QFileDialog(this);
@@ -1379,7 +1379,7 @@ void MainForm::latestVersionDone(bool bError)
 	if ( bUsingDevelVersion ) {
 	  QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 		QMessageBox::warning( this, "Hydrogen", msg );
-	
+
 	}
 }
 
@@ -1391,7 +1391,7 @@ std::string MainForm::getAutoSaveFilename()
 	assert( pSong );
 	string sOldFilename = pSong->getFilename();
 	string newName = "autosave.h2song";
-	
+
 	if ( sOldFilename != "" ) {
 		newName = sOldFilename.substr( 0, sOldFilename.length() - 7 ) + ".autosave.h2song";
 	}

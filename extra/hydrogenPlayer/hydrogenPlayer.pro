@@ -2,11 +2,12 @@ include(../../features.pri)
 
 TARGET = hydrogenPlayer
 INCLUDEPATH += ../../libs/hydrogen/include
-QT += xml
+QT += xml console
 CONFIG += qt warn_on precompile_header release
 #PRECOMPILED_HEADER  = src/Precompiled.h
 LIBS += ../../libs/libhydrogen.a
 
+PRE_TARGETDEPS = ../../libs/libhydrogen.a
 
 linux-g++ {
 	message( LINUX BUILD )

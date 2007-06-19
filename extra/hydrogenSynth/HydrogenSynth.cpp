@@ -55,7 +55,7 @@ int main( int argc, char* argv[] )
 
 			case 'q':
 				cout << endl << "shutdown..." << endl;
-				pHydrogen->stop();
+				pHydrogen->sequencer_stop();
 
 				delete H2Core::AudioEngine::getInstance();
 				delete H2Core::EventQueue::getInstance();

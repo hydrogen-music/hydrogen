@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -95,7 +95,7 @@ void LocalFileMng::fileCopy( const string& sOrigFilename, const string& sDestFil
 
 
 
-vector<string> LocalFileMng::getUserDrumkitList() 
+vector<string> LocalFileMng::getUserDrumkitList()
 {
 	vector<string> list;
 
@@ -130,7 +130,7 @@ vector<string> LocalFileMng::getSystemDrumkitList()
 	QString sDirectory = QString( DataPath::getDataPath().append( "/drumkits" ).c_str() );
 	QDir dir(sDirectory);
 	if ( !dir.exists() ) {
-		ERRORLOG( string( "Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
+		WARNINGLOG( string( "Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
 	}
 	else {
 		QFileInfoList fileList = dir.entryInfoList();

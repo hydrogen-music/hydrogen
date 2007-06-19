@@ -156,11 +156,10 @@ void Preferences::loadPreferences( bool bGlobal )
 	QDir prefDir( QString( sPreferencesDirectory.c_str() ) );
 	if (!prefDir.exists()) {
 		if ( bGlobal ) {
-			ERRORLOG( "Configuration directory not found." );
-			exit( 1 );
+			WARNINGLOG("System configuration directory '" + sPreferencesDirectory + "' not found.");
 		}
 		else {
-			WARNINGLOG( "Configuration directory not found." );
+			ERRORLOG("Configuration directory '" + sPreferencesDirectory + "' not found.");
 			createPreferencesDirectory();
 		}
 	}
@@ -365,11 +364,10 @@ void Preferences::loadPreferences( bool bGlobal )
 	}
 	else {
 		if ( bGlobal ) {
-			ERRORLOG( "Configuration file not found." );
-			exit( 1 );
+			WARNINGLOG("System configuration file not found.");
 		}
 		else {
-			WARNINGLOG( "Configuration file not found." );
+			WARNINGLOG("Configuration file not found.");
 			recreate = true;
 		}
 	}

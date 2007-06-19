@@ -43,6 +43,8 @@ Synth::Synth()
 Synth::~Synth()
 {
 	INFOLOG( "DESTROY" );
+	delete[] m_pOut_L;
+	delete[] m_pOut_R;
 }
 
 
@@ -99,12 +101,12 @@ void Synth::process( uint32_t nFrames )
 
 		float amplitude = pPlayingNote->m_fVelocity;
 		float frequency = TWOPI * 220.0 / 44100.0;
-	
+
 		for ( uint i = 0; i < nFrames; ++i ) {
 			float fVal = sin( m_fTheta ) * amplitude;
 			m_pOut_L[ i ] += fVal;
 			m_pOut_R[ i ] += fVal;
-	
+
 			m_fTheta += frequency;
 		}
 	}

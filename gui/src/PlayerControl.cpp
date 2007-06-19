@@ -419,12 +419,12 @@ void PlayerControl::updatePlayerControl()
 /// Start audio engine
 void PlayerControl::playBtnClicked(Button* ref) {
 	if (ref->isPressed()) {
-		m_pEngine->start();
+		m_pEngine->sequencer_play();
 		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Playing."), 5000);
 	}
 	else {
 //		m_pPlayBtn->setPressed(true);
-		m_pEngine->stop();
+		m_pEngine->sequencer_stop();
 		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Pause."), 5000);
 	}
 }
@@ -437,7 +437,7 @@ void PlayerControl::stopBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 	m_pPlayBtn->setPressed(false);
-	m_pEngine->stop();
+	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );
 	(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Stopped."), 5000);
 }
@@ -452,7 +452,7 @@ void PlayerControl::switchModeBtnClicked(Button* ref)
 
 	Song *song = m_pEngine->getSong();
 
-	m_pEngine->stop();
+	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );	// from start
 	if( song->getMode() == Song::PATTERN_MODE ) {
 		m_pEngine->getSong()->setMode( Song::SONG_MODE );
@@ -476,7 +476,7 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->stop();
+	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );	// from start
 	m_pEngine->getSong()->setMode( Song::SONG_MODE );
 	m_pSongModeBtn->setPressed(true);
@@ -492,7 +492,7 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->stop();
+	m_pEngine->sequencer_stop();
 	m_pEngine->getSong()->setMode( Song::PATTERN_MODE );
 	//m_pEngine->sequencer_setNextPattern( m_pEngine->getSelectedPatternNumber() );	// imposto il pattern correntemente selezionato come il prossimo da suonare
 	m_pSongModeBtn->setPressed(false);

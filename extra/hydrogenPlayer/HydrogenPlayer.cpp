@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -19,7 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include <QApplication>
 
 #include <iostream>
 #include <cstdio>
@@ -37,70 +36,49 @@ using std::string;
 using std::cout;
 using std::endl;
 
-void usage() 
+#include <QApplication>
+
+void usage()
 {
 	cout << "Usage: hydrogenPlayer song.h2song" << endl;
 	exit(0);
 }
 
+void quit()
+{
+	_INFOLOG( "Quitting..." );
+	sleep(1);
+	cout << "\nBye..." << endl;
+	delete Logger::getInstance();
+	exit(0);
+}
 
 int main(int argc, char** argv)
 {
-	QApplication a(argc, argv);
-
+	Object::useVerboseLog( true );
 	_INFOLOG( "test" );
+
 
 	if (argc != 2) {
 		usage();
 	}
 	cout << "Hydrogen player starting..." << endl << endl;
 
-	Object::useVerboseLog( true );
+	QApplication a(argc, argv);
 
 	string filename = argv[1];
 
-	cout << 1 << endl;
-	H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
-
-	cout << 2 << endl;
+	H2Core::Preferences *preferences = H2Core::Preferences::getInstance();
 	H2Core::AudioEngine::getInstance();
 
 	H2Core::Song *pSong = H2Core::Song::load(filename);
 	if (pSong == NULL) {
 		cout << "Error loading song!" << endl;
-		exit(0);
 	}
 
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::getInstance();
-	pEngine->setSong(pSong);
+	H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::getInstance();
+	hydrogen->setSong(pSong);
 
-/*
-	cout << "\n\n\nTrying to load a new LADSPA plugin" << endl;
-
-	LadspaFX *pFX1 = pSong->getLadspaFX( 0 );
-	if (pFX1) {
-		cout << "FX1: " << pFX1->getPluginName() << endl;
-	}
-
-	string sLibraryPath = "/usr/lib/ladspa/phasers_1217.so";
-	string sPluginLabel = "autoPhaser";
-	long nSampleRate = 44100;
-	LadspaFX *pNewFX = LadspaFX::load( sLibraryPath, sPluginLabel, nSampleRate );
-	if ( pNewFX ) {
-		pEngine->lockEngine( "main" );
-		pSong->setLadspaFX( 0, pNewFX );
-		Instrument *pKickDrum = pSong->getInstrumentList()->get( 0 );
-		pKickDrum->setFXLevel( 0, 2.0 );
-
-		pNewFX->setEnabled( true );
-		pEngine->unlockEngine();
-		pEngine->restartLadspaFX();
-	}
-	else {
-		cout << "Error loading ladspa plugin" << endl;
-	}
-	cout << "\n\n\n" << endl;
-*/
 
 	cout << "Press b for rewind from beginning" << endl;
 	cout << "Press p for play" << endl;
@@ -115,35 +93,35 @@ int main(int argc, char** argv)
 		switch( pippo ) {
 			case 'q':
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
-				pEngine->stop();
+				hydrogen->sequencer_stop();
 
-				delete pEngine;
+				delete hydrogen;
 				delete pSong;
 				delete H2Core::EventQueue::getInstance();
 				delete H2Core::AudioEngine::getInstance();
-				delete pPref;
+				delete preferences;
 				delete Logger::getInstance();
 
 				std::cout << std::endl << std::endl << Object::getNObjects() << " alive objects" << std::endl << std::endl;
 				Object::printObjectMap();
 
-				exit( 0 );
+				exit(0);
 				break;
 
 			case 'p':
-				pEngine->start();
+				hydrogen->sequencer_play();
 				break;
 
 			case 's':
-				pEngine->stop();
+				hydrogen->sequencer_stop();
 				break;
 
 			case 'b':
-				pEngine->setPatternPos( 0 );
+				hydrogen->setPatternPos( 0 );
 				break;
 
 			case 'f':
-				cout << "Frames = " << pEngine->getTotalFrames() << endl;
+				cout << "Frames = " << hydrogen->getTotalFrames() << endl;
 				break;
 
 			case 'd':
@@ -154,7 +132,6 @@ int main(int argc, char** argv)
 				break;
 		}
 	}
-
 }
 
 

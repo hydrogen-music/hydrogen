@@ -91,7 +91,7 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 		case MidiMessage::START:
 			INFOLOG( "START event" );
 			if ( Hydrogen::getInstance()->getState() != STATE_PLAYING ) {
-				Hydrogen::getInstance()->start();
+				Hydrogen::getInstance()->sequencer_play();
 			}
 			break;
 
@@ -102,7 +102,7 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 		case MidiMessage::STOP:
 			INFOLOG( "STOP event" );
 			if ( Hydrogen::getInstance()->getState() == STATE_PLAYING ) {
-				Hydrogen::getInstance()->stop();
+				Hydrogen::getInstance()->sequencer_stop();
 			}
 			break;
 

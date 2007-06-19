@@ -1597,7 +1597,8 @@ Hydrogen::Hydrogen()
 
 
 
-Hydrogen::~Hydrogen() {
+Hydrogen::~Hydrogen()
+{
 	_INFOLOG( "[~Hydrogen]" );
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		audioEngine_stop();
@@ -1611,7 +1612,8 @@ Hydrogen::~Hydrogen() {
 
 
 /// Return the Hydrogen instance
-Hydrogen* Hydrogen::getInstance() {
+Hydrogen* Hydrogen::getInstance()
+{
 	if (instance == NULL) {
 		instance = new Hydrogen();
 	}
@@ -1621,7 +1623,8 @@ Hydrogen* Hydrogen::getInstance() {
 
 
 /// Start the internal sequencer
-void Hydrogen::start() {
+void Hydrogen::sequencer_play()
+{
 	// play from start if pattern mode is enabled
 	if (m_pSong->getMode() == Song::PATTERN_MODE) {
 		setPatternPos( 0 );
@@ -1632,7 +1635,8 @@ void Hydrogen::start() {
 
 
 /// Stop the internal sequencer
-void Hydrogen::stop() {
+void Hydrogen::sequencer_stop()
+{
 	m_pAudioDriver->stop();
 }
 
@@ -1645,13 +1649,15 @@ void Hydrogen::setSong(Song *pSong)
 
 
 
-void Hydrogen::removeSong() {
+void Hydrogen::removeSong()
+{
 	audioEngine_removeSong();
 }
 
 
 
-Song* Hydrogen::getSong() {
+Song* Hydrogen::getSong()
+{
 	return m_pSong;
 }
 
@@ -1775,19 +1781,22 @@ void Hydrogen::addRealtimeNote(int instrument, float velocity, float pan_L, floa
 
 
 
-float Hydrogen::getMasterPeak_L() {
+float Hydrogen::getMasterPeak_L()
+{
 	return m_fMasterPeak_L;
 }
 
 
 
-float Hydrogen::getMasterPeak_R() {
+float Hydrogen::getMasterPeak_R()
+{
 	return m_fMasterPeak_R;
 }
 
 
 
-unsigned long Hydrogen::getTickPosition() {
+unsigned long Hydrogen::getTickPosition()
+{
 	return audioEngine_getTickPosition();
 }
 
@@ -1819,11 +1828,13 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 
 
 
-PatternList* Hydrogen::getCurrentPatternList() {
+PatternList* Hydrogen::getCurrentPatternList()
+{
 	return m_pPlayingPatterns;
 }
 
-PatternList * Hydrogen::getNextPatterns() {
+PatternList * Hydrogen::getNextPatterns()
+{
 	return m_pNextPatterns;
 }
 
@@ -1882,7 +1893,7 @@ void Hydrogen::restartDrivers()
 void Hydrogen::startExportSong(const std::string& filename)
 {
 	if ( getState() == STATE_PLAYING ) {
-		stop();
+		sequencer_stop();
 	}
 	Preferences *pPref = Preferences::getInstance();
 
