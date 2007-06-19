@@ -70,7 +70,7 @@ echo ""
 echo " * Creating all.mak..."
 #$QTDIR/bin/qmake -o all.mak all.pro
 
-$QTDIR/bin/qmake-qt4 all.pro \
+$QTDIR/bin/qmake all.pro \
 "prefix=$prefix"
 
 rm -f config.h
