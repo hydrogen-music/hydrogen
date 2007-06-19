@@ -134,7 +134,7 @@ SOURCES += \
 		src/Hydrogen.cpp \
 		src/Instrument.cpp \
 		src/LocalFileMng.cpp \
-		src/Note.cpp \
+		src/note.cpp \
 		src/Object.cpp \
 		src/Pattern.cpp \
 		src/Preferences.cpp \
