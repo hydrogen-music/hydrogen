@@ -31,7 +31,7 @@
 
 #include <hydrogen/Globals.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/fx/Effects.h>

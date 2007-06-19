@@ -34,7 +34,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/ADSR.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 #include <hydrogen/fx/Effects.h>
 
 #include <hydrogen/Instrument.h>

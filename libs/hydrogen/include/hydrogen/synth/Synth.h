@@ -25,7 +25,7 @@
 #define SYNTH_H
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/Globals.h>

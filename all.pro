@@ -1,5 +1,4 @@
 include(features.pri)
 
 TEMPLATE = subdirs
-SUBDIRS = plugins libs gui extra 
-
+SUBDIRS = plugins libs extra gui

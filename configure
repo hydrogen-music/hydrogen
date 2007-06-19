@@ -2,12 +2,14 @@
 
 #
 # Hydrogen configuration script.
-# (c)2006 Alessandro Cominu
+# (c)2007 Alessandro Cominu
 #
 
 
 # remove old files before starting a new configuration
 rm -f all.mak
+
+rm `find . | grep Makefile`
 
 echo "
 
@@ -67,11 +69,11 @@ fi
 prefix=/usr/local
 
 echo ""
-echo " * Creating all.mak..."
-#$QTDIR/bin/qmake -o all.mak all.pro
+$QTDIR/bin/qmake --version
 
-$QTDIR/bin/qmake all.pro \
-"prefix=$prefix"
+echo ""
+echo " * Creating all.mak..."
+$QTDIR/bin/qmake all.pro "prefix=$prefix"
 
 rm -f config.h
 echo "#define CONFIG_PREFIX \"$prefix\"" >> config.h

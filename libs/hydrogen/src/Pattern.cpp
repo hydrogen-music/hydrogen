@@ -22,7 +22,7 @@
 
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 
 #include <vector>
 
@@ -176,9 +176,9 @@ void PatternList::replace( Pattern* newPattern, unsigned int pos ) {
 int PatternList::indexOf( Pattern * p ) {
 	int r = 0;
 	if ( getSize() < 1 ) return -1;
-	
+
 	std::vector<Pattern*>::iterator i;
-	
+
 	for ( i = list.begin(); i != list.end(); ++i) {
 		if ( *i == p ) return r;
 		r++;
@@ -193,9 +193,9 @@ Pattern * PatternList::del( Pattern * p )
 {
 	bool did_delete = false;
 	if ( getSize() < 1 ) return NULL;
-	
+
 	std::vector<Pattern*>::iterator i;
-	
+
 	for (i = list.begin(); i != list.end(); i++) {
 		if ( *i == p ) {
 			i = list.erase( i );

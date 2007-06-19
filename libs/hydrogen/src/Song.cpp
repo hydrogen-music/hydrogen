@@ -33,7 +33,7 @@
 #include <hydrogen/Sample.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Pattern.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 
 namespace H2Core {
 

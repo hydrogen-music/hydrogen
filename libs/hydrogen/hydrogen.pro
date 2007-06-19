@@ -42,6 +42,8 @@ message( H2 defines: $$H2DEFINES )
 HEADERS += \
 		src/Precompiled.h \
 		\
+		include/hydrogen/note.h \
+		\
 		include/hydrogen/Object.h \
 		include/hydrogen/Hydrogen.h \
 		include/hydrogen/LocalFileMng.h \
@@ -49,7 +51,6 @@ HEADERS += \
 		include/hydrogen/Song.h \
 		include/hydrogen/Globals.h \
 		include/hydrogen/Instrument.h \
-		include/hydrogen/Note.h \
 		include/hydrogen/Pattern.h \
 		include/hydrogen/Sample.h \
 		include/hydrogen/AudioEngine.h \

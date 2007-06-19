@@ -25,7 +25,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Instrument.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 
 namespace H2Core {
 

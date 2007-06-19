@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 #include <hydrogen/Instrument.h>
 
 #include <cassert>
@@ -57,7 +57,7 @@ Note::Note(
  , m_fLowPassFilterBuffer_L( 0.0 )
  , m_fLowPassFilterBuffer_R( 0.0 )
 {
-	
+
 	if ( m_fPan_L > 0.5 ) {
 		m_fPan_L = 0.5;
 	}

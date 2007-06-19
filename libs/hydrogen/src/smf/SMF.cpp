@@ -23,7 +23,7 @@
 #include <hydrogen/smf/SMF.h>
 
 #include <hydrogen/Pattern.h>
-#include <hydrogen/Note.h>
+#include <hydrogen/note.h>
 
 #include <fstream>
 
