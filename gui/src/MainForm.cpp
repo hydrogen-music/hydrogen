@@ -50,14 +50,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
 
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QPixmap>
-#include <QCloseEvent>
-#include <QEvent>
-#include <QKeyEvent>
-
-#include <QFileDialog>
+#include <QtGui>
 
 #ifndef WIN32
 	#include <sys/time.h>

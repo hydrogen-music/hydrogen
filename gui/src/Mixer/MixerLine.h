@@ -22,10 +22,7 @@
 #ifndef MIXERLINE_H
 #define MIXERLINE_H
 
-#include <QWidget>
-#include <QLabel>
-#include <QToolTip>
-#include <QPixmap>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>

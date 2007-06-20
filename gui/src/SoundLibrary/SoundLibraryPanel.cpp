@@ -22,13 +22,7 @@
 
 #include "SoundLibraryPanel.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QTreeWidget>
-#include <QLabel>
-#include <QDir>
-#include <QPalette>
-#include <QApplication>
+#include <QtGui>
 
 #include "SoundLibraryTree.h"
 #include "FileBrowser.h"

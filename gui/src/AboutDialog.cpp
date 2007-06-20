@@ -25,8 +25,7 @@
 
 #include <hydrogen/globals.h>
 
-#include <QPixmap>
-#include <QLabel>
+#include <QtGui>
 
 #include <vector>
 

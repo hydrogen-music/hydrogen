@@ -42,12 +42,7 @@
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
 
-#include <QHBoxLayout>
-#include <QSplitter>
-#include <QDir>
-#include <QPixmap>
-#include <QToolBar>
-#include <QDockWidget>
+#include <QtGui>
 
 using namespace H2Core;
 

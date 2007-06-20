@@ -23,9 +23,7 @@
 #ifndef WAVE_DISPLAY
 #define WAVE_DISPLAY
 
-#include <QWidget>
-#include <QPixmap>
-#include <QPaintEvent>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/instrument.h>

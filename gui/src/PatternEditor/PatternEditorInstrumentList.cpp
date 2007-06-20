@@ -36,8 +36,7 @@ using namespace H2Core;
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 
-#include <QPainter>
-#include <QPaintEvent>
+#include <QtGui>
 #include <cassert>
 
 using namespace std;

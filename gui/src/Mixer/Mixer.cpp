@@ -39,13 +39,7 @@
 #include <hydrogen/audio_engine.h>
 using namespace H2Core;
 
-#include <QInputDialog>
-#include <QPixmap>
-#include <QHideEvent>
-#include <QShowEvent>
-#include <QResizeEvent>
-#include <QTimer>
-#include <QLayout>
+#include <QtGui>
 
 #include <cassert>
 

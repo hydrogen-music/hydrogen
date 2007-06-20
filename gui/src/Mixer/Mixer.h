@@ -24,16 +24,7 @@
 #ifndef MIXER_H
 #define MIXER_H
 
-#include <QScrollArea>
-#include <QHideEvent>
-#include <QShowEvent>
-#include <QFrame>
-#include <QResizeEvent>
-#include <QPixmap>
-#include <QWidget>
-#include <QTimer>
-#include <QLabel>
-#include <QBoxLayout>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>

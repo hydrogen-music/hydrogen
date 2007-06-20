@@ -38,8 +38,7 @@ class WaveDisplay;
 class LayerPreview;
 
 #include <hydrogen/instrument.h>
-#include <QWidget>
-#include <QLabel>
+#include <QtGui>
 
 ///
 /// Instrument Editor

@@ -41,16 +41,7 @@
 #include <cassert>
 #include <algorithm>
 
-#include <QRect>
-#include <QCursor>
-#include <QPixmap>
-#include <QPaintEvent>
-#include <QHideEvent>
-#include <QKeyEvent>
-#include <QShowEvent>
-#include <QMouseEvent>
-#include <QPainter>
-#include <QTimer>
+#include <QtGui>
 
 using namespace std;
 using namespace H2Core;

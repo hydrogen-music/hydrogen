@@ -25,10 +25,7 @@
 
 #include <iostream>
 
-#include <QStatusBar>
-#include <QApplication>
-#include <QMessageBox>
-#include <QObject>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/Song.h>

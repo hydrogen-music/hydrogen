@@ -34,10 +34,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/H2Exception.h>
 
-#include <QFileDialog>
-
-#include <QCursor>
-#include <QPixmap>
+#include <QtGui>
 
 using namespace H2Core;
 

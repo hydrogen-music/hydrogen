@@ -29,13 +29,7 @@
 #include "LCD.h"
 #include "Button.h"
 
-#include <QWidget>
-#include <QMenu>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPaintEvent>
-#include <QPainter>
+#include <QtGui>
 
 #include <hydrogen/globals.h>
 

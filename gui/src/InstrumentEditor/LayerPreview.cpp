@@ -20,8 +20,7 @@
  *
  */
 
-#include <QCursor>
-#include <QPainter>
+#include <QtGui>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Song.h>

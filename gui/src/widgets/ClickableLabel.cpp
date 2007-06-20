@@ -22,8 +22,7 @@
 
 #include "ClickableLabel.h"
 
-#include <QMouseEvent>
-#include <QLabel>
+#include <QtGui>
 
 #include <hydrogen/globals.h>
 

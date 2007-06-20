@@ -8,7 +8,7 @@ using namespace std;
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/note.h>
 
-#include <QApplication>
+#include <QtGui>
 
 int main( int argc, char* argv[] )
 {

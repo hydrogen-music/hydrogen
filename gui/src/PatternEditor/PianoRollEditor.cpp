@@ -22,8 +22,7 @@
 
 #include "PianoRollEditor.h"
 
-#include <QPainter>
-#include <QPaintEvent>
+#include <QtGui>
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>

@@ -24,14 +24,7 @@
 #include "HelpBrowser.h"
 #include "Skin.h"
 
-#include "qstringlist.h"
-#include <QApplication>
-#include <QRect>
-#include <QPixmap>
-#include <QShowEvent>
-#include <QTextStream>
-#include <QResizeEvent>
-
+#include <QtGui>
 #include <hydrogen/globals.h>
 
 SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const std::string& sDataPath, const std::string& sFilename, SimpleHTMLBrowserType type )

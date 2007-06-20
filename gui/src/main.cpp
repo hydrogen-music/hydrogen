@@ -20,13 +20,7 @@
  *
  */
 
-#include <qfont.h>
-#include <qtextcodec.h>
-#include <qtranslator.h>
-
-#include <QApplication>
-#include <QString>
-#include <QPalette>
+#include <QtGui>
 
 #include <getopt.h>
 

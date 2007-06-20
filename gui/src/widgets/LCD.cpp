@@ -24,12 +24,7 @@
 
 #include "../Skin.h"
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPaintEvent>
-#include <QPainter>
+#include <QtGui>
 
 #include <hydrogen/globals.h>
 

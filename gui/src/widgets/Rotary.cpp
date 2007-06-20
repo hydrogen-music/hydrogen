@@ -22,12 +22,7 @@
 #include "Rotary.h"
 #include "../Skin.h"
 
-#include <QCursor>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPaintEvent>
-#include <QPainter>
+#include <QtGui>
 
 #include <hydrogen/globals.h>
 

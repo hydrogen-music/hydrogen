@@ -25,11 +25,7 @@
 #include "Fader.h"
 #include "LCD.h"
 
-#include <QMouseEvent>
-#include <QPixmap>
-#include <QWheelEvent>
-#include <QPaintEvent>
-#include <QPainter>
+#include <QtGui>
 #include <hydrogen/globals.h>
 
 Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )

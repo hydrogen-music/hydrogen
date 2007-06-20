@@ -21,9 +21,7 @@
  */
 
 
-#include <QPixmap>
-#include <QInputDialog>
-#include <QFileDialog>
+#include <QtGui>
 
 #include <math.h>
 #include <assert.h>

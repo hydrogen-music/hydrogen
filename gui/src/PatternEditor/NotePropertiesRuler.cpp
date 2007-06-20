@@ -20,8 +20,7 @@
  *
  */
 
-#include <QPen>
-#include <QPainter>
+#include <QtGui>
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>

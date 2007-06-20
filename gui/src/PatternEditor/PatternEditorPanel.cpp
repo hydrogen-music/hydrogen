@@ -44,12 +44,7 @@ using namespace H2Core;
 
 #include <cmath>
 
-#include <QShowEvent>
-#include <QFrame>
-#include <QResizeEvent>
-#include <QMenu>
-#include <QLabel>
-#include <QLayout>
+#include <QtGui>
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )

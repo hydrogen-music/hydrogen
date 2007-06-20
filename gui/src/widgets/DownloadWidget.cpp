@@ -22,8 +22,7 @@
 
 #include "DownloadWidget.h"
 
-#include <QVBoxLayout>
-#include <QTime>
+#include <QtGui>
 
 #include <hydrogen/globals.h>
 

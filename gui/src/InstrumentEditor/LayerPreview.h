@@ -22,10 +22,7 @@
 #ifndef LAYER_PREVIEW_H
 #define LAYER_PREVIEW_H
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QPaintEvent>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/instrument.h>

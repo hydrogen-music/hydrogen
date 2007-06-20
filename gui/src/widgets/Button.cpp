@@ -20,10 +20,7 @@
  *
  */
 
-#include <QPainter>
-#include <QMouseEvent>
-#include <QEvent>
-
+#include <QtGui>
 
 #include "Button.h"
 #include "../Skin.h"
