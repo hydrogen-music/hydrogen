@@ -31,7 +31,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 QPixmap* LCDDigit::m_pSmallBlueFontSet = NULL;
 QPixmap* LCDDigit::m_pSmallRedFontSet = NULL;

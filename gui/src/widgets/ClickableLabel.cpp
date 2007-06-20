@@ -25,7 +25,7 @@
 #include <QMouseEvent>
 #include <QLabel>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 ClickableLabel::ClickableLabel( QWidget *pParent )
  : QLabel( pParent )

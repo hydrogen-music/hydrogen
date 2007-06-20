@@ -28,7 +28,7 @@
 #include <hydrogen/note.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 
 namespace H2Core {

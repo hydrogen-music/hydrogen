@@ -28,7 +28,7 @@
 #include <QPaintEvent>
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include "../EventListener.h"
 
 

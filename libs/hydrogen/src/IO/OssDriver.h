@@ -45,7 +45,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 /*
 #ifdef __NetBSD__

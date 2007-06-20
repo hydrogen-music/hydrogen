@@ -24,12 +24,12 @@
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/EventQueue.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/event_queue.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/note.h>
 #include <hydrogen/audio_engine.h>

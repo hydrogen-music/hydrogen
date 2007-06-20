@@ -23,7 +23,7 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
 namespace H2Core {

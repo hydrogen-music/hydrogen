@@ -37,7 +37,7 @@ class Rotary;
 class WaveDisplay;
 class LayerPreview;
 
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <QWidget>
 #include <QLabel>
 

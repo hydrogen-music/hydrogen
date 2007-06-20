@@ -51,12 +51,12 @@ HEADERS += \
 		include/hydrogen/LocalFileMng.h \
 		include/hydrogen/Preferences.h \
 		include/hydrogen/Song.h \
-		include/hydrogen/Globals.h \
-		include/hydrogen/Instrument.h \
+		include/hydrogen/globals.h \
+		include/hydrogen/instrument.h \
 		include/hydrogen/Pattern.h \
 		include/hydrogen/Sample.h \
 		include/hydrogen/data_path.h \
-		include/hydrogen/EventQueue.h \
+		include/hydrogen/event_queue.h \
 		include/hydrogen/SoundLibrary.h \
 		include/hydrogen/H2Exception.h \
 		\

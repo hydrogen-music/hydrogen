@@ -24,7 +24,7 @@
 #ifndef INSTRUMENT_H
 #define INSTRUMENT_H
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
 

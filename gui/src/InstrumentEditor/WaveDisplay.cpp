@@ -25,7 +25,7 @@
 
 #include <hydrogen/Sample.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 using namespace H2Core;
 
 #include "WaveDisplay.h"

@@ -29,7 +29,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 RotaryTooltip::RotaryTooltip( QPoint pos )
 //  : QWidget( 0, "RotaryTooltip", Qt::WStyle_Customize| Qt::WStyle_NoBorder | Qt::WStyle_StaysOnTop| Qt::WX11BypassWM )

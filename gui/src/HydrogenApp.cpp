@@ -38,7 +38,7 @@
 #include "SongEditor/SongEditorPanel.h"
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
 

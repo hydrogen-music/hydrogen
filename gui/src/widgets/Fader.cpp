@@ -30,7 +30,7 @@
 #include <QWheelEvent>
 #include <QPaintEvent>
 #include <QPainter>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )
  : QWidget( pParent )

@@ -21,7 +21,7 @@
  */
 
 #include <hydrogen/note.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 
 #include <cassert>
 

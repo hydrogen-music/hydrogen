@@ -22,7 +22,7 @@
 #include "DiskWriterDriver.h"
 
 #include <hydrogen/Preferences.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
 
 #include <pthread.h>

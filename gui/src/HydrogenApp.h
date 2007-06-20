@@ -32,7 +32,7 @@
 
 #include <hydrogen/Object.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 #include "EventListener.h"
 #include <vector>

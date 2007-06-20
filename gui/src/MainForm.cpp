@@ -25,7 +25,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Pattern.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 using namespace H2Core;
 
 
@@ -660,7 +660,7 @@ void MainForm::action_instruments_clearAll()
 	AudioEngine::getInstance()->lock("MainForm::action_instruments_clearAll");
 	Song *pSong = Hydrogen::getInstance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
-	for ( int i = 0; i < pList->getSize(); i++ ) {
+	for (uint i = 0; i < pList->getSize(); i++) {
 		Instrument* pInstr = pList->get( i );
 		pInstr->m_sName = (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )).toStdString();
 		// remove all layers

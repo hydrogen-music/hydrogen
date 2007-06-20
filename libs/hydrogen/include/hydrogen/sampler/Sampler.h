@@ -25,9 +25,9 @@
 #define SAMPLER_H
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 
 #include <inttypes.h>
 #include <vector>

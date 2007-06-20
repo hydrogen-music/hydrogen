@@ -27,17 +27,17 @@
 #include <QApplication>
 #include <cassert>
 
+#include "xml/tinyxml.h"
 #include <hydrogen/data_path.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/LocalFileMng.h>
-#include "xml/tinyxml.h"
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/note.h>
 #include <hydrogen/fx/Effects.h>
 
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/H2Exception.h>

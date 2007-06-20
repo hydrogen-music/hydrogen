@@ -36,7 +36,7 @@
 #include <QBoxLayout>
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include "../EventListener.h"
 #include "../widgets/PixmapWidget.h"
 

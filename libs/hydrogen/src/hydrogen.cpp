@@ -37,12 +37,12 @@
 #include <cmath>
 
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/H2Exception.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Pattern.h>

@@ -36,7 +36,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 using namespace H2Core;
 
 

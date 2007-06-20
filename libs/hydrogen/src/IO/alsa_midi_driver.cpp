@@ -27,8 +27,8 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 
-#include <hydrogen/Globals.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/globals.h>
+#include <hydrogen/event_queue.h>
 
 #include <pthread.h>
 

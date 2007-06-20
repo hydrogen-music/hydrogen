@@ -33,7 +33,7 @@
 #include <jack/jack.h>
 #include <jack/transport.h>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 
 namespace H2Core {

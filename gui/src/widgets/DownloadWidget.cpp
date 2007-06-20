@@ -25,7 +25,7 @@
 #include <QVBoxLayout>
 #include <QTime>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 Download::Download( QWidget* pParent, const QString& sRemoteURL, const QString& sLocalFile )
  : QDialog( pParent )

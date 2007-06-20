@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/Song.h>

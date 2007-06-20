@@ -26,7 +26,7 @@
 #include <string>
 using std::string;
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
 namespace H2Core {

@@ -21,10 +21,10 @@
  */
 
 #include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
 
 namespace H2Core {

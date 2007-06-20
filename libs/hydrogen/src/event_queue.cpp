@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 
 namespace H2Core {
 

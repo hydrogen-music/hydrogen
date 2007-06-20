@@ -25,7 +25,7 @@
 
 #ifdef LADSPA_SUPPORT
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 #include <hydrogen/fx/LadspaFX.h>
 

@@ -37,7 +37,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 
 LCDCombo::LCDCombo(QWidget *pParent, int digits)

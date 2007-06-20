@@ -28,7 +28,7 @@
 using std::string;
 using std::vector;
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
 // forward declaration

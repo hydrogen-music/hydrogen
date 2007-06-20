@@ -26,10 +26,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 namespace H2Core {
 

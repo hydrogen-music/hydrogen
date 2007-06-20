@@ -23,7 +23,7 @@
 #include "AboutDialog.h"
 #include "Skin.h"
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 #include <QPixmap>
 #include <QLabel>

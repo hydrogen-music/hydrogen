@@ -30,12 +30,12 @@
 
 #include <hydrogen/Song.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/Sample.h>
-#include <hydrogen/Instrument.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/EventQueue.h>
+#include <hydrogen/event_queue.h>
 using namespace H2Core;
 
 #include "../HydrogenApp.h"

@@ -32,7 +32,7 @@
 #include <QTextStream>
 #include <QResizeEvent>
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const std::string& sDataPath, const std::string& sFilename, SimpleHTMLBrowserType type )
  : QDialog( pParent )

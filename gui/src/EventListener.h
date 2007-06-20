@@ -22,7 +22,7 @@
 #ifndef EVENT_LISTENER
 #define EVENT_LISTENER
 
-#include <hydrogen/Globals.h>
+#include <hydrogen/globals.h>
 
 class EventListener
 {
