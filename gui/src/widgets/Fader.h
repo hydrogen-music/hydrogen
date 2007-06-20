@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -50,7 +50,7 @@ class Fader : public QWidget, public Object
 		void setMaxValue( float fMax );
 		float getMinValue() {	return m_fMinValue;	}
 		float getMaxValue() {	return m_fMaxValue;	}
-		
+
 		void setValue( float fVal );
 		float getValue();
 

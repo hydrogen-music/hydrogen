@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -50,7 +50,7 @@ class Button : public QWidget, public Object
 				bool use_skin_style = false
 		);
 		virtual ~Button();
-		
+
 		bool isPressed() {	return m_bPressed;	}
 		void setPressed(bool pressed);
 
@@ -74,7 +74,7 @@ class Button : public QWidget, public Object
 	private:
 		bool m_bMouseOver;
 		bool __use_skin_style;
-		
+
 		void mousePressEvent(QMouseEvent *ev);
 		void mouseReleaseEvent(QMouseEvent *ev);
 		void enterEvent(QEvent *ev);

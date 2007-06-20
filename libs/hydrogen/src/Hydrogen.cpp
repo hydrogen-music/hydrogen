@@ -44,7 +44,7 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Sample.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/note.h>
 #include <hydrogen/fx/LadspaFX.h>

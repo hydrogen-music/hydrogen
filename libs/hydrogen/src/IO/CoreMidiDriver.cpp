@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -40,7 +40,7 @@ namespace H2Core {
 static void midiProc (const MIDIPacketList * pktlist,
 				void * readProcRefCon,
 				void * srcConnRefCon)
-{	
+{
 	UNUSED( srcConnRefCon );
 
 	MIDIPacket* packet = (MIDIPacket *)pktlist->packet;
@@ -89,7 +89,7 @@ static void midiProc (const MIDIPacketList * pktlist,
 			// instance->errorLog( "Unhandled midi message type: " + toString( nEventType ) );
 			// instance->infoLog( "MIDI msg: " );
 		}
-	
+
 		msg.m_nData1 = packet->data[1];
 		msg.m_nData2 = packet->data[2];
 		instance->handleMidiMessage(msg);
@@ -105,7 +105,7 @@ CoreMidiDriver::CoreMidiDriver()
 {
 	INFOLOG( "INIT" );
 	OSStatus err = noErr;
-	
+
 	string sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
 	err = MIDIClientCreate (CFSTR("h2MIDIClient"), NULL, NULL, &h2MIDIClient);
 	err = MIDIInputPortCreate (h2MIDIClient, CFSTR("h2InputPort"), midiProc, this, &h2InputRef);
@@ -129,9 +129,9 @@ void CoreMidiDriver::open()
 	INFOLOG( "open" );
 
 	OSStatus err = noErr;
-	
+
 	string sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
-	
+
 	cmSources = MIDIGetNumberOfSources();
 	unsigned i;
 	for ( i = 0; i < cmSources; i++ ) {
@@ -168,12 +168,12 @@ std::vector<std::string> CoreMidiDriver::getOutputPortList()
 {
 	INFOLOG( "retrieving output list" );
 	OSStatus err = noErr;
-	
+
 	std::vector<std::string> cmPortList;
 	cmSources = MIDIGetNumberOfSources();
-	
+
 	INFOLOG ( "Getting number of MIDI sources . . .\n" );
-	
+
 	unsigned i;
 	for ( i = 0; i < cmSources; i++ ) {
 		CFStringRef H2MidiNames;
@@ -192,7 +192,7 @@ std::vector<std::string> CoreMidiDriver::getOutputPortList()
 		}
 		CFRelease( H2MidiNames );
 	}
-	return cmPortList;	
+	return cmPortList;
 }
 
 } // namespace H2CORE

@@ -24,7 +24,7 @@
 #include <QPainter>
 
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/Instrument.h>
 using namespace H2Core;
 
@@ -61,7 +61,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	show();
 	updateEditor();
-	
+
 	HydrogenApp::getInstance()->addEventListener( this );
 }
 
@@ -163,7 +163,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {	
+	if ( !isVisible() ) {
 		return;
 	}
 
@@ -325,9 +325,9 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 
 
-void NotePropertiesRuler::createPanBackground(QPixmap *pixmap) 
+void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {	
+	if ( !isVisible() ) {
 		return;
 	}
 

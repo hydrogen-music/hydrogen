@@ -25,7 +25,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Preferences.h>

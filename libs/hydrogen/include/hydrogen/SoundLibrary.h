@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -64,11 +64,11 @@ class Drumkit : public Object
 
 		/// Installs a drumkit
 		static void install( const std::string& filename );
-		
+
 		// Save a drumkit
 		static void save( const std::string& sName, const std::string& sAuthor, const std::string& sInfo );
 
-		
+
 		/// Remove a Drumkit from the disk
 		static void removeDrumkit( const std::string& sDrumkitName );
 

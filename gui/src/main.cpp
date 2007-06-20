@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -35,7 +35,7 @@
 #include "MainForm.h"
 
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/Globals.h>
 #include <hydrogen/EventQueue.h>
 #include <hydrogen/Preferences.h>
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
 void showInfo()
 {
 	cout << "\nHydrogen " + string(VERSION) + " [" + string(__DATE__) + "]  [http://www.hydrogen-music.org]" << endl;
-	cout << "Copyright 2002-2006 Alessandro Cominu" << endl;
+	cout << "Copyright 2002-2007 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + string(COMPILED_FEATURES) << endl;
 
 	if ( Object::isUsingVerboseLog() ) {

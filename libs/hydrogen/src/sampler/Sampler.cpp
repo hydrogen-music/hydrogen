@@ -35,7 +35,7 @@
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/fx/Effects.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 
 namespace H2Core {

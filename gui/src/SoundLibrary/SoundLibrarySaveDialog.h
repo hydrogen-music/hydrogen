@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -28,7 +28,7 @@
 #include <hydrogen/Object.h>
 
 ///
-/// 
+///
 ///
 class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_UI, public Object
 {

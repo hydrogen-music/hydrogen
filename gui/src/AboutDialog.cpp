@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -110,7 +110,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	sAuthors += "<b>Thanks to:</b>";
 
 	sAuthors += "<ul>";
-	
+
 	for ( uint i = 0; i < authorList.size(); ++i ) {
 		Author a = authorList.at( i );
 		sAuthors += "<li><p>";

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -44,12 +44,12 @@ class InstrumentLine : public PixmapWidget
 
 	public:
 		InstrumentLine(QWidget* pParent);
-		
+
 		void setName(const QString& sName);
 		void setSelected(bool isSelected);
 		void setNumber(int nIndex);
 		void setMuted(bool isMuted);
-		
+
 	private slots:
 		void functionClearNotes();
 		void functionFillNotes();
@@ -57,8 +57,8 @@ class InstrumentLine : public PixmapWidget
 		void functionDeleteInstrument();
 		void muteClicked();
 		void soloClicked();
-		
-		
+
+
 	private:
 		QMenu *m_pFunctionPopup;
 		QLabel *m_pNameLbl;
@@ -66,7 +66,7 @@ class InstrumentLine : public PixmapWidget
 		int m_nInstrumentNumber;	///< The related instrument number
 		ToggleButton *m_pMuteBtn;
 		ToggleButton *m_pSoloBtn;
-		
+
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
 };
@@ -82,7 +82,7 @@ class PatternEditorInstrumentList : public QWidget, public Object {
 		virtual void mousePressEvent(QMouseEvent *event);
 		virtual void mouseMoveEvent(QMouseEvent *event);
 
-		
+
 		virtual void dragEnterEvent(QDragEnterEvent *event);
 		virtual void dropEvent(QDropEvent *event);
 
@@ -99,7 +99,7 @@ class PatternEditorInstrumentList : public QWidget, public Object {
 		uint m_nEditorHeight;
 		InstrumentLine* m_pInstrumentLine[MAX_INSTRUMENTS];
 		QTimer *m_pUpdateTimer;
-		
+
 		QPoint __drag_start_position;
 
 		InstrumentLine* createInstrumentLine();

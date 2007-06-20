@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -115,7 +115,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	}
 	else {
 		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
-	
+
 		if ( ev->delta() > 0 ) {
 			setValue( m_fValue + step );
 		}
@@ -361,7 +361,7 @@ void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 
 
 
-void MasterFader::mousePressEvent(QMouseEvent *ev) 
+void MasterFader::mousePressEvent(QMouseEvent *ev)
 {
 	mouseMoveEvent( ev );
 }

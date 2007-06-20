@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://hydrogen.sourceforge.net
  *
@@ -34,7 +34,7 @@
 ///
 /// The Render Callback
 ///
-static OSStatus renderProc( 
+static OSStatus renderProc(
 		void *inRefCon,
 		AudioUnitRenderActionFlags *ioActionFlags,
 		const AudioTimeStamp *inTimeStamp,
@@ -48,7 +48,7 @@ static OSStatus renderProc(
 	for ( unsigned i = 0; i < ioData->mNumberBuffers; i++) {
 		AudioBuffer &outData = ioData->mBuffers[ i ];
 		Float32* pOutData = (float*)(outData.mData);
-		
+
 		float *pAudioSource;
 		if ( i == 0 ) {
 			pAudioSource = pDriver->m_pOut_L;
@@ -92,12 +92,12 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 	}
 
 	UInt32 dataSize = sizeof( m_nBufferSize );
-	err = AudioDeviceGetProperty( 
-			m_outputDevice, 
+	err = AudioDeviceGetProperty(
+			m_outputDevice,
 			0,
 			false,
 			kAudioDevicePropertyBufferFrameSize,
-			&dataSize, 
+			&dataSize,
 			(void *)&m_nBufferSize
 	);
 
@@ -105,22 +105,22 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 		ERRORLOG( "get BufferSize error" );
 	}
 	INFOLOG( "Buffersize: " + toString( m_nBufferSize ) );
-	
+
 
 	// print some info
 	AudioStreamBasicDescription outputStreamBasicDescription;
-	UInt32 propertySize = sizeof(outputStreamBasicDescription); 
-	err = AudioDeviceGetProperty( m_outputDevice, 0, 0, kAudioDevicePropertyStreamFormat, &propertySize, &outputStreamBasicDescription); 
-	if (err) { 
-		printf( "AudioDeviceGetProperty: returned %d when getting kAudioDevicePropertyStreamFormat", err ); 
-	} 
+	UInt32 propertySize = sizeof(outputStreamBasicDescription);
+	err = AudioDeviceGetProperty( m_outputDevice, 0, 0, kAudioDevicePropertyStreamFormat, &propertySize, &outputStreamBasicDescription);
+	if (err) {
+		printf( "AudioDeviceGetProperty: returned %d when getting kAudioDevicePropertyStreamFormat", err );
+	}
 
 	INFOLOG( "SampleRate: " + toString( outputStreamBasicDescription.mSampleRate ) );
-	INFOLOG( "BytesPerPacket: " + toString( outputStreamBasicDescription.mBytesPerPacket ) ); 
-	INFOLOG( "FramesPerPacket: " + toString( outputStreamBasicDescription.mFramesPerPacket ) ); 
-	INFOLOG( "BytesPerFrame: " + toString( outputStreamBasicDescription.mBytesPerFrame ) ); 
-	INFOLOG( "ChannelsPerFrame: " + toString( outputStreamBasicDescription.mChannelsPerFrame ) ); 
-	INFOLOG( "BitsPerChannel: " + toString( outputStreamBasicDescription.mBitsPerChannel ) ); 
+	INFOLOG( "BytesPerPacket: " + toString( outputStreamBasicDescription.mBytesPerPacket ) );
+	INFOLOG( "FramesPerPacket: " + toString( outputStreamBasicDescription.mFramesPerPacket ) );
+	INFOLOG( "BytesPerFrame: " + toString( outputStreamBasicDescription.mBytesPerFrame ) );
+	INFOLOG( "ChannelsPerFrame: " + toString( outputStreamBasicDescription.mChannelsPerFrame ) );
+	INFOLOG( "BitsPerChannel: " + toString( outputStreamBasicDescription.mBitsPerChannel ) );
 }
 
 
@@ -166,7 +166,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 
 // Get Current Output Device
 	UInt32 size = sizeof(AudioDeviceID);
-	err = AudioHardwareGetProperty( 
+	err = AudioHardwareGetProperty(
 			kAudioHardwarePropertyDefaultOutputDevice,
 			&size,
 			&m_outputDevice
@@ -182,7 +182,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 			kAudioUnitScope_Global,
 			0,
 			&m_outputDevice,
-			sizeof( m_outputDevice ) 
+			sizeof( m_outputDevice )
 	);
 	if ( err != noErr ) {
 		ERRORLOG( "Could not set Current Device" );
@@ -212,7 +212,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 
 
 
-	err = AudioUnitSetProperty( 
+	err = AudioUnitSetProperty(
 			m_outputUnit,
 			kAudioUnitProperty_StreamFormat,
 			kAudioUnitScope_Input,

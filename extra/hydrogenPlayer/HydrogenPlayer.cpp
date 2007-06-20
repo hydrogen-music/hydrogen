@@ -25,7 +25,7 @@
 #include <string>
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/Effects.h>

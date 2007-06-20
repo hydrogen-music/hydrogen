@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -184,7 +184,7 @@ void Button::paintEvent( QPaintEvent* ev)
 			// central section, scaled
 			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_onPixmap, QRect(10, 0, w, h) );
 
-			// left side			
+			// left side
 			painter.drawPixmap( QRect(0, 0, w, h), m_onPixmap, QRect(0, 0, w, h) );
 
 			// right side
@@ -199,13 +199,13 @@ void Button::paintEvent( QPaintEvent* ev)
 			if (__use_skin_style) {
 				static int w = 5;
 				static int h = m_overPixmap.height();
-	
+
 				// central section, scaled
 				painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_overPixmap, QRect(10, 0, w, h) );
-	
-				// left side			
+
+				// left side
 				painter.drawPixmap( QRect(0, 0, w, h), m_overPixmap, QRect(0, 0, w, h) );
-	
+
 				// right side
 				painter.drawPixmap( QRect(width() - w, 0, w, h), m_overPixmap, QRect(m_overPixmap.width() - w, 0, w, h) );
 			}
@@ -217,13 +217,13 @@ void Button::paintEvent( QPaintEvent* ev)
 			if (__use_skin_style) {
 				static int w = 5;
 				static int h = m_offPixmap.height();
-	
+
 				// central section, scaled
 				painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_offPixmap, QRect(10, 0, w, h) );
-	
-				// left side			
+
+				// left side
 				painter.drawPixmap( QRect(0, 0, w, h), m_offPixmap, QRect(0, 0, w, h) );
-	
+
 				// right side
 				painter.drawPixmap( QRect(width() - w, 0, w, h), m_offPixmap, QRect(m_offPixmap.width() - w, 0, w, h) );
 			}
@@ -239,11 +239,11 @@ void Button::paintEvent( QPaintEvent* ev)
 
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
-		
+
 		if (m_bMouseOver) {
 			shadow = QColor(150, 250, 150, 100);
 		}
-		
+
 		// shadow
 		painter.setPen( shadow );
 		painter.drawText( 1, 1, width(), height(), Qt::AlignHCenter | Qt::AlignVCenter,  m_sText );

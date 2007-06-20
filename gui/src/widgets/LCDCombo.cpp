@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -45,7 +45,7 @@ LCDCombo::LCDCombo(QWidget *pParent, int digits)
  , Object( "LCDCombo")
 {
 	INFOLOG( "INIT" );
-	
+
 	QStringList items;
 	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false);
 	button = new Button( this,
@@ -63,7 +63,7 @@ LCDCombo::LCDCombo(QWidget *pParent, int digits)
 	connect( button, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
 
 	update();
-	
+
 	connect( pop, SIGNAL( triggered(QAction*) ), this, SLOT( changeText(QAction*) ) );
 	//_WARNINGLOG("items:"+items[0]);
 }
@@ -118,7 +118,7 @@ void LCDCombo::update()
 
 int LCDCombo::count()
 {
-	return items.size(); 
+	return items.size();
 }
 
 
@@ -126,7 +126,7 @@ int LCDCombo::count()
 bool LCDCombo::addItem(const QString &text )
 {
 	//INFOLOG( "add item" );
-	
+
 	if ( text.size() <= size ){
 		items.append( text );
 		return true;

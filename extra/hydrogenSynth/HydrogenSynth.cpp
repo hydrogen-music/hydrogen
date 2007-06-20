@@ -5,7 +5,7 @@ using namespace std;
 #include <hydrogen/EventQueue.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/note.h>
 
 #include <QApplication>

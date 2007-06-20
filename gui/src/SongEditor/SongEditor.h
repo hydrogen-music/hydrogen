@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -65,7 +65,7 @@ class SongEditor : public QWidget, public Object
 
 		int getGridWidth ();
 		void setGridWidth( int width);
-			
+
 	private:
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
@@ -139,16 +139,16 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 
 		void fillRangeWithPattern(FillRange* r, int nPattern);
 		void togglePattern( int );
-		
+
 		virtual void patternChangedEvent();
 
 };
 
 
 // class SongEditorPatternListener : public EventListener {
-// 	
+//
 // }
-// 
+//
 
 class SongEditorPositionRuler : public QWidget, public Object
 {
@@ -162,7 +162,7 @@ class SongEditorPositionRuler : public QWidget, public Object
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
-		
+
 	public slots:
 		void updatePosition();
 

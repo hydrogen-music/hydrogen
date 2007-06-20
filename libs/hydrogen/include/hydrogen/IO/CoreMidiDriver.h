@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -40,19 +40,19 @@ class CoreMidiDriver : public MidiInput
 	public:
 		CoreMidiDriver();
 		~CoreMidiDriver();
-		
+
 		bool m_bRunning;
-		
+
 		virtual void open();
 		virtual void close();
 		virtual std::vector<std::string> getOutputPortList();
-		
+
 		MIDIClientRef  h2MIDIClient;
 		ItemCount cmSources;
 		MIDIEndpointRef cmH2Src;
-		
+
 		MIDIPortRef h2InputRef;
-		
+
 };
 
 }; // namespace

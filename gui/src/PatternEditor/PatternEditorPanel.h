@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -101,7 +101,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		H2Core::Pattern *m_pPattern;
 		QPixmap m_backgroundPixmap;
 
-		
+
 		// Editor top
 		LCDCombo *__pattern_size_combo;
 		LCDCombo *__resolution_combo;
@@ -110,8 +110,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 
 
 		// ~Editor top
-		
-		
+
+
 		// drum editor
 		QScrollArea* m_pEditorScrollView;
 		DrumPatternEditor *m_pDrumPatternEditor;

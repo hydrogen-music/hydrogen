@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -21,9 +21,9 @@
  */
 
 #include "../Skin.h"
-#include "MidiActivityWidget.h"
 #include "../HydrogenApp.h"
-#include <hydrogen/Hydrogen.h>
+#include "MidiActivityWidget.h"
+#include <hydrogen/hydrogen.h>
 
 #include <QTimer>
 #include <QPainter>

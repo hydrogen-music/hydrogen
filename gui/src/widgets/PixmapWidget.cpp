@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -79,7 +79,7 @@ void PixmapWidget::setPixmap( QString sPixmapPath, bool expand_horiz )
 void PixmapWidget::paintEvent( QPaintEvent* ev)
 {
 	QWidget::paintEvent(ev);
-	
+
 	QPainter painter(this);
 	if ( m_pixmap.isNull() ) {
 		painter.fillRect( ev->rect(), __color );
@@ -88,13 +88,13 @@ void PixmapWidget::paintEvent( QPaintEvent* ev)
 		if (__expand_horiz) {
 			static int w = 10;
 			static int h = m_pixmap.height();
-	
+
 			// central section, scaled
 			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_pixmap, QRect(10, 0, w, h) );
-	
-			// left side			
+
+			// left side
 			painter.drawPixmap( QRect(0, 0, w, h), m_pixmap, QRect(0, 0, w, h) );
-	
+
 			// right side
 			painter.drawPixmap( QRect(width() - w, 0, w, h), m_pixmap, QRect(m_pixmap.width() - w, 0, w, h) );
 		}
@@ -102,7 +102,7 @@ void PixmapWidget::paintEvent( QPaintEvent* ev)
 			painter.drawPixmap( ev->rect(), m_pixmap, ev->rect() );
 		}
 	}
-	
+
 }
 
 

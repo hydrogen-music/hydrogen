@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2006 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -32,7 +32,7 @@
 
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Hydrogen.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/sampler/Sampler.h>

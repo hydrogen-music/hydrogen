@@ -1,5 +1,5 @@
 /* Hydrogen
- * Copyright(c) 2002-2006 Jonathan Dempsey, Alessandro Cominu
+ * Copyright(c) 2002-200/ Alessandro Cominu
  *
  * http://www.hydrogen-music.org
  *
