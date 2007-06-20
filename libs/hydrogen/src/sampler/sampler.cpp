@@ -25,7 +25,7 @@
 
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/adsr.h>
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/IO/JackOutput.h>
 

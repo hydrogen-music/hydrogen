@@ -39,7 +39,7 @@
 #include <hydrogen/Globals.h>
 #include <hydrogen/EventQueue.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/H2Exception.h>
 
 #include <iostream>

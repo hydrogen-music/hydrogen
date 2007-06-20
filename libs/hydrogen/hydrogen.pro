@@ -34,13 +34,13 @@ linux-g++ {
 	#QMAKE_CXXFLAGS_DEBUG += -fno-stack-protector
 }
 
-PRECOMPILED_HEADER  = src/Precompiled.h
+PRECOMPILED_HEADER  = src/precompiled.h
 
 DEFINES += $$H2DEFINES
 message( H2 defines: $$H2DEFINES )
 
 HEADERS += \
-		src/Precompiled.h \
+		src/precompiled.h \
 		\
 		include/hydrogen/adsr.h \
 		include/hydrogen/audio_engine.h \
@@ -55,19 +55,22 @@ HEADERS += \
 		include/hydrogen/Instrument.h \
 		include/hydrogen/Pattern.h \
 		include/hydrogen/Sample.h \
-		include/hydrogen/DataPath.h \
+		include/hydrogen/data_path.h \
 		include/hydrogen/EventQueue.h \
 		include/hydrogen/SoundLibrary.h \
 		include/hydrogen/H2Exception.h \
+		\
 		include/hydrogen/fx/Effects.h \
 		include/hydrogen/fx/LadspaFX.h \
 		include/hydrogen/fx/ladspa.h \
+		\
 		include/hydrogen/IO/AudioOutput.h \
 		include/hydrogen/IO/TransportInfo.h \
 		include/hydrogen/IO/MidiInput.h \
 		include/hydrogen/IO/CoreMidiDriver.h \
 		include/hydrogen/IO/JackOutput.h \
 		include/hydrogen/IO/NullDriver.h \
+		\
 		include/hydrogen/sampler/Sampler.h \
 		include/hydrogen/sequencer/Sequencer.h \
 		include/hydrogen/synth/Synth.h \
@@ -89,7 +92,7 @@ HEADERS += \
 		\
 		\
 		\
-		src/FLACFile.h \
+		src/flac_file.h \
 
 
 
@@ -100,44 +103,44 @@ SOURCES += \
 		src/xml/tinyxmlerror.cpp \
 		src/xml/tinyxmlparser.cpp \
 		\
-		src/IO/AlsaMidiDriver.cpp \
-		src/IO/DiskWriterDriver.cpp \
-		src/IO/FakeDriver.cpp \
-		src/IO/JackOutput.cpp \
-		src/IO/NullDriver.cpp \
-		src/IO/OssDriver.cpp \
-		src/IO/TransportInfo.cpp \
-		src/IO/AlsaAudioDriver.cpp \
-		src/IO/MidiInput.cpp \
-		src/IO/PortMidiDriver.cpp \
-		src/IO/PortAudioDriver.cpp \
-		src/IO/CoreAudioDriver.cpp \
-		src/IO/CoreMidiDriver.cpp \
+		src/IO/alsa_midi_driver.cpp \
+		src/IO/disk_writer_driver.cpp \
+		src/IO/fake_driver.cpp \
+		src/IO/jack_output.cpp \
+		src/IO/null_driver.cpp \
+		src/IO/oss_driver.cpp \
+		src/IO/transport_info.cpp \
+		src/IO/alsa_audio_driver.cpp \
+		src/IO/midi_input.cpp \
+		src/IO/portmidi_driver.cpp \
+		src/IO/portaudio_driver.cpp \
+		src/IO/coreaudio_driver.cpp \
+		src/IO/coremidi_driver.cpp \
 		\
-		src/fx/Effects.cpp \
-		src/fx/LadspaFX.cpp \
+		src/fx/effects.cpp \
+		src/fx/ladspa_fx.cpp \
 		\
-		src/smf/SMF.cpp \
-		src/smf/SMFEvent.cpp \
+		src/smf/smf.cpp \
+		src/smf/smf_event.cpp \
 		\
-		src/sampler/Sampler.cpp \
+		src/sampler/sampler.cpp \
 		\
-		src/sequencer/Sequencer.cpp \
+		src/sequencer/sequencer.cpp \
 		\
-		src/synth/Synth.cpp \
+		src/synth/synth.cpp \
 		\
 		src/adsr.cpp \
 		src/audio_engine.cpp \
-		src/DataPath.cpp \
-		src/EventQueue.cpp \
-		src/FLACFile.cpp \
-		src/Hydrogen.cpp \
-		src/Instrument.cpp \
-		src/LocalFileMng.cpp \
+		src/data_path.cpp \
+		src/event_queue.cpp \
+		src/flac_file.cpp \
+		src/hydrogen.cpp \
+		src/instrument.cpp \
+		src/local_file_mgr.cpp \
 		src/note.cpp \
-		src/Object.cpp \
-		src/Pattern.cpp \
-		src/Preferences.cpp \
-		src/Sample.cpp \
-		src/Song.cpp \
-		src/SoundLibrary.cpp
+		src/object.cpp \
+		src/pattern.cpp \
+		src/preferences.cpp \
+		src/sample.cpp \
+		src/song.cpp \
+		src/sound_library.cpp

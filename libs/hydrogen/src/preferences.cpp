@@ -36,7 +36,7 @@
 #include <iostream>
 #include <cstdio>
 
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include "config.h"
 
 #include "xml/tinyxml.h"

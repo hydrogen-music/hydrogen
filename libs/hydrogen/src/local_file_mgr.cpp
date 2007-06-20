@@ -27,7 +27,7 @@
 #include <QApplication>
 #include <cassert>
 
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/LocalFileMng.h>
 #include "xml/tinyxml.h"

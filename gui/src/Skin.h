@@ -23,7 +23,7 @@
 #define H2_SKIN_H
 
 #include <QString>
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 
 ///
 /// Skin support

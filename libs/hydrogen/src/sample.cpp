@@ -23,7 +23,7 @@
 #include <hydrogen/Sample.h>
 
 #include <hydrogen/Preferences.h>
-#include "FLACFile.h"
+#include "flac_file.h"
 #include <sndfile.h>
 #include <iostream>
 #include <fstream>

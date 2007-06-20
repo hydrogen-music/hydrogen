@@ -44,7 +44,7 @@
 #include "../InstrumentRack.h"
 
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/hydrogen.h>

@@ -56,7 +56,7 @@
 #include <hydrogen/IO/CoreMidiDriver.h>
 #include <hydrogen/IO/TransportInfo.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/sampler/Sampler.h>
 
 #include "IO/OssDriver.h"

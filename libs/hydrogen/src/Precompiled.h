@@ -25,7 +25,6 @@
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Note.h>
-#include <hydrogen/DataPath.h>
 #include <hydrogen/AudioEngine.h>
 #include <hydrogen/Hydrogen.h>
 #include <hydrogen/Sample.h>

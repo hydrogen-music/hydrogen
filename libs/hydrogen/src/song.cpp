@@ -24,7 +24,7 @@
 #include "xml/tinyxml.h"
 
 #include <hydrogen/adsr.h>
-#include <hydrogen/DataPath.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
 
 #include <hydrogen/fx/Effects.h>
