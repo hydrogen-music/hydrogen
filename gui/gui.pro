@@ -4,7 +4,6 @@ TARGET = hydrogen
 INCLUDEPATH += ../ ../libs/hydrogen/include
 DESTDIR = ..
 
-#QT += network svg xml
 QT += network xml
 
 CONFIG += qt warn_on precompile_header release
@@ -114,10 +113,10 @@ TRANSLATIONS = \
 	../data/i18n/hydrogen.fr.ts \
 	../data/i18n/hydrogen.it.ts \
 	../data/i18n/hydrogen.nl.ts \
-	../data/i18n/hydrogen.pt_BR \
+	../data/i18n/hydrogen.pt_BR.ts \
 	../data/i18n/hydrogen.sv.ts \
 	../data/i18n/hydrogen.es.ts \
-	../data/i18n/hydrogen.hu_HU \
+	../data/i18n/hydrogen.hu_HU.ts \
 	../data/i18n/hydrogen.ja.ts \
 	../data/i18n/hydrogen.pl.ts \
 	../data/i18n/hydrogen.ru.ts
