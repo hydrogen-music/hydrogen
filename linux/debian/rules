@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	touch configure-stamp
+	cd ..; prefix=/usr ./configure
+
+
+build: build-stamp
+
+
+build-stamp: configure-stamp
+	dh_testdir
+
+	# Add here commands to compile the package.
+	#cd ..; $(MAKE) clean
+	cd ..; $(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	-find . -name '*.py[co]' | xargs rm -f
+
+	# Add here commands to clean up after the build process.
+	#cd ..; $(MAKE) distclean
+	dh_clean
+
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
+
+	cd ..; $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/hydrogen/usr install
+
+docs:
+
+
+docs_install:
+
+
+
+# Build architecture-independent files here.
+binary-indep: build install docs docs_install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_compress -X.py
+	dh_fixperms
+	#dh_python
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+
+
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

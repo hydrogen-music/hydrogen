@@ -8,23 +8,30 @@
 
 # remove old files before starting a new configuration
 rm -f all.mak
-
 rm `find . | grep Makefile`
+
 
 echo "
 
 -----------------------------------------------------------------
-Starting Hydrogen configuration...
+Starting Hydrogen configuration  http://www.hydrogen-music.org
 -----------------------------------------------------------------
-
 "
+
+# check prefix settings
+if test "x$prefix" = "x"; then
+	default_prefix=/usr/local
+	echo " * prefix is not set, using default $default_prefix"
+	prefix=$default_prefix
+fi
+
+
 
 if test "x$QTDIR" = "x"; then
 	# is not set
-	echo " * QTDIR is not set."
+	echo " * QTDIR enviroment variable is not set...searching for installed QT4 library"
 	echo ""
 
-	echo " * Guessing for QT library"
 	ac_qtlib=""
 	for X in \
 			/usr/local/Trolltech/Qt-4.3.0 \
@@ -39,9 +46,7 @@ if test "x$QTDIR" = "x"; then
 			if test -f $X/lib/libQtCore.a -o -f $X/lib/libQtCore.so -o -d $X/lib/QtCore.framework -o -f $X/lib/libQtCore.dylib; then
 				ac_qtlib=$X
 				QTDIR=$X
-				echo "   |-> searching in $X [ OK ]"
-			else
-				echo "   |-> searching in $X"
+				echo "   Found QT4 libraries in $X"
 			fi
 		fi
 	done
@@ -61,19 +66,22 @@ fi
 
 if test "x$ac_qtlib" = "x"; then
 	echo ""
-	echo " *** ERROR: QT library not found. Maybe QTDIR isn't properly set."
+	echo " *** ERROR: QT library not found. Maybe QT development libraries are not installed or QTDIR isn't properly set."
 	exit 1
 fi
 
 
-prefix=/usr/local
+QMAKE_BIN=$QTDIR/bin/qmake
+
+if [ -f $QTDIR/bin/qmake-qt4 ]
+then
+	QMAKE_BIN=$QTDIR/bin/qmake-qt4
+fi
 
 echo ""
-$QTDIR/bin/qmake --version
+$QMAKE_BIN --version
 
-echo ""
-echo " * Creating all.mak..."
-$QTDIR/bin/qmake all.pro "prefix=$prefix"
+$QMAKE_BIN all.pro "prefix=$prefix"
 
 rm -f config.h
 echo "#define CONFIG_PREFIX \"$prefix\"" >> config.h
@@ -85,16 +93,11 @@ echo "
 Hydrogen is now configured for building. Just run 'make'.
 Once everything is built, you must run 'make install'.
 
-Hydrogen will be installed in $prefix prefix by default.
-"
-#you can override this setting with:
-#'make prefix=/your/preferred/prefix'
-#and then
-#'make prefix=/your/preferred/prefix install'
-echo "
-See the INSTALL file for details.
+Hydrogen will be installed in $prefix
 
-[http://www.hydrogen-music.org]
+You can override this setting with:
+prefix=/your/prefix ./configure
+
 -----------------------------------------------------------------
 
 "
