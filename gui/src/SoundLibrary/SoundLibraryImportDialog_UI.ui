@@ -1,15 +1,12 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>SoundLibraryImportDialog_UI</class>
  <widget class="QDialog" name="SoundLibraryImportDialog_UI" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>514</width>
-    <height>405</height>
+    <width>763</width>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -20,8 +17,8 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>511</width>
-     <height>391</height>
+     <width>751</width>
+     <height>481</height>
     </rect>
    </property>
    <widget class="QWidget" name="Internet" >
@@ -34,7 +31,7 @@
        <x>10</x>
        <y>10</y>
        <width>291</width>
-       <height>351</height>
+       <height>431</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" >
@@ -74,8 +71,8 @@
       <rect>
        <x>310</x>
        <y>10</y>
-       <width>191</width>
-       <height>351</height>
+       <width>431</width>
+       <height>441</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" >
@@ -92,6 +89,12 @@
           <width>16777215</width>
           <height>50</height>
          </size>
+        </property>
+        <property name="font" >
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text" >
          <string>Sound Library Name</string>
@@ -192,7 +195,6 @@
    </widget>
   </widget>
  </widget>
- <pixmapfunction></pixmapfunction>
  <resources/>
  <connections/>
 </ui>

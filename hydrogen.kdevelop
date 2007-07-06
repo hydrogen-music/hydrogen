@@ -104,14 +104,14 @@
     <run>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <mainprogram>/home/comix/hydrogen_svn/hydrogen</mainprogram>
+      <mainprogram>hydrogen</mainprogram>
       <programargs>-n -V</programargs>
       <terminal>true</terminal>
       <autocompile>true</autocompile>
       <envvars/>
       <globaldebugarguments/>
-      <globalcwd>/home/comix/hydrogen_svn</globalcwd>
-      <useglobalprogram>false</useglobalprogram>
+      <globalcwd/>
+      <useglobalprogram>true</useglobalprogram>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
     </run>
