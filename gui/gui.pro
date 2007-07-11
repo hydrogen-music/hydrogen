@@ -18,6 +18,18 @@ MOC_DIR = objs
 
 PRE_TARGETDEPS = ../libs/libhydrogen.a
 
+
+
+# Crea la documentazione con Doxygen
+doxygen.target = ../doc/html/dummy
+doxygen.commands = cd ../doc; doxygen
+QMAKE_EXTRA_TARGETS += doxygen
+POST_TARGETDEPS = ../doc/html/dummy
+
+
+
+
+
 # rebuild the translations QM files
 #QMAKE_PRE_LINK = $$[QT_INSTALL_PREFIX]/bin/lupdate gui.pro; $$[QT_INSTALL_PREFIX]/bin/lrelease gui.pro
 
