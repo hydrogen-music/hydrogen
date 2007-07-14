@@ -72,7 +72,7 @@ FILE_VERSION_FILTER    =
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
-QUIET                  = YES
+QUIET                  = NO
 WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = YES
 WARN_IF_DOC_ERROR      = YES
@@ -127,9 +127,10 @@ FILE_PATTERNS          = *.c \
                          *.MM \
                          *.PY
 RECURSIVE              = YES
-EXCLUDE                = ../libs/hydrogen/src/xml/
+EXCLUDE                = ../libs/hydrogen/src/xml/ \
+			 ../gui/objs/
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       =
+EXCLUDE_PATTERNS       =*moc_*
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO

@@ -19,13 +19,14 @@ MOC_DIR = objs
 PRE_TARGETDEPS = ../libs/libhydrogen.a
 
 
-
-# Crea la documentazione con Doxygen
-doxygen.target = ../doc/html/dummy
-doxygen.commands = cd ../doc; doxygen
-QMAKE_EXTRA_TARGETS += doxygen
-POST_TARGETDEPS = ../doc/html/dummy
-
+exists(/usr/bin/doxygen) {
+	message("Doxygen is available.")
+	# Crea la documentazione con Doxygen
+	doxygen.target = ../docs/html/dummy
+	doxygen.commands = cd ../docs; doxygen
+	QMAKE_EXTRA_TARGETS += doxygen
+	POST_TARGETDEPS = ../docs/html/dummy
+}
 
 
 
