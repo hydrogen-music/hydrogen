@@ -519,7 +519,8 @@ Song* SongReader::readSong( const std::string& filename)
 
 
 
-Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList){
+Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
+{
 	Pattern *pPattern = NULL;
 
 	string sName = "";	// name

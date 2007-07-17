@@ -43,7 +43,10 @@ class Pattern;
 class Song;
 class PatternList;
 
-/// Song class.
+/**
+\ingroup H2CORE
+\brief	Song class
+*/
 class Song : public Object{
 	public:
 		enum SongMode {
@@ -130,8 +133,9 @@ class Song : public Object{
 
 
 /**
- * Read XML file of a song
- */
+\ingroup H2CORE
+\brief	Read XML file of a song
+*/
 class SongReader : public Object {
 	public:
 		SongReader();

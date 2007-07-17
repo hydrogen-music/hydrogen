@@ -31,12 +31,15 @@ using std::string;
 
 namespace H2Core {
 
+/**
+\ingroup H2CORE
+*/
 class Sample : public Object
 {
 	public:
 		unsigned m_nFrames;		///< Total number of frames in this sample.
-		string m_sFilename;	///< filename associated with this sample
-		unsigned m_nSampleRate;	///< samplerate for this sample
+		string m_sFilename;		///< filename associated with this sample
+		unsigned m_nSampleRate;		///< samplerate for this sample
 
 		Sample( unsigned nFrames, const string& sFilename, float* pData_L = NULL, float* pData_R = NULL );
 		~Sample();

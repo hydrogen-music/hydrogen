@@ -30,9 +30,11 @@ namespace H2Core {
 
 class InstrumentList;
 
-///
-/// SoundLibrary class.
-///
+
+/**
+\ingroup H2CORE
+\brief	SoundLibrary class.
+*/
 class SoundLibrary : public Object
 {
 	public:
@@ -44,9 +46,10 @@ class SoundLibrary : public Object
 
 
 
-///
-/// Drumkit info
-//
+/**
+\ingroup H2CORE
+\brief	Drumkit info
+*/
 class Drumkit : public Object
 {
 	public:

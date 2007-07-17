@@ -22,7 +22,7 @@
 #ifndef ENGINE_GLOBALS_H
 #define ENGINE_GLOBALS_H
 
-#define MAX_INSTRUMENTS		512
+#define MAX_INSTRUMENTS		1000
 #define MAX_NOTES		192
 
 #define MAX_FX			4

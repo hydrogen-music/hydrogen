@@ -42,6 +42,9 @@ const float FALLOFF_NORMAL=	1.1f;
 const float FALLOFF_FAST =	1.5f;
 
 
+/**
+\ingroup H2CORE
+*/
 class WindowProperties : public Object
 {
 	public:
@@ -56,7 +59,9 @@ class WindowProperties : public Object
 };
 
 
-
+/**
+\ingroup H2CORE
+*/
 class H2RGBColor : public Object
 {
 	public:
@@ -78,9 +83,10 @@ class H2RGBColor : public Object
 };
 
 
-///
-/// Colors for hydogen
-///
+/**
+\ingroup H2CORE
+\brief	Colors for hydogen
+*/
 class UIStyle : public Object
 {
 	public:
@@ -107,7 +113,10 @@ class UIStyle : public Object
 
 
 
-/// Manager for User Preferences File (singleton)
+/**
+\ingroup H2CORE
+\brief	Manager for User Preferences File (singleton)
+*/
 class Preferences : public Object
 {
 	public:
