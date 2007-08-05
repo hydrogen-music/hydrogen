@@ -24,11 +24,12 @@
 
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 enum SequencerMode {
-	SONG_MODE,
-	PATTERN_MODE
+    SONG_MODE,
+    PATTERN_MODE
 };
 
 
@@ -37,19 +38,19 @@ enum SequencerMode {
 ///
 class Sequencer : public Object
 {
-	public:
-		static Sequencer* getInstance();
-		~Sequencer();
+public:
+	static Sequencer* getInstance();
+	~Sequencer();
 
-		/// Start the sequencer.
-		void start();
+	/// Start the sequencer.
+	void start();
 
-		/// Stop the sequencer.
-		void stop();
+	/// Stop the sequencer.
+	void stop();
 
-	private:
-		static Sequencer* m_pInstance;
-		Sequencer();
+private:
+	static Sequencer* m_pInstance;
+	Sequencer();
 
 };
 

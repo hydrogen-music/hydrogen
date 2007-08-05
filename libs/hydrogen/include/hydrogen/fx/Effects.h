@@ -31,35 +31,36 @@
 
 #include <vector>
 
-namespace H2Core {
+namespace H2Core
+{
 
 /**
  *
  */
 class Effects : public Object
 {
-	public:
-		static Effects* getInstance();
-		~Effects();
+public:
+	static Effects* getInstance();
+	~Effects();
 
-		LadspaFX* getLadspaFX( int nFX );
-		void  setLadspaFX( LadspaFX* pFX, int nFX );
+	LadspaFX* getLadspaFX( int nFX );
+	void  setLadspaFX( LadspaFX* pFX, int nFX );
 
-		std::vector<LadspaFXInfo*> getPluginList();
-		LadspaFXGroup* getLadspaFXGroup();
+	std::vector<LadspaFXInfo*> getPluginList();
+	LadspaFXGroup* getLadspaFXGroup();
 
 
-	private:
-		static Effects* m_pInstance;
-		std::vector<LadspaFXInfo*> m_pluginList;
-		LadspaFXGroup* m_pRootGroup;
+private:
+	static Effects* m_pInstance;
+	std::vector<LadspaFXInfo*> m_pluginList;
+	LadspaFXGroup* m_pRootGroup;
 
-		LadspaFX* m_FXList[ MAX_FX ];
+	LadspaFX* m_FXList[ MAX_FX ];
 
-		Effects();
+	Effects();
 
-		void RDFDescend( const std::string& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
-		void getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
+	void RDFDescend( const std::string& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
+	void getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
 
 };
 

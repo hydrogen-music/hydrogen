@@ -27,52 +27,52 @@
 #include <string>
 #include <vector>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class MidiMessage
 {
-	public:
-		enum MidiMessageType {
-			UNKNOWN,
-			SYSEX,
-			NOTE_ON,
-			NOTE_OFF,
-			POLYPHONIC_KEY_PRESSURE,
-			CONTROL_CHANGE,
-			PROGRAM_CHANGE,
-			CHANNEL_PRESSURE,
-			PITCH_WHEEL,
-			SYSTEM_EXCLUSIVE,
-			START,
-			CONTINUE,
-			STOP,
-			SONG_POS,
-			QUARTER_FRAME
-		};
+public:
+	enum MidiMessageType {
+	    UNKNOWN,
+	    SYSEX,
+	    NOTE_ON,
+	    NOTE_OFF,
+	    POLYPHONIC_KEY_PRESSURE,
+	    CONTROL_CHANGE,
+	    PROGRAM_CHANGE,
+	    CHANNEL_PRESSURE,
+	    PITCH_WHEEL,
+	    SYSTEM_EXCLUSIVE,
+	    START,
+	    CONTINUE,
+	    STOP,
+	    SONG_POS,
+	    QUARTER_FRAME
+	};
 
-		MidiMessageType m_type;
-		int m_nData1;
-		int m_nData2;
-		int m_nChannel;
-		std::vector<unsigned char> m_sysexData;
+	MidiMessageType m_type;
+	int m_nData1;
+	int m_nData2;
+	int m_nChannel;
+	std::vector<unsigned char> m_sysexData;
 
-		MidiMessage()
-		 : m_type( UNKNOWN )
-		 , m_nData1( -1 )
-		 , m_nData2( -1 )
-		 , m_nChannel( -1 )
-		{
-		}
+	MidiMessage()
+			: m_type( UNKNOWN )
+			, m_nData1( -1 )
+			, m_nData2( -1 )
+			, m_nChannel( -1 )
+	{}
 };
 
 
 
 class MidiPortInfo
 {
-	public:
-		std::string m_sName;
-		int m_nClient;
-		int m_nPort;
+public:
+	std::string m_sName;
+	int m_nClient;
+	int m_nPort;
 };
 
 
@@ -81,23 +81,26 @@ class MidiPortInfo
  */
 class MidiInput : public Object
 {
-	public:
-		MidiInput( const std::string sClassName );
-		~MidiInput();
+public:
+	MidiInput( const std::string sClassName );
+	~MidiInput();
 
-		virtual void open() = 0;
-		virtual void close() = 0;
-		virtual std::vector<std::string> getOutputPortList() = 0;
+	virtual void open() = 0;
+	virtual void close() = 0;
+	virtual std::vector<std::string> getOutputPortList() = 0;
 
-		void setActive(bool isActive) {	m_bActive = isActive;	}
-		void handleMidiMessage( const MidiMessage& msg );
-		void handleSysexMessage( const MidiMessage& msg );
+	void setActive( bool isActive )
+	{
+		m_bActive = isActive;
+	}
+	void handleMidiMessage( const MidiMessage& msg );
+	void handleSysexMessage( const MidiMessage& msg );
 
-	protected:
-		bool m_bActive;
+protected:
+	bool m_bActive;
 
-		void handleNoteOnMessage( const MidiMessage& msg );
-		void handleNoteOffMessage( const MidiMessage& msg );
+	void handleNoteOnMessage( const MidiMessage& msg );
+	void handleNoteOffMessage( const MidiMessage& msg );
 
 
 

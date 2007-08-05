@@ -26,42 +26,47 @@
 #include <hydrogen/IO/TransportInfo.h>
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 ///
 /// Base abstract class for audio output classes.
 ///
 class AudioOutput : public Object
 {
-	public:
-		TransportInfo m_transport;		// Transport info
+public:
+	TransportInfo m_transport;		// Transport info
 
-		AudioOutput( const std::string& sClassName)
-		 : Object( sClassName )
-		 , __track_out_enabled(false)
-		{ }
+	AudioOutput( const std::string& sClassName )
+			: Object( sClassName )
+			, __track_out_enabled( false )
+	{ }
 
-		virtual ~AudioOutput() { }
+	virtual ~AudioOutput()
+	{ }
 
-		virtual int init(unsigned nBufferSize) = 0;
-		virtual int connect() = 0;
-		virtual void disconnect() = 0;
-		virtual unsigned getBufferSize() = 0;
-		virtual unsigned getSampleRate() = 0;
-		virtual float* getOut_L() = 0;
-		virtual float* getOut_R() = 0;
+	virtual int init( unsigned nBufferSize ) = 0;
+	virtual int connect() = 0;
+	virtual void disconnect() = 0;
+	virtual unsigned getBufferSize() = 0;
+	virtual unsigned getSampleRate() = 0;
+	virtual float* getOut_L() = 0;
+	virtual float* getOut_R() = 0;
 
-		virtual void updateTransportInfo() = 0;
-		virtual void play() = 0;
-		virtual void stop() = 0;
-		virtual void locate( unsigned long nFrame ) = 0;
-		virtual void setBpm(float fBPM) = 0;
+	virtual void updateTransportInfo() = 0;
+	virtual void play() = 0;
+	virtual void stop() = 0;
+	virtual void locate( unsigned long nFrame ) = 0;
+	virtual void setBpm( float fBPM ) = 0;
 
 
-		bool has_track_outs() {	return __track_out_enabled;	}
+	bool has_track_outs()
+	{
+		return __track_out_enabled;
+	}
 
-	protected:
-		bool __track_out_enabled;	///< True if is capable of per-track audio output
+protected:
+	bool __track_out_enabled;	///< True if is capable of per-track audio output
 
 };
 

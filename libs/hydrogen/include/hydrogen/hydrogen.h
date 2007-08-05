@@ -38,119 +38,120 @@
 
 inline int randomValue( int max );
 
-namespace H2Core {
+namespace H2Core
+{
 
 ///
 /// Hydrogen Audio Engine.
 ///
 class Hydrogen : public Object
 {
-	public:
-		/// Return the Hydrogen instance
-		static Hydrogen* getInstance();
+public:
+	/// Return the Hydrogen instance
+	static Hydrogen* getInstance();
 
-		~Hydrogen();
+	~Hydrogen();
 
 // ***** SEQUENCER ********
-		/// Start the internal sequencer
-		void sequencer_play();
+	/// Start the internal sequencer
+	void sequencer_play();
 
-		/// Stop the internal sequencer
-		void sequencer_stop();
+	/// Stop the internal sequencer
+	void sequencer_stop();
 
-		void midi_noteOn( Note *note );
-		void midi_noteOff( Note *note );
+	void midi_noteOn( Note *note );
+	void midi_noteOff( Note *note );
 
-		void sequencer_setNextPattern(int pos, bool appendPattern, bool deletePattern);
+	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
 // ***** ~SEQUENCER ********
 
 
-		/// Set current song
-		void setSong(Song *newSong);
+	/// Set current song
+	void setSong( Song *newSong );
 
-		/// Return the current song
-		Song* getSong();
-		void removeSong();
+	/// Return the current song
+	Song* getSong();
+	void removeSong();
 
-		void addRealtimeNote (int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool forcePlay=false);
+	void addRealtimeNote ( int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool forcePlay=false );
 
-		float getMasterPeak_L();
-		void setMasterPeak_L(float value);
+	float getMasterPeak_L();
+	void setMasterPeak_L( float value );
 
-		float getMasterPeak_R();
-		void setMasterPeak_R(float value);
+	float getMasterPeak_R();
+	void setMasterPeak_R( float value );
 
-		void getLadspaFXPeak( int nFX, float *fL, float *fR );
-		void setLadspaFXPeak( int nFX, float fL, float fR );
-
-
-		unsigned long getTickPosition();
-		unsigned long getRealtimeTickPosition();
-		unsigned long getTotalFrames();
-		unsigned long getRealtimeFrames();
+	void getLadspaFXPeak( int nFX, float *fL, float *fR );
+	void setLadspaFXPeak( int nFX, float fL, float fR );
 
 
-
-		PatternList * getCurrentPatternList();
-		void setCurrentPatternList(PatternList * pPatternList);
-
-		PatternList * getNextPatterns();
-
-		int getPatternPos();
-		void setPatternPos( int pos );
-
-		long getTickForPosition( int );
-
-		void restartDrivers();
-
-		void startExportSong(const std::string& filename);
-		void stopExportSong();
-
-		AudioOutput* getAudioOutput();
-		MidiInput* getMidiInput();
-
-		int getState();
-
-		float getProcessTime();
-		float getMaxProcessTime();
-
-		int loadDrumkit( Drumkit *drumkitInfo );
-
-		void raiseError(unsigned nErrorCode);
+	unsigned long getTickPosition();
+	unsigned long getRealtimeTickPosition();
+	unsigned long getTotalFrames();
+	unsigned long getRealtimeFrames();
 
 
-		void previewSample( Sample *pSample );
-		void previewInstrument( Instrument *pInstr );
 
-		enum ErrorMessages {
-			UNKNOWN_DRIVER,
-			ERROR_STARTING_DRIVER,
-			JACK_SERVER_SHUTDOWN,
-			JACK_CANNOT_ACTIVATE_CLIENT,
-			JACK_CANNOT_CONNECT_OUTPUT_PORT,
-			JACK_ERROR_IN_PORT_REGISTER
-		};
+	PatternList * getCurrentPatternList();
+	void setCurrentPatternList( PatternList * pPatternList );
 
-		void setTapTempo( float fInterval );
-		void setBPM( float fBPM );
+	PatternList * getNextPatterns();
 
-		void restartLadspaFX();
+	int getPatternPos();
+	void setPatternPos( int pos );
 
-		int getSelectedPatternNumber();
-		void setSelectedPatternNumber( int nPat );
+	long getTickForPosition( int );
 
-		int getSelectedInstrumentNumber();
-		void setSelectedInstrumentNumber( int nInstrument );
+	void restartDrivers();
 
-	private:
-		static Hydrogen* instance;
+	void startExportSong( const std::string& filename );
+	void stopExportSong();
 
-		/// Constructor
-		Hydrogen();
+	AudioOutput* getAudioOutput();
+	MidiInput* getMidiInput();
 
-		// used for song export
-		Song::SongMode m_oldEngineMode;
-		bool m_bOldLoopEnabled;
+	int getState();
+
+	float getProcessTime();
+	float getMaxProcessTime();
+
+	int loadDrumkit( Drumkit *drumkitInfo );
+
+	void raiseError( unsigned nErrorCode );
+
+
+	void previewSample( Sample *pSample );
+	void previewInstrument( Instrument *pInstr );
+
+	enum ErrorMessages {
+	    UNKNOWN_DRIVER,
+	    ERROR_STARTING_DRIVER,
+	    JACK_SERVER_SHUTDOWN,
+	    JACK_CANNOT_ACTIVATE_CLIENT,
+	    JACK_CANNOT_CONNECT_OUTPUT_PORT,
+	    JACK_ERROR_IN_PORT_REGISTER
+	};
+
+	void setTapTempo( float fInterval );
+	void setBPM( float fBPM );
+
+	void restartLadspaFX();
+
+	int getSelectedPatternNumber();
+	void setSelectedPatternNumber( int nPat );
+
+	int getSelectedInstrumentNumber();
+	void setSelectedInstrumentNumber( int nInstrument );
+
+private:
+	static Hydrogen* instance;
+
+	/// Constructor
+	Hydrogen();
+
+	// used for song export
+	Song::SongMode m_oldEngineMode;
+	bool m_bOldLoopEnabled;
 
 };
 

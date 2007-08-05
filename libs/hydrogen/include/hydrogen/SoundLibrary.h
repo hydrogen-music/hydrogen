@@ -26,7 +26,8 @@
 #include <string>
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class InstrumentList;
 
@@ -37,11 +38,11 @@ class InstrumentList;
 */
 class SoundLibrary : public Object
 {
-	public:
-		SoundLibrary();
-		~SoundLibrary();
+public:
+	SoundLibrary();
+	~SoundLibrary();
 
-	private:
+private:
 };
 
 
@@ -52,48 +53,72 @@ class SoundLibrary : public Object
 */
 class Drumkit : public Object
 {
-	public:
-		Drumkit();
-		~Drumkit();
+public:
+	Drumkit();
+	~Drumkit();
 
-		/// Loads a single Drumkit
-		static Drumkit* load( const std::string& sFilename );
+	/// Loads a single Drumkit
+	static Drumkit* load( const std::string& sFilename );
 
-		/// Lists the User drumkit list
-		static std::vector<std::string> getUserDrumkitList();
+	/// Lists the User drumkit list
+	static std::vector<std::string> getUserDrumkitList();
 
-		/// Lists the System drumkit list
-		static std::vector<std::string> getSystemDrumkitList();
+	/// Lists the System drumkit list
+	static std::vector<std::string> getSystemDrumkitList();
 
-		/// Installs a drumkit
-		static void install( const std::string& filename );
+	/// Installs a drumkit
+	static void install( const std::string& filename );
 
-		// Save a drumkit
-		static void save( const std::string& sName, const std::string& sAuthor, const std::string& sInfo );
+	// Save a drumkit
+	static void save( const std::string& sName, const std::string& sAuthor, const std::string& sInfo );
 
 
-		/// Remove a Drumkit from the disk
-		static void removeDrumkit( const std::string& sDrumkitName );
+	/// Remove a Drumkit from the disk
+	static void removeDrumkit( const std::string& sDrumkitName );
 
-		InstrumentList *getInstrumentList() {	return m_pInstrumentList;	}
-		void setInstrumentList( InstrumentList* instr ) {	this->m_pInstrumentList = instr;	}
+	InstrumentList *getInstrumentList()
+	{
+		return m_pInstrumentList;
+	}
+	void setInstrumentList( InstrumentList* instr )
+	{
+		this->m_pInstrumentList = instr;
+	}
 
-		void setName( const std::string& name ) {	this->m_sName = name;	}
-		const std::string& getName() {	return m_sName;	}
+	void setName( const std::string& name )
+	{
+		this->m_sName = name;
+	}
+	const std::string& getName()
+	{
+		return m_sName;
+	}
 
-		void setAuthor( const std::string& author ) {	this->m_sAuthor = author;	}
-		const std::string& getAuthor() {	return m_sAuthor;	}
+	void setAuthor( const std::string& author )
+	{
+		this->m_sAuthor = author;
+	}
+	const std::string& getAuthor()
+	{
+		return m_sAuthor;
+	}
 
-		void setInfo( const std::string& info ) {	this->m_sInfo = info;	}
-		const std::string& getInfo() {	return m_sInfo;	}
+	void setInfo( const std::string& info )
+	{
+		this->m_sInfo = info;
+	}
+	const std::string& getInfo()
+	{
+		return m_sInfo;
+	}
 
-		void dump();
+	void dump();
 
-	private:
-		InstrumentList *m_pInstrumentList;
-		std::string m_sName;
-		std::string m_sAuthor;
-		std::string m_sInfo;
+private:
+	InstrumentList *m_pInstrumentList;
+	std::string m_sName;
+	std::string m_sAuthor;
+	std::string m_sInfo;
 };
 
 };

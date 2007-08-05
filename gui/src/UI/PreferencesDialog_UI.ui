@@ -22,11 +22,20 @@
     </rect>
    </property>
    <layout class="QHBoxLayout" >
-    <property name="margin" >
-     <number>0</number>
-    </property>
     <property name="spacing" >
      <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
     </property>
     <item>
      <spacer>
@@ -47,9 +56,7 @@
     <item>
      <widget class="QPushButton" name="cancelBtn" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>5</vsizetype>
+       <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -71,9 +78,7 @@
     <item>
      <widget class="QPushButton" name="okBtn" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>5</vsizetype>
+       <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -126,9 +131,7 @@
     </rect>
    </property>
    <property name="sizePolicy" >
-    <sizepolicy>
-     <hsizetype>7</hsizetype>
-     <vsizetype>7</vsizetype>
+    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -219,10 +222,22 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="1" column="1" >
@@ -233,11 +248,11 @@
           <height>22</height>
          </size>
         </property>
-        <property name="maximum" >
-         <number>5000</number>
-        </property>
         <property name="minimum" >
          <number>100</number>
+        </property>
+        <property name="maximum" >
+         <number>5000</number>
         </property>
         <property name="singleStep" >
          <number>100</number>
@@ -283,9 +298,7 @@
       <item row="0" column="1" >
        <widget class="QLineEdit" name="m_pAudioDeviceTxt" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>1</hsizetype>
-          <vsizetype>0</vsizetype>
+         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -347,10 +360,22 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >
@@ -361,11 +386,11 @@
           <height>22</height>
          </size>
         </property>
-        <property name="maximum" >
-         <number>512</number>
-        </property>
         <property name="minimum" >
          <number>1</number>
+        </property>
+        <property name="maximum" >
+         <number>512</number>
         </property>
        </widget>
       </item>
@@ -380,11 +405,11 @@
           <height>22</height>
          </size>
         </property>
-        <property name="maximum" >
-         <number>100</number>
-        </property>
         <property name="minimum" >
          <number>1</number>
+        </property>
+        <property name="maximum" >
+         <number>100</number>
         </property>
        </widget>
       </item>
@@ -425,10 +450,22 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="1" column="0" >
@@ -602,10 +639,22 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="0" column="0" >
@@ -662,10 +711,22 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >
@@ -750,7 +811,7 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <includes/>
  <resources/>
  <connections/>
 </ui>

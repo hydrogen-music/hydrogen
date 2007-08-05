@@ -38,8 +38,8 @@ linux-g++ {
 	message( *** LINUX BUILD *** )
 	LIBS += -lsndfile
 	LIBS += -ltar
-	QMAKE_CXXFLAGS_RELEASE += -fno-stack-protector
-	QMAKE_CXXFLAGS_DEBUG += -fno-stack-protector
+#	QMAKE_CXXFLAGS_RELEASE += -fno-stack-protector
+#	QMAKE_CXXFLAGS_DEBUG += -fno-stack-protector
 }
 linux-g++-64 {
 	message( *** LINUX 64bit BUILD *** )

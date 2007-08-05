@@ -32,7 +32,8 @@
 
 class TiXmlNode;
 
-namespace H2Core {
+namespace H2Core
+{
 
 class ADSR;
 class Sample;
@@ -47,87 +48,157 @@ class PatternList;
 \ingroup H2CORE
 \brief	Song class
 */
-class Song : public Object{
-	public:
-		enum SongMode {
-			PATTERN_MODE,
-			SONG_MODE
-		};
+class Song : public Object
+{
+public:
+	enum SongMode {
+	    PATTERN_MODE,
+	    SONG_MODE
+	};
 
-		bool m_bIsMuted;
-		unsigned m_nResolution;	///< Resolution of the song (number of ticks per quarter)
-		float m_fBPM;			///< Beats per minute
-		bool m_bIsModified;
-		std::string m_sName;	///< song name
-		std::string m_sAuthor;		///< author of the song
+	bool m_bIsMuted;
+	unsigned m_nResolution;	///< Resolution of the song (number of ticks per quarter)
+	float m_fBPM;			///< Beats per minute
+	bool m_bIsModified;
+	std::string m_sName;	///< song name
+	std::string m_sAuthor;		///< author of the song
 
-		/*
-		// internal delay FX
-		bool m_bDelayFXEnabled;
-		float m_fDelayFXWetLevel;
-		float m_fDelayFXFeedback;
-		unsigned m_nDelayFXTime;
-		//~ internal delay fx
-		*/
+	/*
+	// internal delay FX
+	bool m_bDelayFXEnabled;
+	float m_fDelayFXWetLevel;
+	float m_fDelayFXFeedback;
+	unsigned m_nDelayFXTime;
+	//~ internal delay fx
+	*/
 
-		Song(const std::string& sName, const std::string& sAuthor, float bpm, float volume);
-		~Song();
+	Song( const std::string& sName, const std::string& sAuthor, float bpm, float volume );
+	~Song();
 
-		void setVolume(float fVolume) {	m_fVolume = fVolume;	}
-		float getVolume() {	return m_fVolume;	}
+	void setVolume( float fVolume )
+	{
+		m_fVolume = fVolume;
+	}
+	float getVolume()
+	{
+		return m_fVolume;
+	}
 
-		void setMetronomeVolume(float fVolume) {	m_fMetronomeVolume = fVolume;	}
-		float getMetronomeVolume() {	return m_fMetronomeVolume;	}
+	void setMetronomeVolume( float fVolume )
+	{
+		m_fMetronomeVolume = fVolume;
+	}
+	float getMetronomeVolume()
+	{
+		return m_fMetronomeVolume;
+	}
 
-		PatternList* getPatternList(){	return m_pPatternList;	}
-		void setPatternList( PatternList *pList ){	m_pPatternList = pList;	}
+	PatternList* getPatternList()
+	{
+		return m_pPatternList;
+	}
+	void setPatternList( PatternList *pList )
+	{
+		m_pPatternList = pList;
+	}
 
-		std::vector<PatternList*>* getPatternGroupVector(){	return m_pPatternSequence;	}
-		void setPatternGroupVector( std::vector<PatternList*>* pVect ){	m_pPatternSequence = pVect;	}
+	std::vector<PatternList*>* getPatternGroupVector()
+	{
+		return m_pPatternSequence;
+	}
+	void setPatternGroupVector( std::vector<PatternList*>* pVect )
+	{
+		m_pPatternSequence = pVect;
+	}
 
-		static Song* load( const std::string& sFilename );
-		void save( const std::string& sFilename );
+	static Song* load( const std::string& sFilename );
+	void save( const std::string& sFilename );
 
-		InstrumentList* getInstrumentList(){	return m_pInstrumentList;	}
-		void setInstrumentList( InstrumentList *pList ){	m_pInstrumentList = pList;	}
+	InstrumentList* getInstrumentList()
+	{
+		return m_pInstrumentList;
+	}
+	void setInstrumentList( InstrumentList *pList )
+	{
+		m_pInstrumentList = pList;
+	}
 
-		static Song* getEmptySong();
+	static Song* getEmptySong();
 
-		void setNotes( const std::string& sNotes ) {	m_sNotes = sNotes;	}
-		std::string getNotes() {	return m_sNotes;	}
+	void setNotes( const std::string& sNotes )
+	{
+		m_sNotes = sNotes;
+	}
+	std::string getNotes()
+	{
+		return m_sNotes;
+	}
 
-		std::string getFilename() {	return m_sFilename;	}
-		void setFilename( const std::string& sFilename ) {	m_sFilename = sFilename;	}
+	std::string getFilename()
+	{
+		return m_sFilename;
+	}
+	void setFilename( const std::string& sFilename )
+	{
+		m_sFilename = sFilename;
+	}
 
-		bool isLoopEnabled() {	return m_bIsLoopEnabled;	}
-		void setLoopEnabled( bool bIsLoopEnabled ) {	m_bIsLoopEnabled = bIsLoopEnabled;	}
+	bool isLoopEnabled()
+	{
+		return m_bIsLoopEnabled;
+	}
+	void setLoopEnabled( bool bIsLoopEnabled )
+	{
+		m_bIsLoopEnabled = bIsLoopEnabled;
+	}
 
-		float getHumanizeTimeValue() {	return m_fHumanizeTimeValue;	}
-		void setHumanizeTimeValue(float fValue) {	m_fHumanizeTimeValue = fValue;	}
+	float getHumanizeTimeValue()
+	{
+		return m_fHumanizeTimeValue;
+	}
+	void setHumanizeTimeValue( float fValue )
+	{
+		m_fHumanizeTimeValue = fValue;
+	}
 
-		float getHumanizeVelocityValue() {	return m_fHumanizeVelocityValue;	 }
-		void setHumanizeVelocityValue(float fValue) { m_fHumanizeVelocityValue = fValue;	}
+	float getHumanizeVelocityValue()
+	{
+		return m_fHumanizeVelocityValue;
+	}
+	void setHumanizeVelocityValue( float fValue )
+	{
+		m_fHumanizeVelocityValue = fValue;
+	}
 
-		float getSwingFactor() {	return m_fSwingFactor;	}
-		void setSwingFactor(float fFactor);
+	float getSwingFactor()
+	{
+		return m_fSwingFactor;
+	}
+	void setSwingFactor( float fFactor );
 
-		SongMode getMode() {	return m_songMode;	}
-		void setMode( SongMode newMode ) {	m_songMode = newMode;	}
+	SongMode getMode()
+	{
+		return m_songMode;
+	}
+	void setMode( SongMode newMode )
+	{
+		m_songMode = newMode;
+	}
 
-	private:
-		float m_fVolume;			///< volume of the song (0.0..1.0)
-		float m_fMetronomeVolume;	///< Metronome volume
-		std::string m_sNotes;
-		PatternList *m_pPatternList;	///< Pattern list
-		std::vector<PatternList*>* m_pPatternSequence;	///< Sequence of pattern groups
-		InstrumentList *m_pInstrumentList;	///< Instrument list
-		std::string m_sFilename;
-		bool m_bIsLoopEnabled;
-		float m_fHumanizeTimeValue;
-		float m_fHumanizeVelocityValue;
-		float m_fSwingFactor;
+private:
+	float m_fVolume;			///< volume of the song (0.0..1.0)
+	float m_fMetronomeVolume;	///< Metronome volume
+	std::string m_sNotes;
+	PatternList *m_pPatternList;	///< Pattern list
+	std::vector<PatternList*>* m_pPatternSequence;	///< Sequence of pattern groups
+	InstrumentList *m_pInstrumentList;	///< Instrument list
+	std::string m_sFilename;
+	bool m_bIsLoopEnabled;
+	float m_fHumanizeTimeValue;
+	float m_fHumanizeVelocityValue;
+	float m_fSwingFactor;
 
-		SongMode m_songMode;
+	SongMode m_songMode;
 };
 
 
@@ -136,17 +207,18 @@ class Song : public Object{
 \ingroup H2CORE
 \brief	Read XML file of a song
 */
-class SongReader : public Object {
-	public:
-		SongReader();
-		~SongReader();
-		Song* readSong( const std::string& filename);
+class SongReader : public Object
+{
+public:
+	SongReader();
+	~SongReader();
+	Song* readSong( const std::string& filename );
 
-	private:
-		std::string m_sSongVersion;
+private:
+	std::string m_sSongVersion;
 
-		/// Dato un XmlNode restituisce un oggetto Pattern
-		Pattern* getPattern(::TiXmlNode* pattern, InstrumentList* instrList);
+	/// Dato un XmlNode restituisce un oggetto Pattern
+	Pattern* getPattern( ::TiXmlNode* pattern, InstrumentList* instrList );
 };
 
 

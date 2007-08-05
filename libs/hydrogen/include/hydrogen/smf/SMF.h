@@ -32,52 +32,53 @@
 
 #include <hydrogen/smf/SMFEvent.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class SMFHeader : public SMFBase, public Object
 {
-	public:
-		SMFHeader( int nFormat, int nTracks, int nTPQN );
-		~SMFHeader();
+public:
+	SMFHeader( int nFormat, int nTracks, int nTPQN );
+	~SMFHeader();
 
-		int m_nFormat;		///< SMF format
-		int m_nTracks;		///< number of tracks
-		int m_nTPQN;		///< ticks per quarter note
+	int m_nFormat;		///< SMF format
+	int m_nTracks;		///< number of tracks
+	int m_nTPQN;		///< ticks per quarter note
 
-		virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer();
 };
 
 
 
 class SMFTrack : public SMFBase, public Object
 {
-	public:
-		SMFTrack( const std::string& sTrackName );
-		~SMFTrack();
+public:
+	SMFTrack( const std::string& sTrackName );
+	~SMFTrack();
 
-		void addEvent( SMFEvent *pEvent );
+	void addEvent( SMFEvent *pEvent );
 
-		virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer();
 
-	private:
-		std::vector<SMFEvent*> m_eventList;
+private:
+	std::vector<SMFEvent*> m_eventList;
 };
 
 
 
 class SMF : public SMFBase, public Object
 {
-	public:
-		SMF();
-		~SMF();
+public:
+	SMF();
+	~SMF();
 
-		void addTrack( SMFTrack *pTrack );
-		virtual std::vector<char> getBuffer();
+	void addTrack( SMFTrack *pTrack );
+	virtual std::vector<char> getBuffer();
 
-	private:
-		std::vector<SMFTrack*> m_trackList;
+private:
+	std::vector<SMFTrack*> m_trackList;
 
-		SMFHeader* m_pHeader;
+	SMFHeader* m_pHeader;
 
 };
 
@@ -85,14 +86,14 @@ class SMF : public SMFBase, public Object
 
 class SMFWriter : Object
 {
-	public:
-		SMFWriter();
-		~SMFWriter();
+public:
+	SMFWriter();
+	~SMFWriter();
 
-		void save( const std::string& sFilename, Song *pSong );
+	void save( const std::string& sFilename, Song *pSong );
 
-	private:
-		FILE *m_file;
+private:
+	FILE *m_file;
 
 };
 

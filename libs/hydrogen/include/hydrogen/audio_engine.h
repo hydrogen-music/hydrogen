@@ -30,37 +30,38 @@
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/synth/Synth.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 ///
 /// Audio Engine main class (Singleton).
 ///
 class AudioEngine : public Object
 {
-	public:
-		static AudioEngine* getInstance();
-		~AudioEngine();
+public:
+	static AudioEngine* getInstance();
+	~AudioEngine();
 
-		void lock( const std::string& sLocker );
+	void lock( const std::string& sLocker );
 
-		/// Try to lock the mutex. Return true on success.
-		bool tryLock( const std::string& sLocker );
-		void unlock();
+	/// Try to lock the mutex. Return true on success.
+	bool tryLock( const std::string& sLocker );
+	void unlock();
 
-		Sampler* getSampler();
-		Synth* getSynth();
+	Sampler* getSampler();
+	Synth* getSynth();
 
-	private:
-		static AudioEngine* m_pInstance;
+private:
+	static AudioEngine* m_pInstance;
 
-		Sampler* m_pSampler;
-		Synth* m_pSynth;
+	Sampler* m_pSampler;
+	Synth* m_pSynth;
 
-		/// Mutex for syncronized access to the Song object and the AudioEngine.
-		pthread_mutex_t m_engineLock_mutex;
-		std::string m_sLocker;
+	/// Mutex for syncronized access to the Song object and the AudioEngine.
+	pthread_mutex_t m_engineLock_mutex;
+	std::string m_sLocker;
 
-		AudioEngine();
+	AudioEngine();
 };
 
 };

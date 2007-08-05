@@ -3,13 +3,15 @@
 
 #include <string>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class H2Exception
 {
-	public:
-		H2Exception( const std::string& msg ) : message( msg ) {}
-		std::string message;
+public:
+	H2Exception( const std::string& msg ) : message( msg )
+	{}
+	std::string message;
 };
 
 };

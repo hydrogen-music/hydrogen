@@ -34,7 +34,8 @@ using std::string;
 
 class TiXmlNode;
 
-namespace H2Core {
+namespace H2Core
+{
 
 class Note;
 class Instrument;
@@ -47,31 +48,32 @@ class Drumkit;
 /**
  *
  */
-class LocalFileMng : public Object{
-	public:
-		LocalFileMng();
-		~LocalFileMng();
+class LocalFileMng : public Object
+{
+public:
+	LocalFileMng();
+	~LocalFileMng();
 
-		vector<string> getUserDrumkitList();
-		vector<string> getSystemDrumkitList();
-		string getDrumkitDirectory( const std::string& drumkitName );
+	vector<string> getUserDrumkitList();
+	vector<string> getSystemDrumkitList();
+	string getDrumkitDirectory( const std::string& drumkitName );
 
-		Drumkit* loadDrumkit( const std::string& directory );
-		int saveDrumkit( Drumkit *pDrumkit );
-		//void installDrumkit( const std::string& filename );
-		//int uninstallDrumkit( const std::string& drumkitName );
+	Drumkit* loadDrumkit( const std::string& directory );
+	int saveDrumkit( Drumkit *pDrumkit );
+	//void installDrumkit( const std::string& filename );
+	//int uninstallDrumkit( const std::string& drumkitName );
 
-		static void writeXmlString( ::TiXmlNode *parent, const std::string& name, const std::string& text );
-		static void writeXmlBool( ::TiXmlNode *parent, const std::string& name, bool value );
+	static void writeXmlString( ::TiXmlNode *parent, const std::string& name, const std::string& text );
+	static void writeXmlBool( ::TiXmlNode *parent, const std::string& name, bool value );
 
-		static string readXmlString( ::TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-		static int readXmlInt( ::TiXmlNode* parent, const std::string& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-		static float readXmlFloat( ::TiXmlNode* parent, const std::string& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-		static bool readXmlBool(  ::TiXmlNode* parent, const std::string& nodeName, bool defaultValue, bool bShouldExists = true );
+	static string readXmlString( ::TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static int readXmlInt( ::TiXmlNode* parent, const std::string& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static float readXmlFloat( ::TiXmlNode* parent, const std::string& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static bool readXmlBool(  ::TiXmlNode* parent, const std::string& nodeName, bool defaultValue, bool bShouldExists = true );
 
 
-	private:
-		void fileCopy( const std::string& sOrigFilename, const std::string& sDestFilename );
+private:
+	void fileCopy( const std::string& sOrigFilename, const std::string& sDestFilename );
 };
 
 
@@ -87,12 +89,13 @@ class LocalFileMng : public Object{
 /**
  * Write XML file of a song
  */
-class SongWriter : public Object {
-	public:
-		SongWriter();
-		~SongWriter();
+class SongWriter : public Object
+{
+public:
+	SongWriter();
+	~SongWriter();
 
-		void writeSong(Song *song, const std::string& filename);
+	void writeSong( Song *song, const std::string& filename );
 };
 
 };

@@ -27,47 +27,49 @@
 
 #define MAX_EVENTS 1024
 
-namespace H2Core {
+namespace H2Core
+{
 
 enum EventType {
-	EVENT_NONE,
-	EVENT_STATE,
-	EVENT_PATTERN_CHANGED,
-	EVENT_PATTERN_MODIFIED,
-	EVENT_SELECTED_PATTERN_CHANGED,
-	EVENT_SELECTED_INSTRUMENT_CHANGED,
-	EVENT_MIDI_ACTIVITY,
-	EVENT_XRUN,
-	EVENT_NOTEON,
-	EVENT_ERROR,
-	EVENT_METRONOME,
-	EVENT_PROGRESS
+    EVENT_NONE,
+    EVENT_STATE,
+    EVENT_PATTERN_CHANGED,
+    EVENT_PATTERN_MODIFIED,
+    EVENT_SELECTED_PATTERN_CHANGED,
+    EVENT_SELECTED_INSTRUMENT_CHANGED,
+    EVENT_MIDI_ACTIVITY,
+    EVENT_XRUN,
+    EVENT_NOTEON,
+    EVENT_ERROR,
+    EVENT_METRONOME,
+    EVENT_PROGRESS
 };
 
 
-class Event {
-	public:
-		EventType m_type;
-		int m_nValue;
+class Event
+{
+public:
+	EventType m_type;
+	int m_nValue;
 };
 
 
 class EventQueue : public Object
 {
-	public:
-		static EventQueue* getInstance();
-		~EventQueue();
+public:
+	static EventQueue* getInstance();
+	~EventQueue();
 
-		void pushEvent( EventType type, int nValue );
-		Event popEvent();
+	void pushEvent( EventType type, int nValue );
+	Event popEvent();
 
-	private:
-		EventQueue();
-		static EventQueue *m_pInstance;
+private:
+	EventQueue();
+	static EventQueue *m_pInstance;
 
-		int m_nReadIndex;
-		int m_nWriteIndex;
-		Event m_eventsBuffer[ MAX_EVENTS ];
+	int m_nReadIndex;
+	int m_nWriteIndex;
+	Event m_eventsBuffer[ MAX_EVENTS ];
 };
 
 };

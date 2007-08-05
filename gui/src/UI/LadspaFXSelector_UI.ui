@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>LadspaFXSelector_UI</class>
  <widget class="QDialog" name="LadspaFXSelector_UI" >
   <property name="geometry" >
@@ -13,9 +10,7 @@
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy>
-    <hsizetype>5</hsizetype>
-    <vsizetype>5</vsizetype>
+   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -33,11 +28,20 @@
     </rect>
    </property>
    <layout class="QHBoxLayout" >
-    <property name="margin" >
-     <number>0</number>
-    </property>
     <property name="spacing" >
      <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
     </property>
     <item>
      <spacer>
@@ -58,9 +62,7 @@
     <item>
      <widget class="QPushButton" name="m_pCancelBtn" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>5</vsizetype>
+       <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -82,9 +84,7 @@
     <item>
      <widget class="QPushButton" name="m_pOkBtn" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>5</vsizetype>
+       <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -154,6 +154,11 @@
     <property name="sortingEnabled" >
      <bool>true</bool>
     </property>
+    <column>
+     <property name="text" >
+      <string>1</string>
+     </property>
+    </column>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2" >
@@ -202,7 +207,6 @@
     </property>
     <property name="font" >
      <font>
-      <family></family>
       <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
@@ -242,7 +246,6 @@
     </property>
     <property name="font" >
      <font>
-      <family></family>
       <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
@@ -282,7 +285,6 @@
     </property>
     <property name="font" >
      <font>
-      <family></family>
       <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
@@ -306,7 +308,6 @@
     </property>
     <property name="font" >
      <font>
-      <family></family>
       <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
@@ -362,7 +363,6 @@
     </property>
     <property name="font" >
      <font>
-      <family></family>
       <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
@@ -406,7 +406,6 @@
     </property>
     <property name="font" >
      <font>
-      <family></family>
       <pointsize>12</pointsize>
       <weight>50</weight>
       <italic>false</italic>
@@ -442,7 +441,7 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <includes/>
  <resources/>
  <connections>
   <connection>

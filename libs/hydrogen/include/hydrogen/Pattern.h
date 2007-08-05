@@ -26,7 +26,8 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class Note;
 
@@ -35,40 +36,41 @@ class Note;
 ///
 class Pattern : public Object
 {
-	public:
-		std::string m_sName;
-		std::multimap <int, Note*> m_noteMap;
-		unsigned m_nSize;
+public:
+	std::string m_sName;
+	std::multimap <int, Note*> m_noteMap;
+	unsigned m_nSize;
 
-		Pattern( const std::string& sName, unsigned nPatternSize = MAX_NOTES );
-		~Pattern();
+	Pattern( const std::string& sName, unsigned nPatternSize = MAX_NOTES );
+	~Pattern();
 
-		static Pattern* getEmptyPattern();
-		Pattern* copy();
+	static Pattern* getEmptyPattern();
+	Pattern* copy();
 
-		void dump();
+	void dump();
 };
 
 
 /// Pattern List
-class PatternList : public Object {
-	public:
-		PatternList();
-		~PatternList();
+class PatternList : public Object
+{
+public:
+	PatternList();
+	~PatternList();
 
-		void add( Pattern* newPattern );
-		Pattern* get( int nPos );
-		unsigned int getSize();
-		void clear();
+	void add( Pattern* newPattern );
+	Pattern* get( int nPos );
+	unsigned int getSize();
+	void clear();
 
-		void replace( Pattern* newPattern, unsigned nPos );
-		int indexOf( Pattern * );
+	void replace( Pattern* newPattern, unsigned nPos );
+	int indexOf( Pattern * );
 
-		Pattern * del( Pattern *pattern ); // returns NULL if the pattern is not in the list :)
-		void del( unsigned index );
+	Pattern * del( Pattern *pattern ); // returns NULL if the pattern is not in the list :)
+	void del( unsigned index );
 
-	private:
-		std::vector<Pattern*> list;
+private:
+	std::vector<Pattern*> list;
 };
 
 };

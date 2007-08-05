@@ -36,7 +36,8 @@
 #include <hydrogen/globals.h>
 
 
-namespace H2Core {
+namespace H2Core
+{
 
 class Song;
 class Instrument;
@@ -46,70 +47,84 @@ class Instrument;
 ///
 class JackOutput : public AudioOutput
 {
-	public:
-		jack_client_t *client;
+public:
+	jack_client_t *client;
 
-		JackOutput(JackProcessCallback processCallback);
-		~JackOutput();
+	JackOutput( JackProcessCallback processCallback );
+	~JackOutput();
 
-		int connect();
-		void disconnect();
-		void deactivate();
-		unsigned getBufferSize();
-		unsigned getSampleRate();
+	int connect();
+	void disconnect();
+	void deactivate();
+	unsigned getBufferSize();
+	unsigned getSampleRate();
 
-		jack_transport_state_t getTransportState() {	return m_JackTransportState;	}
-		jack_position_t getTransportPos() {	return m_JackTransportPos;	}
+	jack_transport_state_t getTransportState()
+	{
+		return m_JackTransportState;
+	}
+	jack_position_t getTransportPos()
+	{
+		return m_JackTransportPos;
+	}
 
-		void setPortName( int nPort, bool bLeftChannel, const std::string sName );
-		void makeTrackOutputs( Song * );
-		void setTrackOutput( int, Instrument * );
+	void setPortName( int nPort, bool bLeftChannel, const std::string sName );
+	void makeTrackOutputs( Song * );
+	void setTrackOutput( int, Instrument * );
 
-		void setConnectDefaults(bool flag) { connect_out_flag = flag;}
-		bool getConnectDefaults() { return connect_out_flag;}
+	void setConnectDefaults( bool flag )
+	{
+		connect_out_flag = flag;
+	}
+	bool getConnectDefaults()
+	{
+		return connect_out_flag;
+	}
 
-		float* getOut_L();
-		float* getOut_R();
-		float* getTrackOut_L(unsigned nTrack);
-		float* getTrackOut_R(unsigned nTrack);
+	float* getOut_L();
+	float* getOut_R();
+	float* getTrackOut_L( unsigned nTrack );
+	float* getTrackOut_R( unsigned nTrack );
 
-		int init(unsigned bufferSize);
+	int init( unsigned bufferSize );
 
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm(float fBPM);
-		void calculateFrameOffset();
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void updateTransportInfo();
+	virtual void setBpm( float fBPM );
+	void calculateFrameOffset();
 
-	private:
-		void relocateBBT();
-		long long bbt_frame_offset;
-		int must_relocate;
+private:
+	void relocateBBT();
+	long long bbt_frame_offset;
+	int must_relocate;
 
-		JackProcessCallback processCallback;
-		jack_port_t *output_port_1;
-		jack_port_t *output_port_2;
-		std::string output_port_name_1;
-		std::string output_port_name_2;
-		int track_port_count;
-		jack_port_t *track_output_ports_L[MAX_INSTRUMENTS];
-		jack_port_t *track_output_ports_R[MAX_INSTRUMENTS];
+	JackProcessCallback processCallback;
+	jack_port_t *output_port_1;
+	jack_port_t *output_port_2;
+	std::string output_port_name_1;
+	std::string output_port_name_2;
+	int track_port_count;
+	jack_port_t *track_output_ports_L[MAX_INSTRUMENTS];
+	jack_port_t *track_output_ports_R[MAX_INSTRUMENTS];
 
-		jack_transport_state_t m_JackTransportState;
-		jack_position_t m_JackTransportPos;
+	jack_transport_state_t m_JackTransportState;
+	jack_position_t m_JackTransportPos;
 
-		bool connect_out_flag;
+	bool connect_out_flag;
 };
 
 #else
 
-namespace H2Core {
+namespace H2Core
+{
 
 class JackOutput : public NullDriver
 {
-	public:
-		JackOutput(audioProcessCallback processCallback) : NullDriver( processCallback ) {}
+public:
+	JackOutput( audioProcessCallback processCallback ) : NullDriver( processCallback )
+	{}
 
 };
 

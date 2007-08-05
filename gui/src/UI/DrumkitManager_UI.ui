@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>DrumkitManager_UI</class>
  <widget class="QWidget" name="DrumkitManager_UI" >
   <property name="geometry" >
@@ -309,9 +306,9 @@
        </rect>
       </property>
       <property name="text" >
-       <string>&lt;b>
-Download more drumkits at &lt;br>
-http://www.hydrogen-music.org
+       <string>&lt;b>&#xd;
+Download more drumkits at &lt;br>&#xd;
+http://www.hydrogen-music.org&#xd;
 &lt;/b></string>
       </property>
       <property name="alignment" >
@@ -415,7 +412,6 @@ http://www.hydrogen-music.org
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
  <tabstops>
   <tabstop>loadTab_loadDrumkitBtn</tabstop>
   <tabstop>loadTab_deleteDrumkitBtn</tabstop>
@@ -431,6 +427,7 @@ http://www.hydrogen-music.org
   <tabstop>exportTab_exportBtn</tabstop>
   <tabstop>tabWidget</tabstop>
  </tabstops>
+ <includes/>
  <resources/>
  <connections/>
 </ui>

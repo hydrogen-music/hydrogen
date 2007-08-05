@@ -34,7 +34,8 @@
 
 
 
-namespace H2Core {
+namespace H2Core
+{
 
 class Note;
 class Song;
@@ -46,68 +47,71 @@ class Sample;
 ///
 class Sampler : public Object
 {
-	public:
-		float *__main_out_L;	///< sampler main out (left channel)
-		float *__main_out_R;	///< sampler main out (right channel)
+public:
+	float *__main_out_L;	///< sampler main out (left channel)
+	float *__main_out_R;	///< sampler main out (right channel)
 
-		Sampler();
-		~Sampler();
+	Sampler();
+	~Sampler();
 
-		void process( uint32_t nFrames, Song* pSong );
+	void process( uint32_t nFrames, Song* pSong );
 
-		/// Start playing a note
-		void note_on(Note *note);
+	/// Start playing a note
+	void note_on( Note *note );
 
-		/// Stop playing a note.
-		void note_off(Note *note);
+	/// Stop playing a note.
+	void note_off( Note *note );
 
-		void stop_playing_notes(Instrument *instr = NULL);
+	void stop_playing_notes( Instrument *instr = NULL );
 
-		int get_playing_notes_number() {	return __playing_notes_queue.size();	}
+	int get_playing_notes_number()
+	{
+		return __playing_notes_queue.size();
+	}
 
-		void preview_sample(Sample* sample);
-		void preview_instrument(Instrument* instr);
+	void preview_sample( Sample* sample );
+	void preview_instrument( Instrument* instr );
 
-		void set_audio_output(AudioOutput* audio_output);
-
-
-	private:
-		std::vector<Note*> __playing_notes_queue;
-		static Sampler* __instance;
-		AudioOutput *__audio_output;
-
-		/// Instrument used for the preview feature.
-		Instrument *__preview_instrument;
+	void set_audio_output( AudioOutput* audio_output );
 
 
-		unsigned __render_note(Note* pNote, unsigned nBufferSize, Song* pSong);
+private:
+	std::vector<Note*> __playing_notes_queue;
+	static Sampler* __instance;
+	AudioOutput *__audio_output;
 
-		int __render_note_no_resample(
-				Sample *pSample,
-				Note *pNote,
-				int nBufferSize,
-				int nInitialSilence,
-				float cost_L,
-				float cost_R,
-				float cost_track,
-				float fSendFXLevel_L,
-				float fSendFXLevel_R,
-				Song* pSong
-		);
+	/// Instrument used for the preview feature.
+	Instrument *__preview_instrument;
 
-		int __render_note_resample(
-				Sample *pSample,
-				Note *pNote,
-				int nBufferSize,
-				int nInitialSilence,
-				float cost_L,
-				float cost_R,
-				float cost_track,
-				float fLayerPitch,
-				float fSendFXLevel_L,
-				float fSendFXLevel_R,
-				Song* pSong
-		);
+
+	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
+
+	int __render_note_no_resample(
+	    Sample *pSample,
+	    Note *pNote,
+	    int nBufferSize,
+	    int nInitialSilence,
+	    float cost_L,
+	    float cost_R,
+	    float cost_track,
+	    float fSendFXLevel_L,
+	    float fSendFXLevel_R,
+	    Song* pSong
+	);
+
+	int __render_note_resample(
+	    Sample *pSample,
+	    Note *pNote,
+	    int nBufferSize,
+	    int nInitialSilence,
+	    float cost_L,
+	    float cost_R,
+	    float cost_track,
+	    float fLayerPitch,
+	    float fSendFXLevel_L,
+	    float fSendFXLevel_R,
+	    Song* pSong
+	);
 
 
 

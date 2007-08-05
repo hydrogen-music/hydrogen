@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>ExportSongDialog_UI</class>
  <widget class="QDialog" name="ExportSongDialog_UI" >
   <property name="geometry" >
@@ -25,10 +22,19 @@
     </rect>
    </property>
    <layout class="QHBoxLayout" >
-    <property name="margin" >
+    <property name="spacing" >
      <number>0</number>
     </property>
-    <property name="spacing" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
      <number>0</number>
     </property>
     <item>
@@ -50,9 +56,7 @@
     <item>
      <widget class="QPushButton" name="closeBtn" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>1</hsizetype>
-        <vsizetype>0</vsizetype>
+       <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -197,7 +201,7 @@
   </widget>
  </widget>
  <layoutdefault spacing="0" margin="0" />
- <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <includes/>
  <resources/>
  <connections/>
 </ui>

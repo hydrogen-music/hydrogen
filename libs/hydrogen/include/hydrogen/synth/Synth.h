@@ -31,7 +31,8 @@
 #include <hydrogen/globals.h>
 
 
-namespace H2Core {
+namespace H2Core
+{
 
 
 
@@ -41,30 +42,33 @@ namespace H2Core {
 ///
 class Synth : public Object
 {
-	public:
-		float *m_pOut_L;
-		float *m_pOut_R;
+public:
+	float *m_pOut_L;
+	float *m_pOut_R;
 
-		Synth();
-		~Synth();
+	Synth();
+	~Synth();
 
-		/// Start playing a note
-		void noteOn( Note* pNote );
+	/// Start playing a note
+	void noteOn( Note* pNote );
 
-		/// Stop playing a note.
-		void noteOff( Note* pNote );
+	/// Stop playing a note.
+	void noteOff( Note* pNote );
 
-		void process( uint32_t nFrames );
-		void setAudioOutput( AudioOutput* pAudioOutput );
+	void process( uint32_t nFrames );
+	void setAudioOutput( AudioOutput* pAudioOutput );
 
-		int getPlayingNotesNumber() {	return m_playingNotesQueue.size();	}
+	int getPlayingNotesNumber()
+	{
+		return m_playingNotesQueue.size();
+	}
 
 
-	private:
-		std::vector<Note*> m_playingNotesQueue;
+private:
+	std::vector<Note*> m_playingNotesQueue;
 
-		float m_fTheta;
-		AudioOutput *m_pAudioOutput;
+	float m_fTheta;
+	AudioOutput *m_pAudioOutput;
 
 
 };

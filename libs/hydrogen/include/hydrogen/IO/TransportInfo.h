@@ -24,26 +24,27 @@
 
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class TransportInfo : public Object
 {
-	public:
-		enum {
-			STOPPED,
-			ROLLING,
-			BAD
-		};
+public:
+	enum {
+	    STOPPED,
+	    ROLLING,
+	    BAD
+	};
 
-		unsigned m_status;
+	unsigned m_status;
 
-		long long m_nFrames;
-		float m_nTickSize;
-		float m_nBPM;
+	long long m_nFrames;
+	float m_nTickSize;
+	float m_nBPM;
 
-		TransportInfo();
-		~TransportInfo();
-		void printInfo();
+	TransportInfo();
+	~TransportInfo();
+	void printInfo();
 };
 
 };

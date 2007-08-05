@@ -26,81 +26,87 @@
 #include <vector>
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class SMFBuffer : public Object
 {
-	public:
-		std::vector<char> getBuffer() {	return m_buffer;	}
+public:
+	std::vector<char> getBuffer()
+	{
+		return m_buffer;
+	}
 
-		void writeByte( short int nByte );
-		void writeWord( int nVal );
-		void writeDWord( long nVal );
-		void writeString( const std::string& sMsg );
-		void writeVarLen( long nVal );
+	void writeByte( short int nByte );
+	void writeWord( int nVal );
+	void writeDWord( long nVal );
+	void writeString( const std::string& sMsg );
+	void writeVarLen( long nVal );
 
-		std::vector<char> m_buffer;
+	std::vector<char> m_buffer;
 
-		SMFBuffer() : Object( "SMFBuffer" ) { }
+	SMFBuffer() : Object( "SMFBuffer" )
+	{ }
 };
 
 
 
 enum SMFEventType
 {
-	NOTE_OFF = 128,
-	NOTE_ON = 144
+    NOTE_OFF = 128,
+    NOTE_ON = 144
 };
 
 
 
 enum SMFMetaEventType
 {
-	SEQUENCE_NUMBER = 0,
-	TEXT_EVENT,
-	COPYRIGHT_NOTICE,
-	TRACK_NAME,
-	INSTRUMENT_NAME,
-	LYRIC,
-	MARKER,
-	CUE_POINT,
-	END_OF_TRACK = 0x2f,
-	SET_TEMPO = 0x51,
-	TIME_SIGNATURE = 0x58,
-	KEY_SIGNATURE
+    SEQUENCE_NUMBER = 0,
+    TEXT_EVENT,
+    COPYRIGHT_NOTICE,
+    TRACK_NAME,
+    INSTRUMENT_NAME,
+    LYRIC,
+    MARKER,
+    CUE_POINT,
+    END_OF_TRACK = 0x2f,
+    SET_TEMPO = 0x51,
+    TIME_SIGNATURE = 0x58,
+    KEY_SIGNATURE
 };
 
 
 class SMFBase
 {
-	public:
-		virtual ~SMFBase() {}
-		virtual std::vector<char> getBuffer() = 0;
+public:
+	virtual ~SMFBase()
+	{}
+	virtual std::vector<char> getBuffer() = 0;
 };
 
 
 
 class SMFEvent : public SMFBase, public Object
 {
-	public:
-		SMFEvent( const std::string& sEventName, unsigned nTicks );
-		virtual ~SMFEvent();
+public:
+	SMFEvent( const std::string& sEventName, unsigned nTicks );
+	virtual ~SMFEvent();
 
-		int m_nTicks;
-		int m_nDeltaTime;
+	int m_nTicks;
+	int m_nDeltaTime;
 };
 
 
 
 class SMFTrackNameMetaEvent : public SMFEvent
 {
-	public:
-		SMFTrackNameMetaEvent( const std::string sTrackName, unsigned nDeltaTime );
+public:
+	SMFTrackNameMetaEvent( const std::string sTrackName, unsigned nDeltaTime );
 
-		virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer();
 
-	private:
-		std::string m_sTrackName;
+private:
+	std::string m_sTrackName;
 
 };
 
@@ -108,30 +114,30 @@ class SMFTrackNameMetaEvent : public SMFEvent
 
 class SMFNoteOnEvent : public SMFEvent
 {
-	public:
-		SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
+public:
+	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
-		virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer();
 
-	protected:
-		unsigned m_nChannel;
-		unsigned m_nPitch;
-		unsigned m_nVelocity;
+protected:
+	unsigned m_nChannel;
+	unsigned m_nPitch;
+	unsigned m_nVelocity;
 };
 
 
 
 class SMFNoteOffEvent : public SMFEvent
 {
-	public:
-		SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
+public:
+	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
-		virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer();
 
-	protected:
-		unsigned m_nChannel;
-		unsigned m_nPitch;
-		unsigned m_nVelocity;
+protected:
+	unsigned m_nChannel;
+	unsigned m_nPitch;
+	unsigned m_nVelocity;
 
 };
 

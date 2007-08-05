@@ -51,27 +51,28 @@ class Object;
 /**
  * Class for writing logs to the console
  */
-class Logger {
-	public:
-		bool m_bUseFile;
-		bool m_bIsRunning;
-		std::vector<std::string> m_msgQueue;
-		pthread_mutex_t m_logger_mutex;
+class Logger
+{
+public:
+	bool m_bUseFile;
+	bool m_bIsRunning;
+	std::vector<std::string> m_msgQueue;
+	pthread_mutex_t m_logger_mutex;
 
-		static Logger* getInstance();
+	static Logger* getInstance();
 
-		/** Destructor */
-		~Logger();
+	/** Destructor */
+	~Logger();
 
-		void infoLog( const std::string& logMsg );
-		void warningLog( const std::string& logMsg );
-		void errorLog( const std::string& logMsg );
+	void infoLog( const std::string& logMsg );
+	void warningLog( const std::string& logMsg );
+	void errorLog( const std::string& logMsg );
 
-	private:
-		static Logger *m_pInstance;
+private:
+	static Logger *m_pInstance;
 
-		/** Constructor */
-		Logger();
+	/** Constructor */
+	Logger();
 
 
 };
@@ -82,35 +83,38 @@ class Logger {
  */
 class Object
 {
-	public:
-		static bool m_bUseLog;
+public:
+	static bool m_bUseLog;
 
-		/** Constructor */
-		Object( const std::string& sClassName );
-		Object( const Object& obj );
+	/** Constructor */
+	Object( const std::string& sClassName );
+	Object( const Object& obj );
 
-		/** Destructor */
-		virtual ~Object();
+	/** Destructor */
+	virtual ~Object();
 
-		const std::string& getClassName() const {	return 	m_sClassName;	}
+	const std::string& getClassName() const
+	{
+		return 	m_sClassName;
+	}
 
-		static int getNObjects();
-		static void printObjectMap();
-		static void useVerboseLog( bool bUse );
-		static bool isUsingVerboseLog();
+	static int getNObjects();
+	static void printObjectMap();
+	static void useVerboseLog( bool bUse );
+	static bool isUsingVerboseLog();
 
-	private:
-		static unsigned m_nObjects;
-		static std::map<std::string, int> m_ObjectMap;
-		Logger *m_pLogger;
-		std::string m_sClassName;
+private:
+	static unsigned m_nObjects;
+	static std::map<std::string, int> m_ObjectMap;
+	Logger *m_pLogger;
+	std::string m_sClassName;
 };
 
 
 // some useful functions..
 
 template <class T>
-inline std::string toString(const T& t)
+inline std::string toString( const T& t )
 {
 	std::ostringstream osstream;
 	osstream << t;
@@ -119,14 +123,14 @@ inline std::string toString(const T& t)
 
 inline int stringToInt( const std::string& str )
 {
-	std::istringstream isstream(str);
+	std::istringstream isstream( str );
 	int t;
 	isstream >> t;
 	return t;
 }
 inline float stringToFloat( const std::string& str )
 {
-	std::istringstream isstream(str);
+	std::istringstream isstream( str );
 	float t;
 	isstream >> t;
 	return t;

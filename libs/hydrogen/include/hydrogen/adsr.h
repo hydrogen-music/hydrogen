@@ -25,46 +25,47 @@
 
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 ///
 /// ADSR envelope.
 ///
 class ADSR : private Object
 {
-	public:
-		float m_fAttack;		///< Attack time (in samples)
-		float m_fDecay;		///< Decay time (in samples)
-		float m_fSustain;		///< Sustain level
-		float m_fRelease;		///< Release time (in samples)
+public:
+	float m_fAttack;		///< Attack time (in samples)
+	float m_fDecay;		///< Decay time (in samples)
+	float m_fSustain;		///< Sustain level
+	float m_fRelease;		///< Release time (in samples)
 
-		ADSR(
-				float fAttack = 0.0,
-				float fDecay = 0.0,
-				float fSustain = 1.0,
-				float fRelease = 1000
-		);
+	ADSR(
+	    float fAttack = 0.0,
+	    float fDecay = 0.0,
+	    float fSustain = 1.0,
+	    float fRelease = 1000
+	);
 
-		ADSR( const ADSR& orig );
+	ADSR( const ADSR& orig );
 
-		~ADSR();
+	~ADSR();
 
-		float getValue( float fStep );
-		float release();
+	float getValue( float fStep );
+	float release();
 
-	private:
-		enum ADSRState {
-			ATTACK,
-			DECAY,
-			SUSTAIN,
-			RELEASE,
-			IDLE
-		};
+private:
+	enum ADSRState {
+	    ATTACK,
+	    DECAY,
+	    SUSTAIN,
+	    RELEASE,
+	    IDLE
+	};
 
-		ADSRState m_state;
-		float m_fTicks;
-		float m_fValue;
-		float m_fReleaseValue;
+	ADSRState m_state;
+	float m_fTicks;
+	float m_fValue;
+	float m_fReleaseValue;
 };
 
 };

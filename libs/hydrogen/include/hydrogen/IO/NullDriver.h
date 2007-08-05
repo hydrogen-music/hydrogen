@@ -28,30 +28,31 @@
 
 #include <inttypes.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
-typedef int  (*audioProcessCallback)(uint32_t, void *);
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class NullDriver : public AudioOutput
 {
-	public:
-		NullDriver(audioProcessCallback processCallback);
-		~NullDriver();
+public:
+	NullDriver( audioProcessCallback processCallback );
+	~NullDriver();
 
-		int init(unsigned nBufferSize);
-		int connect();
-		void disconnect();
-		unsigned getBufferSize();
-		unsigned getSampleRate();
+	int init( unsigned nBufferSize );
+	int connect();
+	void disconnect();
+	unsigned getBufferSize();
+	unsigned getSampleRate();
 
-		float* getOut_L();
-		float* getOut_R();
+	float* getOut_L();
+	float* getOut_R();
 
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm(float fBPM);
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void updateTransportInfo();
+	virtual void setBpm( float fBPM );
 
 };
 

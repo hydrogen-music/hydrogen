@@ -33,29 +33,31 @@
 #include <CoreMidi/CoreMidi.h>
 #include <hydrogen/IO/MidiInput.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class CoreMidiDriver : public MidiInput
 {
-	public:
-		CoreMidiDriver();
-		~CoreMidiDriver();
+public:
+	CoreMidiDriver();
+	~CoreMidiDriver();
 
-		bool m_bRunning;
+	bool m_bRunning;
 
-		virtual void open();
-		virtual void close();
-		virtual std::vector<std::string> getOutputPortList();
+	virtual void open();
+	virtual void close();
+	virtual std::vector<std::string> getOutputPortList();
 
-		MIDIClientRef  h2MIDIClient;
-		ItemCount cmSources;
-		MIDIEndpointRef cmH2Src;
+	MIDIClientRef  h2MIDIClient;
+	ItemCount cmSources;
+	MIDIEndpointRef cmH2Src;
 
-		MIDIPortRef h2InputRef;
+	MIDIPortRef h2InputRef;
 
 };
 
-}; // namespace
+}
+; // namespace
 
 #endif // COREMIDI_SUPPORT
 
