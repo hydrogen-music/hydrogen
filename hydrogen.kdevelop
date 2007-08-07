@@ -174,7 +174,7 @@
       <includestyle>4</includestyle>
       <designerintegration>ExternalDesigner</designerintegration>
       <qmake>/usr/bin/qmake</qmake>
-      <designer>/usr/bin/designer-qt4</designer>
+      <designer></designer>
       <designerpluginpaths/>
     </qt>
     <splitheadersource>
