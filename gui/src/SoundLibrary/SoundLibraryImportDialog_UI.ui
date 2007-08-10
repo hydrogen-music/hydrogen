@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
+    <width>772</width>
     <height>499</height>
    </rect>
   </property>
@@ -15,11 +15,14 @@
   <widget class="QTabWidget" name="tabWidget" >
    <property name="geometry" >
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>10</y>
      <width>751</width>
      <height>481</height>
     </rect>
+   </property>
+   <property name="currentIndex" >
+    <number>0</number>
    </property>
    <widget class="QWidget" name="Internet" >
     <attribute name="title" >
@@ -35,11 +38,20 @@
       </rect>
      </property>
      <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
-      </property>
       <property name="spacing" >
        <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
       </property>
       <item>
        <widget class="QPushButton" name="UpdateListBtn" >
@@ -62,6 +74,11 @@
         <property name="itemsExpandable" >
          <bool>false</bool>
         </property>
+        <column>
+         <property name="text" >
+          <string>1</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
@@ -72,15 +89,24 @@
        <x>310</x>
        <y>10</y>
        <width>431</width>
-       <height>441</height>
+       <height>431</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
-      </property>
       <property name="spacing" >
        <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
       </property>
       <item>
        <widget class="QLabel" name="SoundLibraryNameLbl" >
@@ -153,17 +179,29 @@
     <widget class="QWidget" name="widget" >
      <property name="geometry" >
       <rect>
-       <x>11</x>
-       <y>21</y>
-       <width>491</width>
-       <height>60</height>
+       <x>10</x>
+       <y>10</y>
+       <width>721</width>
+       <height>68</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="leftMargin" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >
@@ -185,6 +223,12 @@
       </item>
       <item row="0" column="0" >
        <widget class="QLineEdit" name="SoundLibraryPathTxt" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Maximum" hsizetype="Expanding" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="readOnly" >
          <bool>true</bool>
         </property>

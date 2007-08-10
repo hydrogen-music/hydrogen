@@ -172,7 +172,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 {
 	int nInstrument = -1;
 	InstrumentList * pInstrList = Hydrogen::getInstance()->getSong()->getInstrumentList();
-	for ( uint nInstr = 0; nInstr < pInstrList->getSize(); ++nInstr ) {
+	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
 		if ( pInstr == pNote->getInstrument() ) {
  			nInstrument = nInstr;

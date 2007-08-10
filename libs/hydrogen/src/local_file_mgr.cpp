@@ -253,7 +253,8 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 				continue;
 			}
 
-			Instrument *pInstrument = new Instrument( id, name, volume );
+			Instrument *pInstrument = new Instrument( id, name, new ADSR() );
+			pInstrument->set_volume(volume);
 
 
 			// back compatibility code
@@ -263,7 +264,7 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 				string sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
 				Sample *pSample = new Sample(0, sFilename );
 				InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-				pInstrument->setLayer( pLayer, 0 );
+				pInstrument->set_layer( pLayer, 0 );
 			}
 			//~ back compatibility code
 			else {
@@ -281,28 +282,28 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 
 					Sample *pSample = new Sample(0, sFilename );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-					pLayer->m_fStartVelocity = fMin;
-					pLayer->m_fEndVelocity = fMax;
-					pLayer->m_fGain = fGain;
-					pLayer->m_fPitch = fPitch;
-					pInstrument->setLayer( pLayer, nLayer );
+					pLayer->set_start_velocity( fMin );
+					pLayer->set_end_velocity( fMax );
+					pLayer->set_gain( fGain );
+					pLayer->set_pitch( fPitch );
+					pInstrument->set_layer( pLayer, nLayer );
 
 					nLayer++;
 				}
 			}
 
-			pInstrument->m_bFilterActive = bFilterActive;
-			pInstrument->m_fCutoff = fFilterCutoff;
-			pInstrument->m_fResonance = fFilterResonance;
-			pInstrument->m_bIsMuted = isMuted;
-			pInstrument->m_fPan_L = pan_L;
-			pInstrument->m_fPan_R = pan_R;
-			pInstrument->m_fRandomPitchFactor = fRandomPitchFactor;
-			pInstrument->m_sDrumkitName = drumkitInfo->getName();
-			pInstrument->m_fGain = fGain;
-			pInstrument->m_nMuteGroup = nMuteGroup;
+			pInstrument->set_filter_active( bFilterActive );
+			pInstrument->set_filter_cutoff( fFilterCutoff );
+			pInstrument->set_filter_resonance( fFilterResonance );
+			pInstrument->set_muted( isMuted );
+			pInstrument->set_pan_l( pan_L );
+			pInstrument->set_pan_r( pan_R );
+			pInstrument->set_random_pitch_factor( fRandomPitchFactor );
+			pInstrument->set_drumkit_name( drumkitInfo->getName() );
+			pInstrument->set_gain( fGain );
+			pInstrument->set_mute_group( nMuteGroup );
 
-			pInstrument->m_pADSR = new ADSR( fAttack, fDecay, fSustain, fRelease );
+			pInstrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
 			instrumentList->add( pInstrument );
 		}
 	}
@@ -351,15 +352,15 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	writeXmlString( &rootNode, "info", info->getInfo() );	// info
 
 	TiXmlElement instrumentListNode( "instrumentList" );		// instrument list
-	unsigned nInstrument = info->getInstrumentList()->getSize();
+	unsigned nInstrument = info->getInstrumentList()->get_size();
 	// INSTRUMENT NODE
 	for (unsigned i = 0; i < nInstrument; i++) {
 		Instrument *instr = info->getInstrumentList()->get(i);
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-			InstrumentLayer *pLayer = instr->getLayer( nLayer );
+			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if (pLayer) {
-				Sample *pSample = pLayer->m_pSample;
+				Sample *pSample = pLayer->get_sample();
 				string sOrigFilename = pSample->m_sFilename;
 
 				string sDestFilename = sOrigFilename;
@@ -374,30 +375,30 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 		TiXmlElement instrumentNode("instrument");
 
-		LocalFileMng::writeXmlString( &instrumentNode, "id", instr->m_sId );
-		LocalFileMng::writeXmlString( &instrumentNode, "name", instr->m_sName );
-		LocalFileMng::writeXmlString( &instrumentNode, "volume", toString( instr->m_fVolume ) );
-		LocalFileMng::writeXmlBool( &instrumentNode, "isMuted", instr->m_bIsMuted );
-		LocalFileMng::writeXmlString( &instrumentNode, "pan_L", toString( instr->m_fPan_L ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "pan_R", toString( instr->m_fPan_R ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "randomPitchFactor", toString( instr->m_fRandomPitchFactor ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "gain", toString( instr->m_fGain ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "id", instr->get_id());
+		LocalFileMng::writeXmlString( &instrumentNode, "name", instr->get_name());
+		LocalFileMng::writeXmlString( &instrumentNode, "volume", toString( instr->get_volume()) );
+		LocalFileMng::writeXmlBool( &instrumentNode, "isMuted", instr->is_muted());
+		LocalFileMng::writeXmlString( &instrumentNode, "pan_L", toString( instr->get_pan_l()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "pan_R", toString( instr->get_pan_r()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "randomPitchFactor", toString( instr->get_random_pitch_factor()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "gain", toString( instr->get_gain()) );
 
-		LocalFileMng::writeXmlBool( &instrumentNode, "filterActive", instr->m_bFilterActive );
-		LocalFileMng::writeXmlString( &instrumentNode, "filterCutoff", toString( instr->m_fCutoff ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "filterResonance", toString( instr->m_fResonance ) );
+		LocalFileMng::writeXmlBool( &instrumentNode, "filterActive", instr->is_filter_active());
+		LocalFileMng::writeXmlString( &instrumentNode, "filterCutoff", toString( instr->get_filter_cutoff()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "filterResonance", toString( instr->get_filter_resonance()) );
 
-		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->m_pADSR->m_fAttack ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->m_pADSR->m_fDecay ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->m_pADSR->m_fSustain ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->m_pADSR->m_fRelease ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->get_adsr()->m_fAttack ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->get_adsr()->m_fDecay ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->get_adsr()->m_fSustain ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->get_adsr()->m_fRelease ) );
 
-		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", toString( instr->m_nMuteGroup ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", toString( instr->get_mute_group()) );
 
 		for (unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++) {
-			InstrumentLayer *pLayer = instr->getLayer( nLayer );
+			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if (pLayer == NULL) continue;
-			Sample *pSample = pLayer->m_pSample;
+			Sample *pSample = pLayer->get_sample();
 
 			string sFilename = pSample->m_sFilename;
 
@@ -409,10 +410,10 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", sFilename );
-			LocalFileMng::writeXmlString( &layerNode, "min", toString( pLayer->m_fStartVelocity ) );
-			LocalFileMng::writeXmlString( &layerNode, "max", toString( pLayer->m_fEndVelocity ) );
-			LocalFileMng::writeXmlString( &layerNode, "gain", toString( pLayer->m_fGain ) );
-			LocalFileMng::writeXmlString( &layerNode, "pitch", toString( pLayer->m_fPitch ) );
+			LocalFileMng::writeXmlString( &layerNode, "min", toString( pLayer->get_start_velocity()) );
+			LocalFileMng::writeXmlString( &layerNode, "max", toString( pLayer->get_end_velocity()) );
+			LocalFileMng::writeXmlString( &layerNode, "gain", toString( pLayer->get_gain()) );
+			LocalFileMng::writeXmlString( &layerNode, "pitch", toString( pLayer->get_pitch() ) );
 
 			instrumentNode.InsertEndChild( layerNode );
 		}
@@ -621,7 +622,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 
 	// instrument list
 	TiXmlElement instrumentListNode("instrumentList");
-	unsigned nInstrument = song->getInstrumentList()->getSize();
+	unsigned nInstrument = song->getInstrumentList()->get_size();
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
@@ -630,44 +631,43 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 
 		TiXmlElement instrumentNode("instrument");
 
-		LocalFileMng::writeXmlString( &instrumentNode, "id", instr->m_sId );
-		LocalFileMng::writeXmlString( &instrumentNode, "drumkit", instr->m_sDrumkitName );
-		LocalFileMng::writeXmlString( &instrumentNode, "name", instr->m_sName );
-		LocalFileMng::writeXmlString( &instrumentNode, "volume", toString( instr->m_fVolume ) );
-		LocalFileMng::writeXmlBool( &instrumentNode, "isMuted", instr->m_bIsMuted );
-		//LocalFileMng::writeXmlBool( &instrumentNode, "isLocked", instr->m_bIsLocked );
-		LocalFileMng::writeXmlString( &instrumentNode, "pan_L", toString( instr->m_fPan_L ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "pan_R", toString( instr->m_fPan_R ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "gain", toString( instr->m_fGain ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "id", instr->get_id());
+		LocalFileMng::writeXmlString( &instrumentNode, "drumkit", instr->get_drumkit_name());
+		LocalFileMng::writeXmlString( &instrumentNode, "name", instr->get_name());
+		LocalFileMng::writeXmlString( &instrumentNode, "volume", toString( instr->get_volume()) );
+		LocalFileMng::writeXmlBool( &instrumentNode, "isMuted", instr->is_muted());
+		LocalFileMng::writeXmlString( &instrumentNode, "pan_L", toString( instr->get_pan_l()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "pan_R", toString( instr->get_pan_r()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "gain", toString( instr->get_gain() ) );
 
-		LocalFileMng::writeXmlBool( &instrumentNode, "filterActive", instr->m_bFilterActive );
-		LocalFileMng::writeXmlString( &instrumentNode, "filterCutoff", toString( instr->m_fCutoff ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "filterResonance", toString( instr->m_fResonance ) );
+		LocalFileMng::writeXmlBool( &instrumentNode, "filterActive", instr->is_filter_active());
+		LocalFileMng::writeXmlString( &instrumentNode, "filterCutoff", toString( instr->get_filter_cutoff()) );
+		LocalFileMng::writeXmlString( &instrumentNode, "filterResonance", toString( instr->get_filter_resonance()) );
 
-		LocalFileMng::writeXmlString( &instrumentNode, "FX1Level", toString( instr->m_fFXLevel[ 0 ] ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "FX2Level", toString( instr->m_fFXLevel[ 1 ] ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "FX3Level", toString( instr->m_fFXLevel[ 2 ] ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "FX4Level", toString( instr->m_fFXLevel[ 3 ] ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "FX1Level", toString( instr->get_fx_level( 0 ) ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "FX2Level", toString( instr->get_fx_level( 1 ) ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "FX3Level", toString( instr->get_fx_level( 2 ) ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "FX4Level", toString( instr->get_fx_level( 3 ) ) );
 
-		assert( instr->m_pADSR );
-		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->m_pADSR->m_fAttack ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->m_pADSR->m_fDecay ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->m_pADSR->m_fSustain ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->m_pADSR->m_fRelease ) );
+		assert( instr->get_adsr());
+		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->get_adsr()->m_fAttack ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->get_adsr()->m_fDecay ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->get_adsr()->m_fSustain ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->get_adsr()->m_fRelease ) );
 
-		LocalFileMng::writeXmlString( &instrumentNode, "randomPitchFactor", toString( instr->m_fRandomPitchFactor ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "randomPitchFactor", toString( instr->get_random_pitch_factor()) );
 
-		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", toString( instr->m_nMuteGroup ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", toString( instr->get_mute_group()) );
 
 		for (unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++) {
-			InstrumentLayer *pLayer = instr->getLayer( nLayer );
+			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if (pLayer == NULL) continue;
-			Sample *pSample = pLayer->m_pSample;
+			Sample *pSample = pLayer->get_sample();
 			if (pSample == NULL) continue;
 
 			string sFilename = pSample->m_sFilename;
 
-			if (instr->m_sDrumkitName != "") {
+			if (instr->get_drumkit_name() != "") {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
 				int nPos = sFilename.rfind("/");
 				sFilename = sFilename.substr( nPos + 1, sFilename.length() );
@@ -675,10 +675,10 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", sFilename );
-			LocalFileMng::writeXmlString( &layerNode, "min", toString( pLayer->m_fStartVelocity ) );
-			LocalFileMng::writeXmlString( &layerNode, "max", toString( pLayer->m_fEndVelocity ) );
-			LocalFileMng::writeXmlString( &layerNode, "gain", toString( pLayer->m_fGain ) );
-			LocalFileMng::writeXmlString( &layerNode, "pitch", toString( pLayer->m_fPitch ) );
+			LocalFileMng::writeXmlString( &layerNode, "min", toString( pLayer->get_start_velocity()) );
+			LocalFileMng::writeXmlString( &layerNode, "max", toString( pLayer->get_end_velocity()) );
+			LocalFileMng::writeXmlString( &layerNode, "gain", toString( pLayer->get_gain()) );
+			LocalFileMng::writeXmlString( &layerNode, "pitch", toString( pLayer->get_pitch()) );
 
 			instrumentNode.InsertEndChild( layerNode );
 		}
@@ -716,7 +716,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 			LocalFileMng::writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
 
 			LocalFileMng::writeXmlString( &noteNode, "length", toString( pNote->m_nLength ) );
-			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->getInstrument()->m_sId );
+			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->getInstrument()->get_id());
 			noteListNode.InsertEndChild( noteNode );
 		}
 		patternNode.InsertEndChild( noteListNode );

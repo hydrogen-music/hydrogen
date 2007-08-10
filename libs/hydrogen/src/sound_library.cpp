@@ -103,13 +103,13 @@ void Drumkit::dump()
 	INFOLOG( "\t|- Info = " + m_sInfo );
 
 	INFOLOG( "\t|- Instrument list" );
-	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->getSize(); ++nInstrument) {
+	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->get_size(); ++nInstrument) {
 		Instrument *pInstr = m_pInstrumentList->get( nInstrument );
-		INFOLOG( "\t\t|- (" + toString( nInstrument ) + " of " + toString( m_pInstrumentList->getSize() ) + ") Name = " + pInstr->m_sName );
+		INFOLOG( "\t\t|- (" + toString( nInstrument ) + " of " + toString( m_pInstrumentList->get_size() ) + ") Name = " + pInstr->get_name());
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-			InstrumentLayer *pLayer = pInstr->getLayer( nLayer );
+			InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
 			if ( pLayer ) {
-				Sample *pSample = pLayer->m_pSample;
+				Sample *pSample = pLayer->get_sample();
 				if ( pSample ) {
 					INFOLOG( "\t\t   |- " + pSample->m_sFilename );
 				}
@@ -182,42 +182,39 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 	InstrumentList *pSongInstrList = pSong->getInstrumentList();
 	InstrumentList *pInstrumentList = new InstrumentList();
 
-	for ( uint nInstrument = 0; nInstrument < pSongInstrList->getSize(); nInstrument++ ) {
+	for ( uint nInstrument = 0; nInstrument < pSongInstrList->get_size(); nInstrument++ ) {
 		Instrument *pOldInstr = pSongInstrList->get( nInstrument );
-		Instrument *pNewInstr = new Instrument();
-		pNewInstr->m_sId = pOldInstr->m_sId;
-		pNewInstr->m_fVolume = pOldInstr->m_fVolume;
-		pNewInstr->m_sName = pOldInstr->m_sName;
-		pNewInstr->m_fPan_L = pOldInstr->m_fPan_L;
-		pNewInstr->m_fPan_R = pOldInstr->m_fPan_R;
-		pNewInstr->m_bIsMuted = pOldInstr->m_bIsMuted;
-		pNewInstr->m_fRandomPitchFactor = pOldInstr->m_fRandomPitchFactor;
-		pNewInstr->m_nMuteGroup = pOldInstr->m_nMuteGroup;
-		pNewInstr->m_pADSR = new ADSR( *(pOldInstr->m_pADSR) );
+		Instrument *pNewInstr = new Instrument(pOldInstr->get_id(), pOldInstr->get_name(), new ADSR( *(pOldInstr->get_adsr()) ));
+		pNewInstr->set_volume( pOldInstr->get_volume() );
+		pNewInstr->set_pan_l( pOldInstr->get_pan_l() );
+		pNewInstr->set_pan_r( pOldInstr->get_pan_r() );
+		pNewInstr->set_muted( pOldInstr->is_muted() );
+		pNewInstr->set_random_pitch_factor( pOldInstr->get_random_pitch_factor() );
+		pNewInstr->set_mute_group( pOldInstr->get_mute_group() );
 
-		pNewInstr->m_bFilterActive = pOldInstr->m_bFilterActive;
-		pNewInstr->m_fCutoff = pOldInstr->m_fCutoff;
-		pNewInstr->m_fResonance = pOldInstr->m_fResonance;
+		pNewInstr->set_filter_active( pOldInstr->is_filter_active() );
+		pNewInstr->set_filter_cutoff( pOldInstr->get_filter_cutoff() );
+		pNewInstr->set_filter_resonance( pOldInstr->get_filter_resonance() );
 
 
-		string sInstrDrumkit = pOldInstr->m_sDrumkitName;
+		string sInstrDrumkit = pOldInstr->get_drumkit_name();
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-			InstrumentLayer *pOldLayer = pOldInstr->getLayer( nLayer );
+			InstrumentLayer *pOldLayer = pOldInstr->get_layer( nLayer );
 			if ( pOldLayer ) {
-				Sample *pSample = pOldLayer->m_pSample;
+				Sample *pSample = pOldLayer->get_sample();
 
 				Sample *pNewSample = new Sample( 0, pSample->m_sFilename );	// is not a real sample, it contains only the filename information
 				InstrumentLayer *pLayer = new InstrumentLayer( pNewSample );
-				pLayer->m_fGain = pOldLayer->m_fGain;
-				pLayer->m_fPitch = pOldLayer->m_fPitch;
-				pLayer->m_fStartVelocity = pOldLayer->m_fStartVelocity;
-				pLayer->m_fEndVelocity = pOldLayer->m_fEndVelocity;
+				pLayer->set_gain( pOldLayer->get_gain() );
+				pLayer->set_pitch( pOldLayer->get_pitch() );
+				pLayer->set_start_velocity( pOldLayer->get_start_velocity() );
+				pLayer->set_end_velocity( pOldLayer->get_end_velocity() );
 
-				pNewInstr->setLayer( pLayer, nLayer );
+				pNewInstr->set_layer( pLayer, nLayer );
 			}
 			else {
-				pNewInstr->setLayer( NULL, nLayer );
+				pNewInstr->set_layer( NULL, nLayer );
 			}
 		}
 		pInstrumentList->add ( pNewInstr );

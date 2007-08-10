@@ -109,7 +109,8 @@ void Note::setInstrument( Instrument* pInstrument )
 	}
 
 	m_pInstrument = pInstrument;
-	m_adsr = ADSR( *(m_pInstrument->m_pADSR) );
+	assert(m_pInstrument->get_adsr());
+	m_adsr = ADSR( *(m_pInstrument->get_adsr()) );
 
 /*
 	if ( pInstrument->m_pADSR == NULL ) {
@@ -131,7 +132,7 @@ void Note::setInstrument( Instrument* pInstrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + toString( m_nPosition ) + "\t instr: " + m_pInstrument->m_sName + "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( m_fPitch ) );
+	INFOLOG( "pos: " + toString( m_nPosition ) + "\t instr: " + m_pInstrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( m_fPitch ) );
 }
 
 

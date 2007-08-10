@@ -1,4 +1,4 @@
 include(features.pri)
 
 TEMPLATE = subdirs
-SUBDIRS = plugins libs extra gui
+SUBDIRS = plugins libs extra gui unittest

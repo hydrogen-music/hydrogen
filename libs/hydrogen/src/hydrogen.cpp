@@ -252,9 +252,8 @@ void audioEngine_init()
 
 	// Create metronome instrument
 	string sMetronomeFilename = string(DataPath::getDataPath()) + "/click.wav";
-	m_pMetronomeInstrument = new Instrument( sMetronomeFilename, "metronome", 0.0 );
-	m_pMetronomeInstrument->m_pADSR = new ADSR();
-	m_pMetronomeInstrument->setLayer( new InstrumentLayer( Sample::load( sMetronomeFilename ) ), 0 );
+	m_pMetronomeInstrument = new Instrument( sMetronomeFilename, "metronome", new ADSR() );
+	m_pMetronomeInstrument->set_layer( new InstrumentLayer( Sample::load( sMetronomeFilename ) ), 0 );
 
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
@@ -505,13 +504,13 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
-			pNote->m_fPitch += ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->getInstrument()->m_fRandomPitchFactor;
+			pNote->m_fPitch += ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->getInstrument()->get_random_pitch_factor();
 
 			AudioEngine::getInstance()->getSampler()->note_on(pNote);	// aggiungo la nota alla lista di note da eseguire
 			m_songNoteQueue.pop_front();			// rimuovo la nota dalla lista di note
 
 			// raise noteOn event
-			int nInstrument = m_pSong->getInstrumentList()->getPos( pNote->getInstrument() );
+			int nInstrument = m_pSong->getInstrumentList()->get_pos( pNote->getInstrument() );
 			EventQueue::getInstance()->pushEvent( EVENT_NOTEON, nInstrument );
 			continue;
 		}
@@ -1132,7 +1131,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 				EventQueue::getInstance()->pushEvent( EVENT_METRONOME, 0 );
 			}
 			if ( Preferences::getInstance()->m_bUseMetronome ) {
-				m_pMetronomeInstrument->m_fVolume = Preferences::getInstance()->m_fMetronomeVolume;
+				m_pMetronomeInstrument->set_volume( Preferences::getInstance()->m_fMetronomeVolume );
 
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument, tick, fVelocity, 0.5, 0.5, -1, fPitch );
 				m_songNoteQueue.push_back( pMetronomeNote );
@@ -1693,7 +1692,7 @@ void Hydrogen::addRealtimeNote(int instrument, float velocity, float pan_L, floa
 	AudioEngine::getInstance()->lock( "Hydrogen::addRealtimeNote" );	// lock the audio engine
 
 	Song *song = getSong();
-	if ( instrument >= (int)song->getInstrumentList()->getSize() ) {
+	if ( instrument >= (int)song->getInstrumentList()->get_size() ) {
 		// unused instrument
 		AudioEngine::getInstance()->unlock();
 		return;
@@ -2047,14 +2046,14 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 	InstrumentList *songInstrList = m_pSong->getInstrumentList();
 	InstrumentList *pDrumkitInstrList = drumkitInfo->getInstrumentList();
-	for (unsigned nInstr = 0; nInstr < pDrumkitInstrList->getSize(); ++nInstr ) {
+	for (unsigned nInstr = 0; nInstr < pDrumkitInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = NULL;
-		if ( nInstr < songInstrList->getSize() ) {
+		if ( nInstr < songInstrList->get_size() ) {
 			pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 		}
 		else {
-			pInstr = new Instrument();
+			pInstr = new Instrument("", "", new ADSR());
 			AudioEngine::getInstance()->lock( "Hydrogen::loadDrumkit" );
 			songInstrList->add( pInstr );
 			AudioEngine::getInstance()->unlock();
@@ -2066,19 +2065,19 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 		Instrument *pNewInstr = pDrumkitInstrList->get( nInstr );
 		assert( pNewInstr );
-		_INFOLOG( "Loading instrument (" + toString( nInstr ) + " of " + toString( pDrumkitInstrList->getSize() ) + ") [ " + pNewInstr->m_sName + " ]" );
+		_INFOLOG( "Loading instrument (" + toString( nInstr ) + " of " + toString( pDrumkitInstrList->get_size() ) + ") [ " + pNewInstr->get_name() + " ]" );
 		// creo i nuovi layer in base al nuovo strumento
 		for (unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer) {
-			InstrumentLayer *pNewLayer = pNewInstr->getLayer( nLayer );
+			InstrumentLayer *pNewLayer = pNewInstr->get_layer( nLayer );
 			if (pNewLayer != NULL) {
-				Sample *pNewSample = pNewLayer->m_pSample;
+				Sample *pNewSample = pNewLayer->get_sample();
 				string sSampleFilename = sDrumkitPath + drumkitInfo->getName() + "/" + pNewSample->m_sFilename;
 				_INFOLOG( "    |-> Loading layer [ " + sSampleFilename + " ]" );
 
 				// carico il nuovo sample e creo il nuovo layer
 				Sample *pSample = Sample::load( sSampleFilename );
 //				pSample->setFilename( pNewSample->getFilename() );	// riuso il path del nuovo sample (perche' e' gia relativo al path del drumkit)
-				InstrumentLayer *pOldLayer = pInstr->getLayer(nLayer);
+				InstrumentLayer *pOldLayer = pInstr->get_layer(nLayer);
 
 				if (pSample == NULL) {
 					//_ERRORLOG( "Error Loading drumkit: NULL sample, now using /emptySample.wav" );
@@ -2086,26 +2085,26 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 					//pSample->m_sFilename = string(DataPath::getDataPath() ).append( "/emptySample.wav" );
 					_ERRORLOG( "Error loading sample. Creating a new empty layer." );
 					AudioEngine::getInstance()->lock( "Hydrogen::loadDrumkit" );
-					pInstr->setLayer( NULL, nLayer );
+					pInstr->set_layer( NULL, nLayer );
 					AudioEngine::getInstance()->unlock();
 					delete pOldLayer;
 					continue;
 				}
 				InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-				pLayer->m_fStartVelocity = pNewLayer->m_fStartVelocity;
-				pLayer->m_fEndVelocity = pNewLayer->m_fEndVelocity;
-				pLayer->m_fGain = pNewLayer->m_fGain;
+				pLayer->set_start_velocity( pNewLayer->get_start_velocity() );
+				pLayer->set_end_velocity( pNewLayer->get_end_velocity() );
+				pLayer->set_gain( pNewLayer->get_gain() );
 
 				AudioEngine::getInstance()->lock( "Hydrogen::loadDrumkit" );
-				pInstr->setLayer( pLayer, nLayer );	// set the new layer
+				pInstr->set_layer( pLayer, nLayer );	// set the new layer
 				AudioEngine::getInstance()->unlock();
 				delete pOldLayer;		// delete the old layer
 
 			}
 			else {
-				InstrumentLayer *pOldLayer = pInstr->getLayer(nLayer);
+				InstrumentLayer *pOldLayer = pInstr->get_layer(nLayer);
 				AudioEngine::getInstance()->lock( "Hydrogen::loadDrumkit" );
-				pInstr->setLayer( NULL, nLayer );
+				pInstr->set_layer( NULL, nLayer );
 				AudioEngine::getInstance()->unlock();
 				delete pOldLayer;		// delete the old layer
 			}
@@ -2113,19 +2112,19 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		}
 		AudioEngine::getInstance()->lock( "Hydrogen::loadDrumkit" );
 		// update instrument properties
-		pInstr->m_sId = pNewInstr->m_sId;
-		pInstr->m_sName = pNewInstr->m_sName;
-		pInstr->m_fPan_L = pNewInstr->m_fPan_L;
-		pInstr->m_fPan_R = pNewInstr->m_fPan_R;
-		pInstr->m_fVolume = pNewInstr->m_fVolume;
-		pInstr->m_sDrumkitName = pNewInstr->m_sDrumkitName;
-		pInstr->m_bIsMuted = pNewInstr->m_bIsMuted;
-		pInstr->m_fRandomPitchFactor = pNewInstr->m_fRandomPitchFactor;
-		pInstr->m_pADSR = new ADSR( *( pNewInstr->m_pADSR ) );
-		pInstr->m_bFilterActive = pNewInstr->m_bFilterActive;
-		pInstr->m_fCutoff = pNewInstr->m_fCutoff;
-		pInstr->m_fResonance = pNewInstr->m_fResonance;
-		pInstr->m_nMuteGroup = pNewInstr->m_nMuteGroup;
+		pInstr->set_id( pNewInstr->get_id() );
+		pInstr->set_name( pNewInstr->get_name() );
+		pInstr->set_pan_l( pNewInstr->get_pan_l() );
+		pInstr->set_pan_r( pNewInstr->get_pan_r() );
+		pInstr->set_volume( pNewInstr->get_volume() );
+		pInstr->set_drumkit_name( pNewInstr->get_drumkit_name() );
+		pInstr->set_muted( pNewInstr->is_muted() );
+		pInstr->set_random_pitch_factor( pNewInstr->get_random_pitch_factor() );
+		pInstr->set_adsr( new ADSR( *( pNewInstr->get_adsr()) ) );
+		pInstr->set_filter_active( pNewInstr->is_filter_active() );
+		pInstr->set_filter_cutoff( pNewInstr->get_filter_cutoff() );
+		pInstr->set_filter_resonance( pNewInstr->get_filter_resonance() );
+		pInstr->set_mute_group( pNewInstr->get_mute_group() );
 		AudioEngine::getInstance()->unlock();
 	}
 

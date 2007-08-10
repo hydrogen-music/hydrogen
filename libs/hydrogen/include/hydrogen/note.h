@@ -70,8 +70,11 @@ public:
 };
 
 
-
-/// A note...
+/**
+ 
+\brief A note...
+ 
+*/
 class Note : public Object
 {
 public:

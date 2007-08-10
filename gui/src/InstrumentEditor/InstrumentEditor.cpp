@@ -278,7 +278,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::getInstance()->getSelectedInstrumentNumber();
-		if ( nInstr >= (int)pInstrList->getSize() ) {
+		if ( nInstr >= (int)pInstrList->get_size() ) {
 			nInstr = -1;
 		}
 
@@ -297,45 +297,45 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 	// update layer list
 	if (m_pInstrument) {
-		m_pNameLbl->setText( QString( m_pInstrument->m_sName.c_str() ) );
+		m_pNameLbl->setText( QString( m_pInstrument->get_name().c_str() ) );
 
 		// ADSR
-		m_pAttackRotary->setValue( m_pInstrument->m_pADSR->m_fAttack / 10000.0 );
-		m_pDecayRotary->setValue( m_pInstrument->m_pADSR->m_fDecay / 10000.0 );
-		m_pSustainRotary->setValue( m_pInstrument->m_pADSR->m_fSustain );
-		m_pReleaseRotary->setValue( m_pInstrument->m_pADSR->m_fRelease / 10000.0 );
+		m_pAttackRotary->setValue( m_pInstrument->get_adsr()->m_fAttack / 10000.0 );
+		m_pDecayRotary->setValue( m_pInstrument->get_adsr()->m_fDecay / 10000.0 );
+		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->m_fSustain );
+		m_pReleaseRotary->setValue( m_pInstrument->get_adsr()->m_fRelease / 10000.0 );
 		//~ ADSR
 
 		// filter
-		m_pFilterBypassBtn->setPressed( !m_pInstrument->m_bFilterActive );
-		m_pCutoffRotary->setValue( m_pInstrument->m_fCutoff );
-		m_pResonanceRotary->setValue( m_pInstrument->m_fResonance );
+		m_pFilterBypassBtn->setPressed( !m_pInstrument->is_filter_active());
+		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff());
+		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance());
 		//~ filter
 
 		// random pitch
-		m_pRandomPitchRotary->setValue( m_pInstrument->m_fRandomPitchFactor );
+		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor());
 
 		// instr gain
 		char tmp[20];
-		sprintf( tmp, "%#.2f", m_pInstrument->m_fGain);
+		sprintf( tmp, "%#.2f", m_pInstrument->get_gain());
 		m_pInstrumentGainLCD->setText( tmp );
-		m_pInstrumentGain->setValue( m_pInstrument->m_fGain / 5.0 );
+		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
 		// instr mute group
-		string sMuteGroup = toString( m_pInstrument->m_nMuteGroup );
-		if (m_pInstrument->m_nMuteGroup == -1 ) {
+		string sMuteGroup = toString( m_pInstrument->get_mute_group());
+		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
 		m_pMuteGroupLCD->setText( QString( sMuteGroup.c_str() ) );
 
 		// select the last valid layer
 		for (int i = MAX_LAYERS - 1; i >= 0; i-- ) {
-			if ( m_pInstrument->getLayer( i ) ) {
+			if ( m_pInstrument->get_layer( i ) ) {
 				m_nSelectedLayer = i;
 				break;
 			}
 		}
-		m_pWaveDisplay->updateDisplay( m_pInstrument->getLayer( m_nSelectedLayer ) );
+		m_pWaveDisplay->updateDisplay( m_pInstrument->get_layer( m_nSelectedLayer ) );
 	}
 	else {
 		m_pNameLbl->setText( QString( "NULL Instrument..." ) );
@@ -354,28 +354,28 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 
 	if ( m_pInstrument ) {
 		if ( ref == m_pRandomPitchRotary ){
-			m_pInstrument->m_fRandomPitchFactor = fVal;
+			m_pInstrument->set_random_pitch_factor( fVal );
 		}
 		else if ( ref == m_pCutoffRotary ) {
-			m_pInstrument->m_fCutoff = fVal;
+			m_pInstrument->set_filter_cutoff( fVal );
 		}
 		else if ( ref == m_pResonanceRotary ) {
 			if ( fVal > 0.95f ) {
 				fVal = 0.95f;
 			}
-			m_pInstrument->m_fResonance = fVal;
+			m_pInstrument->set_filter_resonance( fVal );
 		}
 		else if ( ref == m_pAttackRotary ) {
-			m_pInstrument->m_pADSR->m_fAttack = fVal * 10000;
+			m_pInstrument->get_adsr()->m_fAttack = fVal * 10000;
 		}
 		else if ( ref == m_pDecayRotary ) {
-			m_pInstrument->m_pADSR->m_fDecay = fVal * 10000;
+			m_pInstrument->get_adsr()->m_fDecay = fVal * 10000;
 		}
 		else if ( ref == m_pSustainRotary ) {
-			m_pInstrument->m_pADSR->m_fSustain = fVal;
+			m_pInstrument->get_adsr()->m_fSustain = fVal;
 		}
 		else if ( ref == m_pReleaseRotary ) {
-			m_pInstrument->m_pADSR->m_fRelease = fVal * 10000;
+			m_pInstrument->get_adsr()->m_fRelease = fVal * 10000;
 		}
 		else if ( ref == m_pLayerGainRotary ) {
 			fVal = fVal * 5.0;
@@ -383,31 +383,31 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			sprintf( tmp, "%#.2f", fVal );
 			m_pLayerGainLCD->setText( tmp );
 
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->getLayer( m_nSelectedLayer );
+			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
-				pLayer->m_fGain = fVal;
+				pLayer->set_gain( fVal );
 				m_pWaveDisplay->updateDisplay( pLayer );
 			}
 		}
 		else if ( ref == m_pLayerPitchCoarseRotary ) {
 			//fVal = fVal * 24.0 - 12.0;
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int)fVal ) );
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->getLayer( m_nSelectedLayer );
+			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
 				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->m_fPitch = nCoarse + fFine;
-				INFOLOG( "pitch: " + toString( pLayer->m_fPitch ) );
+				pLayer->set_pitch( nCoarse + fFine );
+				INFOLOG( "pitch: " + toString( pLayer->get_pitch() ) );
 			}
 		}
 		else if ( ref == m_pLayerPitchFineRotary ) {
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->getLayer( m_nSelectedLayer );
+			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
 				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->m_fPitch = nCoarse + fFine;
-				INFOLOG( "pitch: " + toString( pLayer->m_fPitch ) );
+				pLayer->set_pitch( nCoarse + fFine );
+				INFOLOG( "pitch: " + toString( pLayer->get_pitch()) );
 			}
 
 		}
@@ -417,7 +417,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			sprintf( tmp, "%#.2f", fVal );
 			m_pInstrumentGainLCD->setText( tmp );
 
-			m_pInstrument->m_fGain = fVal;
+			m_pInstrument->set_gain( fVal );
 		}
 		else {
 			ERRORLOG( "[rotaryChanged] unhandled rotary" );
@@ -429,7 +429,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 void InstrumentEditor::filterActiveBtnClicked(Button *ref)
 {
 	if ( m_pInstrument ) {
-		m_pInstrument->m_bFilterActive = !ref->isPressed();
+		m_pInstrument->set_filter_active( !ref->isPressed() );
 	}
 }
 
@@ -463,9 +463,9 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		AudioEngine::getInstance()->lock( "InstrumentPropertiesDialog::deleteBtnClicked" );
 
 		if ( m_pInstrument ) {
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->getLayer( m_nSelectedLayer );
+			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
-				m_pInstrument->setLayer( NULL, m_nSelectedLayer );
+				m_pInstrument->set_layer( NULL, m_nSelectedLayer );
 				delete pLayer;
 			}
 		}
@@ -514,21 +514,21 @@ void InstrumentEditor::loadLayer()
 		InstrumentList *instrList = song->getInstrumentList();
 		pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
 
-		H2Core::InstrumentLayer *pLayer = pInstr->getLayer( m_nSelectedLayer );
+		H2Core::InstrumentLayer *pLayer = pInstr->get_layer( m_nSelectedLayer );
 		if (pLayer != NULL) {
 			// delete old sample
-			Sample *oldSample = pLayer->m_pSample;
+			Sample *oldSample = pLayer->get_sample();
 			delete oldSample;
 
 			// insert new sample from newInstrument
-			pLayer->m_pSample = newSample;
+			pLayer->set_sample( newSample );
 		}
 		else {
 			pLayer = new H2Core::InstrumentLayer(newSample);
-			pInstr->setLayer( pLayer, m_nSelectedLayer );
+			pInstr->set_layer( pLayer, m_nSelectedLayer );
 		}
 
-		pInstr->m_sDrumkitName = "";   // external sample, no drumkit info
+		pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
 
 		AudioEngine::getInstance()->unlock();
 	}
@@ -543,11 +543,11 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 	UNUSED( pRef );
 
 	if (m_pInstrument) {
-		QString sOldName = QString( m_pInstrument->m_sName.c_str() );
+		QString sOldName = QString( m_pInstrument->get_name().c_str() );
 		bool bIsOkPressed;
 		QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 		if ( bIsOkPressed  ) {
-			m_pInstrument->m_sName = sNewName.toStdString();
+			m_pInstrument->set_name( sNewName.toStdString() );
 			selectedInstrumentChangedEvent();
 
 			// this will force an update...
@@ -569,20 +569,20 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 	m_nSelectedLayer = nLayer;
 
-	H2Core::InstrumentLayer *pLayer = m_pInstrument->getLayer( nLayer );
+	H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( nLayer );
 	m_pWaveDisplay->updateDisplay( pLayer );
 	if (pLayer) {
 		char tmp[20];
 
 		// Layer GAIN
-		m_pLayerGainRotary->setValue( pLayer->m_fGain / 5.0 );
-		sprintf( tmp, "%#.2f", pLayer->m_fGain );
+		m_pLayerGainRotary->setValue( pLayer->get_gain() / 5.0 );
+		sprintf( tmp, "%#.2f", pLayer->get_gain() );
 		m_pLayerGainLCD->setText( tmp );
 
 		// Layer PITCH
 		//int nCoarsePitch = pLayer->m_fPitch / 24 + 0.5;
-		int nCoarsePitch = (int)pLayer->m_fPitch;
-		float fFinePitch = pLayer->m_fPitch - nCoarsePitch;
+		int nCoarsePitch = (int)pLayer->get_pitch();
+		float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
 		//INFOLOG( "fine pitch: " + toString( fFinePitch ) );
 		m_pLayerPitchCoarseRotary->setValue( nCoarsePitch );
 		m_pLayerPitchFineRotary->setValue( fFinePitch );
@@ -611,10 +611,10 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 	assert( m_pInstrument );
 
 	if (pRef == m_pAddMuteGroupBtn ) {
-		m_pInstrument->m_nMuteGroup++;
+		m_pInstrument->set_mute_group( m_pInstrument->get_mute_group() + 1);
 	}
 	else if (pRef == m_pDelMuteGroupBtn ) {
-		m_pInstrument->m_nMuteGroup--;
+		m_pInstrument->set_mute_group( m_pInstrument->get_mute_group() - 1);
 	}
 
 	selectedInstrumentChangedEvent();	// force an update

@@ -149,11 +149,11 @@ void SoundLibraryPanel::updateDrumkitList()
 			pDrumkitItem->setText( 0, QString( pInfo->getName().c_str() ) );
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
-			for ( uint nInstr = 0; nInstr < pInstrList->getSize(); ++nInstr ) {
+			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->m_sName.c_str() ) );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->get_name().c_str() ) );
 			}
 		}
 	}
@@ -170,11 +170,11 @@ void SoundLibraryPanel::updateDrumkitList()
 			pDrumkitItem->setText( 0, QString( pInfo->getName().c_str() ) );
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
-			for ( uint nInstr = 0; nInstr < pInstrList->getSize(); ++nInstr ) {
+			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->m_sName.c_str() ) );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->get_name().c_str() ) );
 			}
 		}
 	}
@@ -212,8 +212,8 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		string sDrumkitName = item->parent()->text(0).toStdString();
 		INFOLOG( sDrumkitName + string(", instr:") + sInstrName );
 
-		Instrument *pInstrument = Instrument::loadInstrument( sDrumkitName, sInstrName );
-		pInstrument->m_bIsMuted = false;
+		Instrument *pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
+		pInstrument->set_muted( false );
 
 		AudioEngine::getInstance()->getSampler()->preview_instrument( pInstrument );
 	}

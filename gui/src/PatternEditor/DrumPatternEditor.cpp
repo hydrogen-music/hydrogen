@@ -159,7 +159,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 	Song *pSong = Hydrogen::getInstance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->getSize();
+	int nInstruments = pSong->getInstrumentList()->get_size();
 
 //	int row = (int)( (float)( height() - ev->y() )  / (float)m_nGridHeight);
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
@@ -360,15 +360,15 @@ void DrumPatternEditor::drawPattern()
 
 	InstrumentList * pInstrList = pSong->getInstrumentList();
 
-	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->getSize() ) ) {
+	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->get_size() ) ) {
 		// the number of instruments is changed...recreate all
-		m_nEditorHeight = m_nGridHeight * pInstrList->getSize();
+		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();
 		resize( width(), m_nEditorHeight );
 		createBackground();
 	}
 
 
-	for ( uint nInstr = 0; nInstr < pInstrList->getSize(); ++nInstr ) {
+	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 	  //Instrument *pInstr = pSong->getInstrumentList()->get( nInstr );
 		uint y = m_nGridHeight * nInstr;
 		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
@@ -404,7 +404,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter* p )
 
 	int nInstrument = -1;
 	InstrumentList * pInstrList = Hydrogen::getInstance()->getSong()->getInstrumentList();
-	for ( uint nInstr = 0; nInstr < pInstrList->getSize(); ++nInstr ) {
+	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
 		if ( pInstr == note->getInstrument() ) {
  			nInstrument = nInstr;
@@ -550,7 +550,7 @@ void DrumPatternEditor::drawGrid( QPainter* p )
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 	int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::getInstance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->getSize();
+	int nInstruments = pSong->getInstrumentList()->get_size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
 		if ( i == nSelectedInstrument ) {
@@ -581,7 +581,7 @@ void DrumPatternEditor::createBackground()
 
 
 	Song *pSong = Hydrogen::getInstance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->getSize();
+	int nInstruments = pSong->getInstrumentList()->get_size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
 		// the number of instruments is changed...recreate all

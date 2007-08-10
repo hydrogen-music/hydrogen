@@ -47,8 +47,8 @@ class SongEditorPatternList;
 class SongEditorPositionRuler;
 
 
-static const int SONG_EDITOR_MIN_GRID_WIDTH = 8;
-static const int SONG_EDITOR_MAX_GRID_WIDTH = 16;
+static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
+static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 
 ///
 /// Song editor
@@ -64,7 +64,7 @@ class SongEditor : public QWidget, public Object
 		void createBackground();
 
 		int getGridWidth ();
-		void setGridWidth( int width);
+		void setGridWidth( uint width);
 
 	private:
 		unsigned m_nGridHeight;

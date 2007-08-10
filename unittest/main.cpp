@@ -3,11 +3,13 @@
 #include <cppunit/ui/text/TestRunner.h>
 
 
+#include "instrument_test.cpp"
 #include "note_test.cpp"
 
 int main( int argc, char* argv[] )
 {
 	CppUnit::TextUi::TestRunner runner;
+	runner.addTest(new InstrumentTest() );
 	runner.addTest(new NoteTest() );
 
 	// Change the default outputter to a compiler error format outputter

@@ -144,7 +144,7 @@ void InstrumentLine::muteClicked()
 	InstrumentList *instrList = song->getInstrumentList();
 
 	Instrument *pInstr = instrList->get(m_nInstrumentNumber);
-	pInstr->m_bIsMuted = !pInstr->m_bIsMuted;
+	pInstr->set_muted( !pInstr->is_muted());
 }
 
 
@@ -343,7 +343,7 @@ void InstrumentLine::functionDeleteInstrument()
 	Instrument *pInstr = pEngine->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
 
 	// if the instrument was the last on the instruments list, select the next-last
-	if ( m_nInstrumentNumber >= pEngine->getSong()->getInstrumentList()->getSize()-1 )
+	if ( m_nInstrumentNumber >= pEngine->getSong()->getInstrumentList()->get_size()-1 )
 		Hydrogen::getInstance()->setSelectedInstrumentNumber(std::max(0, m_nInstrumentNumber - 1) );
 
 	// delete the instrument from the instruments list
@@ -451,7 +451,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
-	unsigned nInstruments = pInstrList->getSize();
+	unsigned nInstruments = pInstrList->get_size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
 			if ( m_pInstrumentLine[ nInstr ] ) {
@@ -479,9 +479,9 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			assert(pInstr);
 
 			pLine->setNumber(nInstr);
-			pLine->setName(pInstr->m_sName.c_str());
+			pLine->setName(pInstr->get_name().c_str());
 			pLine->setSelected(nInstr == nSelectedInstr);
-			pLine->setMuted(pInstr->m_bIsMuted);
+			pLine->setMuted(pInstr->is_muted());
 
 		}
 	}
@@ -498,7 +498,7 @@ void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 	INFOLOG( "[dragEnterEvent]" );
 	if ( event->mimeData()->hasFormat("text/plain") ) {
 		Song *song = (Hydrogen::getInstance())->getSong();
-		int nInstruments = song->getInstrumentList()->getSize();
+		int nInstruments = song->getInstrumentList()->get_size();
 		if ( nInstruments < MAX_INSTRUMENTS ) {
 			event->acceptProposedAction();
 		}
@@ -529,7 +529,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		Song *pSong = engine->getSong();
 		InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
-		if ( ( nTargetInstrument > pInstrumentList->getSize() ) || ( nTargetInstrument < 0) ) {
+		if ( ( nTargetInstrument > pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
 			AudioEngine::getInstance()->unlock();
 			event->acceptProposedAction();
 			return;
@@ -566,27 +566,27 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		string sDrumkitName = tokens.at( 0 ).toStdString();
 		string sInstrumentName = tokens.at( 1 ).toStdString();
 
-		Instrument *pNewInstrument = Instrument::loadInstrument( sDrumkitName, sInstrumentName );
+		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
 		Hydrogen *pEngine = Hydrogen::getInstance();
 
 		// create a new valid ID for this instrument
 		int nID = -1;
-		for ( uint i = 0; i < pEngine->getSong()->getInstrumentList()->getSize(); ++i ) {
+		for ( uint i = 0; i < pEngine->getSong()->getInstrumentList()->get_size(); ++i ) {
 			Instrument* pInstr = pEngine->getSong()->getInstrumentList()->get( i );
-			if ( atoi( pInstr->m_sId.c_str() ) > nID ) {
-				nID = atoi( pInstr->m_sId.c_str() );
+			if ( atoi( pInstr->get_id().c_str() ) > nID ) {
+				nID = atoi( pInstr->get_id().c_str() );
 			}
 		}
 		++nID;
 
-		pNewInstrument->m_sId = toString( nID );
+		pNewInstrument->set_id( toString( nID ) );
 
 		AudioEngine::getInstance()->lock( "PatternEditorInstrumentList::dropEvent" );
 		pEngine->getSong()->getInstrumentList()->add( pNewInstrument );
 		AudioEngine::getInstance()->unlock();
 
 		// select the new instrument
-		pEngine->setSelectedInstrumentNumber( pEngine->getSong()->getInstrumentList()->getSize() - 1 );
+		pEngine->setSelectedInstrumentNumber( pEngine->getSong()->getInstrumentList()->get_size() - 1 );
 
 		event->acceptProposedAction();
 	}
@@ -618,7 +618,7 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	int nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 	Instrument *pInstr = pEngine->getSong()->getInstrumentList()->get(nSelectedInstr);
 
-	QString sText = QString("move instrument:%1").arg(pInstr->m_sName.c_str());
+	QString sText = QString("move instrument:%1").arg(pInstr->get_name().c_str());
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;

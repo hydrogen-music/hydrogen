@@ -82,7 +82,7 @@ int SongEditor::getGridWidth ()
 
 
 
-void SongEditor::setGridWidth( int width )
+void SongEditor::setGridWidth( uint width )
 {
 	if ( ( SONG_EDITOR_MIN_GRID_WIDTH <= width ) && ( SONG_EDITOR_MAX_GRID_WIDTH >= width ) ) {
 		m_nGridWidth = width;

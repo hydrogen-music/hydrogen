@@ -839,7 +839,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
-	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->getSize() ) {
+	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->get_size() ) {
 		Instrument *pTemp = pInstrumentList->get( nSelectedInstrument + 1 );
 		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument + 1 );
 		pInstrumentList->replace( pTemp, nSelectedInstrument );

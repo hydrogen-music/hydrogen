@@ -443,7 +443,7 @@ void JackOutput::makeTrackOutputs( Song * song ) {
 
 	InstrumentList * instruments = song->getInstrumentList();
 	Instrument * instr;
-	int nInstruments = (int)instruments->getSize();
+	int nInstruments = (int)instruments->get_size();
 
 	// create dedicated channel output ports
 	WARNINGLOG( "Creating / renaming" + toString( nInstruments ) + " ports" );
@@ -483,7 +483,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr ) {
 		track_port_count = n + 1;
 	}
 	// Now we're sure there is an n'th port, rename it.
-	chName = "Track_" + toString( n + 1 ) + "_" + instr->m_sName + "_";
+	chName = "Track_" + toString( n + 1 ) + "_" + instr->get_name() + "_";
 
 	jack_port_set_name( track_output_ports_L[n], (chName + "L").c_str() );
 	jack_port_set_name( track_output_ports_R[n], (chName + "R").c_str() );

@@ -204,7 +204,7 @@ void Mixer::muteClicked(MixerLine* ref)
 	InstrumentList *instrList = song->getInstrumentList();
 
 	Instrument *pInstr = instrList->get(nLine);
-	pInstr->m_bIsMuted = isMuteClicked;
+	pInstr->set_muted( isMuteClicked);
 	//(HydrogenApp::getInstance())->setSelectedInstrument(nLine);
 	Hydrogen::getInstance()->setSelectedInstrumentNumber(nLine);
 }
@@ -216,7 +216,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen *pEngine = Hydrogen::getInstance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
-	int nInstruments = pInstrList->getSize();
+	int nInstruments = pInstrList->get_size();
 
 	int nLine = findMixerLineByRef(ref);
 	pEngine->setSelectedInstrumentNumber( nLine );
@@ -226,17 +226,17 @@ void Mixer::soloClicked(MixerLine* ref)
 		for ( int i = 0; i < nInstruments; ++i ) {
 			m_pMixerLine[i]->setSoloClicked( false );
 			m_pMixerLine[i]->setMuteClicked( true );
-			pInstrList->get( i )->m_bIsMuted = true;
+			pInstrList->get( i )->set_muted( true );
 		}
 		m_pMixerLine[nLine]->setSoloClicked( true );
 		m_pMixerLine[nLine]->setMuteClicked( false );
-		pInstrList->get( nLine )->m_bIsMuted = false;
+		pInstrList->get( nLine )->set_muted( false );
 	}
 	else {
 		for ( int i = 0; i < nInstruments; ++i ) {
 			m_pMixerLine[i]->setMuteClicked( false );
 			m_pMixerLine[i]->setSoloClicked( false );
-			pInstrList->get( i )->m_bIsMuted = false;
+			pInstrList->get( i )->set_muted( false );
 		}
 	}
 
@@ -251,7 +251,7 @@ void Mixer::soloClicked(uint nLine)
 	Hydrogen *pEngine = Hydrogen::getInstance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
-	int nInstruments = pInstrList->getSize();
+	int nInstruments = pInstrList->get_size();
 
 	bool isSoloClicked = m_pMixerLine[ nLine ]->isSoloClicked();
 
@@ -259,17 +259,17 @@ void Mixer::soloClicked(uint nLine)
 		for ( int i = 0; i < nInstruments; i++ ) {
 			m_pMixerLine[i]->setSoloClicked( false );
 			m_pMixerLine[i]->setMuteClicked( true );
-			pInstrList->get( i )->m_bIsMuted = true;
+			pInstrList->get( i )->set_muted( true );
 		}
 		m_pMixerLine[nLine]->setSoloClicked( true );
 		m_pMixerLine[nLine]->setMuteClicked( false );
-		pInstrList->get( nLine )->m_bIsMuted = false;
+		pInstrList->get( nLine )->set_muted( false );
 	}
 	else {
 		for ( int i = 0; i < nInstruments; i++ ) {
 			m_pMixerLine[i]->setMuteClicked( false );
 			m_pMixerLine[i]->setSoloClicked( false );
-			pInstrList->get( i )->m_bIsMuted = false;
+			pInstrList->get( i )->set_muted( false );
 		}
 	}
 
@@ -337,7 +337,7 @@ void Mixer::volumeChanged(MixerLine* ref)
 
 	Instrument *instr = instrList->get(nLine);
 
-	instr->m_fVolume = ref->getVolume();
+	instr->set_volume( ref->getVolume() );
 
 	Hydrogen::getInstance()->setSelectedInstrumentNumber(nLine);
 }
@@ -368,7 +368,7 @@ void Mixer::updateMixer()
 	float fallOff = pPref->getMixerFalloffSpeed();
 
 	uint nMuteClicked = 0;
-	uint nInstruments = pInstrList->getSize();
+	uint nInstruments = pInstrList->get_size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
@@ -399,18 +399,18 @@ void Mixer::updateMixer()
 			Instrument *pInstr = pInstrList->get( nInstr );
 			assert( pInstr );
 
-			float fNewPeak_L = pInstr->m_fPeak_L;
-			pInstr->m_fPeak_L = 0.0f;	// reset instrument peak
+			float fNewPeak_L = pInstr->get_peak_l();
+			pInstr->set_peak_l( 0.0f );	// reset instrument peak
 
-			float fNewPeak_R = pInstr->m_fPeak_R;
-			pInstr->m_fPeak_R = 0.0f;	// reset instrument peak
+			float fNewPeak_R = pInstr->get_peak_r();
+			pInstr->set_peak_r( 0.0f );	// reset instrument peak
 
-			float fNewVolume = pInstr->m_fVolume;
-			bool bMuted = pInstr->m_bIsMuted;
+			float fNewVolume = pInstr->get_volume();
+			bool bMuted = pInstr->is_muted();
 
-			string sName = pInstr->m_sName;
-			float fPan_L = pInstr->m_fPan_L;
-			float fPan_R = pInstr->m_fPan_R;
+			string sName = pInstr->get_name();
+			float fPan_L = pInstr->get_pan_l();
+			float fPan_R = pInstr->get_pan_r();
 
 
 			// fader
@@ -469,7 +469,7 @@ void Mixer::updateMixer()
 			}
 
 			for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-				pLine->setFXLevel( nFX, pInstr->m_fFXLevel[ nFX ] );
+				pLine->setFXLevel( nFX, pInstr->get_fx_level( nFX ) );
 			}
 
 			pLine->setSelected( nInstr == nSelectedInstr );
@@ -482,7 +482,7 @@ void Mixer::updateMixer()
 		// find the not muted button
 		for (uint i = 0; i < nInstruments; i++) {
 			Instrument *instr = pInstrList->get(i);
-			if (instr->m_bIsMuted == false) {
+			if (instr->is_muted() == false) {
 				m_pMixerLine[i]->setSoloClicked(true);
 				break;
 			}
@@ -624,8 +624,8 @@ void Mixer::panChanged(MixerLine* ref) {
 	InstrumentList *instrList = song->getInstrumentList();
 
 	Instrument *instr = instrList->get(nLine);
-	instr->m_fPan_L = pan_L;
-	instr->m_fPan_R = pan_R;
+	instr->set_pan_l( pan_L );
+	instr->set_pan_r( pan_R );
 
 
 	Hydrogen::getInstance()->setSelectedInstrumentNumber(nLine);
@@ -641,7 +641,7 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	Song *song = engine->getSong();
 	InstrumentList *instrList = song->getInstrumentList();
 	Instrument *pInstr = instrList->get(nLine);
-	pInstr->m_fFXLevel[ nKnob ] = ref->getFXLevel(nKnob);
+	pInstr->set_fx_level( ref->getFXLevel(nKnob), nKnob );
 	QString sInfo = trUtf8( "Set FX %1 level ").arg( nKnob + 1 );
 	( HydrogenApp::getInstance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
 

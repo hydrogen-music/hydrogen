@@ -31,41 +31,38 @@
 
 namespace H2Core {
 
+
 Instrument::Instrument(
-		const string& sId,
-		const string& sName,
-		float fVolume,
-		bool bMuted,
-		float fPan_L,
-		float fPan_R,
-		const string& sDrumkitName
+		const string& id,
+		const string& name,
+		ADSR* adsr
 )
  : Object( "Instrument" )
- , m_pADSR( NULL )
- , m_sId( sId )
- , m_sName( sName )
- , m_bFilterActive( false )
- , m_fCutoff( 1.0 )
- , m_fResonance( 0.0 )
- , m_fRandomPitchFactor( 0.0 )
- , m_bActive( true )
- , m_fVolume( fVolume )
- , m_bIsMuted( bMuted )
- , m_bIsSoloed( false )
- , m_fPeak_L( 0.0 )
- , m_fPeak_R( 0.0 )
- , m_fPan_L( fPan_L )
- , m_fPan_R( fPan_R )
- , m_sDrumkitName( sDrumkitName )
- , m_fGain( 1.0 )
- , m_nMuteGroup( -1 )
+ , __adsr( adsr )
+ , __id( id )
+ , __name( name )
+ , __filter_active( false )
+ , __filter_cutoff( 1.0 )
+ , __filter_resonance( 0.0 )
+ , __random_pitch_factor( 0.0 )
+ , __active( true )
+ , __volume( 1.0 )
+ , __muted( false )
+ , __soloed( false )
+ , __peak_l( 0.0 )
+ , __peak_r( 0.0 )
+ , __pan_l( 1.0 )
+ , __pan_r( 1.0 )
+ , __drumkit_name( "" )
+ , __gain( 1.0 )
+ , __mute_group( -1 )
 {
 	for (unsigned nFX = 0; nFX < MAX_FX; ++nFX) {
-		m_fFXLevel[ nFX ] = 0.0;
+		__fx_level[ nFX ] = 0.0;
 	}
 
 	for (unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer) {
-		m_layers[ nLayer ] = NULL;
+		__layer_list[ nLayer ] = NULL;
 	}
 }
 
@@ -74,16 +71,16 @@ Instrument::Instrument(
 Instrument::~Instrument()
 {
 	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-		delete m_layers[ nLayer ];
-		m_layers[ nLayer ] = NULL;
+		delete __layer_list[ nLayer ];
+		__layer_list[ nLayer ] = NULL;
 	}
-	delete m_pADSR;
-	m_pADSR = NULL;
+	delete __adsr;
+	__adsr = NULL;
 }
 
 
 
-InstrumentLayer* Instrument::getLayer( int nLayer )
+InstrumentLayer* Instrument::get_layer( int nLayer )
 {
 	if (nLayer < 0 ) {
 		ERRORLOG( "nLayer < 0 (nLayer=" + toString(nLayer) + ")" );
@@ -94,15 +91,15 @@ InstrumentLayer* Instrument::getLayer( int nLayer )
 		return NULL;
 	}
 
-	return m_layers[ nLayer ];
+	return __layer_list[ nLayer ];
 }
 
 
 
-void Instrument::setLayer( InstrumentLayer* pLayer, unsigned nLayer )
+void Instrument::set_layer( InstrumentLayer* pLayer, unsigned nLayer )
 {
 	if (nLayer < MAX_LAYERS) {
-		m_layers[ nLayer ] = pLayer;
+		__layer_list[ nLayer ] = pLayer;
 	}
 	else {
 		ERRORLOG( "nLayer > MAX_LAYER" );
@@ -111,50 +108,53 @@ void Instrument::setLayer( InstrumentLayer* pLayer, unsigned nLayer )
 
 
 
-Instrument* Instrument::loadInstrument( const std::string& sDrumkitName, const std::string& sInstrumentName )
+Instrument* Instrument::load_instrument(
+		const std::string& drumkit_name,
+		const std::string& instrument_name
+)
 {
 	Instrument *pInstrument = NULL;
 	LocalFileMng mgr;
 
 	// find the drumkit
-	Drumkit *pDrumkitInfo = mgr.loadDrumkit( mgr.getDrumkitDirectory( sDrumkitName ) + sDrumkitName );
+	Drumkit *pDrumkitInfo = mgr.loadDrumkit( mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name );
 	assert( pDrumkitInfo );
 
 	InstrumentList *pInstrList = pDrumkitInfo->getInstrumentList();
-	for ( unsigned nInstr = 0; nInstr < pInstrList->getSize(); ++nInstr ) {
+	for ( unsigned nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
-		if ( pInstr->m_sName == sInstrumentName) {
+		if ( pInstr->get_name() == instrument_name) {
 			// creo un nuovo strumento
-			pInstrument = new Instrument();
+
+			pInstrument = new Instrument("", "", new ADSR( *( pInstr->get_adsr() ) ));
 
 			// copio tutte le proprieta' dello strumento
-			pInstrument->m_sName = pInstr->m_sName;
-			pInstrument->m_fPan_L = pInstr->m_fPan_L;
-			pInstrument->m_fPan_R = pInstr->m_fPan_R;
-			pInstrument->m_fVolume = pInstr->m_fVolume;
-			pInstrument->m_sDrumkitName = pInstr->m_sDrumkitName;
-			pInstrument->m_bIsMuted = pInstr->m_bIsMuted;
-			pInstrument->m_fRandomPitchFactor = pInstr->m_fRandomPitchFactor;
-			pInstrument->m_pADSR = new ADSR( *( pInstr->m_pADSR ) );
-			pInstrument->m_bFilterActive = pInstr->m_bFilterActive;
-			pInstrument->m_fCutoff = pInstr->m_fCutoff;
-			pInstrument->m_fResonance = pInstr->m_fResonance;
-			pInstrument->m_nMuteGroup = pInstr->m_nMuteGroup;
+			pInstrument->set_name( pInstr->get_name());
+			pInstrument->set_pan_l( pInstr->get_pan_l() );
+			pInstrument->set_pan_r( pInstr->get_pan_r() );
+			pInstrument->set_volume( pInstr->get_volume() );
+			pInstrument->set_drumkit_name( pInstr->get_drumkit_name() );
+			pInstrument->set_muted( pInstr->is_muted() );
+			pInstrument->set_random_pitch_factor( pInstr->get_random_pitch_factor() );
+			pInstrument->set_filter_active( pInstr->is_filter_active() );
+			pInstrument->set_filter_cutoff( pInstr->get_filter_cutoff() );
+			pInstrument->set_filter_resonance( pInstr->get_filter_resonance() );
+			pInstrument->set_mute_group( pInstr->get_mute_group() );
 
 			for ( int nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-				InstrumentLayer *pOrigLayer = pInstr->getLayer( nLayer );
+				InstrumentLayer *pOrigLayer = pInstr->get_layer( nLayer );
 				if ( pOrigLayer ) {
-					string sDrumkitPath = mgr.getDrumkitDirectory( sDrumkitName );
-					string sSampleFilename = sDrumkitPath + sDrumkitName + "/" + pOrigLayer->m_pSample->m_sFilename;
+					string sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
+					string sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->m_sFilename;
 					Sample* pSample = Sample::load( sSampleFilename );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-					pLayer->m_fStartVelocity = pOrigLayer->m_fStartVelocity;
-					pLayer->m_fEndVelocity = pOrigLayer->m_fEndVelocity;
-					pLayer->m_fGain = pOrigLayer->m_fGain;
-					pInstrument->setLayer( pLayer, nLayer );
+					pLayer->set_start_velocity( pOrigLayer->get_start_velocity() );
+					pLayer->set_end_velocity( pOrigLayer->get_end_velocity() );
+					pLayer->set_gain( pOrigLayer->get_gain() );
+					pInstrument->set_layer( pLayer, nLayer );
 				}
 				else {
-					pInstrument->setLayer( NULL, nLayer );
+					pInstrument->set_layer( NULL, nLayer );
 				}
 			}
 			break;
@@ -211,7 +211,7 @@ Instrument* InstrumentList::get(unsigned int pos)
 
 
 /// Returns index of instrument in list, if instrument not found, returns -1
-int InstrumentList::getPos( Instrument *pInstr )
+int InstrumentList::get_pos( Instrument *pInstr )
 {
 	if ( m_posmap.find( pInstr ) == m_posmap.end() )
 		return -1;
@@ -220,7 +220,7 @@ int InstrumentList::getPos( Instrument *pInstr )
 
 
 
-unsigned int InstrumentList::getSize()
+unsigned int InstrumentList::get_size()
 {
 	return m_list.size();
 }
@@ -248,13 +248,13 @@ void InstrumentList::del( int pos )
 
 
 
-InstrumentLayer::InstrumentLayer( Sample *pSample )
+InstrumentLayer::InstrumentLayer( Sample *sample )
  : Object( "InstrumentLayer" )
- , m_fStartVelocity( 0.0 )
- , m_fEndVelocity( 1.0 )
- , m_fPitch( 0.0 )
- , m_fGain( 1.0 )
- , m_pSample( pSample )
+ , __start_velocity( 0.0 )
+ , __end_velocity( 1.0 )
+ , __pitch( 0.0 )
+ , __gain( 1.0 )
+ , __sample( sample )
 {
 	//infoLog( "INIT" );
 }
@@ -263,7 +263,7 @@ InstrumentLayer::InstrumentLayer( Sample *pSample )
 
 InstrumentLayer::~InstrumentLayer()
 {
-	delete m_pSample;
+	delete __sample; __sample = NULL;
 	//infoLog( "DESTROY" );
 }
 

@@ -281,18 +281,22 @@ Song* SongReader::readSong( const std::string& filename)
 
 
 			// create a new instrument
-			Instrument *pInstrument = new Instrument( sId, sName, fVolume, bIsMuted, fPan_L, fPan_R, sDrumkit );
-			pInstrument->m_fFXLevel[ 0 ] = fFX1Level;
-			pInstrument->m_fFXLevel[ 1 ] = fFX2Level;
-			pInstrument->m_fFXLevel[ 2 ] = fFX3Level;
-			pInstrument->m_fFXLevel[ 3 ] = fFX4Level;
-			pInstrument->m_fRandomPitchFactor = fRandomPitchFactor;
-			pInstrument->m_pADSR = new ADSR( fAttack, fDecay, fSustain, fRelease );
-			pInstrument->m_bFilterActive = bFilterActive;
-			pInstrument->m_fCutoff = fFilterCutoff;
-			pInstrument->m_fResonance = fFilterResonance;
-			pInstrument->m_fGain = fGain;
-			pInstrument->m_nMuteGroup = nMuteGroup;
+			Instrument *pInstrument = new Instrument( sId, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ));
+			pInstrument->set_volume(fVolume);
+			pInstrument->set_muted(bIsMuted);
+			pInstrument->set_pan_l(fPan_L);
+			pInstrument->set_pan_r(fPan_R);
+			pInstrument->set_drumkit_name(sDrumkit );
+			pInstrument->set_fx_level(fFX1Level, 0 );
+			pInstrument->set_fx_level(fFX2Level, 1 );
+			pInstrument->set_fx_level(fFX3Level, 2 );
+			pInstrument->set_fx_level(fFX4Level, 3 );
+			pInstrument->set_random_pitch_factor( fRandomPitchFactor);
+			pInstrument->set_filter_active( bFilterActive );
+			pInstrument->set_filter_cutoff( fFilterCutoff );
+			pInstrument->set_filter_resonance( fFilterResonance );
+			pInstrument->set_gain( fGain );
+			pInstrument->set_mute_group( nMuteGroup );
 
 			string drumkitPath = "";
 			if ( ( sDrumkit != "" ) && (sDrumkit != "-" ) ) {
@@ -320,10 +324,10 @@ Song* SongReader::readSong( const std::string& filename)
 				}
 				if (pSample == NULL) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-					pInstrument->m_bIsMuted = true;
+					pInstrument->set_muted( true );
 				}
 				InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-				pInstrument->setLayer( pLayer, 0 );
+				pInstrument->set_layer( pLayer, 0 );
 			}
 			//~ back compatibility code
 			else {
@@ -345,14 +349,14 @@ Song* SongReader::readSong( const std::string& filename)
 					Sample *pSample = Sample::load( sFilename );
 					if (pSample == NULL) {
 						ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-						pInstrument->m_bIsMuted = true;
+						pInstrument->set_muted( true );
 					}
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-					pLayer->m_fStartVelocity = fMin;
-					pLayer->m_fEndVelocity = fMax;
-					pLayer->m_fGain = fGain;
-					pLayer->m_fPitch = fPitch;
-					pInstrument->setLayer( pLayer, nLayer );
+					pLayer->set_start_velocity( fMin );
+					pLayer->set_end_velocity( fMax );
+					pLayer->set_gain( fGain );
+					pLayer->set_pitch( fPitch );
+					pInstrument->set_layer( pLayer, nLayer );
 					nLayer++;
 				}
 			}
@@ -552,9 +556,9 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 
 			Instrument *instrRef = NULL;
 			// search instrument by ref
-			for (unsigned i = 0; i < instrList->getSize(); i++) {
+			for (unsigned i = 0; i < instrList->get_size(); i++) {
 				Instrument *instr = instrList->get(i);
-				if (instrId == instr->m_sId) {
+				if (instrId == instr->get_id()) {
 					instrRef = instr;
 					break;
 				}
@@ -594,9 +598,9 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 
 				Instrument *instrRef = NULL;
 				// search instrument by ref
-				for (unsigned i = 0; i < instrList->getSize(); i++) {
+				for (unsigned i = 0; i < instrList->get_size(); i++) {
 					Instrument *instr = instrList->get(i);
-					if (instrId == instr->m_sId) {
+					if (instrId == instr->get_id()) {
 						instrRef = instr;
 						break;
 					}

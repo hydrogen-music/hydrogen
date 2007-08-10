@@ -11,12 +11,12 @@
     </keywords>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description/>
+    <description></description>
     <ignoreparts/>
     <secondaryLanguages/>
     <versioncontrol/>
     <projectname>hydrogen</projectname>
-    <defaultencoding/>
+    <defaultencoding></defaultencoding>
   </general>
   <kdevfileview>
     <groups>
@@ -73,12 +73,12 @@
   </kdevdoctreeview>
   <kdevdebugger>
     <general>
-      <dbgshell/>
+      <dbgshell></dbgshell>
       <programargs>-n -V</programargs>
-      <gdbpath/>
-      <configGdbScript/>
-      <runShellScript/>
-      <runGdbScript/>
+      <gdbpath></gdbpath>
+      <configGdbScript></configGdbScript>
+      <runShellScript></runShellScript>
+      <runGdbScript></runGdbScript>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>true</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -104,13 +104,13 @@
     <run>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <mainprogram>hydrogen</mainprogram>
+      <mainprogram>/home/comix/progetti/hydrogen_svn/trunk/hydrogen</mainprogram>
       <programargs>-n -V</programargs>
       <terminal>true</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments/>
-      <globalcwd/>
+      <globaldebugarguments></globaldebugarguments>
+      <globalcwd>/home/comix/progetti/hydrogen_svn/trunk</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
@@ -131,7 +131,9 @@
     </qmake>
   </kdevtrollproject>
   <kdevcppsupport>
-    <references/>
+    <references>
+      <pcs>Qt4</pcs>
+    </references>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
       <includeTypes>true</includeTypes>
@@ -160,10 +162,10 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet/>
-      <prefixSet>set</prefixSet>
-      <prefixVariable>m_,_</prefixVariable>
-      <parameterName>theValue</parameterName>
+      <prefixGet>get_</prefixGet>
+      <prefixSet>set_</prefixSet>
+      <prefixVariable>__</prefixVariable>
+      <parameterName>the_value</parameterName>
       <inlineGet>true</inlineGet>
       <inlineSet>true</inlineSet>
     </creategettersetter>

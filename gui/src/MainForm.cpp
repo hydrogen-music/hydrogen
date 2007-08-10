@@ -607,23 +607,19 @@ void MainForm::action_instruments_addInstrument()
 
 	// create a new valid ID for this instrument
 	int nID = -1;
-	for ( uint i = 0; i < pList->getSize(); ++i ) {
+	for ( uint i = 0; i < pList->get_size(); ++i ) {
 		Instrument* pInstr = pList->get( i );
-		if ( atoi( pInstr->m_sId.c_str() ) > nID ) {
-			nID = atoi( pInstr->m_sId.c_str() );
+		if ( atoi( pInstr->get_id().c_str() ) > nID ) {
+			nID = atoi( pInstr->get_id().c_str() );
 		}
 	}
 	++nID;
 
-	Instrument *pNewInstr = new Instrument();
-	pNewInstr->m_sName = "New instrument";
-	pNewInstr->m_sId = toString( nID );
-	pNewInstr->m_pADSR = new ADSR();
-
+	Instrument *pNewInstr = new Instrument(toString( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
 	AudioEngine::getInstance()->unlock();
 
-	Hydrogen::getInstance()->setSelectedInstrumentNumber( pList->getSize() - 1 );
+	Hydrogen::getInstance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
 
 	// Force an update
 	//EventQueue::getInstance()->pushEvent( EVENT_SELECTED_PATTERN_CHANGED, -1 );
@@ -653,14 +649,14 @@ void MainForm::action_instruments_clearAll()
 	AudioEngine::getInstance()->lock("MainForm::action_instruments_clearAll");
 	Song *pSong = Hydrogen::getInstance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
-	for (uint i = 0; i < pList->getSize(); i++) {
+	for (uint i = 0; i < pList->get_size(); i++) {
 		Instrument* pInstr = pList->get( i );
-		pInstr->m_sName = (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )).toStdString();
+		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )).toStdString() );
 		// remove all layers
 		for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-			InstrumentLayer* pLayer = pInstr->getLayer( nLayer );
+			InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
 			delete pLayer;
-			pInstr->setLayer( NULL, nLayer );
+			pInstr->set_layer( NULL, nLayer );
 		}
 	}
 	AudioEngine::getInstance()->unlock();
