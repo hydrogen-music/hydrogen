@@ -149,10 +149,7 @@ public:
 		return __id;
 	}
 
-	void set_adsr( ADSR* adsr )
-	{
-		__adsr = adsr;
-	}
+	void set_adsr( ADSR* adsr );
 	ADSR* get_adsr()
 	{
 		return __adsr;

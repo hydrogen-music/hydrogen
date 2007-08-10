@@ -106,6 +106,11 @@ void Instrument::set_layer( InstrumentLayer* pLayer, unsigned nLayer )
 	}
 }
 
+void Instrument::set_adsr( ADSR* adsr )
+{
+	delete __adsr;
+	__adsr = adsr;
+}
 
 
 Instrument* Instrument::load_instrument(
