@@ -60,7 +60,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *pPanel
 {
 	//infoLog("INIT");
 
-	setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy(Qt::ClickFocus);
 
 	m_nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();

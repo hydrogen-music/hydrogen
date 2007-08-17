@@ -56,7 +56,9 @@ QMAKE_CXXFLAGS_DEBUG += -g -Wall
 
 
 SOURCES += \
-	main.cpp
+	main.cpp \
+	instrument_test.cpp \
+	note_test.cpp
 
 
 #HEADERS += \

@@ -24,8 +24,8 @@ public:
 
 		uint position = 0;
 		float vel = 1.0;
-		float pan_l = 0.8;
-		float pan_r = 0.9;
+		float pan_l = 0.3;
+		float pan_r = 0.4;
 		int lenght = 1;
 		float pitch = 2;
 

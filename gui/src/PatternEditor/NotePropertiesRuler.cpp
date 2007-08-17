@@ -41,7 +41,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
  , m_pPattern( NULL )
 {
 	//infoLog("INIT");
-	setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_NoBackground);
 
 	m_nGridWidth = (Preferences::getInstance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
@@ -58,8 +58,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
-	show();
 	updateEditor();
+	show();
 
 	HydrogenApp::getInstance()->addEventListener( this );
 }

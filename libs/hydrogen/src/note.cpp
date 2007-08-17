@@ -59,9 +59,11 @@ Note::Note(
 {
 
 	if ( m_fPan_L > 0.5 ) {
+		INFOLOG("Pan L > 0.5");
 		m_fPan_L = 0.5;
 	}
 	if ( m_fPan_R > 0.5 ) {
+		INFOLOG("Pan R > 0.5");
 		m_fPan_R = 0.5;
 	}
 
