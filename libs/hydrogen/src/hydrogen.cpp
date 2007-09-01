@@ -483,7 +483,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		Note *pNote = m_songNoteQueue[0];
 
 		// verifico se la nota rientra in questo ciclo
-		unsigned noteStartInFrames = (unsigned)( pNote->m_nPosition * m_pAudioDriver->m_transport.m_nTickSize );
+		unsigned noteStartInFrames = (unsigned)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
 
 		// m_nTotalFrames <= NotePos < m_nTotalFrames + bufferSize
 		bool isNoteStart = ( ( noteStartInFrames >= framepos ) && ( noteStartInFrames < ( framepos + nframes ) ) );
@@ -493,24 +493,24 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			// Humanize - Velocity parameter
 			if (m_pSong->getHumanizeVelocityValue() != 0) {
 				float random = m_pSong->getHumanizeVelocityValue() * getGaussian( 0.2 );
-				pNote->m_fVelocity += (random - (m_pSong->getHumanizeVelocityValue() / 2.0));
-				if ( pNote->m_fVelocity > 1.0 ) {
-					pNote->m_fVelocity = 1.0;
+				pNote->set_velocity( pNote->get_velocity() + (random - (m_pSong->getHumanizeVelocityValue() / 2.0)) );
+				if ( pNote->get_velocity() > 1.0 ) {
+					pNote->set_velocity( 1.0 );
 				}
-				else if ( pNote->m_fVelocity < 0.0 ) {
-					pNote->m_fVelocity = 0.0;
+				else if ( pNote->get_velocity() < 0.0 ) {
+					pNote->set_velocity( 0.0 );
 				}
 			}
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
-			pNote->m_fPitch += ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->getInstrument()->get_random_pitch_factor();
+			pNote->m_fPitch += ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->get_instrument()->get_random_pitch_factor();
 
 			AudioEngine::getInstance()->getSampler()->note_on(pNote);	// aggiungo la nota alla lista di note da eseguire
 			m_songNoteQueue.pop_front();			// rimuovo la nota dalla lista di note
 
 			// raise noteOn event
-			int nInstrument = m_pSong->getInstrumentList()->get_pos( pNote->getInstrument() );
+			int nInstrument = m_pSong->getInstrumentList()->get_pos( pNote->get_instrument() );
 			EventQueue::getInstance()->pushEvent( EVENT_NOTEON, nInstrument );
 			continue;
 		}
@@ -1000,7 +1000,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 		while ( m_midiNoteQueue.size() > 0 ) {
 			Note *note = m_midiNoteQueue[0];
 
-			if ((int)note->m_nPosition <= tick) {
+			if ((int)note->get_position() <= tick) {
 				// printf ("tick=%d  pos=%d\n", tick, note->getPosition());
 				m_midiNoteQueue.pop_front();
 				m_songNoteQueue.push_back( note );
@@ -1166,7 +1166,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 							//~
 
 							Note *pCopiedNote = new Note( pNote );
-							pCopiedNote->m_nPosition = tick;
+							pCopiedNote->set_position( tick );
 
 							pCopiedNote->m_nHumanizeDelay = nOffset;	// humanize time
 							m_songNoteQueue.push_back( pCopiedNote );
@@ -1731,7 +1731,7 @@ void Hydrogen::addRealtimeNote(int instrument, float velocity, float pan_L, floa
 			for ( pos = currentPattern->m_noteMap.lower_bound( nNote ); pos != currentPattern->m_noteMap.upper_bound( nNote ); ++pos ) {
 				Note *pNote = pos->second;
 				if ( pNote!=NULL ) {
-					if ( pNote->getInstrument() == instrRef && nNote==column) {
+					if ( pNote->get_instrument() == instrRef && nNote==column) {
 						bNoteAlreadyExist = true;
 						break;
 					}

@@ -184,7 +184,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		for ( pos = m_pPattern->m_noteMap.lower_bound( nColumn ); pos != m_pPattern->m_noteMap.upper_bound( nColumn ); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->getInstrument() == pSelectedInstrument ) {
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				// the note exists...remove it!
 				bNoteAlreadyExist = true;
 				delete pNote;
@@ -227,7 +227,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			Note *pNote = pos->second;
 			assert( pNote );
 
-			if ( pNote->getInstrument() == pSelectedInstrument ) {
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				//INFOLOG( "TROVATA NOTA!" );
 				m_pDraggedNote = pNote;
 				break;
@@ -238,7 +238,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				Note *pNote = pos->second;
 				assert( pNote );
 
-				if ( pNote->getInstrument() == pSelectedInstrument ) {
+				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					//INFOLOG( "TROVATA NOTA!" );
 					m_pDraggedNote = pNote;
 					break;
@@ -252,7 +252,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				Note *pNote = pos->second;
 				assert( pNote );
 
-				if ( pNote->getInstrument() == pSelectedInstrument ) {
+				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					//INFOLOG( "TROVATA NOTA sulla coda...!" );
 					m_pDraggedNote = pNote;
 					break;
@@ -308,7 +308,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		int nTickColumn = getColumn( ev );
 
 		AudioEngine::getInstance()->lock("DrumPatternEditor::mouseMoveEvent");	// lock the audio engine
-		int nLen = nTickColumn - (int)m_pDraggedNote->m_nPosition;
+		int nLen = nTickColumn - (int)m_pDraggedNote->get_position();
 
 		if (nLen <= 0) {
 			nLen = -1;
@@ -406,7 +406,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter* p )
 	InstrumentList * pInstrList = Hydrogen::getInstance()->getSong()->getInstrumentList();
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
-		if ( pInstr == note->getInstrument() ) {
+		if ( pInstr == note->get_instrument() ) {
  			nInstrument = nInstr;
 			break;
 		}
@@ -416,7 +416,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter* p )
 		return;
 	}
 
-	uint pos = note->m_nPosition;
+	uint pos = note->get_position();
 
 	p->setPen( noteColor );
 

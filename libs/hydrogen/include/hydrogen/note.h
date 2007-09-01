@@ -71,19 +71,18 @@ public:
 
 
 /**
- 
+
 \brief A note...
- 
+
 */
 class Note : public Object
 {
 public:
-	unsigned int m_nPosition;	///< Note position inside the pattern
+
 	int m_nLength;
 	float m_fSamplePosition;
 	float m_fPan_L;			///< Pan of the note (left volume) [0..1]
 	float m_fPan_R;			///< Pan of the note (right volume) [0..1]
-	float m_fVelocity;		///< Velocity (intensity) of the note [0..1]
 	float m_fPitch;
 	unsigned m_nHumanizeDelay;	///< Used in "humanize" function
 	NoteKey m_noteKey;
@@ -113,23 +112,53 @@ public:
 	/// Copy constructor
 	Note( const Note* pNote );
 
-
 	~Note();
 
-	//Note* copy();
+	Note* copy();
 
-	void setInstrument( Instrument* pInstrument );
-	Instrument* getInstrument()
+	void set_instrument( Instrument* instrument );
+	Instrument* get_instrument()
 	{
-		return m_pInstrument;
+		return __instrument;
 	}
 
 	void dumpInfo();
 	static NoteKey stringToKey( const std::string& sKey );
 	static std::string keyToString( NoteKey key );
 
+
+	/// Return the note position inside a pattern
+	unsigned get_position() const {
+		return __position;
+	}
+
+	/// Set the note position inside a pattern
+	void set_position(unsigned position) {
+		__position = position;
+	}
+
+	/// Return the note velocity
+	float get_velocity() const
+	{
+		return __velocity;
+	}
+
+	/// Set the note velocity
+	void set_velocity(float velocity) {
+		if (velocity > 1.0) {
+			velocity = 1.0;
+		}
+		else if (velocity < 0) {
+			velocity = 0;
+		}
+		__velocity = velocity;
+	}
+
+
 private:
-	Instrument* m_pInstrument;
+	Instrument* __instrument;
+	unsigned __position;	///< Note position inside the pattern
+	float __velocity;		///< Velocity (intensity) of the note [0..1]
 };
 
 };

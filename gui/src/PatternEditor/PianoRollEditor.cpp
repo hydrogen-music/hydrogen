@@ -174,7 +174,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	InstrumentList * pInstrList = Hydrogen::getInstance()->getSong()->getInstrumentList();
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
-		if ( pInstr == pNote->getInstrument() ) {
+		if ( pInstr == pNote->get_instrument() ) {
  			nInstrument = nInstr;
 			break;
 		}
@@ -191,7 +191,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 
 	int nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
 
-	uint start_x = 20 + pNote->m_nPosition * nGridWidth;
+	uint start_x = 20 + pNote->get_position() * nGridWidth;
 	uint start_y = height() - m_nRowHeight - ( m_nRowHeight * pNote->m_noteKey.m_key + ( 12 * pNote->m_noteKey.m_nOctave ) * m_nRowHeight ) + 1;
 	uint w = 20;
 	uint h = m_nRowHeight - 1;
@@ -206,15 +206,15 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 
 
 
-void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
+void PianoRollEditor::mousePressEvent(QMouseEvent*)
 {
-  INFOLOG("Mouse press event");
+	INFOLOG("Mouse press event");
 }
 
 
 
-void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
+void PianoRollEditor::mouseReleaseEvent(QMouseEvent*)
 {
-  INFOLOG("Mouse release event" );
+	INFOLOG("Mouse release event" );
 }
 

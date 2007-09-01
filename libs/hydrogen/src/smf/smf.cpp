@@ -251,7 +251,7 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 				for ( pos = pPattern->m_noteMap.lower_bound( nNote ); pos != pPattern->m_noteMap.upper_bound( nNote ); ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote ) {
-						int nVelocity = (int)( 127.0 * pNote->m_fVelocity );
+						int nVelocity = (int)( 127.0 * pNote->get_velocity());
 						int nPitch = 36 + nNote;
 						eventList.push_back( new SMFNoteOnEvent( nStartTicks + nNote, DRUM_CHANNEL, nPitch, nVelocity ) );
 

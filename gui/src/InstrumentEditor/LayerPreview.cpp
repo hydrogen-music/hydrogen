@@ -201,7 +201,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		float fVelocity = (float)ev->x() / (float)width();
 
 		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
-		note->setInstrument( m_pInstrument );
+		note->set_instrument( m_pInstrument );
 		AudioEngine::getInstance()->getSampler()->note_on(note);
 
 		for ( int i = 0; i < MAX_LAYERS; i++ ) {

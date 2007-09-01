@@ -95,7 +95,7 @@ private:
 
 /**
 \ingroup H2CORE
-\brief	Colors for hydogen
+\brief	Colors for hydrogen
 */
 class UIStyle : public Object
 {

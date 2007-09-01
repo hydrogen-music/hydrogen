@@ -108,13 +108,13 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 	for ( pos = m_pPattern->m_noteMap.lower_bound( column ); pos != m_pPattern->m_noteMap.upper_bound( column ); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
-		assert( pNote->m_nPosition == column );
-		if ( pNote->getInstrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+		assert( pNote->get_position() == column );
+		if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 			continue;
 		}
 
 		if ( m_mode == VELOCITY ) {
-			pNote->m_fVelocity = val;
+			pNote->set_velocity( val );
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
@@ -288,29 +288,29 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->getInstrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 
-			uint pos = pNote->m_nPosition;
+			uint pos = pNote->get_position();
 			uint x_pos = 20 + pos * m_nGridWidth;
 
 			uint line_end = height();
 
-			uint velocity = (uint)(pNote->m_fVelocity * height());
+			uint velocity = (uint)(pNote->get_velocity() * height());
 			uint line_start = line_end - velocity;
 
 			QColor sideColor(
-				(int)( valueColor.getRed() * ( 1 - pNote->m_fVelocity ) ),
-				(int)( valueColor.getGreen() * ( 1 - pNote->m_fVelocity ) ),
-				(int)( valueColor.getBlue() * ( 1 - pNote->m_fVelocity ) )
+				(int)( valueColor.getRed() * ( 1 - pNote->get_velocity() ) ),
+				(int)( valueColor.getGreen() * ( 1 - pNote->get_velocity() ) ),
+				(int)( valueColor.getBlue() * ( 1 - pNote->get_velocity() ) )
 			);
 			p.fillRect( (int)( x_pos - m_nGridWidth / 2.0 ) + 1, line_start, m_nGridWidth, line_end - line_start, sideColor );
 
 			QColor centerColor(
-				(int)( valueColor.getRed() * ( 1 - pNote->m_fVelocity ) ),
-				(int)( valueColor.getGreen() * ( 1 - pNote->m_fVelocity ) ),
-				(int)( valueColor.getBlue() * ( 1 - pNote->m_fVelocity ) )
+				(int)( valueColor.getRed() * ( 1 - pNote->get_velocity() ) ),
+				(int)( valueColor.getGreen() * ( 1 - pNote->get_velocity() ) ),
+				(int)( valueColor.getBlue() * ( 1 - pNote->get_velocity() ) )
 			);
 			int nLineWidth = (int)( m_nGridWidth / 2.0 );
 			int nSpace = (int)( ( m_nGridWidth -nLineWidth ) / 2.0 );
@@ -451,10 +451,10 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->getInstrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 				continue;
 			}
-			uint x_pos = 20 + pNote->m_nPosition * m_nGridWidth;
+			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 
 			int y_start = (int)( pNote->m_fPan_R * height() );
 			int y_end = (int)( height() - pNote->m_fPan_L * height() );

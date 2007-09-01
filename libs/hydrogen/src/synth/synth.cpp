@@ -69,7 +69,7 @@ void Synth::noteOff( Note* pNote )
 	// delete the older note...
 	for ( uint i = 0; i < m_playingNotesQueue.size(); ++i ) {
 		Note *pPlayingNote = m_playingNotesQueue[ i ];
-		if ( pPlayingNote->getInstrument() == pNote->getInstrument() ) {
+		if ( pPlayingNote->get_instrument() == pNote->get_instrument() ) {
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			delete pPlayingNote;
 
@@ -99,7 +99,7 @@ void Synth::process( uint32_t nFrames )
 
 		//pPlayingNote->dumpInfo();
 
-		float amplitude = pPlayingNote->m_fVelocity;
+		float amplitude = pPlayingNote->get_velocity();
 		float frequency = TWOPI * 220.0 / 44100.0;
 
 		for ( uint i = 0; i < nFrames; ++i ) {

@@ -211,7 +211,7 @@ void InstrumentLine::functionClearNotes()
 	for ( pos = pCurrentPattern->m_noteMap.begin(); pos != pCurrentPattern->m_noteMap.end(); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
-		if ( pNote->getInstrument() != pSelectedInstrument ) {
+		if ( pNote->get_instrument() != pSelectedInstrument ) {
 			continue;
 		}
 
@@ -268,7 +268,7 @@ void InstrumentLine::functionFillNotes()
 				std::multimap <int, Note*>::iterator pos;
 				for ( pos = pCurrentPattern->m_noteMap.lower_bound( i ); pos != pCurrentPattern->m_noteMap.upper_bound( i ); ++pos ) {
 					Note *pNote = pos->second;
-					if ( pNote->getInstrument() == instrRef ) {
+					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
 						noteAlreadyPresent = true;
 						break;
@@ -360,7 +360,7 @@ void InstrumentLine::functionDeleteInstrument()
 		for ( pos = pPattern->m_noteMap.begin(); pos != pPattern->m_noteMap.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->getInstrument() == pInstr ) {
+			if ( pNote->get_instrument() == pInstr ) {
 				delete pNote;
 				pPattern->m_noteMap.erase( pos );
 			}

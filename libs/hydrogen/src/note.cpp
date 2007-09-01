@@ -31,8 +31,8 @@ namespace H2Core {
 
 Note::Note(
 		Instrument *pInstrument,
-		unsigned nPosition,
-		float fVelocity,
+		unsigned position,
+		float velocity,
 		float fPan_L,
 		float fPan_R,
 		int nLength,
@@ -40,12 +40,12 @@ Note::Note(
 		NoteKey key
 )
  : Object( "Note" )
- , m_nPosition( nPosition )
+ , __position( position )
  , m_nLength( nLength )
  , m_fSamplePosition( 0.0 )
  , m_fPan_L( fPan_L )
  , m_fPan_R( fPan_R )
- , m_fVelocity( fVelocity )
+ , __velocity( velocity )
  , m_fPitch( fPitch )
  , m_nHumanizeDelay( 0 )
  , m_noteKey( key )
@@ -67,7 +67,7 @@ Note::Note(
 		m_fPan_R = 0.5;
 	}
 
-	setInstrument( pInstrument );
+	set_instrument( pInstrument );
 }
 
 
@@ -76,8 +76,8 @@ Note::Note(
 Note::Note( const Note* pNote )
  : Object( "Note" )
 {
-	m_nPosition	=	pNote->m_nPosition;
-	m_fVelocity	=	pNote->m_fVelocity;
+	__position	=	pNote->get_position();
+	__velocity	=	pNote->get_velocity();
 	m_fPan_L	=	pNote->m_fPan_L;
 	m_fPan_R	=	pNote->m_fPan_R;
 	m_nLength	= 	pNote->m_nLength;
@@ -91,7 +91,7 @@ Note::Note( const Note* pNote )
 	m_fLowPassFilterBuffer_R	=	pNote->m_fLowPassFilterBuffer_R;
 	m_nHumanizeDelay		= 	pNote->m_nHumanizeDelay;
 	m_fSamplePosition		=	pNote->m_fSamplePosition;
-	setInstrument( pNote->m_pInstrument );
+	set_instrument( pNote->__instrument );
 }
 
 
@@ -104,15 +104,15 @@ Note::~Note()
 
 
 
-void Note::setInstrument( Instrument* pInstrument )
+void Note::set_instrument( Instrument* instrument )
 {
-	if ( pInstrument == NULL ) {
+	if ( instrument == NULL ) {
 		return;
 	}
 
-	m_pInstrument = pInstrument;
-	assert(m_pInstrument->get_adsr());
-	m_adsr = ADSR( *(m_pInstrument->get_adsr()) );
+	__instrument = instrument;
+	assert(__instrument->get_adsr());
+	m_adsr = ADSR( *(__instrument->get_adsr()) );
 
 /*
 	if ( pInstrument->m_pADSR == NULL ) {
@@ -134,7 +134,7 @@ void Note::setInstrument( Instrument* pInstrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + toString( m_nPosition ) + "\t instr: " + m_pInstrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( m_fPitch ) );
+	INFOLOG( "pos: " + toString( get_position() ) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( m_fPitch ) );
 }
 
 
@@ -245,5 +245,25 @@ std::string Note::keyToString( NoteKey key )
 
 	return sKey;
 }
+
+
+Note* Note::copy()
+{
+	Note* note = new Note(
+		get_instrument(),
+		get_position(),
+		get_velocity(),
+		m_fPan_L,
+		m_fPan_R,
+		m_nLength,
+		m_fPitch,
+		m_noteKey
+	);
+
+
+
+	return note;
+}
+
 
 };

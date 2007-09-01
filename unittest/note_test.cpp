@@ -39,14 +39,14 @@ public:
 				pitch
 		);
 
-		CPPUNIT_ASSERT(n->getInstrument() == instr);
-		CPPUNIT_ASSERT(n->m_nPosition == position);
-		CPPUNIT_ASSERT(n->m_fVelocity == vel);
+		CPPUNIT_ASSERT(n->get_instrument() == instr);
+		CPPUNIT_ASSERT(n->get_position() == position);
+		CPPUNIT_ASSERT(n->get_velocity() == vel);
 
-		CPPUNIT_ASSERT(n->m_fPan_L == pan_l);
-		CPPUNIT_ASSERT(n->m_fPan_R == pan_r);
-		CPPUNIT_ASSERT(n->m_nLength == lenght);
-		CPPUNIT_ASSERT(n->m_fPitch == pitch);
+		CPPUNIT_ASSERT(n->get_pan_L() == pan_l);
+		CPPUNIT_ASSERT(n->get_pan_R() == pan_r);
+		CPPUNIT_ASSERT(n->get_lenght() == lenght);
+		CPPUNIT_ASSERT(n->get_pitch() == pitch);
 
 		delete n;
 

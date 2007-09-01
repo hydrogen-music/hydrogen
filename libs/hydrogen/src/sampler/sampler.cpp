@@ -128,13 +128,13 @@ void Sampler::note_on(Note *note)
 	assert(note);
 
 	// mute groups
-	Instrument *pInstr = note->getInstrument();
+	Instrument *pInstr = note->get_instrument();
 	if ( pInstr->get_mute_group() != -1 ) {
 		// remove all notes using the same mute group
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
 			Note *pNote = __playing_notes_queue[ j ];
 
-			if ( ( pNote->getInstrument() != pInstr )  && ( pNote->getInstrument()->get_mute_group() == pInstr->get_mute_group()) ) {
+			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == pInstr->get_mute_group()) ) {
 				//warningLog("release");
 				pNote->m_adsr.release();
 			}
@@ -173,7 +173,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	}
 
 
-	Instrument *pInstr = pNote->getInstrument();
+	Instrument *pInstr = pNote->get_instrument();
 	if ( !pInstr ) {
 		ERRORLOG( "NULL instrument" );
 		return 1;
@@ -188,7 +188,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
 		if ( pLayer == NULL ) continue;
 
-		if ( ( pNote->m_fVelocity >= pLayer->get_start_velocity() ) && ( pNote->m_fVelocity <= pLayer->get_end_velocity() ) ) {
+		if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 			pSample = pLayer->get_sample();
 			fLayerGain = pLayer->get_gain();
 			fLayerPitch = pLayer->get_pitch();
@@ -196,7 +196,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		}
 	}
 	if ( !pSample ) {
-		WARNINGLOG( "NULL sample for instrument " + pInstr->get_name() + ". Note velocity: " + toString( pNote->m_fVelocity ) );
+		WARNINGLOG( "NULL sample for instrument " + pInstr->get_name() + ". Note velocity: " + toString( pNote->get_velocity() ) );
 		return 1;
 	}
 
@@ -205,14 +205,14 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		return 1;
 	}
 
-	int noteStartInFrames = (int) ( pNote->m_nPosition * __audio_output->m_transport.m_nTickSize ) + pNote->m_nHumanizeDelay;
+	int noteStartInFrames = (int) ( pNote->get_position() * __audio_output->m_transport.m_nTickSize ) + pNote->m_nHumanizeDelay;
 
 	int nInitialSilence = 0;
 	if (noteStartInFrames > (int) nFramepos) {	// scrivo silenzio prima dell'inizio della nota
 		nInitialSilence = noteStartInFrames - nFramepos;
 		int nFrames = nBufferSize - nInitialSilence;
 		if ( nFrames < 0 ) {
-			int noteStartInFramesNoHumanize = (int)pNote->m_nPosition * __audio_output->m_transport.m_nTickSize;
+			int noteStartInFramesNoHumanize = (int)pNote->get_position() * __audio_output->m_transport.m_nTickSize;
 			if ( noteStartInFramesNoHumanize > (int)( nFramepos + nBufferSize ) ) {
 				// this note is not valid. it's in the future...let's skip it....
 				ERRORLOG( "Note pos in the future?? Current frames: " + toString( nFramepos ) + ", note frame pos: " + toString( noteStartInFramesNoHumanize ) );
@@ -239,7 +239,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		fSendFXLevel_R = 0.0f;
 	}
 	else {	// Precompute some values...
-		cost_L = cost_L * pNote->m_fVelocity;		// note velocity
+		cost_L = cost_L * pNote->get_velocity();		// note velocity
 		cost_L = cost_L * pNote->m_fPan_L;		// note pan
 		cost_L = cost_L * fLayerGain;				// layer gain
 		cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
@@ -251,7 +251,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		cost_L = cost_L * 2; // max pan is 0.5
 
 
-		cost_R = cost_R * pNote->m_fVelocity;		// note velocity
+		cost_R = cost_R * pNote->get_velocity();		// note velocity
 		cost_R = cost_R * pNote->m_fPan_R;		// note pan
 		cost_R = cost_R * fLayerGain;				// layer gain
 		cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
@@ -264,7 +264,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	}
 
 	// direct track outputs only use velocity
-	cost_track = cost_track * pNote->m_fVelocity;
+	cost_track = cost_track * pNote->get_velocity();
 	cost_track = cost_track * fLayerGain;
 
 	// Se non devo fare resample (drumkit) posso evitare di utilizzare i float e gestire il tutto in
@@ -323,18 +323,18 @@ int Sampler::__render_note_no_resample(
 	int nInitialSamplePos = (int)pNote->m_fSamplePosition;
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->getInstrumentList()->get_pos( pNote->getInstrument() );
+	int nInstrument = pSong->getInstrumentList()->get_pos( pNote->get_instrument() );
 
 	// filter
-	bool bUseLPF = pNote->getInstrument()->is_filter_active();
-	float fResonance = pNote->getInstrument()->get_filter_resonance();
-	float fCutoff = pNote->getInstrument()->get_filter_cutoff();
+	bool bUseLPF = pNote->get_instrument()->is_filter_active();
+	float fResonance = pNote->get_instrument()->get_filter_resonance();
+	float fCutoff = pNote->get_instrument()->get_filter_cutoff();
 
 	float *pSample_data_L = pSample->getData_L();
 	float *pSample_data_R = pSample->getData_R();
 
-	float fInstrPeak_L = pNote->getInstrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = pNote->getInstrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
 
 	float fADSRValue;
 	float fVal_L;
@@ -384,8 +384,8 @@ int Sampler::__render_note_no_resample(
 		++nSamplePos;
 	}
 	pNote->m_fSamplePosition += nAvail_bytes;
-	pNote->getInstrument()->set_peak_l( fInstrPeak_L );
-	pNote->getInstrument()->set_peak_r( fInstrPeak_R );
+	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
+	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
 
 #ifdef LADSPA_SUPPORT
@@ -393,7 +393,7 @@ int Sampler::__render_note_no_resample(
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::getInstance()->getLadspaFX( nFX );
 
-		float fLevel = pNote->getInstrument()->get_fx_level(nFX);
+		float fLevel = pNote->get_instrument()->get_fx_level(nFX);
 
 		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
 			fLevel = fLevel * pFX->getVolume();
@@ -464,18 +464,18 @@ int Sampler::__render_note_resample(
 	float fInitialSamplePos = pNote->m_fSamplePosition;
 	float fSamplePos = pNote->m_fSamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->getInstrumentList()->get_pos( pNote->getInstrument() );
+	int nInstrument = pSong->getInstrumentList()->get_pos( pNote->get_instrument() );
 
 	// filter
-	bool bUseLPF = pNote->getInstrument()->is_filter_active();
-	float fResonance = pNote->getInstrument()->get_filter_resonance();
-	float fCutoff = pNote->getInstrument()->get_filter_cutoff();
+	bool bUseLPF = pNote->get_instrument()->is_filter_active();
+	float fResonance = pNote->get_instrument()->get_filter_resonance();
+	float fCutoff = pNote->get_instrument()->get_filter_cutoff();
 
 	float *pSample_data_L = pSample->getData_L();
 	float *pSample_data_R = pSample->getData_R();
 
-	float fInstrPeak_L = pNote->getInstrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = pNote->getInstrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
 
 	float fADSRValue = 1.0;
 	float fVal_L;
@@ -539,8 +539,8 @@ int Sampler::__render_note_resample(
 		fSamplePos += fStep;
 	}
 	pNote->m_fSamplePosition += nAvail_bytes * fStep;
-	pNote->getInstrument()->set_peak_l( fInstrPeak_L );
-	pNote->getInstrument()->set_peak_r( fInstrPeak_R );
+	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
+	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
 
 
@@ -548,7 +548,7 @@ int Sampler::__render_note_resample(
 	// LADSPA
 	for (unsigned nFX = 0; nFX < MAX_FX; ++nFX) {
 		LadspaFX *pFX = Effects::getInstance()->getLadspaFX( nFX );
-		float fLevel = pNote->getInstrument()->get_fx_level(nFX);
+		float fLevel = pNote->get_instrument()->get_fx_level(nFX);
 		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
 			fLevel = fLevel * pFX->getVolume();
 
@@ -602,7 +602,7 @@ void Sampler::stop_playing_notes(Instrument* instrument)
 		for ( unsigned i = 0; i < __playing_notes_queue.size(); ) {
 			Note *pNote = __playing_notes_queue[ i ];
 			assert( pNote );
-			if (pNote->getInstrument() == instrument) {
+			if (pNote->get_instrument() == instrument) {
 				delete pNote;
 				__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
 			}

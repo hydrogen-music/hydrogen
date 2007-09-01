@@ -707,8 +707,8 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 			assert( pNote );
 
 			TiXmlElement noteNode("note");
-			LocalFileMng::writeXmlString( &noteNode, "position", toString( pNote->m_nPosition ) );
-			LocalFileMng::writeXmlString( &noteNode, "velocity", toString( pNote->m_fVelocity ) );
+			LocalFileMng::writeXmlString( &noteNode, "position", toString( pNote->get_position()) );
+			LocalFileMng::writeXmlString( &noteNode, "velocity", toString( pNote->get_velocity() ) );
 			LocalFileMng::writeXmlString( &noteNode, "pan_L", toString( pNote->m_fPan_L ) );
 			LocalFileMng::writeXmlString( &noteNode, "pan_R", toString( pNote->m_fPan_R ) );
 			LocalFileMng::writeXmlString( &noteNode, "pitch", toString( pNote->m_fPitch ) );
@@ -716,7 +716,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 			LocalFileMng::writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
 
 			LocalFileMng::writeXmlString( &noteNode, "length", toString( pNote->m_nLength ) );
-			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->getInstrument()->get_id());
+			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id());
 			noteListNode.InsertEndChild( noteNode );
 		}
 		patternNode.InsertEndChild( noteListNode );
