@@ -35,9 +35,9 @@ class ADSR;
 class Sample;
 
 /**
-
+ 
 \brief A layer...
-
+ 
 */
 class InstrumentLayer : public Object
 {
@@ -101,9 +101,9 @@ private:
 
 
 /**
-
+ 
 \brief Instrument class
-
+ 
 */
 class Instrument : public Object
 {
@@ -111,7 +111,7 @@ public:
 	Instrument(
 	    const std::string& id,
 	    const std::string& name,
-		ADSR* adsr
+	    ADSR* adsr
 	);
 	~Instrument();
 
@@ -281,11 +281,23 @@ public:
 		return __drumkit_name;
 	}
 
-	bool is_active() {	return __active;	}
-	void set_active(bool active) {	__active = active;	}
+	bool is_active()
+	{
+		return __active;
+	}
+	void set_active( bool active )
+	{
+		__active = active;
+	}
 
-	bool is_soloed() {	return __soloed;	}
-	void set_soloed(bool soloed) {	__soloed = soloed;	}
+	bool is_soloed()
+	{
+		return __soloed;
+	}
+	void set_soloed( bool soloed )
+	{
+		__soloed = soloed;
+	}
 
 private:
 	InstrumentLayer* __layer_list[MAX_LAYERS];
@@ -315,9 +327,9 @@ private:
 
 
 /**
-
+ 
 \brief Instrument List
-
+ 
 */
 class InstrumentList : public Object
 {

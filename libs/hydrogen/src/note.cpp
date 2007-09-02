@@ -41,12 +41,8 @@ Note::Note(
 )
  : Object( "Note" )
  , __position( position )
- , m_nLength( nLength )
  , m_fSamplePosition( 0.0 )
- , m_fPan_L( fPan_L )
- , m_fPan_R( fPan_R )
  , __velocity( velocity )
- , m_fPitch( fPitch )
  , m_nHumanizeDelay( 0 )
  , m_noteKey( key )
 // , m_pADSR( NULL )
@@ -57,17 +53,12 @@ Note::Note(
  , m_fLowPassFilterBuffer_L( 0.0 )
  , m_fLowPassFilterBuffer_R( 0.0 )
 {
-
-	if ( m_fPan_L > 0.5 ) {
-		INFOLOG("Pan L > 0.5");
-		m_fPan_L = 0.5;
-	}
-	if ( m_fPan_R > 0.5 ) {
-		INFOLOG("Pan R > 0.5");
-		m_fPan_R = 0.5;
-	}
+	set_pan_l( fPan_L );
+	set_pan_r( fPan_R );
+	set_lenght( nLength );
 
 	set_instrument( pInstrument );
+	set_pitch( fPitch );
 }
 
 
@@ -78,10 +69,10 @@ Note::Note( const Note* pNote )
 {
 	__position	=	pNote->get_position();
 	__velocity	=	pNote->get_velocity();
-	m_fPan_L	=	pNote->m_fPan_L;
-	m_fPan_R	=	pNote->m_fPan_R;
-	m_nLength	= 	pNote->m_nLength;
-	m_fPitch	= 	pNote->m_fPitch;
+	set_pan_l(	pNote->get_pan_l()	);
+	set_pan_r(	pNote->get_pan_r()	);
+	set_lenght(	pNote->get_lenght()	);
+	set_pitch(	pNote->get_pitch()	);
 	m_noteKey	=	pNote->m_noteKey;
 	m_fCutoff	=	pNote->m_fCutoff;
 	m_fResonance	=	pNote->m_fResonance;
@@ -134,7 +125,7 @@ void Note::set_instrument( Instrument* instrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + toString( get_position() ) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( m_fPitch ) );
+	INFOLOG( "pos: " + toString( get_position() ) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( get_pitch() ) );
 }
 
 
@@ -253,10 +244,10 @@ Note* Note::copy()
 		get_instrument(),
 		get_position(),
 		get_velocity(),
-		m_fPan_L,
-		m_fPan_R,
-		m_nLength,
-		m_fPitch,
+		get_pan_l(),
+		get_pan_r(),
+		get_lenght(),
+		get_pitch(),
 		m_noteKey
 	);
 

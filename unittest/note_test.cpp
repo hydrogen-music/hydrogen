@@ -43,8 +43,8 @@ public:
 		CPPUNIT_ASSERT(n->get_position() == position);
 		CPPUNIT_ASSERT(n->get_velocity() == vel);
 
-		CPPUNIT_ASSERT(n->get_pan_L() == pan_l);
-		CPPUNIT_ASSERT(n->get_pan_R() == pan_r);
+		CPPUNIT_ASSERT(n->get_pan_l() == pan_l);
+		CPPUNIT_ASSERT(n->get_pan_r() == pan_r);
 		CPPUNIT_ASSERT(n->get_lenght() == lenght);
 		CPPUNIT_ASSERT(n->get_pitch() == pitch);
 

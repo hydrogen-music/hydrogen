@@ -132,8 +132,8 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 				pan_R = 0.5;
 			}
 
-			pNote->m_fPan_L = pan_L;
-			pNote->m_fPan_R = pan_R;
+			pNote->set_pan_l( pan_L );
+			pNote->set_pan_r( pan_R );
 		}
 
 		pSong->m_bIsModified = true;
@@ -456,14 +456,13 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 			}
 			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 
-			int y_start = (int)( pNote->m_fPan_R * height() );
-			int y_end = (int)( height() - pNote->m_fPan_L * height() );
+			int y_start = (int)( pNote->get_pan_r() * height() );
+			int y_end = (int)( height() - pNote->get_pan_l() * height() );
 
 			int nLineWidth = 3;
 			p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( 0, 0 ,0 ) );
 
 			p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( 0, 0 ,0 ) );
-
 		}
 	}
 

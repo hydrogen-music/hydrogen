@@ -256,8 +256,8 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 						eventList.push_back( new SMFNoteOnEvent( nStartTicks + nNote, DRUM_CHANNEL, nPitch, nVelocity ) );
 
 						int nLength = 12;
-						if ( pNote->m_nLength != -1 ) {
-							nLength = pNote->m_nLength;
+						if ( pNote->get_lenght() != -1 ) {
+							nLength = pNote->get_lenght();
 						}
 						eventList.push_back( new SMFNoteOffEvent( nStartTicks + nNote + nLength, DRUM_CHANNEL, nPitch, nVelocity ) );
 					}

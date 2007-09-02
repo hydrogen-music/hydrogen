@@ -504,7 +504,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
-			pNote->m_fPitch += ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->get_instrument()->get_random_pitch_factor();
+			pNote->set_pitch( pNote->get_pitch() + ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->get_instrument()->get_random_pitch_factor() );
 
 			AudioEngine::getInstance()->getSampler()->note_on(pNote);	// aggiungo la nota alla lista di note da eseguire
 			m_songNoteQueue.pop_front();			// rimuovo la nota dalla lista di note

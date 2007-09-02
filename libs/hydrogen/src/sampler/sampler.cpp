@@ -240,7 +240,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	}
 	else {	// Precompute some values...
 		cost_L = cost_L * pNote->get_velocity();		// note velocity
-		cost_L = cost_L * pNote->m_fPan_L;		// note pan
+		cost_L = cost_L * pNote->get_pan_l();		// note pan
 		cost_L = cost_L * fLayerGain;				// layer gain
 		cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 		cost_L = cost_L * pInstr->get_gain();		// instrument gain
@@ -252,7 +252,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 
 		cost_R = cost_R * pNote->get_velocity();		// note velocity
-		cost_R = cost_R * pNote->m_fPan_R;		// note pan
+		cost_R = cost_R * pNote->get_pan_r();		// note pan
 		cost_R = cost_R * fLayerGain;				// layer gain
 		cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 		cost_R = cost_R * pInstr->get_gain();		// instrument gain
@@ -273,7 +273,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	//	float nStep = 1.0;1.0594630943593
 
 	float fTotalPitch = pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;
-	fTotalPitch += pNote->m_fPitch;
+	fTotalPitch += pNote->get_pitch();
 	fTotalPitch += fLayerPitch;
 
 	//_INFOLOG( "total pitch: " + toString( fTotalPitch ) );
@@ -305,8 +305,8 @@ int Sampler::__render_note_no_resample(
 	int retValue = 1; // the note is ended
 
 	int nNoteLength = -1;
-	if ( pNote->m_nLength != -1) {
-		nNoteLength = (int)( pNote->m_nLength * __audio_output->m_transport.m_nTickSize );
+	if ( pNote->get_lenght() != -1) {
+		nNoteLength = (int)( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
 	}
 
 	int nAvail_bytes = pSample->m_nFrames - (int)pNote->m_fSamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -438,10 +438,10 @@ int Sampler::__render_note_resample(
 )
 {
 	int nNoteLength = -1;
-	if ( pNote->m_nLength != -1) {
-		nNoteLength = (int)( pNote->m_nLength * __audio_output->m_transport.m_nTickSize );
+	if ( pNote->get_lenght() != -1) {
+		nNoteLength = (int)( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
 	}
-	float fNotePitch = pNote->m_fPitch + fLayerPitch;
+	float fNotePitch = pNote->get_pitch() + fLayerPitch;
 	fNotePitch += pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;
 
 	//_INFOLOG( "pitch: " + toString( fNotePitch ) );

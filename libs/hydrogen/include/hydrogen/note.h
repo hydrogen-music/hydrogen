@@ -71,19 +71,15 @@ public:
 
 
 /**
-
+ 
 \brief A note...
-
+ 
 */
 class Note : public Object
 {
 public:
 
-	int m_nLength;
 	float m_fSamplePosition;
-	float m_fPan_L;			///< Pan of the note (left volume) [0..1]
-	float m_fPan_R;			///< Pan of the note (right volume) [0..1]
-	float m_fPitch;
 	unsigned m_nHumanizeDelay;	///< Used in "humanize" function
 	NoteKey m_noteKey;
 
@@ -128,12 +124,14 @@ public:
 
 
 	/// Return the note position inside a pattern
-	unsigned get_position() const {
+	unsigned get_position() const
+	{
 		return __position;
 	}
 
 	/// Set the note position inside a pattern
-	void set_position(unsigned position) {
+	void set_position( unsigned position )
+	{
 		__position = position;
 	}
 
@@ -144,21 +142,73 @@ public:
 	}
 
 	/// Set the note velocity
-	void set_velocity(float velocity) {
-		if (velocity > 1.0) {
+	void set_velocity( float velocity )
+	{
+		if ( velocity > 1.0 ) {
 			velocity = 1.0;
-		}
-		else if (velocity < 0) {
+		} else if ( velocity < 0 ) {
 			velocity = 0;
 		}
 		__velocity = velocity;
 	}
 
 
+	float get_pan_l() const
+	{
+		return __pan_l;
+	}
+	void set_pan_l( float pan )
+	{
+		if ( pan > 0.5 ) {
+			INFOLOG( "Pan R > 0.5" );
+			pan = 0.5;
+		}
+		__pan_l = pan;
+	}
+
+	float get_pan_r() const
+	{
+		return __pan_r;
+	}
+	void set_pan_r( float pan )
+	{
+		if ( pan > 0.5 ) {
+			INFOLOG( "Pan R > 0.5" );
+			pan = 0.5;
+		}
+		__pan_r = pan;
+	}
+
+
+	void set_lenght( int lenght )
+	{
+		__lenght = lenght;
+	}
+	int get_lenght() const
+	{
+		return __lenght;
+	}
+
+	void set_pitch( float pitch )
+	{
+		__pitch = pitch;
+	}
+	float get_pitch() const
+	{
+		return __pitch;
+	}
+
+
 private:
 	Instrument* __instrument;
-	unsigned __position;	///< Note position inside the pattern
+	unsigned __position;		///< Note position inside the pattern
 	float __velocity;		///< Velocity (intensity) of the note [0..1]
+	float __pan_l;			///< Pan of the note (left volume) [0..1]
+	float __pan_r;			///< Pan of the note (right volume) [0..1]
+
+	int __lenght;
+	float __pitch;
+
 };
 
 };
