@@ -101,7 +101,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	assert( nFX < MAX_FX );
 	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + toString( nFX ) );
 
-	AudioEngine::getInstance()->lock("Effects::setLadspaFX");
+	AudioEngine::get_instance()->lock("Effects::setLadspaFX");
 
 
 	if ( m_FXList[ nFX ] ) {
@@ -111,7 +111,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 
 	m_FXList[ nFX ] = pFX;
 
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 }
 
 

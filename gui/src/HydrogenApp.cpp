@@ -212,7 +212,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 
 	// HELP BROWSER
-	string sDocPath = string( DataPath::getDataPath() ) + "/doc";
+	string sDocPath = string( DataPath::get_data_path() ) + "/doc";
 	string sDocURI = sDocPath + "/manual.html";
 	m_pHelpBrowser = new SimpleHTMLBrowser( NULL, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
@@ -301,7 +301,7 @@ void HydrogenApp::showAudioEngineInfoForm()
 
 void HydrogenApp::showInfoSplash()
 {
-	QString sDocPath( DataPath::getDataPath().append( "/doc/infoSplash" ).c_str() );
+	QString sDocPath( DataPath::get_data_path().append( "/doc/infoSplash" ).c_str() );
 
 	QDir dir(sDocPath);
 	if ( !dir.exists() ) {
@@ -347,10 +347,10 @@ void HydrogenApp::showInfoSplash()
 
 void HydrogenApp::onEventQueueTimer()
 {
-	EventQueue *pQueue = EventQueue::getInstance();
+	EventQueue *pQueue = EventQueue::get_instance();
 
 	Event event;
-	while ( ( event = pQueue->popEvent() ).m_type != EVENT_NONE ) {
+	while ( ( event = pQueue->pop_event() ).m_type != EVENT_NONE ) {
 		for (int i = 0; i < (int)m_eventListeners.size(); i++ ) {
 			EventListener *pListener = m_eventListeners[ i ];
 

@@ -61,7 +61,7 @@ Preferences* Preferences::getInstance()
 
 Preferences::Preferences()
  : Object( "Preferences" )
- , demoPath( string(DataPath::getDataPath()) + "/demo_songs/" )
+ , demoPath( string(DataPath::get_data_path()) + "/demo_songs/" )
  , m_sLastNews( "" )
 {
 	INFOLOG( "INIT" );
@@ -137,7 +137,7 @@ void Preferences::loadPreferences( bool bGlobal )
 	string sPreferencesFilename;
 	string sDataDirectory;
 	if ( bGlobal ) {
-		sPreferencesDirectory = string(DataPath::getDataPath());
+		sPreferencesDirectory = string(DataPath::get_data_path());
 		sPreferencesFilename = sPreferencesDirectory + "/hydrogen.default.conf";
 		INFOLOG( "Loading preferences file (GLOBAL) [" + sPreferencesFilename + "]" );
 	}

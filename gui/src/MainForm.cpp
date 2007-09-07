@@ -602,7 +602,7 @@ void MainForm::action_window_showSongEditor()
 
 void MainForm::action_instruments_addInstrument()
 {
-	AudioEngine::getInstance()->lock("MainForm::action_instruments_addInstrument");
+	AudioEngine::get_instance()->lock("MainForm::action_instruments_addInstrument");
 	InstrumentList* pList = Hydrogen::getInstance()->getSong()->getInstrumentList();
 
 	// create a new valid ID for this instrument
@@ -617,7 +617,7 @@ void MainForm::action_instruments_addInstrument()
 
 	Instrument *pNewInstr = new Instrument(toString( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	Hydrogen::getInstance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
 
@@ -646,7 +646,7 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all layers
-	AudioEngine::getInstance()->lock("MainForm::action_instruments_clearAll");
+	AudioEngine::get_instance()->lock("MainForm::action_instruments_clearAll");
 	Song *pSong = Hydrogen::getInstance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
 	for (uint i = 0; i < pList->get_size(); i++) {
@@ -659,8 +659,8 @@ void MainForm::action_instruments_clearAll()
 			pInstr->set_layer( NULL, nLayer );
 		}
 	}
-	AudioEngine::getInstance()->unlock();
-	EventQueue::getInstance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	AudioEngine::get_instance()->unlock();
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 
@@ -849,13 +849,13 @@ void MainForm::onRestartAccelEvent()
 void MainForm::onBPMPlusAccelEvent()
 {
 	Hydrogen* pEngine = ( Hydrogen::getInstance() );
-	AudioEngine::getInstance()->lock( "MainForm::onBPMPlusAccelEvent" );
+	AudioEngine::get_instance()->lock( "MainForm::onBPMPlusAccelEvent" );
 
 	Song* pSong = pEngine->getSong();
 	if (pSong->m_fBPM  < 300) {
 		pEngine->setBPM( pSong->m_fBPM + 0.1 );
 	}
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 }
 
 
@@ -863,13 +863,13 @@ void MainForm::onBPMPlusAccelEvent()
 void MainForm::onBPMMinusAccelEvent()
 {
 	Hydrogen* pEngine = ( Hydrogen::getInstance() );
-	AudioEngine::getInstance()->lock( "MainForm::onBPMMinusAccelEvent" );
+	AudioEngine::get_instance()->lock( "MainForm::onBPMMinusAccelEvent" );
 
 	Song* pSong = pEngine->getSong();
 	if (pSong->m_fBPM > 40 ) {
 		pEngine->setBPM( pSong->m_fBPM - 0.1 );
 	}
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 }
 
 

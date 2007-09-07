@@ -161,7 +161,7 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	vector<string> systemList = Drumkit::getSystemDrumkitList();
 	for (uint i = 0; i < systemList.size(); i++) {
-		string absPath = DataPath::getDataPath() + "/drumkits/" + systemList[i];
+		string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_systemDrumkitInfoList.push_back( pInfo );
@@ -215,7 +215,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		Instrument *pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
 		pInstrument->set_muted( false );
 
-		AudioEngine::getInstance()->getSampler()->preview_instrument( pInstrument );
+		AudioEngine::get_instance()->get_sampler()->preview_instrument( pInstrument );
 	}
 }
 

@@ -783,7 +783,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 
 	resizeEvent( NULL );
 
-	EventQueue::getInstance()->pushEvent( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
 
@@ -793,7 +793,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 	Hydrogen *engine = Hydrogen::getInstance();
 	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
 
-	AudioEngine::getInstance()->lock( "PatternEditorPanel::moveUpBtnClicked" );
+	AudioEngine::get_instance()->lock( "PatternEditorPanel::moveUpBtnClicked" );
 
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
@@ -817,13 +817,13 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 			pSeq2->m_noteList = noteList;
 		}
 */
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
 		pSong->m_bIsModified = true;
 	}
 	else {
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 }
 
@@ -834,7 +834,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	Hydrogen *engine = Hydrogen::getInstance();
 	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
 
-	AudioEngine::getInstance()->lock( "PatternEditorPanel::moveDownBtnClicked" );
+	AudioEngine::get_instance()->lock( "PatternEditorPanel::moveDownBtnClicked" );
 
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
@@ -858,13 +858,13 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 			pSeq2->m_noteList = noteList;
 		}
 */
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
 		pSong->m_bIsModified = true;
 	}
 	else {
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 
 }

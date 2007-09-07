@@ -169,7 +169,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		Song *pSong = Hydrogen::getInstance()->getSong();
 		Instrument *pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
-		AudioEngine::getInstance()->getSampler()->note_on(pNote);
+		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
@@ -200,7 +200,7 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 
 void InstrumentLine::functionClearNotes()
 {
-	AudioEngine::getInstance()->lock("InstrumentLine::functionClearNotes");	// lock the audio engine
+	AudioEngine::get_instance()->lock("InstrumentLine::functionClearNotes");	// lock the audio engine
 
 	Pattern *pCurrentPattern = getCurrentPattern();
 
@@ -218,10 +218,10 @@ void InstrumentLine::functionClearNotes()
 		delete pNote;
 		pCurrentPattern->m_noteMap.erase( pos );
 	}
-	AudioEngine::getInstance()->unlock();	// unlock the audio engine
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	// this will force an update...
-	EventQueue::getInstance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 
@@ -249,7 +249,7 @@ void InstrumentLine::functionFillNotes()
 	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
 
 
-	AudioEngine::getInstance()->lock("PatternEditorInstrumentList::functionFillNotes");	// lock the audio engine
+	AudioEngine::get_instance()->lock("PatternEditorInstrumentList::functionFillNotes");	// lock the audio engine
 
 
 	Song *pSong = pEngine->getSong();
@@ -284,10 +284,10 @@ void InstrumentLine::functionFillNotes()
 			}
 		}
 	}
-	AudioEngine::getInstance()->unlock();	// unlock the audio engine
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	// this will force an update...
-	EventQueue::getInstance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 
@@ -339,7 +339,7 @@ void InstrumentLine::functionRandomizeVelocity()
 void InstrumentLine::functionDeleteInstrument()
 {
 	Hydrogen *pEngine = Hydrogen::getInstance();
-	AudioEngine::getInstance()->lock("InstrumentLine::functionDeleteInstrument");
+	AudioEngine::get_instance()->lock("InstrumentLine::functionDeleteInstrument");
 	Instrument *pInstr = pEngine->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
 
 	// if the instrument was the last on the instruments list, select the next-last
@@ -368,13 +368,13 @@ void InstrumentLine::functionDeleteInstrument()
 	}
 
 	// stop all notes playing
-	AudioEngine::getInstance()->getSampler()->stop_playing_notes();
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 
 	delete pInstr;
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	// this will force an update...
-	EventQueue::getInstance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 
@@ -524,13 +524,13 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		AudioEngine::getInstance()->lock( "PatternEditorInstrumentList::dropEvent" );
+		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
 
 		Song *pSong = engine->getSong();
 		InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 		if ( ( nTargetInstrument > pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
-			AudioEngine::getInstance()->unlock();
+			AudioEngine::get_instance()->unlock();
 			event->acceptProposedAction();
 			return;
 		}
@@ -553,7 +553,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			}
 			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
 		}
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nTargetInstrument );
 
 		pSong->m_bIsModified = true;
@@ -581,9 +581,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		pNewInstrument->set_id( toString( nID ) );
 
-		AudioEngine::getInstance()->lock( "PatternEditorInstrumentList::dropEvent" );
+		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
 		pEngine->getSong()->getInstrumentList()->add( pNewInstrument );
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 
 		// select the new instrument
 		pEngine->setSelectedInstrumentNumber( pEngine->getSong()->getInstrumentList()->get_size() - 1 );

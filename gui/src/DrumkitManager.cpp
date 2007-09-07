@@ -110,7 +110,7 @@ void OldDrumkitManager::updateDrumkitList()
 
 	vector<string> systemList = Drumkit::getSystemDrumkitList();
 	for (uint i = 0; i < systemList.size(); i++) {
-		string absPath = DataPath::getDataPath() + "/drumkits/" + systemList[i];
+		string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );

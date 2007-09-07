@@ -44,7 +44,7 @@ MidiInput::~MidiInput()
 
 void MidiInput::handleMidiMessage(const MidiMessage& msg)
 {
-	EventQueue::getInstance()->pushEvent( EVENT_MIDI_ACTIVITY, -1 );
+	EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
 //	infoLog( "[handleMidiMessage]" );
 //	infoLog( "[handleMidiMessage] channel: " + toString( msg.m_nChannel ) );

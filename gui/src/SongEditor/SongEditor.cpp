@@ -100,14 +100,14 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 
 	if ( ev->key() == Qt::Key_Delete ) {
 		if ( m_selectedCells.size() != 0 ) {
-			AudioEngine::getInstance()->lock( "SongEditor::keyPressEvent" );
+			AudioEngine::get_instance()->lock( "SongEditor::keyPressEvent" );
 			// delete all selected cells
 			for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
 				QPoint cell = m_selectedCells[ i ];
 				PatternList* pColumn = (*pColumns)[ cell.x() ];
 				pColumn->del(pPatternList->get( cell.y() ) );
 			}
-			AudioEngine::getInstance()->unlock();
+			AudioEngine::get_instance()->unlock();
 
 			m_selectedCells.clear();
 			m_bSequenceChanged = true;
@@ -145,7 +145,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 	// don't lock the audio driver before checking that...
 	if ( nRow >= (int)pPatternList->getSize() || nRow < 0 || nColumn < 0 ) { return; }
-	AudioEngine::getInstance()->lock( "SongEditor::mousePressEvent" );
+	AudioEngine::get_instance()->lock( "SongEditor::mousePressEvent" );
 
 
 	SongEditorActionMode actionMode = HydrogenApp::getInstance()->getSongEditorPanel()->getActionMode();
@@ -239,7 +239,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		pSong->m_bIsModified = true;
 	}
 
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	// update
 	m_bSequenceChanged = true;
@@ -345,7 +345,7 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 	vector<PatternList*>* pColumns = pEngine->getSong()->getPatternGroupVector();
 
 	if ( m_bIsMoving ) {	// fine dello spostamento dei pattern
-		AudioEngine::getInstance()->lock( "SongEditor::mouseReleaseEvent" );
+		AudioEngine::get_instance()->lock( "SongEditor::mouseReleaseEvent" );
 		// create the new patterns
 		for ( uint i = 0; i < m_movingCells.size(); i++ ) {
 			QPoint cell = m_movingCells[ i ];
@@ -402,7 +402,7 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 
 
 		pEngine->getSong()->m_bIsModified = true;
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 
 		m_bIsMoving = false;
 		m_movingCells.clear();
@@ -895,7 +895,7 @@ void SongEditorPatternList::patternPopup_properties()
 		Hydrogen *engine = Hydrogen::getInstance();
 		Song *song = engine->getSong();
 		song->m_bIsModified = true;
-		EventQueue::getInstance()->pushEvent( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 		createBackground();
 		update();
 	}
@@ -921,7 +921,7 @@ void SongEditorPatternList::patternPopup_delete()
 		pEngine->sequencer_setNextPattern( -1, false, false );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
 	}
 
-	AudioEngine::getInstance()->lock( "SongEditorPatternList::patternPopup_delete" );
+	AudioEngine::get_instance()->lock( "SongEditorPatternList::patternPopup_delete" );
 
 	Song *song = pEngine->getSong();
 	PatternList *pSongPatternList = song->getPatternList();
@@ -982,7 +982,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 	song->m_bIsModified = true;
 
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	( HydrogenApp::getInstance() )->getSongEditorPanel()->updateAll();
 }
@@ -1043,7 +1043,7 @@ void SongEditorPatternList::fillRangeWithPattern(FillRange* pRange, int nPattern
 {
 
 	Hydrogen *pEngine = Hydrogen::getInstance();
-	AudioEngine::getInstance()->lock( "SongEditorPatternList::fillRangeWithPattern" );
+	AudioEngine::get_instance()->lock( "SongEditorPatternList::fillRangeWithPattern" );
 
 
 	Song *pSong = pEngine->getSong();
@@ -1107,7 +1107,7 @@ void SongEditorPatternList::fillRangeWithPattern(FillRange* pRange, int nPattern
 				break;
 			}
 		}
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 
 	// Update

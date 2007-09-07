@@ -20,9 +20,9 @@ int main( int argc, char* argv[] )
 
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::getInstance();
 
-	H2Core::AudioEngine *pEngine = H2Core::AudioEngine::getInstance();
+	H2Core::AudioEngine *pEngine = H2Core::AudioEngine::get_instance();
 
-	H2Core::Synth *pSynth = pEngine->getSynth();
+	H2Core::Synth *pSynth = pEngine->get_synth();
 
 
 
@@ -57,8 +57,8 @@ int main( int argc, char* argv[] )
 				cout << endl << "shutdown..." << endl;
 				pHydrogen->sequencer_stop();
 
-				delete H2Core::AudioEngine::getInstance();
-				delete H2Core::EventQueue::getInstance();
+				delete H2Core::AudioEngine::get_instance();
+				delete H2Core::EventQueue::get_instance();
 				delete H2Core::Preferences::getInstance();
 				delete Logger::getInstance();
 

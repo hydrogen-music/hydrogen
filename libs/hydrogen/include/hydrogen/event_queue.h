@@ -53,23 +53,25 @@ public:
 	int m_nValue;
 };
 
-
+///
+/// Event queue: is the way the engine talks to the GUI
+///
 class EventQueue : public Object
 {
 public:
-	static EventQueue* getInstance();
+	static EventQueue* get_instance();
 	~EventQueue();
 
-	void pushEvent( EventType type, int nValue );
-	Event popEvent();
+	void push_event( EventType type, int nValue );
+	Event pop_event();
 
 private:
 	EventQueue();
-	static EventQueue *m_pInstance;
+	static EventQueue *__instance;
 
-	int m_nReadIndex;
-	int m_nWriteIndex;
-	Event m_eventsBuffer[ MAX_EVENTS ];
+	int __read_index;
+	int __write_index;
+	Event __events_buffer[ MAX_EVENTS ];
 };
 
 };

@@ -513,9 +513,9 @@ void PlayerControl::bpmChanged() {
 
 	m_pEngine->getSong()->m_bIsModified = true;
 
-	AudioEngine::getInstance()->lock("PlayerControl::bpmChanged");
+	AudioEngine::get_instance()->lock("PlayerControl::bpmChanged");
 	m_pEngine->setBPM( fNewBpmValue );
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 }
 
 
@@ -525,15 +525,15 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	Preferences *pPref = Preferences::getInstance();
 
 	if (m_pJackTransportBtn->isPressed()) {
-		AudioEngine::getInstance()->lock( "PlayerControl::jackTransportBtnClicked" );
+		AudioEngine::get_instance()->lock( "PlayerControl::jackTransportBtnClicked" );
 		pPref->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Jack-transport mode = On"), 5000);
 	}
 	else {
-		AudioEngine::getInstance()->lock( "PlayerControl::jackTransportBtnClicked" );
+		AudioEngine::get_instance()->lock( "PlayerControl::jackTransportBtnClicked" );
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Jack-transport mode = Off"), 5000);
 	}
 
@@ -554,9 +554,9 @@ void PlayerControl::bpmClicked()
 
 		m_pEngine->getSong()->m_bIsModified  = true;
 
-		AudioEngine::getInstance()->lock( "PlayerControl::bpmChanged");
+		AudioEngine::get_instance()->lock( "PlayerControl::bpmChanged");
 		m_pEngine->setBPM( fNewVal );
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 	else {
 		// user entered nothing or pressed Cancel

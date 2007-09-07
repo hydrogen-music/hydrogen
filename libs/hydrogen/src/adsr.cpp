@@ -35,19 +35,19 @@ inline static float linear_interpolation( float fVal_A, float fVal_B, float fVal
 
 
 ADSR::ADSR(
-		float fAttack,
-		float fDecay,
-		float fSustain,
-		float fRelease
+		float attack,
+		float decay,
+		float sustain,
+		float release
 )
  : Object( "ADSR" )
- , m_fAttack( fAttack )
- , m_fDecay( fDecay )
- , m_fSustain( fSustain )
- , m_fRelease( fRelease )
- , m_state( ATTACK )
- , m_fTicks( 0.0 )
- , m_fValue( 0.0 )
+ , __attack( attack )
+ , __decay( decay )
+ , __sustain( sustain )
+ , __release( release )
+ , __state( ATTACK )
+ , __ticks( 0.0 )
+ , __value( 0.0 )
 {
 	//INFOLOG( "INIT" );
 }
@@ -56,13 +56,13 @@ ADSR::ADSR(
 
 ADSR::ADSR( const ADSR& orig )
  : Object( "ADSR" )
- , m_fAttack( orig.m_fAttack )
- , m_fDecay( orig.m_fDecay )
- , m_fSustain( orig.m_fSustain )
- , m_fRelease( orig.m_fRelease )
- , m_state( orig.m_state )
- , m_fTicks( orig.m_fTicks )
- , m_fValue( orig.m_fValue )
+ , __attack( orig.__attack )
+ , __decay( orig.__decay )
+ , __sustain( orig.__sustain )
+ , __release( orig.__release )
+ , __state( orig.__state )
+ , __ticks( orig.__ticks )
+ , __value( orig.__value )
 {
 	//INFOLOG( "INIT - copy ctr" );
 }
@@ -75,64 +75,64 @@ ADSR::~ADSR()
 }
 
 
-float ADSR::getValue( float fStep )
+float ADSR::get_value( float step )
 {
-	switch ( m_state ) {
+	switch ( __state ) {
 		case ATTACK:
-			if ( m_fAttack == 0 ) {
-				m_fValue = 1.0;
+			if ( __attack == 0 ) {
+				__value = 1.0;
 			}
 			else {
-				m_fValue = getTableValue ( linear_interpolation( 0.0, 1.0, ( m_fTicks * 1.0 / m_fAttack ) ), tableExponentConvex, tableExponentConvexSize );
+				__value = getTableValue ( linear_interpolation( 0.0, 1.0, ( __ticks * 1.0 / __attack ) ), tableExponentConvex, tableExponentConvexSize );
 			}
 
-			m_fTicks += fStep;
-			if ( m_fTicks > m_fAttack ) {
-				m_state = DECAY;
-				m_fTicks = 0;
+			__ticks += step;
+			if ( __ticks > __attack ) {
+				__state = DECAY;
+				__ticks = 0;
 			}
 			break;
 
 		case DECAY:
-			if ( m_fDecay == 0) {
-				m_fValue = m_fSustain;
+			if ( __decay == 0) {
+				__value = __sustain;
 			}
 			else {
-				m_fValue = getTableValue ( linear_interpolation( 1.0, m_fSustain, ( m_fTicks * 1.0 / m_fDecay ) ), tableExponentConcave, tableExponentConcaveSize );
+				__value = getTableValue ( linear_interpolation( 1.0, __sustain, ( __ticks * 1.0 / __decay ) ), tableExponentConcave, tableExponentConcaveSize );
 			}
 
-			m_fTicks += fStep;
-			if ( m_fTicks > m_fDecay ) {
-				m_state = SUSTAIN;
-				m_fTicks = 0;
+			__ticks += step;
+			if ( __ticks > __decay ) {
+				__state = SUSTAIN;
+				__ticks = 0;
 			}
 			break;
 
 		case SUSTAIN:
-			m_fValue = m_fSustain;
+			__value = __sustain;
 			break;
 
 		case RELEASE:
-			if ( m_fRelease == 0) {
-				m_fValue = 0.0;
+			if ( __release == 0) {
+				__value = 0.0;
 			}
 			else {
-				m_fValue = getTableValue ( linear_interpolation( m_fReleaseValue, 0.0, ( m_fTicks * 1.0 / m_fRelease ) ), tableExponentConcave, tableExponentConcaveSize );
+				__value = getTableValue ( linear_interpolation( __release_value, 0.0, ( __ticks * 1.0 / __release ) ), tableExponentConcave, tableExponentConcaveSize );
 			}
 
-			m_fTicks += fStep;
-			if ( m_fTicks > m_fRelease ) {
-				m_state = IDLE;
-				m_fTicks = 0;
+			__ticks += step;
+			if ( __ticks > __release ) {
+				__state = IDLE;
+				__ticks = 0;
 			}
 			break;
 
 		case IDLE:
 		default:
-			m_fValue = 0;
+			__value = 0;
 	};
 
-	return m_fValue;
+	return __value;
 }
 
 
@@ -141,14 +141,14 @@ float ADSR::getValue( float fStep )
 ///
 float ADSR::release()
 {
-	if ( m_state == IDLE ) {
+	if ( __state == IDLE ) {
 		return 0;
 	}
 
-	if ( m_state != RELEASE ) {
-		m_fReleaseValue = m_fValue;
-		m_state = RELEASE;
-		return m_fReleaseValue;
+	if ( __state != RELEASE ) {
+		__release_value = __value;
+		__state = RELEASE;
+		return __release_value;
 	}
 
 	return 1;

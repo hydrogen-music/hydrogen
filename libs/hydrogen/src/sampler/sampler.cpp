@@ -62,7 +62,7 @@ Sampler::Sampler()
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
 	// instrument used in file preview
-	string sEmptySampleFilename = string( DataPath::getDataPath()) + "/emptySample.wav";
+	string sEmptySampleFilename = string( DataPath::get_data_path()) + "/emptySample.wav";
 	__preview_instrument = new Instrument( sEmptySampleFilename, "preview", new ADSR() );
 	__preview_instrument->set_volume(0.8);
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
@@ -346,7 +346,7 @@ int Sampler::__render_note_no_resample(
 			}
 		}
 
-		fADSRValue = pNote->m_adsr.getValue( 1 );
+		fADSRValue = pNote->m_adsr.get_value( 1 );
 		fVal_L = pSample_data_L[ nSamplePos ] * cost_L * fADSRValue;
 		fVal_R = pSample_data_R[ nSamplePos ] * cost_R * fADSRValue;
 
@@ -513,7 +513,7 @@ int Sampler::__render_note_resample(
 		}
 
 		// ADSR envelope
-		fADSRValue = pNote->m_adsr.getValue( fStep );
+		fADSRValue = pNote->m_adsr.get_value( fStep );
 		fVal_L = fVal_L * cost_L * fADSRValue;
 		fVal_R = fVal_R * cost_R * fADSRValue;
 
@@ -624,7 +624,7 @@ void Sampler::stop_playing_notes(Instrument* instrument)
 /// Preview, uses only the first layer
 void Sampler::preview_sample(Sample* sample)
 {
-	AudioEngine::getInstance()->lock( "Sampler::previewSample" );
+	AudioEngine::get_instance()->lock( "Sampler::previewSample" );
 
 	InstrumentLayer *pLayer = __preview_instrument->get_layer(0);
 
@@ -637,14 +637,14 @@ void Sampler::preview_sample(Sample* sample)
 	stop_playing_notes(__preview_instrument);
 	note_on(previewNote);
 
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 }
 
 
 
 void Sampler::preview_instrument(Instrument* instr)
 {
-	AudioEngine::getInstance()->lock( "Sampler::previewInstrument" );
+	AudioEngine::get_instance()->lock( "Sampler::previewInstrument" );
 
 	stop_playing_notes(__preview_instrument);
 
@@ -654,7 +654,7 @@ void Sampler::preview_instrument(Instrument* instr)
 	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
 	note_on(previewNote);	// exclusive note
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 }
 
 

@@ -361,7 +361,7 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 	Hydrogen *pEngine = Hydrogen::getInstance();
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
-	AudioEngine::getInstance()->lock( "SongEditorPanel::m_pUpBtnClicked" );
+	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pUpBtnClicked" );
 	Song *pSong = pEngine->getSong();
 	PatternList *pList = pSong->getPatternList();
 
@@ -369,14 +369,14 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 		Pattern *pTemp = pList->get( nSelectedPatternPos - 1 );
 		pList->replace( pList->get( nSelectedPatternPos ), nSelectedPatternPos - 1 );
 		pList->replace( pTemp, nSelectedPatternPos );
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		pEngine->setSelectedPatternNumber( nSelectedPatternPos - 1 );
 
 		updateAll();
 		pSong->m_bIsModified = true;
 	}
 	else {
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 }
 
@@ -391,7 +391,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Hydrogen *pEngine = Hydrogen::getInstance();
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
-	AudioEngine::getInstance()->lock( "SongEditorPanel::m_pDownBtnClicked" );
+	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pDownBtnClicked" );
 	Song *pSong = pEngine->getSong();
 	PatternList *pList = pSong->getPatternList();
 
@@ -400,14 +400,14 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 		pList->replace( pList->get( nSelectedPatternPos ), nSelectedPatternPos + 1 );
 		pList->replace( pTemp, nSelectedPatternPos );
 
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		pEngine->setSelectedPatternNumber( nSelectedPatternPos + 1 );
 
 		updateAll();
 		pSong->m_bIsModified = true;
 	}
 	else {
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 }
 
@@ -425,7 +425,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 
 	Hydrogen *engine = Hydrogen::getInstance();
 
-	AudioEngine::getInstance()->lock( "SongEditorPanel::clearSequence" );
+	AudioEngine::get_instance()->lock( "SongEditorPanel::clearSequence" );
 
 	Song *song = engine->getSong();
 	vector<PatternList*> *pPatternGroupsVect = song->getPatternGroupVector();
@@ -436,7 +436,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 	}
 	pPatternGroupsVect->clear();
 
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	updateAll();
 	song->m_bIsModified = true;

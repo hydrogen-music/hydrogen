@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	string filename = argv[1];
 
 	H2Core::Preferences *preferences = H2Core::Preferences::getInstance();
-	H2Core::AudioEngine::getInstance();
+	H2Core::AudioEngine::get_instance();
 
 	H2Core::Song *pSong = H2Core::Song::load(filename);
 	if (pSong == NULL) {
@@ -97,8 +97,8 @@ int main(int argc, char** argv)
 
 				delete hydrogen;
 				delete pSong;
-				delete H2Core::EventQueue::getInstance();
-				delete H2Core::AudioEngine::getInstance();
+				delete H2Core::EventQueue::get_instance();
+				delete H2Core::AudioEngine::get_instance();
 				delete preferences;
 				delete Logger::getInstance();
 

@@ -177,7 +177,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
 	if (ev->button() == Qt::LeftButton ) {
 		m_bRightBtnPressed = false;
-		AudioEngine::getInstance()->lock( "DrumPatternEditor::mousePressEvent" );	// lock the audio engine
+		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );	// lock the audio engine
 
 		bool bNoteAlreadyExist = false;
 		std::multimap <int, Note*>::iterator pos;
@@ -208,11 +208,11 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			Preferences *pref = Preferences::getInstance();
 			if ( pref->getHearNewNotes() ) {
 				Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-				AudioEngine::getInstance()->getSampler()->note_on(pNote2);
+				AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 			}
 		}
 		pSong->m_bIsModified = true;
-		AudioEngine::getInstance()->unlock(); // unlock the audio engine
+		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 	}
 	else if (ev->button() == Qt::RightButton ) {
 		m_bRightBtnPressed = true;
@@ -220,7 +220,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
 		int nRealColumn = (ev->x() - 20) /  (int)m_nGridWidth;
 
-		AudioEngine::getInstance()->lock( "DrumPatternEditor::mousePressEvent" );
+		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );
 
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->m_noteMap.lower_bound( nColumn ); pos != m_pPattern->m_noteMap.upper_bound( nColumn ); ++pos ) {
@@ -259,7 +259,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				}
 			}
 		}
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 
 	// update the selected line
@@ -307,7 +307,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 	if (m_bRightBtnPressed && m_pDraggedNote ) {
 		int nTickColumn = getColumn( ev );
 
-		AudioEngine::getInstance()->lock("DrumPatternEditor::mouseMoveEvent");	// lock the audio engine
+		AudioEngine::get_instance()->lock("DrumPatternEditor::mouseMoveEvent");	// lock the audio engine
 		int nLen = nTickColumn - (int)m_pDraggedNote->get_position();
 
 		if (nLen <= 0) {
@@ -316,7 +316,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_pDraggedNote->set_lenght( nLen );
 
 		Hydrogen::getInstance()->getSong()->m_bIsModified = true;
-		AudioEngine::getInstance()->unlock(); // unlock the audio engine
+		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		drawPattern();
 		update( 0, 0, width(), height() );

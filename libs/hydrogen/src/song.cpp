@@ -117,7 +117,7 @@ void Song::save( const std::string& filename )
 
 /// Return an empty song
 Song* Song::getEmptySong() {
-	string dataDir = DataPath::getDataPath();
+	string dataDir = DataPath::get_data_path();
 	string filename = dataDir + "/DefaultSong.h2song";
 	Song *song = Song::load( filename );
 

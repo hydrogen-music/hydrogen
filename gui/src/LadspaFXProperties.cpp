@@ -431,9 +431,9 @@ void LadspaFXProperties::activateBtnClicked()
 //	Song *pSong = (Hydrogen::getInstance() )->getSong();
 	LadspaFX *pFX = Effects::getInstance()->getLadspaFX(m_nLadspaFX);
 	if (pFX) {
-		AudioEngine::getInstance()->lock("LadspaFXProperties::activateBtnClicked");
+		AudioEngine::get_instance()->lock("LadspaFXProperties::activateBtnClicked");
 		pFX->setEnabled( !pFX->isEnabled() );
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 #endif
 }

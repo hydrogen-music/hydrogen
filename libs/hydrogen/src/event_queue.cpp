@@ -24,27 +24,27 @@
 
 namespace H2Core {
 
-EventQueue* EventQueue::m_pInstance = NULL;
+EventQueue* EventQueue::__instance = NULL;
 
-EventQueue* EventQueue::getInstance()
+EventQueue* EventQueue::get_instance()
 {
-	if ( !m_pInstance ) {
-		m_pInstance = new EventQueue();
+	if ( !__instance ) {
+		__instance = new EventQueue();
 	}
-	return m_pInstance;
+	return __instance;
 }
 
 
 EventQueue::EventQueue()
  : Object( "EventQueue" )
- , m_nReadIndex( 0 )
- , m_nWriteIndex( 0 )
+ , __read_index( 0 )
+ , __write_index( 0 )
 {
 //	infoLog( "INIT" );
 
 	for ( int i = 0; i < MAX_EVENTS; ++i ) {
-		m_eventsBuffer[ i ].m_type = EVENT_NONE;
-		m_eventsBuffer[ i ].m_nValue = 0;
+		__events_buffer[ i ].m_type = EVENT_NONE;
+		__events_buffer[ i ].m_nValue = 0;
 	}
 }
 
@@ -55,30 +55,30 @@ EventQueue::~EventQueue()
 }
 
 
-void EventQueue::pushEvent( EventType type, int nValue )
+void EventQueue::push_event( EventType type, int nValue )
 {
-	int nIndex = ++m_nWriteIndex;
+	int nIndex = ++__write_index;
 	nIndex = nIndex % MAX_EVENTS;
 //	infoLog( "[pushEvent] " + toString( nIndex ) );
 	Event ev;
 	ev.m_type = type;
 	ev.m_nValue = nValue;
-	m_eventsBuffer[ nIndex ] = ev;
+	__events_buffer[ nIndex ] = ev;
 }
 
 
-Event EventQueue::popEvent()
+Event EventQueue::pop_event()
 {
-	if ( m_nReadIndex == m_nWriteIndex ) {
+	if ( __read_index == __write_index ) {
 		Event ev;
 		ev.m_type = EVENT_NONE;
 		ev.m_nValue = 0;
 		return ev;
 	}
-	int nIndex = ++m_nReadIndex;
+	int nIndex = ++__read_index;
 	nIndex = nIndex % MAX_EVENTS;
 //	infoLog( "[popEvent] " + toString( nIndex ) );
-	return m_eventsBuffer[ nIndex ];
+	return __events_buffer[ nIndex ];
 }
 
 };

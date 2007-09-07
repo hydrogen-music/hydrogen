@@ -39,27 +39,27 @@ namespace H2Core
 class AudioEngine : public Object
 {
 public:
-	static AudioEngine* getInstance();
+	static AudioEngine* get_instance();
 	~AudioEngine();
 
-	void lock( const std::string& sLocker );
+	void lock( const std::string& locker );
 
 	/// Try to lock the mutex. Return true on success.
-	bool tryLock( const std::string& sLocker );
+	bool try_lock( const std::string& locker );
 	void unlock();
 
-	Sampler* getSampler();
-	Synth* getSynth();
+	Sampler* get_sampler();
+	Synth* get_synth();
 
 private:
-	static AudioEngine* m_pInstance;
+	static AudioEngine* __instance;
 
-	Sampler* m_pSampler;
-	Synth* m_pSynth;
+	Sampler* __sampler;
+	Synth* __synth;
 
 	/// Mutex for syncronized access to the Song object and the AudioEngine.
-	pthread_mutex_t m_engineLock_mutex;
-	std::string m_sLocker;
+	pthread_mutex_t __engine_mutex;
+	std::string __locker;
 
 	AudioEngine();
 };

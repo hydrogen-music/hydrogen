@@ -138,7 +138,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
-	AudioEngine::getInstance()->lock( "LayerPreview::selectedInstrumentChangedEvent" );
+	AudioEngine::get_instance()->lock( "LayerPreview::selectedInstrumentChangedEvent" );
 	Song *pSong = Hydrogen::getInstance()->getSong();
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -157,7 +157,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = NULL;
 	}
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	// select the last valid layer
 	if ( m_pInstrument ) {
@@ -202,7 +202,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
 		note->set_instrument( m_pInstrument );
-		AudioEngine::getInstance()->getSampler()->note_on(note);
+		AudioEngine::get_instance()->get_sampler()->note_on(note);
 
 		for ( int i = 0; i < MAX_LAYERS; i++ ) {
 			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
@@ -227,7 +227,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 		if ( m_pInstrument->get_layer( m_nSelectedLayer ) ) {
 			Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLenght, fPitch );
-			AudioEngine::getInstance()->getSampler()->note_on(note);
+			AudioEngine::get_instance()->get_sampler()->note_on(note);
 		}
 
 		if ( pLayer ) {

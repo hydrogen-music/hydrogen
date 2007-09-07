@@ -33,7 +33,7 @@ class Skin
 	public:
 		static QString getImagePath() {
 			QString sSkin = "gray";
-			return QString( H2Core::DataPath::getDataPath().c_str() ).append( "/img/" ).append( sSkin );
+			return QString( H2Core::DataPath::get_data_path().c_str() ).append( "/img/" ).append( sSkin );
 		}
 
 };

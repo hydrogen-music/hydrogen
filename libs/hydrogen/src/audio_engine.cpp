@@ -31,29 +31,29 @@
 namespace H2Core {
 
 
-AudioEngine* AudioEngine::m_pInstance = NULL;
+AudioEngine* AudioEngine::__instance = NULL;
 
 
 
-AudioEngine* AudioEngine::getInstance()
+AudioEngine* AudioEngine::get_instance()
 {
-	if ( m_pInstance == NULL ) {
-		m_pInstance = new AudioEngine();
+	if ( __instance == NULL ) {
+		__instance = new AudioEngine();
 	}
-	return m_pInstance;
+	return __instance;
 }
 
 
 
 AudioEngine::AudioEngine()
  : Object( "AudioEngine" )
- , m_pSampler( NULL )
- , m_pSynth( NULL )
- , m_sLocker( "" )
+ , __sampler( NULL )
+ , __synth( NULL )
+ , __locker( "" )
 {
 	INFOLOG( "INIT");
 
-	pthread_mutex_init( &m_engineLock_mutex, NULL );
+	pthread_mutex_init( &__engine_mutex, NULL );
 
 #ifdef LADSPA_SUPPORT
 	Effects::getInstance();
@@ -72,57 +72,57 @@ AudioEngine::~AudioEngine()
 #endif
 
 	delete Sequencer::getInstance();
-	delete m_pSampler;
-	delete m_pSynth;
+	delete __sampler;
+	delete __synth;
 }
 
 
 
-Sampler* AudioEngine::getSampler()
+Sampler* AudioEngine::get_sampler()
 {
-	if ( !m_pSampler ) {
-		m_pSampler = new Sampler();
+	if ( !__sampler ) {
+		__sampler = new Sampler();
 	}
 
-	return m_pSampler;
+	return __sampler;
 }
 
 
 
 
-Synth* AudioEngine::getSynth()
+Synth* AudioEngine::get_synth()
 {
-	if ( !m_pSynth ) {
-		m_pSynth = new Synth();
+	if ( !__synth ) {
+		__synth = new Synth();
 	}
 
-	return m_pSynth;
+	return __synth;
 }
 
 
 
 
-void AudioEngine::lock( const std::string& sLocker )
+void AudioEngine::lock( const std::string& locker )
 {
-	int res = pthread_mutex_trylock( &m_engineLock_mutex );
+	int res = pthread_mutex_trylock( &__engine_mutex );
 	if (res != 0) {
-		WARNINGLOG( "trylock != 0. Lock in " + m_sLocker + ". I'll wait for the mutex." );
-		pthread_mutex_lock(&m_engineLock_mutex);
+		WARNINGLOG( "trylock != 0. Lock in " + __locker + ". I'll wait for the mutex." );
+		pthread_mutex_lock(&__engine_mutex);
 	}
 
-	m_sLocker = sLocker;
+	__locker = locker;
 }
 
 
 
-bool AudioEngine::tryLock( const std::string& sLocker )
+bool AudioEngine::try_lock( const std::string& locker )
 {
-	int res = pthread_mutex_trylock( &m_engineLock_mutex );
+	int res = pthread_mutex_trylock( &__engine_mutex );
 	if (res != 0) {
-		WARNINGLOG( "trylock != 0. Lock in " + m_sLocker );
+		WARNINGLOG( "trylock != 0. Lock in " + __locker );
 		return false;
 	}
-	m_sLocker = sLocker;
+	__locker = locker;
 
 	return true;
 }
@@ -131,7 +131,7 @@ bool AudioEngine::tryLock( const std::string& sLocker )
 
 void AudioEngine::unlock()
 {
-	pthread_mutex_unlock(&m_engineLock_mutex);
+	pthread_mutex_unlock(&__engine_mutex);
 }
 
 

@@ -76,11 +76,11 @@ void* diskWriterDriver_thread(void* param)
 			assert( nCurrentPatternPos != -1 );
 
 			float fPercent = (float) nCurrentPatternPos / (float)nPatterns * 100.0;
-			EventQueue::getInstance()->pushEvent( EVENT_PROGRESS, (int)fPercent );
+			EventQueue::get_instance()->push_event( EVENT_PROGRESS, (int)fPercent );
 			_INFOLOG( "DiskWriterDriver: " + toString( fPercent ) + "%, transport frames:" + toString( pDriver->m_transport.m_nFrames ) );
 		}
 	}
-	EventQueue::getInstance()->pushEvent( EVENT_PROGRESS, 100 );
+	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 
 	delete[] pData;
 	pData = NULL;

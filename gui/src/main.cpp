@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 		showInfo();
 
 		_INFOLOG( string("Using QT version ") + string( qVersion() ) );
-		_INFOLOG( "Using data path: " + H2Core::DataPath::getDataPath() );
+		_INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
 		if (sSelectedDriver == "auto") {
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 				_INFOLOG( "Using locale: " + sTranslationPath.toStdString() + "/" + sTranslationFile.toStdString() );
 			}
 			else {
-				sTranslationPath = QString( H2Core::DataPath::getDataPath().c_str() ) + "/i18n";
+				sTranslationPath = QString( H2Core::DataPath::get_data_path().c_str() ) + "/i18n";
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {
@@ -256,8 +256,8 @@ int main(int argc, char *argv[])
 		delete pMainForm;
 		delete pQApp;
 		delete pPref;
-		delete H2Core::EventQueue::getInstance();
-		delete H2Core::AudioEngine::getInstance();
+		delete H2Core::EventQueue::get_instance();
+		delete H2Core::AudioEngine::get_instance();
 
 		_INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;

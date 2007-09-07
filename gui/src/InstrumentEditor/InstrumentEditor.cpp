@@ -272,7 +272,7 @@ InstrumentEditor::~InstrumentEditor()
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	AudioEngine::getInstance()->lock( "InstrumentEditor::selectedInstrumentChanged" );
+	AudioEngine::get_instance()->lock( "InstrumentEditor::selectedInstrumentChanged" );
 
 	Song *pSong = Hydrogen::getInstance()->getSong();
 	if (pSong != NULL) {
@@ -293,17 +293,17 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = NULL;
 	}
-	AudioEngine::getInstance()->unlock();
+	AudioEngine::get_instance()->unlock();
 
 	// update layer list
 	if (m_pInstrument) {
 		m_pNameLbl->setText( QString( m_pInstrument->get_name().c_str() ) );
 
 		// ADSR
-		m_pAttackRotary->setValue( m_pInstrument->get_adsr()->m_fAttack / 10000.0 );
-		m_pDecayRotary->setValue( m_pInstrument->get_adsr()->m_fDecay / 10000.0 );
-		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->m_fSustain );
-		m_pReleaseRotary->setValue( m_pInstrument->get_adsr()->m_fRelease / 10000.0 );
+		m_pAttackRotary->setValue( m_pInstrument->get_adsr()->__attack / 10000.0 );
+		m_pDecayRotary->setValue( m_pInstrument->get_adsr()->__decay / 10000.0 );
+		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->__sustain );
+		m_pReleaseRotary->setValue( m_pInstrument->get_adsr()->__release / 10000.0 );
 		//~ ADSR
 
 		// filter
@@ -366,16 +366,16 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pInstrument->set_filter_resonance( fVal );
 		}
 		else if ( ref == m_pAttackRotary ) {
-			m_pInstrument->get_adsr()->m_fAttack = fVal * 10000;
+			m_pInstrument->get_adsr()->__attack = fVal * 10000;
 		}
 		else if ( ref == m_pDecayRotary ) {
-			m_pInstrument->get_adsr()->m_fDecay = fVal * 10000;
+			m_pInstrument->get_adsr()->__decay = fVal * 10000;
 		}
 		else if ( ref == m_pSustainRotary ) {
-			m_pInstrument->get_adsr()->m_fSustain = fVal;
+			m_pInstrument->get_adsr()->__sustain = fVal;
 		}
 		else if ( ref == m_pReleaseRotary ) {
-			m_pInstrument->get_adsr()->m_fRelease = fVal * 10000;
+			m_pInstrument->get_adsr()->__release = fVal * 10000;
 		}
 		else if ( ref == m_pLayerGainRotary ) {
 			fVal = fVal * 5.0;
@@ -460,7 +460,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 	}
 	else if ( pButton == m_pRemoveLayerBtn ) {
 		//Hydrogen *pEngine = Hydrogen::getInstance();
-		AudioEngine::getInstance()->lock( "InstrumentPropertiesDialog::deleteBtnClicked" );
+		AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::deleteBtnClicked" );
 
 		if ( m_pInstrument ) {
 			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
@@ -469,7 +469,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				delete pLayer;
 			}
 		}
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		selectedInstrumentChangedEvent();    // update all
 		m_pLayerPreview->updateAll();
 	}
@@ -509,7 +509,7 @@ void InstrumentEditor::loadLayer()
 
 		H2Core::Instrument *pInstr = NULL;
 
-		AudioEngine::getInstance()->lock( "InstrumentPropertiesDialog::browseBtnClicked" );
+		AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::browseBtnClicked" );
 		Song *song = engine->getSong();
 		InstrumentList *instrList = song->getInstrumentList();
 		pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
@@ -530,7 +530,7 @@ void InstrumentEditor::loadLayer()
 
 		pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
 
-		AudioEngine::getInstance()->unlock();
+		AudioEngine::get_instance()->unlock();
 	}
 
 	selectedInstrumentChangedEvent();    // update all
@@ -551,7 +551,7 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 			selectedInstrumentChangedEvent();
 
 			// this will force an update...
-			EventQueue::getInstance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+			EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 		}
 		else {

@@ -127,7 +127,7 @@ vector<string> LocalFileMng::getSystemDrumkitList()
 {
 	vector<string> list;
 
-	QString sDirectory = QString( DataPath::getDataPath().append( "/drumkits" ).c_str() );
+	QString sDirectory = QString( DataPath::get_data_path().append( "/drumkits" ).c_str() );
 	QDir dir(sDirectory);
 	if ( !dir.exists() ) {
 		WARNINGLOG( string( "Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
@@ -154,7 +154,7 @@ string LocalFileMng::getDrumkitDirectory( const std::string& drumkitName )
 	vector<string> systemDrumkits = Drumkit::getSystemDrumkitList();
 	for ( unsigned i = 0; i < systemDrumkits.size(); i++ ) {
 		if ( systemDrumkits[ i ] == drumkitName ) {
-			string path = string( DataPath::getDataPath() ) + "/drumkits/";
+			string path = string( DataPath::get_data_path() ) + "/drumkits/";
 			return path;
 		}
 	}
@@ -388,10 +388,10 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 		LocalFileMng::writeXmlString( &instrumentNode, "filterCutoff", toString( instr->get_filter_cutoff()) );
 		LocalFileMng::writeXmlString( &instrumentNode, "filterResonance", toString( instr->get_filter_resonance()) );
 
-		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->get_adsr()->m_fAttack ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->get_adsr()->m_fDecay ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->get_adsr()->m_fSustain ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->get_adsr()->m_fRelease ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->get_adsr()->__attack ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->get_adsr()->__decay ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->get_adsr()->__sustain ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->get_adsr()->__release ) );
 
 		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", toString( instr->get_mute_group()) );
 
@@ -650,10 +650,10 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 		LocalFileMng::writeXmlString( &instrumentNode, "FX4Level", toString( instr->get_fx_level( 3 ) ) );
 
 		assert( instr->get_adsr());
-		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->get_adsr()->m_fAttack ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->get_adsr()->m_fDecay ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->get_adsr()->m_fSustain ) );
-		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->get_adsr()->m_fRelease ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Attack", toString( instr->get_adsr()->__attack ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Decay", toString( instr->get_adsr()->__decay ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Sustain", toString( instr->get_adsr()->__sustain ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "Release", toString( instr->get_adsr()->__release ) );
 
 		LocalFileMng::writeXmlString( &instrumentNode, "randomPitchFactor", toString( instr->get_random_pitch_factor()) );
 

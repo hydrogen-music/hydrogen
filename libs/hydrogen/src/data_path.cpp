@@ -39,9 +39,9 @@ using namespace std;
 
 namespace H2Core {
 
-std::string DataPath::m_sDataPath = "";
+std::string DataPath::__data_path = "";
 
-std::string DataPath::getDataPath()
+std::string DataPath::get_data_path()
 {
 #ifdef Q_OS_MACX
 
@@ -66,17 +66,17 @@ std::string DataPath::getDataPath()
 	return std::string( qStringPath.toStdString() );
 
 #else
-	if ( m_sDataPath == "" ) {
+	if ( __data_path == "" ) {
 		QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
-		m_sDataPath = std::string( qStringPath.toStdString() );
+		__data_path = std::string( qStringPath.toStdString() );
 
-		QFile file( m_sDataPath.c_str() );
+		QFile file( __data_path.c_str() );
 		if ( !file.exists() ) {
 			// try using the system wide data dir
-			m_sDataPath = DATA_PATH;
+			__data_path = DATA_PATH;
 		}
 	}
-	return m_sDataPath;
+	return __data_path;
 #endif
 }
 

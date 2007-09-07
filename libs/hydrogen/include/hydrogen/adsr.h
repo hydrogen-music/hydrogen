@@ -34,23 +34,23 @@ namespace H2Core
 class ADSR : private Object
 {
 public:
-	float m_fAttack;		///< Attack time (in samples)
-	float m_fDecay;		///< Decay time (in samples)
-	float m_fSustain;		///< Sustain level
-	float m_fRelease;		///< Release time (in samples)
+	float __attack;		///< Attack time (in samples)
+	float __decay;		///< Decay time (in samples)
+	float __sustain;	///< Sustain level
+	float __release;	///< Release time (in samples)
 
 	ADSR(
-	    float fAttack = 0.0,
-	    float fDecay = 0.0,
-	    float fSustain = 1.0,
-	    float fRelease = 1000
+	    float attack = 0.0,
+	    float decay = 0.0,
+	    float sustain = 1.0,
+	    float release = 1000
 	);
 
 	ADSR( const ADSR& orig );
 
 	~ADSR();
 
-	float getValue( float fStep );
+	float get_value( float step );
 	float release();
 
 private:
@@ -62,10 +62,10 @@ private:
 	    IDLE
 	};
 
-	ADSRState m_state;
-	float m_fTicks;
-	float m_fValue;
-	float m_fReleaseValue;
+	ADSRState __state;
+	float __ticks;
+	float __value;
+	float __release_value;
 };
 
 };
