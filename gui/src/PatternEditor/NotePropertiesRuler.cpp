@@ -101,8 +101,8 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 	}
 	val = val / height();
 
-	int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
-	Song *pSong = (Hydrogen::getInstance())->getSong();
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	std::multimap <int, Note*>::iterator pos;
 	for ( pos = m_pPattern->m_noteMap.lower_bound( column ); pos != m_pPattern->m_noteMap.upper_bound( column ); ++pos ) {
@@ -282,8 +282,8 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	// draw velocity lines
 	if (m_pPattern != NULL) {
-		int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::getInstance()->getSong();
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		Song *pSong = Hydrogen::get_instance()->getSong();
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); ++pos ) {
 			Note *pNote = pos->second;
@@ -444,8 +444,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	}
 
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::getInstance()->getSong();
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); ++pos ) {
@@ -475,7 +475,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::updateEditor()
 {
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() ) ) {

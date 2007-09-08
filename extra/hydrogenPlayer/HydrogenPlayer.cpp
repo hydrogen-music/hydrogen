@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 		cout << "Error loading song!" << endl;
 	}
 
-	H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::getInstance();
+	H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::get_instance();
 	hydrogen->setSong(pSong);
 
 

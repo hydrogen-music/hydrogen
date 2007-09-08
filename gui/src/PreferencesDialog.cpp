@@ -194,8 +194,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// list midi output ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( "None" );
-	if ( Hydrogen::getInstance()->getMidiInput() ) {
-		vector<string> midiOutList = Hydrogen::getInstance()->getMidiInput()->getOutputPortList();
+	if ( Hydrogen::get_instance()->getMidiInput() ) {
+		vector<string> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
 			midiPortChannelComboBox->setEnabled( true );
@@ -346,7 +346,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->savePreferences();
 
 	if (m_bNeedDriverRestart) {
-		(Hydrogen::getInstance())->restartDrivers();
+		(Hydrogen::get_instance())->restartDrivers();
 	}
 	accept();
 }
@@ -518,7 +518,7 @@ void PreferencesDialog::on_sampleRateComboBox_editTextChanged( const QString&  )
 
 void PreferencesDialog::on_restartDriverBtn_clicked()
 {
-	Hydrogen::getInstance()->restartDrivers();
+	Hydrogen::get_instance()->restartDrivers();
 	m_bNeedDriverRestart = false;
 }
 

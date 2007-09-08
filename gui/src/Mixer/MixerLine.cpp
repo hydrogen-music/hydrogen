@@ -205,7 +205,7 @@ void MixerLine::updateMixerLine()
 
 
 void MixerLine::click(Button *ref) {
-	Song *song = (Hydrogen::getInstance())->getSong();
+	Song *song = (Hydrogen::get_instance())->getSong();
 
 	if (ref == m_pMuteBtn) {
 		song->m_bIsModified = true;
@@ -234,7 +234,7 @@ void MixerLine::rightClick(Button *ref)
 
 void MixerLine::faderChanged(Fader *ref)
 {
-	Song *song = (Hydrogen::getInstance())->getSong();
+	Song *song = (Hydrogen::get_instance())->getSong();
 	song->m_bIsModified = true;
 	emit volumeChanged(this);
 
@@ -362,7 +362,7 @@ void MixerLine::nameSelected() {
 
 void MixerLine::panChanged(Rotary *ref)
 {
-	Song *song = ( Hydrogen::getInstance() )->getSong();
+	Song *song = Hydrogen::get_instance()->getSong();
 	song->m_bIsModified = true;
 	emit panChanged( this );
 
@@ -537,7 +537,7 @@ MasterMixerLine::~MasterMixerLine()
 
 void MasterMixerLine::muteClicked(Button* pBtn)
 {
-	Hydrogen::getInstance()->getSong()->m_bIsMuted = pBtn->isPressed();
+	Hydrogen::get_instance()->getSong()->m_bIsMuted = pBtn->isPressed();
 }
 
 
@@ -548,7 +548,7 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 
 	emit volumeChanged(this);
 
-	Song *song = (Hydrogen::getInstance())->getSong();
+	Song *song = Hydrogen::get_instance()->getSong();
 	song->m_bIsModified = true;
 
 	char m_pMasterFaderPos[100];
@@ -659,7 +659,7 @@ void MasterMixerLine::updateMixerLine()
 	}
 	m_nPeakTimer++;
 
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong ) {
 		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
 		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
@@ -678,7 +678,7 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	char sVal[100];
 	sprintf( sVal, "%#.2f", fVal);
 
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock("MasterMixerLine::knobChanged");
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
@@ -782,7 +782,7 @@ FxMixerLine::~FxMixerLine()
 
 
 void FxMixerLine::click(Button *ref) {
-	Song *song = (Hydrogen::getInstance())->getSong();
+	Song *song = Hydrogen::get_instance()->getSong();
 
 	if (ref == activeBtn ) {
 		song->m_bIsModified = true;
@@ -808,7 +808,7 @@ void FxMixerLine::faderChanged(Fader *ref)
 	}
 
 
-	Song *song = ( Hydrogen::getInstance() )->getSong();
+	Song *song = Hydrogen::get_instance()->getSong();
 	song->m_bIsModified = true;
 	emit volumeChanged( this );
 
@@ -1086,7 +1086,7 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 //	sprintf(tmp, "%#.1f", fMaxPeak);
 //	m_pVolumeLbl->setText(tmp);
 
-	Song *song = (Hydrogen::getInstance())->getSong();
+	Song *song = Hydrogen::get_instance()->getSong();
 	song->m_bIsModified = true;
 	emit volumeChanged(this);
 }

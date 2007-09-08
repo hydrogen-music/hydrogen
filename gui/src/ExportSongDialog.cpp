@@ -46,7 +46,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	HydrogenApp::getInstance()->addEventListener( this );
 
-	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( Hydrogen::getInstance()->getAudioOutput()->getSampleRate() ) );
+	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() ) );
 	m_pProgressBar->setValue( 0 );
 }
 
@@ -73,7 +73,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd->setWindowTitle( trUtf8( "Export song" ) );
 //	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	QString defaultFilename( Hydrogen::getInstance()->getSong()->m_sName.c_str() );
+	QString defaultFilename( Hydrogen::get_instance()->getSong()->m_sName.c_str() );
 	defaultFilename.replace( '*', "_" );
 	defaultFilename += ".wav";
 
@@ -105,14 +105,14 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	QString filename = exportNameTxt->text();
 	m_bExporting = true;
-	Hydrogen::getInstance()->startExportSong( filename.toStdString() );
+	Hydrogen::get_instance()->startExportSong( filename.toStdString() );
 }
 
 
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
-	Hydrogen::getInstance()->stopExportSong();
+	Hydrogen::get_instance()->stopExportSong();
 	accept();
 	m_bExporting = false;
 }

@@ -127,7 +127,7 @@ void PianoRollEditor::selectedPatternChangedEvent()
 {
 	INFOLOG( "updating m_pPattern pointer" );
 
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() ) ) {
@@ -171,7 +171,7 @@ void PianoRollEditor::drawPattern()
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 {
 	int nInstrument = -1;
-	InstrumentList * pInstrList = Hydrogen::getInstance()->getSong()->getInstrumentList();
+	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
 		if ( pInstr == pNote->get_instrument() ) {
@@ -184,7 +184,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		return;
 	}
 
-	if ( nInstrument != Hydrogen::getInstance()->getSelectedInstrumentNumber() ) {
+	if ( nInstrument != Hydrogen::get_instance()->getSelectedInstrumentNumber() ) {
 		return;
 	}
 

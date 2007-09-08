@@ -48,7 +48,7 @@ class Hydrogen : public Object
 {
 public:
 	/// Return the Hydrogen instance
-	static Hydrogen* getInstance();
+	static Hydrogen* get_instance();
 
 	~Hydrogen();
 

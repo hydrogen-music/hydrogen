@@ -49,8 +49,8 @@ enum EventType {
 class Event
 {
 public:
-	EventType m_type;
-	int m_nValue;
+	EventType type;
+	int value;
 };
 
 ///

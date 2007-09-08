@@ -251,10 +251,10 @@ SongEditorPanel::~SongEditorPanel()
 
 void SongEditorPanel::updatePlayHeadPosition()
 {
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	if ( Preferences::getInstance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
-		if ( Hydrogen::getInstance()->getState() != STATE_PLAYING ) {
+		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
 			return;
 		}
 
@@ -264,7 +264,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 
 //		int x = m_pPositionRulerScrollView->contentsX();
 //		int w = m_pPositionRulerScrollView->visibleWidth();
-		int nPlayHeadPosition = Hydrogen::getInstance()->getPatternPos() * m_pSongEditor->getGridWidth();
+		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
 
 		if ( nPlayHeadPosition > ( x + w - 50 ) ) {
 			m_pEditorScrollView->horizontalScrollBar()->setValue( m_pEditorScrollView->horizontalScrollBar()->value() + 100 );
@@ -328,7 +328,7 @@ void SongEditorPanel::updateAll()
 void SongEditorPanel::newPatBtnClicked( Button* btn)
 {
 	UNUSED( btn );
-	Hydrogen *engine = Hydrogen::getInstance();
+	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->getPatternList();
 
@@ -358,7 +358,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 void SongEditorPanel::upBtnClicked( Button* btn )
 {
 	UNUSED( btn );
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pUpBtnClicked" );
@@ -388,7 +388,7 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 void SongEditorPanel::downBtnClicked( Button* btn )
 {
 	UNUSED( btn );
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pDownBtnClicked" );
@@ -423,7 +423,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 		return;
 	}
 
-	Hydrogen *engine = Hydrogen::getInstance();
+	Hydrogen *engine = Hydrogen::get_instance();
 
 	AudioEngine::get_instance()->lock( "SongEditorPanel::clearSequence" );
 

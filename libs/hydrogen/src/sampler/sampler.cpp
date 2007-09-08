@@ -163,7 +163,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	assert( pSong );
 
 	unsigned int nFramepos;
-	Hydrogen* pEngine = Hydrogen::getInstance();
+	Hydrogen* pEngine = Hydrogen::get_instance();
 	if (  pEngine->getState() == STATE_PLAYING ) {
 		nFramepos = __audio_output->m_transport.m_nFrames;
 	}

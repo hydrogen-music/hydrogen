@@ -110,7 +110,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
 	static int oldNTicks = 0;
 
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() )  ) {

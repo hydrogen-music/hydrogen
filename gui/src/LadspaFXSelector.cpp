@@ -66,7 +66,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pGroupsListView->setHeaderLabels( QStringList( trUtf8( "Groups" ) ) );
 
 #ifdef LADSPA_SUPPORT
-	//Song *pSong = Hydrogen::getInstance()->getSong();
+	//Song *pSong = Hydrogen::get_instance()->getSong();
 	LadspaFX *pFX = Effects::getInstance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();

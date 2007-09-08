@@ -43,8 +43,8 @@ EventQueue::EventQueue()
 //	infoLog( "INIT" );
 
 	for ( int i = 0; i < MAX_EVENTS; ++i ) {
-		__events_buffer[ i ].m_type = EVENT_NONE;
-		__events_buffer[ i ].m_nValue = 0;
+		__events_buffer[ i ].type = EVENT_NONE;
+		__events_buffer[ i ].value = 0;
 	}
 }
 
@@ -61,8 +61,8 @@ void EventQueue::push_event( EventType type, int nValue )
 	nIndex = nIndex % MAX_EVENTS;
 //	infoLog( "[pushEvent] " + toString( nIndex ) );
 	Event ev;
-	ev.m_type = type;
-	ev.m_nValue = nValue;
+	ev.type = type;
+	ev.value = nValue;
 	__events_buffer[ nIndex ] = ev;
 }
 
@@ -71,8 +71,8 @@ Event EventQueue::pop_event()
 {
 	if ( __read_index == __write_index ) {
 		Event ev;
-		ev.m_type = EVENT_NONE;
-		ev.m_nValue = 0;
+		ev.type = EVENT_NONE;
+		ev.value = 0;
 		return ev;
 	}
 	int nIndex = ++__read_index;

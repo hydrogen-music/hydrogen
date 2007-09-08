@@ -18,7 +18,7 @@ int main( int argc, char* argv[] )
 
 	Object::useVerboseLog( true );
 
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::getInstance();
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 
 	H2Core::AudioEngine *pEngine = H2Core::AudioEngine::get_instance();
 

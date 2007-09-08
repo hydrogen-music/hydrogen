@@ -137,7 +137,7 @@ void CpuLoadWidget::paintEvent( QPaintEvent*)
 void CpuLoadWidget::updateCpuLoadWidget()
 {
 	// Process time
-	H2Core::Hydrogen *engine = H2Core::Hydrogen::getInstance();
+	H2Core::Hydrogen *engine = H2Core::Hydrogen::get_instance();
 	int perc = 0;
 	if ( engine->getMaxProcessTime() != 0.0 ) {
 		perc = (int)( engine->getProcessTime() / ( engine->getMaxProcessTime() / 100.0 ) );

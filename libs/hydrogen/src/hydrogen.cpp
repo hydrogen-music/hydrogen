@@ -1611,7 +1611,7 @@ Hydrogen::~Hydrogen()
 
 
 /// Return the Hydrogen instance
-Hydrogen* Hydrogen::getInstance()
+Hydrogen* Hydrogen::get_instance()
 {
 	if (instance == NULL) {
 		instance = new Hydrogen();

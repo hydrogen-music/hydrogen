@@ -55,7 +55,7 @@ void jackDriverShutdown(void *arg)
 	UNUSED( arg );
 //	jackDriverInstance->deactivate();
 	jackDriverInstance->client = NULL;
-	Hydrogen::getInstance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
+	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
 
@@ -100,7 +100,7 @@ int JackOutput::connect()
 	INFOLOG( "connect" );
 
 	if (jack_activate (client)) {
-		Hydrogen::getInstance()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
+		Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
 		return 1;
 	}
 
@@ -115,13 +115,13 @@ int JackOutput::connect()
 		const char ** portnames = jack_get_ports ( client, NULL, NULL, JackPortIsInput);
 		if ( !portnames || !portnames[0] || !portnames[1] ) {
 			ERRORLOG("Could't locate two Jack input port");
-			Hydrogen::getInstance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
+			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
 		if ( jack_connect( client, jack_port_name( output_port_1 ), portnames[0]) != 0 ||
 			jack_connect( client, jack_port_name( output_port_2 ), portnames[1]) != 0 ) {
 			ERRORLOG("Could't connect to first pair of Jack input ports");
-			Hydrogen::getInstance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
+			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
 		free( portnames );
@@ -191,7 +191,7 @@ void JackOutput::calculateFrameOffset(){
 void JackOutput::relocateBBT(){
 	if ( m_transport.m_status != TransportInfo::ROLLING || !(m_JackTransportPos.valid & JackPositionBBT) /**the last check is *probably* redundant*/ ) return;
 
-	Hydrogen * H = Hydrogen::getInstance();
+	Hydrogen * H = Hydrogen::get_instance();
 	Song * S = H->getSong();
 
 	float hydrogen_TPB = (float)S->m_nResolution;
@@ -272,7 +272,7 @@ void JackOutput::updateTransportInfo(){
 
 				must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
 
-				// Hydrogen::getInstance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
+				// Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
 			}
 		}
 
@@ -416,7 +416,7 @@ int JackOutput::init(unsigned nBufferSize)
 	output_port_2 = jack_port_register ( client, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
 	if ( (output_port_1 == NULL) || ( output_port_2 == NULL ) ) {
-		( Hydrogen::getInstance() )->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
+		( Hydrogen::get_instance() )->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 		return 4;
 	}
 
@@ -477,7 +477,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr ) {
 			track_output_ports_L[m] = jack_port_register ( client, (chName + "L").c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			track_output_ports_R[m] = jack_port_register ( client, (chName + "R").c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			if (track_output_ports_R[n] == NULL || track_output_ports_L[n] == NULL) {
-				Hydrogen::getInstance()->raiseError(Hydrogen::JACK_ERROR_IN_PORT_REGISTER);
+				Hydrogen::get_instance()->raiseError(Hydrogen::JACK_ERROR_IN_PORT_REGISTER);
 			}
 		}
 		track_port_count = n + 1;

@@ -274,10 +274,10 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 {
 	AudioEngine::get_instance()->lock( "InstrumentEditor::selectedInstrumentChanged" );
 
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = Hydrogen::getInstance()->getSelectedInstrumentNumber();
+		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->get_size() ) {
 			nInstr = -1;
 		}
@@ -459,7 +459,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		loadLayer();
 	}
 	else if ( pButton == m_pRemoveLayerBtn ) {
-		//Hydrogen *pEngine = Hydrogen::getInstance();
+		//Hydrogen *pEngine = Hydrogen::get_instance();
 		AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::deleteBtnClicked" );
 
 		if ( m_pInstrument ) {
@@ -484,7 +484,7 @@ void InstrumentEditor::loadLayer()
 {
 	static QString lastUsedDir = QDir::homePath();
 
-	Hydrogen *engine = Hydrogen::getInstance();
+	Hydrogen *engine = Hydrogen::get_instance();
 	MainForm *pMainForm = HydrogenApp::getInstance()->getMainForm();
 
 	QFileDialog *fd = new QFileDialog( (QWidget*)pMainForm );

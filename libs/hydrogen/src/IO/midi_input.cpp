@@ -90,8 +90,8 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 
 		case MidiMessage::START:
 			INFOLOG( "START event" );
-			if ( Hydrogen::getInstance()->getState() != STATE_PLAYING ) {
-				Hydrogen::getInstance()->sequencer_play();
+			if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+				Hydrogen::get_instance()->sequencer_play();
 			}
 			break;
 
@@ -101,8 +101,8 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 
 		case MidiMessage::STOP:
 			INFOLOG( "STOP event" );
-			if ( Hydrogen::getInstance()->getState() == STATE_PLAYING ) {
-				Hydrogen::getInstance()->sequencer_stop();
+			if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+				Hydrogen::get_instance()->sequencer_stop();
 			}
 			break;
 
@@ -144,7 +144,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		bIsChannelValid = ( nChannel == nMidiChannelFilter );
 	}
 
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	bool bPatternSelect = false;
 
@@ -181,7 +181,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 		return;
 	}
 
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 
 	int nNote = msg.m_nData1;

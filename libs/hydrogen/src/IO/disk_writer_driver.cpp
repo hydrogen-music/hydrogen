@@ -71,8 +71,8 @@ void* diskWriterDriver_thread(void* param)
 		}
 
 		if ((pDriver->m_transport.m_nFrames % 65536) == 0) {
-			int nPatterns = Hydrogen::getInstance()->getSong()->getPatternGroupVector()->size();
-			int nCurrentPatternPos = Hydrogen::getInstance()->getPatternPos();
+			int nPatterns = Hydrogen::get_instance()->getSong()->getPatternGroupVector()->size();
+			int nCurrentPatternPos = Hydrogen::get_instance()->getPatternPos();
 			assert( nCurrentPatternPos != -1 );
 
 			float fPercent = (float) nCurrentPatternPos / (float)nPatterns * 100.0;

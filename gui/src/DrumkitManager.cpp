@@ -171,8 +171,8 @@ void OldDrumkitManager::on_loadTab_loadDrumkitBtn_clicked()
 			setCursor( QCursor( Qt::WaitCursor ) );
 
 			try {
-				Hydrogen::getInstance()->loadDrumkit( drumkitInfo );
-				Hydrogen::getInstance()->getSong()->m_bIsModified = true;
+				Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+				Hydrogen::get_instance()->getSong()->m_bIsModified = true;
 				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName().c_str() ), 2000 );
 
 				setCursor( QCursor( Qt::ArrowCursor ) );

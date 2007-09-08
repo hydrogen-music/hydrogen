@@ -99,7 +99,7 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 
 void AudioEngineInfoForm::updateInfo()
 {
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *song = pEngine->getSong();
 
 	// Song position
@@ -198,7 +198,7 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	string currentPatternName;
-	PatternList *pPatternList = Hydrogen::getInstance()->getCurrentPatternList();
+	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
 	if (pPatternList) {
 		currentPatternLbl->setText( QString::number(pPatternList->getSize()) );
 	}
@@ -226,7 +226,7 @@ void AudioEngineInfoForm::updateInfo()
 void AudioEngineInfoForm::updateAudioEngineState() {
 	// Audio Engine state
 	QString stateTxt;
-	int state = Hydrogen::getInstance()->getState();
+	int state = Hydrogen::get_instance()->getState();
 	switch (state) {
 	case STATE_UNINITIALIZED:
 		stateTxt = "Uninitialized";

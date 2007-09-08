@@ -80,7 +80,7 @@ void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
 		valid = false;
 	}
 
-	Hydrogen *engine = Hydrogen::getInstance();
+	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->getPatternList();
 

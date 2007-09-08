@@ -138,8 +138,8 @@ MainForm::~MainForm()
 	QFile file( getAutoSaveFilename().c_str() );
 	file.remove();
 
-	if ( (Hydrogen::getInstance()->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	// remove the autosave file
@@ -252,7 +252,7 @@ void MainForm::createMenuBar()
 /// return true if the app needs to be closed.
 bool MainForm::action_file_exit()
 {
-	if ( Hydrogen::getInstance()->getSong()->m_bIsModified ) {
+	if ( Hydrogen::get_instance()->getSong()->m_bIsModified ) {
 		int res = QMessageBox::information(
 				this,
 				"Hydrogen",
@@ -266,7 +266,7 @@ bool MainForm::action_file_exit()
 		switch( res ) {
 			case 0:
 				// Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::getInstance()->getSong()->getFilename() != "") {
+				if ( Hydrogen::get_instance()->getSong()->getFilename() != "") {
 					action_file_save();
 				} else {
 					action_file_save_as();
@@ -295,11 +295,11 @@ bool MainForm::action_file_exit()
 
 void MainForm::action_file_new()
 {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	if ( Hydrogen::getInstance()->getSong()->m_bIsModified ) {
+	if ( Hydrogen::get_instance()->getSong()->m_bIsModified ) {
 		switch(
 				QMessageBox::information( this, "Hydrogen",
 						trUtf8("\nThe document contains unsaved changes\n"
@@ -308,7 +308,7 @@ void MainForm::action_file_new()
 						0,      // Enter == button 0
 						2 ) ) { // Escape == button 2
 			case 0: // Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::getInstance()->getSong()->getFilename() != "") {
+				if ( Hydrogen::get_instance()->getSong()->getFilename() != "") {
 					action_file_save();
 				} else {
 					// never been saved
@@ -329,15 +329,15 @@ void MainForm::action_file_new()
 	Song * song = Song::getEmptySong();
 	song->setFilename( "" );
 	h2app->setSong(song);
- 	Hydrogen::getInstance()->setSelectedPatternNumber( 0 );
+ 	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
 }
 
 
 
 void MainForm::action_file_save_as()
 {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	QFileDialog *fd = new QFileDialog(this);
@@ -346,12 +346,12 @@ void MainForm::action_file_save_as()
 	fd->setAcceptMode( QFileDialog::AcceptSave );
 	fd->setWindowTitle( trUtf8( "Save song" ) );
 
-	Song *song = Hydrogen::getInstance()->getSong();
+	Song *song = Hydrogen::get_instance()->getSong();
 	QString defaultFilename;
 	QString lastFilename = song->getFilename().c_str();
 
 	if (lastFilename == "") {
-		defaultFilename = Hydrogen::getInstance()->getSong()->m_sName.c_str();
+		defaultFilename = Hydrogen::get_instance()->getSong()->m_sName.c_str();
 		defaultFilename += ".h2song";
 	}
 	else {
@@ -381,12 +381,12 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-//	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-//		(Hydrogen::getInstance())->stop();
+//	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
+//		(Hydrogen::get_instance())->stop();
 //	}
 
-	Song *song = Hydrogen::getInstance()->getSong();
-	QString filename = (song->getFilename()).c_str();
+	Song *song = Hydrogen::get_instance()->getSong();
+	QString filename = song->getFilename().c_str();
 
 	if (filename == "") {
 		// just in case!
@@ -435,11 +435,11 @@ void MainForm::showUserManual()
 
 
 void MainForm::action_file_open() {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	if ( Hydrogen::getInstance()->getSong()->m_bIsModified ) {
+	if ( Hydrogen::get_instance()->getSong()->m_bIsModified ) {
 		switch(
 			QMessageBox::information( this, "Hydrogen",
 					trUtf8("\nThe document contains unsaved changes\n"
@@ -448,7 +448,7 @@ void MainForm::action_file_open() {
 					0,      // Enter == button 0
 					2 ) ) { // Escape == button 2
 			case 0: // Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::getInstance()->getSong()->getFilename() != "") {
+				if ( Hydrogen::get_instance()->getSong()->getFilename() != "") {
 					action_file_save();
 				}
 				else {
@@ -499,11 +499,11 @@ void MainForm::action_file_open() {
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
 void MainForm::action_file_openDemo()
 {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	if ( ( Hydrogen::getInstance()->getSong())->m_bIsModified ) {
+	if ( ( Hydrogen::get_instance()->getSong())->m_bIsModified ) {
 		switch(
 			QMessageBox::information( this, "Hydrogen",
 					trUtf8("\nThe document contains unsaved changes\n"
@@ -512,7 +512,7 @@ void MainForm::action_file_openDemo()
 					0,      // Enter == button 0
 					2 ) ) { // Escape == button 2
 			case 0: // Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::getInstance()->getSong()->getFilename() != "") {
+				if ( Hydrogen::get_instance()->getSong()->getFilename() != "") {
 					action_file_save_as();
 				}
 				else {
@@ -555,7 +555,7 @@ void MainForm::action_file_openDemo()
 
 	if (filename != "") {
 		openSongFile( filename.toStdString() );
-		Hydrogen::getInstance()->getSong()->setFilename( "" );
+		Hydrogen::get_instance()->getSong()->setFilename( "" );
 	}
 }
 
@@ -563,8 +563,8 @@ void MainForm::action_file_openDemo()
 
 void MainForm::showPreferencesDialog()
 {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	h2app->showPreferencesDialog();
@@ -603,7 +603,7 @@ void MainForm::action_window_showSongEditor()
 void MainForm::action_instruments_addInstrument()
 {
 	AudioEngine::get_instance()->lock("MainForm::action_instruments_addInstrument");
-	InstrumentList* pList = Hydrogen::getInstance()->getSong()->getInstrumentList();
+	InstrumentList* pList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 
 	// create a new valid ID for this instrument
 	int nID = -1;
@@ -619,7 +619,7 @@ void MainForm::action_instruments_addInstrument()
 	pList->add( pNewInstr );
 	AudioEngine::get_instance()->unlock();
 
-	Hydrogen::getInstance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
 
 	// Force an update
 	//EventQueue::getInstance()->pushEvent( EVENT_SELECTED_PATTERN_CHANGED, -1 );
@@ -647,7 +647,7 @@ void MainForm::action_instruments_clearAll()
 
 	// Remove all layers
 	AudioEngine::get_instance()->lock("MainForm::action_instruments_clearAll");
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
 	for (uint i = 0; i < pList->get_size(); i++) {
 		Instrument* pInstr = pList->get( i );
@@ -712,8 +712,8 @@ void MainForm::closeEvent( QCloseEvent* ev )
 
 
 void MainForm::action_file_export() {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	ExportSongDialog *dialog = new ExportSongDialog(this);
@@ -821,14 +821,14 @@ void MainForm::closeAll() {
 
 void MainForm::onPlayStopAccelEvent()
 {
-	int nState = Hydrogen::getInstance()->getState();
+	int nState = Hydrogen::get_instance()->getState();
 	switch (nState) {
 		case STATE_READY:
-			Hydrogen::getInstance()->sequencer_play();
+			Hydrogen::get_instance()->sequencer_play();
 			break;
 
 		case STATE_PLAYING:
-			Hydrogen::getInstance()->sequencer_stop();
+			Hydrogen::get_instance()->sequencer_stop();
 			break;
 
 		default:
@@ -840,7 +840,7 @@ void MainForm::onPlayStopAccelEvent()
 
 void MainForm::onRestartAccelEvent()
 {
-	Hydrogen* pEngine = ( Hydrogen::getInstance() );
+	Hydrogen* pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( 0 );
 }
 
@@ -848,7 +848,7 @@ void MainForm::onRestartAccelEvent()
 
 void MainForm::onBPMPlusAccelEvent()
 {
-	Hydrogen* pEngine = ( Hydrogen::getInstance() );
+	Hydrogen* pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( "MainForm::onBPMPlusAccelEvent" );
 
 	Song* pSong = pEngine->getSong();
@@ -862,7 +862,7 @@ void MainForm::onBPMPlusAccelEvent()
 
 void MainForm::onBPMMinusAccelEvent()
 {
-	Hydrogen* pEngine = ( Hydrogen::getInstance() );
+	Hydrogen* pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( "MainForm::onBPMMinusAccelEvent" );
 
 	Song* pSong = pEngine->getSong();
@@ -909,7 +909,7 @@ void MainForm::onTapTempoAccelEvent()
 	oldTimeVal = now;
 
 	if ( fInterval < 1000.0 ) {
-		( Hydrogen::getInstance() )->setTapTempo( fInterval );
+		Hydrogen::get_instance()->setTapTempo( fInterval );
 	}
 #endif
 }
@@ -948,7 +948,7 @@ void MainForm::action_file_open_recent(QAction *pAction)
 
 void MainForm::openSongFile( const std::string& sFilename )
 {
- 	Hydrogen *engine = Hydrogen::getInstance();
+ 	Hydrogen *engine = Hydrogen::get_instance();
 	if ( engine->getState() == STATE_PLAYING ) {
                 engine->sequencer_stop();
 	}
@@ -1096,7 +1096,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			// insert note at the current column in time
 			// if event recording enabled
 			int row = (*found).second;
-			Hydrogen* engine = Hydrogen::getInstance();
+			Hydrogen* engine = Hydrogen::get_instance();
 
 			float velocity = 0.8;
 			float pan_L = 1.0;
@@ -1140,7 +1140,7 @@ void MainForm::action_debug_debugCommand()
 		sLastCommand = cmd;
 
 		if ( cmd == "print current pattern list" ) {
-			Hydrogen *pEngine = Hydrogen::getInstance();
+			Hydrogen *pEngine = Hydrogen::get_instance();
 
 			std::cout << "*** print current pattern list ***" << std::endl;
 
@@ -1186,8 +1186,8 @@ void MainForm::action_debug_debugCommand()
 
 void MainForm::action_file_export_midi()
 {
-	if ( ((Hydrogen::getInstance())->getState() == STATE_PLAYING) ) {
-		Hydrogen::getInstance()->sequencer_stop();
+	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	QFileDialog *fd = new QFileDialog(this);
@@ -1208,7 +1208,7 @@ void MainForm::action_file_export_midi()
 			sFilename += ".mid";
 		}
 
-		Song *pSong = Hydrogen::getInstance()->getSong();
+		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		// create the Standard Midi File object
 		SMFWriter *pSmfWriter = new SMFWriter();
@@ -1261,7 +1261,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::getInstance()->getSong()->m_bIsModified = true;
+		Hydrogen::get_instance()->getSong()->m_bIsModified = true;
 	}
 	delete pDialog;
 }
@@ -1376,7 +1376,7 @@ void MainForm::latestVersionDone(bool bError)
 
 std::string MainForm::getAutoSaveFilename()
 {
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	string sOldFilename = pSong->getFilename();
 	string newName = "autosave.h2song";
@@ -1393,7 +1393,7 @@ std::string MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	string sOldFilename = pSong->getFilename();
 

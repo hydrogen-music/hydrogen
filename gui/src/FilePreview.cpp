@@ -111,7 +111,7 @@ void FilePreview::playClicked()
 {
 	Sample *pNewSample = Sample::load( m_sFilename.toStdString() );
 	if (pNewSample) {
-		( Hydrogen::getInstance() )->previewSample( pNewSample );
+		Hydrogen::get_instance()->previewSample( pNewSample );
 	}
 	else {
 		errorLog( "[playClicked()] pNewSample = NULL" );

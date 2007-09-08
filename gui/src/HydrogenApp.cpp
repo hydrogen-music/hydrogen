@@ -67,8 +67,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 
 	// Create the audio engine :)
-	Hydrogen::getInstance();
-	Hydrogen::getInstance()->setSong( pFirstSong );
+	Hydrogen::get_instance();
+	Hydrogen::get_instance()->setSong( pFirstSong );
 	Preferences::getInstance()->setLastSongFilename( pFirstSong->getFilename() );
 
 	// set initial title
@@ -106,7 +106,7 @@ HydrogenApp::~HydrogenApp()
 	delete m_pDrumkitManager;
 	delete m_pMixer;
 
-	Hydrogen *engine = Hydrogen::getInstance();
+	Hydrogen *engine = Hydrogen::get_instance();
 	if (engine) {
 		delete engine->getSong();
 		delete engine;
@@ -246,14 +246,14 @@ void HydrogenApp::setSong(Song* song)
 	}
 #endif
 
-	Song* oldSong = (Hydrogen::getInstance())->getSong();
+	Song* oldSong = (Hydrogen::get_instance())->getSong();
 	if (oldSong != NULL) {
-		(Hydrogen::getInstance())->removeSong();
+		(Hydrogen::get_instance())->removeSong();
 		delete oldSong;
 		oldSong = NULL;
 	}
 
-	Hydrogen::getInstance()->setSong( song );
+	Hydrogen::get_instance()->setSong( song );
 	Preferences::getInstance()->setLastSongFilename( song->getFilename() );
 
 	m_pSongEditorPanel->updateAll();
@@ -350,13 +350,13 @@ void HydrogenApp::onEventQueueTimer()
 	EventQueue *pQueue = EventQueue::get_instance();
 
 	Event event;
-	while ( ( event = pQueue->pop_event() ).m_type != EVENT_NONE ) {
+	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
 		for (int i = 0; i < (int)m_eventListeners.size(); i++ ) {
 			EventListener *pListener = m_eventListeners[ i ];
 
-			switch ( event.m_type ) {
+			switch ( event.type ) {
 				case EVENT_STATE:
-					pListener->stateChangedEvent( event.m_nValue );
+					pListener->stateChangedEvent( event.value );
 					break;
 
 				case EVENT_PATTERN_CHANGED:
@@ -380,11 +380,11 @@ void HydrogenApp::onEventQueueTimer()
 					break;
 
 				case EVENT_NOTEON:
-					pListener->noteOnEvent( event.m_nValue );
+					pListener->noteOnEvent( event.value );
 					break;
 
 				case EVENT_ERROR:
-					pListener->errorEvent( event.m_nValue );
+					pListener->errorEvent( event.value );
 					break;
 
 				case EVENT_XRUN:
@@ -392,15 +392,15 @@ void HydrogenApp::onEventQueueTimer()
 					break;
 
 				case EVENT_METRONOME:
-					pListener->metronomeEvent( event.m_nValue );
+					pListener->metronomeEvent( event.value );
 					break;
 
 				case EVENT_PROGRESS:
-					pListener->progressEvent( event.m_nValue );
+					pListener->progressEvent( event.value );
 					break;
 
 				default:
-					ERRORLOG( "[onEventQueueTimer] Unhandled event: " + toString( event.m_type ) );
+					ERRORLOG( "[onEventQueueTimer] Unhandled event: " + toString( event.type ) );
 			}
 
 		}

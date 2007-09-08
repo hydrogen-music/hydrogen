@@ -93,7 +93,7 @@ void DrumPatternEditor::updateEditor()
 {
 	//cout << "*** update pattern editor" << endl;
 
-	Hydrogen* engine = Hydrogen::getInstance();
+	Hydrogen* engine = Hydrogen::get_instance();
 
 	// check engine state
 	int state = engine->getState();
@@ -102,7 +102,7 @@ void DrumPatternEditor::updateEditor()
 		return;
 	}
 
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() ) ) {
@@ -158,7 +158,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	if ( m_pPattern == NULL ) {
 		return;
 	}
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->get_size();
 
 //	int row = (int)( (float)( height() - ev->y() )  / (float)m_nGridHeight);
@@ -263,12 +263,10 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	}
 
 	// update the selected line
-	int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	if (nSelectedInstrument != row) {
-	  //m_pPatternEditorPanel->setSelectedInstrument(row);
-	  Hydrogen::getInstance()->setSelectedInstrumentNumber( row );
-
-
+		//m_pPatternEditorPanel->setSelectedInstrument(row);
+		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
 	}
 	else {
 		//createBackground();
@@ -315,7 +313,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 		m_pDraggedNote->set_lenght( nLen );
 
-		Hydrogen::getInstance()->getSong()->m_bIsModified = true;
+		Hydrogen::get_instance()->getSong()->m_bIsModified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		drawPattern();
@@ -355,8 +353,8 @@ void DrumPatternEditor::drawPattern()
 	}
 
 	int nNotes = m_pPattern->m_nSize;
-	int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	InstrumentList * pInstrList = pSong->getInstrumentList();
 
@@ -403,7 +401,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter* p )
 	p->setRenderHint( QPainter::Antialiasing );
 
 	int nInstrument = -1;
-	InstrumentList * pInstrList = Hydrogen::getInstance()->getSong()->getInstrumentList();
+	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
 		if ( pInstr == note->get_instrument() ) {
@@ -548,8 +546,8 @@ void DrumPatternEditor::drawGrid( QPainter* p )
 	// fill the first half of the rect with a solid color
 	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
-	int nSelectedInstrument = Hydrogen::getInstance()->getSelectedInstrumentNumber();
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->get_size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
@@ -580,7 +578,7 @@ void DrumPatternEditor::createBackground()
 	}
 
 
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->get_size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {

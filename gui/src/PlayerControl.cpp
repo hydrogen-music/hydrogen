@@ -260,7 +260,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
 
-	m_pEngine = Hydrogen::getInstance();
+	m_pEngine = Hydrogen::get_instance();
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
@@ -597,7 +597,7 @@ void PlayerControl::onBpmTimerEvent()
 
 void PlayerControl::FFWDBtnClicked( Button* )
 {
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
 }
 
@@ -605,7 +605,7 @@ void PlayerControl::FFWDBtnClicked( Button* )
 
 void PlayerControl::RewindBtnClicked( Button* )
 {
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
 }
 
@@ -613,7 +613,7 @@ void PlayerControl::RewindBtnClicked( Button* )
 
 void PlayerControl::songLoopBtnClicked( Button* )
 {
-	Hydrogen *pEngine = Hydrogen::getInstance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *song = pEngine->getSong();
 	song->setLoopEnabled( ! song->isLoopEnabled() );
 	song->m_bIsModified = true;

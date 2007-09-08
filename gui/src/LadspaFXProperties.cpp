@@ -133,7 +133,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 	ref->setPeak_L( ref->getValue() );
 	ref->setPeak_R( ref->getValue() );
 
-	Song *pSong = (Hydrogen::getInstance() )->getSong();
+	Song *pSong = (Hydrogen::get_instance() )->getSong();
 
 #ifdef LADSPA_SUPPORT
 	LadspaFX *pFX = Effects::getInstance()->getLadspaFX( m_nLadspaFX );
@@ -352,20 +352,20 @@ void LadspaFXProperties::selectFXBtnClicked()
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX ) {
-					int nSampleRate = Hydrogen::getInstance()->getAudioOutput()->getSampleRate();
+					int nSampleRate = Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
 					pFX = LadspaFX::load( pFXInfo->m_sFilename, pFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
 					break;
 				}
 			}
 			//AudioEngine::getInstance()->lock("LadspaFXProperties::selectFXBtnClicked");
-			Song *pSong = (Hydrogen::getInstance() )->getSong();
+			Song *pSong = (Hydrogen::get_instance() )->getSong();
 			pSong->m_bIsModified = true;
 
 			Effects::getInstance()->setLadspaFX( pFX, m_nLadspaFX );
 
 			//AudioEngine::getInstance()->unlock();
-			Hydrogen::getInstance()->restartLadspaFX();
+			Hydrogen::get_instance()->restartLadspaFX();
 			updateControls();
 		}
 		else {	// no plugin selected
@@ -382,7 +382,7 @@ void LadspaFXProperties::updateOutputControls()
 #ifdef LADSPA_SUPPORT
 
 //	INFOLOG( "[updateOutputControls]" );
-//	Song *pSong = (Hydrogen::getInstance() )->getSong();
+//	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::getInstance()->getLadspaFX(m_nLadspaFX);
 
 	if (pFX) {
@@ -428,7 +428,7 @@ void LadspaFXProperties::updateOutputControls()
 void LadspaFXProperties::activateBtnClicked()
 {
 #ifdef LADSPA_SUPPORT
-//	Song *pSong = (Hydrogen::getInstance() )->getSong();
+//	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::getInstance()->getLadspaFX(m_nLadspaFX);
 	if (pFX) {
 		AudioEngine::get_instance()->lock("LadspaFXProperties::activateBtnClicked");

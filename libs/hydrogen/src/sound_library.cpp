@@ -178,7 +178,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 	pDrumkitInfo->setAuthor( sAuthor );
 	pDrumkitInfo->setInfo( sInfo );
 
-	Song *pSong = Hydrogen::getInstance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList *pSongInstrList = pSong->getInstrumentList();
 	InstrumentList *pInstrumentList = new InstrumentList();
 
