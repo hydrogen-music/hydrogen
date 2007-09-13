@@ -225,7 +225,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			// ADD PATTERN (with spaces..)
 			m_selectedCells.clear();
 			int nSpaces = nColumn - pColumns->size();
-//			INFOLOG( "[mousePressEvent] add pattern (with " + toString( nSpaces ) + " spaces)" );
+//			INFOLOG( "[mousePressEvent] add pattern (with " + to_string( nSpaces ) + " spaces)" );
 
 			PatternList *pColumn = new PatternList();
 			pColumns->push_back( pColumn );
@@ -261,8 +261,8 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		int nRowDiff = nRow  - m_clickPoint.y();
 		int nColumnDiff = nColumn - m_clickPoint.x();
 
-//		INFOLOG( "[mouseMoveEvent] row diff: "+ toString( nRowDiff ) );
-//		INFOLOG( "[mouseMoveEvent] col diff: "+ toString( nColumnDiff ) );
+//		INFOLOG( "[mouseMoveEvent] row diff: "+ to_string( nRowDiff ) );
+//		INFOLOG( "[mouseMoveEvent] col diff: "+ to_string( nColumnDiff ) );
 
 		for ( int i = 0; i < (int)m_movingCells.size(); i++ ) {
 			QPoint cell = m_movingCells[ i ];
@@ -422,10 +422,10 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
 /*	INFOLOG(
-			"[paintEvent] x: " + toString( ev->rect().x() ) +
-			" y: " + toString( ev->rect().y() ) +
-			" w: " + toString( ev->rect().width() ) +
-			" h: " + toString( ev->rect().height() )
+			"[paintEvent] x: " + to_string( ev->rect().x() ) +
+			" y: " + to_string( ev->rect().y() ) +
+			" w: " + to_string( ev->rect().width() ) +
+			" h: " + to_string( ev->rect().height() )
 	);
 */
 
@@ -559,7 +559,7 @@ void SongEditor::drawSequence()
 				}
 			}
 			if (position == -1) {
-				WARNINGLOG( "[drawSequence] position == -1, group = " + toString( i ) );
+				WARNINGLOG( "[drawSequence] position == -1, group = " + to_string( i ) );
 			}
 			drawPattern( i, position );
 		}
@@ -746,7 +746,7 @@ void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 {
 	int row = (ev->y() / m_nGridHeight);
 
-// 	WARNINGLOG( "double clicked " + toString( row ) );
+// 	WARNINGLOG( "double clicked " + to_string( row ) );
 
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
@@ -866,7 +866,7 @@ void SongEditorPatternList::createBackground()
 		}
 
 
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, ( pPattern->m_sName ).c_str() );
+		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name().c_str() );
 	}
 
 }
@@ -927,7 +927,7 @@ void SongEditorPatternList::patternPopup_delete()
 	PatternList *pSongPatternList = song->getPatternList();
 
 	H2Core::Pattern *pattern = pSongPatternList->get( pEngine->getSelectedPatternNumber() );
-	INFOLOG( "[patternPopup_delete] Delete pattern: " + pattern->m_sName + " @" + toString( (long)pattern ) );
+	INFOLOG( "[patternPopup_delete] Delete pattern: " + pattern->get_name() + " @" + to_string( (long)pattern ) );
 	pSongPatternList->del(pattern);
 
 	vector<PatternList*> *patternGroupVect = song->getPatternGroupVector();
@@ -1242,7 +1242,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	if ( Hydrogen::get_instance()->getCurrentPatternList()->getSize() != 0 ) {
 		H2Core::Pattern *pPattern = Hydrogen::get_instance()->getCurrentPatternList()->get( 0 );
-		fPos += (float)Hydrogen::get_instance()->getTickPosition() / (float)pPattern->m_nSize;
+		fPos += (float)Hydrogen::get_instance()->getTickPosition() / (float)pPattern->get_lenght();
 	}
 	else {
 		// nessun pattern, uso la grandezza di default

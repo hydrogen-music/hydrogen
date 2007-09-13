@@ -49,13 +49,13 @@ void quit()
 	_INFOLOG( "Quitting..." );
 	sleep(1);
 	cout << "\nBye..." << endl;
-	delete Logger::getInstance();
+	delete Logger::get_instance();
 	exit(0);
 }
 
 int main(int argc, char** argv)
 {
-	Object::useVerboseLog( true );
+	Object::use_verbose_log( true );
 	_INFOLOG( "test" );
 
 
@@ -100,10 +100,10 @@ int main(int argc, char** argv)
 				delete H2Core::EventQueue::get_instance();
 				delete H2Core::AudioEngine::get_instance();
 				delete preferences;
-				delete Logger::getInstance();
+				delete Logger::get_instance();
 
-				std::cout << std::endl << std::endl << Object::getNObjects() << " alive objects" << std::endl << std::endl;
-				Object::printObjectMap();
+				std::cout << std::endl << std::endl << Object::get_objects_number() << " alive objects" << std::endl << std::endl;
+				Object::print_object_map();
 
 				exit(0);
 				break;
@@ -126,8 +126,8 @@ int main(int argc, char** argv)
 
 			case 'd':
 				cout << "DEBUG" << endl;
-				Object::printObjectMap();
-				int nObj = Object::getNObjects();
+				Object::print_object_map();
+				int nObj = Object::get_objects_number();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;
 		}

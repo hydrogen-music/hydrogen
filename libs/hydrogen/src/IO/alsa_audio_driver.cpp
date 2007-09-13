@@ -59,7 +59,7 @@ void* alsaAudioDriver_processCaller(void* param)
 	if (res) {
 		_ERRORLOG("Can't set realtime scheduling for ALSA Driver");
 	}
-	_INFOLOG( "Scheduling priority = " + toString( sched.sched_priority ) );
+	_INFOLOG( "Scheduling priority = " + to_string( sched.sched_priority ) );
 
 	sleep( 1 );
 
@@ -69,7 +69,7 @@ void* alsaAudioDriver_processCaller(void* param)
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
-// 	_INFOLOG( "nFrames: " + toString( nFrames ) );
+// 	_INFOLOG( "nFrames: " + to_string( nFrames ) );
 	short pBuffer[ nFrames * 2 ];
 
 	float *pOut_L = pDriver->m_pOut_L;
@@ -122,7 +122,7 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 AlsaAudioDriver::~AlsaAudioDriver()
 {
 	if ( m_nXRuns > 0 ) {
-		WARNINGLOG( toString( m_nXRuns )  + " xruns" );
+		WARNINGLOG( to_string( m_nXRuns )  + " xruns" );
 	}
 	INFOLOG( "DESTROY" );
 }
@@ -200,18 +200,18 @@ int AlsaAudioDriver::connect()
 		ERRORLOG( "error in snd_pcm_hw_params_set_periods: " + string( snd_strerror( err ) ) );
 		return 1;
 	}
-	INFOLOG( "nPeriods: " + toString( nPeriods ) );
+	INFOLOG( "nPeriods: " + to_string( nPeriods ) );
 
 	// Set buffer size (in frames). The resulting latency is given by
 	// latency = periodsize * periods / (rate * bytes_per_frame)
 //	m_nBufferSize = period_size * 2;
-//	infoLog( "buffer size preferita:" + toString( m_nBufferSize ) );
+//	infoLog( "buffer size preferita:" + to_string( m_nBufferSize ) );
 
 //	if ( ( err = snd_pcm_hw_params_set_buffer_size_near( m_pPlayback_handle, hw_params, &m_nBufferSize ) ) < 0 ) {
 //		errorLog( "[connect] error in snd_pcm_hw_params_set_buffer_size: " + string( snd_strerror( err ) ) );
 //		return 1;
 //	}
-//	infoLog( "buffer size scelta:" + toString( m_nBufferSize ) );
+//	infoLog( "buffer size scelta:" + to_string( m_nBufferSize ) );
 
 	if ( ( err = snd_pcm_hw_params_set_period_size( m_pPlayback_handle, hw_params, period_size, 0 ) ) < 0 ) {
 		ERRORLOG( "error in snd_pcm_hw_params_set_period_size: " + string( snd_strerror( err ) ) );
@@ -226,9 +226,9 @@ int AlsaAudioDriver::connect()
 	snd_pcm_hw_params_get_rate( hw_params, &m_nSampleRate, 0 );
 	snd_pcm_hw_params_get_buffer_size( hw_params, &m_nBufferSize );
 
-	INFOLOG( "*** PERIOD SIZE: " + toString( period_size ) );
-	INFOLOG( "*** SAMPLE RATE: " + toString( m_nSampleRate ) );
-	INFOLOG( "*** BUFFER SIZE: " + toString( m_nBufferSize ) );
+	INFOLOG( "*** PERIOD SIZE: " + to_string( period_size ) );
+	INFOLOG( "*** SAMPLE RATE: " + to_string( m_nSampleRate ) );
+	INFOLOG( "*** BUFFER SIZE: " + to_string( m_nBufferSize ) );
 
 	//snd_pcm_hw_params_free( hw_params );
 
@@ -308,14 +308,14 @@ void AlsaAudioDriver::stop()
 
 void AlsaAudioDriver::locate( unsigned long nFrame )
 {
-//	infoLog( "[locate] " + toString( nFrame ) );
+//	infoLog( "[locate] " + to_string( nFrame ) );
 	m_transport.m_nFrames = nFrame;
 //	m_transport.printInfo();
 }
 
 void AlsaAudioDriver::setBpm(float fBPM)
 {
-//	warningLog( "[setBpm] " + toString(fBPM) );
+//	warningLog( "[setBpm] " + to_string(fBPM) );
 	m_transport.m_nBPM = fBPM;
 }
 

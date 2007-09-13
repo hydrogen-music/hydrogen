@@ -196,7 +196,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		}
 	}
 	if ( !pSample ) {
-		WARNINGLOG( "NULL sample for instrument " + pInstr->get_name() + ". Note velocity: " + toString( pNote->get_velocity() ) );
+		WARNINGLOG( "NULL sample for instrument " + pInstr->get_name() + ". Note velocity: " + to_string( pNote->get_velocity() ) );
 		return 1;
 	}
 
@@ -215,12 +215,12 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 			int noteStartInFramesNoHumanize = (int)pNote->get_position() * __audio_output->m_transport.m_nTickSize;
 			if ( noteStartInFramesNoHumanize > (int)( nFramepos + nBufferSize ) ) {
 				// this note is not valid. it's in the future...let's skip it....
-				ERRORLOG( "Note pos in the future?? Current frames: " + toString( nFramepos ) + ", note frame pos: " + toString( noteStartInFramesNoHumanize ) );
+				ERRORLOG( "Note pos in the future?? Current frames: " + to_string( nFramepos ) + ", note frame pos: " + to_string( noteStartInFramesNoHumanize ) );
 				//pNote->dumpInfo();
 				return 1;
 			}
 			// delay note execution
-			//INFOLOG( "Delaying note execution. noteStartInFrames: " + toString( noteStartInFrames ) + ", nFramePos: " + toString( nFramepos ) );
+			//INFOLOG( "Delaying note execution. noteStartInFrames: " + to_string( noteStartInFrames ) + ", nFramePos: " + to_string( nFramepos ) );
 			return 0;
 		}
 	}
@@ -276,7 +276,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	fTotalPitch += pNote->get_pitch();
 	fTotalPitch += fLayerPitch;
 
-	//_INFOLOG( "total pitch: " + toString( fTotalPitch ) );
+	//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 
 	if ( fTotalPitch == 0.0 && pSample->m_nSampleRate == __audio_output->getSampleRate() ) {	// NO RESAMPLE
 		return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track, fSendFXLevel_L, fSendFXLevel_R, pSong );
@@ -444,7 +444,7 @@ int Sampler::__render_note_resample(
 	float fNotePitch = pNote->get_pitch() + fLayerPitch;
 	fNotePitch += pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;
 
-	//_INFOLOG( "pitch: " + toString( fNotePitch ) );
+	//_INFOLOG( "pitch: " + to_string( fNotePitch ) );
 
 	float fStep = pow( 1.0594630943593, (double)fNotePitch );
 	fStep *= (float)pSample->m_nSampleRate/__audio_output->getSampleRate(); // Adjust for audio driver sample rate

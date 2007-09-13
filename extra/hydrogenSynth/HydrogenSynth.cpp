@@ -16,7 +16,7 @@ int main( int argc, char* argv[] )
 
 	QApplication a(argc, argv);
 
-	Object::useVerboseLog( true );
+	Object::use_verbose_log( true );
 
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 
@@ -60,10 +60,10 @@ int main( int argc, char* argv[] )
 				delete H2Core::AudioEngine::get_instance();
 				delete H2Core::EventQueue::get_instance();
 				delete H2Core::Preferences::getInstance();
-				delete Logger::getInstance();
+				delete Logger::get_instance();
 
-				std::cout << std::endl << std::endl << Object::getNObjects() << " alive objects" << std::endl << std::endl;
-				Object::printObjectMap();
+				std::cout << std::endl << std::endl << Object::get_objects_number() << " alive objects" << std::endl << std::endl;
+				Object::print_object_map();
 
 				return 0;
 				break;

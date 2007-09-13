@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 					break;
 
 				case 'V':
-					Object::useVerboseLog( true );
+					Object::use_verbose_log( true );
 					break;
 
 				case 'n':
@@ -261,19 +261,19 @@ int main(int argc, char *argv[])
 
 		_INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;
-		delete Logger::getInstance();
+		delete Logger::get_instance();
 
-		int nObj = Object::getNObjects();
+		int nObj = Object::get_objects_number();
 		if (nObj != 0) {
-			std::cerr << "\n\n\n " << toString( nObj ) << " alive objects\n\n" << std::endl << std::endl;
-			Object::printObjectMap();
+			std::cerr << "\n\n\n " << to_string( nObj ) << " alive objects\n\n" << std::endl << std::endl;
+			Object::print_object_map();
 		}
 
 		//	pQApp->dumpObjectTree();
 
 	}
 	catch ( const H2Core::H2Exception& ex ) {
-		std::cerr << "[main] Exception: " << ex.message << std::endl;
+		std::cerr << "[main] Exception: " << ex.what() << std::endl;
 	}
 	catch (...) {
 		std::cerr << "[main] Unknown exception X-(" << std::endl;
@@ -293,7 +293,7 @@ void showInfo()
 	cout << "Copyright 2002-2007 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + string(COMPILED_FEATURES) << endl;
 
-	if ( Object::isUsingVerboseLog() ) {
+	if ( Object::is_using_verbose_log() ) {
 		cout << "\nVerbose log mode = active" << endl;
 	}
 

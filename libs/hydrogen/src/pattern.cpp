@@ -28,12 +28,12 @@
 
 namespace H2Core {
 
-Pattern::Pattern( const std::string& sName, unsigned nSize )
+Pattern::Pattern( const std::string& name, unsigned lenght )
  : Object( "Pattern" )
- , m_sName( sName )
- , m_nSize( nSize )
 {
 //	INFOLOG( "INIT: " + m_sName );
+	set_name(name);
+	set_lenght(lenght);
 }
 
 
@@ -44,7 +44,7 @@ Pattern::~Pattern()
 
 	// delete all Notes
 	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_noteMap.begin(); pos != m_noteMap.end(); ++pos ) {
+	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
 		Note *pNote = pos->second;
 		delete pNote;
 	}
@@ -53,7 +53,7 @@ Pattern::~Pattern()
 
 
 /// Returns an empty Pattern
-Pattern* Pattern::getEmptyPattern()
+Pattern* Pattern::get_empty_pattern()
 {
 	Pattern *pat = new Pattern( "Pattern" );
 	return pat;
@@ -65,13 +65,13 @@ Pattern* Pattern::copy()
 {
 	ERRORLOG( "not implemented yet!!!" );
 
-	Pattern *newPat = new Pattern( m_sName );
-	newPat->m_nSize = m_nSize;
+	Pattern *newPat = new Pattern( __name );
+	newPat->set_lenght( get_lenght() );
 
 	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_noteMap.begin(); pos != m_noteMap.end(); ++pos ) {
+	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
 		Note *pNote = new Note( pos->second );
-		newPat->m_noteMap.insert( std::make_pair( pos->first, pNote ) );
+		newPat->note_map.insert( std::make_pair( pos->first, pNote ) );
 	}
 
 	return newPat;
@@ -82,8 +82,8 @@ Pattern* Pattern::copy()
 void Pattern::dump()
 {
 	INFOLOG( "Pattern dump" );
-	INFOLOG( "Pattern name: " + m_sName );
-	INFOLOG( "Pattern size: " + toString( m_nSize ) );
+	INFOLOG( "Pattern name: " + __name );
+	INFOLOG( "Pattern lenght: " + to_string( get_lenght() ) );
 }
 
 
@@ -141,7 +141,7 @@ void PatternList::add(Pattern* newPattern) {
 
 Pattern* PatternList::get(int nPos) {
 	if (nPos >= (int)list.size()) {
-		ERRORLOG( "Pattern index out of bounds. nPos > list.size() - " + toString( nPos ) + " > " + toString( list.size() ) );
+		ERRORLOG( "Pattern index out of bounds. nPos > list.size() - " + to_string( nPos ) + " > " + to_string( list.size() ) );
 		return NULL;
 	}
 //	assert( nPos < (int)list.size() );
@@ -165,7 +165,7 @@ void PatternList::clear() {
 /// Replace an existent pattern with another one
 void PatternList::replace( Pattern* newPattern, unsigned int pos ) {
 	if (pos >= (unsigned)list.size()) {
-		ERRORLOG( "Pattern index out of bounds in PatternList::replace. pos >= list.size() - " + toString( pos ) + " > " + toString( list.size() ) );
+		ERRORLOG( "Pattern index out of bounds in PatternList::replace. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
 		return;
 	}
 	list.insert( list.begin() + pos, newPattern );	// insert the new pattern
@@ -214,7 +214,7 @@ Pattern * PatternList::del( Pattern * p )
 /// Remove one pattern from the list, the pattern is not deleted!!!
 void PatternList::del(unsigned pos) {
 	if (pos >= (unsigned)list.size()) {
-		ERRORLOG( "Pattern index out of bounds in PatternList::del. pos >= list.size() - " + toString( pos ) + " > " + toString( list.size() ) );
+		ERRORLOG( "Pattern index out of bounds in PatternList::del. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
 		return;
 	}
 	list.erase( list.begin()+pos );

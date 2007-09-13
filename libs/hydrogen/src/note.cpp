@@ -125,7 +125,7 @@ void Note::set_instrument( Instrument* instrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + toString( get_position() ) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + toString( get_pitch() ) );
+	INFOLOG( "pos: " + to_string( get_position() ) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + to_string( get_pitch() ) );
 }
 
 
@@ -140,7 +140,7 @@ NoteKey Note::stringToKey( const std::string& str )
 
 //	_INFOLOG( "skey: " + sKey );
 //	_INFOLOG( "sOct: " + sOct );
-//	_INFOLOG( "nOctave: " + toString( nOctave ) );
+//	_INFOLOG( "nOctave: " + to_string( nOctave ) );
 
 	if ( sKey == "C" ) {
 		key.m_key = NoteKey::C;
@@ -232,7 +232,7 @@ std::string Note::keyToString( NoteKey key )
 
 	}
 
-	sKey += toString( key.m_nOctave );
+	sKey += to_string( key.m_nOctave );
 
 	return sKey;
 }

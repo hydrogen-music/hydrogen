@@ -33,16 +33,16 @@
 
 // LOG MACROS
 
-#define _INFOLOG(x) Logger::getInstance()->infoLog(       "(I) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
-#define _WARNINGLOG(x) Logger::getInstance()->warningLog( "(W) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
-#define _ERRORLOG(x) Logger::getInstance()->errorLog(     "(E) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
+#define _INFOLOG(x) Logger::get_instance()->info_log(       "(I) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
+#define _WARNINGLOG(x) Logger::get_instance()->warning_log( "(W) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
+#define _ERRORLOG(x) Logger::get_instance()->error_log(     "(E) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
 
 
 
 
-#define INFOLOG(x) Logger::getInstance()->infoLog(       "(I) " + getClassName() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
-#define WARNINGLOG(x) Logger::getInstance()->warningLog( "(W) " + getClassName() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
-#define ERRORLOG(x) Logger::getInstance()->errorLog(     "(E) " + getClassName() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
+#define INFOLOG(x) Logger::get_instance()->info_log(       "(I) " + get_class_name() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
+#define WARNINGLOG(x) Logger::get_instance()->warning_log( "(W) " + get_class_name() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
+#define ERRORLOG(x) Logger::get_instance()->error_log(     "(E) " + get_class_name() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
 
 
 
@@ -54,22 +54,22 @@ class Object;
 class Logger
 {
 public:
-	bool m_bUseFile;
-	bool m_bIsRunning;
-	std::vector<std::string> m_msgQueue;
-	pthread_mutex_t m_logger_mutex;
+	bool __use_file;
+	bool __running;
+	std::vector<std::string> __msg_queue;
+	pthread_mutex_t __logger_mutex;
 
-	static Logger* getInstance();
+	static Logger* get_instance();
 
 	/** Destructor */
 	~Logger();
 
-	void infoLog( const std::string& logMsg );
-	void warningLog( const std::string& logMsg );
-	void errorLog( const std::string& logMsg );
+	void info_log( const std::string& msg );
+	void warning_log( const std::string& msg );
+	void error_log( const std::string& msg );
 
 private:
-	static Logger *m_pInstance;
+	static Logger *__instance;
 
 	/** Constructor */
 	Logger();
@@ -84,51 +84,51 @@ private:
 class Object
 {
 public:
-	static bool m_bUseLog;
+	static bool __use_log;
 
 	/** Constructor */
-	Object( const std::string& sClassName );
+	Object( const std::string& className );
 	Object( const Object& obj );
 
 	/** Destructor */
 	virtual ~Object();
 
-	const std::string& getClassName() const
+	const std::string& get_class_name() const
 	{
-		return 	m_sClassName;
+		return __class_name;
 	}
 
-	static int getNObjects();
-	static void printObjectMap();
-	static void useVerboseLog( bool bUse );
-	static bool isUsingVerboseLog();
+	static int get_objects_number();
+	static void print_object_map();
+	static void use_verbose_log( bool verbose );
+	static bool is_using_verbose_log();
 
 private:
-	static unsigned m_nObjects;
-	static std::map<std::string, int> m_ObjectMap;
-	Logger *m_pLogger;
-	std::string m_sClassName;
+	static unsigned __objects;
+	static std::map<std::string, int> __object_map;
+	Logger *__logger;
+	std::string __class_name;
 };
 
 
 // some useful functions..
 
 template <class T>
-inline std::string toString( const T& t )
+inline std::string to_string( const T& t )
 {
 	std::ostringstream osstream;
 	osstream << t;
 	return osstream.str();
 }
 
-inline int stringToInt( const std::string& str )
+inline int string_to_int( const std::string& str )
 {
 	std::istringstream isstream( str );
 	int t;
 	isstream >> t;
 	return t;
 }
-inline float stringToFloat( const std::string& str )
+inline float string_to_float( const std::string& str )
 {
 	std::istringstream isstream( str );
 	float t;

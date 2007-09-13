@@ -37,17 +37,25 @@ class Note;
 class Pattern : public Object
 {
 public:
-	std::string m_sName;
-	std::multimap <int, Note*> m_noteMap;
-	unsigned m_nSize;
+	std::multimap <int, Note*> note_map;
 
-	Pattern( const std::string& sName, unsigned nPatternSize = MAX_NOTES );
+	Pattern( const std::string& name, unsigned lenght = MAX_NOTES );
 	~Pattern();
 
-	static Pattern* getEmptyPattern();
+	static Pattern* get_empty_pattern();
 	Pattern* copy();
 
 	void dump();
+
+	unsigned get_lenght() {	return __lenght;	}
+	void set_lenght(unsigned lenght) {	__lenght = lenght;	}
+
+	void set_name(const std::string& name) { __name = name;	}
+	const std::string& get_name() const {	return __name;	}
+
+private:
+	unsigned __lenght;
+	std::string __name;
 };
 
 

@@ -419,7 +419,7 @@ Song* SongReader::readSong( const std::string& filename)
 		for (unsigned i = 0; i < patternList->getSize(); i++) {
 			Pattern *tmp = patternList->get(i);
 			if (tmp) {
-				if (tmp->m_sName == patId) {
+				if (tmp->get_name() == patId) {
 					pat = tmp;
 					break;
 				}
@@ -443,7 +443,7 @@ Song* SongReader::readSong( const std::string& filename)
 			for (unsigned i = 0; i < patternList->getSize(); i++) {
 				Pattern *tmp = patternList->get(i);
 				if (tmp) {
-					if (tmp->m_sName == patId) {
+					if (tmp->get_name() == patId) {
 						pat = tmp;
 						break;
 					}
@@ -570,7 +570,7 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 			//assert( instrRef );
 
 			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch, Note::stringToKey( sKey ) );
-			pPattern->m_noteMap.insert( std::make_pair( pNote->get_position(), pNote ) );
+			pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );
 		}
 	}
 	else {
@@ -610,7 +610,7 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch);
 
 				//infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );
-				pPattern->m_noteMap.insert( std::make_pair( pNote->get_position(), pNote ) );
+				pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );
 			}
 		}
 	}

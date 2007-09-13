@@ -188,7 +188,8 @@ void JackOutput::calculateFrameOffset(){
 
 
 /// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
-void JackOutput::relocateBBT(){
+void JackOutput::relocateBBT()
+{
 	if ( m_transport.m_status != TransportInfo::ROLLING || !(m_JackTransportPos.valid & JackPositionBBT) /**the last check is *probably* redundant*/ ) return;
 
 	Hydrogen * H = Hydrogen::get_instance();
@@ -205,7 +206,7 @@ void JackOutput::relocateBBT(){
 
 	char bbt[15];
 	sprintf(bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
-	WARNINGLOG( "Locating BBT: "+bbt+/*" -- Tx/Beat = "+toString(m_JackTransportPos.ticks_per_beat)+", Meter "+toString(m_JackTransportPos.beats_per_bar)+"/"+toString(m_JackTransportPos.beat_type)+*/" =>tick "+toString(hydrogen_ticks_to_locate) );
+	WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string(hydrogen_ticks_to_locate) );
 
 	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->m_nResolution;
 	// not S->m_fBPM !??
@@ -238,7 +239,7 @@ void JackOutput::updateTransportInfo(){
 		switch ( m_JackTransportState ) {
 			case JackTransportStopped:
 				m_transport.m_status = TransportInfo::STOPPED;
-				//infoLog( "[updateTransportInfo] STOPPED - frames: " + toString(m_transportPos.frame) );
+				//infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
 				break;
 
 			case JackTransportRolling:
@@ -247,12 +248,12 @@ void JackOutput::updateTransportInfo(){
 					WARNINGLOG("Jack transport starting: Resyncing in 2 x Buffersize!!");
 				}
 				m_transport.m_status = TransportInfo::ROLLING;
-				//infoLog( "[updateTransportInfo] ROLLING - frames: " + toString(m_transportPos.frame) );
+				//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
 				break;
 
 			case JackTransportStarting:
 				m_transport.m_status = TransportInfo::STOPPED;
-				//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + toString(m_transportPos.frame) );
+				//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
 				break;
 
 			default:
@@ -266,7 +267,7 @@ void JackOutput::updateTransportInfo(){
 			float bpm = (float)m_JackTransportPos.beats_per_minute;
 			if ( m_transport.m_nBPM != bpm ) {
 
-				WARNINGLOG( "Tempo change from jack-transport: " + toString( bpm ) );
+				WARNINGLOG( "Tempo change from jack-transport: " + to_string( bpm ) );
 
 				m_transport.m_nBPM = bpm;
 
@@ -368,7 +369,7 @@ int JackOutput::init(unsigned nBufferSize)
 	for ( int nInstance = 1; nInstance < 16; nInstance++ ) {
 //		sprintf( clientName, "Hydrogen-%d", nInstance );
 	//	sprintf( clientName, "Hydrogen-%d", getpid() );
-		sClientName = "Hydrogen-" + toString( nInstance );
+		sClientName = "Hydrogen-" + to_string( nInstance );
 		bool bExist = false;
 		for ( int i = 0; i < (int)clientList.size(); i++ ) {
 			if ( sClientName == clientList[ i ] ){
@@ -446,7 +447,7 @@ void JackOutput::makeTrackOutputs( Song * song ) {
 	int nInstruments = (int)instruments->get_size();
 
 	// create dedicated channel output ports
-	WARNINGLOG( "Creating / renaming" + toString( nInstruments ) + " ports" );
+	WARNINGLOG( "Creating / renaming" + to_string( nInstruments ) + " ports" );
 
 	for ( int n = nInstruments - 1; n >= 0; n-- ) {
 		instr = instruments->get( n );
@@ -473,7 +474,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr ) {
 
 	if ( track_port_count <= n ) { // need to create more ports
 		for ( int m = track_port_count; m <= n; m++ ) {
-			chName = "Track_" + toString( m + 1 ) + "_";
+			chName = "Track_" + to_string( m + 1 ) + "_";
 			track_output_ports_L[m] = jack_port_register ( client, (chName + "L").c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			track_output_ports_R[m] = jack_port_register ( client, (chName + "R").c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			if (track_output_ports_R[n] == NULL || track_output_ports_L[n] == NULL) {
@@ -483,7 +484,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr ) {
 		track_port_count = n + 1;
 	}
 	// Now we're sure there is an n'th port, rename it.
-	chName = "Track_" + toString( n + 1 ) + "_" + instr->get_name() + "_";
+	chName = "Track_" + to_string( n + 1 ) + "_" + instr->get_name() + "_";
 
 	jack_port_set_name( track_output_ports_L[n], (chName + "L").c_str() );
 	jack_port_set_name( track_output_ports_R[n], (chName + "R").c_str() );
@@ -523,7 +524,7 @@ void JackOutput::locate( unsigned long nFrame )
 {
 	if (( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT) {
 		if (client) {
-			WARNINGLOG( "calling jack_transport_locate(" + toString(nFrame) + ")" );
+			WARNINGLOG( "calling jack_transport_locate(" + to_string(nFrame) + ")" );
 			jack_transport_locate( client, nFrame );
 		}
 	}
@@ -536,7 +537,7 @@ void JackOutput::locate( unsigned long nFrame )
 
 void JackOutput::setBpm(float fBPM)
 {
-	WARNINGLOG( "setBpm: " + toString(fBPM) );
+	WARNINGLOG( "setBpm: " + to_string(fBPM) );
 	m_transport.m_nBPM = fBPM;
 }
 

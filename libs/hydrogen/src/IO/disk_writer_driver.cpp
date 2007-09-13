@@ -77,7 +77,7 @@ void* diskWriterDriver_thread(void* param)
 
 			float fPercent = (float) nCurrentPatternPos / (float)nPatterns * 100.0;
 			EventQueue::get_instance()->push_event( EVENT_PROGRESS, (int)fPercent );
-			_INFOLOG( "DiskWriterDriver: " + toString( fPercent ) + "%, transport frames:" + toString( pDriver->m_transport.m_nFrames ) );
+			_INFOLOG( "DiskWriterDriver: " + to_string( fPercent ) + "%, transport frames:" + to_string( pDriver->m_transport.m_nFrames ) );
 		}
 	}
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
@@ -115,7 +115,7 @@ DiskWriterDriver::~DiskWriterDriver() {
 
 int DiskWriterDriver::init(unsigned nBufferSize)
 {
-	INFOLOG( "init, " + toString(nBufferSize) + " samples" );
+	INFOLOG( "init, " + to_string(nBufferSize) + " samples" );
 
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];
@@ -179,7 +179,7 @@ void DiskWriterDriver::stop()
 
 void DiskWriterDriver::locate( unsigned long nFrame )
 {
-	INFOLOG( "locate: " + toString(nFrame) );
+	INFOLOG( "locate: " + to_string(nFrame) );
 	m_transport.m_nFrames = nFrame;
 }
 
@@ -195,7 +195,7 @@ void DiskWriterDriver::updateTransportInfo()
 
 void DiskWriterDriver::setBpm(float fBPM)
 {
-	INFOLOG( "setBpm: " + toString(fBPM) );
+	INFOLOG( "setBpm: " + to_string(fBPM) );
 	m_transport.m_nBPM = fBPM;
 }
 

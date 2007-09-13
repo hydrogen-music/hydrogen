@@ -47,9 +47,9 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 	EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
 //	infoLog( "[handleMidiMessage]" );
-//	infoLog( "[handleMidiMessage] channel: " + toString( msg.m_nChannel ) );
-//	infoLog( "[handleMidiMessage] val1: " + toString( msg.m_nData1 ) );
-//	infoLog( "[handleMidiMessage] val2: " + toString( msg.m_nData2 ) );
+//	infoLog( "[handleMidiMessage] channel: " + to_string( msg.m_nChannel ) );
+//	infoLog( "[handleMidiMessage] val1: " + to_string( msg.m_nData1 ) );
+//	infoLog( "[handleMidiMessage] val2: " + to_string( msg.m_nData2 ) );
 
 	switch ( msg.m_type ) {
 		case MidiMessage::SYSEX:
@@ -119,7 +119,7 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 			break;
 
 		default:
-			ERRORLOG( "unhandled midi message type: " + toString( msg.m_type ) );
+			ERRORLOG( "unhandled midi message type: " + to_string( msg.m_type ) );
 	}
 }
 
@@ -151,7 +151,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bIsChannelValid ) {
 		if ( bPatternSelect ) {
 			int patternNumber = nNote - 36;
-			INFOLOG( "next pattern = " + toString(patternNumber) );
+			INFOLOG( "next pattern = " + to_string(patternNumber) );
 
 			pEngine->sequencer_setNextPattern( patternNumber, false, false );
 		}
@@ -299,7 +299,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			sprintf( tmpChar, "%X ", (int)msg.m_sysexData[ i ] );
 			sDump += tmpChar;
 		}
-		WARNINGLOG( "Unknown SysEx message: " + string( "(" ) + toString( msg.m_sysexData.size() ) + string( ") [ " ) + sDump + string( " ]" ));
+		WARNINGLOG( "Unknown SysEx message: " + string( "(" ) + to_string( msg.m_sysexData.size() ) + string( ") [ " ) + sDump + string( " ]" ));
 	}
 
 }

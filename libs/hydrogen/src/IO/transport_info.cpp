@@ -59,8 +59,8 @@ void TransportInfo::printInfo()
 		default:
 			ERRORLOG( "status = unknown" );
 	}
-	INFOLOG( "frames = " + toString(m_nFrames) );
-	INFOLOG( "tickSize = " + toString(m_nTickSize) );
+	INFOLOG( "frames = " + to_string(m_nFrames) );
+	INFOLOG( "tickSize = " + to_string(m_nTickSize) );
 }
 
 };

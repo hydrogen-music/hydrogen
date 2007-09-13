@@ -165,7 +165,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	// gray background for unusable section of pattern
 	if (m_pPattern) {
-		int nXStart = 20 + m_pPattern->m_nSize * m_nGridWidth;
+		int nXStart = 20 + m_pPattern->get_lenght() * m_nGridWidth;
 		if ( (m_nRulerWidth - nXStart) != 0 ) {
 			painter.fillRect( nXStart, 0, m_nRulerWidth - nXStart, m_nRulerHeight, QColor(170,170,170) );
 		}
@@ -189,7 +189,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
-			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString( toString( i / 4 + 1 ).c_str() ) );
+			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString( to_string( i / 4 + 1 ).c_str() ) );
 		}
 		else {
 			painter.setPen( lineColor );

@@ -83,11 +83,11 @@ Instrument::~Instrument()
 InstrumentLayer* Instrument::get_layer( int nLayer )
 {
 	if (nLayer < 0 ) {
-		ERRORLOG( "nLayer < 0 (nLayer=" + toString(nLayer) + ")" );
+		ERRORLOG( "nLayer < 0 (nLayer=" + to_string(nLayer) + ")" );
 		return NULL;
 	}
 	if (nLayer >= MAX_LAYERS ) {
-		ERRORLOG( "nLayer > MAX_LAYERS (nLayer=" + toString(nLayer) + ")" );
+		ERRORLOG( "nLayer > MAX_LAYERS (nLayer=" + to_string(nLayer) + ")" );
 		return NULL;
 	}
 
@@ -203,11 +203,11 @@ void InstrumentList::add(Instrument* newInstrument) {
 Instrument* InstrumentList::get(unsigned int pos)
 {
 	if ( pos >= m_list.size() ) {
-		ERRORLOG( "pos > list.size(). pos = " + toString(pos) );
+		ERRORLOG( "pos > list.size(). pos = " + to_string(pos) );
 		return NULL;
 	}
 /*	else if ( pos < 0 ) {
-		ERRORLOG( "pos < 0. pos = " + toString(pos) );
+		ERRORLOG( "pos < 0. pos = " + to_string(pos) );
 		return NULL;
 	}*/
 	return m_list[pos];
@@ -234,7 +234,7 @@ unsigned int InstrumentList::get_size()
 void InstrumentList::replace( Instrument* pNewInstr, unsigned nPos )
 {
 	if ( nPos >= m_list.size() ) {
-		ERRORLOG( "Instrument index out of bounds in InstrumentList::replace. pos >= list.size() - " + toString( nPos ) + " > " + toString( m_list.size() ) );
+		ERRORLOG( "Instrument index out of bounds in InstrumentList::replace. pos >= list.size() - " + to_string( nPos ) + " > " + to_string( m_list.size() ) );
 		return;
 	}
 	m_list.insert( m_list.begin() + nPos, pNewInstr );	// insert the new Instrument

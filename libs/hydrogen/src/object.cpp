@@ -34,9 +34,9 @@
 
 using namespace std;
 
-unsigned int Object::m_nObjects = 0;
-bool Object::m_bUseLog = false;
-std::map<std::string, int> Object::m_ObjectMap;
+unsigned int Object::__objects = 0;
+bool Object::__use_log = false;
+std::map<std::string, int> Object::__object_map;
 
 
 
@@ -44,20 +44,20 @@ std::map<std::string, int> Object::m_ObjectMap;
 /**
  * Constructor
  */
-Object::Object( const std::string& sClassName )
- : m_sClassName( sClassName )
+Object::Object( const std::string& class_name )
+ : __class_name( class_name )
 {
-	++m_nObjects;
-	m_pLogger = Logger::getInstance();
+	++__objects;
+	__logger = Logger::get_instance();
 
 #ifdef WIN32
 	Object::useVerboseLog( true );
 #endif
 
-	if (m_bUseLog) {
-		int nInstances = m_ObjectMap[ m_sClassName ];
+	if (__use_log) {
+		int nInstances = __object_map[ __class_name ];
 		++nInstances;
-		m_ObjectMap[ m_sClassName ] = nInstances;
+		__object_map[ __class_name ] = nInstances;
 	}
 }
 
@@ -70,16 +70,16 @@ Object::Object( const Object& obj )
 #ifdef WIN32
 	useVerboseLog( true );
 #endif
-	m_sClassName = obj.getClassName();
+	__class_name = obj.get_class_name();
 
-	++m_nObjects;
-//	m_sClassName = obj.getClassName;
-	m_pLogger = Logger::getInstance();
+	++__objects;
+//	__class_name = obj.getClassName;
+	__logger = Logger::get_instance();
 
-	if (m_bUseLog) {
-		int nInstances = m_ObjectMap[ m_sClassName ];
+	if (__use_log) {
+		int nInstances = __object_map[ __class_name ];
 		++nInstances;
-		m_ObjectMap[ m_sClassName ] = nInstances;
+		__object_map[ __class_name ] = nInstances;
 	}
 }
 
@@ -89,12 +89,12 @@ Object::Object( const Object& obj )
  */
 Object::~Object()
 {
-	--m_nObjects;
+	--__objects;
 
-	if (m_bUseLog) {
-		int nInstances = m_ObjectMap[ m_sClassName ];
+	if (__use_log) {
+		int nInstances = __object_map[ __class_name ];
 		--nInstances;
-		m_ObjectMap[ m_sClassName ] = nInstances;
+		__object_map[ __class_name ] = nInstances;
 	}
 }
 
@@ -105,24 +105,24 @@ Object::~Object()
 /**
  * Return the number of Objects not deleted
  */
-int Object::getNObjects()
+int Object::get_objects_number()
 {
-	return m_nObjects;
+	return __objects;
 }
 
 
 /*
 void Object::infoLog(const std::string& sMsg)
 {
-	if (m_bUseLog) {
-		m_pLogger->info(this, sMsg);
+	if (__use_log) {
+		__logger->info(this, sMsg);
 	}
 }
 
 
 void Object::warningLog(const std::string& sMsg)
 {
-	m_pLogger->warning(this, sMsg);
+	__logger->warning(this, sMsg);
 }
 
 
@@ -130,31 +130,31 @@ void Object::warningLog(const std::string& sMsg)
 
 void Object::errorLog(const std::string& sMsg)
 {
-	m_pLogger->error(this, sMsg);
+	__logger->error(this, sMsg);
 }
 */
 
 
-void Object::useVerboseLog( bool bUse )
+void Object::use_verbose_log( bool bUse )
 {
-	m_bUseLog = bUse;
-	Logger::getInstance()->m_bUseFile = bUse;
+	__use_log = bUse;
+	Logger::get_instance()->__use_file = bUse;
 }
 
 
 
-bool Object::isUsingVerboseLog()
+bool Object::is_using_verbose_log()
 {
-	return m_bUseLog;
+	return __use_log;
 }
 
 
 
-void Object::printObjectMap()
+void Object::print_object_map()
 {
-	std::cout << "[Object::printObjectMap]" << std::endl;
+	std::cout << "[Object::print_object_map]" << std::endl;
 
-	map<std::string, int>::iterator iter = m_ObjectMap.begin();
+	map<std::string, int>::iterator iter = __object_map.begin();
 	int nTotal = 0;
 	do {
 		int nInstances = (*iter).second;
@@ -164,7 +164,7 @@ void Object::printObjectMap()
 		}
 		nTotal += nInstances;
 		iter++;
-	} while ( iter != m_ObjectMap.end() );
+	} while ( iter != __object_map.end() );
 
 	std::cout << "Total : " << nTotal << " objects." << std::endl;
 }
@@ -174,7 +174,7 @@ void Object::printObjectMap()
 ////////////////////////
 
 
-Logger* Logger::m_pInstance = NULL;
+Logger* Logger::__instance = NULL;
 
 pthread_t loggerThread;
 
@@ -194,7 +194,7 @@ void* loggerThread_func(void* param)
 	Logger *pLogger = (Logger*)param;
 
 	FILE *pLogFile = NULL;
-	if ( pLogger->m_bUseFile ) {
+	if ( pLogger->__use_file ) {
 #ifdef Q_OS_MACX
 	  	string sLogFilename = QDir::homePath().append("/Library/Hydrogen/hydrogen.log").toStdString();
 #else
@@ -210,20 +210,20 @@ void* loggerThread_func(void* param)
 		}
 	}
 
-	while ( pLogger->m_bIsRunning ) {
+	while ( pLogger->__running ) {
 #ifdef WIN32
 		Sleep( 1000 );
 #else
 		usleep( 1000000 );
 #endif
-		pthread_mutex_lock( &pLogger->m_logger_mutex );
+		pthread_mutex_lock( &pLogger->__logger_mutex );
 
 
 		vector<std::string>::iterator it;
 		string tmpString;
-		while ( (it  = pLogger->m_msgQueue.begin() ) != pLogger->m_msgQueue.end() ) {
+		while ( (it  = pLogger->__msg_queue.begin() ) != pLogger->__msg_queue.end() ) {
 			tmpString = *it;
-			pLogger->m_msgQueue.erase( it );
+			pLogger->__msg_queue.erase( it );
 			printf( tmpString.c_str() );
 
 			if ( pLogFile ) {
@@ -231,7 +231,7 @@ void* loggerThread_func(void* param)
 				fflush( pLogFile );
 			}
 		}
-		pthread_mutex_unlock( &pLogger->m_logger_mutex );
+		pthread_mutex_unlock( &pLogger->__logger_mutex );
 	}
 
 	if ( pLogFile ) {
@@ -254,12 +254,12 @@ void* loggerThread_func(void* param)
 }
 
 
-Logger* Logger::getInstance()
+Logger* Logger::get_instance()
 {
-	if ( !m_pInstance ) {
-		m_pInstance = new Logger();
+	if ( !__instance ) {
+		__instance = new Logger();
 	}
-	return m_pInstance;
+	return __instance;
 }
 
 
@@ -267,13 +267,13 @@ Logger* Logger::getInstance()
  * Constructor
  */
 Logger::Logger()
- : m_bUseFile( false )
- , m_bIsRunning( true )
+ : __use_file( false )
+ , __running( true )
 {
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 
-	pthread_mutex_init( &m_logger_mutex, NULL );
+	pthread_mutex_init( &__logger_mutex, NULL );
 
 
 	pthread_create(&loggerThread, &attr, loggerThread_func, this);
@@ -287,7 +287,7 @@ Logger::Logger()
  */
 Logger::~Logger()
 {
-	m_bIsRunning = false;
+	__running = false;
 	pthread_join(loggerThread, NULL);
 
 }
@@ -296,51 +296,51 @@ Logger::~Logger()
 
 
 
-void Logger::infoLog( const std::string& logMsg )
+void Logger::info_log( const std::string& logMsg )
 {
-	if ( !Object::isUsingVerboseLog() ) return;
+	if ( !Object::is_using_verbose_log() ) return;
 
-	pthread_mutex_lock( &m_logger_mutex );
+	pthread_mutex_lock( &__logger_mutex );
 
 #ifdef WIN32
-	m_msgQueue.push_back( logMsg + "\n" );
+	__msg_queue.push_back( logMsg + "\n" );
 #else
-	m_msgQueue.push_back( string( "\033[32m" ) + logMsg + string("\033[0m").append("\n") );
+	__msg_queue.push_back( string( "\033[32m" ) + logMsg + string("\033[0m").append("\n") );
 #endif
 
-	pthread_mutex_unlock( &m_logger_mutex );
+	pthread_mutex_unlock( &__logger_mutex );
 
 }
 
 
 
 
-void Logger::warningLog( const std::string& logMsg )
+void Logger::warning_log( const std::string& logMsg )
 {
-	pthread_mutex_lock( &m_logger_mutex );
+	pthread_mutex_lock( &__logger_mutex );
 
-	#ifdef WIN32
-	m_msgQueue.push_back( logMsg + "\n" );
+#ifdef WIN32
+	__msg_queue.push_back( logMsg + "\n" );
 #else
-	m_msgQueue.push_back( string( "\033[36m" ) + logMsg + string("\033[0m").append("\n") );
+	__msg_queue.push_back( string( "\033[36m" ) + logMsg + string("\033[0m").append("\n") );
 #endif
 
-	pthread_mutex_unlock( &m_logger_mutex );
+	pthread_mutex_unlock( &__logger_mutex );
 }
 
 
 
-void Logger::errorLog( const std::string& logMsg )
+void Logger::error_log( const std::string& logMsg )
 {
-	pthread_mutex_lock( &m_logger_mutex );
+	pthread_mutex_lock( &__logger_mutex );
 
 #ifdef WIN32
-	m_msgQueue.push_back( logMsg + "\n" );
+	__msg_queue.push_back( logMsg + "\n" );
 #else
-	m_msgQueue.push_back( string( "\033[31m" ) + logMsg + string("\033[0m").append("\n") );
+	__msg_queue.push_back( string( "\033[31m" ) + logMsg + string("\033[0m").append("\n") );
 #endif
 
-	pthread_mutex_unlock( &m_logger_mutex );
+	pthread_mutex_unlock( &__logger_mutex );
 }
 
 

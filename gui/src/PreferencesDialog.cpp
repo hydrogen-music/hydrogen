@@ -140,7 +140,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			sampleRateComboBox->setCurrentIndex( 3 );
 			break;
 		default:
-			ERRORLOG( "Wrong samplerate: " + toString( pPref->m_nSampleRate ) );
+			ERRORLOG( "Wrong samplerate: " + to_string( pPref->m_nSampleRate ) );
 	}
 
 
@@ -170,7 +170,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		mixerFalloffComboBox->setCurrentIndex(2);
 	}
 	else {
-		ERRORLOG( "PreferencesDialog: wrong mixerFalloff value = " + toString(falloffSpeed) );
+		ERRORLOG( "PreferencesDialog: wrong mixerFalloff value = " + to_string(falloffSpeed) );
 	}
 
 	// Style

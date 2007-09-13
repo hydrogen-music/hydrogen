@@ -406,7 +406,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				break;
 
 			default:
-				ERRORLOG( "Wrong grid resolution: " + toString( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( "Wrong grid resolution: " + to_string( pPref->getPatternEditorGridResolution() ) );
 				__resolution_combo->set_text( "4" );
 				nIndex = 0;
 		}
@@ -434,7 +434,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				break;
 
 			default:
-				ERRORLOG( "Wrong grid resolution: " + toString( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( "Wrong grid resolution: " + to_string( pPref->getPatternEditorGridResolution() ) );
 				__resolution_combo->set_text( "4T" );
 				nIndex = 5;
 		}
@@ -524,7 +524,7 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 		nResolution = str.toInt();
 	}
 
-	//INFOLOG( toString( nResolution ) );
+	//INFOLOG( to_string( nResolution ) );
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 
 	Preferences::getInstance()->setPatternEditorGridResolution( nResolution );
@@ -541,13 +541,13 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() ) ) {
 		// update pattern name text
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-		QString sCurrentPatternName = m_pPattern->m_sName.c_str();
+		QString sCurrentPatternName = m_pPattern->get_name().c_str();
 		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg( sCurrentPatternName ) ) );
 		//m_pNameLCD->setText( sCurrentPatternName );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
 		// update pattern size combobox
-		int nPatternSize = m_pPattern->m_nSize;
+		int nPatternSize = m_pPattern->get_lenght();
 		int nEighth = MAX_NOTES / 8;
 		for ( int i = 1; i <= 32; i++ ) {
 			if ( nPatternSize == nEighth * i ) {
@@ -753,7 +753,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	uint nEighth = MAX_NOTES / 8;
 	int nSelected = str.toInt();
 
-	if ( m_pPattern->m_nSize == nEighth * nSelected ) {
+	if ( m_pPattern->get_lenght() == nEighth * nSelected ) {
 		// non e' necessario aggiornare
 		return;
 	}
@@ -770,11 +770,11 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 
 
 	if ( nSelected > 0 && nSelected <= 32 ) {
-		m_pPattern->m_nSize = nEighth * nSelected;
+		m_pPattern->set_lenght( nEighth * nSelected );
 		//m_pPatternSizeLCD->setText( QString( "%1" ).arg( nSelected ) );
 	}
 	else {
-		ERRORLOG( "[patternSizeChanged] Unhandled case " + toString( nSelected ) );
+		ERRORLOG( "[patternSizeChanged] Unhandled case " + to_string( nSelected ) );
 	}
 
 	m_pPatternEditorRuler->updateEditor( true );	// redraw all

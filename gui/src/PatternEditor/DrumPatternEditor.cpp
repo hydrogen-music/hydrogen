@@ -115,7 +115,7 @@ void DrumPatternEditor::updateEditor()
 
 	uint nEditorWidth;
 	if ( m_pPattern ) {
-		nEditorWidth = 20 + m_nGridWidth * m_pPattern->m_nSize;
+		nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_lenght();
 	}
 	else {
 		nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
@@ -169,7 +169,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
 	int nColumn = getColumn( ev );
 
-	if ( nColumn >= (int)m_pPattern->m_nSize ) {
+	if ( nColumn >= (int)m_pPattern->get_lenght() ) {
 		update( 0, 0, width(), height() );
 		return;
 	}
@@ -181,14 +181,14 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
 		bool bNoteAlreadyExist = false;
 		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->m_noteMap.lower_bound( nColumn ); pos != m_pPattern->m_noteMap.upper_bound( nColumn ); ++pos ) {
+		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				// the note exists...remove it!
 				bNoteAlreadyExist = true;
 				delete pNote;
-				m_pPattern->m_noteMap.erase( pos );
+				m_pPattern->note_map.erase( pos );
 				break;
 			}
 		}
@@ -202,7 +202,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			const int nLength = -1;
 			const float fPitch = 0.0f;
 			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-			m_pPattern->m_noteMap.insert( std::make_pair( nPosition, pNote ) );
+			m_pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
 
 			// hear note
 			Preferences *pref = Preferences::getInstance();
@@ -223,7 +223,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );
 
 		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->m_noteMap.lower_bound( nColumn ); pos != m_pPattern->m_noteMap.upper_bound( nColumn ); ++pos ) {
+		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
 
@@ -234,7 +234,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			}
 		}
 		if ( !m_pDraggedNote ) {
-			for ( pos = m_pPattern->m_noteMap.lower_bound( nRealColumn ); pos != m_pPattern->m_noteMap.upper_bound( nRealColumn ); ++pos ) {
+			for ( pos = m_pPattern->note_map.lower_bound( nRealColumn ); pos != m_pPattern->note_map.upper_bound( nRealColumn ); ++pos ) {
 				Note *pNote = pos->second;
 				assert( pNote );
 
@@ -248,7 +248,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		// potrei essere sulla coda di una nota precedente..
 		for ( int nCol = 0; nCol < nRealColumn; ++nCol ) {
 			if ( m_pDraggedNote ) break;
-			for ( pos = m_pPattern->m_noteMap.lower_bound( nCol ); pos != m_pPattern->m_noteMap.upper_bound( nCol ); ++pos ) {
+			for ( pos = m_pPattern->note_map.lower_bound( nCol ); pos != m_pPattern->note_map.upper_bound( nCol ); ++pos ) {
 				Note *pNote = pos->second;
 				assert( pNote );
 
@@ -352,7 +352,7 @@ void DrumPatternEditor::drawPattern()
 		return;
 	}
 
-	int nNotes = m_pPattern->m_nSize;
+	int nNotes = m_pPattern->get_lenght();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
@@ -382,7 +382,7 @@ void DrumPatternEditor::drawPattern()
 	drawGrid(  p );
 
 	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); pos++ ) {
+	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
 		Note *note = pos->second;
 		assert( note );
 		drawNote( note, p );
@@ -484,7 +484,7 @@ void DrumPatternEditor::drawGrid( QPainter* p )
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
-		nNotes = m_pPattern->m_nSize;
+		nNotes = m_pPattern->get_lenght();
 	}
 	if (!m_bUseTriplets) {
 		for ( int i = 0; i < nNotes + 1; i++ ) {
@@ -574,7 +574,7 @@ void DrumPatternEditor::createBackground()
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
-		nNotes = m_pPattern->m_nSize;
+		nNotes = m_pPattern->get_lenght();
 	}
 
 

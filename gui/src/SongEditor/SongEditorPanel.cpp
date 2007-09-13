@@ -332,8 +332,8 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	Song *song = engine->getSong();
 	PatternList *patternList = song->getPatternList();
 
-	Pattern *emptyPattern = Pattern::getEmptyPattern();
-	emptyPattern->m_sName = trUtf8("Pattern").toStdString();
+	Pattern *emptyPattern = Pattern::get_empty_pattern();
+	emptyPattern->set_name( trUtf8("Pattern").toStdString() );
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern );
 	if ( dialog->exec() == QDialog::Accepted ) {

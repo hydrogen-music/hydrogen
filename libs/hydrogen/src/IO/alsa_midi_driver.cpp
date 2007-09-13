@@ -86,8 +86,8 @@ void* alsaMidiDriver_thread(void* param)
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
 	_INFOLOG( "MIDI port name: " + sPortName );
-	_INFOLOG( "MIDI addr client: " + toString( m_dest_addr_client ) );
-	_INFOLOG( "MIDI addr port: " + toString( m_dest_addr_port ) );
+	_INFOLOG( "MIDI addr client: " + to_string( m_dest_addr_client ) );
+	_INFOLOG( "MIDI addr port: " + to_string( m_dest_addr_port ) );
 
 	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
 		snd_seq_port_subscribe_t *subs;
@@ -106,11 +106,11 @@ void* alsaMidiDriver_thread(void* param)
 		/* subscribe */
 		int ret = snd_seq_subscribe_port(seq_handle, subs);
 		if ( ret < 0 ){
-			_ERRORLOG( "snd_seq_connect_from(" + toString(m_dest_addr_client) + ":" + toString(m_dest_addr_port) +" error" );
+			_ERRORLOG( "snd_seq_connect_from(" + to_string(m_dest_addr_client) + ":" + to_string(m_dest_addr_port) +" error" );
 		}
 	}
 
-	_INFOLOG( "Midi input port at " + toString(clientId) + ":" + toString(portId) );
+	_INFOLOG( "Midi input port at " + to_string(clientId) + ":" + to_string(portId) );
 
 	npfd = snd_seq_poll_descriptors_count( seq_handle, POLLIN );
 	pfd = ( struct pollfd* )alloca( npfd * sizeof( struct pollfd ) );
@@ -279,7 +279,7 @@ void AlsaMidiDriver::midi_action(snd_seq_t *seq_handle)
 					break;
 
 				default:
-					WARNINGLOG( "Unknown MIDI Event. type = " + toString((int)ev->type) );
+					WARNINGLOG( "Unknown MIDI Event. type = " + to_string((int)ev->type) );
 			}
 			if ( msg.m_type != MidiMessage::UNKNOWN ) {
 				handleMidiMessage( msg );
@@ -384,8 +384,8 @@ void AlsaMidiDriver::getPortInfo(const std::string& sPortName, int& nClient, int
 						nClient = snd_seq_port_info_get_client(pinfo);
 						nPort = snd_seq_port_info_get_port(pinfo);
 
-						INFOLOG( "nClient " + toString(nClient) );
-						INFOLOG( "nPort " + toString(nPort) );
+						INFOLOG( "nClient " + to_string(nClient) );
+						INFOLOG( "nPort " + to_string(nPort) );
 						return;
 					}
 				}

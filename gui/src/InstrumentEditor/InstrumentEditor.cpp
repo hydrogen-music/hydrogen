@@ -322,7 +322,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
 		// instr mute group
-		string sMuteGroup = toString( m_pInstrument->get_mute_group());
+		string sMuteGroup = to_string( m_pInstrument->get_mute_group());
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
@@ -397,7 +397,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 				pLayer->set_pitch( nCoarse + fFine );
-				INFOLOG( "pitch: " + toString( pLayer->get_pitch() ) );
+				INFOLOG( "pitch: " + to_string( pLayer->get_pitch() ) );
 			}
 		}
 		else if ( ref == m_pLayerPitchFineRotary ) {
@@ -407,7 +407,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 				pLayer->set_pitch( nCoarse + fFine );
-				INFOLOG( "pitch: " + toString( pLayer->get_pitch()) );
+				INFOLOG( "pitch: " + to_string( pLayer->get_pitch()) );
 			}
 
 		}
@@ -583,7 +583,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 		//int nCoarsePitch = pLayer->m_fPitch / 24 + 0.5;
 		int nCoarsePitch = (int)pLayer->get_pitch();
 		float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
-		//INFOLOG( "fine pitch: " + toString( fFinePitch ) );
+		//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
 		m_pLayerPitchCoarseRotary->setValue( nCoarsePitch );
 		m_pLayerPitchFineRotary->setValue( fFinePitch );
 

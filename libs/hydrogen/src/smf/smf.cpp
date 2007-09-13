@@ -242,13 +242,13 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 		for ( unsigned nPattern = 0; nPattern < pPatternList->getSize(); nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
 //			infoLog( "      |-> pattern: " + pPattern->getName() );
-			if ( (int)pPattern->m_nSize > nMaxPatternLength ) {
-				nMaxPatternLength = pPattern->m_nSize;
+			if ( (int)pPattern->get_lenght() > nMaxPatternLength ) {
+				nMaxPatternLength = pPattern->get_lenght();
 			}
 
-			for ( unsigned nNote = 0; nNote < pPattern->m_nSize; nNote++ ) {
+			for ( unsigned nNote = 0; nNote < pPattern->get_lenght(); nNote++ ) {
 				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pPattern->m_noteMap.lower_bound( nNote ); pos != pPattern->m_noteMap.upper_bound( nNote ); ++pos ) {
+				for ( pos = pPattern->note_map.lower_bound( nNote ); pos != pPattern->note_map.upper_bound( nNote ); ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote ) {
 						int nVelocity = (int)( 127.0 * pNote->get_velocity());

@@ -208,7 +208,7 @@ void InstrumentLine::functionClearNotes()
 	Instrument *pSelectedInstrument = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nSelectedInstrument );
 
 	std::multimap <int, Note*>::iterator pos;
-	for ( pos = pCurrentPattern->m_noteMap.begin(); pos != pCurrentPattern->m_noteMap.end(); ++pos ) {
+	for ( pos = pCurrentPattern->note_map.begin(); pos != pCurrentPattern->note_map.end(); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
 		if ( pNote->get_instrument() != pSelectedInstrument ) {
@@ -216,7 +216,7 @@ void InstrumentLine::functionClearNotes()
 		}
 
 		delete pNote;
-		pCurrentPattern->m_noteMap.erase( pos );
+		pCurrentPattern->note_map.erase( pos );
 	}
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
@@ -256,7 +256,7 @@ void InstrumentLine::functionFillNotes()
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
-		int nPatternSize = pCurrentPattern->m_nSize;
+		int nPatternSize = pCurrentPattern->get_lenght();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
 		if (nSelectedInstrument != -1) {
@@ -266,7 +266,7 @@ void InstrumentLine::functionFillNotes()
 				bool noteAlreadyPresent = false;
 
 				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pCurrentPattern->m_noteMap.lower_bound( i ); pos != pCurrentPattern->m_noteMap.upper_bound( i ); ++pos ) {
+				for ( pos = pCurrentPattern->note_map.lower_bound( i ); pos != pCurrentPattern->note_map.upper_bound( i ); ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
@@ -279,7 +279,7 @@ void InstrumentLine::functionFillNotes()
 					// create the new note
 					Note *pNote = new Note( instrRef, i, velocity, pan_L, pan_R, nLength, fPitch );
 					//pNote->setInstrument(instrRef);
-					pCurrentPattern->m_noteMap.insert( std::make_pair( i, pNote ) );
+					pCurrentPattern->note_map.insert( std::make_pair( i, pNote ) );
 				}
 			}
 		}
@@ -357,12 +357,12 @@ void InstrumentLine::functionDeleteInstrument()
 		H2Core::Pattern *pPattern = pPatternList->get( nPattern );
 
 		std::multimap <int, Note*>::iterator pos;
-		for ( pos = pPattern->m_noteMap.begin(); pos != pPattern->m_noteMap.end(); ++pos ) {
+		for ( pos = pPattern->note_map.begin(); pos != pPattern->note_map.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pInstr ) {
 				delete pNote;
-				pPattern->m_noteMap.erase( pos );
+				pPattern->note_map.erase( pos );
 			}
 		}
 	}
@@ -579,7 +579,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		}
 		++nID;
 
-		pNewInstrument->set_id( toString( nID ) );
+		pNewInstrument->set_id( to_string( nID ) );
 
 		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
 		pEngine->getSong()->getInstrumentList()->add( pNewInstrument );

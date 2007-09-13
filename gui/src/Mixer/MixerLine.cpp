@@ -423,7 +423,7 @@ void MixerLine::knobChanged(Knob* pRef)
 void MixerLine::setFXLevel( uint nFX, float fValue )
 {
 	if (nFX > MAX_FX) {
-		ERRORLOG( "[setFXLevel] nFX > MAX_FX (nFX=" + toString(nFX) + ")" );
+		ERRORLOG( "[setFXLevel] nFX > MAX_FX (nFX=" + to_string(nFX) + ")" );
 	}
 	m_pKnob[nFX]->setValue( fValue );
 }
@@ -431,7 +431,7 @@ void MixerLine::setFXLevel( uint nFX, float fValue )
 float MixerLine::getFXLevel(uint nFX)
 {
 	if (nFX > MAX_FX) {
-		ERRORLOG( "[setFXLevel] nFX > MAX_FX (nFX=" + toString(nFX) + ")" );
+		ERRORLOG( "[setFXLevel] nFX > MAX_FX (nFX=" + to_string(nFX) + ")" );
 	}
 	return m_pKnob[nFX]->getValue();
 }

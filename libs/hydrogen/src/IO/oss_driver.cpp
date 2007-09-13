@@ -49,7 +49,7 @@ void* ossDriver_processCaller(void* param)
 	if (res) {
 		_WARNINGLOG("Can't set realtime scheduling for OSS Driver");
 	}
-	_INFOLOG( "Scheduling priority = " + toString( sched.sched_priority ) );
+	_INFOLOG( "Scheduling priority = " + to_string( sched.sched_priority ) );
 
 	OssDriver *ossDriver = (OssDriver*)param;
 
@@ -176,7 +176,7 @@ int OssDriver::connect() {
 		return 1;
 	}
 
-	INFOLOG( "Blocksize audio = " + toString( bs ) );
+	INFOLOG( "Blocksize audio = " + to_string( bs ) );
 
 	if (bs != ( 1 << bufferBits) ){
 		ERRORLOG("ERROR_IOCTL: unable to set BlockSize");
@@ -309,7 +309,7 @@ void OssDriver::updateTransportInfo()
 
 void OssDriver::setBpm(float fBPM)
 {
-	INFOLOG( "setBpm: " + toString(fBPM) );
+	INFOLOG( "setBpm: " + to_string(fBPM) );
 	m_transport.m_nBPM = fBPM;
 }
 

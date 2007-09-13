@@ -400,7 +400,7 @@ void HydrogenApp::onEventQueueTimer()
 					break;
 
 				default:
-					ERRORLOG( "[onEventQueueTimer] Unhandled event: " + toString( event.type ) );
+					ERRORLOG( "[onEventQueueTimer] Unhandled event: " + to_string( event.type ) );
 			}
 
 		}

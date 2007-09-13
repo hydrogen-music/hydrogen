@@ -156,7 +156,7 @@ void PianoRollEditor::drawPattern()
 
 	// for each note...
 	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); pos++ ) {
+	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
 		//cout << "note" << endl;
 		//cout << "note n: " << pos->first << endl;
 		Note *note = pos->second;

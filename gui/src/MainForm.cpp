@@ -230,7 +230,7 @@ void MainForm::createMenuBar()
 	//~ Tools menu
 
 
-	if ( Object::isUsingVerboseLog() ) {
+	if ( Object::is_using_verbose_log() ) {
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
@@ -283,7 +283,7 @@ bool MainForm::action_file_exit()
 				return false;
 				break;
 			default:
-				ERRORLOG( "Unknown return code: " + toString( res ) );
+				ERRORLOG( "Unknown return code: " + to_string( res ) );
 		}
 	}
 
@@ -615,7 +615,7 @@ void MainForm::action_instruments_addInstrument()
 	}
 	++nID;
 
-	Instrument *pNewInstr = new Instrument(toString( nID ), "New instrument", new ADSR());
+	Instrument *pNewInstr = new Instrument(to_string( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
 	AudioEngine::get_instance()->unlock();
 
@@ -1123,7 +1123,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 void MainForm::action_debug_printObjects()
 {
 	INFOLOG( "[action_debug_printObjects]" );
-	Object::printObjectMap();
+	Object::print_object_map();
 }
 
 
@@ -1154,7 +1154,7 @@ void MainForm::action_debug_debugCommand()
 			PatternList *pSongPatternList = pEngine->getSong()->getPatternList();
 			for ( uint i = 0; i <pSongPatternList->getSize(); i++ ) {
 				H2Core::Pattern *pPat = pSongPatternList->get( i );
-				std::cout << "   |->[" << i << "] " << pPat->m_sName << std::endl;
+				std::cout << "   |->[" << i << "] " << pPat->get_name() << std::endl;
 			}
 			std::cout << "----------------------------------------------------------------------" << std::endl;
 
@@ -1166,7 +1166,7 @@ void MainForm::action_debug_debugCommand()
 			PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
 			for ( uint i = 0; i <pCurrentPatternList->getSize(); i++ ) {
 				H2Core::Pattern *pPat = pCurrentPatternList->get( i );
-				cout << "   |->[" << i << "] " << pPat->m_sName << std::endl;
+				cout << "   |->[" << i << "] " << pPat->get_name() << std::endl;
 			}
 			cout << "----------------------------------------------------------------------" << std::endl;
 		}

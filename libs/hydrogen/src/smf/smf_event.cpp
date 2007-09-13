@@ -26,7 +26,7 @@ namespace H2Core {
 
 void SMFBuffer::writeByte( short int nByte )
 {
-//	infoLog( "[writeByte] " + toString( nByte ) );
+//	infoLog( "[writeByte] " + to_string( nByte ) );
 	m_buffer.push_back( nByte );
 }
 
@@ -140,7 +140,7 @@ SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int n
  , m_nVelocity( nVelocity )
 {
 	if ( nChannel >= 16 ) {
-		ERRORLOG( "nChannel >= 16! nChannel=" + toString(nChannel) );
+		ERRORLOG( "nChannel >= 16! nChannel=" + to_string(nChannel) );
 	}
 }
 
@@ -169,7 +169,7 @@ SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int
  , m_nVelocity( nVelocity )
 {
 	if ( nChannel >= 16 ) {
-		ERRORLOG( "nChannel >= 16! nChannel=" + toString(nChannel) );
+		ERRORLOG( "nChannel >= 16! nChannel=" + to_string(nChannel) );
 	}
 }
 

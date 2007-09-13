@@ -78,7 +78,7 @@ FLACFile_real::~FLACFile_real()
 	int nBits = get_bits_per_sample();
 
 	if ( (nChannelCount != 1 ) && (nChannelCount != 2) ) {
-		ERRORLOG( "wrong number of channels. nChannelCount=" + toString( nChannelCount) );
+		ERRORLOG( "wrong number of channels. nChannelCount=" + to_string( nChannelCount) );
 		return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 	}
 
@@ -123,7 +123,7 @@ FLACFile_real::~FLACFile_real()
 		}
 	}
 	else {
-		ERRORLOG( "[write_callback] FLAC format error. nBits=" + toString( nBits ) );
+		ERRORLOG( "[write_callback] FLAC format error. nBits=" + to_string( nBits ) );
 	}
 
 	return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;

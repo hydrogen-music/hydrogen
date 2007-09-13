@@ -75,7 +75,7 @@ Effects::~Effects()
 	//INFOLOG( "DESTROY" );
 	delete getLadspaFXGroup();
 
-	//INFOLOG( "destroying " + toString( m_pluginList.size() ) + " LADSPA plugins" );
+	//INFOLOG( "destroying " + to_string( m_pluginList.size() ) + " LADSPA plugins" );
 	for( unsigned i = 0; i < m_pluginList.size(); i++) {
 		delete m_pluginList[i];
 	}
@@ -99,7 +99,7 @@ LadspaFX* Effects::getLadspaFX( int nFX )
 void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 {
 	assert( nFX < MAX_FX );
-	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + toString( nFX ) );
+	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + to_string( nFX ) );
 
 	AudioEngine::get_instance()->lock("Effects::setLadspaFX");
 
@@ -129,7 +129,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 
 
 	vector<string> ladspaPathVect = Preferences::getInstance()->getLadspaPath();
-	INFOLOG( "PATHS: " + toString( ladspaPathVect.size() ) );
+	INFOLOG( "PATHS: " + to_string( ladspaPathVect.size() ) );
 	for (vector<string>::iterator i = ladspaPathVect.begin(); i != ladspaPathVect.end(); i++) {
 		string sPluginDir = *i;
 		INFOLOG( "*** [getPluginList] reading directory: " + sPluginDir );
@@ -177,7 +177,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 					LadspaFXInfo* pFX = new LadspaFXInfo( d->Name );
 					pFX->m_sFilename = sAbsPath;
 					pFX->m_sLabel = d->Label;
-					pFX->m_sID = toString( d->UniqueID );
+					pFX->m_sID = to_string( d->UniqueID );
 					pFX->m_sMaker = d->Maker;
 					pFX->m_sCopyright = d->Copyright;
 
@@ -221,7 +221,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 		}
 	}
 
-	INFOLOG( "Loaded " + toString( m_pluginList.size() ) + "  LADSPA plugins" );
+	INFOLOG( "Loaded " + to_string( m_pluginList.size() ) + "  LADSPA plugins" );
 
 	return m_pluginList;
 }
@@ -359,7 +359,7 @@ void Effects::RDFDescend( const std::string& sBase, LadspaFXGroup *pGroup, vecto
 			vector<LadspaFXInfo*> fxVect = pGroup->getLadspaInfo();
 			for (unsigned nFX = 0; nFX < fxVect.size(); nFX++) {
 				LadspaFXInfo *pFX = fxVect[nFX];
-				if (pFX->m_sID == toString(uid)) {
+				if (pFX->m_sID == to_string(uid)) {
 					bExists = true;
 					continue;
 				}
@@ -369,7 +369,7 @@ void Effects::RDFDescend( const std::string& sBase, LadspaFXGroup *pGroup, vecto
 				// find the ladspaFXInfo
 				for (unsigned i = 0; i < pluginList.size(); i++) {
 					LadspaFXInfo *pInfo = pluginList[i];
-					if (pInfo->m_sID == toString(uid) ) {
+					if (pInfo->m_sID == to_string(uid) ) {
 						pGroup->addLadspaInfo( pInfo );	// copy the LadspaFXInfo
 					}
 				}

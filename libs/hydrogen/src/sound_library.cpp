@@ -105,7 +105,7 @@ void Drumkit::dump()
 	INFOLOG( "\t|- Instrument list" );
 	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->get_size(); ++nInstrument) {
 		Instrument *pInstr = m_pInstrumentList->get( nInstrument );
-		INFOLOG( "\t\t|- (" + toString( nInstrument ) + " of " + toString( m_pInstrumentList->get_size() ) + ") Name = " + pInstr->get_name());
+		INFOLOG( "\t\t|- (" + to_string( nInstrument ) + " of " + to_string( m_pInstrumentList->get_size() ) + ") Name = " + pInstr->get_name());
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 			InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
 			if ( pLayer ) {

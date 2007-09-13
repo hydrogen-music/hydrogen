@@ -143,7 +143,7 @@ void AudioEngineInfoForm::updateInfo()
 	// Audio driver info
 	AudioOutput *driver = pEngine->getAudioOutput();
 	if (driver) {
-		QString audioDriverName  = (driver->getClassName()).c_str();
+		QString audioDriverName = driver->get_class_name().c_str();
 		driverLbl->setText(audioDriverName);
 
 		// Audio driver buffer size
@@ -170,7 +170,7 @@ void AudioEngineInfoForm::updateInfo()
 	// Midi driver info
 	MidiInput *pMidiDriver = pEngine->getMidiInput();
 	if (pMidiDriver) {
-		QString midiName( pMidiDriver->getClassName().c_str() );
+		QString midiName( pMidiDriver->get_class_name().c_str() );
 		midiDriverName->setText(midiName);
 	}
 	else {

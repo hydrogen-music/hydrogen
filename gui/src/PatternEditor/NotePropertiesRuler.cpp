@@ -105,7 +105,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->m_noteMap.lower_bound( column ); pos != m_pPattern->m_noteMap.upper_bound( column ); ++pos ) {
+	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
 		assert( pNote->get_position() == column );
@@ -189,7 +189,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
-		nNotes = m_pPattern->m_nSize;
+		nNotes = m_pPattern->get_lenght();
 	}
 
 
@@ -285,7 +285,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); ++pos ) {
+		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
@@ -357,7 +357,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
-		nNotes = m_pPattern->m_nSize;
+		nNotes = m_pPattern->get_lenght();
 	}
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
 
@@ -448,7 +448,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->m_noteMap.begin(); pos != m_pPattern->m_noteMap.end(); ++pos ) {
+		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
@@ -489,7 +489,7 @@ void NotePropertiesRuler::updateEditor()
 	// update editor width
 	int editorWidth;
 	if ( m_pPattern ) {
-		editorWidth = 20 + m_pPattern->m_nSize * m_nGridWidth;
+		editorWidth = 20 + m_pPattern->get_lenght() * m_nGridWidth;
 	}
 	else {
 		editorWidth =  20 + MAX_NOTES * m_nGridWidth;

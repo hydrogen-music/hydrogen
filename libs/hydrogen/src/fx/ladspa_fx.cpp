@@ -229,8 +229,8 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 	}
 	else {
 		_ERRORLOG( "Wrong number of ports" );
-		_ERRORLOG( "in audio = " + toString(pFX->m_nIAPorts) );
-		_ERRORLOG( "out audio = " + toString(pFX->m_nOAPorts) );
+		_ERRORLOG( "in audio = " + to_string(pFX->m_nIAPorts) );
+		_ERRORLOG( "out audio = " + to_string(pFX->m_nOAPorts) );
 	}
 
 	//pFX->infoLog( "[LadspaFX::load] instantiate " + pFX->getPluginName() );
@@ -311,7 +311,7 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 			pControl->isToggle = isToggle;
 			pControl->m_bIsInteger = isInteger;
 
-			_INFOLOG( "Input control port\t[" + sName + "]\tmin=" + toString(fMin) + ",\tmax=" + toString(fMax) + ",\tcontrolValue=" + toString(pControl->fControlValue) );
+			_INFOLOG( "Input control port\t[" + sName + "]\tmin=" + to_string(fMin) + ",\tmax=" + to_string(fMax) + ",\tcontrolValue=" + to_string(pControl->fControlValue) );
 
 			pFX->inputControlPorts.push_back( pControl );
 			pFX->m_d->connect_port( pFX->m_handle, nPort, &(pControl->fControlValue) );
@@ -344,7 +344,7 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 			pControl->fLowerBound = fMin;
 			pControl->fUpperBound = fMax;
 			pControl->fControlValue = fDefault;
-			//pFX->infoLog( "[LadspaFX::load] Output control port\t[" + sName + "]\tmin=" + toString(fMin) + ",\tmax=" + toString(fMax) + ",\tcontrolValue=" + toString(pControl->fControlValue) );
+			//pFX->infoLog( "[LadspaFX::load] Output control port\t[" + sName + "]\tmin=" + to_string(fMin) + ",\tmax=" + to_string(fMax) + ",\tcontrolValue=" + to_string(pControl->fControlValue) );
 
 			pFX->outputControlPorts.push_back( pControl );
 			pFX->m_d->connect_port( pFX->m_handle, nPort, &(pControl->fControlValue) );
