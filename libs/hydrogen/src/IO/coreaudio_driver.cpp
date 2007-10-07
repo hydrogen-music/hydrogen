@@ -104,7 +104,7 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 	if ( err != noErr ) {
 		ERRORLOG( "get BufferSize error" );
 	}
-	INFOLOG( "Buffersize: " + toString( m_nBufferSize ) );
+	INFOLOG( "Buffersize: " + to_string( m_nBufferSize ) );
 
 
 	// print some info
@@ -115,12 +115,12 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 		printf( "AudioDeviceGetProperty: returned %d when getting kAudioDevicePropertyStreamFormat", err );
 	}
 
-	INFOLOG( "SampleRate: " + toString( outputStreamBasicDescription.mSampleRate ) );
-	INFOLOG( "BytesPerPacket: " + toString( outputStreamBasicDescription.mBytesPerPacket ) );
-	INFOLOG( "FramesPerPacket: " + toString( outputStreamBasicDescription.mFramesPerPacket ) );
-	INFOLOG( "BytesPerFrame: " + toString( outputStreamBasicDescription.mBytesPerFrame ) );
-	INFOLOG( "ChannelsPerFrame: " + toString( outputStreamBasicDescription.mChannelsPerFrame ) );
-	INFOLOG( "BitsPerChannel: " + toString( outputStreamBasicDescription.mBitsPerChannel ) );
+	INFOLOG( "SampleRate: " + to_string( outputStreamBasicDescription.mSampleRate ) );
+	INFOLOG( "BytesPerPacket: " + to_string( outputStreamBasicDescription.mBytesPerPacket ) );
+	INFOLOG( "FramesPerPacket: " + to_string( outputStreamBasicDescription.mFramesPerPacket ) );
+	INFOLOG( "BytesPerFrame: " + to_string( outputStreamBasicDescription.mBytesPerFrame ) );
+	INFOLOG( "ChannelsPerFrame: " + to_string( outputStreamBasicDescription.mChannelsPerFrame ) );
+	INFOLOG( "BitsPerChannel: " + to_string( outputStreamBasicDescription.mBitsPerChannel ) );
 }
 
 
@@ -326,7 +326,7 @@ void CoreAudioDriver::updateTransportInfo()
 
 void CoreAudioDriver::locate( unsigned long nFrame )
 {
-  //INFOLOG( "locate: " + toString( nFrame ) );
+  //INFOLOG( "locate: " + to_string( nFrame ) );
 	m_transport.m_nFrames = nFrame;
 	//fprintf ( stderr, "m_transport.m_nFrames = %lu\n", m_transport.m_nFrames );
 }
@@ -335,7 +335,7 @@ void CoreAudioDriver::locate( unsigned long nFrame )
 
 void CoreAudioDriver::setBpm(float fBPM)
 {
-	//INFOLOG( "[setBpm]" + toString( fBPM ));
+	//INFOLOG( "[setBpm]" + to_string( fBPM ));
 	m_transport.m_nBPM = fBPM;
 }
 

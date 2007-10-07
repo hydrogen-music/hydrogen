@@ -45,7 +45,7 @@ static void midiProc (const MIDIPacketList * pktlist,
 
 	MIDIPacket* packet = (MIDIPacket *)pktlist->packet;
 
-	_ERRORLOG( " MIDIPROC packets #" + toString( pktlist->numPackets ) );
+	_ERRORLOG( " MIDIPROC packets #" + to_string( pktlist->numPackets ) );
 
 	CoreMidiDriver *instance = (CoreMidiDriver *)readProcRefCon;
 	MidiMessage msg;
@@ -84,9 +84,9 @@ static void midiProc (const MIDIPacketList * pktlist,
 			msg.m_type = MidiMessage::SYSTEM_EXCLUSIVE;
 		}
 		else {
-			_ERRORLOG( "Unhandled midi message type: " + toString( nEventType ) );
+			_ERRORLOG( "Unhandled midi message type: " + to_string( nEventType ) );
 			_INFOLOG( "MIDI msg: " );
-			// instance->errorLog( "Unhandled midi message type: " + toString( nEventType ) );
+			// instance->errorLog( "Unhandled midi message type: " + to_string( nEventType ) );
 			// instance->infoLog( "MIDI msg: " );
 		}
 
