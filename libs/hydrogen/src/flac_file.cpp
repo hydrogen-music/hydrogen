@@ -33,6 +33,16 @@
 
 namespace H2Core {
 
+
+#if !defined(FLAC_API_VERSION_CURRENT) || FLAC_API_VERSION_CURRENT < 8
+#define LEGACY_FLAC
+#else
+#undef LEGACY_FLAC
+#endif
+
+
+
+
 /// Reads a FLAC file...not optimized yet
 class FLACFile_real : public FLAC::Decoder::File, public Object
 {
@@ -161,16 +171,28 @@ void FLACFile_real::load( string sFilename )
 	}
 
 	set_metadata_ignore_all();
+
+#ifdef LEGACY_FLAC
 	set_filename( sFilename.c_str() );
 
 	State s=init();
 	if( s != FLAC__FILE_DECODER_OK ) {
+#else
+	FLAC__StreamDecoderInitStatus s=init(sFilename.c_str() );
+	if(s!=FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+#endif
 		ERRORLOG( "Error in init()" );
 	}
 
+#ifdef LEGACY_FLAC
 	if ( process_until_end_of_file() == false ) {
 		ERRORLOG( "Error in process_until_end_of_file(). Filename: " + m_sFilename );
 	}
+#else
+	if ( process_until_end_of_stream() == false ) {
+		ERRORLOG( "[load] Error in process_until_end_of_stream()" );
+	}
+#endif
 }
 
 
