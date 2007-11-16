@@ -21,7 +21,7 @@
  */
 #include <QtGui>
 
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/instrument.h>
 using namespace H2Core;

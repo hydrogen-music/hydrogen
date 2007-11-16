@@ -38,7 +38,6 @@ namespace H2Core
 class Sample : public Object
 {
 public:
-
 	Sample( unsigned frames, const string& filename, float* data_L = NULL, float* data_R = NULL );
 	~Sample();
 

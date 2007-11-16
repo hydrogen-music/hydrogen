@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 
 #include <hydrogen/Preferences.h>
 #include "flac_file.h"

@@ -54,7 +54,7 @@ HEADERS += \
 		include/hydrogen/globals.h \
 		include/hydrogen/instrument.h \
 		include/hydrogen/Pattern.h \
-		include/hydrogen/Sample.h \
+		include/hydrogen/sample.h \
 		include/hydrogen/data_path.h \
 		include/hydrogen/event_queue.h \
 		include/hydrogen/SoundLibrary.h \

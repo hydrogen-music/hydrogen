@@ -30,7 +30,7 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/note.h>

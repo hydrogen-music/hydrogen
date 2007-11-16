@@ -29,7 +29,7 @@
 #include "string.h"
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 #include <hydrogen/audio_engine.h>
 using namespace H2Core;
 

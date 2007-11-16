@@ -24,7 +24,7 @@
 
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>

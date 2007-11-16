@@ -41,9 +41,7 @@ Note::Note(
 )
  : Object( "Note" )
  , m_fSamplePosition( 0.0 )
- , __position( position )
  , m_nHumanizeDelay( 0 )
- , __velocity( velocity )
  , m_noteKey( key )
 // , m_pADSR( NULL )
  , m_fCutoff( 1.0 )
@@ -52,6 +50,8 @@ Note::Note(
  , m_fBandPassFilterBuffer_R( 0.0 )
  , m_fLowPassFilterBuffer_L( 0.0 )
  , m_fLowPassFilterBuffer_R( 0.0 )
+ , __position( position )
+ , __velocity( velocity )
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );

@@ -39,7 +39,7 @@
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/data_path.h>
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>

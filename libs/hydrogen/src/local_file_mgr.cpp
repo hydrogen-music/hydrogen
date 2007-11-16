@@ -32,7 +32,7 @@
 #include <hydrogen/Song.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Sample.h>
+#include <hydrogen/sample.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/note.h>
 #include <hydrogen/fx/Effects.h>
