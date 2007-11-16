@@ -150,20 +150,23 @@ Pattern* PatternList::get(int nPos) {
 
 
 
-unsigned int PatternList::getSize() {
+unsigned PatternList::get_size()
+{
 	return list.size();
 }
 
 
 
-void PatternList::clear() {
+void PatternList::clear()
+{
 	list.clear();
 }
 
 
 
 /// Replace an existent pattern with another one
-void PatternList::replace( Pattern* newPattern, unsigned int pos ) {
+void PatternList::replace( Pattern* newPattern, unsigned int pos )
+{
 	if (pos >= (unsigned)list.size()) {
 		ERRORLOG( "Pattern index out of bounds in PatternList::replace. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
 		return;
@@ -173,14 +176,17 @@ void PatternList::replace( Pattern* newPattern, unsigned int pos ) {
 	list.erase( list.begin() + pos + 1 );
 }
 
-int PatternList::indexOf( Pattern * p ) {
+
+
+int PatternList::index_of( Pattern* pattern )
+{
 	int r = 0;
-	if ( getSize() < 1 ) return -1;
+	if ( get_size() < 1 ) return -1;
 
 	std::vector<Pattern*>::iterator i;
 
 	for ( i = list.begin(); i != list.end(); ++i) {
-		if ( *i == p ) return r;
+		if ( *i == pattern ) return r;
 		r++;
 	}
 	return -1;
@@ -192,7 +198,7 @@ int PatternList::indexOf( Pattern * p ) {
 Pattern * PatternList::del( Pattern * p )
 {
 	bool did_delete = false;
-	if ( getSize() < 1 ) return NULL;
+	if ( get_size() < 1 ) return NULL;
 
 	std::vector<Pattern*>::iterator i;
 

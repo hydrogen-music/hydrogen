@@ -239,7 +239,7 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
-		for ( unsigned nPattern = 0; nPattern < pPatternList->getSize(); nPattern++ ) {
+		for ( unsigned nPattern = 0; nPattern < pPatternList->get_size(); nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
 //			infoLog( "      |-> pattern: " + pPattern->getName() );
 			if ( (int)pPattern->get_lenght() > nMaxPatternLength ) {

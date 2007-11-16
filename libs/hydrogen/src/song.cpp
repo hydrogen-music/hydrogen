@@ -416,7 +416,7 @@ Song* SongReader::readSong( const std::string& filename)
 		string patId = pPatternIDNode->FirstChild()->Value();
 
 		Pattern *pat = NULL;
-		for (unsigned i = 0; i < patternList->getSize(); i++) {
+		for (unsigned i = 0; i < patternList->get_size(); i++) {
 			Pattern *tmp = patternList->get(i);
 			if (tmp) {
 				if (tmp->get_name() == patId) {
@@ -440,7 +440,7 @@ Song* SongReader::readSong( const std::string& filename)
 			string patId = patternId->FirstChild()->Value();
 
 			Pattern *pat = NULL;
-			for (unsigned i = 0; i < patternList->getSize(); i++) {
+			for (unsigned i = 0; i < patternList->get_size(); i++) {
 				Pattern *tmp = patternList->get(i);
 				if (tmp) {
 					if (tmp->get_name() == patId) {

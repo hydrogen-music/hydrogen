@@ -353,7 +353,7 @@ void InstrumentLine::functionDeleteInstrument()
 
 	// delete all the notes using this instrument
 	PatternList* pPatternList = pEngine->getSong()->getPatternList();
-	for ( int nPattern = 0; nPattern < pPatternList->getSize(); ++nPattern ) {
+	for ( int nPattern = 0; nPattern < pPatternList->get_size(); ++nPattern ) {
 		H2Core::Pattern *pPattern = pPatternList->get( nPattern );
 
 		std::multimap <int, Note*>::iterator pos;

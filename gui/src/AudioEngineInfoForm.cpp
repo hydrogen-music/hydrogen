@@ -200,7 +200,7 @@ void AudioEngineInfoForm::updateInfo()
 	string currentPatternName;
 	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
 	if (pPatternList) {
-		currentPatternLbl->setText( QString::number(pPatternList->getSize()) );
+		currentPatternLbl->setText( QString::number(pPatternList->get_size()) );
 	}
 	else {
 		currentPatternLbl->setText( "N/A" );

@@ -1152,7 +1152,7 @@ void MainForm::action_debug_debugCommand()
 			std::cout << "Song pattern list" << std::endl;
 			std::cout << "----------------------------------------------------------------------" << std::endl;
 			PatternList *pSongPatternList = pEngine->getSong()->getPatternList();
-			for ( uint i = 0; i <pSongPatternList->getSize(); i++ ) {
+			for ( uint i = 0; i <pSongPatternList->get_size(); i++ ) {
 				H2Core::Pattern *pPat = pSongPatternList->get( i );
 				std::cout << "   |->[" << i << "] " << pPat->get_name() << std::endl;
 			}
@@ -1164,7 +1164,7 @@ void MainForm::action_debug_debugCommand()
 			cout << "Current pattern list" << std::endl;
 			cout << "----------------------------------------------------------------------" << std::endl;
 			PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
-			for ( uint i = 0; i <pCurrentPatternList->getSize(); i++ ) {
+			for ( uint i = 0; i <pCurrentPatternList->get_size(); i++ ) {
 				H2Core::Pattern *pPat = pCurrentPatternList->get( i );
 				cout << "   |->[" << i << "] " << pPat->get_name() << std::endl;
 			}

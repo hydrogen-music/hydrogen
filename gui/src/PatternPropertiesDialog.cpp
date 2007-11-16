@@ -84,7 +84,7 @@ void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
 	Song *song = engine->getSong();
 	PatternList *patternList = song->getPatternList();
 
-	for (uint i = 0; i < patternList->getSize(); i++) {
+	for (uint i = 0; i < patternList->get_size(); i++) {
 		Pattern *pat = patternList->get(i);
 
 		if ( pat->get_name() == pattName) {

@@ -691,7 +691,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 	// pattern list
 	TiXmlElement patternListNode("patternList");
 
-	unsigned nPatterns = song->getPatternList()->getSize();
+	unsigned nPatterns = song->getPatternList()->get_size();
 	for (unsigned i = 0; i < nPatterns; i++) {
 		Pattern *pat = song->getPatternList()->get(i);
 
@@ -734,7 +734,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 		TiXmlElement groupNode( "group" );
 
 		PatternList *pList = (*song->getPatternGroupVector())[i];
-		for (unsigned j = 0; j < pList->getSize(); j++) {
+		for (unsigned j = 0; j < pList->get_size(); j++) {
 			Pattern *pPattern = pList->get(j);
 			LocalFileMng::writeXmlString( &groupNode, "patternID", pPattern->get_name() );
 		}

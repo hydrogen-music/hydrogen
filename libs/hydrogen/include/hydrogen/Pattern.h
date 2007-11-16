@@ -66,13 +66,13 @@ public:
 	PatternList();
 	~PatternList();
 
-	void add( Pattern* newPattern );
-	Pattern* get( int nPos );
-	unsigned int getSize();
+	void add( Pattern* new_pattern );
+	Pattern* get( int pos );
+	unsigned int get_size();
 	void clear();
 
-	void replace( Pattern* newPattern, unsigned nPos );
-	int indexOf( Pattern * );
+	void replace( Pattern* new_pattern, unsigned pos );
+	int index_of( Pattern* pattern );
 
 	Pattern * del( Pattern *pattern ); // returns NULL if the pattern is not in the list :)
 	void del( unsigned index );

@@ -538,7 +538,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() ) ) {
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
 		// update pattern name text
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name().c_str();

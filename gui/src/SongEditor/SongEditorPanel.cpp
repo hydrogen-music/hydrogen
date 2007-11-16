@@ -395,7 +395,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Song *pSong = pEngine->getSong();
 	PatternList *pList = pSong->getPatternList();
 
-	if ( ( nSelectedPatternPos + 1 ) < (int)pList->getSize() ) {
+	if ( ( nSelectedPatternPos + 1 ) < (int)pList->get_size() ) {
 		Pattern *pTemp = pList->get( nSelectedPatternPos + 1 );
 		pList->replace( pList->get( nSelectedPatternPos ), nSelectedPatternPos + 1 );
 		pList->replace( pTemp, nSelectedPatternPos );

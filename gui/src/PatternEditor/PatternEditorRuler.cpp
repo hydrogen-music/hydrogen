@@ -113,7 +113,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->getSize() )  ) {
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() )  ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
@@ -123,7 +123,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 	bool bActive = false;	// is the pattern playing now?
 	PatternList *pList = pEngine->getCurrentPatternList();
-	for (uint i = 0; i < pList->getSize(); i++) {
+	for (uint i = 0; i < pList->get_size(); i++) {
 		if ( m_pPattern == pList->get(i) ) {
 			bActive = true;
 			break;

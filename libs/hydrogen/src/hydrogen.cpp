@@ -910,7 +910,7 @@ void audioEngine_setSong(Song *newSong)
 	audioEngine_process_checkBPMChanged();
 
 	// find the first pattern and set as current
-	if ( m_pSong->getPatternList()->getSize() > 0 ) {
+	if ( m_pSong->getPatternList()->get_size() > 0 ) {
 		m_pPlayingPatterns->add( m_pSong->getPatternList()->get(0) );
 	}
 
@@ -1052,7 +1052,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 			// copio tutti i pattern
 			m_pPlayingPatterns->clear();
 			if ( pPatternList ) {
-				for (unsigned i = 0; i < pPatternList->getSize(); ++i) {
+				for (unsigned i = 0; i < pPatternList->get_size(); ++i) {
 					m_pPlayingPatterns->add( pPatternList->get(i) );
 				}
 			}
@@ -1067,7 +1067,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 
 			int nPatternSize = MAX_NOTES;
 
-			if ( m_pPlayingPatterns->getSize() != 0 ) {
+			if ( m_pPlayingPatterns->get_size() != 0 ) {
 				Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
 				nPatternSize = pFirstPattern->get_lenght();
 			}
@@ -1077,7 +1077,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 			}
 
 			if ( ( tick == m_nPatternStartTick + nPatternSize ) || ( m_nPatternStartTick == -1 ) ) {
-				if ( m_pNextPatterns->getSize() > 0 ) {
+				if ( m_pNextPatterns->get_size() > 0 ) {
 					//hydrogenInstance->errorLog( "[audioEngine_updateNoteQueue] Aggiorno con nextpattern: " + to_string( (int)m_pNextPattern ) );
 /*					if ( m_bDeleteNextPattern ) {
 						m_pPlayingPatterns->del( m_pNextPattern );
@@ -1090,7 +1090,7 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 					}*/
 					_WARNINGLOG( "uh-oh, next patterns..." );
 					Pattern * p;
-					for ( uint i = 0; i < m_pNextPatterns->getSize(); i++ ) {
+					for ( uint i = 0; i < m_pNextPatterns->get_size(); i++ ) {
 						p = m_pNextPatterns->get( i );
 						_WARNINGLOG("Got pattern #" + to_string( i+1 ) );
 						// if the pattern isn't playing already, start it now.
@@ -1141,8 +1141,8 @@ inline int audioEngine_updateNoteQueue(unsigned nFrames)
 
 
 		// update the notes queue
-		if ( m_pPlayingPatterns->getSize() != 0 ) {
-			for (unsigned nPat = 0; nPat < m_pPlayingPatterns->getSize(); ++nPat) {
+		if ( m_pPlayingPatterns->get_size() != 0 ) {
+			for (unsigned nPat = 0; nPat < m_pPlayingPatterns->get_size(); ++nPat) {
 				Pattern *pPattern = m_pPlayingPatterns->get( nPat );
 				assert( pPattern != NULL );
 
@@ -1201,7 +1201,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 	int nPatternSize;
 	for ( int i = 0; i < nColumns; ++i ) {
 		PatternList *pColumn = (*pPatternColumns)[ i ];
-		if ( pColumn->getSize() != 0 ) {
+		if ( pColumn->get_size() != 0 ) {
 			// tengo in considerazione solo il primo pattern. I pattern nel gruppo devono avere la stessa lunghezza.
 			nPatternSize = pColumn->get(0)->get_lenght();
 		}
@@ -1225,7 +1225,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 		nTotalTick = 0;
 		for ( int i = 0; i < nColumns; ++i ) {
 			PatternList *pColumn = (*pPatternColumns)[ i ];
-			if ( pColumn->getSize() != 0 ) {
+			if ( pColumn->get_size() != 0 ) {
 				// tengo in considerazione solo il primo pattern. I pattern nel gruppo devono avere la stessa lunghezza.
 				nPatternSize = pColumn->get(0)->get_lenght();
 			}
@@ -1715,7 +1715,7 @@ void Hydrogen::addRealtimeNote(int instrument, float velocity, float pan_L, floa
 
 	Pattern* currentPattern = NULL;
 	PatternList *pPatternList = m_pSong->getPatternList();
-	if ( (m_nSelectedPatternNumber != -1) && (m_nSelectedPatternNumber < (int)pPatternList->getSize() ) ) {
+	if ( (m_nSelectedPatternNumber != -1) && (m_nSelectedPatternNumber < (int)pPatternList->get_size() ) ) {
 		currentPattern = pPatternList->get( m_nSelectedPatternNumber );
 	}
 
@@ -1850,7 +1850,7 @@ void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool delet
 	if ( m_pSong && m_pSong->getMode() == Song::PATTERN_MODE ) {
 		PatternList *patternList = m_pSong->getPatternList();
 		Pattern * p = patternList->get(pos);
-		if ( (pos >= 0) && ( pos < (int)patternList->getSize() ) ) {
+		if ( (pos >= 0) && ( pos < (int)patternList->get_size() ) ) {
 			// if p is already on the next pattern list, delete it.
 			if ( m_pNextPatterns->del( p ) == NULL ) {
 // 				WARNINGLOG( "Adding to nextPatterns" );
@@ -1860,7 +1860,7 @@ void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool delet
 			}*/
 		}
 		else {
-			_ERRORLOG( "pos not in patternList range. pos=" + to_string(pos) + " patternListSize=" + to_string(patternList->getSize()));
+			_ERRORLOG( "pos not in patternList range. pos=" + to_string(pos) + " patternListSize=" + to_string(patternList->get_size()));
 			m_pNextPatterns->clear();
 		}
 	}
