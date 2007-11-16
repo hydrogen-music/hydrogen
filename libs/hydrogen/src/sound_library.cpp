@@ -26,7 +26,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/H2Exception.h>
+#include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/Preferences.h>
@@ -111,7 +111,7 @@ void Drumkit::dump()
 			if ( pLayer ) {
 				Sample *pSample = pLayer->get_sample();
 				if ( pSample ) {
-					INFOLOG( "\t\t   |- " + pSample->m_sFilename );
+					INFOLOG( "\t\t   |- " + pSample->get_filename() );
 				}
 				else {
 					INFOLOG( "\t\t   |- NULL sample" );
@@ -204,7 +204,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 			if ( pOldLayer ) {
 				Sample *pSample = pOldLayer->get_sample();
 
-				Sample *pNewSample = new Sample( 0, pSample->m_sFilename );	// is not a real sample, it contains only the filename information
+				Sample *pNewSample = new Sample( 0, pSample->get_filename() );	// is not a real sample, it contains only the filename information
 				InstrumentLayer *pLayer = new InstrumentLayer( pNewSample );
 				pLayer->set_gain( pOldLayer->get_gain() );
 				pLayer->set_pitch( pOldLayer->get_pitch() );

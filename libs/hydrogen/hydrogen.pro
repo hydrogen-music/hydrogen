@@ -58,7 +58,7 @@ HEADERS += \
 		include/hydrogen/data_path.h \
 		include/hydrogen/event_queue.h \
 		include/hydrogen/SoundLibrary.h \
-		include/hydrogen/H2Exception.h \
+		include/hydrogen/h2_exception.h \
 		\
 		include/hydrogen/fx/Effects.h \
 		include/hydrogen/fx/LadspaFX.h \

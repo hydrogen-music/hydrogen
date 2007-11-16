@@ -200,7 +200,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		return 1;
 	}
 
-	if ( pNote->m_fSamplePosition >= pSample->m_nFrames ) {
+	if ( pNote->m_fSamplePosition >= pSample->get_n_frames() ) {
 		WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
 		return 1;
 	}
@@ -278,7 +278,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 	//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 
-	if ( fTotalPitch == 0.0 && pSample->m_nSampleRate == __audio_output->getSampleRate() ) {	// NO RESAMPLE
+	if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == __audio_output->getSampleRate() ) {	// NO RESAMPLE
 		return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track, fSendFXLevel_L, fSendFXLevel_R, pSong );
 	}
 	else {	// RESAMPLE
@@ -309,7 +309,7 @@ int Sampler::__render_note_no_resample(
 		nNoteLength = (int)( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
 	}
 
-	int nAvail_bytes = pSample->m_nFrames - (int)pNote->m_fSamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
+	int nAvail_bytes = pSample->get_n_frames() - (int)pNote->m_fSamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
 
 	if ( nAvail_bytes > nBufferSize - nInitialSilence) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
@@ -330,8 +330,8 @@ int Sampler::__render_note_no_resample(
 	float fResonance = pNote->get_instrument()->get_filter_resonance();
 	float fCutoff = pNote->get_instrument()->get_filter_cutoff();
 
-	float *pSample_data_L = pSample->getData_L();
-	float *pSample_data_R = pSample->getData_R();
+	float *pSample_data_L = pSample->get_data_l();
+	float *pSample_data_R = pSample->get_data_r();
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -447,9 +447,9 @@ int Sampler::__render_note_resample(
 	//_INFOLOG( "pitch: " + to_string( fNotePitch ) );
 
 	float fStep = pow( 1.0594630943593, (double)fNotePitch );
-	fStep *= (float)pSample->m_nSampleRate/__audio_output->getSampleRate(); // Adjust for audio driver sample rate
+	fStep *= (float)pSample->get_sample_rate() / __audio_output->getSampleRate(); // Adjust for audio driver sample rate
 
-	int nAvail_bytes = (int)( (float)(pSample->m_nFrames - pNote->m_fSamplePosition) / fStep );	// verifico il numero di frame disponibili ancora da eseguire
+	int nAvail_bytes = (int)( (float)(pSample->get_n_frames() - pNote->m_fSamplePosition) / fStep );	// verifico il numero di frame disponibili ancora da eseguire
 
 	int retValue = 1; // the note is ended
 	if (nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
@@ -471,8 +471,8 @@ int Sampler::__render_note_resample(
 	float fResonance = pNote->get_instrument()->get_filter_resonance();
 	float fCutoff = pNote->get_instrument()->get_filter_cutoff();
 
-	float *pSample_data_L = pSample->getData_L();
-	float *pSample_data_R = pSample->getData_R();
+	float *pSample_data_L = pSample->get_data_l();
+	float *pSample_data_R = pSample->get_data_r();
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -480,7 +480,7 @@ int Sampler::__render_note_resample(
 	float fADSRValue = 1.0;
 	float fVal_L;
 	float fVal_R;
-	int nSampleFrames = pSample->m_nFrames;
+	int nSampleFrames = pSample->get_n_frames();
 
 	for (int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition)  ) {

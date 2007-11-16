@@ -551,7 +551,7 @@ void DrumPatternEditor::drawGrid( QPainter* p )
 	int nInstruments = pSong->getInstrumentList()->get_size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
-		if ( i == nSelectedInstrument ) {
+		if ( i == (int)nSelectedInstrument ) {
 			p->fillRect( 0, y, (20 + nNotes * m_nGridWidth), m_nGridHeight * 0.7, selectedRowColor );
 		}
 		else {

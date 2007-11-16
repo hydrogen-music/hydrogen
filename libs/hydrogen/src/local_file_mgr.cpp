@@ -40,7 +40,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/SoundLibrary.h>
-#include <hydrogen/H2Exception.h>
+#include <hydrogen/h2_exception.h>
 
 
 
@@ -361,7 +361,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if (pLayer) {
 				Sample *pSample = pLayer->get_sample();
-				string sOrigFilename = pSample->m_sFilename;
+				string sOrigFilename = pSample->get_filename();
 
 				string sDestFilename = sOrigFilename;
 
@@ -400,7 +400,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			if (pLayer == NULL) continue;
 			Sample *pSample = pLayer->get_sample();
 
-			string sFilename = pSample->m_sFilename;
+			string sFilename = pSample->get_filename();
 
 			//if (instr->getDrumkitName() != "") {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -665,7 +665,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 			Sample *pSample = pLayer->get_sample();
 			if (pSample == NULL) continue;
 
-			string sFilename = pSample->m_sFilename;
+			string sFilename = pSample->get_filename();
 
 			if (instr->get_drumkit_name() != "") {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path

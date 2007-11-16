@@ -40,10 +40,10 @@ Note::Note(
 		NoteKey key
 )
  : Object( "Note" )
- , __position( position )
  , m_fSamplePosition( 0.0 )
- , __velocity( velocity )
+ , __position( position )
  , m_nHumanizeDelay( 0 )
+ , __velocity( velocity )
  , m_noteKey( key )
 // , m_pADSR( NULL )
  , m_fCutoff( 1.0 )

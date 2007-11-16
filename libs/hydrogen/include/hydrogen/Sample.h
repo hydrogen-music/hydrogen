@@ -38,42 +38,53 @@ namespace H2Core
 class Sample : public Object
 {
 public:
-	unsigned m_nFrames;		///< Total number of frames in this sample.
-	string m_sFilename;		///< filename associated with this sample
-	unsigned m_nSampleRate;		///< samplerate for this sample
 
-	Sample( unsigned nFrames, const string& sFilename, float* pData_L = NULL, float* pData_R = NULL );
+	Sample( unsigned frames, const string& filename, float* data_L = NULL, float* data_R = NULL );
 	~Sample();
 
-	float* getData_L()
+	float* get_data_l()
 	{
-		return m_pData_L;
+		return __data_l;
 	}
-	float* getData_R()
+	float* get_data_r()
 	{
-		return m_pData_R;
+		return __data_r;
 	}
 
-	/// Returns the bytes number ( 2 channels )
-	unsigned getNBytes()
+	unsigned get_sample_rate()
 	{
-		return m_nFrames * sizeof( float ) * 2;
+		return __sample_rate;
+	}
+
+	const std::string get_filename() {	return __filename;	}
+
+
+	/// Returns the bytes number ( 2 channels )
+	unsigned get_size()
+	{
+		return __n_frames * sizeof( float ) * 2;
 	}
 
 	/// Loads a sample from disk
-	static Sample* load( const string& sFilename );
+	static Sample* load( const string& filename );
+
+	unsigned get_n_frames() {	return __n_frames;	}
 
 private:
-	float *m_pData_L;		///< Left channel data
-	float *m_pData_R;		///< Right channel data
+	float *__data_l;	///< Left channel data
+	float *__data_r;	///< Right channel data
 
-	static int m_nTotalBytesUsed;
+	unsigned __sample_rate;		///< samplerate for this sample
+	string __filename;		///< filename associated with this sample
+	unsigned __n_frames;		///< Total number of frames in this sample.
+
+	//static int __total_used_bytes;
 
 	/// loads a wave file
-	static Sample* loadWave( const string& sFilename );
+	static Sample* load_wave( const string& filename );
 
 	/// loads a FLAC file
-	static Sample* loadFLAC( const string& sFilename );
+	static Sample* load_flac( const string& filename );
 };
 
 };

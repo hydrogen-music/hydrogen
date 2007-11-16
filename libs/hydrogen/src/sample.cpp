@@ -32,13 +32,13 @@ using namespace std;
 
 namespace H2Core {
 
-Sample::Sample(unsigned nFrames, const string& sFilename, float* pData_L, float* pData_R )
+Sample::Sample(unsigned frames, const string& filename, float* data_l, float* data_r )
  : Object( "Sample" )
- , m_nFrames( nFrames )
- , m_sFilename( sFilename )
- , m_nSampleRate( 44100 )
- , m_pData_L( pData_L )
- , m_pData_R( pData_R )
+ , __data_l( data_l )
+ , __data_r( data_r )
+ , __sample_rate( 44100 )
+ , __filename( filename )
+ , __n_frames( frames )
 {
 //	infoLog("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
 }
@@ -47,34 +47,34 @@ Sample::Sample(unsigned nFrames, const string& sFilename, float* pData_L, float*
 
 Sample::~Sample()
 {
-	delete[] m_pData_L;
-	delete[] m_pData_R;
+	delete[] __data_l;
+	delete[] __data_r;
 //	infoLog( "DESTROY " + m_sFilename);
 }
 
 
 
 
-Sample* Sample::load(const string& sFilename)
+Sample* Sample::load(const string& filename)
 {
 	// is a flac file?
-	string ext = sFilename.substr( sFilename.length() - 4, sFilename.length() );
+	string ext = filename.substr( filename.length() - 4, filename.length() );
 	if ( ( ext == "flac" ) || ( ext == "FLAC" ) ) {
-		return loadFLAC( sFilename );
+		return load_flac( filename );
 	}
 	else {
-		return loadWave( sFilename );
+		return load_wave( filename );
 	}
 }
 
 
 
 /// load a FLAC file
-Sample* Sample::loadFLAC( const string& sFilename )
+Sample* Sample::load_flac( const string& filename )
 {
 #ifdef FLAC_SUPPORT
 	FLACFile file;
-	return file.load( sFilename );
+	return file.load( filename );
 #else
 	std::cerr << "[loadFLAC] FLAC support was disabled during compilation" << std::endl;
 	return NULL;
@@ -83,20 +83,20 @@ Sample* Sample::loadFLAC( const string& sFilename )
 
 
 
-Sample* Sample::loadWave( const string& sFilename )
+Sample* Sample::load_wave( const string& filename )
 {
 	// file exists?
-	std::ifstream verify( sFilename.c_str() , std::ios::in | std::ios::binary);
+	std::ifstream verify( filename.c_str() , std::ios::in | std::ios::binary);
 	if (verify == NULL){
-		cerr << "[Sample::load] Load sample: File " + sFilename + " not found." << endl;
+		cerr << "[Sample::load] Load sample: File " + filename + " not found." << endl;
 		return NULL;
 	}
 
 
 	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( sFilename.c_str(), SFM_READ, &soundInfo );
+	SNDFILE* file = sf_open( filename.c_str(), SFM_READ, &soundInfo );
 	if (!file) {
-		cerr << "[Sample::load] Error loading file " << sFilename << endl;
+		cerr << "[Sample::load] Error loading file " << filename << endl;
 	}
 
 //	cout << "frames = " << soundInfo.frames << endl;
@@ -109,28 +109,28 @@ Sample* Sample::loadWave( const string& sFilename )
 	sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
 	sf_close( file );
 
-	float *pData_L = new float[ soundInfo.frames ];
-	float *pData_R = new float[ soundInfo.frames ];
+	float *data_l = new float[ soundInfo.frames ];
+	float *data_r = new float[ soundInfo.frames ];
 
 	if ( soundInfo.channels == 1) {	// MONO sample
 		for (long int i = 0; i < soundInfo.frames; i++) {
-			pData_L[i] = pTmpBuffer[i];
-			pData_R[i] = pTmpBuffer[i];
+			data_l[i] = pTmpBuffer[i];
+			data_r[i] = pTmpBuffer[i];
 		}
 	}
 	else if (soundInfo.channels == 2) { // STEREO sample
 		for (long int i = 0; i < soundInfo.frames; i++) {
-			pData_L[i] = pTmpBuffer[i * 2];
-			pData_R[i] = pTmpBuffer[i * 2 + 1];
+			data_l[i] = pTmpBuffer[i * 2];
+			data_r[i] = pTmpBuffer[i * 2 + 1];
 		}
 	}
 	delete[] pTmpBuffer;
 
 
-	Sample *pSample = new Sample( soundInfo.frames, sFilename );
-	pSample->m_pData_L = pData_L;
-	pSample->m_pData_R = pData_R;
-	pSample->m_nSampleRate = soundInfo.samplerate;
+	Sample *pSample = new Sample( soundInfo.frames, filename );
+	pSample->__data_l = data_l;
+	pSample->__data_r = data_r;
+	pSample->__sample_rate = soundInfo.samplerate;
 	return pSample;
 }
 

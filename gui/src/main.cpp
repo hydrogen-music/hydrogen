@@ -34,7 +34,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/data_path.h>
-#include <hydrogen/H2Exception.h>
+#include <hydrogen/h2_exception.h>
 
 #include <iostream>
 using namespace std;

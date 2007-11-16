@@ -20,12 +20,12 @@ PRE_TARGETDEPS = ../libs/libhydrogen.a
 
 
 exists(/usr/bin/doxygen) {
-	message("Doxygen is available.")
-	# Crea la documentazione con Doxygen
-	doxygen.target = ../docs/html/dummy
-	doxygen.commands = cd ../docs; doxygen
-	QMAKE_EXTRA_TARGETS += doxygen
-	POST_TARGETDEPS = ../docs/html/dummy
+#	message("Doxygen is available.")
+#	# Crea la documentazione con Doxygen
+#	doxygen.target = ../docs/html/dummy
+#	doxygen.commands = cd ../docs; doxygen
+#	QMAKE_EXTRA_TARGETS += doxygen
+#	POST_TARGETDEPS = ../docs/html/dummy
 }
 
 

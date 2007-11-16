@@ -118,7 +118,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
-			( HydrogenApp::getInstance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			HydrogenApp::getInstance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
 		else if ( m_mode == PAN ){
 			float pan_L, pan_R;

@@ -40,7 +40,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/SoundLibrary.h>
-#include <hydrogen/H2Exception.h>
+#include <hydrogen/h2_exception.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/Sample.h>
@@ -2071,7 +2071,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 			InstrumentLayer *pNewLayer = pNewInstr->get_layer( nLayer );
 			if (pNewLayer != NULL) {
 				Sample *pNewSample = pNewLayer->get_sample();
-				string sSampleFilename = sDrumkitPath + drumkitInfo->getName() + "/" + pNewSample->m_sFilename;
+				string sSampleFilename = sDrumkitPath + drumkitInfo->getName() + "/" + pNewSample->get_filename();
 				_INFOLOG( "    |-> Loading layer [ " + sSampleFilename + " ]" );
 
 				// carico il nuovo sample e creo il nuovo layer

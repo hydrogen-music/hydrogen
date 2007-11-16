@@ -89,22 +89,22 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
 		// Extract the filename from the complete path
-		string sName = pLayer->get_sample()->m_sFilename;
+		string sName = pLayer->get_sample()->get_filename();
 		int nPos = sName.rfind("/");
 		m_sSampleName = sName.substr( nPos + 1, sName.length() );
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
-		int nSampleLenght = pLayer->get_sample()->m_nFrames;
+		int nSampleLenght = pLayer->get_sample()->get_n_frames();
 		float nScaleFactor = nSampleLenght / width();
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
-		float *pSampleData = pLayer->get_sample()->getData_L();
+		float *pSampleData = pLayer->get_sample()->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;
-		for ( int i =0; i < width(); ++i ){
+		for ( int i = 0; i < width(); ++i ){
 			nVal = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {

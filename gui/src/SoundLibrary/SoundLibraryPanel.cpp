@@ -43,7 +43,7 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/H2Exception.h>
+#include <hydrogen/h2_exception.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/Preferences.h>
 using namespace H2Core;

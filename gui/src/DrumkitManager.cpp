@@ -32,7 +32,7 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/Sample.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/H2Exception.h>
+#include <hydrogen/h2_exception.h>
 
 #include <QtGui>
 

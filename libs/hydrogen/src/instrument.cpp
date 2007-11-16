@@ -150,7 +150,7 @@ Instrument* Instrument::load_instrument(
 				InstrumentLayer *pOrigLayer = pInstr->get_layer( nLayer );
 				if ( pOrigLayer ) {
 					string sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
-					string sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->m_sFilename;
+					string sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->get_filename();
 					Sample* pSample = Sample::load( sSampleFilename );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 					pLayer->set_start_velocity( pOrigLayer->get_start_velocity() );
