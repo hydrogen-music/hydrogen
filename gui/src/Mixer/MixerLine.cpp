@@ -208,11 +208,11 @@ void MixerLine::click(Button *ref) {
 	Song *song = (Hydrogen::get_instance())->getSong();
 
 	if (ref == m_pMuteBtn) {
-		song->m_bIsModified = true;
+		song->__is_modified = true;
 		emit muteBtnClicked(this);
 	}
 	else if (ref == m_pSoloBtn) {
-		song->m_bIsModified = true;
+		song->__is_modified = true;
 		emit soloBtnClicked(this);
 	}
 	else if (ref == m_pPlaySampleBtn) {
@@ -235,7 +235,7 @@ void MixerLine::rightClick(Button *ref)
 void MixerLine::faderChanged(Fader *ref)
 {
 	Song *song = (Hydrogen::get_instance())->getSong();
-	song->m_bIsModified = true;
+	song->__is_modified = true;
 	emit volumeChanged(this);
 
 	char m_pFaderPos[100];
@@ -363,7 +363,7 @@ void MixerLine::nameSelected() {
 void MixerLine::panChanged(Rotary *ref)
 {
 	Song *song = Hydrogen::get_instance()->getSong();
-	song->m_bIsModified = true;
+	song->__is_modified = true;
 	emit panChanged( this );
 
 	float panValue = ref->getValue();
@@ -537,7 +537,7 @@ MasterMixerLine::~MasterMixerLine()
 
 void MasterMixerLine::muteClicked(Button* pBtn)
 {
-	Hydrogen::get_instance()->getSong()->m_bIsMuted = pBtn->isPressed();
+	Hydrogen::get_instance()->getSong()->__is_muted = pBtn->isPressed();
 }
 
 
@@ -549,7 +549,7 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 	emit volumeChanged(this);
 
 	Song *song = Hydrogen::get_instance()->getSong();
-	song->m_bIsModified = true;
+	song->__is_modified = true;
 
 	char m_pMasterFaderPos[100];
 	float value = ref->getValue();
@@ -661,9 +661,9 @@ void MasterMixerLine::updateMixerLine()
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong ) {
-		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
-		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
-		m_pSwingRotary->setValue( pSong->getSwingFactor() );
+		m_pHumanizeTimeRotary->setValue( pSong->get_humanize_time_value() );
+		m_pHumanizeVelocityRotary->setValue( pSong->get_humanize_velocity_value() );
+		m_pSwingRotary->setValue( pSong->get_swing_factor() );
 	}
 	else {
 		WARNINGLOG( "pSong == NULL ");
@@ -682,15 +682,15 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	AudioEngine::get_instance()->lock("MasterMixerLine::knobChanged");
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
-		pEngine->getSong()->setHumanizeTimeValue( fVal );
+		pEngine->getSong()->set_humanize_time_value( fVal );
 		sMsg = trUtf8( "Set humanize time parameter [%1]").arg( sVal );
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
-		pEngine->getSong()->setHumanizeVelocityValue( fVal );
+		pEngine->getSong()->set_humanize_velocity_value( fVal );
 		sMsg = trUtf8( "Set humanize velocity parameter [%1]").arg( sVal );
 	}
 	else if ( pRef == m_pSwingRotary ) {
-		pEngine->getSong()->setSwingFactor( fVal );
+		pEngine->getSong()->set_swing_factor( fVal );
 		sMsg = trUtf8( "Set swing factor [%1]").arg( sVal );
 	}
 	else {
@@ -785,7 +785,7 @@ void FxMixerLine::click(Button *ref) {
 	Song *song = Hydrogen::get_instance()->getSong();
 
 	if (ref == activeBtn ) {
-		song->m_bIsModified = true;
+		song->__is_modified = true;
 		emit activeBtnClicked( this );
 	}
 }
@@ -809,7 +809,7 @@ void FxMixerLine::faderChanged(Fader *ref)
 
 
 	Song *song = Hydrogen::get_instance()->getSong();
-	song->m_bIsModified = true;
+	song->__is_modified = true;
 	emit volumeChanged( this );
 
 }
@@ -1087,7 +1087,7 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 //	m_pVolumeLbl->setText(tmp);
 
 	Song *song = Hydrogen::get_instance()->getSong();
-	song->m_bIsModified = true;
+	song->__is_modified = true;
 	emit volumeChanged(this);
 }
 

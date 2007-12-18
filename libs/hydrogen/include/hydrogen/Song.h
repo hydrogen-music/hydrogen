@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -56,12 +56,12 @@ public:
 	    SONG_MODE
 	};
 
-	bool m_bIsMuted;
-	unsigned m_nResolution;	///< Resolution of the song (number of ticks per quarter)
-	float m_fBPM;			///< Beats per minute
-	bool m_bIsModified;
-	std::string m_sName;	///< song name
-	std::string m_sAuthor;		///< author of the song
+	bool __is_muted;
+	unsigned __resolution;		///< Resolution of the song (number of ticks per quarter)
+	float __bpm;			///< Beats per minute
+	bool __is_modified;
+	std::string __name;		///< song name
+	std::string __author;		///< author of the song
 
 	/*
 	// internal delay FX
@@ -72,133 +72,135 @@ public:
 	//~ internal delay fx
 	*/
 
-	Song( const std::string& sName, const std::string& sAuthor, float bpm, float volume );
+	static Song* get_empty_song();
+
+
+	Song( const std::string& name, const std::string& author, float bpm, float volume );
 	~Song();
 
-	void setVolume( float fVolume )
+	void set_volume( float volume )
 	{
-		m_fVolume = fVolume;
+		__volume = volume;
 	}
-	float getVolume()
+	float get_volume()
 	{
-		return m_fVolume;
-	}
-
-	void setMetronomeVolume( float fVolume )
-	{
-		m_fMetronomeVolume = fVolume;
-	}
-	float getMetronomeVolume()
-	{
-		return m_fMetronomeVolume;
+		return __volume;
 	}
 
-	PatternList* getPatternList()
+	void set_metronome_volume( float volume )
 	{
-		return m_pPatternList;
+		__metronome_volume = volume;
 	}
-	void setPatternList( PatternList *pList )
+	float get_metronome_volume()
 	{
-		m_pPatternList = pList;
+		return __metronome_volume;
 	}
 
-	std::vector<PatternList*>* getPatternGroupVector()
+	PatternList* get_pattern_list()
 	{
-		return m_pPatternSequence;
+		return __pattern_list;
 	}
-	void setPatternGroupVector( std::vector<PatternList*>* pVect )
+	void set_pattern_list( PatternList *pattern_list )
 	{
-		m_pPatternSequence = pVect;
+		__pattern_list = pattern_list;
+	}
+
+	std::vector<PatternList*>* get_pattern_group_vector()
+	{
+		return __pattern_group_sequence;
+	}
+	void set_pattern_group_vector( std::vector<PatternList*>* vect )
+	{
+		__pattern_group_sequence = vect;
 	}
 
 	static Song* load( const std::string& sFilename );
 	void save( const std::string& sFilename );
 
-	InstrumentList* getInstrumentList()
+	InstrumentList* get_instrument_list()
 	{
-		return m_pInstrumentList;
+		return __instrument_list;
 	}
-	void setInstrumentList( InstrumentList *pList )
+	void set_instrument_list( InstrumentList *list )
 	{
-		m_pInstrumentList = pList;
-	}
-
-	static Song* getEmptySong();
-
-	void setNotes( const std::string& sNotes )
-	{
-		m_sNotes = sNotes;
-	}
-	std::string getNotes()
-	{
-		return m_sNotes;
+		__instrument_list = list;
 	}
 
-	std::string getFilename()
+
+	void set_notes( const std::string& notes )
 	{
-		return m_sFilename;
+		__notes = notes;
 	}
-	void setFilename( const std::string& sFilename )
+	std::string get_notes()
 	{
-		m_sFilename = sFilename;
+		return __notes;
 	}
 
-	bool isLoopEnabled()
+	std::string get_filename()
 	{
-		return m_bIsLoopEnabled;
+		return __filename;
 	}
-	void setLoopEnabled( bool bIsLoopEnabled )
+	void set_filename( const std::string& filename )
 	{
-		m_bIsLoopEnabled = bIsLoopEnabled;
-	}
-
-	float getHumanizeTimeValue()
-	{
-		return m_fHumanizeTimeValue;
-	}
-	void setHumanizeTimeValue( float fValue )
-	{
-		m_fHumanizeTimeValue = fValue;
+		__filename = filename;
 	}
 
-	float getHumanizeVelocityValue()
+	bool is_loop_enabled()
 	{
-		return m_fHumanizeVelocityValue;
+		return __is_loop_enabled;
 	}
-	void setHumanizeVelocityValue( float fValue )
+	void set_loop_enabled( bool enabled )
 	{
-		m_fHumanizeVelocityValue = fValue;
+		__is_loop_enabled = enabled;
 	}
 
-	float getSwingFactor()
+	float get_humanize_time_value()
 	{
-		return m_fSwingFactor;
+		return __humanize_time_value;
 	}
-	void setSwingFactor( float fFactor );
+	void set_humanize_time_value( float value )
+	{
+		__humanize_time_value = value;
+	}
 
-	SongMode getMode()
+	float get_humanize_velocity_value()
 	{
-		return m_songMode;
+		return __humanize_velocity_value;
 	}
-	void setMode( SongMode newMode )
+	void set_humanize_velocity_value( float value )
 	{
-		m_songMode = newMode;
+		__humanize_velocity_value = value;
+	}
+
+	float get_swing_factor()
+	{
+		return __swing_factor;
+	}
+	void set_swing_factor( float factor );
+
+	SongMode get_mode()
+	{
+		return __song_mode;
+	}
+	void set_mode( SongMode mode )
+	{
+		__song_mode = mode;
 	}
 
 private:
-	float m_fVolume;			///< volume of the song (0.0..1.0)
-	float m_fMetronomeVolume;	///< Metronome volume
-	std::string m_sNotes;
-	PatternList *m_pPatternList;	///< Pattern list
-	std::vector<PatternList*>* m_pPatternSequence;	///< Sequence of pattern groups
-	InstrumentList *m_pInstrumentList;	///< Instrument list
-	std::string m_sFilename;
-	bool m_bIsLoopEnabled;
-	float m_fHumanizeTimeValue;
-	float m_fHumanizeVelocityValue;
-	float m_fSwingFactor;
+	float __volume;						///< volume of the song (0.0..1.0)
+	float __metronome_volume;				///< Metronome volume
+	std::string __notes;
+	PatternList *__pattern_list;				///< Pattern list
+	std::vector<PatternList*>* __pattern_group_sequence;	///< Sequence of pattern groups
+	InstrumentList *__instrument_list;			///< Instrument list
+	std::string __filename;
+	bool __is_loop_enabled;
+	float __humanize_time_value;
+	float __humanize_velocity_value;
+	float __swing_factor;
 
-	SongMode m_songMode;
+	SongMode __song_mode;
 };
 
 

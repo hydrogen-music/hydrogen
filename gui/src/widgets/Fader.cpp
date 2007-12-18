@@ -209,7 +209,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 
 
 	// peak leds
-	float fRange = abs( m_fMaxPeak ) + abs( m_fMinPeak );
+	//float fRange = abs( m_fMaxPeak ) + abs( m_fMinPeak );
 
 	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
 	//int peak_L = 116 - ( realPeak_L / fRange ) * 116.0;

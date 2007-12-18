@@ -89,7 +89,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
 		// Extract the filename from the complete path
-		string sName = pLayer->get_sample()->get_filename();
+		std::string sName = pLayer->get_sample()->get_filename();
 		int nPos = sName.rfind("/");
 		m_sSampleName = sName.substr( nPos + 1, sName.length() );
 

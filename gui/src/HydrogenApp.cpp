@@ -69,11 +69,11 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// Create the audio engine :)
 	Hydrogen::get_instance();
 	Hydrogen::get_instance()->setSong( pFirstSong );
-	Preferences::getInstance()->setLastSongFilename( pFirstSong->getFilename() );
+	Preferences::getInstance()->setLastSongFilename( pFirstSong->get_filename() );
 
 	// set initial title
 	QString extraVersion = " (Development version) ";
-	QString qsSongName( pFirstSong->m_sName.c_str() );
+	QString qsSongName( pFirstSong->__name.c_str() );
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION) + extraVersion + QString( " - " ) + qsSongName ) );
 
 	Preferences *pPref = Preferences::getInstance();
@@ -254,11 +254,11 @@ void HydrogenApp::setSong(Song* song)
 	}
 
 	Hydrogen::get_instance()->setSong( song );
-	Preferences::getInstance()->setLastSongFilename( song->getFilename() );
+	Preferences::getInstance()->setLastSongFilename( song->get_filename() );
 
 	m_pSongEditorPanel->updateAll();
 
-	QString songName( song->m_sName.c_str() );
+	QString songName( song->__name.c_str() );
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION) + QString( " - " ) + songName ) );
 
 	m_pMainForm->updateRecentUsedSongList();

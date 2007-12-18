@@ -99,7 +99,7 @@
   </kdevfilecreate>
   <kdevtrollproject>
     <general>
-      <activedir></activedir>
+      <activedir>gui</activedir>
     </general>
     <run>
       <directoryradio>executable</directoryradio>
@@ -131,9 +131,7 @@
     </qmake>
   </kdevtrollproject>
   <kdevcppsupport>
-    <references>
-      <pcs>Qt4</pcs>
-    </references>
+    <references/>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
       <includeTypes>true</includeTypes>
@@ -160,6 +158,8 @@
       <usePermanentCaching>true</usePermanentCaching>
       <alwaysIncludeNamespaces>false</alwaysIncludeNamespaces>
       <includePaths>.;</includePaths>
+      <parseMissingHeadersExperimental>false</parseMissingHeadersExperimental>
+      <resolveIncludePathsUsingMakeExperimental>false</resolveIncludePathsUsingMakeExperimental>
     </codecompletion>
     <creategettersetter>
       <prefixGet>get_</prefixGet>

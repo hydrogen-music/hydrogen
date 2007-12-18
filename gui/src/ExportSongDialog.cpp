@@ -73,7 +73,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd->setWindowTitle( trUtf8( "Export song" ) );
 //	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	QString defaultFilename( Hydrogen::get_instance()->getSong()->m_sName.c_str() );
+	QString defaultFilename( Hydrogen::get_instance()->getSong()->__name.c_str() );
 	defaultFilename.replace( '*', "_" );
 	defaultFilename += ".wav";
 

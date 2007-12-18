@@ -192,7 +192,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	if ( nInstrument > (MAX_INSTRUMENTS -1 ) ) {
 		nInstrument = MAX_INSTRUMENTS - 1;
 	}
-	Instrument *pInstr = ( pSong->getInstrumentList() )->get( nInstrument );
+	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
 	const unsigned nPosition = 0;
 	const float fVelocity = 0.0f;
 	const float fPan_L = 0.5f;
@@ -293,13 +293,13 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	}
 	else {
 		// sysex dump
-		string sDump = "";
+		std::string sDump = "";
 		char tmpChar[64];
 		for ( int i = 0; i < (int)msg.m_sysexData.size(); ++i) {
 			sprintf( tmpChar, "%X ", (int)msg.m_sysexData[ i ] );
 			sDump += tmpChar;
 		}
-		WARNINGLOG( "Unknown SysEx message: " + string( "(" ) + to_string( msg.m_sysexData.size() ) + string( ") [ " ) + sDump + string( " ]" ));
+		WARNINGLOG( "Unknown SysEx message: " + std::string( "(" ) + to_string( msg.m_sysexData.size() ) + std::string( ") [ " ) + sDump + std::string( " ]" ));
 	}
 
 }

@@ -103,7 +103,7 @@ void DrumPatternEditor::updateEditor()
 	}
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->getPatternList();
+	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
@@ -159,7 +159,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->get_size();
+	int nInstruments = pSong->get_instrument_list()->get_size();
 
 //	int row = (int)( (float)( height() - ev->y() )  / (float)m_nGridHeight);
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
@@ -173,7 +173,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		update( 0, 0, width(), height() );
 		return;
 	}
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
+	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
 	if (ev->button() == Qt::LeftButton ) {
 		m_bRightBtnPressed = false;
@@ -211,7 +211,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 			}
 		}
-		pSong->m_bIsModified = true;
+		pSong->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 	}
 	else if (ev->button() == Qt::RightButton ) {
@@ -313,7 +313,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 		m_pDraggedNote->set_lenght( nLen );
 
-		Hydrogen::get_instance()->getSong()->m_bIsModified = true;
+		Hydrogen::get_instance()->getSong()->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		drawPattern();
@@ -356,7 +356,7 @@ void DrumPatternEditor::drawPattern()
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	InstrumentList * pInstrList = pSong->getInstrumentList();
+	InstrumentList * pInstrList = pSong->get_instrument_list();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->get_size() ) ) {
 		// the number of instruments is changed...recreate all
@@ -401,7 +401,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter* p )
 	p->setRenderHint( QPainter::Antialiasing );
 
 	int nInstrument = -1;
-	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
 		if ( pInstr == note->get_instrument() ) {
@@ -548,10 +548,10 @@ void DrumPatternEditor::drawGrid( QPainter* p )
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->get_size();
+	int nInstruments = pSong->get_instrument_list()->get_size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
-		if ( i == (int)nSelectedInstrument ) {
+		if ( i == (uint)nSelectedInstrument ) {
 			p->fillRect( 0, y, (20 + nNotes * m_nGridWidth), m_nGridHeight * 0.7, selectedRowColor );
 		}
 		else {
@@ -579,7 +579,7 @@ void DrumPatternEditor::createBackground()
 
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->get_size();
+	int nInstruments = pSong->get_instrument_list()->get_size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
 		// the number of instruments is changed...recreate all

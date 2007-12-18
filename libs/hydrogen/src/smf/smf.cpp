@@ -233,9 +233,9 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 
 	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
-	for ( unsigned nPatternList = 0; nPatternList < pSong->getPatternGroupVector()->size(); nPatternList++ ) {
+	for ( unsigned nPatternList = 0; nPatternList < pSong->get_pattern_group_vector()->size(); nPatternList++ ) {
 //		infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
-		PatternList *pPatternList = (*( pSong->getPatternGroupVector() ) )[ nPatternList ];
+		PatternList *pPatternList = (*( pSong->get_pattern_group_vector() ) )[ nPatternList ];
 
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;

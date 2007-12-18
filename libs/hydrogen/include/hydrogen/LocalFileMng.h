@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,9 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-using std::vector;
 #include <string>
-using std::string;
 
 #include <hydrogen/Object.h>
 
@@ -54,19 +52,17 @@ public:
 	LocalFileMng();
 	~LocalFileMng();
 
-	vector<string> getUserDrumkitList();
-	vector<string> getSystemDrumkitList();
-	string getDrumkitDirectory( const std::string& drumkitName );
+	std::vector<std::string> getUserDrumkitList();
+	std::vector<std::string> getSystemDrumkitList();
+	std::string getDrumkitDirectory( const std::string& drumkitName );
 
 	Drumkit* loadDrumkit( const std::string& directory );
 	int saveDrumkit( Drumkit *pDrumkit );
-	//void installDrumkit( const std::string& filename );
-	//int uninstallDrumkit( const std::string& drumkitName );
 
 	static void writeXmlString( ::TiXmlNode *parent, const std::string& name, const std::string& text );
 	static void writeXmlBool( ::TiXmlNode *parent, const std::string& name, bool value );
 
-	static string readXmlString( ::TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static std::string readXmlString( ::TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static int readXmlInt( ::TiXmlNode* parent, const std::string& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static float readXmlFloat( ::TiXmlNode* parent, const std::string& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static bool readXmlBool(  ::TiXmlNode* parent, const std::string& nodeName, bool defaultValue, bool bShouldExists = true );
@@ -78,14 +74,6 @@ private:
 
 
 
-
-
-//-----------------------------------------------------------------------------
-
-
-
-
-//-----------------------------------------------------------------------------
 /**
  * Write XML file of a song
  */

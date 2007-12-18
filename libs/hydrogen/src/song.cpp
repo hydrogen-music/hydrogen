@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -37,28 +37,28 @@
 
 namespace H2Core {
 
-Song::Song( const std::string& sName, const std::string& sAuthor, float fBpm, float fVolume)
+Song::Song( const std::string& name, const std::string& author, float bpm, float volume)
  : Object( "Song" )
- , m_bIsMuted( false )
- , m_nResolution( 48 )
- , m_fBPM( fBpm )
- , m_bIsModified( false )
- , m_sName( sName )
- , m_sAuthor( sAuthor )
- , m_fVolume( fVolume )
- , m_fMetronomeVolume( 0.5 )
- , m_sNotes( "Song info" )	///\todo: attenzione..questo non verra' tradotto
- , m_pPatternList( NULL )
- , m_pPatternSequence( NULL )
- , m_pInstrumentList( NULL )
- , m_sFilename( "" )
- , m_bIsLoopEnabled( false )
- , m_fHumanizeTimeValue( 0.0 )
- , m_fHumanizeVelocityValue( 0.0 )
- , m_fSwingFactor( 0.0 )
- , m_songMode( PATTERN_MODE )
+ , __is_muted( false )
+ , __resolution( 48 )
+ , __bpm( bpm )
+ , __is_modified( false )
+ , __name( name )
+ , __author( author )
+ , __volume( volume )
+ , __metronome_volume( 0.5 )
+ , __notes( "Song info" )	///\todo: attenzione..questo non verra' tradotto
+ , __pattern_list( NULL )
+ , __pattern_group_sequence( NULL )
+ , __instrument_list( NULL )
+ , __filename( "" )
+ , __is_loop_enabled( false )
+ , __humanize_time_value( 0.0 )
+ , __humanize_velocity_value( 0.0 )
+ , __swing_factor( 0.0 )
+ , __song_mode( PATTERN_MODE )
 {
-	INFOLOG( "INIT \"" + m_sName + "\"" );
+	INFOLOG( "INIT \"" + __name + "\"" );
 
 	//m_bDelayFXEnabled = false;
 	//m_fDelayFXWetLevel = 0.8;
@@ -71,20 +71,20 @@ Song::Song( const std::string& sName, const std::string& sAuthor, float fBpm, fl
 Song::~Song()
 {
 	// delete all patterns
-	delete m_pPatternList;
+	delete __pattern_list;
 
-	if (m_pPatternSequence) {
-		for (unsigned i = 0; i < m_pPatternSequence->size(); ++i) {
-			PatternList *pPatternList = (*m_pPatternSequence)[i];
+	if (__pattern_group_sequence) {
+		for (unsigned i = 0; i < __pattern_group_sequence->size(); ++i) {
+			PatternList *pPatternList = (*__pattern_group_sequence)[i];
 			pPatternList->clear();	// pulisco tutto, i pattern non vanno distrutti qua
 			delete pPatternList;
 		}
-		delete m_pPatternSequence;
+		delete __pattern_group_sequence;
 	}
 
-	delete m_pInstrumentList;
+	delete __instrument_list;
 
-	INFOLOG( "DESTROY \"" + m_sName + "\"" );
+	INFOLOG( "DESTROY \"" + __name + "\"" );
 }
 
 
@@ -102,7 +102,6 @@ Song* Song::load( const std::string& filename )
 
 
 
-
 /// Save a song to file
 void Song::save( const std::string& filename )
 {
@@ -116,9 +115,10 @@ void Song::save( const std::string& filename )
 
 
 /// Return an empty song
-Song* Song::getEmptySong() {
-	string dataDir = DataPath::get_data_path();
-	string filename = dataDir + "/DefaultSong.h2song";
+Song* Song::get_empty_song()
+{
+	std::string dataDir = DataPath::get_data_path();
+	std::string filename = dataDir + "/DefaultSong.h2song";
 	Song *song = Song::load( filename );
 
 	return song;
@@ -126,9 +126,8 @@ Song* Song::getEmptySong() {
 
 
 
-
-
-void Song::setSwingFactor( float factor ) {
+void Song::set_swing_factor( float factor )
+{
 	if (factor < 0.0) {
 		factor = 0.0;
 	}
@@ -136,7 +135,7 @@ void Song::setSwingFactor( float factor ) {
 		factor = 1.0;
 	}
 
-	m_fSwingFactor = factor;
+	__swing_factor = factor;
 }
 
 
@@ -203,13 +202,13 @@ Song* SongReader::readSong( const std::string& filename)
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
 	float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
-	string sName = LocalFileMng::readXmlString( songNode, "name", "Untitled Song" );
-	string sAuthor = LocalFileMng::readXmlString( songNode, "author", "Unknown Author" );
-	string sNotes = LocalFileMng::readXmlString( songNode, "notes", "..." );
+	std::string sName = LocalFileMng::readXmlString( songNode, "name", "Untitled Song" );
+	std::string sAuthor = LocalFileMng::readXmlString( songNode, "author", "Unknown Author" );
+	std::string sNotes = LocalFileMng::readXmlString( songNode, "notes", "..." );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
 
 	Song::SongMode nMode = Song::PATTERN_MODE;	// Mode (song/pattern)
-	string sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
+	std::string sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
 		nMode = Song::SONG_MODE;
 	}
@@ -219,13 +218,13 @@ Song* SongReader::readSong( const std::string& filename)
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
 
 	song = new Song( sName, sAuthor, fBpm, fVolume );
-	song->setMetronomeVolume( fMetronomeVolume );
-	song->setNotes( sNotes );
-	song->setLoopEnabled( bLoopEnabled );
-	song->setMode( nMode );
-	song->setHumanizeTimeValue( fHumanizeTimeValue );
-	song->setHumanizeVelocityValue( fHumanizeVelocityValue );
-	song->setSwingFactor( fSwingFactor );
+	song->set_metronome_volume( fMetronomeVolume );
+	song->set_notes( sNotes );
+	song->set_loop_enabled( bLoopEnabled );
+	song->set_mode( nMode );
+	song->set_humanize_time_value( fHumanizeTimeValue );
+	song->set_humanize_velocity_value( fHumanizeVelocityValue );
+	song->set_swing_factor( fSwingFactor );
 
 	/*
 	song->m_bDelayFXEnabled = LocalFileMng::readXmlBool( songNode, "delayFXEnabled", false, false );
@@ -247,9 +246,9 @@ Song* SongReader::readSong( const std::string& filename)
 		for( instrumentNode = instrumentListNode->FirstChild("instrument"); instrumentNode; instrumentNode = instrumentNode->NextSibling("instrument")) {
 			instrumentList_count++;
 
-			string sId = LocalFileMng::readXmlString( instrumentNode, "id", "" );			// instrument id
-			string sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
-			string sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
+			std::string sId = LocalFileMng::readXmlString( instrumentNode, "id", "" );			// instrument id
+			std::string sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
+			std::string sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
 			float fPan_L = LocalFileMng::readXmlFloat( instrumentNode, "pan_L", 0.5 );	// pan L
@@ -270,7 +269,7 @@ Song* SongReader::readSong( const std::string& filename)
 			bool bFilterActive = LocalFileMng::readXmlBool( instrumentNode, "filterActive", false );
 			float fFilterCutoff = LocalFileMng::readXmlFloat( instrumentNode, "filterCutoff", 1.0f, false );
 			float fFilterResonance = LocalFileMng::readXmlFloat( instrumentNode, "filterResonance", 0.0f, false );
-			string sMuteGroup = LocalFileMng::readXmlString( instrumentNode, "muteGroup", "-1", false );
+			std::string sMuteGroup = LocalFileMng::readXmlString( instrumentNode, "muteGroup", "-1", false );
 			int nMuteGroup = atoi( sMuteGroup.c_str() );
 
 
@@ -298,7 +297,7 @@ Song* SongReader::readSong( const std::string& filename)
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 
-			string drumkitPath = "";
+			std::string drumkitPath = "";
 			if ( ( sDrumkit != "" ) && (sDrumkit != "-" ) ) {
 //				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit + "/";
 				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit;
@@ -308,7 +307,7 @@ Song* SongReader::readSong( const std::string& filename)
 			TiXmlNode* filenameNode = instrumentNode->FirstChild( "filename" );
 			if ( filenameNode ) {
 				WARNINGLOG( "Using back compatibility code. filename node found" );
-				string sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
+				std::string sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
 
 				if (drumkitPath != "") {
 					sFilename = drumkitPath + "/" + sFilename;
@@ -337,7 +336,7 @@ Song* SongReader::readSong( const std::string& filename)
 						ERRORLOG( "nLayer > MAX_LAYERS" );
 						continue;
 					}
-					string sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
+					std::string sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
 					float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
 					float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
 					float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
@@ -367,7 +366,7 @@ Song* SongReader::readSong( const std::string& filename)
 			WARNINGLOG( "0 instruments?" );
 		}
 
-		song->setInstrumentList( instrumentList );
+		song->set_instrument_list( instrumentList );
 	}
 	else {
 		ERRORLOG( "Error reading song: instrumentList node not found");
@@ -401,19 +400,19 @@ Song* SongReader::readSong( const std::string& filename)
 	if ( pattern_count == 0 ) {
 		WARNINGLOG( "0 patterns?" );
 	}
-	song->setPatternList(patternList);
+	song->set_pattern_list(patternList);
 
 
 	// Pattern sequence
 	TiXmlNode* patternSequenceNode = songNode->FirstChild("patternSequence");
 
-	vector<PatternList*>* pPatternGroupVector = new vector<PatternList*>;
+	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
 
 	// back-compatibility code..
 	for (TiXmlNode* pPatternIDNode = patternSequenceNode->FirstChild("patternID"); pPatternIDNode; pPatternIDNode = pPatternIDNode->NextSibling("patternID")) {
 		WARNINGLOG( "Using old patternSequence code for back compatibility" );
 		PatternList *patternSequence = new PatternList();
-		string patId = pPatternIDNode->FirstChild()->Value();
+		std::string patId = pPatternIDNode->FirstChild()->Value();
 
 		Pattern *pat = NULL;
 		for (unsigned i = 0; i < patternList->get_size(); i++) {
@@ -437,7 +436,7 @@ Song* SongReader::readSong( const std::string& filename)
 	for (TiXmlNode* groupNode = patternSequenceNode->FirstChild("group"); groupNode; groupNode = groupNode->NextSibling("group")) {
 		PatternList *patternSequence = new PatternList();
 		for (TiXmlNode* patternId = groupNode->FirstChild("patternID"); patternId; patternId = patternId->NextSibling("patternID")) {
-			string patId = patternId->FirstChild()->Value();
+			std::string patId = patternId->FirstChild()->Value();
 
 			Pattern *pat = NULL;
 			for (unsigned i = 0; i < patternList->get_size(); i++) {
@@ -458,7 +457,7 @@ Song* SongReader::readSong( const std::string& filename)
 		pPatternGroupVector->push_back( patternSequence );
 	}
 
-	song->setPatternGroupVector( pPatternGroupVector );
+	song->set_pattern_group_vector( pPatternGroupVector );
 
 #ifdef LADSPA_SUPPORT
 	// reset FX
@@ -475,8 +474,8 @@ Song* SongReader::readSong( const std::string& filename)
 		int nFX = 0;
 		TiXmlNode* fxNode;
 		for (fxNode = ladspaNode->FirstChild("fx"); fxNode; fxNode = fxNode->NextSibling("fx")) {
-			string sName = LocalFileMng::readXmlString( fxNode, "name", "" );
-			string sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
+			std::string sName = LocalFileMng::readXmlString( fxNode, "name", "" );
+			std::string sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
 			bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
 			float fVolume = LocalFileMng::readXmlFloat( fxNode, "volume", 1.0 );
 
@@ -490,12 +489,12 @@ Song* SongReader::readSong( const std::string& filename)
 					pFX->setVolume( fVolume );
 					TiXmlNode* inputControlNode;
 					for ( inputControlNode = fxNode->FirstChild("inputControlPort"); inputControlNode; inputControlNode = inputControlNode->NextSibling("inputControlPort")) {
-						string sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
+						std::string sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
 						float fValue = LocalFileMng::readXmlFloat( inputControlNode, "value", 0.0 );
 
 						for (unsigned nPort = 0; nPort < pFX->inputControlPorts.size(); nPort++) {
 							LadspaControlPort *port = pFX->inputControlPorts[ nPort ];
-							if ( string(port->sName) == sName) {
+							if ( std::string(port->sName) == sName) {
 								port->fControlValue = fValue;
 							}
 						}
@@ -515,8 +514,8 @@ Song* SongReader::readSong( const std::string& filename)
 	}
 
 
-	song->m_bIsModified = false;
-	song->setFilename(filename);
+	song->__is_modified = false;
+	song->set_filename(filename);
 
 	return song;
 }
@@ -527,7 +526,7 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 {
 	Pattern *pPattern = NULL;
 
-	string sName = "";	// name
+	std::string sName = "";	// name
 	sName = LocalFileMng::readXmlString( pattern, "name", sName );
 
 	int nSize = -1;
@@ -550,9 +549,9 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
-			string sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
+			std::string sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 
-			string instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
+			std::string instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
 
 			Instrument *instrRef = NULL;
 			// search instrument by ref
@@ -594,7 +593,7 @@ Pattern* SongReader::getPattern(TiXmlNode* pattern, InstrumentList* instrList)
 				int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 				float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 
-				string instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
+				std::string instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
 
 				Instrument *instrRef = NULL;
 				// search instrument by ref

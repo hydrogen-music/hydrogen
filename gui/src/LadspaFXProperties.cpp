@@ -159,7 +159,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 			m_pInputControlLabel[ i ]->setText( sValue );
 		}
 	}
-	pSong->m_bIsModified = true;
+	pSong->__is_modified = true;
 #endif
 }
 
@@ -360,7 +360,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 			}
 			//AudioEngine::getInstance()->lock("LadspaFXProperties::selectFXBtnClicked");
 			Song *pSong = (Hydrogen::get_instance() )->getSong();
-			pSong->m_bIsModified = true;
+			pSong->__is_modified = true;
 
 			Effects::getInstance()->setLadspaFX( pFX, m_nLadspaFX );
 

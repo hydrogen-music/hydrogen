@@ -20,27 +20,28 @@
  *
  */
 
+#include <hydrogen/adsr.h>
+#include <hydrogen/data_path.h>
+#include <hydrogen/h2_exception.h>
+#include <hydrogen/instrument.h>
+#include <hydrogen/LocalFileMng.h>
+#include <hydrogen/note.h>
+#include <hydrogen/Pattern.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/Song.h>
+#include <hydrogen/SoundLibrary.h>
+#include <hydrogen/sample.h>
+#include <hydrogen/fx/Effects.h>
+
+
 #include <cstdlib>
+#include <cassert>
 #include <sys/stat.h>
 
 #include <QDir>
 #include <QApplication>
-#include <cassert>
 
 #include "xml/tinyxml.h"
-#include <hydrogen/data_path.h>
-#include <hydrogen/Song.h>
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/sample.h>
-#include <hydrogen/adsr.h>
-#include <hydrogen/note.h>
-#include <hydrogen/fx/Effects.h>
-
-#include <hydrogen/instrument.h>
-#include <hydrogen/Pattern.h>
-#include <hydrogen/SoundLibrary.h>
-#include <hydrogen/h2_exception.h>
 
 
 
@@ -61,7 +62,7 @@ LocalFileMng::~LocalFileMng()
 
 
 
-void LocalFileMng::fileCopy( const string& sOrigFilename, const string& sDestFilename )
+void LocalFileMng::fileCopy( const std::string& sOrigFilename, const std::string& sDestFilename )
 {
 	INFOLOG( sOrigFilename + " --> " + sDestFilename );
 
@@ -95,22 +96,22 @@ void LocalFileMng::fileCopy( const string& sOrigFilename, const string& sDestFil
 
 
 
-vector<string> LocalFileMng::getUserDrumkitList()
+std::vector<std::string> LocalFileMng::getUserDrumkitList()
 {
-	vector<string> list;
+	std::vector<std::string> list;
 
 	//QString sDirectory = QDir::homePath().append( "/.hydrogen/data" );
 	QString sDirectory = Preferences::getInstance()->getDataDirectory().c_str();
 
 	QDir dir(sDirectory);
 	if ( !dir.exists() ) {
-		ERRORLOG( string( "[listUserDrumkits] Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
+		ERRORLOG( std::string( "[listUserDrumkits] Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
 	}
 	else {
 		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
 		for ( int i = 0; i < fileList.size(); ++i ) {
-			string sFile = fileList.at( i ).fileName().toStdString();
+			std::string sFile = fileList.at( i ).fileName().toStdString();
 			if( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
 				continue;
 			}
@@ -123,20 +124,20 @@ vector<string> LocalFileMng::getUserDrumkitList()
 
 
 
-vector<string> LocalFileMng::getSystemDrumkitList()
+std::vector<std::string> LocalFileMng::getSystemDrumkitList()
 {
-	vector<string> list;
+	std::vector<std::string> list;
 
 	QString sDirectory = QString( DataPath::get_data_path().append( "/drumkits" ).c_str() );
 	QDir dir(sDirectory);
 	if ( !dir.exists() ) {
-		WARNINGLOG( string( "Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
+		WARNINGLOG( std::string( "Directory ").append( sDirectory.toStdString() ).append( " not found." ) );
 	}
 	else {
 		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
 		for (int i = 0; i < fileList.size(); ++i ) {
-			string sFile = fileList.at( i ).fileName().toStdString();
+			std::string sFile = fileList.at( i ).fileName().toStdString();
 			if( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" ) || ( sFile == ".svn" ) ) {
 				continue;
 			}
@@ -148,22 +149,22 @@ vector<string> LocalFileMng::getSystemDrumkitList()
 
 
 
-string LocalFileMng::getDrumkitDirectory( const std::string& drumkitName )
+std::string LocalFileMng::getDrumkitDirectory( const std::string& drumkitName )
 {
 	// search in system drumkit
-	vector<string> systemDrumkits = Drumkit::getSystemDrumkitList();
+	std::vector<std::string> systemDrumkits = Drumkit::getSystemDrumkitList();
 	for ( unsigned i = 0; i < systemDrumkits.size(); i++ ) {
 		if ( systemDrumkits[ i ] == drumkitName ) {
-			string path = string( DataPath::get_data_path() ) + "/drumkits/";
+			std::string path = std::string( DataPath::get_data_path() ) + "/drumkits/";
 			return path;
 		}
 	}
 
 	// search in user drumkit
-	vector<string> userDrumkits = Drumkit::getUserDrumkitList();
+	std::vector<std::string> userDrumkits = Drumkit::getUserDrumkitList();
 	for ( unsigned i = 0; i < userDrumkits.size(); i++ ) {
 		if ( userDrumkits[ i ] == drumkitName ) {
-		  string path = Preferences::getInstance()->getDataDirectory();
+			std::string path = Preferences::getInstance()->getDataDirectory();
 			//string path = QDir::homePath().append("/.hydrogen/data/").toStdString();
 			return path;
 		}
@@ -183,7 +184,7 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 	//INFOLOG( directory );
 
 	// che if the drumkit.xml file exists
-	string drumkitInfoFile = directory + "/drumkit.xml";
+	std::string drumkitInfoFile = directory + "/drumkit.xml";
 	std::ifstream verify( drumkitInfoFile.c_str() , std::ios::in | std::ios::binary );
 	if (verify == NULL){
 		ERRORLOG( "Load Instrument: Data file " + drumkitInfoFile + " not found." );
@@ -201,14 +202,14 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 	}
 
 	// Name
-	string sDrumkitName = readXmlString( drumkitNode, "name", "");
+	std::string sDrumkitName = readXmlString( drumkitNode, "name", "");
 	if ( sDrumkitName == "") {
 		ERRORLOG( "Error reading drumkit: name node not found" );
 		return NULL;
 	}
 
-	string author = readXmlString( drumkitNode, "author", "undefined author", true );
-	string info = readXmlString( drumkitNode, "info", "defaultInfo", true );
+	std::string author = readXmlString( drumkitNode, "author", "undefined author", true );
+	std::string info = readXmlString( drumkitNode, "info", "defaultInfo", true );
 
 	Drumkit *drumkitInfo = new Drumkit();
 	drumkitInfo->setName( sDrumkitName );
@@ -229,8 +230,8 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 				break;
 			}
 
-			string id = readXmlString( instrumentNode, "id", "" );
-			string name = readXmlString( instrumentNode, "name", "" );
+			std::string id = readXmlString( instrumentNode, "id", "" );
+			std::string name = readXmlString( instrumentNode, "name", "" );
 			float volume = readXmlFloat( instrumentNode, "volume", 1.0f );
 			bool isMuted = readXmlBool( instrumentNode, "isMuted", false );
 			float pan_L = readXmlFloat( instrumentNode, "pan_L", 1.0f );
@@ -244,7 +245,7 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 			float fSustain = LocalFileMng::readXmlFloat( instrumentNode, "Sustain", 1.0, false, false );	// Sustain
 			float fRelease = LocalFileMng::readXmlFloat( instrumentNode, "Release", 1000, false, false );	// Release
 			float fGain = readXmlFloat( instrumentNode, "gain", 1.0f, false, false );
-			string sMuteGroup = readXmlString( instrumentNode, "muteGroup", "-1", false, false );
+			std::string sMuteGroup = readXmlString( instrumentNode, "muteGroup", "-1", false, false );
 			int nMuteGroup = atoi( sMuteGroup.c_str() );
 
 			// some sanity checks
@@ -261,7 +262,7 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 			TiXmlNode* filenameNode = instrumentNode->FirstChild( "filename" );
 			if ( filenameNode ) {
 				//warningLog( "Using back compatibility code. filename node found" );
-				string sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
+				std::string sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
 				Sample *pSample = new Sample(0, sFilename );
 				InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 				pInstrument->set_layer( pLayer, 0 );
@@ -274,7 +275,7 @@ Drumkit* LocalFileMng::loadDrumkit( const std::string& directory )
 						ERRORLOG( "nLayer > MAX_LAYERS" );
 						continue;
 					}
-					string sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
+					std::string sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
 					float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
 					float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
 					float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0, false, false );
@@ -322,7 +323,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	INFOLOG( "[saveDrumkit]" );
 	info->dump();	// debug
 
-	string sDrumkitDir = Preferences::getInstance()->getDataDirectory() + info->getName().c_str();
+	std::string sDrumkitDir = Preferences::getInstance()->getDataDirectory() + info->getName().c_str();
 
 	// check if the directory exists
 	QDir dir( QString( sDrumkitDir.c_str() ) );
@@ -341,7 +342,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 
 	// create the drumkit.xml file
-	string sDrumkitXmlFilename = sDrumkitDir + string( "/drumkit.xml" );
+	std::string sDrumkitXmlFilename = sDrumkitDir + std::string( "/drumkit.xml" );
 
 	TiXmlDocument doc( sDrumkitXmlFilename.c_str() );
 
@@ -361,9 +362,9 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if (pLayer) {
 				Sample *pSample = pLayer->get_sample();
-				string sOrigFilename = pSample->get_filename();
+				std::string sOrigFilename = pSample->get_filename();
 
-				string sDestFilename = sOrigFilename;
+				std::string sDestFilename = sOrigFilename;
 
 				int nPos = sDestFilename.rfind( '/' );
 				sDestFilename = sDestFilename.substr( nPos + 1, sDestFilename.size() - nPos - 1 );
@@ -400,7 +401,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			if (pLayer == NULL) continue;
 			Sample *pSample = pLayer->get_sample();
 
-			string sFilename = pSample->get_filename();
+			std::string sFilename = pSample->get_filename();
 
 			//if (instr->getDrumkitName() != "") {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -432,7 +433,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 
 
-string LocalFileMng::readXmlString( TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty, bool bShouldExists )
+std::string LocalFileMng::readXmlString( TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty, bool bShouldExists )
 {
 	TiXmlNode* node;
 	if ( parent && ( node = parent->FirstChild( nodeName.c_str() ) ) ) {
@@ -510,7 +511,7 @@ bool LocalFileMng::readXmlBool( TiXmlNode* parent, const std::string& nodeName, 
 	TiXmlNode* node;
 	if ( parent && ( node = parent->FirstChild( nodeName.c_str() ) ) ) {
 		if ( node->FirstChild() ) {
-			if ( string( node->FirstChild()->Value() ) == "true" ) {
+			if ( std::string( node->FirstChild()->Value() ) == "true" ) {
 				return true;
 			}
 			else {
@@ -545,10 +546,10 @@ void LocalFileMng::writeXmlString( TiXmlNode *parent, const std::string& name, c
 void LocalFileMng::writeXmlBool( TiXmlNode *parent, const std::string& name, bool value )
 {
 	if (value) {
-		writeXmlString( parent, name, string("true") );
+		writeXmlString( parent, name, std::string("true") );
 	}
 	else {
-		writeXmlString( parent, name, string("false") );
+		writeXmlString( parent, name, std::string("false") );
 	}
 }
 
@@ -594,25 +595,25 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 
 	TiXmlElement songNode("song");
 
-	LocalFileMng::writeXmlString( &songNode, "version", string(VERSION) );
-	LocalFileMng::writeXmlString( &songNode, "bpm", to_string( song->m_fBPM ) );
-	LocalFileMng::writeXmlString( &songNode, "volume", to_string( song->getVolume() ) );
-	LocalFileMng::writeXmlString( &songNode, "metronomeVolume", to_string( song->getMetronomeVolume() ) );
-	LocalFileMng::writeXmlString( &songNode, "name", song->m_sName );
-	LocalFileMng::writeXmlString( &songNode, "author", song->m_sAuthor );
-	LocalFileMng::writeXmlString( &songNode, "notes", song->getNotes() );
-	LocalFileMng::writeXmlBool( &songNode, "loopEnabled", song->isLoopEnabled() );
+	LocalFileMng::writeXmlString( &songNode, "version", std::string(VERSION) );
+	LocalFileMng::writeXmlString( &songNode, "bpm", to_string( song->__bpm ) );
+	LocalFileMng::writeXmlString( &songNode, "volume", to_string( song->get_volume() ) );
+	LocalFileMng::writeXmlString( &songNode, "metronomeVolume", to_string( song->get_metronome_volume() ) );
+	LocalFileMng::writeXmlString( &songNode, "name", song->__name );
+	LocalFileMng::writeXmlString( &songNode, "author", song->__author );
+	LocalFileMng::writeXmlString( &songNode, "notes", song->get_notes() );
+	LocalFileMng::writeXmlBool( &songNode, "loopEnabled", song->is_loop_enabled() );
 
-	if (song->getMode() == Song::SONG_MODE ) {
-		LocalFileMng::writeXmlString( &songNode, "mode", string("song") );
+	if (song->get_mode() == Song::SONG_MODE ) {
+		LocalFileMng::writeXmlString( &songNode, "mode", std::string("song") );
 	}
 	else {
-		LocalFileMng::writeXmlString( &songNode, "mode", string("pattern") );
+		LocalFileMng::writeXmlString( &songNode, "mode", std::string("pattern") );
 	}
 
-	LocalFileMng::writeXmlString( &songNode, "humanize_time", to_string( song->getHumanizeTimeValue() ) );
-	LocalFileMng::writeXmlString( &songNode, "humanize_velocity", to_string( song->getHumanizeVelocityValue() ) );
-	LocalFileMng::writeXmlString( &songNode, "swing_factor", to_string( song->getSwingFactor() ) );
+	LocalFileMng::writeXmlString( &songNode, "humanize_time", to_string( song->get_humanize_time_value() ) );
+	LocalFileMng::writeXmlString( &songNode, "humanize_velocity", to_string( song->get_humanize_velocity_value() ) );
+	LocalFileMng::writeXmlString( &songNode, "swing_factor", to_string( song->get_swing_factor() ) );
 
 /*	LocalFileMng::writeXmlBool( &songNode, "delayFXEnabled", song->m_bDelayFXEnabled );
 	LocalFileMng::writeXmlString( &songNode, "delayFXWetLevel", to_string( song->m_fDelayFXWetLevel ) );
@@ -622,11 +623,11 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 
 	// instrument list
 	TiXmlElement instrumentListNode("instrumentList");
-	unsigned nInstrument = song->getInstrumentList()->get_size();
+	unsigned nInstrument = song->get_instrument_list()->get_size();
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		Instrument *instr = song->getInstrumentList()->get(i);
+		Instrument *instr = song->get_instrument_list()->get(i);
 		assert( instr );
 
 		TiXmlElement instrumentNode("instrument");
@@ -665,7 +666,7 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 			Sample *pSample = pLayer->get_sample();
 			if (pSample == NULL) continue;
 
-			string sFilename = pSample->get_filename();
+			std::string sFilename = pSample->get_filename();
 
 			if (instr->get_drumkit_name() != "") {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -691,9 +692,9 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 	// pattern list
 	TiXmlElement patternListNode("patternList");
 
-	unsigned nPatterns = song->getPatternList()->get_size();
+	unsigned nPatterns = song->get_pattern_list()->get_size();
 	for (unsigned i = 0; i < nPatterns; i++) {
-		Pattern *pat = song->getPatternList()->get(i);
+		Pattern *pat = song->get_pattern_list()->get(i);
 
 		// pattern
 		TiXmlElement patternNode("pattern");
@@ -729,11 +730,11 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 	// pattern sequence
 	TiXmlElement patternSequenceNode( "patternSequence" );
 
-	unsigned nPatternGroups = (song->getPatternGroupVector())->size();
+	unsigned nPatternGroups = song->get_pattern_group_vector()->size();
 	for ( unsigned i = 0; i < nPatternGroups; i++ ) {
 		TiXmlElement groupNode( "group" );
 
-		PatternList *pList = (*song->getPatternGroupVector())[i];
+		PatternList *pList = (*song->get_pattern_group_vector())[i];
 		for (unsigned j = 0; j < pList->get_size(); j++) {
 			Pattern *pPattern = pList->get(j);
 			LocalFileMng::writeXmlString( &groupNode, "patternID", pPattern->get_name() );
@@ -777,8 +778,8 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 		}
 #endif
 		else {
-			LocalFileMng::writeXmlString( &fxNode, "name", string("no plugin") );
-			LocalFileMng::writeXmlString( &fxNode, "filename", string("-") );
+			LocalFileMng::writeXmlString( &fxNode, "name", std::string("no plugin") );
+			LocalFileMng::writeXmlString( &fxNode, "filename", std::string("-") );
 			LocalFileMng::writeXmlBool( &fxNode, "enabled", false );
 			LocalFileMng::writeXmlString( &fxNode, "volume", to_string( 0.0 ) );
 		}
@@ -793,8 +794,8 @@ void SongWriter::writeSong(Song *song, const std::string& filename)
 	doc.InsertEndChild(songNode);
 	doc.SaveFile();
 
-	song->m_bIsModified = false;
-	song->setFilename(filename);
+	song->__is_modified = false;
+	song->set_filename(filename);
 }
 
 

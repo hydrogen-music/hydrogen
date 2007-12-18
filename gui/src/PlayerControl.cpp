@@ -352,11 +352,11 @@ void PlayerControl::updatePlayerControl()
 
 	Song *song = m_pEngine->getSong();
 
-	m_pSongLoopBtn->setPressed( song->isLoopEnabled() );
+	m_pSongLoopBtn->setPressed( song->is_loop_enabled() );
 
-	m_pLCDBPMSpinbox->setValue( song->m_fBPM );
+	m_pLCDBPMSpinbox->setValue( song->__bpm );
 
-	if ( song->getMode() == Song::PATTERN_MODE ) {
+	if ( song->get_mode() == Song::PATTERN_MODE ) {
 		m_pLiveModeBtn->setPressed( true );
 		m_pSongModeBtn->setPressed( false );
 	}
@@ -454,14 +454,14 @@ void PlayerControl::switchModeBtnClicked(Button* ref)
 
 	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );	// from start
-	if( song->getMode() == Song::PATTERN_MODE ) {
-		m_pEngine->getSong()->setMode( Song::SONG_MODE );
+	if( song->get_mode() == Song::PATTERN_MODE ) {
+		m_pEngine->getSong()->set_mode( Song::SONG_MODE );
 		m_pSongModeBtn->setPressed(true);
 		m_pLiveModeBtn->setPressed(false);
 		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
 	}
 	else {
-		m_pEngine->getSong()->setMode( Song::PATTERN_MODE );
+		m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
 		m_pSongModeBtn->setPressed(false);
 		m_pLiveModeBtn->setPressed(true);
 		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
@@ -478,7 +478,7 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 
 	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );	// from start
-	m_pEngine->getSong()->setMode( Song::SONG_MODE );
+	m_pEngine->getSong()->set_mode( Song::SONG_MODE );
 	m_pSongModeBtn->setPressed(true);
 	m_pLiveModeBtn->setPressed(false);
 	(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
@@ -493,7 +493,7 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 	UNUSED( ref );
 
 	m_pEngine->sequencer_stop();
-	m_pEngine->getSong()->setMode( Song::PATTERN_MODE );
+	m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
 	//m_pEngine->sequencer_setNextPattern( m_pEngine->getSelectedPatternNumber() );	// imposto il pattern correntemente selezionato come il prossimo da suonare
 	m_pSongModeBtn->setPressed(false);
 	m_pLiveModeBtn->setPressed(true);
@@ -511,7 +511,7 @@ void PlayerControl::bpmChanged() {
 		fNewBpmValue = 400;
 	}
 
-	m_pEngine->getSong()->m_bIsModified = true;
+	m_pEngine->getSong()->__is_modified = true;
 
 	AudioEngine::get_instance()->lock("PlayerControl::bpmChanged");
 	m_pEngine->setBPM( fNewBpmValue );
@@ -552,7 +552,7 @@ void PlayerControl::bpmClicked()
 			return;
 		}
 
-		m_pEngine->getSong()->m_bIsModified  = true;
+		m_pEngine->getSong()->__is_modified  = true;
 
 		AudioEngine::get_instance()->lock( "PlayerControl::bpmChanged");
 		m_pEngine->setBPM( fNewVal );
@@ -615,14 +615,14 @@ void PlayerControl::songLoopBtnClicked( Button* )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *song = pEngine->getSong();
-	song->setLoopEnabled( ! song->isLoopEnabled() );
-	song->m_bIsModified = true;
+	song->set_loop_enabled( ! song->is_loop_enabled() );
+	song->__is_modified = true;
 
-	if ( song->isLoopEnabled() ) {
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Loop song = On"), 5000);
+	if ( song->is_loop_enabled() ) {
+		HydrogenApp::getInstance()->setStatusBarMessage(trUtf8("Loop song = On"), 5000);
 	}
 	else {
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Loop song = Off"), 5000);
+		HydrogenApp::getInstance()->setStatusBarMessage(trUtf8("Loop song = Off"), 5000);
 	}
 }
 

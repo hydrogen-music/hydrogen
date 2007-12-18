@@ -141,7 +141,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	AudioEngine::get_instance()->lock( "LayerPreview::selectedInstrumentChangedEvent" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
+		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->get_size() ) {
 			nInstr = -1;

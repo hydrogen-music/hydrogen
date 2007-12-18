@@ -535,7 +535,7 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
@@ -796,7 +796,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 	AudioEngine::get_instance()->lock( "PatternEditorPanel::moveUpBtnClicked" );
 
 	Song *pSong = engine->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
 		Instrument *pTemp = pInstrumentList->get( nSelectedInstrument - 1 );
@@ -820,7 +820,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
-		pSong->m_bIsModified = true;
+		pSong->__is_modified = true;
 	}
 	else {
 		AudioEngine::get_instance()->unlock();
@@ -837,7 +837,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	AudioEngine::get_instance()->lock( "PatternEditorPanel::moveDownBtnClicked" );
 
 	Song *pSong = engine->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
 	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->get_size() ) {
 		Instrument *pTemp = pInstrumentList->get( nSelectedInstrument + 1 );
@@ -861,7 +861,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
-		pSong->m_bIsModified = true;
+		pSong->__is_modified = true;
 	}
 	else {
 		AudioEngine::get_instance()->unlock();

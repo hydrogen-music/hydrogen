@@ -24,7 +24,6 @@
 #define SAMPLE_BUFFER_H
 
 #include <string>
-using std::string;
 
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
@@ -38,7 +37,7 @@ namespace H2Core
 class Sample : public Object
 {
 public:
-	Sample( unsigned frames, const string& filename, float* data_L = NULL, float* data_R = NULL );
+	Sample( unsigned frames, const std::string& filename, float* data_L = NULL, float* data_R = NULL );
 	~Sample();
 
 	float* get_data_l()
@@ -65,7 +64,7 @@ public:
 	}
 
 	/// Loads a sample from disk
-	static Sample* load( const string& filename );
+	static Sample* load( const std::string& filename );
 
 	unsigned get_n_frames() {	return __n_frames;	}
 
@@ -74,16 +73,16 @@ private:
 	float *__data_r;	///< Right channel data
 
 	unsigned __sample_rate;		///< samplerate for this sample
-	string __filename;		///< filename associated with this sample
+	std::string __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
 
 	//static int __total_used_bytes;
 
 	/// loads a wave file
-	static Sample* load_wave( const string& filename );
+	static Sample* load_wave( const std::string& filename );
 
 	/// loads a FLAC file
-	static Sample* load_flac( const string& filename );
+	static Sample* load_flac( const std::string& filename );
 };
 
 };

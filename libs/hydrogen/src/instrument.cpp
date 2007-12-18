@@ -33,8 +33,8 @@ namespace H2Core {
 
 
 Instrument::Instrument(
-		const string& id,
-		const string& name,
+		const std::string& id,
+		const std::string& name,
 		ADSR* adsr
 )
  : Object( "Instrument" )
@@ -149,8 +149,8 @@ Instrument* Instrument::load_instrument(
 			for ( int nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 				InstrumentLayer *pOrigLayer = pInstr->get_layer( nLayer );
 				if ( pOrigLayer ) {
-					string sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
-					string sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->get_filename();
+					std::string sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
+					std::string sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->get_filename();
 					Sample* pSample = Sample::load( sSampleFilename );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 					pLayer->set_start_velocity( pOrigLayer->get_start_velocity() );

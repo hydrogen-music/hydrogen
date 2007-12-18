@@ -96,9 +96,9 @@ void OldDrumkitManager::updateDrumkitList()
 	drumkitInfoList.clear();
 
 	//LocalFileMng mng;
-	vector<string> userList = Drumkit::getUserDrumkitList();
+	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); i++) {
-	  string absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
+		std::string absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -108,9 +108,9 @@ void OldDrumkitManager::updateDrumkitList()
 	}
 
 
-	vector<string> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<std::string> systemList = Drumkit::getSystemDrumkitList();
 	for (uint i = 0; i < systemList.size(); i++) {
-		string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
+		std::string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -172,7 +172,7 @@ void OldDrumkitManager::on_loadTab_loadDrumkitBtn_clicked()
 
 			try {
 				Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
-				Hydrogen::get_instance()->getSong()->m_bIsModified = true;
+				Hydrogen::get_instance()->getSong()->__is_modified = true;
 				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName().c_str() ), 2000 );
 
 				setCursor( QCursor( Qt::ArrowCursor ) );
@@ -222,10 +222,10 @@ void OldDrumkitManager::on_importTab_importBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	string dataDir = Preferences::getInstance()->getDataDirectory();
+	std::string dataDir = Preferences::getInstance()->getDataDirectory();
 	LocalFileMng fileMng;
 	try {
-		H2Core::Drumkit::install( string( importTab_drumkitPathTxt->text().toStdString() ) );
+		H2Core::Drumkit::install( std::string( importTab_drumkitPathTxt->text().toStdString() ) );
 		QMessageBox::information( this, "Hydrogen", "Drumkit imported in " + QString( dataDir.c_str() )  );
 		updateDrumkitList();
 		setCursor( QCursor( Qt::ArrowCursor ) );
@@ -284,13 +284,13 @@ void OldDrumkitManager::on_exportTab_exportBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	string drumkitName = exportTab_drumkitList->currentText().toStdString();
+	std::string drumkitName = exportTab_drumkitList->currentText().toStdString();
 
 	LocalFileMng fileMng;
-	string drumkitDir = fileMng.getDrumkitDirectory( drumkitName );
+	std::string drumkitDir = fileMng.getDrumkitDirectory( drumkitName );
 
-	string saveDir = exportTab_drumkitPathTxt->text().toStdString();
-	string cmd = string( "cd " ) + drumkitDir + string( "; tar czf \"" ) + saveDir + "/" + drumkitName + string( ".h2drumkit\" \"" ) + drumkitName + "\"";
+	std::string saveDir = exportTab_drumkitPathTxt->text().toStdString();
+	std::string cmd = std::string( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
 
 	INFOLOG( "cmd: " + cmd );
 	system( cmd.c_str() );
@@ -304,7 +304,7 @@ void OldDrumkitManager::on_exportTab_exportBtn_clicked()
 void OldDrumkitManager::on_exportTab_drumkitPathTxt_textChanged( QString str )
 {
 	UNUSED( str );
-	string path = exportTab_drumkitPathTxt->text().toStdString();
+	std::string path = exportTab_drumkitPathTxt->text().toStdString();
 	if (path == "") {
 		exportTab_exportBtn->setEnabled( false );
 	}
@@ -317,7 +317,7 @@ void OldDrumkitManager::on_exportTab_drumkitPathTxt_textChanged( QString str )
 void OldDrumkitManager::on_importTab_drumkitPathTxt_textChanged(QString str)
 {
 	UNUSED( str );
-	string path = importTab_drumkitPathTxt->text().toStdString();
+	std::string path = importTab_drumkitPathTxt->text().toStdString();
 	if (path == "") {
 		importTab_importBtn->setEnabled( false );
 	}
@@ -330,7 +330,7 @@ void OldDrumkitManager::on_importTab_drumkitPathTxt_textChanged(QString str)
 void OldDrumkitManager::on_saveTab_nameTxt_textChanged(QString str)
 {
 	UNUSED( str );
-	string name = saveTab_nameTxt->text().toStdString();
+	std::string name = saveTab_nameTxt->text().toStdString();
 	if (name == "") {
 		saveTab_saveBtn->setEnabled( false );
 	}

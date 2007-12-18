@@ -195,10 +195,10 @@ void JackOutput::relocateBBT()
 	Hydrogen * H = Hydrogen::get_instance();
 	Song * S = H->getSong();
 
-	float hydrogen_TPB = (float)S->m_nResolution;
+	float hydrogen_TPB = (float)S->__resolution;
 
 	long bar_ticks = 0;
-	if ( S->getMode() == Song::SONG_MODE ) {
+	if ( S->get_mode() == Song::SONG_MODE ) {
 		bar_ticks = H->getTickForPosition( m_JackTransportPos.bar ); // (Reasonable?) assumption that one pattern is _always_ 1 bar long!
 		if ( bar_ticks < 0 ) bar_ticks = 0; // ignore error NOTE This is wrong -- if loop state is off, transport should just stop ??
 	}
@@ -208,7 +208,7 @@ void JackOutput::relocateBBT()
 	sprintf(bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
 	WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string(hydrogen_ticks_to_locate) );
 
-	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->m_nResolution;
+	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
 	// not S->m_fBPM !??
 
 	if ( fNewTickSize == 0 ) return; // ??!?
@@ -344,13 +344,13 @@ int JackOutput::init(unsigned nBufferSize)
 		return 3;
 	}
 
-	vector<string> clientList;
+	std::vector<std::string> clientList;
 	const char **readports = jack_get_ports( client, NULL, NULL, JackPortIsOutput );
 	int nPort = 0;
 	while (readports && readports[nPort]) {
-		string sPort = string(readports[nPort]);
+		std::string sPort = std::string(readports[nPort]);
 		int nColonPos = sPort.find( ":" );
-		string sClient = sPort.substr( 0, nColonPos );
+		std::string sClient = sPort.substr( 0, nColonPos );
 		bool bClientExist = false;
 		for ( int j = 0; j < (int)clientList.size(); j++ ) {
 			if ( sClient == clientList[ j ] ) {
@@ -365,7 +365,7 @@ int JackOutput::init(unsigned nBufferSize)
 	}
 	jack_client_close( client );
 
-	string sClientName = "";
+	std::string sClientName = "";
 	for ( int nInstance = 1; nInstance < 16; nInstance++ ) {
 //		sprintf( clientName, "Hydrogen-%d", nInstance );
 	//	sprintf( clientName, "Hydrogen-%d", getpid() );
@@ -442,7 +442,7 @@ void JackOutput::makeTrackOutputs( Song * song ) {
 //	return;
 	///
 
-	InstrumentList * instruments = song->getInstrumentList();
+	InstrumentList * instruments = song->get_instrument_list();
 	Instrument * instr;
 	int nInstruments = (int)instruments->get_size();
 

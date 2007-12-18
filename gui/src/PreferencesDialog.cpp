@@ -64,7 +64,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 #endif
 
 	// Selected audio Driver
-	string sAudioDriver = pPref->m_sAudioDriver;
+	std::string sAudioDriver = pPref->m_sAudioDriver;
 	if (sAudioDriver == "Auto") {
 		driverComboBox->setCurrentIndex(0);
 	}
@@ -180,7 +180,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		styleComboBox->addItem( *it );
 		//INFOLOG( "QT Stile: " + *it   );
 		//string sStyle = (*it).latin1();
-		string sStyle = (*it).toStdString();
+		std::string sStyle = (*it).toStdString();
 		if (sStyle == pPref->getQTStyle() ) {
 			styleComboBox->setCurrentIndex( i );
 		}
@@ -195,13 +195,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( "None" );
 	if ( Hydrogen::get_instance()->getMidiInput() ) {
-		vector<string> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+		std::vector<std::string> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
 			midiPortChannelComboBox->setEnabled( true );
 		}
 		for (uint i = 0; i < midiOutList.size(); i++) {
-			string sPortName = midiOutList[i];
+			std::string sPortName = midiOutList[i];
 			midiPortComboBox->addItem( QString( sPortName.c_str() ) );
 
 			if ( sPortName == pPref->m_sMidiPortName ) {
@@ -324,10 +325,10 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
 	}
 	else {
-		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + string(falloffStr.toStdString()) );
+		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + std::string(falloffStr.toStdString()) );
 	}
 
-	string sNewMidiPortName = midiPortComboBox->currentText().toStdString();
+	std::string sNewMidiPortName = midiPortComboBox->currentText().toStdString();
 
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
@@ -356,7 +357,7 @@ void PreferencesDialog::on_okBtn_clicked()
 void PreferencesDialog::on_driverComboBox_activated( int index )
 {
 	UNUSED( index );
-	string selectedDriver = driverComboBox->currentText().toStdString();
+	std::string selectedDriver = driverComboBox->currentText().toStdString();
 	updateDriverInfo();
 	m_bNeedDriverRestart = true;
 }
@@ -459,7 +460,7 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else {
-		string selectedDriver = (driverComboBox->currentText()).toStdString();
+		std::string selectedDriver = (driverComboBox->currentText()).toStdString();
 		ERRORLOG( "Unknown driver = " + selectedDriver );
 	}
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
@@ -482,7 +483,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 		// font is set to the font the user selected
 		family = font.family();
 		pointSize = font.pointSize();
-		string familyStr = family.toStdString();
+		std::string familyStr = family.toStdString();
 		preferencesMng->setApplicationFontFamily(familyStr);
 		preferencesMng->setApplicationFontPointSize(pointSize);
 
@@ -537,7 +538,7 @@ void PreferencesDialog::on_selectMixerFontBtn_clicked()
 		// font is set to the font the user selected
 		family = font.family();
 		pointSize = font.pointSize();
-		string familyStr = family.toStdString();
+		std::string familyStr = family.toStdString();
 		preferencesMng->setMixerFontFamily(familyStr);
 		preferencesMng->setMixerFontPointSize(pointSize);
 	}

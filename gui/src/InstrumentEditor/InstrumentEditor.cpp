@@ -276,7 +276,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
+		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->get_size() ) {
 			nInstr = -1;
@@ -322,7 +322,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
 		// instr mute group
-		string sMuteGroup = to_string( m_pInstrument->get_mute_group());
+		std::string sMuteGroup = to_string( m_pInstrument->get_mute_group());
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
@@ -511,7 +511,7 @@ void InstrumentEditor::loadLayer()
 
 		AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::browseBtnClicked" );
 		Song *song = engine->getSong();
-		InstrumentList *instrList = song->getInstrumentList();
+		InstrumentList *instrList = song->get_instrument_list();
 		pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
 
 		H2Core::InstrumentLayer *pLayer = pInstr->get_layer( m_nSelectedLayer );

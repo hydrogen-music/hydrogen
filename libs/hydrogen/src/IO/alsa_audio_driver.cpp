@@ -65,7 +65,7 @@ void* alsaAudioDriver_processCaller(void* param)
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		_ERRORLOG( "Cannot prepare audio interface for use: " + string( snd_strerror (err) ) );
+		_ERRORLOG( "Cannot prepare audio interface for use: " + std::string( snd_strerror (err) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
@@ -147,12 +147,12 @@ int AlsaAudioDriver::connect()
 
 	// provo ad aprire il device per verificare se e' libero ( non bloccante )
 	if ( ( err = snd_pcm_open(&m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ string( snd_strerror( err ) ) );
+		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
 
 		// il dispositivo e' occupato..provo con "default"
 		m_sAlsaAudioDevice = "default";
 		if ( ( err = snd_pcm_open(&m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-			ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ string( snd_strerror( err ) ) );
+			ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
 			return 1;
 		}
 		WARNINGLOG( "Using alsa device: " + m_sAlsaAudioDevice );
@@ -161,7 +161,7 @@ int AlsaAudioDriver::connect()
 
 	// Apro il device ( bloccante )
 	if ( ( err = snd_pcm_open(&m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
-		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ string( snd_strerror( err ) ) );
+		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
 		return 1;
 	}
 
@@ -173,31 +173,31 @@ int AlsaAudioDriver::connect()
 	}
 
 	if ( ( err = snd_pcm_hw_params_any( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_any: " + string( snd_strerror( err ) )  );
+		ERRORLOG( "error in snd_pcm_hw_params_any: " + std::string( snd_strerror( err ) )  );
 		return 1;
 	}
 //	snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_MMAP_INTERLEAVED  );
 
 	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_access: " + string( snd_strerror( err ) )  );
+		ERRORLOG( "error in snd_pcm_hw_params_set_access: " + std::string( snd_strerror( err ) )  );
 		return 1;
 	}
 
 	if ( ( err = snd_pcm_hw_params_set_format( m_pPlayback_handle, hw_params, SND_PCM_FORMAT_S16_LE ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_format: " + string( snd_strerror( err ) )  );
+		ERRORLOG( "error in snd_pcm_hw_params_set_format: " + std::string( snd_strerror( err ) )  );
 		return 1;
 	}
 
 	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle, hw_params, &m_nSampleRate, 0 );
 
 	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle, hw_params, nChannels ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_channels: " + string( snd_strerror( err ) )  );
+		ERRORLOG( "error in snd_pcm_hw_params_set_channels: " + std::string( snd_strerror( err ) )  );
 		return 1;
 	}
 
 	unsigned nPeriods = 2;
 	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, 0 ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_periods: " + string( snd_strerror( err ) ) );
+		ERRORLOG( "error in snd_pcm_hw_params_set_periods: " + std::string( snd_strerror( err ) ) );
 		return 1;
 	}
 	INFOLOG( "nPeriods: " + to_string( nPeriods ) );
@@ -214,12 +214,12 @@ int AlsaAudioDriver::connect()
 //	infoLog( "buffer size scelta:" + to_string( m_nBufferSize ) );
 
 	if ( ( err = snd_pcm_hw_params_set_period_size( m_pPlayback_handle, hw_params, period_size, 0 ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_period_size: " + string( snd_strerror( err ) ) );
+		ERRORLOG( "error in snd_pcm_hw_params_set_period_size: " + std::string( snd_strerror( err ) ) );
 	}
 
 
 	if ( ( err = snd_pcm_hw_params( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params: " + string( snd_strerror( err ) )  );
+		ERRORLOG( "error in snd_pcm_hw_params: " + std::string( snd_strerror( err ) )  );
 		return 1;
 	}
 

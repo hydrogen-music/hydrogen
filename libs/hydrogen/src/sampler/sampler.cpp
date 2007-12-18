@@ -62,7 +62,7 @@ Sampler::Sampler()
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
 	// instrument used in file preview
-	string sEmptySampleFilename = string( DataPath::get_data_path()) + "/emptySample.wav";
+	std::string sEmptySampleFilename = std::string( DataPath::get_data_path()) + "/emptySample.wav";
 	__preview_instrument = new Instrument( sEmptySampleFilename, "preview", new ADSR() );
 	__preview_instrument->set_volume(0.8);
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
@@ -231,7 +231,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	float fSendFXLevel_L = 1.0f;
 	float fSendFXLevel_R = 1.0f;
 
-	if ( pInstr->is_muted() || pSong->m_bIsMuted ) {	// is instrument muted?
+	if ( pInstr->is_muted() || pSong->__is_muted ) {	// is instrument muted?
 		cost_L = 0.0;
 		cost_R = 0.0;
 
@@ -247,7 +247,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		fSendFXLevel_L = cost_L;
 
 		cost_L = cost_L * pInstr->get_volume();		// instrument volume
-		cost_L = cost_L * pSong->getVolume();	// song volume
+		cost_L = cost_L * pSong->get_volume();	// song volume
 		cost_L = cost_L * 2; // max pan is 0.5
 
 
@@ -259,7 +259,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		fSendFXLevel_R = cost_R;
 
 		cost_R = cost_R * pInstr->get_volume();		// instrument volume
-		cost_R = cost_R * pSong->getVolume();	// song pan
+		cost_R = cost_R * pSong->get_volume();	// song pan
 		cost_R = cost_R * 2; // max pan is 0.5
 	}
 
@@ -323,7 +323,7 @@ int Sampler::__render_note_no_resample(
 	int nInitialSamplePos = (int)pNote->m_fSamplePosition;
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->getInstrumentList()->get_pos( pNote->get_instrument() );
+	int nInstrument = pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
 
 	// filter
 	bool bUseLPF = pNote->get_instrument()->is_filter_active();
@@ -464,7 +464,7 @@ int Sampler::__render_note_resample(
 	float fInitialSamplePos = pNote->m_fSamplePosition;
 	float fSamplePos = pNote->m_fSamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->getInstrumentList()->get_pos( pNote->get_instrument() );
+	int nInstrument = pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
 
 	// filter
 	bool bUseLPF = pNote->get_instrument()->is_filter_active();

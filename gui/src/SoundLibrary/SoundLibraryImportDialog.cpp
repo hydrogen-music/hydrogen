@@ -164,17 +164,17 @@ bool SoundLibraryImportDialog::isSoundLibraryAlreadyInstalled( QString sURL )
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!
 
-	string soundLibraryName = QFileInfo( sURL ).fileName().toStdString();
+	std::string soundLibraryName = QFileInfo( sURL ).fileName().toStdString();
 	soundLibraryName = soundLibraryName.substr( 0, soundLibraryName.rfind( "." ) );
 
-	vector<string> systemList = H2Core::Drumkit::getSystemDrumkitList();
+	std::vector<std::string> systemList = H2Core::Drumkit::getSystemDrumkitList();
 	for ( uint i = 0; i < systemList.size(); ++i ) {
 		if ( systemList[ i ] == soundLibraryName ) {
 			return true;
 		}
 	}
 
-	vector<string> userList = H2Core::Drumkit::getUserDrumkitList();
+	std::vector<std::string> userList = H2Core::Drumkit::getUserDrumkitList();
 	for ( uint i = 0; i < userList.size(); ++i ) {
 		if ( userList[ i ] == soundLibraryName ) {
 			return true;
@@ -288,9 +288,9 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	string dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
+	std::string dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
 	try {
-		H2Core::Drumkit::install( string( SoundLibraryPathTxt->text().toStdString() ) );
+		H2Core::Drumkit::install( SoundLibraryPathTxt->text().toStdString() );
 		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( dataDir.c_str() )  ) );
 		// update the drumkit list
 		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();

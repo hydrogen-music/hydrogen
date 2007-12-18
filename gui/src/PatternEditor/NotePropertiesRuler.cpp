@@ -109,7 +109,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 		Note *pNote = pos->second;
 		assert( pNote );
 		assert( pNote->get_position() == column );
-		if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 			continue;
 		}
 
@@ -136,7 +136,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 			pNote->set_pan_r( pan_R );
 		}
 
-		pSong->m_bIsModified = true;
+		pSong->__is_modified = true;
 		updateEditor();
 		break;
 	}
@@ -288,7 +288,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 
@@ -451,7 +451,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
@@ -476,7 +476,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 void NotePropertiesRuler::updateEditor()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->getPatternList();
+	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );

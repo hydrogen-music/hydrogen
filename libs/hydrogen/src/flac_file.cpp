@@ -50,7 +50,7 @@ class FLACFile_real : public FLAC::Decoder::File, public Object
 		FLACFile_real();
 		~FLACFile_real();
 
-		void load( string filename );
+		void load( std::string filename );
 		Sample* getSample();
 
 	protected:
@@ -61,7 +61,7 @@ class FLACFile_real : public FLAC::Decoder::File, public Object
 	private:
 		std::vector<float> m_audioVect_L;
 		std::vector<float> m_audioVect_R;
-		string m_sFilename;
+		std::string m_sFilename;
 };
 
 
@@ -156,7 +156,7 @@ void FLACFile_real::error_callback(::FLAC__StreamDecoderErrorStatus status)
 
 
 
-void FLACFile_real::load( string sFilename )
+void FLACFile_real::load( std::string sFilename )
 {
 	m_sFilename = sFilename;
 

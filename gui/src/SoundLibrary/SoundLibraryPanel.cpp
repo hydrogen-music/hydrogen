@@ -138,9 +138,9 @@ void SoundLibraryPanel::updateDrumkitList()
 
 
 	LocalFileMng mng;
-	vector<string> userList = Drumkit::getUserDrumkitList();
+	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); ++i) {
-	  string absPath = Preferences::getInstance()->getDataDirectory() + "/" + userList[i];
+		std::string absPath = Preferences::getInstance()->getDataDirectory() + "/" + userList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_userDrumkitInfoList.push_back( pInfo );
@@ -159,9 +159,10 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 
 
-	vector<string> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<std::string> systemList = Drumkit::getSystemDrumkitList();
+
 	for (uint i = 0; i < systemList.size(); i++) {
-		string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
+		std::string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_systemDrumkitInfoList.push_back( pInfo );
@@ -208,9 +209,9 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		// e' stato selezionato uno strumento
 		QString selectedName = item->text(0);
 
-		string sInstrName = ( selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 ) ).toStdString();
-		string sDrumkitName = item->parent()->text(0).toStdString();
-		INFOLOG( sDrumkitName + string(", instr:") + sInstrName );
+		std::string sInstrName = ( selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 ) ).toStdString();
+		std::string sDrumkitName = item->parent()->text(0).toStdString();
+		INFOLOG( sDrumkitName + ", instr:" + sInstrName );
 
 		Instrument *pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
 		pInstrument->set_muted( false );
@@ -331,7 +332,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	setCursor( QCursor( Qt::WaitCursor ) );
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
-	Hydrogen::get_instance()->getSong()->m_bIsModified = true;
+	Hydrogen::get_instance()->getSong()->__is_modified = true;
 	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName().c_str() ), 2000 );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
@@ -351,7 +352,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	QString sSoundLibrary = m_pSoundLibraryTree->currentItem()->text( 0 );
 
 	bool bIsUserSoundLibrary =false;
-	vector<string> userList = Drumkit::getUserDrumkitList();
+	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
 	for ( uint i = 0; i < userList.size(); ++i ) {
 		if ( userList[ i ] == sSoundLibrary.toStdString() ) {
 			bIsUserSoundLibrary = true;

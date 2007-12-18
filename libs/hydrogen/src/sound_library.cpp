@@ -131,10 +131,10 @@ void Drumkit::dump()
 void Drumkit::install( const std::string& filename )
 {
 	_INFOLOG( "[Drumkit::install] drumkit = " + filename );
-	string dataDir = Preferences::getInstance()->getDataDirectory();
+	std::string dataDir = Preferences::getInstance()->getDataDirectory();
 
 	// GUNZIP !!!
-	string gunzippedName = filename.substr( 0, filename.rfind( "." ) );
+	std::string gunzippedName = filename.substr( 0, filename.rfind( "." ) );
 	gunzippedName += ".tar";
 	FILE *pGunzippedFile = fopen( gunzippedName.c_str(), "wb" );
 	gzFile gzipFile = gzopen( filename.c_str(), "rb" );
@@ -179,7 +179,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 	pDrumkitInfo->setInfo( sInfo );
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	InstrumentList *pSongInstrList = pSong->getInstrumentList();
+	InstrumentList *pSongInstrList = pSong->get_instrument_list();
 	InstrumentList *pInstrumentList = new InstrumentList();
 
 	for ( uint nInstrument = 0; nInstrument < pSongInstrList->get_size(); nInstrument++ ) {
@@ -197,7 +197,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 		pNewInstr->set_filter_resonance( pOldInstr->get_filter_resonance() );
 
 
-		string sInstrDrumkit = pOldInstr->get_drumkit_name();
+		std::string sInstrDrumkit = pOldInstr->get_drumkit_name();
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pOldLayer = pOldInstr->get_layer( nLayer );
@@ -242,9 +242,9 @@ void Drumkit::removeDrumkit( const std::string& sDrumkitName )
 {
 	_INFOLOG( "Removing drumkit: " + sDrumkitName );
 
-	string dataDir = Preferences::getInstance()->getDataDirectory();
+	std::string dataDir = Preferences::getInstance()->getDataDirectory();
 	dataDir += sDrumkitName;
-	string cmd = string( "rm -rf \"" ) + dataDir + string( "\"" );
+	std::string cmd = std::string( "rm -rf \"" ) + dataDir + "\"";
 	_INFOLOG( cmd );
 	if ( system( cmd.c_str() ) != 0 ) {
 		_ERRORLOG( "Error executing '" + cmd + "'" );

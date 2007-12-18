@@ -126,7 +126,7 @@ void AudioEngineInfoForm::updateInfo()
 		songStateLbl->setText( "NULL song" );
 	}
 	else {
-		if (song->m_bIsModified) {
+		if (song->__is_modified) {
 			songStateLbl->setText( "Modified" );
 		}
 		else {
@@ -197,7 +197,7 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 
-	string currentPatternName;
+	std::string currentPatternName;
 	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
 	if (pPatternList) {
 		currentPatternLbl->setText( QString::number(pPatternList->get_size()) );

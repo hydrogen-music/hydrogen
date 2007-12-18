@@ -253,7 +253,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	if ( Preferences::getInstance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
+	if ( Preferences::getInstance()->m_bFollowPlayhead && pSong->get_mode() == Song::SONG_MODE) {
 		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
 			return;
 		}
@@ -330,7 +330,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	UNUSED( btn );
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
-	PatternList *patternList = song->getPatternList();
+	PatternList *patternList = song->get_pattern_list();
 
 	Pattern *emptyPattern = Pattern::get_empty_pattern();
 	emptyPattern->set_name( trUtf8("Pattern").toStdString() );
@@ -338,7 +338,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern );
 	if ( dialog->exec() == QDialog::Accepted ) {
 		patternList->add( emptyPattern );
-		song->m_bIsModified = true;
+		song->__is_modified = true;
 		updateAll();
 	}
 	else {
@@ -363,7 +363,7 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 
 	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pUpBtnClicked" );
 	Song *pSong = pEngine->getSong();
-	PatternList *pList = pSong->getPatternList();
+	PatternList *pList = pSong->get_pattern_list();
 
 	if ( ( nSelectedPatternPos - 1 ) >= 0 ) {
 		Pattern *pTemp = pList->get( nSelectedPatternPos - 1 );
@@ -373,7 +373,7 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 		pEngine->setSelectedPatternNumber( nSelectedPatternPos - 1 );
 
 		updateAll();
-		pSong->m_bIsModified = true;
+		pSong->__is_modified = true;
 	}
 	else {
 		AudioEngine::get_instance()->unlock();
@@ -393,7 +393,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 
 	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pDownBtnClicked" );
 	Song *pSong = pEngine->getSong();
-	PatternList *pList = pSong->getPatternList();
+	PatternList *pList = pSong->get_pattern_list();
 
 	if ( ( nSelectedPatternPos + 1 ) < (int)pList->get_size() ) {
 		Pattern *pTemp = pList->get( nSelectedPatternPos + 1 );
@@ -404,7 +404,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 		pEngine->setSelectedPatternNumber( nSelectedPatternPos + 1 );
 
 		updateAll();
-		pSong->m_bIsModified = true;
+		pSong->__is_modified = true;
 	}
 	else {
 		AudioEngine::get_instance()->unlock();
@@ -428,7 +428,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 	AudioEngine::get_instance()->lock( "SongEditorPanel::clearSequence" );
 
 	Song *song = engine->getSong();
-	vector<PatternList*> *pPatternGroupsVect = song->getPatternGroupVector();
+	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -439,7 +439,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 	AudioEngine::get_instance()->unlock();
 
 	updateAll();
-	song->m_bIsModified = true;
+	song->__is_modified = true;
 }
 
 

@@ -125,7 +125,7 @@ int OssDriver::connect() {
 	int stereo = 1;
 	int bs;
 
-	string audioDevice;
+	std::string audioDevice;
 #ifdef __NetBSD__
 	audioDevice = "/dev/audio";
 #else

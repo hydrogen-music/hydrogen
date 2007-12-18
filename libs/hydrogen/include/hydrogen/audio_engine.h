@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -23,12 +23,13 @@
 #ifndef AUDIO_ENGINE_H
 #define AUDIO_ENGINE_H
 
-#include <pthread.h>
-#include <string>
-
 #include <hydrogen/Object.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/synth/Synth.h>
+
+#include <pthread.h>
+#include <string>
+
 
 namespace H2Core
 {

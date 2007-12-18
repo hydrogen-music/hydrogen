@@ -25,8 +25,6 @@
 
 #include <string>
 #include <vector>
-using std::string;
-using std::vector;
 
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
@@ -141,7 +139,7 @@ public:
 	bool m_bFollowPlayhead;
 
 	//___ audio engine properties ___
-	string m_sAudioDriver;		///< Audio Driver
+	std::string m_sAudioDriver;		///< Audio Driver
 	bool m_bUseMetronome;		///< Use metronome?
 	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
 	unsigned m_nMaxNotes;		///< max notes
@@ -149,7 +147,7 @@ public:
 	unsigned m_nSampleRate;		///< Audio sample rate
 
 	//___ oss driver properties ___
-	string m_sOSSDevice;		///< Device used for output
+	std::string m_sOSSDevice;		///< Device used for output
 
 	//___ MIDI Driver properties
 	std::string m_sMidiDriver;
@@ -159,11 +157,11 @@ public:
 	bool m_bUseMidiTransport;
 
 	//___  alsa audio driver properties ___
-	string m_sAlsaAudioDevice;
+	std::string m_sAlsaAudioDevice;
 
 	//___  jack driver properties ___
-	string m_sJackPortName1;
-	string m_sJackPortName2;
+	std::string m_sJackPortName1;
+	std::string m_sJackPortName2;
 	bool m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
 
@@ -179,7 +177,7 @@ public:
 	/// Save the preferences file
 	void savePreferences();
 
-	string getDemoPath()
+	const std::string& getDemoPath()
 	{
 		return demoPath;
 	}
@@ -203,7 +201,7 @@ public:
 	{
 		lastSongFilename = filename;
 	}
-	string getLastSongFilename()
+	const std::string& getLastSongFilename()
 	{
 		return lastSongFilename;
 	}
@@ -235,22 +233,22 @@ public:
 		return quantizeEvents;
 	}
 
-	vector<string> getRecentFiles()
+	std::vector<std::string> getRecentFiles()
 	{
 		return m_recentFiles;
 	}
-	void setRecentFiles( vector<string> recentFiles );
+	void setRecentFiles( std::vector<std::string> recentFiles );
 
-	vector<string> getLadspaPath()
+	std::vector<std::string> getLadspaPath()
 	{
 		return m_ladspaPathVect;
 	}
-	void setLadspaPath( vector<string> pathVect )
+	void setLadspaPath( std::vector<std::string> pathVect )
 	{
 		m_ladspaPathVect = pathVect;
 	}
 
-	string getLastNews()
+	std::string getLastNews()
 	{
 		return m_sLastNews;
 	}
@@ -261,7 +259,7 @@ public:
 
 
 	// GUI Properties
-	string getQTStyle()
+	const std::string& getQTStyle()
 	{
 		return m_sQTStyle;
 	}
@@ -271,7 +269,7 @@ public:
 	}
 
 
-	string getApplicationFontFamily()
+	const std::string& getApplicationFontFamily()
 	{
 		return applicationFontFamily;
 	}
@@ -289,7 +287,7 @@ public:
 		applicationFontPointSize = size;
 	}
 
-	string getMixerFontFamily()
+	std::string getMixerFontFamily()
 	{
 		return mixerFontFamily;
 	}
@@ -442,25 +440,25 @@ private:
 
 
 	/** directory of demo songs */
-	string demoPath;
+	std::string demoPath;
 
 	//___ General properties ___
 	bool restoreLastSong;		///< Restore last song?
-	string lastSongFilename;	///< Last song used
+	std::string lastSongFilename;	///< Last song used
 	bool hearNewNotes;
-	vector<string> m_recentFiles;
-	vector<string> m_ladspaPathVect;
+	std::vector<std::string> m_recentFiles;
+	std::vector<std::string> m_ladspaPathVect;
 	bool quantizeEvents;
 	bool recordEvents;
-	string m_sLastNews;
+	std::string m_sLastNews;
 
 
 	//___ GUI properties ___
-	string m_sQTStyle;
+	std::string m_sQTStyle;
 
-	string applicationFontFamily;
+	std::string applicationFontFamily;
 	int applicationFontPointSize;
-	string mixerFontFamily;
+	std::string mixerFontFamily;
 	int mixerFontPointSize;
 	float mixerFalloffSpeed;
 	int m_nPatternEditorGridResolution;
