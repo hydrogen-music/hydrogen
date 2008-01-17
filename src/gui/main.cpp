@@ -43,6 +43,7 @@
 #include "lib/Exception.h"
 
 #include <iostream>
+#include <cstdlib>
 using namespace std;
 
 void showInfo();

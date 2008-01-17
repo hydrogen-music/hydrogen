@@ -28,6 +28,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <cstdlib>
 
 #include "lib/Hydrogen.h"
 #include "lib/LocalFileMng.h"

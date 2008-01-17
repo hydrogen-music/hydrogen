@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <fstream>
+#include <cstring>
 
 #ifdef FLAC_SUPPORT
 

@@ -43,6 +43,7 @@
 #include <qwidget.h>
 
 #include <vector>
+#include <cstdlib>
 
 #include "UI/DrumkitManager_UI.h"
 #include "lib/Object.h"
