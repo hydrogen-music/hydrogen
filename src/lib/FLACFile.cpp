@@ -34,6 +34,14 @@
 //#include "FLAC/file_decoder.h"
 #include <FLAC++/all.h>
 
+
+#if !defined(FLAC_API_VERSION_CURRENT) || FLAC_API_VERSION_CURRENT < 8
+#define LEGACY_FLAC
+#else
+#undef LEGACY_FLAC
+#endif
+
+
 /// Reads a FLAC file...not optimized yet
 class FLACFile_real : public FLAC::Decoder::File, public Object
 {
@@ -150,7 +158,7 @@ void FLACFile_real::error_callback(::FLAC__StreamDecoderErrorStatus status)
 
 
 
-void FLACFile_real::load( string sFilename )
+/*void FLACFile_real::load( string sFilename )
 {
 	m_sFilename = sFilename;
 
@@ -165,7 +173,7 @@ void FLACFile_real::load( string sFilename )
 	}
 
 	set_metadata_ignore_all();
-	set_filename( sFilename.c_str() );
+	//set_filename( sFilename.c_str() );
 
 	State s=init();
 	if( s != FLAC__FILE_DECODER_OK ) {
@@ -175,6 +183,45 @@ void FLACFile_real::load( string sFilename )
 	if ( process_until_end_of_file() == false ) {
 		errorLog( "[load] Error in process_until_end_of_file()" );
 	}
+}
+*/
+void FLACFile_real::load( std::string sFilename )
+{
+	m_sFilename = sFilename;
+
+	// file exists?
+	std::ifstream input(sFilename.c_str() , std::ios::in | std::ios::binary);
+	if (!input){
+		errorLog( "file " + sFilename + " not found." );
+		return;
+	}
+	else {
+		/// \todo: devo chiudere il file?
+	}
+
+	set_metadata_ignore_all();
+
+#ifdef LEGACY_FLAC
+	set_filename( sFilename.c_str() );
+
+	State s=init();
+	if( s != FLAC__FILE_DECODER_OK ) {
+#else
+	FLAC__StreamDecoderInitStatus s=init(sFilename.c_str() );
+	if(s!=FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+#endif
+		errorLog( "Error in init()" );
+	}
+
+#ifdef LEGACY_FLAC
+	if ( process_until_end_of_file() == false ) {
+		errorLog( "Error in process_until_end_of_file(). Filename: " + m_sFilename );
+	}
+#else
+	if ( process_until_end_of_stream() == false ) {
+		errorLog( "[load] Error in process_until_end_of_stream()" );
+	}
+#endif
 }
 
 
@@ -188,7 +235,7 @@ Sample* FLACFile_real::getSample()
 		// there were errors loading the file
 		return NULL;
 	}
-	
+
 	int nFrames = m_audioVect_L.size();
 	float *data_L = new float[nFrames];
 	float *data_R = new float[nFrames];
