@@ -6,7 +6,8 @@ LANGUAGE = C++
 OBJECTS_DIR=src
 LIBS += @ac_libraries@
 QMAKE_CFLAGS+=@ac_qmake_cflags@
-QMAKE_CXXFLAGS+=@ac_qmake_cxxflags@ -g
+QMAKE_CXXFLAGS_RELEASE+=@ac_qmake_cxxflags@ -fexceptions
+QMAKE_CXXFLAGS_DEBUG+=@ac_qmake_cxxflags@ -g -fexceptions
 QMAKE_LFLAGS+=@ac_qmake_lflags@
 
 
