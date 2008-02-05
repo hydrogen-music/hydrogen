@@ -6,7 +6,7 @@ LANGUAGE = C++
 OBJECTS_DIR=src
 LIBS +=  -lsndfile   -lFLAC++ -lFLAC -llash -ljack -lasound -llrdf -lraptor -lxml2
 QMAKE_CFLAGS+=
-QMAKE_CXXFLAGS_RELEASE+= -I/usr/include/lash-1.0 -g -fexceptions
+QMAKE_CXXFLAGS_RELEASE+= -I/usr/include/lash-1.0 -fexceptions
 QMAKE_CXXFLAGS_DEBUG+= -I/usr/include/lash-1.0 -g -fexceptions
 QMAKE_LFLAGS+=
 
