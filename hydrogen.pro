@@ -4,9 +4,9 @@ TEMPLATE = app
 CONFIG  += qt thread warn_off release
 LANGUAGE = C++
 OBJECTS_DIR=src
-LIBS +=  -lsndfile   -lFLAC++ -lFLAC -ljack -lasound -llrdf -lraptor -lxml2
+LIBS +=  -lsndfile   -lFLAC++ -lFLAC -llash -ljack -lasound -llrdf -lraptor -lxml2
 QMAKE_CFLAGS+=
-QMAKE_CXXFLAGS+= -g
+QMAKE_CXXFLAGS+= -I/usr/include/lash-1.0 -g
 QMAKE_LFLAGS+=
 
 
@@ -15,6 +15,8 @@ SOURCES += \
 		src/lib/xml/tinyxml.cpp \
 		src/lib/xml/tinyxmlerror.cpp \
 		src/lib/xml/tinyxmlparser.cpp \
+		\
+		src/lib/lash/LashClient.cpp \
 		\
 		src/lib/drivers/AlsaMidiDriver.cpp \
 		src/lib/drivers/DiskWriterDriver.cpp \
@@ -91,6 +93,8 @@ HEADERS += \
 		\
 		src/lib/xml/tinystr.h \
 		src/lib/xml/tinyxml.h \
+		\
+		src/lib/lash/LashClient.h \
 		\
 		src/lib/drivers/AlsaAudioDriver.h \
 		src/lib/drivers/MidiDriver.h \

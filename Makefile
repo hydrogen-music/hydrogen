@@ -9,6 +9,8 @@ hydrogen_headers = \
 		src/lib/xml/tinystr.h \
 		src/lib/xml/tinyxml.h \
 		\
+		src/lib/lash/LashClient.h \
+		\
 		src/lib/drivers/AlsaMidiDriver.h \
 		src/lib/drivers/DiskWriterDriver.h \
 		src/lib/drivers/GenericDriver.h \
@@ -90,6 +92,8 @@ hydrogen_sources = \
 		src/lib/xml/tinyxml.cpp \
 		src/lib/xml/tinyxmlerror.cpp \
 		src/lib/xml/tinyxmlparser.cpp \
+		\
+		src/lib/lash/LashClient.cpp \
 		\
 		src/lib/drivers/AlsaMidiDriver.cpp \
 		src/lib/drivers/DiskWriterDriver.cpp \

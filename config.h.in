@@ -30,6 +30,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the <lash/lash.h> header file. */
+#undef HAVE_LASH_LASH_H
+
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
@@ -83,6 +86,9 @@
 
 /* Define if LADSPA support is enabled. */
 #undef LADSPA_SUPPORT
+
+/* Define to enable LASH support */
+#undef LASH_SUPPORT
 
 /* Define to enable LRDF support */
 #undef LRDF_SUPPORT

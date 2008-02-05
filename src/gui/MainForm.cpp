@@ -48,6 +48,11 @@
 #include <qinputdialog.h>
 #include <qmessagebox.h>
 
+#ifdef LASH_SUPPORT
+	#include <lash-1.0/lash/lash.h>
+	#include "lib/lash/LashClient.h"
+#endif
+
 #ifndef WIN32
 	#include <sys/time.h>
 #else
@@ -120,6 +125,16 @@ MainForm::MainForm(QApplication *app, string songFilename ) : QMainWindow( 0, 0,
 
 	connect(&m_http, SIGNAL(done(bool)), this, SLOT(latestVersionDone(bool)));
 	getLatestVersion();
+
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient->isConnected())
+	{
+		lashPollTimer = new QTimer(this);
+		connect( lashPollTimer, SIGNAL( timeout() ), this, SLOT( onLashPollTimer() ) );
+		lashPollTimer->start(1000);
+	}
+#endif
 }
 
 
@@ -136,8 +151,6 @@ MainForm::~MainForm() {
 		h2app = NULL;
 	}
 }
-
-
 
 ///
 /// Create the menubar
@@ -1404,3 +1417,79 @@ void MainForm::latestVersionDone(bool bError)
 	}
 }
 
+
+
+void MainForm::onLashPollTimer()
+{
+#ifdef LASH_SUPPORT	
+	LashClient* client = LashClient::getInstance();
+	
+	if (!client->isConnected())
+	{
+		warningLog("[LASH] Not connected to server!");
+		return;
+	}
+	
+	bool keep_running = true;
+
+	lash_event_t* event;
+
+	string songFilename = "";
+	Song *song = h2app->getSong();
+
+	while (event = client->getNextEvent()) {
+		
+		switch (lash_event_get_type(event)) {
+			
+			case LASH_Save_File:
+		
+				infoLog("[LASH] Save file");
+			
+				songFilename.append(lash_event_get_string(event));
+				songFilename.append("/hydrogen.h2song"); 
+				
+				song->setFilename(songFilename);
+		
+				action_file_save();
+			  
+				client->sendEvent(LASH_Save_File);
+			  
+				break;
+		
+			case LASH_Restore_File:
+		
+				songFilename.append(lash_event_get_string(event));
+				songFilename.append("/hydrogen.h2song"); 
+				
+				infoLog("[LASH] Restore file: " + songFilename);
+			 
+				openSongFile( songFilename );
+			 
+				client->sendEvent(LASH_Restore_File);
+			 
+				break;
+
+			case LASH_Quit:
+		
+				infoLog("[LASH] Quit!");
+				keep_running = false;
+				
+				break;
+		
+			default:
+		
+				infoLog("[LASH] Got unknown event!");
+
+		}
+
+		lash_event_destroy(event);
+
+	}
+
+   if (!keep_running)
+   {
+	   lashPollTimer->stop();
+	   action_file_exit();
+   }
+#endif
+}

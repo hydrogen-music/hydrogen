@@ -26,6 +26,7 @@
 #ifndef MAINFORM_H
 #define MAINFORM_H
 
+#include "config.h"
 
 #include <qapplication.h>
 #include <qmainwindow.h>
@@ -111,6 +112,8 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void action_file_open_recent4();
 		
 		void latestVersionDone(bool bError);
+		
+		void onLashPollTimer();
 
 	private:
 		static const int topLevel_width = 250;
@@ -158,7 +161,11 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		QAction* menuItem_debug_showAudioEngineInfo;
 
 		QHttp m_http;
-		
+
+#ifdef LASH_SUPPORT
+		QTimer *lashPollTimer;
+#endif
+
 		/** Create the menubar */
 		void createMenuBar();
 
@@ -175,4 +182,3 @@ class MainForm : public QMainWindow, public EventListener, public Object
 };
 
 #endif
-

@@ -1,7 +1,9 @@
-2008-jan-xx Alessandro Cominu <comix@users.sourceforge.net>
+2008-jan-21 Alessandro Cominu <comix@users.sourceforge.net>
 	* Release 0.9.3.1
 	* Patch from Lubomir Kundrak - Compilation with gcc-4.3
-	* 
+	* Compilation fix for new libFLAC++
+	* Added LASH support (Jaakko Sipari)
+
 2004-dic-05 Alessandro Cominu  <comix@users.sourceforge.net>
 	* Release 0.9.2
 	* New graphics

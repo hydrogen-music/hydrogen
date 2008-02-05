@@ -4,9 +4,9 @@ TEMPLATE = app
 CONFIG  += qt thread warn_off release
 LANGUAGE = C++
 OBJECTS_DIR=src
-LIBS +=  -lsndfile   -lFLAC++ -lFLAC -ljack -lasound -llrdf -lraptor -lxml2 -lncurses
+LIBS +=  -lsndfile   -lFLAC++ -lFLAC -llash -ljack -lasound -llrdf -lraptor -lxml2 -lncurses
 QMAKE_CFLAGS+=
-QMAKE_CXXFLAGS+=
+QMAKE_CXXFLAGS+= -I/usr/include/lash-1.0
 QMAKE_LFLAGS+=
 
 SOURCES += \

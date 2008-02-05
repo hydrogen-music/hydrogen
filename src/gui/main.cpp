@@ -27,6 +27,12 @@
 #include <qtextcodec.h>
 #include <qtranslator.h>
 
+#include "config.h"
+
+#ifdef LASH_SUPPORT
+	#include "lib/lash/LashClient.h"
+#endif
+
 #ifndef WIN32
 	#include <getopt.h>
 #endif
@@ -134,6 +140,11 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifndef WIN32
+	
+#ifdef LASH_SUPPORT
+		LashClient *lashClient = new LashClient("hydrogen", "Hydrogen", &argc, &argv);
+#endif
+			
 		// Options...
 		char *cp;
 		struct option *op;
@@ -256,6 +267,33 @@ int main(int argc, char *argv[]) {
 
 		a.setMainWidget( pSplash );
 
+#ifdef LASH_SUPPORT
+		
+		if (lashClient->isConnected())
+		{
+			lash_event_t* lash_event = lashClient->getNextEvent();
+			if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
+			{
+				// notify client that this project was not a new one
+				lashClient->setNewProject(false);
+				
+				songFilename = "";
+				songFilename.append(lash_event_get_string(lash_event));
+				songFilename.append("/hydrogen.h2song"); 
+				
+				Logger::getInstance()->log("[LASH] Restore file: " + songFilename);
+	
+				lash_event_destroy(lash_event);
+			}
+			else if (lash_event)
+			{
+				Logger::getInstance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+				lash_event_destroy(lash_event);
+			}
+		}
+		
+#endif
+		
 		MainForm *pMainForm = new MainForm( &a, songFilename );
 		pMainForm->show();
 
@@ -328,6 +366,3 @@ void showUsage() {
 	cout << "   -v, --version - Show version info" << endl;
 	cout << "   -h, --help - Show this help message" << endl;
 }
-
-
-

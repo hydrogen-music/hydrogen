@@ -30,6 +30,10 @@
 #include "lib/Hydrogen.h"
 #include "lib/Preferences.h"
 
+#ifdef LASH_SUPPORT
+	#include "lib/lash/LashClient.h"
+#endif
+
 unsigned long jack_server_sampleRate = 0;
 jack_nframes_t jack_server_bufferSize = 0;
 JackDriver *jackDriverInstance = NULL;
@@ -91,8 +95,24 @@ int JackDriver::connect()
 		( Hydrogen::getInstance() )->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
 		return 1;
 	}
-
-	if ( connect_out_flag ) {
+	
+	bool connect_output_ports = connect_out_flag;
+	
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient && lashClient->isConnected())
+	{
+		infoLog("[LASH] Sending Jack client name to LASH server");
+		lashClient->sendJackClientName();
+		
+		if (!lashClient->isNewProject())
+		{
+			connect_output_ports = false;
+		}
+	}
+#endif
+	
+	if ( connect_output_ports ) {
 	// connect the ports
 		if ( jack_connect ( client, jack_port_name( output_port_1 ), output_port_name_1.c_str() ) ) {
 			( Hydrogen::getInstance() )->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
@@ -351,7 +371,13 @@ int JackDriver::init(unsigned nBufferSize)
 //	memset( out_L, 0, nBufferSize * sizeof( float ) );
 //	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
-
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient->isConnected())
+	{
+		lashClient->setJackClientName(sClientName);
+	}
+#endif
 	return 0;
 }
 
@@ -410,4 +436,3 @@ void JackDriver::setBpm(float fBPM)
 
 
 #endif // JACK_SUPPORT
-

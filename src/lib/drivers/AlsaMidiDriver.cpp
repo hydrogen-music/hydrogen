@@ -32,6 +32,10 @@
 
 #include <pthread.h>
 
+#ifdef LASH_SUPPORT
+	#include "lib/lash/LashClient.h"
+#endif
+
 pthread_t midiDriverThread;
 
 bool isMidiDriverRunning = false;
@@ -74,6 +78,15 @@ void* alsaMidiDriver_thread(void* param)
 	}
 	clientId = snd_seq_client_id( seq_handle );
 
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient && lashClient->isConnected())
+	{
+		pDriver->infoLog("[LASH] Sending alsa seq id to LASH server");
+		lashClient->sendAlsaClientId((unsigned char) clientId);
+	}
+#endif
+	
 	int m_local_addr_port = portId;
 	int m_local_addr_client = clientId;
 
@@ -545,4 +558,3 @@ void AlsaMidiDriver::getPortInfo(const std::string& sPortName, int& nClient, int
 
 
 #endif // ALSA_SUPPORT
-
