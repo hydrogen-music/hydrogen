@@ -24,6 +24,7 @@
 #include <hydrogen/instrument.h>
 
 #include <cassert>
+#include <cstdlib>
 
 using std::string;
 

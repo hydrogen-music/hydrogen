@@ -31,6 +31,8 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/Preferences.h>
 
+#include <cstdlib>
+
 #include <zlib.h>	// used for drumkit install
 #include <libtar.h>	// used for drumkit install
 #include <fcntl.h>

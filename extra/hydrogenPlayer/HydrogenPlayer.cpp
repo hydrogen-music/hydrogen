@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 
 #include <hydrogen/Object.h>
