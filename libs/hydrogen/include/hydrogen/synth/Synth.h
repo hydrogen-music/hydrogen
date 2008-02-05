@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -58,8 +58,7 @@ public:
 	void process( uint32_t nFrames );
 	void setAudioOutput( AudioOutput* pAudioOutput );
 
-	int getPlayingNotesNumber()
-	{
+	int getPlayingNotesNumber() {
 		return m_playingNotesQueue.size();
 	}
 

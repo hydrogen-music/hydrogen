@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,39 +26,42 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <inttypes.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
-typedef int  (*audioProcessCallback)(uint32_t, void *);
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 /**
  * Fake audio driver. Used only for profiling.
  */
 class FakeDriver : public AudioOutput
 {
-	public:
-		FakeDriver(audioProcessCallback processCallback);
-		~FakeDriver();
+public:
+	FakeDriver( audioProcessCallback processCallback );
+	~FakeDriver();
 
-		int init(unsigned nBufferSize);
-		int connect();
-		void disconnect();
-		unsigned getBufferSize() {	return m_nBufferSize;	}
-		unsigned getSampleRate();
+	int init( unsigned nBufferSize );
+	int connect();
+	void disconnect();
+	unsigned getBufferSize() {
+		return m_nBufferSize;
+	}
+	unsigned getSampleRate();
 
-		float* getOut_L();
-		float* getOut_R();
+	float* getOut_L();
+	float* getOut_R();
 
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm(float fBPM);
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void updateTransportInfo();
+	virtual void setBpm( float fBPM );
 
-	private:
-		audioProcessCallback m_processCallback;
-		unsigned m_nBufferSize;
-		float* m_pOut_L;
-		float* m_pOut_R;
+private:
+	audioProcessCallback m_processCallback;
+	unsigned m_nBufferSize;
+	float* m_pOut_L;
+	float* m_pOut_R;
 
 };
 

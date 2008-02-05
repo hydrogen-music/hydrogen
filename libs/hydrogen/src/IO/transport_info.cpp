@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -22,10 +22,11 @@
 #include <hydrogen/IO/TransportInfo.h>
 #include <cstdio>
 
-namespace H2Core {
+namespace H2Core
+{
 
 TransportInfo::TransportInfo()
- : Object( "TransportInfo" )
+		: Object( "TransportInfo" )
 {
 //	infoLog( "INIT" );
 	m_status = STOPPED;
@@ -43,24 +44,24 @@ TransportInfo::~TransportInfo()
 
 void TransportInfo::printInfo()
 {
-	switch (m_status) {
-		case STOPPED:
-			INFOLOG( "status = STOPPED" );
-			break;
+	switch ( m_status ) {
+	case STOPPED:
+		INFOLOG( "status = STOPPED" );
+		break;
 
-		case ROLLING:
-			INFOLOG( "status = ROLLING" );
-			break;
+	case ROLLING:
+		INFOLOG( "status = ROLLING" );
+		break;
 
-		case BAD:
-			INFOLOG( "status = BAD" );
-			break;
+	case BAD:
+		INFOLOG( "status = BAD" );
+		break;
 
-		default:
-			ERRORLOG( "status = unknown" );
+	default:
+		ERRORLOG( "status = unknown" );
 	}
-	INFOLOG( "frames = " + to_string(m_nFrames) );
-	INFOLOG( "tickSize = " + to_string(m_nTickSize) );
+	INFOLOG( "frames = " + to_string( m_nFrames ) );
+	INFOLOG( "tickSize = " + to_string( m_nTickSize ) );
 }
 
 };

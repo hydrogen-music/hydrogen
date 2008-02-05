@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -124,12 +124,12 @@ public:
 	void previewInstrument( Instrument *pInstr );
 
 	enum ErrorMessages {
-	    UNKNOWN_DRIVER,
-	    ERROR_STARTING_DRIVER,
-	    JACK_SERVER_SHUTDOWN,
-	    JACK_CANNOT_ACTIVATE_CLIENT,
-	    JACK_CANNOT_CONNECT_OUTPUT_PORT,
-	    JACK_ERROR_IN_PORT_REGISTER
+		UNKNOWN_DRIVER,
+		ERROR_STARTING_DRIVER,
+		JACK_SERVER_SHUTDOWN,
+		JACK_CANNOT_ACTIVATE_CLIENT,
+		JACK_CANNOT_CONNECT_OUTPUT_PORT,
+		JACK_ERROR_IN_PORT_REGISTER
 	};
 
 	void setTapTempo( float fInterval );

@@ -39,11 +39,9 @@ public:
 
 	AudioOutput( const std::string& sClassName )
 			: Object( sClassName )
-			, __track_out_enabled( false )
-	{ }
+			, __track_out_enabled( false ) { }
 
-	virtual ~AudioOutput()
-	{ }
+	virtual ~AudioOutput() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;
 	virtual int connect() = 0;
@@ -60,8 +58,7 @@ public:
 	virtual void setBpm( float fBPM ) = 0;
 
 
-	bool has_track_outs()
-	{
+	bool has_track_outs() {
 		return __track_out_enabled;
 	}
 

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -21,7 +21,7 @@
  */
 
 #include <QtGui>
-
+#include "config.h"
 #include <getopt.h>
 
 #include "SplashScreen.h"
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 void showInfo()
 {
 	cout << "\nHydrogen " + string(VERSION) + " [" + string(__DATE__) + "]  [http://www.hydrogen-music.org]" << endl;
-	cout << "Copyright 2002-2007 Alessandro Cominu" << endl;
+	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + string(COMPILED_FEATURES) << endl;
 
 	if ( Object::is_using_verbose_log() ) {

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -31,18 +31,18 @@ namespace H2Core
 {
 
 enum EventType {
-    EVENT_NONE,
-    EVENT_STATE,
-    EVENT_PATTERN_CHANGED,
-    EVENT_PATTERN_MODIFIED,
-    EVENT_SELECTED_PATTERN_CHANGED,
-    EVENT_SELECTED_INSTRUMENT_CHANGED,
-    EVENT_MIDI_ACTIVITY,
-    EVENT_XRUN,
-    EVENT_NOTEON,
-    EVENT_ERROR,
-    EVENT_METRONOME,
-    EVENT_PROGRESS
+	EVENT_NONE,
+	EVENT_STATE,
+	EVENT_PATTERN_CHANGED,
+	EVENT_PATTERN_MODIFIED,
+	EVENT_SELECTED_PATTERN_CHANGED,
+	EVENT_SELECTED_INSTRUMENT_CHANGED,
+	EVENT_MIDI_ACTIVITY,
+	EVENT_XRUN,
+	EVENT_NOTEON,
+	EVENT_ERROR,
+	EVENT_METRONOME,
+	EVENT_PROGRESS
 };
 
 

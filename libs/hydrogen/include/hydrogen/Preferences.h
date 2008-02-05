@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -70,16 +70,13 @@ public:
 
 	std::string toStringFmt();
 
-	int getRed() const
-	{
+	int getRed() const {
 		return m_red;
 	}
-	int getGreen() const
-	{
+	int getGreen() const {
 		return m_green;
 	}
-	int getBlue() const
-	{
+	int getBlue() const {
 		return m_blue;
 	}
 
@@ -129,8 +126,8 @@ class Preferences : public Object
 {
 public:
 	enum {
-	    USE_JACK_TRANSPORT,
-	    NO_JACK_TRANSPORT
+		USE_JACK_TRANSPORT,
+		NO_JACK_TRANSPORT
 	};
 
 	std::string m_sPreferencesFilename;
@@ -177,259 +174,203 @@ public:
 	/// Save the preferences file
 	void savePreferences();
 
-	const std::string& getDemoPath()
-	{
+	const std::string& getDemoPath() {
 		return demoPath;
 	}
-	const std::string& getDataDirectory()
-	{
+	const std::string& getDataDirectory() {
 		return m_sDataDirectory;
 	}
 
 
 	// General
-	void setRestoreLastSongEnabled( bool restore )
-	{
+	void setRestoreLastSongEnabled( bool restore ) {
 		restoreLastSong = restore;
 	}
-	bool isRestoreLastSongEnabled()
-	{
+	bool isRestoreLastSongEnabled() {
 		return restoreLastSong;
 	}
 
-	void setLastSongFilename( const std::string& filename )
-	{
+	void setLastSongFilename( const std::string& filename ) {
 		lastSongFilename = filename;
 	}
-	const std::string& getLastSongFilename()
-	{
+	const std::string& getLastSongFilename() {
 		return lastSongFilename;
 	}
 
-	void setHearNewNotes( bool value )
-	{
+	void setHearNewNotes( bool value ) {
 		hearNewNotes = value;
 	}
-	bool getHearNewNotes()
-	{
+	bool getHearNewNotes() {
 		return hearNewNotes;
 	}
 
-	void setRecordEvents( bool value )
-	{
+	void setRecordEvents( bool value ) {
 		recordEvents = value;
 	}
-	bool getRecordEvents()
-	{
+	bool getRecordEvents() {
 		return recordEvents;
 	}
 
-	void setQuantizeEvents( bool value )
-	{
+	void setQuantizeEvents( bool value ) {
 		quantizeEvents = value;
 	}
-	bool getQuantizeEvents()
-	{
+	bool getQuantizeEvents() {
 		return quantizeEvents;
 	}
 
-	std::vector<std::string> getRecentFiles()
-	{
+	std::vector<std::string> getRecentFiles() {
 		return m_recentFiles;
 	}
 	void setRecentFiles( std::vector<std::string> recentFiles );
 
-	std::vector<std::string> getLadspaPath()
-	{
+	std::vector<std::string> getLadspaPath() {
 		return m_ladspaPathVect;
 	}
-	void setLadspaPath( std::vector<std::string> pathVect )
-	{
+	void setLadspaPath( std::vector<std::string> pathVect ) {
 		m_ladspaPathVect = pathVect;
 	}
 
-	std::string getLastNews()
-	{
+	std::string getLastNews() {
 		return m_sLastNews;
 	}
-	void setLastNews( const std::string& sNews )
-	{
+	void setLastNews( const std::string& sNews ) {
 		m_sLastNews = sNews;
 	}
 
 
 	// GUI Properties
-	const std::string& getQTStyle()
-	{
+	const std::string& getQTStyle() {
 		return m_sQTStyle;
 	}
-	void setQTStyle( const std::string& sStyle )
-	{
+	void setQTStyle( const std::string& sStyle ) {
 		m_sQTStyle = sStyle;
 	}
 
 
-	const std::string& getApplicationFontFamily()
-	{
+	const std::string& getApplicationFontFamily() {
 		return applicationFontFamily;
 	}
-	void setApplicationFontFamily( const std::string& family )
-	{
+	void setApplicationFontFamily( const std::string& family ) {
 		applicationFontFamily = family;
 	}
 
-	int getApplicationFontPointSize()
-	{
+	int getApplicationFontPointSize() {
 		return applicationFontPointSize;
 	}
-	void setApplicationFontPointSize( int size )
-	{
+	void setApplicationFontPointSize( int size ) {
 		applicationFontPointSize = size;
 	}
 
-	std::string getMixerFontFamily()
-	{
+	std::string getMixerFontFamily() {
 		return mixerFontFamily;
 	}
-	void setMixerFontFamily( const std::string& family )
-	{
+	void setMixerFontFamily( const std::string& family ) {
 		mixerFontFamily = family;
 	}
-	int getMixerFontPointSize()
-	{
+	int getMixerFontPointSize() {
 		return mixerFontPointSize;
 	}
-	void setMixerFontPointSize( int size )
-	{
+	void setMixerFontPointSize( int size ) {
 		mixerFontPointSize = size;
 	}
-	float getMixerFalloffSpeed()
-	{
+	float getMixerFalloffSpeed() {
 		return mixerFalloffSpeed;
 	}
-	void setMixerFalloffSpeed( float value )
-	{
+	void setMixerFalloffSpeed( float value ) {
 		mixerFalloffSpeed = value;
 	}
-	bool showInstrumentPeaks()
-	{
+	bool showInstrumentPeaks() {
 		return m_bShowInstrumentPeaks;
 	}
-	void setInstrumentPeaks( bool value )
-	{
+	void setInstrumentPeaks( bool value ) {
 		m_bShowInstrumentPeaks = value;
 	}
 
-	int getPatternEditorGridResolution()
-	{
+	int getPatternEditorGridResolution() {
 		return m_nPatternEditorGridResolution;
 	}
-	void setPatternEditorGridResolution( int value )
-	{
+	void setPatternEditorGridResolution( int value ) {
 		m_nPatternEditorGridResolution = value;
 	}
 
-	bool isPatternEditorUsingTriplets()
-	{
+	bool isPatternEditorUsingTriplets() {
 		return m_bPatternEditorUsingTriplets;
 	}
-	void setPatternEditorUsingTriplets( bool value )
-	{
+	void setPatternEditorUsingTriplets( bool value ) {
 		m_bPatternEditorUsingTriplets = value;
 	}
 
-	bool isFXTabVisible()
-	{
+	bool isFXTabVisible() {
 		return m_bIsFXTabVisible;
 	}
-	void setFXTabVisible( bool value )
-	{
+	void setFXTabVisible( bool value ) {
 		m_bIsFXTabVisible = value;
 	}
 
-	unsigned getPatternEditorGridHeight()
-	{
+	unsigned getPatternEditorGridHeight() {
 		return m_nPatternEditorGridHeight;
 	}
-	void setPatternEditorGridHeight( unsigned value )
-	{
+	void setPatternEditorGridHeight( unsigned value ) {
 		m_nPatternEditorGridHeight = value;
 	}
 
-	unsigned getPatternEditorGridWidth()
-	{
+	unsigned getPatternEditorGridWidth() {
 		return m_nPatternEditorGridWidth;
 	}
-	void setPatternEditorGridWidth( unsigned value )
-	{
+	void setPatternEditorGridWidth( unsigned value ) {
 		m_nPatternEditorGridWidth = value;
 	}
 
-	WindowProperties getMainFormProperties()
-	{
+	WindowProperties getMainFormProperties() {
 		return mainFormProperties;
 	}
-	void setMainFormProperties( const WindowProperties& prop )
-	{
+	void setMainFormProperties( const WindowProperties& prop ) {
 		mainFormProperties = prop;
 	}
 
-	WindowProperties getMixerProperties()
-	{
+	WindowProperties getMixerProperties() {
 		return mixerProperties;
 	}
-	void setMixerProperties( const WindowProperties& prop )
-	{
+	void setMixerProperties( const WindowProperties& prop ) {
 		mixerProperties = prop;
 	}
 
-	WindowProperties getPatternEditorProperties()
-	{
+	WindowProperties getPatternEditorProperties() {
 		return patternEditorProperties;
 	}
-	void setPatternEditorProperties( const WindowProperties& prop )
-	{
+	void setPatternEditorProperties( const WindowProperties& prop ) {
 		patternEditorProperties = prop;
 	}
 
-	WindowProperties getSongEditorProperties()
-	{
+	WindowProperties getSongEditorProperties() {
 		return songEditorProperties;
 	}
-	void setSongEditorProperties( const WindowProperties& prop )
-	{
+	void setSongEditorProperties( const WindowProperties& prop ) {
 		songEditorProperties = prop;
 	}
 
-	WindowProperties getDrumkitManagerProperties()
-	{
+	WindowProperties getDrumkitManagerProperties() {
 		return drumkitManagerProperties;
 	}
-	void setDrumkitManagerProperties( const WindowProperties& prop )
-	{
+	void setDrumkitManagerProperties( const WindowProperties& prop ) {
 		drumkitManagerProperties = prop;
 	}
 
-	WindowProperties getAudioEngineInfoProperties()
-	{
+	WindowProperties getAudioEngineInfoProperties() {
 		return audioEngineInfoProperties;
 	}
-	void setAudioEngineInfoProperties( const WindowProperties& prop )
-	{
+	void setAudioEngineInfoProperties( const WindowProperties& prop ) {
 		audioEngineInfoProperties = prop;
 	}
 
-	WindowProperties getLadspaProperties( unsigned nFX )
-	{
+	WindowProperties getLadspaProperties( unsigned nFX ) {
 		return m_ladspaProperties[nFX];
 	}
-	void setLadspaProperties( unsigned nFX, const WindowProperties& prop )
-	{
+	void setLadspaProperties( unsigned nFX, const WindowProperties& prop ) {
 		m_ladspaProperties[nFX] = prop;
 	}
 
-	UIStyle* getDefaultUIStyle()
-	{
+	UIStyle* getDefaultUIStyle() {
 		return m_pDefaultUIStyle;
 	}
 

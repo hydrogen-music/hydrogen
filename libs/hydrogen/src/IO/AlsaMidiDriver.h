@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -31,7 +31,8 @@
 #include <string>
 #include <vector>
 
-namespace H2Core {
+namespace H2Core
+{
 
 ///
 /// Alsa Midi Driver
@@ -39,19 +40,19 @@ namespace H2Core {
 ///
 class AlsaMidiDriver : public MidiInput
 {
-	public:
-		AlsaMidiDriver();
-		~AlsaMidiDriver();
+public:
+	AlsaMidiDriver();
+	~AlsaMidiDriver();
 
-		virtual void open();
-		virtual void close();
-		virtual std::vector<std::string> getOutputPortList();
+	virtual void open();
+	virtual void close();
+	virtual std::vector<std::string> getOutputPortList();
 
-		void midi_action(snd_seq_t *seq_handle);
-		void getPortInfo(const std::string& sPortName, int& nClient, int& nPort);
+	void midi_action( snd_seq_t *seq_handle );
+	void getPortInfo( const std::string& sPortName, int& nClient, int& nPort );
 
 
-	private:
+private:
 };
 
 };

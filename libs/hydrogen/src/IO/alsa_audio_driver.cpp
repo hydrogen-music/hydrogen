@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,38 +26,39 @@
 #include <iostream>
 #include <hydrogen/Preferences.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 pthread_t alsaAudioDriverThread;
 
-static int alsa_xrun_recovery(snd_pcm_t *handle, int err)
+static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 {
-	if (err == -EPIPE) {    /* under-run */
-		err = snd_pcm_prepare(handle);
-	} else if (err == -ESTRPIPE) {
-		while ((err = snd_pcm_resume(handle)) == -EAGAIN)
-			sleep(1);       /* wait until the suspend flag is released */
-		if (err < 0) {
-			err = snd_pcm_prepare(handle);
-			if (err < 0)
-				std::cerr << "Can't recovery from suspend, prepare failed: " << snd_strerror(err) << std::endl;
+	if ( err == -EPIPE ) {  /* under-run */
+		err = snd_pcm_prepare( handle );
+	} else if ( err == -ESTRPIPE ) {
+		while ( ( err = snd_pcm_resume( handle ) ) == -EAGAIN )
+			sleep( 1 );     /* wait until the suspend flag is released */
+		if ( err < 0 ) {
+			err = snd_pcm_prepare( handle );
+			if ( err < 0 )
+				std::cerr << "Can't recovery from suspend, prepare failed: " << snd_strerror( err ) << std::endl;
 		}
 		return 0;
 	}
 	return err;
 }
 
-void* alsaAudioDriver_processCaller(void* param)
+void* alsaAudioDriver_processCaller( void* param )
 {
-	AlsaAudioDriver *pDriver = (AlsaAudioDriver*)param;
+	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
-	int res = sched_setscheduler(0, SCHED_FIFO, &sched);
-	sched_getparam(0, &sched);
-	if (res) {
-		_ERRORLOG("Can't set realtime scheduling for ALSA Driver");
+	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
+	sched_getparam( 0, &sched );
+	if ( res ) {
+		_ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
 	}
 	_INFOLOG( "Scheduling priority = " + to_string( sched.sched_priority ) );
 
@@ -65,7 +66,7 @@ void* alsaAudioDriver_processCaller(void* param)
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		_ERRORLOG( "Cannot prepare audio interface for use: " + std::string( snd_strerror (err) ) );
+		_ERRORLOG( "Cannot prepare audio interface for use: " + std::string( snd_strerror ( err ) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
@@ -75,25 +76,25 @@ void* alsaAudioDriver_processCaller(void* param)
 	float *pOut_L = pDriver->m_pOut_L;
 	float *pOut_R = pDriver->m_pOut_R;
 
-	while( pDriver->m_bIsRunning ) {
+	while ( pDriver->m_bIsRunning ) {
 		// prepare the audio data
-		pDriver->m_processCallback( nFrames, NULL);
+		pDriver->m_processCallback( nFrames, NULL );
 
 		for ( int i = 0; i < nFrames; ++i ) {
-			pBuffer[ i * 2 ] = (short)( pOut_L[ i ] * 32768.0 );
-			pBuffer[ i * 2 + 1 ] = (short)( pOut_R[ i ] * 32768.0 );
+			pBuffer[ i * 2 ] = ( short )( pOut_L[ i ] * 32768.0 );
+			pBuffer[ i * 2 + 1 ] = ( short )( pOut_R[ i ] * 32768.0 );
 		}
 
 		if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
 			_ERRORLOG( "XRUN" );
 
-			if (alsa_xrun_recovery( pDriver->m_pPlayback_handle, err) < 0) {
+			if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
 				_ERRORLOG( "Can't recovery from XRUN" );
 			}
 			// retry
 			if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
 				_ERRORLOG( "XRUN 2" );
-				if (alsa_xrun_recovery( pDriver->m_pPlayback_handle, err) < 0) {
+				if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
 					_ERRORLOG( "Can't recovery from XRUN" );
 				}
 			}
@@ -107,12 +108,12 @@ void* alsaAudioDriver_processCaller(void* param)
 
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
- : AudioOutput( "AlsaAudioDriver" )
- , m_bIsRunning( false )
- , m_pOut_L( NULL )
- , m_pOut_R( NULL )
- , m_nXRuns( 0 )
- , m_processCallback( processCallback )
+		: AudioOutput( "AlsaAudioDriver" )
+		, m_bIsRunning( false )
+		, m_pOut_L( NULL )
+		, m_pOut_R( NULL )
+		, m_nXRuns( 0 )
+		, m_processCallback( processCallback )
 {
 	INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::getInstance()->m_nSampleRate;
@@ -128,7 +129,7 @@ AlsaAudioDriver::~AlsaAudioDriver()
 }
 
 
-int AlsaAudioDriver::init(unsigned nBufferSize)
+int AlsaAudioDriver::init( unsigned nBufferSize )
 {
 	INFOLOG( "init" );
 	m_nBufferSize = nBufferSize;
@@ -146,12 +147,12 @@ int AlsaAudioDriver::connect()
 	int err;
 
 	// provo ad aprire il device per verificare se e' libero ( non bloccante )
-	if ( ( err = snd_pcm_open(&m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
 		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
 
 		// il dispositivo e' occupato..provo con "default"
 		m_sAlsaAudioDevice = "default";
-		if ( ( err = snd_pcm_open(&m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
+		if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
 			ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
 			return 1;
 		}
@@ -160,7 +161,7 @@ int AlsaAudioDriver::connect()
 	snd_pcm_close( m_pPlayback_handle );
 
 	// Apro il device ( bloccante )
-	if ( ( err = snd_pcm_open(&m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
 		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
 		return 1;
 	}
@@ -178,7 +179,7 @@ int AlsaAudioDriver::connect()
 	}
 //	snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_MMAP_INTERLEAVED  );
 
-	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED) ) < 0 ) {
+	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 ) {
 		ERRORLOG( "error in snd_pcm_hw_params_set_access: " + std::string( snd_strerror( err ) )  );
 		return 1;
 	}
@@ -242,8 +243,8 @@ int AlsaAudioDriver::connect()
 
 	// start the main thread
 	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_create(&alsaAudioDriverThread, &attr, alsaAudioDriver_processCaller, this);
+	pthread_attr_init( &attr );
+	pthread_create( &alsaAudioDriverThread, &attr, alsaAudioDriver_processCaller, this );
 
 	return 0;	// OK
 }
@@ -313,7 +314,7 @@ void AlsaAudioDriver::locate( unsigned long nFrame )
 //	m_transport.printInfo();
 }
 
-void AlsaAudioDriver::setBpm(float fBPM)
+void AlsaAudioDriver::setBpm( float fBPM )
 {
 //	warningLog( "[setBpm] " + to_string(fBPM) );
 	m_transport.m_nBPM = fBPM;

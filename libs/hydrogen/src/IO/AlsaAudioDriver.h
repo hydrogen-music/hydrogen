@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -30,42 +30,43 @@
 #include <inttypes.h>
 #include <alsa/asoundlib.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
-typedef int  (*audioProcessCallback)(uint32_t, void *);
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class AlsaAudioDriver : public AudioOutput
 {
-	public:
-		snd_pcm_t *m_pPlayback_handle;
-		bool m_bIsRunning;
-		unsigned long m_nBufferSize;
-		float* m_pOut_L;
-		float* m_pOut_R;
-		int m_nXRuns;
-		std::string m_sAlsaAudioDevice;
-		audioProcessCallback m_processCallback;
+public:
+	snd_pcm_t *m_pPlayback_handle;
+	bool m_bIsRunning;
+	unsigned long m_nBufferSize;
+	float* m_pOut_L;
+	float* m_pOut_R;
+	int m_nXRuns;
+	std::string m_sAlsaAudioDevice;
+	audioProcessCallback m_processCallback;
 
-		AlsaAudioDriver( audioProcessCallback processCallback );
-		~AlsaAudioDriver();
+	AlsaAudioDriver( audioProcessCallback processCallback );
+	~AlsaAudioDriver();
 
-		virtual int init(unsigned nBufferSize);
-		virtual int connect();
-		virtual void disconnect();
-		virtual unsigned getBufferSize();
-		virtual unsigned getSampleRate();
-		virtual float* getOut_L();
-		virtual float* getOut_R();
+	virtual int init( unsigned nBufferSize );
+	virtual int connect();
+	virtual void disconnect();
+	virtual unsigned getBufferSize();
+	virtual unsigned getSampleRate();
+	virtual float* getOut_L();
+	virtual float* getOut_R();
 
-		virtual void updateTransportInfo();
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void setBpm(float fBPM);
+	virtual void updateTransportInfo();
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void setBpm( float fBPM );
 
-	private:
+private:
 
-		unsigned int m_nSampleRate;
+	unsigned int m_nSampleRate;
 };
 
 #else
@@ -74,8 +75,8 @@ namespace H2Core {
 
 class AlsaAudioDriver : public NullDriver
 {
-	public:
-		AlsaAudioDriver(audioProcessCallback processCallback) : NullDriver( processCallback ) {}
+public:
+	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
 };
 

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include "config.h"
 
 #include "HydrogenApp.h"
 #include "Skin.h"
@@ -74,7 +75,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// set initial title
 	QString extraVersion = " (Development version) ";
 	QString qsSongName( pFirstSong->__name.c_str() );
-	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION) + extraVersion + QString( " - " ) + qsSongName ) );
+	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION.c_str()) + extraVersion + QString( " - " ) + qsSongName ) );
 
 	Preferences *pPref = Preferences::getInstance();
 
@@ -259,7 +260,7 @@ void HydrogenApp::setSong(Song* song)
 	m_pSongEditorPanel->updateAll();
 
 	QString songName( song->__name.c_str() );
-	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION) + QString( " - " ) + songName ) );
+	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION.c_str()) + QString( " - " ) + songName ) );
 
 	m_pMainForm->updateRecentUsedSongList();
 }

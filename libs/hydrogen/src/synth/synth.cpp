@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -25,10 +25,11 @@
 #include <cassert>
 #include <cmath>
 
-namespace H2Core {
+namespace H2Core
+{
 
 Synth::Synth()
- : Object( "Synth" )
+		: Object( "Synth" )
 {
 	INFOLOG( "INIT" );
 

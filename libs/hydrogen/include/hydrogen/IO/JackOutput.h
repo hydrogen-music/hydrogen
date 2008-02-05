@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -59,12 +59,10 @@ public:
 	unsigned getBufferSize();
 	unsigned getSampleRate();
 
-	jack_transport_state_t getTransportState()
-	{
+	jack_transport_state_t getTransportState() {
 		return m_JackTransportState;
 	}
-	jack_position_t getTransportPos()
-	{
+	jack_position_t getTransportPos() {
 		return m_JackTransportPos;
 	}
 
@@ -72,12 +70,10 @@ public:
 	void makeTrackOutputs( Song * );
 	void setTrackOutput( int, Instrument * );
 
-	void setConnectDefaults( bool flag )
-	{
+	void setConnectDefaults( bool flag ) {
 		connect_out_flag = flag;
 	}
-	bool getConnectDefaults()
-	{
+	bool getConnectDefaults() {
 		return connect_out_flag;
 	}
 
@@ -117,14 +113,12 @@ private:
 
 #else
 
-namespace H2Core
-{
+namespace H2Core {
 
 class JackOutput : public NullDriver
 {
 public:
-	JackOutput( audioProcessCallback processCallback ) : NullDriver( processCallback )
-	{}
+	JackOutput( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
 };
 

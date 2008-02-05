@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://hydrogen.sourceforge.net
  *
@@ -35,28 +35,27 @@
 /// The Render Callback
 ///
 static OSStatus renderProc(
-		void *inRefCon,
-		AudioUnitRenderActionFlags *ioActionFlags,
-		const AudioTimeStamp *inTimeStamp,
-		UInt32 inBusNumber,
-		UInt32 inNumberFrames,
-		AudioBufferList *ioData
+    void *inRefCon,
+    AudioUnitRenderActionFlags *ioActionFlags,
+    const AudioTimeStamp *inTimeStamp,
+    UInt32 inBusNumber,
+    UInt32 inNumberFrames,
+    AudioBufferList *ioData
 )
 {
-	H2Core::CoreAudioDriver* pDriver = (H2Core::CoreAudioDriver *)inRefCon;
- 	pDriver->mProcessCallback( pDriver->m_nBufferSize, NULL );
-	for ( unsigned i = 0; i < ioData->mNumberBuffers; i++) {
+	H2Core::CoreAudioDriver* pDriver = ( H2Core::CoreAudioDriver * )inRefCon;
+	pDriver->mProcessCallback( pDriver->m_nBufferSize, NULL );
+	for ( unsigned i = 0; i < ioData->mNumberBuffers; i++ ) {
 		AudioBuffer &outData = ioData->mBuffers[ i ];
-		Float32* pOutData = (float*)(outData.mData);
+		Float32* pOutData = ( float* )( outData.mData );
 
 		float *pAudioSource;
 		if ( i == 0 ) {
 			pAudioSource = pDriver->m_pOut_L;
-		}
-		else {
+		} else {
 			pAudioSource = pDriver->m_pOut_R;
 		}
-		for ( unsigned j = 0; j < inNumberFrames; ++j) {
+		for ( unsigned j = 0; j < inNumberFrames; ++j ) {
 			pOutData[ j ] = pAudioSource[ j ];
 		}
 	}
@@ -65,16 +64,17 @@ static OSStatus renderProc(
 }
 
 
-namespace H2Core {
+namespace H2Core
+{
 
 CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
- : H2Core::AudioOutput( "CoreAudioDriver" )
- , m_bIsRunning( false )
- , mProcessCallback( processCallback )
- , m_pOut_L( NULL )
- , m_pOut_R( NULL )
+		: H2Core::AudioOutput( "CoreAudioDriver" )
+		, m_bIsRunning( false )
+		, mProcessCallback( processCallback )
+		, m_pOut_L( NULL )
+		, m_pOut_R( NULL )
 {
-  //INFOLOG( "INIT" );
+	//INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::getInstance()->m_nSampleRate;
 	//  m_nBufferSize = Preferences::getInstance()->m_nBufferSize;
 	//  BufferSize is currently set to match the default audio device.
@@ -83,23 +83,23 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 
 	UInt32 size = sizeof( AudioDeviceID );
 	err = AudioHardwareGetProperty(
-			kAudioHardwarePropertyDefaultOutputDevice,
-			&size,
-			&m_outputDevice
-	);
+	          kAudioHardwarePropertyDefaultOutputDevice,
+	          &size,
+	          &m_outputDevice
+	      );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not get Default Output Device" );
 	}
 
 	UInt32 dataSize = sizeof( m_nBufferSize );
 	err = AudioDeviceGetProperty(
-			m_outputDevice,
-			0,
-			false,
-			kAudioDevicePropertyBufferFrameSize,
-			&dataSize,
-			(void *)&m_nBufferSize
-	);
+	          m_outputDevice,
+	          0,
+	          false,
+	          kAudioDevicePropertyBufferFrameSize,
+	          &dataSize,
+	          ( void * )&m_nBufferSize
+	      );
 
 	if ( err != noErr ) {
 		ERRORLOG( "get BufferSize error" );
@@ -109,9 +109,9 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 
 	// print some info
 	AudioStreamBasicDescription outputStreamBasicDescription;
-	UInt32 propertySize = sizeof(outputStreamBasicDescription);
-	err = AudioDeviceGetProperty( m_outputDevice, 0, 0, kAudioDevicePropertyStreamFormat, &propertySize, &outputStreamBasicDescription);
-	if (err) {
+	UInt32 propertySize = sizeof( outputStreamBasicDescription );
+	err = AudioDeviceGetProperty( m_outputDevice, 0, 0, kAudioDevicePropertyStreamFormat, &propertySize, &outputStreamBasicDescription );
+	if ( err ) {
 		printf( "AudioDeviceGetProperty: returned %d when getting kAudioDevicePropertyStreamFormat", err );
 	}
 
@@ -127,7 +127,7 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 
 CoreAudioDriver::~CoreAudioDriver()
 {
-  //INFOLOG( "DESTROY" );
+	//INFOLOG( "DESTROY" );
 	disconnect();
 }
 
@@ -165,75 +165,75 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	}
 
 // Get Current Output Device
-	UInt32 size = sizeof(AudioDeviceID);
+	UInt32 size = sizeof( AudioDeviceID );
 	err = AudioHardwareGetProperty(
-			kAudioHardwarePropertyDefaultOutputDevice,
-			&size,
-			&m_outputDevice
-	);
+	          kAudioHardwarePropertyDefaultOutputDevice,
+	          &size,
+	          &m_outputDevice
+	      );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not get Default Output Device" );
 	}
 
 // Set AUHAL to Current Device
 	err = AudioUnitSetProperty(
-			m_outputUnit,
-			kAudioOutputUnitProperty_CurrentDevice,
-			kAudioUnitScope_Global,
-			0,
-			&m_outputDevice,
-			sizeof( m_outputDevice )
-	);
+	          m_outputUnit,
+	          kAudioOutputUnitProperty_CurrentDevice,
+	          kAudioUnitScope_Global,
+	          0,
+	          &m_outputDevice,
+	          sizeof( m_outputDevice )
+	      );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not set Current Device" );
 	}
 
 //	UInt32 dataSize = sizeof(cBufferSize);
 
-/*	err =   AudioDeviceGetProperty(outputDevice, 0, false, kAudioDevicePropertyBufferFrameSize,
-			&dataSize, (void *) &cBufferSize);
-			if (err != noErr ) {
-			printf( "Coud not get BufferSize" );
-			}
-			else{
-			fprintf(stderr, "%lu\n", cBufferSize);
-			}
-*/
+	/*	err =   AudioDeviceGetProperty(outputDevice, 0, false, kAudioDevicePropertyBufferFrameSize,
+				&dataSize, (void *) &cBufferSize);
+				if (err != noErr ) {
+				printf( "Coud not get BufferSize" );
+				}
+				else{
+				fprintf(stderr, "%lu\n", cBufferSize);
+				}
+	*/
 
 	AudioStreamBasicDescription asbdesc;
-	asbdesc.mSampleRate = (Float64)m_nSampleRate;
+	asbdesc.mSampleRate = ( Float64 )m_nSampleRate;
 	asbdesc.mFormatID = kAudioFormatLinearPCM;
 	asbdesc.mFormatFlags = kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved;
-	asbdesc.mBytesPerPacket = sizeof(Float32);
+	asbdesc.mBytesPerPacket = sizeof( Float32 );
 	asbdesc.mFramesPerPacket = 1;
-	asbdesc.mBytesPerFrame = sizeof(Float32);
+	asbdesc.mBytesPerFrame = sizeof( Float32 );
 	asbdesc.mChannelsPerFrame = 2;	// comix: was set to 1
 	asbdesc.mBitsPerChannel = 32;
 
 
 
 	err = AudioUnitSetProperty(
-			m_outputUnit,
-			kAudioUnitProperty_StreamFormat,
-			kAudioUnitScope_Input,
-			0,
-			&asbdesc,
-			sizeof( AudioStreamBasicDescription )
-	);
+	          m_outputUnit,
+	          kAudioUnitProperty_StreamFormat,
+	          kAudioUnitScope_Input,
+	          0,
+	          &asbdesc,
+	          sizeof( AudioStreamBasicDescription )
+	      );
 
 // Set Render Callback
 	AURenderCallbackStruct out;
 	out.inputProc = renderProc;
-	out.inputProcRefCon = (void *)this;
+	out.inputProcRefCon = ( void * )this;
 
 	err = AudioUnitSetProperty(
-			m_outputUnit,
-			kAudioUnitProperty_SetRenderCallback,
-			kAudioUnitScope_Global,
-			0,
-			&out,
-			sizeof(out)
-	);
+	          m_outputUnit,
+	          kAudioUnitProperty_SetRenderCallback,
+	          kAudioUnitScope_Global,
+	          0,
+	          &out,
+	          sizeof( out )
+	      );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not Set Render Callback" );
 	}
@@ -275,7 +275,7 @@ void CoreAudioDriver::disconnect()
 
 void CoreAudioDriver::play()
 {
-  //INFOLOG( "play" );
+	//INFOLOG( "play" );
 	m_transport.m_status = TransportInfo::ROLLING;
 }
 
@@ -283,7 +283,7 @@ void CoreAudioDriver::play()
 
 void CoreAudioDriver::stop()
 {
-  //INFOLOG( "stop" );
+	//INFOLOG( "stop" );
 	m_transport.m_status = TransportInfo::STOPPED;
 }
 
@@ -326,14 +326,14 @@ void CoreAudioDriver::updateTransportInfo()
 
 void CoreAudioDriver::locate( unsigned long nFrame )
 {
-  //INFOLOG( "locate: " + to_string( nFrame ) );
+	//INFOLOG( "locate: " + to_string( nFrame ) );
 	m_transport.m_nFrames = nFrame;
 	//fprintf ( stderr, "m_transport.m_nFrames = %lu\n", m_transport.m_nFrames );
 }
 
 
 
-void CoreAudioDriver::setBpm(float fBPM)
+void CoreAudioDriver::setBpm( float fBPM )
 {
 	//INFOLOG( "[setBpm]" + to_string( fBPM ));
 	m_transport.m_nBPM = fBPM;

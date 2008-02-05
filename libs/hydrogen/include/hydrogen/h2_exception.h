@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -33,8 +33,7 @@ class H2Exception : public std::runtime_error
 {
 public:
 
-	H2Exception( const std::string& msg ) : std::runtime_error( msg )
-	{
+	H2Exception( const std::string& msg ) : std::runtime_error( msg ) {
 	}
 
 };

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,8 +26,8 @@
 #include <hydrogen/LocalFileMng.h>
 
 #ifndef WIN32
-	#include <pwd.h>
-	#include <unistd.h>
+#include <pwd.h>
+#include <unistd.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -43,7 +43,8 @@
 #include <QDir>
 #include <QApplication>
 
-namespace H2Core {
+namespace H2Core
+{
 
 Preferences* Preferences::instance = NULL;
 
@@ -51,7 +52,7 @@ Preferences* Preferences::instance = NULL;
 /// Return an instance of Preferences
 Preferences* Preferences::getInstance()
 {
-	if (instance == NULL) {
+	if ( instance == NULL ) {
 		instance = new Preferences();
 	}
 
@@ -60,32 +61,31 @@ Preferences* Preferences::getInstance()
 
 
 Preferences::Preferences()
- : Object( "Preferences" )
- , demoPath( std::string(DataPath::get_data_path()) + "/demo_songs/" )
- , m_sLastNews( "" )
+		: Object( "Preferences" )
+		, demoPath( std::string( DataPath::get_data_path() ) + "/demo_songs/" )
+		, m_sLastNews( "" )
 {
 	INFOLOG( "INIT" );
 
-	char * ladpath = getenv("LADSPA_PATH");	// read the Environment variable LADSPA_PATH
-	if (ladpath) {
+	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
+	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH enviroment variable" );
-		std::string sLadspaPath = std::string(ladpath);
+		std::string sLadspaPath = std::string( ladpath );
 		int pos;
-		while ( (pos = sLadspaPath.find(":")) != -1) {
-			std::string sPath = sLadspaPath.substr(0, pos);
+		while ( ( pos = sLadspaPath.find( ":" ) ) != -1 ) {
+			std::string sPath = sLadspaPath.substr( 0, pos );
 			m_ladspaPathVect.push_back( sPath );
 			sLadspaPath = sLadspaPath.substr( pos + 1, sLadspaPath.length() );
 		}
-		m_ladspaPathVect.push_back(sLadspaPath);
-	}
-	else {
+		m_ladspaPathVect.push_back( sLadspaPath );
+	} else {
 #ifdef Q_OS_MACX
 		m_ladspaPathVect.push_back( qApp->applicationDirPath().toStdString() + "/../Resources/plugins" );
-		m_ladspaPathVect.push_back("/Library/Audio/Plug-Ins/LADSPA/");
-		m_ladspaPathVect.push_back(QDir::homePath().append("/Library/Audio/Plug-Ins/LADSPA").toStdString());
+		m_ladspaPathVect.push_back( "/Library/Audio/Plug-Ins/LADSPA/" );
+		m_ladspaPathVect.push_back( QDir::homePath().append( "/Library/Audio/Plug-Ins/LADSPA" ).toStdString() );
 #else
-		m_ladspaPathVect.push_back("/usr/lib/ladspa");
-		m_ladspaPathVect.push_back("/usr/local/lib/ladspa");
+		m_ladspaPathVect.push_back( "/usr/lib/ladspa" );
+		m_ladspaPathVect.push_back( "/usr/local/lib/ladspa" );
 #endif
 
 	}
@@ -137,11 +137,10 @@ void Preferences::loadPreferences( bool bGlobal )
 	std::string sPreferencesFilename;
 	std::string sDataDirectory;
 	if ( bGlobal ) {
-		sPreferencesDirectory = std::string(DataPath::get_data_path());
+		sPreferencesDirectory = std::string( DataPath::get_data_path() );
 		sPreferencesFilename = sPreferencesDirectory + "/hydrogen.default.conf";
 		INFOLOG( "Loading preferences file (GLOBAL) [" + sPreferencesFilename + "]" );
-	}
-	else {
+	} else {
 		sPreferencesFilename = m_sPreferencesFilename;
 		sPreferencesDirectory = m_sPreferencesDirectory;
 		sDataDirectory = QDir::homePath().append( "/.hydrogen/data" ).toStdString();
@@ -154,12 +153,11 @@ void Preferences::loadPreferences( bool bGlobal )
 
 	// preferences directory exists?
 	QDir prefDir( QString( sPreferencesDirectory.c_str() ) );
-	if (!prefDir.exists()) {
+	if ( !prefDir.exists() ) {
 		if ( bGlobal ) {
-			WARNINGLOG("System configuration directory '" + sPreferencesDirectory + "' not found.");
-		}
-		else {
-			ERRORLOG("Configuration directory '" + sPreferencesDirectory + "' not found.");
+			WARNINGLOG( "System configuration directory '" + sPreferencesDirectory + "' not found." );
+		} else {
+			ERRORLOG( "Configuration directory '" + sPreferencesDirectory + "' not found." );
 			createPreferencesDirectory();
 		}
 	}
@@ -172,14 +170,14 @@ void Preferences::loadPreferences( bool bGlobal )
 	}
 
 	// pref file exists?
-	std::ifstream input( sPreferencesFilename.c_str() , std::ios::in | std::ios::binary);
-	if (input){
+	std::ifstream input( sPreferencesFilename.c_str() , std::ios::in | std::ios::binary );
+	if ( input ) {
 		// read preferences file
-		TiXmlDocument doc( sPreferencesFilename.c_str());
+		TiXmlDocument doc( sPreferencesFilename.c_str() );
 		doc.LoadFile();
 
 		TiXmlNode* rootNode;
-		if ( (rootNode = doc.FirstChild("hydrogen_preferences")) ) {
+		if ( ( rootNode = doc.FirstChild( "hydrogen_preferences" ) ) ) {
 
 			// version
 			std::string version = LocalFileMng::readXmlString( rootNode, "version", "" );
@@ -197,12 +195,11 @@ void Preferences::loadPreferences( bool bGlobal )
 			TiXmlNode* pRecentUsedSongsNode = rootNode->FirstChild( "recentUsedSongs" );
 			if ( pRecentUsedSongsNode ) {
 				TiXmlNode* pSongNode = 0;
-				for( pSongNode = pRecentUsedSongsNode->FirstChild("song"); pSongNode; pSongNode = pSongNode->NextSibling( "song" ) ) {
+				for ( pSongNode = pRecentUsedSongsNode->FirstChild( "song" ); pSongNode; pSongNode = pSongNode->NextSibling( "song" ) ) {
 					std::string sFilename = pSongNode->FirstChild()->Value();
 					m_recentFiles.push_back( sFilename );
 				}
-			}
-			else {
+			} else {
 				WARNINGLOG( "recentUsedSongs node not found" );
 			}
 
@@ -210,11 +207,10 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			/////////////// AUDIO ENGINE //////////////
 			TiXmlNode* audioEngineNode;
-			if ( !(audioEngineNode = rootNode->FirstChild( "audio_engine" ) ) ) {
+			if ( !( audioEngineNode = rootNode->FirstChild( "audio_engine" ) ) ) {
 				WARNINGLOG( "audio_engine node not found" );
 				recreate = true;
-			}
-			else {
+			} else {
 				m_sAudioDriver = LocalFileMng::readXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
 				m_bUseMetronome = LocalFileMng::readXmlBool( audioEngineNode, "use_metronome", m_bUseMetronome );
 				m_fMetronomeVolume = LocalFileMng::readXmlFloat( audioEngineNode, "metronome_volume", 0.5f );
@@ -224,28 +220,25 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				//// OSS DRIVER ////
 				TiXmlNode* ossDriverNode;
-				if ( !(ossDriverNode = audioEngineNode->FirstChild( "oss_driver" ) ) ) {
-					WARNINGLOG( "oss_driver node not found");
+				if ( !( ossDriverNode = audioEngineNode->FirstChild( "oss_driver" ) ) ) {
+					WARNINGLOG( "oss_driver node not found" );
 					recreate = true;
-				}
-				else {
+				} else {
 					m_sOSSDevice = LocalFileMng::readXmlString( ossDriverNode, "ossDevice", m_sOSSDevice );
 				}
 
 				//// JACK DRIVER ////
 				TiXmlNode* jackDriverNode;
-				if ( !(jackDriverNode = audioEngineNode->FirstChild( "jack_driver" ) ) ) {
-					WARNINGLOG( "jack_driver node not found");
+				if ( !( jackDriverNode = audioEngineNode->FirstChild( "jack_driver" ) ) ) {
+					WARNINGLOG( "jack_driver node not found" );
 					recreate = true;
-				}
-				else {
+				} else {
 					m_sJackPortName1 = LocalFileMng::readXmlString( jackDriverNode, "jack_port_name_1", m_sJackPortName1 );
 					m_sJackPortName2 = LocalFileMng::readXmlString( jackDriverNode, "jack_port_name_2", m_sJackPortName2 );
 					std::string sMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode", "NO_JACK_TRANSPORT" );
-					if (sMode == "NO_JACK_TRANSPORT") {
+					if ( sMode == "NO_JACK_TRANSPORT" ) {
 						m_bJackTransportMode = NO_JACK_TRANSPORT;
-					}
-					else if (sMode == "USE_JACK_TRANSPORT") {
+					} else if ( sMode == "USE_JACK_TRANSPORT" ) {
 						m_bJackTransportMode = USE_JACK_TRANSPORT;
 					}
 					//m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
@@ -256,20 +249,18 @@ void Preferences::loadPreferences( bool bGlobal )
 				/// ALSA AUDIO DRIVER ///
 				TiXmlNode* alsaAudioDriverNode;
 				if ( !( alsaAudioDriverNode = audioEngineNode->FirstChild( "alsa_audio_driver" ) ) ) {
-					WARNINGLOG( "alsa_audio_driver node not found");
+					WARNINGLOG( "alsa_audio_driver node not found" );
 					recreate = true;
-				}
-				else {
+				} else {
 					m_sAlsaAudioDevice = LocalFileMng::readXmlString( alsaAudioDriverNode, "alsa_audio_device", m_sAlsaAudioDevice );
 				}
 
 				/// MIDI DRIVER ///
 				TiXmlNode* midiDriverNode;
-				if ( !(midiDriverNode = audioEngineNode->FirstChild( "midi_driver" ) ) ) {
+				if ( !( midiDriverNode = audioEngineNode->FirstChild( "midi_driver" ) ) ) {
 					WARNINGLOG( "midi_driver node not found" );
 					recreate = true;
-				}
-				else {
+				} else {
 					m_sMidiDriver = LocalFileMng::readXmlString( midiDriverNode, "driverName", "ALSA" );
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
@@ -283,11 +274,10 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			/////////////// GUI //////////////
 			TiXmlNode* guiNode;
-			if ( !(guiNode = rootNode->FirstChild( "gui" ) ) ) {
-				WARNINGLOG( "gui node not found");
+			if ( !( guiNode = rootNode->FirstChild( "gui" ) ) ) {
+				WARNINGLOG( "gui node not found" );
 				recreate = true;
-			}
-			else {
+			} else {
 				// QT Style
 				m_sQTStyle = LocalFileMng::readXmlString( guiNode, "QTStyle", m_sQTStyle, true );
 
@@ -331,16 +321,15 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
-				for (unsigned nFX = 0; nFX < MAX_FX; nFX++) {
-					std::string sNodeName = "ladspaFX_properties" + to_string(nFX);
-					setLadspaProperties(nFX, readWindowProperties( guiNode, sNodeName, m_ladspaProperties[nFX] ) );
+				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
+					std::string sNodeName = "ladspaFX_properties" + to_string( nFX );
+					setLadspaProperties( nFX, readWindowProperties( guiNode, sNodeName, m_ladspaProperties[nFX] ) );
 				}
 
 				TiXmlNode *pUIStyle = guiNode->FirstChild( "UI_Style" );
 				if ( pUIStyle ) {
 					readUIStyle( *pUIStyle );
-				}
-				else {
+				} else {
 					WARNINGLOG( "UI_Style node not found" );
 					recreate = true;
 				}
@@ -348,11 +337,10 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			/////////////// FILES //////////////
 			TiXmlNode* filesNode;
-			if ( !(filesNode = rootNode->FirstChild( "files" ) ) ) {
-				WARNINGLOG( "files node not found");
+			if ( !( filesNode = rootNode->FirstChild( "files" ) ) ) {
+				WARNINGLOG( "files node not found" );
 				recreate = true;
-			}
-			else {
+			} else {
 				// last used song
 				lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", lastSongFilename, true );
 			}
@@ -361,21 +349,19 @@ void Preferences::loadPreferences( bool bGlobal )
 			WARNINGLOG( "hydrogen_preferences node not found" );
 			recreate = true;
 		}
-	}
-	else {
+	} else {
 		if ( bGlobal ) {
-			WARNINGLOG("System configuration file not found.");
-		}
-		else {
-			WARNINGLOG("Configuration file not found.");
+			WARNINGLOG( "System configuration file not found." );
+		} else {
+			WARNINGLOG( "Configuration file not found." );
 			recreate = true;
 		}
 	}
 
 
 	// The preferences file should be recreated?
-	if (recreate == true) {
-		WARNINGLOG( "Recreating configuration file.");
+	if ( recreate == true ) {
+		WARNINGLOG( "Recreating configuration file." );
 		savePreferences();
 	}
 
@@ -393,12 +379,12 @@ void Preferences::savePreferences()
 
 	INFOLOG( "Saving preferences file: " + filename );
 
-	TiXmlDocument doc(filename.c_str());
+	TiXmlDocument doc( filename.c_str() );
 
-	TiXmlElement rootNode("hydrogen_preferences");
+	TiXmlElement rootNode( "hydrogen_preferences" );
 
 	// hydrogen version
-	LocalFileMng::writeXmlString( &rootNode, "version", std::string(VERSION) );
+	LocalFileMng::writeXmlString( &rootNode, "version", std::string( VERSION ) );
 
 	////// GENERAL ///////
 	LocalFileMng::writeXmlString( &rootNode, "restoreLastSong", restoreLastSong ? "true": "false" );
@@ -440,7 +426,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( &audioEngineNode, "samplerate", to_string( m_nSampleRate ) );
 
 		//// OSS DRIVER ////
-		TiXmlElement ossDriverNode("oss_driver");
+		TiXmlElement ossDriverNode( "oss_driver" );
 		{
 			LocalFileMng::writeXmlString( &ossDriverNode, "ossDevice", m_sOSSDevice );
 		}
@@ -454,17 +440,16 @@ void Preferences::savePreferences()
 
 			// jack transport slave
 			std::string sMode;
-			if ( m_bJackTransportMode == NO_JACK_TRANSPORT) {
+			if ( m_bJackTransportMode == NO_JACK_TRANSPORT ) {
 				sMode = "NO_JACK_TRANSPORT";
-			}
-			else if ( m_bJackTransportMode == USE_JACK_TRANSPORT) {
+			} else if ( m_bJackTransportMode == USE_JACK_TRANSPORT ) {
 				sMode = "USE_JACK_TRANSPORT";
 			}
 			LocalFileMng::writeXmlString( &jackDriverNode, "jack_transport_mode", sMode );
 
 			// jack default connection
 			std::string jackConnectDefaultsString = "false";
-			if (m_bJackConnectDefaults) {
+			if ( m_bJackConnectDefaults ) {
 				jackConnectDefaultsString = "true";
 			}
 			LocalFileMng::writeXmlString( &jackDriverNode, "jack_connect_defaults", jackConnectDefaultsString );
@@ -495,8 +480,7 @@ void Preferences::savePreferences()
 
 			if ( m_bMidiNoteOffIgnore ) {
 				LocalFileMng::writeXmlString( &midiDriverNode, "ignore_note_off", "true" );
-			}
-			else {
+			} else {
 				LocalFileMng::writeXmlString( &midiDriverNode, "ignore_note_off", "false" );
 			}
 		}
@@ -508,7 +492,7 @@ void Preferences::savePreferences()
 	rootNode.InsertEndChild( audioEngineNode );
 
 	//---- GUI ----
-	TiXmlElement guiNode("gui");
+	TiXmlElement guiNode( "gui" );
 	{
 		LocalFileMng::writeXmlString( &guiNode, "QTStyle", m_sQTStyle );
 		LocalFileMng::writeXmlString( &guiNode, "application_font_family", applicationFontFamily );
@@ -531,8 +515,8 @@ void Preferences::savePreferences()
 		writeWindowProperties( guiNode, "songEditor_properties", songEditorProperties );
 		writeWindowProperties( guiNode, "drumkitManager_properties", drumkitManagerProperties );
 		writeWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
-		for (unsigned nFX = 0; nFX < MAX_FX; nFX++) {
-			std::string sNode = "ladspaFX_properties" + to_string(nFX);
+		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
+			std::string sNode = "ladspaFX_properties" + to_string( nFX );
 			writeWindowProperties( guiNode, sNode, m_ladspaProperties[nFX] );
 		}
 
@@ -551,7 +535,7 @@ void Preferences::savePreferences()
 	}
 	rootNode.InsertEndChild( filesNode );
 
-	doc.InsertEndChild(rootNode);
+	doc.InsertEndChild( rootNode );
 	doc.SaveFile();
 }
 
@@ -563,7 +547,7 @@ void Preferences::savePreferences()
 void Preferences::createPreferencesDirectory()
 {
 	std::string prefDir = m_sPreferencesDirectory;
-	INFOLOG( "Creating preference file directory in " + prefDir);
+	INFOLOG( "Creating preference file directory in " + prefDir );
 
 	QDir dir;
 	dir.mkdir( prefDir.c_str() );
@@ -577,7 +561,7 @@ void Preferences::createPreferencesDirectory()
 void Preferences::createDataDirectory()
 {
 	std::string sDir = m_sDataDirectory;
-	INFOLOG( "Creating data directory in " + sDir);
+	INFOLOG( "Creating data directory in " + sDir );
 
 	QDir dir;
 	dir.mkdir( QString( sDir.c_str() ) );
@@ -590,11 +574,11 @@ void Preferences::setRecentFiles( std::vector<std::string> recentFiles )
 {
 	// find single filenames. (skip duplicates)
 	std::vector<std::string> temp;
-	for (unsigned i = 0; i < recentFiles.size(); i++) {
+	for ( unsigned i = 0; i < recentFiles.size(); i++ ) {
 		std::string sFilename = recentFiles[ i ];
 
 		bool bExists = false;
-		for (unsigned j = 0; j < temp.size(); j++) {
+		for ( unsigned j = 0; j < temp.size(); j++ ) {
 			if ( sFilename == temp[ j ] ) {
 				bExists = true;
 				break;
@@ -616,10 +600,9 @@ WindowProperties Preferences::readWindowProperties( TiXmlNode *parent, const std
 	WindowProperties prop = defaultProp;
 
 	TiXmlNode* windowPropNode;
-	if ( !(windowPropNode = parent->FirstChild( windowName.c_str() ) ) ) {
+	if ( !( windowPropNode = parent->FirstChild( windowName.c_str() ) ) ) {
 		WARNINGLOG( "Error reading configuration file: " + windowName + " node not found" );
-	}
-	else {
+	} else {
 		prop.visible = LocalFileMng::readXmlBool( windowPropNode, "visible", true );
 		prop.x = LocalFileMng::readXmlInt( windowPropNode, "x", prop.x );
 		prop.y = LocalFileMng::readXmlInt( windowPropNode, "y", prop.y );
@@ -636,17 +619,16 @@ WindowProperties Preferences::readWindowProperties( TiXmlNode *parent, const std
 void Preferences::writeWindowProperties( TiXmlNode& parent, const std::string& windowName, const WindowProperties& prop )
 {
 	TiXmlElement windowPropNode( windowName.c_str() );
-		if (prop.visible) {
-			LocalFileMng::writeXmlString( &windowPropNode, "visible", "true" );
-		}
-		else {
-			LocalFileMng::writeXmlString( &windowPropNode, "visible", "false" );
-		}
+	if ( prop.visible ) {
+		LocalFileMng::writeXmlString( &windowPropNode, "visible", "true" );
+	} else {
+		LocalFileMng::writeXmlString( &windowPropNode, "visible", "false" );
+	}
 
-		LocalFileMng::writeXmlString( &windowPropNode, "x", to_string( prop.x ) );
-		LocalFileMng::writeXmlString( &windowPropNode, "y", to_string( prop.y ) );
-		LocalFileMng::writeXmlString( &windowPropNode, "width", to_string( prop.width ) );
-		LocalFileMng::writeXmlString( &windowPropNode, "height", to_string( prop.height ) );
+	LocalFileMng::writeXmlString( &windowPropNode, "x", to_string( prop.x ) );
+	LocalFileMng::writeXmlString( &windowPropNode, "y", to_string( prop.y ) );
+	LocalFileMng::writeXmlString( &windowPropNode, "width", to_string( prop.width ) );
+	LocalFileMng::writeXmlString( &windowPropNode, "height", to_string( prop.height ) );
 	parent.InsertEndChild( windowPropNode );
 }
 
@@ -697,8 +679,7 @@ void Preferences::readUIStyle( TiXmlNode& parent )
 		m_pDefaultUIStyle->m_songEditor_lineColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor.toStringFmt() ) );
 		m_pDefaultUIStyle->m_songEditor_textColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor.toStringFmt() ) );
 		m_pDefaultUIStyle->m_songEditor_pattern1Color = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color.toStringFmt() ) );
-	}
-	else {
+	} else {
 		WARNINGLOG( "songEditor node not found" );
 	}
 
@@ -716,8 +697,7 @@ void Preferences::readUIStyle( TiXmlNode& parent )
 		m_pDefaultUIStyle->m_patternEditor_line3Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line3Color", m_pDefaultUIStyle->m_patternEditor_line3Color.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_line4Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line4Color", m_pDefaultUIStyle->m_patternEditor_line4Color.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_line5Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() ) );
-	}
-	else {
+	} else {
 		WARNINGLOG( "patternEditor node not found" );
 	}
 }
@@ -729,7 +709,7 @@ void Preferences::readUIStyle( TiXmlNode& parent )
 
 
 WindowProperties::WindowProperties()
- : Object( "WindowProperties" )
+		: Object( "WindowProperties" )
 {
 //	infoLog( "INIT" );
 	x = 0;
@@ -741,7 +721,8 @@ WindowProperties::WindowProperties()
 
 
 
-WindowProperties::~WindowProperties() {
+WindowProperties::~WindowProperties()
+{
 //	infoLog( "DESTROY" );
 }
 
@@ -753,7 +734,7 @@ WindowProperties::~WindowProperties() {
 
 
 UIStyle::UIStyle()
- : Object( "UIStyle" )
+		: Object( "UIStyle" )
 {
 //	infoLog( "INIT" );
 }
@@ -764,11 +745,11 @@ UIStyle::UIStyle()
 
 
 
-H2RGBColor::H2RGBColor(int r, int g, int b)
- : Object( "H2RGBColor" )
- , m_red( r )
- , m_green( g )
- , m_blue( b )
+H2RGBColor::H2RGBColor( int r, int g, int b )
+		: Object( "H2RGBColor" )
+		, m_red( r )
+		, m_green( g )
+		, m_blue( b )
 {
 //	infoLog( "INIT" );
 }
@@ -783,21 +764,21 @@ H2RGBColor::~H2RGBColor()
 
 
 H2RGBColor::H2RGBColor( const std::string& sColor )
- : Object( "H2RGBColor" )
+		: Object( "H2RGBColor" )
 {
 //	infoLog( "INIT " + sColor );
 	std::string temp = sColor;
 
-	int nPos = temp.find(',');
-	std::string sRed = temp.substr(0, nPos);
-	temp.erase(0, nPos + 1);
+	int nPos = temp.find( ',' );
+	std::string sRed = temp.substr( 0, nPos );
+	temp.erase( 0, nPos + 1 );
 
-	nPos = temp.find(',');
-	std::string sGreen = temp.substr(0, nPos);
-	temp.erase(0, nPos + 1);
+	nPos = temp.find( ',' );
+	std::string sGreen = temp.substr( 0, nPos );
+	temp.erase( 0, nPos + 1 );
 
-	nPos = temp.find(',');
-	std::string sBlue = temp.substr(0, nPos);
+	nPos = temp.find( ',' );
+	std::string sBlue = temp.substr( 0, nPos );
 
 	m_red = atoi( sRed.c_str() );
 	m_green = atoi( sGreen.c_str() );

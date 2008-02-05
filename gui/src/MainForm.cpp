@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include "config.h"
+
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
@@ -1302,7 +1304,7 @@ void MainForm::getLatestVersion()
 	#endif
 
 
-	QString sRequest = QString("/getLatestVersion.php?UsingVersion=%1").arg(VERSION);
+	QString sRequest = QString("/getLatestVersion.php?UsingVersion=%1").arg(VERSION.c_str());
 	sRequest += QString( "&OS=%1" ).arg( os );
 
 	//INFOLOG( sRequest.toStdString() );
@@ -1330,7 +1332,7 @@ void MainForm::latestVersionDone(bool bError)
 	QString sLatest_micro = sLatestVersion.section( '.', 2, 2 );
 //	INFOLOG( "Latest available version is: " + string( sLatestVersion.ascii() ) );
 
-	QString sCurrentVersion = VERSION;
+	QString sCurrentVersion = VERSION.c_str();
 	QString sCurrent_major = sCurrentVersion.section( '.', 0, 0 );
 	QString sCurrent_minor = sCurrentVersion.section( '.', 1, 1 );
 	QString sCurrent_micro = sCurrentVersion.section( '.', 2, 2 );

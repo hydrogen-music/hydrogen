@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -46,15 +46,15 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 	Q_OBJECT
 
 	public:
-		DrumPatternEditor(QWidget* parent, PatternEditorPanel *pPatternEditorPanel);
+		DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel);
 		~DrumPatternEditor();
 
 		void setResolution(uint res, bool bUseTriplets);
 		uint getResolution() {	return m_nResolution;	}
 		bool isUsingTriplets() {	return m_bUseTriplets;	}
 
-		void zoomIn();
-		void zoomOut();
+		void zoom_in();
+		void zoom_out();
 
 		// Implements EventListener interface
 		virtual void patternModifiedEvent();
@@ -86,10 +86,10 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 
-		void drawNote( H2Core::Note* note, QPainter* painter );
-		void drawPattern();
-		void drawGrid( QPainter* painter );
-		void createBackground();
+		void __draw_note( H2Core::Note* note, QPainter* painter );
+		void __draw_pattern();
+		void __draw_grid( QPainter* painter );
+		void __create_background();
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
@@ -98,7 +98,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		virtual void showEvent ( QShowEvent *ev );
 		virtual void hideEvent ( QHideEvent *ev );
 		virtual void paintEvent(QPaintEvent *ev);
-
 
 		int getColumn(QMouseEvent *ev);
 };

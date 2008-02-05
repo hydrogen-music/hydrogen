@@ -30,8 +30,6 @@ macx {
 }
 
 linux-g++ {
-	#QMAKE_CXXFLAGS_RELEASE += -fno-stack-protector
-	#QMAKE_CXXFLAGS_DEBUG += -fno-stack-protector
 }
 
 PRECOMPILED_HEADER  = src/precompiled.h
@@ -144,3 +142,5 @@ SOURCES += \
 		src/sample.cpp \
 		src/song.cpp \
 		src/sound_library.cpp
+
+

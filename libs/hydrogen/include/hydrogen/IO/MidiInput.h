@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -34,21 +34,21 @@ class MidiMessage
 {
 public:
 	enum MidiMessageType {
-	    UNKNOWN,
-	    SYSEX,
-	    NOTE_ON,
-	    NOTE_OFF,
-	    POLYPHONIC_KEY_PRESSURE,
-	    CONTROL_CHANGE,
-	    PROGRAM_CHANGE,
-	    CHANNEL_PRESSURE,
-	    PITCH_WHEEL,
-	    SYSTEM_EXCLUSIVE,
-	    START,
-	    CONTINUE,
-	    STOP,
-	    SONG_POS,
-	    QUARTER_FRAME
+		UNKNOWN,
+		SYSEX,
+		NOTE_ON,
+		NOTE_OFF,
+		POLYPHONIC_KEY_PRESSURE,
+		CONTROL_CHANGE,
+		PROGRAM_CHANGE,
+		CHANNEL_PRESSURE,
+		PITCH_WHEEL,
+		SYSTEM_EXCLUSIVE,
+		START,
+		CONTINUE,
+		STOP,
+		SONG_POS,
+		QUARTER_FRAME
 	};
 
 	MidiMessageType m_type;
@@ -61,8 +61,7 @@ public:
 			: m_type( UNKNOWN )
 			, m_nData1( -1 )
 			, m_nData2( -1 )
-			, m_nChannel( -1 )
-	{}
+			, m_nChannel( -1 ) {}
 };
 
 
@@ -89,8 +88,7 @@ public:
 	virtual void close() = 0;
 	virtual std::vector<std::string> getOutputPortList() = 0;
 
-	void setActive( bool isActive )
-	{
+	void setActive( bool isActive ) {
 		m_bActive = isActive;
 	}
 	void handleMidiMessage( const MidiMessage& msg );

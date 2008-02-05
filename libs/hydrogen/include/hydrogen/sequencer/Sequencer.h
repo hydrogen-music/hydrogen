@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -28,8 +28,8 @@ namespace H2Core
 {
 
 enum SequencerMode {
-    SONG_MODE,
-    PATTERN_MODE
+	SONG_MODE,
+	PATTERN_MODE
 };
 
 

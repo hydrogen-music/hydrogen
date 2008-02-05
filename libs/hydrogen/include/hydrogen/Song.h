@@ -52,8 +52,8 @@ class Song : public Object
 {
 public:
 	enum SongMode {
-	    PATTERN_MODE,
-	    SONG_MODE
+		PATTERN_MODE,
+		SONG_MODE
 	};
 
 	bool __is_muted;
@@ -78,112 +78,89 @@ public:
 	Song( const std::string& name, const std::string& author, float bpm, float volume );
 	~Song();
 
-	void set_volume( float volume )
-	{
+	void set_volume( float volume ) {
 		__volume = volume;
 	}
-	float get_volume()
-	{
+	float get_volume() {
 		return __volume;
 	}
 
-	void set_metronome_volume( float volume )
-	{
+	void set_metronome_volume( float volume ) {
 		__metronome_volume = volume;
 	}
-	float get_metronome_volume()
-	{
+	float get_metronome_volume() {
 		return __metronome_volume;
 	}
 
-	PatternList* get_pattern_list()
-	{
+	PatternList* get_pattern_list() {
 		return __pattern_list;
 	}
-	void set_pattern_list( PatternList *pattern_list )
-	{
+	void set_pattern_list( PatternList *pattern_list ) {
 		__pattern_list = pattern_list;
 	}
 
-	std::vector<PatternList*>* get_pattern_group_vector()
-	{
+	std::vector<PatternList*>* get_pattern_group_vector() {
 		return __pattern_group_sequence;
 	}
-	void set_pattern_group_vector( std::vector<PatternList*>* vect )
-	{
+	void set_pattern_group_vector( std::vector<PatternList*>* vect ) {
 		__pattern_group_sequence = vect;
 	}
 
 	static Song* load( const std::string& sFilename );
 	void save( const std::string& sFilename );
 
-	InstrumentList* get_instrument_list()
-	{
+	InstrumentList* get_instrument_list() {
 		return __instrument_list;
 	}
-	void set_instrument_list( InstrumentList *list )
-	{
+	void set_instrument_list( InstrumentList *list ) {
 		__instrument_list = list;
 	}
 
 
-	void set_notes( const std::string& notes )
-	{
+	void set_notes( const std::string& notes ) {
 		__notes = notes;
 	}
-	std::string get_notes()
-	{
+	std::string get_notes() {
 		return __notes;
 	}
 
-	std::string get_filename()
-	{
+	std::string get_filename() {
 		return __filename;
 	}
-	void set_filename( const std::string& filename )
-	{
+	void set_filename( const std::string& filename ) {
 		__filename = filename;
 	}
 
-	bool is_loop_enabled()
-	{
+	bool is_loop_enabled() {
 		return __is_loop_enabled;
 	}
-	void set_loop_enabled( bool enabled )
-	{
+	void set_loop_enabled( bool enabled ) {
 		__is_loop_enabled = enabled;
 	}
 
-	float get_humanize_time_value()
-	{
+	float get_humanize_time_value() {
 		return __humanize_time_value;
 	}
-	void set_humanize_time_value( float value )
-	{
+	void set_humanize_time_value( float value ) {
 		__humanize_time_value = value;
 	}
 
-	float get_humanize_velocity_value()
-	{
+	float get_humanize_velocity_value() {
 		return __humanize_velocity_value;
 	}
-	void set_humanize_velocity_value( float value )
-	{
+	void set_humanize_velocity_value( float value ) {
 		__humanize_velocity_value = value;
 	}
 
-	float get_swing_factor()
-	{
+	float get_swing_factor() {
 		return __swing_factor;
 	}
 	void set_swing_factor( float factor );
 
-	SongMode get_mode()
-	{
+	SongMode get_mode() {
 		return __song_mode;
 	}
-	void set_mode( SongMode mode )
-	{
+	void set_mode( SongMode mode ) {
 		__song_mode = mode;
 	}
 

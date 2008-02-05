@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -30,46 +30,53 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/Object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
-typedef int  (*audioProcessCallback)(uint32_t, void *);
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 ///
 /// Driver for export audio to disk
 ///
 class DiskWriterDriver : public AudioOutput
 {
-	public:
-		unsigned m_nSampleRate;
-		std::string m_sFilename;
-		unsigned m_nBufferSize;
-		audioProcessCallback m_processCallback;
-		float* m_pOut_L;
-		float* m_pOut_R;
+public:
+	unsigned m_nSampleRate;
+	std::string m_sFilename;
+	unsigned m_nBufferSize;
+	audioProcessCallback m_processCallback;
+	float* m_pOut_L;
+	float* m_pOut_R;
 
-		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, std::string sFilename );
-		~DiskWriterDriver();
+	DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, std::string sFilename );
+	~DiskWriterDriver();
 
-		int init(unsigned nBufferSize);
+	int init( unsigned nBufferSize );
 
-		int connect();
-		void disconnect();
+	int connect();
+	void disconnect();
 
-		void write(float* buffer_L, float* buffer_R, unsigned int bufferSize);
+	void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
 
-		unsigned getBufferSize() {	return m_nBufferSize;	}
+	unsigned getBufferSize() {
+		return m_nBufferSize;
+	}
 
-		unsigned getSampleRate();
-		float* getOut_L() {	return m_pOut_L; }
-		float* getOut_R() {	return m_pOut_R; }
+	unsigned getSampleRate();
+	float* getOut_L() {
+		return m_pOut_L;
+	}
+	float* getOut_R() {
+		return m_pOut_R;
+	}
 
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm(float fBPM);
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void updateTransportInfo();
+	virtual void setBpm( float fBPM );
 
-	private:
+private:
 
 };
 

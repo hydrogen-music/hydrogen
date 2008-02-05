@@ -76,39 +76,31 @@ public:
 	/// Remove a Drumkit from the disk
 	static void removeDrumkit( const std::string& sDrumkitName );
 
-	InstrumentList *getInstrumentList()
-	{
+	InstrumentList *getInstrumentList() {
 		return m_pInstrumentList;
 	}
-	void setInstrumentList( InstrumentList* instr )
-	{
+	void setInstrumentList( InstrumentList* instr ) {
 		this->m_pInstrumentList = instr;
 	}
 
-	void setName( const std::string& name )
-	{
+	void setName( const std::string& name ) {
 		this->m_sName = name;
 	}
-	const std::string& getName()
-	{
+	const std::string& getName() {
 		return m_sName;
 	}
 
-	void setAuthor( const std::string& author )
-	{
+	void setAuthor( const std::string& author ) {
 		this->m_sAuthor = author;
 	}
-	const std::string& getAuthor()
-	{
+	const std::string& getAuthor() {
 		return m_sAuthor;
 	}
 
-	void setInfo( const std::string& info )
-	{
+	void setInfo( const std::string& info ) {
 		this->m_sInfo = info;
 	}
-	const std::string& getInfo()
-	{
+	const std::string& getInfo() {
 		return m_sInfo;
 	}
 

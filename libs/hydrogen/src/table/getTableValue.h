@@ -8,13 +8,14 @@ and calculates an interpolated return value.
 
 */
 
-float getTableValue( float fInputValue, float* pLookupTable, int nLookupTableSize ){
+float getTableValue( float fInputValue, float* pLookupTable, int nLookupTableSize )
+{
 
 	float fOutputValue;
 
 	/* Determine table element position closest to what we need */
 
-	int nPosition = (int)( fInputValue * nLookupTableSize + 1 );
+	int nPosition = ( int )( fInputValue * nLookupTableSize + 1 );
 
 	if ( nPosition < 1 ) {
 		nPosition = 1;
@@ -31,7 +32,7 @@ float getTableValue( float fInputValue, float* pLookupTable, int nLookupTableSiz
 
 	/* Calculate and return the output value */
 
-	fOutputValue = ( fNearestValue * fInputValue ) / ( (float)nPosition / (float)nLookupTableSize );
+	fOutputValue = ( fNearestValue * fInputValue ) / ( ( float )nPosition / ( float )nLookupTableSize );
 
 	return fOutputValue;
 }

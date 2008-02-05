@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -31,7 +31,8 @@
 //#include "FLAC/file_decoder.h"
 #include <FLAC++/all.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 
 #if !defined(FLAC_API_VERSION_CURRENT) || FLAC_API_VERSION_CURRENT < 8
@@ -46,28 +47,28 @@ namespace H2Core {
 /// Reads a FLAC file...not optimized yet
 class FLACFile_real : public FLAC::Decoder::File, public Object
 {
-	public:
-		FLACFile_real();
-		~FLACFile_real();
+public:
+	FLACFile_real();
+	~FLACFile_real();
 
-		void load( std::string filename );
-		Sample* getSample();
+	void load( std::string filename );
+	Sample* getSample();
 
-	protected:
-		virtual ::FLAC__StreamDecoderWriteStatus write_callback(const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[]);
-		virtual void metadata_callback(const ::FLAC__StreamMetadata *metadata);
-		virtual void error_callback(::FLAC__StreamDecoderErrorStatus status);
+protected:
+	virtual ::FLAC__StreamDecoderWriteStatus write_callback( const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[] );
+	virtual void metadata_callback( const ::FLAC__StreamMetadata *metadata );
+	virtual void error_callback( ::FLAC__StreamDecoderErrorStatus status );
 
-	private:
-		std::vector<float> m_audioVect_L;
-		std::vector<float> m_audioVect_R;
-		std::string m_sFilename;
+private:
+	std::vector<float> m_audioVect_L;
+	std::vector<float> m_audioVect_R;
+	std::string m_sFilename;
 };
 
 
 
 FLACFile_real::FLACFile_real()
- : Object( "FLACFile_real" )
+		: Object( "FLACFile_real" )
 {
 //	infoLog( "INIT" );
 }
@@ -81,58 +82,54 @@ FLACFile_real::~FLACFile_real()
 
 
 
-::FLAC__StreamDecoderWriteStatus FLACFile_real::write_callback(const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[])
+::FLAC__StreamDecoderWriteStatus FLACFile_real::write_callback( const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[] )
 {
 //	int nSampleRate = get_sample_rate();
 	int nChannelCount = get_channels();
 	int nBits = get_bits_per_sample();
 
-	if ( (nChannelCount != 1 ) && (nChannelCount != 2) ) {
-		ERRORLOG( "wrong number of channels. nChannelCount=" + to_string( nChannelCount) );
+	if ( ( nChannelCount != 1 ) && ( nChannelCount != 2 ) ) {
+		ERRORLOG( "wrong number of channels. nChannelCount=" + to_string( nChannelCount ) );
 		return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 	}
 
 	unsigned nFrames = frame->header.blocksize;
 
-	if (nBits == 16) {
-		if (nChannelCount == 1) {	// mono
+	if ( nBits == 16 ) {
+		if ( nChannelCount == 1 ) {	// mono
 			const FLAC__int32* data = buffer[0];
 
-			for ( unsigned i = 0; i < nFrames; i++) {
+			for ( unsigned i = 0; i < nFrames; i++ ) {
 				m_audioVect_L.push_back( data[i] / 32768.0 );
 				m_audioVect_R.push_back( data[i] / 32768.0 );
 			}
-		}
-		else {	// stereo
+		} else {	// stereo
 			const FLAC__int32* data_L = buffer[0];
 			const FLAC__int32* data_R = buffer[1];
 
-			for ( unsigned i = 0; i < nFrames; i++) {
-				m_audioVect_L.push_back( (float)data_L[i] / 32768.0 );
-				m_audioVect_R.push_back( (float)data_R[i] / 32768.0 );
+			for ( unsigned i = 0; i < nFrames; i++ ) {
+				m_audioVect_L.push_back( ( float )data_L[i] / 32768.0 );
+				m_audioVect_R.push_back( ( float )data_R[i] / 32768.0 );
 			}
 		}
-	}
-	else if (nBits == 24) {
-		if (nChannelCount == 1) {	// mono
+	} else if ( nBits == 24 ) {
+		if ( nChannelCount == 1 ) {	// mono
 			const FLAC__int32* data = buffer[0];
 
-			for ( unsigned i = 0; i < nFrames; i++) {
-				m_audioVect_L.push_back( (float)data[i] / 8388608.0 );
-				m_audioVect_R.push_back( (float)data[i] / 8388608.0 );
+			for ( unsigned i = 0; i < nFrames; i++ ) {
+				m_audioVect_L.push_back( ( float )data[i] / 8388608.0 );
+				m_audioVect_R.push_back( ( float )data[i] / 8388608.0 );
 			}
-		}
-		else {	// stereo
+		} else {	// stereo
 			const FLAC__int32* data_L = buffer[0];
 			const FLAC__int32* data_R = buffer[1];
 
-			for ( unsigned i = 0; i < nFrames; i++) {
-				m_audioVect_L.push_back( (float)data_L[i] / 8388608.0 );
-				m_audioVect_R.push_back( (float)data_R[i] / 8388608.0 );
+			for ( unsigned i = 0; i < nFrames; i++ ) {
+				m_audioVect_L.push_back( ( float )data_L[i] / 8388608.0 );
+				m_audioVect_R.push_back( ( float )data_R[i] / 8388608.0 );
 			}
 		}
-	}
-	else {
+	} else {
 		ERRORLOG( "[write_callback] FLAC format error. nBits=" + to_string( nBits ) );
 	}
 
@@ -141,14 +138,14 @@ FLACFile_real::~FLACFile_real()
 
 
 
-void FLACFile_real::metadata_callback(const ::FLAC__StreamMetadata *metadata)
+void FLACFile_real::metadata_callback( const ::FLAC__StreamMetadata *metadata )
 {
 	UNUSED( metadata );
 }
 
 
 
-void FLACFile_real::error_callback(::FLAC__StreamDecoderErrorStatus status)
+void FLACFile_real::error_callback( ::FLAC__StreamDecoderErrorStatus status )
 {
 	UNUSED( status );
 	ERRORLOG( "[error_callback]" );
@@ -161,12 +158,11 @@ void FLACFile_real::load( std::string sFilename )
 	m_sFilename = sFilename;
 
 	// file exists?
-	std::ifstream input(sFilename.c_str() , std::ios::in | std::ios::binary);
-	if (!input){
+	std::ifstream input( sFilename.c_str() , std::ios::in | std::ios::binary );
+	if ( !input ) {
 		ERRORLOG( "file " + sFilename + " not found." );
 		return;
-	}
-	else {
+	} else {
 		/// \todo: devo chiudere il file?
 	}
 
@@ -176,10 +172,10 @@ void FLACFile_real::load( std::string sFilename )
 	set_filename( sFilename.c_str() );
 
 	State s=init();
-	if( s != FLAC__FILE_DECODER_OK ) {
+	if ( s != FLAC__FILE_DECODER_OK ) {
 #else
-	FLAC__StreamDecoderInitStatus s=init(sFilename.c_str() );
-	if(s!=FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+	FLAC__StreamDecoderInitStatus s=init( sFilename.c_str() );
+	if ( s!=FLAC__STREAM_DECODER_INIT_STATUS_OK ) {
 #endif
 		ERRORLOG( "Error in init()" );
 	}
@@ -197,8 +193,7 @@ void FLACFile_real::load( std::string sFilename )
 
 
 
-Sample* FLACFile_real::getSample()
-{
+Sample* FLACFile_real::getSample() {
 	//infoLog( "[getSample]" );
 	Sample *pSample = NULL;
 
@@ -212,9 +207,9 @@ Sample* FLACFile_real::getSample()
 	float *data_L = new float[nFrames];
 	float *data_R = new float[nFrames];
 
-	memcpy( data_L, &m_audioVect_L[ 0 ], nFrames * sizeof(float) );
-	memcpy( data_R, &m_audioVect_R[ 0 ], nFrames * sizeof(float) );
-	pSample = new Sample(nFrames, m_sFilename, data_L, data_R );
+	memcpy( data_L, &m_audioVect_L[ 0 ], nFrames * sizeof( float ) );
+	memcpy( data_R, &m_audioVect_R[ 0 ], nFrames * sizeof( float ) );
+	pSample = new Sample( nFrames, m_sFilename, data_L, data_R );
 
 	return pSample;
 }
@@ -225,21 +220,18 @@ Sample* FLACFile_real::getSample()
 
 
 FLACFile::FLACFile()
- : Object( "FLACFile" )
-{
+		: Object( "FLACFile" ) {
 	//infoLog( "INIT" );
 }
 
 
-FLACFile::~FLACFile()
-{
+FLACFile::~FLACFile() {
 	//infoLog( "DESTROY" );
 }
 
 
 
-Sample* FLACFile::load( const std::string& sFilename )
-{
+Sample* FLACFile::load( const std::string& sFilename ) {
 	//infoLog( "[load] " + sFilename );
 
 	FLACFile_real *pFile = new FLACFile_real();

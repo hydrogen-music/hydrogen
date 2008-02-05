@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -37,31 +37,29 @@ class NoteKey
 {
 public:
 	enum Key {
-	    C = 0,
-	    Cs,
-	    D,
-	    Ef,
-	    E,
-	    F,
-	    Fs,
-	    G,
-	    Af,
-	    A,
-	    Bf,
-	    B,
+		C = 0,
+		Cs,
+		D,
+		Ef,
+		E,
+		F,
+		Fs,
+		G,
+		Af,
+		A,
+		Bf,
+		B,
 	};
 
 	Key m_key;
 	int m_nOctave;
 
-	NoteKey()
-	{
+	NoteKey() {
 		m_key = C;
 		m_nOctave = 0;
 	}
 
-	NoteKey( const NoteKey& key )
-	{
+	NoteKey( const NoteKey& key ) {
 		m_key = key.m_key;
 		m_nOctave = key.m_nOctave;
 	}
@@ -71,9 +69,9 @@ public:
 
 
 /**
- 
+
 \brief A note...
- 
+
 */
 class Note : public Object
 {
@@ -113,8 +111,7 @@ public:
 	Note* copy();
 
 	void set_instrument( Instrument* instrument );
-	Instrument* get_instrument()
-	{
+	Instrument* get_instrument() {
 		return __instrument;
 	}
 
@@ -124,26 +121,22 @@ public:
 
 
 	/// Return the note position inside a pattern
-	unsigned get_position() const
-	{
+	unsigned get_position() const {
 		return __position;
 	}
 
 	/// Set the note position inside a pattern
-	void set_position( unsigned position )
-	{
+	void set_position( unsigned position ) {
 		__position = position;
 	}
 
 	/// Return the note velocity
-	float get_velocity() const
-	{
+	float get_velocity() const {
 		return __velocity;
 	}
 
 	/// Set the note velocity
-	void set_velocity( float velocity )
-	{
+	void set_velocity( float velocity ) {
 		if ( velocity > 1.0 ) {
 			velocity = 1.0;
 		} else if ( velocity < 0 ) {
@@ -153,12 +146,10 @@ public:
 	}
 
 
-	float get_pan_l() const
-	{
+	float get_pan_l() const {
 		return __pan_l;
 	}
-	void set_pan_l( float pan )
-	{
+	void set_pan_l( float pan ) {
 		if ( pan > 0.5 ) {
 			INFOLOG( "Pan R > 0.5" );
 			pan = 0.5;
@@ -166,12 +157,10 @@ public:
 		__pan_l = pan;
 	}
 
-	float get_pan_r() const
-	{
+	float get_pan_r() const {
 		return __pan_r;
 	}
-	void set_pan_r( float pan )
-	{
+	void set_pan_r( float pan ) {
 		if ( pan > 0.5 ) {
 			INFOLOG( "Pan R > 0.5" );
 			pan = 0.5;
@@ -180,21 +169,17 @@ public:
 	}
 
 
-	void set_lenght( int lenght )
-	{
+	void set_lenght( int lenght ) {
 		__lenght = lenght;
 	}
-	int get_lenght() const
-	{
+	int get_lenght() const {
 		return __lenght;
 	}
 
-	void set_pitch( float pitch )
-	{
+	void set_pitch( float pitch ) {
 		__pitch = pitch;
 	}
-	float get_pitch() const
-	{
+	float get_pitch() const {
 		return __pitch;
 	}
 

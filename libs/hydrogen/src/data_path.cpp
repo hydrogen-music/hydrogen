@@ -1,5 +1,5 @@
 /* Hydrogen
- * Copyright(c) 2002-2007 Jonathan Dempsey, Alessandro Cominu
+ * Copyright(c) 2002-2008 Jonathan Dempsey, Alessandro Cominu
  *
  * http://www.hydrogen-music.org
  *
@@ -37,7 +37,8 @@ using namespace std;
 
 #include "config.h"
 
-namespace H2Core {
+namespace H2Core
+{
 
 std::string DataPath::__data_path = "";
 
@@ -47,19 +48,19 @@ std::string DataPath::get_data_path()
 
 	QString qStringPath = qApp->applicationDirPath() + QString ( "/../Resources/data" ) ;
 	return std::string( qStringPath.toStdString() );
-/*
-	if ( m_sDataPath == "" ) {
-		CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-		CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, kCFURLPOSIXPathStyle);
-		const char *path = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
-		CFRelease(pluginRef);
-		CFRelease(macPath);
+	/*
+		if ( m_sDataPath == "" ) {
+			CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+			CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, kCFURLPOSIXPathStyle);
+			const char *path = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
+			CFRelease(pluginRef);
+			CFRelease(macPath);
 
-		m_sDataPath = std::string( path ) + std::string( "/Contents/Resources/data" );
-	}
+			m_sDataPath = std::string( path ) + std::string( "/Contents/Resources/data" );
+		}
 
-	return m_sDataPath;
-*/
+		return m_sDataPath;
+	*/
 #elif WIN32
 
 	QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;

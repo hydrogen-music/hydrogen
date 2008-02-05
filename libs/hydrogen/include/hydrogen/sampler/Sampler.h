@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -64,8 +64,7 @@ public:
 
 	void stop_playing_notes( Instrument *instr = NULL );
 
-	int get_playing_notes_number()
-	{
+	int get_playing_notes_number() {
 		return __playing_notes_queue.size();
 	}
 

@@ -30,13 +30,14 @@
 using std::vector;
 using std::string;
 
-namespace H2Core {
+namespace H2Core
+{
 
 SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
- : Object( "SMFHeader" )
- , m_nFormat( nFormat )
- , m_nTracks( nTracks )
- , m_nTPQN( nTPQN )
+		: Object( "SMFHeader" )
+		, m_nFormat( nFormat )
+		, m_nTracks( nTracks )
+		, m_nTPQN( nTPQN )
 {
 	INFOLOG( "INIT" );
 }
@@ -70,7 +71,7 @@ vector<char> SMFHeader::getBuffer()
 
 
 SMFTrack::SMFTrack( const std::string& sTrackName )
- : Object( "SMFTrack" )
+		: Object( "SMFTrack" )
 {
 	INFOLOG( "INIT" );
 
@@ -83,7 +84,7 @@ SMFTrack::~SMFTrack()
 {
 	INFOLOG( "DESTROY" );
 
-	for (unsigned i = 0; i < m_eventList.size(); i++) {
+	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
 		delete m_eventList[ i ];
 	}
 }
@@ -95,7 +96,7 @@ std::vector<char> SMFTrack::getBuffer()
 	// fill the data vector
 	vector<char> trackData;
 
-	for (unsigned i = 0; i < m_eventList.size(); i++) {
+	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
 		SMFEvent *pEv = m_eventList[ i ];
 		vector<char> buf = pEv->getBuffer();
 
@@ -113,7 +114,7 @@ std::vector<char> SMFTrack::getBuffer()
 
 	vector<char> trackBuf = buf.getBuffer();
 
-	for (unsigned i = 0; i < trackData.size(); i++) {
+	for ( unsigned i = 0; i < trackData.size(); i++ ) {
 		trackBuf.push_back( trackData[i] );
 	}
 
@@ -144,7 +145,7 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 
 SMF::SMF()
- : Object( "SMF" )
+		: Object( "SMF" )
 {
 	INFOLOG( "INIT" );
 
@@ -159,7 +160,7 @@ SMF::~SMF()
 
 	delete m_pHeader;
 
-	for (unsigned i = 0; i < m_trackList.size(); i++) {
+	for ( unsigned i = 0; i < m_trackList.size(); i++ ) {
 		delete m_trackList[i];
 	}
 }
@@ -186,7 +187,7 @@ vector<char> SMF::getBuffer()
 
 
 	// tracks
-	for (unsigned nTrack = 0; nTrack < m_trackList.size(); nTrack++) {
+	for ( unsigned nTrack = 0; nTrack < m_trackList.size(); nTrack++ ) {
 		SMFTrack *pTrack = m_trackList[ nTrack ];
 		vector<char> trackVect = pTrack->getBuffer();
 		for ( unsigned i = 0; i < trackVect.size(); i++ ) {
@@ -204,8 +205,8 @@ vector<char> SMF::getBuffer()
 
 
 SMFWriter::SMFWriter()
- : Object( "SMFWriter" )
- , m_file( NULL )
+		: Object( "SMFWriter" )
+		, m_file( NULL )
 {
 	INFOLOG( "INIT" );
 }
@@ -235,14 +236,14 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 	int nTick = 1;
 	for ( unsigned nPatternList = 0; nPatternList < pSong->get_pattern_group_vector()->size(); nPatternList++ ) {
 //		infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
-		PatternList *pPatternList = (*( pSong->get_pattern_group_vector() ) )[ nPatternList ];
+		PatternList *pPatternList = ( *( pSong->get_pattern_group_vector() ) )[ nPatternList ];
 
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
 		for ( unsigned nPattern = 0; nPattern < pPatternList->get_size(); nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
 //			infoLog( "      |-> pattern: " + pPattern->getName() );
-			if ( (int)pPattern->get_lenght() > nMaxPatternLength ) {
+			if ( ( int )pPattern->get_lenght() > nMaxPatternLength ) {
 				nMaxPatternLength = pPattern->get_lenght();
 			}
 
@@ -251,7 +252,7 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 				for ( pos = pPattern->note_map.lower_bound( nNote ); pos != pPattern->note_map.upper_bound( nNote ); ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote ) {
-						int nVelocity = (int)( 127.0 * pNote->get_velocity());
+						int nVelocity = ( int )( 127.0 * pNote->get_velocity() );
 						int nPitch = 36 + nNote;
 						eventList.push_back( new SMFNoteOnEvent( nStartTicks + nNote, DRUM_CHANNEL, nPitch, nVelocity ) );
 
@@ -298,7 +299,7 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 	// save the midi file
 	m_file = fopen( sFilename.c_str(), "wb" );
 	vector<char> smfVect = smf.getBuffer();
-	for (unsigned i = 0; i < smfVect.size(); i++) {
+	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
 		fwrite( &smfVect[ i ], 1, 1, m_file );
 	}
 	fclose( m_file );

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -36,10 +36,11 @@
 #include <fcntl.h>
 #include <errno.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 SoundLibrary::SoundLibrary()
-: Object( "SoundLibrary" )
+		: Object( "SoundLibrary" )
 {
 }
 
@@ -56,8 +57,8 @@ SoundLibrary::~SoundLibrary()
 
 
 Drumkit::Drumkit()
- : Object( "Drumkit" )
- , m_pInstrumentList( NULL )
+		: Object( "Drumkit" )
+		, m_pInstrumentList( NULL )
 {
 }
 
@@ -103,21 +104,19 @@ void Drumkit::dump()
 	INFOLOG( "\t|- Info = " + m_sInfo );
 
 	INFOLOG( "\t|- Instrument list" );
-	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->get_size(); ++nInstrument) {
+	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->get_size(); ++nInstrument ) {
 		Instrument *pInstr = m_pInstrumentList->get( nInstrument );
-		INFOLOG( "\t\t|- (" + to_string( nInstrument ) + " of " + to_string( m_pInstrumentList->get_size() ) + ") Name = " + pInstr->get_name());
+		INFOLOG( "\t\t|- (" + to_string( nInstrument ) + " of " + to_string( m_pInstrumentList->get_size() ) + ") Name = " + pInstr->get_name() );
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 			InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
 			if ( pLayer ) {
 				Sample *pSample = pLayer->get_sample();
 				if ( pSample ) {
 					INFOLOG( "\t\t   |- " + pSample->get_filename() );
-				}
-				else {
+				} else {
 					INFOLOG( "\t\t   |- NULL sample" );
 				}
-			}
-			else {
+			} else {
 				INFOLOG( "\t\t   |- NULL Layer" );
 			}
 
@@ -152,18 +151,18 @@ void Drumkit::install( const std::string& filename )
 	char tarfilename[1024];
 	strcpy( tarfilename, gunzippedName.c_str() );
 
-	if (tar_open(&tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1) {
-		_ERRORLOG( "[Drumkit::install] tar_open(): " + strerror(errno) );
+	if ( tar_open( &tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) {
+		_ERRORLOG( "[Drumkit::install] tar_open(): " + strerror( errno ) );
 	}
 
 	char destDir[1024];
 	strcpy( destDir, dataDir.c_str() );
-	if ( tar_extract_all( tarFile, destDir ) != 0) {
-		_ERRORLOG( "[Drumkit::install] tar_extract_all(): " + strerror(errno) );
+	if ( tar_extract_all( tarFile, destDir ) != 0 ) {
+		_ERRORLOG( "[Drumkit::install] tar_extract_all(): " + strerror( errno ) );
 	}
 
 	if ( tar_close( tarFile ) != 0 ) {
-		_ERRORLOG( "[Drumkit::install] tar_close(): " + strerror(errno) );
+		_ERRORLOG( "[Drumkit::install] tar_close(): " + strerror( errno ) );
 	}
 }
 
@@ -184,7 +183,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 
 	for ( uint nInstrument = 0; nInstrument < pSongInstrList->get_size(); nInstrument++ ) {
 		Instrument *pOldInstr = pSongInstrList->get( nInstrument );
-		Instrument *pNewInstr = new Instrument(pOldInstr->get_id(), pOldInstr->get_name(), new ADSR( *(pOldInstr->get_adsr()) ));
+		Instrument *pNewInstr = new Instrument( pOldInstr->get_id(), pOldInstr->get_name(), new ADSR( *( pOldInstr->get_adsr() ) ) );
 		pNewInstr->set_volume( pOldInstr->get_volume() );
 		pNewInstr->set_pan_l( pOldInstr->get_pan_l() );
 		pNewInstr->set_pan_r( pOldInstr->get_pan_r() );
@@ -212,8 +211,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 				pLayer->set_end_velocity( pOldLayer->get_end_velocity() );
 
 				pNewInstr->set_layer( pLayer, nLayer );
-			}
-			else {
+			} else {
 				pNewInstr->set_layer( NULL, nLayer );
 			}
 		}
@@ -224,7 +222,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 
 	LocalFileMng fileMng;
 	int err = fileMng.saveDrumkit( pDrumkitInfo );
-	if (err != 0) {
+	if ( err != 0 ) {
 		_ERRORLOG( "Error saving the drumkit" );
 		throw H2Exception( "Error saving the drumkit" );
 	}

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -28,22 +28,23 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <portmidi.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class PortMidiDriver : public MidiInput
 {
-	public:
-		PmStream *m_pMidiIn;
-		bool m_bRunning;
+public:
+	PmStream *m_pMidiIn;
+	bool m_bRunning;
 
-		PortMidiDriver();
-		virtual ~PortMidiDriver();
+	PortMidiDriver();
+	virtual ~PortMidiDriver();
 
-		virtual void open();
-		virtual void close();
-		virtual std::vector<std::string> getOutputPortList();
+	virtual void open();
+	virtual void close();
+	virtual std::vector<std::string> getOutputPortList();
 
-	private:
+private:
 
 };
 

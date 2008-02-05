@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -37,10 +37,11 @@ using namespace std;
 #define LADSPA_IS_CONTROL_OUTPUT(x) (LADSPA_IS_PORT_OUTPUT(x) && LADSPA_IS_PORT_CONTROL(x))
 #define LADSPA_IS_AUDIO_OUTPUT(x) (LADSPA_IS_PORT_OUTPUT(x) && LADSPA_IS_PORT_AUDIO(x))
 
-namespace H2Core {
+namespace H2Core
+{
 
 LadspaFXGroup::LadspaFXGroup( const std::string& sName )
- : Object( "LadspaFXGroup" )
+		: Object( "LadspaFXGroup" )
 {
 //	infoLog( "INIT - " + sName );
 	m_sName = sName;
@@ -51,14 +52,14 @@ LadspaFXGroup::~LadspaFXGroup()
 {
 //	infoLog( "DESTROY - " + m_sName );
 
-	for ( int i = 0; i < (int)m_childGroups.size(); ++i ) {
+	for ( int i = 0; i < ( int )m_childGroups.size(); ++i ) {
 		delete m_childGroups[ i ];
 	}
 }
 
 
 
-void LadspaFXGroup::addLadspaInfo(LadspaFXInfo *pInfo)
+void LadspaFXGroup::addLadspaInfo( LadspaFXInfo *pInfo )
 {
 	m_ladspaList.push_back( pInfo );
 }
@@ -75,7 +76,7 @@ void LadspaFXGroup::addChild( LadspaFXGroup *pChild )
 
 
 LadspaFXInfo::LadspaFXInfo( const std::string& sName )
- : Object( "LadspaFXInfo" )
+		: Object( "LadspaFXInfo" )
 {
 //	infoLog( "INIT - " + sName );
 	m_sFilename = "";
@@ -100,24 +101,24 @@ LadspaFXInfo::~LadspaFXInfo()
 
 // ctor
 LadspaFX::LadspaFX( const std::string& sLibraryPath, const std::string& sPluginLabel )
- : Object( "LadspaFX" )
- //, m_nBufferSize( 0 )
- , m_pBuffer_L( NULL )
- , m_pBuffer_R( NULL )
- , m_pluginType( UNDEFINED )
- , m_bEnabled( false )
- , m_sLabel( sPluginLabel )
- , m_sLibraryPath( sLibraryPath )
- , m_pLibrary( NULL )
- , m_d( NULL )
- , m_handle( NULL )
- , m_fVolume( 1.0f )
- , m_nICPorts( 0 )
- , m_nOCPorts( 0 )
- , m_nIAPorts( 0 )
- , m_nOAPorts( 0 )
+		: Object( "LadspaFX" )
+//, m_nBufferSize( 0 )
+		, m_pBuffer_L( NULL )
+		, m_pBuffer_R( NULL )
+		, m_pluginType( UNDEFINED )
+		, m_bEnabled( false )
+		, m_sLabel( sPluginLabel )
+		, m_sLibraryPath( sLibraryPath )
+		, m_pLibrary( NULL )
+		, m_d( NULL )
+		, m_handle( NULL )
+		, m_fVolume( 1.0f )
+		, m_nICPorts( 0 )
+		, m_nOCPorts( 0 )
+		, m_nIAPorts( 0 )
+		, m_nOAPorts( 0 )
 {
-	INFOLOG( string("INIT - ") + sLibraryPath + " - " + sPluginLabel );
+	INFOLOG( string( "INIT - " ) + sLibraryPath + " - " + sPluginLabel );
 
 
 	m_pBuffer_L = new float[MAX_BUFFER_SIZE];
@@ -125,7 +126,7 @@ LadspaFX::LadspaFX( const std::string& sLibraryPath, const std::string& sPluginL
 
 
 	// Touch all the memory (is this really necessary?)
-	for (unsigned i = 0; i < MAX_BUFFER_SIZE; ++i) {
+	for ( unsigned i = 0; i < MAX_BUFFER_SIZE; ++i ) {
 		m_pBuffer_L[ i ] = 0;
 		m_pBuffer_R[ i ] = 0;
 	}
@@ -137,17 +138,17 @@ LadspaFX::LadspaFX( const std::string& sLibraryPath, const std::string& sPluginL
 LadspaFX::~LadspaFX()
 {
 	// dealloca il plugin
-	INFOLOG( string("DESTROY - ") + m_sLibraryPath + " - " + m_sLabel );
+	INFOLOG( string( "DESTROY - " ) + m_sLibraryPath + " - " + m_sLabel );
 
-	if (m_d) {
-		if (m_d->deactivate) {
+	if ( m_d ) {
+		if ( m_d->deactivate ) {
 			if ( m_handle ) {
 				INFOLOG( "deactivate" );
 				m_d->deactivate( m_handle );
 			}
 		}
 
-		if (m_d->cleanup) {
+		if ( m_d->cleanup ) {
 			if ( m_handle ) {
 				INFOLOG( "Cleanup" );
 				m_d->cleanup( m_handle );
@@ -156,10 +157,10 @@ LadspaFX::~LadspaFX()
 	}
 	delete m_pLibrary;
 
-	for (unsigned i = 0; i < inputControlPorts.size(); i++) {
+	for ( unsigned i = 0; i < inputControlPorts.size(); i++ ) {
 		delete inputControlPorts[i];
 	}
-	for (unsigned i = 0; i < outputControlPorts.size(); i++) {
+	for ( unsigned i = 0; i < outputControlPorts.size(); i++ ) {
 		delete outputControlPorts[i];
 	}
 
@@ -173,12 +174,12 @@ LadspaFX::~LadspaFX()
 // Static
 LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sPluginLabel, long nSampleRate )
 {
-	LadspaFX* pFX = new LadspaFX( sLibraryPath, sPluginLabel);
+	LadspaFX* pFX = new LadspaFX( sLibraryPath, sPluginLabel );
 
 	_INFOLOG( "INIT - " + sLibraryPath + " - " + sPluginLabel );
 
 	pFX->m_pLibrary = new QLibrary( QString( sLibraryPath.c_str() ) );
-	LADSPA_Descriptor_Function desc_func = (LADSPA_Descriptor_Function)pFX->m_pLibrary->resolve( "ladspa_descriptor" );
+	LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )pFX->m_pLibrary->resolve( "ladspa_descriptor" );
 	if ( desc_func == NULL ) {
 		_ERRORLOG( "Error loading the library. (" + sLibraryPath + ")" );
 		delete pFX;
@@ -189,33 +190,28 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 			string sName = pFX->m_d->Name;
 			string sLabel = pFX->m_d->Label;
 
-			if (sLabel != sPluginLabel) {
+			if ( sLabel != sPluginLabel ) {
 				continue;
 			}
 			pFX->setPluginName( sName );
 
-			for (unsigned j = 0; j < pFX->m_d->PortCount; j++) {
+			for ( unsigned j = 0; j < pFX->m_d->PortCount; j++ ) {
 				LADSPA_PortDescriptor pd = pFX->m_d->PortDescriptors[j];
 				if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
 					pFX->m_nICPorts++;
-				}
-				else if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
+				} else if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
 					pFX->m_nIAPorts++;
-				}
-				else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
+				} else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
 					pFX->m_nOCPorts++;
-				}
-				else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
+				} else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
 					pFX->m_nOAPorts++;
-				}
-				else {
+				} else {
 					_ERRORLOG( "Unknown port type" );
 				}
 			}
 			break;
 		}
-	}
-	else {
+	} else {
 		_ERRORLOG( "Error in dlsym" );
 		delete pFX;
 		return NULL;
@@ -223,20 +219,18 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 
 	if ( ( pFX->m_nIAPorts == 2 ) && ( pFX->m_nOAPorts == 2 ) ) {		// Stereo plugin
 		pFX->m_pluginType = STEREO_FX;
-	}
-	else if ( ( pFX->m_nIAPorts == 1 ) && ( pFX->m_nOAPorts == 1 ) ) {	// Mono plugin
+	} else if ( ( pFX->m_nIAPorts == 1 ) && ( pFX->m_nOAPorts == 1 ) ) {	// Mono plugin
 		pFX->m_pluginType = MONO_FX;
-	}
-	else {
+	} else {
 		_ERRORLOG( "Wrong number of ports" );
-		_ERRORLOG( "in audio = " + to_string(pFX->m_nIAPorts) );
-		_ERRORLOG( "out audio = " + to_string(pFX->m_nOAPorts) );
+		_ERRORLOG( "in audio = " + to_string( pFX->m_nIAPorts ) );
+		_ERRORLOG( "out audio = " + to_string( pFX->m_nOAPorts ) );
 	}
 
 	//pFX->infoLog( "[LadspaFX::load] instantiate " + pFX->getPluginName() );
-	pFX->m_handle = pFX->m_d->instantiate( pFX->m_d, nSampleRate);
+	pFX->m_handle = pFX->m_d->instantiate( pFX->m_d, nSampleRate );
 
-	for ( unsigned nPort = 0; nPort < pFX->m_d->PortCount; nPort++) {
+	for ( unsigned nPort = 0; nPort < pFX->m_d->PortCount; nPort++ ) {
 		LADSPA_PortDescriptor pd = pFX->m_d->PortDescriptors[ nPort ];
 
 		if ( LADSPA_IS_CONTROL_INPUT( pd ) ) {
@@ -277,14 +271,14 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 				}
 				if ( LADSPA_IS_HINT_DEFAULT_LOW( rangeHints.HintDescriptor ) ) {
 					// TODO: bisogna gestire diversamente se viene specificato di usare la scala logaritmica
-					fDefault = (fMin * 0.75 + fMax * 0.25);
+					fDefault = ( fMin * 0.75 + fMax * 0.25 );
 				}
 				if ( LADSPA_IS_HINT_DEFAULT_MIDDLE( rangeHints.HintDescriptor ) ) {
-					fDefault = (fMax - fMin) / 2.0;
+					fDefault = ( fMax - fMin ) / 2.0;
 				}
 				if ( LADSPA_IS_HINT_DEFAULT_HIGH( rangeHints.HintDescriptor ) ) {
 					// TODO: bisogna gestire diversamente se viene specificato di usare la scala logaritmica
-					fDefault = (fMin * 0.25 + fMax * 0.75);
+					fDefault = ( fMin * 0.25 + fMax * 0.75 );
 				}
 				if ( LADSPA_IS_HINT_DEFAULT_MAXIMUM( rangeHints.HintDescriptor ) ) {
 					fDefault = fMax;
@@ -311,12 +305,11 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 			pControl->isToggle = isToggle;
 			pControl->m_bIsInteger = isInteger;
 
-			_INFOLOG( "Input control port\t[" + sName + "]\tmin=" + to_string(fMin) + ",\tmax=" + to_string(fMax) + ",\tcontrolValue=" + to_string(pControl->fControlValue) );
+			_INFOLOG( "Input control port\t[" + sName + "]\tmin=" + to_string( fMin ) + ",\tmax=" + to_string( fMax ) + ",\tcontrolValue=" + to_string( pControl->fControlValue ) );
 
 			pFX->inputControlPorts.push_back( pControl );
-			pFX->m_d->connect_port( pFX->m_handle, nPort, &(pControl->fControlValue) );
-		}
-		else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
+			pFX->m_d->connect_port( pFX->m_handle, nPort, &( pControl->fControlValue ) );
+		} else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
 			string sName = pFX->m_d->PortNames[ nPort ];
 			float fMin = 0.0;
 			float fMax = 0.0;
@@ -330,14 +323,14 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 				fMax = ( pFX->m_d->PortRangeHints[ nPort ] ).UpperBound;
 			}
 
-/*			LadspaControlPort* pControl = new LadspaControlPort();
-			pControl->sName = pFX->m_d->PortNames[ nPort ];
-			pControl->fLowerBound = ( pFX->m_d->PortRangeHints[ nPort ] ).LowerBound;
-			pControl->fUpperBound = ( pFX->m_d->PortRangeHints[ nPort ] ).UpperBound;
-			pControl->fControlValue = pControl->fUpperBound / 2.0;
-*/
+			/*			LadspaControlPort* pControl = new LadspaControlPort();
+						pControl->sName = pFX->m_d->PortNames[ nPort ];
+						pControl->fLowerBound = ( pFX->m_d->PortRangeHints[ nPort ] ).LowerBound;
+						pControl->fUpperBound = ( pFX->m_d->PortRangeHints[ nPort ] ).UpperBound;
+						pControl->fControlValue = pControl->fUpperBound / 2.0;
+			*/
 			// always middle
-			fDefault = (fMax - fMin) / 2.0;
+			fDefault = ( fMax - fMin ) / 2.0;
 
 			LadspaControlPort* pControl = new LadspaControlPort();
 			pControl->sName = sName;
@@ -347,13 +340,10 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 			//pFX->infoLog( "[LadspaFX::load] Output control port\t[" + sName + "]\tmin=" + to_string(fMin) + ",\tmax=" + to_string(fMax) + ",\tcontrolValue=" + to_string(pControl->fControlValue) );
 
 			pFX->outputControlPorts.push_back( pControl );
-			pFX->m_d->connect_port( pFX->m_handle, nPort, &(pControl->fControlValue) );
-		}
-		else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
-		}
-		else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
-		}
-		else {
+			pFX->m_d->connect_port( pFX->m_handle, nPort, &( pControl->fControlValue ) );
+		} else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
+		} else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
+		} else {
 			_ERRORLOG( "unknown port" );
 		}
 	}
@@ -369,41 +359,33 @@ void LadspaFX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, flo
 
 	unsigned nAIConn = 0;
 	unsigned nAOConn = 0;
-	for ( unsigned nPort = 0; nPort < m_d->PortCount; nPort++) {
+	for ( unsigned nPort = 0; nPort < m_d->PortCount; nPort++ ) {
 		LADSPA_PortDescriptor pd = m_d->PortDescriptors[ nPort ];
 		if ( LADSPA_IS_CONTROL_INPUT( pd ) ) {
-		}
-		else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
-		}
-		else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
-			if (nAIConn == 0) {
+		} else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
+		} else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
+			if ( nAIConn == 0 ) {
 				m_d->connect_port( m_handle, nPort, pIn_L );
 				//infoLog( "connect input port (L): " + string( m_d->PortNames[ nPort ] ) );
-			}
-			else if (nAIConn == 1) {
+			} else if ( nAIConn == 1 ) {
 				m_d->connect_port( m_handle, nPort, pIn_R );
 				//infoLog( "connect input port (R): " + string( m_d->PortNames[ nPort ] ) );
-			}
-			else {
+			} else {
 				ERRORLOG( "too many input ports.." );
 			}
 			nAIConn++;
-		}
-		else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
-			if (nAOConn == 0) {
+		} else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
+			if ( nAOConn == 0 ) {
 				m_d->connect_port( m_handle, nPort, pOut_L );
 				//infoLog( "connect output port (L): " + string( m_d->PortNames[ nPort ] ) );
-			}
-			else if (nAOConn == 1) {
+			} else if ( nAOConn == 1 ) {
 				m_d->connect_port( m_handle, nPort, pOut_R );
 				//infoLog( "connect output port (R): " + string( m_d->PortNames[ nPort ] ) );
-			}
-			else {
+			} else {
 				ERRORLOG( "too many output ports.." );
 			}
 			nAOConn++;
-		}
-		else {
+		} else {
 			ERRORLOG( "unknown port" );
 		}
 	}
@@ -429,7 +411,7 @@ void LadspaFX::activate()
 void LadspaFX::deactivate()
 {
 	if ( m_d->deactivate ) {
-		INFOLOG( "deactivate " + getPluginName());
+		INFOLOG( "deactivate " + getPluginName() );
 		m_d->deactivate( m_handle );
 	}
 }
@@ -437,10 +419,9 @@ void LadspaFX::deactivate()
 
 void LadspaFX::setVolume( float fValue )
 {
-	if (fValue > 2.0) {
+	if ( fValue > 2.0 ) {
 		fValue = 2.0;
-	}
-	else if (fValue < 0.0 ){
+	} else if ( fValue < 0.0 ) {
 		fValue = 0.0;
 	}
 	m_fVolume = fValue;

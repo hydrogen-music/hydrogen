@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -29,39 +29,40 @@
 
 #include <cassert>
 
-namespace H2Core {
+namespace H2Core
+{
 
 
 Instrument::Instrument(
-		const std::string& id,
-		const std::string& name,
-		ADSR* adsr
+    const std::string& id,
+    const std::string& name,
+    ADSR* adsr
 )
- : Object( "Instrument" )
- , __adsr( adsr )
- , __id( id )
- , __name( name )
- , __filter_active( false )
- , __filter_cutoff( 1.0 )
- , __filter_resonance( 0.0 )
- , __random_pitch_factor( 0.0 )
- , __active( true )
- , __volume( 1.0 )
- , __muted( false )
- , __soloed( false )
- , __peak_l( 0.0 )
- , __peak_r( 0.0 )
- , __pan_l( 1.0 )
- , __pan_r( 1.0 )
- , __drumkit_name( "" )
- , __gain( 1.0 )
- , __mute_group( -1 )
+		: Object( "Instrument" )
+		, __adsr( adsr )
+		, __id( id )
+		, __name( name )
+		, __filter_active( false )
+		, __filter_cutoff( 1.0 )
+		, __filter_resonance( 0.0 )
+		, __random_pitch_factor( 0.0 )
+		, __active( true )
+		, __volume( 1.0 )
+		, __muted( false )
+		, __soloed( false )
+		, __peak_l( 0.0 )
+		, __peak_r( 0.0 )
+		, __pan_l( 1.0 )
+		, __pan_r( 1.0 )
+		, __drumkit_name( "" )
+		, __gain( 1.0 )
+		, __mute_group( -1 )
 {
-	for (unsigned nFX = 0; nFX < MAX_FX; ++nFX) {
+	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		__fx_level[ nFX ] = 0.0;
 	}
 
-	for (unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer) {
+	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 		__layer_list[ nLayer ] = NULL;
 	}
 }
@@ -82,12 +83,12 @@ Instrument::~Instrument()
 
 InstrumentLayer* Instrument::get_layer( int nLayer )
 {
-	if (nLayer < 0 ) {
-		ERRORLOG( "nLayer < 0 (nLayer=" + to_string(nLayer) + ")" );
+	if ( nLayer < 0 ) {
+		ERRORLOG( "nLayer < 0 (nLayer=" + to_string( nLayer ) + ")" );
 		return NULL;
 	}
-	if (nLayer >= MAX_LAYERS ) {
-		ERRORLOG( "nLayer > MAX_LAYERS (nLayer=" + to_string(nLayer) + ")" );
+	if ( nLayer >= MAX_LAYERS ) {
+		ERRORLOG( "nLayer > MAX_LAYERS (nLayer=" + to_string( nLayer ) + ")" );
 		return NULL;
 	}
 
@@ -98,10 +99,9 @@ InstrumentLayer* Instrument::get_layer( int nLayer )
 
 void Instrument::set_layer( InstrumentLayer* pLayer, unsigned nLayer )
 {
-	if (nLayer < MAX_LAYERS) {
+	if ( nLayer < MAX_LAYERS ) {
 		__layer_list[ nLayer ] = pLayer;
-	}
-	else {
+	} else {
 		ERRORLOG( "nLayer > MAX_LAYER" );
 	}
 }
@@ -114,8 +114,8 @@ void Instrument::set_adsr( ADSR* adsr )
 
 
 Instrument* Instrument::load_instrument(
-		const std::string& drumkit_name,
-		const std::string& instrument_name
+    const std::string& drumkit_name,
+    const std::string& instrument_name
 )
 {
 	Instrument *pInstrument = NULL;
@@ -128,13 +128,13 @@ Instrument* Instrument::load_instrument(
 	InstrumentList *pInstrList = pDrumkitInfo->getInstrumentList();
 	for ( unsigned nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
-		if ( pInstr->get_name() == instrument_name) {
+		if ( pInstr->get_name() == instrument_name ) {
 			// creo un nuovo strumento
 
-			pInstrument = new Instrument("", "", new ADSR( *( pInstr->get_adsr() ) ));
+			pInstrument = new Instrument( "", "", new ADSR( *( pInstr->get_adsr() ) ) );
 
 			// copio tutte le proprieta' dello strumento
-			pInstrument->set_name( pInstr->get_name());
+			pInstrument->set_name( pInstr->get_name() );
 			pInstrument->set_pan_l( pInstr->get_pan_l() );
 			pInstrument->set_pan_r( pInstr->get_pan_r() );
 			pInstrument->set_volume( pInstr->get_volume() );
@@ -157,8 +157,7 @@ Instrument* Instrument::load_instrument(
 					pLayer->set_end_velocity( pOrigLayer->get_end_velocity() );
 					pLayer->set_gain( pOrigLayer->get_gain() );
 					pInstrument->set_layer( pLayer, nLayer );
-				}
-				else {
+				} else {
 					pInstrument->set_layer( NULL, nLayer );
 				}
 			}
@@ -177,39 +176,41 @@ Instrument* Instrument::load_instrument(
 
 
 InstrumentList::InstrumentList()
- : Object( "InstrumentList" )
+		: Object( "InstrumentList" )
 {
 //	infoLog("INIT");
 }
 
 
 
-InstrumentList::~InstrumentList() {
+InstrumentList::~InstrumentList()
+{
 //	infoLog("DESTROY");
-	for (unsigned int i = 0; i < m_list.size(); ++i) {
+	for ( unsigned int i = 0; i < m_list.size(); ++i ) {
 		delete m_list[i];
 	}
 }
 
 
 
-void InstrumentList::add(Instrument* newInstrument) {
-	m_list.push_back(newInstrument);
+void InstrumentList::add( Instrument* newInstrument )
+{
+	m_list.push_back( newInstrument );
 	m_posmap[newInstrument] = m_list.size() - 1;
 }
 
 
 
-Instrument* InstrumentList::get(unsigned int pos)
+Instrument* InstrumentList::get( unsigned int pos )
 {
 	if ( pos >= m_list.size() ) {
-		ERRORLOG( "pos > list.size(). pos = " + to_string(pos) );
+		ERRORLOG( "pos > list.size(). pos = " + to_string( pos ) );
 		return NULL;
 	}
-/*	else if ( pos < 0 ) {
-		ERRORLOG( "pos < 0. pos = " + to_string(pos) );
-		return NULL;
-	}*/
+	/*	else if ( pos < 0 ) {
+			ERRORLOG( "pos < 0. pos = " + to_string(pos) );
+			return NULL;
+		}*/
 	return m_list[pos];
 }
 
@@ -245,7 +246,7 @@ void InstrumentList::replace( Instrument* pNewInstr, unsigned nPos )
 
 void InstrumentList::del( int pos )
 {
-	assert( pos < (int)m_list.size() );
+	assert( pos < ( int )m_list.size() );
 	assert( pos >= 0 );
 	m_list.erase( m_list.begin() + pos );
 }
@@ -254,12 +255,12 @@ void InstrumentList::del( int pos )
 
 
 InstrumentLayer::InstrumentLayer( Sample *sample )
- : Object( "InstrumentLayer" )
- , __start_velocity( 0.0 )
- , __end_velocity( 1.0 )
- , __pitch( 0.0 )
- , __gain( 1.0 )
- , __sample( sample )
+		: Object( "InstrumentLayer" )
+		, __start_velocity( 0.0 )
+		, __end_velocity( 1.0 )
+		, __pitch( 0.0 )
+		, __gain( 1.0 )
+		, __sample( sample )
 {
 	//infoLog( "INIT" );
 }
@@ -268,7 +269,8 @@ InstrumentLayer::InstrumentLayer( Sample *sample )
 
 InstrumentLayer::~InstrumentLayer()
 {
-	delete __sample; __sample = NULL;
+	delete __sample;
+	__sample = NULL;
 	//infoLog( "DESTROY" );
 }
 

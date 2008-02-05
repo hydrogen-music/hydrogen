@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -34,7 +34,8 @@
 
 using namespace std;
 
-namespace H2Core {
+namespace H2Core
+{
 
 pthread_t midiDriverThread;
 
@@ -47,10 +48,10 @@ int portId;
 int clientId;
 
 
-void* alsaMidiDriver_thread(void* param)
+void* alsaMidiDriver_thread( void* param )
 {
 	AlsaMidiDriver *pDriver = ( AlsaMidiDriver* )param;
-	_INFOLOG( "starting");
+	_INFOLOG( "starting" );
 
 	if ( seq_handle != NULL ) {
 		_ERRORLOG( "seq_handle != NULL" );
@@ -59,22 +60,21 @@ void* alsaMidiDriver_thread(void* param)
 
 	int err;
 	if ( ( err = snd_seq_open( &seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0 ) ) < 0 ) {
-		_ERRORLOG( "Error opening ALSA sequencer: " + string( snd_strerror(err) ) );
+		_ERRORLOG( "Error opening ALSA sequencer: " + string( snd_strerror( err ) ) );
 		pthread_exit( NULL );
 	}
 
 	snd_seq_set_client_name( seq_handle, "Hydrogen" );
 
-	if ( (portId = snd_seq_create_simple_port( 	seq_handle,
-									"Hydrogen Midi-In",
-									SND_SEQ_PORT_CAP_WRITE |
-									SND_SEQ_PORT_CAP_SUBS_WRITE,
-									SND_SEQ_PORT_TYPE_APPLICATION
-									)
-			) < 0)
-	{
+	if ( ( portId = snd_seq_create_simple_port( 	seq_handle,
+	                "Hydrogen Midi-In",
+	                SND_SEQ_PORT_CAP_WRITE |
+	                SND_SEQ_PORT_CAP_SUBS_WRITE,
+	                SND_SEQ_PORT_TYPE_APPLICATION
+	                                          )
+	     ) < 0 ) {
 		_ERRORLOG( "Error creating sequencer port." );
-		pthread_exit(NULL);
+		pthread_exit( NULL );
 	}
 	clientId = snd_seq_client_id( seq_handle );
 
@@ -104,20 +104,20 @@ void* alsaMidiDriver_thread(void* param)
 		snd_seq_port_subscribe_set_dest( subs, &dest );
 
 		/* subscribe */
-		int ret = snd_seq_subscribe_port(seq_handle, subs);
-		if ( ret < 0 ){
-			_ERRORLOG( "snd_seq_connect_from(" + to_string(m_dest_addr_client) + ":" + to_string(m_dest_addr_port) +" error" );
+		int ret = snd_seq_subscribe_port( seq_handle, subs );
+		if ( ret < 0 ) {
+			_ERRORLOG( "snd_seq_connect_from(" + to_string( m_dest_addr_client ) + ":" + to_string( m_dest_addr_port ) +" error" );
 		}
 	}
 
-	_INFOLOG( "Midi input port at " + to_string(clientId) + ":" + to_string(portId) );
+	_INFOLOG( "Midi input port at " + to_string( clientId ) + ":" + to_string( portId ) );
 
 	npfd = snd_seq_poll_descriptors_count( seq_handle, POLLIN );
 	pfd = ( struct pollfd* )alloca( npfd * sizeof( struct pollfd ) );
 	snd_seq_poll_descriptors( seq_handle, pfd, npfd, POLLIN );
 
 	_INFOLOG( "MIDI Thread INIT" );
-	while( isMidiDriverRunning ) {
+	while ( isMidiDriverRunning ) {
 		if ( poll( pfd, npfd, 100 ) > 0 ) {
 			pDriver->midi_action( seq_handle );
 		}
@@ -126,7 +126,7 @@ void* alsaMidiDriver_thread(void* param)
 	seq_handle = NULL;
 	_INFOLOG( "MIDI Thread DESTROY" );
 
-	pthread_exit(NULL);
+	pthread_exit( NULL );
 	return NULL;
 }
 
@@ -135,7 +135,7 @@ void* alsaMidiDriver_thread(void* param)
 
 
 AlsaMidiDriver::AlsaMidiDriver()
- : MidiInput( "AlsaMidiDriver" )
+		: MidiInput( "AlsaMidiDriver" )
 {
 //	infoLog("INIT");
 }
@@ -159,8 +159,8 @@ void AlsaMidiDriver::open()
 	// start main thread
 	isMidiDriverRunning = true;
 	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_create(&midiDriverThread, &attr, alsaMidiDriver_thread, (void*)this);
+	pthread_attr_init( &attr );
+	pthread_create( &midiDriverThread, &attr, alsaMidiDriver_thread, ( void* )this );
 }
 
 
@@ -169,18 +169,18 @@ void AlsaMidiDriver::open()
 void AlsaMidiDriver::close()
 {
 	isMidiDriverRunning = false;
-	pthread_join(midiDriverThread, NULL);
+	pthread_join( midiDriverThread, NULL );
 }
 
 
 
 
 
-void AlsaMidiDriver::midi_action(snd_seq_t *seq_handle)
+void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	int nState = engine->getState();
-	if ( (nState != STATE_READY) && (nState != STATE_PLAYING) ) {
+	if ( ( nState != STATE_READY ) && ( nState != STATE_PLAYING ) ) {
 		ERRORLOG( "Skipping midi event! Audio engine not ready." );
 		return;
 	}
@@ -189,97 +189,96 @@ void AlsaMidiDriver::midi_action(snd_seq_t *seq_handle)
 
 	snd_seq_event_t *ev;
 	do {
-		if (!seq_handle) {
+		if ( !seq_handle ) {
 			break;
 		}
-		snd_seq_event_input(seq_handle, &ev);
+		snd_seq_event_input( seq_handle, &ev );
 
-		if (m_bActive) {
+		if ( m_bActive ) {
 
 			MidiMessage msg;
 
 			switch ( ev->type ) {
-				case SND_SEQ_EVENT_NOTEON:
-					msg.m_type = MidiMessage::NOTE_ON;
-					msg.m_nData1 = ev->data.note.note;
-					msg.m_nData2 = ev->data.note.velocity;
-					msg.m_nChannel = ev->data.control.channel;
-					break;
+			case SND_SEQ_EVENT_NOTEON:
+				msg.m_type = MidiMessage::NOTE_ON;
+				msg.m_nData1 = ev->data.note.note;
+				msg.m_nData2 = ev->data.note.velocity;
+				msg.m_nChannel = ev->data.control.channel;
+				break;
 
-				case SND_SEQ_EVENT_NOTEOFF:
-					msg.m_type = MidiMessage::NOTE_OFF;
-					msg.m_nData1 = ev->data.note.note;
-					msg.m_nData2 = ev->data.note.velocity;
-					msg.m_nChannel = ev->data.control.channel;
-					break;
+			case SND_SEQ_EVENT_NOTEOFF:
+				msg.m_type = MidiMessage::NOTE_OFF;
+				msg.m_nData1 = ev->data.note.note;
+				msg.m_nData2 = ev->data.note.velocity;
+				msg.m_nChannel = ev->data.control.channel;
+				break;
 
-				case SND_SEQ_EVENT_CONTROLLER:
-					msg.m_type = MidiMessage::CONTROL_CHANGE;
-					break;
+			case SND_SEQ_EVENT_CONTROLLER:
+				msg.m_type = MidiMessage::CONTROL_CHANGE;
+				break;
 
-				case SND_SEQ_EVENT_SYSEX:
-					{
-						msg.m_type = MidiMessage::SYSEX;
-						snd_midi_event_t *seq_midi_parser;
-						if( snd_midi_event_new( 32, &seq_midi_parser ) ) {
-							ERRORLOG( "Error creating midi event parser" );
-						}
-						unsigned char midi_event_buffer[ 256 ];
-						int _bytes_read = snd_midi_event_decode( seq_midi_parser, midi_event_buffer, 32, ev );
+			case SND_SEQ_EVENT_SYSEX: {
+				msg.m_type = MidiMessage::SYSEX;
+				snd_midi_event_t *seq_midi_parser;
+				if ( snd_midi_event_new( 32, &seq_midi_parser ) ) {
+					ERRORLOG( "Error creating midi event parser" );
+				}
+				unsigned char midi_event_buffer[ 256 ];
+				int _bytes_read = snd_midi_event_decode( seq_midi_parser, midi_event_buffer, 32, ev );
 
-						for (int i = 0; i < _bytes_read; ++i ) {
-							msg.m_sysexData.push_back( midi_event_buffer[ i ] );
-						}
-					}
-					break;
+				for ( int i = 0; i < _bytes_read; ++i ) {
+					msg.m_sysexData.push_back( midi_event_buffer[ i ] );
+				}
+			}
+			break;
 
-				case SND_SEQ_EVENT_QFRAME:
-					msg.m_type = MidiMessage::QUARTER_FRAME;
-					break;
+			case SND_SEQ_EVENT_QFRAME:
+				msg.m_type = MidiMessage::QUARTER_FRAME;
+				break;
 
-				case SND_SEQ_EVENT_CLOCK:
-					//cout << "!!! Midi CLock" << endl;
-					break;
+			case SND_SEQ_EVENT_CLOCK:
+				//cout << "!!! Midi CLock" << endl;
+				break;
 
-				case SND_SEQ_EVENT_SONGPOS:
-					msg.m_type = MidiMessage::SONG_POS;
-					break;
+			case SND_SEQ_EVENT_SONGPOS:
+				msg.m_type = MidiMessage::SONG_POS;
+				break;
 
-				case SND_SEQ_EVENT_START:
-					msg.m_type = MidiMessage::START;
-					break;
+			case SND_SEQ_EVENT_START:
+				msg.m_type = MidiMessage::START;
+				break;
 
-				case SND_SEQ_EVENT_CONTINUE:
-					msg.m_type = MidiMessage::CONTINUE;
-					break;
+			case SND_SEQ_EVENT_CONTINUE:
+				msg.m_type = MidiMessage::CONTINUE;
+				break;
 
-				case SND_SEQ_EVENT_STOP:
-					msg.m_type = MidiMessage::STOP;
-					break;
+			case SND_SEQ_EVENT_STOP:
+				msg.m_type = MidiMessage::STOP;
+				break;
 
-				case SND_SEQ_EVENT_PITCHBEND:
-					break;
+			case SND_SEQ_EVENT_PITCHBEND:
+				break;
 
-				case SND_SEQ_EVENT_PGMCHANGE:
-					break;
+			case SND_SEQ_EVENT_PGMCHANGE:
+				break;
 
-				case SND_SEQ_EVENT_CLIENT_EXIT:
-					INFOLOG( "SND_SEQ_EVENT_CLIENT_EXIT" );
-					break;
+			case SND_SEQ_EVENT_CLIENT_EXIT:
+				INFOLOG( "SND_SEQ_EVENT_CLIENT_EXIT" );
+				break;
 
-				case SND_SEQ_EVENT_PORT_SUBSCRIBED:
-					INFOLOG( "SND_SEQ_EVENT_PORT_SUBSCRIBED" );
-					break;
+			case SND_SEQ_EVENT_PORT_SUBSCRIBED:
+				INFOLOG( "SND_SEQ_EVENT_PORT_SUBSCRIBED" );
+				break;
 
-				case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
-					INFOLOG( "SND_SEQ_EVENT_PORT_UNSUBSCRIBED" );
-					break;
+			case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
+				INFOLOG( "SND_SEQ_EVENT_PORT_UNSUBSCRIBED" );
+				break;
 
-				case SND_SEQ_EVENT_SENSING:
-					break;
+			case SND_SEQ_EVENT_SENSING:
+				break;
 
-				default:
-					WARNINGLOG( "Unknown MIDI Event. type = " + to_string((int)ev->type) );
+			default:
+				WARNINGLOG( "Unknown MIDI Event. type = " + to_string( ( int )ev->type ) );
 			}
 			if ( msg.m_type != MidiMessage::UNKNOWN ) {
 				handleMidiMessage( msg );
@@ -320,16 +319,16 @@ std::vector<std::string> AlsaMidiDriver::getOutputPortList()
 		while ( snd_seq_query_next_port( seq_handle, pinfo ) >= 0 ) {
 
 			/* get its capability */
-			int cap =  snd_seq_port_info_get_capability(pinfo);
+			int cap =  snd_seq_port_info_get_capability( pinfo );
 
-			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client(pinfo) && snd_seq_port_info_get_client(pinfo) != 0 ) {
+			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
 				// output ports
 				if  (
-					(cap & SND_SEQ_PORT_CAP_SUBS_WRITE) != 0 &&
-					snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client(pinfo)
+				    ( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
+				    snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
 				) {
-					INFOLOG( snd_seq_port_info_get_name(pinfo) );
-					outputList.push_back( snd_seq_port_info_get_name(pinfo) );
+					INFOLOG( snd_seq_port_info_get_name( pinfo ) );
+					outputList.push_back( snd_seq_port_info_get_name( pinfo ) );
 					//info.m_nClient = snd_seq_port_info_get_client(pinfo);
 					//info.m_nPort = snd_seq_port_info_get_port(pinfo);
 				}
@@ -340,14 +339,14 @@ std::vector<std::string> AlsaMidiDriver::getOutputPortList()
 	return outputList;
 }
 
-void AlsaMidiDriver::getPortInfo(const std::string& sPortName, int& nClient, int& nPort)
+void AlsaMidiDriver::getPortInfo( const std::string& sPortName, int& nClient, int& nPort )
 {
 	if ( seq_handle == NULL ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
 
-	if (sPortName == "None" ) {
+	if ( sPortName == "None" ) {
 		nClient = -1;
 		nPort = -1;
 		return;
@@ -371,21 +370,20 @@ void AlsaMidiDriver::getPortInfo(const std::string& sPortName, int& nClient, int
 
 		// while the next port is avail
 		while ( snd_seq_query_next_port( seq_handle, pinfo ) >= 0 ) {
-			int cap =  snd_seq_port_info_get_capability(pinfo);
-			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client(pinfo) && snd_seq_port_info_get_client(pinfo) != 0 ) {
+			int cap =  snd_seq_port_info_get_capability( pinfo );
+			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
 				// output ports
 				if 	(
-					(cap & SND_SEQ_PORT_CAP_SUBS_WRITE) != 0 &&
-					snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client(pinfo)
-					)
-				{
-					string sName = snd_seq_port_info_get_name(pinfo);
+				    ( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
+				    snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
+				) {
+					string sName = snd_seq_port_info_get_name( pinfo );
 					if ( sName == sPortName ) {
-						nClient = snd_seq_port_info_get_client(pinfo);
-						nPort = snd_seq_port_info_get_port(pinfo);
+						nClient = snd_seq_port_info_get_client( pinfo );
+						nPort = snd_seq_port_info_get_port( pinfo );
 
-						INFOLOG( "nClient " + to_string(nClient) );
-						INFOLOG( "nPort " + to_string(nPort) );
+						INFOLOG( "nClient " + to_string( nClient ) );
+						INFOLOG( "nPort " + to_string( nPort ) );
 						return;
 					}
 				}

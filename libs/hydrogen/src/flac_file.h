@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,7 +26,8 @@
 #include <hydrogen/Object.h>
 #include <string>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class Sample;
 
@@ -34,11 +35,11 @@ class Sample;
 /// Class for FLAC file handling
 class FLACFile : public Object
 {
-	public:
-		FLACFile();
-		~FLACFile();
+public:
+	FLACFile();
+	~FLACFile();
 
-		Sample* load( const std::string& sFilename );
+	Sample* load( const std::string& sFilename );
 };
 
 };

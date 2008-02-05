@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -20,6 +20,7 @@
  *
  */
 
+#include "config.h"
 #include "AboutDialog.h"
 #include "Skin.h"
 
@@ -52,7 +53,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	move( 240, 100 );
 
 	QString about;
-	about += QString("<center><b>Hydrogen Drum Machine %1").arg(VERSION) + QString(" [") + QString( std::string(__DATE__).c_str() ) + "]  </b><br>";
+	about += QString("<center><b>Hydrogen Drum Machine %1").arg(VERSION.c_str()) + QString(" [") + QString( std::string(__DATE__).c_str() ) + "]  </b><br>";
 	//about += "<center><b>Hydrogen Drum Machine " + " [" + QString( std::string(__DATE__).c_str() ) + "]  </b><br>";
 	about += tr( "<b>Website</b><br>" );
 	about += "http://www.hydrogen-music.org<br><br>";

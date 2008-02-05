@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -28,16 +28,17 @@
 #include <pthread.h>
 #include <cassert>
 
-namespace H2Core {
+namespace H2Core
+{
 
 pthread_t diskWriterDriverThread;
 
-void* diskWriterDriver_thread(void* param)
+void* diskWriterDriver_thread( void* param )
 {
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 	_INFOLOG( "DiskWriterDriver thread start" );
 
- 	// always rolling, no user interaction
+	// always rolling, no user interaction
 	pDriver->m_transport.m_status = TransportInfo::ROLLING;
 
 
@@ -61,22 +62,22 @@ void* diskWriterDriver_thread(void* param)
 
 	while ( pDriver->m_processCallback( pDriver->m_nBufferSize, NULL ) == 0 ) {
 		// process...
-		for (unsigned i = 0; i < pDriver->m_nBufferSize; i++) {
+		for ( unsigned i = 0; i < pDriver->m_nBufferSize; i++ ) {
 			pData[i * 2] = pData_L[i];
 			pData[i * 2 + 1] = pData_R[i];
 		}
 		int res = sf_writef_float( m_file, pData, pDriver->m_nBufferSize );
-		if (res != (int)pDriver->m_nBufferSize ) {
+		if ( res != ( int )pDriver->m_nBufferSize ) {
 			_ERRORLOG( "Error during sf_write_float" );
 		}
 
-		if ((pDriver->m_transport.m_nFrames % 65536) == 0) {
+		if ( ( pDriver->m_transport.m_nFrames % 65536 ) == 0 ) {
 			int nPatterns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size();
 			int nCurrentPatternPos = Hydrogen::get_instance()->getPatternPos();
 			assert( nCurrentPatternPos != -1 );
 
-			float fPercent = (float) nCurrentPatternPos / (float)nPatterns * 100.0;
-			EventQueue::get_instance()->push_event( EVENT_PROGRESS, (int)fPercent );
+			float fPercent = ( float ) nCurrentPatternPos / ( float )nPatterns * 100.0;
+			EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
 			_INFOLOG( "DiskWriterDriver: " + to_string( fPercent ) + "%, transport frames:" + to_string( pDriver->m_transport.m_nFrames ) );
 		}
 	}
@@ -89,7 +90,7 @@ void* diskWriterDriver_thread(void* param)
 
 	_INFOLOG( "DiskWriterDriver thread end" );
 
-	pthread_exit(NULL);
+	pthread_exit( NULL );
 	return NULL;
 }
 
@@ -97,25 +98,26 @@ void* diskWriterDriver_thread(void* param)
 
 
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, std::string sFilename )
- : AudioOutput( "DiskWriterDriver" )
- , m_nSampleRate( nSamplerate )
- , m_sFilename( sFilename )
- , m_processCallback( processCallback )
+		: AudioOutput( "DiskWriterDriver" )
+		, m_nSampleRate( nSamplerate )
+		, m_sFilename( sFilename )
+		, m_processCallback( processCallback )
 {
 	INFOLOG( "INIT" );
 }
 
 
 
-DiskWriterDriver::~DiskWriterDriver() {
+DiskWriterDriver::~DiskWriterDriver()
+{
 	INFOLOG( "DESTROY" );
 }
 
 
 
-int DiskWriterDriver::init(unsigned nBufferSize)
+int DiskWriterDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( "init, " + to_string(nBufferSize) + " samples" );
+	INFOLOG( "init, " + to_string( nBufferSize ) + " samples" );
 
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];
@@ -130,13 +132,14 @@ int DiskWriterDriver::init(unsigned nBufferSize)
 /// Connect
 /// return 0: Ok
 ///
-int DiskWriterDriver::connect() {
+int DiskWriterDriver::connect()
+{
 	INFOLOG( "[connect]" );
 
 	pthread_attr_t attr;
-	pthread_attr_init(&attr);
+	pthread_attr_init( &attr );
 
-	pthread_create(&diskWriterDriverThread, &attr, diskWriterDriver_thread, this);
+	pthread_create( &diskWriterDriverThread, &attr, diskWriterDriver_thread, this );
 
 	return 0;
 }
@@ -144,7 +147,8 @@ int DiskWriterDriver::connect() {
 
 
 /// disconnect
-void DiskWriterDriver::disconnect() {
+void DiskWriterDriver::disconnect()
+{
 	INFOLOG( "[disconnect]" );
 
 	delete[] m_pOut_L;
@@ -179,7 +183,7 @@ void DiskWriterDriver::stop()
 
 void DiskWriterDriver::locate( unsigned long nFrame )
 {
-	INFOLOG( "locate: " + to_string(nFrame) );
+	INFOLOG( "locate: " + to_string( nFrame ) );
 	m_transport.m_nFrames = nFrame;
 }
 
@@ -193,9 +197,9 @@ void DiskWriterDriver::updateTransportInfo()
 
 
 
-void DiskWriterDriver::setBpm(float fBPM)
+void DiskWriterDriver::setBpm( float fBPM )
 {
-	INFOLOG( "setBpm: " + to_string(fBPM) );
+	INFOLOG( "setBpm: " + to_string( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
 

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -24,10 +24,11 @@
 #include <hydrogen/globals.h>
 
 
-namespace H2Core {
+namespace H2Core
+{
 
 NullDriver::NullDriver( audioProcessCallback processCallback )
- : AudioOutput( "NullDriver" )
+		: AudioOutput( "NullDriver" )
 {
 	UNUSED( processCallback );
 //	INFOLOG( "INIT" );
@@ -40,7 +41,7 @@ NullDriver::~NullDriver()
 }
 
 
-int NullDriver::init(unsigned nBufferSize)
+int NullDriver::init( unsigned nBufferSize )
 {
 	UNUSED( nBufferSize );
 	return 0;
@@ -75,14 +76,14 @@ unsigned NullDriver::getSampleRate()
 
 float* NullDriver::getOut_L()
 {
-	INFOLOG( "not implemented yet");
+	INFOLOG( "not implemented yet" );
 	return NULL;
 }
 
 
 float* NullDriver::getOut_R()
 {
-	INFOLOG( "not implemented yet");
+	INFOLOG( "not implemented yet" );
 	return NULL;
 }
 
@@ -108,7 +109,7 @@ void NullDriver::updateTransportInfo()
 	INFOLOG( "not implemented" );
 }
 
-void NullDriver::setBpm(float fBPM)
+void NullDriver::setBpm( float fBPM )
 {
 	UNUSED( fBPM );
 	ERRORLOG( "not implemented yet" );

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -29,7 +29,8 @@
 
 #include <pthread.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 audioProcessCallback ossDriver_audioProcessCallback;
 bool ossDriver_running;
@@ -39,38 +40,38 @@ OssDriver *m_pOssDriverInstance = NULL;
 
 unsigned nNextFrames = 0;
 
-void* ossDriver_processCaller(void* param)
+void* ossDriver_processCaller( void* param )
 {
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
-	int res = sched_setscheduler(0, SCHED_FIFO, &sched);
-	sched_getparam(0, &sched);
-	if (res) {
-		_WARNINGLOG("Can't set realtime scheduling for OSS Driver");
+	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
+	sched_getparam( 0, &sched );
+	if ( res ) {
+		_WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
 	}
 	_INFOLOG( "Scheduling priority = " + to_string( sched.sched_priority ) );
 
-	OssDriver *ossDriver = (OssDriver*)param;
+	OssDriver *ossDriver = ( OssDriver* )param;
 
 	sleep( 1 );
 
-	while (ossDriver_running) {
-		ossDriver_audioProcessCallback(oss_driver_bufferSize, NULL);
+	while ( ossDriver_running ) {
+		ossDriver_audioProcessCallback( oss_driver_bufferSize, NULL );
 		ossDriver->write();
 	}
 
-	pthread_exit(NULL);
+	pthread_exit( NULL );
 	return NULL;
 }
 
 
 
 
-OssDriver::OssDriver(audioProcessCallback processCallback)
- : AudioOutput( "OssDriver" )
+OssDriver::OssDriver( audioProcessCallback processCallback )
+		: AudioOutput( "OssDriver" )
 {
-	INFOLOG("INIT");
+	INFOLOG( "INIT" );
 	audioBuffer = NULL;
 	ossDriver_running = false;
 	this->processCallback = processCallback;
@@ -85,12 +86,12 @@ OssDriver::OssDriver(audioProcessCallback processCallback)
 
 OssDriver::~OssDriver()
 {
-	INFOLOG("DESTROY");
+	INFOLOG( "DESTROY" );
 }
 
 
 
-int OssDriver::init(unsigned nBufferSize)
+int OssDriver::init( unsigned nBufferSize )
 {
 	oss_driver_bufferSize = nBufferSize;
 
@@ -114,7 +115,8 @@ int OssDriver::init(unsigned nBufferSize)
 /// Connect
 /// return 0: Ok
 /// return 1: Generic error
-int OssDriver::connect() {
+int OssDriver::connect()
+{
 	INFOLOG( "connect" );
 
 	Preferences *preferencesMng = Preferences::getInstance();
@@ -135,68 +137,67 @@ int OssDriver::connect() {
 	// Non blocking OSS open code stolen from GLAME
 	fd = open( audioDevice.c_str(), O_WRONLY | O_NONBLOCK );	// test with non blocking open
 	int arg = fcntl( fd, F_GETFL, 0 );
-	if (arg != -1)	// back to blocking mode...
-	{
+	if ( arg != -1 ) {	// back to blocking mode...
 		fcntl( fd, F_SETFL, arg & ~O_NONBLOCK );
 	}
 
-	if (fd == -1) {
+	if ( fd == -1 ) {
 		ERRORLOG( "DSP ERROR_OPEN" );
 		return 1;
 	}
-	if (ioctl(fd, SNDCTL_DSP_SYNC, NULL) < 0) {
+	if ( ioctl( fd, SNDCTL_DSP_SYNC, NULL ) < 0 ) {
 		ERRORLOG( "ERROR_IOCTL" );
-		close(fd);
+		close( fd );
 		return 1;
 	}
-	if (ioctl(fd, SNDCTL_DSP_SAMPLESIZE, &bits) < 0) {
-		ERRORLOG("ERROR_IOCTL");
-		close(fd);
+	if ( ioctl( fd, SNDCTL_DSP_SAMPLESIZE, &bits ) < 0 ) {
+		ERRORLOG( "ERROR_IOCTL" );
+		close( fd );
 		return 1;
 	}
-	if (ioctl(fd, SNDCTL_DSP_SPEED, &speed) < 0) {
-		ERRORLOG("ERROR_IOCTL");
-		close(fd);
+	if ( ioctl( fd, SNDCTL_DSP_SPEED, &speed ) < 0 ) {
+		ERRORLOG( "ERROR_IOCTL" );
+		close( fd );
 		return 1;
 	}
-	if (ioctl(fd, SNDCTL_DSP_STEREO, &stereo) < 0) {
-		ERRORLOG("ERROR_IOCTL");
-		close(fd);
+	if ( ioctl( fd, SNDCTL_DSP_STEREO, &stereo ) < 0 ) {
+		ERRORLOG( "ERROR_IOCTL" );
+		close( fd );
 		return 1;
 	}
 
-	unsigned bufferBits = log2(speed / 60);
+	unsigned bufferBits = log2( speed / 60 );
 	int fragSize = 0x00200000 | bufferBits;
 
-	ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &fragSize);
+	ioctl( fd, SNDCTL_DSP_SETFRAGMENT, &fragSize );
 
-	if (ioctl(fd, SNDCTL_DSP_GETBLKSIZE, &bs) < 0) {
-		ERRORLOG("ERROR_IOCTL");
-		close(fd);
+	if ( ioctl( fd, SNDCTL_DSP_GETBLKSIZE, &bs ) < 0 ) {
+		ERRORLOG( "ERROR_IOCTL" );
+		close( fd );
 		return 1;
 	}
 
 	INFOLOG( "Blocksize audio = " + to_string( bs ) );
 
-	if (bs != ( 1 << bufferBits) ){
-		ERRORLOG("ERROR_IOCTL: unable to set BlockSize");
-		close(fd);
+	if ( bs != ( 1 << bufferBits ) ) {
+		ERRORLOG( "ERROR_IOCTL: unable to set BlockSize" );
+		close( fd );
 		return 1;
 	}
 
 	int format = AFMT_S16_LE;
-	if (ioctl(fd, SNDCTL_DSP_SETFMT, &format) == -1) {
-		ERRORLOG("ERROR_IOCTL unable to set format");
-		close(fd);
+	if ( ioctl( fd, SNDCTL_DSP_SETFMT, &format ) == -1 ) {
+		ERRORLOG( "ERROR_IOCTL unable to set format" );
+		close( fd );
 		return 1;
 	}
 
 	// start main thread
 	ossDriver_running = true;
 	pthread_attr_t attr;
-	pthread_attr_init(&attr);
+	pthread_attr_init( &attr );
 
-	pthread_create(&ossDriverThread, &attr, ossDriver_processCaller, this);
+	pthread_create( &ossDriverThread, &attr, ossDriver_processCaller, this );
 
 	return 0;
 }
@@ -204,17 +205,18 @@ int OssDriver::connect() {
 
 
 
-void OssDriver::disconnect() {
-	INFOLOG("disconnect");
+void OssDriver::disconnect()
+{
+	INFOLOG( "disconnect" );
 
 	ossDriver_running = false;
 
 	// join ossDriverThread
-	pthread_join(ossDriverThread, NULL);
+	pthread_join( ossDriverThread, NULL );
 
 	if ( fd != -1 ) {
-		if (close(fd)) {
-			ERRORLOG("Error closing audio device" );
+		if ( close( fd ) ) {
+			ERRORLOG( "Error closing audio device" );
 		}
 	}
 
@@ -238,15 +240,15 @@ void OssDriver::write()
 	unsigned size = oss_driver_bufferSize * 2;
 
 	// prepare the 2-channel array of short
-	for (unsigned i = 0; i < (unsigned)oss_driver_bufferSize; ++i) {
-		audioBuffer[i * 2] = (short)(out_L[i] * 32768.0);
-		audioBuffer[i * 2 + 1] = (short)(out_R[i] * 32768.0);
+	for ( unsigned i = 0; i < ( unsigned )oss_driver_bufferSize; ++i ) {
+		audioBuffer[i * 2] = ( short )( out_L[i] * 32768.0 );
+		audioBuffer[i * 2 + 1] = ( short )( out_R[i] * 32768.0 );
 	}
 
-	unsigned long written = ::write(fd, audioBuffer, size * 2);
+	unsigned long written = ::write( fd, audioBuffer, size * 2 );
 
-	if (written != (size * 2) ) {
-		ERRORLOG("OssDriver: Error writing samples to audio device.");
+	if ( written != ( size * 2 ) ) {
+		ERRORLOG( "OssDriver: Error writing samples to audio device." );
 //		std::cerr << "written = " << written << " of " << (size*2) << endl;
 	}
 }
@@ -255,9 +257,10 @@ void OssDriver::write()
 
 
 
-int OssDriver::log2(int n) {
+int OssDriver::log2( int n )
+{
 	int result = 0;
-	while ((n >>= 1) > 0)
+	while ( ( n >>= 1 ) > 0 )
 		result++;
 	return result;
 }
@@ -265,12 +268,14 @@ int OssDriver::log2(int n) {
 
 
 
-unsigned OssDriver::getBufferSize() {
+unsigned OssDriver::getBufferSize()
+{
 	return oss_driver_bufferSize;
 }
 
 
-unsigned OssDriver::getSampleRate() {
+unsigned OssDriver::getSampleRate()
+{
 	Preferences *preferencesMng = Preferences::getInstance();
 	return preferencesMng->m_nSampleRate;
 }
@@ -307,9 +312,9 @@ void OssDriver::updateTransportInfo()
 	// not used
 }
 
-void OssDriver::setBpm(float fBPM)
+void OssDriver::setBpm( float fBPM )
 {
-	INFOLOG( "setBpm: " + to_string(fBPM) );
+	INFOLOG( "setBpm: " + to_string( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
 

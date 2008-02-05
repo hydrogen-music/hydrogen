@@ -1,7 +1,7 @@
 
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -35,9 +35,9 @@ class ADSR;
 class Sample;
 
 /**
- 
+
 \brief A layer...
- 
+
 */
 class InstrumentLayer : public Object
 {
@@ -45,48 +45,38 @@ public:
 	InstrumentLayer( Sample *sample );
 	~InstrumentLayer();
 
-	void set_start_velocity( float vel )
-	{
+	void set_start_velocity( float vel ) {
 		__start_velocity = vel;
 	}
-	float get_start_velocity()
-	{
+	float get_start_velocity() {
 		return __start_velocity;
 	}
 
-	void set_end_velocity( float vel )
-	{
+	void set_end_velocity( float vel ) {
 		__end_velocity = vel;
 	}
-	float get_end_velocity()
-	{
+	float get_end_velocity() {
 		return __end_velocity;
 	}
 
-	void set_pitch( float pitch )
-	{
+	void set_pitch( float pitch ) {
 		__pitch = pitch;
 	}
-	float get_pitch()
-	{
+	float get_pitch() {
 		return __pitch;
 	}
 
-	void set_gain( float gain )
-	{
+	void set_gain( float gain ) {
 		__gain = gain;
 	}
-	float get_gain()
-	{
+	float get_gain() {
 		return __gain;
 	}
 
-	void set_sample( Sample* sample )
-	{
+	void set_sample( Sample* sample ) {
 		__sample = sample;
 	}
-	Sample* get_sample()
-	{
+	Sample* get_sample() {
 		return __sample;
 	}
 
@@ -101,9 +91,9 @@ private:
 
 
 /**
- 
+
 \brief Instrument class
- 
+
 */
 class Instrument : public Object
 {
@@ -131,171 +121,134 @@ public:
 	void set_layer( InstrumentLayer* layer, unsigned index );
 
 
-	void set_name( const std::string& name )
-	{
+	void set_name( const std::string& name ) {
 		__name = name;
 	}
-	const std::string& get_name()
-	{
+	const std::string& get_name() {
 		return __name;
 	}
 
-	void set_id( const std::string& id )
-	{
+	void set_id( const std::string& id ) {
 		__id = id;
 	}
-	const std::string& get_id()
-	{
+	const std::string& get_id() {
 		return __id;
 	}
 
 	void set_adsr( ADSR* adsr );
-	ADSR* get_adsr()
-	{
+	ADSR* get_adsr() {
 		return __adsr;
 	}
 
-	void set_mute_group( int group )
-	{
+	void set_mute_group( int group ) {
 		__mute_group = group;
 	}
-	int get_mute_group()
-	{
+	int get_mute_group() {
 		return __mute_group;
 	}
 
-	void set_muted( bool muted )
-	{
+	void set_muted( bool muted ) {
 		__muted = muted;
 	}
-	bool is_muted()
-	{
+	bool is_muted() {
 		return __muted;
 	}
 
-	float get_pan_l()
-	{
+	float get_pan_l() {
 		return __pan_l;
 	}
-	void set_pan_l( float val )
-	{
+	void set_pan_l( float val ) {
 		__pan_l = val;
 	}
 
-	float get_pan_r()
-	{
+	float get_pan_r() {
 		return __pan_r;
 	}
-	void set_pan_r( float val )
-	{
+	void set_pan_r( float val ) {
 		__pan_r = val;
 	}
 
-	float get_gain()
-	{
+	float get_gain() {
 		return __gain;
 	}
-	void set_gain( float gain )
-	{
+	void set_gain( float gain ) {
 		__gain = gain;
 	}
 
-	float get_volume()
-	{
+	float get_volume() {
 		return __volume;
 	}
-	void set_volume( float volume )
-	{
+	void set_volume( float volume ) {
 		__volume = volume;
 	}
 
-	bool is_filter_active()
-	{
+	bool is_filter_active() {
 		return __filter_active;
 	}
-	void set_filter_active( bool active )
-	{
+	void set_filter_active( bool active ) {
 		__filter_active = active;
 	}
 
-	float get_filter_resonance()
-	{
+	float get_filter_resonance() {
 		return __filter_resonance;
 	}
-	void set_filter_resonance( float val )
-	{
+	void set_filter_resonance( float val ) {
 		__filter_resonance = val;
 	}
 
-	float get_filter_cutoff()
-	{
+	float get_filter_cutoff() {
 		return __filter_cutoff;
 	}
-	void set_filter_cutoff( float val )
-	{
+	void set_filter_cutoff( float val ) {
 		__filter_cutoff = val;
 	}
 
-	float get_peak_l()
-	{
+	float get_peak_l() {
 		return __peak_l;
 	}
-	void set_peak_l( float val )
-	{
+	void set_peak_l( float val ) {
 		__peak_l = val;
 	}
 
-	float get_peak_r()
-	{
+	float get_peak_r() {
 		return __peak_r;
 	}
-	void set_peak_r( float val )
-	{
+	void set_peak_r( float val ) {
 		__peak_r = val;
 	}
 
-	float get_fx_level( int index )
-	{
+	float get_fx_level( int index ) {
 		return __fx_level[index];
 	}
-	void set_fx_level( float level, int index )
-	{
+	void set_fx_level( float level, int index ) {
 		__fx_level[index] = level;
 	}
 
-	float get_random_pitch_factor()
-	{
+	float get_random_pitch_factor() {
 		return __random_pitch_factor;
 	}
-	void set_random_pitch_factor( float val )
-	{
+	void set_random_pitch_factor( float val ) {
 		__random_pitch_factor = val;
 	}
 
-	void set_drumkit_name( const std::string& name )
-	{
+	void set_drumkit_name( const std::string& name ) {
 		__drumkit_name = name;
 	}
-	const std::string& get_drumkit_name()
-	{
+	const std::string& get_drumkit_name() {
 		return __drumkit_name;
 	}
 
-	bool is_active()
-	{
+	bool is_active() {
 		return __active;
 	}
-	void set_active( bool active )
-	{
+	void set_active( bool active ) {
 		__active = active;
 	}
 
-	bool is_soloed()
-	{
+	bool is_soloed() {
 		return __soloed;
 	}
-	void set_soloed( bool soloed )
-	{
+	void set_soloed( bool soloed ) {
 		__soloed = soloed;
 	}
 
@@ -327,9 +280,9 @@ private:
 
 
 /**
- 
+
 \brief Instrument List
- 
+
 */
 class InstrumentList : public Object
 {
@@ -340,7 +293,7 @@ public:
 	void add( Instrument* pInstrument );
 	Instrument* get( unsigned int pos );
 	int get_pos( Instrument* inst );
-	unsigned int get_size();
+	unsigned get_size();
 
 	void del( int pos );
 

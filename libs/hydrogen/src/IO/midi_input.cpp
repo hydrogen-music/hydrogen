@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -27,11 +27,12 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 MidiInput::MidiInput( const std::string sClassName )
- : Object( sClassName )
- , m_bActive( false )
+		: Object( sClassName )
+		, m_bActive( false )
 {
 	//INFOLOG( "INIT" );
 }
@@ -42,7 +43,7 @@ MidiInput::~MidiInput()
 	//INFOLOG( "DESTROY" );
 }
 
-void MidiInput::handleMidiMessage(const MidiMessage& msg)
+void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 	EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
@@ -52,74 +53,74 @@ void MidiInput::handleMidiMessage(const MidiMessage& msg)
 //	infoLog( "[handleMidiMessage] val2: " + to_string( msg.m_nData2 ) );
 
 	switch ( msg.m_type ) {
-		case MidiMessage::SYSEX:
-			handleSysexMessage( msg );
-			break;
+	case MidiMessage::SYSEX:
+		handleSysexMessage( msg );
+		break;
 
-		case MidiMessage::NOTE_ON:
-			handleNoteOnMessage( msg );
-			break;
+	case MidiMessage::NOTE_ON:
+		handleNoteOnMessage( msg );
+		break;
 
-		case MidiMessage::NOTE_OFF:
-			handleNoteOffMessage( msg );
-			break;
+	case MidiMessage::NOTE_OFF:
+		handleNoteOffMessage( msg );
+		break;
 
-		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-			ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
-			break;
+	case MidiMessage::POLYPHONIC_KEY_PRESSURE:
+		ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
+		break;
 
-		case MidiMessage::CONTROL_CHANGE:
-			ERRORLOG( "CONTROL_CHANGE event not handled yet" );
-			break;
+	case MidiMessage::CONTROL_CHANGE:
+		ERRORLOG( "CONTROL_CHANGE event not handled yet" );
+		break;
 
-		case MidiMessage::PROGRAM_CHANGE:
-			ERRORLOG( "PROGRAM_CHANGE event not handled yet" );
-			break;
+	case MidiMessage::PROGRAM_CHANGE:
+		ERRORLOG( "PROGRAM_CHANGE event not handled yet" );
+		break;
 
-		case MidiMessage::CHANNEL_PRESSURE:
-			ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
-			break;
+	case MidiMessage::CHANNEL_PRESSURE:
+		ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
+		break;
 
-		case MidiMessage::PITCH_WHEEL:
-			ERRORLOG( "PITCH_WHEEL event not handled yet" );
-			break;
+	case MidiMessage::PITCH_WHEEL:
+		ERRORLOG( "PITCH_WHEEL event not handled yet" );
+		break;
 
-		case MidiMessage::SYSTEM_EXCLUSIVE:
-			ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
-			break;
+	case MidiMessage::SYSTEM_EXCLUSIVE:
+		ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
+		break;
 
-		case MidiMessage::START:
-			INFOLOG( "START event" );
-			if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
-				Hydrogen::get_instance()->sequencer_play();
-			}
-			break;
+	case MidiMessage::START:
+		INFOLOG( "START event" );
+		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+			Hydrogen::get_instance()->sequencer_play();
+		}
+		break;
 
-		case MidiMessage::CONTINUE:
-			ERRORLOG( "CONTINUE event not handled yet" );
-			break;
+	case MidiMessage::CONTINUE:
+		ERRORLOG( "CONTINUE event not handled yet" );
+		break;
 
-		case MidiMessage::STOP:
-			INFOLOG( "STOP event" );
-			if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
-				Hydrogen::get_instance()->sequencer_stop();
-			}
-			break;
+	case MidiMessage::STOP:
+		INFOLOG( "STOP event" );
+		if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+			Hydrogen::get_instance()->sequencer_stop();
+		}
+		break;
 
-		case MidiMessage::SONG_POS:
-			ERRORLOG( "SONG_POS event not handled yet" );
-			break;
+	case MidiMessage::SONG_POS:
+		ERRORLOG( "SONG_POS event not handled yet" );
+		break;
 
-		case MidiMessage::QUARTER_FRAME:
-			WARNINGLOG( "QUARTER_FRAME event not handled yet" );
-			break;
+	case MidiMessage::QUARTER_FRAME:
+		WARNINGLOG( "QUARTER_FRAME event not handled yet" );
+		break;
 
-		case MidiMessage::UNKNOWN:
-			ERRORLOG( "Unknown midi message" );
-			break;
+	case MidiMessage::UNKNOWN:
+		ERRORLOG( "Unknown midi message" );
+		break;
 
-		default:
-			ERRORLOG( "unhandled midi message type: " + to_string( msg.m_type ) );
+	default:
+		ERRORLOG( "unhandled midi message type: " + to_string( msg.m_type ) );
 	}
 }
 
@@ -151,11 +152,10 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bIsChannelValid ) {
 		if ( bPatternSelect ) {
 			int patternNumber = nNote - 36;
-			INFOLOG( "next pattern = " + to_string(patternNumber) );
+			INFOLOG( "next pattern = " + to_string( patternNumber ) );
 
 			pEngine->sequencer_setNextPattern( patternNumber, false, false );
-		}
-		else {
+		} else {
 			static const float fPan_L = 1.0f;
 			static const float fPan_R = 1.0f;
 
@@ -163,11 +163,11 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			if ( nInstrument < 0 ) {
 				nInstrument = 0;
 			}
-			if ( nInstrument > (MAX_INSTRUMENTS -1 ) ) {
+			if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
 				nInstrument = MAX_INSTRUMENTS - 1;
 			}
 
-			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true);
+			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true );
 		}
 	}
 }
@@ -189,7 +189,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	if ( nInstrument < 0 ) {
 		nInstrument = 0;
 	}
-	if ( nInstrument > (MAX_INSTRUMENTS -1 ) ) {
+	if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
 		nInstrument = MAX_INSTRUMENTS - 1;
 	}
 	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
@@ -233,51 +233,49 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 	if ( msg.m_sysexData.size() == 6 ) {
 		if (
-				( msg.m_sysexData[0] == 0xF0 ) &&
-				( msg.m_sysexData[1] == 127 ) &&
-				( msg.m_sysexData[2] == 127 ) &&
-				( msg.m_sysexData[3] == 6 ) )
-		{
-			switch (msg.m_sysexData[4] ) {
-				case 1:	// STOP
-					WARNINGLOG( "MMC STOP not implemented yet" );
-					break;
+		    ( msg.m_sysexData[0] == 0xF0 ) &&
+		    ( msg.m_sysexData[1] == 127 ) &&
+		    ( msg.m_sysexData[2] == 127 ) &&
+		    ( msg.m_sysexData[3] == 6 ) ) {
+			switch ( msg.m_sysexData[4] ) {
+			case 1:	// STOP
+				WARNINGLOG( "MMC STOP not implemented yet" );
+				break;
 
-				case 2:	// PLAY
-					WARNINGLOG( "MMC PLAY not implemented yet." );
-					break;
+			case 2:	// PLAY
+				WARNINGLOG( "MMC PLAY not implemented yet." );
+				break;
 
-				case 3:	//DEFERRED PLAY
-					WARNINGLOG( "MMC DEFERRED PLAY not implemented yet." );
-					break;
+			case 3:	//DEFERRED PLAY
+				WARNINGLOG( "MMC DEFERRED PLAY not implemented yet." );
+				break;
 
-				case 4:	// FAST FWD
-					WARNINGLOG( "MMC FAST FWD not implemented yet." );
-					break;
+			case 4:	// FAST FWD
+				WARNINGLOG( "MMC FAST FWD not implemented yet." );
+				break;
 
-				case 5:	// REWIND
-					WARNINGLOG( "MMC REWIND not implemented yet." );
-					break;
+			case 5:	// REWIND
+				WARNINGLOG( "MMC REWIND not implemented yet." );
+				break;
 
-				case 6:	// RECORD STROBE (PUNCH IN)
-					WARNINGLOG( "MMC PUNCH IN not implemented yet." );
-					break;
+			case 6:	// RECORD STROBE (PUNCH IN)
+				WARNINGLOG( "MMC PUNCH IN not implemented yet." );
+				break;
 
-				case 7:	// RECORD EXIT (PUNCH OUT)
-					WARNINGLOG( "MMC PUNCH OUT not implemented yet." );
-					break;
+			case 7:	// RECORD EXIT (PUNCH OUT)
+				WARNINGLOG( "MMC PUNCH OUT not implemented yet." );
+				break;
 
-				case 9:	//PAUSE
-					WARNINGLOG( "MMC PAUSE not implemented yet." );
-					break;
+			case 9:	//PAUSE
+				WARNINGLOG( "MMC PAUSE not implemented yet." );
+				break;
 
-				default:
-					WARNINGLOG( "Unknown MMC Command" );
+			default:
+				WARNINGLOG( "Unknown MMC Command" );
 //					midiDump( buf, nBytes );
 			}
 		}
-	}
-	else if ( msg.m_sysexData.size() == 13 ) {
+	} else if ( msg.m_sysexData.size() == 13 ) {
 		ERRORLOG( "MMC GOTO Message not implemented yet" );
 //		midiDump( buf, nBytes );
 		//int id = buf[2];
@@ -290,16 +288,15 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		sprintf( tmp, "[handleSysexMessage] GOTO %d:%d:%d:%d:%d", hr, mn, sc, fr, ff );
 		INFOLOG( tmp );
 
-	}
-	else {
+	} else {
 		// sysex dump
 		std::string sDump = "";
 		char tmpChar[64];
-		for ( int i = 0; i < (int)msg.m_sysexData.size(); ++i) {
-			sprintf( tmpChar, "%X ", (int)msg.m_sysexData[ i ] );
+		for ( int i = 0; i < ( int )msg.m_sysexData.size(); ++i ) {
+			sprintf( tmpChar, "%X ", ( int )msg.m_sysexData[ i ] );
 			sDump += tmpChar;
 		}
-		WARNINGLOG( "Unknown SysEx message: " + std::string( "(" ) + to_string( msg.m_sysexData.size() ) + std::string( ") [ " ) + sDump + std::string( " ]" ));
+		WARNINGLOG( "Unknown SysEx message: " + std::string( "(" ) + to_string( msg.m_sysexData.size() ) + std::string( ") [ " ) + sDump + std::string( " ]" ) );
 	}
 
 }

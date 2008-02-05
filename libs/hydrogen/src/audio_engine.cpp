@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -28,7 +28,8 @@
 
 #include <hydrogen/hydrogen.h>	// TODO: remove this line as soon as possible
 
-namespace H2Core {
+namespace H2Core
+{
 
 
 AudioEngine* AudioEngine::__instance = NULL;
@@ -46,12 +47,12 @@ AudioEngine* AudioEngine::get_instance()
 
 
 AudioEngine::AudioEngine()
- : Object( "AudioEngine" )
- , __sampler( NULL )
- , __synth( NULL )
- , __locker( "" )
+		: Object( "AudioEngine" )
+		, __sampler( NULL )
+		, __synth( NULL )
+		, __locker( "" )
 {
-	INFOLOG( "INIT");
+	INFOLOG( "INIT" );
 
 	pthread_mutex_init( &__engine_mutex, NULL );
 
@@ -66,7 +67,7 @@ AudioEngine::AudioEngine()
 
 AudioEngine::~AudioEngine()
 {
-	INFOLOG( "DESTROY");
+	INFOLOG( "DESTROY" );
 #ifdef LADSPA_SUPPORT
 	delete Effects::getInstance();
 #endif
@@ -105,9 +106,9 @@ Synth* AudioEngine::get_synth()
 void AudioEngine::lock( const std::string& locker )
 {
 	int res = pthread_mutex_trylock( &__engine_mutex );
-	if (res != 0) {
+	if ( res != 0 ) {
 		WARNINGLOG( "trylock != 0. Lock in " + __locker + ". I'll wait for the mutex." );
-		pthread_mutex_lock(&__engine_mutex);
+		pthread_mutex_lock( &__engine_mutex );
 	}
 
 	__locker = locker;
@@ -118,7 +119,7 @@ void AudioEngine::lock( const std::string& locker )
 bool AudioEngine::try_lock( const std::string& locker )
 {
 	int res = pthread_mutex_trylock( &__engine_mutex );
-	if (res != 0) {
+	if ( res != 0 ) {
 		WARNINGLOG( "trylock != 0. Lock in " + __locker );
 		return false;
 	}
@@ -131,7 +132,7 @@ bool AudioEngine::try_lock( const std::string& locker )
 
 void AudioEngine::unlock()
 {
-	pthread_mutex_unlock(&__engine_mutex);
+	pthread_mutex_unlock( &__engine_mutex );
 }
 
 

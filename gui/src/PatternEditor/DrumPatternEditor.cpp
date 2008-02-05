@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -46,7 +46,7 @@
 using namespace std;
 using namespace H2Core;
 
-DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *pPanel)
+DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : QWidget( parent )
  , Object( "DrumPatternEditor" )
  , m_nResolution( 8 )
@@ -56,7 +56,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *pPanel
  , m_bRightBtnPressed( false )
  , m_pDraggedNote( NULL )
  , m_pPattern( NULL )
- , m_pPatternEditorPanel( pPanel )
+ , m_pPatternEditorPanel( panel )
 {
 	//infoLog("INIT");
 
@@ -73,7 +73,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *pPanel
 	m_pBackground = new QPixmap( nEditorWidth, m_nEditorHeight );
 	m_pTemp = new QPixmap( nEditorWidth, m_nEditorHeight );
 
-	createBackground();
+	__create_background();
 
 	resize( nEditorWidth, m_nEditorHeight );
 
@@ -85,6 +85,8 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *pPanel
 DrumPatternEditor::~DrumPatternEditor()
 {
 	//infoLog("DESTROY");
+	delete m_pBackground;
+	delete m_pTemp;
 }
 
 
@@ -123,8 +125,8 @@ void DrumPatternEditor::updateEditor()
 	resize( nEditorWidth, height() );
 
 
-	createBackground();
-	drawPattern();
+	__create_background();
+	__draw_pattern();
 
 	// redraw all
 	update( 0, 0, width(), height() );
@@ -270,7 +272,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	}
 	else {
 		//createBackground();
-		drawPattern();
+		__draw_pattern();
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
@@ -316,7 +318,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		Hydrogen::get_instance()->getSong()->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		drawPattern();
+		__draw_pattern();
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
@@ -334,7 +336,7 @@ void DrumPatternEditor::keyPressEvent (QKeyEvent *ev)
 ///
 /// Draws a pattern
 ///
-void DrumPatternEditor::drawPattern()
+void DrumPatternEditor::__draw_pattern()
 {
 	//cout << "draw pattern" << endl;
 	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
@@ -362,7 +364,7 @@ void DrumPatternEditor::drawPattern()
 		// the number of instruments is changed...recreate all
 		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();
 		resize( width(), m_nEditorHeight );
-		createBackground();
+		__create_background();
 	}
 
 
@@ -379,13 +381,13 @@ void DrumPatternEditor::drawPattern()
 
 
 	// draw the grid
-	drawGrid(  p );
+	__draw_grid(  p );
 
 	std::multimap <int, Note*>::iterator pos;
 	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
 		Note *note = pos->second;
 		assert( note );
-		drawNote( note, p );
+		__draw_note( note, p );
 	}
 }
 
@@ -393,7 +395,7 @@ void DrumPatternEditor::drawPattern()
 ///
 /// Draws a note
 ///
-void DrumPatternEditor::drawNote( Note *note, QPainter* p )
+void DrumPatternEditor::__draw_note( Note *note, QPainter* p )
 {
 	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
 	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
@@ -455,7 +457,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter* p )
 
 
 
-void DrumPatternEditor::drawGrid( QPainter* p )
+void DrumPatternEditor::__draw_grid( QPainter* p )
 {
 	//cout << "draw grid" << endl;
 	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
@@ -562,7 +564,7 @@ void DrumPatternEditor::drawGrid( QPainter* p )
 }
 
 
-void DrumPatternEditor::createBackground()
+void DrumPatternEditor::__create_background()
 {
 	//cout << "recreate background" << endl;
 
@@ -648,8 +650,8 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 	this->m_bUseTriplets = bUseTriplets;
 
 	// redraw all
-	createBackground();
-	drawPattern();
+	__create_background();
+	__draw_pattern();
 	update( 0, 0, width(), height() );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
@@ -658,7 +660,7 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 }
 
 
-void DrumPatternEditor::zoomIn()
+void DrumPatternEditor::zoom_in()
 {
 	m_nGridWidth = m_nGridWidth * 2;
 	updateEditor();
@@ -666,7 +668,7 @@ void DrumPatternEditor::zoomIn()
 
 
 
-void DrumPatternEditor::zoomOut()
+void DrumPatternEditor::zoom_out()
 {
 	m_nGridWidth = m_nGridWidth / 2;
 	if (m_nGridWidth < 3) {
@@ -679,7 +681,7 @@ void DrumPatternEditor::zoomOut()
 void DrumPatternEditor::selectedInstrumentChangedEvent()
 {
 	//cout << "instrument changed" << endl;
-	drawPattern();
+	__draw_pattern();
 	update( 0, 0, width(), height() );
 }
 
@@ -688,7 +690,7 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 void DrumPatternEditor::patternModifiedEvent()
 {
 	//cout << "pattern modified" << endl;
-	drawPattern();
+	__draw_pattern();
 	update( 0, 0, width(), height() );
 }
 
@@ -704,11 +706,6 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 	//cout << "selected pattern changed EVENT" << endl;
 	updateEditor();
 }
-
-
-
-
-
 
 
 

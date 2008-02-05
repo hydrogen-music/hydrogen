@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -37,7 +37,8 @@
 
 using namespace std;
 
-namespace H2Core {
+namespace H2Core
+{
 
 // static data
 Effects* Effects::m_pInstance = NULL;
@@ -45,8 +46,8 @@ Effects* Effects::m_pInstance = NULL;
 
 
 Effects::Effects()
- : Object( "Effects" )
- , m_pRootGroup( NULL)
+		: Object( "Effects" )
+		, m_pRootGroup( NULL )
 {
 	//INFOLOG( "INIT" );
 
@@ -76,7 +77,7 @@ Effects::~Effects()
 	delete getLadspaFXGroup();
 
 	//INFOLOG( "destroying " + to_string( m_pluginList.size() ) + " LADSPA plugins" );
-	for( unsigned i = 0; i < m_pluginList.size(); i++) {
+	for ( unsigned i = 0; i < m_pluginList.size(); i++ ) {
 		delete m_pluginList[i];
 	}
 	m_pluginList.clear();
@@ -101,7 +102,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	assert( nFX < MAX_FX );
 	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + to_string( nFX ) );
 
-	AudioEngine::get_instance()->lock("Effects::setLadspaFX");
+	AudioEngine::get_instance()->lock( "Effects::setLadspaFX" );
 
 
 	if ( m_FXList[ nFX ] ) {
@@ -130,12 +131,12 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 
 	vector<string> ladspaPathVect = Preferences::getInstance()->getLadspaPath();
 	INFOLOG( "PATHS: " + to_string( ladspaPathVect.size() ) );
-	for (vector<string>::iterator i = ladspaPathVect.begin(); i != ladspaPathVect.end(); i++) {
+	for ( vector<string>::iterator i = ladspaPathVect.begin(); i != ladspaPathVect.end(); i++ ) {
 		string sPluginDir = *i;
 		INFOLOG( "*** [getPluginList] reading directory: " + sPluginDir );
 
 		QDir dir( QString( sPluginDir.c_str() ) );
-		if (!dir.exists()) {
+		if ( !dir.exists() ) {
 			INFOLOG( "Directory " + sPluginDir + " not found" );
 			continue;
 		}
@@ -144,7 +145,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 		for ( int i = 0; i < list.size(); ++i ) {
 			string sPluginName = list.at( i ).fileName().toStdString();
 
-			if ( (sPluginName == ".") || (sPluginName == ".." ) ) {
+			if ( ( sPluginName == "." ) || ( sPluginName == ".." ) ) {
 				continue;
 			}
 
@@ -152,13 +153,13 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 #ifdef WIN32
 			int pos = sPluginName.rfind( ".dll" );
 #else
-	#ifdef Q_OS_MACX
+#ifdef Q_OS_MACX
 			int pos = sPluginName.rfind( ".dylib" );
-	#else
+#else
 			int pos = sPluginName.rfind( ".so" );
-	#endif
 #endif
-			if ( pos == (int)std::string::npos ) {
+#endif
+			if ( pos == ( int )std::string::npos ) {
 				continue;
 			}
 			//warningLog( "[getPluginList] Loading: " + sPluginName  );
@@ -166,14 +167,14 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 			string sAbsPath = string( sPluginDir ) + string( "/" ) + sPluginName;
 
 			QLibrary lib( QString( sAbsPath.c_str() ) );
-			LADSPA_Descriptor_Function desc_func = (LADSPA_Descriptor_Function)lib.resolve( "ladspa_descriptor" );
+			LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )lib.resolve( "ladspa_descriptor" );
 			if ( desc_func == NULL ) {
 				ERRORLOG( "Error loading the library. (" + sAbsPath + ")" );
 				continue;
 			}
 			const LADSPA_Descriptor * d;
 			if ( desc_func ) {
-				for ( unsigned i = 0; (d = desc_func (i)) != NULL; i++) {
+				for ( unsigned i = 0; ( d = desc_func ( i ) ) != NULL; i++ ) {
 					LadspaFXInfo* pFX = new LadspaFXInfo( d->Name );
 					pFX->m_sFilename = sAbsPath;
 					pFX->m_sLabel = d->Label;
@@ -183,21 +184,17 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 
 					//INFOLOG( "Loading: " + pFX->m_sLabel );
 
-					for (unsigned j = 0; j < d->PortCount; j++) {
+					for ( unsigned j = 0; j < d->PortCount; j++ ) {
 						LADSPA_PortDescriptor pd = d->PortDescriptors[j];
 						if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
 							pFX->m_nICPorts++;
-						}
-						else if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
+						} else if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
 							pFX->m_nIAPorts++;
-						}
-						else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
+						} else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
 							pFX->m_nOCPorts++;
-						}
-						else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
+						} else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
 							pFX->m_nOAPorts++;
-						}
-						else {
+						} else {
 //							string sPortName = d->PortNames[ j ];
 							string sPortName = "";
 							ERRORLOG( pFX->m_sLabel + "::" + sPortName + "  UNKNOWN port type" );
@@ -205,17 +202,14 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 					}
 					if ( ( pFX->m_nIAPorts == 2 ) && ( pFX->m_nOAPorts == 2 ) ) {	// Stereo plugin
 						m_pluginList.push_back( pFX );
-					}
-					else if ( ( pFX->m_nIAPorts == 1 ) && ( pFX->m_nOAPorts == 1 ) ) {	// Mono plugin
+					} else if ( ( pFX->m_nIAPorts == 1 ) && ( pFX->m_nOAPorts == 1 ) ) {	// Mono plugin
 						m_pluginList.push_back( pFX );
-					}
-					else {	// not supported plugin
+					} else {	// not supported plugin
 						//WARNINGLOG( "Plugin not supported: " + sPluginName  );
 						delete pFX;
 					}
 				}
-			}
-			else {
+			} else {
 				ERRORLOG( "Error loading: " + sPluginName  );
 			}
 		}
@@ -247,25 +241,25 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	map<LadspaFXInfo*, string> fxGroupMap;
 
 	// build alphabetical list
-	for (unsigned i = 0; i < m_pluginList.size(); i++) {
+	for ( unsigned i = 0; i < m_pluginList.size(); i++ ) {
 		LadspaFXInfo *pInfo = m_pluginList[ i ];
 		char ch = pInfo->m_sName[0];
 		fxGroupMap[ pInfo ] = ch;
 	}
 
-	for (map<LadspaFXInfo*, string>::iterator it = fxGroupMap.begin(); it != fxGroupMap.end(); it++) {
+	for ( map<LadspaFXInfo*, string>::iterator it = fxGroupMap.begin(); it != fxGroupMap.end(); it++ ) {
 		string sGroup = it->second;
 		LadspaFXInfo *pInfo = it->first;
 
 		LadspaFXGroup *pGroup = NULL;
-		for (unsigned i = 0; i < pUncategorizedGroup->getChildList().size(); i++) {
+		for ( unsigned i = 0; i < pUncategorizedGroup->getChildList().size(); i++ ) {
 			LadspaFXGroup *pChild = ( pUncategorizedGroup->getChildList() )[ i ];
-			if (pChild->getName() == sGroup) {
+			if ( pChild->getName() == sGroup ) {
 				pGroup = pChild;
 				break;
 			}
 		}
-		if (!pGroup) {
+		if ( !pGroup ) {
 			pGroup = new LadspaFXGroup( sGroup );
 			pUncategorizedGroup->addChild( pGroup );
 		}
@@ -273,11 +267,11 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	}
 
 
-	#ifdef LRDF_SUPPORT
+#ifdef LRDF_SUPPORT
 	LadspaFXGroup *pLRDFGroup = new LadspaFXGroup( "Categorized(LRDF)" );
 	m_pRootGroup->addChild( pLRDFGroup );
-	getRDF(pLRDFGroup, m_pluginList);
-	#endif
+	getRDF( pLRDFGroup, m_pluginList );
+#endif
 
 	return m_pRootGroup;
 }
@@ -286,30 +280,30 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 #ifdef LRDF_SUPPORT
 
 
-void Effects::getRDF(LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList)
+void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
 {
 	lrdf_init();
 
 	string sDir = "/usr/share/ladspa/rdf";
 
 	QDir dir( QString( sDir.c_str() ) );
-	if (!dir.exists()) {
+	if ( !dir.exists() ) {
 		WARNINGLOG( "Directory " + sDir + " not found" );
 		return;
 	}
 
 	QFileInfoList list = dir.entryInfoList();
-	for ( int i = 0; i < list.size(); ++i ){
+	for ( int i = 0; i < list.size(); ++i ) {
 		string sFilename = list.at( i ).fileName().toStdString();
-		int pos = sFilename.find(".rdf");
-		if (pos == -1) {
+		int pos = sFilename.find( ".rdf" );
+		if ( pos == -1 ) {
 			continue;
 		}
 
-		string sRDFFile = string("file://") + sDir + string("/") + sFilename;
+		string sRDFFile = string( "file://" ) + sDir + string( "/" ) + sFilename;
 
 		int err = lrdf_read_file( sRDFFile.c_str() );
-		if (err) {
+		if ( err ) {
 			ERRORLOG( "Error parsing rdf file " + sFilename );
 		}
 
@@ -326,40 +320,40 @@ void Effects::RDFDescend( const std::string& sBase, LadspaFXGroup *pGroup, vecto
 //	cout << "LadspaFX::RDFDescend " << sBase << endl;
 
 	lrdf_uris* uris = lrdf_get_subclasses( sBase.c_str() );
-	if (uris) {
-		for (int i = 0; i < (int)uris->count; i++) {
+	if ( uris ) {
+		for ( int i = 0; i < ( int )uris->count; i++ ) {
 			string sGroup = lrdf_get_label( uris->items[ i ] );
 
 			LadspaFXGroup *pNewGroup = NULL;
 			// verifico se esiste gia una categoria con lo stesso nome
 			vector<LadspaFXGroup*> childGroups = pGroup-> getChildList();
-			for (unsigned nGroup = 0; nGroup < childGroups.size(); nGroup++) {
+			for ( unsigned nGroup = 0; nGroup < childGroups.size(); nGroup++ ) {
 				LadspaFXGroup *pOldGroup = childGroups[nGroup];
-				if (pOldGroup->getName() == sGroup) {
+				if ( pOldGroup->getName() == sGroup ) {
 					pNewGroup = pOldGroup;
 					break;
 				}
 			}
-			if (pNewGroup == NULL) {	// il gruppo non esiste, lo creo
+			if ( pNewGroup == NULL ) {	// il gruppo non esiste, lo creo
 				pNewGroup = new LadspaFXGroup( sGroup );
 				pGroup->addChild( pNewGroup );
 			}
 			RDFDescend( uris->items[i], pNewGroup, pluginList );
 		}
-		lrdf_free_uris (uris);
+		lrdf_free_uris ( uris );
 	}
 
 	uris = lrdf_get_instances( sBase.c_str() );
-	if (uris) {
-		for (int i = 0; i < (int)uris->count; i++) {
-			int uid = lrdf_get_uid (uris->items[i]);
+	if ( uris ) {
+		for ( int i = 0; i < ( int )uris->count; i++ ) {
+			int uid = lrdf_get_uid ( uris->items[i] );
 
 			// verifico che il plugin non sia gia nella lista
 			bool bExists = false;
 			vector<LadspaFXInfo*> fxVect = pGroup->getLadspaInfo();
-			for (unsigned nFX = 0; nFX < fxVect.size(); nFX++) {
+			for ( unsigned nFX = 0; nFX < fxVect.size(); nFX++ ) {
 				LadspaFXInfo *pFX = fxVect[nFX];
-				if (pFX->m_sID == to_string(uid)) {
+				if ( pFX->m_sID == to_string( uid ) ) {
 					bExists = true;
 					continue;
 				}
@@ -367,15 +361,15 @@ void Effects::RDFDescend( const std::string& sBase, LadspaFXGroup *pGroup, vecto
 
 			if ( bExists == false ) {
 				// find the ladspaFXInfo
-				for (unsigned i = 0; i < pluginList.size(); i++) {
+				for ( unsigned i = 0; i < pluginList.size(); i++ ) {
 					LadspaFXInfo *pInfo = pluginList[i];
-					if (pInfo->m_sID == to_string(uid) ) {
+					if ( pInfo->m_sID == to_string( uid ) ) {
 						pGroup->addLadspaInfo( pInfo );	// copy the LadspaFXInfo
 					}
 				}
 			}
 		}
-		lrdf_free_uris (uris);
+		lrdf_free_uris ( uris );
 	}
 }
 

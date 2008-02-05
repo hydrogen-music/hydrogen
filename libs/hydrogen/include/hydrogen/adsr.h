@@ -55,11 +55,11 @@ public:
 
 private:
 	enum ADSRState {
-	    ATTACK,
-	    DECAY,
-	    SUSTAIN,
-	    RELEASE,
-	    IDLE
+		ATTACK,
+		DECAY,
+		SUSTAIN,
+		RELEASE,
+		IDLE
 	};
 
 	ADSRState __state;

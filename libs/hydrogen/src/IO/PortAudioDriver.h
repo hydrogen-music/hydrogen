@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -31,38 +31,39 @@
 #include <inttypes.h>
 #include <portaudio.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
-typedef int  (*audioProcessCallback)(uint32_t, void *);
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class PortAudioDriver : public AudioOutput
 {
-	public:
-		audioProcessCallback m_processCallback;
-		float* m_pOut_L;
-		float* m_pOut_R;
-		unsigned m_nBufferSize;
+public:
+	audioProcessCallback m_processCallback;
+	float* m_pOut_L;
+	float* m_pOut_R;
+	unsigned m_nBufferSize;
 
-		PortAudioDriver(audioProcessCallback processCallback);
-		virtual ~PortAudioDriver();
+	PortAudioDriver( audioProcessCallback processCallback );
+	virtual ~PortAudioDriver();
 
-		virtual int init(unsigned nBufferSize);
-		virtual int connect();
-		virtual void disconnect();
-		virtual unsigned getBufferSize();
-		virtual unsigned getSampleRate();
-		virtual float* getOut_L();
-		virtual float* getOut_R();
+	virtual int init( unsigned nBufferSize );
+	virtual int connect();
+	virtual void disconnect();
+	virtual unsigned getBufferSize();
+	virtual unsigned getSampleRate();
+	virtual float* getOut_L();
+	virtual float* getOut_R();
 
-		virtual void updateTransportInfo();
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void setBpm(float fBPM);
+	virtual void updateTransportInfo();
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void setBpm( float fBPM );
 
-	private:
-		PortAudioStream *m_pStream;
-		unsigned m_nSampleRate;
+private:
+	PortAudioStream *m_pStream;
+	unsigned m_nSampleRate;
 
 };
 
@@ -70,12 +71,13 @@ class PortAudioDriver : public AudioOutput
 
 #else
 
-namespace H2Core {
+namespace H2Core
+{
 
 class PortAudioDriver : public NullDriver
 {
-	public:
-		PortAudioDriver(audioProcessCallback processCallback) : NullDriver( processCallback ) {}
+public:
+	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
 };
 

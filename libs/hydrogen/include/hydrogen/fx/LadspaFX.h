@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -60,20 +60,17 @@ public:
 	LadspaFXGroup( const std::string& sName );
 	~LadspaFXGroup();
 
-	const std::string& getName()
-	{
+	const std::string& getName() {
 		return m_sName;
 	}
 
 	void addLadspaInfo( LadspaFXInfo *pInfo );
-	std::vector<LadspaFXInfo*> getLadspaInfo()
-	{
+	std::vector<LadspaFXInfo*> getLadspaInfo() {
 		return m_ladspaList;
 	}
 
 	void addChild( LadspaFXGroup *pChild );
-	std::vector<LadspaFXGroup*> getChildList()
-	{
+	std::vector<LadspaFXGroup*> getChildList() {
 		return m_childGroups;
 	}
 
@@ -95,8 +92,7 @@ public:
 	LADSPA_Data fLowerBound;
 	LADSPA_Data fUpperBound;
 
-	LadspaControlPort() : Object( "LadspaControlPort" )
-	{ }
+	LadspaControlPort() : Object( "LadspaControlPort" ) { }
 };
 
 
@@ -105,9 +101,9 @@ class LadspaFX : public Object
 {
 public:
 	enum {
-	    MONO_FX,
-	    STEREO_FX,
-	    UNDEFINED
+		MONO_FX,
+		STEREO_FX,
+		UNDEFINED
 	};
 
 	//unsigned m_nBufferSize;
@@ -126,44 +122,36 @@ public:
 	void processFX( unsigned nFrames );
 
 
-	const std::string& getPluginLabel()
-	{
+	const std::string& getPluginLabel() {
 		return m_sLabel;
 	}
 
-	const std::string& getPluginName()
-	{
+	const std::string& getPluginName() {
 		return m_sName;
 	}
-	void setPluginName( const std::string& sName )
-	{
+	void setPluginName( const std::string& sName ) {
 		m_sName = sName;
 	}
 
-	const std::string& getLibraryPath()
-	{
+	const std::string& getLibraryPath() {
 		return m_sLibraryPath;
 	}
 
-	bool isEnabled()
-	{
+	bool isEnabled() {
 		return m_bEnabled;
 	}
-	void setEnabled( bool value )
-	{
+	void setEnabled( bool value ) {
 		m_bEnabled = value;
 	}
 
 	static LadspaFX* load( const std::string& sLibraryPath,  const std::string& sPluginLabel, long nSampleRate );
 
-	int getPluginType()
-	{
+	int getPluginType() {
 		return m_pluginType;
 	}
 
 	void setVolume( float fValue );
-	float getVolume()
-	{
+	float getVolume() {
 		return m_fVolume;
 	}
 

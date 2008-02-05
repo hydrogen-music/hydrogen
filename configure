@@ -90,6 +90,14 @@ rm -f config.h
 echo "#define CONFIG_PREFIX \"$prefix\"" >> config.h
 echo "#define DATA_PATH \"$prefix/share/hydrogen/data\"" >> config.h
 
+
+# include SVN revision number in Version
+SVNREV=`svnversion -n`
+echo "#include <string>" >> config.h
+echo "static const std::string REVISION = \"$SVNREV\";" >> config.h
+echo "static const std::string VERSION = \"0.9.4-svn\" + REVISION;" >> config.h
+
+
 echo "
 
 -----------------------------------------------------------------

@@ -32,8 +32,7 @@ namespace H2Core
 class SMFBuffer : public Object
 {
 public:
-	std::vector<char> getBuffer()
-	{
+	std::vector<char> getBuffer() {
 		return m_buffer;
 	}
 
@@ -45,42 +44,38 @@ public:
 
 	std::vector<char> m_buffer;
 
-	SMFBuffer() : Object( "SMFBuffer" )
-	{ }
+	SMFBuffer() : Object( "SMFBuffer" ) { }
 };
 
 
 
-enum SMFEventType
-{
-    NOTE_OFF = 128,
-    NOTE_ON = 144
+enum SMFEventType {
+	NOTE_OFF = 128,
+	NOTE_ON = 144
 };
 
 
 
-enum SMFMetaEventType
-{
-    SEQUENCE_NUMBER = 0,
-    TEXT_EVENT,
-    COPYRIGHT_NOTICE,
-    TRACK_NAME,
-    INSTRUMENT_NAME,
-    LYRIC,
-    MARKER,
-    CUE_POINT,
-    END_OF_TRACK = 0x2f,
-    SET_TEMPO = 0x51,
-    TIME_SIGNATURE = 0x58,
-    KEY_SIGNATURE
+enum SMFMetaEventType {
+	SEQUENCE_NUMBER = 0,
+	TEXT_EVENT,
+	COPYRIGHT_NOTICE,
+	TRACK_NAME,
+	INSTRUMENT_NAME,
+	LYRIC,
+	MARKER,
+	CUE_POINT,
+	END_OF_TRACK = 0x2f,
+	SET_TEMPO = 0x51,
+	TIME_SIGNATURE = 0x58,
+	KEY_SIGNATURE
 };
 
 
 class SMFBase
 {
 public:
-	virtual ~SMFBase()
-	{}
+	virtual ~SMFBase() {}
 	virtual std::vector<char> getBuffer() = 0;
 };
 

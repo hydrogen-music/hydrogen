@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -22,26 +22,28 @@
 
 #include "FakeDriver.h"
 
-namespace H2Core {
+namespace H2Core
+{
 
 FakeDriver::FakeDriver( audioProcessCallback processCallback )
- : AudioOutput( "FakeDriver" )
- , m_processCallback( processCallback )
- , m_pOut_L( NULL )
- , m_pOut_R( NULL )
+		: AudioOutput( "FakeDriver" )
+		, m_processCallback( processCallback )
+		, m_pOut_L( NULL )
+		, m_pOut_R( NULL )
 {
 	INFOLOG( "INIT" );
 }
 
 
-FakeDriver::~FakeDriver() {
+FakeDriver::~FakeDriver()
+{
 	INFOLOG( "DESTROY" );
 }
 
 
-int FakeDriver::init(unsigned nBufferSize)
+int FakeDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( "init, " + to_string(nBufferSize) + " samples" );
+	INFOLOG( "init, " + to_string( nBufferSize ) + " samples" );
 
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];
@@ -51,7 +53,8 @@ int FakeDriver::init(unsigned nBufferSize)
 }
 
 
-int FakeDriver::connect() {
+int FakeDriver::connect()
+{
 	INFOLOG( "connect" );
 
 	// 	// always rolling, no user interaction
@@ -61,7 +64,8 @@ int FakeDriver::connect() {
 }
 
 
-void FakeDriver::disconnect() {
+void FakeDriver::disconnect()
+{
 	INFOLOG( "disconnect" );
 
 	delete[] m_pOut_L;
@@ -72,7 +76,8 @@ void FakeDriver::disconnect() {
 }
 
 
-unsigned FakeDriver::getSampleRate() {
+unsigned FakeDriver::getSampleRate()
+{
 	return 44100;
 }
 
@@ -112,7 +117,7 @@ void FakeDriver::updateTransportInfo()
 	// not used
 }
 
-void FakeDriver::setBpm(float fBPM)
+void FakeDriver::setBpm( float fBPM )
 {
 	m_transport.m_nBPM = fBPM;
 }

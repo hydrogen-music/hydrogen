@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,14 +26,15 @@
 
 #include <vector>
 
-namespace H2Core {
+namespace H2Core
+{
 
 Pattern::Pattern( const std::string& name, unsigned lenght )
- : Object( "Pattern" )
+		: Object( "Pattern" )
 {
 //	INFOLOG( "INIT: " + m_sName );
-	set_name(name);
-	set_lenght(lenght);
+	set_name( name );
+	set_lenght( lenght );
 }
 
 
@@ -93,38 +94,39 @@ void Pattern::dump()
 
 
 PatternList::PatternList()
- : Object( "PatternList" )
+		: Object( "PatternList" )
 {
 //	infoLog("Init");
 }
 
 
 
-PatternList::~PatternList() {
+PatternList::~PatternList()
+{
 //	infoLog("destroy");
 
 	// find single patterns. (skip duplicates)
 	std::vector<Pattern*> temp;
-	for (unsigned int i = 0; i < list.size(); ++i) {
+	for ( unsigned int i = 0; i < list.size(); ++i ) {
 		Pattern *pat = list[i];
 
 		// pat exists in temp?
 		bool exists = false;
-		for(unsigned int j = 0; j < temp.size(); ++j) {
-			if (pat == temp[j]) {
+		for ( unsigned int j = 0; j < temp.size(); ++j ) {
+			if ( pat == temp[j] ) {
 				exists = true;
 				break;
 			}
 		}
-		if (!exists) {
-			temp.push_back(pat);
+		if ( !exists ) {
+			temp.push_back( pat );
 		}
 	}
 
 	// delete patterns
-	for (unsigned int i = 0; i < temp.size(); ++i) {
+	for ( unsigned int i = 0; i < temp.size(); ++i ) {
 		Pattern *pat = temp[i];
-		if (pat != NULL) {
+		if ( pat != NULL ) {
 			delete pat;
 			pat = NULL;
 		}
@@ -133,14 +135,16 @@ PatternList::~PatternList() {
 
 
 
-void PatternList::add(Pattern* newPattern) {
-	list.push_back(newPattern);
+void PatternList::add( Pattern* newPattern )
+{
+	list.push_back( newPattern );
 }
 
 
 
-Pattern* PatternList::get(int nPos) {
-	if (nPos >= (int)list.size()) {
+Pattern* PatternList::get( int nPos )
+{
+	if ( nPos >= ( int )list.size() ) {
 		ERRORLOG( "Pattern index out of bounds. nPos > list.size() - " + to_string( nPos ) + " > " + to_string( list.size() ) );
 		return NULL;
 	}
@@ -167,7 +171,7 @@ void PatternList::clear()
 /// Replace an existent pattern with another one
 void PatternList::replace( Pattern* newPattern, unsigned int pos )
 {
-	if (pos >= (unsigned)list.size()) {
+	if ( pos >= ( unsigned )list.size() ) {
 		ERRORLOG( "Pattern index out of bounds in PatternList::replace. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
 		return;
 	}
@@ -185,7 +189,7 @@ int PatternList::index_of( Pattern* pattern )
 
 	std::vector<Pattern*>::iterator i;
 
-	for ( i = list.begin(); i != list.end(); ++i) {
+	for ( i = list.begin(); i != list.end(); ++i ) {
 		if ( *i == pattern ) return r;
 		r++;
 	}
@@ -202,7 +206,7 @@ Pattern * PatternList::del( Pattern * p )
 
 	std::vector<Pattern*>::iterator i;
 
-	for (i = list.begin(); i != list.end(); i++) {
+	for ( i = list.begin(); i != list.end(); i++ ) {
 		if ( *i == p ) {
 			i = list.erase( i );
 			did_delete = true;
@@ -218,8 +222,9 @@ Pattern * PatternList::del( Pattern * p )
 
 
 /// Remove one pattern from the list, the pattern is not deleted!!!
-void PatternList::del(unsigned pos) {
-	if (pos >= (unsigned)list.size()) {
+void PatternList::del( unsigned pos )
+{
+	if ( pos >= ( unsigned )list.size() ) {
 		ERRORLOG( "Pattern index out of bounds in PatternList::del. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
 		return;
 	}

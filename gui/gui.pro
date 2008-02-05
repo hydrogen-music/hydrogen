@@ -19,6 +19,7 @@ MOC_DIR = objs
 PRE_TARGETDEPS = ../libs/libhydrogen.a
 
 
+
 exists(/usr/bin/doxygen) {
 #	message("Doxygen is available.")
 #	# Crea la documentazione con Doxygen
@@ -38,15 +39,11 @@ linux-g++ {
 	message( *** LINUX BUILD *** )
 	LIBS += -lsndfile
 	LIBS += -ltar
-#	QMAKE_CXXFLAGS_RELEASE += -fno-stack-protector
-#	QMAKE_CXXFLAGS_DEBUG += -fno-stack-protector
 }
 linux-g++-64 {
 	message( *** LINUX 64bit BUILD *** )
 	LIBS += -lsndfile
 	LIBS += -ltar
-	QMAKE_CXXFLAGS_RELEASE += -fno-stack-protector
-	QMAKE_CXXFLAGS_DEBUG += -fno-stack-protector
 }
 
 win32 {

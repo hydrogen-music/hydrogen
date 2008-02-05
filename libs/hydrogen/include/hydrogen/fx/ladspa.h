@@ -1,19 +1,19 @@
 /* ladspa.h
- 
+
    Linux Audio Developer's Simple Plugin API Version 1.1[LGPL].
    Copyright (C) 2000-2002 Richard W.E. Furse, Paul Barton-Davis,
    Stefan Westerfeld.
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License
    as published by the Free Software Foundation; either version 2.1 of
    the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -77,7 +77,7 @@ extern "C"
 	/* Fundamental data type passed in and out of plugin. This data type
 	   is used to communicate audio samples and control values. It is
 	   assumed that the plugin will work sensibly given any numeric input
-	   value although it may have a preferred range (see hints below). 
+	   value although it may have a preferred range (see hints below).
 	 
 	   For audio it is generally assumed that 1.0f is the `0dB' reference
 	   amplitude and is a `normal' signal level. */
@@ -123,7 +123,7 @@ extern "C"
 	   (3) The plugin will not access files, devices, pipes, sockets, IPC
 	   or any other mechanism that might result in process or thread
 	   blocking.
-	      
+	    
 	   (4) The plugin will take an amount of time to execute a run() or
 	   run_adding() call approximately of form (A+B*SampleCount) where A
 	   and B depend on the machine and host in use. This amount of time
@@ -432,7 +432,7 @@ extern "C"
 		   instantiation function accepts a sample rate as a parameter. The
 		   plugin descriptor from which this instantiate function was found
 		   must also be passed. This function must return NULL if
-		   instantiation fails. 
+		   instantiation fails.
 
 		   Note that instance initialisation should generally occur in
 		   activate() rather than here. */

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -27,9 +27,9 @@
 #include <pthread.h>
 
 #ifdef WIN32
-	#include <windows.h>
+#include <windows.h>
 #else
-	#include <unistd.h>
+#include <unistd.h>
 #endif
 
 using namespace std;
@@ -45,7 +45,7 @@ std::map<std::string, int> Object::__object_map;
  * Constructor
  */
 Object::Object( const std::string& class_name )
- : __class_name( class_name )
+		: __class_name( class_name )
 {
 	++__objects;
 	__logger = Logger::get_instance();
@@ -54,7 +54,7 @@ Object::Object( const std::string& class_name )
 	Object::useVerboseLog( true );
 #endif
 
-	if (__use_log) {
+	if ( __use_log ) {
 		int nInstances = __object_map[ __class_name ];
 		++nInstances;
 		__object_map[ __class_name ] = nInstances;
@@ -76,7 +76,7 @@ Object::Object( const Object& obj )
 //	__class_name = obj.getClassName;
 	__logger = Logger::get_instance();
 
-	if (__use_log) {
+	if ( __use_log ) {
 		int nInstances = __object_map[ __class_name ];
 		++nInstances;
 		__object_map[ __class_name ] = nInstances;
@@ -91,7 +91,7 @@ Object::~Object()
 {
 	--__objects;
 
-	if (__use_log) {
+	if ( __use_log ) {
 		int nInstances = __object_map[ __class_name ];
 		--nInstances;
 		__object_map[ __class_name ] = nInstances;
@@ -157,8 +157,8 @@ void Object::print_object_map()
 	map<std::string, int>::iterator iter = __object_map.begin();
 	int nTotal = 0;
 	do {
-		int nInstances = (*iter).second;
-		std::string sObject = (*iter).first;
+		int nInstances = ( *iter ).second;
+		std::string sObject = ( *iter ).first;
 		if ( nInstances != 0 ) {
 			std::cout << nInstances << "\t" << sObject << std::endl;
 		}
@@ -178,7 +178,7 @@ Logger* Logger::__instance = NULL;
 
 pthread_t loggerThread;
 
-void* loggerThread_func(void* param)
+void* loggerThread_func( void* param )
 {
 	if ( param == NULL ) {
 		// ??????
@@ -188,24 +188,23 @@ void* loggerThread_func(void* param)
 #ifdef WIN32
 	::AllocConsole();
 //	::SetConsoleTitle( "Hydrogen debug log" );
-	freopen( "CONOUT$", "wt", stdout);
+	freopen( "CONOUT$", "wt", stdout );
 #endif
 
-	Logger *pLogger = (Logger*)param;
+	Logger *pLogger = ( Logger* )param;
 
 	FILE *pLogFile = NULL;
 	if ( pLogger->__use_file ) {
 #ifdef Q_OS_MACX
-	  	string sLogFilename = QDir::homePath().append("/Library/Hydrogen/hydrogen.log").toStdString();
+		string sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" ).toStdString();
 #else
-		string sLogFilename = QDir::homePath().append("/.hydrogen/hydrogen.log").toStdString();
+		string sLogFilename = QDir::homePath().append( "/.hydrogen/hydrogen.log" ).toStdString();
 #endif
 
 		pLogFile = fopen( sLogFilename.c_str(), "w" );
 		if ( pLogFile == NULL ) {
 			std::cerr << "Error: can't open log file for writing..." << std::endl;
-		}
-		else {
+		} else {
 			fprintf( pLogFile, "Start logger" );
 		}
 	}
@@ -221,7 +220,7 @@ void* loggerThread_func(void* param)
 
 		vector<std::string>::iterator it;
 		string tmpString;
-		while ( (it  = pLogger->__msg_queue.begin() ) != pLogger->__msg_queue.end() ) {
+		while ( ( it  = pLogger->__msg_queue.begin() ) != pLogger->__msg_queue.end() ) {
 			tmpString = *it;
 			pLogger->__msg_queue.erase( it );
 			printf( tmpString.c_str() );
@@ -244,12 +243,12 @@ void* loggerThread_func(void* param)
 
 
 #ifdef WIN32
-		Sleep( 1000 );
+	Sleep( 1000 );
 #else
-		usleep( 100000 );
+	usleep( 100000 );
 #endif
 
-	pthread_exit(NULL);
+	pthread_exit( NULL );
 	return NULL;
 }
 
@@ -267,16 +266,16 @@ Logger* Logger::get_instance()
  * Constructor
  */
 Logger::Logger()
- : __use_file( false )
- , __running( true )
+		: __use_file( false )
+		, __running( true )
 {
 	pthread_attr_t attr;
-	pthread_attr_init(&attr);
+	pthread_attr_init( &attr );
 
 	pthread_mutex_init( &__logger_mutex, NULL );
 
 
-	pthread_create(&loggerThread, &attr, loggerThread_func, this);
+	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 }
 
 
@@ -288,7 +287,7 @@ Logger::Logger()
 Logger::~Logger()
 {
 	__running = false;
-	pthread_join(loggerThread, NULL);
+	pthread_join( loggerThread, NULL );
 
 }
 
@@ -305,7 +304,7 @@ void Logger::info_log( const std::string& logMsg )
 #ifdef WIN32
 	__msg_queue.push_back( logMsg + "\n" );
 #else
-	__msg_queue.push_back( string( "\033[32m" ) + logMsg + string("\033[0m").append("\n") );
+	__msg_queue.push_back( string( "\033[32m" ) + logMsg + string( "\033[0m" ).append( "\n" ) );
 #endif
 
 	pthread_mutex_unlock( &__logger_mutex );
@@ -322,7 +321,7 @@ void Logger::warning_log( const std::string& logMsg )
 #ifdef WIN32
 	__msg_queue.push_back( logMsg + "\n" );
 #else
-	__msg_queue.push_back( string( "\033[36m" ) + logMsg + string("\033[0m").append("\n") );
+	__msg_queue.push_back( string( "\033[36m" ) + logMsg + string( "\033[0m" ).append( "\n" ) );
 #endif
 
 	pthread_mutex_unlock( &__logger_mutex );
@@ -337,7 +336,7 @@ void Logger::error_log( const std::string& logMsg )
 #ifdef WIN32
 	__msg_queue.push_back( logMsg + "\n" );
 #else
-	__msg_queue.push_back( string( "\033[31m" ) + logMsg + string("\033[0m").append("\n") );
+	__msg_queue.push_back( string( "\033[31m" ) + logMsg + string( "\033[0m" ).append( "\n" ) );
 #endif
 
 	pthread_mutex_unlock( &__logger_mutex );

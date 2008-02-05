@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -31,9 +31,9 @@ class TransportInfo : public Object
 {
 public:
 	enum {
-	    STOPPED,
-	    ROLLING,
-	    BAD
+		STOPPED,
+		ROLLING,
+		BAD
 	};
 
 	unsigned m_status;

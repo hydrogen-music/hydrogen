@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -32,9 +32,9 @@
 
 
 #ifdef __NetBSD__
-	#include <soundcard.h>
+#include <soundcard.h>
 #else
-	#include <sys/soundcard.h>
+#include <sys/soundcard.h>
 #endif
 #include <sys/ioctl.h>
 #include <stdio.h>
@@ -55,45 +55,46 @@
 #endif
 */
 
-namespace H2Core {
+namespace H2Core
+{
 
-typedef int  (*audioProcessCallback)(uint32_t, void *);
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 ///
 /// OSS Audio Driver
 ///
 class OssDriver : public AudioOutput
 {
-	public:
-		OssDriver(audioProcessCallback processCallback);
-		~OssDriver();
+public:
+	OssDriver( audioProcessCallback processCallback );
+	~OssDriver();
 
-		int init(unsigned bufferSize);
-		int connect();
-		void disconnect();
+	int init( unsigned bufferSize );
+	int connect();
+	void disconnect();
 
-		void write();
-		unsigned getBufferSize();
-		unsigned getSampleRate();
-		float* getOut_L();
-		float* getOut_R();
+	void write();
+	unsigned getBufferSize();
+	unsigned getSampleRate();
+	float* getOut_L();
+	float* getOut_R();
 
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm(float fBPM);
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void updateTransportInfo();
+	virtual void setBpm( float fBPM );
 
-	private:
-		/** file descriptor, for writing to /dev/dsp */
-		int fd;
+private:
+	/** file descriptor, for writing to /dev/dsp */
+	int fd;
 
-		short* audioBuffer;
-		float* out_L;
-		float* out_R;
+	short* audioBuffer;
+	float* out_L;
+	float* out_R;
 
-		audioProcessCallback processCallback;
-		int log2(int n);
+	audioProcessCallback processCallback;
+	int log2( int n );
 
 };
 
@@ -103,8 +104,8 @@ namespace H2Core {
 
 class OssDriver : public NullDriver
 {
-	public:
-		OssDriver(audioProcessCallback processCallback) : NullDriver( processCallback ) {}
+public:
+	OssDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
 };
 

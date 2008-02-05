@@ -22,7 +22,8 @@
 
 #include <hydrogen/smf/SMFEvent.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 void SMFBuffer::writeByte( short int nByte )
 {
@@ -56,7 +57,7 @@ void SMFBuffer::writeString( const std::string& sMsg )
 //	infoLog( "writeString" );
 	writeVarLen( sMsg.length() );
 
-	for (unsigned i = 0; i < sMsg.length(); i++) {
+	for ( unsigned i = 0; i < sMsg.length(); i++ ) {
 		writeByte( sMsg.c_str()[ i ] );
 	}
 }
@@ -77,11 +78,10 @@ void SMFBuffer::writeVarLen( long value )
 
 	while ( true ) {
 //		putc( buffer, outfile );
-		writeByte( (char)buffer );
+		writeByte( ( char )buffer );
 		if ( buffer & 0x80 ) {
 			buffer >>= 8;
-		}
-		else {
+		} else {
 			break;
 		}
 	}
@@ -91,8 +91,8 @@ void SMFBuffer::writeVarLen( long value )
 // ::::::::::::::::::
 
 SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( std::string sTrackName, unsigned nTicks )
- : SMFEvent( "SMFTrackNameMetaEvent", nTicks )
- , m_sTrackName( sTrackName )
+		: SMFEvent( "SMFTrackNameMetaEvent", nTicks )
+		, m_sTrackName( sTrackName )
 {
 	// it's always at the start of the song
 	m_nDeltaTime = 0;
@@ -115,9 +115,9 @@ std::vector<char> SMFTrackNameMetaEvent::getBuffer()
 
 
 SMFEvent::SMFEvent( const std::string& sEventName, unsigned nTicks )
- : Object( sEventName )
- , m_nTicks( nTicks )
- , m_nDeltaTime( -1 )
+		: Object( sEventName )
+		, m_nTicks( nTicks )
+		, m_nDeltaTime( -1 )
 {
 	//infoLog( "INIT" );
 }
@@ -134,13 +134,13 @@ SMFEvent::~SMFEvent()
 
 
 SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
- : SMFEvent( "SMFNoteOnEvent", nTicks )
- , m_nChannel( nChannel )
- , m_nPitch( nPitch )
- , m_nVelocity( nVelocity )
+		: SMFEvent( "SMFNoteOnEvent", nTicks )
+		, m_nChannel( nChannel )
+		, m_nPitch( nPitch )
+		, m_nVelocity( nVelocity )
 {
 	if ( nChannel >= 16 ) {
-		ERRORLOG( "nChannel >= 16! nChannel=" + to_string(nChannel) );
+		ERRORLOG( "nChannel >= 16! nChannel=" + to_string( nChannel ) );
 	}
 }
 
@@ -163,13 +163,13 @@ std::vector<char> SMFNoteOnEvent::getBuffer()
 
 
 SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
- : SMFEvent( "SMFNoteOffEvent", nTicks )
- , m_nChannel( nChannel )
- , m_nPitch( nPitch )
- , m_nVelocity( nVelocity )
+		: SMFEvent( "SMFNoteOffEvent", nTicks )
+		, m_nChannel( nChannel )
+		, m_nPitch( nPitch )
+		, m_nVelocity( nVelocity )
 {
 	if ( nChannel >= 16 ) {
-		ERRORLOG( "nChannel >= 16! nChannel=" + to_string(nChannel) );
+		ERRORLOG( "nChannel >= 16! nChannel=" + to_string( nChannel ) );
 	}
 }
 

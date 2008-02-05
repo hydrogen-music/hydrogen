@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -27,31 +27,32 @@
 
 using std::string;
 
-namespace H2Core {
+namespace H2Core
+{
 
 Note::Note(
-		Instrument *pInstrument,
-		unsigned position,
-		float velocity,
-		float fPan_L,
-		float fPan_R,
-		int nLength,
-		float fPitch,
-		NoteKey key
+    Instrument *pInstrument,
+    unsigned position,
+    float velocity,
+    float fPan_L,
+    float fPan_R,
+    int nLength,
+    float fPitch,
+    NoteKey key
 )
- : Object( "Note" )
- , m_fSamplePosition( 0.0 )
- , m_nHumanizeDelay( 0 )
- , m_noteKey( key )
+		: Object( "Note" )
+		, m_fSamplePosition( 0.0 )
+		, m_nHumanizeDelay( 0 )
+		, m_noteKey( key )
 // , m_pADSR( NULL )
- , m_fCutoff( 1.0 )
- , m_fResonance( 0.0 )
- , m_fBandPassFilterBuffer_L( 0.0 )
- , m_fBandPassFilterBuffer_R( 0.0 )
- , m_fLowPassFilterBuffer_L( 0.0 )
- , m_fLowPassFilterBuffer_R( 0.0 )
- , __position( position )
- , __velocity( velocity )
+		, m_fCutoff( 1.0 )
+		, m_fResonance( 0.0 )
+		, m_fBandPassFilterBuffer_L( 0.0 )
+		, m_fBandPassFilterBuffer_R( 0.0 )
+		, m_fLowPassFilterBuffer_L( 0.0 )
+		, m_fLowPassFilterBuffer_R( 0.0 )
+		, __position( position )
+		, __velocity( velocity )
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );
@@ -65,7 +66,7 @@ Note::Note(
 
 
 Note::Note( const Note* pNote )
- : Object( "Note" )
+		: Object( "Note" )
 {
 	__position	=	pNote->get_position();
 	__velocity	=	pNote->get_velocity();
@@ -102,23 +103,23 @@ void Note::set_instrument( Instrument* instrument )
 	}
 
 	__instrument = instrument;
-	assert(__instrument->get_adsr());
-	m_adsr = ADSR( *(__instrument->get_adsr()) );
+	assert( __instrument->get_adsr() );
+	m_adsr = ADSR( *( __instrument->get_adsr() ) );
 
-/*
-	if ( pInstrument->m_pADSR == NULL ) {
-		ERRORLOG( "NULL ADSR? Instrument: " + pInstrument->m_sName );
-	}
-	else {
-		INFOLOG( "copio l'adsr dallo strumento" );
-		if ( m_pADSR ) {
-			WARNINGLOG( "Replacing an existing ADSR" );
-			delete m_pADSR;
-			m_pADSR = NULL;
+	/*
+		if ( pInstrument->m_pADSR == NULL ) {
+			ERRORLOG( "NULL ADSR? Instrument: " + pInstrument->m_sName );
 		}
-		m_pADSR = new ADSR( *(m_pInstrument->m_pADSR) );
-	}
-*/
+		else {
+			INFOLOG( "copio l'adsr dallo strumento" );
+			if ( m_pADSR ) {
+				WARNINGLOG( "Replacing an existing ADSR" );
+				delete m_pADSR;
+				m_pADSR = NULL;
+			}
+			m_pADSR = new ADSR( *(m_pInstrument->m_pADSR) );
+		}
+	*/
 }
 
 
@@ -144,41 +145,29 @@ NoteKey Note::stringToKey( const std::string& str )
 
 	if ( sKey == "C" ) {
 		key.m_key = NoteKey::C;
-	}
-	else if ( sKey == "Cs" ) {
+	} else if ( sKey == "Cs" ) {
 		key.m_key = NoteKey::Cs;
-	}
-	else if ( sKey == "D" ) {
+	} else if ( sKey == "D" ) {
 		key.m_key = NoteKey::D;
-	}
-	else if ( sKey == "Ef" ) {
+	} else if ( sKey == "Ef" ) {
 		key.m_key = NoteKey::Ef;
-	}
-	else if ( sKey == "E" ) {
+	} else if ( sKey == "E" ) {
 		key.m_key = NoteKey::E;
-	}
-	else if ( sKey == "F" ) {
+	} else if ( sKey == "F" ) {
 		key.m_key = NoteKey::F;
-	}
-	else if ( sKey == "Fs" ) {
+	} else if ( sKey == "Fs" ) {
 		key.m_key = NoteKey::Fs;
-	}
-	else if ( sKey == "G" ) {
+	} else if ( sKey == "G" ) {
 		key.m_key = NoteKey::G;
-	}
-	else if ( sKey == "Af" ) {
+	} else if ( sKey == "Af" ) {
 		key.m_key = NoteKey::Af;
-	}
-	else if ( sKey == "A" ) {
+	} else if ( sKey == "A" ) {
 		key.m_key = NoteKey::A;
-	}
-	else if ( sKey == "Bf" ) {
+	} else if ( sKey == "Bf" ) {
 		key.m_key = NoteKey::Bf;
-	}
-	else if ( sKey == "B" ) {
+	} else if ( sKey == "B" ) {
 		key.m_key = NoteKey::B;
-	}
-	else {
+	} else {
 		_ERRORLOG( "Unhandled key: " + sKey );
 	}
 	key.m_nOctave = nOctave;
@@ -193,42 +182,42 @@ std::string Note::keyToString( NoteKey key )
 	string sKey;
 
 	switch ( key.m_key ) {
-		case NoteKey::C:
-			sKey = "C";
-			break;
-		case NoteKey::Cs:
-			sKey = "Cs";
-			break;
-		case NoteKey::D:
-			sKey = "D";
-			break;
-		case NoteKey::Ef:
-			sKey = "Ef";
-			break;
-		case NoteKey::E:
-			sKey = "E";
-			break;
-		case NoteKey::F:
-			sKey = "F";
-			break;
-		case NoteKey::Fs:
-			sKey = "Fs";
-			break;
-		case NoteKey::G:
-			sKey = "G";
-			break;
-		case NoteKey::Af:
-			sKey = "Af";
-			break;
-		case NoteKey::A:
-			sKey = "A";
-			break;
-		case NoteKey::Bf:
-			sKey = "Bf";
-			break;
-		case NoteKey::B:
-			sKey = "B";
-			break;
+	case NoteKey::C:
+		sKey = "C";
+		break;
+	case NoteKey::Cs:
+		sKey = "Cs";
+		break;
+	case NoteKey::D:
+		sKey = "D";
+		break;
+	case NoteKey::Ef:
+		sKey = "Ef";
+		break;
+	case NoteKey::E:
+		sKey = "E";
+		break;
+	case NoteKey::F:
+		sKey = "F";
+		break;
+	case NoteKey::Fs:
+		sKey = "Fs";
+		break;
+	case NoteKey::G:
+		sKey = "G";
+		break;
+	case NoteKey::Af:
+		sKey = "Af";
+		break;
+	case NoteKey::A:
+		sKey = "A";
+		break;
+	case NoteKey::Bf:
+		sKey = "Bf";
+		break;
+	case NoteKey::B:
+		sKey = "B";
+		break;
 
 	}
 
@@ -241,14 +230,14 @@ std::string Note::keyToString( NoteKey key )
 Note* Note::copy()
 {
 	Note* note = new Note(
-		get_instrument(),
-		get_position(),
-		get_velocity(),
-		get_pan_l(),
-		get_pan_r(),
-		get_lenght(),
-		get_pitch(),
-		m_noteKey
+	    get_instrument(),
+	    get_position(),
+	    get_velocity(),
+	    get_pan_l(),
+	    get_pan_r(),
+	    get_lenght(),
+	    get_pitch(),
+	    m_noteKey
 	);
 
 

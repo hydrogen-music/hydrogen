@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://hydrogen.sourceforge.net
  *
@@ -30,8 +30,8 @@
 #define COREAUDIO_DRIVER_H
 
 #ifdef COREAUDIO_SUPPORT
-	#include <AudioUnit/AudioUnit.h>
-	#include <AudioToolbox/AudioToolbox.h>
+#include <AudioUnit/AudioUnit.h>
+#include <AudioToolbox/AudioToolbox.h>
 #endif
 
 #include <hydrogen/IO/AudioOutput.h>
@@ -40,60 +40,61 @@
 #include <inttypes.h>
 
 
-typedef int (*audioProcessCallback)(uint32_t, void *);
+typedef int ( *audioProcessCallback )( uint32_t, void * );
 
-namespace H2Core {
+namespace H2Core
+{
 
 #ifdef Q_OS_MACX
 
 class CoreAudioDriver : public AudioOutput
 {
-	public:
+public:
 
-		audioProcessCallback mProcessCallback;
-		UInt32 m_nBufferSize;
+	audioProcessCallback mProcessCallback;
+	UInt32 m_nBufferSize;
 
-		AudioUnit m_outputUnit;
-		AudioDeviceID m_outputDevice;
+	AudioUnit m_outputUnit;
+	AudioDeviceID m_outputDevice;
 
-		CoreAudioDriver( audioProcessCallback processCallback );
-		virtual ~CoreAudioDriver();
+	CoreAudioDriver( audioProcessCallback processCallback );
+	virtual ~CoreAudioDriver();
 
-		int init(unsigned bufferSize);
+	int init( unsigned bufferSize );
 
-		unsigned getSampleRate();
-		unsigned getBufferSize();
-
-
-		int connect();
-		void disconnect();
-
-		float* getOut_L();
-		float* getOut_R();
-
-		float* m_pOut_L;
-		float* m_pOut_R;
-
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm(float fBPM);
+	unsigned getSampleRate();
+	unsigned getBufferSize();
 
 
+	int connect();
+	void disconnect();
 
-	private:
-		bool m_bIsRunning;
-		unsigned m_nSampleRate;
-		unsigned oSampleRate;
+	float* getOut_L();
+	float* getOut_R();
+
+	float* m_pOut_L;
+	float* m_pOut_R;
+
+	virtual void play();
+	virtual void stop();
+	virtual void locate( unsigned long nFrame );
+	virtual void updateTransportInfo();
+	virtual void setBpm( float fBPM );
+
+
+
+private:
+	bool m_bIsRunning;
+	unsigned m_nSampleRate;
+	unsigned oSampleRate;
 };
 
 #else
 
 class CoreAudioDriver : public NullDriver
 {
-	public:
-		CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
+public:
+	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
 
 };
 

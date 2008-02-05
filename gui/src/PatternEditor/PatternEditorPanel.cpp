@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -726,7 +726,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 {
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomIn();
-	m_pDrumPatternEditor->zoomIn();
+	m_pDrumPatternEditor->zoom_in();
 	m_pNoteVelocityEditor->zoomIn();
 
 	resizeEvent( NULL );
@@ -738,7 +738,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 {
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomOut();
-	m_pDrumPatternEditor->zoomOut();
+	m_pDrumPatternEditor->zoom_out();
 	m_pNoteVelocityEditor->zoomOut();
 
 	resizeEvent( NULL );

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -40,33 +40,33 @@ public:
 	Sample( unsigned frames, const std::string& filename, float* data_L = NULL, float* data_R = NULL );
 	~Sample();
 
-	float* get_data_l()
-	{
+	float* get_data_l() {
 		return __data_l;
 	}
-	float* get_data_r()
-	{
+	float* get_data_r() {
 		return __data_r;
 	}
 
-	unsigned get_sample_rate()
-	{
+	unsigned get_sample_rate() {
 		return __sample_rate;
 	}
 
-	const std::string get_filename() {	return __filename;	}
+	const std::string get_filename() {
+		return __filename;
+	}
 
 
 	/// Returns the bytes number ( 2 channels )
-	unsigned get_size()
-	{
+	unsigned get_size() {
 		return __n_frames * sizeof( float ) * 2;
 	}
 
 	/// Loads a sample from disk
 	static Sample* load( const std::string& filename );
 
-	unsigned get_n_frames() {	return __n_frames;	}
+	unsigned get_n_frames() {
+		return __n_frames;
+	}
 
 private:
 	float *__data_l;	///< Left channel data

@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -93,8 +93,7 @@ public:
 	/** Destructor */
 	virtual ~Object();
 
-	const std::string& get_class_name() const
-	{
+	const std::string& get_class_name() const {
 		return __class_name;
 	}
 
