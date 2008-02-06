@@ -568,6 +568,8 @@ void SongEditor::drawSequence()
 	// Moving cells
 	p.begin( m_pSequencePixmap );
 //	p.setRasterOp( Qt::XorROP );
+
+// comix: this composition mode seems to be not available on Mac
 	p.setCompositionMode( QPainter::CompositionMode_Xor );
 	QPen pen( Qt::gray );
 	pen.setStyle( Qt::DotLine );

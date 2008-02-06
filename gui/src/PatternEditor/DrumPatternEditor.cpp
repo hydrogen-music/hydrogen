@@ -51,8 +51,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , Object( "DrumPatternEditor" )
  , m_nResolution( 8 )
  , m_bUseTriplets( false )
- , m_pBackground( NULL )
- , m_pTemp( NULL )
  , m_bRightBtnPressed( false )
  , m_pDraggedNote( NULL )
  , m_pPattern( NULL )
@@ -69,32 +67,22 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	unsigned nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
 
-	// Prepare pixmaps
-	m_pBackground = new QPixmap( nEditorWidth, m_nEditorHeight );
-	m_pTemp = new QPixmap( nEditorWidth, m_nEditorHeight );
-
-	__create_background();
-
 	resize( nEditorWidth, m_nEditorHeight );
 
 	HydrogenApp::getInstance()->addEventListener( this );
+	
 }
 
 
 
 DrumPatternEditor::~DrumPatternEditor()
 {
-	//infoLog("DESTROY");
-	delete m_pBackground;
-	delete m_pTemp;
 }
 
 
 
 void DrumPatternEditor::updateEditor()
 {
-	//cout << "*** update pattern editor" << endl;
-
 	Hydrogen* engine = Hydrogen::get_instance();
 
 	// check engine state
@@ -123,10 +111,6 @@ void DrumPatternEditor::updateEditor()
 		nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
 	}
 	resize( nEditorWidth, height() );
-
-
-	__create_background();
-	__draw_pattern();
 
 	// redraw all
 	update( 0, 0, width(), height() );
@@ -163,7 +147,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->get_instrument_list()->get_size();
 
-//	int row = (int)( (float)( height() - ev->y() )  / (float)m_nGridHeight);
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
 		return;
@@ -230,7 +213,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			assert( pNote );
 
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				//INFOLOG( "TROVATA NOTA!" );
 				m_pDraggedNote = pNote;
 				break;
 			}
@@ -241,7 +223,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				assert( pNote );
 
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					//INFOLOG( "TROVATA NOTA!" );
 					m_pDraggedNote = pNote;
 					break;
 				}
@@ -255,7 +236,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				assert( pNote );
 
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					//INFOLOG( "TROVATA NOTA sulla coda...!" );
 					m_pDraggedNote = pNote;
 					break;
 				}
@@ -267,12 +247,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	// update the selected line
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	if (nSelectedInstrument != row) {
-		//m_pPatternEditorPanel->setSelectedInstrument(row);
 		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
 	}
 	else {
-		//createBackground();
-		__draw_pattern();
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
@@ -318,13 +295,15 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		Hydrogen::get_instance()->getSong()->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		__draw_pattern();
+		//__draw_pattern();
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	}
 
 }
+
+
 
 void DrumPatternEditor::keyPressEvent (QKeyEvent *ev)
 {
@@ -336,19 +315,12 @@ void DrumPatternEditor::keyPressEvent (QKeyEvent *ev)
 ///
 /// Draws a pattern
 ///
-void DrumPatternEditor::__draw_pattern()
+void DrumPatternEditor::__draw_pattern(QPainter& painter)
 {
-	//cout << "draw pattern" << endl;
-	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
-	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
+	const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 
-	QPainter painter( m_pTemp );
-
-	// copy the background image
-	painter.drawPixmap( rect(), *m_pBackground, rect() );
-
-	QPainter* p = &painter;
-
+	__create_background( painter );
 
 	if (m_pPattern == NULL) {
 		return;
@@ -364,30 +336,24 @@ void DrumPatternEditor::__draw_pattern()
 		// the number of instruments is changed...recreate all
 		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();
 		resize( width(), m_nEditorHeight );
-		__create_background();
 	}
 
-
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
-	  //Instrument *pInstr = pSong->getInstrumentList()->get( nInstr );
 		uint y = m_nGridHeight * nInstr;
 		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
-			p->fillRect( 0, y + 1, (20 + nNotes * m_nGridWidth), m_nGridHeight - 1, selectedRowColor );
+			painter.fillRect( 0, y + 1, (20 + nNotes * m_nGridWidth), m_nGridHeight - 1, selectedRowColor );
 		}
-		//if ( pInstr->m_bIsMuted ) {
-		//	p->fillRect( 0, y + 1, ( 20 + nNotes * m_nGridWidth), m_nGridHeight - 1, muteRowColor );
-		//}
 	}
 
 
 	// draw the grid
-	__draw_grid(  p );
+	__draw_grid( painter );
 
 	std::multimap <int, Note*>::iterator pos;
 	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
 		Note *note = pos->second;
 		assert( note );
-		__draw_note( note, p );
+		__draw_note( note, painter );
 	}
 }
 
@@ -395,12 +361,12 @@ void DrumPatternEditor::__draw_pattern()
 ///
 /// Draws a note
 ///
-void DrumPatternEditor::__draw_note( Note *note, QPainter* p )
+void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 {
 	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
 	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
 
-	p->setRenderHint( QPainter::Antialiasing );
+	p.setRenderHint( QPainter::Antialiasing );
 
 	int nInstrument = -1;
 	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
@@ -418,7 +384,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter* p )
 
 	uint pos = note->get_position();
 
-	p->setPen( noteColor );
+	p.setPen( noteColor );
 
 	if ( note->get_lenght() == -1 ) {	// trigger note
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
@@ -426,20 +392,20 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter* p )
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 		// draw the "dot"
-		p->drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
-		p->drawLine(x_pos, y_pos, x_pos - 3, y_pos + 3);		// B
-		p->drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 3);	// C
-		p->drawLine(x_pos - 3, y_pos + 3, x_pos, y_pos + 6);	// D
+		p.drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
+		p.drawLine(x_pos, y_pos, x_pos - 3, y_pos + 3);		// B
+		p.drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 3);	// C
+		p.drawLine(x_pos - 3, y_pos + 3, x_pos, y_pos + 6);	// D
 
-		p->drawLine(x_pos, y_pos + 1, x_pos + 2, y_pos + 3);
-		p->drawLine(x_pos, y_pos + 1, x_pos - 2, y_pos + 3);
-		p->drawLine(x_pos, y_pos + 5, x_pos + 2, y_pos + 3);
-		p->drawLine(x_pos - 2, y_pos + 3, x_pos, y_pos + 5);
+		p.drawLine(x_pos, y_pos + 1, x_pos + 2, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 1, x_pos - 2, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 5, x_pos + 2, y_pos + 3);
+		p.drawLine(x_pos - 2, y_pos + 3, x_pos, y_pos + 5);
 
-		p->drawLine(x_pos, y_pos + 2, x_pos + 1, y_pos + 3);
-		p->drawLine(x_pos, y_pos + 2, x_pos - 1, y_pos + 3);
-		p->drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
-		p->drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);
+		p.drawLine(x_pos, y_pos + 2, x_pos + 1, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 2, x_pos - 1, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
+		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);
 	}
 	else {
 		uint x = 20 + (pos * m_nGridWidth);
@@ -449,17 +415,16 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter* p )
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
 		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
 
-		p->fillRect( x, y + 1, w, h + 1, QColor(100, 100, 200) );	/// \todo: definire questo colore nelle preferenze
-		p->drawRect( x, y + 1, w, h + 1 );
+		p.fillRect( x, y + 1, w, h + 1, QColor(100, 100, 200) );	/// \todo: definire questo colore nelle preferenze
+		p.drawRect( x, y + 1, w, h + 1 );
 	}
 }
 
 
 
 
-void DrumPatternEditor::__draw_grid( QPainter* p )
+void DrumPatternEditor::__draw_grid( QPainter& p )
 {
-	//cout << "draw grid" << endl;
 	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
 	static const QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
 	static const QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
@@ -468,7 +433,7 @@ void DrumPatternEditor::__draw_grid( QPainter* p )
 	static const QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
 
 	// vertical lines
-	p->setPen( QPen( res_1, 0, Qt::DotLine ) );
+	p.setPen( QPen( res_1, 0, Qt::DotLine ) );
 
 	int nBase;
 	if (m_bUseTriplets) {
@@ -494,32 +459,32 @@ void DrumPatternEditor::__draw_grid( QPainter* p )
 
 			if ( (i % n4th) == 0 ) {
 				if (m_nResolution >= 4) {
-					p->setPen( QPen( res_1, 0 ) );
-					p->drawLine(x, 1, x, m_nEditorHeight - 1);
+					p.setPen( QPen( res_1, 0 ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n8th) == 0 ) {
 				if (m_nResolution >= 8) {
-					p->setPen( QPen( res_2, 0 ) );
-					p->drawLine(x, 1, x, m_nEditorHeight - 1);
+					p.setPen( QPen( res_2, 0 ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n16th) == 0 ) {
 				if (m_nResolution >= 16) {
-					p->setPen( QPen( res_3, 0 ) );
-					p->drawLine(x, 1, x, m_nEditorHeight - 1);
+					p.setPen( QPen( res_3, 0 ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n32th) == 0 ) {
 				if (m_nResolution >= 32) {
-					p->setPen( QPen( res_4, 0 ) );
-					p->drawLine(x, 1, x, m_nEditorHeight - 1);
+					p.setPen( QPen( res_4, 0 ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n64th) == 0 ) {
 				if (m_nResolution >= 64) {
-					p->setPen( QPen( res_5, 0 ) );
-					p->drawLine(x, 1, x, m_nEditorHeight - 1);
+					p.setPen( QPen( res_5, 0 ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 		}
@@ -533,12 +498,12 @@ void DrumPatternEditor::__draw_grid( QPainter* p )
 
 			if ( (i % nSize) == 0) {
 				if ((nCounter % 3) == 0) {
-					p->setPen( QPen( res_1, 0 ) );
+					p.setPen( QPen( res_1, 0 ) );
 				}
 				else {
-					p->setPen( QPen( res_3, 0 ) );
+					p.setPen( QPen( res_3, 0 ) );
 				}
-				p->drawLine(x, 1, x, m_nEditorHeight - 1);
+				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
 			}
 		}
@@ -554,31 +519,27 @@ void DrumPatternEditor::__draw_grid( QPainter* p )
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
 		if ( i == (uint)nSelectedInstrument ) {
-			p->fillRect( 0, y, (20 + nNotes * m_nGridWidth), m_nGridHeight * 0.7, selectedRowColor );
+			p.fillRect( 0, y, (20 + nNotes * m_nGridWidth), (int)( m_nGridHeight * 0.7 ), selectedRowColor );
 		}
 		else {
-			p->fillRect( 0, y, (20 + nNotes * m_nGridWidth), m_nGridHeight * 0.7, backgroundColor );
+			p.fillRect( 0, y, (20 + nNotes * m_nGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
 		}
 	}
 
 }
 
 
-void DrumPatternEditor::__create_background()
+void DrumPatternEditor::__create_background( QPainter& p)
 {
-	//cout << "recreate background" << endl;
-
 	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
 	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor.getRed(), pStyle->m_patternEditor_alternateRowColor.getGreen(), pStyle->m_patternEditor_alternateRowColor.getBlue() );
 	static const QColor lineColor( pStyle->m_patternEditor_lineColor.getRed(), pStyle->m_patternEditor_lineColor.getGreen(), pStyle->m_patternEditor_lineColor.getBlue() );
 
-
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_lenght();
 	}
-
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->get_instrument_list()->get_size();
@@ -589,18 +550,12 @@ void DrumPatternEditor::__create_background()
 		resize( width(), m_nEditorHeight );
 	}
 
-
-
-	//	m_pBackground->fill( QColor( 0,0,0 ) );
-	QPainter p( m_pBackground );
-
 	p.fillRect(0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor);
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i;
 		if ( ( i % 2) != 0) {
 			p.fillRect( 0, y, (20 + nNotes * m_nGridWidth), m_nGridHeight, alternateRowColor );
 		}
-
 	}
 
 	// horizontal lines
@@ -610,7 +565,6 @@ void DrumPatternEditor::__create_background()
 		p.drawLine( 0, y, (20 + nNotes * m_nGridWidth), y);
 	}
 
-
 	p.drawLine( 0, m_nEditorHeight, (20 + nNotes * m_nGridWidth), m_nEditorHeight );
 }
 
@@ -619,8 +573,10 @@ void DrumPatternEditor::__create_background()
 void DrumPatternEditor::paintEvent( QPaintEvent *ev )
 {
 	//INFOLOG( "paint" );
+	//QWidget::paintEvent(ev);
+	
 	QPainter painter( this );
-	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
+	__draw_pattern( painter );
 }
 
 
@@ -639,7 +595,6 @@ void DrumPatternEditor::showEvent ( QShowEvent *ev )
 void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 {
 	UNUSED( ev );
-//	updateStart(false);
 }
 
 
@@ -650,12 +605,9 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 	this->m_bUseTriplets = bUseTriplets;
 
 	// redraw all
-	__create_background();
-	__draw_pattern();
 	update( 0, 0, width(), height() );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	//m_pPatternEditorPanel->getPitchEditor()->updateEditor();
 	/// \todo [DrumPatternEditor::setResolution] aggiornare la risoluzione del Ruler in alto."
 }
 
@@ -680,8 +632,6 @@ void DrumPatternEditor::zoom_out()
 
 void DrumPatternEditor::selectedInstrumentChangedEvent()
 {
-	//cout << "instrument changed" << endl;
-	__draw_pattern();
 	update( 0, 0, width(), height() );
 }
 
@@ -689,16 +639,13 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 /// This method is called from another thread (audio engine)
 void DrumPatternEditor::patternModifiedEvent()
 {
-	//cout << "pattern modified" << endl;
-	__draw_pattern();
 	update( 0, 0, width(), height() );
 }
 
 
 void DrumPatternEditor::patternChangedEvent()
 {
-	//cout << "pattern changed EVENT" << endl;
-	//updateEditor();
+	updateEditor();
 }
 
 void DrumPatternEditor::selectedPatternChangedEvent()

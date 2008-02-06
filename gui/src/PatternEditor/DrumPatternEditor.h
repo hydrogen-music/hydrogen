@@ -74,8 +74,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		uint m_nResolution;
 		bool m_bUseTriplets;
 
-		QPixmap *m_pBackground;
-		QPixmap *m_pTemp;
+		//QPixmap *m_pBackground;
+		//QPixmap *m_pTemp;
 
 		// usati per la lunghezza della nota
 		bool m_bRightBtnPressed;
@@ -86,10 +86,10 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 
-		void __draw_note( H2Core::Note* note, QPainter* painter );
-		void __draw_pattern();
-		void __draw_grid( QPainter* painter );
-		void __create_background();
+		void __draw_note( H2Core::Note* note, QPainter& painter );
+		void __draw_pattern( QPainter& painter );
+		void __draw_grid( QPainter& painter );
+		void __create_background( QPainter& pointer );
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
