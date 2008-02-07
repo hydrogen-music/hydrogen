@@ -107,7 +107,7 @@ public:
 	}
 
 	static Song* load( const std::string& sFilename );
-	void save( const std::string& sFilename );
+	bool save( const std::string& sFilename );
 
 	InstrumentList* get_instrument_list() {
 		return __instrument_list;

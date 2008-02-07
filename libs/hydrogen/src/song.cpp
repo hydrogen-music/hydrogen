@@ -106,13 +106,17 @@ Song* Song::load( const std::string& filename )
 
 
 /// Save a song to file
-void Song::save( const std::string& filename )
+bool Song::save( const std::string& filename )
 {
-//	LocalFileMng mng;
-//	mng.saveSong(this, filename);
-
 	SongWriter writer;
 	writer.writeSong( this, filename );
+
+	if (FILE * file = fopen(filename.c_str(), "r"))
+	{
+		fclose(file);
+		return true;
+	}
+	return false;
 }
 
 

@@ -396,18 +396,24 @@ void MainForm::action_file_save()
 	}
 
 	LocalFileMng mng;
-	song->save( filename.toStdString() );
-	Preferences::getInstance()->setLastSongFilename( song->get_filename() );
+	bool saved = false;
+	saved = song->save( filename.toStdString() );
 
-	// add the new loaded song in the "last used song" vector
-	Preferences *pPref = Preferences::getInstance();
-	vector<string> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), filename.toStdString() );
-	pPref->setRecentFiles( recentFiles );
+	if(! saved) {
+		QMessageBox::warning( this, "Hydrogen", trUtf8("Could not save song.") );
+	} else {
+		Preferences::getInstance()->setLastSongFilename( song->get_filename() );
 
-	updateRecentUsedSongList();
+		// add the new loaded song in the "last used song" vector
+		Preferences *pPref = Preferences::getInstance();
+		vector<string> recentFiles = pPref->getRecentFiles();
+		recentFiles.insert( recentFiles.begin(), filename.toStdString() );
+		pPref->setRecentFiles( recentFiles );
 
-	h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
+		updateRecentUsedSongList();
+
+		h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
+	}
 }
 
 
