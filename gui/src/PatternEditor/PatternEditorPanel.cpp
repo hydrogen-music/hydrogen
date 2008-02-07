@@ -327,7 +327,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 // NOTE_PROPERTIES BUTTONS
 	PixmapWidget *pPropertiesPanel = new PixmapWidget( NULL );
-	pPropertiesPanel->setColor( QColor( 255, 0, 0 ) );
+	pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
+
 	pPropertiesPanel->setFixedSize( 181, 100 );
 
 	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( pPropertiesPanel );
