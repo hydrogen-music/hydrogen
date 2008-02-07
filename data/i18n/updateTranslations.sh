@@ -4,12 +4,24 @@ echo "Updating translation (*.ts) files"
 
 cd ../../gui/
 
+
+
+if [ "$QTDIR" ]; then
+	LUPDATE="$QTDIR/bin/lupdate"
+	LRELEASE="$QTDIR/bin/lrelease"
+else
+	LUPDATE=$(which lupdate)
+	LRELEASE=$(which lrelease)
+fi;
+
 UI=`find . | grep "\.ui"`
 CPP=`find . | grep "\.cpp"`
 H=`find . | grep "\.h"`
 FILES="$UI $CPP $H"
 
-CMD="$QTDIR/bin/lupdate ${FILES} -ts"
+CMD="$LUPDATE ${FILES} -ts"
+
+
 
 $CMD ../data/i18n/hydrogen.it.ts
 $CMD ../data/i18n/hydrogen.es.ts
@@ -25,7 +37,7 @@ $CMD ../data/i18n/hydrogen.sv.ts
 
 echo "Creating *.qm files"
 cd ../data/i18n
-$QTDIR/bin/lrelease *.ts
+$LRELEASE *.ts
 
 
 echo "Stats"
