@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>772</width>
-    <height>499</height>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -237,6 +237,51 @@
      </layout>
     </widget>
    </widget>
+  </widget>
+  <widget class="QWidget" name="" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>500</y>
+     <width>751</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="close_btn" >
+      <property name="text" >
+       <string>Close</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

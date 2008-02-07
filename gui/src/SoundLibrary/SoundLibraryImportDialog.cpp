@@ -304,4 +304,10 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 
 
 
+void SoundLibraryImportDialog::on_close_btn_clicked()
+{
+	accept();
+}
+
+
 

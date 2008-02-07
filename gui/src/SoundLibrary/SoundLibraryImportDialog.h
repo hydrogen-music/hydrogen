@@ -55,6 +55,8 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		void on_BrowseBtn_clicked();
 		void on_InstallBtn_clicked();
 
+		void on_close_btn_clicked();
+
 		void soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* );
 
 	private:

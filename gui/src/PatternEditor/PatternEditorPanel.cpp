@@ -184,6 +184,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
 	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 	editor_top_hbox->addWidget(__show_drum_btn);
+	__show_drum_btn->hide();
 
 
 	// show piano roll btn
@@ -200,6 +201,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_piano_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
 	connect(__show_piano_btn, SIGNAL(clicked(Button*)), this, SLOT( showPianoEditorBtnClick(Button*)));
 	editor_top_hbox->addWidget(__show_piano_btn);
+	__show_piano_btn->hide();
 // End Editor TOP
 
 
