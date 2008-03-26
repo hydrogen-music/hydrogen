@@ -154,6 +154,7 @@ void SoundLibraryPanel::updateDrumkitList()
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->get_name().c_str() ) );
+				pInstrumentItem->setToolTip( 0, QString( pInstr->get_name().c_str() ) );
 			}
 		}
 	}
@@ -176,6 +177,7 @@ void SoundLibraryPanel::updateDrumkitList()
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->get_name().c_str() ) );
+				pInstrumentItem->setToolTip( 0, QString( pInstr->get_name().c_str() ) );
 			}
 		}
 	}
