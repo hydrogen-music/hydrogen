@@ -351,7 +351,7 @@ int Sampler::__render_note_no_resample(
 			// hack hack hack: cast to JackOutput
 #ifdef JACK_SUPPORT
 			float* track_out_L = ( ( JackOutput* )__audio_output )->getTrackOut_L( nInstrument );
-			float* track_out_R = ( ( JackOutput* )__audio_output )->getTrackOut_L( nInstrument );
+			float* track_out_R = ( ( JackOutput* )__audio_output )->getTrackOut_R( nInstrument );
 			assert( track_out_L );
 			assert( track_out_R );
 			track_out_L[nBufferPos] = pSample_data_L[nSamplePos] * cost_track * fADSRValue;
@@ -504,7 +504,7 @@ int Sampler::__render_note_resample(
 #ifdef JACK_SUPPORT
 			// hack hack hack: cast to JackOutput
 			float* track_out_L = ( ( JackOutput* )__audio_output )->getTrackOut_L( nInstrument );
-			float* track_out_R = ( ( JackOutput* )__audio_output )->getTrackOut_L( nInstrument );
+			float* track_out_R = ( ( JackOutput* )__audio_output )->getTrackOut_R( nInstrument );
 			assert( track_out_L );
 			assert( track_out_R );
 			track_out_L[nBufferPos] = fVal_L * cost_track * fADSRValue;
