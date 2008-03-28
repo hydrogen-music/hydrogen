@@ -336,6 +336,17 @@ int Sampler::__render_note_no_resample(
 	float fADSRValue;
 	float fVal_L;
 	float fVal_R;
+
+	/*
+	 * nInstrument could be -1 if the instrument is not found in the current drumset.
+	 * This happens when someone is using the prelistening function of the soundlibrary.
+	 */
+
+	if( nInstrument < 0 ) {
+		nInstrument = 0;
+	}
+	
+
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
 			if ( pNote->m_adsr.release() == 0 ) {
@@ -482,6 +493,16 @@ int Sampler::__render_note_resample(
 	float fVal_L;
 	float fVal_R;
 	int nSampleFrames = pSample->get_n_frames();
+
+	/*
+	 * nInstrument could be -1 if the instrument is not found in the current drumset.
+	 * This happens when someone is using the prelistening function of the soundlibrary.
+	 */
+	
+	if( nInstrument < 0 ) {
+		nInstrument = 0;
+	}
+	
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
