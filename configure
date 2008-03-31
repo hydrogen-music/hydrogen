@@ -70,7 +70,7 @@ fi
 
 if test "x$ac_qtlib" = "x"; then
 	echo ""
-	echo " *** ERROR: QT library not found. Maybe QT development libraries are not installed or QTDIR isn't properly set."
+	echo " *** ERROR: QT4 library not found. Maybe QT4 development libraries are not installed or QTDIR isn't properly set."
 	exit 1
 fi
 
