@@ -102,7 +102,6 @@ void PixmapWidget::paintEvent( QPaintEvent* ev)
 			painter.drawPixmap( ev->rect(), m_pixmap, ev->rect() );
 		}
 	}
-
 }
 
 
