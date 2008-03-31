@@ -332,7 +332,10 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 
 	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
-	QColor backgroundColor( 255, 255, 255 );
+
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+
+	//QColor backgroundColor( 255, 255, 255 );
 	QColor blackKeysColor( 240, 240, 240 );
 	QColor horizLinesColor(
 			pStyle->m_patternEditor_backgroundColor.getRed() - 20,
