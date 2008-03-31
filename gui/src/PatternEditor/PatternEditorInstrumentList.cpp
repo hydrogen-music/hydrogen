@@ -372,6 +372,9 @@ void InstrumentLine::functionDeleteInstrument()
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 
 	delete pInstr;
+	#ifdef JACK_SUPPORT
+	pEngine->renameJackPorts();
+	#endif
 	AudioEngine::get_instance()->unlock();
 
 	// this will force an update...
@@ -584,6 +587,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
 		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
+		#ifdef JACK_SUPPORT
+		pEngine->renameJackPorts();
+		#endif
 		AudioEngine::get_instance()->unlock();
 
 		// select the new instrument
@@ -591,6 +597,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		event->acceptProposedAction();
 	}
+
 }
 
 

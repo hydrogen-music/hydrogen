@@ -142,6 +142,7 @@ public:
 
 	int getSelectedInstrumentNumber();
 	void setSelectedInstrumentNumber( int nInstrument );
+	void renameJackPorts();
 
 private:
 	static Hydrogen* instance;
