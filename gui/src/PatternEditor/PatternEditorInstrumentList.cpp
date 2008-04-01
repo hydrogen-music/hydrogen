@@ -441,6 +441,47 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 }
 
 
+void PatternEditorInstrumentList::moveInstrumentLine( int nSourceInstrument , int nTargetInstrument )
+{
+		Hydrogen *engine = Hydrogen::get_instance();
+		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::moveInstrumentLine" );
+
+		Song *pSong = engine->getSong();
+		InstrumentList *pInstrumentList = pSong->get_instrument_list();
+
+		if ( ( nTargetInstrument > pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
+			AudioEngine::get_instance()->unlock();
+			return;
+		}
+
+
+		// move instruments...
+
+		Instrument *pSourceInstr = pInstrumentList->get(nSourceInstrument);
+		if ( nSourceInstrument < nTargetInstrument) {
+			for (int nInstr = nSourceInstrument; nInstr < nTargetInstrument; nInstr++) {
+				Instrument * pInstr = pInstrumentList->get(nInstr + 1);
+				pInstrumentList->replace( pInstr, nInstr );
+			}
+			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
+		}
+		else {
+			for (int nInstr = nSourceInstrument; nInstr >= nTargetInstrument; nInstr--) {
+				Instrument * pInstr = pInstrumentList->get(nInstr - 1);
+				pInstrumentList->replace( pInstr, nInstr );
+			}
+			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
+		}
+
+		#ifdef JACK_SUPPORT
+		engine->renameJackPorts();
+		#endif
+
+		AudioEngine::get_instance()->unlock();
+		engine->setSelectedInstrumentNumber( nTargetInstrument );
+
+		pSong->__is_modified = true;
+}
 
 ///
 /// Update every InstrumentLine, create or destroy lines if necessary.
@@ -510,7 +551,6 @@ void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 }
 
 
-
 void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
@@ -528,39 +568,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
-
-		Song *pSong = engine->getSong();
-		InstrumentList *pInstrumentList = pSong->get_instrument_list();
-
-		if ( ( nTargetInstrument > pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
-			AudioEngine::get_instance()->unlock();
-			event->acceptProposedAction();
-			return;
-		}
-
-
-		// move instruments...
-
-		Instrument *pSourceInstr = pInstrumentList->get(nSourceInstrument);
-		if ( nSourceInstrument < nTargetInstrument) {
-			for (int nInstr = nSourceInstrument; nInstr < nTargetInstrument; nInstr++) {
-				Instrument * pInstr = pInstrumentList->get(nInstr + 1);
-				pInstrumentList->replace( pInstr, nInstr );
-			}
-			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
-		}
-		else {
-			for (int nInstr = nSourceInstrument; nInstr >= nTargetInstrument; nInstr--) {
-				Instrument * pInstr = pInstrumentList->get(nInstr - 1);
-				pInstrumentList->replace( pInstr, nInstr );
-			}
-			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
-		}
-		AudioEngine::get_instance()->unlock();
-		engine->setSelectedInstrumentNumber( nTargetInstrument );
-
-		pSong->__is_modified = true;
+		moveInstrumentLine( nSourceInstrument , nTargetInstrument );
 
 		event->acceptProposedAction();
 	}
@@ -587,13 +595,30 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
 		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
+
 		#ifdef JACK_SUPPORT
 		pEngine->renameJackPorts();
 		#endif
+
 		AudioEngine::get_instance()->unlock();
 
+	
+		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+
+		/*
+		    "X > 181": border between the instrument names on the left and the grid
+		    Because the right part of the grid starts above the name column, we have to subtract the difference 
+		*/
+
+		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+
+		//move instrument to the position where it was dropped
+		moveInstrumentLine(pEngine->getSong()->get_instrument_list()->get_size() - 1 , nTargetInstrument );
+
+
+
 		// select the new instrument
-		pEngine->setSelectedInstrumentNumber( pEngine->getSong()->get_instrument_list()->get_size() - 1 );
+		pEngine->setSelectedInstrumentNumber(nTargetInstrument);
 
 		event->acceptProposedAction();
 	}

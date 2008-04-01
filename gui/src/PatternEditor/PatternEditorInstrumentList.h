@@ -103,6 +103,7 @@ class PatternEditorInstrumentList : public QWidget, public Object {
 		QPoint __drag_start_position;
 
 		InstrumentLine* createInstrumentLine();
+		void moveInstrumentLine(int,int);
 
 };
 
