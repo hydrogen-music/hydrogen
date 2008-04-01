@@ -1374,8 +1374,13 @@ void MainForm::latestVersionDone(bool bError)
 	}
 
 	if ( bUsingDevelVersion ) {
-	  QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
-		QMessageBox::warning( this, "Hydrogen", msg );
+	  Preferences *pref = Preferences::getInstance();
+	  bool isDevelWarningEnabled = pref->isDevelWarningEnabled();
+	  if(isDevelWarningEnabled) {
+	    QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
+	    QMessageBox::warning( this, "Hydrogen", msg );
+	  }
+	  
 
 	}
 }

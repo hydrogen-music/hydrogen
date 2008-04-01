@@ -186,6 +186,11 @@ public:
 	void setRestoreLastSongEnabled( bool restore ) {
 		restoreLastSong = restore;
 	}
+
+	bool isDevelWarningEnabled() {
+		return showDevelWarning;
+	}
+
 	bool isRestoreLastSongEnabled() {
 		return restoreLastSong;
 	}
@@ -385,6 +390,7 @@ private:
 
 	//___ General properties ___
 	bool restoreLastSong;		///< Restore last song?
+	bool showDevelWarning;		///< Show development version warning?
 	std::string lastSongFilename;	///< Last song used
 	bool hearNewNotes;
 	std::vector<std::string> m_recentFiles;
