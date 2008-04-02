@@ -296,43 +296,59 @@ void InstrumentLine::functionFillNotes()
 
 void InstrumentLine::functionRandomizeVelocity()
 {
-	ERRORLOG( "[functionRandomizeVelocity] not implemented yet" );
-/*
-	Hydrogen *engine = Hydrogen::get_instance();
-	engine->lockEngine("PatternEditorInstrumentList::functionRandomizeVelocity");
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::getInstance()->getPatternEditorPanel();
+	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 
-	int nPattern = engine->getSelectedPatternNumber();
-	Pattern *pPattern = engine->getSong()->getPatternList()->get( nPattern );
+	AudioEngine::get_instance()->lock("PatternEditorInstrumentList::functionRandomizeVelocity");	// lock the audio engine
 
-	Sequence *pSequence = pPattern->m_pSequenceList->get( nSelectedInstrument );
-	for ( int i = 0; i < pPattern->m_nSize; i++ ){
-		Note *pNote = pSequence->m_noteList[ i ];
-		if ( pNote ) {
-			float fVal = ( rand() % 100 ) / 100.0;
-			fVal = pNote->m_fVelocity + ( ( fVal - 0.50 ) / 2 );
-			if ( fVal < 0  ) {
-				fVal = 0;
+	int nBase;
+	if ( pPatternEditor->isUsingTriplets() ) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
+
+	Song *pSong = pEngine->getSong();
+
+	Pattern* pCurrentPattern = getCurrentPattern();
+	if (pCurrentPattern != NULL) {
+		int nPatternSize = pCurrentPattern->get_lenght();
+		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
+
+		if (nSelectedInstrument != -1) {
+			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
+
+			for (int i = 0; i < nPatternSize; i += nResolution) {
+				std::multimap <int, Note*>::iterator pos;
+				for ( pos = pCurrentPattern->note_map.lower_bound(i); pos != pCurrentPattern->note_map.upper_bound( i ); ++pos ) {
+					Note *pNote = pos->second;
+					if ( pNote->get_instrument() == instrRef ) {
+						float fVal = ( rand() % 100 ) / 100.0;
+						fVal = pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 );
+						if ( fVal < 0  ) {
+							fVal = 0;
+						}
+						if ( fVal > 1 ) {
+							fVal = 1;
+						}
+						pNote->set_velocity(fVal);
+					}
+				}
 			}
-			if ( fVal > 1 ) {
-				fVal = 1;
-			}
-			pNote->m_fVelocity = fVal;
 		}
 	}
-	engine->unlockEngine();
-
-	engine->getSong()->__is_modified = true;
-
-//	m_pPatternEditorPanel->getPatternEditor()->updateEditor(true);
-//	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-//	m_pPatternEditorPanel->getPitchEditor()->updateEditor();
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	// this will force an update...
-	EventQueue::getInstance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-*/
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
 }
+
+
 
 
 
