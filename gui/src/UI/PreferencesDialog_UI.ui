@@ -200,7 +200,7 @@
      <property name="geometry" >
       <rect>
        <x>10</x>
-       <y>150</y>
+       <y>170</y>
        <width>291</width>
        <height>24</height>
       </rect>
@@ -216,9 +216,9 @@
      <property name="geometry" >
       <rect>
        <x>10</x>
-       <y>48</y>
+       <y>50</y>
        <width>291</width>
-       <height>90</height>
+       <height>114</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
@@ -330,6 +330,36 @@
           <string>96000</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QComboBox" name="trackOutputComboBox" >
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text" >
+          <string>Post-Fader</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>Pre-Fader</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="trackOutLbl" >
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text" >
+         <string>Track output</string>
+        </property>
        </widget>
       </item>
      </layout>

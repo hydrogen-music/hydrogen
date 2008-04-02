@@ -67,6 +67,8 @@ Preferences::Preferences()
 {
 	INFOLOG( "INIT" );
 
+	//m_nJackTrackOutputMode = 1;
+
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH enviroment variable" );
@@ -244,6 +246,8 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 					//m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
 					m_bJackConnectDefaults = LocalFileMng::readXmlBool( jackDriverNode, "jack_connect_defaults", m_bJackConnectDefaults );
+
+					m_nJackTrackOutputMode = LocalFileMng::readXmlInt( jackDriverNode, "jack_track_output_mode", m_nJackTrackOutputMode );
 				}
 
 
@@ -457,6 +461,9 @@ void Preferences::savePreferences()
 				jackConnectDefaultsString = "true";
 			}
 			LocalFileMng::writeXmlString( &jackDriverNode, "jack_connect_defaults", jackConnectDefaultsString );
+
+			//pre-fader or post-fader track outputs ?
+			LocalFileMng::writeXmlString( &jackDriverNode, "jack_track_output_mode", to_string ( m_nJackTrackOutputMode ));
 
 			// jack track outs
 			//string jackTrackOutsString = "false";

@@ -130,6 +130,12 @@ public:
 		NO_JACK_TRANSPORT
 	};
 
+	
+	enum  { 
+		POST_FADER,
+		PRE_FADER
+	};
+
 	std::string m_sPreferencesFilename;
 	std::string m_sPreferencesDirectory;
 
@@ -161,6 +167,8 @@ public:
 	std::string m_sJackPortName2;
 	bool m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
+	int m_nJackTrackOutputMode;	
+
 
 
 	/// Returns an instance of PreferencesMng class
