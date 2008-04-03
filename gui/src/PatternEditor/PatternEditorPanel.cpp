@@ -145,11 +145,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
 			NULL,
-			"",
-			"",
-			"",
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
 			QSize(20, 20)
 	);
+	zoom_in_btn->setFontSize(7);
 	zoom_in_btn->setText("+");
 	zoom_in_btn->setToolTip( trUtf8( "Zoom in" ) );
 	connect(zoom_in_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomInBtnClicked(Button*) ) );
@@ -159,9 +160,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// zoom-out btn
 	Button *zoom_out_btn = new Button(
 			NULL,
-			"",
-			"",
-			"",
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
 			QSize(20, 20)
 	);
 	zoom_out_btn->setText("-");

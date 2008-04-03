@@ -135,7 +135,10 @@ void Button::mouseReleaseEvent(QMouseEvent* ev)
 
 }
 
-
+void Button::setFontSize(int size)
+{
+	m_textFont.setPointSize(size);
+}
 
 void Button::setPressed(bool pressed)
 {

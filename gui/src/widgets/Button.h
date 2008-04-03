@@ -55,6 +55,7 @@ class Button : public QWidget, public Object
 		void setPressed(bool pressed);
 
 		void setText( const QString& sText );
+		void setFontSize( int size );
 
 	signals:
 		void clicked(Button *pBtn);
