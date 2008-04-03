@@ -67,7 +67,8 @@ Preferences::Preferences()
 {
 	INFOLOG( "INIT" );
 
-	//m_nJackTrackOutputMode = 1;
+	//Default jack track-outputs are post fader
+	m_nJackTrackOutputMode = POST_FADER;
 
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
