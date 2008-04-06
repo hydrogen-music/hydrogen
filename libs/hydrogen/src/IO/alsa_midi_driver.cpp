@@ -260,6 +260,8 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 				break;
 
 			case SND_SEQ_EVENT_PGMCHANGE:
+				msg.m_type = MidiMessage::PROGRAM_CHANGE;
+				msg.m_nData1 = ev->data.control.value;
 				break;
 
 			case SND_SEQ_EVENT_CLIENT_EXIT:
