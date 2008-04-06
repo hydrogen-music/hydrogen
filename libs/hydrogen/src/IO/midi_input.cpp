@@ -27,6 +27,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
 
+
 namespace H2Core
 {
 
@@ -74,7 +75,8 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		break;
 
 	case MidiMessage::PROGRAM_CHANGE:
-		ERRORLOG( "PROGRAM_CHANGE event not handled yet" );
+		INFOLOG( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to " + to_string( msg.m_nData1 ) );
+		Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
 		break;
 
 	case MidiMessage::CHANNEL_PRESSURE:
@@ -237,18 +239,35 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		    ( msg.m_sysexData[1] == 127 ) &&
 		    ( msg.m_sysexData[2] == 127 ) &&
 		    ( msg.m_sysexData[3] == 6 ) ) {
+
+			Hydrogen *pEngine = Hydrogen::get_instance();
+						
+
 			switch ( msg.m_sysexData[4] ) {
+
 			case 1:	// STOP
-				WARNINGLOG( "MMC STOP not implemented yet" );
+			{
+				action *stopAction = new action;
+ 				stopAction->setType( STOP );
+				Hydrogen::get_instance()->handleAction(stopAction);
 				break;
+			}
 
 			case 2:	// PLAY
-				WARNINGLOG( "MMC PLAY not implemented yet." );
+			{
+				action *startAction = new action;
+ 				startAction->setType( PLAY );
+				Hydrogen::get_instance()->handleAction(startAction);
 				break;
+			}
 
 			case 3:	//DEFERRED PLAY
-				WARNINGLOG( "MMC DEFERRED PLAY not implemented yet." );
+			{
+				action *startAction = new action;
+ 				startAction->setType( PLAY );
+				Hydrogen::get_instance()->handleAction(startAction);
 				break;
+			}
 
 			case 4:	// FAST FWD
 				WARNINGLOG( "MMC FAST FWD not implemented yet." );

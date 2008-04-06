@@ -203,8 +203,6 @@ inline float getGaussian( float z )
 
 
 
-
-
 void audioEngine_raiseError( unsigned nErrorCode )
 {
 	EventQueue::get_instance()->push_event( EVENT_ERROR, nErrorCode );
@@ -2346,5 +2344,40 @@ void Hydrogen::renameJackPorts()
 }
 #endif
 
+bool Hydrogen::handleAction( action *pAction )
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+
+	switch( pAction->getType())
+	{
+		case PLAY:
+		{
+			int nState = pEngine->getState();
+			switch (nState) 
+			{
+				case STATE_READY:
+					pEngine->sequencer_play();
+					break;
+
+				case STATE_PLAYING:
+					pEngine->sequencer_stop();
+					break;
+
+				default:
+					ERRORLOG( "[Hydrogen::actionHandler(PLAY): Unhandled case" );
+			}
+			break;
+		}
+
+		case STOP:
+			pEngine->sequencer_stop();
+			pEngine->setPatternPos( 0 );
+			break;
+			
+	}
+	return true;
+}
+
 };
+
 

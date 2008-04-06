@@ -40,6 +40,7 @@ message( H2 defines: $$H2DEFINES )
 HEADERS += \
 		src/precompiled.h \
 		\
+		include/hydrogen/action.h \
 		include/hydrogen/adsr.h \
 		include/hydrogen/audio_engine.h \
 		include/hydrogen/note.h \
@@ -127,6 +128,7 @@ SOURCES += \
 		\
 		src/synth/synth.cpp \
 		\
+		src/action.cpp \
 		src/adsr.cpp \
 		src/audio_engine.cpp \
 		src/data_path.cpp \
