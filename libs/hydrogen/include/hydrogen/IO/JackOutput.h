@@ -58,6 +58,7 @@ public:
 	void deactivate();
 	unsigned getBufferSize();
 	unsigned getSampleRate();
+	int getNumTracks();
 
 	jack_transport_state_t getTransportState() {
 		return m_JackTransportState;

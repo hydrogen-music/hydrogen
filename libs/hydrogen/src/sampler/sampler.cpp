@@ -82,8 +82,6 @@ Sampler::~Sampler()
 	__preview_instrument = NULL;
 }
 
-
-
 // perche' viene passata anche la canzone? E' davvero necessaria?
 void Sampler::process( uint32_t nFrames, Song* pSong )
 {
@@ -93,7 +91,14 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
 
-
+#ifdef JACK_SUPPORT
+	if ( __audio_output->has_track_outs() ) {
+		for(int nTrack = 0; nTrack < ( ( JackOutput* )__audio_output )->getNumTracks( ); nTrack++) {
+			memset( __track_out_L[nTrack], 0, ( ( JackOutput* )__audio_output )->getBufferSize( ) * sizeof( float ) );
+			memset( __track_out_R[nTrack], 0, ( ( JackOutput* )__audio_output )->getBufferSize( ) * sizeof( float ) );
+		}
+	}
+#endif // JACK_SUPPORT
 
 	// Max notes limit
 	int m_nMaxNotes = Preferences::getInstance()->m_nMaxNotes;
@@ -226,13 +231,19 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 	float cost_L = 1.0f;
 	float cost_R = 1.0f;
-	float cost_track = 1.0f;
+	float cost_track_L = 1.0f;
+	float cost_track_R = 1.0f;
 	float fSendFXLevel_L = 1.0f;
 	float fSendFXLevel_R = 1.0f;
 
 	if ( pInstr->is_muted() || pSong->__is_muted ) {	// is instrument muted?
 		cost_L = 0.0;
 		cost_R = 0.0;
+                if ( Preferences::getInstance()->m_nJackTrackOutputMode == 0 ) {
+		// Post-Fader
+			cost_track_L = 0.0;
+			cost_track_R = 0.0;
+		}
 
 		fSendFXLevel_L = 0.0f;
 		fSendFXLevel_R = 0.0f;
@@ -245,6 +256,10 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		fSendFXLevel_L = cost_L;
 
 		cost_L = cost_L * pInstr->get_volume();		// instrument volume
+                if ( Preferences::getInstance()->m_nJackTrackOutputMode == 0 ) {
+		// Post-Fader
+			cost_track_L = cost_L * 2;
+		}
 		cost_L = cost_L * pSong->get_volume();	// song volume
 		cost_L = cost_L * 2; // max pan is 0.5
 
@@ -257,13 +272,20 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		fSendFXLevel_R = cost_R;
 
 		cost_R = cost_R * pInstr->get_volume();		// instrument volume
+                if ( Preferences::getInstance()->m_nJackTrackOutputMode == 0 ) {
+		// Post-Fader
+			cost_track_R = cost_R * 2;
+		}
 		cost_R = cost_R * pSong->get_volume();	// song pan
 		cost_R = cost_R * 2; // max pan is 0.5
 	}
 
 	// direct track outputs only use velocity
-	cost_track = cost_track * pNote->get_velocity();
-	cost_track = cost_track * fLayerGain;
+	if ( Preferences::getInstance()->m_nJackTrackOutputMode == 1 ) {
+		cost_track_L = cost_track_L * pNote->get_velocity();
+		cost_track_L = cost_track_L * fLayerGain;
+		cost_track_R = cost_track_L;
+	}
 
 	// Se non devo fare resample (drumkit) posso evitare di utilizzare i float e gestire il tutto in
 	// maniera ottimizzata
@@ -277,9 +299,9 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 
 	if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == __audio_output->getSampleRate() ) {	// NO RESAMPLE
-		return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track, fSendFXLevel_L, fSendFXLevel_R, pSong );
+		return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fSendFXLevel_L, fSendFXLevel_R, pSong );
 	} else {	// RESAMPLE
-		return __render_note_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track, fLayerPitch, fSendFXLevel_L, fSendFXLevel_R, pSong );
+		return __render_note_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, fSendFXLevel_L, fSendFXLevel_R, pSong );
 	}
 }
 
@@ -293,7 +315,8 @@ int Sampler::__render_note_no_resample(
     int nInitialSilence,
     float cost_L,
     float cost_R,
-    float cost_track,
+    float cost_track_L,
+    float cost_track_R,
     float fSendFXLevel_L,
     float fSendFXLevel_R,
     Song* pSong
@@ -355,20 +378,8 @@ int Sampler::__render_note_no_resample(
 		}
 
 		fADSRValue = pNote->m_adsr.get_value( 1 );
-		fVal_L = pSample_data_L[ nSamplePos ] * cost_L * fADSRValue;
-		fVal_R = pSample_data_R[ nSamplePos ] * cost_R * fADSRValue;
-
-		if ( __audio_output->has_track_outs() ) {
-			// hack hack hack: cast to JackOutput
-#ifdef JACK_SUPPORT
-			float* track_out_L = ( ( JackOutput* )__audio_output )->getTrackOut_L( nInstrument );
-			float* track_out_R = ( ( JackOutput* )__audio_output )->getTrackOut_R( nInstrument );
-			assert( track_out_L );
-			assert( track_out_R );
-			track_out_L[nBufferPos] = pSample_data_L[nSamplePos] * cost_track * fADSRValue;
-			track_out_R[nBufferPos] = pSample_data_R[nSamplePos] * cost_track * fADSRValue;
-#endif
-		}
+		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
+		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
 
 		// Low pass resonant filter
 		if ( bUseLPF ) {
@@ -380,6 +391,18 @@ int Sampler::__render_note_no_resample(
 			pNote->m_fLowPassFilterBuffer_R += fCutoff * pNote->m_fBandPassFilterBuffer_R;
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
+
+		if ( __audio_output->has_track_outs() ) {
+#ifdef JACK_SUPPORT
+                        assert( __track_out_L[ nInstrument ] );
+                        assert( __track_out_R[ nInstrument ] );
+			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L;
+			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R;
+#endif
+		}
+
+                fVal_L = fVal_L * cost_L;
+		fVal_R = fVal_R * cost_R;
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {
@@ -442,7 +465,8 @@ int Sampler::__render_note_resample(
     int nInitialSilence,
     float cost_L,
     float cost_R,
-    float cost_track,
+    float cost_track_L,
+    float cost_track_R,
     float fLayerPitch,
     float fSendFXLevel_L,
     float fSendFXLevel_R,
@@ -521,22 +545,10 @@ int Sampler::__render_note_resample(
 			fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
 		}
 
-		if ( __audio_output->has_track_outs() ) {
-#ifdef JACK_SUPPORT
-			// hack hack hack: cast to JackOutput
-			float* track_out_L = ( ( JackOutput* )__audio_output )->getTrackOut_L( nInstrument );
-			float* track_out_R = ( ( JackOutput* )__audio_output )->getTrackOut_R( nInstrument );
-			assert( track_out_L );
-			assert( track_out_R );
-			track_out_L[nBufferPos] = fVal_L * cost_track * fADSRValue;
-			track_out_R[nBufferPos] = fVal_R * cost_track * fADSRValue;
-#endif
-		}
-
 		// ADSR envelope
 		fADSRValue = pNote->m_adsr.get_value( fStep );
-		fVal_L = fVal_L * cost_L * fADSRValue;
-		fVal_R = fVal_R * cost_R * fADSRValue;
+		fVal_L = fVal_L * fADSRValue;
+		fVal_R = fVal_R * fADSRValue;
 
 		// Low pass resonant filter
 		if ( bUseLPF ) {
@@ -548,6 +560,19 @@ int Sampler::__render_note_resample(
 			pNote->m_fLowPassFilterBuffer_R += fCutoff * pNote->m_fBandPassFilterBuffer_R;
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
+
+
+		if ( __audio_output->has_track_outs() ) {
+#ifdef JACK_SUPPORT
+			assert( __track_out_L[ nInstrument ] );
+                        assert( __track_out_R[ nInstrument ] );
+			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L);
+			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R);
+#endif
+		}
+
+		fVal_L = fVal_L * cost_L;
+		fVal_R = fVal_R * cost_R;
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {
@@ -687,6 +712,22 @@ void Sampler::set_audio_output( AudioOutput* audio_output )
 	__audio_output = audio_output;
 }
 
+void Sampler::makeTrackOutputQueues( )
+{
+	INFOLOG( "Making Output Queues" );
+
+#ifdef JACK_SUPPORT
+	if ( __audio_output->has_track_outs() ) {
+		for (int nTrack = 0; nTrack < ( ( JackOutput* )__audio_output )->getNumTracks( ); nTrack++) {
+			__track_out_L[nTrack] = ( ( JackOutput* )__audio_output )->getTrackOut_L( nTrack );
+			assert( __track_out_L[ nTrack ] );
+			__track_out_R[nTrack] = ( ( JackOutput* )__audio_output )->getTrackOut_R( nTrack );
+			assert( __track_out_R[ nTrack ] );
+		}
+	}
+#endif // JACK_SUPPORT
+ 
+}
 
 
 

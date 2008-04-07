@@ -561,6 +561,11 @@ void JackOutput::setPortName( int nPort, bool bLeftChannel, const std::string sN
 	}
 }
 
+int JackOutput::getNumTracks()
+{
+	INFOLOG( "get num tracks()" );
+	return track_port_count;
+}
 
 };
 

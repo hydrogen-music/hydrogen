@@ -870,6 +870,9 @@ void audioEngine_renameJackPorts()
 	if ( m_pAudioDriver->get_class_name() == "JackOutput" ) {
 		static_cast< JackOutput* >( m_pAudioDriver )->makeTrackOutputs( m_pSong );
 	}
+
+	AudioEngine::get_instance()->get_sampler()->makeTrackOutputQueues();
+
 #endif
 }
 

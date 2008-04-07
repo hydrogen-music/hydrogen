@@ -72,6 +72,7 @@ public:
 	void preview_instrument( Instrument* instr );
 
 	void set_audio_output( AudioOutput* audio_output );
+	void makeTrackOutputQueues();
 
 
 private:
@@ -82,6 +83,10 @@ private:
 	/// Instrument used for the preview feature.
 	Instrument *__preview_instrument;
 
+#ifdef JACK_SUPPORT
+	float *__track_out_L[MAX_INSTRUMENTS];
+	float *__track_out_R[MAX_INSTRUMENTS];
+#endif
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
@@ -92,7 +97,8 @@ private:
 	    int nInitialSilence,
 	    float cost_L,
 	    float cost_R,
-	    float cost_track,
+	    float cost_track_L,
+	    float cost_track_R,
 	    float fSendFXLevel_L,
 	    float fSendFXLevel_R,
 	    Song* pSong
@@ -105,7 +111,8 @@ private:
 	    int nInitialSilence,
 	    float cost_L,
 	    float cost_R,
-	    float cost_track,
+	    float cost_track_L,
+	    float cost_track_R,
 	    float fLayerPitch,
 	    float fSendFXLevel_L,
 	    float fSendFXLevel_R,
