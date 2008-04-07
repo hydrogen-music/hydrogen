@@ -483,7 +483,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 			chName = "Track_" + to_string( m + 1 ) + "_";
 			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-			if ( track_output_ports_R[n] == NULL || track_output_ports_L[n] == NULL ) {
+			if ( track_output_ports_R[m] == NULL || track_output_ports_L[m] == NULL ) {
 				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 			}
 		}
