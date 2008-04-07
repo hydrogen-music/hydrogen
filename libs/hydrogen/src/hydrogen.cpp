@@ -2028,11 +2028,30 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	LocalFileMng fileMng;
 	std::string sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
 
+	//current instrument list
 	InstrumentList *songInstrList = m_pSong->get_instrument_list();
+	
+	//new instrument list
 	InstrumentList *pDrumkitInstrList = drumkitInfo->getInstrumentList();
+
+	/*
+		If the old drumkit is bigger then the new drumkit,
+		delete all instruments with a bigger pos then
+		pDrumkitInstrList->get_size(). Otherwise the instruments
+		from our old instrumentlist with
+		pos > pDrumkitInstrList->get_size() stay in the 
+		new instrumentlist
+	*/
+
+	while ( pDrumkitInstrList->get_size() < songInstrList->get_size() )
+	{
+		songInstrList->del(songInstrList->get_size() - 1);
+	}
+
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = NULL;
 		if ( nInstr < songInstrList->get_size() ) {
+			//instrument exists already
 			pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
