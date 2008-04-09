@@ -22,12 +22,17 @@
 
 #include <hydrogen/action.h>
 
+action::action()
+	: Object("Action") {
+}
 
-actionType action::getType(){
+actionType action::getType()
+{
 	return type;
 }
 
 
-void action::setType(actionType aType){
+void action::setType(actionType aType)
+{
 	type = aType;
 }

@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include <hydrogen/Object.h>
 
 enum actionType {
 		PLAY,
@@ -27,16 +28,19 @@ enum actionType {
 		PREVIOUS_PATTERN,
 		INC_METRONOME_10,
 		DEC_METRONOME_10,
+		MUTE,
 		STOP,
 		FADE_OUT_STOP
 };
 
-class action {
+class action : public Object 
+{
 
-	private:
-		actionType type;
+private:
+	actionType type;
 
-	public:
-		void setType( actionType );
-		actionType getType();
+public:
+	void setType( actionType );
+	actionType getType();
+	action();
 };
