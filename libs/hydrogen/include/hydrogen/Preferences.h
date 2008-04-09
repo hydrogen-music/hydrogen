@@ -23,6 +23,7 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -140,6 +141,8 @@ public:
 	std::string m_sPreferencesDirectory;
 
 	bool m_bFollowPlayhead;
+
+	std::list<std::string> sServerList;
 
 	//___ audio engine properties ___
 	std::string m_sAudioDriver;		///< Audio Driver

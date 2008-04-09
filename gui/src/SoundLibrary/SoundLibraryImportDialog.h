@@ -26,6 +26,7 @@
 #include <QDialog>
 #include "ui_SoundLibraryImportDialog_UI.h"
 #include <hydrogen/Object.h>
+#include <hydrogen/Preferences.h>
 
 #include <vector>
 
@@ -61,6 +62,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 
 	private:
 		std::vector<SoundLibraryInfo> m_soundLibraryList;
+		H2Core::Preferences *pPref;
 
 		bool isSoundLibraryAlreadyInstalled( QString sURL );
 		void updateSoundLibraryList();

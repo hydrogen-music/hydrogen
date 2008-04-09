@@ -35,6 +35,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstdio>
+#include <list>
 
 #include <hydrogen/data_path.h>
 #include "config.h"
@@ -69,6 +70,9 @@ Preferences::Preferences()
 
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
+
+	//server list
+	std::list<std::string> sServerList;
 
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
@@ -206,6 +210,19 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				WARNINGLOG( "recentUsedSongs node not found" );
 			}
+
+			TiXmlNode* pServerListNode = rootNode->FirstChild( "serverList" );
+			if ( pServerListNode ) {
+				TiXmlNode* pServerNode = 0;
+				for ( pServerNode = pServerListNode->FirstChild( "server" ); pServerNode; pServerNode = pServerNode->NextSibling( "server" ) ) {
+					std::string sFilename = pServerNode->FirstChild()->Value();
+					sServerList.push_back( sFilename );
+				}
+			} else {
+				WARNINGLOG( "serverList node not found" );
+			}
+
+
 
 			m_sLastNews = LocalFileMng::readXmlString( rootNode, "lastNews", "-", true );
 
@@ -417,6 +434,19 @@ void Preferences::savePreferences()
 		}
 	}
 	rootNode.InsertEndChild( recentUsedSongsNode );
+
+
+	std::list<std::string>::const_iterator cur_Server;
+
+	TiXmlElement serverListNode( "serverList" );
+	for( cur_Server = sServerList.begin(); cur_Server != sServerList.end(); ++cur_Server ){
+		LocalFileMng::writeXmlString( &serverListNode , "server" , cur_Server->c_str() );
+	}	
+	rootNode.InsertEndChild( serverListNode );
+
+
+
+
 
 	LocalFileMng::writeXmlString( &rootNode, "lastNews", m_sLastNews );
 

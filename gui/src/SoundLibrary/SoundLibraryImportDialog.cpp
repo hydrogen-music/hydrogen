@@ -30,6 +30,7 @@
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/Preferences.h>
 
+
 #include <QTreeWidget>
 #include <QDomDocument>
 #include <QMessageBox>
@@ -55,12 +56,31 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 
 	connect( m_pDrumkitTree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
 
+	H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
 
+
+	/*
+		Read serverList from config and put servers into the comboBox
+	*/
+	std::list<std::string>::const_iterator cur_Server;
+	
+	if(pPref->sServerList.size() == 0){ 	
+		pPref->sServerList.push_back("http://www.hydrogen-music.org/feeds/drumkit_list.php");
+	}
+
+	for( cur_Server = pPref->sServerList.begin(); cur_Server != pPref->sServerList.end(); ++cur_Server )
+	{
+		repositoryCombo->insertItem(0,QString(cur_Server->c_str()));
+	}	
+
+	
 	SoundLibraryNameLbl->setText( "" );
 	SoundLibraryInfoLbl->setText( "" );
 	DownloadBtn->setEnabled( false );
 
 	InstallBtn->setEnabled (false );
+
+
 
 	// force a new update
 	//on_UpdateListBtn_clicked();
@@ -83,7 +103,7 @@ SoundLibraryImportDialog::~SoundLibraryImportDialog()
 ///
 void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 {
-	DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), "http://www.hydrogen-music.org/feeds/drumkit_list.php" );
+	DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), repositoryCombo->currentText() );
 	drumkitList.exec();
 
 	m_soundLibraryList.clear();
