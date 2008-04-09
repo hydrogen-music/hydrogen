@@ -265,17 +265,21 @@ void SoundLibraryPanel::on_DrumkitList_leftClicked( QPoint pos )
 
 void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 {
+	
+	
 	if (! ( event->buttons() & Qt::LeftButton ) ) {
 		return;
 	}
+
+	
 	if ( ( event->pos() - m_startDragPosition ).manhattanLength() < QApplication::startDragDistance() ) {
 		return;
 	}
-
+	
 	if ( !m_pSoundLibraryTree->currentItem() ) {
 		return;
 	}
-
+	
 	if (
 		( m_pSoundLibraryTree->currentItem()->parent() == m_pSystemDrumkitsItem ) ||
 		( m_pSoundLibraryTree->currentItem()->parent() == m_pUserDrumkitsItem )
@@ -284,9 +288,26 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		//INFOLOG( "ho selezionato un drumkit (system)" );
 		return;
 	}
+	
 	else {
 		//INFOLOG( "ho selezionato uno strumento" );
 		// instrument selection
+		if ( m_pSoundLibraryTree->currentItem() == NULL )
+		{
+			return;
+		}
+		
+		if ( m_pSoundLibraryTree->currentItem()->parent() == NULL )
+		{
+			return;
+		}	
+
+		if ( m_pSoundLibraryTree->currentItem()->parent()->text(0) == NULL )
+		{
+			return;
+		}
+		
+
 		QString sDrumkitName = m_pSoundLibraryTree->currentItem()->parent()->text(0);
 		QString sInstrumentName = ( m_pSoundLibraryTree->currentItem()->text(0) ).remove( 0, m_pSoundLibraryTree->currentItem()->text(0).indexOf( "] " ) + 2 );
 
@@ -301,6 +322,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 		pDrag->start( Qt::CopyAction | Qt::MoveAction );
 	}
+	
 }
 
 
@@ -345,6 +367,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	//saveTab_infoTxt->append( QString( drumkitInfo->getInfo().c_str() ) );
 
 //	HydrogenApp::getInstance()->getPatternEditorPanel()->getPatternEditor()->updateEditor( true );
+
+//HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 }
 
 
