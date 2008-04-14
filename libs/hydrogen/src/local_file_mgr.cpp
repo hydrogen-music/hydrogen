@@ -96,7 +96,31 @@ void LocalFileMng::fileCopy( const std::string& sOrigFilename, const std::string
 	fclose( outputFile );
 }
 
+std::vector<std::string> LocalFileMng::getSongList()
+{
+	std::vector<std::string> list;
+	QString sDirectory = ( Preferences::getInstance()->getDataDirectory()  + "/songs").c_str();
 
+	QDir dir( sDirectory );
+
+	if ( !dir.exists() ) {
+		ERRORLOG( std::string( "[getSongList] Directory " ).append( sDirectory.toStdString() ).append( " not found." ) );
+	} else {
+		QFileInfoList fileList = dir.entryInfoList();
+		dir.setFilter( QDir::Dirs );
+		for ( int i = 0; i < fileList.size(); ++i ) {
+			std::string sFile = fileList.at( i ).fileName().toStdString();
+
+			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
+				continue;
+			}
+			
+			list.push_back( sFile.substr( 0, sFile.rfind( "." ) ) );
+		}
+	}
+
+	return list;
+}
 
 
 std::vector<std::string> LocalFileMng::getUserDrumkitList()

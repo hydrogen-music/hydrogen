@@ -190,9 +190,9 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 			pDrumkitItem = new QTreeWidgetItem(  m_pDrumkitsItem );
 		}
 
-		
+	
 
-		if ( isSoundLibraryAlreadyInstalled( m_soundLibraryList[ i ].m_sURL ) ) {
+		if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
 			pDrumkitItem->setText( 0, sLibraryName );
 			pDrumkitItem->setText( 1, trUtf8( "Installed" ) );
 		}
@@ -207,27 +207,41 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 
 
 /// Is the SoundLibrary already installed?
-bool SoundLibraryImportDialog::isSoundLibraryAlreadyInstalled( QString sURL )
+bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo )
 {
 	// check if the filename matchs with an already installed soundlibrary directory.
 	// The filename used in the Soundlibrary URL must be the same of the unpacked directory.
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!
 
-	std::string soundLibraryName = QFileInfo( sURL ).fileName().toStdString();
-	soundLibraryName = soundLibraryName.substr( 0, soundLibraryName.rfind( "." ) );
+	std::string soundLibraryItemName = QFileInfo( sInfo.m_sURL ).fileName().toStdString();
+	soundLibraryItemName = soundLibraryItemName.substr( 0, soundLibraryItemName.rfind( "." ) );
 
-	std::vector<std::string> systemList = H2Core::Drumkit::getSystemDrumkitList();
-	for ( uint i = 0; i < systemList.size(); ++i ) {
-		if ( systemList[ i ] == soundLibraryName ) {
-			return true;
+	if ( sInfo.m_sType == "drumkit" )
+	{
+		std::vector<std::string> systemList = H2Core::Drumkit::getSystemDrumkitList();
+		for ( uint i = 0; i < systemList.size(); ++i ) {
+			if ( systemList[ i ] == soundLibraryItemName ) {
+				return true;
+			}
+		}
+
+		std::vector<std::string> userList = H2Core::Drumkit::getUserDrumkitList();
+		for ( uint i = 0; i < userList.size(); ++i ) {
+			if ( userList[ i ] == soundLibraryItemName ) {
+				return true;
+			}
 		}
 	}
 
-	std::vector<std::string> userList = H2Core::Drumkit::getUserDrumkitList();
-	for ( uint i = 0; i < userList.size(); ++i ) {
-		if ( userList[ i ] == soundLibraryName ) {
-			return true;
+	if ( sInfo.m_sType == "song" )
+	{
+		H2Core::LocalFileMng mng;
+		std::vector<std::string> songList = mng.getSongList();
+		for ( uint i = 0; i < songList.size(); ++i ) {
+			if ( songList[ i ] == soundLibraryItemName ) {
+				return true;
+			}
 		}
 	}
 

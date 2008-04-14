@@ -68,7 +68,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		QTreeWidgetItem* m_pDrumkitsItem;
 		QTreeWidgetItem* m_pSongItem;
 
-		bool isSoundLibraryAlreadyInstalled( QString sURL );
+		bool isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo );
 		void updateSoundLibraryList();
 };
 

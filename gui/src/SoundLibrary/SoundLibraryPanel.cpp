@@ -67,7 +67,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	m_pInstrumentMenu->addSeparator();
 	m_pInstrumentMenu->addAction( trUtf8( "Delete" ), this, SLOT( on_instrumentDeleteAction() ) );
 
-
+	m_pSongMenu = new QMenu( this );
+	m_pSongMenu->addSeparator();
+	m_pSongMenu->addAction( trUtf8( "Load" ), this, SLOT( on_songLoadAction() ) );
 
 // DRUMKIT LIST
 	m_pSoundLibraryTree = new SoundLibraryTree( NULL );
@@ -125,6 +127,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	m_pUserDrumkitsItem->setText( 0, trUtf8( "User drumkits" ) );
 	m_pSoundLibraryTree->setItemExpanded( m_pUserDrumkitsItem, true );
 
+	
 
 	for (uint i = 0; i < m_systemDrumkitInfoList.size(); ++i ) {
 		delete m_systemDrumkitInfoList[i];
@@ -183,6 +186,23 @@ void SoundLibraryPanel::updateDrumkitList()
 		}
 	}
 
+	std::vector<std::string> songList = mng.getSongList();
+
+	if ( songList.size() > 0 )
+	{
+
+		m_pSongItem = new QTreeWidgetItem( m_pSoundLibraryTree );
+		m_pSongItem->setText( 0, trUtf8( "Songs" ) );
+		m_pSoundLibraryTree->setItemExpanded( m_pSongItem, true );
+
+		for (uint i = 0; i < songList.size(); i++) 
+		{
+			std::string absPath = DataPath::get_data_path() + "/songs/" + songList[i];
+			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( m_pSongItem );
+			pSongItem->setText( 0 , QString ( songList[ i ].c_str() ) );
+		}
+	}
+	
 }
 
 
@@ -201,11 +221,11 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 	UNUSED( column );
 
 //	INFOLOG( "[on_DrumkitList_itemActivated]" );
-	if ( item == m_pSystemDrumkitsItem || item == m_pUserDrumkitsItem || item == m_pSystemDrumkitsItem->parent() ) {
+	if ( item == m_pSystemDrumkitsItem || item == m_pUserDrumkitsItem || item == m_pSystemDrumkitsItem->parent() || item->parent() == m_pSongItem || item == m_pSongItem ) {
 		return;
 	}
 
-	if ( item->parent() == m_pSystemDrumkitsItem || item->parent() == m_pUserDrumkitsItem ) {
+	if ( item->parent() == m_pSystemDrumkitsItem || item->parent() == m_pUserDrumkitsItem  ) {
 		// e' stato selezionato un drumkit
 	}
 	else {
@@ -239,6 +259,9 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 		return;
 	}
 
+	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pSongItem ) {
+		m_pSongMenu->popup( pos );
+	}
 
 	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pUserDrumkitsItem ) {
 		m_pDrumkitMenu->popup( pos );
@@ -426,7 +449,40 @@ void SoundLibraryPanel::on_instrumentDeleteAction()
 	ERRORLOG( "[on_instrumentDeleteAction] not implemented yet" );
 }
 
+void SoundLibraryPanel::on_songLoadAction()
+{
+	QString songName = m_pSoundLibraryTree->currentItem()->text( 0 );
+	std::string sDirectory = Preferences::getInstance()->getDataDirectory()  + "songs";
 
+	std::string sFilename = sDirectory + "/" + songName.toStdString() + ".h2song";
+	
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	if ( engine->getState() == STATE_PLAYING ) {
+                engine->sequencer_stop();
+	}
+
+	H2Core::LocalFileMng mng;
+	Song *pSong = Song::load( sFilename );
+	if ( pSong == NULL ) {
+		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
+		return;
+	}
+
+	// add the new loaded song in the "last used song" vector
+	Preferences *pPref = Preferences::getInstance();
+
+	std::vector<std::string> recentFiles = pPref->getRecentFiles();
+	recentFiles.insert( recentFiles.begin(), sFilename );
+	pPref->setRecentFiles( recentFiles );
+
+	HydrogenApp* h2app = HydrogenApp::getInstance();
+
+	h2app->setSong( pSong );
+
+	//updateRecentUsedSongList();
+	engine->setSelectedPatternNumber( 0 );
+}
 
 
 

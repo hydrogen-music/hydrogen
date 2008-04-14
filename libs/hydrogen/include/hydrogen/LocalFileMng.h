@@ -54,6 +54,7 @@ public:
 
 	std::vector<std::string> getUserDrumkitList();
 	std::vector<std::string> getSystemDrumkitList();
+	std::vector<std::string> getSongList();
 	std::string getDrumkitDirectory( const std::string& drumkitName );
 
 	Drumkit* loadDrumkit( const std::string& directory );
