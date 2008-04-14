@@ -116,9 +116,18 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	QDomNode drumkitNode = dom.documentElement().firstChild();
 	while ( !drumkitNode.isNull() ) {
 		if( !drumkitNode.toElement().isNull() ) {
-			if ( drumkitNode.toElement().tagName() == "drumkit" ) {
+			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" ) {
 
 				SoundLibraryInfo soundLibInfo;
+			
+				if ( drumkitNode.toElement().tagName() =="song" ) {
+					soundLibInfo.m_sType = "song";
+				}
+
+				if ( drumkitNode.toElement().tagName() =="drumkit" ) {
+					soundLibInfo.m_sType = "drumkit";
+				}
+
 
 				QDomElement nameNode = drumkitNode.firstChildElement( "name" );
 				if ( !nameNode.isNull() ) {
@@ -157,10 +166,31 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	// build the sound library tree
 	m_pDrumkitTree->clear();
 
+	m_pDrumkitsItem = new QTreeWidgetItem( m_pDrumkitTree );
+	m_pDrumkitsItem->setText( 0, trUtf8( "Drumkits" ) );
+	m_pDrumkitTree->setItemExpanded( m_pDrumkitsItem, true );
+
+	
+	m_pSongItem = new QTreeWidgetItem( m_pDrumkitTree );
+	m_pSongItem->setText( 0, trUtf8( "Songs" ) );
+	m_pDrumkitTree->setItemExpanded( m_pSongItem, true );
+
+
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
 		QString sLibraryName = m_soundLibraryList[ i ].m_sName;
 
-		QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pDrumkitTree );
+		QTreeWidgetItem* pDrumkitItem;
+
+		if ( m_soundLibraryList[ i ].m_sType == "song" ) {
+			pDrumkitItem = new QTreeWidgetItem(  m_pSongItem );
+		}
+
+		
+		if ( m_soundLibraryList[ i ].m_sType == "drumkit" ) {
+			pDrumkitItem = new QTreeWidgetItem(  m_pDrumkitsItem );
+		}
+
+		
 
 		if ( isSoundLibraryAlreadyInstalled( m_soundLibraryList[ i ].m_sURL ) ) {
 			pDrumkitItem->setText( 0, sLibraryName );
@@ -245,18 +275,49 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 		if ( m_soundLibraryList[ i ].m_sName == selected ) {
 			// Download the sound library
 			QString sURL = m_soundLibraryList[ i ].m_sURL;
-			QString sLocalFile = QDir::tempPath () + "/" + QFileInfo( sURL ).fileName();
+			QString sType = m_soundLibraryList[ i ].m_sType;
+			QString sLocalFile;
+
+			std::string dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
+
+
+			if( sType == "drumkit")
+			{
+				sLocalFile = QDir::tempPath () + "/" + QFileInfo( sURL ).fileName();
+			}
+
+			if( sType == "song")
+			{
+				sLocalFile = QString(dataDir.c_str()) + "songs/" + QFileInfo( sURL ).fileName();
+			}
+
+		
+
 			DownloadWidget drumkit( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 			drumkit.exec();
 
 			// install the new soundlibrary
 			setCursor( QCursor( Qt::WaitCursor ) );
 
-			std::string dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
+			
 			try {
-				H2Core::Drumkit::install( sLocalFile.toStdString() );
-				QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir.c_str() ) );
-				setCursor( QCursor( Qt::ArrowCursor ) );
+				if ( sType == "drumkit" )
+				{
+					H2Core::Drumkit::install( sLocalFile.toStdString() );
+					QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir.c_str() ) );
+					setCursor( QCursor( Qt::ArrowCursor ) );
+				}
+
+				
+				if ( sType == "song" )
+				{
+					//H2Core::Drumkit::install( sLocalFile.toStdString() );
+					//QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir.c_str() ) );
+					setCursor( QCursor( Qt::ArrowCursor ) );
+				}
+				
+					
+
 			}
 			catch( H2Core::H2Exception ex ) {
 				setCursor( QCursor( Qt::ArrowCursor ) );
@@ -264,8 +325,11 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			}
 
 			// remove the downloaded files..
-			QDir dir;
-			dir.remove( sLocalFile );
+			if( sType == "drumkit" )
+			{
+				QDir dir;
+				dir.remove( sLocalFile );
+			}
 
 			// update the drumkit list
 			HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();

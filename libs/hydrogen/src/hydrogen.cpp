@@ -2028,6 +2028,8 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	LocalFileMng fileMng;
 	std::string sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
 
+
+
 	//current instrument list
 	InstrumentList *songInstrList = m_pSong->get_instrument_list();
 	

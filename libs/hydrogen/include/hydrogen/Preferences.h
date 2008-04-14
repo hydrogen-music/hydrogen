@@ -444,6 +444,9 @@ private:
 	/// Create data directory
 	void createDataDirectory();
 
+	/// Create soundLibrary directory
+	void createSoundLibraryDirectories();
+
 	WindowProperties readWindowProperties( TiXmlNode *parent, const std::string& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( TiXmlNode& parent, const std::string& windowName, const WindowProperties& prop );
 

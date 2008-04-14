@@ -140,7 +140,8 @@ void SoundLibraryPanel::updateDrumkitList()
 	LocalFileMng mng;
 	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); ++i) {
-		std::string absPath = Preferences::getInstance()->getDataDirectory() + "/" + userList[i];
+		//std::string absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
+		std::string absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_userDrumkitInfoList.push_back( pInfo );

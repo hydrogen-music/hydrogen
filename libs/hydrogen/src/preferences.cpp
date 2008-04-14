@@ -176,6 +176,29 @@ void Preferences::loadPreferences( bool bGlobal )
 		createDataDirectory();
 	}
 
+	// soundLibrary directory exists?
+	std::string sDir = sDataDirectory;
+	std::string sDrumkitDir;
+	std::string sSongDir;
+	std::string sPatternDir;
+
+	INFOLOG( "Creating soundLibrary directories in " + sDir );
+	
+	sDrumkitDir = sDir + "/drumkits";
+	sSongDir = sDir + "/songs";
+	sPatternDir = sDir + "/patterns";
+	
+	QDir drumkitDir( QString( sDrumkitDir.c_str() ) );
+	QDir songDir( QString( sSongDir.c_str() ) );
+	QDir patternDir( QString( sPatternDir.c_str() ) );
+	
+	if ( ! drumkitDir.exists() || ! songDir.exists() || ! patternDir.exists() )
+	{
+		createSoundLibraryDirectories();
+	}
+	
+
+
 	// pref file exists?
 	std::ifstream input( sPreferencesFilename.c_str() , std::ios::in | std::ios::binary );
 	if ( input ) {
@@ -609,6 +632,28 @@ void Preferences::createDataDirectory()
 	dir.mkdir( QString( sDir.c_str() ) );
 //	mkdir(dir.c_str(),S_IRWXU);
 }
+
+void Preferences::createSoundLibraryDirectories()
+{
+	std::string sDir = m_sDataDirectory;
+	std::string sDrumkitDir;
+	std::string sSongDir;
+	std::string sPatternDir;
+
+
+	INFOLOG( "Creating soundLibrary directories in " + sDir );
+	
+	sDrumkitDir = sDir + "/drumkits";
+	sSongDir = sDir + "/songs";
+	sPatternDir = sDir + "/pattern";
+
+	QDir dir;
+	dir.mkdir( QString( sDrumkitDir.c_str() ) );
+	dir.mkdir( QString( sSongDir.c_str() ) );
+	dir.mkdir( QString( sPatternDir.c_str() ) );
+	//	mkdir(dir.c_str(),S_IRWXU);
+}
+
 
 
 

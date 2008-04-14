@@ -37,6 +37,7 @@ struct SoundLibraryInfo
 	QString m_sURL;
 	QString m_sInfo;
 	QString m_sAuthor;
+	QString m_sType;
 };
 
 
@@ -63,6 +64,9 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 	private:
 		std::vector<SoundLibraryInfo> m_soundLibraryList;
 		H2Core::Preferences *pPref;
+
+		QTreeWidgetItem* m_pDrumkitsItem;
+		QTreeWidgetItem* m_pSongItem;
 
 		bool isSoundLibraryAlreadyInstalled( QString sURL );
 		void updateSoundLibraryList();

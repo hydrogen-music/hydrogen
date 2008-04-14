@@ -104,6 +104,8 @@ std::vector<std::string> LocalFileMng::getUserDrumkitList()
 	std::vector<std::string> list;
 
 	//QString sDirectory = QDir::homePath().append( "/.hydrogen/data" );
+	//QString sDirectory = ( Preferences::getInstance()->getDataDirectory() + "/drumkits").c_str();
+
 	QString sDirectory = Preferences::getInstance()->getDataDirectory().c_str();
 
 	QDir dir( sDirectory );
@@ -120,6 +122,7 @@ std::vector<std::string> LocalFileMng::getUserDrumkitList()
 			list.push_back( sFile );
 		}
 	}
+
 	return list;
 }
 
@@ -166,6 +169,7 @@ std::string LocalFileMng::getDrumkitDirectory( const std::string& drumkitName )
 	for ( unsigned i = 0; i < userDrumkits.size(); i++ ) {
 		if ( userDrumkits[ i ] == drumkitName ) {
 			std::string path = Preferences::getInstance()->getDataDirectory();
+			//std::string path = Preferences::getInstance()->getDataDirectory() + "drumkits/";
 			//string path = QDir::homePath().append("/.hydrogen/data/").toStdString();
 			return path;
 		}
