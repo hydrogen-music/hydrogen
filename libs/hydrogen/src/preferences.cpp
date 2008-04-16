@@ -645,7 +645,7 @@ void Preferences::createSoundLibraryDirectories()
 	
 	sDrumkitDir = sDir + "/drumkits";
 	sSongDir = sDir + "/songs";
-	sPatternDir = sDir + "/pattern";
+	sPatternDir = sDir + "/patterns";
 
 	QDir dir;
 	dir.mkdir( QString( sDrumkitDir.c_str() ) );
