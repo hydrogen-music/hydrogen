@@ -460,30 +460,18 @@ void MainForm::action_file_export_pattern_as()
 	Instrument *instr = song->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	std::string sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name() .c_str();
+	std::string sDataDir = Preferences::getInstance()->getDataDirectory();
 
 
-	QDir dir ( QString ( sDrumkitDir.c_str() ) );
-	QDir dirPattern ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) );
-	if ( !dir.exists() )
-	{
-		dir.mkdir ( QString ( sDrumkitDir.c_str() ) );// create the drumkit directory
-		dir.mkdir ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) ); //create the pattern dir
-	}
-	else
-	{
-		if ( !dirPattern.exists() )
-		{
-			dir.mkdir ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) ); //create the pattern dir
-		}
-	}
+	QDir dir ( QString ( sDataDir.c_str() )  + QString ( "patterns" ) );
+
 
 	QFileDialog *fd = new QFileDialog ( this );
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
-	fd->setWindowTitle ( trUtf8 ( "Save Pattern" ) );
-	fd->setDirectory ( dirPattern );
+	fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
+	fd->setDirectory ( dir );
 
 
 
@@ -586,9 +574,10 @@ void MainForm::action_file_openPattern()
 	Instrument *instr = song->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	std::string sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name() .c_str();
+	std::string sDataDir = Preferences::getInstance()->getDataDirectory();
 
-	QDir dirPattern ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) );
+	QDir dirPattern ( QString ( sDataDir.c_str() + QString ( "patterns" ) ) );
+	ERRORLOG(sDataDir.c_str());
 	QFileDialog *fd = new QFileDialog ( this );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Song (*.h2pattern)" ) );
