@@ -67,6 +67,8 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void action_file_openDemo();
 		void action_file_save();
 		void action_file_save_as();
+		void action_file_openPattern();
+		void action_file_export_pattern_as();
 		bool action_file_exit();
 
 		void action_file_export();

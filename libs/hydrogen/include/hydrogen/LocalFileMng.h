@@ -63,6 +63,9 @@ public:
 	static void writeXmlString( ::TiXmlNode *parent, const std::string& name, const std::string& text );
 	static void writeXmlBool( ::TiXmlNode *parent, const std::string& name, bool value );
 
+	Pattern* loadPattern( const std::string& directory );
+	int savePattern( Song *song , int selectedpattern , const std::string& patternname, const std::string& realpatternname, int mode);
+
 	static std::string readXmlString( ::TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static int readXmlInt( ::TiXmlNode* parent, const std::string& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static float readXmlFloat( ::TiXmlNode* parent, const std::string& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );

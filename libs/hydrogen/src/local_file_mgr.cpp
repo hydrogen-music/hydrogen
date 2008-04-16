@@ -22,8 +22,10 @@
 
 #include "config.h"
 
+
 #include <hydrogen/adsr.h>
 #include <hydrogen/data_path.h>
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/LocalFileMng.h>
@@ -62,6 +64,168 @@ LocalFileMng::~LocalFileMng()
 {
 //	infoLog("DESTROY");
 }
+
+
+Pattern* LocalFileMng::loadPattern( const std::string& directory )
+{
+	
+	InstrumentList* instrList = Hydrogen::get_instance()->getSong()->get_instrument_list(); 
+	Pattern *pPattern = NULL; 
+	std::string patternInfoFile = directory;
+	std::ifstream verify( patternInfoFile.c_str() , std::ios::in | std::ios::binary ); 
+	if ( verify == NULL ) {
+		ERRORLOG( "Load Pattern: Data file " + patternInfoFile + " not found." ); return NULL;
+	}
+
+	TiXmlDocument doc( patternInfoFile.c_str() );
+	doc.LoadFile();
+
+	// root element
+	TiXmlNode* rootNode;	// root element
+	if ( !( rootNode = doc.FirstChild( "drumkit_pattern" ) ) ) {
+		ERRORLOG( "Error reading Pattern: Pattern_drumkit_infonode not found" ); return NULL;
+	}	
+
+	TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
+
+	std::string sName = LocalFileMng::readXmlString( patternNode,"pattern_name", "" );
+
+	int nSize = -1;
+	nSize = LocalFileMng::readXmlInt( patternNode, "size",nSize ,false,false ); 
+	pPattern = new Pattern( sName, nSize );
+
+
+
+	TiXmlNode* pNoteListNode = patternNode->FirstChild( "noteList" ); 
+	if ( pNoteListNode ) 
+	{
+		// new code  :) 
+		for ( TiXmlNode* noteNode = pNoteListNode->FirstChild( "note" ); noteNode; noteNode = noteNode->NextSibling( "note" ) ) 
+		{
+			Note* pNote = NULL;
+			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 ); 
+			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f ); 
+			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 ); 
+			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 ); 
+			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true ); 
+			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
+			std::string sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
+
+			std::string instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
+
+			Instrument *instrRef = NULL;
+			// search instrument by ref
+			for ( unsigned i = 0; i < instrList->get_size(); i++ ) { Instrument *instr = instrList->get( i );
+				if ( instrId == instr->get_id() ) {
+					instrRef = instr;
+					break;
+				}
+			}
+			if ( !instrRef ) {
+				ERRORLOG( "Instrument with ID: '" + instrId + "' not found. Note skipped." ); continue;
+			}
+			//assert( instrRef );
+
+			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch, Note::stringToKey( sKey ) );
+			pPattern->note_map.insert( std::make_pair( pNote->get_position(),pNote ) ); 
+		} 
+	}
+
+	return pPattern;
+
+}
+
+
+int LocalFileMng::savePattern( Song *song , int selectedpattern , const std::string& patternname, const std::string& realpatternname, int mode)
+{
+	//int mode = 1 save, int mode = 2 save as 
+	// INSTRUMENT NODE
+
+	Instrument *instr = song->get_instrument_list()->get( 0 );
+	assert( instr );
+
+
+	Pattern *pat = song->get_pattern_list()->get( selectedpattern );
+	
+	std::string sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name() .c_str();
+	
+	//std::string sDrumkitPatternDir = sDrumkitDir + std::string( "/Pattern/" ) 
+			
+	INFOLOG( "[savePattern]" + to_string ( sDrumkitDir ));
+	
+	// check if the directory exists
+	QDir dir( QString( sDrumkitDir.c_str() ) );
+	QDir dirPattern( QString( sDrumkitDir.c_str() + QString( "/Pattern" )) );
+	if ( !dir.exists() ) {
+		dir.mkdir( QString( sDrumkitDir.c_str() ) );// create the drumkit directory
+		dir.mkdir( QString( sDrumkitDir.c_str() + QString( "/Pattern" )) ); //create the pattern dir
+	}else{
+		if ( !dirPattern.exists() ) {
+			dir.mkdir( QString( sDrumkitDir.c_str() + QString( "/Pattern" )) ); //create the pattern dir
+		}
+		
+	} 
+
+	std::string sPatternXmlFilename = "";
+	// create the drumkit.xml file
+	switch ( mode ){
+		case 1: //save
+			sPatternXmlFilename = sDrumkitDir + std::string( "/Pattern/" ) + std::string( patternname + std::string( ".h2pattern" ));
+			WARNINGLOG( "Patternfile" +to_string(sPatternXmlFilename));
+			//TiXmlDocument doc( sPatternXmlFilename.c_str() );
+			break;
+		case 2: //save as
+			sPatternXmlFilename = patternname;
+			WARNINGLOG( "Patternfile" +to_string(sPatternXmlFilename));
+			//TiXmlDocument doc( sPatternXmlFilename.c_str() );
+			break;
+		default:
+			WARNINGLOG( "Pattern Save unknown status");
+			break;
+
+	}
+	TiXmlDocument doc( sPatternXmlFilename.c_str() );
+	
+	TiXmlElement rootNode( "drumkit_pattern" );
+	//LIB_ID just in work to get better usability
+	writeXmlString( &rootNode, "LIB_ID", "in_work" );
+	writeXmlString( &rootNode, "pattern_for_drumkit", instr->get_drumkit_name() );	
+		
+
+	// pattern
+	TiXmlElement patternNode( "pattern" );
+	LocalFileMng::writeXmlString( &patternNode, "pattern_name", realpatternname );
+	writeXmlString( &patternNode, "size", to_string( pat->get_lenght() ) );
+
+		TiXmlElement noteListNode( "noteList" );
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = pat->note_map.begin(); pos != pat->note_map.end(); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+
+			TiXmlElement noteNode( "note" );
+			writeXmlString( &noteNode, "position", to_string( pNote->get_position() ) );
+			writeXmlString( &noteNode, "velocity", to_string( pNote->get_velocity() ) );
+			writeXmlString( &noteNode, "pan_L", to_string( pNote->get_pan_l() ) );
+			writeXmlString( &noteNode, "pan_R", to_string( pNote->get_pan_r() ) );
+			writeXmlString( &noteNode, "pitch", to_string( pNote->get_pitch() ) );
+
+			writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
+
+			writeXmlString( &noteNode, "length", to_string( pNote->get_lenght() ) );
+			writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
+			noteListNode.InsertEndChild( noteNode );
+		}
+		patternNode.InsertEndChild( noteListNode );
+
+	rootNode.InsertEndChild( patternNode );
+
+	doc.InsertEndChild( rootNode );
+	doc.SaveFile();
+
+	return 0; // ok
+}
+
 
 
 

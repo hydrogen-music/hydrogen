@@ -189,6 +189,11 @@ void MainForm::createMenuBar()
 
 	m_pFileMenu->addSeparator();				// -----
 
+	m_pFileMenu->addAction ( trUtf8 ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "" ) );
+	m_pFileMenu->addAction( trUtf8( "Export pattern as..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
+
+	m_pFileMenu->addSeparator();				// -----
+
 	m_pFileMenu->addAction( trUtf8( "Export &MIDI file" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
 	m_pFileMenu->addAction( trUtf8( "&Export song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
 
@@ -440,7 +445,76 @@ void MainForm::showUserManual()
 }
 
 
+void MainForm::action_file_export_pattern_as()
+{
+	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) )
+	{
+		Hydrogen::get_instance()->sequencer_stop();
+	}
 
+	Hydrogen *engine = Hydrogen::get_instance();
+	int selectedpattern = engine->getSelectedPatternNumber();
+	Song *song = engine->getSong();
+	Pattern *pat = song->get_pattern_list()->get ( selectedpattern );
+
+	Instrument *instr = song->get_instrument_list()->get ( 0 );
+	assert ( instr );
+
+	std::string sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name() .c_str();
+
+
+	QDir dir ( QString ( sDrumkitDir.c_str() ) );
+	QDir dirPattern ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) );
+	if ( !dir.exists() )
+	{
+		dir.mkdir ( QString ( sDrumkitDir.c_str() ) );// create the drumkit directory
+		dir.mkdir ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) ); //create the pattern dir
+	}
+	else
+	{
+		if ( !dirPattern.exists() )
+		{
+			dir.mkdir ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) ); //create the pattern dir
+		}
+	}
+
+	QFileDialog *fd = new QFileDialog ( this );
+	fd->setFileMode ( QFileDialog::AnyFile );
+	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
+	fd->setAcceptMode ( QFileDialog::AcceptSave );
+	fd->setWindowTitle ( trUtf8 ( "Save Pattern" ) );
+	fd->setDirectory ( dirPattern );
+
+
+
+	QString defaultPatternname = QString ( pat->get_name().c_str() );
+
+	fd->selectFile ( defaultPatternname );
+
+	LocalFileMng fileMng;
+	QString filename = "";
+	if ( fd->exec() == QDialog::Accepted )
+	{
+		filename = fd->selectedFiles().first();
+	}
+
+	if ( filename != "" )
+	{
+		QString sNewFilename = filename;
+		sNewFilename += ".h2pattern";
+		std::string patternname = sNewFilename.toStdString();
+		std::string realpatternname = filename.toStdString();
+		std::string realname = realpatternname.substr(realpatternname.rfind("/")+1);
+		pat->set_name(realname);
+		HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+		int err = fileMng.savePattern ( song , selectedpattern, patternname, realname, 2 );
+		if ( err != 0 )
+		{
+			_ERRORLOG ( "Error saving the pattern" );
+		}
+	}
+	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
+}
 
 void MainForm::action_file_open() {
 	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
@@ -502,7 +576,51 @@ void MainForm::action_file_open() {
 }
 
 
+void MainForm::action_file_openPattern()
+{
 
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *pPatternList = song->get_pattern_list();
+
+	Instrument *instr = song->get_instrument_list()->get ( 0 );
+	assert ( instr );
+
+	std::string sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name() .c_str();
+
+	QDir dirPattern ( QString ( sDrumkitDir.c_str() + QString ( "/Pattern" ) ) );
+	QFileDialog *fd = new QFileDialog ( this );
+	fd->setFileMode ( QFileDialog::ExistingFile );
+	fd->setFilter ( trUtf8 ( "Hydrogen Song (*.h2pattern)" ) );
+	fd->setDirectory ( dirPattern );
+
+	fd->setWindowTitle ( trUtf8 ( "Open Pattern" ) );
+
+
+	QString filename = "";
+	if ( fd->exec() == QDialog::Accepted )
+	{
+		filename = fd->selectedFiles().first();
+	}
+	std::string patternname = filename.toStdString();
+	_ERRORLOG ( "PATTERNNAME" + to_string ( patternname ) );
+
+	LocalFileMng mng;
+	LocalFileMng fileMng;
+	Pattern* err = fileMng.loadPattern ( patternname );
+	if ( err == 0 )
+	{
+		_ERRORLOG ( "Error loading the pattern" );
+	}
+	else
+	{
+		H2Core::Pattern *pNewPattern = err;
+		pPatternList->add ( pNewPattern );
+		song->__is_modified = true;
+	}
+
+	HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+}
 
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
 void MainForm::action_file_openDemo()

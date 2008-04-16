@@ -64,7 +64,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		//~ Implements EventListener interface
 
 
-	private slots:
+	public slots:
 		void updateEditor();
 
 	private:

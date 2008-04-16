@@ -98,7 +98,8 @@ void OldDrumkitManager::updateDrumkitList()
 	//LocalFileMng mng;
 	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); i++) {
-		std::string absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
+		std::string absPath = Preferences::getInstance()->getDataDirectory()  + userList[i];
+		//std::string absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
