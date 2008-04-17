@@ -217,7 +217,7 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			//////// GENERAL ///////////
 			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
-			showDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", showDevelWarning );
+			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			recordEvents = LocalFileMng::readXmlBool( rootNode, "recordEvents", recordEvents );
@@ -436,7 +436,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( &rootNode, "restoreLastSong", restoreLastSong ? "true": "false" );
 
 	//show development version warning
-	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", showDevelWarning ? "true": "false" );
+	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
 
 	// hear new notes in the pattern editor
 	LocalFileMng::writeXmlString( &rootNode, "hearNewNotes", hearNewNotes ? "true": "false" );

@@ -198,8 +198,12 @@ public:
 		restoreLastSong = restore;
 	}
 
-	bool isDevelWarningEnabled() {
-		return showDevelWarning;
+	void setShowDevelWarning( bool value ) {
+		m_bShowDevelWarning = value;
+	}
+
+	bool getShowDevelWarning() {
+		return m_bShowDevelWarning;
 	}
 
 	bool isRestoreLastSongEnabled() {
@@ -401,7 +405,7 @@ private:
 
 	//___ General properties ___
 	bool restoreLastSong;		///< Restore last song?
-	bool showDevelWarning;		///< Show development version warning?
+	bool m_bShowDevelWarning;	///< Show development version warning?
 	std::string lastSongFilename;	///< Last song used
 	bool hearNewNotes;
 	std::vector<std::string> m_recentFiles;

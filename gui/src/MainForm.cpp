@@ -1481,11 +1481,20 @@ void MainForm::latestVersionDone(bool bError)
 	}
 
 	if ( bUsingDevelVersion ) {
-	  Preferences *pref = Preferences::getInstance();
-	  bool isDevelWarningEnabled = pref->isDevelWarningEnabled();
-	  if(isDevelWarningEnabled) {
-	    QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
-	    QMessageBox::warning( this, "Hydrogen", msg );
+		Preferences *pref = Preferences::getInstance();
+		bool isDevelWarningEnabled = pref->getShowDevelWarning();
+		if(isDevelWarningEnabled) {
+		
+			QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
+			QMessageBox develMessageBox( this );
+			develMessageBox.setText( msg );
+			develMessageBox.addButton( QMessageBox::Ok );
+			develMessageBox.addButton( trUtf8( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
+			
+			if( develMessageBox.exec() == 0 ){
+				//don't show warning again
+				pref->setShowDevelWarning( false );
+			}
 	  }
 	  
 
