@@ -592,14 +592,15 @@ void MainForm::action_file_openPattern()
 		filename = fd->selectedFiles().first();
 	}
 	std::string patternname = filename.toStdString();
-	_ERRORLOG ( "PATTERNNAME" + to_string ( patternname ) );
+	
 
 	LocalFileMng mng;
 	LocalFileMng fileMng;
 	Pattern* err = fileMng.loadPattern ( patternname );
 	if ( err == 0 )
-	{
+	{	
 		_ERRORLOG ( "Error loading the pattern" );
+		_ERRORLOG ( to_string ( patternname ) );
 	}
 	else
 	{

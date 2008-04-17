@@ -33,6 +33,7 @@
 #include "../widgets/Button.h"
 #include "../widgets/PixmapWidget.h"
 #include "../Skin.h"
+#include "../SongEditor/SongEditorPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
@@ -70,6 +71,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	m_pSongMenu = new QMenu( this );
 	m_pSongMenu->addSeparator();
 	m_pSongMenu->addAction( trUtf8( "Load" ), this, SLOT( on_songLoadAction() ) );
+
+	m_pPatternMenu = new QMenu( this );
+	m_pPatternMenu->addSeparator();
+	m_pPatternMenu->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
 
 // DRUMKIT LIST
 	m_pSoundLibraryTree = new SoundLibraryTree( NULL );
@@ -202,6 +207,23 @@ void SoundLibraryPanel::updateDrumkitList()
 			pSongItem->setText( 0 , QString ( songList[ i ].c_str() ) );
 		}
 	}
+
+	std::vector<std::string> patternList = mng.getPatternList();
+
+	if ( patternList.size() > 0 )
+	{
+
+		m_pPatternItem = new QTreeWidgetItem( m_pSoundLibraryTree );
+		m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
+		m_pSoundLibraryTree->setItemExpanded( m_pPatternItem, true );
+
+		for (uint i = 0; i < patternList.size(); i++) 
+		{
+			std::string absPath = DataPath::get_data_path() + "/patterns/" + patternList[i];
+			QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( m_pPatternItem );
+			pPatternItem->setText( 0 , QString ( patternList[ i ].c_str() ) );
+		}
+	}
 	
 }
 
@@ -221,7 +243,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 	UNUSED( column );
 
 //	INFOLOG( "[on_DrumkitList_itemActivated]" );
-	if ( item == m_pSystemDrumkitsItem || item == m_pUserDrumkitsItem || item == m_pSystemDrumkitsItem->parent() || item->parent() == m_pSongItem || item == m_pSongItem ) {
+	if ( item == m_pSystemDrumkitsItem || item == m_pUserDrumkitsItem || item == m_pSystemDrumkitsItem->parent() || item->parent() == m_pSongItem || item == m_pSongItem || item == m_pPatternItem || item->parent() == m_pPatternItem ) {
 		return;
 	}
 
@@ -261,6 +283,10 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 
 	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pSongItem ) {
 		m_pSongMenu->popup( pos );
+	}
+
+	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pPatternItem ) {
+		m_pPatternMenu->popup( pos );
 	}
 
 	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pUserDrumkitsItem ) {
@@ -485,4 +511,30 @@ void SoundLibraryPanel::on_songLoadAction()
 }
 
 
+void SoundLibraryPanel::on_patternLoadAction()
+{
+	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 );
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *pPatternList = song->get_pattern_list();
+	
+	std::string sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns";
+	
+	LocalFileMng mng;
+	LocalFileMng fileMng;
+	Pattern* err = fileMng.loadPattern (sDirectory + "/" +  patternName.toStdString() + ".h2pattern" );
+
+	if ( err == 0 )
+	{
+		_ERRORLOG ( "Error loading the pattern" );
+	}
+	else
+	{
+		H2Core::Pattern *pNewPattern = err;
+		pPatternList->add ( pNewPattern );
+		song->__is_modified = true;
+	}
+
+	HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+}
 

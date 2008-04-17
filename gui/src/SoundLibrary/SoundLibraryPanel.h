@@ -59,6 +59,7 @@ class SoundLibraryPanel : public QWidget, private Object
 		void on_drumkitExportAction();
 		void on_instrumentDeleteAction();
 		void on_songLoadAction();
+		void on_patternLoadAction();
 
 	private:
 		SoundLibraryTree *m_pSoundLibraryTree;
@@ -68,9 +69,13 @@ class SoundLibraryPanel : public QWidget, private Object
 		QMenu* m_pDrumkitMenu;
 		QMenu* m_pInstrumentMenu;
 		QMenu* m_pSongMenu;
+		QMenu* m_pPatternMenu;
+
 		QTreeWidgetItem* m_pSystemDrumkitsItem;
 		QTreeWidgetItem* m_pUserDrumkitsItem;
 		QTreeWidgetItem* m_pSongItem;
+		QTreeWidgetItem* m_pPatternItem;
+
 		std::vector<H2Core::Drumkit*> m_systemDrumkitInfoList;
 		std::vector<H2Core::Drumkit*> m_userDrumkitInfoList;
 

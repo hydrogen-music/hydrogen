@@ -116,6 +116,24 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	QDomNode drumkitNode = dom.documentElement().firstChild();
 	while ( !drumkitNode.isNull() ) {
 		if( !drumkitNode.toElement().isNull() ) {
+
+			if ( drumkitNode.toElement().tagName() == "pattern" ) {
+				
+				SoundLibraryInfo soundLibInfo;
+				
+				QDomElement patternNode = drumkitNode.firstChildElement( "pattern" );
+				if ( !patternNode.isNull() ) {
+
+					QDomElement nameNode = patternNode.firstChildElement( "pattern_name" );
+					if ( !nameNode.isNull() ) {
+						soundLibInfo.m_sName = nameNode.text();
+					}
+				}
+
+				m_soundLibraryList.push_back( soundLibInfo );
+
+			}			
+
 			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" ) {
 
 				SoundLibraryInfo soundLibInfo;
@@ -229,6 +247,17 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 		std::vector<std::string> userList = H2Core::Drumkit::getUserDrumkitList();
 		for ( uint i = 0; i < userList.size(); ++i ) {
 			if ( userList[ i ] == soundLibraryItemName ) {
+				return true;
+			}
+		}
+	}
+
+	if ( sInfo.m_sType == "pattern" )
+	{
+		H2Core::LocalFileMng mng;
+		std::vector<std::string> patternList = mng.getPatternList();
+		for ( uint i = 0; i < patternList.size(); ++i ) {
+			if ( patternList[ i ] == soundLibraryItemName ) {
 				return true;
 			}
 		}
