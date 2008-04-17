@@ -117,24 +117,9 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	while ( !drumkitNode.isNull() ) {
 		if( !drumkitNode.toElement().isNull() ) {
 
-			if ( drumkitNode.toElement().tagName() == "pattern" ) {
-				
-				SoundLibraryInfo soundLibInfo;
-				
-				QDomElement patternNode = drumkitNode.firstChildElement( "pattern" );
-				if ( !patternNode.isNull() ) {
+			
 
-					QDomElement nameNode = patternNode.firstChildElement( "pattern_name" );
-					if ( !nameNode.isNull() ) {
-						soundLibInfo.m_sName = nameNode.text();
-					}
-				}
-
-				m_soundLibraryList.push_back( soundLibInfo );
-
-			}			
-
-			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" ) {
+			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" || drumkitNode.toElement().tagName() == "pattern" ) {
 
 				SoundLibraryInfo soundLibInfo;
 			
@@ -146,6 +131,9 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 					soundLibInfo.m_sType = "drumkit";
 				}
 
+				if ( drumkitNode.toElement().tagName() =="pattern" ) {
+					soundLibInfo.m_sType = "pattern";
+				}
 
 				QDomElement nameNode = drumkitNode.firstChildElement( "name" );
 				if ( !nameNode.isNull() ) {
@@ -193,6 +181,9 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	m_pSongItem->setText( 0, trUtf8( "Songs" ) );
 	m_pDrumkitTree->setItemExpanded( m_pSongItem, true );
 
+	m_pPatternItem = new QTreeWidgetItem( m_pDrumkitTree );
+	m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
+	m_pDrumkitTree->setItemExpanded( m_pPatternItem, true );
 
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
 		QString sLibraryName = m_soundLibraryList[ i ].m_sName;
@@ -206,6 +197,10 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 		
 		if ( m_soundLibraryList[ i ].m_sType == "drumkit" ) {
 			pDrumkitItem = new QTreeWidgetItem(  m_pDrumkitsItem );
+		}
+
+		if ( m_soundLibraryList[ i ].m_sType == "pattern" ) {
+			pDrumkitItem = new QTreeWidgetItem(  m_pPatternItem );
 		}
 
 	
