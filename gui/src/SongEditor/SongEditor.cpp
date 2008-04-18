@@ -42,6 +42,7 @@ using namespace H2Core;
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"
+#include <hydrogen/LocalFileMng.h>
 
 
 SongEditor::SongEditor( QWidget *parent )
@@ -648,6 +649,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( trUtf8("Delete"),  this, SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
+	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
 
 	HydrogenApp::getInstance()->addEventListener( this );
 
@@ -874,6 +876,22 @@ void SongEditorPatternList::createBackground()
 }
 
 
+void SongEditorPatternList::patternPopup_save()
+{	
+	Hydrogen *engine = Hydrogen::get_instance();
+	int nSelectedPattern = engine->getSelectedPatternNumber();
+	Song *song = engine->getSong();
+	Pattern *pat = song->get_pattern_list()->get( nSelectedPattern );
+
+	std::string patternname = pat->get_name();
+	std::string realpatternname = patternname;
+
+	LocalFileMng fileMng;
+	int err = fileMng.savePattern( song , nSelectedPattern, patternname, realpatternname, 1 );
+	if ( err != 0 ) {
+		_ERRORLOG( "Error saving the pattern" );
+	}
+}
 
 void SongEditorPatternList::patternPopup_edit()
 {
