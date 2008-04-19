@@ -195,7 +195,19 @@ void DownloadWidget::updateStats()
 	int hours = m_nETA / 60 / 60;
 	int minutes = ( m_nETA / 60 ) % 60;
 	int seconds = m_nETA % 60;
-	QString sETA = QString( "%1:%2:%3" ).arg( hours ).arg( minutes ).arg( seconds );
+	
+	QString m_sHours = QString( "%1" ).arg( hours );
+	QString m_sMinutes = QString( "%1" ).arg( minutes );
+	QString m_sSeconds = QString( "%1" ).arg( seconds );
+
+	m_sHours = m_sHours.rightJustified(2,'0');
+	m_sMinutes = m_sMinutes.rightJustified(2,'0');
+	m_sSeconds = m_sSeconds.rightJustified(2,'0');
+
+	QString sETA = m_sHours + ":" + m_sMinutes + ":" +  m_sSeconds;
+	
+	//QString sETA = QString( "%1:%2:%3" ).arg( 24 , 3 ).arg( minutes , 2 ).arg( seconds );
+
 	m_pETALabel->setText( trUtf8( "(%1K/%2K) - ETA %3" ).arg( m_nBytesCurrent / 1024 ).arg( m_nBytesTotal / 1024 ).arg( sETA ) );
 
 	if ( m_fPercDownload == 100 ){
