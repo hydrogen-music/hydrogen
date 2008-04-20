@@ -31,64 +31,6 @@
     <widget class="QWidget" name="widget" >
      <property name="geometry" >
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>291</width>
-       <height>431</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="leftMargin" >
-       <number>0</number>
-      </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QComboBox" name="repositoryCombo" />
-      </item>
-      <item>
-       <widget class="QPushButton" name="UpdateListBtn" >
-        <property name="text" >
-         <string>Update list</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTreeWidget" name="m_pDrumkitTree" >
-        <property name="alternatingRowColors" >
-         <bool>true</bool>
-        </property>
-        <property name="indentation" >
-         <number>15</number>
-        </property>
-        <property name="rootIsDecorated" >
-         <bool>false</bool>
-        </property>
-        <property name="itemsExpandable" >
-         <bool>false</bool>
-        </property>
-        <column>
-         <property name="text" >
-          <string>1</string>
-         </property>
-        </column>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="widget" >
-     <property name="geometry" >
-      <rect>
        <x>310</x>
        <y>10</y>
        <width>431</width>
@@ -173,6 +115,69 @@
        </widget>
       </item>
      </layout>
+    </widget>
+    <widget class="QPushButton" name="EditListBtn" >
+     <property name="geometry" >
+      <rect>
+       <x>160</x>
+       <y>40</y>
+       <width>140</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Edit server list</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="repositoryCombo" >
+     <property name="geometry" >
+      <rect>
+       <x>11</x>
+       <y>11</y>
+       <width>289</width>
+       <height>24</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QTreeWidget" name="m_pDrumkitTree" >
+     <property name="geometry" >
+      <rect>
+       <x>11</x>
+       <y>75</y>
+       <width>289</width>
+       <height>365</height>
+      </rect>
+     </property>
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+     <property name="indentation" >
+      <number>15</number>
+     </property>
+     <property name="rootIsDecorated" >
+      <bool>false</bool>
+     </property>
+     <property name="itemsExpandable" >
+      <bool>false</bool>
+     </property>
+     <column>
+      <property name="text" >
+       <string>1</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QPushButton" name="UpdateListBtn" >
+     <property name="geometry" >
+      <rect>
+       <x>11</x>
+       <y>40</y>
+       <width>140</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Update list</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2" >

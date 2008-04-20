@@ -141,6 +141,7 @@ FORMS    = \
 	src/UI/PatternPropertiesDialog_UI.ui \
 	src/UI/PreferencesDialog_UI.ui \
 	src/UI/SongPropertiesDialog_UI.ui \
+	src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui \
 	src/SoundLibrary/SoundLibraryImportDialog_UI.ui \
 	src/SoundLibrary/SoundLibrarySaveDialog_UI.ui
 
@@ -162,6 +163,7 @@ SOURCES += \
 	src/SoundLibrary/SoundLibraryPanel.cpp\
 	src/SoundLibrary/FileBrowser.cpp\
 	src/SoundLibrary/SoundLibraryImportDialog.cpp\
+	src/SoundLibrary/SoundLibraryRepositoryDialog.cpp\
 	src/SoundLibrary/SoundLibrarySaveDialog.cpp\
 	\
 	src/InstrumentEditor/InstrumentEditor.cpp \
@@ -218,6 +220,7 @@ HEADERS += \
 	src/SoundLibrary/FileBrowser.h \
 	src/SoundLibrary/SoundLibraryImportDialog.h\
 	src/SoundLibrary/SoundLibrarySaveDialog.h\
+	src/SoundLibrary/SoundLibraryRepositoryDialog.h\
 	\
 	src/InstrumentEditor/InstrumentEditor.h \
 	src/InstrumentEditor/InstrumentEditorPanel.h \

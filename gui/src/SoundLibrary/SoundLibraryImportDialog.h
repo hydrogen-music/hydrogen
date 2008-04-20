@@ -52,6 +52,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		~SoundLibraryImportDialog();
 
 	private slots:
+		void on_EditListBtn_clicked();
 		void on_UpdateListBtn_clicked();
 		void on_DownloadBtn_clicked();
 		void on_BrowseBtn_clicked();
@@ -71,6 +72,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 
 		bool isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo );
 		void updateSoundLibraryList();
+		void updateRepositoryCombo();
 };
 
 
