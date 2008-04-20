@@ -329,7 +329,8 @@ std::vector<std::string> LocalFileMng::getUserDrumkitList()
 		dir.setFilter( QDir::Dirs );
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			std::string sFile = fileList.at( i ).fileName().toStdString();
-			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
+			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) || 
+			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" )) {
 				continue;
 			}
 			list.push_back( sFile );

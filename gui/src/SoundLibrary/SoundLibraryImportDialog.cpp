@@ -305,7 +305,13 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem * curren
 				//bool alreadyInstalled = isSoundLibraryAlreadyInstalled( info.m_sURL );
 
 				SoundLibraryNameLbl->setText( info.m_sName );
-				SoundLibraryInfoLbl->setText( info.m_sInfo );
+				
+				if( info.m_sType != "pattern" ){
+					SoundLibraryInfoLbl->setText("");
+				} else {
+					SoundLibraryInfoLbl->setText( info.m_sInfo );
+				}
+
 				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.m_sAuthor ) );
 				DownloadBtn->setEnabled( true );
 				return;
