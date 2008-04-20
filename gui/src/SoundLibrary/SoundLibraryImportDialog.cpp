@@ -346,7 +346,10 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				sLocalFile = QString(dataDir.c_str()) + "songs/" + QFileInfo( sURL ).fileName();
 			}
 
-		
+			if( sType == "pattern")
+			{
+				sLocalFile = QString(dataDir.c_str()) + "patterns/" + QFileInfo( sURL ).fileName();
+			}
 
 			DownloadWidget drumkit( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 			drumkit.exec();
@@ -364,10 +367,8 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				}
 
 				
-				if ( sType == "song" )
+				if ( sType == "song" || sType == "pattern")
 				{
-					//H2Core::Drumkit::install( sLocalFile.toStdString() );
-					//QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir.c_str() ) );
 					setCursor( QCursor( Qt::ArrowCursor ) );
 				}
 				
