@@ -74,7 +74,7 @@ Drumkit::~Drumkit()
 
 
 
-Drumkit* Drumkit::load( const std::string& sFilename )
+Drumkit* Drumkit::load( const QString& sFilename )
 {
 	LocalFileMng mng;
 	return mng.loadDrumkit( sFilename );
@@ -82,7 +82,7 @@ Drumkit* Drumkit::load( const std::string& sFilename )
 
 
 
-std::vector<std::string> Drumkit::getUserDrumkitList()
+std::vector<QString> Drumkit::getUserDrumkitList()
 {
 	LocalFileMng mng;
 	return mng.getUserDrumkitList();
@@ -90,7 +90,7 @@ std::vector<std::string> Drumkit::getUserDrumkitList()
 
 
 
-std::vector<std::string> Drumkit::getSystemDrumkitList()
+std::vector<QString> Drumkit::getSystemDrumkitList()
 {
 	LocalFileMng mng;
 	return mng.getSystemDrumkitList();
@@ -129,16 +129,16 @@ void Drumkit::dump()
 
 
 
-void Drumkit::install( const std::string& filename )
+void Drumkit::install( const QString& filename )
 {
 	_INFOLOG( "[Drumkit::install] drumkit = " + filename );
-	std::string dataDir = Preferences::getInstance()->getDataDirectory();
+	QString dataDir = Preferences::getInstance()->getDataDirectory();
 
 	// GUNZIP !!!
-	std::string gunzippedName = filename.substr( 0, filename.rfind( "." ) );
+	QString gunzippedName = filename.left( filename.indexOf( "." ) );
 	gunzippedName += ".tar";
-	FILE *pGunzippedFile = fopen( gunzippedName.c_str(), "wb" );
-	gzFile gzipFile = gzopen( filename.c_str(), "rb" );
+	FILE *pGunzippedFile = fopen( gunzippedName.toAscii(), "wb" );
+	gzFile gzipFile = gzopen( filename.toAscii(), "rb" );
 	uchar buf[4096];
 	while ( gzread( gzipFile, buf, 4096 ) > 0 ) {
 		fwrite( buf, sizeof( uchar ), 4096, pGunzippedFile );
@@ -151,26 +151,26 @@ void Drumkit::install( const std::string& filename )
 	TAR *tarFile;
 
 	char tarfilename[1024];
-	strcpy( tarfilename, gunzippedName.c_str() );
+	strcpy( tarfilename, gunzippedName.toAscii() );
 
 	if ( tar_open( &tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) {
-		_ERRORLOG( "[Drumkit::install] tar_open(): " + strerror( errno ) );
+		_ERRORLOG( QString( "[Drumkit::install] tar_open(): %1" ).arg( strerror( errno ) ) );
 	}
 
 	char destDir[1024];
-	strcpy( destDir, dataDir.c_str() );
+	strcpy( destDir, dataDir.toAscii() );
 	if ( tar_extract_all( tarFile, destDir ) != 0 ) {
-		_ERRORLOG( "[Drumkit::install] tar_extract_all(): " + strerror( errno ) );
+		_ERRORLOG( QString( "[Drumkit::install] tar_extract_all(): %1" ).arg( strerror( errno ) ) );
 	}
 
 	if ( tar_close( tarFile ) != 0 ) {
-		_ERRORLOG( "[Drumkit::install] tar_close(): " + strerror( errno ) );
+		_ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( strerror( errno ) ) );
 	}
 }
 
 
 
-void Drumkit::save( const std::string& sName, const std::string& sAuthor, const std::string& sInfo )
+void Drumkit::save( const QString& sName, const QString& sAuthor, const QString& sInfo )
 {
 	_INFOLOG( "Saving drumkit" );
 
@@ -198,7 +198,7 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 		pNewInstr->set_filter_resonance( pOldInstr->get_filter_resonance() );
 
 
-		std::string sInstrDrumkit = pOldInstr->get_drumkit_name();
+		QString sInstrDrumkit = pOldInstr->get_drumkit_name();
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pOldLayer = pOldInstr->get_layer( nLayer );
@@ -238,17 +238,17 @@ void Drumkit::save( const std::string& sName, const std::string& sAuthor, const 
 
 
 
-void Drumkit::removeDrumkit( const std::string& sDrumkitName )
+void Drumkit::removeDrumkit( const QString& sDrumkitName )
 {
 	_INFOLOG( "Removing drumkit: " + sDrumkitName );
 
-	std::string dataDir = Preferences::getInstance()->getDataDirectory();
+	QString dataDir = Preferences::getInstance()->getDataDirectory();
 	dataDir += sDrumkitName;
-	std::string cmd = std::string( "rm -rf \"" ) + dataDir + "\"";
+	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
 	_INFOLOG( cmd );
-	if ( system( cmd.c_str() ) != 0 ) {
+	if ( system( cmd.toAscii() ) != 0 ) {
 		_ERRORLOG( "Error executing '" + cmd + "'" );
-		throw H2Exception( "Error executing '" + cmd + "'" );
+		throw H2Exception( QString( "Error executing '%1'" ).arg( cmd ) );
 	}
 }
 

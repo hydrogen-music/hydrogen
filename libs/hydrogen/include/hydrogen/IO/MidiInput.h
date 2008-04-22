@@ -69,7 +69,7 @@ public:
 class MidiPortInfo
 {
 public:
-	std::string m_sName;
+	QString m_sName;
 	int m_nClient;
 	int m_nPort;
 };
@@ -81,12 +81,12 @@ public:
 class MidiInput : public Object
 {
 public:
-	MidiInput( const std::string sClassName );
+	MidiInput( const QString class_name );
 	~MidiInput();
 
 	virtual void open() = 0;
 	virtual void close() = 0;
-	virtual std::vector<std::string> getOutputPortList() = 0;
+	virtual std::vector<QString> getOutputPortList() = 0;
 
 	void setActive( bool isActive ) {
 		m_bActive = isActive;

@@ -39,7 +39,7 @@ public:
 	FLACFile();
 	~FLACFile();
 
-	Sample* load( const std::string& sFilename );
+	Sample* load( const QString& sFilename );
 };
 
 };

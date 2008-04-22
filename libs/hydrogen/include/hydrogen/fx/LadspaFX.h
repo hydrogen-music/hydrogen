@@ -37,15 +37,15 @@ namespace H2Core
 class LadspaFXInfo : public Object
 {
 public:
-	LadspaFXInfo( const std::string& sName );
+	LadspaFXInfo( const QString& sName );
 	~LadspaFXInfo();
 
-	std::string m_sFilename;	///< plugin filename
-	std::string m_sID;
-	std::string m_sLabel;
-	std::string m_sName;
-	std::string m_sMaker;
-	std::string m_sCopyright;
+	QString m_sFilename;	///< plugin filename
+	QString m_sID;
+	QString m_sLabel;
+	QString m_sName;
+	QString m_sMaker;
+	QString m_sCopyright;
 	unsigned m_nICPorts;	///< input control port
 	unsigned m_nOCPorts;	///< output control port
 	unsigned m_nIAPorts;	///< input audio port
@@ -57,10 +57,10 @@ public:
 class LadspaFXGroup : public Object
 {
 public:
-	LadspaFXGroup( const std::string& sName );
+	LadspaFXGroup( const QString& sName );
 	~LadspaFXGroup();
 
-	const std::string& getName() {
+	const QString& getName() {
 		return m_sName;
 	}
 
@@ -75,7 +75,7 @@ public:
 	}
 
 private:
-	std::string m_sName;
+	QString m_sName;
 	std::vector<LadspaFXInfo*> m_ladspaList;
 	std::vector<LadspaFXGroup*> m_childGroups;
 };
@@ -85,7 +85,7 @@ private:
 class LadspaControlPort : public Object
 {
 public:
-	std::string sName;
+	QString sName;
 	bool isToggle;
 	bool m_bIsInteger;
 	LADSPA_Data fControlValue;
@@ -122,18 +122,18 @@ public:
 	void processFX( unsigned nFrames );
 
 
-	const std::string& getPluginLabel() {
+	const QString& getPluginLabel() {
 		return m_sLabel;
 	}
 
-	const std::string& getPluginName() {
+	const QString& getPluginName() {
 		return m_sName;
 	}
-	void setPluginName( const std::string& sName ) {
+	void setPluginName( const QString& sName ) {
 		m_sName = sName;
 	}
 
-	const std::string& getLibraryPath() {
+	const QString& getLibraryPath() {
 		return m_sLibraryPath;
 	}
 
@@ -144,7 +144,7 @@ public:
 		m_bEnabled = value;
 	}
 
-	static LadspaFX* load( const std::string& sLibraryPath,  const std::string& sPluginLabel, long nSampleRate );
+	static LadspaFX* load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate );
 
 	int getPluginType() {
 		return m_pluginType;
@@ -159,9 +159,9 @@ public:
 private:
 	bool m_pluginType;
 	bool m_bEnabled;
-	std::string m_sLabel;
-	std::string m_sName;
-	std::string m_sLibraryPath;
+	QString m_sLabel;
+	QString m_sName;
+	QString m_sLibraryPath;
 
 	QLibrary *m_pLibrary;
 
@@ -175,7 +175,7 @@ private:
 	unsigned m_nOAPorts;	///< output audio port
 
 
-	LadspaFX( const std::string& sLibraryPath, const std::string& sPluginLabel );
+	LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel );
 };
 
 };

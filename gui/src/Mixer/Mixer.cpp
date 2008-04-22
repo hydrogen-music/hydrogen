@@ -408,7 +408,7 @@ void Mixer::updateMixer()
 			float fNewVolume = pInstr->get_volume();
 			bool bMuted = pInstr->is_muted();
 
-			std::string sName = pInstr->get_name();
+			QString sName = pInstr->get_name();
 			float fPan_L = pInstr->get_pan_l();
 			float fPan_R = pInstr->get_pan_r();
 
@@ -445,7 +445,7 @@ void Mixer::updateMixer()
 			pLine->setMuteClicked( bMuted );
 
 			// instr name
-			pLine->setName( sName.c_str() );
+			pLine->setName( sName );
 
 			// pan
 			float fPanValue = 0.0;
@@ -538,7 +538,7 @@ void Mixer::updateMixer()
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		LadspaFX *pFX = Effects::getInstance()->getLadspaFX( nFX );
 		if ( pFX ) {
-			m_pLadspaFXLine[nFX]->setName( pFX->getPluginName().c_str() );
+			m_pLadspaFXLine[nFX]->setName( pFX->getPluginName() );
 			float fNewPeak_L = 0.0;
 			float fNewPeak_R = 0.0;
 
@@ -768,8 +768,8 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 			LadspaFX *pFX = Effects::getInstance()->getLadspaFX(nFX);
 			if (pFX) {
 				pFX->setVolume( ref->getVolume() );
-				QString sInfo = trUtf8( "Set LADSPA FX ( %1 ) volume").arg( QString(pFX->getPluginName().c_str()) );
-				( HydrogenApp::getInstance() )->setStatusBarMessage( sInfo+ QString( " [%1]" ).arg( ref->getVolume(), 0, 'f', 2 ), 2000 );
+				QString sInfo = trUtf8( "Set LADSPA FX ( %1 ) volume").arg( QString(pFX->getPluginName() ) );
+				HydrogenApp::getInstance()->setStatusBarMessage( sInfo+ QString( " [%1]" ).arg( ref->getVolume(), 0, 'f', 2 ), 2000 );
 			}
 		}
 	}

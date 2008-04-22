@@ -80,7 +80,7 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
-	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, QString( m_sSampleName.c_str() ) );
+	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
 }
 
 
@@ -89,9 +89,9 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
 		// Extract the filename from the complete path
-		std::string sName = pLayer->get_sample()->get_filename();
-		int nPos = sName.rfind("/");
-		m_sSampleName = sName.substr( nPos + 1, sName.length() );
+		QString sName = pLayer->get_sample()->get_filename();
+		int nPos = sName.lastIndexOf( "/" );
+		m_sSampleName = sName.mid( nPos + 1, sName.length() );
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 

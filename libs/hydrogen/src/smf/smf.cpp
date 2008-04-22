@@ -21,14 +21,12 @@
  */
 
 #include <hydrogen/smf/SMF.h>
-
 #include <hydrogen/Pattern.h>
 #include <hydrogen/note.h>
 
 #include <fstream>
 
 using std::vector;
-using std::string;
 
 namespace H2Core
 {
@@ -70,7 +68,7 @@ vector<char> SMFHeader::getBuffer()
 
 
 
-SMFTrack::SMFTrack( const std::string& sTrackName )
+SMFTrack::SMFTrack( const QString& sTrackName )
 		: Object( "SMFTrack" )
 {
 	INFOLOG( "INIT" );
@@ -220,7 +218,7 @@ SMFWriter::~SMFWriter()
 
 
 
-void SMFWriter::save( const std::string& sFilename, Song *pSong )
+void SMFWriter::save( const QString& sFilename, Song *pSong )
 {
 	INFOLOG( "save" );
 	const int DRUM_CHANNEL = 9;
@@ -292,12 +290,8 @@ void SMFWriter::save( const std::string& sFilename, Song *pSong )
 		pTrack1->addEvent( *it );
 	}
 
-
-
-
-
 	// save the midi file
-	m_file = fopen( sFilename.c_str(), "wb" );
+	m_file = fopen( sFilename.toAscii(), "wb" );
 	vector<char> smfVect = smf.getBuffer();
 	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
 		fwrite( &smfVect[ i ], 1, 1, m_file );

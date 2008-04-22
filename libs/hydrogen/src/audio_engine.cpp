@@ -103,11 +103,11 @@ Synth* AudioEngine::get_synth()
 
 
 
-void AudioEngine::lock( const std::string& locker )
+void AudioEngine::lock( const QString& locker )
 {
 	int res = pthread_mutex_trylock( &__engine_mutex );
 	if ( res != 0 ) {
-		WARNINGLOG( "trylock != 0. Lock in " + __locker + ". I'll wait for the mutex." );
+		WARNINGLOG( QString( "trylock != 0. Lock in %1. I'll wait for the mutex." ).arg( __locker ) );
 		pthread_mutex_lock( &__engine_mutex );
 	}
 
@@ -116,7 +116,7 @@ void AudioEngine::lock( const std::string& locker )
 
 
 
-bool AudioEngine::try_lock( const std::string& locker )
+bool AudioEngine::try_lock( const QString& locker )
 {
 	int res = pthread_mutex_trylock( &__engine_mutex );
 	if ( res != 0 ) {

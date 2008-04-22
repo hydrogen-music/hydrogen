@@ -540,9 +540,9 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			assert(pInstr);
 
 			pLine->setNumber(nInstr);
-			pLine->setName(pInstr->get_name().c_str());
-			pLine->setSelected(nInstr == nSelectedInstr);
-			pLine->setMuted(pInstr->is_muted());
+			pLine->setName( pInstr->get_name() );
+			pLine->setSelected( nInstr == nSelectedInstr );
+			pLine->setMuted( pInstr->is_muted() );
 
 		}
 	}
@@ -591,8 +591,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 	else {
 
 		QStringList tokens = sText.split( "::" );
-		string sDrumkitName = tokens.at( 0 ).toStdString();
-		string sInstrumentName = tokens.at( 1 ).toStdString();
+		QString sDrumkitName = tokens.at( 0 );
+		QString sInstrumentName = tokens.at( 1 );
 
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
 		Hydrogen *pEngine = Hydrogen::get_instance();
@@ -601,8 +601,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		int nID = -1;
 		for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->get_size(); ++i ) {
 			Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
-			if ( atoi( pInstr->get_id().c_str() ) > nID ) {
-				nID = atoi( pInstr->get_id().c_str() );
+			if ( pInstr->get_id().toInt() > nID ) {
+				nID = pInstr->get_id().toInt();
 			}
 		}
 		++nID;
@@ -667,7 +667,7 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	int nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 	Instrument *pInstr = pEngine->getSong()->get_instrument_list()->get(nSelectedInstr);
 
-	QString sText = QString("move instrument:%1").arg(pInstr->get_name().c_str());
+	QString sText = QString("move instrument:%1").arg( pInstr->get_name() );
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;

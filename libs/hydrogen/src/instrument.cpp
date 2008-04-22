@@ -34,28 +34,28 @@ namespace H2Core
 
 
 Instrument::Instrument(
-    const std::string& id,
-    const std::string& name,
+    const QString& id,
+    const QString& name,
     ADSR* adsr
 )
 		: Object( "Instrument" )
 		, __adsr( adsr )
-		, __id( id )
 		, __name( name )
-		, __filter_active( false )
-		, __filter_cutoff( 1.0 )
 		, __filter_resonance( 0.0 )
+		, __filter_cutoff( 1.0 )
 		, __random_pitch_factor( 0.0 )
-		, __active( true )
 		, __volume( 1.0 )
+		, __id( id )
 		, __muted( false )
+		, __filter_active( false )
+		, __active( true )
 		, __soloed( false )
 		, __peak_l( 0.0 )
-		, __peak_r( 0.0 )
 		, __pan_l( 1.0 )
+		, __peak_r( 0.0 )
 		, __pan_r( 1.0 )
-		, __drumkit_name( "" )
 		, __gain( 1.0 )
+		, __drumkit_name( "" )
 		, __mute_group( -1 )
 {
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
@@ -84,11 +84,11 @@ Instrument::~Instrument()
 InstrumentLayer* Instrument::get_layer( int nLayer )
 {
 	if ( nLayer < 0 ) {
-		ERRORLOG( "nLayer < 0 (nLayer=" + to_string( nLayer ) + ")" );
+		ERRORLOG( QString( "nLayer < 0 (nLayer=%1)" ).arg( nLayer ) );
 		return NULL;
 	}
 	if ( nLayer >= MAX_LAYERS ) {
-		ERRORLOG( "nLayer > MAX_LAYERS (nLayer=" + to_string( nLayer ) + ")" );
+		ERRORLOG( QString( "nLayer > MAX_LAYERS (nLayer=%1)" ).arg( nLayer ) );
 		return NULL;
 	}
 
@@ -114,8 +114,8 @@ void Instrument::set_adsr( ADSR* adsr )
 
 
 Instrument* Instrument::load_instrument(
-    const std::string& drumkit_name,
-    const std::string& instrument_name
+    const QString& drumkit_name,
+    const QString& instrument_name
 )
 {
 	Instrument *pInstrument = NULL;
@@ -149,8 +149,8 @@ Instrument* Instrument::load_instrument(
 			for ( int nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 				InstrumentLayer *pOrigLayer = pInstr->get_layer( nLayer );
 				if ( pOrigLayer ) {
-					std::string sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
-					std::string sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->get_filename();
+					QString sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
+					QString sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->get_filename();
 					Sample* pSample = Sample::load( sSampleFilename );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 					pLayer->set_start_velocity( pOrigLayer->get_start_velocity() );
@@ -204,7 +204,7 @@ void InstrumentList::add( Instrument* newInstrument )
 Instrument* InstrumentList::get( unsigned int pos )
 {
 	if ( pos >= m_list.size() ) {
-		ERRORLOG( "pos > list.size(). pos = " + to_string( pos ) );
+		ERRORLOG( QString( "pos > list.size(). pos = %1" ).arg( pos ) );
 		return NULL;
 	}
 	/*	else if ( pos < 0 ) {
@@ -235,7 +235,7 @@ unsigned int InstrumentList::get_size()
 void InstrumentList::replace( Instrument* pNewInstr, unsigned nPos )
 {
 	if ( nPos >= m_list.size() ) {
-		ERRORLOG( "Instrument index out of bounds in InstrumentList::replace. pos >= list.size() - " + to_string( nPos ) + " > " + to_string( m_list.size() ) );
+		ERRORLOG( QString( "Instrument index out of bounds in InstrumentList::replace. pos >= list.size() - %1 > %2" ).arg( nPos ).arg( m_list.size() ) );
 		return;
 	}
 	m_list.insert( m_list.begin() + nPos, pNewInstr );	// insert the new Instrument

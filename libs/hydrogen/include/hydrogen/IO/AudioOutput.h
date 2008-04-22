@@ -37,7 +37,7 @@ class AudioOutput : public Object
 public:
 	TransportInfo m_transport;		// Transport info
 
-	AudioOutput( const std::string& sClassName )
+	AudioOutput( const QString& sClassName )
 			: Object( sClassName )
 			, __track_out_enabled( false ) { }
 

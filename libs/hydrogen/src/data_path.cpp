@@ -40,38 +40,25 @@ using namespace std;
 namespace H2Core
 {
 
-std::string DataPath::__data_path = "";
+QString DataPath::__data_path = "";
 
-std::string DataPath::get_data_path()
+QString DataPath::get_data_path()
 {
 #ifdef Q_OS_MACX
 
 	QString qStringPath = qApp->applicationDirPath() + QString ( "/../Resources/data" ) ;
-	return std::string( qStringPath.toStdString() );
-	/*
-		if ( m_sDataPath == "" ) {
-			CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-			CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, kCFURLPOSIXPathStyle);
-			const char *path = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
-			CFRelease(pluginRef);
-			CFRelease(macPath);
-
-			m_sDataPath = std::string( path ) + std::string( "/Contents/Resources/data" );
-		}
-
-		return m_sDataPath;
-	*/
+	return qStringPath;
 #elif WIN32
 
 	QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
-	return std::string( qStringPath.toStdString() );
+	return qStringPath;
 
 #else
 	if ( __data_path == "" ) {
 		QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
-		__data_path = std::string( qStringPath.toStdString() );
+		__data_path = qStringPath;
 
-		QFile file( __data_path.c_str() );
+		QFile file( __data_path );
 		if ( !file.exists() ) {
 			// try using the system wide data dir
 			__data_path = DATA_PATH;

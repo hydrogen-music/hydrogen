@@ -37,10 +37,10 @@ Download::Download( QWidget* pParent, const QString& sRemoteURL, const QString& 
  , m_sLocalFile( sLocalFile )
 {
 	if ( m_sLocalFile != "" ) {
-		INFOLOG( "Downloading " + sRemoteURL.toStdString() + " in " + sLocalFile.toStdString() );
+		INFOLOG( QString( "Downloading %1 in %2" ).arg( sRemoteURL ).arg( sLocalFile ) );
 	}
 	else {
-		INFOLOG( "Downloading " + sRemoteURL.toStdString() );
+		INFOLOG( QString( "Downloading %1" ).arg( sRemoteURL ) );
 	}
 
 	QUrl url( sRemoteURL );
@@ -89,7 +89,7 @@ void Download::fetchDone( bool bError )
 	else {
 		QFile file( m_sLocalFile );
 		if ( !file.open( QIODevice::WriteOnly) ) {
-			ERRORLOG( "Unable to save " + m_sLocalFile.toStdString() );
+			ERRORLOG( QString( "Unable to save %1" ).arg( m_sLocalFile ) );
         	}
 		else {
 			file.write( m_httpClient.readAll() );

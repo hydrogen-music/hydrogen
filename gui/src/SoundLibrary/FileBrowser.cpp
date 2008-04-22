@@ -186,7 +186,7 @@ void FileBrowser::updateFileInfo( QString sFilename, unsigned nSampleRate, unsig
 	//Sample* mySample = Sample::load(sFilename.toStdString());
 	//int nSamplerate = mySample->m_nSampleRate;
 
-	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) ).arg( sFilename, to_string( nSampleRate ).c_str(), to_string( sFileSize ).c_str(), sFileSizeUnit ) );
+	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) ).arg( sFilename, to_string( nSampleRate ), to_string( sFileSize ), sFileSizeUnit ) );
 
 }
 
@@ -221,11 +221,11 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
 		if ( fileInfo.fileName() == item->text() ) {
-			INFOLOG( "[on_fileList_ItemActivated] " + fileInfo.absoluteFilePath().toStdString() );
+			INFOLOG( "[on_fileList_ItemActivated] " + fileInfo.absoluteFilePath() );
 			if ( !fileInfo.isDir() ) {
 
 				// FIXME: evitare di caricare il sample, visualizzare solo le info del file
-				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath().toStdString() );
+				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath() );
 				if (pNewSample) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
 					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample);

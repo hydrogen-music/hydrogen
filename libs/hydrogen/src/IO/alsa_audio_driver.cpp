@@ -60,13 +60,13 @@ void* alsaAudioDriver_processCaller( void* param )
 	if ( res ) {
 		_ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
 	}
-	_INFOLOG( "Scheduling priority = " + to_string( sched.sched_priority ) );
+	_INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	sleep( 1 );
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		_ERRORLOG( "Cannot prepare audio interface for use: " + std::string( snd_strerror ( err ) ) );
+		_ERRORLOG( QString( "Cannot prepare audio interface for use: %1" ).arg( snd_strerror ( err ) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
@@ -123,7 +123,7 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 AlsaAudioDriver::~AlsaAudioDriver()
 {
 	if ( m_nXRuns > 0 ) {
-		WARNINGLOG( to_string( m_nXRuns )  + " xruns" );
+		WARNINGLOG( QString( "%1 xruns" ).arg( m_nXRuns ) );
 	}
 	INFOLOG( "DESTROY" );
 }
@@ -147,13 +147,13 @@ int AlsaAudioDriver::connect()
 	int err;
 
 	// provo ad aprire il device per verificare se e' libero ( non bloccante )
-	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toAscii(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
+		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( snd_strerror( err ) ) );
 
 		// il dispositivo e' occupato..provo con "default"
 		m_sAlsaAudioDevice = "default";
-		if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-			ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
+		if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toAscii(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
+			ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ) .arg( snd_strerror( err ) ) );
 			return 1;
 		}
 		WARNINGLOG( "Using alsa device: " + m_sAlsaAudioDevice );
@@ -161,8 +161,8 @@ int AlsaAudioDriver::connect()
 	snd_pcm_close( m_pPlayback_handle );
 
 	// Apro il device ( bloccante )
-	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.c_str(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
-		ERRORLOG( "ALSA: cannot open audio device " + m_sAlsaAudioDevice + ": "+ std::string( snd_strerror( err ) ) );
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toAscii(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
+		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
 
@@ -174,34 +174,34 @@ int AlsaAudioDriver::connect()
 	}
 
 	if ( ( err = snd_pcm_hw_params_any( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_any: " + std::string( snd_strerror( err ) )  );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_any: %1" ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
 //	snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_MMAP_INTERLEAVED  );
 
 	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_access: " + std::string( snd_strerror( err ) )  );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_access: %1" ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
 
 	if ( ( err = snd_pcm_hw_params_set_format( m_pPlayback_handle, hw_params, SND_PCM_FORMAT_S16_LE ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_format: " + std::string( snd_strerror( err ) )  );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_format: %1" ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
 
 	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle, hw_params, &m_nSampleRate, 0 );
 
 	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle, hw_params, nChannels ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_channels: " + std::string( snd_strerror( err ) )  );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_channels: %1" ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
 
 	unsigned nPeriods = 2;
 	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, 0 ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_periods: " + std::string( snd_strerror( err ) ) );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods: %1" ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
-	INFOLOG( "nPeriods: " + to_string( nPeriods ) );
+	INFOLOG( QString( "nPeriods: %1" ).arg( nPeriods ) );
 
 	// Set buffer size (in frames). The resulting latency is given by
 	// latency = periodsize * periods / (rate * bytes_per_frame)
@@ -215,21 +215,21 @@ int AlsaAudioDriver::connect()
 //	infoLog( "buffer size scelta:" + to_string( m_nBufferSize ) );
 
 	if ( ( err = snd_pcm_hw_params_set_period_size( m_pPlayback_handle, hw_params, period_size, 0 ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params_set_period_size: " + std::string( snd_strerror( err ) ) );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size: %1" ).arg( snd_strerror( err ) ) );
 	}
 
 
 	if ( ( err = snd_pcm_hw_params( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( "error in snd_pcm_hw_params: " + std::string( snd_strerror( err ) )  );
+		ERRORLOG( QString( "error in snd_pcm_hw_params: %1" ).arg( snd_strerror( err ) ) );
 		return 1;
 	}
 
 	snd_pcm_hw_params_get_rate( hw_params, &m_nSampleRate, 0 );
 	snd_pcm_hw_params_get_buffer_size( hw_params, &m_nBufferSize );
 
-	INFOLOG( "*** PERIOD SIZE: " + to_string( period_size ) );
-	INFOLOG( "*** SAMPLE RATE: " + to_string( m_nSampleRate ) );
-	INFOLOG( "*** BUFFER SIZE: " + to_string( m_nBufferSize ) );
+	INFOLOG( QString( "*** PERIOD SIZE: %1" ).arg( period_size ) );
+	INFOLOG( QString( "*** SAMPLE RATE: %1" ).arg( m_nSampleRate ) );
+	INFOLOG( QString( "*** BUFFER SIZE: %1" ).arg( m_nBufferSize ) );
 
 	//snd_pcm_hw_params_free( hw_params );
 

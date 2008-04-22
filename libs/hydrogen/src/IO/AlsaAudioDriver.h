@@ -44,7 +44,7 @@ public:
 	float* m_pOut_L;
 	float* m_pOut_R;
 	int m_nXRuns;
-	std::string m_sAlsaAudioDevice;
+	QString m_sAlsaAudioDevice;
 	audioProcessCallback m_processCallback;
 
 	AlsaAudioDriver( audioProcessCallback processCallback );

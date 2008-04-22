@@ -53,7 +53,7 @@ public:
 class SMFTrack : public SMFBase, public Object
 {
 public:
-	SMFTrack( const std::string& sTrackName );
+	SMFTrack( const QString& sTrackName );
 	~SMFTrack();
 
 	void addEvent( SMFEvent *pEvent );
@@ -90,7 +90,7 @@ public:
 	SMFWriter();
 	~SMFWriter();
 
-	void save( const std::string& sFilename, Song *pSong );
+	void save( const QString& sFilename, Song *pSong );
 
 private:
 	FILE *m_file;

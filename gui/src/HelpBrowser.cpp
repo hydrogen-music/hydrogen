@@ -27,7 +27,7 @@
 #include <QtGui>
 #include <hydrogen/globals.h>
 
-SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const std::string& sDataPath, const std::string& sFilename, SimpleHTMLBrowserType type )
+SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, SimpleHTMLBrowserType type )
  : QDialog( pParent )
  , Object( "SimpleHTMLBrowser" )
  , m_type( type )
@@ -76,21 +76,18 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const std::string& sData
 	m_pBrowser = new QTextBrowser( this );
 //	m_pBrowser->setMimeSourceFactory( bodyformat );
 	m_pBrowser->setReadOnly( true );
-	m_pBrowser->setSearchPaths( QStringList( QString( m_sDataPath.c_str() ) ) );
+	m_pBrowser->setSearchPaths( QStringList( m_sDataPath ) );
 
 //	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	QFile file( m_sFilename.c_str() ); // Read the text from a file
+	QFile file( m_sFilename.toAscii() ); // Read the text from a file
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		m_pBrowser->setHtml( stream.readAll() );
 	}
 
-#warning "Fixme: center dialog on screen"
-/*	// center...
-	QRect rect = QApplication::desktop()->geometry();
-	this->move( rect.center() - this->rect().center() );
-*/
+	QRect rect( QApplication::desktop()->screenGeometry() );
+	move( rect.center() - this->rect().center() );
 }
 
 
@@ -154,7 +151,7 @@ void SimpleHTMLBrowser::docIndex()
 {
 	INFOLOG( "[docIndex]" );
 
-	QFile file( m_sFilename.c_str() ); // Read the text from a file
+	QFile file( m_sFilename ); // Read the text from a file
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		m_pBrowser->setHtml( stream.readAll() );

@@ -99,15 +99,15 @@ class Instrument : public Object
 {
 public:
 	Instrument(
-	    const std::string& id,
-	    const std::string& name,
+	    const QString& id,
+	    const QString& name,
 	    ADSR* adsr
 	);
 	~Instrument();
 
 	static Instrument* load_instrument(
-	    const std::string& drumkit_name,
-	    const std::string& instrument_name
+	    const QString& drumkit_name,
+	    const QString& instrument_name
 	);
 
 	/**
@@ -121,17 +121,17 @@ public:
 	void set_layer( InstrumentLayer* layer, unsigned index );
 
 
-	void set_name( const std::string& name ) {
+	void set_name( const QString& name ) {
 		__name = name;
 	}
-	const std::string& get_name() {
+	const QString& get_name() {
 		return __name;
 	}
 
-	void set_id( const std::string& id ) {
+	void set_id( const QString& id ) {
 		__id = id;
 	}
-	const std::string& get_id() {
+	const QString& get_id() {
 		return __id;
 	}
 
@@ -231,10 +231,10 @@ public:
 		__random_pitch_factor = val;
 	}
 
-	void set_drumkit_name( const std::string& name ) {
+	void set_drumkit_name( const QString& name ) {
 		__drumkit_name = name;
 	}
-	const std::string& get_drumkit_name() {
+	const QString& get_drumkit_name() {
 		return __drumkit_name;
 	}
 
@@ -256,7 +256,7 @@ private:
 	InstrumentLayer* __layer_list[MAX_LAYERS];
 	ADSR* __adsr;
 	bool __muted;
-	std::string __name;		///< Instrument name
+	QString __name;		///< Instrument name
 	float __pan_l;			///< Pan of the instrument (left)
 	float __pan_r;			///< Pan of the instrument (right)
 	float __gain;
@@ -267,8 +267,8 @@ private:
 	float __peak_r;			///< current peak value (right)
 	float __fx_level[MAX_FX];	///< Ladspa FX level
 	float __random_pitch_factor;
-	std::string __id;		///< ID of the instrument
-	std::string __drumkit_name;	///< Drumkit name
+	QString __id;		///< ID of the instrument
+	QString __drumkit_name;	///< Drumkit name
 	bool __filter_active;		///< Is filter active?
 	int __mute_group;		///< Mute group
 

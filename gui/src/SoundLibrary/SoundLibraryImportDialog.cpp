@@ -60,8 +60,6 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 	connect( m_pDrumkitTree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
 
 
-
-	
 	SoundLibraryNameLbl->setText( "" );
 	SoundLibraryInfoLbl->setText( "" );
 	DownloadBtn->setEnabled( false );
@@ -91,7 +89,7 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 	/*
 		Read serverList from config and put servers into the comboBox
 	*/
-	std::list<std::string>::const_iterator cur_Server;
+	std::list<QString>::const_iterator cur_Server;
 	
 	if(pPref->sServerList.size() == 0){ 	
 		pPref->sServerList.push_back("http://www.hydrogen-music.org/feeds/drumkit_list.php");
@@ -101,7 +99,7 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 
 	for( cur_Server = pPref->sServerList.begin(); cur_Server != pPref->sServerList.end(); ++cur_Server )
 	{
-		repositoryCombo->insertItem(0,QString(cur_Server->c_str()));
+		repositoryCombo->insertItem( 0, *cur_Server );
 	}	
 }
 
@@ -205,7 +203,7 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
 		QString sLibraryName = m_soundLibraryList[ i ].m_sName;
 
-		QTreeWidgetItem* pDrumkitItem;
+		QTreeWidgetItem* pDrumkitItem = NULL;
 
 		if ( m_soundLibraryList[ i ].m_sType == "song" ) {
 			pDrumkitItem = new QTreeWidgetItem(  m_pSongItem );
@@ -244,19 +242,19 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!
 
-	std::string soundLibraryItemName = QFileInfo( sInfo.m_sURL ).fileName().toStdString();
-	soundLibraryItemName = soundLibraryItemName.substr( 0, soundLibraryItemName.rfind( "." ) );
+	QString soundLibraryItemName = QFileInfo( sInfo.m_sURL ).fileName();
+	soundLibraryItemName = soundLibraryItemName.left( soundLibraryItemName.lastIndexOf( "." ) );
 
 	if ( sInfo.m_sType == "drumkit" )
 	{
-		std::vector<std::string> systemList = H2Core::Drumkit::getSystemDrumkitList();
+		std::vector<QString> systemList = H2Core::Drumkit::getSystemDrumkitList();
 		for ( uint i = 0; i < systemList.size(); ++i ) {
 			if ( systemList[ i ] == soundLibraryItemName ) {
 				return true;
 			}
 		}
 
-		std::vector<std::string> userList = H2Core::Drumkit::getUserDrumkitList();
+		std::vector<QString> userList = H2Core::Drumkit::getUserDrumkitList();
 		for ( uint i = 0; i < userList.size(); ++i ) {
 			if ( userList[ i ] == soundLibraryItemName ) {
 				return true;
@@ -267,7 +265,7 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	if ( sInfo.m_sType == "pattern" )
 	{
 		H2Core::LocalFileMng mng;
-		std::vector<std::string> patternList = mng.getPatternList();
+		std::vector<QString> patternList = mng.getPatternList();
 		for ( uint i = 0; i < patternList.size(); ++i ) {
 			if ( patternList[ i ] == soundLibraryItemName ) {
 				return true;
@@ -278,7 +276,7 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	if ( sInfo.m_sType == "song" )
 	{
 		H2Core::LocalFileMng mng;
-		std::vector<std::string> songList = mng.getSongList();
+		std::vector<QString> songList = mng.getSongList();
 		for ( uint i = 0; i < songList.size(); ++i ) {
 			if ( songList[ i ] == soundLibraryItemName ) {
 				return true;
@@ -339,7 +337,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			QString sType = m_soundLibraryList[ i ].m_sType;
 			QString sLocalFile;
 
-			std::string dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
+			QString dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
 
 
 			if( sType == "drumkit")
@@ -349,12 +347,12 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 			if( sType == "song")
 			{
-				sLocalFile = QString(dataDir.c_str()) + "songs/" + QFileInfo( sURL ).fileName();
+				sLocalFile = dataDir + "songs/" + QFileInfo( sURL ).fileName();
 			}
 
 			if( sType == "pattern")
 			{
-				sLocalFile = QString(dataDir.c_str()) + "patterns/" + QFileInfo( sURL ).fileName();
+				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
 			}
 
 			DownloadWidget drumkit( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
@@ -367,8 +365,8 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			try {
 				if ( sType == "drumkit" )
 				{
-					H2Core::Drumkit::install( sLocalFile.toStdString() );
-					QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir.c_str() ) );
+					H2Core::Drumkit::install( sLocalFile );
+					QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
 					setCursor( QCursor( Qt::ArrowCursor ) );
 				}
 
@@ -434,10 +432,10 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	std::string dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
+	QString dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
 	try {
-		H2Core::Drumkit::install( SoundLibraryPathTxt->text().toStdString() );
-		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( dataDir.c_str() )  ) );
+		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
+		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( dataDir )  ) );
 		// update the drumkit list
 		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 		setCursor( QCursor( Qt::ArrowCursor ) );

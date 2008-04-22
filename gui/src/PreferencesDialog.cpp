@@ -64,7 +64,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 #endif
 
 	// Selected audio Driver
-	std::string sAudioDriver = pPref->m_sAudioDriver;
+	QString sAudioDriver = pPref->m_sAudioDriver;
 	if (sAudioDriver == "Auto") {
 		driverComboBox->setCurrentIndex(0);
 	}
@@ -146,14 +146,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 
 	// Appearance tab
-	QString applicationFamily = pPref->getApplicationFontFamily().c_str();
+	QString applicationFamily = pPref->getApplicationFontFamily();
 	int applicationPointSize = pPref->getApplicationFontPointSize();
 
 	QFont applicationFont( applicationFamily, applicationPointSize );
 	applicationFontLbl->setFont( applicationFont );
 	applicationFontLbl->setText( applicationFamily + QString("  %1").arg( applicationPointSize ) );
 
-	QString mixerFamily = pPref->getMixerFontFamily().c_str();
+	QString mixerFamily = pPref->getMixerFontFamily();
 	int mixerPointSize = pPref->getMixerFontPointSize();
 	QFont mixerFont( mixerFamily, mixerPointSize );
 	mixerFontLbl->setFont( mixerFont );
@@ -181,7 +181,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		styleComboBox->addItem( *it );
 		//INFOLOG( "QT Stile: " + *it   );
 		//string sStyle = (*it).latin1();
-		std::string sStyle = (*it).toStdString();
+		QString sStyle = (*it);
 		if (sStyle == pPref->getQTStyle() ) {
 			styleComboBox->setCurrentIndex( i );
 		}
@@ -196,15 +196,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( "None" );
 	if ( Hydrogen::get_instance()->getMidiInput() ) {
-		std::vector<std::string> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
 			midiPortChannelComboBox->setEnabled( true );
 		}
 		for (uint i = 0; i < midiOutList.size(); i++) {
-			std::string sPortName = midiOutList[i];
-			midiPortComboBox->addItem( QString( sPortName.c_str() ) );
+			QString sPortName = midiOutList[i];
+			midiPortComboBox->addItem( sPortName );
 
 			if ( sPortName == pPref->m_sMidiPortName ) {
 				midiPortComboBox->setCurrentIndex( i + 1 );
@@ -258,11 +258,11 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sAudioDriver = "Alsa";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text().toStdString();
+		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
 		pPref->m_sAudioDriver = "Oss";
-		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text().toStdString();
+		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
 		pPref->m_sAudioDriver = "PortAudio";
@@ -334,10 +334,10 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
 	}
 	else {
-		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + std::string(falloffStr.toStdString()) );
+		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + falloffStr );
 	}
 
-	std::string sNewMidiPortName = midiPortComboBox->currentText().toStdString();
+	QString sNewMidiPortName = midiPortComboBox->currentText();
 
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
@@ -366,7 +366,7 @@ void PreferencesDialog::on_okBtn_clicked()
 void PreferencesDialog::on_driverComboBox_activated( int index )
 {
 	UNUSED( index );
-	std::string selectedDriver = driverComboBox->currentText().toStdString();
+	QString selectedDriver = driverComboBox->currentText();
 	updateDriverInfo();
 	m_bNeedDriverRestart = true;
 }
@@ -420,7 +420,7 @@ void PreferencesDialog::updateDriverInfo()
 			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice.c_str() );
+		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->setEnabled( false );
@@ -444,7 +444,7 @@ void PreferencesDialog::updateDriverInfo()
 			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice.c_str() );
+		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->setEnabled( false );
@@ -474,7 +474,7 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else {
-		std::string selectedDriver = (driverComboBox->currentText()).toStdString();
+		QString selectedDriver = driverComboBox->currentText();
 		ERRORLOG( "Unknown driver = " + selectedDriver );
 	}
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
@@ -488,7 +488,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 {
 	Preferences *preferencesMng = Preferences::getInstance();
 
-	QString family = (preferencesMng->getApplicationFontFamily()).c_str();
+	QString family = preferencesMng->getApplicationFontFamily();
 	int pointSize = preferencesMng->getApplicationFontPointSize();
 
 	bool ok;
@@ -497,11 +497,9 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 		// font is set to the font the user selected
 		family = font.family();
 		pointSize = font.pointSize();
-		std::string familyStr = family.toStdString();
+		QString familyStr = family;
 		preferencesMng->setApplicationFontFamily(familyStr);
 		preferencesMng->setApplicationFontPointSize(pointSize);
-
-
 	} else {
 		// the user cancelled the dialog; font is set to the initial
 		// value, in this case Times, 12.
@@ -543,7 +541,7 @@ void PreferencesDialog::on_selectMixerFontBtn_clicked()
 {
 	Preferences *preferencesMng = Preferences::getInstance();
 
-	QString family = (preferencesMng->getMixerFontFamily()).c_str();
+	QString family = preferencesMng->getMixerFontFamily();
 	int pointSize = preferencesMng->getMixerFontPointSize();
 
 	bool ok;
@@ -552,7 +550,7 @@ void PreferencesDialog::on_selectMixerFontBtn_clicked()
 		// font is set to the font the user selected
 		family = font.family();
 		pointSize = font.pointSize();
-		std::string familyStr = family.toStdString();
+		QString familyStr = family;
 		preferencesMng->setMixerFontFamily(familyStr);
 		preferencesMng->setMixerFontPointSize(pointSize);
 	}
@@ -579,7 +577,7 @@ void PreferencesDialog::on_styleComboBox_activated( int index )
 	pQApp->setStyle( sStyle );
 
 	Preferences *pPref = Preferences::getInstance();
-	pPref->setQTStyle( sStyle.toStdString() );
+	pPref->setQTStyle( sStyle );
 }
 
 

@@ -143,7 +143,7 @@ void AudioEngineInfoForm::updateInfo()
 	// Audio driver info
 	AudioOutput *driver = pEngine->getAudioOutput();
 	if (driver) {
-		QString audioDriverName = driver->get_class_name().c_str();
+		QString audioDriverName = driver->get_class_name();
 		driverLbl->setText(audioDriverName);
 
 		// Audio driver buffer size
@@ -170,14 +170,13 @@ void AudioEngineInfoForm::updateInfo()
 	// Midi driver info
 	MidiInput *pMidiDriver = pEngine->getMidiInput();
 	if (pMidiDriver) {
-		QString midiName( pMidiDriver->get_class_name().c_str() );
-		midiDriverName->setText(midiName);
+		midiDriverName->setText( pMidiDriver->get_class_name() );
 	}
 	else {
 		midiDriverName->setText("No MIDI driver support");
 	}
 
-	m_pMidiDeviceName->setText( Preferences::getInstance()->m_sMidiPortName.c_str() );
+	m_pMidiDeviceName->setText( Preferences::getInstance()->m_sMidiPortName );
 
 
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
@@ -197,7 +196,7 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 
-	std::string currentPatternName;
+	QString currentPatternName;
 	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
 	if (pPatternList) {
 		currentPatternLbl->setText( QString::number(pPatternList->get_size()) );

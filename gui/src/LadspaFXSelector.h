@@ -41,20 +41,20 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public O
 		LadspaFXSelector(int nLadspaFX);
 		~LadspaFXSelector();
 
-		std::string getSelectedFX();
+		QString getSelectedFX();
 
 	private slots:
 		void on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous );
 		void pluginSelected();
 
 	private:
-		std::string m_sSelectedPluginName;
+		QString m_sSelectedPluginName;
 
 		void buildLadspaGroups();
 #ifdef LADSPA_SUPPORT
 		void addGroup(QTreeWidgetItem* pItem, H2Core::LadspaFXGroup *pGroup);
 
-		std::vector<H2Core::LadspaFXInfo*> findPluginsInGroup( const std::string& sSelectedGroup, H2Core::LadspaFXGroup *pGroup );
+		std::vector<H2Core::LadspaFXInfo*> findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup );
 #endif
 
 };

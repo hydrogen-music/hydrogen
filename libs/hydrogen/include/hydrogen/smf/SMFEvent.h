@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2004 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -39,7 +39,7 @@ public:
 	void writeByte( short int nByte );
 	void writeWord( int nVal );
 	void writeDWord( long nVal );
-	void writeString( const std::string& sMsg );
+	void writeString( const QString& sMsg );
 	void writeVarLen( long nVal );
 
 	std::vector<char> m_buffer;
@@ -84,7 +84,7 @@ public:
 class SMFEvent : public SMFBase, public Object
 {
 public:
-	SMFEvent( const std::string& sEventName, unsigned nTicks );
+	SMFEvent( const QString& sEventName, unsigned nTicks );
 	virtual ~SMFEvent();
 
 	int m_nTicks;
@@ -96,12 +96,12 @@ public:
 class SMFTrackNameMetaEvent : public SMFEvent
 {
 public:
-	SMFTrackNameMetaEvent( const std::string sTrackName, unsigned nDeltaTime );
+	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
 
 	virtual std::vector<char> getBuffer();
 
 private:
-	std::string m_sTrackName;
+	QString m_sTrackName;
 
 };
 

@@ -26,8 +26,6 @@
 #include <cassert>
 #include <cstdlib>
 
-using std::string;
-
 namespace H2Core
 {
 
@@ -132,13 +130,13 @@ void Note::dumpInfo()
 
 
 
-NoteKey Note::stringToKey( const std::string& str )
+NoteKey Note::stringToKey( const QString& str )
 {
 	NoteKey key;
 
-	string sKey = str.substr( 0, str.length() - 1 );
-	string sOct = str.substr( str.length() - 1, str.length() );
-	int nOctave = atoi( sOct.c_str() );
+	QString sKey = str.left( str.length() - 1 );
+	QString sOct = str.mid( str.length() - 1, str.length() );
+	int nOctave = sOct.toInt();
 
 //	_INFOLOG( "skey: " + sKey );
 //	_INFOLOG( "sOct: " + sOct );
@@ -178,9 +176,9 @@ NoteKey Note::stringToKey( const std::string& str )
 
 
 
-std::string Note::keyToString( NoteKey key )
+QString Note::keyToString( NoteKey key )
 {
-	string sKey;
+	QString sKey;
 
 	switch ( key.m_key ) {
 	case NoteKey::C:

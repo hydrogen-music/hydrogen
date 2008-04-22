@@ -176,7 +176,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor lineColor( 170, 170, 170 );
 
 	Preferences *pref = Preferences::getInstance();
-	QString family = pref->getApplicationFontFamily().c_str();
+	QString family = pref->getApplicationFontFamily();
 	int size = pref->getApplicationFontPointSize();
 	QFont font( family, size );
 	painter.setFont(font);
@@ -189,7 +189,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
-			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString( to_string( i / 4 + 1 ).c_str() ) );
+			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, to_string( i / 4 + 1 ) );
 		}
 		else {
 			painter.setPen( lineColor );

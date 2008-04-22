@@ -23,9 +23,8 @@
 #ifndef H2_OBJECT_H
 #define H2_OBJECT_H
 
-
+#include <QtGui>
 #include <map>
-#include <string>
 #include <vector>
 #include <sstream>
 #include <pthread.h>
@@ -33,16 +32,13 @@
 
 // LOG MACROS
 
-#define _INFOLOG(x) Logger::get_instance()->info_log(       "(I) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
-#define _WARNINGLOG(x) Logger::get_instance()->warning_log( "(W) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
-#define _ERRORLOG(x) Logger::get_instance()->error_log(     "(E) [" + std::string( __PRETTY_FUNCTION__ ) + std::string( "] \t" ) + x );
+#define _INFOLOG(x) Logger::get_instance()->info_log( __PRETTY_FUNCTION__, "", x );
+#define _WARNINGLOG(x) Logger::get_instance()->warning_log( __PRETTY_FUNCTION__, "", x );
+#define _ERRORLOG(x) Logger::get_instance()->error_log( __PRETTY_FUNCTION__, "", x );
 
-
-
-
-#define INFOLOG(x) Logger::get_instance()->info_log(       "(I) " + get_class_name() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
-#define WARNINGLOG(x) Logger::get_instance()->warning_log( "(W) " + get_class_name() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
-#define ERRORLOG(x) Logger::get_instance()->error_log(     "(E) " + get_class_name() + " \t [" + std::string( __FUNCTION__ ) + std::string( "] \t" ) + x );
+#define INFOLOG(x) Logger::get_instance()->info_log( __FUNCTION__, get_class_name(), x );
+#define WARNINGLOG(x) Logger::get_instance()->warning_log( __FUNCTION__, get_class_name(), x );
+#define ERRORLOG(x) Logger::get_instance()->error_log( __FUNCTION__, get_class_name(), x );
 
 
 
@@ -56,7 +52,7 @@ class Logger
 public:
 	bool __use_file;
 	bool __running;
-	std::vector<std::string> __msg_queue;
+	std::vector<QString> __msg_queue;
 	pthread_mutex_t __logger_mutex;
 
 	static Logger* get_instance();
@@ -64,9 +60,9 @@ public:
 	/** Destructor */
 	~Logger();
 
-	void info_log( const std::string& msg );
-	void warning_log( const std::string& msg );
-	void error_log( const std::string& msg );
+	void info_log( const char* funcname, const QString& class_name, const QString& msg );
+	void warning_log( const char* funcname, const QString& class_name, const QString& msg );
+	void error_log( const char* funcname, const QString& class_name, const QString& msg );
 
 private:
 	static Logger *__instance;
@@ -87,13 +83,13 @@ public:
 	static bool __use_log;
 
 	/** Constructor */
-	Object( const std::string& className );
+	Object( const QString& className );
 	Object( const Object& obj );
 
 	/** Destructor */
 	virtual ~Object();
 
-	const std::string& get_class_name() const {
+	const QString& get_class_name() const {
 		return __class_name;
 	}
 
@@ -104,32 +100,33 @@ public:
 
 private:
 	static unsigned __objects;
-	static std::map<std::string, int> __object_map;
+	static std::map<QString, int> __object_map;
 	Logger *__logger;
-	std::string __class_name;
+	QString __class_name;
 };
 
 
 // some useful functions..
 
 template <class T>
-inline std::string to_string( const T& t )
+inline QString to_string( const T& t )
 {
 	std::ostringstream osstream;
 	osstream << t;
-	return osstream.str();
+
+	return QString( osstream.str().c_str() );
 }
 
-inline int string_to_int( const std::string& str )
+inline int string_to_int( const QString& str )
 {
-	std::istringstream isstream( str );
+	std::istringstream isstream( str.toStdString() );
 	int t;
 	isstream >> t;
 	return t;
 }
-inline float string_to_float( const std::string& str )
+inline float string_to_float( const QString& str )
 {
-	std::istringstream isstream( str );
+	std::istringstream isstream( str.toStdString() );
 	float t;
 	isstream >> t;
 	return t;

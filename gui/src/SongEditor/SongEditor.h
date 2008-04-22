@@ -23,8 +23,6 @@
 #ifndef SONG_EDITOR_H
 #define SONG_EDITOR_H
 
-#include <string>
-using std::string;
 #include <vector>
 using std::vector;
 

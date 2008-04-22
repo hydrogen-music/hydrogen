@@ -46,10 +46,10 @@ public:
 
 	virtual void open();
 	virtual void close();
-	virtual std::vector<std::string> getOutputPortList();
+	virtual std::vector<QString> getOutputPortList();
 
 	void midi_action( snd_seq_t *seq_handle );
-	void getPortInfo( const std::string& sPortName, int& nClient, int& nPort );
+	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 
 
 private:

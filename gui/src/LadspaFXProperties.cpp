@@ -207,7 +207,7 @@ void LadspaFXProperties::updateControls()
 	}
 
 	if (pFX) {
-		QString sPluginName = pFX->getPluginLabel().c_str();
+		QString sPluginName = pFX->getPluginLabel();
 		setWindowTitle( trUtf8( "[%1] LADSPA FX Properties" ).arg( sPluginName ) );
 
 		int nControlsFrameWidth = 10 + 45 * (pFX->inputControlPorts.size() + pFX->outputControlPorts.size()) + 10 + 45;
@@ -266,7 +266,7 @@ void LadspaFXProperties::updateControls()
 			InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
 			pName->move( nInputControl_X, 60 );
 			pName->show();
-			pName->setText( QString( pControlPort->sName.c_str() ) );
+			pName->setText( pControlPort->sName );
 			m_pInputControlNames.push_back( pName );
 			pName->setToolTip( pName->text() );
 
@@ -293,7 +293,7 @@ void LadspaFXProperties::updateControls()
 
 			faderChanged( pFader );
 
-			m_pNameLbl->setText( QString(pFX->getPluginName().c_str()) );
+			m_pNameLbl->setText( pFX->getPluginName() );
 		}
 
 		nInputControl_X += 45;
@@ -305,7 +305,7 @@ void LadspaFXProperties::updateControls()
 			InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
 			pName->move( xPos, 60 );
 			pName->show();
-			pName->setText( QString( pControl->sName.c_str() ) );
+			pName->setText( pControl->sName );
 			m_pInputControlNames.push_back( pName );
 			pName->setToolTip( pName->text() );
 
@@ -344,7 +344,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 #ifdef LADSPA_SUPPORT
 	LadspaFXSelector fxSelector(m_nLadspaFX);
 	if (fxSelector.exec() == QDialog::Accepted) {
-		std::string sSelectedFX = fxSelector.getSelectedFX();
+		QString sSelectedFX = fxSelector.getSelectedFX();
 		if (sSelectedFX != "") {
 			LadspaFX *pFX = NULL;
 

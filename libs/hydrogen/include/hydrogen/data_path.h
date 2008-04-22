@@ -36,10 +36,10 @@ namespace H2Core
 class DataPath
 {
 public:
-	static std::string get_data_path();
+	static QString get_data_path();
 
 private:
-	static std::string __data_path;
+	static QString __data_path;
 };
 
 };

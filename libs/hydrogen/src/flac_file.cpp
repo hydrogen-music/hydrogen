@@ -51,7 +51,7 @@ public:
 	FLACFile_real();
 	~FLACFile_real();
 
-	void load( std::string filename );
+	void load( const QString& filename );
 	Sample* getSample();
 
 protected:
@@ -62,7 +62,7 @@ protected:
 private:
 	std::vector<float> m_audioVect_L;
 	std::vector<float> m_audioVect_R;
-	std::string m_sFilename;
+	QString m_sFilename;
 };
 
 
@@ -89,7 +89,7 @@ FLACFile_real::~FLACFile_real()
 	int nBits = get_bits_per_sample();
 
 	if ( ( nChannelCount != 1 ) && ( nChannelCount != 2 ) ) {
-		ERRORLOG( "wrong number of channels. nChannelCount=" + to_string( nChannelCount ) );
+		ERRORLOG( QString( "wrong number of channels. nChannelCount=%1" ).arg( nChannelCount ) );
 		return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 	}
 
@@ -130,7 +130,7 @@ FLACFile_real::~FLACFile_real()
 			}
 		}
 	} else {
-		ERRORLOG( "[write_callback] FLAC format error. nBits=" + to_string( nBits ) );
+		ERRORLOG( QString( "[write_callback] FLAC format error. nBits=%1" ).arg( nBits ) );
 	}
 
 	return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
@@ -153,14 +153,14 @@ void FLACFile_real::error_callback( ::FLAC__StreamDecoderErrorStatus status )
 
 
 
-void FLACFile_real::load( std::string sFilename )
+void FLACFile_real::load( const QString& sFilename )
 {
 	m_sFilename = sFilename;
 
 	// file exists?
-	std::ifstream input( sFilename.c_str() , std::ios::in | std::ios::binary );
-	if ( !input ) {
-		ERRORLOG( "file " + sFilename + " not found." );
+	QFile check( sFilename );
+	if ( !check.exists() ) {
+		ERRORLOG( QString( "file %1 not found" ).arg( sFilename ) );
 		return;
 	} else {
 		/// \todo: devo chiudere il file?
@@ -174,7 +174,7 @@ void FLACFile_real::load( std::string sFilename )
 	State s=init();
 	if ( s != FLAC__FILE_DECODER_OK ) {
 #else
-	FLAC__StreamDecoderInitStatus s=init( sFilename.c_str() );
+	FLAC__StreamDecoderInitStatus s = init( sFilename.toAscii() );
 	if ( s!=FLAC__STREAM_DECODER_INIT_STATUS_OK ) {
 #endif
 		ERRORLOG( "Error in init()" );
@@ -231,7 +231,7 @@ FLACFile::~FLACFile() {
 
 
 
-Sample* FLACFile::load( const std::string& sFilename ) {
+Sample* FLACFile::load( const QString& sFilename ) {
 	//infoLog( "[load] " + sFilename );
 
 	FLACFile_real *pFile = new FLACFile_real();

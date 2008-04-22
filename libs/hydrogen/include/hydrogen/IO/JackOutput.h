@@ -67,7 +67,7 @@ public:
 		return m_JackTransportPos;
 	}
 
-	void setPortName( int nPort, bool bLeftChannel, const std::string sName );
+	void setPortName( int nPort, bool bLeftChannel, const QString& sName );
 	void makeTrackOutputs( Song * );
 	void setTrackOutput( int, Instrument * );
 
@@ -100,8 +100,8 @@ private:
 	JackProcessCallback processCallback;
 	jack_port_t *output_port_1;
 	jack_port_t *output_port_2;
-	std::string output_port_name_1;
-	std::string output_port_name_2;
+	QString output_port_name_1;
+	QString output_port_name_2;
 	int track_port_count;
 	jack_port_t *track_output_ports_L[MAX_INSTRUMENTS];
 	jack_port_t *track_output_ports_R[MAX_INSTRUMENTS];

@@ -31,8 +31,8 @@
 namespace H2Core
 {
 
-MidiInput::MidiInput( const std::string sClassName )
-		: Object( sClassName )
+MidiInput::MidiInput( const QString class_name )
+		: Object( class_name )
 		, m_bActive( false )
 {
 	//INFOLOG( "INIT" );
@@ -75,7 +75,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		break;
 
 	case MidiMessage::PROGRAM_CHANGE:
-		INFOLOG( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to " + to_string( msg.m_nData1 ) );
+		INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" ).arg( msg.m_nData1 ) );
 		Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
 		break;
 
@@ -122,7 +122,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		break;
 
 	default:
-		ERRORLOG( "unhandled midi message type: " + to_string( msg.m_type ) );
+		ERRORLOG( QString( "unhandled midi message type: %1" ).arg( msg.m_type ) );
 	}
 }
 
@@ -154,7 +154,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bIsChannelValid ) {
 		if ( bPatternSelect ) {
 			int patternNumber = nNote - 36;
-			INFOLOG( "next pattern = " + to_string( patternNumber ) );
+			INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
 
 			pEngine->sequencer_setNextPattern( patternNumber, false, false );
 		} else {
@@ -240,8 +240,8 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		    ( msg.m_sysexData[2] == 127 ) &&
 		    ( msg.m_sysexData[3] == 6 ) ) {
 
-			Hydrogen *pEngine = Hydrogen::get_instance();
-						
+			//Hydrogen *pEngine = Hydrogen::get_instance();
+
 
 			switch ( msg.m_sysexData[4] ) {
 
@@ -309,15 +309,14 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 	} else {
 		// sysex dump
-		std::string sDump = "";
+		QString sDump = "";
 		char tmpChar[64];
 		for ( int i = 0; i < ( int )msg.m_sysexData.size(); ++i ) {
 			sprintf( tmpChar, "%X ", ( int )msg.m_sysexData[ i ] );
 			sDump += tmpChar;
 		}
-		WARNINGLOG( "Unknown SysEx message: " + std::string( "(" ) + to_string( msg.m_sysexData.size() ) + std::string( ") [ " ) + sDump + std::string( " ]" ) );
+		WARNINGLOG( QString( "Unknown SysEx message: (%1) [%2]" ).arg( msg.m_sysexData.size() ).arg( sDump ) );
 	}
-
 }
 
 };

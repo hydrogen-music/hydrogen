@@ -52,29 +52,29 @@ public:
 	LocalFileMng();
 	~LocalFileMng();
 
-	std::vector<std::string> getUserDrumkitList();
-	std::vector<std::string> getSystemDrumkitList();
-	std::vector<std::string> getSongList();
-	std::vector<std::string> getPatternList();
-	std::string getDrumkitDirectory( const std::string& drumkitName );
+	std::vector<QString> getUserDrumkitList();
+	std::vector<QString> getSystemDrumkitList();
+	std::vector<QString> getSongList();
+	std::vector<QString> getPatternList();
+	QString getDrumkitDirectory( const QString& drumkitName );
 
-	Drumkit* loadDrumkit( const std::string& directory );
+	Drumkit* loadDrumkit( const QString& directory );
 	int saveDrumkit( Drumkit *pDrumkit );
 
-	static void writeXmlString( ::TiXmlNode *parent, const std::string& name, const std::string& text );
-	static void writeXmlBool( ::TiXmlNode *parent, const std::string& name, bool value );
+	static void writeXmlString( ::TiXmlNode *parent, const QString& name, const QString& text );
+	static void writeXmlBool( ::TiXmlNode *parent, const QString& name, bool value );
 
-	Pattern* loadPattern( const std::string& directory );
-	int savePattern( Song *song , int selectedpattern , const std::string& patternname, const std::string& realpatternname, int mode);
+	Pattern* loadPattern( const QString& directory );
+	int savePattern( Song *song , int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
 
-	static std::string readXmlString( ::TiXmlNode* parent, const std::string& nodeName, const std::string& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-	static int readXmlInt( ::TiXmlNode* parent, const std::string& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-	static float readXmlFloat( ::TiXmlNode* parent, const std::string& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-	static bool readXmlBool(  ::TiXmlNode* parent, const std::string& nodeName, bool defaultValue, bool bShouldExists = true );
+	static QString readXmlString( ::TiXmlNode* parent, const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static int readXmlInt( ::TiXmlNode* parent, const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static float readXmlFloat( ::TiXmlNode* parent, const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
+	static bool readXmlBool(  ::TiXmlNode* parent, const QString& nodeName, bool defaultValue, bool bShouldExists = true );
 
 
 private:
-	void fileCopy( const std::string& sOrigFilename, const std::string& sDestFilename );
+	void fileCopy( const QString& sOrigFilename, const QString& sDestFilename );
 };
 
 
@@ -88,7 +88,7 @@ public:
 	SongWriter();
 	~SongWriter();
 
-	void writeSong( Song *song, const std::string& filename );
+	void writeSong( Song *song, const QString& filename );
 };
 
 };

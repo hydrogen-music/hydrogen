@@ -58,23 +58,23 @@ public:
 	~Drumkit();
 
 	/// Loads a single Drumkit
-	static Drumkit* load( const std::string& sFilename );
+	static Drumkit* load( const QString& sFilename );
 
 	/// Lists the User drumkit list
-	static std::vector<std::string> getUserDrumkitList();
+	static std::vector<QString> getUserDrumkitList();
 
 	/// Lists the System drumkit list
-	static std::vector<std::string> getSystemDrumkitList();
+	static std::vector<QString> getSystemDrumkitList();
 
 	/// Installs a drumkit
-	static void install( const std::string& filename );
+	static void install( const QString& filename );
 
 	// Save a drumkit
-	static void save( const std::string& sName, const std::string& sAuthor, const std::string& sInfo );
+	static void save( const QString& sName, const QString& sAuthor, const QString& sInfo );
 
 
 	/// Remove a Drumkit from the disk
-	static void removeDrumkit( const std::string& sDrumkitName );
+	static void removeDrumkit( const QString& sDrumkitName );
 
 	InstrumentList *getInstrumentList() {
 		return m_pInstrumentList;
@@ -83,24 +83,24 @@ public:
 		this->m_pInstrumentList = instr;
 	}
 
-	void setName( const std::string& name ) {
+	void setName( const QString& name ) {
 		this->m_sName = name;
 	}
-	const std::string& getName() {
+	const QString& getName() {
 		return m_sName;
 	}
 
-	void setAuthor( const std::string& author ) {
+	void setAuthor( const QString& author ) {
 		this->m_sAuthor = author;
 	}
-	const std::string& getAuthor() {
+	const QString& getAuthor() {
 		return m_sAuthor;
 	}
 
-	void setInfo( const std::string& info ) {
+	void setInfo( const QString& info ) {
 		this->m_sInfo = info;
 	}
-	const std::string& getInfo() {
+	const QString& getInfo() {
 		return m_sInfo;
 	}
 
@@ -108,9 +108,9 @@ public:
 
 private:
 	InstrumentList *m_pInstrumentList;
-	std::string m_sName;
-	std::string m_sAuthor;
-	std::string m_sInfo;
+	QString m_sName;
+	QString m_sAuthor;
+	QString m_sInfo;
 };
 
 };

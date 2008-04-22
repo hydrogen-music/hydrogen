@@ -297,7 +297,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 	// update layer list
 	if (m_pInstrument) {
-		m_pNameLbl->setText( QString( m_pInstrument->get_name().c_str() ) );
+		m_pNameLbl->setText( m_pInstrument->get_name() );
 
 		// ADSR
 		m_pAttackRotary->setValue( m_pInstrument->get_adsr()->__attack / 10000.0 );
@@ -322,11 +322,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
 		// instr mute group
-		std::string sMuteGroup = to_string( m_pInstrument->get_mute_group());
+		QString sMuteGroup = to_string( m_pInstrument->get_mute_group());
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
-		m_pMuteGroupLCD->setText( QString( sMuteGroup.c_str() ) );
+		m_pMuteGroupLCD->setText( sMuteGroup );
 
 		// select the last valid layer
 		for (int i = MAX_LAYERS - 1; i >= 0; i-- ) {
@@ -505,7 +505,7 @@ void InstrumentEditor::loadLayer()
 
 	if (filename != "") {
 		lastUsedDir = fd->directory().absolutePath();
-		Sample *newSample = Sample::load( filename.toStdString() );
+		Sample *newSample = Sample::load( filename );
 
 		H2Core::Instrument *pInstr = NULL;
 
@@ -543,11 +543,11 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 	UNUSED( pRef );
 
 	if (m_pInstrument) {
-		QString sOldName = QString( m_pInstrument->get_name().c_str() );
+		QString sOldName = m_pInstrument->get_name();
 		bool bIsOkPressed;
 		QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 		if ( bIsOkPressed  ) {
-			m_pInstrument->set_name( sNewName.toStdString() );
+			m_pInstrument->set_name( sNewName );
 			selectedInstrumentChangedEvent();
 
 			// this will force an update...

@@ -23,7 +23,6 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/hydrogen.h>
@@ -33,7 +32,6 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/audio_engine.h>
 
-using std::string;
 using std::cout;
 using std::endl;
 
@@ -67,12 +65,12 @@ int main(int argc, char** argv)
 
 	QApplication a(argc, argv);
 
-	string filename = argv[1];
+	QString filename = argv[1];
 
 	H2Core::Preferences *preferences = H2Core::Preferences::getInstance();
 	H2Core::AudioEngine::get_instance();
 
-	H2Core::Song *pSong = H2Core::Song::load(filename);
+	H2Core::Song *pSong = H2Core::Song::load( filename );
 	if (pSong == NULL) {
 		cout << "Error loading song!" << endl;
 	}

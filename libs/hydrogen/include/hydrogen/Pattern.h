@@ -39,7 +39,7 @@ class Pattern : public Object
 public:
 	std::multimap <int, Note*> note_map;
 
-	Pattern( const std::string& name, unsigned lenght = MAX_NOTES );
+	Pattern( const QString& name, unsigned lenght = MAX_NOTES );
 	~Pattern();
 
 	static Pattern* get_empty_pattern();
@@ -54,16 +54,16 @@ public:
 		__lenght = lenght;
 	}
 
-	void set_name( const std::string& name ) {
+	void set_name( const QString& name ) {
 		__name = name;
 	}
-	const std::string& get_name() const {
+	const QString& get_name() const {
 		return __name;
 	}
 
 private:
 	unsigned __lenght;
-	std::string __name;
+	QString __name;
 };
 
 

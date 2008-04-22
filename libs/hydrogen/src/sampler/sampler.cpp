@@ -63,7 +63,7 @@ Sampler::Sampler()
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
 	// instrument used in file preview
-	std::string sEmptySampleFilename = std::string( DataPath::get_data_path() ) + "/emptySample.wav";
+	QString sEmptySampleFilename = DataPath::get_data_path() + "/emptySample.wav";
 	__preview_instrument = new Instrument( sEmptySampleFilename, "preview", new ADSR() );
 	__preview_instrument->set_volume( 0.8 );
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
@@ -200,7 +200,8 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		}
 	}
 	if ( !pSample ) {
-		WARNINGLOG( "NULL sample for instrument " + pInstr->get_name() + ". Note velocity: " + to_string( pNote->get_velocity() ) );
+		QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
+		WARNINGLOG( dummy );
 		return 1;
 	}
 
@@ -219,7 +220,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 			int noteStartInFramesNoHumanize = ( int )pNote->get_position() * __audio_output->m_transport.m_nTickSize;
 			if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
 				// this note is not valid. it's in the future...let's skip it....
-				ERRORLOG( "Note pos in the future?? Current frames: " + to_string( nFramepos ) + ", note frame pos: " + to_string( noteStartInFramesNoHumanize ) );
+				ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
 				//pNote->dumpInfo();
 				return 1;
 			}
@@ -368,7 +369,7 @@ int Sampler::__render_note_no_resample(
 	if( nInstrument < 0 ) {
 		nInstrument = 0;
 	}
-	
+
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -522,11 +523,11 @@ int Sampler::__render_note_resample(
 	 * nInstrument could be -1 if the instrument is not found in the current drumset.
 	 * This happens when someone is using the prelistening function of the soundlibrary.
 	 */
-	
+
 	if( nInstrument < 0 ) {
 		nInstrument = 0;
 	}
-	
+
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -726,7 +727,7 @@ void Sampler::makeTrackOutputQueues( )
 		}
 	}
 #endif // JACK_SUPPORT
- 
+
 }
 
 

@@ -255,7 +255,7 @@ void audioEngine_init()
 	srand( time( NULL ) );
 
 	// Create metronome instrument
-	std::string sMetronomeFilename = std::string( DataPath::get_data_path() ) + "/click.wav";
+	QString sMetronomeFilename = QString( "%1/click.wav" ).arg( DataPath::get_data_path() );
 	m_pMetronomeInstrument = new Instrument( sMetronomeFilename, "metronome", new ADSR() );
 	m_pMetronomeInstrument->set_layer( new InstrumentLayer( Sample::load( sMetronomeFilename ) ), 0 );
 
@@ -579,7 +579,7 @@ inline void audioEngine_process_transport()
 			}
 
 			if ( m_pSong->__bpm != m_pAudioDriver->m_transport.m_nBPM ) {
-				_INFOLOG( "song bpm: (" + to_string( m_pSong->__bpm ) + ") gets transport bpm: (" + to_string( m_pAudioDriver->m_transport.m_nBPM ) + ")" );
+				_INFOLOG( QString( "song bpm: (%1) gets transport bpm: (%2)" ).arg( m_pSong->__bpm ).arg( m_pAudioDriver->m_transport.m_nBPM ) );
 
 				m_pSong->__bpm = m_pAudioDriver->m_transport.m_nBPM;
 			}
@@ -672,7 +672,7 @@ int audioEngine_process( uint32_t nframes, void *arg )
 	timeval startTimeval = currentTime2();
 
 	if ( m_nBufferSize != nframes ) {
-		_INFOLOG( "Buffer size changed. Old size = " + to_string( m_nBufferSize ) +", new size = " + to_string( nframes ) );
+		_INFOLOG( QString( "Buffer size changed. Old size = %1, new size = %2" ).arg( m_nBufferSize ).arg( nframes ) );
 		m_nBufferSize = nframes;
 	}
 
@@ -794,8 +794,8 @@ int audioEngine_process( uint32_t nframes, void *arg )
 	if ( m_fProcessTime > m_fMaxProcessTime ) {
 		_WARNINGLOG( "" );
 		_WARNINGLOG( "----XRUN----" );
-		_WARNINGLOG( "XRUN of " + to_string( ( m_fProcessTime - m_fMaxProcessTime ) ) + std::string( " msec (" ) + to_string( m_fProcessTime ) + std::string( " > " ) + to_string( m_fMaxProcessTime ) + std::string( ")" ) );
-		_WARNINGLOG( "Ladspa process time = " + to_string( fLadspaTime ) );
+		_WARNINGLOG( QString( "XRUN of %1 msec (%2 > %3)" ).arg( ( m_fProcessTime - m_fMaxProcessTime ) ).arg( m_fProcessTime ).arg( m_fMaxProcessTime ) );
+		_WARNINGLOG( QString( "Ladspa process time = %1" ).arg( fLadspaTime ) );
 		_WARNINGLOG( "------------" );
 		_WARNINGLOG( "" );
 		// raise xRun event
@@ -880,7 +880,7 @@ void audioEngine_renameJackPorts()
 
 void audioEngine_setSong( Song *newSong )
 {
-	_WARNINGLOG( "set song: " + newSong->__name );
+	_WARNINGLOG( QString( "Set song: %1" ).arg( newSong->__name ) );
 
 	AudioEngine::get_instance()->lock( "audioEngine_setSong" );
 
@@ -1092,7 +1092,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					Pattern * p;
 					for ( uint i = 0; i < m_pNextPatterns->get_size(); i++ ) {
 						p = m_pNextPatterns->get( i );
-						_WARNINGLOG( "Got pattern #" + to_string( i+1 ) );
+						_WARNINGLOG( QString( "Got pattern # %1" ).arg( i + 1 ) );
 						// if the pattern isn't playing already, start it now.
 						if ( ( m_pPlayingPatterns->del( p ) ) == NULL )
 							m_pPlayingPatterns->add( p );
@@ -1302,9 +1302,9 @@ unsigned long audioEngine_getTickPosition()
 }
 
 
-AudioOutput* createDriver( const std::string& sDriver )
+AudioOutput* createDriver( const QString& sDriver )
 {
-	_INFOLOG( "Driver: \"" + sDriver + "\"" );
+	_INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
 	Preferences *pPref = Preferences::getInstance();
 	AudioOutput *pDriver = NULL;
 
@@ -1381,7 +1381,7 @@ void audioEngine_startAudioDrivers()
 
 	// check current state
 	if ( m_audioEngineState != STATE_INITIALIZED ) {
-		_ERRORLOG( "Error the audio engine is not in INITIALIZED state. state=" + to_string( m_audioEngineState ) );
+		_ERRORLOG( QString( "Error the audio engine is not in INITIALIZED state. state=%1" ).arg( m_audioEngineState ) );
 		AudioEngine::get_instance()->unlock();
 		return;
 	}
@@ -1393,7 +1393,7 @@ void audioEngine_startAudioDrivers()
 	}
 
 
-	std::string sAudioDriver = preferencesMng->m_sAudioDriver;
+	QString sAudioDriver = preferencesMng->m_sAudioDriver;
 //	sAudioDriver = "Auto";
 	if ( sAudioDriver == "Auto" ) {
 		if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == NULL ) {
@@ -1513,7 +1513,7 @@ void audioEngine_stopAudioDrivers()
 	}
 
 	if ( ( m_audioEngineState != STATE_PREPARED ) && ( m_audioEngineState != STATE_READY ) ) {
-		_ERRORLOG( "Error: the audio engine is not in PREPARED or READY state. state=" + to_string( m_audioEngineState ) );
+		_ERRORLOG( QString( "Error: the audio engine is not in PREPARED or READY state. state=%1" ).arg( m_audioEngineState ) );
 		return;
 	}
 
@@ -1846,7 +1846,7 @@ void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool delet
 // 				WARNINGLOG( "Removing " + to_string(pos) );
 			}*/
 		} else {
-			_ERRORLOG( "pos not in patternList range. pos=" + to_string( pos ) + " patternListSize=" + to_string( patternList->get_size() ) );
+			_ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" ).arg( pos ).arg( patternList->get_size() ) );
 			m_pNextPatterns->clear();
 		}
 	} else {
@@ -1874,7 +1874,7 @@ void Hydrogen::restartDrivers()
 
 
 /// Export a song to a wav file, returns the elapsed time in mSec
-void Hydrogen::startExportSong( const std::string& filename )
+void Hydrogen::startExportSong( const QString& filename )
 {
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
@@ -2026,13 +2026,13 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 {
 	_INFOLOG( drumkitInfo->getName() );
 	LocalFileMng fileMng;
-	std::string sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
+	QString sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
 
 
 
 	//current instrument list
 	InstrumentList *songInstrList = m_pSong->get_instrument_list();
-	
+
 	//new instrument list
 	InstrumentList *pDrumkitInstrList = drumkitInfo->getInstrumentList();
 
@@ -2041,7 +2041,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		delete all instruments with a bigger pos then
 		pDrumkitInstrList->get_size(). Otherwise the instruments
 		from our old instrumentlist with
-		pos > pDrumkitInstrList->get_size() stay in the 
+		pos > pDrumkitInstrList->get_size() stay in the
 		new instrumentlist
 	*/
 
@@ -2069,13 +2069,13 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 		Instrument *pNewInstr = pDrumkitInstrList->get( nInstr );
 		assert( pNewInstr );
-		_INFOLOG( "Loading instrument (" + to_string( nInstr ) + " of " + to_string( pDrumkitInstrList->get_size() ) + ") [ " + pNewInstr->get_name() + " ]" );
+		_INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" ).arg( nInstr ).arg( pDrumkitInstrList->get_size() ).arg( pNewInstr->get_name() ) );
 		// creo i nuovi layer in base al nuovo strumento
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 			InstrumentLayer *pNewLayer = pNewInstr->get_layer( nLayer );
 			if ( pNewLayer != NULL ) {
 				Sample *pNewSample = pNewLayer->get_sample();
-				std::string sSampleFilename = sDrumkitPath + drumkitInfo->getName() + "/" + pNewSample->get_filename();
+				QString sSampleFilename = sDrumkitPath + drumkitInfo->getName() + "/" + pNewSample->get_filename();
 				_INFOLOG( "    |-> Loading layer [ " + sSampleFilename + " ]" );
 
 				// carico il nuovo sample e creo il nuovo layer
@@ -2169,7 +2169,7 @@ long Hydrogen::getTickForPosition( int pos )
 		if ( m_pSong->is_loop_enabled() ) {
 			pos = pos % nPatternGroups;
 		} else {
-			_WARNINGLOG( "patternPos > nPatternGroups. pos: " + to_string( pos ) + ", nPatternGroups: " + to_string( nPatternGroups ) );
+			_WARNINGLOG( QString( "patternPos > nPatternGroups. pos: %1, nPatternGroups: %2").arg( pos ).arg(  nPatternGroups ) );
 			return -1;
 		}
 	}
@@ -2281,7 +2281,7 @@ void Hydrogen::setTapTempo( float fInterval )
 	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
 
 
-	_INFOLOG( "avg BPM = " + to_string( fBPM ) );
+	_INFOLOG( QString( "avg BPM = %1" ).arg( fBPM ) );
 	fOldBpm8 = fOldBpm7;
 	fOldBpm7 = fOldBpm6;
 	fOldBpm6 = fOldBpm5;
@@ -2377,7 +2377,7 @@ bool Hydrogen::handleAction( action *pAction )
 		case PLAY:
 		{
 			int nState = pEngine->getState();
-			switch (nState) 
+			switch (nState)
 			{
 				case STATE_READY:
 					pEngine->sequencer_play();
@@ -2397,7 +2397,7 @@ bool Hydrogen::handleAction( action *pAction )
 			pEngine->sequencer_stop();
 			pEngine->setPatternPos( 0 );
 			break;
-			
+
 	}
 	return true;
 }

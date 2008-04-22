@@ -99,7 +99,7 @@ CoreMidiDriver::CoreMidiDriver()
 	INFOLOG( "INIT" );
 	OSStatus err = noErr;
 
-	std::string sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
 	err = MIDIInputPortCreate ( h2MIDIClient, CFSTR( "h2InputPort" ), midiProc, this, &h2InputRef );
 }
@@ -123,7 +123,7 @@ void CoreMidiDriver::open()
 
 	OSStatus err = noErr;
 
-	std::string sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
 
 	cmSources = MIDIGetNumberOfSources();
 	unsigned i;
@@ -135,7 +135,7 @@ void CoreMidiDriver::open()
 			err = MIDIObjectGetStringProperty( cmH2Src, kMIDIPropertyName, &H2MidiNames );
 			char cmName[64];
 			err = CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
-			std::string h2MidiPortName = ( std::string )cmName;
+			QString h2MidiPortName = cmName;
 			if ( h2MidiPortName == sMidiPortName ) {
 				MIDIPortConnectSource ( h2InputRef, cmH2Src, NULL );
 				m_bRunning = true;
@@ -157,12 +157,12 @@ void CoreMidiDriver::close()
 
 
 
-std::vector<std::string> CoreMidiDriver::getOutputPortList()
+std::vector<QString> CoreMidiDriver::getOutputPortList()
 {
 	INFOLOG( "retrieving output list" );
 	OSStatus err = noErr;
 
-	std::vector<std::string> cmPortList;
+	std::vector<QString> cmPortList;
 	cmSources = MIDIGetNumberOfSources();
 
 	INFOLOG ( "Getting number of MIDI sources . . .\n" );
@@ -180,7 +180,7 @@ std::vector<std::string> CoreMidiDriver::getOutputPortList()
 			char cmName[ 64 ];
 			CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
 			INFOLOG ( "Getting MIDI object name . . .\n" );
-			std::string h2MidiPortName = ( std::string )cmName;
+			QString h2MidiPortName = cmName;
 			cmPortList.push_back( h2MidiPortName );
 		}
 		CFRelease( H2MidiNames );

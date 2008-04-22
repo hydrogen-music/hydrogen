@@ -29,7 +29,7 @@
 namespace H2Core
 {
 
-Pattern::Pattern( const std::string& name, unsigned lenght )
+Pattern::Pattern( const QString& name, unsigned lenght )
 		: Object( "Pattern" )
 {
 //	INFOLOG( "INIT: " + m_sName );

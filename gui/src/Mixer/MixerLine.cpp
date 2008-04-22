@@ -133,7 +133,7 @@ MixerLine::MixerLine(QWidget* parent)
 
 	Preferences *pref = Preferences::getInstance();
 
-	QString family = pref->getMixerFontFamily().c_str();
+	QString family = pref->getMixerFontFamily();
 	int size = pref->getMixerFontPointSize();
 	QFont mixerFont( family, size );
 	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
@@ -479,7 +479,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 
 	Preferences *pref = Preferences::getInstance();
 	int size = pref->getMixerFontPointSize();
-	QString family = pref->getMixerFontFamily().c_str();
+	QString family = pref->getMixerFontFamily();
 	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
 	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)m_fFalloffTemp;
@@ -758,8 +758,8 @@ FxMixerLine::FxMixerLine(QWidget* parent)
 	m_pFader->move( 22, 106 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
 
- 	QString family = pref->getMixerFontFamily().c_str();
- 	int size = pref->getMixerFontPointSize();
+	QString family = pref->getMixerFontFamily();
+	int size = pref->getMixerFontPointSize();
 	QFont mixerFont( family, size );
 
 
@@ -922,7 +922,7 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	m_nWidgetHeight = 116;
 
 	Preferences *pref = Preferences::getInstance();
-	QString family = pref->getMixerFontFamily().c_str();
+	QString family = pref->getMixerFontFamily();
 	int size = pref->getMixerFontPointSize();
 	m_mixerFont.setFamily( family );
 	m_mixerFont.setPointSize( size );

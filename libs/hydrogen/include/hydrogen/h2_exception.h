@@ -33,7 +33,7 @@ class H2Exception : public std::runtime_error
 {
 public:
 
-	H2Exception( const std::string& msg ) : std::runtime_error( msg ) {
+	H2Exception( const QString& msg ) : std::runtime_error( msg.toStdString() ) {
 	}
 
 };

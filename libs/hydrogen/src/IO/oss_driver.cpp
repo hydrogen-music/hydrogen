@@ -50,7 +50,7 @@ void* ossDriver_processCaller( void* param )
 	if ( res ) {
 		_WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
 	}
-	_INFOLOG( "Scheduling priority = " + to_string( sched.sched_priority ) );
+	_INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	OssDriver *ossDriver = ( OssDriver* )param;
 
@@ -127,7 +127,7 @@ int OssDriver::connect()
 	int stereo = 1;
 	int bs;
 
-	std::string audioDevice;
+	QString audioDevice;
 #ifdef __NetBSD__
 	audioDevice = "/dev/audio";
 #else
@@ -135,7 +135,7 @@ int OssDriver::connect()
 #endif
 
 	// Non blocking OSS open code stolen from GLAME
-	fd = open( audioDevice.c_str(), O_WRONLY | O_NONBLOCK );	// test with non blocking open
+	fd = open( audioDevice.toAscii(), O_WRONLY | O_NONBLOCK );	// test with non blocking open
 	int arg = fcntl( fd, F_GETFL, 0 );
 	if ( arg != -1 ) {	// back to blocking mode...
 		fcntl( fd, F_SETFL, arg & ~O_NONBLOCK );
@@ -177,7 +177,7 @@ int OssDriver::connect()
 		return 1;
 	}
 
-	INFOLOG( "Blocksize audio = " + to_string( bs ) );
+	INFOLOG( QString( "Blocksize audio = %1" ).arg( bs ) );
 
 	if ( bs != ( 1 << bufferBits ) ) {
 		ERRORLOG( "ERROR_IOCTL: unable to set BlockSize" );
@@ -314,7 +314,7 @@ void OssDriver::updateTransportInfo()
 
 void OssDriver::setBpm( float fBPM )
 {
-	INFOLOG( "setBpm: " + to_string( fBPM ) );
+	INFOLOG( QString( "setBpm: %1" ).arg( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
 

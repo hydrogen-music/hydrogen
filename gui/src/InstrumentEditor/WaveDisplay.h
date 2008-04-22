@@ -43,7 +43,7 @@ class WaveDisplay : public QWidget, public Object
 
 	private:
 		QPixmap m_background;
-		std::string m_sSampleName;
+		QString m_sSampleName;
 		int *m_pPeakData;
 };
 

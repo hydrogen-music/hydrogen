@@ -37,7 +37,7 @@ namespace H2Core
 class Sample : public Object
 {
 public:
-	Sample( unsigned frames, const std::string& filename, float* data_L = NULL, float* data_R = NULL );
+	Sample( unsigned frames, const QString& filename, float* data_L = NULL, float* data_R = NULL );
 	~Sample();
 
 	float* get_data_l() {
@@ -51,7 +51,7 @@ public:
 		return __sample_rate;
 	}
 
-	const std::string get_filename() {
+	const QString get_filename() {
 		return __filename;
 	}
 
@@ -62,7 +62,7 @@ public:
 	}
 
 	/// Loads a sample from disk
-	static Sample* load( const std::string& filename );
+	static Sample* load( const QString& filename );
 
 	unsigned get_n_frames() {
 		return __n_frames;
@@ -73,16 +73,16 @@ private:
 	float *__data_r;	///< Right channel data
 
 	unsigned __sample_rate;		///< samplerate for this sample
-	std::string __filename;		///< filename associated with this sample
+	QString __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
 
 	//static int __total_used_bytes;
 
 	/// loads a wave file
-	static Sample* load_wave( const std::string& filename );
+	static Sample* load_wave( const QString& filename );
 
 	/// loads a FLAC file
-	static Sample* load_flac( const std::string& filename );
+	static Sample* load_flac( const QString& filename );
 };
 
 };

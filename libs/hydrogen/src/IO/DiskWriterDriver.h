@@ -42,13 +42,13 @@ class DiskWriterDriver : public AudioOutput
 {
 public:
 	unsigned m_nSampleRate;
-	std::string m_sFilename;
+	QString m_sFilename;
 	unsigned m_nBufferSize;
 	audioProcessCallback m_processCallback;
 	float* m_pOut_L;
 	float* m_pOut_R;
 
-	DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, std::string sFilename );
+	DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename );
 	~DiskWriterDriver();
 
 	int init( unsigned nBufferSize );

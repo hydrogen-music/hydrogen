@@ -74,7 +74,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	// set initial title
 	QString extraVersion = " (Development version) ";
-	QString qsSongName( pFirstSong->__name.c_str() );
+	QString qsSongName( pFirstSong->__name );
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION.c_str()) + extraVersion + QString( " - " ) + qsSongName ) );
 
 	Preferences *pPref = Preferences::getInstance();
@@ -213,8 +213,8 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 
 	// HELP BROWSER
-	string sDocPath = string( DataPath::get_data_path() ) + "/doc";
-	string sDocURI = sDocPath + "/manual.html";
+	QString sDocPath = QString( DataPath::get_data_path() ) + "/doc";
+	QString sDocURI = sDocPath + "/manual.html";
 	m_pHelpBrowser = new SimpleHTMLBrowser( NULL, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
 #ifdef LADSPA_SUPPORT
@@ -259,7 +259,7 @@ void HydrogenApp::setSong(Song* song)
 
 	m_pSongEditorPanel->updateAll();
 
-	QString songName( song->__name.c_str() );
+	QString songName( song->__name );
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(VERSION.c_str()) + QString( " - " ) + songName ) );
 
 	m_pMainForm->updateRecentUsedSongList();
@@ -302,28 +302,28 @@ void HydrogenApp::showAudioEngineInfoForm()
 
 void HydrogenApp::showInfoSplash()
 {
-	QString sDocPath( DataPath::get_data_path().append( "/doc/infoSplash" ).c_str() );
+	QString sDocPath( DataPath::get_data_path().append( "/doc/infoSplash" ) );
 
 	QDir dir(sDocPath);
 	if ( !dir.exists() ) {
-		ERRORLOG( string("[showInfoSplash] Directory ").append( sDocPath.toStdString() ).append( " not found." ) );
+		ERRORLOG( QString("[showInfoSplash] Directory ").append( sDocPath ).append( " not found." ) );
 		return;
 	}
 
-	string sFilename = "";
+	QString sFilename = "";
 	int nNewsID = 0;
 	QFileInfoList list = dir.entryInfoList();
 
 	for ( int i =0; i < list.size(); ++i ) {
-		string sFile = list.at( i ).fileName().toStdString();
+		QString sFile = list.at( i ).fileName();
 
 		if ( sFile == "." || sFile == ".." ) {
 			continue;
 		}
 
-		int nPos = sFile.rfind("-");
-		string sNewsID = sFile.substr( nPos + 1, sFile.length() - nPos - 1 );
-		int nID = atoi( sNewsID.c_str() );
+		int nPos = sFile.lastIndexOf( "-" );
+		QString sNewsID = sFile.mid( nPos + 1, sFile.length() - nPos - 1 );
+		int nID = sNewsID.toInt();
 		if ( nID > nNewsID ) {
 			sFilename = sFile;
 		}
@@ -331,15 +331,13 @@ void HydrogenApp::showInfoSplash()
 	}
 	INFOLOG( "[showInfoSplash] Selected news: " + sFilename );
 
-	string sLastRead = Preferences::getInstance()->getLastNews();
+	QString sLastRead = Preferences::getInstance()->getLastNews();
 	if ( sLastRead != sFilename && sFilename != "" ) {
-		string sDocURI = sDocPath.toStdString();
-		sDocURI.append( "/" ).append( sFilename.c_str() );
-		SimpleHTMLBrowser *m_pFirstTimeInfo = new SimpleHTMLBrowser( m_pMainForm, sDocPath.toStdString(), sDocURI, SimpleHTMLBrowser::WELCOME );
+		QString sDocURI = sDocPath;
+		sDocURI.append( "/" ).append( sFilename );
+		SimpleHTMLBrowser *m_pFirstTimeInfo = new SimpleHTMLBrowser( m_pMainForm, sDocPath, sDocURI, SimpleHTMLBrowser::WELCOME );
 		if ( m_pFirstTimeInfo->exec() == QDialog::Accepted ) {
 			Preferences::getInstance()->setLastNews( sFilename );
-		}
-		else {
 		}
 	}
 }

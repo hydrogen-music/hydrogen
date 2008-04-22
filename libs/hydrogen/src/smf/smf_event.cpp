@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2004 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -52,13 +52,13 @@ void SMFBuffer::writeDWord( long nVal )
 
 
 
-void SMFBuffer::writeString( const std::string& sMsg )
+void SMFBuffer::writeString( const QString& sMsg )
 {
 //	infoLog( "writeString" );
 	writeVarLen( sMsg.length() );
 
-	for ( unsigned i = 0; i < sMsg.length(); i++ ) {
-		writeByte( sMsg.c_str()[ i ] );
+	for ( int i = 0; i < sMsg.length(); i++ ) {
+		writeByte( sMsg[ i ].toAscii() );
 	}
 }
 
@@ -90,7 +90,7 @@ void SMFBuffer::writeVarLen( long value )
 
 // ::::::::::::::::::
 
-SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( std::string sTrackName, unsigned nTicks )
+SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nTicks )
 		: SMFEvent( "SMFTrackNameMetaEvent", nTicks )
 		, m_sTrackName( sTrackName )
 {
@@ -114,7 +114,7 @@ std::vector<char> SMFTrackNameMetaEvent::getBuffer()
 // :::::::::::::
 
 
-SMFEvent::SMFEvent( const std::string& sEventName, unsigned nTicks )
+SMFEvent::SMFEvent( const QString& sEventName, unsigned nTicks )
 		: Object( sEventName )
 		, m_nTicks( nTicks )
 		, m_nDeltaTime( -1 )
@@ -140,7 +140,7 @@ SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int n
 		, m_nVelocity( nVelocity )
 {
 	if ( nChannel >= 16 ) {
-		ERRORLOG( "nChannel >= 16! nChannel=" + to_string( nChannel ) );
+		ERRORLOG( QString( "nChannel >= 16! nChannel=%1" ).arg( nChannel ) );
 	}
 }
 
@@ -169,7 +169,7 @@ SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int
 		, m_nVelocity( nVelocity )
 {
 	if ( nChannel >= 16 ) {
-		ERRORLOG( "nChannel >= 16! nChannel=" + to_string( nChannel ) );
+		ERRORLOG( QString( "nChannel >= 16! nChannel=%1" ).arg( nChannel ) );
 	}
 }
 

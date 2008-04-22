@@ -570,7 +570,7 @@ void DrumPatternEditor::__create_background( QPainter& p)
 
 
 
-void DrumPatternEditor::paintEvent( QPaintEvent *ev )
+void DrumPatternEditor::paintEvent( QPaintEvent* /*ev*/ )
 {
 	//INFOLOG( "paint" );
 	//QWidget::paintEvent(ev);

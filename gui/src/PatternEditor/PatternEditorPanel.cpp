@@ -545,7 +545,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
 		// update pattern name text
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-		QString sCurrentPatternName = m_pPattern->get_name().c_str();
+		QString sCurrentPatternName = m_pPattern->get_name();
 		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg( sCurrentPatternName ) ) );
 		//m_pNameLCD->setText( sCurrentPatternName );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
@@ -909,6 +909,6 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	else if ( text == trUtf8( "Resonance" ) ) {
 	}
 	else {
-		ERRORLOG( "Unknown text: " + text.toStdString() );
+		ERRORLOG( "Unknown text: " + text );
 	}
 }

@@ -51,7 +51,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication *app, const std::string& songFilename );
+		MainForm( QApplication *app, const QString& songFilename );
 		~MainForm();
 
 		void updateRecentUsedSongList();
@@ -129,7 +129,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void createMenuBar();
 
 		void closeAll();
-		void openSongFile( const std::string& sFilename );
+		void openSongFile( const QString& sFilename );
 
 		bool eventFilter( QObject *o, QEvent *e );
 
@@ -137,7 +137,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void initKeyInstMap();
 
 		void getLatestVersion();
-		std::string getAutoSaveFilename();
+		QString getAutoSaveFilename();
 
 };
 

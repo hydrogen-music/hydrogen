@@ -24,11 +24,6 @@
 #ifndef MIDI_ACTIVITY_WIDGET_H
 #define MIDI_ACTIVITY_WIDGET_H
 
-//#include "config.h"
-
-#include <string>
-using std::string;
-
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QWidget>

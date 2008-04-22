@@ -26,7 +26,7 @@
 
 #include <hydrogen/Object.h>
 
-PixmapWidget::PixmapWidget( QWidget *pParent, const std::string& sClassName )
+PixmapWidget::PixmapWidget( QWidget *pParent, const QString& sClassName )
  : Object( sClassName )
  , QWidget( pParent )
  , m_sPixmapPath( "" )
@@ -67,7 +67,7 @@ void PixmapWidget::setPixmap( QString sPixmapPath, bool expand_horiz )
 
 	bool ok = m_pixmap.load( Skin::getImagePath() + sPixmapPath );
 	if ( !ok ) {
-		_INFOLOG( std::string( "error loading: ")  + Skin::getImagePath().toStdString() + sPixmapPath.toStdString() );
+		_INFOLOG( QString( "Error loading: %1%2").arg( Skin::getImagePath() ).arg( sPixmapPath ) );
 	}
 
 	resize( m_pixmap.width(), m_pixmap.height() );

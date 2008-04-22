@@ -52,13 +52,13 @@ void SoundLibraryRepositoryDialog::updateDialog(){
 		Read serverList from config and put servers into the serverList
 	*/
 	
-	std::list<std::string>::const_iterator cur_Server;
+	std::list<QString>::const_iterator cur_Server;
 
 	ServerListWidget->clear();
 	
 	for( cur_Server = pPref->sServerList.begin(); cur_Server != pPref->sServerList.end(); ++cur_Server )
 	{
-		ServerListWidget->addItem(QString(cur_Server->c_str()));
+		ServerListWidget->addItem( *cur_Server );
 	}
 }
 
@@ -75,7 +75,7 @@ void SoundLibraryRepositoryDialog::on_AddBtn_clicked()
 	QString text = QInputDialog::getText(this, trUtf8("Edit server list"), trUtf8("URL"), QLineEdit::Normal,QString(""), &ok);
 	
 	if( ok and !text.isEmpty() ){
-		pPref->sServerList.push_back(text.toStdString());
+		pPref->sServerList.push_back( text );
 	}
 
 	updateDialog();
@@ -89,7 +89,7 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 	QList<QListWidgetItem *> selectedItems;
 	selectedItems = ServerListWidget->selectedItems();
 
-	std::list<std::string>::const_iterator cur_Server;
+	//std::list<std::string>::const_iterator cur_Server;
 	H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
 
 	while( ! selectedItems.isEmpty() ){
@@ -98,7 +98,7 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 	
 		selText = selectedItems.takeFirst()->text();
 
-		pPref->sServerList.erase(std::remove(pPref->sServerList.begin(), pPref->sServerList.end(), selText.toStdString()),pPref->sServerList.end());
+		pPref->sServerList.erase(std::remove(pPref->sServerList.begin(), pPref->sServerList.end(), selText), pPref->sServerList.end() );
 	}
 	updateDialog();
 }

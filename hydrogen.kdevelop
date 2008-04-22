@@ -105,13 +105,13 @@
     <run>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <mainprogram>/home/comix/progetti/hydrogen_svn/trunk/hydrogen</mainprogram>
+      <mainprogram>/home/comix/hydrogen_svn/trunk_qstring_ovunque</mainprogram>
       <programargs>-n -V</programargs>
       <terminal>true</terminal>
       <autocompile>true</autocompile>
       <envvars/>
       <globaldebugarguments/>
-      <globalcwd>/home/comix/progetti/hydrogen_svn/trunk</globalcwd>
+      <globalcwd>/home/comix/hydrogen_svn/trunk_qstring_ovunque</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
@@ -123,27 +123,29 @@
       <makebin>make</makebin>
       <prio>0</prio>
       <envvars/>
-      <runmultiplejobs>true</runmultiplejobs>
+      <runmultiplejobs>false</runmultiplejobs>
     </make>
     <qmake>
       <savebehaviour>2</savebehaviour>
       <replacePaths>false</replacePaths>
       <disableDefaultOpts>true</disableDefaultOpts>
       <enableFilenamesOnly>false</enableFilenamesOnly>
+      <showVariablesInTree>true</showVariablesInTree>
+      <showParseErrors>true</showParseErrors>
     </qmake>
   </kdevtrollproject>
   <kdevcppsupport>
     <references>
+      <pcs>automatic_%2Fhome%2Fcomix%2Fhydrogen_svn%2Ftrunk_qstring_ovunque</pcs>
       <pcs>Qt4</pcs>
-      <pcs>automatic_%2Fhome%2Fcomix%2Fprogetti%2Fhydrogen_svn%2Ftrunk</pcs>
     </references>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
       <includeTypes>true</includeTypes>
       <includeEnums>true</includeEnums>
       <includeTypedefs>false</includeTypedefs>
-      <automaticCodeCompletion>true</automaticCodeCompletion>
-      <automaticArgumentsHint>true</automaticArgumentsHint>
+      <automaticCodeCompletion>false</automaticCodeCompletion>
+      <automaticArgumentsHint>false</automaticArgumentsHint>
       <automaticHeaderCompletion>true</automaticHeaderCompletion>
       <codeCompletionDelay>250</codeCompletionDelay>
       <argumentsHintDelay>500</argumentsHintDelay>
@@ -181,7 +183,7 @@
       <includestyle>4</includestyle>
       <designerintegration>ExternalDesigner</designerintegration>
       <qmake>/usr/bin/qmake</qmake>
-      <designer></designer>
+      <designer>/usr/bin/designer-qt4</designer>
       <designerpluginpaths/>
     </qt>
     <splitheadersource>

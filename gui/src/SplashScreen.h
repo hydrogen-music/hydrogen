@@ -29,10 +29,6 @@
 #include <QTimer>
 #include <QPixmap>
 
-#include <string>
-using std::string;
-
-//#include "config.h"
 #include "HydrogenApp.h"
 
 #include <hydrogen/Object.h>

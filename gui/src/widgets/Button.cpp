@@ -105,7 +105,7 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 	// load an image
 	if ( pixmap.load( Skin::getImagePath() + sFilename ) == false ) {
 		if ( sFilename != "" ) {
-			ERRORLOG( "Error loading image: '" + sFilename.toStdString() + "'" );
+			ERRORLOG( QString( "Error loading image: '%1'" ).arg( sFilename ) );
 		}
 		return false;
 	}

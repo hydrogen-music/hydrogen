@@ -108,8 +108,8 @@ int JackOutput::connect()
 
 	if ( connect_out_flag ) {
 		// connect the ports
-		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.c_str() ) == 0 &&
-		        jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.c_str() ) == 0 ) {
+		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toAscii() ) == 0 &&
+		        jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toAscii() ) == 0 ) {
 			return 0;
 		}
 
@@ -209,7 +209,8 @@ void JackOutput::relocateBBT()
 
 	char bbt[15];
 	sprintf( bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
-	WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string( hydrogen_ticks_to_locate ) );
+//	WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string( hydrogen_ticks_to_locate ) );
+	WARNINGLOG( QString( "Locating BBT: %1 =>tick %2" ).arg( bbt ).arg( hydrogen_ticks_to_locate ) );
 
 	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
 	// not S->m_fBPM !??
@@ -271,7 +272,7 @@ void JackOutput::updateTransportInfo()
 			float bpm = ( float )m_JackTransportPos.beats_per_minute;
 			if ( m_transport.m_nBPM != bpm ) {
 
-				WARNINGLOG( "Tempo change from jack-transport: " + to_string( bpm ) );
+				WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
 
 				m_transport.m_nBPM = bpm;
 
@@ -348,13 +349,13 @@ int JackOutput::init( unsigned nBufferSize )
 		return 3;
 	}
 
-	std::vector<std::string> clientList;
+	std::vector<QString> clientList;
 	const char **readports = jack_get_ports( client, NULL, NULL, JackPortIsOutput );
 	int nPort = 0;
 	while ( readports && readports[nPort] ) {
-		std::string sPort = std::string( readports[nPort] );
-		int nColonPos = sPort.find( ":" );
-		std::string sClient = sPort.substr( 0, nColonPos );
+		QString sPort = readports[nPort];
+		int nColonPos = sPort.indexOf( ":" );
+		QString sClient = sPort.mid( 0, nColonPos );
 		bool bClientExist = false;
 		for ( int j = 0; j < ( int )clientList.size(); j++ ) {
 			if ( sClient == clientList[ j ] ) {
@@ -369,11 +370,11 @@ int JackOutput::init( unsigned nBufferSize )
 	}
 	jack_client_close( client );
 
-	std::string sClientName = "";
+	QString sClientName = "";
 	for ( int nInstance = 1; nInstance < 16; nInstance++ ) {
 //		sprintf( clientName, "Hydrogen-%d", nInstance );
 		//	sprintf( clientName, "Hydrogen-%d", getpid() );
-		sClientName = "Hydrogen-" + to_string( nInstance );
+		sClientName = QString( "Hydrogen-%1" ).arg( nInstance );
 		bool bExist = false;
 		for ( int i = 0; i < ( int )clientList.size(); i++ ) {
 			if ( sClientName == clientList[ i ] ) {
@@ -388,7 +389,7 @@ int JackOutput::init( unsigned nBufferSize )
 
 
 	// try to become a client of the JACK server
-	if ( ( client = jack_client_new( sClientName.c_str() ) ) == 0 ) {
+	if ( ( client = jack_client_new( sClientName.toAscii() ) ) == 0 ) {
 		ERRORLOG( "Jack server not running? (jack_client_new). Using " + sClientName + " as client name"  );
 		return 3;
 	}
@@ -452,7 +453,7 @@ void JackOutput::makeTrackOutputs( Song * song )
 	int nInstruments = ( int )instruments->get_size();
 
 	// create dedicated channel output ports
-	WARNINGLOG( "Creating / renaming" + to_string( nInstruments ) + " ports" );
+	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
 	for ( int n = nInstruments - 1; n >= 0; n-- ) {
 		instr = instruments->get( n );
@@ -476,13 +477,13 @@ void JackOutput::makeTrackOutputs( Song * song )
 void JackOutput::setTrackOutput( int n, Instrument * instr )
 {
 
-	std::string chName;
+	QString chName;
 
 	if ( track_port_count <= n ) { // need to create more ports
 		for ( int m = track_port_count; m <= n; m++ ) {
-			chName = "Track_" + to_string( m + 1 ) + "_";
-			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			chName = QString( "Track_%1_" ).arg( m + 1 );
+			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toAscii(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toAscii(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			if ( track_output_ports_R[m] == NULL || track_output_ports_L[m] == NULL ) {
 				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 			}
@@ -490,10 +491,10 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 		track_port_count = n + 1;
 	}
 	// Now we're sure there is an n'th port, rename it.
-	chName = "Track_" + to_string( n + 1 ) + "_" + instr->get_name() + "_";
+	chName = QString( "Track_%1_%2_" ).arg( n + 1 ).arg( instr->get_name() );
 
-	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).c_str() );
-	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).c_str() );
+	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toAscii() );
+	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toAscii() );
 }
 
 void JackOutput::play()
@@ -528,7 +529,7 @@ void JackOutput::locate( unsigned long nFrame )
 {
 	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
 		if ( client ) {
-			WARNINGLOG( "calling jack_transport_locate(" + to_string( nFrame ) + ")" );
+			WARNINGLOG( QString( "Calling jack_transport_locate(%1)" ).arg( nFrame ) );
 			jack_transport_locate( client, nFrame );
 		}
 	} else {
@@ -540,12 +541,12 @@ void JackOutput::locate( unsigned long nFrame )
 
 void JackOutput::setBpm( float fBPM )
 {
-	WARNINGLOG( "setBpm: " + to_string( fBPM ) );
+	WARNINGLOG( QString( "setBpm: %1" ).arg( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
 
 
-void JackOutput::setPortName( int nPort, bool bLeftChannel, const std::string sName )
+void JackOutput::setPortName( int nPort, bool bLeftChannel, const QString& sName )
 {
 //	infoLog( "[setPortName] " + sName );
 	jack_port_t *pPort;
@@ -555,7 +556,7 @@ void JackOutput::setPortName( int nPort, bool bLeftChannel, const std::string sN
 		pPort = track_output_ports_R[ nPort ];
 	}
 
-	int err = jack_port_set_name( pPort, sName.c_str() );
+	int err = jack_port_set_name( pPort, sName.toAscii() );
 	if ( err != 0 ) {
 		ERRORLOG( " Error in jack_port_set_name!" );
 	}

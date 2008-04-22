@@ -146,52 +146,52 @@ void SoundLibraryPanel::updateDrumkitList()
 
 
 	LocalFileMng mng;
-	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); ++i) {
-		//std::string absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
-		std::string absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
+		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
+		QString absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_userDrumkitInfoList.push_back( pInfo );
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pUserDrumkitsItem );
-			pDrumkitItem->setText( 0, QString( pInfo->getName().c_str() ) );
+			pDrumkitItem->setText( 0, pInfo->getName() );
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->get_name().c_str() ) );
-				pInstrumentItem->setToolTip( 0, QString( pInstr->get_name().c_str() ) );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
 			}
 		}
 	}
 
 
-	std::vector<std::string> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
 
 	for (uint i = 0; i < systemList.size(); i++) {
-		std::string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
+		QString absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_systemDrumkitInfoList.push_back( pInfo );
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pSystemDrumkitsItem );
-			pDrumkitItem->setText( 0, QString( pInfo->getName().c_str() ) );
+			pDrumkitItem->setText( 0, pInfo->getName() );
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + QString( pInstr->get_name().c_str() ) );
-				pInstrumentItem->setToolTip( 0, QString( pInstr->get_name().c_str() ) );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
 			}
 		}
 	}
 
-	std::vector<std::string> songList = mng.getSongList();
+	std::vector<QString> songList = mng.getSongList();
 
 	if ( songList.size() > 0 )
 	{
@@ -202,13 +202,13 @@ void SoundLibraryPanel::updateDrumkitList()
 
 		for (uint i = 0; i < songList.size(); i++) 
 		{
-			std::string absPath = DataPath::get_data_path() + "/songs/" + songList[i];
+			QString absPath = DataPath::get_data_path() + "/songs/" + songList[i];
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( m_pSongItem );
-			pSongItem->setText( 0 , QString ( songList[ i ].c_str() ) );
+			pSongItem->setText( 0 , songList[ i ] );
 		}
 	}
 
-	std::vector<std::string> patternList = mng.getPatternList();
+	std::vector<QString> patternList = mng.getPatternList();
 
 	if ( patternList.size() > 0 )
 	{
@@ -219,9 +219,9 @@ void SoundLibraryPanel::updateDrumkitList()
 
 		for (uint i = 0; i < patternList.size(); i++) 
 		{
-			std::string absPath = DataPath::get_data_path() + "/patterns/" + patternList[i];
+			QString absPath = DataPath::get_data_path() + "/patterns/" + patternList[i];
 			QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( m_pPatternItem );
-			pPatternItem->setText( 0 , QString ( patternList[ i ].c_str() ) );
+			pPatternItem->setText( 0 , patternList[ i ] );
 		}
 	}
 	
@@ -254,9 +254,9 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		// e' stato selezionato uno strumento
 		QString selectedName = item->text(0);
 
-		std::string sInstrName = ( selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 ) ).toStdString();
-		std::string sDrumkitName = item->parent()->text(0).toStdString();
-		INFOLOG( sDrumkitName + ", instr:" + sInstrName );
+		QString sInstrName = selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 );
+		QString sDrumkitName = item->parent()->text(0);
+		INFOLOG( QString(sDrumkitName) + ", instr:" + sInstrName );
 
 		Instrument *pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
 		pInstrument->set_muted( false );
@@ -388,14 +388,14 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	// find the drumkit in the list
 	for ( uint i = 0; i < m_systemDrumkitInfoList.size(); i++ ) {
 		Drumkit *pInfo = m_systemDrumkitInfoList[i];
-		if ( QString( pInfo->getName().c_str() ) == sDrumkitName ) {
+		if ( pInfo->getName() == sDrumkitName ) {
 			drumkitInfo = pInfo;
 			break;
 		}
 	}
 	for ( uint i = 0; i < m_userDrumkitInfoList.size(); i++ ) {
 		Drumkit*pInfo = m_userDrumkitInfoList[i];
-		if ( QString( pInfo->getName().c_str() ) == sDrumkitName ) {
+		if ( pInfo->getName() == sDrumkitName ) {
 			drumkitInfo = pInfo;
 			break;
 		}
@@ -407,7 +407,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
-	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName().c_str() ), 2000 );
+	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName() ), 2000 );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
@@ -428,9 +428,9 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	QString sSoundLibrary = m_pSoundLibraryTree->currentItem()->text( 0 );
 
 	bool bIsUserSoundLibrary =false;
-	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for ( uint i = 0; i < userList.size(); ++i ) {
-		if ( userList[ i ] == sSoundLibrary.toStdString() ) {
+		if ( userList[ i ] == sSoundLibrary ) {
 			bIsUserSoundLibrary = true;
 			break;
 		}
@@ -446,7 +446,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	Drumkit::removeDrumkit( sSoundLibrary.toStdString() );
+	Drumkit::removeDrumkit( sSoundLibrary );
 
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
@@ -478,9 +478,9 @@ void SoundLibraryPanel::on_instrumentDeleteAction()
 void SoundLibraryPanel::on_songLoadAction()
 {
 	QString songName = m_pSoundLibraryTree->currentItem()->text( 0 );
-	std::string sDirectory = Preferences::getInstance()->getDataDirectory()  + "songs";
+	QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "songs";
 
-	std::string sFilename = sDirectory + "/" + songName.toStdString() + ".h2song";
+	QString sFilename = sDirectory + "/" + songName + ".h2song";
 	
 
 	Hydrogen *engine = Hydrogen::get_instance();
@@ -498,7 +498,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::getInstance();
 
-	std::vector<std::string> recentFiles = pPref->getRecentFiles();
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
@@ -518,11 +518,11 @@ void SoundLibraryPanel::on_patternLoadAction()
 	Song *song = engine->getSong();
 	PatternList *pPatternList = song->get_pattern_list();
 	
-	std::string sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns";
+	QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns";
 	
 	LocalFileMng mng;
 	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern (sDirectory + "/" +  patternName.toStdString() + ".h2pattern" );
+	Pattern* err = fileMng.loadPattern (sDirectory + "/" +  patternName + ".h2pattern" );
 
 	if ( err == 0 )
 	{

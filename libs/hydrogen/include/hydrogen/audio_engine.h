@@ -43,10 +43,10 @@ public:
 	static AudioEngine* get_instance();
 	~AudioEngine();
 
-	void lock( const std::string& locker );
+	void lock( const QString& locker );
 
 	/// Try to lock the mutex. Return true on success.
-	bool try_lock( const std::string& locker );
+	bool try_lock( const QString& locker );
 	void unlock();
 
 	Sampler* get_sampler();
@@ -60,7 +60,7 @@ private:
 
 	/// Mutex for syncronized access to the Song object and the AudioEngine.
 	pthread_mutex_t __engine_mutex;
-	std::string __locker;
+	QString __locker;
 
 	AudioEngine();
 };

@@ -60,7 +60,7 @@ void* alsaMidiDriver_thread( void* param )
 
 	int err;
 	if ( ( err = snd_seq_open( &seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0 ) ) < 0 ) {
-		_ERRORLOG( "Error opening ALSA sequencer: " + string( snd_strerror( err ) ) );
+		_ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( snd_strerror( err ) ) );
 		pthread_exit( NULL );
 	}
 
@@ -81,13 +81,13 @@ void* alsaMidiDriver_thread( void* param )
 	int m_local_addr_port = portId;
 	int m_local_addr_client = clientId;
 
-	string sPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sPortName = Preferences::getInstance()->m_sMidiPortName;
 	int m_dest_addr_port = -1;
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
-	_INFOLOG( "MIDI port name: " + sPortName );
-	_INFOLOG( "MIDI addr client: " + to_string( m_dest_addr_client ) );
-	_INFOLOG( "MIDI addr port: " + to_string( m_dest_addr_port ) );
+	_INFOLOG( "MIDI port name: "  + sPortName );
+	_INFOLOG( "MIDI addr client: " +  m_dest_addr_client );
+	_INFOLOG( "MIDI addr port: " + m_dest_addr_port );
 
 	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
 		snd_seq_port_subscribe_t *subs;
@@ -106,11 +106,11 @@ void* alsaMidiDriver_thread( void* param )
 		/* subscribe */
 		int ret = snd_seq_subscribe_port( seq_handle, subs );
 		if ( ret < 0 ) {
-			_ERRORLOG( "snd_seq_connect_from(" + to_string( m_dest_addr_client ) + ":" + to_string( m_dest_addr_port ) +" error" );
+			_ERRORLOG( QString( "snd_seq_subscribe_port(%1:%2) error" ).arg( m_dest_addr_client ).arg( m_dest_addr_port ) );
 		}
 	}
 
-	_INFOLOG( "Midi input port at " + to_string( clientId ) + ":" + to_string( portId ) );
+	_INFOLOG( QString( "Midi input port at %1:%2" ).arg( clientId ).arg( portId ) );
 
 	npfd = snd_seq_poll_descriptors_count( seq_handle, POLLIN );
 	pfd = ( struct pollfd* )alloca( npfd * sizeof( struct pollfd ) );
@@ -280,7 +280,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 				break;
 
 			default:
-				WARNINGLOG( "Unknown MIDI Event. type = " + to_string( ( int )ev->type ) );
+				WARNINGLOG( QString( "Unknown MIDI Event. type = %1" ).arg( ( int )ev->type ) );
 			}
 			if ( msg.m_type != MidiMessage::UNKNOWN ) {
 				handleMidiMessage( msg );
@@ -293,9 +293,9 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 
 
 
-std::vector<std::string> AlsaMidiDriver::getOutputPortList()
+std::vector<QString> AlsaMidiDriver::getOutputPortList()
 {
-	vector<string> outputList;
+	vector<QString> outputList;
 
 	if ( seq_handle == NULL ) {
 		return outputList;
@@ -341,7 +341,7 @@ std::vector<std::string> AlsaMidiDriver::getOutputPortList()
 	return outputList;
 }
 
-void AlsaMidiDriver::getPortInfo( const std::string& sPortName, int& nClient, int& nPort )
+void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& nPort )
 {
 	if ( seq_handle == NULL ) {
 		ERRORLOG( "seq_handle = NULL " );
@@ -379,13 +379,13 @@ void AlsaMidiDriver::getPortInfo( const std::string& sPortName, int& nClient, in
 				    ( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
 				    snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
 				) {
-					string sName = snd_seq_port_info_get_name( pinfo );
+					QString sName = snd_seq_port_info_get_name( pinfo );
 					if ( sName == sPortName ) {
 						nClient = snd_seq_port_info_get_client( pinfo );
 						nPort = snd_seq_port_info_get_port( pinfo );
 
-						INFOLOG( "nClient " + to_string( nClient ) );
-						INFOLOG( "nPort " + to_string( nPort ) );
+						INFOLOG( QString( "nClient %1" ).arg( nClient ) );
+						INFOLOG( QString( "nPort %1" ).arg( nPort ) );
 						return;
 					}
 				}

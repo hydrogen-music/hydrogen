@@ -53,7 +53,7 @@ void* diskWriterDriver_thread( void* param )
 		return 0;
 	}
 
-	SNDFILE* m_file = sf_open( pDriver->m_sFilename.c_str(), SFM_WRITE, &soundInfo );
+	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toAscii(), SFM_WRITE, &soundInfo );
 
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
@@ -78,7 +78,7 @@ void* diskWriterDriver_thread( void* param )
 
 			float fPercent = ( float ) nCurrentPatternPos / ( float )nPatterns * 100.0;
 			EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
-			_INFOLOG( "DiskWriterDriver: " + to_string( fPercent ) + "%, transport frames:" + to_string( pDriver->m_transport.m_nFrames ) );
+			_INFOLOG( QString( "DiskWriterDriver: %1%, transport frames:%2" ).arg( fPercent ).arg( pDriver->m_transport.m_nFrames ) );
 		}
 	}
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
@@ -97,7 +97,7 @@ void* diskWriterDriver_thread( void* param )
 
 
 
-DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, std::string sFilename )
+DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename )
 		: AudioOutput( "DiskWriterDriver" )
 		, m_nSampleRate( nSamplerate )
 		, m_sFilename( sFilename )
@@ -117,7 +117,7 @@ DiskWriterDriver::~DiskWriterDriver()
 
 int DiskWriterDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( "init, " + to_string( nBufferSize ) + " samples" );
+	INFOLOG( QString( "Init, %1 samples" ).arg( nBufferSize ) );
 
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];
@@ -183,7 +183,7 @@ void DiskWriterDriver::stop()
 
 void DiskWriterDriver::locate( unsigned long nFrame )
 {
-	INFOLOG( "locate: " + to_string( nFrame ) );
+	INFOLOG( QString( "Locate: %1" ).arg( nFrame ) );
 	m_transport.m_nFrames = nFrame;
 }
 
@@ -199,7 +199,7 @@ void DiskWriterDriver::updateTransportInfo()
 
 void DiskWriterDriver::setBpm( float fBPM )
 {
-	INFOLOG( "setBpm: " + to_string( fBPM ) );
+	INFOLOG( QString( "SetBpm: %1" ).arg( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
 

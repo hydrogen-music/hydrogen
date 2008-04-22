@@ -107,7 +107,7 @@ public:
 
 	void restartDrivers();
 
-	void startExportSong( const std::string& filename );
+	void startExportSong( const QString& filename );
 	void stopExportSong();
 
 	AudioOutput* getAudioOutput();

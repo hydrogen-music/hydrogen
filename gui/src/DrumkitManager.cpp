@@ -61,7 +61,7 @@ OldDrumkitManager::OldDrumkitManager( QWidget* parent )
 	saveTab_saveBtn->setEnabled( false );
 
 	// import tab
-	importTab_infoLbl->setText( trUtf8( "The drumkit will be installed in %1" ).arg( Preferences::getInstance()->getDataDirectory().c_str() ) );
+	importTab_infoLbl->setText( trUtf8( "The drumkit will be installed in %1" ).arg( Preferences::getInstance()->getDataDirectory() ) );
 	importTab_importBtn->setEnabled( false );
 
 	updateDrumkitList();
@@ -96,27 +96,27 @@ void OldDrumkitManager::updateDrumkitList()
 	drumkitInfoList.clear();
 
 	//LocalFileMng mng;
-	std::vector<std::string> userList = Drumkit::getUserDrumkitList();
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); i++) {
-		std::string absPath = Preferences::getInstance()->getDataDirectory()  + userList[i];
-		//std::string absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
+		QString absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
+		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
-			loadTabDrumkitListBox->addItem( QString( info->getName().c_str() ) );
-			exportTab_drumkitList->addItem( info->getName().c_str() );
+			loadTabDrumkitListBox->addItem( QString( info->getName() ) );
+			exportTab_drumkitList->addItem( info->getName() );
 		}
 	}
 
 
-	std::vector<std::string> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
 	for (uint i = 0; i < systemList.size(); i++) {
-		std::string absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
+		QString absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
-			loadTabDrumkitListBox->addItem( (info->getName()).c_str() );
-			exportTab_drumkitList->addItem( (info->getName()).c_str() );
+			loadTabDrumkitListBox->addItem( info->getName() );
+			exportTab_drumkitList->addItem( info->getName() );
 		}
 	}
 
@@ -146,10 +146,10 @@ void OldDrumkitManager::on_loadTabDrumkitListBox_currentRowChanged(int row)
 	// find the drumkit in the list
 	for ( uint i = 0; i < drumkitInfoList.size(); i++ ) {
 		Drumkit *drumkitInfo = drumkitInfoList[i];
-		if ( QString( drumkitInfo->getName().c_str() ) == sSelectedDrumkitName ) {
-			loadTab_drumkitNameLbl->setText( trUtf8( "Name: <b>%1</b>").arg( drumkitInfo->getName().c_str() ) );
-			loadTab_drumkitAuthorLbl->setText( trUtf8( "Author: %1" ).arg( drumkitInfo->getAuthor().c_str() ) );
-			loadTab_drumkitInfoLbl->setText( trUtf8( "Info: <br>%1").arg( drumkitInfo->getInfo().c_str() ) );
+		if ( drumkitInfo->getName() == sSelectedDrumkitName ) {
+			loadTab_drumkitNameLbl->setText( trUtf8( "Name: <b>%1</b>").arg( drumkitInfo->getName()  ) );
+			loadTab_drumkitAuthorLbl->setText( trUtf8( "Author: %1" ).arg( drumkitInfo->getAuthor()  ) );
+			loadTab_drumkitInfoLbl->setText( trUtf8( "Info: <br>%1").arg( drumkitInfo->getInfo() ) );
 
 			loadTab_loadDrumkitBtn->setEnabled( true );
 
@@ -168,20 +168,20 @@ void OldDrumkitManager::on_loadTab_loadDrumkitBtn_clicked()
 	// find the drumkit in the list
 	for ( uint i = 0; i < drumkitInfoList.size(); i++ ) {
 		Drumkit *drumkitInfo = drumkitInfoList[i];
-		if ( QString( drumkitInfo->getName().c_str() ) == sSelectedDrumkitName ) {
+		if ( drumkitInfo->getName() == sSelectedDrumkitName ) {
 			setCursor( QCursor( Qt::WaitCursor ) );
 
 			try {
 				Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 				Hydrogen::get_instance()->getSong()->__is_modified = true;
-				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName().c_str() ), 2000 );
+				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName() ), 2000 );
 
 				setCursor( QCursor( Qt::ArrowCursor ) );
 
 				// update drumkit info in save tab
-				saveTab_nameTxt ->setText( QString( drumkitInfo->getName().c_str() ) );
-				saveTab_authorTxt->setText( QString( drumkitInfo->getAuthor().c_str() ) );
-				saveTab_infoTxt->append( QString( drumkitInfo->getInfo().c_str() ) );
+				saveTab_nameTxt ->setText( drumkitInfo->getName() );
+				saveTab_authorTxt->setText( drumkitInfo->getAuthor() );
+				saveTab_infoTxt->append( drumkitInfo->getInfo() );
 			}
 			catch ( H2Exception ex ) {
 				setCursor( QCursor( Qt::ArrowCursor ) );
@@ -223,11 +223,11 @@ void OldDrumkitManager::on_importTab_importBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	std::string dataDir = Preferences::getInstance()->getDataDirectory();
+	QString dataDir = Preferences::getInstance()->getDataDirectory();
 	LocalFileMng fileMng;
 	try {
-		H2Core::Drumkit::install( std::string( importTab_drumkitPathTxt->text().toStdString() ) );
-		QMessageBox::information( this, "Hydrogen", "Drumkit imported in " + QString( dataDir.c_str() )  );
+		H2Core::Drumkit::install( importTab_drumkitPathTxt->text() );
+		QMessageBox::information( this, "Hydrogen", "Drumkit imported in " + dataDir );
 		updateDrumkitList();
 		setCursor( QCursor( Qt::ArrowCursor ) );
 	}
@@ -245,9 +245,9 @@ void OldDrumkitManager::on_saveTab_saveBtn_clicked()
 	setCursor( QCursor( Qt::WaitCursor ) );
 
 	H2Core::Drumkit::save(
-			saveTab_nameTxt->text().toStdString(),
-			saveTab_authorTxt->text().toStdString(),
-			saveTab_infoTxt->toPlainText().toStdString()
+			saveTab_nameTxt->text(),
+			saveTab_authorTxt->text(),
+			saveTab_infoTxt->toPlainText()
 	);
 	updateDrumkitList();
 	setCursor( QCursor( Qt::ArrowCursor ) );
@@ -276,7 +276,7 @@ void OldDrumkitManager::on_exportTab_browseBtn_clicked()
 		exportTab_drumkitPathTxt->setText( filename );
 		lastUsedDir = fd->directory().absolutePath();
 	}
-	INFOLOG( "Filename: " + filename.toStdString() );
+	INFOLOG( "Filename: " + filename );
 }
 
 
@@ -285,16 +285,16 @@ void OldDrumkitManager::on_exportTab_exportBtn_clicked()
 {
 	setCursor( QCursor( Qt::WaitCursor ) );
 
-	std::string drumkitName = exportTab_drumkitList->currentText().toStdString();
+	QString drumkitName = exportTab_drumkitList->currentText();
 
 	LocalFileMng fileMng;
-	std::string drumkitDir = fileMng.getDrumkitDirectory( drumkitName );
+	QString drumkitDir = fileMng.getDrumkitDirectory( drumkitName );
 
-	std::string saveDir = exportTab_drumkitPathTxt->text().toStdString();
-	std::string cmd = std::string( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
+	QString saveDir = exportTab_drumkitPathTxt->text();
+	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
 
 	INFOLOG( "cmd: " + cmd );
-	system( cmd.c_str() );
+	system( cmd.toAscii() );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
@@ -305,7 +305,7 @@ void OldDrumkitManager::on_exportTab_exportBtn_clicked()
 void OldDrumkitManager::on_exportTab_drumkitPathTxt_textChanged( QString str )
 {
 	UNUSED( str );
-	std::string path = exportTab_drumkitPathTxt->text().toStdString();
+	QString path = exportTab_drumkitPathTxt->text();
 	if (path == "") {
 		exportTab_exportBtn->setEnabled( false );
 	}
@@ -318,7 +318,7 @@ void OldDrumkitManager::on_exportTab_drumkitPathTxt_textChanged( QString str )
 void OldDrumkitManager::on_importTab_drumkitPathTxt_textChanged(QString str)
 {
 	UNUSED( str );
-	std::string path = importTab_drumkitPathTxt->text().toStdString();
+	QString path = importTab_drumkitPathTxt->text();
 	if (path == "") {
 		importTab_importBtn->setEnabled( false );
 	}
@@ -331,7 +331,7 @@ void OldDrumkitManager::on_importTab_drumkitPathTxt_textChanged(QString str)
 void OldDrumkitManager::on_saveTab_nameTxt_textChanged(QString str)
 {
 	UNUSED( str );
-	std::string name = saveTab_nameTxt->text().toStdString();
+	QString name = saveTab_nameTxt->text();
 	if (name == "") {
 		saveTab_saveBtn->setEnabled( false );
 	}
@@ -346,5 +346,5 @@ void OldDrumkitManager::on_loadTab_deleteDrumkitBtn_clicked()
 {
 	QMessageBox::information( this, "Hydrogen", "Not implemented yet" );
 
-	// verificare che nessun suono del drumkit sia utilizzato correntemente
+	//TODO verificare che nessun suono del drumkit sia utilizzato correntemente
 }

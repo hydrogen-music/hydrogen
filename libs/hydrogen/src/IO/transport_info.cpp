@@ -60,8 +60,8 @@ void TransportInfo::printInfo()
 	default:
 		ERRORLOG( "status = unknown" );
 	}
-	INFOLOG( "frames = " + to_string( m_nFrames ) );
-	INFOLOG( "tickSize = " + to_string( m_nTickSize ) );
+	INFOLOG( QString( "frames = %1" ).arg( m_nFrames ) );
+	INFOLOG( QString( "tickSize = %1" ).arg( m_nTickSize ) );
 }
 
 };

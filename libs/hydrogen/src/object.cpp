@@ -36,7 +36,7 @@ using namespace std;
 
 unsigned int Object::__objects = 0;
 bool Object::__use_log = false;
-std::map<std::string, int> Object::__object_map;
+std::map<QString, int> Object::__object_map;
 
 
 
@@ -44,7 +44,7 @@ std::map<std::string, int> Object::__object_map;
 /**
  * Constructor
  */
-Object::Object( const std::string& class_name )
+Object::Object( const QString& class_name )
 		: __class_name( class_name )
 {
 	++__objects;
@@ -111,30 +111,6 @@ int Object::get_objects_number()
 }
 
 
-/*
-void Object::infoLog(const std::string& sMsg)
-{
-	if (__use_log) {
-		__logger->info(this, sMsg);
-	}
-}
-
-
-void Object::warningLog(const std::string& sMsg)
-{
-	__logger->warning(this, sMsg);
-}
-
-
-
-
-void Object::errorLog(const std::string& sMsg)
-{
-	__logger->error(this, sMsg);
-}
-*/
-
-
 void Object::use_verbose_log( bool bUse )
 {
 	__use_log = bUse;
@@ -154,13 +130,13 @@ void Object::print_object_map()
 {
 	std::cout << "[Object::print_object_map]" << std::endl;
 
-	map<std::string, int>::iterator iter = __object_map.begin();
+	map<QString, int>::iterator iter = __object_map.begin();
 	int nTotal = 0;
 	do {
 		int nInstances = ( *iter ).second;
-		std::string sObject = ( *iter ).first;
+		QString sObject = ( *iter ).first;
 		if ( nInstances != 0 ) {
-			std::cout << nInstances << "\t" << sObject << std::endl;
+			std::cout << nInstances << "\t" << sObject.toStdString() << std::endl;
 		}
 		nTotal += nInstances;
 		iter++;
@@ -196,12 +172,12 @@ void* loggerThread_func( void* param )
 	FILE *pLogFile = NULL;
 	if ( pLogger->__use_file ) {
 #ifdef Q_OS_MACX
-		string sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" ).toStdString();
+		QString sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" );
 #else
-		string sLogFilename = QDir::homePath().append( "/.hydrogen/hydrogen.log" ).toStdString();
+		QString sLogFilename = QDir::homePath().append( "/.hydrogen/hydrogen.log" );
 #endif
 
-		pLogFile = fopen( sLogFilename.c_str(), "w" );
+		pLogFile = fopen( sLogFilename.toAscii(), "w" );
 		if ( pLogFile == NULL ) {
 			std::cerr << "Error: can't open log file for writing..." << std::endl;
 		} else {
@@ -218,15 +194,15 @@ void* loggerThread_func( void* param )
 		pthread_mutex_lock( &pLogger->__logger_mutex );
 
 
-		vector<std::string>::iterator it;
-		string tmpString;
+		vector<QString>::iterator it;
+		QString tmpString;
 		while ( ( it  = pLogger->__msg_queue.begin() ) != pLogger->__msg_queue.end() ) {
 			tmpString = *it;
 			pLogger->__msg_queue.erase( it );
-			printf( tmpString.c_str() );
+			printf( tmpString.toAscii() );
 
 			if ( pLogFile ) {
-				fprintf( pLogFile, tmpString.c_str() );
+				fprintf( pLogFile, tmpString.toAscii() );
 				fflush( pLogFile );
 			}
 		}
@@ -295,16 +271,18 @@ Logger::~Logger()
 
 
 
-void Logger::info_log( const std::string& logMsg )
+void Logger::info_log( const char* funcname, const QString& class_name, const QString& logMsg )
 {
 	if ( !Object::is_using_verbose_log() ) return;
 
 	pthread_mutex_lock( &__logger_mutex );
 
+	QString prefix = "(I) " + class_name + "\t" + funcname;
+
 #ifdef WIN32
-	__msg_queue.push_back( logMsg + "\n" );
+	__msg_queue.push_back( QString( "%1 %2\n" ).arg(prefix).arg(logMsg).toUtf8() );
 #else
-	__msg_queue.push_back( string( "\033[32m" ) + logMsg + string( "\033[0m" ).append( "\n" ) );
+	__msg_queue.push_back( QString( "\033[32m%1 %2 \033[0m\n" ).arg(prefix).arg(logMsg) );
 #endif
 
 	pthread_mutex_unlock( &__logger_mutex );
@@ -314,14 +292,15 @@ void Logger::info_log( const std::string& logMsg )
 
 
 
-void Logger::warning_log( const std::string& logMsg )
+void Logger::warning_log( const char* funcname, const QString& class_name, const QString& logMsg )
 {
 	pthread_mutex_lock( &__logger_mutex );
+	QString prefix = "(W) " + class_name + "\t" + funcname;
 
 #ifdef WIN32
-	__msg_queue.push_back( logMsg + "\n" );
+	__msg_queue.push_back( prefix + logMsg + "\n" );
 #else
-	__msg_queue.push_back( string( "\033[36m" ) + logMsg + string( "\033[0m" ).append( "\n" ) );
+	__msg_queue.push_back( QString( "\033[36m%1 %2\033[0m\n" ).arg( prefix ).arg( logMsg ) );
 #endif
 
 	pthread_mutex_unlock( &__logger_mutex );
@@ -329,14 +308,16 @@ void Logger::warning_log( const std::string& logMsg )
 
 
 
-void Logger::error_log( const std::string& logMsg )
+void Logger::error_log( const char* funcname, const QString& class_name, const QString& logMsg )
 {
 	pthread_mutex_lock( &__logger_mutex );
 
+	QString prefix = QString( "(E) %1\t%2" ).arg( class_name ).arg( funcname );
+
 #ifdef WIN32
-	__msg_queue.push_back( logMsg + "\n" );
+	__msg_queue.push_back( prefix + logMsg + "\n" );
 #else
-	__msg_queue.push_back( string( "\033[31m" ) + logMsg + string( "\033[0m" ).append( "\n" ) );
+	__msg_queue.push_back( QString( "\033[31m%1 %2\033[0m\n" ).arg( prefix ).arg( logMsg ) );
 #endif
 
 	pthread_mutex_unlock( &__logger_mutex );

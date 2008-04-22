@@ -333,7 +333,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	PatternList *patternList = song->get_pattern_list();
 
 	Pattern *emptyPattern = Pattern::get_empty_pattern();
-	emptyPattern->set_name( trUtf8("Pattern").toStdString() );
+	emptyPattern->set_name( trUtf8("Pattern") );
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern );
 	if ( dialog->exec() == QDialog::Accepted ) {

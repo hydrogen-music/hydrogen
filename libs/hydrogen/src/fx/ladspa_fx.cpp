@@ -40,7 +40,7 @@ using namespace std;
 namespace H2Core
 {
 
-LadspaFXGroup::LadspaFXGroup( const std::string& sName )
+LadspaFXGroup::LadspaFXGroup( const QString& sName )
 		: Object( "LadspaFXGroup" )
 {
 //	infoLog( "INIT - " + sName );
@@ -75,7 +75,7 @@ void LadspaFXGroup::addChild( LadspaFXGroup *pChild )
 ////////////////
 
 
-LadspaFXInfo::LadspaFXInfo( const std::string& sName )
+LadspaFXInfo::LadspaFXInfo( const QString& sName )
 		: Object( "LadspaFXInfo" )
 {
 //	infoLog( "INIT - " + sName );
@@ -100,7 +100,7 @@ LadspaFXInfo::~LadspaFXInfo()
 
 
 // ctor
-LadspaFX::LadspaFX( const std::string& sLibraryPath, const std::string& sPluginLabel )
+LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
 		: Object( "LadspaFX" )
 //, m_nBufferSize( 0 )
 		, m_pBuffer_L( NULL )
@@ -118,7 +118,7 @@ LadspaFX::LadspaFX( const std::string& sLibraryPath, const std::string& sPluginL
 		, m_nIAPorts( 0 )
 		, m_nOAPorts( 0 )
 {
-	INFOLOG( string( "INIT - " ) + sLibraryPath + " - " + sPluginLabel );
+	INFOLOG( QString( "INIT - %1 - %2" ).arg( sLibraryPath ).arg( sPluginLabel ) );
 
 
 	m_pBuffer_L = new float[MAX_BUFFER_SIZE];
@@ -138,7 +138,7 @@ LadspaFX::LadspaFX( const std::string& sLibraryPath, const std::string& sPluginL
 LadspaFX::~LadspaFX()
 {
 	// dealloca il plugin
-	INFOLOG( string( "DESTROY - " ) + m_sLibraryPath + " - " + m_sLabel );
+	INFOLOG( QString( "DESTROY - %1 - %2" ).arg( m_sLibraryPath ).arg( m_sLabel ) );
 
 	if ( m_d ) {
 		if ( m_d->deactivate ) {
@@ -172,13 +172,13 @@ LadspaFX::~LadspaFX()
 
 
 // Static
-LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sPluginLabel, long nSampleRate )
+LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate )
 {
 	LadspaFX* pFX = new LadspaFX( sLibraryPath, sPluginLabel );
 
 	_INFOLOG( "INIT - " + sLibraryPath + " - " + sPluginLabel );
 
-	pFX->m_pLibrary = new QLibrary( QString( sLibraryPath.c_str() ) );
+	pFX->m_pLibrary = new QLibrary( sLibraryPath );
 	LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )pFX->m_pLibrary->resolve( "ladspa_descriptor" );
 	if ( desc_func == NULL ) {
 		_ERRORLOG( "Error loading the library. (" + sLibraryPath + ")" );
@@ -187,8 +187,8 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 	}
 	if ( desc_func ) {
 		for ( unsigned i = 0; ( pFX->m_d = desc_func( i ) ) != NULL; i++ ) {
-			string sName = pFX->m_d->Name;
-			string sLabel = pFX->m_d->Label;
+			QString sName = pFX->m_d->Name;
+			QString sLabel = pFX->m_d->Label;
 
 			if ( sLabel != sPluginLabel ) {
 				continue;
@@ -223,8 +223,8 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 		pFX->m_pluginType = MONO_FX;
 	} else {
 		_ERRORLOG( "Wrong number of ports" );
-		_ERRORLOG( "in audio = " + to_string( pFX->m_nIAPorts ) );
-		_ERRORLOG( "out audio = " + to_string( pFX->m_nOAPorts ) );
+		_ERRORLOG( QString( "in audio = %1" ).arg( pFX->m_nIAPorts ) );
+		_ERRORLOG( QString( "out audio = %1" ).arg( pFX->m_nOAPorts ) );
 	}
 
 	//pFX->infoLog( "[LadspaFX::load] instantiate " + pFX->getPluginName() );
@@ -234,7 +234,7 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 		LADSPA_PortDescriptor pd = pFX->m_d->PortDescriptors[ nPort ];
 
 		if ( LADSPA_IS_CONTROL_INPUT( pd ) ) {
-			string sName = pFX->m_d->PortNames[ nPort ];
+			QString sName = pFX->m_d->PortNames[ nPort ];
 			float fMin = 0.0;
 			float fMax = 0.0;
 			float fDefault = 0.0;
@@ -305,12 +305,12 @@ LadspaFX* LadspaFX::load( const std::string& sLibraryPath, const std::string& sP
 			pControl->isToggle = isToggle;
 			pControl->m_bIsInteger = isInteger;
 
-			_INFOLOG( "Input control port\t[" + sName + "]\tmin=" + to_string( fMin ) + ",\tmax=" + to_string( fMax ) + ",\tcontrolValue=" + to_string( pControl->fControlValue ) );
+			_INFOLOG( QString( "Input control port\t[%1]\tmin=%2,\tmax=%3,\tcontrolValue=%4" ).arg( sName ).arg( fMin ).arg( fMax ).arg( pControl->fControlValue ) );
 
 			pFX->inputControlPorts.push_back( pControl );
 			pFX->m_d->connect_port( pFX->m_handle, nPort, &( pControl->fControlValue ) );
 		} else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
-			string sName = pFX->m_d->PortNames[ nPort ];
+			QString sName = pFX->m_d->PortNames[ nPort ];
 			float fMin = 0.0;
 			float fMax = 0.0;
 			float fDefault = 0.0;

@@ -53,8 +53,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	move( 240, 100 );
 
 	QString about;
-	about += QString("<center><b>Hydrogen Drum Machine %1").arg(VERSION.c_str()) + QString(" [") + QString( std::string(__DATE__).c_str() ) + "]  </b><br>";
-	//about += "<center><b>Hydrogen Drum Machine " + " [" + QString( std::string(__DATE__).c_str() ) + "]  </b><br>";
+	about += QString("<center><b>Hydrogen Drum Machine %1 [%2] </b><br>").arg(VERSION.c_str()).arg( __DATE__ );
 	about += tr( "<b>Website</b><br>" );
 	about += "http://www.hydrogen-music.org<br><br>";
 	about += tr( "<b>Project page</b><br>");

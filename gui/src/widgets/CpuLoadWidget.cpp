@@ -53,14 +53,14 @@ CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
 	QString background_path = Skin::getImagePath().append( "/playerControlPanel/cpuLoad_back.png" );
 	bool ok = m_back.load( background_path );
 	if( !ok ) {
-		ERRORLOG( "Error loading pixmap " + background_path.toStdString() );
+		ERRORLOG( "Error loading pixmap " + background_path );
 	}
 
 	// Leds image
 	QString leds_path = Skin::getImagePath().append( "/playerControlPanel/cpuLoad_leds.png" );
 	ok = m_leds.load( leds_path );
 	if( !ok ) {
-		ERRORLOG( "Error loading pixmap " + leds_path.toStdString() );
+		ERRORLOG( "Error loading pixmap " + leds_path );
 	}
 
 	QTimer *timer = new QTimer(this);

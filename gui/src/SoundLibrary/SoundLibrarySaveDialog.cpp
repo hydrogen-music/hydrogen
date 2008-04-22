@@ -49,9 +49,9 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
 	INFOLOG( "!!!" );
 	H2Core::Drumkit::save(
-			nameTxt->text().toStdString(),
-			authorTxt->text().toStdString(),
-			infoTxt->toHtml().toStdString()
+			nameTxt->text(),
+			authorTxt->text(),
+			infoTxt->toHtml()
 	);
 	accept();
 }

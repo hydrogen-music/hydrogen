@@ -116,8 +116,8 @@ public:
 	}
 
 	void dumpInfo();
-	static NoteKey stringToKey( const std::string& sKey );
-	static std::string keyToString( NoteKey key );
+	static NoteKey stringToKey( const QString& sKey );
+	static QString keyToString( NoteKey key );
 
 
 	/// Return the note position inside a pattern

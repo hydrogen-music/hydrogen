@@ -43,7 +43,7 @@ FakeDriver::~FakeDriver()
 
 int FakeDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( "init, " + to_string( nBufferSize ) + " samples" );
+	INFOLOG( QString( "Init, %1 samples" ).arg( nBufferSize ) );
 
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];

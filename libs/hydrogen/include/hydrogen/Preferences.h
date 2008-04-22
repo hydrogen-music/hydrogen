@@ -24,7 +24,7 @@
 #define PREFERENCES_H
 
 #include <list>
-#include <string>
+//#include <string>
 #include <vector>
 
 #include <hydrogen/globals.h>
@@ -66,10 +66,10 @@ class H2RGBColor : public Object
 {
 public:
 	H2RGBColor( int r = -1, int g = -1, int b = -1 );
-	H2RGBColor( const std::string& sColor );
+	H2RGBColor( const QString& sColor );
 	~H2RGBColor();
 
-	std::string toStringFmt();
+	QString toStringFmt();
 
 	int getRed() const {
 		return m_red;
@@ -131,21 +131,21 @@ public:
 		NO_JACK_TRANSPORT
 	};
 
-	
-	enum  { 
+
+	enum  {
 		POST_FADER,
 		PRE_FADER
 	};
 
-	std::string m_sPreferencesFilename;
-	std::string m_sPreferencesDirectory;
+	QString m_sPreferencesFilename;
+	QString m_sPreferencesDirectory;
 
 	bool m_bFollowPlayhead;
 
-	std::list<std::string> sServerList;
+	std::list<QString> sServerList;
 
 	//___ audio engine properties ___
-	std::string m_sAudioDriver;		///< Audio Driver
+	QString m_sAudioDriver;		///< Audio Driver
 	bool m_bUseMetronome;		///< Use metronome?
 	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
 	unsigned m_nMaxNotes;		///< max notes
@@ -153,24 +153,24 @@ public:
 	unsigned m_nSampleRate;		///< Audio sample rate
 
 	//___ oss driver properties ___
-	std::string m_sOSSDevice;		///< Device used for output
+	QString m_sOSSDevice;		///< Device used for output
 
 	//___ MIDI Driver properties
-	std::string m_sMidiDriver;
-	std::string m_sMidiPortName;
+	QString m_sMidiDriver;
+	QString m_sMidiPortName;
 	int m_nMidiChannelFilter;
 	bool m_bMidiNoteOffIgnore;
 	bool m_bUseMidiTransport;
 
 	//___  alsa audio driver properties ___
-	std::string m_sAlsaAudioDevice;
+	QString m_sAlsaAudioDevice;
 
 	//___  jack driver properties ___
-	std::string m_sJackPortName1;
-	std::string m_sJackPortName2;
+	QString m_sJackPortName1;
+	QString m_sJackPortName2;
 	bool m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
-	int m_nJackTrackOutputMode;	
+	int m_nJackTrackOutputMode;
 
 
 
@@ -185,10 +185,10 @@ public:
 	/// Save the preferences file
 	void savePreferences();
 
-	const std::string& getDemoPath() {
+	const QString& getDemoPath() {
 		return demoPath;
 	}
-	const std::string& getDataDirectory() {
+	const QString& getDataDirectory() {
 		return m_sDataDirectory;
 	}
 
@@ -210,10 +210,10 @@ public:
 		return restoreLastSong;
 	}
 
-	void setLastSongFilename( const std::string& filename ) {
+	void setLastSongFilename( const QString& filename ) {
 		lastSongFilename = filename;
 	}
-	const std::string& getLastSongFilename() {
+	const QString& getLastSongFilename() {
 		return lastSongFilename;
 	}
 
@@ -238,39 +238,39 @@ public:
 		return quantizeEvents;
 	}
 
-	std::vector<std::string> getRecentFiles() {
+	std::vector<QString> getRecentFiles() {
 		return m_recentFiles;
 	}
-	void setRecentFiles( std::vector<std::string> recentFiles );
+	void setRecentFiles( std::vector<QString> recentFiles );
 
-	std::vector<std::string> getLadspaPath() {
+	std::vector<QString> getLadspaPath() {
 		return m_ladspaPathVect;
 	}
-	void setLadspaPath( std::vector<std::string> pathVect ) {
+	void setLadspaPath( std::vector<QString> pathVect ) {
 		m_ladspaPathVect = pathVect;
 	}
 
-	std::string getLastNews() {
+	QString getLastNews() {
 		return m_sLastNews;
 	}
-	void setLastNews( const std::string& sNews ) {
+	void setLastNews( const QString& sNews ) {
 		m_sLastNews = sNews;
 	}
 
 
 	// GUI Properties
-	const std::string& getQTStyle() {
+	const QString& getQTStyle() {
 		return m_sQTStyle;
 	}
-	void setQTStyle( const std::string& sStyle ) {
+	void setQTStyle( const QString& sStyle ) {
 		m_sQTStyle = sStyle;
 	}
 
 
-	const std::string& getApplicationFontFamily() {
+	const QString& getApplicationFontFamily() {
 		return applicationFontFamily;
 	}
-	void setApplicationFontFamily( const std::string& family ) {
+	void setApplicationFontFamily( const QString& family ) {
 		applicationFontFamily = family;
 	}
 
@@ -281,10 +281,10 @@ public:
 		applicationFontPointSize = size;
 	}
 
-	std::string getMixerFontFamily() {
+	QString getMixerFontFamily() {
 		return mixerFontFamily;
 	}
-	void setMixerFontFamily( const std::string& family ) {
+	void setMixerFontFamily( const QString& family ) {
 		mixerFontFamily = family;
 	}
 	int getMixerFontPointSize() {
@@ -397,30 +397,30 @@ public:
 private:
 	static Preferences *instance;
 
-	std::string m_sDataDirectory;
+	QString m_sDataDirectory;
 
 
 	/** directory of demo songs */
-	std::string demoPath;
+	QString demoPath;
 
 	//___ General properties ___
 	bool restoreLastSong;		///< Restore last song?
 	bool m_bShowDevelWarning;	///< Show development version warning?
-	std::string lastSongFilename;	///< Last song used
+	QString lastSongFilename;	///< Last song used
 	bool hearNewNotes;
-	std::vector<std::string> m_recentFiles;
-	std::vector<std::string> m_ladspaPathVect;
+	std::vector<QString> m_recentFiles;
+	std::vector<QString> m_ladspaPathVect;
 	bool quantizeEvents;
 	bool recordEvents;
-	std::string m_sLastNews;
+	QString m_sLastNews;
 
 
 	//___ GUI properties ___
-	std::string m_sQTStyle;
+	QString m_sQTStyle;
 
-	std::string applicationFontFamily;
+	QString applicationFontFamily;
 	int applicationFontPointSize;
-	std::string mixerFontFamily;
+	QString mixerFontFamily;
 	int mixerFontPointSize;
 	float mixerFalloffSpeed;
 	int m_nPatternEditorGridResolution;
@@ -451,8 +451,8 @@ private:
 	/// Create soundLibrary directory
 	void createSoundLibraryDirectories();
 
-	WindowProperties readWindowProperties( TiXmlNode *parent, const std::string& windowName, WindowProperties defaultProp );
-	void writeWindowProperties( TiXmlNode& parent, const std::string& windowName, const WindowProperties& prop );
+	WindowProperties readWindowProperties( TiXmlNode *parent, const QString& windowName, WindowProperties defaultProp );
+	void writeWindowProperties( TiXmlNode& parent, const QString& windowName, const WindowProperties& prop );
 
 	void writeUIStyle( TiXmlNode& parent );
 	void readUIStyle( TiXmlNode& parent );

@@ -46,7 +46,7 @@ public:
 
 	virtual void open();
 	virtual void close();
-	virtual std::vector<std::string> getOutputPortList();
+	virtual std::vector<QString> getOutputPortList();
 
 	MIDIClientRef  h2MIDIClient;
 	ItemCount cmSources;

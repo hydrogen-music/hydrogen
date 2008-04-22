@@ -33,7 +33,7 @@ using namespace std;
 namespace H2Core
 {
 
-Sample::Sample( unsigned frames, const string& filename, float* data_l, float* data_r )
+Sample::Sample( unsigned frames, const QString& filename, float* data_l, float* data_r )
 		: Object( "Sample" )
 		, __data_l( data_l )
 		, __data_r( data_r )
@@ -56,10 +56,10 @@ Sample::~Sample()
 
 
 
-Sample* Sample::load( const string& filename )
+Sample* Sample::load( const QString& filename )
 {
 	// is a flac file?
-	string ext = filename.substr( filename.length() - 4, filename.length() );
+	QString ext = filename.right( filename.length() - 4 );
 	if ( ( ext == "flac" ) || ( ext == "FLAC" ) ) {
 		return load_flac( filename );
 	} else {
@@ -70,7 +70,7 @@ Sample* Sample::load( const string& filename )
 
 
 /// load a FLAC file
-Sample* Sample::load_flac( const string& filename )
+Sample* Sample::load_flac( const QString& filename )
 {
 #ifdef FLAC_SUPPORT
 	FLACFile file;
@@ -83,20 +83,19 @@ Sample* Sample::load_flac( const string& filename )
 
 
 
-Sample* Sample::load_wave( const string& filename )
+Sample* Sample::load_wave( const QString& filename )
 {
 	// file exists?
-	std::ifstream verify( filename.c_str() , std::ios::in | std::ios::binary );
-	if ( verify == NULL ) {
-		cerr << "[Sample::load] Load sample: File " + filename + " not found." << endl;
+	if ( QFile( filename).exists() == false ) {
+		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
 		return NULL;
 	}
 
 
 	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( filename.c_str(), SFM_READ, &soundInfo );
+	SNDFILE* file = sf_open( filename.toAscii(), SFM_READ, &soundInfo );
 	if ( !file ) {
-		cerr << "[Sample::load] Error loading file " << filename << endl;
+		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
 	}
 
 //	cout << "frames = " << soundInfo.frames << endl;

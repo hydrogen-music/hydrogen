@@ -60,11 +60,10 @@ using namespace H2Core;
 
 #include <cassert>
 
-using std::string;
 using std::map;
 using namespace H2Core;
 
-MainForm::MainForm( QApplication *app, const std::string& songFilename )
+MainForm::MainForm( QApplication *app, const QString& songFilename )
  : QMainWindow( 0, 0 )
  , Object( "MainForm" )
 {
@@ -88,7 +87,7 @@ MainForm::MainForm( QApplication *app, const std::string& songFilename )
 	else {
 		Preferences *pref = Preferences::getInstance();
 		bool restoreLastSong = pref->isRestoreLastSongEnabled();
-		string filename = pref->getLastSongFilename();
+		QString filename = pref->getLastSongFilename();
 		if ( restoreLastSong && (filename != "" )) {
 			song = Song::load( filename );
 			if (song == NULL) {
@@ -137,7 +136,7 @@ MainForm::MainForm( QApplication *app, const std::string& songFilename )
 MainForm::~MainForm()
 {
 	// remove the autosave file
-	QFile file( getAutoSaveFilename().c_str() );
+	QFile file( getAutoSaveFilename() );
 	file.remove();
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
@@ -355,10 +354,10 @@ void MainForm::action_file_save_as()
 
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString defaultFilename;
-	QString lastFilename = song->get_filename().c_str();
+	QString lastFilename = song->get_filename();
 
 	if (lastFilename == "") {
-		defaultFilename = Hydrogen::get_instance()->getSong()->__name.c_str();
+		defaultFilename = Hydrogen::get_instance()->getSong()->__name;
 		defaultFilename += ".h2song";
 	}
 	else {
@@ -378,7 +377,7 @@ void MainForm::action_file_save_as()
 			filename += ".h2song";
 		}
 
-		song->set_filename(filename.toStdString());
+		song->set_filename(filename);
 		action_file_save();
 	}
 	h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
@@ -393,7 +392,7 @@ void MainForm::action_file_save()
 //	}
 
 	Song *song = Hydrogen::get_instance()->getSong();
-	QString filename = song->get_filename().c_str();
+	QString filename = song->get_filename();
 
 	if (filename == "") {
 		// just in case!
@@ -402,7 +401,7 @@ void MainForm::action_file_save()
 
 	LocalFileMng mng;
 	bool saved = false;
-	saved = song->save( filename.toStdString() );
+	saved = song->save( filename );
 
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", trUtf8("Could not save song.") );
@@ -411,8 +410,8 @@ void MainForm::action_file_save()
 
 		// add the new loaded song in the "last used song" vector
 		Preferences *pPref = Preferences::getInstance();
-		vector<string> recentFiles = pPref->getRecentFiles();
-		recentFiles.insert( recentFiles.begin(), filename.toStdString() );
+		vector<QString> recentFiles = pPref->getRecentFiles();
+		recentFiles.insert( recentFiles.begin(), filename );
 		pPref->setRecentFiles( recentFiles );
 
 		updateRecentUsedSongList();
@@ -460,10 +459,10 @@ void MainForm::action_file_export_pattern_as()
 	Instrument *instr = song->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	std::string sDataDir = Preferences::getInstance()->getDataDirectory();
+	QString sDataDir = Preferences::getInstance()->getDataDirectory();
 
 
-	QDir dir ( QString ( sDataDir.c_str() )  + QString ( "patterns" ) );
+	QDir dir ( sDataDir + "patterns" );
 
 
 	QFileDialog *fd = new QFileDialog ( this );
@@ -475,7 +474,7 @@ void MainForm::action_file_export_pattern_as()
 
 
 
-	QString defaultPatternname = QString ( pat->get_name().c_str() );
+	QString defaultPatternname = QString ( pat->get_name() );
 
 	fd->selectFile ( defaultPatternname );
 
@@ -490,9 +489,9 @@ void MainForm::action_file_export_pattern_as()
 	{
 		QString sNewFilename = filename;
 		sNewFilename += ".h2pattern";
-		std::string patternname = sNewFilename.toStdString();
-		std::string realpatternname = filename.toStdString();
-		std::string realname = realpatternname.substr(realpatternname.rfind("/")+1);
+		QString patternname = sNewFilename;
+		QString realpatternname = filename;
+		QString realname = realpatternname.mid( realpatternname.lastIndexOf( "/" ) + 1 );
 		pat->set_name(realname);
 		HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
 		int err = fileMng.savePattern ( song , selectedpattern, patternname, realname, 2 );
@@ -559,7 +558,7 @@ void MainForm::action_file_open() {
 
 
 	if (filename != "") {
-		openSongFile( filename.toStdString() );
+		openSongFile( filename );
 	}
 }
 
@@ -574,10 +573,10 @@ void MainForm::action_file_openPattern()
 	Instrument *instr = song->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	std::string sDataDir = Preferences::getInstance()->getDataDirectory();
+	QString sDataDir = Preferences::getInstance()->getDataDirectory();
 
-	QDir dirPattern ( QString ( sDataDir.c_str() + QString ( "patterns" ) ) );
-	ERRORLOG(sDataDir.c_str());
+	QDir dirPattern ( sDataDir + "patterns" );
+	ERRORLOG( sDataDir );
 	QFileDialog *fd = new QFileDialog ( this );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Song (*.h2pattern)" ) );
@@ -591,16 +590,16 @@ void MainForm::action_file_openPattern()
 	{
 		filename = fd->selectedFiles().first();
 	}
-	std::string patternname = filename.toStdString();
-	
+	QString patternname = filename;
+
 
 	LocalFileMng mng;
 	LocalFileMng fileMng;
 	Pattern* err = fileMng.loadPattern ( patternname );
 	if ( err == 0 )
-	{	
-		_ERRORLOG ( "Error loading the pattern" );
-		_ERRORLOG ( to_string ( patternname ) );
+	{
+		_ERRORLOG( "Error loading the pattern" );
+		_ERRORLOG( patternname );
 	}
 	else
 	{
@@ -660,7 +659,7 @@ void MainForm::action_file_openDemo()
 	fd->setContentsPreview( "uno", "due" );
 	fd->setPreviewMode( QFileDialog::Contents );
 	*/
-	fd->setDirectory( QString( Preferences::getInstance()->getDemoPath().c_str() ) );
+	fd->setDirectory( QString( Preferences::getInstance()->getDemoPath() ) );
 
 
 	QString filename = "";
@@ -670,7 +669,7 @@ void MainForm::action_file_openDemo()
 
 
 	if (filename != "") {
-		openSongFile( filename.toStdString() );
+		openSongFile( filename );
 		Hydrogen::get_instance()->getSong()->set_filename( "" );
 	}
 }
@@ -725,8 +724,8 @@ void MainForm::action_instruments_addInstrument()
 	int nID = -1;
 	for ( uint i = 0; i < pList->get_size(); ++i ) {
 		Instrument* pInstr = pList->get( i );
-		if ( atoi( pInstr->get_id().c_str() ) > nID ) {
-			nID = atoi( pInstr->get_id().c_str() );
+		if ( pInstr->get_id().toInt() > nID ) {
+			nID = pInstr->get_id().toInt();
 		}
 	}
 	++nID;
@@ -767,7 +766,7 @@ void MainForm::action_instruments_clearAll()
 	InstrumentList* pList = pSong->get_instrument_list();
 	for (uint i = 0; i < pList->get_size(); i++) {
 		Instrument* pInstr = pList->get( i );
-		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )).toStdString() );
+		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )) );
 		// remove all layers
 		for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
@@ -1037,16 +1036,16 @@ void MainForm::updateRecentUsedSongList()
 	m_pRecentFilesMenu->clear();
 
 	Preferences *pPref = Preferences::getInstance();
-	vector<string> recentUsedSongs = pPref->getRecentFiles();
+	vector<QString> recentUsedSongs = pPref->getRecentFiles();
 
-	string sFilename = "";
+	QString sFilename = "";
 
 	for ( uint i = 0; i < recentUsedSongs.size(); ++i ) {
 		sFilename = recentUsedSongs[ i ];
 
 		if ( sFilename != "" ) {
 			QAction *pAction = new QAction( this  );
-			pAction->setText( QString( sFilename.c_str() ) );
+			pAction->setText( sFilename );
 			m_pRecentFilesMenu->addAction( pAction );
 		}
 	}
@@ -1056,13 +1055,13 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
-//	INFOLOG( pAction->text().toStdString() );
-	openSongFile( pAction->text().toStdString() );
+//	INFOLOG( pAction->text() );
+	openSongFile( pAction->text() );
 }
 
 
 
-void MainForm::openSongFile( const std::string& sFilename )
+void MainForm::openSongFile( const QString& sFilename )
 {
  	Hydrogen *engine = Hydrogen::get_instance();
 	if ( engine->getState() == STATE_PLAYING ) {
@@ -1078,7 +1077,7 @@ void MainForm::openSongFile( const std::string& sFilename )
 
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::getInstance();
-	vector<string> recentFiles = pPref->getRecentFiles();
+	vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
@@ -1270,7 +1269,7 @@ void MainForm::action_debug_debugCommand()
 			PatternList *pSongPatternList = pEngine->getSong()->get_pattern_list();
 			for ( uint i = 0; i <pSongPatternList->get_size(); i++ ) {
 				H2Core::Pattern *pPat = pSongPatternList->get( i );
-				std::cout << "   |->[" << i << "] " << pPat->get_name() << std::endl;
+				std::cout << "   |->[" << i << "] " << pPat->get_name().toStdString() << std::endl;
 			}
 			std::cout << "----------------------------------------------------------------------" << std::endl;
 
@@ -1282,7 +1281,7 @@ void MainForm::action_debug_debugCommand()
 			PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
 			for ( uint i = 0; i <pCurrentPatternList->get_size(); i++ ) {
 				H2Core::Pattern *pPat = pCurrentPatternList->get( i );
-				cout << "   |->[" << i << "] " << pPat->get_name() << std::endl;
+				cout << "   |->[" << i << "] " << pPat->get_name().toStdString() << std::endl;
 			}
 			cout << "----------------------------------------------------------------------" << std::endl;
 		}
@@ -1328,7 +1327,7 @@ void MainForm::action_file_export_midi()
 
 		// create the Standard Midi File object
 		SMFWriter *pSmfWriter = new SMFWriter();
-		pSmfWriter->save( sFilename.toStdString(), pSong );
+		pSmfWriter->save( sFilename, pSong );
 
 		delete pSmfWriter;
 	}
@@ -1421,7 +1420,7 @@ void MainForm::getLatestVersion()
 	QString sRequest = QString("/getLatestVersion.php?UsingVersion=%1").arg(VERSION.c_str());
 	sRequest += QString( "&OS=%1" ).arg( os );
 
-	//INFOLOG( sRequest.toStdString() );
+	//INFOLOG( sRequest );
 
 	QHttpRequestHeader header( "GET", sRequest );
 	header.setValue( "Host", "www.hydrogen-music.org" );
@@ -1444,7 +1443,7 @@ void MainForm::latestVersionDone(bool bError)
 	QString sLatest_major = sLatestVersion.section( '.', 0, 0 );
 	QString sLatest_minor = sLatestVersion.section( '.', 1, 1 );
 	QString sLatest_micro = sLatestVersion.section( '.', 2, 2 );
-//	INFOLOG( "Latest available version is: " + string( sLatestVersion.ascii() ) );
+//	INFOLOG( "Latest available version is: " + QString( sLatestVersion.ascii() ) );
 
 	QString sCurrentVersion = VERSION.c_str();
 	QString sCurrent_major = sCurrentVersion.section( '.', 0, 0 );
@@ -1477,7 +1476,7 @@ void MainForm::latestVersionDone(bool bError)
 	}
 
 	if ( bExistsNewVersion ) {
-		string sLatest = string(sLatest_major.toStdString()) + "." +  string(sLatest_minor.toStdString()) + "." + string(sLatest_micro.toStdString());
+		QString sLatest = QString(sLatest_major) + "." +  QString(sLatest_minor) + "." + QString(sLatest_micro);
 		WARNINGLOG( "\n\n*** A newer version (v" + sLatest + ") of Hydrogen is available at http://www.hydrogen-music.org\n" );
 	}
 
@@ -1485,34 +1484,34 @@ void MainForm::latestVersionDone(bool bError)
 		Preferences *pref = Preferences::getInstance();
 		bool isDevelWarningEnabled = pref->getShowDevelWarning();
 		if(isDevelWarningEnabled) {
-		
+
 			QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 			QMessageBox develMessageBox( this );
 			develMessageBox.setText( msg );
 			develMessageBox.addButton( QMessageBox::Ok );
 			develMessageBox.addButton( trUtf8( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
-			
+
 			if( develMessageBox.exec() == 0 ){
 				//don't show warning again
 				pref->setShowDevelWarning( false );
 			}
 	  }
-	  
+
 
 	}
 }
 
 
 
-std::string MainForm::getAutoSaveFilename()
+QString MainForm::getAutoSaveFilename()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
-	string sOldFilename = pSong->get_filename();
-	string newName = "autosave.h2song";
+	QString sOldFilename = pSong->get_filename();
+	QString newName = "autosave.h2song";
 
 	if ( sOldFilename != "" ) {
-		newName = sOldFilename.substr( 0, sOldFilename.length() - 7 ) + ".autosave.h2song";
+		newName = sOldFilename.left( sOldFilename.length() - 7 ) + ".autosave.h2song";
 	}
 
 	return newName;
@@ -1525,7 +1524,7 @@ void MainForm::onAutoSaveTimer()
 	//INFOLOG( "[onAutoSaveTimer]" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
-	string sOldFilename = pSong->get_filename();
+	QString sOldFilename = pSong->get_filename();
 
 	pSong->save( getAutoSaveFilename() );
 

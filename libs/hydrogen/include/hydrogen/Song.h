@@ -24,7 +24,7 @@
 #define SONG_H
 
 
-#include <string>
+#include <QString>
 #include <vector>
 #include <map>
 
@@ -60,8 +60,8 @@ public:
 	unsigned __resolution;		///< Resolution of the song (number of ticks per quarter)
 	float __bpm;			///< Beats per minute
 	bool __is_modified;
-	std::string __name;		///< song name
-	std::string __author;		///< author of the song
+	QString __name;		///< song name
+	QString __author;		///< author of the song
 
 	/*
 	// internal delay FX
@@ -75,7 +75,7 @@ public:
 	static Song* get_empty_song();
 
 
-	Song( const std::string& name, const std::string& author, float bpm, float volume );
+	Song( const QString& name, const QString& author, float bpm, float volume );
 	~Song();
 
 	void set_volume( float volume ) {
@@ -106,8 +106,8 @@ public:
 		__pattern_group_sequence = vect;
 	}
 
-	static Song* load( const std::string& sFilename );
-	bool save( const std::string& sFilename );
+	static Song* load( const QString& sFilename );
+	bool save( const QString& sFilename );
 
 	InstrumentList* get_instrument_list() {
 		return __instrument_list;
@@ -117,17 +117,17 @@ public:
 	}
 
 
-	void set_notes( const std::string& notes ) {
+	void set_notes( const QString& notes ) {
 		__notes = notes;
 	}
-	std::string get_notes() {
+	const QString& get_notes() {
 		return __notes;
 	}
 
-	std::string get_filename() {
+	const QString& get_filename() {
 		return __filename;
 	}
-	void set_filename( const std::string& filename ) {
+	void set_filename( const QString& filename ) {
 		__filename = filename;
 	}
 
@@ -167,11 +167,11 @@ public:
 private:
 	float __volume;						///< volume of the song (0.0..1.0)
 	float __metronome_volume;				///< Metronome volume
-	std::string __notes;
+	QString __notes;
 	PatternList *__pattern_list;				///< Pattern list
 	std::vector<PatternList*>* __pattern_group_sequence;	///< Sequence of pattern groups
 	InstrumentList *__instrument_list;			///< Instrument list
-	std::string __filename;
+	QString __filename;
 	bool __is_loop_enabled;
 	float __humanize_time_value;
 	float __humanize_velocity_value;
@@ -191,10 +191,10 @@ class SongReader : public Object
 public:
 	SongReader();
 	~SongReader();
-	Song* readSong( const std::string& filename );
+	Song* readSong( const QString& filename );
 
 private:
-	std::string m_sSongVersion;
+	QString m_sSongVersion;
 
 	/// Dato un XmlNode restituisce un oggetto Pattern
 	Pattern* getPattern( ::TiXmlNode* pattern, InstrumentList* instrList );

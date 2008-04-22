@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
 {
 	try {
 
-		string songFilename = "";
+		QString songFilename = "";
 		bool bNoSplash = false;
-		string sSelectedDriver = "";
+		QString sSelectedDriver = "";
 
 #ifdef CONFIG_DEBUG
 		Object::useVerboseLog( true );
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 		struct option *op;
 		char opts[NELEM(long_opts) * 2 + 1];
 
-		// Build up the short option string
+		// Build up the short option QString
 		cp = opts;
 		for (op = long_opts; op < &long_opts[NELEM(long_opts)]; op++) {
 			*cp++ = op->val;
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
 		showInfo();
 
-		_INFOLOG( string("Using QT version ") + string( qVersion() ) );
+		_INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		_INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 			pPref->m_sAudioDriver = "Alsa";
 		}
 
-		QString family = ( pPref->getApplicationFontFamily() ).c_str();
+		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
 
 		QTranslator tor( 0 );
@@ -211,28 +211,28 @@ int main(int argc, char *argv[])
 
 			bool bTransOk = tor.load( total, "." );
 			if ( bTransOk ) {
-				_INFOLOG( "Using locale: " + sTranslationPath.toStdString() + "/" + sTranslationFile.toStdString() );
+				_INFOLOG( QString( "Using locale: %1/%2" ).arg( sTranslationPath ).arg( sTranslationFile ) );
 			}
 			else {
-				sTranslationPath = QString( H2Core::DataPath::get_data_path().c_str() ) + "/i18n";
+				sTranslationPath = H2Core::DataPath::get_data_path() + "/i18n";
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {
-					_INFOLOG( "Using locale: " + sTranslationPath.toStdString() + "/" + sTranslationFile.toStdString() );
+					_INFOLOG( "Using locale: " + sTranslationPath + "/" + sTranslationFile );
 				}
 				else {
-					_INFOLOG( "Warning: no locale found: " + sTranslationPath.toStdString() + "/" + sTranslationFile.toStdString() );
+					_INFOLOG( "Warning: no locale found: " + sTranslationPath + "/" + sTranslationFile );
 				}
 			}
 			if (tor.isEmpty()) {
-				_INFOLOG( "Warning: error loading locale: " +  total.toStdString() );
+				_INFOLOG( "Warning: error loading locale: " +  total );
 			}
 		}
 		pQApp->installTranslator( &tor );
 
-		string sStyle = pPref->getQTStyle();
+		QString sStyle = pPref->getQTStyle();
 		if (sStyle != "" ) {
-			pQApp->setStyle( QString( sStyle.c_str() ) );
+			pQApp->setStyle( sStyle );
 		}
 
 		setPalette( pQApp );
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 
 		int nObj = Object::get_objects_number();
 		if (nObj != 0) {
-			std::cerr << "\n\n\n " << to_string( nObj ) << " alive objects\n\n" << std::endl << std::endl;
+			std::cerr << "\n\n\n " << to_string( nObj ).toStdString() << " alive objects\n\n" << std::endl << std::endl;
 			Object::print_object_map();
 		}
 
@@ -289,9 +289,9 @@ int main(int argc, char *argv[])
  */
 void showInfo()
 {
-	cout << "\nHydrogen " + string(VERSION) + " [" + string(__DATE__) + "]  [http://www.hydrogen-music.org]" << endl;
+	cout << "\nHydrogen " + VERSION + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
-//	_INFOLOG( "Compiled modules: " + string(COMPILED_FEATURES) << endl;
+//	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
 	if ( Object::is_using_verbose_log() ) {
 		cout << "\nVerbose log mode = active" << endl;

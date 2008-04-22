@@ -38,7 +38,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 
 	this->pattern = pattern;
 
-	patternNameTxt->setText( trUtf8( (pattern->get_name().c_str() ) ) );
+	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
 }
 
@@ -60,7 +60,7 @@ void PatternPropertiesDialog::on_cancelBtn_clicked() {
 
 
 void PatternPropertiesDialog::on_okBtn_clicked() {
-	string pattName = patternNameTxt->text().toStdString();
+	QString pattName = patternNameTxt->text();
 
 	pattern->set_name(pattName);
 	accept();
@@ -75,7 +75,7 @@ void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
 
 	bool valid = true;
 
-	string pattName = patternNameTxt->text().toStdString();
+	QString pattName = patternNameTxt->text();
 	if (pattName == "") {
 		valid = false;
 	}

@@ -199,9 +199,9 @@ void PortMidiDriver::close()
 
 
 
-std::vector<std::string> PortMidiDriver::getOutputPortList()
+std::vector<QString> PortMidiDriver::getOutputPortList()
 {
-	std::vector<std::string> portList;
+	std::vector<QString> portList;
 
 	int nDevices = Pm_CountDevices();
 	for ( int i = 0; i < nDevices; i++ ) {

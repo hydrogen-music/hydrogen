@@ -161,7 +161,7 @@ void LCDCombo::set_text( const QString &text)
 	if (display->getText() == text) {
 		return;
 	}
-	INFOLOG(text.toStdString());
+	//INFOLOG( text );
 	display->setText( text );
 	emit valueChanged( text );
 }

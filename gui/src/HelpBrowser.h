@@ -28,7 +28,6 @@
 
 using std::cout;
 #include <string>
-using std::string;
 
 #include <QShowEvent>
 #include <QResizeEvent>
@@ -48,7 +47,7 @@ class SimpleHTMLBrowser : public QDialog, public Object
 			MANUAL
 		};
 
-		SimpleHTMLBrowser( QWidget *pParent, const std::string& sDataPath, const std::string& sFilename, SimpleHTMLBrowserType type );
+		SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, SimpleHTMLBrowserType type );
 		~SimpleHTMLBrowser();
 
 	public slots:
@@ -63,8 +62,8 @@ class SimpleHTMLBrowser : public QDialog, public Object
 		QPushButton *m_pCloseWindowBtn;
 		QPushButton *m_pDocHomeBtn;
 
-		string m_sDataPath;
-		string m_sFilename;
+		QString m_sDataPath;
+		QString m_sFilename;
 
 		virtual void showEvent ( QShowEvent *ev );
 		virtual void resizeEvent( QResizeEvent *ev );

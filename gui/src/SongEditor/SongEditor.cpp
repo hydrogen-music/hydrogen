@@ -791,7 +791,7 @@ void SongEditorPatternList::createBackground()
 	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
 
-	QString family = pref->getApplicationFontFamily().c_str();
+	QString family = pref->getApplicationFontFamily();
 	int size = pref->getApplicationFontPointSize();
 	QFont textFont( family, size );
 
@@ -870,7 +870,7 @@ void SongEditorPatternList::createBackground()
 		}
 
 
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name().c_str() );
+		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name() );
 	}
 
 }
@@ -883,8 +883,8 @@ void SongEditorPatternList::patternPopup_save()
 	Song *song = engine->getSong();
 	Pattern *pat = song->get_pattern_list()->get( nSelectedPattern );
 
-	std::string patternname = pat->get_name();
-	std::string realpatternname = patternname;
+	QString patternname = pat->get_name();
+	QString realpatternname = patternname;
 
 	LocalFileMng fileMng;
 	int err = fileMng.savePattern( song , nSelectedPattern, patternname, realpatternname, 1 );
@@ -1197,7 +1197,7 @@ void SongEditorPositionRuler::createBackground()
 	m_pBackgroundPixmap->fill( backgroundColor );
 
 	Preferences *pref = Preferences::getInstance();
-	QString family = pref->getApplicationFontFamily().c_str();
+	QString family = pref->getApplicationFontFamily();
 	int size = pref->getApplicationFontPointSize();
 	QFont font( family, size );
 

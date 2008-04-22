@@ -33,7 +33,7 @@
 class PixmapWidget : public Object, public QWidget
 {
 	public:
-		PixmapWidget( QWidget *pParent, const std::string& sClassName = "PixmapWidget" );
+		PixmapWidget( QWidget *pParent, const QString& sClassName = "PixmapWidget" );
 		~PixmapWidget();
 
 		void setPixmap( QString sPixmapPath, bool expand_horiz = false );
