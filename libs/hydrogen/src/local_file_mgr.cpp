@@ -649,6 +649,76 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	return 0; // ok
 }
 
+int LocalFileMng::savePlayList( const std::string& patternname)
+{
+	TiXmlDocument doc = patternname.c_str();
+	std::string name = patternname.c_str();
+
+	std::string realname = name.substr(name.rfind("/")+1);
+
+	
+	TiXmlElement rootNode( "playlist" );
+	//LIB_ID just in work to get better usability
+	writeXmlString( &rootNode, "Name", QString (realname.c_str()) );
+	writeXmlString( &rootNode, "LIB_ID", "in_work" );
+		
+	TiXmlElement playlistNode( "Songs" );
+			for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
+			TiXmlElement nextNode( "next" );
+			LocalFileMng::writeXmlString ( &nextNode, "song", Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+			LocalFileMng::writeXmlString ( &nextNode, "script", Hydrogen::get_instance()->m_PlayList[i].m_hScript );
+			LocalFileMng::writeXmlString ( &nextNode, "enabled", Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled );
+			playlistNode.InsertEndChild( nextNode );
+	}
+
+	rootNode.InsertEndChild( playlistNode );
+	doc.InsertEndChild( rootNode );
+	doc.SaveFile();
+	return 0; // ok
+
+}
+
+int LocalFileMng::loadPlayList( const std::string& patternname)
+{
+
+	
+	std::string playlistInfoFile = patternname;
+	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
+	if ( verify == NULL ) {
+		//ERRORLOG( "Load Playlist: Data file " + playlistInfoFile + " not found." );
+		return NULL;
+	}
+
+	TiXmlDocument doc( playlistInfoFile.c_str() );
+	doc.LoadFile();
+
+	Hydrogen::get_instance()->m_PlayList.clear();
+
+	TiXmlNode* rootNode;	// root element
+		if ( !( rootNode = doc.FirstChild( "playlist" ) ) ) {
+		ERRORLOG( "Error reading playlist: playlist node not found" );
+		return NULL;
+	}
+	
+	TiXmlNode* playlistNode = rootNode->FirstChild( "Songs" );
+
+	if ( playlistNode ) {
+		// new code :)
+		Hydrogen::get_instance()->m_PlayList.clear();
+		for ( TiXmlNode* nextNode = playlistNode->FirstChild( "next" ); nextNode; nextNode = nextNode->NextSibling( "next" ) ) {
+			std::string song =  LocalFileMng::readXmlString( nextNode, "song", "" ).toStdString();
+			std::string script = LocalFileMng::readXmlString( nextNode, "script", "" ).toStdString();
+			std::string ScriptEnabled = LocalFileMng::readXmlString( nextNode, "enabled", "" ).toStdString();
+
+			Hydrogen::HPlayListNode playListItem;
+			playListItem.m_hFile = song.c_str();
+			playListItem.m_hScript = script.c_str();
+			playListItem.m_hScriptEnabled = ScriptEnabled.c_str();
+			Hydrogen::get_instance()->m_PlayList.push_back( playListItem );	
+		}
+	}
+	return 0; // ok
+}
 
 
 

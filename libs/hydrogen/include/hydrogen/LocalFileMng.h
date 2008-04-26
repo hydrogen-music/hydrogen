@@ -67,6 +67,9 @@ public:
 	Pattern* loadPattern( const QString& directory );
 	int savePattern( Song *song , int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
 
+	int savePlayList( const std::string& patternname );
+	int loadPlayList( const std::string& patternname);
+
 	static QString readXmlString( ::TiXmlNode* parent, const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static int readXmlInt( ::TiXmlNode* parent, const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
 	static float readXmlFloat( ::TiXmlNode* parent, const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );

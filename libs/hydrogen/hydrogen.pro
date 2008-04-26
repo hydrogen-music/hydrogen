@@ -53,6 +53,7 @@ HEADERS += \
 		include/hydrogen/globals.h \
 		include/hydrogen/instrument.h \
 		include/hydrogen/Pattern.h \
+		include/hydrogen/playlist.h \
 		include/hydrogen/sample.h \
 		include/hydrogen/data_path.h \
 		include/hydrogen/event_queue.h \
@@ -140,6 +141,7 @@ SOURCES += \
 		src/note.cpp \
 		src/object.cpp \
 		src/pattern.cpp \
+		src/playlist.cpp \
 		src/preferences.cpp \
 		src/sample.cpp \
 		src/song.cpp \

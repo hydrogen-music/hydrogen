@@ -172,7 +172,8 @@ public:
 	bool m_bJackConnectDefaults;
 	int m_nJackTrackOutputMode;
 
-
+	///Default text editor (used by Playlisteditor)
+	QString m_sDefaultEditor;
 
 	/// Returns an instance of PreferencesMng class
 	static Preferences* getInstance();
@@ -190,6 +191,14 @@ public:
 	}
 	const QString& getDataDirectory() {
 		return m_sDataDirectory;
+	}
+	
+	const QString& getDefaultEditor() {
+		return m_sDefaultEditor;
+	}
+
+	void setDefaultEditor( QString editor){
+		m_sDefaultEditor = editor;
 	}
 
 

@@ -387,6 +387,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				// last used song
 				lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", lastSongFilename, true );
+				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
 			}
 		} // rootNode
 		else {
@@ -591,6 +592,7 @@ void Preferences::savePreferences()
 	{
 		// last used song
 		LocalFileMng::writeXmlString( &filesNode, "lastSongFilename", lastSongFilename );
+	//LocalFileMng::writeXmlString( &filesNode, "defaulteditor", m_sDefaultEditor );
 	}
 	rootNode.InsertEndChild( filesNode );
 

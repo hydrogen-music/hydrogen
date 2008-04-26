@@ -147,6 +147,16 @@ public:
 	void setSelectedInstrumentNumber( int nInstrument );
 	void renameJackPorts();
 
+	///playlist vector
+	struct HPlayListNode
+	{
+		QString m_hFile;
+		QString m_hScript;
+		QString m_hScriptEnabled;
+	};
+
+	std::vector<HPlayListNode> m_PlayList;
+
 private:
 	static Hydrogen* instance;
 
