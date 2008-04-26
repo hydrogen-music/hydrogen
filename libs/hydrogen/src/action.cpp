@@ -26,7 +26,7 @@
 action::action()
 	: Object("Action") {
 
-	std::string actionList[] = { 
+	QString actionList[] = { 
 			
 			"PLAY",
 			"STOP",
@@ -40,13 +40,13 @@ action::action()
 	};
 }
 
-std::string action::getType()
+QString action::getType()
 {
 	return type;
 }
 
 
-void action::setType(std::string aType)
+void action::setType(QString aType)
 {
 	type = aType;
 }

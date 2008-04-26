@@ -25,14 +25,14 @@ class action : public Object
 {
 
 private:
-	std::string type;
+	QString type;
 
 public:
-	void setType( std::string );
-	std::string getType();
+	void setType( QString );
+	QString getType();
 	action();
 
-	std::string actionList[];
+	QString actionList[];
 
 
 };

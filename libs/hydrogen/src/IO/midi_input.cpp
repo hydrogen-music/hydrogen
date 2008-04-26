@@ -246,7 +246,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			case 1:	// STOP
 			{
 				action *stopAction = new action;
- 				stopAction->setType( "STOP" );
+ 				stopAction->setType( QString("STOP") );
 				Hydrogen::get_instance()->handleAction(stopAction);
 				break;
 			}
@@ -255,7 +255,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			{
 				
 				action *startAction = new action;
- 				startAction->setType( "PLAY" );
+ 				startAction->setType( QString("PLAY") );
 				Hydrogen::get_instance()->handleAction(startAction);
 				break;
 			}
@@ -263,7 +263,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			case 3:	//DEFERRED PLAY
 			{
 				action *startAction = new action;
-				startAction->setType( "PLAY" );
+				startAction->setType( QString("PLAY") );
 				Hydrogen::get_instance()->handleAction(startAction);
 				
 				break;
