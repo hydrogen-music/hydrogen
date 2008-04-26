@@ -98,7 +98,8 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 	
 		selText = selectedItems.takeFirst()->text();
 
-		pPref->sServerList.erase(std::remove(pPref->sServerList.begin(), pPref->sServerList.end(), selText), pPref->sServerList.end() );
+		pPref->sServerList.remove(selText);
+
 	}
 	updateDialog();
 }
