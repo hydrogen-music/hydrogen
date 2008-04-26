@@ -2372,33 +2372,30 @@ bool Hydrogen::handleAction( action *pAction )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	switch( pAction->getType())
+	if( pAction->getType() == "PLAY_TOGGLE" )
 	{
-		case PLAY:
+		int nState = pEngine->getState();
+		switch (nState) 
 		{
-			int nState = pEngine->getState();
-			switch (nState)
-			{
-				case STATE_READY:
-					pEngine->sequencer_play();
-					break;
+			case STATE_READY:
+				pEngine->sequencer_play();
+				break;
 
-				case STATE_PLAYING:
-					pEngine->sequencer_stop();
-					break;
+			case STATE_PLAYING:
+				pEngine->sequencer_stop();
+				break;
 
-				default:
-					ERRORLOG( "[Hydrogen::actionHandler(PLAY): Unhandled case" );
-			}
-			break;
+			default:
+				ERRORLOG( "[Hydrogen::actionHandler(PLAY): Unhandled case" );
 		}
-
-		case STOP:
-			pEngine->sequencer_stop();
-			pEngine->setPatternPos( 0 );
-			break;
-
 	}
+
+	if( pAction->getType() == "STOP" )
+	{	
+		pEngine->sequencer_stop();
+		pEngine->setPatternPos( 0 );
+	}
+
 	return true;
 }
 

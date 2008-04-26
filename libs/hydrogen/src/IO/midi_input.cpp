@@ -240,23 +240,22 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		    ( msg.m_sysexData[2] == 127 ) &&
 		    ( msg.m_sysexData[3] == 6 ) ) {
 
-			//Hydrogen *pEngine = Hydrogen::get_instance();
-
-
+			
 			switch ( msg.m_sysexData[4] ) {
 
 			case 1:	// STOP
 			{
 				action *stopAction = new action;
- 				stopAction->setType( STOP );
+ 				stopAction->setType( "STOP" );
 				Hydrogen::get_instance()->handleAction(stopAction);
 				break;
 			}
 
 			case 2:	// PLAY
 			{
+				
 				action *startAction = new action;
- 				startAction->setType( PLAY );
+ 				startAction->setType( "PLAY" );
 				Hydrogen::get_instance()->handleAction(startAction);
 				break;
 			}
@@ -264,8 +263,9 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			case 3:	//DEFERRED PLAY
 			{
 				action *startAction = new action;
- 				startAction->setType( PLAY );
+				startAction->setType( "PLAY" );
 				Hydrogen::get_instance()->handleAction(startAction);
+				
 				break;
 			}
 

@@ -21,18 +21,32 @@
  */
 
 #include <hydrogen/action.h>
+#include <vector>
 
 action::action()
 	: Object("Action") {
+
+	std::string actionList[] = { 
+			
+			"PLAY",
+			"STOP",
+			"TOGGLE_PLAY", 
+			"NEXT_PATTERN",
+			"PREVIOUS_PATTERN",
+			"MUTE",
+			"UNMUTE",
+			"TOGGLE_MUTE"
+
+	};
 }
 
-actionType action::getType()
+std::string action::getType()
 {
 	return type;
 }
 
 
-void action::setType(actionType aType)
+void action::setType(std::string aType)
 {
 	type = aType;
 }

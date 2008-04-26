@@ -21,26 +21,18 @@
  */
 #include <hydrogen/Object.h>
 
-enum actionType {
-		PLAY,
-		TOGGLE_PLAY,
-		NEXT_PATTERN,
-		PREVIOUS_PATTERN,
-		INC_METRONOME_10,
-		DEC_METRONOME_10,
-		MUTE,
-		STOP,
-		FADE_OUT_STOP
-};
-
 class action : public Object 
 {
 
 private:
-	actionType type;
+	std::string type;
 
 public:
-	void setType( actionType );
-	actionType getType();
+	void setType( std::string );
+	std::string getType();
 	action();
+
+	std::string actionList[];
+
+
 };
