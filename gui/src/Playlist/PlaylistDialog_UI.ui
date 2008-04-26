@@ -1,0 +1,247 @@
+<ui version="4.0" >
+ <class>PlaylistDialog_UI</class>
+ <widget class="QDialog" name="PlaylistDialog_UI" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>902</width>
+    <height>386</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>PlayList Browser</string>
+  </property>
+  <widget class="QWidget" name="layoutWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>11</x>
+     <y>10</y>
+     <width>873</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" >
+    <item row="0" column="0" >
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QPushButton" name="addSongBTN" >
+        <property name="text" >
+         <string>Add H2song to playlist</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="removeFromListBTN" >
+        <property name="text" >
+         <string>Remove Song from playlist</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>41</width>
+          <height>26</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="loadScriptBTN" >
+        <property name="text" >
+         <string>Load Script</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="removeScriptBTN" >
+        <property name="text" >
+         <string>Remove Script</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>Load / Remove a script to execute with the selected song     </string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0" >
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QTreeWidget" name="m_pPlaylistTree" >
+        <property name="acceptDrops" >
+         <bool>false</bool>
+        </property>
+        <property name="verticalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="tabKeyNavigation" >
+         <bool>true</bool>
+        </property>
+        <property name="showDropIndicator" stdset="0" >
+         <bool>false</bool>
+        </property>
+        <property name="dragEnabled" >
+         <bool>false</bool>
+        </property>
+        <property name="dragDropOverwriteMode" >
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode" >
+         <enum>QAbstractItemView::NoDragDrop</enum>
+        </property>
+        <property name="rootIsDecorated" >
+         <bool>true</bool>
+        </property>
+        <property name="uniformRowHeights" >
+         <bool>true</bool>
+        </property>
+        <property name="itemsExpandable" >
+         <bool>false</bool>
+        </property>
+        <property name="sortingEnabled" >
+         <bool>false</bool>
+        </property>
+        <property name="move" stdset="0" >
+         <stringlist/>
+        </property>
+        <column>
+         <property name="text" >
+          <string>H2Song List</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="QToolButton" name="upBTN" >
+          <property name="toolTip" >
+           <string>sort selectet up</string>
+          </property>
+          <property name="text" >
+           <string>u</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="downBTN" >
+          <property name="cursor" >
+           <cursorShape>ArrowCursor</cursorShape>
+          </property>
+          <property name="toolTip" >
+           <string>sort selectet down</string>
+          </property>
+          <property name="text" >
+           <string>d</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0" >
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QPushButton" name="loadListBTN" >
+        <property name="text" >
+         <string>Load List</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2" >
+       <widget class="QPushButton" name="saveListBTN" >
+        <property name="text" >
+         <string>Save List</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="4" >
+       <widget class="QPushButton" name="editScriptBTN" >
+        <property name="text" >
+         <string>Edit Script</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5" >
+       <widget class="QCheckBox" name="enableScriptcheckBox" >
+        <property name="text" >
+         <string>Enable selected Script</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QCheckBox" name="useMidicheckBox" >
+        <property name="text" >
+         <string>Use PC Midi to select song</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QPushButton" name="nodePlayBTN" >
+        <property name="text" >
+         <string>Play Selectet</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QPushButton" name="nodeStopBTN" >
+        <property name="text" >
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>181</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="4" colspan="2" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Open the selected script with your preferred editor     </string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

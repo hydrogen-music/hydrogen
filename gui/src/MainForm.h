@@ -85,6 +85,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 
 
 		void action_window_showMixer();
+		void action_window_showPlaylistDialog();
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
 		void action_window_showDrumkitManager();

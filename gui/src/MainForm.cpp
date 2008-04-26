@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/playlist.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
@@ -51,6 +52,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
+#include "Playlist/PlaylistDialog.h"
 
 #include <QtGui>
 
@@ -151,6 +153,7 @@ MainForm::~MainForm()
 	hide();
 
 	if (h2app != NULL) {
+		Playlist::get_instances()->~Playlist();
 		delete h2app;
 		h2app = NULL;
 	}
@@ -225,6 +228,7 @@ void MainForm::createMenuBar()
 //	if ( Preferences::getInstance()->getInterfaceMode() == Preferences::SINGLE_PANED ) {
 //		m_pWindowMenu->addAction( trUtf8("Show song editor"), this, SLOT( action_window_showSongEditor() ), QKeySequence( "" ) );
 //	}
+	m_pToolsMenu->addAction( trUtf8("Playlist editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 
 	m_pToolsMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 
@@ -686,7 +690,12 @@ void MainForm::showPreferencesDialog()
 }
 
 
-
+void MainForm::action_window_showPlaylistDialog()
+{
+	PlaylistDialog dialog(this);
+	dialog.exec();
+	
+}
 
 void MainForm::action_window_showMixer()
 {
@@ -1198,6 +1207,21 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				onSaveAccelEvent();
 				return TRUE;
 				break;
+			
+			case  Qt::Key_PageUp :
+				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+					break;
+				Playlist::get_instances()->setPrevSongPlaylist();
+				return TRUE;
+				break;
+
+			case  Qt::Key_PageDown :
+				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+					break;
+				Playlist::get_instances()->setNextSongPlaylist();
+				return TRUE;
+				break;
+			
 		// 	QAccel *a = new QAccel( this );
 // 	a->connectItem( a->insertItem(Key_S + CTRL), this, SLOT( onSaveAccelEvent() ) );
 // 	a->connectItem( a->insertItem(Key_O + CTRL), this, SLOT( onOpenAccelEvent() ) );
