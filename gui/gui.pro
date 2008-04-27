@@ -141,7 +141,7 @@ FORMS    = \
 	src/UI/PatternPropertiesDialog_UI.ui \
 	src/UI/PreferencesDialog_UI.ui \
 	src/UI/SongPropertiesDialog_UI.ui \
-	src/Playlist/PlaylistDialog_UI.ui \
+	src/PlaylistEditor/PlaylistDialog_UI.ui \
 	src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui \
 	src/SoundLibrary/SoundLibraryImportDialog_UI.ui \
 	src/SoundLibrary/SoundLibrarySaveDialog_UI.ui
@@ -182,7 +182,7 @@ SOURCES += \
 	src/PatternEditor/NotePropertiesRuler.cpp \
 	src/PatternEditor/PianoRollEditor.cpp \
 	\
-	src/Playlist/PlaylistDialog.cpp \
+	src/PlaylistEditor/PlaylistDialog.cpp \
 	\
 	src/Mixer/Mixer.cpp \
 	src/Mixer/MixerLine.cpp \
@@ -240,7 +240,7 @@ HEADERS += \
 	src/PatternEditor/NotePropertiesRuler.h \
 	src/PatternEditor/PianoRollEditor.h \
 	\
-	src/Playlist/PlaylistDialog.h \
+	src/PlaylistEditor/PlaylistDialog.h \
 	\
 	src/Mixer/Mixer.h \
 	src/Mixer/MixerLine.h \
