@@ -52,7 +52,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
-#include "Playlist/PlaylistDialog.h"
+#include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
 

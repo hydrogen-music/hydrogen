@@ -86,10 +86,10 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 			useMidicheckBox->setChecked (true);
 			break;
 	}*/
-	useMidicheckBox->setChecked (false);
+	useMidicheckBox->setChecked ( false );
 
 //restore the playlist
-	if(Hydrogen::get_instance()->m_PlayList.size() > 0){
+	if( Hydrogen::get_instance()->m_PlayList.size() > 0 ){
 		for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 			m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
@@ -123,8 +123,8 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		}
 
 	QTimer *timer = new QTimer( this );
-	connect(timer, SIGNAL(timeout()), this, SLOT(updateActivSongNumber()));
-	timer->start(1000);	// update player control at 1 fps
+	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActivSongNumber() ) );
+	timer->start( 1000 );	// update player control at 1 fps
 
 }
 
@@ -400,9 +400,9 @@ void PlaylistDialog::on_editScriptBTN_clicked()
 	}
 
 	char *file;
-	file = new char[filename.length() + 1];
-	strcpy(file, filename.c_str());
-	std::system(file); 
+	file = new char[ filename.length() + 1 ];
+	strcpy( file , filename.c_str() );
+	std::system( file ); 
 	delete [] file;
 	return;
 }
@@ -508,13 +508,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemSelectionChanged()
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 	Playlist::get_instances()->setSelectedSongNr( index );	
-/*
-//debug
-	int nummer = Playlist::get_instances()->getSelectedSongNr();
-	QString nmb = QString::number(nummer, 2);
-	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "songnummer " ) + nmb );
-//debug ende
-*/
+
 	if( selected == "Script not used" ){
 		enableScriptcheckBox->setChecked ( false );
 		return;
@@ -536,8 +530,6 @@ void PlaylistDialog::on_nodePlayBTN_clicked()
 	selected = m_pPlaylistItem->text ( 0 );
 
 	
-	//	std::string name = selected.toStdString();
-
 	HydrogenApp *pH2App = HydrogenApp::getInstance();
 	Hydrogen *engine = Hydrogen::get_instance();
 	
@@ -557,8 +549,6 @@ void PlaylistDialog::on_nodePlayBTN_clicked()
 	engine->setSelectedPatternNumber ( 0 );
 
 	Hydrogen::get_instance()->sequencer_play();
-
-
 }
 
 
@@ -584,8 +574,6 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 	Playlist::get_instances()->setActiveSongNumber( index );
 	
-	//std::string name = selected.toStdString();
-
 	HydrogenApp *pH2App = HydrogenApp::getInstance();
 	Hydrogen *engine = Hydrogen::get_instance();
 	
@@ -617,14 +605,16 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script selected!" ));
 		return;
 	}
+
 	if( execscript == "Script not used"){
 		//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script not in use!" ));
 		return;
 	}
+
 	char *file;
-	file = new char[filename.length() + 1];
-	strcpy(file, filename.c_str());
-	std::system(file); 
+	file = new char[ filename.length() + 1 ];
+	strcpy( file , filename.c_str() );
+	std::system( file ); 
 	delete [] file;
 	return;
 
@@ -658,7 +648,7 @@ void PlaylistDialog::updateActivSongNumber()
 	//	return;
 			
 	int selected = Playlist::get_instances()->getActiveSongNumber();
-	if (selected == -1) 
+	if ( selected == -1 ) 
 		return;
 	
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
