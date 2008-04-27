@@ -119,7 +119,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
 
 	// JACK
-	//trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
+	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
 	trackOutputComboBox->setCurrentIndex( pPref->m_nJackTrackOutputMode );
 	//~ JACK
@@ -275,7 +275,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	// JACK
-	//pPref->m_bJackTrackOuts = trackOutsCheckBox->isChecked();
+	pPref->m_bJackTrackOuts = trackOutsCheckBox->isChecked();
 	pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
 
 	
@@ -424,6 +424,7 @@ void PreferencesDialog::updateDriverInfo()
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->setEnabled( false );
+		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
@@ -437,6 +438,7 @@ void PreferencesDialog::updateDriverInfo()
 		sampleRateComboBox->setEnabled(false);
 		trackOutputComboBox->setEnabled( true );
 		connectDefaultsCheckBox->setEnabled(true);
+		trackOutsCheckBox->setEnabled( true );
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info += trUtf8("<b>ALSA Driver</b><br>");
@@ -448,6 +450,7 @@ void PreferencesDialog::updateDriverInfo()
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->setEnabled( false );
+		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
@@ -459,6 +462,7 @@ void PreferencesDialog::updateDriverInfo()
 		m_pAudioDeviceTxt->setText( "" );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
+		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
@@ -471,6 +475,7 @@ void PreferencesDialog::updateDriverInfo()
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->setEnabled( false );
+		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else {

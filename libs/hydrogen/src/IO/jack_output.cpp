@@ -67,7 +67,7 @@ JackOutput::JackOutput( JackProcessCallback processCallback )
 		: AudioOutput( "JackOutput" )
 {
 	INFOLOG( "INIT" );
-	__track_out_enabled = true;	// allow per-track output
+	__track_out_enabled = Preferences::getInstance()->m_bJackTrackOuts;	// allow per-track output
 
 	jackDriverInstance = this;
 	this->processCallback = processCallback;
@@ -444,8 +444,9 @@ int JackOutput::init( unsigned nBufferSize )
 void JackOutput::makeTrackOutputs( Song * song )
 {
 
-	/// Disabled
-//	return;
+	/// Disable Track Outputs
+	if( Preferences::getInstance()->m_bJackTrackOuts == false )
+			return;
 	///
 
 	InstrumentList * instruments = song->get_instrument_list();

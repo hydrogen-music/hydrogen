@@ -70,6 +70,7 @@ Preferences::Preferences()
 
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
+	m_bJackTrackOuts = false;
 
 	//server list
 	std::list<QString> sServerList;
@@ -283,7 +284,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( sMode == "USE_JACK_TRANSPORT" ) {
 						m_bJackTransportMode = USE_JACK_TRANSPORT;
 					}
-					//m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
+					m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
 					m_bJackConnectDefaults = LocalFileMng::readXmlBool( jackDriverNode, "jack_connect_defaults", m_bJackConnectDefaults );
 
 					m_nJackTrackOutputMode = LocalFileMng::readXmlInt( jackDriverNode, "jack_track_output_mode", m_nJackTrackOutputMode );
@@ -515,11 +516,11 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( &jackDriverNode, "jack_track_output_mode", to_string ( m_nJackTrackOutputMode ));
 
 			// jack track outs
-			//string jackTrackOutsString = "false";
-			//if (m_bJackTrackOuts) {
-			//	jackTrackOutsString = "true";
-			//}
-			//LocalFileMng::writeXmlString( &jackDriverNode, "jack_track_outs", jackTrackOutsString );
+			QString jackTrackOutsString = "false";
+			if ( m_bJackTrackOuts ) {
+				jackTrackOutsString = "true";
+			}
+			LocalFileMng::writeXmlString( &jackDriverNode, "jack_track_outs", jackTrackOutsString );
 
 		}
 		audioEngineNode.InsertEndChild( jackDriverNode );

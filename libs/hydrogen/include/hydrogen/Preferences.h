@@ -170,6 +170,7 @@ public:
 	QString m_sJackPortName2;
 	bool m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
+	bool m_bJackTrackOuts;
 	int m_nJackTrackOutputMode;
 
 	///Default text editor (used by Playlisteditor)

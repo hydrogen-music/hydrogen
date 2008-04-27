@@ -474,6 +474,22 @@
       </item>
      </layout>
     </widget>
+    <widget class="QCheckBox" name="trackOutsCheckBox" >
+     <property name="geometry" >
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>291</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Track Outputs</string>
+     </property>
+     <property name="shortcut" >
+      <string>Alt+D</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab" >
     <attribute name="title" >
