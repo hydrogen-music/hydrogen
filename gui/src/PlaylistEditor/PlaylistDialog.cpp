@@ -55,7 +55,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	
 	
 	QStringList headers;
-	headers << trUtf8 ( "H2song List" ) << trUtf8 ( "Script" ) << trUtf8 ( "exec Script" );
+	headers << trUtf8 ( "Song list" ) << trUtf8 ( "Script" ) << trUtf8 ( "exec Script" );
 	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
 	m_pPlaylistTree->setHeaderItem ( header );
 	m_pPlaylistTree->header()->resizeSection ( 0, 360 );
@@ -74,9 +74,10 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	enableScriptcheckBox->setEnabled ( false );
 	useMidicheckBox->setEnabled ( true );
 
+	/*
 	Preferences *pPref = Preferences::getInstance();
 
-	/*
+	
 	switch ( pPref->m_usepcmidi ) {
 		case Preferences::USE_PC_MIDI_PLAYLIST_OFF:
 			useMidicheckBox->setChecked (false);
@@ -105,7 +106,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		editScriptBTN->setEnabled ( true );
 		enableScriptcheckBox->setEnabled ( true );
 
-//restore the selected item		
+		//restore the selected item		
 		int selected = Playlist::get_instances()->getActiveSongNumber();
 		int Selected = Playlist::get_instances()->getSelectedSongNr();
 		if( selected == -1 && Selected == -1 ) return;
@@ -185,7 +186,7 @@ void PlaylistDialog::on_removeFromListBTN_clicked()
 			return;
 		}else
 		{	
-			///segfault if the last item will be removed!!
+			///avoid segfault if the last item will be removed!!
 			delete m_pPlaylistItem;
 			updatePlayListVector();
 		}

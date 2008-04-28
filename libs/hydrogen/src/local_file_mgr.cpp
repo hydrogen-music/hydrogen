@@ -335,7 +335,7 @@ std::vector<QString> LocalFileMng::getUserDrumkitList()
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = fileList.at( i ).fileName();
 			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) || 
-			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" )) {
+			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" || sFile == "playlists" )) {
 				continue;
 			}
 			list.push_back( sFile );

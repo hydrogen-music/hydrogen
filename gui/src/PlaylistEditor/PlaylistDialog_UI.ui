@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>902</width>
-    <height>386</height>
+    <width>1024</width>
+    <height>721</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -17,7 +17,7 @@
     <rect>
      <x>11</x>
      <y>10</y>
-     <width>873</width>
+     <width>947</width>
      <height>361</height>
     </rect>
    </property>
@@ -27,14 +27,14 @@
       <item>
        <widget class="QPushButton" name="addSongBTN" >
         <property name="text" >
-         <string>Add H2song to playlist</string>
+         <string>Add song to playlist</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="removeFromListBTN" >
         <property name="text" >
-         <string>Remove Song from playlist</string>
+         <string>Remove song from playlist</string>
         </property>
        </widget>
       </item>
@@ -43,7 +43,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" stdset="0" >
+        <property name="sizeHint" >
          <size>
           <width>41</width>
           <height>26</height>
@@ -54,21 +54,14 @@
       <item>
        <widget class="QPushButton" name="loadScriptBTN" >
         <property name="text" >
-         <string>Load Script</string>
+         <string>Load script</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="removeScriptBTN" >
         <property name="text" >
-         <string>Remove Script</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2" >
-        <property name="text" >
-         <string>Load / Remove a script to execute with the selected song     </string>
+         <string>Remove script</string>
         </property>
        </widget>
       </item>
@@ -119,7 +112,7 @@
         </property>
         <column>
          <property name="text" >
-          <string>H2Song List</string>
+          <string>Song list</string>
          </property>
         </column>
        </widget>
@@ -158,14 +151,14 @@
       <item row="0" column="0" >
        <widget class="QPushButton" name="loadListBTN" >
         <property name="text" >
-         <string>Load List</string>
+         <string>Load list</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1" colspan="2" >
        <widget class="QPushButton" name="saveListBTN" >
         <property name="text" >
-         <string>Save List</string>
+         <string>Save list</string>
         </property>
        </widget>
       </item>
@@ -174,7 +167,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" stdset="0" >
+        <property name="sizeHint" >
          <size>
           <width>40</width>
           <height>20</height>
@@ -185,7 +178,7 @@
       <item row="0" column="4" >
        <widget class="QPushButton" name="editScriptBTN" >
         <property name="text" >
-         <string>Edit Script</string>
+         <string>Edit script</string>
         </property>
        </widget>
       </item>
@@ -206,7 +199,7 @@
       <item row="1" column="1" >
        <widget class="QPushButton" name="nodePlayBTN" >
         <property name="text" >
-         <string>Play Selectet</string>
+         <string>Play selected</string>
         </property>
        </widget>
       </item>
@@ -222,7 +215,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" stdset="0" >
+        <property name="sizeHint" >
          <size>
           <width>181</width>
           <height>20</height>

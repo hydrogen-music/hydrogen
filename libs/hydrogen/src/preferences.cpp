@@ -636,18 +636,20 @@ void Preferences::createSoundLibraryDirectories()
 	QString sDrumkitDir;
 	QString sSongDir;
 	QString sPatternDir;
+	QString sPlaylistDir;
 
 	INFOLOG( "Creating soundLibrary directories in " + sDir );
 	
 	sDrumkitDir = sDir + "/drumkits";
 	sSongDir = sDir + "/songs";
 	sPatternDir = sDir + "/patterns";
+	sPlaylistDir = sDir + "/playlists";
 
 	QDir dir;
 	dir.mkdir( sDrumkitDir );
 	dir.mkdir( sSongDir );
 	dir.mkdir( sPatternDir );
-	//	mkdir(dir.c_str(),S_IRWXU);
+	dir.mkdir( sPlaylistDir );
 }
 
 
