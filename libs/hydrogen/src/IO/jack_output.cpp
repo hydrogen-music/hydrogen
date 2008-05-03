@@ -202,10 +202,10 @@ void JackOutput::relocateBBT()
 
 	long bar_ticks = 0;
 	if ( S->get_mode() == Song::SONG_MODE ) {
-		bar_ticks = H->getTickForPosition( m_JackTransportPos.bar ); // (Reasonable?) assumption that one pattern is _always_ 1 bar long!
+		bar_ticks = H->getTickForPosition( m_JackTransportPos.bar -1 ); // (Reasonable?) assumption that one pattern is _always_ 1 bar long!
 		if ( bar_ticks < 0 ) bar_ticks = 0; // ignore error NOTE This is wrong -- if loop state is off, transport should just stop ??
 	}
-	float hydrogen_ticks_to_locate =  bar_ticks + ( m_JackTransportPos.beat-1 )*hydrogen_TPB + m_JackTransportPos.tick*( hydrogen_TPB/m_JackTransportPos.ticks_per_beat );
+	float hydrogen_ticks_to_locate =  bar_ticks + ( m_JackTransportPos.beat -1 )*hydrogen_TPB + m_JackTransportPos.tick*( hydrogen_TPB/m_JackTransportPos.ticks_per_beat );
 
 	char bbt[15];
 	sprintf( bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
