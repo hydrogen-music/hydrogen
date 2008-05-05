@@ -67,7 +67,18 @@ Preferences::Preferences()
 		, m_sLastNews( "" )
 {
 	INFOLOG( "INIT" );
+	
+	actionManager *aH = actionManager::getInstance();
 
+	aH->registerMMCEvent(MMC_STOP,QString("STOP"));
+	aH->registerMMCEvent(MMC_PLAY,QString("PLAY_TOGGLE"));
+	aH->registerMMCEvent(MMC_DEFERRED_PLAY,QString("PLAY_TOGGLE"));
+	aH->registerMMCEvent(MMC_FAST_FWD,QString("NOTHING"));
+	aH->registerMMCEvent(MMC_REWIND,QString("NOTHING"));
+	aH->registerMMCEvent(MMC_RECORD_STROBE,QString("NOTHING"));
+	aH->registerMMCEvent(MMC_RECORD_EXIT,QString("NOTHING"));
+	aH->registerMMCEvent(MMC_PAUSE,QString("PAUSE"));
+	
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
 	m_bJackTrackOuts = false;
@@ -98,6 +109,8 @@ Preferences::Preferences()
 
 	}
 
+	
+
 	m_ladspaPathVect.push_back( QString( "%1/lib/hydrogen/plugins" ).arg( CONFIG_PREFIX ) );
 	QString qStringPath = qApp->applicationDirPath() + "/plugins";
 	m_ladspaPathVect.push_back( qStringPath );
@@ -114,7 +127,7 @@ Preferences::Preferences()
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
 #endif
-
+  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings
 }
@@ -124,6 +137,7 @@ Preferences::Preferences()
 Preferences::~Preferences()
 {
 	savePreferences();
+
 	INFOLOG( "DESTROY" );
 	instance = NULL;
 	delete m_pDefaultUIStyle;
@@ -140,7 +154,7 @@ Preferences::~Preferences()
 void Preferences::loadPreferences( bool bGlobal )
 {
 	bool recreate = false;	// configuration file must be recreated?
-
+		
 	QString sPreferencesDirectory;
 	QString sPreferencesFilename;
 	QString sDataDirectory;

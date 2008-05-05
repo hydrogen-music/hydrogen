@@ -26,7 +26,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
-
+#include <hydrogen/action.h>
 
 namespace H2Core
 {
@@ -231,7 +231,10 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		0	1	2	3	4	5	6	7	8	9	10	11	12
 		240	127	id	6	68	6	1	hr	mn	sc	fr	ff	247
 	*/
-
+	
+	
+	actionManager * aH = actionManager::getInstance();
+	
 
 	if ( msg.m_sysexData.size() == 6 ) {
 		if (
@@ -244,49 +247,43 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			switch ( msg.m_sysexData[4] ) {
 
 			case 1:	// STOP
-			{
-				action *stopAction = new action;
- 				stopAction->setType( QString("STOP") );
-				Hydrogen::get_instance()->handleAction(stopAction);
+			{ 
+				aH->handleAction(MMC_STOP);	
 				break;
 			}
 
 			case 2:	// PLAY
 			{
-				
-				action *startAction = new action;
- 				startAction->setType( QString("PLAY") );
-				Hydrogen::get_instance()->handleAction(startAction);
+				aH->handleAction(MMC_PLAY);
 				break;
 			}
 
 			case 3:	//DEFERRED PLAY
 			{
-				action *startAction = new action;
-				startAction->setType( QString("PLAY") );
-				Hydrogen::get_instance()->handleAction(startAction);
-				
+				aH->handleAction(MMC_DEFERRED_PLAY);
 				break;
 			}
 
 			case 4:	// FAST FWD
-				WARNINGLOG( "MMC FAST FWD not implemented yet." );
+				aH->handleAction(MMC_FAST_FWD);
+				
 				break;
 
 			case 5:	// REWIND
-				WARNINGLOG( "MMC REWIND not implemented yet." );
+				aH->handleAction(MMC_REWIND);
+				
 				break;
 
 			case 6:	// RECORD STROBE (PUNCH IN)
-				WARNINGLOG( "MMC PUNCH IN not implemented yet." );
+				aH->handleAction(MMC_RECORD_STROBE);
 				break;
 
 			case 7:	// RECORD EXIT (PUNCH OUT)
-				WARNINGLOG( "MMC PUNCH OUT not implemented yet." );
+				aH->handleAction(MMC_RECORD_EXIT);
 				break;
 
 			case 9:	//PAUSE
-				WARNINGLOG( "MMC PAUSE not implemented yet." );
+				aH->handleAction(MMC_PAUSE);
 				break;
 
 			default:

@@ -19,34 +19,115 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include <QObject>
 
+#include <hydrogen/event_queue.h>
+#include <hydrogen/hydrogen.h>
+#include <gui/src/HydrogenApp.h>
+
+#include <hydrogen/Preferences.h>
 #include <hydrogen/action.h>
-#include <vector>
+#include <map>
 
-action::action()
-	: Object("Action") {
+actionManager* actionManager::instance = NULL;
 
-	QString actionList[] = { 
-			
-			"PLAY",
-			"STOP",
-			"TOGGLE_PLAY", 
-			"NEXT_PATTERN",
-			"PREVIOUS_PATTERN",
-			"MUTE",
-			"UNMUTE",
-			"TOGGLE_MUTE"
+using namespace H2Core;
 
-	};
-}
-
-QString action::getType()
-{
-	return type;
+actionManager::actionManager() : Object("actionManager") {
+	INFOLOG("actionManager Init");
 }
 
 
-void action::setType(QString aType)
+
+
+actionManager::~actionManager(){
+	INFOLOG("actionManager delete");
+	instance = NULL;
+}
+
+/// Return an instance of actionManager
+actionManager* actionManager::getInstance()
 {
-	type = aType;
+	
+	if ( instance == NULL ) {
+		instance = new actionManager();
+	}
+	
+	return instance;
+}
+
+void actionManager::registerMMCEvent( mmcEventType ev , QString actionString){
+
+	mmcEventList[ev] = actionString;
+
+}
+
+bool actionManager::handleAction( mmcEventType ev){
+	Hydrogen *pEngine = Hydrogen::get_instance();
+
+	QString sActionString = mmcEventList[ev];
+
+	
+
+	if( sActionString == "PLAY" )
+	{
+		int nState = pEngine->getState();
+		if ( nState == STATE_READY ){
+			pEngine->sequencer_play();
+		}
+	}
+
+	if( sActionString == "PLAY_TOGGLE" )
+	{
+		int nState = pEngine->getState();
+		switch (nState) 
+		{
+			case STATE_READY:
+				pEngine->sequencer_play();
+				break;
+
+			case STATE_PLAYING:
+				pEngine->sequencer_stop();
+				break;
+
+			default:
+				ERRORLOG( "[Hydrogen::actionManager(PLAY): Unhandled case" );
+		}
+	}
+
+	if( sActionString == "PAUSE" )
+	{	
+		pEngine->sequencer_stop();
+	}
+
+	if( sActionString == "STOP" )
+	{	
+		pEngine->sequencer_stop();
+		pEngine->setPatternPos( 0 );
+	}
+
+	if( sActionString == "MUTE" ){
+		Hydrogen::get_instance()->getSong()->__is_muted = true;
+	}
+
+	if( sActionString == "UNMUTE" ){
+		Hydrogen::get_instance()->getSong()->__is_muted = false;
+	}
+
+	if( sActionString == "MUTE_TOGGLE" ){
+		Hydrogen::get_instance()->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
+	}
+
+	if( sActionString == "RECORD" ){
+		Preferences *pref = ( Preferences::getInstance() );
+		pref->setRecordEvents( true );
+
+		//(HydrogenApp::getInstance() )->setStatusBarMessage(QString("Record keyboard/midi events = On") , 2000 );
+		
+	}
+
+	if( sActionString == "RECORD_TOGGLE"){
+	}
+
+	return true;
 }

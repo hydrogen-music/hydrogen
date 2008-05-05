@@ -1824,8 +1824,6 @@ PatternList * Hydrogen::getNextPatterns()
 	return m_pNextPatterns;
 }
 
-
-
 /// Set the next pattern (Pattern mode only)
 void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern )
 {
@@ -2367,38 +2365,6 @@ void Hydrogen::renameJackPorts()
 	audioEngine_renameJackPorts();
 }
 #endif
-
-bool Hydrogen::handleAction( action *pAction )
-{
-	Hydrogen *pEngine = Hydrogen::get_instance();
-
-	if( pAction->getType() == "PLAY_TOGGLE" )
-	{
-		int nState = pEngine->getState();
-		switch (nState) 
-		{
-			case STATE_READY:
-				pEngine->sequencer_play();
-				break;
-
-			case STATE_PLAYING:
-				pEngine->sequencer_stop();
-				break;
-
-			default:
-				ERRORLOG( "[Hydrogen::actionHandler(PLAY): Unhandled case" );
-		}
-	}
-
-	if( pAction->getType() == "STOP" )
-	{	
-		pEngine->sequencer_stop();
-		pEngine->setPatternPos( 0 );
-	}
-
-	return true;
-}
-
 };
 
 

@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
 		else {
 			pSplash->show();
 		}
-
+		
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );
@@ -258,6 +258,8 @@ int main(int argc, char *argv[])
 		delete pPref;
 		delete H2Core::EventQueue::get_instance();
 		delete H2Core::AudioEngine::get_instance();
+
+		delete actionManager::getInstance();
 
 		_INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;

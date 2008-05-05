@@ -66,9 +66,6 @@ public:
 	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
 // ***** ~SEQUENCER ********
 
-	///handle actions
-	bool handleAction( action *pAction );
-
 	/// Set current song
 	void setSong( Song *newSong );
 

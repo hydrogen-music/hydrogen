@@ -19,20 +19,37 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#ifndef ACTION_H
+#define ACTION_H
 #include <hydrogen/Object.h>
 
-class action : public Object 
-{
-
-private:
-	QString type;
-
-public:
-	void setType( QString );
-	QString getType();
-	action();
-
-	QString actionList[];
-
-
+enum mmcEventType {
+	MMC_STOP,
+	MMC_PLAY,
+	MMC_DEFERRED_PLAY,
+	MMC_FAST_FWD,
+	MMC_REWIND,
+	MMC_RECORD_STROBE,
+	MMC_RECORD_EXIT,
+	MMC_PAUSE
 };
+
+class actionManager : public Object
+{
+	private:
+		static actionManager *instance;
+		QString mmcEventList[254];
+
+	public:
+		
+		
+		
+		static actionManager* getInstance();
+
+		bool handleAction(mmcEventType);
+		void registerMMCEvent( mmcEventType , QString );
+
+		actionManager();
+		~actionManager();
+};
+#endif
