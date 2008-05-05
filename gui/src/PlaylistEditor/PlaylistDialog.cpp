@@ -30,6 +30,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
 
+#include "../widgets/Button.h"
 
 #include <QTreeWidget>
 #include <QDomDocument>
@@ -72,7 +73,40 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	removeScriptBTN->setEnabled ( false );
 	editScriptBTN->setEnabled ( false );
 	enableScriptcheckBox->setEnabled ( false );
-	useMidicheckBox->setEnabled ( true );
+	//useMidicheckBox->setEnabled ( true );
+
+	QVBoxLayout *sideBarLayout = new QVBoxLayout(sideBarWidget);
+	sideBarLayout->setSpacing(0);
+	sideBarLayout->setMargin(0);
+
+
+	// zoom-in btn
+	Button *up_btn = new Button(
+			NULL,
+			"/songEditor/btn_up_on.png",
+			"/songEditor/btn_up_off.png",
+			"/songEditor/btn_up_over.png",
+			QSize(18, 13)
+	);
+
+	up_btn->setFontSize(7);
+	up_btn->setToolTip( trUtf8( "Zoom in" ) );
+	connect(up_btn, SIGNAL(clicked(Button*)), this, SLOT(on_upBTN_clicked()) );
+	sideBarLayout->addWidget(up_btn);
+
+	// zoom-in btn
+	Button *down_btn = new Button(
+			NULL,
+			"/songEditor/btn_down_on.png",
+			"/songEditor/btn_down_off.png",
+			"/songEditor/btn_down_over.png",
+			QSize(18, 13)
+	);
+
+	down_btn->setFontSize(7);
+	down_btn->setToolTip( trUtf8( "Zoom in" ) );
+	connect(down_btn, SIGNAL(clicked(Button*)), this, SLOT(on_downBTN_clicked()));
+	sideBarLayout->addWidget(down_btn);
 
 	/*
 	Preferences *pPref = Preferences::getInstance();
@@ -86,8 +120,11 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		case Preferences::USE_PC_MIDI_PLAYLIST_ON:
 			useMidicheckBox->setChecked (true);
 			break;
-	}*/
+	
+	}
 	useMidicheckBox->setChecked ( false );
+	*/
+	
 
 //restore the playlist
 	if( Hydrogen::get_instance()->m_PlayList.size() > 0 ){

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>721</height>
+    <width>980</width>
+    <height>386</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -120,27 +120,7 @@
       <item row="0" column="1" >
        <layout class="QVBoxLayout" >
         <item>
-         <widget class="QToolButton" name="upBTN" >
-          <property name="toolTip" >
-           <string>sort selectet up</string>
-          </property>
-          <property name="text" >
-           <string>u</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="downBTN" >
-          <property name="cursor" >
-           <cursorShape>ArrowCursor</cursorShape>
-          </property>
-          <property name="toolTip" >
-           <string>sort selectet down</string>
-          </property>
-          <property name="text" >
-           <string>d</string>
-          </property>
-         </widget>
+         <widget class="QWidget" native="1" name="sideBarWidget" />
         </item>
        </layout>
       </item>
@@ -185,14 +165,7 @@
       <item row="0" column="5" >
        <widget class="QCheckBox" name="enableScriptcheckBox" >
         <property name="text" >
-         <string>Enable selected Script</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" >
-       <widget class="QCheckBox" name="useMidicheckBox" >
-        <property name="text" >
-         <string>Use PC Midi to select song</string>
+         <string>Enable selected script</string>
         </property>
        </widget>
       </item>

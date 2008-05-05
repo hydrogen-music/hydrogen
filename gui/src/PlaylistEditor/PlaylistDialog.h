@@ -32,7 +32,7 @@
 
 
 //#include <vector>
-
+class Button;
 
 ///
 /// This dialog is used to use the H2PlayList
@@ -74,6 +74,7 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 		void updatePlayListNode( QString file );
 		void updatePlayListVector();
 		void setFirstItemCurrent();
+		Button *zoom_in_btn;
 };
 
 
