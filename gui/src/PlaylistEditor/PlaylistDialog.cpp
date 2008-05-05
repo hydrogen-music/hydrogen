@@ -174,12 +174,12 @@ PlaylistDialog::~PlaylistDialog()
 
 void PlaylistDialog::on_addSongBTN_clicked()
 {
-	static QString lastUsedDir = QDir::homePath();
+	static QString songDir = Preferences::getInstance()->getDataDirectory()  + "/songs";;
 
 	QFileDialog *fd = new QFileDialog ( this );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setFilter ( "Hydrogen song (*.h2song)" );
-	fd->setDirectory ( lastUsedDir );
+	fd->setDirectory ( songDir );
 
 	fd->setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
 
