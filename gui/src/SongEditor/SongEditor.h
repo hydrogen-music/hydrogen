@@ -61,6 +61,8 @@ class SongEditor : public QWidget, public Object
 
 		void createBackground();
 
+		void cleanUp();
+
 		int getGridWidth ();
 		void setGridWidth( uint width);
 

@@ -464,7 +464,7 @@ void SongEditor::createBackground()
 	static int nOldHeight = -1;
 	int nNewHeight = m_nGridHeight * nPatterns;
 
-	if (nOldHeight != nNewHeight) {
+	if (nOldHeight != nNewHeight) {	
 		// cambiamento di dimensioni...
 		if (nNewHeight == 0) {
 			nNewHeight = 1;	// the pixmap should not be empty
@@ -525,13 +525,15 @@ void SongEditor::createBackground()
 		p.drawLine( 0, y + m_nGridHeight - 1, m_nMaxPatternSequence * m_nGridWidth, y + m_nGridHeight - 1 );
 	}
 
-
 	//~ celle
-
 	m_bSequenceChanged = true;
 }
 
+void SongEditor::cleanUp(){
 
+	delete m_pBackgroundPixmap;
+	delete m_pSequencePixmap;
+}
 
 void SongEditor::drawSequence()
 {

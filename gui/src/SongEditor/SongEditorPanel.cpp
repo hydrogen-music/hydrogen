@@ -314,6 +314,8 @@ void SongEditorPanel::updateAll()
 	m_pPatternList->createBackground();
 	m_pPatternList->update();
 
+	m_pSongEditor->cleanUp();
+
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
 
