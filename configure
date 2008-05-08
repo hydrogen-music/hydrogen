@@ -34,6 +34,7 @@ if test "x$QTDIR" = "x"; then
 
 	ac_qtlib=""
 	for X in \
+			/usr/local/Trolltech/Qt-4.4.0 \
 			/usr/local/Trolltech/Qt-4.3.4 \
 			/usr/local/Trolltech/Qt-4.3.3 \
 			/usr/local/Trolltech/Qt-4.3.2 \
