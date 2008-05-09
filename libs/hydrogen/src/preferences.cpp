@@ -68,16 +68,16 @@ Preferences::Preferences()
 {
 	INFOLOG( "INIT" );
 	
-	actionManager *aH = actionManager::getInstance();
+	midiMap *mM = midiMap::getInstance();
 
-	aH->registerMMCEvent(MMC_STOP,QString("STOP"));
-	aH->registerMMCEvent(MMC_PLAY,QString("PLAY_TOGGLE"));
-	aH->registerMMCEvent(MMC_DEFERRED_PLAY,QString("PLAY_TOGGLE"));
-	aH->registerMMCEvent(MMC_FAST_FWD,QString("NOTHING"));
-	aH->registerMMCEvent(MMC_REWIND,QString("NOTHING"));
-	aH->registerMMCEvent(MMC_RECORD_STROBE,QString("NOTHING"));
-	aH->registerMMCEvent(MMC_RECORD_EXIT,QString("NOTHING"));
-	aH->registerMMCEvent(MMC_PAUSE,QString("PAUSE"));
+	mM->registerEvent("MMC_STOP",new action("STOP"));
+	mM->registerEvent("MMC_PLAY",new action("PLAY_TOGGLE"));
+	mM->registerEvent("MMC_DEFERRED_PLAY",new action("PLAY_TOGGLE"));
+	mM->registerEvent("MMC_FAST_FWD",new action("NOTHING"));
+	mM->registerEvent("MMC_REWIND",new action("NOTHING"));
+	mM->registerEvent("MMC_RECORD_STROBE",new action("NOTHING"));
+	mM->registerEvent("MMC_RECORD_EXIT",new action("NOTHING"));
+	mM->registerEvent("MMC_PAUSE",new action("PAUSE"));
 	
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
@@ -154,7 +154,7 @@ Preferences::~Preferences()
 void Preferences::loadPreferences( bool bGlobal )
 {
 	bool recreate = false;	// configuration file must be recreated?
-		
+
 	QString sPreferencesDirectory;
 	QString sPreferencesFilename;
 	QString sDataDirectory;
@@ -610,6 +610,18 @@ void Preferences::savePreferences()
 	//LocalFileMng::writeXmlString( &filesNode, "defaulteditor", m_sDefaultEditor );
 	}
 	rootNode.InsertEndChild( filesNode );
+
+
+	//---- MidiMap ----
+	TiXmlElement midiEventMapNode( "midiEventMap" );
+	{
+		int i;
+		for( i=0 ; i<=9 ; i++ ){
+			//LocalFileMng::writeXmlString( &midiEventMapNode, actionManager::eventToString( i ) , lastSongFilename );
+		}
+	}
+	
+	rootNode.InsertEndChild( midiEventMapNode );
 
 	doc.InsertEndChild( rootNode );
 	doc.SaveFile();

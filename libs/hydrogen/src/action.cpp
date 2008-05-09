@@ -33,17 +33,51 @@ actionManager* actionManager::instance = NULL;
 
 using namespace H2Core;
 
-actionManager::actionManager() : Object("actionManager") {
-	INFOLOG("actionManager Init");
+
+string action::getType(){
+	return type;
+}
+
+action::action(string s){
+	type = s;
 }
 
 
+midiMap * midiMap::instance = NULL;
+
+midiMap::midiMap() : Object("midiMap")
+{
+	//constructor
+}
+
+midiMap * midiMap::getInstance(){
+	if( instance == NULL ){
+		instance = new midiMap();
+	}
+	return instance;
+}
+
+
+void midiMap::registerEvent( std::string eventString , action * pAction){
+	mmcMap[eventString] = pAction;
+}
+
+action * midiMap::getAction( std::string eventString ){
+	return mmcMap[eventString];
+}
+
+
+
+actionManager::actionManager() : Object("actionManager") {
+	INFOLOG("actionManager Init");
+}
 
 
 actionManager::~actionManager(){
 	INFOLOG("actionManager delete");
 	instance = NULL;
 }
+
 
 /// Return an instance of actionManager
 actionManager* actionManager::getInstance()
@@ -56,16 +90,11 @@ actionManager* actionManager::getInstance()
 	return instance;
 }
 
-void actionManager::registerMMCEvent( mmcEventType ev , QString actionString){
 
-	mmcEventList[ev] = actionString;
-
-}
-
-bool actionManager::handleAction( mmcEventType ev){
+bool actionManager::handleAction( action * pAction){
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	QString sActionString = mmcEventList[ev];
+	string sActionString = pAction->getType();
 
 	
 

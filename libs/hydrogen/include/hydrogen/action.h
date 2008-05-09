@@ -22,33 +22,53 @@
 #ifndef ACTION_H
 #define ACTION_H
 #include <hydrogen/Object.h>
+#include <map>
+#include <string>
 
-enum mmcEventType {
-	MMC_STOP,
-	MMC_PLAY,
-	MMC_DEFERRED_PLAY,
-	MMC_FAST_FWD,
-	MMC_REWIND,
-	MMC_RECORD_STROBE,
-	MMC_RECORD_EXIT,
-	MMC_PAUSE
+using namespace std;
+
+
+class action {
+	public:
+		action( string );
+		
+		string getType();
+
+	private:
+		string type;
 };
+
+
+class midiMap : public Object
+{
+	public:
+		midiMap();
+		
+		static midiMap * instance;
+		static midiMap * getInstance();
+
+		void registerEvent(string,action *);
+		action * getAction(string);
+
+		
+
+		map <string,action *> mmcMap;
+	
+	private:
+		//
+};
+
 
 class actionManager : public Object
 {
 	private:
 		static actionManager *instance;
-		QString mmcEventList[254];
 
 	public:
-		
-		
-		
 		static actionManager* getInstance();
 
-		bool handleAction(mmcEventType);
-		void registerMMCEvent( mmcEventType , QString );
-
+		bool handleAction(action *);
+		
 		actionManager();
 		~actionManager();
 };
