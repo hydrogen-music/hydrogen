@@ -47,10 +47,8 @@ class midiMap : public Object
 		static midiMap * instance;
 		static midiMap * getInstance();
 
-		void registerEvent(string,action *);
-		action * getAction(string);
-
-		
+		void registerEvent( string,action * );
+		action * getAction( string );
 
 		map <string,action *> mmcMap;
 	
@@ -67,7 +65,7 @@ class actionManager : public Object
 	public:
 		static actionManager* getInstance();
 
-		bool handleAction(action *);
+		bool handleAction( action * );
 		
 		actionManager();
 		~actionManager();

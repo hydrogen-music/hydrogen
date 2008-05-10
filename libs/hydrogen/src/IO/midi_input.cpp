@@ -234,10 +234,8 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	
 	
 	actionManager * aH = actionManager::getInstance();
-	midiMap * cC = midiMap::getInstance();
+	midiMap * mM = midiMap::getInstance();
 	
-
-
 	if ( msg.m_sysexData.size() == 6 ) {
 		if (
 		    ( msg.m_sysexData[0] == 0xF0 ) &&
@@ -250,42 +248,41 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 			case 1:	// STOP
 			{ 
-				aH->handleAction(cC->getAction("MMC_STOP"));
+				aH->handleAction(mM->getAction("MMC_STOP"));
 				break;
 			}
 
 			case 2:	// PLAY
 			{
-				aH->handleAction(cC->getAction("MMC_PLAY"));
+				aH->handleAction(mM->getAction("MMC_PLAY"));
 				break;
 			}
 
 			case 3:	//DEFERRED PLAY
 			{
-				aH->handleAction(cC->getAction("MMC_PLAY"));
+				aH->handleAction(mM->getAction("MMC_PLAY"));
 				break;
 			}
 
 			case 4:	// FAST FWD
-				aH->handleAction(cC->getAction("MMC_FAST_FWD"));
+				aH->handleAction(mM->getAction("MMC_FAST_FWD"));
 				
 				break;
 
 			case 5:	// REWIND
-				aH->handleAction(cC->getAction("MMC_REWIND"));
-				
+				aH->handleAction(mM->getAction("MMC_REWIND"));
 				break;
 
 			case 6:	// RECORD STROBE (PUNCH IN)
-				aH->handleAction(cC->getAction("MMC_RECORD_STROBE"));
+				aH->handleAction(mM->getAction("MMC_RECORD_STROBE"));
 				break;
 
 			case 7:	// RECORD EXIT (PUNCH OUT)
-				aH->handleAction(cC->getAction("MMC_RECORD_EXIT"));
+				aH->handleAction(mM->getAction("MMC_RECORD_EXIT"));
 				break;
 
 			case 9:	//PAUSE
-				aH->handleAction(cC->getAction("MMC_PAUSE"));
+				aH->handleAction(mM->getAction("MMC_PAUSE"));
 				break;
 
 			default:

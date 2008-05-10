@@ -30,6 +30,7 @@
 #include <map>
 
 actionManager* actionManager::instance = NULL;
+midiMap * midiMap::instance = NULL;
 
 using namespace H2Core;
 
@@ -43,9 +44,7 @@ action::action(string s){
 }
 
 
-midiMap * midiMap::instance = NULL;
-
-midiMap::midiMap() : Object("midiMap")
+midiMap::midiMap() : Object( "midiMap" )
 {
 	//constructor
 }
@@ -68,13 +67,13 @@ action * midiMap::getAction( std::string eventString ){
 
 
 
-actionManager::actionManager() : Object("actionManager") {
-	INFOLOG("actionManager Init");
+actionManager::actionManager() : Object( "actionManager" ) {
+	INFOLOG( "actionManager Init" );
 }
 
 
 actionManager::~actionManager(){
-	INFOLOG("actionManager delete");
+	INFOLOG( "actionManager delete" );
 	instance = NULL;
 }
 
@@ -91,13 +90,13 @@ actionManager* actionManager::getInstance()
 }
 
 
-bool actionManager::handleAction( action * pAction){
+bool actionManager::handleAction( action * pAction ){
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	string sActionString = pAction->getType();
 
 	
-
 	if( sActionString == "PLAY" )
 	{
 		int nState = pEngine->getState();
