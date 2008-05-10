@@ -53,12 +53,8 @@ class midiMap : public Object
 		action * getMMCAction( QString );
 		
 
-		map < QString , action * > getMMCMap();
-
-		map < QString , action * > mmcMap;
-	
-	private:
-		//
+		map <QString , action *> getMMCMap();
+		map <QString , action *> mmcMap;
 };
 
 

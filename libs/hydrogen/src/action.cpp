@@ -99,7 +99,6 @@ actionManager::~actionManager(){
 /// Return an instance of actionManager
 actionManager* actionManager::getInstance()
 {
-	
 	if ( instance == NULL ) {
 		instance = new actionManager();
 	}
@@ -112,6 +111,10 @@ bool actionManager::handleAction( action * pAction ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
+	/* 
+		return false if action is null 
+		(for example if no action exists for an event)
+	*/
 	if( pAction == NULL )	return false;
 
 	QString sActionString = pAction->getType();

@@ -641,8 +641,6 @@ void Preferences::savePreferences()
 			QString event;
 			action * pAction;
 
-		
-	
 			event = dIter->first;
 			pAction = dIter->second;
 
