@@ -23,6 +23,11 @@
 #ifndef H2_OBJECT_H
 #define H2_OBJECT_H
 
+#ifdef check
+#undef check
+#endif
+
+
 #include <QtGui>
 #include <map>
 #include <vector>
