@@ -35,11 +35,11 @@ midiMap * midiMap::instance = NULL;
 using namespace H2Core;
 
 
-string action::getType(){
+QString action::getType(){
 	return type;
 }
 
-action::action(string s){
+action::action(QString s) : Object("action") {
 	type = s;
 }
 
@@ -49,6 +49,14 @@ midiMap::midiMap() : Object( "midiMap" )
 	//constructor
 }
 
+midiMap::~midiMap()
+{
+	std::map< QString , action *>::iterator dIter(mmcMap.begin());
+	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
+		delete dIter->second;
+	}
+}
+
 midiMap * midiMap::getInstance(){
 	if( instance == NULL ){
 		instance = new midiMap();
@@ -56,15 +64,25 @@ midiMap * midiMap::getInstance(){
 	return instance;
 }
 
+map <QString,action *> midiMap::getMMCMap(){
+	return mmcMap;
+}
 
-void midiMap::registerEvent( std::string eventString , action * pAction){
+void midiMap::registerMMCEvent( QString eventString , action * pAction){
 	mmcMap[eventString] = pAction;
 }
 
-action * midiMap::getAction( std::string eventString ){
+
+action * midiMap::getMMCAction( QString eventString ){
+	
+	std::map< QString , action *>::iterator dIter;
+	dIter = mmcMap.find(eventString);
+	if ( dIter == mmcMap.end() ){
+		return NULL;
+	}	
+
 	return mmcMap[eventString];
 }
-
 
 
 actionManager::actionManager() : Object( "actionManager" ) {
@@ -94,7 +112,9 @@ bool actionManager::handleAction( action * pAction ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	string sActionString = pAction->getType();
+	if( pAction == NULL )	return false;
+
+	QString sActionString = pAction->getType();
 
 	
 	if( sActionString == "PLAY" )

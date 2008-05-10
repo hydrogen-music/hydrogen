@@ -68,17 +68,6 @@ Preferences::Preferences()
 {
 	INFOLOG( "INIT" );
 	
-	midiMap *mM = midiMap::getInstance();
-
-	mM->registerEvent("MMC_STOP",new action("STOP"));
-	mM->registerEvent("MMC_PLAY",new action("PLAY_TOGGLE"));
-	mM->registerEvent("MMC_DEFERRED_PLAY",new action("PLAY_TOGGLE"));
-	mM->registerEvent("MMC_FAST_FWD",new action("NOTHING"));
-	mM->registerEvent("MMC_REWIND",new action("NOTHING"));
-	mM->registerEvent("MMC_RECORD_STROBE",new action("NOTHING"));
-	mM->registerEvent("MMC_RECORD_EXIT",new action("NOTHING"));
-	mM->registerEvent("MMC_PAUSE",new action("PAUSE"));
-	
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
 	m_bJackTrackOuts = false;
@@ -404,6 +393,33 @@ void Preferences::loadPreferences( bool bGlobal )
 				lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", lastSongFilename, true );
 				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
 			}
+
+			midiMap * mM = midiMap::getInstance();			
+
+			TiXmlNode* pMidiEventMapNode = rootNode->FirstChild( "midiEventMap" );
+			if ( pMidiEventMapNode ) {
+				TiXmlNode* pMidiEventNode = 0;
+				for ( pMidiEventNode = pMidiEventMapNode->FirstChild( "midiEvent" ); pMidiEventNode; pMidiEventNode = pMidiEventNode->NextSibling( "midiEvent" ) ) {
+
+
+				if( pMidiEventNode->FirstChild()->Value() == QString("mmcEvent")){
+					QString event = pMidiEventNode->FirstChild("mmcEvent")->FirstChild()->Value();
+
+					QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
+
+					mM->registerMMCEvent(event,new action(s_action));
+					
+				}
+					
+							
+
+				}
+			} else {
+				WARNINGLOG( "serverList node not found" );
+			}
+
+			
+
 		} // rootNode
 		else {
 			WARNINGLOG( "hydrogen_preferences node not found" );
@@ -611,13 +627,35 @@ void Preferences::savePreferences()
 	}
 	rootNode.InsertEndChild( filesNode );
 
+	midiMap * mM = midiMap::getInstance();
+	std::map< QString , action *> mmcMap = mM->getMMCMap();
+
 
 	//---- MidiMap ----
 	TiXmlElement midiEventMapNode( "midiEventMap" );
 	{
-		int i;
-		for( i=0 ; i<=9 ; i++ ){
-			//LocalFileMng::writeXmlString( &midiEventMapNode, actionManager::eventToString( i ) , lastSongFilename );
+		
+		std::map< QString , action *>::iterator dIter(mmcMap.begin());
+		for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
+			
+			QString event;
+			action * pAction;
+
+		
+	
+			event = dIter->first;
+			pAction = dIter->second;
+
+			if ( pAction->getType() != "NOTHING" ){
+				TiXmlElement midiEventNode( "midiEvent" );
+				
+				LocalFileMng::writeXmlString( &midiEventNode, "mmcEvent" , event );
+
+				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType());
+
+				midiEventMapNode.InsertEndChild(midiEventNode);
+
+			}
 		}
 	}
 	

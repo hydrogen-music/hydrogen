@@ -28,14 +28,14 @@
 using namespace std;
 
 
-class action {
+class action : public Object {
 	public:
-		action( string );
+		action( QString );
 		
-		string getType();
+		QString getType();
 
 	private:
-		string type;
+		QString type;
 };
 
 
@@ -43,14 +43,19 @@ class midiMap : public Object
 {
 	public:
 		midiMap();
-		
+		~midiMap();
+
 		static midiMap * instance;
 		static midiMap * getInstance();
 
-		void registerEvent( string,action * );
-		action * getAction( string );
+		void registerMMCEvent( QString,action * );
 
-		map <string,action *> mmcMap;
+		action * getMMCAction( QString );
+		
+
+		map < QString , action * > getMMCMap();
+
+		map < QString , action * > mmcMap;
 	
 	private:
 		//
