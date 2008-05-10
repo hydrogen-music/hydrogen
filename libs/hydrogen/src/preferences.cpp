@@ -88,9 +88,9 @@ Preferences::Preferences()
 		m_ladspaPathVect.push_back( sLadspaPath );
 	} else {
 #ifdef Q_OS_MACX
-		m_ladspaPathVect.push_back( qApp->applicationDirPath().toStdString() + "/../Resources/plugins" );
+		m_ladspaPathVect.push_back( qApp->applicationDirPath() + "/../Resources/plugins" );
 		m_ladspaPathVect.push_back( "/Library/Audio/Plug-Ins/LADSPA/" );
-		m_ladspaPathVect.push_back( QDir::homePath().append( "/Library/Audio/Plug-Ins/LADSPA" ).toStdString() );
+		m_ladspaPathVect.push_back( QDir::homePath().append( "/Library/Audio/Plug-Ins/LADSPA" ));
 #else
 		m_ladspaPathVect.push_back( "/usr/lib/ladspa" );
 		m_ladspaPathVect.push_back( "/usr/local/lib/ladspa" );
@@ -108,9 +108,9 @@ Preferences::Preferences()
 	m_pDefaultUIStyle = new UIStyle();
 
 #ifdef Q_OS_MACX
-	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" ).toStdString();
-	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" ).toStdString();
-	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" ).toStdString();
+	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
+	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
+	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
 #else
 	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
