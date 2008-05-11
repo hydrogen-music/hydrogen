@@ -63,7 +63,7 @@ win32 {
 
 macx-g++ {
 	message( *** MAC BUILD *** )
-	CONFIG += x86 ppc
+	CONFIG += x86
 
 	ICON = ../macos/Hydrogen.icns
 	LIBS += -L/opt/local/lib
