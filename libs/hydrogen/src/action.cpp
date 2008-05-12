@@ -95,12 +95,14 @@ action * midiMap::getMMCAction( QString eventString ){
 actionManager::actionManager() : Object( "actionManager" ) {
 	INFOLOG( "actionManager Init" );
 	
-	actionList << "PLAY" 
+	actionList <<""
+	<< "PLAY" 
 	<< "PLAY_TOGGLE"
 	<< "PAUSE"
 	<< "STOP";
 
-	eventList << "MMC_PLAY"
+	eventList << ""
+	<< "MMC_PLAY"
 	<< "MMC_DEFERRED_PLAY"
 	<< "MMC_STOP"
 	<< "MMC_FAST_FORWARD"

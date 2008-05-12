@@ -255,6 +255,8 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	Preferences *pPref = Preferences::getInstance();
 
+	saveMidiTable();
+
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {
 		pPref->m_sAudioDriver = "Auto";
@@ -391,9 +393,8 @@ void PreferencesDialog::setupMidiTable()
 	int rowCount;
 	
 	rowCount = (mM->getMMCMap()).size();
-	if( rowCount == 0) rowCount = 1;
 
-	tableWidget->setRowCount( rowCount );
+	tableWidget->setRowCount( rowCount -1 );
     	tableWidget->setColumnCount(4);
 
 	tableWidget->verticalHeader()->hide();
@@ -407,21 +408,82 @@ void PreferencesDialog::setupMidiTable()
 	tableWidget->setColumnWidth(2,150);
 	tableWidget->setColumnWidth(3,100);
 
+
+	rowCount=0;	
 	
+	std::map< QString , action *> mmcMap = mM->getMMCMap();
+	std::map< QString , action *>::iterator dIter(mmcMap.begin());
+
+	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
+	{
+		tableWidget->insertRow(tableWidget->rowCount());
+		QString eventString = dIter->first;
+
+		QComboBox *eventBox = new QComboBox();
+		eventBox->insertItems(rowCount,aH->getEventList());
+		eventBox->setCurrentIndex( eventBox->findText(eventString) );
+		tableWidget->setCellWidget(rowCount,0,eventBox);
+		
+		QSpinBox *eventParameterSpinner = new QSpinBox();
+		tableWidget->setCellWidget(rowCount,1,eventParameterSpinner);
+
+		action * pAction = mM->getMMCAction( eventString );
+	
+		QComboBox *actionBox = new QComboBox();
+		actionBox->insertItems(rowCount,aH->getActionList());
+		actionBox->setCurrentIndex (actionBox->findText(pAction->getType()));
+		tableWidget->setCellWidget(rowCount,2,actionBox);
+	
+		
+		QSpinBox *actionParameterSpinner = new QSpinBox();
+		tableWidget->setCellWidget(rowCount,3,actionParameterSpinner);
+		rowCount++;
+	}
+
+	tableWidget->insertRow(tableWidget->rowCount());
+
 	QComboBox *eventBox = new QComboBox();
-	eventBox->insertItems(0,aH->getEventList());
-	tableWidget->setCellWidget(0,0,eventBox);
-	
+	eventBox->insertItems(rowCount,aH->getEventList());
+	tableWidget->setCellWidget(rowCount,0,eventBox);
+		
 	QSpinBox *eventParameterSpinner = new QSpinBox();
-	tableWidget->setCellWidget(0,1,eventParameterSpinner);
+	tableWidget->setCellWidget(rowCount,1,eventParameterSpinner);
 
 	QComboBox *actionBox = new QComboBox();
-	actionBox->insertItems(0,aH->getActionList());
-	tableWidget->setCellWidget(0,2,actionBox);
-
-	
+	actionBox->insertItems(rowCount,aH->getActionList());
+	tableWidget->setCellWidget(rowCount,2,actionBox);
+			
 	QSpinBox *actionParameterSpinner = new QSpinBox();
-	tableWidget->setCellWidget(0,3,actionParameterSpinner);
+	tableWidget->setCellWidget(rowCount,3,actionParameterSpinner);
+}
+
+
+void PreferencesDialog::saveMidiTable(){
+	midiMap *mM  = midiMap::getInstance();
+
+	int row = 0;
+	
+	//std::cout << tableWidget->rowCount() << std::endl;
+
+	for( row = 0; row <  tableWidget->rowCount() - 1; row++){
+
+		QComboBox * eventCombo = dynamic_cast <QComboBox *> ( tableWidget->cellWidget(row,0));
+	
+		QComboBox * actionCombo =dynamic_cast <QComboBox *> ( tableWidget->cellWidget(row,2));
+
+		QString eventString;
+		QString actionString;
+
+		if( eventCombo->currentText() != "" && actionCombo->currentText() != "" ){
+			eventString = eventCombo->currentText();
+
+			actionString = actionCombo->currentText();
+
+			mM->registerMMCEvent(eventString, new action(actionString));
+			
+		}
+	}
+
 }
 
 void PreferencesDialog::updateDriverInfo()
