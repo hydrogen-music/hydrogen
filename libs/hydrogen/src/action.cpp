@@ -85,8 +85,29 @@ action * midiMap::getMMCAction( QString eventString ){
 }
 
 
+
+
+
+
+
+
+
 actionManager::actionManager() : Object( "actionManager" ) {
 	INFOLOG( "actionManager Init" );
+	
+	actionList << "PLAY" 
+	<< "PLAY_TOGGLE"
+	<< "PAUSE"
+	<< "STOP";
+
+	eventList << "MMC_PLAY"
+	<< "MMC_DEFERRED_PLAY"
+	<< "MMC_STOP"
+	<< "MMC_FAST_FORWARD"
+	<< "MMC_REWIND"
+	<< "MMC_RECORD_STROBE"
+	<< "MMC_RECORD_EXIT"
+	<< "MMC_PAUSE";
 }
 
 
@@ -106,6 +127,13 @@ actionManager* actionManager::getInstance()
 	return instance;
 }
 
+QStringList actionManager::getActionList(){
+	return actionList;
+}
+
+QStringList actionManager::getEventList(){
+	return eventList;
+}
 
 bool actionManager::handleAction( action * pAction ){
 

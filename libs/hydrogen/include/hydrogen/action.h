@@ -52,7 +52,6 @@ class midiMap : public Object
 
 		action * getMMCAction( QString );
 		
-
 		map <QString , action *> getMMCMap();
 		map <QString , action *> mmcMap;
 };
@@ -62,12 +61,17 @@ class actionManager : public Object
 {
 	private:
 		static actionManager *instance;
+		QStringList actionList;
+		QStringList eventList;
 
 	public:
 		static actionManager* getInstance();
 
 		bool handleAction( action * );
 		
+		QStringList getActionList();
+		QStringList getEventList();
+
 		actionManager();
 		~actionManager();
 };

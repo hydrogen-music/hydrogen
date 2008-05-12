@@ -53,6 +53,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	Preferences *pPref = Preferences::getInstance();
 	pPref->loadPreferences( false );	// reload user's preferences
 
+	setupMidiTable();
+
+	
+	
+
+
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
 	driverComboBox->addItem( "JACK" );
@@ -372,6 +378,51 @@ void PreferencesDialog::on_driverComboBox_activated( int index )
 }
 
 
+void PreferencesDialog::setupMidiTable()
+{
+	actionManager *aH = actionManager::getInstance();
+	midiMap *mM = midiMap::getInstance();
+
+	QStringList items;
+	items << tr("Event") << tr("Param.") << tr("Action")
+           << tr("Param.");
+
+
+	int rowCount;
+	
+	rowCount = (mM->getMMCMap()).size();
+	if( rowCount == 0) rowCount = 1;
+
+	tableWidget->setRowCount( rowCount );
+    	tableWidget->setColumnCount(4);
+
+	tableWidget->verticalHeader()->hide();
+
+	tableWidget->setHorizontalHeaderLabels( items );
+	
+	
+	tableWidget->setFixedWidth(500);
+	tableWidget->setColumnWidth(0,150);
+	tableWidget->setColumnWidth(1,100);
+	tableWidget->setColumnWidth(2,150);
+	tableWidget->setColumnWidth(3,100);
+
+	
+	QComboBox *eventBox = new QComboBox();
+	eventBox->insertItems(0,aH->getEventList());
+	tableWidget->setCellWidget(0,0,eventBox);
+	
+	QSpinBox *eventParameterSpinner = new QSpinBox();
+	tableWidget->setCellWidget(0,1,eventParameterSpinner);
+
+	QComboBox *actionBox = new QComboBox();
+	actionBox->insertItems(0,aH->getActionList());
+	tableWidget->setCellWidget(0,2,actionBox);
+
+	
+	QSpinBox *actionParameterSpinner = new QSpinBox();
+	tableWidget->setCellWidget(0,3,actionParameterSpinner);
+}
 
 void PreferencesDialog::updateDriverInfo()
 {

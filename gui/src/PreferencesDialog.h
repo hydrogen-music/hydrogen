@@ -55,6 +55,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	private:
 		bool m_bNeedDriverRestart;
 
+		void setupMidiTable();
 		void updateDriverInfo();
 };
 
