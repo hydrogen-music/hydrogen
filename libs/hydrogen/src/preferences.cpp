@@ -395,6 +395,8 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
 			}
 
+			if ( midiMap::instance != NULL) delete midiMap::instance;
+
 			midiMap * mM = midiMap::getInstance();	
 			
 			

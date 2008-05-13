@@ -55,6 +55,7 @@ midiMap::~midiMap()
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
 		delete dIter->second;
 	}
+	instance = NULL;
 }
 
 midiMap * midiMap::getInstance(){

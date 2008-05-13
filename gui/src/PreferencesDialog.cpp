@@ -235,9 +235,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 
 PreferencesDialog::~PreferencesDialog()
-{
-//	cout << "PreferencesDIalog Destroy" << endl;
-	
+{	
 	//destroy midi table
 	int row = 0;
 	
@@ -424,6 +422,7 @@ void PreferencesDialog::setupMidiTable()
 	std::map< QString , action *> mmcMap = mM->getMMCMap();
 	std::map< QString , action *>::iterator dIter(mmcMap.begin());
 
+
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
 	{
 		tableWidget->insertRow(tableWidget->rowCount());
@@ -449,7 +448,7 @@ void PreferencesDialog::setupMidiTable()
 		tableWidget->setCellWidget(rowCount,3,actionParameterSpinner);
 		rowCount++;
 	}
-
+	
 	tableWidget->insertRow(tableWidget->rowCount());
 
 	QComboBox *eventBox = new QComboBox();
@@ -469,7 +468,10 @@ void PreferencesDialog::setupMidiTable()
 
 
 void PreferencesDialog::saveMidiTable(){
+	
+	delete	midiMap::getInstance();
 	midiMap *mM  = midiMap::getInstance();
+	
 
 	int row = 0;
 	
@@ -486,9 +488,10 @@ void PreferencesDialog::saveMidiTable(){
 			eventString = eventCombo->currentText();
 
 			actionString = actionCombo->currentText();
-
-			mM->registerMMCEvent(eventString, new action(actionString));
-			
+		
+			action * pAction = new action(actionString);
+	
+			mM->registerMMCEvent(eventString , pAction );
 		}
 	}
 
