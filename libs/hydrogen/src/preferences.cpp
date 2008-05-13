@@ -236,6 +236,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "recentUsedSongs node not found" );
 			}
 
+			sServerList.clear();
 			TiXmlNode* pServerListNode = rootNode->FirstChild( "serverList" );
 			if ( pServerListNode ) {
 				TiXmlNode* pServerNode = 0;
@@ -394,30 +395,28 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
 			}
 
-			midiMap * mM = midiMap::getInstance();			
-
+			midiMap * mM = midiMap::getInstance();	
+			
+			
 			TiXmlNode* pMidiEventMapNode = rootNode->FirstChild( "midiEventMap" );
 			if ( pMidiEventMapNode ) {
 				TiXmlNode* pMidiEventNode = 0;
+				
 				for ( pMidiEventNode = pMidiEventMapNode->FirstChild( "midiEvent" ); pMidiEventNode; pMidiEventNode = pMidiEventNode->NextSibling( "midiEvent" ) ) {
-
-
-				if( pMidiEventNode->FirstChild()->Value() == QString("mmcEvent")){
-					QString event = pMidiEventNode->FirstChild("mmcEvent")->FirstChild()->Value();
-
-					QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
-
-					mM->registerMMCEvent(event,new action(s_action));
 					
-				}
-					
-							
-
+					if( pMidiEventNode->FirstChild()->Value() == QString("mmcEvent")){
+						QString event = pMidiEventNode->FirstChild("mmcEvent")->FirstChild()->Value();
+	
+						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
+	
+						mM->registerMMCEvent(event,new action(s_action));
+						
+					}
 				}
 			} else {
-				WARNINGLOG( "serverList node not found" );
+				WARNINGLOG( "midiMap node not found" );
 			}
-
+			
 			
 
 		} // rootNode
