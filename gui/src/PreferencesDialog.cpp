@@ -237,6 +237,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 PreferencesDialog::~PreferencesDialog()
 {
 //	cout << "PreferencesDIalog Destroy" << endl;
+	
+	//destroy midi table
+	int row = 0;
+	
+	for( row = 0; row <  tableWidget->rowCount(); row++){
+		delete tableWidget->cellWidget(row,0);
+		delete tableWidget->cellWidget(row,1);
+		delete tableWidget->cellWidget(row,2);
+		delete tableWidget->cellWidget(row,3);
+	}
 }
 
 
