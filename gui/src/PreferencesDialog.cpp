@@ -394,7 +394,7 @@ void PreferencesDialog::setupMidiTable()
 	
 	rowCount = (mM->getMMCMap()).size();
 
-	tableWidget->setRowCount( rowCount -1 );
+	tableWidget->setRowCount( 0 );
     	tableWidget->setColumnCount(4);
 
 	tableWidget->verticalHeader()->hide();
@@ -463,9 +463,7 @@ void PreferencesDialog::saveMidiTable(){
 
 	int row = 0;
 	
-	//std::cout << tableWidget->rowCount() << std::endl;
-
-	for( row = 0; row <  tableWidget->rowCount() - 1; row++){
+	for( row = 0; row <  tableWidget->rowCount(); row++){
 
 		QComboBox * eventCombo = dynamic_cast <QComboBox *> ( tableWidget->cellWidget(row,0));
 	
