@@ -34,15 +34,27 @@ midiMap * midiMap::instance = NULL;
 
 using namespace H2Core;
 
+/* Class action */
 
 QString action::getType(){
 	return type;
 }
 
-action::action(QString s) : Object("action") {
-	type = s;
+QStringList action::getParameterList(){
+	return parameterList;
 }
 
+void action::addParameter( QString param ){
+	parameterList.append( param );
+}
+
+action::action( QString s ) : Object( "action" ) {
+	type = s;
+	QStringList parameterList;
+}
+
+
+/* Class midiMap */
 
 midiMap::midiMap() : Object( "midiMap" )
 {
@@ -52,7 +64,8 @@ midiMap::midiMap() : Object( "midiMap" )
 midiMap::~midiMap()
 {
 	std::map< QString , action *>::iterator dIter(mmcMap.begin());
-	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
+	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
+	{
 		delete dIter->second;
 	}
 	instance = NULL;
@@ -69,15 +82,15 @@ map <QString,action *> midiMap::getMMCMap(){
 	return mmcMap;
 }
 
-void midiMap::registerMMCEvent( QString eventString , action * pAction){
-	mmcMap[eventString] = pAction;
+void midiMap::registerMMCEvent( QString eventString , action * pAction ){
+	mmcMap[ eventString ] = pAction;
 }
 
 
 action * midiMap::getMMCAction( QString eventString ){
 	
 	std::map< QString , action *>::iterator dIter;
-	dIter = mmcMap.find(eventString);
+	dIter = mmcMap.find( eventString );
 	if ( dIter == mmcMap.end() ){
 		return NULL;
 	}	
@@ -90,7 +103,7 @@ action * midiMap::getMMCAction( QString eventString ){
 
 
 
-
+/* Class actionManager */
 
 
 actionManager::actionManager() : Object( "actionManager" ) {
@@ -162,7 +175,7 @@ bool actionManager::handleAction( action * pAction ){
 	if( sActionString == "PLAY_TOGGLE" )
 	{
 		int nState = pEngine->getState();
-		switch (nState) 
+		switch ( nState ) 
 		{
 			case STATE_READY:
 				pEngine->sequencer_play();

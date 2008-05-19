@@ -33,9 +33,12 @@ class action : public Object {
 		action( QString );
 		
 		QString getType();
+		QStringList getParameterList();
+		void addParameter( QString );
 
 	private:
 		QString type;
+		QStringList parameterList;
 };
 
 
