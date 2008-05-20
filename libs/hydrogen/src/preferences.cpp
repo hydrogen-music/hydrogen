@@ -410,8 +410,14 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode->FirstChild("mmcEvent")->FirstChild()->Value();
 	
 						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
+
+						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
 	
-						mM->registerMMCEvent(event,new action(s_action));
+						action * pAction = new action( s_action );
+
+						pAction->addParameter( s_param );
+				
+						mM->registerMMCEvent(event, pAction);
 						
 					}
 				}
@@ -651,6 +657,10 @@ void Preferences::savePreferences()
 				LocalFileMng::writeXmlString( &midiEventNode, "mmcEvent" , event );
 
 				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType());
+
+				if ( pAction->getParameterList().size() != 0 ){
+					LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameterList().at(0) );
+				}
 
 				midiEventMapNode.InsertEndChild(midiEventNode);
 

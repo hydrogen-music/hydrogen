@@ -431,21 +431,30 @@ void PreferencesDialog::setupMidiTable()
 		QComboBox *eventBox = new QComboBox();
 		eventBox->insertItems( rowCount , aH->getEventList() );
 		eventBox->setCurrentIndex( eventBox->findText(eventString) );
-		tableWidget->setCellWidget( rowCount, 0 , eventBox );
+		tableWidget->setCellWidget( rowCount, 0, eventBox );
 		
 		QSpinBox *eventParameterSpinner = new QSpinBox();
-		tableWidget->setCellWidget( rowCount , 1 , eventParameterSpinner );
+		tableWidget->setCellWidget( rowCount , 1, eventParameterSpinner );
 
 		action * pAction = mM->getMMCAction( eventString );
 	
 		QComboBox *actionBox = new QComboBox();
 		actionBox->insertItems(rowCount,aH->getActionList());
 		actionBox->setCurrentIndex ( actionBox->findText(pAction->getType() ) );
-		tableWidget->setCellWidget( rowCount , 2 , actionBox );
+		tableWidget->setCellWidget( rowCount , 2, actionBox );
 	
-		
+
+		QString actionParameter;
+		if(pAction->getParameterList().size() != 0){
+			actionParameter = pAction->getParameterList().at(0);
+		}
+
 		QSpinBox *actionParameterSpinner = new QSpinBox();
-		tableWidget->setCellWidget( rowCount , 3 , actionParameterSpinner );
+		
+		bool ok;
+		actionParameterSpinner->setValue( actionParameter.toInt(&ok,10) );
+		
+		tableWidget->setCellWidget( rowCount , 3, actionParameterSpinner );
 		rowCount++;
 	}
 	
@@ -453,18 +462,18 @@ void PreferencesDialog::setupMidiTable()
 
 	QComboBox *eventBox = new QComboBox();
 	eventBox->insertItems( rowCount , aH->getEventList() );
-	tableWidget->setCellWidget( rowCount, 0 , eventBox );
+	tableWidget->setCellWidget( rowCount, 0, eventBox );
 		
 	QSpinBox *eventParameterSpinner = new QSpinBox();
 	eventParameterSpinner->setEnabled( false );
-	tableWidget->setCellWidget( rowCount , 1 , eventParameterSpinner );
+	tableWidget->setCellWidget( rowCount , 1, eventParameterSpinner );
 
 	QComboBox *actionBox = new QComboBox();
 	actionBox->insertItems( rowCount, aH->getActionList() );
-	tableWidget->setCellWidget(rowCount, 2 ,actionBox );
+	tableWidget->setCellWidget( rowCount, 2, actionBox );
 			
 	QSpinBox *actionParameterSpinner = new QSpinBox();
-	tableWidget->setCellWidget(rowCount, 3 ,actionParameterSpinner );
+	tableWidget->setCellWidget( rowCount, 3, actionParameterSpinner );
 }
 
 
@@ -478,9 +487,11 @@ void PreferencesDialog::saveMidiTable(){
 	
 	for( row = 0; row <  tableWidget->rowCount(); row++ ){
 
-		QComboBox * eventCombo = dynamic_cast <QComboBox *> ( tableWidget->cellWidget(row,0) );
+		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( tableWidget->cellWidget( row, 0 ) );
 	
-		QComboBox * actionCombo =dynamic_cast <QComboBox *> ( tableWidget->cellWidget(row,2) );
+		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( tableWidget->cellWidget( row, 2 ) );
+
+		QSpinBox * actionSpinner = dynamic_cast <QSpinBox *> ( tableWidget->cellWidget( row, 3 ) );
 
 		QString eventString;
 		QString actionString;
@@ -491,6 +502,10 @@ void PreferencesDialog::saveMidiTable(){
 			actionString = actionCombo->currentText();
 		
 			action * pAction = new action( actionString );
+
+			if( actionSpinner->cleanText() != ""){
+				pAction->addParameter( actionSpinner->cleanText() );
+			}
 	
 			mM->registerMMCEvent( eventString , pAction );
 		}

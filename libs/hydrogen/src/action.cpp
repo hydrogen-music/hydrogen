@@ -21,6 +21,7 @@
  */
 #include <QObject>
 
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
 #include <gui/src/HydrogenApp.h>
@@ -113,6 +114,8 @@ actionManager::actionManager() : Object( "actionManager" ) {
 	<< "PLAY" 
 	<< "PLAY_TOGGLE"
 	<< "PAUSE"
+	<< "BPM_INCR"
+	<< "BPM_DECR"
 	<< "STOP";
 
 	eventList << ""
@@ -219,6 +222,36 @@ bool actionManager::handleAction( action * pAction ){
 
 		//(HydrogenApp::getInstance() )->setStatusBarMessage(QString("Record keyboard/midi events = On") , 2000 );
 		
+	}
+
+	if( sActionString == "BPM_INCR" ){
+		Hydrogen* pEngine = Hydrogen::get_instance();
+		AudioEngine::get_instance()->lock( "Action::BPM_INCR" );
+
+		Song* pSong = pEngine->getSong();
+		if (pSong->__bpm  < 300) {
+			pEngine->setBPM( pSong->__bpm + 0.1 );
+		}
+		AudioEngine::get_instance()->unlock();
+	}
+
+	if( sActionString == "BPM_DECR" ){
+		Hydrogen* pEngine = Hydrogen::get_instance();
+		AudioEngine::get_instance()->lock( "Action::BPM_DECR" );
+
+		int mult = 0;	
+
+		/*
+		if( pAction->getParameterList.size() > 0){
+			bool ok;
+			mult = pAction->getParameterList.at(0).toInt(&ok,10);
+		}*/
+
+		Song* pSong = pEngine->getSong();
+		if (pSong->__bpm  > 40 ) {
+			pEngine->setBPM( pSong->__bpm - 0.1 );
+		}
+		AudioEngine::get_instance()->unlock();
 	}
 
 	if( sActionString == "RECORD_TOGGLE"){
