@@ -1,0 +1,71 @@
+#
+# Hydrogen build script
+#
+
+# vim: set filetype=python
+# kate: syntax python
+
+import urllib
+import os
+import subprocess
+import sys
+
+
+def download_3rdparty_libs():
+	print " * Downloading required 3rdparty libraries"
+
+	curdir = os.path.abspath( os.path.curdir )
+	prefix = os.path.abspath( os.path.curdir ) + "/3rdparty/install"
+
+	compile_flags = "--enable-static --disable-shared"
+
+
+	if not os.path.exists( "3rdparty" ):
+		os.mkdir( "3rdparty" )
+
+	if not os.path.exists( "3rdparty/install" ):
+		os.mkdir( "3rdparty/install" )
+
+
+	if not os.path.exists( "3rdparty/libsndfile.tar.gz" ):
+		print " * Downloading libsndfile"
+		urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1.0.17.tar.gz", "3rdparty/libsndfile.tar.gz")
+		
+	
+	if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
+		Execute( "cd 3rdparty; tar xzf libsndfile.tar.gz" )
+		Execute( "cd 3rdparty/libsndfile-1.0.17; ./configure --disable-flac --prefix=%s %s" % (prefix, compile_flags) )
+		res = Execute( "cd 3rdparty/libsndfile-1.0.17; make -j2; make install" )
+		if res != 0:
+			raise Exception( "Error compiling 3rdparty libraries" )
+
+
+
+def get_svn_revision():
+	p = subprocess.Popen("svnversion -n", shell=True, stdout=subprocess.PIPE)
+	return p.stdout.read()
+
+
+
+debug_build = True
+
+
+print ""
+print "================================================================="
+print " Hydrogen build script"
+print ""
+print " Revision: %s" % get_svn_revision()
+print " Platform: %s" % sys.platform
+if debug_build:
+	print " Debug build"
+else:
+	print " Release build"
+print "================================================================="
+print ""
+
+
+env = Environment()
+env.CacheDir( "scons_cache" )
+
+download_3rdparty_libs()
+
