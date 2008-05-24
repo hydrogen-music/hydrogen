@@ -23,6 +23,9 @@
 
 #ifndef DRUMKIT_MANAGER_H
 #define DRUMKIT_MANAGER_H
+
+#include "config.h"
+
 #include <QTimer>
 #include <QWidget>
 #include <QListWidget>

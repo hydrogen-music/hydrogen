@@ -23,9 +23,9 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
-#include "ui_PreferencesDialog_UI.h"
+#include "config.h"
 
-#include <QDialog>
+#include "ui_PreferencesDialog_UI.h"
 
 #include <hydrogen/Object.h>
 

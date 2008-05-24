@@ -24,17 +24,14 @@
 #ifndef HELPBROWSER_H
 #define HELPBROWSER_H
 
+#include "config.h"
+
 #include <iostream>
 
 using std::cout;
 #include <string>
 
-#include <QShowEvent>
-#include <QResizeEvent>
-#include <QDialog>
-#include <QFile>
-#include <QPushButton>
-#include <QTextBrowser>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 

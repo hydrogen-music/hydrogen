@@ -2,6 +2,7 @@ include(../features.pri)
 
 TARGET = hydrogen
 INCLUDEPATH += ../ ../libs/hydrogen/include
+INCLUDEPATH += ./gui/src/
 DESTDIR = ..
 
 QT += network xml
@@ -132,7 +133,7 @@ TRANSLATIONS = \
 	../data/i18n/hydrogen.ru.ts
 
 FORMS    = \
-	src/UI/AboutDialog_UI.ui \
+	src/UI/about_dialog.ui \
 	src/UI/AudioEngineInfoForm_UI.ui \
 	src/UI/DrumkitManager_UI.ui \
 	src/UI/ExportSongDialog_UI.ui \

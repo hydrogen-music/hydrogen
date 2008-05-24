@@ -23,12 +23,11 @@
 #ifndef ABOUT__DIALOG_H
 #define ABOUT__DIALOG_H
 
-//#include "config.h"
+#include "config.h"
 
-#include <QDialog>
-#include <QTextBrowser>
+#include <QtGui>
 
-#include "ui_AboutDialog_UI.h"
+#include "ui_about_dialog.h"
 
 class AboutDialog : public QDialog, public Ui_AboutDialog_UI
 {

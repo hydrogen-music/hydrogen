@@ -24,8 +24,9 @@
 #ifndef PATTERN_EDITOR_INSTRUMENT_LIST_H
 #define PATTERN_EDITOR_INSTRUMENT_LIST_H
 
-#include <QWidget>
-#include <QMenu>
+#include "config.h"
+
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include <hydrogen/Pattern.h>

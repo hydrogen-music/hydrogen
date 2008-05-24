@@ -22,7 +22,7 @@
 
 #include "DownloadWidget.h"
 
-#include <QtGui>
+#include <cmath>
 
 #include <hydrogen/globals.h>
 

@@ -23,6 +23,8 @@
 #ifndef WAVE_DISPLAY
 #define WAVE_DISPLAY
 
+#include "config.h"
+
 #include <QtGui>
 
 #include <hydrogen/Object.h>

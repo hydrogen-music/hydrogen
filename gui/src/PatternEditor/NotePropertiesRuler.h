@@ -24,8 +24,8 @@
 #define NOTE_PROPERTIES_RULER_H
 
 #include "../EventListener.h"
-#include <QWidget>
- #include <QTimer>
+
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 #include "PatternEditorPanel.h"

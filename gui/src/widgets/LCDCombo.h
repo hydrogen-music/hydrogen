@@ -23,6 +23,8 @@
 #ifndef LCDCOMBO_H
 #define LCDCOMBO_H
 
+#include "config.h"
+
 #include <string>
 #include <iostream>
 
@@ -32,14 +34,7 @@
 #include "LCD.h"
 #include "Button.h"
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPaintEvent>
-#include <QPainter>
-#include <QMenu>
-#include <QString>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 

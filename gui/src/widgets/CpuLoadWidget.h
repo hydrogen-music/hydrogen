@@ -23,10 +23,10 @@
 #ifndef CPU_LOAD_WIDGET_H
 #define CPU_LOAD_WIDGET_H
 
+#include "config.h"
+
 #include <string>
 #include <iostream>
-
-//#include "config.h"
 
 #include "../EventListener.h"
 #include <hydrogen/Object.h>

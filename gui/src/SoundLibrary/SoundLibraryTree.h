@@ -23,9 +23,9 @@
 #ifndef SOUND_LIBRARY_TREE_H
 #define SOUND_LIBRARY_TREE_H
 
-#include <QTreeWidget>
-#include <QMouseEvent>
-#include <QMenu>
+#include "config.h"
+
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 

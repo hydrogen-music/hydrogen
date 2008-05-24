@@ -24,15 +24,14 @@
 #ifndef DRUM_PATTERN_EDITOR_H
 #define DRUM_PATTERN_EDITOR_H
 
+#include "config.h"
 #include "../EventListener.h"
 
 #include <hydrogen/Object.h>
 #include <hydrogen/note.h>
 #include <hydrogen/Pattern.h>
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMenu>
+#include <QtGui>
 
 class PatternEditorInstrumentList;
 class PatternEditorPanel;

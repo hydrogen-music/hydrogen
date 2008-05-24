@@ -26,8 +26,6 @@
 
 #include <hydrogen/globals.h>
 
-#include <QtGui>
-
 #include <vector>
 
 class Author {

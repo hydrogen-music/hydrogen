@@ -23,6 +23,8 @@
 #ifndef HYDROGEN_APP_H
 #define HYDROGEN_APP_H
 
+#include "config.h"
+
 #include <iostream>
 
 #include <QtGui>

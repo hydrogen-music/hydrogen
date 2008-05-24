@@ -23,11 +23,9 @@
 #ifndef LCD_H
 #define LCD_H
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPaintEvent>
+#include "config.h"
+
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 

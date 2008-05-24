@@ -23,8 +23,9 @@
 #ifndef CLICKABLE_LABEL_H
 #define CLICKABLE_LABEL_H
 
-#include <QLabel>
-#include <QMouseEvent>
+#include "config.h"
+#include <QtGui>
+
 
 class ClickableLabel : public QLabel
 {

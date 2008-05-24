@@ -23,13 +23,10 @@
 #ifndef DOWNLOAD_WIDGET_H
 #define DOWNLOAD_WIDGET_H
 
-#include <QString>
-#include <QDialog>
+#include "config.h"
+
+#include <QtGui>
 #include <QtNetwork>
-#include <QTimer>
-#include <QLabel>
-#include <QProgressBar>
-#include <QFile>
 
 #include <hydrogen/Object.h>
 

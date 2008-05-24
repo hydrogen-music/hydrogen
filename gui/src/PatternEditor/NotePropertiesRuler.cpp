@@ -20,13 +20,12 @@
  *
  */
 
-#include <QtGui>
-
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
 using namespace H2Core;
 
+#include <cassert>
 
 #include "../HydrogenApp.h"
 

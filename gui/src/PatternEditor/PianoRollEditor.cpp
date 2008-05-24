@@ -23,6 +23,7 @@
 #include "PianoRollEditor.h"
 
 #include <QtGui>
+#include <cassert>
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>

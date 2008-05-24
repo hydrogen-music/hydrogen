@@ -24,10 +24,9 @@
 #ifndef MIDI_ACTIVITY_WIDGET_H
 #define MIDI_ACTIVITY_WIDGET_H
 
-#include <QMouseEvent>
-#include <QPaintEvent>
-#include <QWidget>
-#include <QPixmap>
+#include "config.h"
+
+#include <QtGui>
 
 #include "../EventListener.h"
 #include <hydrogen/Object.h>

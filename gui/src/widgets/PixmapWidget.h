@@ -23,10 +23,8 @@
 #ifndef PIXMAP_WIDGET_H
 #define PIXMAP_WIDGET_H
 
-#include <QWidget>
-#include <QPixmap>
-#include <QPaintEvent>
-#include <QColor>
+#include "config.h"
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 

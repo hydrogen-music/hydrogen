@@ -28,7 +28,7 @@
 #ifndef DATA_PATH_H
 #define DATA_PATH_H
 
-#include <string>
+#include <QtCore>
 
 namespace H2Core
 {

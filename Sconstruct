@@ -9,6 +9,55 @@ import urllib
 import os
 import subprocess
 import sys
+import glob
+
+def recursiveDirs(root) :
+	return filter( ( lambda a : a.rfind( ".svn") == -1 ),  [ a[0] for a in os.walk( root ) ] )
+
+def unique( list ) :
+	return dict.fromkeys( list ).keys()
+
+def scanFiles(dir, accept=[ "*.cpp" ], reject=[] ) :
+	sources = []
+	paths = recursiveDirs( dir )
+	for path in paths:
+		for pattern in accept:
+			sources += glob.glob( path + "/" + pattern )
+	for pattern in reject:
+		sources = filter( ( lambda a : a.rfind( pattern ) == -1 ),  sources )
+	return unique( sources )
+
+def subdirsContaining( root, patterns ):
+	dirs = unique( map( os.path.dirname, scanFiles( root, patterns ) ) )
+	dirs.sort()
+	return dirs
+
+
+
+def get_platform_flags():
+	includes = []
+	cppflags = ""
+	ldflags = ""
+
+	if sys.platform == "linux2" or sys.platform == "darwin":
+		if debug_build:
+			cppflags += " -Wall -g2 -ggdb -O0"
+		else:
+			cppflags += " -O3 -fomit-frame-pointer -funroll-loops"
+			cppflags += " %s" % get_optimized_flags( target_cpu )
+
+	includes.append( './' )
+	includes.append( '3rdparty/install/include' )
+
+	if sys.platform == 'linux2':
+		pass
+	elif sys.platform == 'darwin':
+		pass
+	else:
+		raise Exception( "Platform '%s' not supported" % sys.platform )
+
+	return (includes, cppflags, ldflags)
+
 
 
 def download_3rdparty_libs():
@@ -47,6 +96,61 @@ def get_svn_revision():
 
 
 
+def get_hydrogen_lib():
+	includes, cppflags, ldflags = get_platform_flags()
+
+	includes.append( "libs/hydrogen/include" )
+
+	qt4ToolLocation='.'
+	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
+	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
+	env.CacheDir( "scons_cache" )
+
+
+	src = scanFiles( "libs/hydrogen", ['*.cpp', '*.cc', '*.c' ], [ 'moc_'] )
+
+	static_lib = env.StaticLibrary(target = 'hydrogen', source = src )
+	return static_lib
+
+
+def get_hydrogen_gui( lib_hydrogen ):
+	includes, cppflags, ldflags = get_platform_flags()
+
+	includes.append( "libs/hydrogen/include" )
+	includes.append( "gui/src/UI" )
+
+	qt4ToolLocation='.'
+	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
+	env.EnableQt4Modules( ['QtCore', 'QtGui', 'QtNetwork', 'QtXml' ], debug=False)
+	env.CacheDir( "scons_cache" )
+
+	# rcc needs a -name flag because examples use identified resource files
+	def takebasename(file):
+		return os.path.splitext(os.path.basename(file))[0]
+
+
+	directory = "gui"
+
+	resources = [ env.Qrc( qrc, QT4_QRCFLAGS = '-name ' + takebasename( qrc ) ) for qrc in scanFiles(directory, ['*.qrc'] ) ]
+	interfaces = [ env.Uic4( uic ) for uic in scanFiles(directory, ['*.ui'] ) ]
+
+
+	src = scanFiles( directory, ['*.cpp', '*.cc', '*.c' ], [ 'moc_'] )
+
+	env.Append( LIBS = lib_hydrogen )
+	env.Append( LIBS = ["sndfile"] )
+	env.Append( LIBS = ["tar"] )
+
+	#app = env.Program(target = 'hydrogengui', source = src, LIBS = libs )
+	app = env.Program(target = 'hydrogengui', source = src )
+
+
+	env.Alias('programs', app)
+	env.Default('programs')
+	return app
+
+
+
 debug_build = True
 
 
@@ -64,8 +168,8 @@ print "================================================================="
 print ""
 
 
-env = Environment()
-env.CacheDir( "scons_cache" )
-
 download_3rdparty_libs()
+
+libhyd = get_hydrogen_lib()
+app = get_hydrogen_gui( libhyd )
 

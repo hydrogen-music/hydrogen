@@ -23,6 +23,8 @@
 #ifndef SOUND_LIBRARY_PANEL_H
 #define SOUND_LIBRARY_PANEL_H
 
+#include "config.h"
+
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QMouseEvent>

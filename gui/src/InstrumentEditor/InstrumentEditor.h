@@ -23,6 +23,11 @@
 #ifndef INSTRUMENT_EDITOR_DIALOG_H
 #define INSTRUMENT_EDITOR_DIALOG_H
 
+#include "config.h"
+
+#include <QtGui>
+
+#include <hydrogen/instrument.h>
 #include <hydrogen/Object.h>
 
 #include "../EventListener.h"
@@ -37,8 +42,6 @@ class Rotary;
 class WaveDisplay;
 class LayerPreview;
 
-#include <hydrogen/instrument.h>
-#include <QtGui>
 
 ///
 /// Instrument Editor

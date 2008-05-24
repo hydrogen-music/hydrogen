@@ -23,15 +23,16 @@
 #ifndef LADSPA_FX_SELECTOR_H
 #define LADSPA_FX_SELECTOR_H
 
-#include <hydrogen/Object.h>
+#include "config.h"
+
 #include "ui_LadspaFXSelector_UI.h"
+
+#include <hydrogen/Object.h>
+#include <hydrogen/fx/LadspaFX.h>
 
 #include <string>
 #include <vector>
 
-#include <QDialog>
-
-#include <hydrogen/fx/LadspaFX.h>
 
 class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public Object
 {

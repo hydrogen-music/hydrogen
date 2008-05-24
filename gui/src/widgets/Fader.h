@@ -24,14 +24,12 @@
 #ifndef FADER_H
 #define FADER_H
 
+#include "config.h"
+
 #include <string>
 #include <iostream>
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPaintEvent>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 

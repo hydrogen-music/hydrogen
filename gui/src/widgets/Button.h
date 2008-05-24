@@ -24,14 +24,12 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include "config.h"
+
 #include <hydrogen/Object.h>
 #include "PixmapWidget.h"
 
-#include <QMouseEvent>
-#include <QEvent>
-#include <QPixmap>
-#include <QWidget>
-
+#include <QtGui>
 
 /**
  * Generic Button with pixmaps and text.

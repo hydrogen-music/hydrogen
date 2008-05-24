@@ -23,13 +23,11 @@
 #ifndef FILE_BROWSER_H
 #define FILE_BROWSER_H
 
+#include "config.h"
+
 #include <hydrogen/Object.h>
 
-#include <QWidget>
-#include <QLabel>
-#include <QListWidget>
-#include <QDir>
-#include <QPushButton>
+#include <QtGui>
 
 class FileBrowser : public QWidget, private Object
 {

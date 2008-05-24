@@ -23,7 +23,7 @@
 
 #ifndef FILE_PREVIEW_H
 #define FILE_PREVIEW_H
-
+/*
 #include <hydrogen/Object.h>
 
 #include <QLabel>
@@ -53,5 +53,7 @@ class FilePreview : public QWidget, public Q3FilePreview, public Object
 		QLabel *m_pSamplerate;
 		string m_sFilename;
 };
+
+*/
 
 #endif
