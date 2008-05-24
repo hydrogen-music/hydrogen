@@ -168,6 +168,29 @@ print "================================================================="
 print ""
 
 
+# write the config.h file
+conf = open("config.h", "w")
+
+conf.write( "#ifndef HYD_CONFIG_H\n" )
+conf.write( "#define HYD_CONFIG_H\n" )
+conf.write( "#include <string>\n" )
+conf.write( "static const std::string REVISION = \"%s\";\n" % get_svn_revision() )
+conf.write( "static const std::string VERSION = \"0.9.4-svn\" + REVISION;\n" )
+conf.write( "#ifndef QT_BEGIN_NAMESPACE\n" )
+conf.write( "#    define QT_BEGIN_NAMESPACE\n" )
+conf.write( "#endif\n" )
+conf.write( "#ifndef QT_END_NAMESPACE\n" )
+conf.write( "#    define QT_END_NAMESPACE\n" )
+conf.write( "#endif\n" )
+
+install_prefix = "/usr/local"
+conf.write( "#define CONFIG_PREFIX \"%s\"\n" % install_prefix )
+conf.write( "#define DATA_PATH \"%s/share/hydrogen/data\"\n" % install_prefix )
+
+conf.write( "#endif\n" )
+
+conf.close()
+
 download_3rdparty_libs()
 
 libhyd = get_hydrogen_lib()
