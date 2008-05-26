@@ -686,10 +686,10 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 	}
 	engine->setSelectedPatternNumber( row );
 
-	if (ev->button() == Qt::RightButton) {
+	if ( ev->button() == Qt::MidButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ){
 		togglePattern( row );
 	}
-	else if ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) {
+	else if (ev->button() == Qt::RightButton)  {
 /*
 		if ( song->getMode() == Song::PATTERN_MODE ) {
 
