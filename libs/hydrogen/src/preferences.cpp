@@ -420,6 +420,24 @@ void Preferences::loadPreferences( bool bGlobal )
 						mM->registerMMCEvent(event, pAction);
 						
 					}
+
+					
+					if( pMidiEventNode->FirstChild()->Value() == QString("noteEvent")){
+						QString event = pMidiEventNode->FirstChild("noteEvent")->FirstChild()->Value();
+	
+						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
+
+						//QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
+
+						QString s_eventParameter = pMidiEventNode->FirstChild("eventParameter")->FirstChild()->Value();
+	
+						action * pAction = new action( s_action );
+
+					
+						//pAction->addParameter( s_param );
+				
+						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
+					}
 				}
 			} else {
 				WARNINGLOG( "midiMap node not found" );
@@ -642,7 +660,7 @@ void Preferences::savePreferences()
 	TiXmlElement midiEventMapNode( "midiEventMap" );
 	{
 		
-		std::map< QString , action *>::iterator dIter(mmcMap.begin());
+		std::map< QString , action *>::iterator dIter( mmcMap.begin() );
 		for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
 			
 			QString event;
@@ -664,6 +682,25 @@ void Preferences::savePreferences()
 
 				midiEventMapNode.InsertEndChild(midiEventNode);
 
+			}
+		}
+		
+		for( int note=0; note < 128; note++ ){
+			action * pAction = mM->getNoteAction( note );
+			if( pAction != NULL && pAction->getType() != "NOTHING")
+			{
+				TiXmlElement midiEventNode( "midiEvent" );
+				
+				LocalFileMng::writeXmlString( &midiEventNode, "noteEvent" , QString("NOTE") );
+				LocalFileMng::writeXmlString( &midiEventNode, "eventParameter" , QString::number( note ) );
+
+				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType() );
+
+				if ( pAction->getParameterList().size() != 0 ){
+					LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameterList().at(0) );
+				}
+
+				midiEventMapNode.InsertEndChild(midiEventNode);
 			}
 		}
 	}

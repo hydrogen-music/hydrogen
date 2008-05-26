@@ -60,15 +60,24 @@ action::action( QString s ) : Object( "action" ) {
 midiMap::midiMap() : Object( "midiMap" )
 {
 	//constructor
+	for(int note = 0; note < 128; note++ ){
+		noteArray[ note ] = new action("NOTHING");
+	}
 }
 
 midiMap::~midiMap()
 {
 	std::map< QString , action *>::iterator dIter(mmcMap.begin());
+
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
 	{
 		delete dIter->second;
 	}
+
+	for(int i = 0; i < 128; i++){
+		delete noteArray[i];
+	}
+
 	instance = NULL;
 }
 
@@ -87,6 +96,13 @@ void midiMap::registerMMCEvent( QString eventString , action * pAction ){
 	mmcMap[ eventString ] = pAction;
 }
 
+void midiMap::registerNoteEvent( int note , action * pAction ){
+	
+	if( note >= 0 && note < 128 ){
+		delete noteArray[ note ];
+		noteArray[ note ] = pAction;
+	}
+}
 
 action * midiMap::getMMCAction( QString eventString ){
 	
@@ -99,7 +115,9 @@ action * midiMap::getMMCAction( QString eventString ){
 	return mmcMap[eventString];
 }
 
-
+action * midiMap::getNoteAction( int note ){
+	return noteArray[ note ];
+}
 
 
 
@@ -126,7 +144,8 @@ actionManager::actionManager() : Object( "actionManager" ) {
 	<< "MMC_REWIND"
 	<< "MMC_RECORD_STROBE"
 	<< "MMC_RECORD_EXIT"
-	<< "MMC_PAUSE";
+	<< "MMC_PAUSE"
+	<< "NOTE";
 }
 
 

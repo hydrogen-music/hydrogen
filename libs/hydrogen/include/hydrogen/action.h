@@ -52,10 +52,20 @@ class midiMap : public Object
 		static midiMap * getInstance();
 
 		void registerMMCEvent( QString,action * );
+		void registerNoteEvent( int , action * );
+
+		map <QString , action *> getMMCMap();
 
 		action * getMMCAction( QString );
+		action * getNoteAction( int note );
+
+		void setupNoteArray();
 		
-		map <QString , action *> getMMCMap();
+		
+
+	private:
+
+		action * noteArray[128];
 		map <QString , action *> mmcMap;
 };
 

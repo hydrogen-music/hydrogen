@@ -388,6 +388,7 @@ void PreferencesDialog::on_driverComboBox_activated( int index )
 }
 
 
+
 void PreferencesDialog::setupMidiTable()
 {
 	actionManager *aH = actionManager::getInstance();
@@ -445,7 +446,7 @@ void PreferencesDialog::setupMidiTable()
 	
 
 		QString actionParameter;
-		if(pAction->getParameterList().size() != 0){
+		if( pAction->getParameterList().size() != 0 ){
 			actionParameter = pAction->getParameterList().at(0);
 		}
 
@@ -456,6 +457,44 @@ void PreferencesDialog::setupMidiTable()
 		
 		tableWidget->setCellWidget( rowCount , 3, actionParameterSpinner );
 		rowCount++;
+	}
+
+	for( int note = 0; note < 128; note++ ){
+		
+		QString eventString = "NOTE";
+		
+		action * pAction = mM->getNoteAction( note );
+		if( pAction->getType() != "NOTHING" ){
+			cout << note << pAction << endl;
+			
+			tableWidget->insertRow( tableWidget->rowCount() );
+			QComboBox *eventBox = new QComboBox();
+			eventBox->insertItems( rowCount , aH->getEventList() );
+			eventBox->setCurrentIndex( eventBox->findText(eventString) );
+			tableWidget->setCellWidget( rowCount, 0, eventBox );
+			
+			QSpinBox *eventParameterSpinner = new QSpinBox();
+			tableWidget->setCellWidget( rowCount , 1, eventParameterSpinner );
+			eventParameterSpinner->setValue( note );
+			
+			QComboBox *actionBox = new QComboBox();
+			actionBox->insertItems(rowCount,aH->getActionList());
+			actionBox->setCurrentIndex ( actionBox->findText(pAction->getType() ) );
+			tableWidget->setCellWidget( rowCount , 2, actionBox );
+		
+	
+			QString actionParameter;
+			QSpinBox *actionParameterSpinner = new QSpinBox();
+
+			if( pAction->getParameterList().size() > 0 ){
+				actionParameter = pAction->getParameterList().at(0);
+				bool ok;
+				actionParameterSpinner->setValue( actionParameter.toInt(&ok,10) );
+			}
+	
+			tableWidget->setCellWidget( rowCount , 3, actionParameterSpinner );
+			rowCount++;
+		}
 	}
 	
 	tableWidget->insertRow( tableWidget->rowCount() );
@@ -489,12 +528,17 @@ void PreferencesDialog::saveMidiTable(){
 
 		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( tableWidget->cellWidget( row, 0 ) );
 	
+		QSpinBox * eventSpinner = dynamic_cast <QSpinBox *> ( tableWidget->cellWidget( row, 1 ) );
+
 		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( tableWidget->cellWidget( row, 2 ) );
 
 		QSpinBox * actionSpinner = dynamic_cast <QSpinBox *> ( tableWidget->cellWidget( row, 3 ) );
 
+		
+
 		QString eventString;
 		QString actionString;
+		
 
 		if( eventCombo->currentText() != "" && actionCombo->currentText() != "" ){
 			eventString = eventCombo->currentText();
@@ -507,7 +551,14 @@ void PreferencesDialog::saveMidiTable(){
 				pAction->addParameter( actionSpinner->cleanText() );
 			}
 	
-			mM->registerMMCEvent( eventString , pAction );
+			if( eventString.left(3) == "MMC" ){
+				mM->registerMMCEvent( eventString , pAction );
+			}
+			
+			if( eventString.left(4) == "NOTE" ){
+				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
+				cout << "register " << eventSpinner->value() << endl;
+			}
 		}
 	}
 

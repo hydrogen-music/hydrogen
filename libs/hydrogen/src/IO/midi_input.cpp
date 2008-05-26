@@ -36,6 +36,7 @@ MidiInput::MidiInput( const QString class_name )
 		, m_bActive( false )
 {
 	//INFOLOG( "INIT" );
+	
 }
 
 
@@ -131,6 +132,11 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 	INFOLOG( "handleNoteOnMessage" );
+
+	actionManager * aH = actionManager::getInstance();
+	midiMap * mM = midiMap::getInstance();
+
+	aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
 
 	int nMidiChannelFilter = Preferences::getInstance()->m_nMidiChannelFilter;
 	int nChannel = msg.m_nChannel;
