@@ -672,6 +672,8 @@ void PreferencesDialog::updateDriverInfo()
 		QString selectedDriver = driverComboBox->currentText();
 		ERRORLOG( "Unknown driver = " + selectedDriver );
 	}
+
+	metronomeVolumeSpinBox->setEnabled(true);
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
 
 	driverInfoLbl->setText(info);
