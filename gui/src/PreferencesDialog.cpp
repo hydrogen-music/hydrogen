@@ -464,9 +464,9 @@ void PreferencesDialog::setupMidiTable()
 		QString eventString = "NOTE";
 		
 		action * pAction = mM->getNoteAction( note );
+		
 		if( pAction->getType() != "NOTHING" ){
-			cout << note << pAction << endl;
-			
+		
 			tableWidget->insertRow( tableWidget->rowCount() );
 			QComboBox *eventBox = new QComboBox();
 			eventBox->insertItems( rowCount , aH->getEventList() );
@@ -557,7 +557,6 @@ void PreferencesDialog::saveMidiTable(){
 			
 			if( eventString.left(4) == "NOTE" ){
 				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
-				cout << "register " << eventSpinner->value() << endl;
 			}
 		}
 	}
