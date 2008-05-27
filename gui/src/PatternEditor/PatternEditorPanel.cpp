@@ -60,26 +60,44 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget(0);
 	editor_top->setPixmap("/patternEditor/editor_top.png", true);
-	editor_top->setFixedHeight(62);
+	editor_top->setFixedHeight(49);
+
+	PixmapWidget *editor_top_2 = new PixmapWidget(0);
+	editor_top_2->setPixmap("/patternEditor/editor_top.png", true);
+	editor_top_2->setFixedHeight(49);
 
 	QHBoxLayout *editor_top_hbox = new QHBoxLayout(editor_top);
 	editor_top_hbox->setSpacing(0);
 	editor_top_hbox->setMargin(0);
+	editor_top_hbox->setAlignment(Qt::AlignLeft);
 
+	QHBoxLayout *editor_top_hbox_2 = new QHBoxLayout(editor_top_2);
+	editor_top_hbox_2->setSpacing(0);
+	editor_top_hbox_2->setMargin(0);
+	editor_top_hbox_2->setAlignment(Qt::AlignLeft);
+
+
+//wolke some background images back_size_res
+	PixmapWidget *pSizeResol = new PixmapWidget( NULL );
+	pSizeResol->setFixedSize( 156, 43 );
+	pSizeResol->setPixmap( "/patternEditor/background_res.png" );
+	pSizeResol->move( 0, 3 );
+	editor_top_hbox_2->addWidget( pSizeResol );
 
 	// PATTERN size
-	__pattern_size_combo = new LCDCombo(NULL, 4);
+	__pattern_size_combo = new LCDCombo(pSizeResol, 4);
+	__pattern_size_combo->move( 14, 21 );
 	__pattern_size_combo->setToolTip( trUtf8("Select pattern size") );
 	for ( int i = 1; i <= 32; i++) {
 		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
 	}
 	__pattern_size_combo->update();
 	connect(__pattern_size_combo, SIGNAL( valueChanged( QString ) ), this, SLOT( patternSizeChanged(QString) ) );
-	editor_top_hbox->addWidget(__pattern_size_combo);
+	//editor_top_hbox->addWidget(__pattern_size_combo);
 
 
 	// GRID resolution
-	__resolution_combo = new LCDCombo(NULL, 7);
+	__resolution_combo = new LCDCombo( pSizeResol , 7);
 	__resolution_combo->setToolTip(trUtf8("Select grid resolution"));
 	__resolution_combo->addItem( "4" );
 	__resolution_combo->addItem( "8" );
@@ -94,81 +112,101 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addSeparator();
 	__resolution_combo->addItem( "off" );
 	__resolution_combo->update();
+	__resolution_combo->move( 68, 21 );
 	connect(__resolution_combo, SIGNAL(valueChanged(QString)), this, SLOT(gridResolutionChanged(QString)));
-	editor_top_hbox->addWidget(__resolution_combo);
+	//editor_top_hbox->addWidget(__resolution_combo);
+
+
+//wolke some background images hear note rec quant
+
+	PixmapWidget *pRec = new PixmapWidget( NULL );
+	pRec->setFixedSize( 107, 43 );
+	pRec->setPixmap( "/patternEditor/background_rec.png" );
+	pRec->move( 0, 3 );
+	editor_top_hbox_2->addWidget( pRec );
 
 
 	// Hear notes btn
 	ToggleButton *hearNotesBtn = new ToggleButton(
-			NULL,
+			pRec,
 			"/patternEditor/btn_hear_on.png",
 			"/patternEditor/btn_hear_off.png",
 			"/patternEditor/btn_hear_off.png",
 			QSize(15, 13)
 	);
+	hearNotesBtn->move( 11, 18 );
 	hearNotesBtn->setToolTip( trUtf8( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL(clicked(Button*)), this, SLOT( hearNotesBtnClick(Button*)));
-	editor_top_hbox->addWidget(hearNotesBtn);
-
+	//editor_top_hbox->addWidget(hearNotesBtn);
 	// restore hear new notes button state
 	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
 
 
 	// Record events btn
 	ToggleButton* recordEventsBtn = new ToggleButton(
-			NULL,
+			pRec,
 			"/patternEditor/btn_record_on.png",
 			"/patternEditor/btn_record_off.png",
 			"/patternEditor/btn_record_off.png",
 			QSize(15, 13)
 	);
+	recordEventsBtn->move( 46, 18 );
 	recordEventsBtn->setPressed( pPref->getRecordEvents());
 	recordEventsBtn->setToolTip( trUtf8( "Record keyboard/midi events" ) );
 	connect( recordEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( recordEventsBtnClick(Button*)));
-	editor_top_hbox->addWidget(recordEventsBtn);
+	//editor_top_hbox->addWidget(recordEventsBtn);
 
 
 	// quantize
 	ToggleButton* quantizeEventsBtn = new ToggleButton(
-			NULL,
+			pRec,
 			"/patternEditor/btn_quant_on.png",
 			"/patternEditor/btn_quant_off.png",
 			"/patternEditor/btn_quant_off.png",
 			QSize(15, 13)
 	);
+	quantizeEventsBtn->move( 80, 18 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
-	editor_top_hbox->addWidget(quantizeEventsBtn);
+	//editor_top_hbox->addWidget(quantizeEventsBtn);
 
+
+//wolke some background images hear note rec quant
+	PixmapWidget *pZoom = new PixmapWidget( NULL );
+	pZoom->setFixedSize( 73, 43 );
+	pZoom->setPixmap( "/patternEditor/background_zoom.png" );
+	pZoom->move( 0, 3 );
+	editor_top_hbox_2->addWidget( pZoom );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
-			NULL,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize(20, 20)
+			pZoom,
+			"/songEditor/btn_new_on.png",
+			"/songEditor/btn_new_off.png",
+			"/songEditor/btn_new_over.png",
+			QSize(19, 13)
 	);
-	zoom_in_btn->setFontSize(7);
-	zoom_in_btn->setText("+");
+	zoom_in_btn->move( 42, 18 );
+	//zoom_in_btn->setText("+");
 	zoom_in_btn->setToolTip( trUtf8( "Zoom in" ) );
 	connect(zoom_in_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomInBtnClicked(Button*) ) );
-	editor_top_hbox->addWidget(zoom_in_btn);
+	//editor_top_hbox_2->addWidget(zoom_in_btn);
 
 
 	// zoom-out btn
 	Button *zoom_out_btn = new Button(
-			NULL,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize(20, 20)
+			pZoom,
+			"/songEditor/btn_minus_on.png",
+			"/songEditor/btn_minus_off.png",
+			"/songEditor/btn_minus_over.png",
+			QSize(19, 13)
 	);
-	zoom_out_btn->setText("-");
+	zoom_out_btn->move( 11, 18 );
+	//zoom_out_btn->setText("-");
 	zoom_out_btn->setToolTip( trUtf8( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomOutBtnClicked(Button*) ) );
-	editor_top_hbox->addWidget(zoom_out_btn);
+	//editor_top_hbox_2->addWidget(zoom_out_btn);
 
 
 	// show drum editor btn
@@ -357,8 +395,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->setSpacing( 0 );
 	pGrid->setMargin( 0 );
 
-	pGrid->addWidget( editor_top, 0, 0, 1, 3 );
-
+	pGrid->addWidget( editor_top, 0, 0);
+	pGrid->addWidget( editor_top_2, 0, 1, 1, 3);
 	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
 
@@ -601,8 +639,8 @@ void PatternEditorPanel::recordEventsBtnClick(Button *ref)
 		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Record keyboard/midi events = Off" ), 2000 );
 	}
 
-}
 
+}
 
 
 void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
