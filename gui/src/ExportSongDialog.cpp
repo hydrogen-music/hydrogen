@@ -113,8 +113,9 @@ void ExportSongDialog::on_okBtn_clicked()
 void ExportSongDialog::on_closeBtn_clicked()
 {
 	Hydrogen::get_instance()->stopExportSong();
-	accept();
 	m_bExporting = false;
+	accept();
+
 }
 
 
@@ -135,6 +136,8 @@ void ExportSongDialog::progressEvent( int nValue )
         m_pProgressBar->setValue( nValue );
 	if ( nValue == 100 ) {
 	  //INFOLOG("SONO A 100");
-	  accept();
+	Hydrogen::get_instance()->stopExportSong();
+	m_bExporting = false;
+	accept();
 	}
 }
