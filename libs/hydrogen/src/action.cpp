@@ -247,9 +247,17 @@ bool actionManager::handleAction( action * pAction ){
 		Hydrogen* pEngine = Hydrogen::get_instance();
 		AudioEngine::get_instance()->lock( "Action::BPM_INCR" );
 
+		int mult = 1;	
+
+		if( pAction->getParameterList().size() > 0){
+			bool ok;
+			mult = pAction->getParameterList().at(0).toInt(&ok,10);
+		}
+
+
 		Song* pSong = pEngine->getSong();
 		if (pSong->__bpm  < 300) {
-			pEngine->setBPM( pSong->__bpm + 0.1 );
+			pEngine->setBPM( pSong->__bpm + 1*mult );
 		}
 		AudioEngine::get_instance()->unlock();
 	}
@@ -258,17 +266,16 @@ bool actionManager::handleAction( action * pAction ){
 		Hydrogen* pEngine = Hydrogen::get_instance();
 		AudioEngine::get_instance()->lock( "Action::BPM_DECR" );
 
-		int mult = 0;	
+		int mult = 1;	
 
-		/*
-		if( pAction->getParameterList.size() > 0){
+		if( pAction->getParameterList().size() > 0){
 			bool ok;
-			mult = pAction->getParameterList.at(0).toInt(&ok,10);
-		}*/
+			mult = pAction->getParameterList().at(0).toInt(&ok,10);
+		}
 
 		Song* pSong = pEngine->getSong();
 		if (pSong->__bpm  > 40 ) {
-			pEngine->setBPM( pSong->__bpm - 0.1 );
+			pEngine->setBPM( pSong->__bpm - 1*mult );
 		}
 		AudioEngine::get_instance()->unlock();
 	}
