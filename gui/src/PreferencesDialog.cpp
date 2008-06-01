@@ -32,6 +32,7 @@
 #include <QPixmap>
 #include <QFontDialog>
 
+#include <hydrogen/midiMap.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/IO/MidiInput.h>

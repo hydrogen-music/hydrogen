@@ -27,6 +27,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
 #include <hydrogen/action.h>
+#include <hydrogen/midiMap.h>
 
 namespace H2Core
 {

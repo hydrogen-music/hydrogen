@@ -28,6 +28,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 
+#include <hydrogen/midiMap.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/globals.h>

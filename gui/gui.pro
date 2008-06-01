@@ -8,7 +8,7 @@ DESTDIR = ..
 QT += network xml
 
 CONFIG += qt warn_on precompile_header release
-PRECOMPILED_HEADER  = src/Precompiled.h
+PRECOMPILED_HEADER = src/Precompiled.h
 LIBS += ../libs/libhydrogen.a
 
 OBJECTS_DIR = objs
@@ -21,13 +21,13 @@ PRE_TARGETDEPS = ../libs/libhydrogen.a
 
 
 
-exists(/usr/bin/doxygen) {
-#	message("Doxygen is available.")
-#	# Crea la documentazione con Doxygen
-#	doxygen.target = ../docs/html/dummy
-#	doxygen.commands = cd ../docs; doxygen
-#	QMAKE_EXTRA_TARGETS += doxygen
-#	POST_TARGETDEPS = ../docs/html/dummy
+exists(/usr/bin/doxygen){
+    #	message("Doxygen is available.")
+    #	# Crea la documentazione con Doxygen
+    #	doxygen.target = ../docs/html/dummy
+    #	doxygen.commands = cd ../docs; doxygen
+    #	QMAKE_EXTRA_TARGETS += doxygen
+    #	POST_TARGETDEPS = ../docs/html/dummy
 }
 
 
@@ -37,72 +37,72 @@ exists(/usr/bin/doxygen) {
 #QMAKE_PRE_LINK = $$[QT_INSTALL_PREFIX]/bin/lupdate gui.pro; $$[QT_INSTALL_PREFIX]/bin/lrelease gui.pro
 
 linux-g++ {
-	message( *** LINUX BUILD *** )
-	LIBS += -lsndfile
-	LIBS += -ltar
+    message( *** LINUX BUILD *** )
+    LIBS += -lsndfile
+    LIBS += -ltar
 }
 linux-g++-64 {
-	message( *** LINUX 64bit BUILD *** )
-	LIBS += -lsndfile
-	LIBS += -ltar
+    message( *** LINUX 64bit BUILD *** )
+    LIBS += -lsndfile
+    LIBS += -ltar
 }
 
 win32 {
-	message( *** WIN32 BUILD *** )
-	INCLUDEPATH += ../win32build/includes
-	INCLUDEPATH += ../win32build/libs/libpthread
-	INCLUDEPATH += ../win32build/libs/libsndfile
-	INCLUDEPATH += ../win32build/libs/flac
+    message( *** WIN32 BUILD *** )
+    INCLUDEPATH += ../win32build/includes
+    INCLUDEPATH += ../win32build/libs/libpthread
+    INCLUDEPATH += ../win32build/libs/libsndfile
+    INCLUDEPATH += ../win32build/libs/flac
 
-	LIBS += ../win32build/libs/libsndfile/libsndfile.a
-	LIBS += ../win32build/libs/libpthread/libpthreadGC1.a
-	LIBS += ../win32build/libs/portaudio/libportaudio.a
-	LIBS += ../win32build/libs/portmidi/libporttime.a
-	LIBS += ../win32build/libs/portmidi/libportmidi.a
-	LIBS += -lwinmm
+    LIBS += ../win32build/libs/libsndfile/libsndfile.a
+    LIBS += ../win32build/libs/libpthread/libpthreadGC1.a
+    LIBS += ../win32build/libs/portaudio/libportaudio.a
+    LIBS += ../win32build/libs/portmidi/libporttime.a
+    LIBS += ../win32build/libs/portmidi/libportmidi.a
+    LIBS += -lwinmm
 }
 
 macx-g++ {
-	message( *** MAC BUILD *** )
-	CONFIG += x86
+    message( *** MAC BUILD *** )
+    CONFIG += x86
 
-	ICON = ../macos/Hydrogen.icns
-	LIBS += -L/opt/local/lib
-	LIBS += -lsndfile
-	LIBS += -ltar
-	INCLUDEPATH += /System/Library/Frameworks/Carbon.framework/Headers
-	QMAKE_LFLAGS_SONAME  = -Wl,-install_name,@executable_path/../Frameworks/
-	QMAKE_POST_LINK = cd ..;macos/fixlibs.sh
+    ICON = ../macos/Hydrogen.icns
+    LIBS += -L/opt/local/lib
+    LIBS += -lsndfile
+    LIBS += -ltar
+    INCLUDEPATH += /System/Library/Frameworks/Carbon.framework/Headers
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../Frameworks/
+    QMAKE_POST_LINK = cd ..;macos/fixlibs.sh
 }
 
 
 DEFINES += $$H2DEFINES
 contains(H2DEFINES, LRDF_SUPPORT ){
-	LIBS += -llrdf
+    LIBS += -llrdf
 }
 
 contains(H2DEFINES, ALSA_SUPPORT ){
-	LIBS += -lasound
+    LIBS += -lasound
 }
 
-contains(H2DEFINES, JACK_SUPPORT ) {
-	LIBS += -ljack
+contains(H2DEFINES, JACK_SUPPORT ){
+    LIBS += -ljack
 }
 
-contains(H2DEFINES, FLAC_SUPPORT ) {
-	linux-g++ {
-		LIBS += -lFLAC -lFLAC++
-	}
-	linux-g++-64 {
-		LIBS += -lFLAC -lFLAC++
-	}
-	win32 {
-		LIBS += ../win32build/libs/flac/libFLAC++.a
-		LIBS += ../win32build/libs/flac/libFLAC.a
-	}
-	macx {
-		LIBS += -lFLAC -lFLAC++
-	}
+contains(H2DEFINES, FLAC_SUPPORT ){
+    linux-g++ {
+        LIBS += -lFLAC -lFLAC++
+    }
+    linux-g++-64 {
+        LIBS += -lFLAC -lFLAC++
+    }
+    win32 {
+        LIBS += ../win32build/libs/flac/libFLAC++.a
+        LIBS += ../win32build/libs/flac/libFLAC.a
+    }
+    macx {
+        LIBS += -lFLAC -lFLAC++
+    }
 }
 
 # the executable will be built in debug mode
@@ -132,7 +132,7 @@ TRANSLATIONS = \
 	../data/i18n/hydrogen.pl.ts \
 	../data/i18n/hydrogen.ru.ts
 
-FORMS    = \
+FORMS = \
 	src/UI/about_dialog.ui \
 	src/UI/AudioEngineInfoForm_UI.ui \
 	src/UI/DrumkitManager_UI.ui \
@@ -204,7 +204,9 @@ SOURCES += \
 	src/PreferencesDialog.cpp \
 	src/SongPropertiesDialog.cpp \
 	src/SplashScreen.cpp \
-	src/main.cpp
+	src/main.cpp \
+ ../libs/hydrogen/src/midiMap.cpp \
+ ../libs/hydrogen/include/hydrogen/midiMap.cpp
 
 
 HEADERS += \

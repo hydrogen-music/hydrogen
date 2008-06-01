@@ -42,32 +42,7 @@ class action : public Object {
 };
 
 
-class midiMap : public Object
-{
-	public:
-		midiMap();
-		~midiMap();
 
-		static midiMap * instance;
-		static midiMap * getInstance();
-
-		void registerMMCEvent( QString,action * );
-		void registerNoteEvent( int , action * );
-
-		map <QString , action *> getMMCMap();
-
-		action * getMMCAction( QString );
-		action * getNoteAction( int note );
-
-		void setupNoteArray();
-		
-		
-
-	private:
-
-		action * noteArray[128];
-		map <QString , action *> mmcMap;
-};
 
 
 class actionManager : public Object

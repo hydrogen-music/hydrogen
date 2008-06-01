@@ -36,6 +36,7 @@
 #include <iostream>
 #include <cstdio>
 #include <list>
+#include <hydrogen/midiMap.h>
 
 #include <hydrogen/data_path.h>
 #include "config.h"

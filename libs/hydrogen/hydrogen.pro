@@ -57,6 +57,7 @@ HEADERS += \
 		include/hydrogen/sample.h \
 		include/hydrogen/data_path.h \
 		include/hydrogen/event_queue.h \
+		include/hydrogen/midiMap.h \
 		include/hydrogen/SoundLibrary.h \
 		include/hydrogen/h2_exception.h \
 		\
@@ -138,6 +139,7 @@ SOURCES += \
 		src/hydrogen.cpp \
 		src/instrument.cpp \
 		src/local_file_mgr.cpp \
+		src/midiMap.cpp \
 		src/note.cpp \
 		src/object.cpp \
 		src/pattern.cpp \
