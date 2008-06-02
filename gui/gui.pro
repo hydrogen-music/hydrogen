@@ -205,8 +205,6 @@ SOURCES += \
 	src/SongPropertiesDialog.cpp \
 	src/SplashScreen.cpp \
 	src/main.cpp \
- ../libs/hydrogen/src/midiMap.cpp \
- ../libs/hydrogen/include/hydrogen/midiMap.cpp
 
 
 HEADERS += \
