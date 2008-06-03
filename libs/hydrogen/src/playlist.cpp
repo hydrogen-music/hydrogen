@@ -39,7 +39,7 @@ using namespace H2Core;
 
 //playlist globals
 int selectedSongNumber = -1;
-int activSongNumber = -1;
+int activeSongNumber = -1;
 
 Playlist* Playlist::instance = NULL;	
 
@@ -67,7 +67,7 @@ Playlist::~Playlist()
 
 
 
-Playlist* Playlist::get_instances()
+Playlist* Playlist::get_instance()
 {
 	if ( instance == NULL ) {
 		instance = new Playlist();
@@ -91,8 +91,7 @@ void Playlist::setNextSongByNumber(int SongNumber)
 	QString selected = "";
 	selected = Hydrogen::get_instance()->m_PlayList[ realNumber ].m_hFile;
 
-	//std::string name = selected.toStdString();
-	loadSong(selected);
+	loadSong( selected );
 	execScript( realNumber );
 }
 
@@ -102,7 +101,7 @@ void Playlist::setNextSongPlaylist()
 {
 	
 	int index = getSelectedSongNr();
-_INFOLOG( "index" + to_string(index) );
+_INFOLOG( "index" + to_string( index ) );
 	if (index == -1 ){
 		if ( getActiveSongNumber() != -1){
 			index = getActiveSongNumber();
@@ -121,8 +120,7 @@ _INFOLOG( "index" + to_string(index) );
 	QString selected = "";
 	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
 
-	//std::string name = selected.toStdString();
-	loadSong(selected);
+	loadSong( selected );
 	execScript( index );
 }
 
@@ -131,8 +129,9 @@ _INFOLOG( "index" + to_string(index) );
 void Playlist::setPrevSongPlaylist()
 {
 	int index = getSelectedSongNr();
+
 	if (index == -1 ){
-		if ( getActiveSongNumber() != -1){
+		if ( getActiveSongNumber() != -1 ){
 			index = getActiveSongNumber();
 		}else
 		{
@@ -141,18 +140,18 @@ void Playlist::setPrevSongPlaylist()
 	}
 
 	index = index -1;
+
 	if (index < 0 ) 
 		return;
+
 	setSelectedSongNr( index );
 	setActiveSongNumber( index );
 
 	QString selected = "";
 	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
 
-	//std::string name = selected.toStdString();
-	loadSong(selected);
+	loadSong( selected );
 	execScript( index );
-	
 }
 
 
@@ -171,21 +170,21 @@ int Playlist::getSelectedSongNr()
 
 
 
-void Playlist::setActiveSongNumber( int ActivSongNumber)
+void Playlist::setActiveSongNumber( int ActiveSongNumber)
 {
-	 activSongNumber = ActivSongNumber ;
+	 activeSongNumber = ActiveSongNumber ;
 }
 
 
 
 int Playlist::getActiveSongNumber()
 {
-	return activSongNumber;
+	return activeSongNumber;
 }
 
 
 
-void Playlist::loadSong( QString songName)
+void Playlist::loadSong( QString songName )
 {
 
 	HydrogenApp *pH2App = HydrogenApp::getInstance();
@@ -210,9 +209,6 @@ void Playlist::loadSong( QString songName)
 
 void Playlist::execScript( int index)
 {
-///exec script
-///this is very very simple and only an experiment
-
 	QString file = "";
 	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
 
@@ -222,16 +218,13 @@ void Playlist::execScript( int index)
 	std::string filename = file.toStdString();
 	std::string execscript = script.toStdString();
 
-	if( filename == "no Script")
-		return;
-	
-	if( execscript == "Script not used")
+	if( filename == "no Script" || execscript == "Script not used")
 		return;
 	
 	char *filen;
-	filen = new char[filename.length() + 1];
-	strcpy(filen, filename.c_str());
-	std::system(filen); 
+	filen = new char[ filename.length() + 1 ];
+	strcpy( filen, filename.c_str() );
+	std::system( filen ); 
 	delete [] filen;
 	return;
 }

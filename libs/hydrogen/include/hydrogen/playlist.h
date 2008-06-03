@@ -30,7 +30,6 @@
 #include <hydrogen/hydrogen.h>
 #include "gui/src/HydrogenApp.h"
 #include <vector>
-//class HydrogenApp;
 
 
 
@@ -44,7 +43,7 @@ class Playlist :  public Object
 {
 	
 	public:
-		static Playlist* get_instances();
+		static Playlist* get_instance();
 		
 		~Playlist();
 
@@ -52,20 +51,23 @@ class Playlist :  public Object
 		void setNextSongByNumber(int SongNumber);	
 		void setNextSongPlaylist();
 		void setPrevSongPlaylist();
-		int selectedSongNumber;
 		void setSelectedSongNr( int songNumber);
-		int getSelectedSongNr();
-		void setActiveSongNumber( int ActivSongNumber);
-		int getActiveSongNumber();
 
+		int selectedSongNumber;
+		
+
+		int getSelectedSongNr();
+		void setActiveSongNumber( int ActiveSongNumber);
+		int getActiveSongNumber();
 
 
 	private:
 
 		static Playlist* instance;
 
-	/// Constructor
+		/// Constructor
 		Playlist();
+
 		void loadSong( QString songName );
 		void execScript( int index);
 };

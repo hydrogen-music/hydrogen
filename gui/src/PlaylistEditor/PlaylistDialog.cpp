@@ -144,8 +144,8 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		enableScriptcheckBox->setEnabled ( true );
 
 		//restore the selected item		
-		int selected = Playlist::get_instances()->getActiveSongNumber();
-		int Selected = Playlist::get_instances()->getSelectedSongNr();
+		int selected = Playlist::get_instance()->getActiveSongNumber();
+		int Selected = Playlist::get_instance()->getSelectedSongNr();
 		if( selected == -1 && Selected == -1 ) return;
 		
 		int aselected = 0;
@@ -161,7 +161,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		}
 
 	QTimer *timer = new QTimer( this );
-	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActivSongNumber() ) );
+	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
 	timer->start( 1000 );	// update player control at 1 fps
 
 }
@@ -212,8 +212,8 @@ void PlaylistDialog::on_removeFromListBTN_clicked()
 		if (m_pItem == 0){
 			m_pPlaylist->clear();
 			Hydrogen::get_instance()->m_PlayList.clear();
-			Playlist::get_instances()->setSelectedSongNr( -1 );
-			Playlist::get_instances()->setActiveSongNumber( -1 );
+			Playlist::get_instance()->setSelectedSongNr( -1 );
+			Playlist::get_instance()->setActiveSongNumber( -1 );
 			editScriptBTN->setEnabled ( false );
 			nodePlayBTN->setEnabled ( false );
 			removeFromListBTN->setEnabled ( false );
@@ -250,7 +250,7 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 	m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 
 //	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
-//	Playlist::get_instances()->setSelectedSongNr( index );
+//	Playlist::get_instance()->setSelectedSongNr( index );
 
 }
 
@@ -296,7 +296,7 @@ void PlaylistDialog::on_loadListBTN_clicked()
 			QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( 0 );
 			m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
-			Playlist::get_instances()->setSelectedSongNr( 0 );
+			Playlist::get_instance()->setSelectedSongNr( 0 );
 		}
 
 	}
@@ -545,7 +545,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemSelectionChanged()
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
-	Playlist::get_instances()->setSelectedSongNr( index );	
+	Playlist::get_instance()->setSelectedSongNr( index );	
 
 	if( selected == "Script not used" ){
 		enableScriptcheckBox->setChecked ( false );
@@ -610,7 +610,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
-	Playlist::get_instances()->setActiveSongNumber( index );
+	Playlist::get_instance()->setActiveSongNumber( index );
 	
 	HydrogenApp *pH2App = HydrogenApp::getInstance();
 	Hydrogen *engine = Hydrogen::get_instance();
@@ -680,12 +680,12 @@ void PlaylistDialog::updatePlayListVector()
 	}
 }
 
-void PlaylistDialog::updateActivSongNumber()
+void PlaylistDialog::updateActiveSongNumber()
 {
 	//if(Preferences::getInstance()->m_usepcmidi == Preferences::USE_PC_MIDI_PLAYLIST_OFF )
 	//	return;
 			
-	int selected = Playlist::get_instances()->getActiveSongNumber();
+	int selected = Playlist::get_instance()->getActiveSongNumber();
 	if ( selected == -1 ) 
 		return;
 	

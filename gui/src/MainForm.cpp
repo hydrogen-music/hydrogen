@@ -153,7 +153,7 @@ MainForm::~MainForm()
 	hide();
 
 	if (h2app != NULL) {
-		Playlist::get_instances()->~Playlist();
+		delete Playlist::get_instance();
 		delete h2app;
 		h2app = NULL;
 	}
@@ -1211,14 +1211,14 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			case  Qt::Key_PageUp :
 				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
 					break;
-				Playlist::get_instances()->setPrevSongPlaylist();
+				Playlist::get_instance()->setPrevSongPlaylist();
 				return TRUE;
 				break;
 
 			case  Qt::Key_PageDown :
 				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
 					break;
-				Playlist::get_instances()->setNextSongPlaylist();
+				Playlist::get_instance()->setNextSongPlaylist();
 				return TRUE;
 				break;
 			
