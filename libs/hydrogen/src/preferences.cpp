@@ -428,14 +428,13 @@ void Preferences::loadPreferences( bool bGlobal )
 	
 						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
 
-						//QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
+						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
 
 						QString s_eventParameter = pMidiEventNode->FirstChild("eventParameter")->FirstChild()->Value();
 	
 						action * pAction = new action( s_action );
 
-					
-						//pAction->addParameter( s_param );
+						pAction->addParameter( s_param );
 				
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
