@@ -5,11 +5,13 @@ TEMPLATE = lib
 CONFIG += qt warn_on thread staticlib precompile_header
 QMAKE_CXXFLAGS_RELEASE += -g -Wall
 QMAKE_CXXFLAGS_DEBUG += -g -Wall
+QMAKE_CXXFLAGS+= -I/usr/include/lash-1.0
 
 
 DESTDIR = ..
 INCLUDEPATH += ../.. include
 OBJECTS_DIR = objs
+
 
 win32 {
 	INCLUDEPATH += ../../win32build/includes
@@ -60,6 +62,7 @@ HEADERS += \
 		include/hydrogen/midiMap.h \
 		include/hydrogen/SoundLibrary.h \
 		include/hydrogen/h2_exception.h \
+		include/hydrogen/LashClient.h \
 		\
 		include/hydrogen/fx/Effects.h \
 		include/hydrogen/fx/LadspaFX.h \
@@ -90,9 +93,6 @@ HEADERS += \
 		src/IO/PortMidiDriver.h \
 		src/IO/PortAudioDriver.h \
 		src/IO/CoreAudioDriver.h \
-		\
-		\
-		\
 		src/flac_file.h \
 
 
@@ -147,6 +147,10 @@ SOURCES += \
 		src/preferences.cpp \
 		src/sample.cpp \
 		src/song.cpp \
-		src/sound_library.cpp
+		src/sound_library.cpp \
+		src/lash/LashClient.cpp \
+		\
+		
+
 
 

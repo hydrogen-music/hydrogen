@@ -60,6 +60,11 @@ using namespace H2Core;
 	#include <sys/time.h>
 #endif
 
+#ifdef LASH_SUPPORT
+#include <lash-1.0/lash/lash.h>
+#include <hydrogen/LashClient.h>
+#endif
+
 #include <cassert>
 
 using std::map;
@@ -131,6 +136,25 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_autosaveTimer.start( 60 * 1000 );
+
+
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient->isConnected())
+	{
+		// send alsa client id now since it can only be sent
+		// after the audio engine has been started.
+		Preferences *pref = Preferences::getInstance();
+		if ( pref->m_sMidiDriver == "ALSA" ) {
+//			infoLog("[LASH] Sending alsa seq id to LASH server");
+			lashClient->sendAlsaClientId();
+		}
+		// start timer for polling lash events
+		lashPollTimer = new QTimer(this);
+		connect( lashPollTimer, SIGNAL( timeout() ), this, SLOT( onLashPollTimer() ) );
+		lashPollTimer->start(500);
+	}
+#endif
 }
 
 
@@ -257,6 +281,85 @@ void MainForm::createMenuBar()
 	//~ INFO menu
 }
 
+
+
+
+void MainForm::onLashPollTimer()
+{
+#ifdef LASH_SUPPORT	
+	LashClient* client = LashClient::getInstance();
+	
+	if (!client->isConnected())
+	{
+		WARNINGLOG("[LASH] Not connected to server!");
+		return;
+	}
+	
+	bool keep_running = true;
+
+	lash_event_t* event;
+
+	string songFilename = "";
+	QString filenameSong = "";
+	Song *song = Hydrogen::get_instance()->getSong();
+	while (event = client->getNextEvent()) {
+		
+		switch (lash_event_get_type(event)) {
+			
+			case LASH_Save_File:
+		
+				INFOLOG("[LASH] Save file");
+			
+				songFilename.append(lash_event_get_string(event));
+				songFilename.append("/hydrogen.h2song"); 
+				
+				filenameSong = songFilename.c_str();
+				song->set_filename( filenameSong );
+				action_file_save();
+			  
+				client->sendEvent(LASH_Save_File);
+			  
+				break;
+		
+			case LASH_Restore_File:
+		
+				songFilename.append(lash_event_get_string(event));
+				songFilename.append("/hydrogen.h2song"); 
+				
+				INFOLOG("[LASH] Restore file: " + to_string( songFilename ));
+
+				filenameSong = songFilename.c_str();
+							 
+				openSongFile( filenameSong );
+			 
+				client->sendEvent(LASH_Restore_File);
+			 
+				break;
+
+			case LASH_Quit:
+		
+//				infoLog("[LASH] Quit!");
+				keep_running = false;
+				
+				break;
+		
+			default:
+				;
+//				infoLog("[LASH] Got unknown event!");
+
+		}
+
+		lash_event_destroy(event);
+
+	}
+
+   if (!keep_running)
+   {
+	   lashPollTimer->stop();
+	   action_file_exit();
+   }
+#endif
+}
 
 
 /// return true if the app needs to be closed.

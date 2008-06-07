@@ -32,6 +32,10 @@
 
 #include <pthread.h>
 
+#ifdef LASH_SUPPORT
+#include <hydrogen/LashClient.h>
+#endif
+
 using namespace std;
 
 namespace H2Core
@@ -77,6 +81,15 @@ void* alsaMidiDriver_thread( void* param )
 		pthread_exit( NULL );
 	}
 	clientId = snd_seq_client_id( seq_handle );
+
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient && lashClient->isConnected())
+	{
+		lashClient->setAlsaClientId((unsigned char) clientId);
+	}
+#endif
+
 
 	int m_local_addr_port = portId;
 	int m_local_addr_client = clientId;

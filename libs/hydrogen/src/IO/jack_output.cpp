@@ -31,7 +31,9 @@
 #include <hydrogen/Song.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
-
+#ifdef LASH_SUPPORT
+#include <hydrogen/LashClient.h>
+#endif
 namespace H2Core
 {
 
@@ -106,7 +108,25 @@ int JackOutput::connect()
 		return 1;
 	}
 
-	if ( connect_out_flag ) {
+
+	bool connect_output_ports = connect_out_flag;
+	
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient && lashClient->isConnected())
+	{
+//		infoLog("[LASH] Sending Jack client name to LASH server");
+		lashClient->sendJackClientName();
+		
+		if (!lashClient->isNewProject())
+		{
+			connect_output_ports = false;
+		}
+	}
+#endif
+	
+	if ( connect_output_ports ) {
+//	if ( connect_out_flag ) {
 		// connect the ports
 		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toAscii() ) == 0 &&
 		        jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toAscii() ) == 0 ) {
@@ -433,6 +453,13 @@ int JackOutput::init( unsigned nBufferSize )
 //	memset( out_L, 0, nBufferSize * sizeof( float ) );
 //	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
+#ifdef LASH_SUPPORT
+	LashClient* lashClient = LashClient::getInstance();
+	if (lashClient->isConnected())
+	{
+		lashClient->setJackClientName(sClientName.toStdString());
+	}
+#endif
 
 	return 0;
 }

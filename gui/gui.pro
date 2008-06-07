@@ -89,6 +89,10 @@ contains(H2DEFINES, JACK_SUPPORT ){
     LIBS += -ljack
 }
 
+contains(H2DEFINES, LASH_SUPPORT ){
+    LIBS += -llash
+}
+
 contains(H2DEFINES, FLAC_SUPPORT ){
     linux-g++ {
         LIBS += -lFLAC -lFLAC++
@@ -108,6 +112,7 @@ contains(H2DEFINES, FLAC_SUPPORT ){
 # the executable will be built in debug mode
 QMAKE_CXXFLAGS_RELEASE += -g -Wall
 QMAKE_CXXFLAGS_DEBUG += -g -Wall
+QMAKE_CXXFLAGS+= -I/usr/include/lash-1.0
 
 
 # installs the hydrogen executable
@@ -206,7 +211,6 @@ SOURCES += \
 	src/SplashScreen.cpp \
 	src/main.cpp \
 
-
 HEADERS += \
 	src/widgets/Button.h \
 	src/widgets/CpuLoadWidget.h \
@@ -263,6 +267,6 @@ HEADERS += \
 	src/PreferencesDialog.h \
 	src/Skin.h \
 	src/SongPropertiesDialog.h \
-	src/SplashScreen.h
-
+	src/SplashScreen.h \
+	\
 

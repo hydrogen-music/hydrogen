@@ -24,6 +24,11 @@
 #include "config.h"
 #include <getopt.h>
 
+
+#ifdef LASH_SUPPORT
+#include <hydrogen/LashClient.h>
+#endif
+
 #include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
@@ -126,6 +131,10 @@ int main(int argc, char *argv[])
 
 #ifdef CONFIG_DEBUG
 		Object::useVerboseLog( true );
+#endif
+
+#ifdef LASH_SUPPORT
+		LashClient *lashClient = new LashClient("hydrogen", "Hydrogen", &argc, &argv);
 #endif
 
 		// Options...
@@ -246,6 +255,34 @@ int main(int argc, char *argv[])
 		else {
 			pSplash->show();
 		}
+
+#ifdef LASH_SUPPORT
+		
+		if (lashClient->isConnected())
+		{
+			lash_event_t* lash_event = lashClient->getNextEvent();
+			if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
+			{
+				// notify client that this project was not a new one
+				lashClient->setNewProject(false);
+				
+				songFilename = "";
+				songFilename.append(lash_event_get_string(lash_event));
+				songFilename.append("/hydrogen.h2song"); 
+				
+//				Logger::getInstance()->log("[LASH] Restore file: " + songFilename);
+	
+				lash_event_destroy(lash_event);
+			}
+			else if (lash_event)
+			{
+//				Logger::getInstance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+				lash_event_destroy(lash_event);
+			}
+		}
+		
+#endif
+
 		
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();

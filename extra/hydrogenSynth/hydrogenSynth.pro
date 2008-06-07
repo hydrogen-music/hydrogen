@@ -57,6 +57,10 @@ contains(H2DEFINES, JACK_SUPPORT ) {
 	LIBS += -ljack
 }
 
+contains(H2DEFINES, LASH_SUPPORT ) {
+	LIBS += -llash
+}
+
 contains(H2DEFINES, FLAC_SUPPORT ) {
 	linux-g++ {
 		LIBS += -lFLAC -lFLAC++
