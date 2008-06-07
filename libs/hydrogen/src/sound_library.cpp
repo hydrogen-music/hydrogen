@@ -170,7 +170,7 @@ void Drumkit::install( const QString& filename )
 
 
 
-void Drumkit::save( const QString& sName, const QString& sAuthor, const QString& sInfo )
+void Drumkit::save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense )
 {
 	_INFOLOG( "Saving drumkit" );
 
@@ -178,6 +178,7 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 	pDrumkitInfo->setName( sName );
 	pDrumkitInfo->setAuthor( sAuthor );
 	pDrumkitInfo->setInfo( sInfo );
+	pDrumkitInfo->setLicense( sLicense );
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList *pSongInstrList = pSong->get_instrument_list();

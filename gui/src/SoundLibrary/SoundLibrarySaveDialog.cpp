@@ -51,7 +51,8 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 	H2Core::Drumkit::save(
 			nameTxt->text(),
 			authorTxt->text(),
-			infoTxt->toHtml()
+			infoTxt->toHtml(),
+			licenseTxt->text()
 	);
 	accept();
 }

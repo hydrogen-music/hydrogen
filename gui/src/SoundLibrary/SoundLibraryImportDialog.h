@@ -39,6 +39,7 @@ struct SoundLibraryInfo
 	QString m_sInfo;
 	QString m_sAuthor;
 	QString m_sType;
+	QString m_sLicense;
 };
 
 

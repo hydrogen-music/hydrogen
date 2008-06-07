@@ -432,11 +432,13 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 
 	QString author = readXmlString( drumkitNode, "author", "undefined author", true );
 	QString info = readXmlString( drumkitNode, "info", "defaultInfo", true );
+	QString license = readXmlString( drumkitNode, "license", "undefined license", true );
 
 	Drumkit *drumkitInfo = new Drumkit();
 	drumkitInfo->setName( sDrumkitName );
 	drumkitInfo->setAuthor( author );
 	drumkitInfo->setInfo( info );
+	drumkitInfo->setLicense( info );
 
 	InstrumentList *instrumentList = new InstrumentList();
 

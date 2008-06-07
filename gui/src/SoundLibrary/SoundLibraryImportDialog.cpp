@@ -170,6 +170,11 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 					soundLibInfo.m_sAuthor = authorNode.text();
 				}
 
+				QDomElement licenseNode = drumkitNode.firstChildElement( "license" );
+				if ( !licenseNode.isNull() ) {
+					soundLibInfo.m_sLicense = licenseNode.text();
+				}
+
 				m_soundLibraryList.push_back( soundLibInfo );
 			}
 		}
@@ -311,6 +316,10 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem * curren
 				}
 
 				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.m_sAuthor ) );
+
+				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.m_sLicense ) );
+
+
 				DownloadBtn->setEnabled( true );
 				return;
 			}

@@ -1,15 +1,12 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>SoundLibrarySaveDialog_UI</class>
  <widget class="QDialog" name="SoundLibrarySaveDialog_UI" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>249</height>
+    <width>612</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -25,9 +22,7 @@
     </rect>
    </property>
    <property name="sizePolicy" >
-    <sizepolicy>
-     <hsizetype>7</hsizetype>
-     <vsizetype>7</vsizetype>
+    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -46,9 +41,7 @@
     </rect>
    </property>
    <property name="sizePolicy" >
-    <sizepolicy>
-     <hsizetype>7</hsizetype>
-     <vsizetype>5</vsizetype>
+    <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -61,7 +54,7 @@
    <property name="geometry" >
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>100</y>
      <width>91</width>
      <height>111</height>
     </rect>
@@ -79,7 +72,7 @@
      <x>350</x>
      <y>10</y>
      <width>20</width>
-     <height>231</height>
+     <height>271</height>
     </rect>
    </property>
    <property name="orientation" >
@@ -90,7 +83,7 @@
    <property name="geometry" >
     <rect>
      <x>60</x>
-     <y>210</y>
+     <y>250</y>
      <width>109</width>
      <height>32</height>
     </rect>
@@ -102,9 +95,9 @@
   <widget class="QPushButton" name="saveBtn" >
    <property name="geometry" >
     <rect>
-     <x>170</x>
-     <y>210</y>
-     <width>161</width>
+     <x>180</x>
+     <y>250</y>
+     <width>171</width>
      <height>32</height>
     </rect>
    </property>
@@ -122,9 +115,7 @@
     </rect>
    </property>
    <property name="sizePolicy" >
-    <sizepolicy>
-     <hsizetype>0</hsizetype>
-     <vsizetype>0</vsizetype>
+    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -146,9 +137,7 @@
     </rect>
    </property>
    <property name="sizePolicy" >
-    <sizepolicy>
-     <hsizetype>0</hsizetype>
-     <vsizetype>0</vsizetype>
+    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -164,7 +153,7 @@
    <property name="geometry" >
     <rect>
      <x>110</x>
-     <y>70</y>
+     <y>100</y>
      <width>231</width>
      <height>111</height>
     </rect>
@@ -173,8 +162,45 @@
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QLabel" name="label_4" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>License</string>
+   </property>
+   <property name="alignment" >
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="licenseTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>110</x>
+     <y>70</y>
+     <width>231</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>209</width>
+     <height>0</height>
+    </size>
+   </property>
+  </widget>
  </widget>
- <pixmapfunction></pixmapfunction>
  <resources/>
  <connections>
   <connection>

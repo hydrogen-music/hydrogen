@@ -247,7 +247,8 @@ void OldDrumkitManager::on_saveTab_saveBtn_clicked()
 	H2Core::Drumkit::save(
 			saveTab_nameTxt->text(),
 			saveTab_authorTxt->text(),
-			saveTab_infoTxt->toPlainText()
+			saveTab_infoTxt->toPlainText(),
+			QString("")
 	);
 	updateDrumkitList();
 	setCursor( QCursor( Qt::ArrowCursor ) );

@@ -70,7 +70,7 @@ public:
 	static void install( const QString& filename );
 
 	// Save a drumkit
-	static void save( const QString& sName, const QString& sAuthor, const QString& sInfo );
+	static void save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense );
 
 
 	/// Remove a Drumkit from the disk
@@ -104,6 +104,13 @@ public:
 		return m_sInfo;
 	}
 
+	void setLicense( const QString& license ) {
+		this->m_sLicense = license;
+	}
+	const QString& getLicense() {
+		return m_sLicense;
+	}
+
 	void dump();
 
 private:
@@ -111,6 +118,7 @@ private:
 	QString m_sName;
 	QString m_sAuthor;
 	QString m_sInfo;
+	QString m_sLicense;
 };
 
 };
