@@ -45,6 +45,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 
 	authorTxt->setText( song->__author );
 	notesTxt->append( song->get_notes() );
+	licenseTxt->setText( song->get_license() );
 }
 
 
@@ -66,5 +67,7 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	song->__name = songNameTxt->text();
 	song->__author = authorTxt->text();
 	song->set_notes( notesTxt->toPlainText() );
+	song->set_license( licenseTxt->text() );
+
 	accept();
 }

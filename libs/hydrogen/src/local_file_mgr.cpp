@@ -884,6 +884,7 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 	LocalFileMng::writeXmlString( &songNode, "name", song->__name );
 	LocalFileMng::writeXmlString( &songNode, "author", song->__author );
 	LocalFileMng::writeXmlString( &songNode, "notes", song->get_notes() );
+	LocalFileMng::writeXmlString( &songNode, "license", song->get_license() );
 	LocalFileMng::writeXmlBool( &songNode, "loopEnabled", song->is_loop_enabled() );
 
 	if ( song->get_mode() == Song::SONG_MODE ) {

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>290</width>
-    <height>332</height>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -55,7 +55,7 @@
    <property name="geometry" >
     <rect>
      <x>10</x>
-     <y>132</y>
+     <y>190</y>
      <width>268</width>
      <height>24</height>
     </rect>
@@ -93,7 +93,7 @@
    <property name="geometry" >
     <rect>
      <x>150</x>
-     <y>300</y>
+     <y>330</y>
      <width>90</width>
      <height>24</height>
     </rect>
@@ -112,7 +112,7 @@
    <property name="geometry" >
     <rect>
      <x>50</x>
-     <y>300</y>
+     <y>330</y>
      <width>90</width>
      <height>24</height>
     </rect>
@@ -128,15 +128,43 @@
    <property name="geometry" >
     <rect>
      <x>10</x>
-     <y>160</y>
+     <y>220</y>
      <width>271</width>
-     <height>131</height>
+     <height>101</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="licenseTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>154</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="TextLabel1_3" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text" >
+    <string>License</string>
    </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <includes/>
  <resources/>
  <connections/>
 </ui>

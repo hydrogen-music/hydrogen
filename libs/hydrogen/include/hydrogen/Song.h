@@ -61,7 +61,8 @@ public:
 	float __bpm;			///< Beats per minute
 	bool __is_modified;
 	QString __name;		///< song name
-	QString __author;		///< author of the song
+	QString __author;	///< author of the song
+	QString __license;	///< license of the song
 
 	/*
 	// internal delay FX
@@ -122,6 +123,13 @@ public:
 	}
 	const QString& get_notes() {
 		return __notes;
+	}
+
+	void set_license( const QString& license ) {
+		__license = license;
+	}
+	const QString& get_license() {
+		return __license;
 	}
 
 	const QString& get_filename() {

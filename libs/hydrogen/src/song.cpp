@@ -205,6 +205,7 @@ Song* SongReader::readSong( const QString& filename )
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
 	QString sAuthor( LocalFileMng::readXmlString( songNode, "author", "Unknown Author" ) );
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
+	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
 
 	Song::SongMode nMode = Song::PATTERN_MODE;	// Mode (song/pattern)
@@ -220,6 +221,7 @@ Song* SongReader::readSong( const QString& filename )
 	song = new Song( sName, sAuthor, fBpm, fVolume );
 	song->set_metronome_volume( fMetronomeVolume );
 	song->set_notes( sNotes );
+	song->set_license( sLicense );
 	song->set_loop_enabled( bLoopEnabled );
 	song->set_mode( nMode );
 	song->set_humanize_time_value( fHumanizeTimeValue );
