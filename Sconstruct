@@ -46,11 +46,21 @@ def get_platform_flags():
 			cppflags += " -O3 -fomit-frame-pointer -funroll-loops"
 			cppflags += " %s" % get_optimized_flags( target_cpu )
 
+		cppflags += " -DALSA_SUPPORT"
+		cppflags += " -DJACK_SUPPORT"
+		#cppflags += " -DLASH_SUPPORT"
+		cppflags += " -DFLAC_SUPPORT"
+		cppflags += " -DLADSPA_SUPPORT"
+		cppflags += " -DLRDF_SUPPORT"
+		cppflags += " -DOSS_SUPPORT"
+
+
 	includes.append( './' )
 	includes.append( '3rdparty/install/include' )
 
 	if sys.platform == 'linux2':
-		pass
+		ldflags += " -lasound"
+
 	elif sys.platform == 'darwin':
 		pass
 	else:
@@ -140,6 +150,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Append( LIBS = lib_hydrogen )
 	env.Append( LIBS = ["sndfile"] )
 	env.Append( LIBS = ["tar"] )
+	env.Append( LIBS = ["asound", "jack", "lrdf", "FLAC", "FLAC++"] )
 
 	#app = env.Program(target = 'hydrogengui', source = src, LIBS = libs )
 	app = env.Program(target = 'hydrogengui', source = src )
