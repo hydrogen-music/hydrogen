@@ -28,6 +28,7 @@
 #include "FileBrowser.h"
 
 #include "SoundLibrarySaveDialog.h"
+#include "SoundLibraryExportDialog.h"
 
 #include "../HydrogenApp.h"
 #include "../widgets/Button.h"
@@ -455,8 +456,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 
 void SoundLibraryPanel::on_drumkitExportAction()
 {
-	QMessageBox::warning( this, "Hydrogen", QString( "Not implemented yet.") );
-	ERRORLOG( "[on_drumkitExportAction] not implemented yet" );
+	SoundLibraryExportDialog exportDialog( this );
+	exportDialog.exec();
 }
 
 

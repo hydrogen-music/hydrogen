@@ -112,7 +112,7 @@ contains(H2DEFINES, FLAC_SUPPORT ){
 # the executable will be built in debug mode
 QMAKE_CXXFLAGS_RELEASE += -g -Wall
 QMAKE_CXXFLAGS_DEBUG += -g -Wall
-QMAKE_CXXFLAGS+= -I/usr/include/lash-1.0
+QMAKE_CXXFLAGS+ = -I/usr/include/lash-1.0
 
 
 # installs the hydrogen executable
@@ -150,7 +150,8 @@ FORMS = \
 	src/PlaylistEditor/PlaylistDialog_UI.ui \
 	src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui \
 	src/SoundLibrary/SoundLibraryImportDialog_UI.ui \
-	src/SoundLibrary/SoundLibrarySaveDialog_UI.ui
+	src/SoundLibrary/SoundLibrarySaveDialog_UI.ui \
+	src/SoundLibrary/SoundLibraryExportDialog_UI.ui
 
 
 
@@ -172,6 +173,7 @@ SOURCES += \
 	src/SoundLibrary/SoundLibraryImportDialog.cpp\
 	src/SoundLibrary/SoundLibraryRepositoryDialog.cpp\
 	src/SoundLibrary/SoundLibrarySaveDialog.cpp\
+	src/SoundLibrary/SoundLibraryExportDialog.cpp\
 	\
 	src/InstrumentEditor/InstrumentEditor.cpp \
 	src/InstrumentEditor/InstrumentEditorPanel.cpp \
@@ -229,6 +231,7 @@ HEADERS += \
 	src/SoundLibrary/SoundLibraryImportDialog.h\
 	src/SoundLibrary/SoundLibrarySaveDialog.h\
 	src/SoundLibrary/SoundLibraryRepositoryDialog.h\
+	src/SoundLibrary/SoundLibraryExportDialog.h\
 	\
 	src/InstrumentEditor/InstrumentEditor.h \
 	src/InstrumentEditor/InstrumentEditorPanel.h \
@@ -269,4 +272,3 @@ HEADERS += \
 	src/SongPropertiesDialog.h \
 	src/SplashScreen.h \
 	\
-
