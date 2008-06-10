@@ -52,6 +52,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
+#include "SoundLibrary/SoundLibraryExportDialog.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
@@ -901,9 +902,10 @@ void MainForm::action_instruments_clearAll()
 
 void MainForm::action_instruments_exportLibrary()
 {
-  ERRORLOG( "Not implemented yet" );
-  QMessageBox::warning( this, "Hydrogen", QString( "Not implemented yet.") );
+        SoundLibraryExportDialog exportDialog( this );
+ 	exportDialog.exec();
 }
+
 
 
 
