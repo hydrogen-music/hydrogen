@@ -112,7 +112,7 @@ contains(H2DEFINES, FLAC_SUPPORT ){
 # the executable will be built in debug mode
 QMAKE_CXXFLAGS_RELEASE += -g -Wall
 QMAKE_CXXFLAGS_DEBUG += -g -Wall
-QMAKE_CXXFLAGS+ = -I/usr/include/lash-1.0
+QMAKE_CXXFLAGS += -I/usr/include/lash-1.0
 
 
 # installs the hydrogen executable
