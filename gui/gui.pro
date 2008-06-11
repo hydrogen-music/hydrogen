@@ -213,8 +213,7 @@ SOURCES += \
 	src/SongPropertiesDialog.cpp \
 	src/SplashScreen.cpp \
 	src/main.cpp \
- \
- src/widgets/MidiTable.cpp
+
 HEADERS += \
 	src/widgets/Button.h \
 	src/widgets/CpuLoadWidget.h \
