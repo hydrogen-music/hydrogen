@@ -166,6 +166,7 @@ SOURCES += \
 	src/widgets/Rotary.cpp \
 	src/widgets/DownloadWidget.cpp \
 	src/widgets/LCDCombo.cpp \
+	src/widgets/midiTable.cpp \
 	\
 	src/SoundLibrary/SoundLibraryTree.cpp\
 	src/SoundLibrary/SoundLibraryPanel.cpp\
@@ -212,7 +213,8 @@ SOURCES += \
 	src/SongPropertiesDialog.cpp \
 	src/SplashScreen.cpp \
 	src/main.cpp \
-
+ \
+ src/widgets/MidiTable.cpp
 HEADERS += \
 	src/widgets/Button.h \
 	src/widgets/CpuLoadWidget.h \
@@ -224,6 +226,7 @@ HEADERS += \
 	src/widgets/Rotary.h \
 	src/widgets/DownloadWidget.h \
 	src/widgets/LCDCombo.h \
+	src/widgets/midiTable.cpp \
 	\
 	src/SoundLibrary/SoundLibraryTree.h \
 	src/SoundLibrary/SoundLibraryPanel.h \
@@ -272,3 +275,5 @@ HEADERS += \
 	src/SongPropertiesDialog.h \
 	src/SplashScreen.h \
 	\
+ \
+ src/widgets/midiTable.h

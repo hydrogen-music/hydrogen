@@ -666,7 +666,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QTableWidget" name="tableWidget" >
+    <widget class="midiTable" name="tableWidget" >
      <property name="geometry" >
       <rect>
        <x>10</x>
@@ -876,6 +876,13 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>midiTable</class>
+   <extends>QTableWidget</extends>
+   <header>../src/widgets/midiTable.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
