@@ -666,7 +666,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="midiTable" name="tableWidget" >
+    <widget class="midiTable" name="midiTableWidget" >
      <property name="geometry" >
       <rect>
        <x>10</x>

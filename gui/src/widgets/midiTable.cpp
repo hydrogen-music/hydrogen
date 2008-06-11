@@ -20,34 +20,23 @@
  *
  */
 
-#include "ClickableLabel.h"
-
-#include <QtGui>
-#include "midiTable.h"
-
-
-
-
-#include <QPixmap>
-#include <QFontDialog>
-
 #include "midiTable.h"
 
 #include <hydrogen/midiMap.h>
-#include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/IO/MidiInput.h>
-
 #include <hydrogen/globals.h>
 
 midiTable::midiTable( QWidget *pParent )
- : QTableWidget( pParent ),Object("midiTable")
+ : QTableWidget( pParent ) , Object("midiTable")
 {
 	setupMidiTable();
 }
 
+
+
 midiTable::~midiTable()
 {
+	
 	int myRow = 0;
 	
 	for( myRow = 0; myRow <  rowCount() ; myRow++)

@@ -56,12 +56,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	Preferences *pPref = Preferences::getInstance();
 	pPref->loadPreferences( false );	// reload user's preferences
 
-	setupMidiTable();
-
-	
-	
-
-
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
 	driverComboBox->addItem( "JACK" );
@@ -239,15 +233,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 PreferencesDialog::~PreferencesDialog()
 {	
-	//destroy midi table
-	int row = 0;
-	/*
-	for( row = 0; row <  tableWidget->rowCount(); row++){
-		delete tableWidget->cellWidget(row,0);
-		delete tableWidget->cellWidget(row,1);
-		delete tableWidget->cellWidget(row,2);
-		delete tableWidget->cellWidget(row,3);
-	}*/
+	INFOLOG("~PREFERENCES_DIALOG");	
 }
 
 
@@ -266,7 +252,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	Preferences *pPref = Preferences::getInstance();
 
-	saveMidiTable();
+	midiTableWidget->saveMidiTable();
 
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {
@@ -391,7 +377,7 @@ void PreferencesDialog::on_driverComboBox_activated( int index )
 }
 
 
-
+/*
 void PreferencesDialog::setupMidiTable()
 {
 	actionManager *aH = actionManager::getInstance();
@@ -565,6 +551,7 @@ void PreferencesDialog::saveMidiTable(){
 	}
 
 }
+*/
 
 void PreferencesDialog::updateDriverInfo()
 {

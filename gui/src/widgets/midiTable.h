@@ -24,22 +24,20 @@
 #define MIDI_TABLE_H
 
 #include "config.h"
-
-
-
 #include <hydrogen/Object.h>
-#include <hydrogen/Preferences.h>
 
-class midiTable : public Object , public QTableWidget {
+#include <QtGui>
 
-public:
+class midiTable : public QTableWidget, public Object
+{
+	Q_OBJECT
+	public:
 	
-	
-	midiTable(QWidget*);
-	~midiTable();
+		midiTable(QWidget*);
+		~midiTable();
 
-	void setupMidiTable();
-	void saveMidiTable();
+		void setupMidiTable();
+		void saveMidiTable();
 
 };
 
