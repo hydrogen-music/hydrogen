@@ -22,8 +22,6 @@
 
 #include "midiTable.h"
 
-#include <iostream>
-
 #include <hydrogen/midiMap.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
@@ -45,7 +43,7 @@ midiTable::~midiTable()
 	
 	int myRow = 0;
 	
-	for( myRow = 0; myRow <  rowCount ; myRow++)
+	for( myRow = 0; myRow <=  rowCount ; myRow++)
 	{
 		delete cellWidget(myRow,0);
 		delete cellWidget(myRow,1);
@@ -54,66 +52,61 @@ midiTable::~midiTable()
 	}
 }
 
+
 void midiTable::updateTable(){
 	
-	ERRORLOG("update");
+	
+	if( (rowCount-1) > 0 ) 
+	{
+		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( rowCount-1, 0 ) );
+		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( cellWidget( rowCount-1, 2 ) );
 
+		if( eventCombo == NULL or actionCombo == NULL) return;
+
+		if( actionCombo->currentText() != "" and eventCombo->currentText() != "" ){
+			insertNewRow("", "", 0, 0);
+		}
+	}
 }
 
-void midiTable::insertNewRow(QString eventString, int argument )
+void midiTable::insertNewRow(QString actionString , QString eventString, int eventParameter , int actionParameter)
 {
 	actionManager *aH = actionManager::getInstance();
-	midiMap *mM = midiMap::getInstance();
-	
-	action * pAction;
-	int eventSpinnerValue = 0;
-
-	if ( eventString != "NOTE"){
-		pAction = mM->getMMCAction( eventString );
-		eventSpinnerValue = argument;
-	} else {
-		 pAction = mM->getNoteAction( argument );
-	}
-
-	if( pAction->getType() == "NOTHING" ) return;
-
 
 	insertRow( rowCount );
+	
+	int oldRowCount = rowCount;
+
+	rowCount++;
 
 	QComboBox *eventBox = new QComboBox();
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
-	eventBox->insertItems( rowCount , aH->getEventList() );
+	eventBox->insertItems( oldRowCount , aH->getEventList() );
 	eventBox->setCurrentIndex( eventBox->findText(eventString) );
-	setCellWidget( rowCount, 0, eventBox );
+	setCellWidget( oldRowCount, 0, eventBox );
 	
 	
 	QSpinBox *eventParameterSpinner = new QSpinBox();
-	setCellWidget( rowCount , 1, eventParameterSpinner );
-	eventParameterSpinner->setValue( eventSpinnerValue );
+	setCellWidget( oldRowCount , 1, eventParameterSpinner );
+	eventParameterSpinner->setValue( eventParameter );
 
 
 	QComboBox *actionBox = new QComboBox();
-	actionBox->insertItems(rowCount,aH->getActionList());
-	actionBox->setCurrentIndex ( actionBox->findText(pAction->getType() ) );
-	setCellWidget( rowCount , 2, actionBox );
+	actionBox->insertItems( oldRowCount, aH->getActionList());
+	actionBox->setCurrentIndex ( actionBox->findText( actionString ) );
+	setCellWidget( oldRowCount , 2, actionBox );
 	
 
-	QString actionParameter;
-	if( pAction->getParameterList().size() != 0 ){
-		actionParameter = pAction->getParameterList().at(0);
-	}
 	QSpinBox *actionParameterSpinner = new QSpinBox();
-	bool ok;
 	
-	setCellWidget( rowCount , 3, actionParameterSpinner );
-	actionParameterSpinner->setValue( actionParameter.toInt(&ok,10) );
+	setCellWidget( oldRowCount , 3, actionParameterSpinner );
+	actionParameterSpinner->setValue( actionParameter);
 
-	rowCount++;
+
 }
 
 void midiTable::setupMidiTable()
 {
-	actionManager *aH = actionManager::getInstance();
 	midiMap *mM = midiMap::getInstance();
 
 	QStringList items;
@@ -135,40 +128,43 @@ void midiTable::setupMidiTable()
 	setColumnWidth( 3 , 73 );
 
 
-	
-	
+	bool ok;
 	std::map< QString , action *> mmcMap = mM->getMMCMap();
 	std::map< QString , action *>::iterator dIter(mmcMap.begin());
 
-
+	
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
 	{
-		insertNewRow( dIter->first , 0 );
+		action * pAction = dIter->second;
+		QString actionParameter;
+		int actionParameterInteger = 0;
+
+		if( pAction->getParameterList().size() != 0 ){
+			actionParameter = pAction->getParameterList().at(0);
+			actionParameterInteger = actionParameter.toInt(&ok,10);
+		}
+		
+		insertNewRow(pAction->getType() , dIter->first , 0 , actionParameterInteger );
 	}
 
 	for( int note = 0; note < 128; note++ )
 	{
-		insertNewRow("NOTE",note);
+		action * pAction = mM->getNoteAction( note );
+		QString actionParameter;
+		int actionParameterInteger = 0;
+
+		if( pAction->getParameterList().size() != 0 ){
+			actionParameter = pAction->getParameterList().at(0);
+			actionParameterInteger = actionParameter.toInt(&ok,10);
+		}
+
+		if ( pAction->getType() == "NOTHING" ) continue;
+
+		insertNewRow(pAction->getType() , "NOTE" , note , actionParameterInteger );
 	}
 	
-	insertRow( rowCount );
-	
-	
-	QComboBox *eventBox = new QComboBox();
-	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
-	eventBox->insertItems( rowCount , aH->getEventList() );
-	setCellWidget( rowCount, 0, eventBox );
-		
-	QSpinBox *eventParameterSpinner = new QSpinBox();
-	eventParameterSpinner->setEnabled( false );
-	setCellWidget( rowCount , 1, eventParameterSpinner );
+	insertNewRow("","",0,0);
 
-	QComboBox *actionBox = new QComboBox();
-	actionBox->insertItems( rowCount, aH->getActionList() );
-	setCellWidget( rowCount, 2, actionBox );
-			
-	QSpinBox *actionParameterSpinner = new QSpinBox();
-	setCellWidget( rowCount, 3, actionParameterSpinner );
 }
 
 
@@ -177,10 +173,9 @@ void midiTable::saveMidiTable(){
 	delete	midiMap::getInstance();
 	midiMap *mM  = midiMap::getInstance();
 	
-
 	int row = 0;
 	
-	for( row = 0; row <=  rowCount; row++ ){
+	for( row = 0; row <  rowCount; row++ ){
 
 		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( row, 0 ) );
 	

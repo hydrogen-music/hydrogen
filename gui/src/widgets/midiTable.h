@@ -39,7 +39,7 @@ class midiTable : public QTableWidget, public Object
 
 		void setupMidiTable();
 		void saveMidiTable();
-		void insertNewRow(QString, int);
+		void insertNewRow(QString, QString, int, int);
 
 	private slots:
 		void updateTable();
