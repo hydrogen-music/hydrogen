@@ -32,12 +32,20 @@ class midiTable : public QTableWidget, public Object
 {
 	Q_OBJECT
 	public:
-	
+			
+
 		midiTable(QWidget*);
 		~midiTable();
 
 		void setupMidiTable();
 		void saveMidiTable();
+		void insertNewRow(QString, int);
+
+	private slots:
+		void updateTable();
+	
+	private:
+		int rowCount;
 
 };
 

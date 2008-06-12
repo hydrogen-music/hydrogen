@@ -22,13 +22,19 @@
 
 #include "midiTable.h"
 
+#include <iostream>
+
 #include <hydrogen/midiMap.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
+#include <hydrogen/action.h>
+#include <hydrogen/midiMap.h>
+
 
 midiTable::midiTable( QWidget *pParent )
  : QTableWidget( pParent ) , Object("midiTable")
 {
+	rowCount = 0;
 	setupMidiTable();
 }
 
@@ -39,7 +45,7 @@ midiTable::~midiTable()
 	
 	int myRow = 0;
 	
-	for( myRow = 0; myRow <  rowCount() ; myRow++)
+	for( myRow = 0; myRow <  rowCount ; myRow++)
 	{
 		delete cellWidget(myRow,0);
 		delete cellWidget(myRow,1);
@@ -48,6 +54,62 @@ midiTable::~midiTable()
 	}
 }
 
+void midiTable::updateTable(){
+	
+	ERRORLOG("update");
+
+}
+
+void midiTable::insertNewRow(QString eventString, int argument )
+{
+	actionManager *aH = actionManager::getInstance();
+	midiMap *mM = midiMap::getInstance();
+	
+	action * pAction;
+	int eventSpinnerValue = 0;
+
+	if ( eventString != "NOTE"){
+		pAction = mM->getMMCAction( eventString );
+		eventSpinnerValue = argument;
+	} else {
+		 pAction = mM->getNoteAction( argument );
+	}
+
+	if( pAction->getType() == "NOTHING" ) return;
+
+
+	insertRow( rowCount );
+
+	QComboBox *eventBox = new QComboBox();
+	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
+	eventBox->insertItems( rowCount , aH->getEventList() );
+	eventBox->setCurrentIndex( eventBox->findText(eventString) );
+	setCellWidget( rowCount, 0, eventBox );
+	
+	
+	QSpinBox *eventParameterSpinner = new QSpinBox();
+	setCellWidget( rowCount , 1, eventParameterSpinner );
+	eventParameterSpinner->setValue( eventSpinnerValue );
+
+
+	QComboBox *actionBox = new QComboBox();
+	actionBox->insertItems(rowCount,aH->getActionList());
+	actionBox->setCurrentIndex ( actionBox->findText(pAction->getType() ) );
+	setCellWidget( rowCount , 2, actionBox );
+	
+
+	QString actionParameter;
+	if( pAction->getParameterList().size() != 0 ){
+		actionParameter = pAction->getParameterList().at(0);
+	}
+	QSpinBox *actionParameterSpinner = new QSpinBox();
+	bool ok;
+	
+	setCellWidget( rowCount , 3, actionParameterSpinner );
+	actionParameterSpinner->setValue( actionParameter.toInt(&ok,10) );
+
+	rowCount++;
+}
 
 void midiTable::setupMidiTable()
 {
@@ -55,13 +117,8 @@ void midiTable::setupMidiTable()
 	midiMap *mM = midiMap::getInstance();
 
 	QStringList items;
-	items <<  "Event"  <<  "Param."  <<  "Action" 
-           <<  "Param." ;
-
-
-	int rowCount;
-	
-	rowCount = ( mM->getMMCMap() ).size();
+	items <<  trUtf8("Event")  <<  trUtf8("Param.")  <<  trUtf8("Action")
+           <<  trUtf8("Param.") ;
 
 	setRowCount( 0 );
     	setColumnCount( 4 );
@@ -78,7 +135,7 @@ void midiTable::setupMidiTable()
 	setColumnWidth( 3 , 73 );
 
 
-	rowCount= 0;	
+	
 	
 	std::map< QString , action *> mmcMap = mM->getMMCMap();
 	std::map< QString , action *>::iterator dIter(mmcMap.begin());
@@ -86,80 +143,19 @@ void midiTable::setupMidiTable()
 
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
 	{
-		insertRow( rowCount );
-		QString eventString = dIter->first;
-
-		QComboBox *eventBox = new QComboBox();
-		eventBox->insertItems( rowCount , aH->getEventList() );
-		eventBox->setCurrentIndex( eventBox->findText(eventString) );
-		setCellWidget( rowCount, 0, eventBox );
-		
-		QSpinBox *eventParameterSpinner = new QSpinBox();
-		setCellWidget( rowCount , 1, eventParameterSpinner );
-
-		action * pAction = mM->getMMCAction( eventString );
-	
-		QComboBox *actionBox = new QComboBox();
-		actionBox->insertItems(rowCount,aH->getActionList());
-		actionBox->setCurrentIndex ( actionBox->findText(pAction->getType() ) );
-		setCellWidget( rowCount , 2, actionBox );
-	
-
-		QString actionParameter;
-		if( pAction->getParameterList().size() != 0 ){
-			actionParameter = pAction->getParameterList().at(0);
-		}
-
-		QSpinBox *actionParameterSpinner = new QSpinBox();
-		
-		bool ok;
-		actionParameterSpinner->setValue( actionParameter.toInt(&ok,10) );
-		
-		setCellWidget( rowCount , 3, actionParameterSpinner );
-		rowCount++;
+		insertNewRow( dIter->first , 0 );
 	}
 
-	for( int note = 0; note < 128; note++ ){
-		
-		QString eventString = "NOTE";
-		
-		action * pAction = mM->getNoteAction( note );
-		
-		if( pAction->getType() != "NOTHING" ){
-		
-			insertRow( rowCount );
-			QComboBox *eventBox = new QComboBox();
-			eventBox->insertItems( rowCount , aH->getEventList() );
-			eventBox->setCurrentIndex( eventBox->findText(eventString) );
-			setCellWidget( rowCount, 0, eventBox );
-			
-			QSpinBox *eventParameterSpinner = new QSpinBox();
-			setCellWidget( rowCount , 1, eventParameterSpinner );
-			eventParameterSpinner->setValue( note );
-			
-			QComboBox *actionBox = new QComboBox();
-			actionBox->insertItems(rowCount,aH->getActionList());
-			actionBox->setCurrentIndex ( actionBox->findText(pAction->getType() ) );
-			setCellWidget( rowCount , 2, actionBox );
-		
-	
-			QString actionParameter;
-			QSpinBox *actionParameterSpinner = new QSpinBox();
-
-			if( pAction->getParameterList().size() > 0 ){
-				actionParameter = pAction->getParameterList().at(0);
-				bool ok;
-				actionParameterSpinner->setValue( actionParameter.toInt(&ok,10) );
-			}
-	
-			setCellWidget( rowCount , 3, actionParameterSpinner );
-			rowCount++;
-		}
+	for( int note = 0; note < 128; note++ )
+	{
+		insertNewRow("NOTE",note);
 	}
 	
 	insertRow( rowCount );
-
+	
+	
 	QComboBox *eventBox = new QComboBox();
+	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	eventBox->insertItems( rowCount , aH->getEventList() );
 	setCellWidget( rowCount, 0, eventBox );
 		
@@ -184,7 +180,7 @@ void midiTable::saveMidiTable(){
 
 	int row = 0;
 	
-	for( row = 0; row <  rowCount(); row++ ){
+	for( row = 0; row <=  rowCount; row++ ){
 
 		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( row, 0 ) );
 	
@@ -206,6 +202,8 @@ void midiTable::saveMidiTable(){
 			actionString = actionCombo->currentText();
 		
 			action * pAction = new action( actionString );
+
+
 
 			if( actionSpinner->cleanText() != ""){
 				pAction->addParameter( actionSpinner->cleanText() );
