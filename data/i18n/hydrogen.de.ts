@@ -1451,23 +1451,23 @@ http://www.hydrogen-music.org
     <name>FilePreview</name>
     <message>
         <source>Play sample</source>
-        <translation>Sample abspielen</translation>
+        <translation type="obsolete">Sample abspielen</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation>Größe: %1 Bytes</translation>
+        <translation type="obsolete">Größe: %1 Bytes</translation>
     </message>
     <message>
         <source>Size: - </source>
-        <translation>Größe: -</translation>
+        <translation type="obsolete">Größe: -</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation>Samplerate: %1</translation>
+        <translation type="obsolete">Samplerate: %1</translation>
     </message>
     <message>
         <source>Samplerate: - </source>
-        <translation>Samplerate: -</translation>
+        <translation type="obsolete">Samplerate: -</translation>
     </message>
 </context>
 <context>
@@ -2086,6 +2086,42 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <source>Could not save song.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Open &amp;Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export pattern as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Pattern as ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Song (*.h2pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message anymore</source>
+        <translation type="unfinished">Diese Nachricht nicht mehr anzeigen</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -2553,6 +2589,144 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
 </context>
 <context>
+    <name>PlaylistDialog</name>
+    <message>
+        <source>Play List Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom in</source>
+        <translation type="unfinished">Einzoomen</translation>
+    </message>
+    <message>
+        <source>Add Song to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Song in List or no Song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without  whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script in use!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation type="unfinished">Fehler beim Laden des Songs.</translation>
+    </message>
+</context>
+<context>
+    <name>PlaylistDialog_UI</name>
+    <message>
+        <source>PlayList Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove song from playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable selected script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished">Stopp</translation>
+    </message>
+    <message>
+        <source>Open the selected script with your preferred editor     </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PreferencesDialog</name>
     <message>
         <source>Slow</source>
@@ -2873,6 +3047,22 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <source>Audio output details</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Post-Fader</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pre-Fader</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Track output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Track Outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
@@ -2968,6 +3158,10 @@ Fortsetzen?</translation>
         <source>Fill/Clear ...</source>
         <translation>Füllen/Löschen</translation>
     </message>
+    <message>
+        <source>Save Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
@@ -3009,6 +3203,36 @@ Fortsetzen?</translation>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryExportDialog</name>
+    <message>
+        <source>Export Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export drumkit</source>
+        <translation type="unfinished">Drumkit exportieren</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryExportDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Durchsuchen</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportieren</translation>
     </message>
 </context>
 <context>
@@ -3056,6 +3280,22 @@ Fortsetzen?</translation>
     <message>
         <source>Import drumkit</source>
         <translation>Drumkit importieren</translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation type="unfinished">Patterns</translation>
+    </message>
+    <message>
+        <source>License: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3105,7 +3345,11 @@ Fortsetzen?</translation>
         <translation>1</translation>
     </message>
     <message>
-        <source>Close</source>
+        <source>License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit server list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3156,6 +3400,48 @@ Are you sure?</source>
         <source>Rename</source>
         <translation>Umbenennen</translation>
     </message>
+    <message>
+        <source>Songs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation type="unfinished">Patterns</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation type="unfinished">Fehler beim Laden des Songs.</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryRepositoryDialog</name>
+    <message>
+        <source>Edit repository settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit server list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryRepositoryDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Löschen</translation>
+    </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
@@ -3190,6 +3476,10 @@ Are you sure?</source>
         <source>Save soundlibrary</source>
         <translation>Soundbibliothek speichern</translation>
     </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
@@ -3203,6 +3493,21 @@ Are you sure?</source>
     <message>
         <source>Hydrogen</source>
         <translation type="obsolete">Hydrogen</translation>
+    </message>
+</context>
+<context>
+    <name>midiTable</name>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Param.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
