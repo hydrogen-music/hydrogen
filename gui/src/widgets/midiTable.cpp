@@ -92,6 +92,7 @@ void midiTable::insertNewRow(QString actionString , QString eventString, int eve
 
 
 	QComboBox *actionBox = new QComboBox();
+	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	actionBox->insertItems( oldRowCount, aH->getActionList());
 	actionBox->setCurrentIndex ( actionBox->findText( actionString ) );
 	setCellWidget( oldRowCount , 2, actionBox );
