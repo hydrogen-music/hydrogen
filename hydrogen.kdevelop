@@ -136,8 +136,8 @@
   </kdevtrollproject>
   <kdevcppsupport>
     <references>
-      <pcs>automatic_%2Fhome%2Fcomix%2Fhydrogen_svn%2Ftrunk_qstring_ovunque</pcs>
       <pcs>Qt4</pcs>
+      <pcs>automatic_%2Fhome%2Fcomix%2Fprogetti%2Fhydrogen_svn%2Ftrunk</pcs>
     </references>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
