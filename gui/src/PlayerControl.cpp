@@ -279,7 +279,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pBCSpaceBtn->move(4, 27);
 	m_pBCSpaceBtn->setPressed(false);
-	m_pBCSpaceBtn->setToolTip( trUtf8("Space Button use BeatCounter") );
+	m_pBCSpaceBtn->setToolTip( trUtf8("Use BeatCounter by pressing the spacebar") );
 	connect(m_pBCSpaceBtn, SIGNAL(clicked(Button*)), this, SLOT(bcSpaceBtnClicked(Button*)));
 
 	m_pBCSetPlayBtn = new ToggleButton(
@@ -380,41 +380,39 @@ PlayerControl::PlayerControl(QWidget *parent)
 //~ JACK
 
 
-	QVBoxLayout *vbox = new QVBoxLayout();
-	hbox->addLayout( vbox );
-
-	QHBoxLayout *pButtonsHBox = new QHBoxLayout();
-	vbox->addLayout( pButtonsHBox );
+	PixmapWidget *pLcdBackGround = new PixmapWidget( NULL );
+	pLcdBackGround->setFixedSize( 256, 43 );
+	pLcdBackGround->setPixmap( "/playerControlPanel/lcd_background.png" );
+	hbox->addWidget( pLcdBackGround );
 
 	m_pShowMixerBtn = new ToggleButton(
-			NULL,
+			pLcdBackGround,
 			"/skin_btn_on.png",
 			"/skin_btn_off.png",
 			"/skin_btn_over.png",
 			QSize( 80, 17 ),
 			true
 	);
+	m_pShowMixerBtn->move( 7, 6 );
 	m_pShowMixerBtn->setToolTip( trUtf8( "Show mixer" ) );
 	m_pShowMixerBtn->setText( trUtf8( "Mixer" ) );
 	connect(m_pShowMixerBtn, SIGNAL(clicked(Button*)), this, SLOT(showButtonClicked(Button*)));
-	pButtonsHBox->addWidget( m_pShowMixerBtn );
 
 	m_pShowInstrumentRackBtn = new ToggleButton(
-			NULL,
+			pLcdBackGround,
 			"/skin_btn_on.png",
 			"/skin_btn_off.png",
 			"/skin_btn_over.png",
-			QSize( 130, 17 ),
+			QSize( 160, 17 ),
 			true
 	);
+	m_pShowInstrumentRackBtn->move( 88, 6 );
 	m_pShowInstrumentRackBtn->setToolTip( trUtf8( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setText( trUtf8( "Instrument rack" ) );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked(Button*) ), this, SLOT( showButtonClicked( Button*)) );
-	pButtonsHBox->addWidget( m_pShowInstrumentRackBtn );
 
-	// STATUS LCD
-	m_pStatusLabel = new LCDDisplay( NULL, LCDDigit::SMALL_BLUE, 30, true );
-	vbox->addWidget( m_pStatusLabel );
+	m_pStatusLabel = new LCDDisplay(pLcdBackGround , LCDDigit::SMALL_BLUE, 30, true );
+	m_pStatusLabel->move( 7, 25 );
 
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
@@ -672,7 +670,7 @@ void PlayerControl::bconoffBtnClicked( Button* )
 	Preferences *pPref = Preferences::getInstance();
 	if (m_pBConoffBtn->isPressed()) {
 		pPref->m_bbc = Preferences::BC_ON;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" BC Panal on"), 5000);
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" BC Panel on"), 5000);
 		m_pControlsBCPanel->show();
 		
 	}
@@ -748,9 +746,6 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 			}
 			m_pBCDisplayB->setText( QString( tmpb ) );
 			m_pEngine->setbeatsToCount( tmp );
-			
-	
-
 	}
 }
 
@@ -761,24 +756,20 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 	float tmp = m_pEngine->getNoteLengh() * 4; 
 	
 	char tmpt[1];       // m_pBCBUpBtn
-		if ( tBtn == m_pBCTUpBtn) {
+	if ( tBtn == m_pBCTUpBtn) {
 			tmp = tmp / 2 ;
 			if (tmp < 1)
 				tmp = 8;
 			sprintf(tmpt, "%01f", tmp );
 			m_pBCDisplayT->setText( QString( tmpt ) );
 			m_pEngine->setNoteLengh( (tmp) / 4 );
-	}
-	else {		
+	} else {		
 			tmp = tmp * 2;
 			if (tmp > 8 )
 				 tmp = 1;
 			sprintf(tmpt, "%01f", tmp );
 			m_pBCDisplayT->setText( QString( tmpt ) );
 			m_pEngine->setNoteLengh( (tmp) / 4 );
-			
-	
-
 	}
 }
 //~ beatcounter 
