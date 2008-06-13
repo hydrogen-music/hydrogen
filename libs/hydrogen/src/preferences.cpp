@@ -371,6 +371,30 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
+
+				//beatcounter
+				QString bcMode = LocalFileMng::readXmlString( guiNode, "bc", "BC_OFF" );
+					if ( bcMode == "BC_OFF" ) {
+						m_bbc = BC_OFF;
+					} else if ( bcMode == "BC_ON" ) {
+						m_bbc = BC_ON;
+					}
+
+				QString beatcounterSpace = LocalFileMng::readXmlString( guiNode, "space_beatcounter", "SPACE_BEATCOUNTER_OFF" );
+					if ( beatcounterSpace == "SPACE_BEATCOUNTER_OFF" ) {
+						m_spacebeatcounter = SPACE_BEATCOUNTER_OFF;
+					} else if ( beatcounterSpace  == "SPACE_BEATCOUNTER_ON" ) {
+						m_spacebeatcounter = SPACE_BEATCOUNTER_ON;
+					}
+
+				QString setPlay = LocalFileMng::readXmlString( guiNode, "setplay", "SET_PLAY_OFF" );
+					if ( setPlay == "SET_PLAY_OFF" ) {
+						m_mmcsetplay = SET_PLAY_OFF;
+					} else if ( setPlay == "SET_PLAY_ON" ) {
+						m_mmcsetplay = SET_PLAY_ON;
+					}
+				//~ beatcounter
+
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 					QString sNodeName = "ladspaFX_properties" + to_string( nFX );
 					setLadspaProperties( nFX, readWindowProperties( guiNode, sNodeName, m_ladspaProperties[nFX] ) );
@@ -637,6 +661,35 @@ void Preferences::savePreferences()
 		}
 
 		LocalFileMng::writeXmlBool( &guiNode, "followPlayhead", m_bFollowPlayhead );
+
+
+		//beatcounter
+		QString bcMode;
+			if ( m_bbc == BC_OFF ) {
+				bcMode = "BC_OFF";
+			} else if ( m_bbc  == BC_ON ) {
+				bcMode = "BC_ON";
+			}
+			LocalFileMng::writeXmlString( &guiNode, "bc", bcMode );
+
+
+		QString beatcounterSpace;
+			if ( m_spacebeatcounter == SPACE_BEATCOUNTER_OFF ) {
+				beatcounterSpace = "SPACE_BEATCOUNTER_OFF";
+			} else if ( m_spacebeatcounter  == SPACE_BEATCOUNTER_ON ) {
+				beatcounterSpace = "SPACE_BEATCOUNTER_ON";
+			}
+			LocalFileMng::writeXmlString( &guiNode, "space_beatcounter", beatcounterSpace );
+
+		
+		QString setPlay;
+			if ( m_mmcsetplay == SET_PLAY_OFF ) {
+				setPlay = "SET_PLAY_OFF";
+			} else if ( m_mmcsetplay == SET_PLAY_ON ) {
+				setPlay = "SET_PLAY_ON";
+			}
+			LocalFileMng::writeXmlString( &guiNode, "setplay", setPlay );
+		//~ beatcounter
 
 		// User interface style
 		writeUIStyle( guiNode );

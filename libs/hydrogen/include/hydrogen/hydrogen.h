@@ -153,6 +153,14 @@ public:
 	};
 
 	std::vector<HPlayListNode> m_PlayList;
+	
+	///beatconter
+	void setbeatsToCount( int beatstocount);
+	int getbeatsToCount();
+	void setNoteLengh( float notelengh);
+	float getNoteLengh();
+	int getBcStatus();
+	void handleBeatCounter();
 
 private:
 	static Hydrogen* instance;

@@ -43,6 +43,10 @@ using namespace H2Core;
 
 using namespace H2Core;
 
+//beatconter global
+int bcDisplaystatus = 0;
+//~ beatcounter
+
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , Object( "PlayerControl" )
@@ -187,6 +191,109 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pSwitchModeBtn->setToolTip( trUtf8("Switch Song/ Pattern Mode") );
 	connect(m_pSwitchModeBtn, SIGNAL(clicked(Button*)), this, SLOT(switchModeBtnClicked(Button*)));
 //~ MODE
+
+// BC on off
+	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( NULL );
+	pControlsBBTBConoffPanel->setFixedSize( 15, 43 );
+	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
+	hbox->addWidget( pControlsBBTBConoffPanel );
+
+	m_pBConoffBtn = new ToggleButton(
+			pControlsBBTBConoffPanel,
+			"/playerControlPanel/bc_on.png",
+			"/playerControlPanel/bc_off.png",
+			"/playerControlPanel/bc_off.png",
+			QSize(10, 40)
+	);
+	m_pBConoffBtn->move(1, 1);
+	m_pBConoffBtn->setPressed(false);
+	m_pBConoffBtn->setToolTip( trUtf8("BeatCounter Panel on") );
+	connect(m_pBConoffBtn, SIGNAL(clicked(Button*)), this, SLOT(bconoffBtnClicked(Button*)));
+//~  BC on off
+
+//beatcounter
+	m_pControlsBCPanel = new PixmapWidget( NULL );
+	m_pControlsBCPanel->setFixedSize( 86, 43 );
+	m_pControlsBCPanel->setPixmap( "/playerControlPanel/beatConter_BG.png" );
+	hbox->addWidget( m_pControlsBCPanel );
+	
+
+	m_pBCDisplayZ = new LCDDisplay( m_pControlsBCPanel, LCDDigit::LARGE_GRAY, 2 );
+	m_pBCDisplayZ->move( 36, 8 );
+	m_pBCDisplayZ->setText( "--" );
+
+	m_pBCDisplayT = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 1 );
+	m_pBCDisplayT->move( 23, 26 );
+	m_pBCDisplayT->setText( "4" );
+
+	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 2 );
+	m_pBCDisplayB->move( 39, 26 );
+	m_pBCDisplayB->setText( "4" );
+
+	m_pBCTUpBtn = new Button(
+			m_pControlsBCPanel,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize(16, 8)
+	);
+	m_pBCTUpBtn->move( 4, 6 );
+	connect( m_pBCTUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bctButtonClicked( Button* ) ) );
+
+	m_pBCTDownBtn = new Button(
+			m_pControlsBCPanel,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16, 8)
+	);
+	m_pBCTDownBtn->move( 4, 16 );
+	connect( m_pBCTDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bctButtonClicked( Button* ) ) );
+
+	m_pBCBUpBtn = new Button(
+			m_pControlsBCPanel,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize(16, 8)
+	);
+	m_pBCBUpBtn->move( 65, 6 );
+	connect( m_pBCBUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bcbButtonClicked( Button* ) ) );
+
+	m_pBCBDownBtn = new Button(
+			m_pControlsBCPanel,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16, 8)
+	);
+	m_pBCBDownBtn->move( 65, 16 );
+	connect( m_pBCBDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bcbButtonClicked( Button* ) ) );
+
+	m_pBCSpaceBtn = new ToggleButton(
+			m_pControlsBCPanel,
+			"/playerControlPanel/btn_mmc_space_on.png",
+			"/playerControlPanel/btn_mmc_space_off.png",
+			"/playerControlPanel/btn_mmc_space_off.png",
+			QSize(15, 13)
+	);
+	m_pBCSpaceBtn->move(4, 27);
+	m_pBCSpaceBtn->setPressed(false);
+	m_pBCSpaceBtn->setToolTip( trUtf8("Space Button use BeatCounter") );
+	connect(m_pBCSpaceBtn, SIGNAL(clicked(Button*)), this, SLOT(bcSpaceBtnClicked(Button*)));
+
+	m_pBCSetPlayBtn = new ToggleButton(
+			m_pControlsBCPanel,
+			"/playerControlPanel/btn_set_play_on.png",
+			"/playerControlPanel/btn_set_play_off.png",
+			"/playerControlPanel/btn_set_play_off.png",
+			QSize(15, 13)
+	);
+	m_pBCSetPlayBtn->move(67, 27);
+	m_pBCSetPlayBtn->setPressed(false);
+	m_pBCSetPlayBtn->setToolTip( trUtf8("Set BPM / Set BPM and play") );
+	connect(m_pBCSetPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(bcSetPlayBtnClicked(Button*)));
+//~ beatcounter
 
 
 // BPM
@@ -338,6 +445,7 @@ PlayerControl::~PlayerControl() {
 
 void PlayerControl::updatePlayerControl()
 {
+	Preferences *pPref = Preferences::getInstance();
 	HydrogenApp *pH2App = HydrogenApp::getInstance();
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
@@ -365,7 +473,17 @@ void PlayerControl::updatePlayerControl()
 		m_pSongModeBtn->setPressed( true );
 	}
 
-	Preferences *pPref = Preferences::getInstance();
+	//beatcounter
+	if ( pPref->m_bbc == Preferences::BC_OFF ) {
+		m_pControlsBCPanel->hide();
+		m_pBConoffBtn->setPressed(false);
+	}else
+	{
+		m_pControlsBCPanel->show();
+		m_pBConoffBtn->setPressed(true);
+	}
+	//~ beatcounter
+
 
 
 	if ( pPref->m_sAudioDriver == "Jack" ) {
@@ -411,6 +529,34 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	m_pMetronomeBtn->setPressed(pPref->m_bUseMetronome);
+
+
+	//beatcounter get BC message
+	char bcstatus[3];
+	int beatstocountondisplay = 1;
+	beatstocountondisplay = m_pEngine->getBcStatus();
+
+	switch (beatstocountondisplay){
+		case 1 :
+			if (bcDisplaystatus == 1){
+				Preferences::getInstance()->m_bbc = Preferences::BC_OFF;
+				bcDisplaystatus = 0;
+			}
+			sprintf(bcstatus, "R");
+				m_pBCDisplayZ->setText( QString (bcstatus) );
+				
+			break;
+		default:
+			if (Preferences::getInstance()->m_bbc == Preferences::BC_OFF){
+				Preferences::getInstance()->m_bbc = Preferences::BC_ON;
+				bcDisplaystatus = 1;
+			}
+			sprintf(bcstatus, "%02d ", beatstocountondisplay -1);
+			m_pBCDisplayZ->setText( QString (bcstatus) );
+
+	}
+	//~ beatcounter
+
 }
 
 
@@ -517,6 +663,125 @@ void PlayerControl::bpmChanged() {
 	m_pEngine->setBPM( fNewBpmValue );
 	AudioEngine::get_instance()->unlock();
 }
+
+
+
+//beatcounter
+void PlayerControl::bconoffBtnClicked( Button* )
+{
+	Preferences *pPref = Preferences::getInstance();
+	if (m_pBConoffBtn->isPressed()) {
+		pPref->m_bbc = Preferences::BC_ON;
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" BC Panal on"), 5000);
+		m_pControlsBCPanel->show();
+		
+	}
+	else {
+		pPref->m_bbc = Preferences::BC_OFF;
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" BC Panel off"), 5000);
+		m_pControlsBCPanel->hide();
+	}
+	
+}
+
+
+void PlayerControl::bcSpaceBtnClicked( Button* )
+{
+	Preferences *pPref = Preferences::getInstance();
+	if (m_pBCSpaceBtn->isPressed()) {
+		pPref->m_spacebeatcounter = Preferences::SPACE_BEATCOUNTER_ON;
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Space Bar: BeatCounter"), 5000);
+		
+	}
+	else {
+		pPref->m_spacebeatcounter = Preferences::SPACE_BEATCOUNTER_OFF;
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Space Bar:Play Stop"), 5000);
+	}
+		
+}
+
+
+
+void PlayerControl::bcSetPlayBtnClicked( Button* )
+{
+	Preferences *pPref = Preferences::getInstance();
+	if (m_pBCSetPlayBtn->isPressed()) {
+		pPref->m_mmcsetplay = Preferences::SET_PLAY_ON;
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Count BPM and start PLAY"), 5000);
+		
+	}
+	else {
+		pPref->m_mmcsetplay = Preferences::SET_PLAY_OFF;
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Count and set BPM"), 5000);
+	}
+		
+}
+
+
+
+void PlayerControl::bcbButtonClicked( Button* bBtn)
+{
+	int tmp = m_pEngine->getbeatsToCount();
+	char tmpb[2];       // m_pBCBUpBtn
+		if ( bBtn == m_pBCBUpBtn ) {
+			tmp ++;
+			if (tmp > 16)
+				tmp = 2;
+			if (tmp < 10 ){
+				sprintf(tmpb, "%01d", tmp );
+			}else
+			{
+				sprintf(tmpb, "%02d", tmp );
+			}
+			m_pBCDisplayB->setText( QString( tmpb ) );
+			m_pEngine->setbeatsToCount( tmp );
+	}
+	else {		
+			tmp --;
+			if (tmp < 2 )
+				 tmp = 16;
+			if (tmp < 10 ){
+				sprintf(tmpb, "%01d", tmp );
+			}else
+			{
+				sprintf(tmpb, "%02d", tmp );
+			}
+			m_pBCDisplayB->setText( QString( tmpb ) );
+			m_pEngine->setbeatsToCount( tmp );
+			
+	
+
+	}
+}
+
+
+
+void PlayerControl::bctButtonClicked( Button* tBtn)
+{
+	float tmp = m_pEngine->getNoteLengh() * 4; 
+	
+	char tmpt[1];       // m_pBCBUpBtn
+		if ( tBtn == m_pBCTUpBtn) {
+			tmp = tmp / 2 ;
+			if (tmp < 1)
+				tmp = 8;
+			sprintf(tmpt, "%01f", tmp );
+			m_pBCDisplayT->setText( QString( tmpt ) );
+			m_pEngine->setNoteLengh( (tmp) / 4 );
+	}
+	else {		
+			tmp = tmp * 2;
+			if (tmp > 8 )
+				 tmp = 1;
+			sprintf(tmpt, "%01f", tmp );
+			m_pBCDisplayT->setText( QString( tmpt ) );
+			m_pEngine->setNoteLengh( (tmp) / 4 );
+			
+	
+
+	}
+}
+//~ beatcounter 
 
 
 

@@ -82,6 +82,22 @@ float m_fMaxProcessTime = 0.0f;		///< max ms usable in process with no xrun
 //~ info
 
 
+// beatcounter
+
+//100,000 ms in 1 second.
+#define MS_DIVIDER .000001
+
+float m_ntaktoMeterCompute = 1;	  	///< beatcounter note lenght
+int m_nbeatsToCount = 4;		///< beatcounter beats to count
+int eventCount = 1;			///< beatcounter event
+int tempochangecounter = 0;		///< count tempochanges for timeArray
+int beatCount = 1;			///< beatcounter beat to count
+double beatDiffs[16];			///< beat diff
+timeval currentTime, lastTime;		///< timeval
+double lastBeatTime, currentBeatTime, beatDiff;		///< timediff
+float beatCountBpm;			///< bpm
+//~ beatcounter
+
 AudioOutput *m_pAudioDriver = NULL;	///< Audio output
 MidiInput *m_pMidiDriver = NULL;	///< MIDI input
 
@@ -2365,6 +2381,115 @@ void Hydrogen::renameJackPorts()
 	audioEngine_renameJackPorts();
 }
 #endif
+
+
+///BeatCounter
+
+void Hydrogen::setbeatsToCount( int beatstocount)
+{
+	m_nbeatsToCount = beatstocount;
+}
+
+
+int Hydrogen::getbeatsToCount()
+{
+	return m_nbeatsToCount;
+}
+
+
+void Hydrogen::setNoteLengh( float notelengh)
+{
+	m_ntaktoMeterCompute = notelengh;
+}
+
+
+
+float Hydrogen::getNoteLengh()
+{
+	return m_ntaktoMeterCompute;
+}
+
+
+
+int Hydrogen::getBcStatus()
+{
+	return eventCount;
+}
+
+
+
+void Hydrogen::handleBeatCounter()
+{ 
+	// Get first time value:
+	if (beatCount == 1)
+		gettimeofday(&currentTime,NULL);
+
+	eventCount++;
+		
+	// Set wlastTime to wcurrentTime to remind the time:		
+		lastTime = currentTime;
+	
+	// Get new time:
+		gettimeofday(&currentTime,NULL);
+	
+
+	// Build doubled time difference:
+		lastBeatTime = (double)(lastTime.tv_sec + (double)(lastTime.tv_usec * MS_DIVIDER));
+		currentBeatTime = (double)(currentTime.tv_sec + (double)(currentTime.tv_usec * MS_DIVIDER));
+		beatDiff = beatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
+		
+	//if differences are to big reset the beatconter
+		if( beatDiff > 3.001){
+			eventCount = 1;
+			beatCount = 1;
+			return;
+		} 
+	// Only accept differences big enough
+		if (beatCount == 1 || beatDiff > .001) {
+			if (beatCount > 1)
+				beatDiffs[beatCount - 2] = beatDiff ;
+		// Compute and reset:
+			if (beatCount == m_nbeatsToCount){
+				unsigned long currentframe = getRealtimeFrames();
+				double beatTotalDiffs = 0;
+				for(int i = 0; i < (m_nbeatsToCount - 1); i++) 
+					beatTotalDiffs += beatDiffs[i];
+				double beatDiffAverage = beatTotalDiffs / (beatCount - 1) * m_ntaktoMeterCompute ;
+				beatCountBpm = (float) ((int) (60 / beatDiffAverage * 100)) / 100;
+				AudioEngine::get_instance()->lock( "Hydrogen::handleBeatCounter");
+				if ( beatCountBpm > 500)
+						beatCountBpm = 500; 
+				setBPM( beatCountBpm );
+				AudioEngine::get_instance()->unlock();
+				if (Preferences::getInstance()->m_mmcsetplay == Preferences::SET_PLAY_OFF) {
+					beatCount = 1; 
+					eventCount = 1;
+				}else{
+					if ( m_audioEngineState != STATE_PLAYING ){
+						unsigned bcsamplerate = m_pAudioDriver->getSampleRate();
+						unsigned long rtstartframe = 0;
+						if ( m_ntaktoMeterCompute <= 1){
+							rtstartframe = bcsamplerate * beatDiffAverage * (1/m_ntaktoMeterCompute) + currentframe;
+						}else
+						{
+							rtstartframe = bcsamplerate * beatDiffAverage / m_ntaktoMeterCompute + currentframe;
+						}
+						//this is only to wait of the right startframe 
+						for ( unsigned long i = currentframe; i <= rtstartframe; i = getRealtimeFrames() ) ;
+						sequencer_play();
+					}
+					
+					beatCount = 1; 
+					eventCount = 1;
+					return;
+				}
+			}
+			else {
+				beatCount ++;
+			}				
+		}
+		return;
+}
+//~ beatcounter
+
 };
-
-

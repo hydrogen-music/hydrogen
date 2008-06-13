@@ -1291,8 +1291,21 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 		switch (k->key()) {
 			case Qt::Key_Space:
-				onPlayStopAccelEvent();
-				return TRUE; // eat event
+				if ( Preferences::getInstance()->m_spacebeatcounter == Preferences::SPACE_BEATCOUNTER_ON &&  Hydrogen::get_instance()->getState() == STATE_READY )
+				{
+					Hydrogen::get_instance()->handleBeatCounter();
+					return TRUE; // eat event
+				}
+				else
+				{
+					onPlayStopAccelEvent();
+					return TRUE; // eat event
+				}
+				break;
+
+			case Qt::Key_Comma:
+				Hydrogen::get_instance()->handleBeatCounter();
+				return TRUE; // eat even
 				break;
 
 			case Qt::Key_Backspace:

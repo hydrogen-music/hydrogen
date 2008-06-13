@@ -103,6 +103,14 @@ class PlayerControl : public QLabel, public Object
 		void onStatusTimerEvent();
 		void showButtonClicked( Button* pRef );
 
+		//beatcounter
+		void bconoffBtnClicked( Button* ref);
+		void bcSpaceBtnClicked( Button* ref);
+		void bcSetPlayBtnClicked(Button* ref);
+		void bcbButtonClicked(Button* bBtn);
+		void bctButtonClicked(Button* tBtn);
+		//~ beatcounter
+
 	private:
 		H2Core::Hydrogen *m_pEngine;
 		QPixmap m_background;
@@ -118,6 +126,16 @@ class PlayerControl : public QLabel, public Object
 		ToggleButton *m_pLiveModeBtn;
 		Button *m_pSwitchModeBtn;
 
+		//beatcounter
+		ToggleButton *m_pBConoffBtn;
+		ToggleButton *m_pBCSpaceBtn;
+		ToggleButton *m_pBCSetPlayBtn;
+		Button *m_pBCTUpBtn;
+		Button *m_pBCTDownBtn;
+		Button *m_pBCBUpBtn;
+		Button *m_pBCBDownBtn;
+		//~ beatcounter
+
 		ToggleButton *m_pJackTransportBtn;
 
 		Button *m_pBPMUpBtn;
@@ -132,6 +150,14 @@ class PlayerControl : public QLabel, public Object
 		LCDDisplay *m_pTimeDisplayM;
 		LCDDisplay *m_pTimeDisplayS;
 		LCDDisplay *m_pTimeDisplayMS;
+
+		//beatcounter
+		PixmapWidget *m_pControlsBCPanel;
+
+		LCDDisplay *m_pBCDisplayZ;
+		LCDDisplay *m_pBCDisplayB;
+		LCDDisplay *m_pBCDisplayT;
+		//~ beatcounter
 
 		MetronomeWidget *m_pMetronomeWidget;
 		ToggleButton *m_pMetronomeBtn;

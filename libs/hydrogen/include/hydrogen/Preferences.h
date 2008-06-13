@@ -128,20 +128,29 @@ class Preferences : public Object
 {
 public:
 	enum {
-		USE_JACK_TRANSPORT,
-		NO_JACK_TRANSPORT
+		USE_JACK_TRANSPORT = 0,
+		POST_FADER = 0,
+		SPACE_BEATCOUNTER_ON = 0,
+		SET_PLAY_ON = 0,
+		BC_ON = 0,
+		NO_JACK_TRANSPORT = 1,
+		PRE_FADER = 1,
+		SPACE_BEATCOUNTER_OFF = 1,
+		SET_PLAY_OFF = 1,
+		BC_OFF = 1,
 	};
 
-
-	enum  {
-		POST_FADER,
-		PRE_FADER
-	};
 
 	QString m_sPreferencesFilename;
 	QString m_sPreferencesDirectory;
 
 	bool m_bFollowPlayhead;
+
+	//beatcounter
+	bool m_bbc;
+	bool m_spacebeatcounter;
+	bool m_mmcsetplay;
+	//~ beatcounter
 
 	std::list<QString> sServerList;
 
