@@ -66,7 +66,8 @@ actionManager::actionManager() : Object( "actionManager" ) {
 	<< "PAUSE"
 	<< "BPM_INCR"
 	<< "BPM_DECR"
-	<< "STOP";
+	<< "STOP"
+	<< "BEATCOUNTER";
 
 	eventList << ""
 	<< "MMC_PLAY"
@@ -165,6 +166,10 @@ bool actionManager::handleAction( action * pAction ){
 
 	if( sActionString == "MUTE_TOGGLE" ){
 		Hydrogen::get_instance()->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
+	}
+
+	if( sActionString == "BEATCOUNTER" ){
+		Hydrogen::get_instance()->handleBeatCounter();
 	}
 
 	if( sActionString == "RECORD" ){
