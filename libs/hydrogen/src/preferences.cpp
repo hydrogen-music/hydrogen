@@ -289,6 +289,16 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( sMode == "USE_JACK_TRANSPORT" ) {
 						m_bJackTransportMode = USE_JACK_TRANSPORT;
 					}
+					
+					//jack time master
+					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
+					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
+						m_bJackMasterMode = NO_JACK_TIME_MASTER;
+					} else if ( tmMode == "USE_JACK_TIME_MASTER" ) {
+						m_bJackMasterMode = USE_JACK_TIME_MASTER;
+					}
+					//~ jack time master
+
 					m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
 					m_bJackConnectDefaults = LocalFileMng::readXmlBool( jackDriverNode, "jack_connect_defaults", m_bJackConnectDefaults );
 
@@ -583,6 +593,16 @@ void Preferences::savePreferences()
 				sMode = "USE_JACK_TRANSPORT";
 			}
 			LocalFileMng::writeXmlString( &jackDriverNode, "jack_transport_mode", sMode );
+
+			//jack time master
+			QString tmMode;
+			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
+				tmMode = "NO_JACK_TIME_MASTER";
+			} else if (  m_bJackMasterMode == USE_JACK_TIME_MASTER ) {
+				tmMode = "NO_JACK_TIME_MASTER";
+			}
+			LocalFileMng::writeXmlString( &jackDriverNode, "jack_transport_mode_master", tmMode );
+			//~ jack time master
 
 			// jack default connection
 			QString jackConnectDefaultsString = "false";

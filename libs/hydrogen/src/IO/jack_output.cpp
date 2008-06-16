@@ -31,9 +31,11 @@
 #include <hydrogen/Song.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
+
 #ifdef LASH_SUPPORT
 #include <hydrogen/LashClient.h>
 #endif
+
 namespace H2Core
 {
 
@@ -81,16 +83,11 @@ JackOutput::JackOutput( JackProcessCallback processCallback )
 
 
 
-
-
 JackOutput::~JackOutput()
 {
 	INFOLOG( "DESTROY" );
 	disconnect();
 }
-
-
-
 
 
 
@@ -208,46 +205,55 @@ void JackOutput::calculateFrameOffset()
 	bbt_frame_offset = m_JackTransportPos.frame - m_transport.m_nFrames;
 }
 
-
+int oldpo = 0;
+//int changer = 0;
 
 /// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
 void JackOutput::relocateBBT()
 {
-	if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ) return;
-
-	Hydrogen * H = Hydrogen::get_instance();
-	Song * S = H->getSong();
-
-	float hydrogen_TPB = ( float )S->__resolution;
-
-	long bar_ticks = 0;
-	if ( S->get_mode() == Song::SONG_MODE ) {
-		bar_ticks = H->getTickForPosition( m_JackTransportPos.bar -1 ); // (Reasonable?) assumption that one pattern is _always_ 1 bar long!
-		if ( bar_ticks < 0 ) bar_ticks = 0; // ignore error NOTE This is wrong -- if loop state is off, transport should just stop ??
+	//wolke if hydrogen is jack time master this is not relevant
+	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
+		//Hydrogen::get_instance()->setHumantimeFrames(m_JackTransportPos.frame );
+		if ( m_transport.m_status != TransportInfo::ROLLING)
+		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
+	 	return;
+	}else
+	{
+		if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ) return;
+	
+		Hydrogen * H = Hydrogen::get_instance();
+		Song * S = H->getSong();
+	
+		float hydrogen_TPB = ( float )S->__resolution;
+	
+		long bar_ticks = 0;
+		//long beat_ticks = 0;
+		if ( S->get_mode() == Song::SONG_MODE ) {
+			bar_ticks = H->getTickForPosition( m_JackTransportPos.bar-1  ); // (Reasonable?) assumption that one pattern is _always_ 1 bar long!
+			if ( bar_ticks < 0 ) bar_ticks = 0; // ignore error NOTE This is wrong -- if loop state is off, transport should just stop ??
+		}
+		float hydrogen_ticks_to_locate =  bar_ticks + ( m_JackTransportPos.beat-1 )*hydrogen_TPB + m_JackTransportPos.tick *( hydrogen_TPB/m_JackTransportPos.ticks_per_beat ) ;
+	
+		char bbt[15];
+		sprintf( bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
+//		WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string( hydrogen_ticks_to_locate ) );
+	
+		float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
+		// not S->m_fBPM !??
+	
+		if ( fNewTickSize == 0 ) return; // ??!?
+	
+		// NOTE this _should_ prevent audioEngine_process_checkBPMChanged in Hydrogen.cpp from recalculating things.
+		m_transport.m_nTickSize = fNewTickSize;
+	
+		long long nNewFrames = ( long long )( hydrogen_ticks_to_locate * fNewTickSize );
+		if ( m_JackTransportPos.valid & JackBBTFrameOffset )
+			nNewFrames += m_JackTransportPos.bbt_offset ;
+		m_transport.m_nFrames = nNewFrames;
+	
+		/// offset between jack- and internal position
+		calculateFrameOffset();
 	}
-	float hydrogen_ticks_to_locate =  bar_ticks + ( m_JackTransportPos.beat -1 )*hydrogen_TPB + m_JackTransportPos.tick*( hydrogen_TPB/m_JackTransportPos.ticks_per_beat );
-
-	char bbt[15];
-	sprintf( bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
-//	WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string( hydrogen_ticks_to_locate ) );
-	WARNINGLOG( QString( "Locating BBT: %1 =>tick %2" ).arg( bbt ).arg( hydrogen_ticks_to_locate ) );
-
-	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
-	// not S->m_fBPM !??
-
-	if ( fNewTickSize == 0 ) return; // ??!?
-
-	// NOTE this _should_ prevent audioEngine_process_checkBPMChanged in Hydrogen.cpp from recalculating things.
-	m_transport.m_nTickSize = fNewTickSize;
-
-	long long nNewFrames = ( long long )( hydrogen_ticks_to_locate * fNewTickSize );
-	if ( m_JackTransportPos.valid & JackBBTFrameOffset )
-		nNewFrames += m_JackTransportPos.bbt_offset;
-	m_transport.m_nFrames = nNewFrames;
-
-	/// offset between jack- and internal position
-	calculateFrameOffset();
-
 }
 
 ///
@@ -255,10 +261,13 @@ void JackOutput::relocateBBT()
 /// The location info from the timebase_master, if there is one, will not be available until the _next_ next cycle.
 /// The code must therefore wait one cycle before syncing up with timebase_master.
 ///
+
 void JackOutput::updateTransportInfo()
 {
-	if ( Preferences::getInstance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
+
+	if ( Preferences::getInstance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
 		m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
+
 
 		// update m_transport with jack-transport data
 		switch ( m_JackTransportState ) {
@@ -270,7 +279,7 @@ void JackOutput::updateTransportInfo()
 		case JackTransportRolling:
 			if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
 				must_relocate = 2;
-				WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
+				//WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
 			}
 			m_transport.m_status = TransportInfo::ROLLING;
 			//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
@@ -288,36 +297,60 @@ void JackOutput::updateTransportInfo()
 
 		// FIXME
 		// TickSize and BPM
+
 		if ( m_JackTransportPos.valid & JackPositionBBT ) {
 			float bpm = ( float )m_JackTransportPos.beats_per_minute;
 			if ( m_transport.m_nBPM != bpm ) {
 
-				WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
-
-				m_transport.m_nBPM = bpm;
-
-				must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
-
+				
+				if( Preferences::getInstance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER){
+					//WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
+					m_transport.m_nBPM = bpm;
+					must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
+				}else
+				{
+					if(m_transport.m_status == TransportInfo::STOPPED){
+						oldpo = Hydrogen::get_instance()->getPatternPos();
+						must_relocate = 1;
+						//changer =1;
+					}
+				}
+				
 				// Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
 			}
 		}
 
 		if ( m_transport.m_nFrames + bbt_frame_offset != m_JackTransportPos.frame ) {
 			if ( ( m_JackTransportPos.valid & JackPositionBBT ) && must_relocate == 0 ) {
-				WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
+				//WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
 				must_relocate = 2;
-			} else { // NOTE There's no timebase_master. If audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match.
-				m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
-// 				bbt_frame_offset = 0;
+			} else { // NOTE There's no timebase_master. If audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match.m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/;
+
+				//m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
+				///this is experimantal... but it works for the moment... fix me fix :-) wolke		
+				m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
+				bbt_frame_offset = 0;
 			}
 		}
+		
+		// humantime fix
+		if ( Hydrogen::get_instance()->getHumantimeFrames() != m_JackTransportPos.frame ) {
+
+			Hydrogen::get_instance()->setHumantimeFrames(m_JackTransportPos.frame);
+			//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
+		}
+
+
+
+
 		if ( must_relocate == 1 ) {
-			WARNINGLOG( "Resyncing!" );
+			//WARNINGLOG( "Resyncing!" );
 			relocateBBT();
 		}
 
 		if ( must_relocate > 0 ) must_relocate--;
 	}
+	
 }
 
 
@@ -527,7 +560,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 
 void JackOutput::play()
 {
-	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
+	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
 		if ( client ) {
 			INFOLOG( "jack_transport_start()" );
 			jack_transport_start( client );
@@ -541,7 +574,7 @@ void JackOutput::play()
 
 void JackOutput::stop()
 {
-	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
+	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
 		if ( client ) {
 			INFOLOG( "jack_transport_stop()" );
 			jack_transport_stop( client );
@@ -555,7 +588,7 @@ void JackOutput::stop()
 
 void JackOutput::locate( unsigned long nFrame )
 {
-	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
+	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
 		if ( client ) {
 			WARNINGLOG( QString( "Calling jack_transport_locate(%1)" ).arg( nFrame ) );
 			jack_transport_locate( client, nFrame );
@@ -596,7 +629,105 @@ int JackOutput::getNumTracks()
 	return track_port_count;
 }
 
+
+
+void JackOutput::initTimeMaster(void)
+{
+
+		bool cond = false;
+		if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER){
+			cond = true;
+		}else{
+		jack_release_timebase(client);
+		}
+		
+            if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER && 
+                 jack_set_timebase_callback(client, cond, jack_timebase_callback, this) == 0){
+                
+               // printf("[JACK transport master]\n");
+		Preferences::getInstance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER ;
+		cond = true;
+            }
+            else {
+               // printf("[JACK transport slave]\n");
+                Preferences::getInstance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER ;
+		cond = false;
+             	
+            }
+}
+
+
+void JackOutput::com_release()
+{
+	jack_release_timebase(client);
+}
+
+
+///this must be fixed to a valid c++ callback as a member of JackOutput
+void jack_timebase_callback(jack_transport_state_t state, jack_nframes_t nframes,
+	      jack_position_t *pos, int new_pos, void *arg)
+{
+	Hydrogen * H = Hydrogen::get_instance();	
+
+	//static double jack_tick;
+	//static jack_nframes_t last_frame;
+	static jack_nframes_t current_frame;
+	static jack_transport_state_t state_current;
+	static jack_transport_state_t state_last;
+	
+	
+	state_current = state;
+	
+	//JackOutput *p = (JackOutput *) arg;
+	//current_frame = H->getTotalFrames();
+	//current_frame = H->getHumantimeFrames();
+	current_frame = H->getTimeMasterFrames();
+	nframes = current_frame;
+	int posi =  H->getPatternPos();
+	if (posi <= 0) posi=1;
+	new_pos = posi ;
+
+	
+	pos->valid = JackPositionBBT;
+	pos->beats_per_bar = H->getTickForHumanPosition( posi )/48;
+	pos->beat_type = 4;
+	pos->ticks_per_beat = (long)H->getTickForHumanPosition( posi ); 
+	pos->beats_per_minute = H->getNewBpmJTM();
+
+
+
+	int ticksforbeat = H->getTickForHumanPosition( posi );
+	int beatperbar = H->getTickForHumanPosition( posi )/48 ;
+	int ticker = (int)(H->getTickPosition()/ 48) ;
+	int ptick = (int)(H->getTickPosition());
+	int ptickmax = ptick * beatperbar;
+	int ptickreal2 = ptick * beatperbar;
+
+	if (ptickmax > ( ticksforbeat ))
+	{
+	ptickreal2 =  ptickmax -(ticksforbeat * ticker);
+	}
+
+	int ppos = H->getPatternPos() + 1;
+	if (ppos == 0)
+		ppos =1;
+	pos->bar = ppos;
+	pos->beat = ticker +1 ;
+	pos->tick = ptickreal2 ;
+	pos->bar_start_tick = pos->bar * pos->beats_per_bar *
+		pos->ticks_per_beat;
+
+	if (Hydrogen::get_instance()->getHumantimeFrames()<= 0){
+		pos->bar = 1;
+		pos->beat = 1;
+		pos->tick = 0;
+	}
+
+
+state_last = state_current;
+	
+}
+
 };
 
 #endif // JACK_SUPPORT
-

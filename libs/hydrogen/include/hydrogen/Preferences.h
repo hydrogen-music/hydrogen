@@ -129,11 +129,13 @@ class Preferences : public Object
 public:
 	enum {
 		USE_JACK_TRANSPORT = 0,
+		USE_JACK_TIME_MASTER = 0,
 		POST_FADER = 0,
 		SPACE_BEATCOUNTER_ON = 0,
 		SET_PLAY_ON = 0,
 		BC_ON = 0,
 		NO_JACK_TRANSPORT = 1,
+		NO_JACK_TIME_MASTER = 1,
 		PRE_FADER = 1,
 		SPACE_BEATCOUNTER_OFF = 1,
 		SET_PLAY_OFF = 1,
@@ -182,7 +184,9 @@ public:
 	bool m_bJackConnectDefaults;
 	bool m_bJackTrackOuts;
 	int m_nJackTrackOutputMode;
-
+	//jack time master
+	bool m_bJackMasterMode ;
+	//~ jack time master
 	///Default text editor (used by Playlisteditor)
 	QString m_sDefaultEditor;
 

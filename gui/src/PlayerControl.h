@@ -91,6 +91,9 @@ class PlayerControl : public QLabel, public Object
 		void liveModeBtnClicked(Button* ref);
 		void switchModeBtnClicked(Button* ref);
 		void jackTransportBtnClicked(Button* ref);
+		//jack time master
+		void jackMasterBtnClicked(Button* ref);
+		//~ jack time master
 		void bpmChanged();
 		void bpmButtonClicked( Button *pRef );
 		void bpmButtonPressed( Button* pBtn);
@@ -137,7 +140,9 @@ class PlayerControl : public QLabel, public Object
 		//~ beatcounter
 
 		ToggleButton *m_pJackTransportBtn;
-
+		//jack time master
+		ToggleButton *m_pJackMasterBtn;
+		//~ jack time master
 		Button *m_pBPMUpBtn;
 		Button *m_pBPMDownBtn;
 

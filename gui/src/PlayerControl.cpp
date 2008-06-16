@@ -359,13 +359,28 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/jackTransportBtn_on.png",
 			"/playerControlPanel/jackTransportBtn_off.png",
 			"/playerControlPanel/jackTransportBtn_over.png",
-			QSize(92, 13)
+			QSize(45, 13)
 	);
 	m_pJackTransportBtn->hide();
 	m_pJackTransportBtn->setPressed(true);
 	m_pJackTransportBtn->setToolTip( trUtf8("Jack-transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
+
+	//jack time master
+	m_pJackMasterBtn = new ToggleButton(
+			pJackPanel,
+			"/playerControlPanel/jackMasterBtn_on.png",
+			"/playerControlPanel/jackMasterBtn_off.png",
+			"/playerControlPanel/jackMasterBtn_over.png",
+			QSize(45, 13)
+	);
+	m_pJackMasterBtn->hide();
+	m_pJackMasterBtn->setPressed(true);
+	m_pJackMasterBtn->setToolTip( trUtf8("Jack-Time-Master on/off") );
+	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
+	m_pJackMasterBtn->move(56, 26);
+	//~ jack time master
 
 	m_pEngine = Hydrogen::get_instance();
 
@@ -484,15 +499,19 @@ void PlayerControl::updatePlayerControl()
 
 
 
+
 	if ( pPref->m_sAudioDriver == "Jack" ) {
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(false);
+				// Jack Master Btn
+				m_pJackMasterBtn->setPressed(false);
 				break;
 
 			case Preferences::USE_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(true);
+				//m_pJackMasterBtn->setPressed(false);
 				break;
 		}
 	}
@@ -500,6 +519,33 @@ void PlayerControl::updatePlayerControl()
 		m_pJackTransportBtn->hide();
 	}
 
+	//jack transport master
+	if ( pPref->m_sAudioDriver == "Jack" ) {
+		m_pJackMasterBtn->show();
+		switch ( pPref->m_bJackMasterMode ) {
+			case Preferences::NO_JACK_TIME_MASTER:
+				m_pJackMasterBtn->setPressed(false);
+				break;
+
+			case Preferences::USE_JACK_TIME_MASTER:
+				if ( m_pJackTransportBtn->isPressed()){
+					m_pJackMasterBtn->setPressed(true);
+				}
+				else
+				{
+					m_pJackMasterBtn->setPressed(false);
+					Hydrogen::get_instance()->offJackMaster();	
+					pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+				}
+				//m_pJackTransportBtn->setPressed(true);
+				break;
+		}
+	}
+	else {
+		m_pJackMasterBtn->hide();
+		
+	}
+	//~ jack transport master
 
 	// time
 	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
@@ -798,6 +844,34 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	}
 }
 
+
+//jack time master
+void PlayerControl::jackMasterBtnClicked( Button* )
+{
+	Preferences *pPref = Preferences::getInstance();
+
+	if (m_pJackMasterBtn->isPressed()) {
+		AudioEngine::get_instance()->lock( "PlayerControl::jackMasterBtnClicked" );
+		pPref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
+		AudioEngine::get_instance()->unlock();
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = On"), 5000);
+		Hydrogen::get_instance()->onJackMaster();
+		
+	}
+	else {
+		AudioEngine::get_instance()->lock( "PlayerControl::jackMasterBtnClicked" );
+		pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+		AudioEngine::get_instance()->unlock();
+		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = Off"), 5000);
+		//m_pControlsBBTPanel->hide();
+		Hydrogen::get_instance()->offJackMaster();
+	}
+
+	if (pPref->m_sAudioDriver != "Jack") {
+		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
+	}
+}
+//~ jack time master
 
 void PlayerControl::bpmClicked()
 {

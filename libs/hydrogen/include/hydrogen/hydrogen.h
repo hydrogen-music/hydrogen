@@ -162,6 +162,16 @@ public:
 	int getBcStatus();
 	void handleBeatCounter();
 
+	/// jack time master
+	unsigned long getHumantimeFrames();
+	void setHumantimeFrames(unsigned long hframes);
+	void offJackMaster();
+	void onJackMaster();
+	unsigned long getTimeMasterFrames();
+	long getTickForHumanPosition( int humanpos );
+	float getNewBpmJTM();
+	void ComputeHumantimeFrames(uint32_t nFrames);
+
 private:
 	static Hydrogen* instance;
 
