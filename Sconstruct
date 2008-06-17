@@ -44,11 +44,11 @@ def get_platform_flags():
 			cppflags += " -Wall -g2 -ggdb -O0"
 		else:
 			cppflags += " -O3 -fomit-frame-pointer -funroll-loops"
-			cppflags += " %s" % get_optimized_flags( target_cpu )
+			#cppflags += " %s" % get_optimized_flags( target_cpu )
 
 		cppflags += " -DALSA_SUPPORT"
 		cppflags += " -DJACK_SUPPORT"
-		#cppflags += " -DLASH_SUPPORT"
+		if lash: cppflags += " -DLASH_SUPPORT"
 		cppflags += " -DFLAC_SUPPORT"
 		cppflags += " -DLADSPA_SUPPORT"
 		cppflags += " -DLRDF_SUPPORT"
@@ -58,6 +58,7 @@ def get_platform_flags():
 	includes.append( './' )
 	includes.append( 'gui/src/' )
 	includes.append( '3rdparty/install/include' )
+	includes.append( '/usr/lib/lash-1.0' )
 
 	if sys.platform == 'linux2':
 		ldflags += " -lasound"
@@ -111,6 +112,7 @@ def get_hydrogen_lib():
 	includes, cppflags, ldflags = get_platform_flags()
 
 	includes.append( "libs/hydrogen/include" )
+	includes.append( "/usr/include/lash-1.0")
 
 	qt4ToolLocation='.'
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
@@ -129,6 +131,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	includes.append( "libs/hydrogen/include" )
 	includes.append( "gui/src/UI" )
+	includes.append( "/usr/include/lash-1.0")
 
 	qt4ToolLocation='.'
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
@@ -152,7 +155,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Append( LIBS = ["sndfile"] )
 	env.Append( LIBS = ["tar"] )
 	env.Append( LIBS = ["asound", "jack", "lrdf", "FLAC", "FLAC++"] )
-
+	if lash: env.Append( LIBS = ["lash"])
 	#app = env.Program(target = 'hydrogengui', source = src, LIBS = libs )
 	app = env.Program(target = 'hydrogengui', source = src )
 
@@ -163,7 +166,16 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 
 
-debug_build = True
+opts = Options('custom.py')
+opts.Add('debug', 'Set to 1 to build with debug informations', 0)
+opts.Add('lash', 'Set to 1 to enable lash',0);
+env = Environment(options = opts)
+Help(opts.GenerateHelpText(env))
+
+
+debug =int(ARGUMENTS.get('debug', 0))
+lash = int(ARGUMENTS.get('lash',0))
+
 
 
 print ""
@@ -172,11 +184,20 @@ print " Hydrogen build script"
 print ""
 print " Revision: %s" % get_svn_revision()
 print " Platform: %s" % sys.platform
-if debug_build:
+
+if debug:
 	print " Debug build"
 else:
 	print " Release build"
+
 print "================================================================="
+print "FEATURES:\n"
+
+if lash: s="enabled";
+if not lash: s="disabled"
+print "LASH: "  + s
+
+print "\n================================================================="
 print ""
 
 
@@ -188,6 +209,10 @@ conf.write( "#define HYD_CONFIG_H\n" )
 conf.write( "#include <string>\n" )
 conf.write( "static const std::string REVISION = \"%s\";\n" % get_svn_revision() )
 conf.write( "static const std::string VERSION = \"0.9.4-svn\" + REVISION;\n" )
+
+if debug: conf.write( "#define DEBUG\n" )
+if lash: conf.write( "#define LASH\n" )
+
 conf.write( "#ifndef QT_BEGIN_NAMESPACE\n" )
 conf.write( "#    define QT_BEGIN_NAMESPACE\n" )
 conf.write( "#endif\n" )
