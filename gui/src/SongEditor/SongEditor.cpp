@@ -22,6 +22,7 @@
 
 #include <QtGui>
 
+#include <assert.h>
 #include <algorithm>
 
 #include <hydrogen/Song.h>
