@@ -270,6 +270,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCBDownBtn->move( 65, 16 );
 	connect( m_pBCBDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bcbButtonClicked( Button* ) ) );
 
+	/*
 	m_pBCSpaceBtn = new ToggleButton(
 			m_pControlsBCPanel,
 			"/playerControlPanel/btn_mmc_space_on.png",
@@ -281,6 +282,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCSpaceBtn->setPressed(false);
 	m_pBCSpaceBtn->setToolTip( trUtf8("Use BeatCounter by pressing the spacebar") );
 	connect(m_pBCSpaceBtn, SIGNAL(clicked(Button*)), this, SLOT(bcSpaceBtnClicked(Button*)));
+	*/
 
 	m_pBCSetPlayBtn = new ToggleButton(
 			m_pControlsBCPanel,
@@ -729,24 +731,6 @@ void PlayerControl::bconoffBtnClicked( Button* )
 	}
 	
 }
-
-
-void PlayerControl::bcSpaceBtnClicked( Button* )
-{
-	Preferences *pPref = Preferences::getInstance();
-	if (m_pBCSpaceBtn->isPressed()) {
-		pPref->m_spacebeatcounter = Preferences::SPACE_BEATCOUNTER_ON;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Space Bar: BeatCounter"), 5000);
-		
-	}
-	else {
-		pPref->m_spacebeatcounter = Preferences::SPACE_BEATCOUNTER_OFF;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Space Bar:Play Stop"), 5000);
-	}
-		
-}
-
-
 
 void PlayerControl::bcSetPlayBtnClicked( Button* )
 {

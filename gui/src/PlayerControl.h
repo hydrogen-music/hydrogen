@@ -108,7 +108,6 @@ class PlayerControl : public QLabel, public Object
 
 		//beatcounter
 		void bconoffBtnClicked( Button* ref);
-		void bcSpaceBtnClicked( Button* ref);
 		void bcSetPlayBtnClicked(Button* ref);
 		void bcbButtonClicked(Button* bBtn);
 		void bctButtonClicked(Button* tBtn);
