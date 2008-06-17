@@ -105,7 +105,6 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void onSaveAsAccelEvent();
 		void onSaveAccelEvent();
 		void onOpenAccelEvent();
-		void onTapTempoAccelEvent();
 
 		void action_file_open_recent( QAction *pAction );
 		void latestVersionDone(bool bError);

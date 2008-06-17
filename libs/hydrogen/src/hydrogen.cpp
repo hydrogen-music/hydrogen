@@ -2258,6 +2258,24 @@ void Hydrogen::setLadspaFXPeak( int nFX, float fL, float fR )
 }
 
 
+void Hydrogen::onTapTempoAccelEvent()
+{
+#ifndef WIN32
+	INFOLOG( "tap tempo" );
+	static timeval oldTimeVal;
+
+	struct timeval now;
+	gettimeofday(&now, NULL);
+
+	float fInterval = (now.tv_sec - oldTimeVal.tv_sec) * 1000.0 + (now.tv_usec - oldTimeVal.tv_usec) / 1000.0;
+
+	oldTimeVal = now;
+
+	if ( fInterval < 1000.0 ) {
+		setTapTempo( fInterval );
+	}
+#endif
+}
 
 void Hydrogen::setTapTempo( float fInterval )
 {

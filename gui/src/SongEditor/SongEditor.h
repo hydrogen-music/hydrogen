@@ -113,6 +113,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 	public slots:
 		void patternPopup_edit();
 		void patternPopup_save();
+		void patternPopup_load();
 		void patternPopup_properties();
 		void patternPopup_delete();
 		void patternPopup_copy();

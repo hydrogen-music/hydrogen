@@ -651,6 +651,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( trUtf8("Delete"),  this, SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
+	m_pPatternPopup->addAction( trUtf8("Load Pattern"),  this, SLOT( patternPopup_load() ) );
 	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
 
 	HydrogenApp::getInstance()->addEventListener( this );
@@ -876,6 +877,64 @@ void SongEditorPatternList::createBackground()
 	}
 
 }
+
+
+
+void SongEditorPatternList::patternPopup_load()
+{
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	int tmpselectedpatternpos = engine->getSelectedPatternNumber();
+	Song *song = engine->getSong();
+	PatternList *pPatternList = song->get_pattern_list();
+	Instrument *instr = song->get_instrument_list()->get( 0 );
+	assert( instr );
+	
+	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name();
+	
+	QDir dirPattern( sDrumkitDir + "/Pattern" );
+	QFileDialog *fd = new QFileDialog(this);
+	fd->setFileMode(QFileDialog::ExistingFile);
+	fd->setFilter( trUtf8("Hydrogen Song (*.h2pattern)") );
+	fd->setDirectory(dirPattern );
+
+	fd->setWindowTitle( trUtf8( "Open Pattern" ) );
+
+	QString filename = "";
+	if (fd->exec() == QDialog::Accepted) {
+		filename = fd->selectedFiles().first();
+	}
+	else
+	{
+		return;
+	}
+
+	LocalFileMng mng;
+	LocalFileMng fileMng;
+	Pattern* err = fileMng.loadPattern( filename );
+	if ( err == 0 ) {
+		_ERRORLOG( "Error loading the pattern" );
+	}else{
+		H2Core::Pattern *pNewPattern = err;
+		pPatternList->add( pNewPattern );
+		song->__is_modified = true;
+		createBackground();
+		update();
+	}
+
+	int listsize = pPatternList->get_size();
+	engine->setSelectedPatternNumber( listsize -1 );
+	Pattern *pTemp = pPatternList->get( engine->getSelectedPatternNumber() );
+	pPatternList->replace( pPatternList->get( tmpselectedpatternpos ), listsize -1);
+	pPatternList->replace( pTemp, tmpselectedpatternpos );
+	listsize = pPatternList->get_size();
+	engine->setSelectedPatternNumber( listsize -1 );
+	patternPopup_delete();
+	engine->setSelectedPatternNumber( tmpselectedpatternpos );
+	HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+
+}
+
 
 
 void SongEditorPatternList::patternPopup_save()

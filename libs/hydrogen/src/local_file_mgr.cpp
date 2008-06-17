@@ -224,6 +224,21 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.InsertEndChild( rootNode );
 	doc.SaveFile();
 
+//linux only. This is a workaround in agog of LIB_ID
+	if ( mode == 1 ){
+
+		QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns/" ;
+		QString filename = "/bin/ln -s " + sPatternXmlFilename + " " + sDirectory + " &";
+		//WARNINGLOG( "linke Patternfile" + filename );
+		
+		char *file;
+		file = new char[filename.length() + 1];
+		strcpy(file, filename.toAscii());
+		std::system(file); 
+		delete [] file;
+	}
+//~ linux only
+
 	return 0; // ok
 }
 

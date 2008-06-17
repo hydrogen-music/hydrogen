@@ -1131,27 +1131,6 @@ void MainForm::onOpenAccelEvent()
 
 
 
-void MainForm::onTapTempoAccelEvent()
-{
-#ifndef WIN32
-	INFOLOG( "tap tempo" );
-	static timeval oldTimeVal;
-
-	struct timeval now;
-	gettimeofday(&now, NULL);
-
-	float fInterval = (now.tv_sec - oldTimeVal.tv_sec) * 1000.0 + (now.tv_usec - oldTimeVal.tv_usec) / 1000.0;
-
-	oldTimeVal = now;
-
-	if ( fInterval < 1000.0 ) {
-		Hydrogen::get_instance()->setTapTempo( fInterval );
-	}
-#endif
-}
-
-
-
 void MainForm::updateRecentUsedSongList()
 {
 	m_pRecentFilesMenu->clear();
@@ -1324,7 +1303,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				break;
 
 			case Qt::Key_Backslash:
-				onTapTempoAccelEvent();
+				Hydrogen::get_instance()->onTapTempoAccelEvent();
 				return TRUE; // eat event
 				break;
 

@@ -132,6 +132,7 @@ public:
 		JACK_ERROR_IN_PORT_REGISTER
 	};
 
+	void onTapTempoAccelEvent();
 	void setTapTempo( float fInterval );
 	void setBPM( float fBPM );
 
