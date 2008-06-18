@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 		QString sSelectedDriver = "";
 
 #ifdef CONFIG_DEBUG
-		Object::useVerboseLog( true );
+		Object::use_verbose_log( true );
 #endif
 
 #ifdef LASH_SUPPORT
