@@ -11,6 +11,12 @@ import subprocess
 import sys
 import glob
 
+def printStatus( value ):
+    if value: 
+	return "enabled"
+    else:
+	return "disabled"
+
 def recursiveDirs(root) :
 	return filter( ( lambda a : a.rfind( ".svn") == -1 ),  [ a[0] for a in os.walk( root ) ] )
 
@@ -46,9 +52,10 @@ def get_platform_flags():
 			cppflags += " -O3 -fomit-frame-pointer -funroll-loops"
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
 
-		cppflags += " -DALSA_SUPPORT"
-		cppflags += " -DJACK_SUPPORT"
+		if alsa: cppflags += " -DALSA_SUPPORT"
+		if jack: cppflags += " -DJACK_SUPPORT"
 		if lash: cppflags += " -DLASH_SUPPORT"
+
 		cppflags += " -DFLAC_SUPPORT"
 		cppflags += " -DLADSPA_SUPPORT"
 		cppflags += " -DLRDF_SUPPORT"
@@ -135,7 +142,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	qt4ToolLocation='.'
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
-	env.EnableQt4Modules( ['QtCore', 'QtGui', 'QtNetwork', 'QtXml' ], debug=False)
+	env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
 	env.CacheDir( "scons_cache" )
 
 	# rcc needs a -name flag because examples use identified resource files
@@ -154,8 +161,12 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Append( LIBS = lib_hydrogen )
 	env.Append( LIBS = ["sndfile"] )
 	env.Append( LIBS = ["tar"] )
-	env.Append( LIBS = ["asound", "jack", "lrdf", "FLAC", "FLAC++"] )
+	env.Append( LIBS = ["lrdf", "FLAC", "FLAC++"] )
+
 	if lash: env.Append( LIBS = ["lash"])
+	if jack: env.Append( LIBS = ["jack"])
+	if alsa: env.Append( LIBS = ["asound"])
+
 	#app = env.Program(target = 'hydrogengui', source = src, LIBS = libs )
 	app = env.Program(target = 'hydrogengui', source = src )
 
@@ -166,24 +177,77 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 
 
-opts = Options('custom.py')
+opts = Options()
 opts.Add('debug', 'Set to 1 to build with debug informations', 0)
-opts.Add('lash', 'Set to 1 to enable lash',0);
+opts.Add('lash', 'Set to 1 to enable lash',0)
+opts.Add('alsa', 'Set to 1 to enable alsa',1)
+opts.Add('jack', 'Set to 1 to enable jack',1)
+
+debug =int(ARGUMENTS.get('debug', 0))
+lash = int(ARGUMENTS.get('lash',0))
+alsa = int(ARGUMENTS.get('alsa',1))
+jack = int(ARGUMENTS.get('jack',1))
+
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
 
 
-debug =int(ARGUMENTS.get('debug', 0))
-lash = int(ARGUMENTS.get('lash',0))
 
 
+#Check if all required libraries are installed
+conf = Configure(env)
+if not conf.CheckCHeader('sndfile.h'):
+    print 'libsndfile must be installed!'
+    Exit(1)
+
+if not conf.CheckCHeader('libtar.h'):
+    print 'libtar must be installed!'
+    Exit(1)
+
+if not conf.CheckCHeader('lrdf.h'):
+    print 'lrdf must be installed!'
+    Exit(1)
+
+if not conf.CheckCHeader('FLAC/all.h'):
+    print 'FLAC must be installed!'
+    Exit(1)
+
+
+# it seems that conf.CheckCHeader  dislikes like the "++" in filenames
+#if not conf.CheckCHeader('FLAC++/all.h'):
+#   print 'FLAC++ must be installed!'
+#   Exit(1)
+
+
+# these libraries are optional (can be enabled/disabled, see 'scons -h')
+
+#alsa: (default: enabled)
+if alsa and not conf.CheckCHeader('alsa/asoundlib.h'):
+    print 'alsa must be installed!'
+    Exit(1)
+
+#jack: (default: enabled)
+if jack and not conf.CheckCHeader('jack/jack.h'):
+    print 'jack must be installed!'
+    Exit(1)
+
+#lash: (default: disabled)
+if lash and not os.path.isdir("/usr/include/lash-1.0"):
+    print 'liblash must be installed!'
+    Exit(1)
+
+
+
+
+
+platform = sys.platform
 
 print ""
 print "================================================================="
 print " Hydrogen build script"
 print ""
 print " Revision: %s" % get_svn_revision()
-print " Platform: %s" % sys.platform
+print " Platform: %s" % platform
 
 if debug:
 	print " Debug build"
@@ -191,11 +255,11 @@ else:
 	print " Release build"
 
 print "================================================================="
-print "FEATURES:\n"
+print "Feature Overview:\n"
 
-if lash: s="enabled";
-if not lash: s="disabled"
-print "LASH: "  + s
+print "lash: "  + printStatus( lash )
+print "alsa: " + printStatus( alsa )
+print "jack: " + printStatus( jack )
 
 print "\n================================================================="
 print ""
@@ -228,7 +292,11 @@ conf.write( "#endif\n" )
 
 conf.close()
 
-download_3rdparty_libs()
+
+#just download 3rd party libs if we're *not* running linux.
+#We trust in our package managment system!
+if platform != "linux2":
+    download_3rdparty_libs()
 
 libhyd = get_hydrogen_lib()
 app = get_hydrogen_gui( libhyd )
