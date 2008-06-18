@@ -522,6 +522,7 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	//jack transport master
+#ifdef JACK_SUPPORT
 	if ( pPref->m_sAudioDriver == "Jack" ) {
 		m_pJackMasterBtn->show();
 		switch ( pPref->m_bJackMasterMode ) {
@@ -547,6 +548,7 @@ void PlayerControl::updatePlayerControl()
 		m_pJackMasterBtn->hide();
 		
 	}
+#endif
 	//~ jack transport master
 
 	// time
@@ -833,7 +835,8 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 
 //jack time master
 void PlayerControl::jackMasterBtnClicked( Button* )
-{
+{	
+#ifdef JACK_SUPPORT
 	Preferences *pPref = Preferences::getInstance();
 
 	if (m_pJackMasterBtn->isPressed()) {
@@ -856,6 +859,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	if (pPref->m_sAudioDriver != "Jack") {
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 	}
+#endif
 }
 //~ jack time master
 
