@@ -56,7 +56,7 @@ midiTable::~midiTable()
 void midiTable::updateTable(){
 	
 	
-	if( (rowCount-1) > 0 ) 
+	if( rowCount > 0 ) 
 	{
 		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( rowCount-1, 0 ) );
 		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( cellWidget( rowCount-1, 2 ) );
