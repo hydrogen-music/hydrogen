@@ -63,11 +63,14 @@ actionManager::actionManager() : Object( "actionManager" ) {
 	actionList <<""
 	<< "PLAY" 
 	<< "PLAY_TOGGLE"
+	<< "STOP"
 	<< "PAUSE"
+	<< ">>_NEXT_BAR"
+	<< "<<_PREVIOUS_BAR"
 	<< "BPM_INCR"
 	<< "BPM_DECR"
-	<< "STOP"
-	<< "BEATCOUNTER";
+	<< "BEATCOUNTER"
+	<< "TAP_TEMPO";
 
 	eventList << ""
 	<< "MMC_PLAY"
@@ -157,19 +160,23 @@ bool actionManager::handleAction( action * pAction ){
 	}
 
 	if( sActionString == "MUTE" ){
-		Hydrogen::get_instance()->getSong()->__is_muted = true;
+		pEngine->getSong()->__is_muted = true;
 	}
 
 	if( sActionString == "UNMUTE" ){
-		Hydrogen::get_instance()->getSong()->__is_muted = false;
+		pEngine->getSong()->__is_muted = false;
 	}
 
 	if( sActionString == "MUTE_TOGGLE" ){
-		Hydrogen::get_instance()->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
+		pEngine->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
 	}
 
 	if( sActionString == "BEATCOUNTER" ){
-		Hydrogen::get_instance()->handleBeatCounter();
+		pEngine->handleBeatCounter();
+	}
+
+	if( sActionString == "TAP_TEMPO" ){
+		pEngine->onTapTempoAccelEvent();
 	}
 
 	if( sActionString == "RECORD" ){
@@ -181,7 +188,6 @@ bool actionManager::handleAction( action * pAction ){
 	}
 
 	if( sActionString == "BPM_INCR" ){
-		Hydrogen* pEngine = Hydrogen::get_instance();
 		AudioEngine::get_instance()->lock( "Action::BPM_INCR" );
 
 		int mult = 1;	
@@ -200,7 +206,6 @@ bool actionManager::handleAction( action * pAction ){
 	}
 
 	if( sActionString == "BPM_DECR" ){
-		Hydrogen* pEngine = Hydrogen::get_instance();
 		AudioEngine::get_instance()->lock( "Action::BPM_DECR" );
 
 		int mult = 1;	
@@ -217,6 +222,14 @@ bool actionManager::handleAction( action * pAction ){
 		AudioEngine::get_instance()->unlock();
 	}
 
+	if( sActionString == ">>_NEXT_BAR"){
+		pEngine->setPatternPos(pEngine->getPatternPos() +1 );
+	}
+
+	if( sActionString == "<<_PREVIOUS_BAR"){
+		pEngine->setPatternPos(pEngine->getPatternPos() -1 );
+	}
+	
 	if( sActionString == "RECORD_TOGGLE"){
 	}
 
