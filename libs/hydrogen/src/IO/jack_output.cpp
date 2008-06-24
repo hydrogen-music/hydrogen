@@ -633,32 +633,32 @@ int JackOutput::getNumTracks()
 
 void JackOutput::initTimeMaster(void)
 {
+	if ( client == NULL) return;
 
-		bool cond = false;
-		if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER){
-			cond = true;
-		}else{
+	bool cond = false;
+	if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER)
+	{
+		cond = true;
+	}else{
 		jack_release_timebase(client);
-		}
-		
-            if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER && 
-                 jack_set_timebase_callback(client, cond, jack_timebase_callback, this) == 0){
-                
-               // printf("[JACK transport master]\n");
+	}
+
+	if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER && 
+                 jack_set_timebase_callback(client, cond, jack_timebase_callback, this) == 0)
+	{
 		Preferences::getInstance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER ;
 		cond = true;
-            }
-            else {
-               // printf("[JACK transport slave]\n");
-                Preferences::getInstance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER ;
+	} else {
+		Preferences::getInstance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER ;
 		cond = false;
-             	
-            }
+	}
 }
 
 
 void JackOutput::com_release()
 {
+	if ( client == NULL) return;
+
 	jack_release_timebase(client);
 }
 
