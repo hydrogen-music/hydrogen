@@ -36,7 +36,8 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 	public:
 		enum NotePropertiesMode {
 			VELOCITY,
-			PAN
+			PAN,
+			LEADLAG
 		};
 
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
@@ -64,6 +65,7 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 
 		void createVelocityBackground(QPixmap *pixmap);
 		void createPanBackground(QPixmap *pixmap);
+		void createLeadLagBackground(QPixmap *pixmap);
 		void paintEvent(QPaintEvent *ev);
 		void mousePressEvent(QMouseEvent *ev);
 		void mouseMoveEvent(QMouseEvent *ev);

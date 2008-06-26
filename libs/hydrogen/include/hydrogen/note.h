@@ -78,7 +78,7 @@ class Note : public Object
 public:
 
 	float m_fSamplePosition;
-	unsigned m_nHumanizeDelay;	///< Used in "humanize" function
+	int m_nHumanizeDelay;	///< Used in "humanize" function
 	NoteKey m_noteKey;
 
 	ADSR m_adsr;
@@ -169,6 +169,13 @@ public:
 	}
 
 
+	void set_leadlag( float leadlag ) {
+		__leadlag = leadlag;
+	}
+	float get_leadlag() const {
+		return __leadlag;
+	}
+
 	void set_lenght( int lenght ) {
 		__lenght = lenght;
 	}
@@ -190,6 +197,7 @@ private:
 	float __velocity;		///< Velocity (intensity) of the note [0..1]
 	float __pan_l;			///< Pan of the note (left volume) [0..1]
 	float __pan_r;			///< Pan of the note (right volume) [0..1]
+	float __leadlag;		///< Lead or lag offset of the note
 
 	int __lenght;
 	float __pitch;

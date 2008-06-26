@@ -107,6 +107,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 		{
 			Note* pNote = NULL;
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
+			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
@@ -131,6 +132,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 			//assert( instrRef );
 
 			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch, Note::stringToKey( sKey ) );
+			pNote->set_leadlag(fLeadLag);
 			pPattern->note_map.insert( std::make_pair( pNote->get_position(),pNote ) );
 		}
 	}
@@ -206,6 +208,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 			TiXmlElement noteNode( "note" );
 			writeXmlString( &noteNode, "position", to_string( pNote->get_position() ) );
+			writeXmlString( &noteNode, "leadlag", to_string( pNote->get_leadlag() ) );
 			writeXmlString( &noteNode, "velocity", to_string( pNote->get_velocity() ) );
 			writeXmlString( &noteNode, "pan_L", to_string( pNote->get_pan_l() ) );
 			writeXmlString( &noteNode, "pan_R", to_string( pNote->get_pan_r() ) );
@@ -1006,6 +1009,7 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 
 			TiXmlElement noteNode( "note" );
 			LocalFileMng::writeXmlString( &noteNode, "position", to_string( pNote->get_position() ) );
+			LocalFileMng::writeXmlString( &noteNode, "leadlag", to_string( pNote->get_leadlag() ) );
 			LocalFileMng::writeXmlString( &noteNode, "velocity", to_string( pNote->get_velocity() ) );
 			LocalFileMng::writeXmlString( &noteNode, "pan_L", to_string( pNote->get_pan_l() ) );
 			LocalFileMng::writeXmlString( &noteNode, "pan_R", to_string( pNote->get_pan_r() ) );

@@ -53,7 +53,7 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 
 	QStringList headers;
 	headers << trUtf8( "Sound library" ) << trUtf8( "Status" );
-	QTreeWidgetItem* header = new QTreeWidgetItem( headers );
+	QTreeWidgetItem* header = new QTreeWidgetItem( 1 );
 	m_pDrumkitTree->setHeaderItem( header );
 	m_pDrumkitTree->header()->resizeSection( 0, 200 );
 

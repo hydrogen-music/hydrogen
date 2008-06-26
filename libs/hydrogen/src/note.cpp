@@ -50,6 +50,7 @@ Note::Note(
 		, m_fBandPassFilterBuffer_R( 0.0 )
 		, m_fLowPassFilterBuffer_L( 0.0 )
 		, m_fLowPassFilterBuffer_R( 0.0 )
+		, __leadlag( 0.0 )
 		, __position( position )
 		, __velocity( velocity )
 {
@@ -71,6 +72,7 @@ Note::Note( const Note* pNote )
 	__velocity	=	pNote->get_velocity();
 	set_pan_l(	pNote->get_pan_l()	);
 	set_pan_r(	pNote->get_pan_r()	);
+	set_leadlag(    pNote->get_leadlag()    );
 	set_lenght(	pNote->get_lenght()	);
 	set_pitch(	pNote->get_pitch()	);
 	m_noteKey	=	pNote->m_noteKey;
@@ -125,7 +127,7 @@ void Note::set_instrument( Instrument* instrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + to_string( get_position() ) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + to_string( get_pitch() ) );
+	INFOLOG( "pos: " + to_string( get_position() ) + "\t humanize offset" + to_string(m_nHumanizeDelay) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + to_string( get_pitch() ) );
 }
 
 
@@ -239,6 +241,7 @@ Note* Note::copy()
 	    m_noteKey
 	);
 
+	note->set_leadlag(get_leadlag());
 
 
 	return note;

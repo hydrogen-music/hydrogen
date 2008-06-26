@@ -32,6 +32,7 @@
 #include <cassert>
 #include <cstdio>
 #include <deque>
+#include <queue>
 #include <iostream>
 #include <ctime>
 #include <cmath>
@@ -105,7 +106,13 @@ unsigned long m_nHumantimeFrames = 0;
 AudioOutput *m_pAudioDriver = NULL;	///< Audio output
 MidiInput *m_pMidiDriver = NULL;	///< MIDI input
 
-std::deque<Note*> m_songNoteQueue;	///< Song Note FIFO
+// overload the the > operator of Note objects for priority_queue
+bool operator> (const Note& pNote1, const Note &pNote2) {
+	return (pNote1.m_nHumanizeDelay + pNote1.get_position() * m_pAudioDriver->m_transport.m_nTickSize) > \
+		(pNote2.m_nHumanizeDelay + pNote2.get_position() * m_pAudioDriver->m_transport.m_nTickSize);
+}
+
+std::priority_queue<Note*, std::deque<Note*>, std::greater<Note> > m_songNoteQueue;	/// Song Note FIFO
 std::deque<Note*> m_midiNoteQueue;	///< Midi Note FIFO
 
 
@@ -174,6 +181,7 @@ inline void audioEngine_process_transport();
 
 inline unsigned audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
 inline int audioEngine_updateNoteQueue( unsigned nFrames );
+inline void audioEngine_prepNoteQueue();
 
 inline int findPatternInTick( int tick, bool loopMode, int *patternStartTick );
 
@@ -218,7 +226,7 @@ inline float getGaussian( float z )
 	} while ( w >= 1.0 );
 
 	w = sqrtf( ( -2.0 * logf( w ) ) / w );
-	return x1 * w * z + 0.5; // tunable
+	return x1 * w * z + 0.0; // tunable
 }
 
 
@@ -300,13 +308,10 @@ void audioEngine_destroy()
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 
 	// delete all copied notes in the song notes queue
-	for ( unsigned i = 0; i < m_songNoteQueue.size(); ++i ) {
-		Note *note = m_songNoteQueue[i];
-		delete note;
-		note = NULL;
+	while(!m_songNoteQueue.empty()){
+		delete m_songNoteQueue.top();
+		m_songNoteQueue.pop();
 	}
-	m_songNoteQueue.clear();
-
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
 		Note *note = m_midiNoteQueue[i];
@@ -408,11 +413,10 @@ void audioEngine_stop( bool bLockEngine )
 	m_nPatternStartTick = -1;
 
 	// delete all copied notes in the song notes queue
-	for ( unsigned i = 0; i < m_songNoteQueue.size(); ++i ) {
-		Note *note = m_songNoteQueue[i];
-		delete note;
+	while(!m_songNoteQueue.empty()){
+		delete m_songNoteQueue.top();
+		m_songNoteQueue.pop();
 	}
-	m_songNoteQueue.clear();
 
 	/*	// delete all copied notes in the playing notes queue
 		for (unsigned i = 0; i < m_playingNotesQueue.size(); ++i) {
@@ -468,10 +472,10 @@ inline void audioEngine_process_checkBPMChanged()
 			/*
 
 						// delete all copied notes in the song notes queue
-						for (unsigned i = 0; i < m_songNoteQueue.size(); ++i) {
-							delete m_songNoteQueue[i];
+						while(!m_songNoteQueue.empty()){
+							delete m_songNoteQueue.top();
+							m_songNoteQueue.pop();
 						}
-						m_songNoteQueue.clear();
 
 						// send a note-off event to all notes present in the playing note queue
 						for ( int i = 0; i < m_playingNotesQueue.size(); ++i ) {
@@ -503,11 +507,19 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 	}
 
 	// leggo da m_songNoteQueue
-	while ( m_songNoteQueue.size() > 0 ) {
-		Note *pNote = m_songNoteQueue[0];
+	while (!m_songNoteQueue.empty()) {
+		Note *pNote = m_songNoteQueue.top();
 
 		// verifico se la nota rientra in questo ciclo
-		unsigned noteStartInFrames = ( unsigned )( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
+		unsigned int noteStartInFrames = (int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
+
+
+		// if there is a negative Humanize delay, take into account so we don't miss the time slice.
+		// ignore positive delay, or we might end the queue processing prematurely based on NoteQueue placement.
+		// the sampler handles positive delay.
+		if (pNote->m_nHumanizeDelay < 0) {
+			noteStartInFrames += pNote->m_nHumanizeDelay;
+		}
 
 		// m_nTotalFrames <= NotePos < m_nTotalFrames + bufferSize
 		bool isNoteStart = ( ( noteStartInFrames >= framepos ) && ( noteStartInFrames < ( framepos + nframes ) ) );
@@ -530,7 +542,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			pNote->set_pitch( pNote->get_pitch() + ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->get_instrument()->get_random_pitch_factor() );
 
 			AudioEngine::get_instance()->get_sampler()->note_on( pNote );	// aggiungo la nota alla lista di note da eseguire
-			m_songNoteQueue.pop_front();			// rimuovo la nota dalla lista di note
+			m_songNoteQueue.pop();			// rimuovo la nota dalla lista di note
 
 			// raise noteOn event
 			int nInstrument = m_pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
@@ -633,10 +645,10 @@ void audioEngine_clearNoteQueue()
 {
 	//_INFOLOG( "clear notes...");
 
-	for ( unsigned i = 0; i < m_songNoteQueue.size(); ++i ) {	// delete all copied notes in the song notes queue
-		delete m_songNoteQueue[i];
+	while (!m_songNoteQueue.empty()) {       // delete all copied notes in the song notes queue
+		delete m_songNoteQueue.top();
+		m_songNoteQueue.pop();
 	}
-	m_songNoteQueue.clear();
 
 	/*	for (unsigned i = 0; i < m_playingNotesQueue.size(); ++i) {	// delete all copied notes in the playing notes queue
 			delete m_playingNotesQueue[i];
@@ -993,6 +1005,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 {
 	static int nLastTick = -1;
 	bool bSendPatternChange = false;
+	int nMaxTimeHumanize = 2000;
+	int nLeadLagFactor = m_pAudioDriver->m_transport.m_nTickSize * 5;  // 5 ticks
 
 	unsigned int framepos;
 	if (  m_audioEngineState == STATE_PLAYING ) {
@@ -1002,8 +1016,19 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		framepos = m_nRealtimeFrames;
 	}
 
-	int tickNumber_start = ( int )( framepos / m_pAudioDriver->m_transport.m_nTickSize );
-	int tickNumber_end = ( int )( ( framepos + nFrames ) / m_pAudioDriver->m_transport.m_nTickSize );
+	int tickNumber_start = 0;
+
+	// We need to look ahead in the song for notes with negative offsets from LeadLag or Humanize.
+	// When starting from the beginning, we prime the note queue with notes between 0 and nFrames
+	// plus lookahead. lookahead should be equal or greater than the nLeadLagFactor + nMaxTimeHumanize.
+	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
+	if ( framepos == 0 ) {
+		tickNumber_start = (int)( framepos / m_pAudioDriver->m_transport.m_nTickSize );
+	}
+	else {
+		tickNumber_start = (int)( (framepos + lookahead) / m_pAudioDriver->m_transport.m_nTickSize );
+	}
+	int tickNumber_end = (int)( (framepos + nFrames + lookahead) / m_pAudioDriver->m_transport.m_nTickSize );
 
 	int tick = tickNumber_start;
 
@@ -1026,7 +1051,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			if ( ( int )note->get_position() <= tick ) {
 				// printf ("tick=%d  pos=%d\n", tick, note->getPosition());
 				m_midiNoteQueue.pop_front();
-				m_songNoteQueue.push_back( note );
+				m_songNoteQueue.push( note );
 			} else {
 				break;
 			}
@@ -1153,7 +1178,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				m_pMetronomeInstrument->set_volume( Preferences::getInstance()->m_fMetronomeVolume );
 
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument, tick, fVelocity, 0.5, 0.5, -1, fPitch );
-				m_songNoteQueue.push_back( pMetronomeNote );
+				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
 
@@ -1169,7 +1194,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				for ( pos = pPattern->note_map.lower_bound( m_nPatternTickPosition ); pos != pPattern->note_map.upper_bound( m_nPatternTickPosition ); ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote ) {
-						unsigned nOffset = 0;
+						int nOffset = 0;
 
 						// Swing
 						float fSwingFactor = m_pSong->get_swing_factor();
@@ -1178,17 +1203,24 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						}
 
 						// Humanize - Time parameter
-						int nMaxTimeHumanize = 2000;
 						if ( m_pSong->get_humanize_time_value() != 0 ) {
-							nOffset += ( int )( getGaussian( 0.3 ) * m_pSong->get_humanize_time_value() * nMaxTimeHumanize );
+							nOffset += ( int )( (getGaussian( 0.3 ) * m_pSong->get_humanize_time_value()  * nMaxTimeHumanize ) );
 						}
 						//~
+						// Lead or Lag - timing parameter
+						nOffset += (int) (pNote->get_leadlag() * nLeadLagFactor);
+						//~
 
+						// cannot play note before 0 frame
+						if (tick + nOffset / m_pAudioDriver->m_transport.m_nTickSize < 0) {
+							_INFOLOG(" offset before 0 frame ");
+							nOffset = 0 - (int) (tick * m_pAudioDriver->m_transport.m_nTickSize);
+						}
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_position( tick );
 
 						pCopiedNote->m_nHumanizeDelay = nOffset;	// humanize time
-						m_songNoteQueue.push_back( pCopiedNote );
+						m_songNoteQueue.push( pCopiedNote );
 						//pCopiedNote->dumpInfo();
 					}
 				}

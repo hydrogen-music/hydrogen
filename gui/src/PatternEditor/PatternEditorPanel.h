@@ -66,6 +66,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		DrumPatternEditor* getDrumPatternEditor() {	return m_pDrumPatternEditor;	}
 		NotePropertiesRuler* getVelocityEditor() {	return m_pNoteVelocityEditor;	}
 		NotePropertiesRuler* getPanEditor() {	return m_pNotePanEditor;	}
+		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 
 		// Implements EventListener interface
@@ -136,6 +137,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		QScrollArea* m_pNotePanScrollView;
 		NotePropertiesRuler *m_pNotePanEditor;
 
+		// note leadlag editor
+		QScrollArea* m_pNoteLeadLagScrollView;
+		NotePropertiesRuler *m_pNoteLeadLagEditor;
 
 
 		QScrollBar *m_pPatternEditorHScrollBar;

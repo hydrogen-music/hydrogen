@@ -326,7 +326,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 //~ NOTE_VELOCITY EDITOR
 
 
-// NOTE_VELOCITY EDITOR
+// NOTE_PAN EDITOR
 	m_pNotePanScrollView = new QScrollArea( NULL );
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -334,9 +334,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, NotePropertiesRuler::PAN );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
-//~ NOTE_VELOCITY EDITOR
+//~ NOTE_PAN EDITOR
 
 
+// NOTE_LEADLAG EDITOR
+	m_pNoteLeadLagScrollView = new QScrollArea( NULL );
+	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this, NotePropertiesRuler::LEADLAG );
+	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
+	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
+//~ NOTE_LEADLAG EDITOR
 
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , NULL  );
@@ -379,6 +388,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesCombo->setToolTip(trUtf8("Select note properties"));
 	pPropertiesCombo->addItem( trUtf8("Velocity") );
 	pPropertiesCombo->addItem( trUtf8("Pan") );
+	pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
 	pPropertiesCombo->update();
 	connect( pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
 
@@ -409,6 +419,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pPatternEditorHScrollBar, 10, 1 );
 	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
 	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
 
 	pGrid->addWidget( pPropertiesPanel, 4, 0 );
 	pGrid->setRowStretch( 2, 100 );
@@ -536,6 +547,9 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 	// pan ruler
 	m_pNotePanScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+
+	// leadlag ruler
+	m_pNoteLeadLagScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 }
 
 
@@ -719,6 +733,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
   //m_pNoteVelocityEditor->updateEditor();
   //m_pNotePanEditor->updateEditor();
+  //m_pNoteLeadLagEditor->updateEditor();
 
 	resizeEvent(NULL);	// force a scrollbar update
 }
@@ -770,6 +785,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pPatternEditorRuler->zoomIn();
 	m_pDrumPatternEditor->zoom_in();
 	m_pNoteVelocityEditor->zoomIn();
+	m_pNoteLeadLagEditor->zoomIn();
 
 	resizeEvent( NULL );
 }
@@ -782,6 +798,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pPatternEditorRuler->zoomOut();
 	m_pDrumPatternEditor->zoom_out();
 	m_pNoteVelocityEditor->zoomOut();
+	m_pNoteLeadLagEditor->zoomOut();
 
 	resizeEvent( NULL );
 }
@@ -822,6 +839,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	m_pPatternEditorRuler->updateEditor( true );	// redraw all
 	m_pNoteVelocityEditor->updateEditor();
 	m_pNotePanEditor->updateEditor();
+	m_pNoteLeadLagEditor->updateEditor();
 
 	resizeEvent( NULL );
 
@@ -932,15 +950,24 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 {
 	if ( text == trUtf8( "Velocity" ) ) {
 		m_pNotePanScrollView->hide();
+		m_pNoteLeadLagScrollView->hide();
 		m_pNoteVelocityScrollView->show();
 
 		m_pNoteVelocityEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Pan" ) ) {
 		m_pNoteVelocityScrollView->hide();
+		m_pNoteLeadLagScrollView->hide();
 		m_pNotePanScrollView->show();
 
 		m_pNotePanEditor->updateEditor();
+	}
+	else if ( text == trUtf8( "Lead and Lag" ) ) {
+		m_pNoteVelocityScrollView->hide();
+		m_pNotePanScrollView->hide();
+		m_pNoteLeadLagScrollView->show();
+ 
+		m_pNoteLeadLagEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Cutoff" ) ) {
 	}
