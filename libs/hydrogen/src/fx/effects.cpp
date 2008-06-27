@@ -362,7 +362,6 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 					LadspaFXInfo *pInfo = pluginList[i];
 					
 					if ( pInfo->m_sID.toInt() == uid  ) {
-						cout << "match!!!!" << endl;
 						pGroup->addLadspaInfo( pInfo );	// copy the LadspaFXInfo
 					} 
 				}
