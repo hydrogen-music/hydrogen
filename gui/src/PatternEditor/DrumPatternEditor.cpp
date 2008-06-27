@@ -56,8 +56,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , m_pPattern( NULL )
  , m_pPatternEditorPanel( panel )
 {
-	//infoLog("INIT");
-
 	//setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy(Qt::ClickFocus);
 
@@ -332,6 +330,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 
+	
+
 	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->get_size() ) ) {
 		// the number of instruments is changed...recreate all
 		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();
@@ -348,6 +348,30 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	// draw the grid
 	__draw_grid( painter );
+	
+
+	/*
+		BUGFIX
+		
+		if m_pPattern is not renewed every time we draw a note, 
+		hydrogen will crash after you save a song and create a new one. 
+		-smoors
+	*/
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
+		m_pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+	else {
+		m_pPattern = NULL;
+	}
+	// ~ FIX
+
+
+	cout << m_pPattern->note_map.size() << endl;
+
+	if( m_pPattern->note_map.size() == 0) return;
 
 	std::multimap <int, Note*>::iterator pos;
 	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
