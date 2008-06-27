@@ -176,7 +176,6 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 					pFX->m_sFilename = sAbsPath;
 					pFX->m_sLabel = d->Label;
 					pFX->m_sID = QString::number(d->UniqueID);
-					//INFOLOG( pFX->m_sID );
 					pFX->m_sMaker = d->Maker;
 					pFX->m_sCopyright = d->Copyright;
 
@@ -358,13 +357,10 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 			}
 
 			if ( bExists == false ) {
-				//cout << "bExists false" << endl;
 				// find the ladspaFXInfo
 				for ( unsigned i = 0; i < pluginList.size(); i++ ) {
 					LadspaFXInfo *pInfo = pluginList[i];
 					
-					//cout << pInfo->m_sID.toAscii() << endl; // << uid << endl;
-					//cout << pInfo->m_sID.toInt()  << endl;
 					if ( pInfo->m_sID.toInt() == uid  ) {
 						cout << "match!!!!" << endl;
 						pGroup->addLadspaInfo( pInfo );	// copy the LadspaFXInfo
