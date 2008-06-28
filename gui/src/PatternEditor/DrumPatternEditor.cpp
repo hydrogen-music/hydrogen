@@ -369,7 +369,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	// ~ FIX
 
 
-	cout << m_pPattern->note_map.size() << endl;
 
 	if( m_pPattern->note_map.size() == 0) return;
 
