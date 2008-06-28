@@ -72,7 +72,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	loadScriptBTN->setEnabled ( false );
 	removeScriptBTN->setEnabled ( false );
 	editScriptBTN->setEnabled ( false );
-	enableScriptcheckBox->setEnabled ( false );
 	//useMidicheckBox->setEnabled ( true );
 
 	QVBoxLayout *sideBarLayout = new QVBoxLayout(sideBarWidget);
@@ -132,7 +131,11 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 			m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
 			m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
-			m_pPlaylistItem->setText ( 2, Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled );
+			if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
+				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
+			}else{
+				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
+			}
 		}
 		removeFromListBTN->setEnabled ( true );
 		removeFromListBTN->setEnabled ( true );
@@ -141,7 +144,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		loadScriptBTN->setEnabled ( true );
 		removeScriptBTN->setEnabled ( true );
 		editScriptBTN->setEnabled ( true );
-		enableScriptcheckBox->setEnabled ( true );
 
 		//restore the selected item		
 		int selected = Playlist::get_instance()->getActiveSongNumber();
@@ -218,7 +220,6 @@ void PlaylistDialog::on_removeFromListBTN_clicked()
 			nodePlayBTN->setEnabled ( false );
 			removeFromListBTN->setEnabled ( false );
 			saveListBTN->setEnabled ( false );
-			enableScriptcheckBox->setEnabled ( false );
 			loadScriptBTN->setEnabled ( false );
 			return;
 		}else
@@ -238,7 +239,8 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 	QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 	m_pPlaylistItem->setText ( 0, file );
 	m_pPlaylistItem->setText ( 1, "no Script" );
-	m_pPlaylistItem->setText ( 2, "Script not used" );
+	m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
+	//m_pPlaylistItem->setFlags(Qt::ItemIsUserCheckable);
 
 	updatePlayListVector();
 	loadScriptBTN->setEnabled ( true );
@@ -281,7 +283,11 @@ void PlaylistDialog::on_loadListBTN_clicked()
 				QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 				m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
 				m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
-				m_pPlaylistItem->setText ( 2, Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled );
+				if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
+					m_pPlaylistItem->setCheckState( 2, Qt::Checked );
+				}else{
+					m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
+				}
 			}
 			removeFromListBTN->setEnabled ( true );
 			removeFromListBTN->setEnabled ( true );
@@ -290,7 +296,6 @@ void PlaylistDialog::on_loadListBTN_clicked()
 			loadScriptBTN->setEnabled ( true );
 			removeScriptBTN->setEnabled ( true );
 			editScriptBTN->setEnabled ( true );
-			enableScriptcheckBox->setEnabled ( true );
 	
 
 			QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -366,7 +371,6 @@ void PlaylistDialog::on_loadScriptBTN_clicked()
 		m_pPlaylistItem->setText ( 1, filename );
 		editScriptBTN->setEnabled ( true );
 		removeScriptBTN->setEnabled ( true );
-		enableScriptcheckBox->setEnabled ( true );
 		updatePlayListVector();
 
 	}
@@ -390,8 +394,7 @@ void PlaylistDialog::on_removeScriptBTN_clicked()
 		}else
 		{
 			m_pPlaylistItem->setText ( 1, "no Script" );
-			m_pPlaylistItem->setText ( 2, "Script not used" );
-			enableScriptcheckBox->setChecked ( false );
+			m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
 			updatePlayListVector();
 		}
 	}
@@ -487,35 +490,21 @@ void PlaylistDialog::on_downBTN_clicked()
 }
 
 
-
-
-void PlaylistDialog::on_enableScriptcheckBox_clicked()
+void PlaylistDialog::on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column )
 {
-	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
-	QString selected = "";
-	selected = m_pPlaylistItem->text ( 1 );
+	if ( column == 2 ){ 
+		QString selected = "";
+		selected = item->text ( 1 );
 
-	
-	if ( m_pPlaylistItem == NULL ){
-		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Song in List or no Song selected!" ) );
-		return;
+		if( selected == "no Script"){
+			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script!" ));
+			item->setCheckState( 2, Qt::Unchecked );
+			return;
+		}
+		updatePlayListVector();
 	}
-	
-	if ( selected == "no Script" ){
-		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script selected!" ) );
-		enableScriptcheckBox->setChecked ( false );
-		return;
-	}
-	
-	
-	if (enableScriptcheckBox->isChecked() == true){
-		m_pPlaylistItem->setText ( 2, "Use Script" );	
-	}else{
-		m_pPlaylistItem->setText ( 2, "Script not used" );
-	}
-	updatePlayListVector();
+	return;
 }
-
 
 
 void PlaylistDialog::on_useMidicheckBox_clicked()
@@ -535,25 +524,6 @@ void PlaylistDialog::on_useMidicheckBox_clicked()
 	return;
 }
 
-
-
-void PlaylistDialog::on_m_pPlaylistTree_itemSelectionChanged()
-{
-	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
-	QString selected = "";
-	selected = m_pPlaylistItem->text ( 2 );
-
-	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
-	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
-	Playlist::get_instance()->setSelectedSongNr( index );	
-
-	if( selected == "Script not used" ){
-		enableScriptcheckBox->setChecked ( false );
-		return;
-	}else{
-		enableScriptcheckBox->setChecked ( true );
-	}
-}
 
 
 
@@ -635,11 +605,10 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	QString execscript = "";
 	selected = m_pPlaylistItem->text ( 1 );
-	execscript = m_pPlaylistItem->text ( 2 );
-
+	bool execcheckbox = m_pPlaylistItem->checkState ( 2 );
 	std::string filename = selected.toStdString();
 
-	if( selected == "no Script"){
+	if( execcheckbox == false){
 		//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script selected!" ));
 		return;
 	}
@@ -670,11 +639,18 @@ void PlaylistDialog::updatePlayListVector()
 
 	for (int i = 0 ;i < length; i++){
 		QTreeWidgetItem * m_pPlaylistItem = m_pPlaylist->topLevelItem ( i );	
-
+		
+		QString execval = "";
+		bool execcheckbox = m_pPlaylistItem->checkState ( 2 );
+		if ( execcheckbox == true ) {
+			execval = "Use Script";
+		}else{
+			execval = "Script not used";
+		} 
 		Hydrogen::HPlayListNode playListItem;
 		playListItem.m_hFile = m_pPlaylistItem->text ( 0 );
 		playListItem.m_hScript = m_pPlaylistItem->text ( 1 );
-		playListItem.m_hScriptEnabled = m_pPlaylistItem->text ( 2 );
+		playListItem.m_hScriptEnabled = execval;
 
 		Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
 	}

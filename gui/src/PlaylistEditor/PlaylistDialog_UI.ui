@@ -43,7 +43,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" >
+        <property name="sizeHint" stdset="0" >
          <size>
           <width>41</width>
           <height>26</height>
@@ -147,7 +147,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" >
+        <property name="sizeHint" stdset="0" >
          <size>
           <width>40</width>
           <height>20</height>
@@ -159,13 +159,6 @@
        <widget class="QPushButton" name="editScriptBTN" >
         <property name="text" >
          <string>Edit script</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5" >
-       <widget class="QCheckBox" name="enableScriptcheckBox" >
-        <property name="text" >
-         <string>Enable selected script</string>
         </property>
        </widget>
       </item>
@@ -188,7 +181,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" >
+        <property name="sizeHint" stdset="0" >
          <size>
           <width>181</width>
           <height>20</height>

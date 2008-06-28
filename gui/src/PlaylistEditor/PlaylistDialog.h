@@ -60,11 +60,10 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 		void on_nodePlayBTN_clicked();
 		void on_nodeStopBTN_clicked();
 		void on_editScriptBTN_clicked();
-		void on_enableScriptcheckBox_clicked();
+		void on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column );
 		void on_useMidicheckBox_clicked();
 		void on_upBTN_clicked();
 		void on_downBTN_clicked();
-		void on_m_pPlaylistTree_itemSelectionChanged();
 		void on_m_pPlaylistTree_itemDoubleClicked ();
 		void updateActiveSongNumber();
 
