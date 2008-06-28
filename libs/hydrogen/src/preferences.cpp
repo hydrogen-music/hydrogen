@@ -1039,8 +1039,8 @@ H2RGBColor::H2RGBColor( const QString& sColor )
 
 	QStringList list = temp.split(",");
 	m_red = list[0].toInt();
-	m_green = list[0].toInt();
-	m_blue = list[0].toInt();
+	m_green = list[1].toInt();
+	m_blue = list[2].toInt();
 
 /*
 	int nPos = temp.indexOf( ',' );
