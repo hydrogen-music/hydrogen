@@ -228,6 +228,9 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 
 			case SND_SEQ_EVENT_CONTROLLER:
 				msg.m_type = MidiMessage::CONTROL_CHANGE;
+				msg.m_nData1 = ev->data.control.param;
+				msg.m_nData2 = ev->data.control.value;
+				msg.m_nChannel = ev->data.control.channel;
 				break;
 
 			case SND_SEQ_EVENT_SYSEX: {

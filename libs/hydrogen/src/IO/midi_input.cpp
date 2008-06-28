@@ -73,7 +73,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		break;
 
 	case MidiMessage::CONTROL_CHANGE:
-		ERRORLOG( "CONTROL_CHANGE event not handled yet" );
+		INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 		break;
 
 	case MidiMessage::PROGRAM_CHANGE:
