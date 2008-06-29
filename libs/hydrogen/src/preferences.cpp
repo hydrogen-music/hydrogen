@@ -390,12 +390,6 @@ void Preferences::loadPreferences( bool bGlobal )
 						m_bbc = BC_ON;
 					}
 
-				QString beatcounterSpace = LocalFileMng::readXmlString( guiNode, "space_beatcounter", "SPACE_BEATCOUNTER_OFF" );
-					if ( beatcounterSpace == "SPACE_BEATCOUNTER_OFF" ) {
-						m_spacebeatcounter = SPACE_BEATCOUNTER_OFF;
-					} else if ( beatcounterSpace  == "SPACE_BEATCOUNTER_ON" ) {
-						m_spacebeatcounter = SPACE_BEATCOUNTER_ON;
-					}
 
 				QString setPlay = LocalFileMng::readXmlString( guiNode, "setplay", "SET_PLAY_OFF" );
 					if ( setPlay == "SET_PLAY_OFF" ) {
@@ -693,14 +687,6 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( &guiNode, "bc", bcMode );
 
 
-		QString beatcounterSpace;
-			if ( m_spacebeatcounter == SPACE_BEATCOUNTER_OFF ) {
-				beatcounterSpace = "SPACE_BEATCOUNTER_OFF";
-			} else if ( m_spacebeatcounter  == SPACE_BEATCOUNTER_ON ) {
-				beatcounterSpace = "SPACE_BEATCOUNTER_ON";
-			}
-			LocalFileMng::writeXmlString( &guiNode, "space_beatcounter", beatcounterSpace );
-
 		
 		QString setPlay;
 			if ( m_mmcsetplay == SET_PLAY_OFF ) {
@@ -721,7 +707,7 @@ void Preferences::savePreferences()
 	{
 		// last used song
 		LocalFileMng::writeXmlString( &filesNode, "lastSongFilename", lastSongFilename );
-	//LocalFileMng::writeXmlString( &filesNode, "defaulteditor", m_sDefaultEditor );
+		LocalFileMng::writeXmlString( &filesNode, "defaulteditor", m_sDefaultEditor );
 	}
 	rootNode.InsertEndChild( filesNode );
 
