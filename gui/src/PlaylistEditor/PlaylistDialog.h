@@ -54,14 +54,15 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 		void on_addSongBTN_clicked();
 		void on_removeFromListBTN_clicked();
 		void on_removeScriptBTN_clicked();
+		void on_clearPlBTN_clicked();
 		void on_loadListBTN_clicked();
 		void on_saveListBTN_clicked();
 		void on_loadScriptBTN_clicked();
 		void on_nodePlayBTN_clicked();
 		void on_nodeStopBTN_clicked();
 		void on_editScriptBTN_clicked();
+		void on_newScriptBTN_clicked();
 		void on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column );
-		void on_useMidicheckBox_clicked();
 		void on_upBTN_clicked();
 		void on_downBTN_clicked();
 		void on_m_pPlaylistTree_itemDoubleClicked ();
@@ -69,8 +70,6 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 
 
 	private:
-//		std::vector<HPlayList> m_PlayList;
-//		H2Core::Preferences *pPref;
 
 		void updatePlayListNode( QString file );
 		void updatePlayListVector();
