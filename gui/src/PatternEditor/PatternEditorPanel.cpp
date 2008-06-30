@@ -60,11 +60,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget(0);
 	editor_top->setPixmap("/patternEditor/editor_top.png", true);
-	editor_top->setFixedHeight(49);
+	editor_top->setFixedHeight(24);
 
 	PixmapWidget *editor_top_2 = new PixmapWidget(0);
 	editor_top_2->setPixmap("/patternEditor/editor_top.png", true);
-	editor_top_2->setFixedHeight(49);
+	editor_top_2->setFixedHeight(24);
 
 	QHBoxLayout *editor_top_hbox = new QHBoxLayout(editor_top);
 	editor_top_hbox->setSpacing(0);
@@ -79,14 +79,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( NULL );
-	pSizeResol->setFixedSize( 156, 43 );
-	pSizeResol->setPixmap( "/patternEditor/background_res.png" );
+	pSizeResol->setFixedSize( 200, 20 );
+	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
 
 	// PATTERN size
 	__pattern_size_combo = new LCDCombo(pSizeResol, 4);
-	__pattern_size_combo->move( 14, 21 );
+	__pattern_size_combo->move( 34, 2 );
 	__pattern_size_combo->setToolTip( trUtf8("Select pattern size") );
 	for ( int i = 1; i <= 32; i++) {
 		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
@@ -112,7 +112,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addSeparator();
 	__resolution_combo->addItem( "off" );
 	__resolution_combo->update();
-	__resolution_combo->move( 68, 21 );
+	__resolution_combo->move( 121, 2 );
 	connect(__resolution_combo, SIGNAL(valueChanged(QString)), this, SLOT(gridResolutionChanged(QString)));
 	//editor_top_hbox->addWidget(__resolution_combo);
 
@@ -120,8 +120,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 //wolke some background images hear note rec quant
 
 	PixmapWidget *pRec = new PixmapWidget( NULL );
-	pRec->setFixedSize( 107, 43 );
-	pRec->setPixmap( "/patternEditor/background_rec.png" );
+	pRec->setFixedSize( 150, 20 );
+	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
 	pRec->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pRec );
 
@@ -134,7 +134,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/patternEditor/btn_hear_off.png",
 			QSize(15, 13)
 	);
-	hearNotesBtn->move( 11, 18 );
+	hearNotesBtn->move( 34, 3 );
 	hearNotesBtn->setToolTip( trUtf8( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL(clicked(Button*)), this, SLOT( hearNotesBtnClick(Button*)));
 	//editor_top_hbox->addWidget(hearNotesBtn);
@@ -150,7 +150,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/patternEditor/btn_record_off.png",
 			QSize(15, 13)
 	);
-	recordEventsBtn->move( 46, 18 );
+	recordEventsBtn->move( 74, 3 );
 	recordEventsBtn->setPressed( pPref->getRecordEvents());
 	recordEventsBtn->setToolTip( trUtf8( "Record keyboard/midi events" ) );
 	connect( recordEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( recordEventsBtnClick(Button*)));
@@ -165,17 +165,16 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/patternEditor/btn_quant_off.png",
 			QSize(15, 13)
 	);
-	quantizeEventsBtn->move( 80, 18 );
+	quantizeEventsBtn->move( 130, 3 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
 	//editor_top_hbox->addWidget(quantizeEventsBtn);
 
 
-//wolke some background images hear note rec quant
 	PixmapWidget *pZoom = new PixmapWidget( NULL );
-	pZoom->setFixedSize( 73, 43 );
-	pZoom->setPixmap( "/patternEditor/background_zoom.png" );
+	pZoom->setFixedSize( 73, 20 );
+	pZoom->setPixmap( "/patternEditor/background_zoom-new.png" );
 	pZoom->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pZoom );
 
@@ -187,7 +186,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/songEditor/btn_new_over.png",
 			QSize(19, 13)
 	);
-	zoom_in_btn->move( 42, 18 );
+	zoom_in_btn->move( 51, 3 );
 	//zoom_in_btn->setText("+");
 	zoom_in_btn->setToolTip( trUtf8( "Zoom in" ) );
 	connect(zoom_in_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomInBtnClicked(Button*) ) );
@@ -202,7 +201,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/songEditor/btn_minus_over.png",
 			QSize(19, 13)
 	);
-	zoom_out_btn->move( 11, 18 );
+	zoom_out_btn->move( 2, 3 );
 	//zoom_out_btn->setText("-");
 	zoom_out_btn->setToolTip( trUtf8( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomOutBtnClicked(Button*) ) );
@@ -252,7 +251,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pRulerScrollView->setFixedHeight( 25 );
-
 	// Ruler
 	m_pPatternEditorRuler = new PatternEditorRuler( m_pRulerScrollView->viewport() );
 
@@ -267,6 +265,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+
+
 
 	// Editor
 	m_pDrumPatternEditor = new DrumPatternEditor( m_pEditorScrollView->viewport(), this );
