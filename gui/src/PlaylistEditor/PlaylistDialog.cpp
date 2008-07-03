@@ -725,3 +725,4 @@ void PlaylistDialog::updateActiveSongNumber()
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );	
 	m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 }
+
