@@ -174,16 +174,16 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Alias('programs', app)
 	env.Default('programs')
 	
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/i18n"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/img"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/drumkits"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/demo_songs"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/hydrogen.default.conf"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/emptySample.wav"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/click.wav"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/doc"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/share/hydrogen/data', source="./data/DefaultSong.h2song"))
-	env.Alias(target="install", source=env.Install(dir=install_prefix + '/bin/', source="./hydrogengui"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/i18n"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/img"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/drumkits"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/demo_songs"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/hydrogen.default.conf"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/emptySample.wav"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/click.wav"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/doc"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/DefaultSong.h2song"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/bin/', source="./hydrogengui"))
 
 	return app
 
@@ -195,12 +195,16 @@ opts.Add('lash', 'Set to 1 to enable lash',0)
 opts.Add('alsa', 'Set to 1 to enable alsa',1)
 opts.Add('jack', 'Set to 1 to enable jack',1)
 opts.Add('prefix','Default: /usr/local',"/usr/local")
+opts.Add('destdir','Default: none',"")
+
+
 
 debug =int(ARGUMENTS.get('debug', 0))
 lash = int(ARGUMENTS.get('lash',0))
 alsa = int(ARGUMENTS.get('alsa',1))
 jack = int(ARGUMENTS.get('jack',1))
 install_prefix = ARGUMENTS.get('prefix',"/usr/local")
+destdir = ARGUMENTS.get('destdir',"")
 
 env = Environment(options = opts)
 Help(opts.GenerateHelpText(env))
@@ -268,6 +272,8 @@ if debug:
 else:
 	print " Release build"
 
+print " Prefix: " + install_prefix
+print " Destdir: " + destdir
 print "================================================================="
 print "Feature Overview:\n"
 
@@ -298,7 +304,6 @@ conf.write( "#ifndef QT_END_NAMESPACE\n" )
 conf.write( "#    define QT_END_NAMESPACE\n" )
 conf.write( "#endif\n" )
 
-install_prefix = "/usr/local"
 conf.write( "#define CONFIG_PREFIX \"%s\"\n" % install_prefix )
 conf.write( "#define DATA_PATH \"%s/share/hydrogen/data\"\n" % install_prefix )
 
