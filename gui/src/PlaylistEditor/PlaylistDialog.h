@@ -33,7 +33,6 @@
 #include <hydrogen/playlist.h>
 
 
-//#include <vector>
 class Button;
 
 ///
