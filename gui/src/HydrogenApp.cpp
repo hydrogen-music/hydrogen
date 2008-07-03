@@ -37,6 +37,7 @@
 #include "Mixer/Mixer.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
+#include "PlaylistEditor/PlaylistDialog.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/event_queue.h>
@@ -59,6 +60,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
  , m_pHelpBrowser( NULL )
  , m_pFirstTimeInfo( NULL )
  , m_pPlayerControl( NULL )
+ , m_pPlaylistDialog( NULL )
 {
 	m_pInstance = this;
 
@@ -91,7 +93,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	else {
 		m_pAudioEngineInfoForm->hide();
 	}
-
+	
+	 m_pPlaylistDialog = new PlaylistDialog( 0 );
+	
 	showInfoSplash();	// First time information
 }
 
@@ -106,6 +110,7 @@ HydrogenApp::~HydrogenApp()
 	delete m_pAudioEngineInfoForm;
 	delete m_pDrumkitManager;
 	delete m_pMixer;
+	delete m_pPlaylistDialog;
 
 	Hydrogen *engine = Hydrogen::get_instance();
 	if (engine) {
@@ -298,6 +303,11 @@ void HydrogenApp::showAudioEngineInfoForm()
 	m_pAudioEngineInfoForm->show();
 }
 
+void HydrogenApp::showPlaylistDialog()
+{
+	m_pPlaylistDialog->hide();
+	m_pPlaylistDialog->show();
+}
 
 
 void HydrogenApp::showInfoSplash()

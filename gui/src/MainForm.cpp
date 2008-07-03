@@ -53,7 +53,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
 #include "SoundLibrary/SoundLibraryExportDialog.h"
-#include "PlaylistEditor/PlaylistDialog.h"
+//#include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
 
@@ -803,8 +803,9 @@ void MainForm::showPreferencesDialog()
 
 void MainForm::action_window_showPlaylistDialog()
 {
-	PlaylistDialog dialog(this);
-	dialog.exec();
+//	PlaylistDialog dialog(this);
+//	dialog.exec();
+	h2app->showPlaylistDialog();
 	
 }
 

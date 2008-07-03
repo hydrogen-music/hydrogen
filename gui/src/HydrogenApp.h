@@ -50,7 +50,7 @@ class LadspaFXProperties;
 class LadspaFXInfo;
 class LadspaFXGroup;
 class InstrumentRack;
-
+class PlaylistDialog;
 
 class HydrogenApp : public QObject, public Object
 {
@@ -68,11 +68,13 @@ class HydrogenApp : public QObject, public Object
 		void showPreferencesDialog();
 		void showMixer(bool bShow);
 		void showAudioEngineInfoForm();
+		void showPlaylistDialog();
 
 		Mixer* getMixer() {	return m_pMixer;	}
 		MainForm* getMainForm() {	return m_pMainForm;	}
 		SongEditorPanel* getSongEditorPanel() {	return m_pSongEditorPanel;	}
 		AudioEngineInfoForm* getAudioEngineInfoForm() {	return m_pAudioEngineInfoForm;	}
+		PlaylistDialog* getPlayListDialog() {	return m_pPlaylistDialog;	}
 		SimpleHTMLBrowser* getHelpBrowser() {	return m_pHelpBrowser;	}
 		PatternEditorPanel* getPatternEditorPanel() {	return m_pPatternEditorPanel;	}
 		PlayerControl* getPlayerControl() {	return m_pPlayerControl;	}
@@ -107,6 +109,7 @@ class HydrogenApp : public QObject, public Object
 		SimpleHTMLBrowser *m_pFirstTimeInfo;
 		InstrumentRack* m_pInstrumentRack;
 		PlayerControl *m_pPlayerControl;
+		PlaylistDialog *m_pPlaylistDialog;
 
 		OldDrumkitManager *m_pDrumkitManager;	// to be removed
 

@@ -373,8 +373,6 @@ void PlaylistDialog::on_newScriptBTN_clicked()
 	}
 
 	std::string  openfile = pPref->getDefaultEditor().toStdString() + " " + filename.toStdString() + "&";
-//	QString test = ( openfile ).c_str();
-//	QMessageBox::information ( this, "Hydrogen", ( test ) );
 
 	char *ofile;
 	ofile = new char[openfile.length() + 1];
@@ -444,7 +442,7 @@ void PlaylistDialog::on_loadScriptBTN_clicked()
 		std::string filetest = filename.toStdString();
 		int error = filetest.rfind(" ");
 		if(error >= 0){
-			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without  whitespaces.") );
+			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
 			return;
 		}
 
@@ -638,6 +636,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
+	Playlist::get_instance()->setSelectedSongNr( index );
 	Playlist::get_instance()->setActiveSongNumber( index );
 	
 	HydrogenApp *pH2App = HydrogenApp::getInstance();
