@@ -1316,6 +1316,16 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				Playlist::get_instance()->setNextSongPlaylist();
 				return TRUE;
 				break;
+
+			case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
+				Hydrogen::get_instance()->setPatternPos( Hydrogen::get_instance()->getPatternPos() - 1 );
+				return TRUE;
+				break;
+
+			case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
+				Hydrogen::get_instance()->setPatternPos( Hydrogen::get_instance()->getPatternPos() + 1 );
+				return TRUE;
+				break;
 			
 		// 	QAccel *a = new QAccel( this );
 // 	a->connectItem( a->insertItem(Key_S + CTRL), this, SLOT( onSaveAccelEvent() ) );
