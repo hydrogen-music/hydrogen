@@ -52,6 +52,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	INFOLOG ( "INIT" );
 	setWindowTitle ( trUtf8 ( "Play List Browser" ) );
 	setFixedSize ( width(), height() );
+	installEventFilter(this);
 
 	
 	
@@ -724,5 +725,40 @@ void PlaylistDialog::updateActiveSongNumber()
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );	
 	m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+}
+
+
+bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
+{
+	
+	UNUSED ( o );
+	if ( e->type() == QEvent::KeyPress )
+	{	
+		QKeyEvent *k = ( QKeyEvent * ) e;
+
+		switch ( k->key() )
+		{
+			case  Qt::Key_PageUp :
+				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+					break;
+				Playlist::get_instance()->setPrevSongPlaylist();
+				return TRUE;
+				break;
+
+			case  Qt::Key_PageDown :
+				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+					break;
+				Playlist::get_instance()->setNextSongPlaylist();
+				return TRUE;
+				break;
+		}
+
+	}
+	else
+	{
+		return FALSE; // standard event processing
+	}
+
+return NULL;
 }
 
