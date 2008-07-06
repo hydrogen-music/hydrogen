@@ -33,8 +33,14 @@
 
 #include <cstdlib>
 
-#include <zlib.h>	// used for drumkit install
-#include <libtar.h>	// used for drumkit install
+#ifdef LIBARCHIVE_SUPPORT
+#include <archive.h>		// used for drumkit install
+#include <archive_entry.h>	// used for drumkit install
+#else //use libtar
+#include <zlib.h>       // used for drumkit install
+#include <libtar.h>     // used for drumkit install
+#endif
+
 #include <fcntl.h>
 #include <errno.h>
 
@@ -127,48 +133,94 @@ void Drumkit::dump()
 	}
 }
 
-
-
+#ifdef LIBARCHIVE_SUPPORT
 void Drumkit::install( const QString& filename )
 {
 	_INFOLOG( "[Drumkit::install] drumkit = " + filename );
 	QString dataDir = Preferences::getInstance()->getDataDirectory();
 
-	// GUNZIP !!!
-	QString gunzippedName = filename.left( filename.indexOf( "." ) );
-	gunzippedName += ".tar";
-	FILE *pGunzippedFile = fopen( gunzippedName.toAscii(), "wb" );
-	gzFile gzipFile = gzopen( filename.toAscii(), "rb" );
-	uchar buf[4096];
-	while ( gzread( gzipFile, buf, 4096 ) > 0 ) {
-		fwrite( buf, sizeof( uchar ), 4096, pGunzippedFile );
+	int r;
+	struct archive *drumkitFile;
+	struct archive_entry *entry;
+	char newpath[1024];
+
+	drumkitFile = archive_read_new();
+	archive_read_support_compression_all(drumkitFile);
+	archive_read_support_format_all(drumkitFile);
+	if (( r = archive_read_open_file(drumkitFile, filename.toAscii(), 10240) )) {
+		_ERRORLOG( QString( "Error: %2, Could not open drumkit: %1" )
+			.arg( archive_errno(drumkitFile))
+			.arg( archive_error_string(drumkitFile)) );
+		archive_read_close(drumkitFile);
+		archive_read_finish(drumkitFile);
+		return;
 	}
-	gzclose( gzipFile );
-	fclose( pGunzippedFile );
+	while ( (r = archive_read_next_header(drumkitFile, &entry)) != ARCHIVE_EOF) {
+		if (r != ARCHIVE_OK) {
+			_ERRORLOG( QString( "Error reading drumkit file: %1")
+				.arg(archive_error_string(drumkitFile)));
+			break;
+		}
 
+		// insert data directory prefix
+		QString np = dataDir + archive_entry_pathname(entry);
+		strcpy( newpath, np.toAscii() );
+		archive_entry_set_pathname(entry, newpath);
 
-	// UNTAR !!!
-	TAR *tarFile;
-
-	char tarfilename[1024];
-	strcpy( tarfilename, gunzippedName.toAscii() );
-
-	if ( tar_open( &tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) {
-		_ERRORLOG( QString( "[Drumkit::install] tar_open(): %1" ).arg( strerror( errno ) ) );
+		// extract tarball
+		r = archive_read_extract(drumkitFile, entry, 0);
+		if (r == ARCHIVE_WARN) {
+			_WARNINGLOG( QString( "warning while extracting %1 (%2)")
+				.arg(filename).arg(archive_error_string(drumkitFile)));
+		} else if (r != ARCHIVE_OK) {
+			_ERRORLOG( QString( "error while extracting %1 (%2)")
+				.arg(filename).arg(archive_error_string(drumkitFile)));
+			break;
+		}
 	}
-
-	char destDir[1024];
-	strcpy( destDir, dataDir.toAscii() );
-	if ( tar_extract_all( tarFile, destDir ) != 0 ) {
-		_ERRORLOG( QString( "[Drumkit::install] tar_extract_all(): %1" ).arg( strerror( errno ) ) );
-	}
-
-	if ( tar_close( tarFile ) != 0 ) {
-		_ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( strerror( errno ) ) );
-	}
+	archive_read_close(drumkitFile);
+	archive_read_finish(drumkitFile);
 }
+#else //use libtar
+void Drumkit::install( const QString& filename )
+{
+        _INFOLOG( "[Drumkit::install] drumkit = " + filename );
+        QString dataDir = Preferences::getInstance()->getDataDirectory();
+
+        // GUNZIP !!!
+        QString gunzippedName = filename.left( filename.indexOf( "." ) );
+        gunzippedName += ".tar";
+        FILE *pGunzippedFile = fopen( gunzippedName.toAscii(), "wb" );
+        gzFile gzipFile = gzopen( filename.toAscii(), "rb" );
+        uchar buf[4096];
+        while ( gzread( gzipFile, buf, 4096 ) > 0 ) {
+                fwrite( buf, sizeof( uchar ), 4096, pGunzippedFile );
+        }
+        gzclose( gzipFile );
+        fclose( pGunzippedFile );
 
 
+        // UNTAR !!!
+        TAR *tarFile;
+
+        char tarfilename[1024];
+        strcpy( tarfilename, gunzippedName.toAscii() );
+
+        if ( tar_open( &tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) { 
+                _ERRORLOG( QString( "[Drumkit::install] tar_open(): %1" ).arg( strerror( errno ) ) );
+        }
+
+        char destDir[1024];
+        strcpy( destDir, dataDir.toAscii() );
+        if ( tar_extract_all( tarFile, destDir ) != 0 ) {
+                _ERRORLOG( QString( "[Drumkit::install] tar_extract_all(): %1" ).arg( strerror( errno ) ) );
+        }
+
+        if ( tar_close( tarFile ) != 0 ) {
+                _ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( strerror( errno ) ) );
+        }
+}
+#endif
 
 void Drumkit::save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense )
 {
