@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+#include "version.h"
 #include "AboutDialog.h"
 #include "Skin.h"
 

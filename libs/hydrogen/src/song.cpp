@@ -21,6 +21,8 @@
  */
 
 #include "config.h"
+#include "version.h" 
+
 #include <cassert>
 
 #include "xml/tinyxml.h"

@@ -20,6 +20,7 @@
  *
  */
 #include "config.h"
+#include "version.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>

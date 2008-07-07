@@ -20,6 +20,7 @@
  *
  */
 #include "config.h"
+#include "version.h"
 
 #include "HydrogenApp.h"
 #include "Skin.h"

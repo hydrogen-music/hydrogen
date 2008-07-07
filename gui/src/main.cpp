@@ -22,6 +22,7 @@
 
 #include <QtGui>
 #include "config.h"
+#include "version.h"
 #include <getopt.h>
 
 

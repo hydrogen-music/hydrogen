@@ -303,7 +303,7 @@ conf.write( "#ifndef HYD_CONFIG_H\n" )
 conf.write( "#define HYD_CONFIG_H\n" )
 conf.write( "#include <string>\n" )
 conf.write( "static const std::string REVISION = \"%s\";\n" % get_svn_revision() )
-conf.write( "static const std::string VERSION = \"0.9.4-svn\" + REVISION;\n" )
+
 
 if debug: conf.write( "#define CONFIG_DEBUG\n" )
 if lash: conf.write( "#define LASH\n" )
@@ -322,6 +322,9 @@ conf.write( "#endif\n" )
 
 conf.close()
 
+version = open("version.h", "w")
+version.write( "static const std::string VERSION = \"0.9.4-svn\" + REVISION;\n" )
+version.close()
 
 #just download 3rd party libs if we're *not* running linux.
 #We trust in our package managment system!

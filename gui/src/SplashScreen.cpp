@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+#include "version.h"
 #include "SplashScreen.h"
 
 #include <QPainter>
@@ -29,6 +30,7 @@
 #include <QDesktopWidget>
 
 #include "Skin.h"
+
 
 
 SplashScreen::SplashScreen()
