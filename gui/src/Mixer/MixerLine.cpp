@@ -367,35 +367,43 @@ void MixerLine::panChanged(Rotary *ref)
 	emit panChanged( this );
 
 	float panValue = ref->getValue();
-	float pan_L = (1.0 - panValue) / 1.0;
-	float pan_R = panValue / 1.0;
+	float pan_L, pan_R;
+	if (panValue > 0.5) {
+		pan_L = (1.0 - panValue) * 2.0;
+		pan_R = 1.0;
+	} else {
+		pan_L = 1.0;
+		pan_R = panValue * 2.0;
+	}
 
 	char m_pFaderPos[100];
 	sprintf( m_pFaderPos, "%#.2fL, %#.2fR",  pan_L, pan_R);
-	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Set instrument pan [%1]" ).arg( m_pFaderPos ), 2000 );
+	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
 
 	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
 }
 
 
 
-
-
-int MixerLine::getPan()
+float MixerLine::getPan()
 {
-	return (int)( m_pPanRotary->getValue() * 100.0 );
+	return m_pPanRotary->getValue();
 }
 
 
 
-void MixerLine::setPan(int value)
+void MixerLine::setPan(float fValue)
 {
-	float fValue = value / 100.0;
-
 	if ( fValue != m_pPanRotary->getValue() ) {
 		m_pPanRotary->setValue( fValue );
-		float pan_L = (1.0 - fValue) / 1.0;
-		float pan_R = fValue / 1.0;
+		float pan_L, pan_R;
+		if (fValue > 0.5) {
+			pan_L = (1.0 - fValue) * 2.0;
+			pan_R = 1.0;
+		} else {
+			pan_L = 1.0;
+			pan_R = fValue * 2.0;
+		}
 		char m_pFaderPos[100];
 		sprintf( m_pFaderPos, "Pan %#.2fL, %#.2fR",  pan_L, pan_R);
 		m_pPanRotary->setToolTip( QString( m_pFaderPos ) );

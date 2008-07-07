@@ -103,8 +103,8 @@ class MixerLine: public PixmapWidget
 		void setName(QString name) {     m_pNameWidget->setText( name );        }
 		QString getName() {      return m_pNameWidget->text();        }
 
-		int getPan();
-		void setPan(int value);
+		float getPan();
+		void setPan(float value);
 
 		int getActivity() {	return m_nActivity;	}
 		void setActivity( uint value ) {	m_nActivity = value;	}

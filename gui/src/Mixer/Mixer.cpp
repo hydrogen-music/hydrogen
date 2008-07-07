@@ -455,9 +455,8 @@ void Mixer::updateMixer()
 			else {
 				fPanValue = fPan_R / 2.0;
 			}
-			fPanValue = fPanValue * 100.0;
 
-			pLine->setPan( (int)fPanValue );	/// \todo perche' setPan prende un'intero???
+			pLine->setPan( fPanValue );
 
 			// activity
 			if ( pLine->getActivity() > 0 ) {
@@ -602,10 +601,8 @@ void Mixer::nameSelected(MixerLine* ref)
 void Mixer::panChanged(MixerLine* ref) {
 	float panValue = ref->getPan();
 
-	float pan_L = (100.0 - panValue) / 100.0;
-	float pan_R = panValue / 100.0;
-
-	panValue = panValue / 100.0;
+	float pan_L;
+	float pan_R;
 
 	if (panValue >= 0.5) {
 		pan_L = (1.0 - panValue) * 2;
@@ -613,7 +610,7 @@ void Mixer::panChanged(MixerLine* ref) {
 	}
 	else {
 		pan_L = 1.0;
-		pan_R = ( 1.0 - ( 1.0 - panValue) ) * 2;
+		pan_R = panValue * 2;
 	}
 
 	int nLine = findMixerLineByRef(ref);
