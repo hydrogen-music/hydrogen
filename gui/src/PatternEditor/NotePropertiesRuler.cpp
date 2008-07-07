@@ -125,16 +125,15 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 		else if ( m_mode == PAN ){
 			float pan_L, pan_R;
 			if ( ev->button() == Qt::MidButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) {
-					pan_R = pan_L = 0.5;
-			} else {
-				if ( val > 0.5 ) {
-					pan_L = 0.5;
-					pan_R = 1.0 - val;
-				}
-				else {
-					pan_L = val;
-					pan_R = 0.5;
-				}
+				val = 0.5;
+			}
+			if ( val > 0.5 ) {
+				pan_L = 1.0 - val;
+				pan_R = 0.5;
+			}
+			else {
+				pan_L = 0.5;
+				pan_R = val;
 			}
 
 			pNote->set_pan_l( pan_L );
@@ -164,6 +163,111 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 	}
 }
 
+void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
+{
+//      infoLog( "mousePressEvent()" );
+	if (m_pPattern == NULL) return;
+
+	float delta;
+	if (ev->modifiers() == Qt::ControlModifier) {
+		delta = 0.01; // fine control
+	} else { 
+		delta = 0.05; // course control
+	}
+		
+	if ( ev->delta() < 0 ) {
+		delta = (delta * -1.0);
+	}
+
+	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
+	int nBase;
+	if (pPatternEditor->isUsingTriplets()) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+	int x_pos = ev->x();
+	int column;
+	column = (x_pos - 20) + (width / 2);
+	column = column / width;
+	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+
+	std::multimap <int, Note*>::iterator pos;
+	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
+		Note *pNote = pos->second;
+		assert( pNote );
+		assert( pNote->get_position() == column );
+		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			continue;
+		}
+		if ( m_mode == VELOCITY ) {
+			float val = pNote->get_velocity() + delta;
+			if (val > 1.0) {
+				val = 1.0;
+			}
+			else if (val < 0.0) {
+				val = 0.0;
+			}
+
+			pNote->set_velocity(val);
+
+			char valueChar[100];
+			sprintf( valueChar, "%#.2f",  val);
+			( HydrogenApp::getInstance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+		}
+		else if ( m_mode == PAN ){
+			float pan_L, pan_R;
+
+			float val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
+			if (val > 1.0) {
+				val = 1.0;
+			}
+			else if (val < 0.0) {
+				val = 0.0;
+			}
+			if ( val > 0.5 ) {
+				pan_L = 1.0 - val;
+				pan_R = 0.5;
+			}
+			else {
+				pan_L = 0.5;
+				pan_R = val;
+			}
+
+			pNote->set_pan_l(pan_L);
+			pNote->set_pan_r(pan_R);
+		}
+		else if ( m_mode == LEADLAG ){
+			float val = (pNote->get_leadlag() - 1.0)/-2.0 + delta;
+			if (val > 1.0) {
+				val = 1.0;
+			}
+			else if (val < 0.0) {
+				val = 0.0;
+			}
+			pNote->set_leadlag((val * -2.0) + 1.0);
+			char valueChar[100];
+			if (pNote->get_leadlag() < 0.0) {
+				sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+				HydrogenApp::getInstance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+			} else if (pNote->get_leadlag() > 0.0) {
+				sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+				HydrogenApp::getInstance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+			} else {
+				HydrogenApp::getInstance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+			}
+		}
+
+		pSong->__is_modified = true;
+		updateEditor();
+		break;
+	}
+}
 
 
  void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
@@ -481,13 +585,20 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 			}
 			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 
-			int y_start = (int)( pNote->get_pan_r() * height() );
-			int y_end = (int)( height() - pNote->get_pan_l() * height() );
+			if (pNote->get_pan_r() == pNote->get_pan_l()) {
+				// pan value is centered - draw circle
+				int y_pos = (int)( height() * 0.5 );
+				p.setBrush(QColor( 0, 0, 0 ));
+				p.drawEllipse( x_pos-4, y_pos-4, 8, 8);
+			} else {
+				int y_start = (int)( pNote->get_pan_l() * height() );
+				int y_end = (int)( height() - pNote->get_pan_r() * height() );
 
-			int nLineWidth = 3;
-			p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( 0, 0 ,0 ) );
+				int nLineWidth = 3;
+				p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( 0, 0 ,0 ) );
 
-			p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( 0, 0 ,0 ) );
+				p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( 0, 0 ,0 ) );
+			}
 		}
 	}
 
@@ -628,26 +739,32 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 				continue;
 			}
 			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
- 
-			int y_start = (int)( height() * 0.5 );
-			int y_end = y_start + ((pNote->get_leadlag()/2) * height());
- 
- 
-			int nLineWidth = 3;
-			int red;
-			int green;
-			int blue = (int) (pNote->get_leadlag() * 255);
-			if (blue < 0)  {
-				red = blue *-1;
-				blue = (int) red * .33;
-				green = (int) red * .33;
+
+			if (pNote->get_leadlag() == 0) {
+				// leadlag value is centered - draw circle
+				int y_pos = (int)( height() * 0.5 );
+				p.setBrush(QColor( 0, 0, 0 ));
+				p.drawEllipse( x_pos-4, y_pos-4, 8, 8);
 			} else {
-				red = (int) blue * .33;
-				green = (int) blue * .33;
+				int y_start = (int)( height() * 0.5 );
+				int y_end = y_start + ((pNote->get_leadlag()/2) * height());
+	 
+				int nLineWidth = 3;
+				int red;
+				int green;
+				int blue = (int) (pNote->get_leadlag() * 255);
+				if (blue < 0)  {
+					red = blue *-1;
+					blue = (int) red * .33;
+					green = (int) red * .33;
+				} else {
+					red = (int) blue * .33;
+					green = (int) blue * .33;
+				}
+				p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( red, green ,blue ) );
+	 
+				p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( red, green ,blue ) );
 			}
-			p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( red, green ,blue ) );
- 
-			p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( red, green ,blue ) );
  
 		}
 	}

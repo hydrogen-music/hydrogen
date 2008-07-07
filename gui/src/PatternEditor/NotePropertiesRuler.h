@@ -69,6 +69,7 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 		void paintEvent(QPaintEvent *ev);
 		void mousePressEvent(QMouseEvent *ev);
 		void mouseMoveEvent(QMouseEvent *ev);
+		void wheelEvent(QWheelEvent *ev);
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
