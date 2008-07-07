@@ -198,28 +198,23 @@ void Rotary::mouseReleaseEvent( QMouseEvent *ev )
 
 void Rotary::wheelEvent ( QWheelEvent *ev )
 {
-//	infoLog("wheelEvent delta: " + toString( ev->delta() ) );
 	ev->accept();
 
-	if ( m_bUseIntSteps ) {
-		if ( ev->delta() > 0 ) {
-			setValue( getValue() + 1 );
-		}
-		else {
-			setValue( getValue() - 1 );
-		}
-	}
-	else {
-		float fRange = abs( m_fMax ) + abs( m_fMin );
-		float delta = fRange / 100.0;
+	float stepfactor = 5.0; // course adjustment
+	float delta = 1.0;
 
-		if ( ev->delta() > 0 ) {
-			setValue( m_fValue + delta );
-		}
-		else {
-			setValue( m_fValue - delta );
-		}
+	// Control Modifier = fine adjustment
+	if (ev->modifiers() == Qt::ControlModifier) {
+		stepfactor = 1.0;
 	}
+	if ( !m_bUseIntSteps ) {
+		float fRange = abs( m_fMax ) + abs( m_fMin );
+		delta = fRange / 100.0;
+	}
+	if ( ev->delta() < 0 ) {
+		delta = delta * -1.0;
+	}
+	setValue( getValue() + (delta * stepfactor) );
 	emit valueChanged(this);
 }
 
