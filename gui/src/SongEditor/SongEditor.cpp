@@ -637,6 +637,14 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_nWidth = 200;
 	m_nGridHeight = 18;
 	setAttribute(Qt::WA_NoBackground);
+	
+	patternBeingEdited = NULL;
+	
+	line = new QLineEdit( "Inline Pattern Name", this );
+	line->setFrame( false );
+	line->hide();
+	connect( line, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
+	connect( line, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
 
 	this->resize( m_nWidth, m_nInitialHeight );
 
@@ -686,26 +694,27 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 	if ( row >= (int)patternList->get_size() ) {
 		return;
 	}
-	engine->setSelectedPatternNumber( row );
 
 	if ( ev->button() == Qt::MidButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ){
 		togglePattern( row );
-	}
-	else if (ev->button() == Qt::RightButton)  {
-/*
-		if ( song->getMode() == Song::PATTERN_MODE ) {
-
-			PatternList *pCurrentPatternList = engine->getCurrentPatternList();
-			if ( pCurrentPatternList->get_size() == 0 ) {
-				// nessun pattern e' attivo. seleziono subito questo.
-				pCurrentPatternList->add( patternList->get( row ) );
+	} else {
+		engine->setSelectedPatternNumber( row );
+		if (ev->button() == Qt::RightButton)  {
+	/*
+			if ( song->getMode() == Song::PATTERN_MODE ) {
+	
+				PatternList *pCurrentPatternList = engine->getCurrentPatternList();
+				if ( pCurrentPatternList->get_size() == 0 ) {
+					// nessun pattern e' attivo. seleziono subito questo.
+					pCurrentPatternList->add( patternList->get( row ) );
+				}
+				else {
+					engine->setNextPattern( row );
+				}
 			}
-			else {
-				engine->setNextPattern( row );
-			}
+	*/
+			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 		}
-*/
-		m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 
 	createBackground();
@@ -753,9 +762,11 @@ void SongEditorPatternList::togglePattern( int row ) {
 void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 {
 	int row = (ev->y() / m_nGridHeight);
+	inlineEditPatternName( row );
+}
 
-// 	WARNINGLOG( "double clicked " + to_string( row ) );
-
+void SongEditorPatternList::inlineEditPatternName( int row )
+{
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
@@ -763,11 +774,34 @@ void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 	if ( row >= (int)patternList->get_size() ) {
 		return;
 	}
-	engine->setSelectedPatternNumber(row);
-
-	patternPopup_properties();
+	patternBeingEdited = patternList->get( row );
+	line->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
+	line->setText( patternBeingEdited->get_name() );
+	line->selectAll();
+	line->show();
+	line->setFocus();
 }
 
+void SongEditorPatternList::inlineEditingEntered()
+{
+	assert( patternBeingEdited != NULL );
+	if ( PatternPropertiesDialog::nameCheck( line->text() ) )
+	{
+		patternBeingEdited->set_name( line->text() );
+		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		createBackground();
+		update();
+	}
+// 	patternBeingEdited = NULL;
+}
+
+
+void SongEditorPatternList::inlineEditingFinished()
+{
+	patternBeingEdited = NULL;
+	line->hide();
+}
 
 
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
@@ -974,8 +1008,8 @@ void SongEditorPatternList::patternPopup_properties()
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern);
 	if (dialog->exec() == QDialog::Accepted) {
-		Hydrogen *engine = Hydrogen::get_instance();
-		Song *song = engine->getSong();
+// 		Hydrogen *engine = Hydrogen::get_instance();
+// 		Song *song = engine->getSong();
 		song->__is_modified = true;
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 		createBackground();
@@ -1301,6 +1335,11 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 	int column = (ev->x() / m_nGridWidth);
 
 	if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		return;
+	}
+	
+	// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
+	if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
 		return;
 	}
 

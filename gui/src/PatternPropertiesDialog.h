@@ -41,6 +41,7 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 
 		/** Destructor */
 		~PatternPropertiesDialog();
+		static bool nameCheck( QString );
 
 
 	private slots:

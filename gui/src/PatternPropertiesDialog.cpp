@@ -71,32 +71,30 @@ void PatternPropertiesDialog::on_okBtn_clicked() {
 /**
  * Do some name check
  */
-void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
-
-	bool valid = true;
-
-	QString pattName = patternNameTxt->text();
+bool PatternPropertiesDialog::nameCheck( QString pattName )
+{
 	if (pattName == "") {
-		valid = false;
+		return false;
 	}
-
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *patternList = song->get_pattern_list();
-
+	PatternList *patternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	
 	for (uint i = 0; i < patternList->get_size(); i++) {
-		Pattern *pat = patternList->get(i);
-
-		if ( pat->get_name() == pattName) {
-			valid = false;
-			break;
+		if ( patternList->get(i)->get_name() == pattName) {
+			return false;
 		}
 	}
+	return true;
+}
 
-	if (valid) {
+
+void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
+
+	if ( nameCheck( patternNameTxt->text() )) {
 		okBtn->setEnabled(true);
 	}
 	else {
 		okBtn->setEnabled(false);
 	}
 }
+
+

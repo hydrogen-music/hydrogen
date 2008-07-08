@@ -118,6 +118,8 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void patternPopup_delete();
 		void patternPopup_copy();
 		void patternPopup_fill();
+		void inlineEditingFinished();
+		void inlineEditingEntered();
 
 
 	private:
@@ -134,6 +136,9 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		QPixmap m_playingPattern_off_Pixmap;
 
 		QMenu *m_pPatternPopup;
+		QLineEdit *line;
+		H2Core::Pattern *patternBeingEdited;
+		void inlineEditPatternName( int row );
 
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseDoubleClickEvent( QMouseEvent *ev );
