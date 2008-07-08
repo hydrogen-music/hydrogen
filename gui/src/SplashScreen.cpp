@@ -76,6 +76,7 @@ SplashScreen::SplashScreen()
 SplashScreen::~SplashScreen()
 {
 	//INFOLOG( "~SplashScreen" );
+	delete m_pBackground;
 }
 
 
