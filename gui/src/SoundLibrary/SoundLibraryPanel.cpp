@@ -123,74 +123,9 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateDrumkitList()
 {
-	m_pSoundLibraryTree->clear();
-
-	m_pSystemDrumkitsItem = new QTreeWidgetItem( m_pSoundLibraryTree );
-	m_pSystemDrumkitsItem->setText( 0, trUtf8( "System drumkits" ) );
-	m_pSoundLibraryTree->setItemExpanded( m_pSystemDrumkitsItem, true );
-
-	m_pUserDrumkitsItem = new QTreeWidgetItem( m_pSoundLibraryTree );
-	m_pUserDrumkitsItem->setText( 0, trUtf8( "User drumkits" ) );
-	m_pSoundLibraryTree->setItemExpanded( m_pUserDrumkitsItem, true );
-
-	
-
-	for (uint i = 0; i < m_systemDrumkitInfoList.size(); ++i ) {
-		delete m_systemDrumkitInfoList[i];
-	}
-	m_systemDrumkitInfoList.clear();
-
-	for (uint i = 0; i < m_userDrumkitInfoList.size(); ++i ) {
-		delete m_userDrumkitInfoList[i];
-	}
-	m_userDrumkitInfoList.clear();
-
-
 	LocalFileMng mng;
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	for (uint i = 0; i < userList.size(); ++i) {
-		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
-		QString absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
-		Drumkit *pInfo = mng.loadDrumkit( absPath );
-		if (pInfo) {
-			m_userDrumkitInfoList.push_back( pInfo );
 
-			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pUserDrumkitsItem );
-			pDrumkitItem->setText( 0, pInfo->getName() );
-
-			InstrumentList *pInstrList = pInfo->getInstrumentList();
-			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
-				Instrument *pInstr = pInstrList->get( nInstr );
-
-				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
-			}
-		}
-	}
-
-
-	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
-
-	for (uint i = 0; i < systemList.size(); i++) {
-		QString absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
-		Drumkit *pInfo = mng.loadDrumkit( absPath );
-		if (pInfo) {
-			m_systemDrumkitInfoList.push_back( pInfo );
-
-			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pSystemDrumkitsItem );
-			pDrumkitItem->setText( 0, pInfo->getName() );
-
-			InstrumentList *pInstrList = pInfo->getInstrumentList();
-			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
-				Instrument *pInstr = pInstrList->get( nInstr );
-
-				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
-			}
-		}
-	}
+	m_pSoundLibraryTree->clear();
 
 	std::vector<QString> songList = mng.getSongList();
 
@@ -225,7 +160,70 @@ void SoundLibraryPanel::updateDrumkitList()
 			pPatternItem->setText( 0 , patternList[ i ] );
 		}
 	}
+
+	m_pSystemDrumkitsItem = new QTreeWidgetItem( m_pSoundLibraryTree );
+	m_pSystemDrumkitsItem->setText( 0, trUtf8( "System drumkits" ) );
+	m_pSoundLibraryTree->setItemExpanded( m_pSystemDrumkitsItem, true );
+
+	m_pUserDrumkitsItem = new QTreeWidgetItem( m_pSoundLibraryTree );
+	m_pUserDrumkitsItem->setText( 0, trUtf8( "User drumkits" ) );
+	m_pSoundLibraryTree->setItemExpanded( m_pUserDrumkitsItem, true );
+
 	
+
+	for (uint i = 0; i < m_systemDrumkitInfoList.size(); ++i ) {
+		delete m_systemDrumkitInfoList[i];
+	}
+	m_systemDrumkitInfoList.clear();
+
+	for (uint i = 0; i < m_userDrumkitInfoList.size(); ++i ) {
+		delete m_userDrumkitInfoList[i];
+	}
+	m_userDrumkitInfoList.clear();
+
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
+	for (uint i = 0; i < userList.size(); ++i) {
+		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
+		QString absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
+		Drumkit *pInfo = mng.loadDrumkit( absPath );
+		if (pInfo) {
+			m_userDrumkitInfoList.push_back( pInfo );
+
+			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pUserDrumkitsItem );
+			pDrumkitItem->setText( 0, pInfo->getName() );
+
+			InstrumentList *pInstrList = pInfo->getInstrumentList();
+			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+				Instrument *pInstr = pInstrList->get( nInstr );
+
+				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+			}
+		}
+	}
+
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
+
+	for (uint i = 0; i < systemList.size(); i++) {
+		QString absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
+		Drumkit *pInfo = mng.loadDrumkit( absPath );
+		if (pInfo) {
+			m_systemDrumkitInfoList.push_back( pInfo );
+
+			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pSystemDrumkitsItem );
+			pDrumkitItem->setText( 0, pInfo->getName() );
+
+			InstrumentList *pInstrList = pInfo->getInstrumentList();
+			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+				Instrument *pInstr = pInstrList->get( nInstr );
+
+				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+			}
+		}
+	}
 }
 
 
@@ -274,6 +272,10 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 {
+	if( m_pSoundLibraryTree->currentItem() == NULL )
+		return;
+	
+
 	if (
 		( m_pSoundLibraryTree->currentItem()->parent() == NULL ) ||
 		( m_pSoundLibraryTree->currentItem() == m_pUserDrumkitsItem ) ||
