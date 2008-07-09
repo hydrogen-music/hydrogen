@@ -158,6 +158,9 @@ void LadspaFXSelector::pluginSelected()
 {
 #ifdef LADSPA_SUPPORT
 	//INFOLOG( "[pluginSelected]" );
+	//
+        
+	if ( m_pPluginsListBox->selectedItems().isEmpty() ) return;
 
 	QString sSelected = m_pPluginsListBox->selectedItems().first()->text();
 	m_sSelectedPluginName = sSelected;
