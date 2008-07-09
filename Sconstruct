@@ -323,7 +323,10 @@ conf.write( "#endif\n" )
 conf.close()
 
 version = open("version.h", "w")
+version.write( "#ifndef HYD_VERSION_H\n" )
+version.write( "#define HYD_VERSION_H\n" )
 version.write( "static const std::string VERSION = \"0.9.4-svn\" + REVISION;\n" )
+version.write( "#endif\n" )
 version.close()
 
 #just download 3rd party libs if we're *not* running linux.

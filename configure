@@ -89,6 +89,8 @@ $QMAKE_BIN --version
 $QMAKE_BIN all.pro "prefix=$prefix"
 
 rm -f config.h
+rm -f version.h
+
 echo "#define CONFIG_PREFIX \"$prefix\"" >> config.h
 echo "#define DATA_PATH \"$prefix/share/hydrogen/data\"" >> config.h
 
@@ -100,7 +102,11 @@ echo "#ifndef HYD_CONFIG_H" >> config.h
 echo "#define HYD_CONFIG_H" >> config.h
 echo "#include <string>" >> config.h
 echo "static const std::string REVISION = \"$SVNREV\";" >> config.h
+
+echo "#ifndef HYD_VERSION_H" >> version.h
+echo "#define HYD_VERSION_H" >> version.h
 echo "static const std::string VERSION = \"0.9.4-svn\" + REVISION;" >> version.h
+echo "#endif" >> version.h
 
 echo "#ifndef QT_BEGIN_NAMESPACE" >> config.h
 echo "#    define QT_BEGIN_NAMESPACE" >> config.h
