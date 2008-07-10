@@ -33,10 +33,11 @@
 
 #include <hydrogen/globals.h>
 
+const QString LCDCombo::SEPARATOR("--sep--");
 
 LCDCombo::LCDCombo(QWidget *pParent, int digits)
  : QWidget(pParent)
- , Object( "LCDCombo")
+ , Object( "LCDCombo") //, SEPARATOR("--sep--")
 {
 	INFOLOG( "INIT" );
 
@@ -50,6 +51,7 @@ LCDCombo::LCDCombo(QWidget *pParent, int digits)
 	);
 	pop = new QMenu( this );
 	size = digits;
+	active = 0;
 
 	button->move( ( digits * 8 ) + 5 , 1 );
 	setFixedSize( ( digits * 8 ) + 17, display->height() );
@@ -64,6 +66,7 @@ LCDCombo::LCDCombo(QWidget *pParent, int digits)
 
 
 
+
 LCDCombo::~LCDCombo()
 {
 }
@@ -73,8 +76,9 @@ LCDCombo::~LCDCombo()
 void LCDCombo::changeText(QAction* pAction)
 {
 	//_WARNINGLOG("triggered");
-	display->setText(pAction->text());
-	emit valueChanged( pAction->text() );
+// 	display->setText(pAction->text());
+// 	emit valueChanged( pAction->text() );
+	set_text( pAction->text() );
 }
 
 
@@ -99,7 +103,7 @@ void LCDCombo::update()
 	pop->clear();
 
 	for( int i = 0; i < items.size(); i++ ) {
-		if(items.at(i)!=QString("--sep--")){
+		if ( items.at(i) != SEPARATOR ){
 			pop->addAction( items.at(i) );
 		}else{
 			pop->addSeparator();
@@ -117,7 +121,7 @@ int LCDCombo::count()
 
 
 
-bool LCDCombo::addItem(const QString &text )
+bool LCDCombo::addItem( const QString &text )
 {
 	//INFOLOG( "add item" );
 
@@ -133,7 +137,7 @@ bool LCDCombo::addItem(const QString &text )
 
 void LCDCombo::addSeparator()
 {
-	items.append( QString("--sep--") );
+	items.append( SEPARATOR );
 }
 
 
@@ -154,6 +158,17 @@ void LCDCombo::mousePressEvent(QMouseEvent *ev)
 	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
 }
 
+void LCDCombo::wheelEvent( QWheelEvent * ev )
+{
+	ev->ignore();
+	const int n = items.size();
+	const int d = ( ev->delta() > 0 ) ? -1: 1;
+	active = ( n + active + d ) % n;
+	if ( items.at( active ) == SEPARATOR )
+		active = ( n + active + d ) % n;
+	set_text( items.at( active ) );
+}
+
 
 
 void LCDCombo::set_text( const QString &text)
@@ -163,6 +178,10 @@ void LCDCombo::set_text( const QString &text)
 	}
 	//INFOLOG( text );
 	display->setText( text );
+	for ( int i = 0; i < items.size(); i++ ) {
+		if ( items.at(i) == text )
+			active = i;
+	}
 	emit valueChanged( text );
 }
 

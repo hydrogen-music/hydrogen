@@ -70,8 +70,12 @@ class LCDCombo : public QWidget, public Object
 		Button *button;
 		QMenu *pop;
 		int size;
+		int active;
+		static const QString SEPARATOR;
 
 		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void wheelEvent( QWheelEvent * ev );
 };
+
 
 #endif
