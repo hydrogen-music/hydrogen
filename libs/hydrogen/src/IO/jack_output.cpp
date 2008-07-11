@@ -212,19 +212,23 @@ int oldpo = 0;
 void JackOutput::relocateBBT()
 {
 	//wolke if hydrogen is jack time master this is not relevant
-	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
+	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
 		//Hydrogen::get_instance()->setHumantimeFrames(m_JackTransportPos.frame );
-		if ( m_transport.m_status != TransportInfo::ROLLING)
+		if ( m_transport.m_status != TransportInfo::ROLLING )
 		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
+		WARNINGLOG( "Relocate: Call it off" );
+		calculateFrameOffset();
 	 	return;
-	}else
-	{
-		if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ) return;
+	} else {
+		if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ) 
+			return;
+		
+		WARNINGLOG( "..." );
 	
 		Hydrogen * H = Hydrogen::get_instance();
 		Song * S = H->getSong();
 	
-		float hydrogen_TPB = ( float )S->__resolution;
+		float hydrogen_TPB = ( float )( S->__resolution / m_JackTransportPos.beat_type * 4 );
 	
 		long bar_ticks = 0;
 		//long beat_ticks = 0;
@@ -234,9 +238,9 @@ void JackOutput::relocateBBT()
 		}
 		float hydrogen_ticks_to_locate =  bar_ticks + ( m_JackTransportPos.beat-1 )*hydrogen_TPB + m_JackTransportPos.tick *( hydrogen_TPB/m_JackTransportPos.ticks_per_beat ) ;
 	
-		char bbt[15];
-		sprintf( bbt, "[%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
-//		WARNINGLOG( "Locating BBT: " + bbt + /*" -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+*/" =>tick " + to_string( hydrogen_ticks_to_locate ) );
+// 		char bbt[30];
+// 		sprintf( bbt, "Locating BBT: [%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
+// 		WARNINGLOG( QString(bbt) + " -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+" =>tick " + to_string( hydrogen_ticks_to_locate ) );
 	
 		float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
 		// not S->m_fBPM !??
@@ -297,23 +301,27 @@ void JackOutput::updateTransportInfo()
 
 		// FIXME
 		// TickSize and BPM
+		Hydrogen * H = Hydrogen::get_instance();
 
 		if ( m_JackTransportPos.valid & JackPositionBBT ) {
 			float bpm = ( float )m_JackTransportPos.beats_per_minute;
 			if ( m_transport.m_nBPM != bpm ) {
 
 				
-				if( Preferences::getInstance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER){
-					//WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
+				if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ){
+// 					WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
 					m_transport.m_nBPM = bpm;
 					must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
-				}else
-				{
-					if(m_transport.m_status == TransportInfo::STOPPED){
-						oldpo = Hydrogen::get_instance()->getPatternPos();
+
+// This commenting out is rude perhaps, but I cant't figure out what this bit is doing.
+// In any case, setting must_relocate = 1 here causes too many relocates. Jakob Lund
+/*				} else { 
+					if ( m_transport.m_status == TransportInfo::STOPPED ) {
+						oldpo = H->getPatternPos();
 						must_relocate = 1;
 						//changer =1;
-					}
+					}*/
+
 				}
 				
 				// Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
@@ -322,35 +330,41 @@ void JackOutput::updateTransportInfo()
 
 		if ( m_transport.m_nFrames + bbt_frame_offset != m_JackTransportPos.frame ) {
 			if ( ( m_JackTransportPos.valid & JackPositionBBT ) && must_relocate == 0 ) {
-				//WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
+				WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
 				must_relocate = 2;
-			} else { // NOTE There's no timebase_master. If audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match.m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/;
-
-				//m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
-				///this is experimantal... but it works for the moment... fix me fix :-) wolke		
-				m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
-				bbt_frame_offset = 0;
+			} else {
+				if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
+					// NOTE There's no timebase_master. If audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match.
+					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
+					m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
+					if ( m_transport.m_status == TransportInfo::ROLLING )
+							H->triggerRelocateDuringPlay();
+				} else {
+					///this is experimantal... but it works for the moment... fix me fix :-) wolke
+					// ... will this actually happen? keeping it for now ( jakob lund )
+					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();
+				}
+// 				bbt_frame_offset = 0;
 			}
 		}
 		
 		// humantime fix
-		if ( Hydrogen::get_instance()->getHumantimeFrames() != m_JackTransportPos.frame ) {
+		if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
 
-			Hydrogen::get_instance()->setHumantimeFrames(m_JackTransportPos.frame);
+			H->setHumantimeFrames(m_JackTransportPos.frame);
 			//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
 		}
-
-
-
 
 		if ( must_relocate == 1 ) {
 			//WARNINGLOG( "Resyncing!" );
 			relocateBBT();
+			if ( m_transport.m_status == TransportInfo::ROLLING ) {
+				H->triggerRelocateDuringPlay();
+			}
 		}
-
+		
 		if ( must_relocate > 0 ) must_relocate--;
 	}
-	
 }
 
 
