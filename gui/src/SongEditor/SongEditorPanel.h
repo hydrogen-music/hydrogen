@@ -50,11 +50,13 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		~SongEditorPanel();
 
 		void updateAll();
+		void setModeActionBtn( bool mode );
 		SongEditorActionMode getActionMode() {	return m_actionMode;	}
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		//~ Implements EventListener interface
+		
 
 	private slots:
 		void on_patternListScroll();
@@ -69,6 +71,7 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 
 		void pointerActionBtnPressed( Button* pBtn );
 		void drawActionBtnPressed( Button* pBtn );
+		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed( Button* pBtn );
 		void zoomOutBtnPressed( Button* pBtn );
@@ -97,6 +100,7 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		Button *m_pDownBtn;
 		Button *m_pClearPatternSeqBtn;
 		ToggleButton *m_pPointerActionBtn;
+		ToggleButton *m_pModeActionBtn;
 		ToggleButton *m_pDrawActionBtn;
 
 		QTimer* m_pTimer;

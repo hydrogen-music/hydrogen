@@ -224,6 +224,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
+	patternModeFollowsSelection->setChecked( pPref->patternModePlaysSelected() );
 
 	m_bNeedDriverRestart = false;
 }
@@ -357,6 +358,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
+	pPref->setPatternModePlaysSelected( patternModeFollowsSelection->isChecked() );
 
 	pPref->savePreferences();
 

@@ -62,7 +62,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_clear_over.png",
 			QSize(53,13)
 	);
-	m_pClearPatternSeqBtn->move( 13, 5 );
+	m_pClearPatternSeqBtn->move( 6, 5 );
 	m_pClearPatternSeqBtn->setToolTip( trUtf8("Clear pattern sequence") );
 	connect( m_pClearPatternSeqBtn, SIGNAL( clicked( Button* ) ), this, SLOT( clearSequence(Button*) ) );
 
@@ -74,7 +74,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_new_over.png",
 			QSize(19, 13)
 	);
-	newPatBtn->move( 75, 5 );
+	newPatBtn->move( 65, 5 );
 	newPatBtn->setToolTip( trUtf8("Create new pattern") );
 	connect( newPatBtn, SIGNAL( clicked( Button* ) ), this, SLOT( newPatBtnClicked( Button* ) ) );
 
@@ -86,7 +86,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_down_over.png",
 			QSize(18,13)
 	);
-	m_pDownBtn->move( 102, 5 );
+	m_pDownBtn->move( 90, 5 );
 	m_pDownBtn->setToolTip( trUtf8("Move the selected pattern down") );
 	connect( m_pDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT( downBtnClicked( Button* ) ) );
 
@@ -98,7 +98,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_up_over.png",
 			QSize(18,13)
 	);
-	m_pUpBtn->move( 120, 5 );
+	m_pUpBtn->move( 107, 5 );
 	m_pUpBtn->setToolTip( trUtf8("Move the selected pattern up") );
 	connect( m_pUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT( upBtnClicked( Button* ) ) );
 
@@ -110,7 +110,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_select_over.png",
 			QSize( 18, 13 )
 	);
-	m_pPointerActionBtn->move( 146, 5 );
+	m_pPointerActionBtn->move( 129, 5 );
 	m_pPointerActionBtn->setToolTip( trUtf8( "Select mode" ) );
 	connect( m_pPointerActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( pointerActionBtnPressed(Button*) ) );
 
@@ -122,11 +122,22 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_draw_over.png",
 			QSize( 18, 13 )
 	);
-	m_pDrawActionBtn->move( 164, 5 );
+	m_pDrawActionBtn->move( 148, 5 );
 	m_pDrawActionBtn->setToolTip( trUtf8( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
 	m_pDrawActionBtn->setPressed( true );
 
+	m_pModeActionBtn = new ToggleButton(
+			pBackPanel,
+			"/songEditor/btn_mode_on.png",
+			"/songEditor/btn_mode_off.png",
+			"/songEditor/btn_mode_over.png",
+			QSize( 18, 13 )
+	);
+	m_pModeActionBtn->move( 170, 5 );
+	m_pModeActionBtn->setToolTip( trUtf8( "stacked mode") );
+	m_pModeActionBtn->setPressed(  Preferences::getInstance()->patternModePlaysSelected() );
+	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal,NULL );
@@ -483,6 +494,27 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 	m_pPointerActionBtn->setPressed( false );
 	m_actionMode = DRAW_ACTION;
 
+}
+
+void SongEditorPanel::modeActionBtnPressed( )
+{
+	if( m_pModeActionBtn->isPressed() ){
+		m_pModeActionBtn->setToolTip( trUtf8( "stacked pattern mode") );
+	} else {
+		m_pModeActionBtn->setToolTip( trUtf8( "single pattern mode") );
+	}
+	Hydrogen::get_instance()->togglePlaysSelected();
+}
+
+void SongEditorPanel::setModeActionBtn( bool mode )
+{
+	if( mode ){
+		m_pModeActionBtn->setPressed( true );
+		m_pModeActionBtn->setToolTip( trUtf8( "stacked pattern mode") );
+	} else {
+		m_pModeActionBtn->setPressed( false );
+		m_pModeActionBtn->setToolTip( trUtf8( "single pattern mode") );
+	}
 }
 
 void SongEditorPanel::zoomInBtnPressed( Button* pBtn )

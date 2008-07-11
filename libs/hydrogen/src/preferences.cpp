@@ -223,6 +223,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
+			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
+
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			recordEvents = LocalFileMng::readXmlBool( rootNode, "recordEvents", recordEvents );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
@@ -518,6 +520,8 @@ void Preferences::savePreferences()
 
 	////// GENERAL ///////
 	LocalFileMng::writeXmlString( &rootNode, "restoreLastSong", restoreLastSong ? "true": "false" );
+	
+	LocalFileMng::writeXmlString( &rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	//show development version warning
 	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

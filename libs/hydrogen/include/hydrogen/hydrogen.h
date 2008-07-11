@@ -64,6 +64,7 @@ public:
 	void midi_noteOff( Note *note );
 
 	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
+	void togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 
 	/// Set current song
@@ -99,6 +100,8 @@ public:
 
 	int getPatternPos();
 	void setPatternPos( int pos );
+	
+	void triggerRelocateDuringPlay();
 
 	long getTickForPosition( int );
 

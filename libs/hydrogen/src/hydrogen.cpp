@@ -362,7 +362,6 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 		return 0;	// FIXME!!
 	}
 
-
 	//Preferences *preferencesMng = Preferences::getInstance();
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
@@ -582,7 +581,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 	if ( bLoopMode ) {
 		loop = true;
 	}
-
+	
 	m_nSongPos = findPatternInTick( tickNumber_start, loop, &m_nPatternStartTick );
 //	sprintf(tmp, "[audioEngine_seek()] m_nSongPos = %d", m_nSongPos);
 //	hydrogenInstance->infoLog(tmp);
@@ -1023,7 +1022,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	// plus lookahead. lookahead should be equal or greater than the nLeadLagFactor + nMaxTimeHumanize.
 	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
 	if ( framepos == 0 ) {
-		tickNumber_start = (int)( framepos / m_pAudioDriver->m_transport.m_nTickSize );
+		tickNumber_start = 0; // a.k.a.: (int)( framepos / m_pAudioDriver->m_transport.m_nTickSize );
 	}
 	else {
 		tickNumber_start = (int)( (framepos + lookahead) / m_pAudioDriver->m_transport.m_nTickSize );
@@ -1032,8 +1031,22 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 	int tick = tickNumber_start;
 
+// 	_WARNINGLOG( "Lookahead: " + to_string( lookahead /  m_pAudioDriver->m_transport.m_nTickSize ) );
 	// get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, NULL );
+	
+	Pattern * selectedPatternWasAdded = NULL;
+	
+	// The Preferences object isn't thread safe, so we shouldnt access it here unless we're in the playing state.
+	if ( m_audioEngineState == STATE_PLAYING ) {
+		if ( m_pSong->get_mode() == Song::PATTERN_MODE && Preferences::getInstance()->patternModePlaysSelected() ) {
+			Pattern * pSelectedPattern = m_pSong->get_pattern_list()->get(m_nSelectedPatternNumber);
+			if ( ( m_pPlayingPatterns->del( pSelectedPattern ) ) == NULL ) {
+				selectedPatternWasAdded = pSelectedPattern;
+			}
+			m_pPlayingPatterns->add( pSelectedPattern );
+		}
+	}
 
 	while ( tick <= tickNumber_end ) {
 		if ( tick == nLastTick ) {
@@ -1061,6 +1074,10 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			// only keep going if we're playing
 			continue;
 		}
+
+// 		if ( m_nPatternStartTick == -1 ) { // for debugging pattern mode :s
+// 			_WARNINGLOG( "m_nPatternStartTick == -1; tick = " + to_string( tick ) );
+// 		}
 
 
 		// SONG MODE
@@ -1102,7 +1119,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				}
 			}
 		}
-
+		
 		// PATTERN MODE
 		else if ( m_pSong->get_mode() == Song::PATTERN_MODE )	{
 			//hydrogenInstance->warningLog( "pattern mode not implemented yet" );
@@ -1110,6 +1127,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			// per ora considero solo il primo pattern, se ce ne saranno piu' di uno
 			// bisognera' prendere quello piu' piccolo
 
+			//m_nPatternTickPosition = tick % m_pCurrentPattern->getSize();
 			int nPatternSize = MAX_NOTES;
 
 			if ( m_pPlayingPatterns->get_size() != 0 ) {
@@ -1133,22 +1151,33 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 											}
 											m_pPlayingPatterns->add( m_pNextPattern );
 										}*/
-					_WARNINGLOG( "uh-oh, next patterns..." );
+// 					_WARNINGLOG( "uh-oh, next patterns..." );
 					Pattern * p;
 					for ( uint i = 0; i < m_pNextPatterns->get_size(); i++ ) {
 						p = m_pNextPatterns->get( i );
-						_WARNINGLOG( QString( "Got pattern # %1" ).arg( i + 1 ) );
+// 						_WARNINGLOG( QString( "Got pattern # %1" ).arg( i + 1 ) );
 						// if the pattern isn't playing already, start it now.
-						if ( ( m_pPlayingPatterns->del( p ) ) == NULL )
+						if ( selectedPatternWasAdded == p )
+							selectedPatternWasAdded = NULL;
+						else if ( m_pSong->get_pattern_list()->get( m_nSelectedPatternNumber ) == p && Preferences::getInstance()->patternModePlaysSelected() )
+							selectedPatternWasAdded = p;
+						else if ( ( m_pPlayingPatterns->del( p ) ) == NULL ) {
 							m_pPlayingPatterns->add( p );
+						}
 					}
 					m_pNextPatterns->clear();
 					bSendPatternChange = true;
 				}
-				m_nPatternStartTick = tick;
+				if ( m_nPatternStartTick == -1 ) {
+					m_nPatternStartTick = tick - (tick % nPatternSize);
+// 					_WARNINGLOG( "set Pattern Start Tick to " + to_string( m_nPatternStartTick ) );
+				} else {
+					m_nPatternStartTick = tick;
+				}
 			}
-			//m_nPatternTickPosition = tick % m_pCurrentPattern->getSize();
-			m_nPatternTickPosition = tick % nPatternSize;
+// 			m_nPatternTickPosition = tick % nPatternSize;
+			m_nPatternTickPosition = tick - m_nPatternStartTick;
+			assert( m_nPatternTickPosition < nPatternSize );
 		}
 		/*
 					else {
@@ -1162,9 +1191,11 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 
 		// metronome
-		if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) ) {
+// 		if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) ) {
+		if ( m_nPatternTickPosition % 48 == 0 ) {
 			float fPitch;
 			float fVelocity;
+// 			_INFOLOG( "Beat: " + to_string(m_nPatternTickPosition / 48 + 1) + "@ " + to_string( tick ) );
 			if ( m_nPatternTickPosition == 0 ) {
 				fPitch = 3;
 				fVelocity = 1.0;
@@ -1228,6 +1259,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		}
 		++tick;
 	}
+	
+	if ( selectedPatternWasAdded != NULL ) m_pPlayingPatterns->del( selectedPatternWasAdded );
 
 	// audioEngine_process must send the pattern change event after mutex unlock
 	if ( bSendPatternChange ) {
@@ -2258,9 +2291,7 @@ void Hydrogen::setPatternPos( int pos )
 		int dummy;
 		m_nSongPos = findPatternInTick( totalTick, m_pSong->is_loop_enabled(), &dummy );
 	}
-
 	m_pAudioDriver->locate( ( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize ) );
-
 
 	AudioEngine::get_instance()->unlock();
 }
@@ -2407,8 +2438,16 @@ void Hydrogen::setSelectedPatternNumber( int nPat )
 {
 	// FIXME: controllare se e' valido..
 	if ( nPat == m_nSelectedPatternNumber )	return;
-
-	m_nSelectedPatternNumber = nPat;
+	
+	
+	if ( Preferences::getInstance()->patternModePlaysSelected() ) {
+		AudioEngine::get_instance()->lock( "Hydrogen::setSelectedPatternNumber" );
+	
+		m_nSelectedPatternNumber = nPat;
+		AudioEngine::get_instance()->unlock();
+	} else {
+		m_nSelectedPatternNumber = nPat;
+	}
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
@@ -2595,7 +2634,9 @@ unsigned long Hydrogen::getTimeMasterFrames()
 
 long Hydrogen::getTickForHumanPosition( int humanpos )
 {
-	int nPatternGroups = m_pSong->get_pattern_group_vector()->size();
+	std::vector< PatternList* > * columns = m_pSong->get_pattern_group_vector();
+	
+	int nPatternGroups = columns->size();
 	if ( humanpos >= nPatternGroups ) {
 		if ( m_pSong->is_loop_enabled() ) {
 			humanpos = humanpos % nPatternGroups;
@@ -2604,10 +2645,21 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 		}
 	}
 
-	std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector();
-	long humanTick = 0;
-	int nPatternSize;
-	Pattern *pPattern = NULL;
+// 	std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector()[ humanpos - 1 ].get( 0 )->get_lenght();
+	
+	ERRORLOG( "Kick me!" );
+	if ( humanpos == 0 ) return 0;
+	Pattern *pPattern = columns->at( humanpos - 1 )->get( 0 );
+	if ( pPattern ) {
+		return pPattern->get_lenght();
+	} else {
+		return MAX_NOTES;
+	}
+// 	int nPatternSize;
+	
+// 	pColumns
+	
+/*	Pattern *pPattern = NULL;
 	for ( int i = 0; i < humanpos; ++i ) {
 		PatternList *pColumn = ( *pColumns )[ i ];
 		pPattern = pColumn->get( 0 );
@@ -2618,8 +2670,8 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 		}
 
 		humanTick = nPatternSize;
-	}
-	return humanTick;
+	}*/
+// 	return humanTick;
 }
 
 
@@ -2636,6 +2688,25 @@ void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 	m_nHumantimeFrames = nFrames + m_nHumantimeFrames;
 }
 //~ jack transport master
+void Hydrogen::triggerRelocateDuringPlay() {
+	m_nPatternStartTick = -1; // This forces the barline position to be recalculated in Pattern Mode.
+}
 
+void Hydrogen::togglePlaysSelected() {
+	if ( getSong()->get_mode() != Song::PATTERN_MODE )
+		return;
+	Preferences * P = Preferences::getInstance();
+	
+	AudioEngine::get_instance()->lock( "Live mode" );
+	
+	bool isPlaysSelected = P->patternModePlaysSelected();
+	
+	
+	P->setPatternModePlaysSelected( !isPlaysSelected );
+	
+	AudioEngine::get_instance()->unlock();
+	
+}
 
 };
+

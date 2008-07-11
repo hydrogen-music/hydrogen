@@ -400,7 +400,6 @@ bool MainForm::action_file_exit()
 				ERRORLOG( "Unknown return code: " + to_string( res ) );
 		}
 	}
-
 	closeAll();
 	return true;
 }
@@ -510,6 +509,7 @@ void MainForm::action_file_save()
 	LocalFileMng mng;
 	bool saved = false;
 	saved = song->save( filename );
+	
 
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", trUtf8("Could not save song.") );
@@ -977,7 +977,6 @@ void MainForm::action_window_showDrumkitManagerPanel()
 
 
 void MainForm::closeAll() {
-
 	// save window properties in the preferences files
 	Preferences *pref = Preferences::getInstance();
 
@@ -1327,6 +1326,14 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				Hydrogen::get_instance()->setPatternPos( Hydrogen::get_instance()->getPatternPos() + 1 );
 				return TRUE;
 				break;
+			
+			case Qt::Key_L :
+				Hydrogen::get_instance()->togglePlaysSelected();
+				QString msg = Preferences::getInstance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
+				HydrogenApp::getInstance()->setStatusBarMessage( msg, 5000 );
+				HydrogenApp::getInstance()->getSongEditorPanel()->setModeActionBtn( Preferences::getInstance()->patternModePlaysSelected() );
+				
+				return TRUE;
 			
 		// 	QAccel *a = new QAccel( this );
 // 	a->connectItem( a->insertItem(Key_S + CTRL), this, SLOT( onSaveAccelEvent() ) );

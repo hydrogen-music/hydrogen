@@ -414,6 +414,13 @@ public:
 	UIStyle* getDefaultUIStyle() {
 		return m_pDefaultUIStyle;
 	}
+	
+	bool patternModePlaysSelected() {
+		return m_bPatternModePlaysSelected;
+	}
+	void setPatternModePlaysSelected( bool b ) {
+		m_bPatternModePlaysSelected = b;
+	}
 
 private:
 	static Preferences *instance;
@@ -425,6 +432,7 @@ private:
 	QString demoPath;
 
 	//___ General properties ___
+	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
 	bool restoreLastSong;		///< Restore last song?
 	bool m_bShowDevelWarning;	///< Show development version warning?
 	QString lastSongFilename;	///< Last song used

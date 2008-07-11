@@ -25,16 +25,7 @@
     <property name="spacing" >
      <number>6</number>
     </property>
-    <property name="leftMargin" >
-     <number>0</number>
-    </property>
-    <property name="topMargin" >
-     <number>0</number>
-    </property>
-    <property name="rightMargin" >
-     <number>0</number>
-    </property>
-    <property name="bottomMargin" >
+    <property name="margin" >
      <number>0</number>
     </property>
     <item>
@@ -45,7 +36,7 @@
       <property name="sizeType" >
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0" >
        <size>
         <width>184</width>
         <height>16</height>
@@ -111,7 +102,7 @@
       <property name="sizeType" >
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0" >
        <size>
         <width>183</width>
         <height>16</height>
@@ -140,9 +131,17 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex" >
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>529</width>
+      <height>341</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>&amp;General</string>
     </attribute>
@@ -168,8 +167,29 @@
       <string>Alt+R</string>
      </property>
     </widget>
+    <widget class="QCheckBox" name="patternModeFollowsSelection" >
+     <property name="geometry" >
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>511</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Always play selected pattern in Pattern Mode</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>529</width>
+      <height>341</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>Audio &amp;System</string>
     </attribute>
@@ -218,26 +238,14 @@
        <x>10</x>
        <y>50</y>
        <width>291</width>
-       <height>114</height>
+       <height>131</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="1" column="1" >
@@ -374,22 +382,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >
@@ -492,6 +488,14 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>529</width>
+      <height>341</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>&amp;Midi System</string>
     </attribute>
@@ -501,26 +505,14 @@
        <x>10</x>
        <y>10</y>
        <width>521</width>
-       <height>117</height>
+       <height>123</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="1" column="0" >
@@ -678,6 +670,14 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>529</width>
+      <height>341</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>&amp;Appearance</string>
     </attribute>
@@ -704,22 +704,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="0" column="0" >
@@ -776,22 +764,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >
