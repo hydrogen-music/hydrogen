@@ -43,6 +43,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 		setWindowTitle( trUtf8( "Manual" ) );
 		resize( 800, 600 );
 		setMinimumSize( 300, 200 );
+		setStyleSheet("color:#000000;");
 	}
 	else {
 		setWindowTitle( trUtf8( "Welcome to Hydrogen" ) );
@@ -77,6 +78,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 //	m_pBrowser->setMimeSourceFactory( bodyformat );
 	m_pBrowser->setReadOnly( true );
 	m_pBrowser->setSearchPaths( QStringList( m_sDataPath ) );
+	//m_pBrowser->setStyleSheet("background-color:#000000;");
 
 //	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
