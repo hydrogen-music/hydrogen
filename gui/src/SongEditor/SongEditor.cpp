@@ -904,7 +904,11 @@ void SongEditorPatternList::createBackground()
 		}
 		else if (bActive) {
 //			p.drawText( 5, text_y - 1 - m_nGridHeight, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, ">" );
-			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
+		
+			//mark active pattern with triangular
+			if( ! pref->patternModePlaysSelected() ){
+				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
+			}
 		}
 
 

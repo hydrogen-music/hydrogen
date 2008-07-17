@@ -1035,18 +1035,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	// get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, NULL );
 	
-	Pattern * selectedPatternWasAdded = NULL;
-	
-	// The Preferences object isn't thread safe, so we shouldnt access it here unless we're in the playing state.
-	if ( m_audioEngineState == STATE_PLAYING ) {
-		if ( m_pSong->get_mode() == Song::PATTERN_MODE && Preferences::getInstance()->patternModePlaysSelected() ) {
-			Pattern * pSelectedPattern = m_pSong->get_pattern_list()->get(m_nSelectedPatternNumber);
-			if ( ( m_pPlayingPatterns->del( pSelectedPattern ) ) == NULL ) {
-				selectedPatternWasAdded = pSelectedPattern;
-			}
-			m_pPlayingPatterns->add( pSelectedPattern );
-		}
-	}
 
 	while ( tick <= tickNumber_end ) {
 		if ( tick == nLastTick ) {
@@ -1130,6 +1118,15 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			//m_nPatternTickPosition = tick % m_pCurrentPattern->getSize();
 			int nPatternSize = MAX_NOTES;
 
+			
+			if ( Preferences::getInstance()->patternModePlaysSelected() )
+			{
+				m_pPlayingPatterns->clear();
+				Pattern * pSelectedPattern = m_pSong->get_pattern_list()->get(m_nSelectedPatternNumber);
+				m_pPlayingPatterns->add( pSelectedPattern );
+			}
+
+
 			if ( m_pPlayingPatterns->get_size() != 0 ) {
 				Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
 				nPatternSize = pFirstPattern->get_lenght();
@@ -1157,11 +1154,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						p = m_pNextPatterns->get( i );
 // 						_WARNINGLOG( QString( "Got pattern # %1" ).arg( i + 1 ) );
 						// if the pattern isn't playing already, start it now.
-						if ( selectedPatternWasAdded == p )
-							selectedPatternWasAdded = NULL;
-						else if ( m_pSong->get_pattern_list()->get( m_nSelectedPatternNumber ) == p && Preferences::getInstance()->patternModePlaysSelected() )
-							selectedPatternWasAdded = p;
-						else if ( ( m_pPlayingPatterns->del( p ) ) == NULL ) {
+						if ( ( m_pPlayingPatterns->del( p ) ) == NULL ) {
 							m_pPlayingPatterns->add( p );
 						}
 					}
@@ -1260,7 +1253,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		++tick;
 	}
 	
-	if ( selectedPatternWasAdded != NULL ) m_pPlayingPatterns->del( selectedPatternWasAdded );
 
 	// audioEngine_process must send the pattern change event after mutex unlock
 	if ( bSendPatternChange ) {
@@ -2700,8 +2692,14 @@ void Hydrogen::togglePlaysSelected() {
 	AudioEngine::get_instance()->lock( "Live mode" );
 	
 	bool isPlaysSelected = P->patternModePlaysSelected();
-	
-	
+
+	if (isPlaysSelected)
+	{
+		m_pPlayingPatterns->clear();
+		Pattern * pSelectedPattern = m_pSong->get_pattern_list()->get(m_nSelectedPatternNumber);
+		m_pPlayingPatterns->add( pSelectedPattern );
+	}
+
 	P->setPatternModePlaysSelected( !isPlaysSelected );
 	
 	AudioEngine::get_instance()->unlock();
