@@ -496,6 +496,8 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 
 }
 
+
+
 void SongEditorPanel::modeActionBtnPressed( )
 {
 	if( m_pModeActionBtn->isPressed() ){
@@ -504,6 +506,7 @@ void SongEditorPanel::modeActionBtnPressed( )
 		m_pModeActionBtn->setToolTip( trUtf8( "single pattern mode") );
 	}
 	Hydrogen::get_instance()->togglePlaysSelected();
+	updateAll();
 }
 
 void SongEditorPanel::setModeActionBtn( bool mode )
