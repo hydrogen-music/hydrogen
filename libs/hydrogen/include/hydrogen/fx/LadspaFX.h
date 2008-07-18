@@ -159,6 +159,7 @@ public:
 private:
 	bool m_pluginType;
 	bool m_bEnabled;
+	bool m_bActivated;	// Guard against plugins that can't be deactivated before being activated (
 	QString m_sLabel;
 	QString m_sName;
 	QString m_sLibraryPath;

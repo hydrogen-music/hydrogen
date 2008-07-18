@@ -107,6 +107,7 @@ LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
 		, m_pBuffer_R( NULL )
 		, m_pluginType( UNDEFINED )
 		, m_bEnabled( false )
+		, m_bActivated( false )
 		, m_sLabel( sPluginLabel )
 		, m_sLibraryPath( sLibraryPath )
 		, m_pLibrary( NULL )
@@ -403,6 +404,7 @@ void LadspaFX::activate()
 {
 	if ( m_d->activate ) {
 		INFOLOG( "activate " + getPluginName() );
+		m_bActivated = true;
 		m_d->activate( m_handle );
 	}
 }
@@ -410,8 +412,9 @@ void LadspaFX::activate()
 
 void LadspaFX::deactivate()
 {
-	if ( m_d->deactivate ) {
+	if ( m_d->deactivate && m_bActivated ) {
 		INFOLOG( "deactivate " + getPluginName() );
+		m_bActivated = false;
 		m_d->deactivate( m_handle );
 	}
 }
