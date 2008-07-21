@@ -1041,6 +1041,8 @@ void SongEditorPatternList::patternPopup_delete()
 		pEngine->sequencer_setNextPattern( -1, false, false );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
 	}
 
+	pEngine->sequencer_stop();
+
 	AudioEngine::get_instance()->lock( "SongEditorPatternList::patternPopup_delete" );
 
 	Song *song = pEngine->getSong();
