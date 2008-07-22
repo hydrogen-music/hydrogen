@@ -134,13 +134,15 @@ void SoundLibraryPanel::updateDrumkitList()
 
 		m_pSongItem = new QTreeWidgetItem( m_pSoundLibraryTree );
 		m_pSongItem->setText( 0, trUtf8( "Songs" ) );
-		m_pSoundLibraryTree->setItemExpanded( m_pSongItem, true );
+		//m_pSoundLibraryTree->setItemExpanded( m_pSongItem, false );
+		m_pSongItem->setToolTip( 0, "double-click expand Songs list" );
 
 		for (uint i = 0; i < songList.size(); i++) 
 		{
 			QString absPath = DataPath::get_data_path() + "/songs/" + songList[i];
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( m_pSongItem );
 			pSongItem->setText( 0 , songList[ i ] );
+			pSongItem->setToolTip( 0, songList[ i ] );
 		}
 	}
 
@@ -148,16 +150,20 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	if ( patternList.size() > 0 )
 	{
-
+				
 		m_pPatternItem = new QTreeWidgetItem( m_pSoundLibraryTree );
 		m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
-		m_pSoundLibraryTree->setItemExpanded( m_pPatternItem, true );
+		//m_pSoundLibraryTree->setItemExpanded( m_pPatternItem, false );
+		m_pPatternItem->setToolTip( 0, "double-click expand Patterns list" );
 
 		for (uint i = 0; i < patternList.size(); i++) 
 		{
 			QString absPath = DataPath::get_data_path() + "/patterns/" + patternList[i];
 			QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( m_pPatternItem );
 			pPatternItem->setText( 0 , patternList[ i ] );
+			QString patternPath = Preferences::getInstance()->getDataDirectory() + "/patterns/" + patternList[i] + ".h2pattern";
+			QString drumkitName = mng.getDrumkitNameForPattern( patternPath );
+			pPatternItem->setToolTip( 0, drumkitName );
 		}
 	}
 

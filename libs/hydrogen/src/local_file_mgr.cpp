@@ -67,6 +67,25 @@ LocalFileMng::~LocalFileMng()
 }
 
 
+QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
+{
+	QString patternInfoFile = patternDir;
+
+	TiXmlDocument doc( patternInfoFile.toAscii() );
+	doc.LoadFile();
+
+	TiXmlNode* rootNode;	// root element
+	if ( !( rootNode = doc.FirstChild( "drumkit_pattern" ) ) ) {
+		ERRORLOG( "Error reading Pattern: Pattern_drumkit_infonode not found " + patternDir); return NULL;
+	}
+
+
+	QString sDrumkitName( LocalFileMng::readXmlString( rootNode,"pattern_for_drumkit", "" ) );
+	return sDrumkitName;
+	
+}
+
+
 Pattern* LocalFileMng::loadPattern( const QString& directory )
 {
 
