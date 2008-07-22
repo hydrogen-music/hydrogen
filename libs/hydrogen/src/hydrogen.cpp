@@ -2639,7 +2639,7 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 
 // 	std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector()[ humanpos - 1 ].get( 0 )->get_lenght();
 	
-	ERRORLOG( "Kick me!" );
+//	ERRORLOG( "Kick me!" );
 	if ( humanpos == 0 ) return 0;
 	Pattern *pPattern = columns->at( humanpos - 1 )->get( 0 );
 	if ( pPattern ) {

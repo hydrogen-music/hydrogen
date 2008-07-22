@@ -1041,9 +1041,10 @@ void SongEditorPatternList::patternPopup_delete()
 		pEngine->sequencer_setNextPattern( -1, false, false );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
 	}
 
-	pEngine->sequencer_stop();
+//	pEngine->sequencer_stop();
 
-	AudioEngine::get_instance()->lock( "SongEditorPatternList::patternPopup_delete" );
+// "lock engine" I am not sure, but think this is unnecessarily. -wolke-
+//	AudioEngine::get_instance()->lock( "SongEditorPatternList::patternPopup_delete" );
 
 	Song *song = pEngine->getSong();
 	PatternList *pSongPatternList = song->get_pattern_list();
@@ -1104,7 +1105,8 @@ void SongEditorPatternList::patternPopup_delete()
 
 	song->__is_modified = true;
 
-	AudioEngine::get_instance()->unlock();
+// "unlock" I am not sure, but think this is unnecessarily. -wolke-
+//	AudioEngine::get_instance()->unlock();
 
 	( HydrogenApp::getInstance() )->getSongEditorPanel()->updateAll();
 }
