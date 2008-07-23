@@ -156,6 +156,13 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		lashPollTimer->start(500);
 	}
 #endif
+
+//playlist display timer
+	QTimer *playlistDisplayTimer = new QTimer(this);
+	connect( playlistDisplayTimer, SIGNAL( timeout() ), this, SLOT( onPlaylistDisplayTimer() ) );
+	playlistDisplayTimer->start(15000);	// update player control at 
+// ~ playlist display timer
+
 }
 
 
@@ -1266,6 +1273,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		QKeyEvent *k = (QKeyEvent *)e;
 
 		// qDebug( "Got key press for instrument '%c'", k->ascii() );
+		int songnumber = 0;
 
 		switch (k->key()) {
 			case Qt::Key_Space:
@@ -1307,6 +1315,8 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
 					break;
 				Playlist::get_instance()->setPrevSongPlaylist();
+				songnumber = Playlist::get_instance()->getActiveSongNumber();
+				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
 				return TRUE;
 				break;
 
@@ -1314,6 +1324,8 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
 					break;
 				Playlist::get_instance()->setNextSongPlaylist();
+				songnumber = Playlist::get_instance()->getActiveSongNumber();
+				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
 				return TRUE;
 				break;
 
@@ -1676,4 +1688,16 @@ void MainForm::onAutoSaveTimer()
 
 	action_file_save();
 */
+}
+
+
+void MainForm::onPlaylistDisplayTimer()
+{
+	if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+					return;
+	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	if ( songnumber == -1 )
+					return; 
+	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Playlist: Aktiv song No. %1" ).arg( songnumber +1 ), 7500 );
+
 }

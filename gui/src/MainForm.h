@@ -112,6 +112,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 
 	private slots:
 		void onAutoSaveTimer();
+		void onPlaylistDisplayTimer();
 
 	private:
 		HydrogenApp* h2app;

@@ -658,6 +658,9 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	pH2App->setSong ( pSong );
 	engine->setSelectedPatternNumber ( 0 );
 
+
+	pH2App->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( index +1 ), 5000 );
+
 ///exec script
 ///this is very very simple and only an experiment
 
