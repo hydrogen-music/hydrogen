@@ -355,18 +355,19 @@ std::vector<QString> LocalFileMng::getPatternList()
 	return list;
 }
 
-std::vector<QString> LocalFileMng::getUserDrumkitList()
+
+
+std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory )
 {
+	/*
+		returns a list of all drumkits in the given directory
+	*/
+
 	std::vector<QString> list;
-
-	//QString sDirectory = QDir::homePath().append( "/.hydrogen/data" );
-	//QString sDirectory = ( Preferences::getInstance()->getDataDirectory() + "/drumkits").c_str();
-
-	QString sDirectory = Preferences::getInstance()->getDataDirectory();
 
 	QDir dir( sDirectory );
 	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[listUserDrumkits] Directory %1 not found" ).arg( sDirectory ) );
+		ERRORLOG( QString( "[getDrumkitList] Directory %1 not found" ).arg( sDirectory ) );
 	} else {
 		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
@@ -383,31 +384,15 @@ std::vector<QString> LocalFileMng::getUserDrumkitList()
 	return list;
 }
 
-
-
+std::vector<QString> LocalFileMng::getUserDrumkitList()
+{
+	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() );
+}
 
 std::vector<QString> LocalFileMng::getSystemDrumkitList()
 {
-	std::vector<QString> list;
-
-	QString sDirectory = DataPath::get_data_path() + "/drumkits";
-	QDir dir( sDirectory );
-	if ( !dir.exists() ) {
-		WARNINGLOG( QString( "Directory %1 not found" ).arg( sDirectory ) );
-	} else {
-		QFileInfoList fileList = dir.entryInfoList();
-		dir.setFilter( QDir::Dirs );
-		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = fileList.at( i ).fileName();
-			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" ) || ( sFile == ".svn" ) ) {
-				continue;
-			}
-			list.push_back( sFile );
-		}
-	}
-	return list;
+	return getDrumkitsFromDirectory( DataPath::get_data_path() + "/drumkits" );
 }
-
 
 
 QString LocalFileMng::getDrumkitDirectory( const QString& drumkitName )
