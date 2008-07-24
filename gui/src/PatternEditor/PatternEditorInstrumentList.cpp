@@ -571,6 +571,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
 	QString sText = event->mimeData()->text();
+	ERRORLOG(sText);
+	
+
+	if(sText.startsWith("Songs:") or sText.startsWith("Patterns:")) return;
 
 	if (sText.startsWith("move instrument:")) {
 
@@ -589,6 +593,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		event->acceptProposedAction();
 	}
 	else {
+		
 
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitName = tokens.at( 0 );
