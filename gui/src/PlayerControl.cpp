@@ -270,20 +270,6 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCBDownBtn->move( 65, 16 );
 	connect( m_pBCBDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bcbButtonClicked( Button* ) ) );
 
-	/*
-	m_pBCSpaceBtn = new ToggleButton(
-			m_pControlsBCPanel,
-			"/playerControlPanel/btn_mmc_space_on.png",
-			"/playerControlPanel/btn_mmc_space_off.png",
-			"/playerControlPanel/btn_mmc_space_off.png",
-			QSize(15, 13)
-	);
-	m_pBCSpaceBtn->move(4, 27);
-	m_pBCSpaceBtn->setPressed(false);
-	m_pBCSpaceBtn->setToolTip( trUtf8("Use BeatCounter by pressing the spacebar") );
-	connect(m_pBCSpaceBtn, SIGNAL(clicked(Button*)), this, SLOT(bcSpaceBtnClicked(Button*)));
-	*/
-
 	m_pBCSetPlayBtn = new ToggleButton(
 			m_pControlsBCPanel,
 			"/playerControlPanel/btn_set_play_on.png",
@@ -496,6 +482,13 @@ void PlayerControl::updatePlayerControl()
 	{
 		m_pControlsBCPanel->show();
 		m_pBConoffBtn->setPressed(true);
+	}
+
+	if ( pPref->m_mmcsetplay ==  Preferences::SET_PLAY_OFF) {
+		m_pBCSetPlayBtn->setPressed(false);
+	}else
+	{
+		m_pBCSetPlayBtn->setPressed(true);
 	}
 	//~ beatcounter
 
