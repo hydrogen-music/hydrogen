@@ -37,8 +37,11 @@
 #include <archive.h>		// used for drumkit install
 #include <archive_entry.h>	// used for drumkit install
 #else //use libtar
-#include <zlib.h>       // used for drumkit install
-#include <libtar.h>     // used for drumkit install
+	//disabled libtar on windows
+	#ifndef WIN32
+		#include <zlib.h>       // used for drumkit install
+		#include <libtar.h>     // used for drumkit install
+	#endif
 #endif
 
 #include <fcntl.h>
@@ -182,6 +185,8 @@ void Drumkit::install( const QString& filename )
 	archive_read_finish(drumkitFile);
 }
 #else //use libtar
+
+#ifndef WIN32
 void Drumkit::install( const QString& filename )
 {
         _INFOLOG( "[Drumkit::install] drumkit = " + filename );
@@ -220,6 +225,8 @@ void Drumkit::install( const QString& filename )
                 _ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( strerror( errno ) ) );
         }
 }
+#endif 
+
 #endif
 
 void Drumkit::save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense )
