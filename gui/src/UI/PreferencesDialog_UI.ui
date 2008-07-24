@@ -138,8 +138,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>529</width>
-      <height>341</height>
+      <width>537</width>
+      <height>355</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -186,8 +186,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>529</width>
-      <height>341</height>
+      <width>537</width>
+      <height>355</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -214,22 +214,6 @@
      </property>
      <property name="text" >
       <string>Restart output</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="connectDefaultsCheckBox" >
-     <property name="geometry" >
-      <rect>
-       <x>10</x>
-       <y>170</y>
-       <width>291</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text" >
-      <string>Connect to &amp;Default Output Pair</string>
-     </property>
-     <property name="shortcut" >
-      <string>Alt+D</string>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget" >
@@ -470,21 +454,37 @@
       </item>
      </layout>
     </widget>
-    <widget class="QCheckBox" name="trackOutsCheckBox" >
+    <widget class="QWidget" name="layoutWidget" >
      <property name="geometry" >
       <rect>
        <x>10</x>
        <y>190</y>
        <width>291</width>
-       <height>24</height>
+       <height>46</height>
       </rect>
      </property>
-     <property name="text" >
-      <string>Track Outputs</string>
-     </property>
-     <property name="shortcut" >
-      <string>Alt+D</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" >
+      <item>
+       <widget class="QCheckBox" name="connectDefaultsCheckBox" >
+        <property name="text" >
+         <string>Connect to &amp;Default Output Pair</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+D</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="trackOutsCheckBox" >
+        <property name="text" >
+         <string>Track Outputs</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+D</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="tab" >
