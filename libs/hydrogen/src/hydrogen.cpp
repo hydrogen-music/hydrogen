@@ -2555,13 +2555,19 @@ void Hydrogen::handleBeatCounter()
 						unsigned bcsamplerate = m_pAudioDriver->getSampleRate();
 						unsigned long rtstartframe = 0;
 						if ( m_ntaktoMeterCompute <= 1){
-							rtstartframe = bcsamplerate * beatDiffAverage * (1/m_ntaktoMeterCompute) + currentframe;
+							rtstartframe = bcsamplerate * beatDiffAverage * ( 1/ m_ntaktoMeterCompute ) ;
 						}else
 						{
-							rtstartframe = bcsamplerate * beatDiffAverage / m_ntaktoMeterCompute + currentframe;
+							rtstartframe = bcsamplerate * beatDiffAverage / m_ntaktoMeterCompute ;
 						}
-						//this is only to wait of the right startframe 
-						for ( unsigned long i = currentframe; i <= rtstartframe; i = getRealtimeFrames() ) ;
+
+						int sleeptime =  (float) rtstartframe / (float) bcsamplerate * ( int ) 1000 ;
+						#ifdef WIN32
+						sleep( sleeptime );
+						#else
+						usleep( 1000 * sleeptime );
+						#endif
+
 						sequencer_play();
 					}
 					
