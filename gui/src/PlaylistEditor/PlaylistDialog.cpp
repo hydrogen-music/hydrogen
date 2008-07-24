@@ -55,7 +55,29 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	installEventFilter(this);
 
 	
-	
+#ifdef WIN32
+	QStringList headers;
+	headers << trUtf8 ( "Song list" );
+	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
+	m_pPlaylistTree->setHeaderItem ( header );
+
+	addSongBTN->setEnabled ( true );
+	loadListBTN->setEnabled ( true );
+	removeFromListBTN->setEnabled ( false );
+	removeFromListBTN->setEnabled ( false );
+	saveListBTN->setEnabled ( false );
+	nodePlayBTN->setEnabled ( false );
+	loadScriptBTN->hide();
+	removeScriptBTN->hide();
+	editScriptBTN->hide();
+	newScriptBTN->hide();
+	clearPlBTN->setEnabled ( false );
+
+	QVBoxLayout *sideBarLayout = new QVBoxLayout(sideBarWidget);
+	sideBarLayout->setSpacing(0);
+	sideBarLayout->setMargin(0);
+
+#else	
 	QStringList headers;
 	headers << trUtf8 ( "Song list" ) << trUtf8 ( "Script" ) << trUtf8 ( "exec Script" );
 	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
@@ -78,7 +100,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	QVBoxLayout *sideBarLayout = new QVBoxLayout(sideBarWidget);
 	sideBarLayout->setSpacing(0);
 	sideBarLayout->setMargin(0);
-
+#endif
 
 	// zoom-in btn
 	Button *up_btn = new Button(
@@ -663,7 +685,10 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 ///exec script
 ///this is very very simple and only an experiment
-
+#ifdef WIN32
+	//I know nothing about windows scripts -wolke-
+	return;
+#else
 	QString execscript = "";
 	selected = m_pPlaylistItem->text ( 1 );
 	bool execcheckbox = m_pPlaylistItem->checkState ( 2 );
@@ -685,7 +710,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	std::system( file ); 
 	delete [] file;
 	return;
-
+#endif
 
 }
 

@@ -209,6 +209,10 @@ void Playlist::loadSong( QString songName )
 
 void Playlist::execScript( int index)
 {
+#ifdef WIN32
+	//I know nothing about windows scripts -wolke-
+	return;
+#else
 	QString file = "";
 	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
 
@@ -227,4 +231,5 @@ void Playlist::execScript( int index)
 	std::system( filen ); 
 	delete [] filen;
 	return;
+#endif
 }
