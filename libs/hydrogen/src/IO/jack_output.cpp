@@ -639,7 +639,7 @@ void JackOutput::setPortName( int nPort, bool bLeftChannel, const QString& sName
 
 int JackOutput::getNumTracks()
 {
-	INFOLOG( "get num tracks()" );
+//	INFOLOG( "get num tracks()" );
 	return track_port_count;
 }
 
