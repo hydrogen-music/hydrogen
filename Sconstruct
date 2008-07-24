@@ -55,24 +55,31 @@ def get_platform_flags():
 		if alsa: cppflags += " -DALSA_SUPPORT"
 		if jack: cppflags += " -DJACK_SUPPORT"
 		if lash: cppflags += " -DLASH_SUPPORT"
-		if libarchive: cppflags += " -DLIBARCHIVE_SUPPORT"
+		
 
 		cppflags += " -DFLAC_SUPPORT"
 		cppflags += " -DLADSPA_SUPPORT"
 		cppflags += " -DLRDF_SUPPORT"
 		cppflags += " -DOSS_SUPPORT"
-
+		
+		
+		includes.append( '/usr/lib/lash-1.0' )
+	
+	if libarchive: cppflags += " -DLIBARCHIVE_SUPPORT"
 
 	includes.append( './' )
 	includes.append( 'gui/src/' )
 	includes.append( '3rdparty/install/include' )
-	includes.append( '/usr/lib/lash-1.0' )
-
+	
 	if sys.platform == 'linux2':
 		ldflags += " -lasound"
 
 	elif sys.platform == 'darwin':
 		pass
+	elif sys.platform == "win32":
+		includes.append( '3rdparty\install\include' )
+		includes.append( 'build\pthreads\include' )	
+		includes.append( '3rdparty\libarchive\include' )
 	else:
 		raise Exception( "Platform '%s' not supported" % sys.platform )
 
@@ -84,7 +91,12 @@ def download_3rdparty_libs():
 	print " * Downloading required 3rdparty libraries"
 
 	curdir = os.path.abspath( os.path.curdir )
-	prefix = os.path.abspath( os.path.curdir ) + "/3rdparty/install"
+	
+	if sys.platform != "win32":
+		prefix = os.path.abspath( os.path.curdir ) + "/3rdparty/install"
+	else:
+		prefix = os.path.abspath( os.path.curdir ) + "\3rdparty\install"
+		
 
 	compile_flags = "--enable-static --disable-shared"
 
@@ -94,19 +106,37 @@ def download_3rdparty_libs():
 
 	if not os.path.exists( "3rdparty/install" ):
 		os.mkdir( "3rdparty/install" )
-
-
-	if not os.path.exists( "3rdparty/libsndfile.tar.gz" ):
-		print " * Downloading libsndfile"
-		urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1.0.17.tar.gz", "3rdparty/libsndfile.tar.gz")
-		
 	
-	if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
-		Execute( "cd 3rdparty; tar xzf libsndfile.tar.gz" )
-		Execute( "cd 3rdparty/libsndfile-1.0.17; ./configure --disable-flac --prefix=%s %s" % (prefix, compile_flags) )
-		res = Execute( "cd 3rdparty/libsndfile-1.0.17; make -j2; make install" )
-		if res != 0:
-			raise Exception( "Error compiling 3rdparty libraries" )
+	if not os.path.exists( "3rdparty/install/lib" ):
+		os.mkdir( "3rdparty/install/lib" )
+	
+	
+
+
+	if not os.path.exists( "3rdparty/libsndfile.tar.gz" ) and not os.path.exists("3rdparty/libsndfile.zip"):
+		if sys.platform != "win32":
+			print " * Downloading libsndfile.tar.gz"
+			urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1.0.17.tar.gz", "3rdparty/libsndfile.tar.gz")
+		else:
+			print " * Downloading libsndfile.zip"
+			urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1_0_17.zip", "3rdparty/libsndfile.zip")
+			
+	
+	if sys.platform != "win32":
+		#unix commands
+		if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
+			Execute( "cd 3rdparty; tar xzf libsndfile.tar.gz" )
+			Execute( "cd 3rdparty/libsndfile-1.0.17; ./configure --disable-flac --prefix=%s %s" % (prefix, compile_flags) )
+			res = Execute( "cd 3rdparty\libsndfile-1.0.17; make -j2; make install" )
+			if res != 0:
+				raise Exception( "Error compiling 3rdparty libraries" )
+	else:
+		#windows
+		if not os.path.exists( "3rdparty\install\lib\libsndfile-1.dll" ):
+			Execute( "unzip 3rdparty\libsndfile.zip -d 3rdparty" )
+			Execute( "copy 3rdparty\libsndfile-1_0_17\libsndfile-1.dll 3rdparty\install\lib")
+			Execute( "copy 3rdparty\libsndfile-1_0_17\sndfile.h 3rdparty\install\lib")
+		
 
 
 
@@ -122,7 +152,9 @@ def get_hydrogen_lib():
 	includes.append( "libs/hydrogen/include" )
 	includes.append( "/usr/include/lash-1.0")
 
-	qt4ToolLocation='.'
+	#location of qt4.py
+	qt4ToolLocation="."
+
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
 	env.CacheDir( "scons_cache" )
@@ -141,7 +173,9 @@ def get_hydrogen_gui( lib_hydrogen ):
 	includes.append( "gui/src/UI" )
 	includes.append( "/usr/include/lash-1.0")
 
-	qt4ToolLocation='.'
+	#location of qt4.py
+	qt4ToolLocation="."
+
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
 	env.CacheDir( "scons_cache" )
@@ -193,9 +227,19 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 opts = Options()
 opts.Add('debug', 'Set to 1 to build with debug informations', 0)
-opts.Add('lash', 'Set to 1 to enable lash',0)
-opts.Add('alsa', 'Set to 1 to enable alsa',1)
-opts.Add('jack', 'Set to 1 to enable jack',1)
+
+if sys.platform != "win32":
+	opts.Add('lash', 'Set to 1 to enable lash',0)
+	opts.Add('alsa', 'Set to 1 to enable alsa',1)
+	opts.Add('jack', 'Set to 1 to enable jack',1)
+
+else:
+	#alsa, lash and jack are not available on windows
+	opts.Add('lash', 'Set to 1 to enable lash',0)
+	opts.Add('alsa', 'Set to 1 to enable alsa',0)
+	opts.Add('jack', 'Set to 1 to enable jack',0)
+
+	
 opts.Add('libarchive', 'Set to 1 to enable libarchive instead of libtar', 0)
 opts.Add('prefix','Default: /usr/local',"/usr/local")
 opts.Add('destdir','Default: none',"")
@@ -210,8 +254,20 @@ libarchive = int(ARGUMENTS.get('libarchive', 0))
 install_prefix = ARGUMENTS.get('prefix',"/usr/local")
 destdir = ARGUMENTS.get('destdir',"")
 
-env = Environment(options = opts)
+
+#get includes ( important if you compile on non-standard envorionments)
+includes, a , b = get_platform_flags()
+env = Environment(options = opts, CPPPATH = includes)
+
 Help(opts.GenerateHelpText(env))
+
+
+platform = sys.platform
+
+#just download 3rd party libs if we're *not* running linux.
+#We trust in our package managment system!
+if platform == "darwin" or platform == "win32":
+    download_3rdparty_libs()
 
 
 
@@ -268,7 +324,6 @@ elif not libarchive and not conf.CheckCHeader("libtar.h"):
 
 
 
-platform = sys.platform
 
 print ""
 print "================================================================="
@@ -329,10 +384,6 @@ version.write( "static const std::string VERSION = \"0.9.4-svn\" + REVISION;\n" 
 version.write( "#endif\n" )
 version.close()
 
-#just download 3rd party libs if we're *not* running linux.
-#We trust in our package managment system!
-if platform != "linux2":
-    download_3rdparty_libs()
 
 libhyd = get_hydrogen_lib()
 app = get_hydrogen_gui( libhyd )
