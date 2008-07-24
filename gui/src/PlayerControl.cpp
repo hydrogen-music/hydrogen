@@ -221,14 +221,17 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCDisplayZ = new LCDDisplay( m_pControlsBCPanel, LCDDigit::LARGE_GRAY, 2 );
 	m_pBCDisplayZ->move( 36, 8 );
 	m_pBCDisplayZ->setText( "--" );
+	m_pBCDisplayZ->setToolTip( trUtf8("Key coma handle beatcounter") );
 
 	m_pBCDisplayT = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 1 );
 	m_pBCDisplayT->move( 23, 26 );
 	m_pBCDisplayT->setText( "4" );
+	m_pBCDisplayT->setToolTip( trUtf8("Note length") );	
 
 	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 2 );
 	m_pBCDisplayB->move( 39, 26 );
 	m_pBCDisplayB->setText( "4" );
+	m_pBCDisplayB->setToolTip( trUtf8("Strokes to count") );
 
 	m_pBCTUpBtn = new Button(
 			m_pControlsBCPanel,
