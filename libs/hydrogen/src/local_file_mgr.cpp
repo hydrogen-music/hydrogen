@@ -374,19 +374,56 @@ std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory 
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = fileList.at( i ).fileName();
 			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) || 
-			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" || sFile == "playlists" )) {
+			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" || sFile == "playlists" ) || (sFile == "scripts" )) {
 				continue;
 			}
-			list.push_back( sFile );
+			if(! sDirectory.endsWith("/")) sDirectory = sDirectory + "/";
+			list.push_back( sDirectory + sFile );
 		}
 	}
 
 	return list;
 }
 
+std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std::vector<QString> secondVector )
+{
+	/*
+		 merges two vectors ( containing drumkits). Elements of the first vector have priority
+	*/
+
+	if( firstVector.size() == 0 ) return secondVector;
+	if( secondVector.size() == 0 ) return firstVector;
+	
+	std::vector<QString> newVector;
+
+	newVector = firstVector;
+	newVector.resize(firstVector.size()+ secondVector.size());
+
+
+	for ( int i = 0; i < secondVector.size(); ++i ) 
+	{
+		QString toFind = secondVector[i];
+		
+		for ( int ii = 0; ii < firstVector.size(); ++ii ) 
+		{
+			if( toFind == firstVector[ii])
+			{
+				//the String already exists in firstVector, don't copy it to the resulting vector
+				break;
+			}
+		}
+		newVector[firstVector.size() + i] = toFind;
+	}
+
+	return newVector;
+}
+
+
 std::vector<QString> LocalFileMng::getUserDrumkitList()
 {
-	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() );
+	std::vector<QString> oldLocation = getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() );
+	std::vector<QString> newLocation = getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() + "drumkits" );
+	return mergeQStringVectors( newLocation ,  oldLocation );
 }
 
 std::vector<QString> LocalFileMng::getSystemDrumkitList()
@@ -400,7 +437,7 @@ QString LocalFileMng::getDrumkitDirectory( const QString& drumkitName )
 	// search in system drumkit
 	std::vector<QString> systemDrumkits = Drumkit::getSystemDrumkitList();
 	for ( unsigned i = 0; i < systemDrumkits.size(); i++ ) {
-		if ( systemDrumkits[ i ] == drumkitName ) {
+		if ( systemDrumkits[ i ].endsWith(drumkitName) ) {
 			QString path = QString( DataPath::get_data_path() ) + "/drumkits/";
 			return path;
 		}
@@ -409,9 +446,9 @@ QString LocalFileMng::getDrumkitDirectory( const QString& drumkitName )
 	// search in user drumkit
 	std::vector<QString> userDrumkits = Drumkit::getUserDrumkitList();
 	for ( unsigned i = 0; i < userDrumkits.size(); i++ ) {
-		if ( userDrumkits[ i ] == drumkitName ) {
+		if ( userDrumkits[ i ].endsWith(drumkitName) ) {
 			QString path = Preferences::getInstance()->getDataDirectory();
-			return path;
+			return userDrumkits[ i ].remove(userDrumkits[ i ].length() - drumkitName.length(),drumkitName.length());
 		}
 	}
 

@@ -190,7 +190,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); ++i) {
 		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
-		QString absPath = Preferences::getInstance()->getDataDirectory() + userList[i];
+		QString absPath =  userList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_userDrumkitInfoList.push_back( pInfo );
@@ -212,7 +212,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
 
 	for (uint i = 0; i < systemList.size(); i++) {
-		QString absPath = DataPath::get_data_path() + "/drumkits/" + systemList[i];
+		QString absPath = systemList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			m_systemDrumkitInfoList.push_back( pInfo );
