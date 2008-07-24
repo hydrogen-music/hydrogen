@@ -243,15 +243,18 @@ void HydrogenApp::setupSinglePanedInterface()
 }
 
 
+void HydrogenApp::closeFXProperties()
+{
+#ifdef LADSPA_SUPPORT
+	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
+		m_pLadspaFXProperties[nFX]->close();
+	}
+#endif
+}
 
 void HydrogenApp::setSong(Song* song)
 {
 
-#ifdef LADSPA_SUPPORT
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		m_pLadspaFXProperties[nFX]->hide();
-	}
-#endif
 
 	Song* oldSong = (Hydrogen::get_instance())->getSong();
 	if (oldSong != NULL) {

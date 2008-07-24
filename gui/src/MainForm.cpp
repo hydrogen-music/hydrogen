@@ -1174,6 +1174,7 @@ void MainForm::openSongFile( const QString& sFilename )
                 engine->sequencer_stop();
 	}
 
+	h2app->closeFXProperties();
 	LocalFileMng mng;
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == NULL ) {

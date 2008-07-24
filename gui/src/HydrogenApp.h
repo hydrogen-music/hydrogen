@@ -89,6 +89,7 @@ class HydrogenApp : public QObject, public Object
 #endif
 		void addEventListener( EventListener* pListener );
 		void removeEventListener( EventListener* pListener );
+		void closeFXProperties();
 
 	public slots:
 		void onEventQueueTimer();
