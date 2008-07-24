@@ -91,9 +91,12 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
 
+
 #ifdef JACK_SUPPORT
+	int numtracks = ( ( JackOutput* )__audio_output )->getNumTracks( );
+
 	if ( __audio_output->has_track_outs() ) {
-		for(int nTrack = 0; nTrack < ( ( JackOutput* )__audio_output )->getNumTracks( ); nTrack++) {
+		for(int nTrack = 0; nTrack < numtracks; nTrack++) {
 			memset( __track_out_L[nTrack], 0, ( ( JackOutput* )__audio_output )->getBufferSize( ) * sizeof( float ) );
 			memset( __track_out_R[nTrack], 0, ( ( JackOutput* )__audio_output )->getBufferSize( ) * sizeof( float ) );
 		}
