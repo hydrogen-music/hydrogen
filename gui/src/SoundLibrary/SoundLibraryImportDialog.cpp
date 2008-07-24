@@ -254,14 +254,14 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	{
 		std::vector<QString> systemList = H2Core::Drumkit::getSystemDrumkitList();
 		for ( uint i = 0; i < systemList.size(); ++i ) {
-			if ( systemList[ i ] == soundLibraryItemName ) {
+			if ( systemList[ i ].endsWith(soundLibraryItemName) ) {
 				return true;
 			}
 		}
 
 		std::vector<QString> userList = H2Core::Drumkit::getUserDrumkitList();
 		for ( uint i = 0; i < userList.size(); ++i ) {
-			if ( userList[ i ] == soundLibraryItemName ) {
+			if ( userList[ i ].endsWith(soundLibraryItemName) ) {
 				return true;
 			}
 		}

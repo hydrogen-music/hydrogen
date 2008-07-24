@@ -140,7 +140,7 @@ void Drumkit::dump()
 void Drumkit::install( const QString& filename )
 {
 	_INFOLOG( "[Drumkit::install] drumkit = " + filename );
-	QString dataDir = Preferences::getInstance()->getDataDirectory();
+	QString dataDir = Preferences::getInstance()->getDataDirectory() + "drumkits/";
 
 	int r;
 	struct archive *drumkitFile;
@@ -190,7 +190,7 @@ void Drumkit::install( const QString& filename )
 void Drumkit::install( const QString& filename )
 {
         _INFOLOG( "[Drumkit::install] drumkit = " + filename );
-        QString dataDir = Preferences::getInstance()->getDataDirectory();
+        QString dataDir = Preferences::getInstance()->getDataDirectory() + "drumkits/";
 
         // GUNZIP !!!
         QString gunzippedName = filename.left( filename.indexOf( "." ) );
