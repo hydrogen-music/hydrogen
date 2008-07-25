@@ -225,6 +225,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
 	patternModeFollowsSelection->setChecked( pPref->patternModePlaysSelected() );
+	useLashCheckbox->setChecked(pPref->useLash());
 
 	m_bNeedDriverRestart = false;
 }
@@ -359,6 +360,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->setPatternModePlaysSelected( patternModeFollowsSelection->isChecked() );
+	pPref->setUseLash( useLashCheckbox->isChecked() );
 
 	pPref->savePreferences();
 

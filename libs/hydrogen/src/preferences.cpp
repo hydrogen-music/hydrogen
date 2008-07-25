@@ -224,6 +224,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
+			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			recordEvents = LocalFileMng::readXmlBool( rootNode, "recordEvents", recordEvents );
@@ -533,6 +534,9 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( &rootNode, "restoreLastSong", restoreLastSong ? "true": "false" );
 	
 	LocalFileMng::writeXmlString( &rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
+
+	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bUseLash ? "true": "false" );
+
 
 	//show development version warning
 	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

@@ -427,6 +427,13 @@ public:
 		m_bPatternModePlaysSelected = b;
 	}
 
+	bool useLash(){
+		return m_bUseLash;
+	}
+	void setUseLash( bool b ){
+		m_bUseLash = b;
+	}
+
 private:
 	static Preferences *instance;
 
@@ -439,6 +446,7 @@ private:
 	//___ General properties ___
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
 	bool restoreLastSong;		///< Restore last song?
+	bool m_bUseLash;
 	bool m_bShowDevelWarning;	///< Show development version warning?
 	QString lastSongFilename;	///< Last song used
 	bool hearNewNotes;
