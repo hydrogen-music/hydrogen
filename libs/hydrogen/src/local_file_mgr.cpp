@@ -172,7 +172,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 	Pattern *pat = song->get_pattern_list()->get( selectedpattern );
 
-	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name();
+	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() + "drumkits/" +  instr->get_drumkit_name();
 
 	INFOLOG( "[savePattern]" + sDrumkitDir );
 
@@ -247,20 +247,27 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.InsertEndChild( rootNode );
 	doc.SaveFile();
 
-//linux only. This is a workaround in agog of LIB_ID
+
+
+// This is a workaround in agog of LIB_ID
 	if ( mode == 1 ){
 
+		sPatternXmlFilename.replace(QRegExp(" "), "\\ ");
+
 		QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns/" ;
+#ifdef WIN32
+// ??? 		QString filename = "xcopy " + sPatternXmlFilename + " " + sDirectory + " &";	
+#else
 		QString filename = "/bin/ln -s " + sPatternXmlFilename + " " + sDirectory + " &";
 		//WARNINGLOG( "linke Patternfile" + filename );
-		
+#endif		
 		char *file;
 		file = new char[filename.length() + 1];
 		strcpy(file, filename.toAscii());
 		std::system(file); 
 		delete [] file;
 	}
-//~ linux only
+//~ This is a workaround in agog of LIB_ID
 
 	return 0; // ok
 }

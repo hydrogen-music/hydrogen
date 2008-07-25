@@ -929,7 +929,7 @@ void SongEditorPatternList::patternPopup_load()
 	Instrument *instr = song->get_instrument_list()->get( 0 );
 	assert( instr );
 	
-	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() +  instr->get_drumkit_name();
+	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() + "drumkits/" + instr->get_drumkit_name();
 	
 	QDir dirPattern( sDrumkitDir + "/Pattern" );
 	QFileDialog *fd = new QFileDialog(this);
