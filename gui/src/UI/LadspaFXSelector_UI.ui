@@ -31,16 +31,7 @@
     <property name="spacing" >
      <number>6</number>
     </property>
-    <property name="leftMargin" >
-     <number>0</number>
-    </property>
-    <property name="topMargin" >
-     <number>0</number>
-    </property>
-    <property name="rightMargin" >
-     <number>0</number>
-    </property>
-    <property name="bottomMargin" >
+    <property name="margin" >
      <number>0</number>
     </property>
     <item>
@@ -51,7 +42,7 @@
       <property name="sizeType" >
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0" >
        <size>
         <width>20</width>
         <height>0</height>
@@ -117,7 +108,7 @@
       <property name="sizeType" >
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0" >
        <size>
         <width>20</width>
         <height>0</height>
@@ -216,7 +207,11 @@
      </font>
     </property>
     <property name="text" >
-     <string>Name:</string>
+     <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Name:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
     </property>
    </widget>
    <widget class="QLabel" name="m_nameLbl" >
@@ -225,23 +220,27 @@
       <x>10</x>
       <y>40</y>
       <width>180</width>
-      <height>20</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text" >
-     <string>### fx name</string>
+     <string>### fx name
+1</string>
     </property>
     <property name="alignment" >
      <set>Qt::AlignTop</set>
+    </property>
+    <property name="wordWrap" >
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="textLabel2" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>81</y>
       <width>180</width>
-      <height>20</height>
+      <height>19</height>
      </rect>
     </property>
     <property name="font" >
@@ -255,14 +254,18 @@
      </font>
     </property>
     <property name="text" >
-     <string>Label:</string>
+     <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Label:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
     </property>
    </widget>
    <widget class="QLabel" name="m_labelLbl" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>101</y>
       <width>180</width>
       <height>20</height>
      </rect>
@@ -273,12 +276,15 @@
     <property name="alignment" >
      <set>Qt::AlignTop</set>
     </property>
+    <property name="wordWrap" >
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="textLabel3" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>100</y>
+      <y>126</y>
       <width>80</width>
       <height>20</height>
      </rect>
@@ -294,14 +300,18 @@
      </font>
     </property>
     <property name="text" >
-     <string>Type:</string>
+     <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Type:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
     </property>
    </widget>
    <widget class="QLabel" name="textLabel1_2" >
     <property name="geometry" >
      <rect>
       <x>100</x>
-      <y>100</y>
+      <y>126</y>
       <width>90</width>
       <height>20</height>
      </rect>
@@ -317,14 +327,18 @@
      </font>
     </property>
     <property name="text" >
-     <string>ID:</string>
+     <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">ID:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
     </property>
    </widget>
    <widget class="QLabel" name="m_typeLbl" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>120</y>
+      <y>146</y>
       <width>80</width>
       <height>20</height>
      </rect>
@@ -340,7 +354,7 @@
     <property name="geometry" >
      <rect>
       <x>100</x>
-      <y>120</y>
+      <y>146</y>
       <width>90</width>
       <height>20</height>
      </rect>
@@ -356,7 +370,7 @@
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>140</y>
+      <y>169</y>
       <width>180</width>
       <height>20</height>
      </rect>
@@ -372,34 +386,39 @@
      </font>
     </property>
     <property name="text" >
-     <string>Maker:</string>
+     <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Maker:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
     </property>
    </widget>
    <widget class="QLabel" name="m_pMakerLbl" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>160</y>
+      <y>189</y>
       <width>180</width>
-      <height>80</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="text" >
      <string>### FX maker
 1
-2
-3
-4</string>
+2</string>
     </property>
     <property name="alignment" >
      <set>Qt::AlignTop</set>
+    </property>
+    <property name="wordWrap" >
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="textLabel5" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>240</y>
+      <y>250</y>
       <width>180</width>
       <height>20</height>
      </rect>
@@ -415,33 +434,38 @@
      </font>
     </property>
     <property name="text" >
-     <string>Copyright:</string>
+     <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Copyright:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
     </property>
    </widget>
    <widget class="QLabel" name="m_pCopyrightLbl" >
     <property name="geometry" >
      <rect>
       <x>10</x>
-      <y>260</y>
+      <y>270</y>
       <width>180</width>
-      <height>80</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text" >
      <string>### copyright
 1
 2
-3
-4</string>
+3</string>
     </property>
     <property name="alignment" >
      <set>Qt::AlignTop</set>
+    </property>
+    <property name="wordWrap" >
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <includes/>
  <resources/>
  <connections>
   <connection>

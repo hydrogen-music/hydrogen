@@ -240,6 +240,17 @@ void Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "recentUsedSongs node not found" );
 			}
 
+			TiXmlNode* pRecentFXNode = rootNode->FirstChild( "recentlyUsedEffects" );
+			if ( pRecentFXNode ) {
+				TiXmlNode* pFXNode = 0;
+				for ( pFXNode = pRecentFXNode->FirstChild( "FX" ); pFXNode; pFXNode = pFXNode->NextSibling( "FX" ) ) {
+					QString sFXName = pFXNode->FirstChild()->Value();
+					m_recentFX.push_back( sFXName );
+				}
+			} else {
+				WARNINGLOG( "recentlyUsedEffects node not found" );
+			}
+
 			sServerList.clear();
 			TiXmlNode* pServerListNode = rootNode->FirstChild( "serverList" );
 			if ( pServerListNode ) {
@@ -545,6 +556,17 @@ void Preferences::savePreferences()
 		}
 	}
 	rootNode.InsertEndChild( recentUsedSongsNode );
+	
+	TiXmlElement recentFXNode( "recentlyUsedEffects" );
+	{
+		int nFX = 0;
+		QString FXname;
+		foreach( FXname, m_recentFX ) {
+			LocalFileMng::writeXmlString( &recentFXNode, "FX", FXname );
+			if ( ++nFX > 10 ) break;
+		}
+	}
+	rootNode.InsertEndChild( recentFXNode );
 
 
 	std::list<QString>::const_iterator cur_Server;
@@ -827,7 +849,15 @@ void Preferences::createSoundLibraryDirectories()
 }
 
 
-
+void Preferences::setMostRecentFX( QString FX_name )
+{
+	int pos = m_recentFX.indexOf( FX_name );
+	
+	if ( pos != -1 )
+		m_recentFX.removeAt( pos );
+	
+	m_recentFX.push_front( FX_name );
+}
 
 void Preferences::setRecentFiles( std::vector<QString> recentFiles )
 {

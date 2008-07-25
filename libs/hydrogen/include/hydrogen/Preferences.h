@@ -264,6 +264,11 @@ public:
 	}
 	void setRecentFiles( std::vector<QString> recentFiles );
 
+	QStringList getRecentFX() {
+		return m_recentFX;
+	}
+	void setMostRecentFX( QString );
+
 	std::vector<QString> getLadspaPath() {
 		return m_ladspaPathVect;
 	}
@@ -438,6 +443,7 @@ private:
 	QString lastSongFilename;	///< Last song used
 	bool hearNewNotes;
 	std::vector<QString> m_recentFiles;
+	QStringList m_recentFX;
 	std::vector<QString> m_ladspaPathVect;
 	bool quantizeEvents;
 	bool recordEvents;

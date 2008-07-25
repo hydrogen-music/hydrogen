@@ -24,6 +24,7 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/fx/Effects.h>
+#include <hydrogen/Preferences.h>
 #include <hydrogen/IO/AudioOutput.h>
 using namespace H2Core;
 

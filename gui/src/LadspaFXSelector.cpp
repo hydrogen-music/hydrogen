@@ -25,6 +25,7 @@
 #include <hydrogen/hydrogen.h>
 #include "Skin.h"
 #include <hydrogen/Song.h>
+#include <hydrogen/Preferences.h>
 
 #include <hydrogen/fx/Effects.h>
 
@@ -105,7 +106,7 @@ void LadspaFXSelector::buildLadspaGroups()
 	pRootItem->setText( 0, trUtf8("Groups") );
 	m_pGroupsListView->addTopLevelItem( pRootItem );
 	m_pGroupsListView->setItemExpanded( pRootItem, true );
-
+	
 	H2Core::LadspaFXGroup* pFXGroup = Effects::getInstance()->getLadspaFXGroup();
 	for (uint i = 0; i < pFXGroup->getChildList().size(); i++) {
 		H2Core::LadspaFXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
@@ -125,6 +126,9 @@ void LadspaFXSelector::addGroup( QTreeWidgetItem *pItem, H2Core::LadspaFXGroup *
 	}
 	else if (sGroupName == QString("Categorized(LRDF)")) {
 		sGroupName = trUtf8("Categorized (LRDF)");
+	}
+	else if (sGroupName == QString("Recently Used")) {
+		sGroupName = trUtf8("Recently Used");
 	}
 	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( pItem );
 	pNewItem->setText( 0, sGroupName );
@@ -151,7 +155,6 @@ QString LadspaFXSelector::getSelectedFX()
 {
 	return m_sSelectedPluginName;
 }
-
 
 
 void LadspaFXSelector::pluginSelected()
@@ -213,13 +216,17 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 	m_pCopyrightLbl->setText( QString("") );
 
 	// nothing was selected
-	if ( m_pGroupsListView->selectedItems().size() == 0 ) {
+	if ( currentItem == NULL ) {
 		return;
+	}
+	
+	if ( currentItem->childCount() ) {
+		currentItem->setExpanded( true );
 	}
 
 	QString itemText = currentItem->text( 0 );
 
-	//m_pPluginsListBox->clear();
+	//m_pPluginsListBox->clear(); // ... Why not anyway ? Jakob Lund
 
 	while( m_pPluginsListBox->count() != 0) {
 		m_pPluginsListBox->takeItem( 0 );

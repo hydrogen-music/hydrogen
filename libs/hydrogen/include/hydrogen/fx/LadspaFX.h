@@ -73,6 +73,11 @@ public:
 	std::vector<LadspaFXGroup*> getChildList() {
 		return m_childGroups;
 	}
+	
+	void clear() {
+		m_childGroups.clear();
+		m_ladspaList.clear();
+	}
 
 private:
 	QString m_sName;

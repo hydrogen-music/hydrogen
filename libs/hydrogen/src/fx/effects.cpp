@@ -48,6 +48,7 @@ Effects* Effects::m_pInstance = NULL;
 Effects::Effects()
 		: Object( "Effects" )
 		, m_pRootGroup( NULL )
+		, m_pRecentGroup( NULL )
 {
 	//INFOLOG( "INIT" );
 
@@ -74,8 +75,8 @@ Effects* Effects::getInstance()
 Effects::~Effects()
 {
 	//INFOLOG( "DESTROY" );
-	delete getLadspaFXGroup();
-
+	if ( m_pRootGroup != NULL ) delete m_pRootGroup;
+	
 	//INFOLOG( "destroying " + to_string( m_pluginList.size() ) + " LADSPA plugins" );
 	for ( unsigned i = 0; i < m_pluginList.size(); i++ ) {
 		delete m_pluginList[i];
@@ -111,6 +112,12 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	}
 
 	m_FXList[ nFX ] = pFX;
+	
+	if ( pFX != NULL ) {
+		Preferences::getInstance()->setMostRecentFX( pFX->getPluginName() );
+		updateRecentGroup();
+	}
+
 
 	AudioEngine::get_instance()->unlock();
 }
@@ -231,6 +238,11 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	}
 
 	m_pRootGroup = new LadspaFXGroup( "Root" );
+	
+	// Adding recent FX.
+	m_pRecentGroup = new LadspaFXGroup( "Recently Used" );
+	m_pRootGroup->addChild( m_pRecentGroup );
+	updateRecentGroup();
 
 	LadspaFXGroup *pUncategorizedGroup = new LadspaFXGroup( "Uncategorized" );
 	m_pRootGroup->addChild( pUncategorizedGroup );
@@ -273,6 +285,24 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	return m_pRootGroup;
 }
 
+void Effects::updateRecentGroup()
+{
+	if ( m_pRecentGroup == NULL )
+		return;  // Too early :s
+	
+	m_pRecentGroup->clear();
+	
+
+	QString sRecent; // The recent fx names sit in the preferences object
+	foreach ( sRecent, Preferences::getInstance()->getRecentFX() ) {
+		for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
+			if ( sRecent == (*i)->m_sName ) {
+				m_pRecentGroup->addLadspaInfo( *i );
+				break;
+			}
+		}
+	}
+}
 
 #ifdef LRDF_SUPPORT
 

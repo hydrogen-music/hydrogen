@@ -54,6 +54,9 @@ private:
 	static Effects* m_pInstance;
 	std::vector<LadspaFXInfo*> m_pluginList;
 	LadspaFXGroup* m_pRootGroup;
+	LadspaFXGroup* m_pRecentGroup;
+	
+	void updateRecentGroup();
 
 	LadspaFX* m_FXList[ MAX_FX ];
 
