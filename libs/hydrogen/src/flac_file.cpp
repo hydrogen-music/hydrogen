@@ -169,7 +169,7 @@ void FLACFile_real::load( const QString& sFilename )
 	set_metadata_ignore_all();
 
 #ifdef LEGACY_FLAC
-	set_filename( sFilename.c_str() );
+	set_filename( sFilename.toAscii() );
 
 	State s=init();
 	if ( s != FLAC__FILE_DECODER_OK ) {
