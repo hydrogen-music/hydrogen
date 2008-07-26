@@ -873,6 +873,10 @@ http://www.hydrogen-music.org
         <source>Not supported</source>
         <translation>Nie wspierane</translation>
     </message>
+    <message>
+        <source>Recently Used</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXSelector_UI</name>
@@ -898,15 +902,15 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Name:</source>
-        <translation>Nazwa:</translation>
+        <translation type="obsolete">Nazwa:</translation>
     </message>
     <message>
         <source>### fx name</source>
-        <translation>### nazwa efektu</translation>
+        <translation type="obsolete">### nazwa efektu</translation>
     </message>
     <message>
         <source>Label:</source>
-        <translation>Etykieta:</translation>
+        <translation type="obsolete">Etykieta:</translation>
     </message>
     <message>
         <source>### fx label</source>
@@ -914,11 +918,11 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Type:</source>
-        <translation>Typ:</translation>
+        <translation type="obsolete">Typ:</translation>
     </message>
     <message>
         <source>ID:</source>
-        <translation>ID:</translation>
+        <translation type="obsolete">ID:</translation>
     </message>
     <message>
         <source>### fx type</source>
@@ -930,7 +934,7 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Maker:</source>
-        <translation>Twórca:</translation>
+        <translation type="obsolete">Twórca:</translation>
     </message>
     <message>
         <source>### FX maker
@@ -938,11 +942,11 @@ http://www.hydrogen-music.org
 2
 3
 4</source>
-        <translation>### twórca efektu1234</translation>
+        <translation type="obsolete">### twórca efektu1234</translation>
     </message>
     <message>
         <source>Copyright:</source>
-        <translation>Copyright:</translation>
+        <translation type="obsolete">Copyright:</translation>
     </message>
     <message>
         <source>### copyright
@@ -950,11 +954,80 @@ http://www.hydrogen-music.org
 2
 3
 4</source>
-        <translation>### copyright1234</translation>
+        <translation type="obsolete">### copyright1234</translation>
     </message>
     <message>
         <source>1</source>
         <translation type="unfinished">1</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### fx name
+1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### FX maker
+1
+2</source>
+        <translation type="unfinished">### twórca efektu1234 {1
+2?}</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### copyright
+1
+2
+3</source>
+        <translation type="unfinished">### copyright1234 {1
+2
+3?}</translation>
     </message>
 </context>
 <context>
@@ -1225,6 +1298,14 @@ The song has unsaved changes
         <source>Don&apos;t show this message anymore</source>
         <translation type="unfinished">Nie pokazuj więcej tego komunikatu</translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Aktiv song No. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1316,7 +1397,11 @@ The song has unsaved changes
     </message>
     <message>
         <source>Set instrument pan [%1]</source>
-        <translation>Ustawia  panoramę instrumentu [%1]</translation>
+        <translation type="obsolete">Ustawia  panoramę instrumentu [%1]</translation>
+    </message>
+    <message>
+        <source>Set instr. pan [%1]</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1454,6 +1539,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>Piano</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1635,6 +1724,54 @@ The song has unsaved changes
         <source>Loop song = Off</source>
         <translation>Zapętlanie utworu = Wyłączone</translation>
     </message>
+    <message>
+        <source>BeatCounter Panel on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key coma handle beatcounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strokes to count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack-Time-Master on/off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> BC Panel on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> BC Panel off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Jack-Time-Master mode = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Jack-Time-Master mode = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog</name>
@@ -1656,7 +1793,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Zoom in</source>
-        <translation type="unfinished">Powiększenie</translation>
+        <translation type="obsolete">Powiększenie</translation>
     </message>
     <message>
         <source>Add Song to PlayList</source>
@@ -1691,12 +1828,6 @@ The song has unsaved changes
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Script name or path to the script contains whitespaces.
-IMPORTANT
-The path to the script and the scriptname must without  whitespaces.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No Script in use!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1717,6 +1848,32 @@ Sorry, but this will not work for the moment.</source>
     <message>
         <source>Error loading song.</source>
         <translation type="unfinished">Błąd podczas ładowania utworu.</translation>
+    </message>
+    <message>
+        <source>sort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Scripts (*.sh)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1758,10 +1915,6 @@ Sorry, but this will not work for the moment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable selected script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Play selected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1770,7 +1923,11 @@ Sorry, but this will not work for the moment.</source>
         <translation type="unfinished">Stop</translation>
     </message>
     <message>
-        <source>Open the selected script with your preferred editor     </source>
+        <source>Clear playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Script</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2071,6 +2228,14 @@ Sorry, but this will not work for the moment.</source>
         <source>Track Outputs</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Always play selected pattern in Pattern Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use lash</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
@@ -2143,6 +2308,18 @@ Kontynuować?</translation>
         <source>Pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>stacked mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>stacked pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPatternList</name>
@@ -2168,6 +2345,18 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>Save Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Song (*.h2pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
