@@ -1,44 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1">
+<!DOCTYPE TS><TS>
 <context>
     <name>@default</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Rewind</source>
         <translation type="obsolete">Regresar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Play/ Pause</source>
         <translation type="obsolete">Tocar/ Pausa</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Stop</source>
         <translation type="obsolete">Parar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Fast Forward</source>
         <translation type="obsolete">Adelantar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Loop song</source>
         <translation type="obsolete">Repetir canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Stopped.</source>
         <translation type="obsolete">Parado.</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Song mode selected.</source>
         <translation type="obsolete">Modo canción seleccionado.</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern mode selected.</source>
         <translation type="obsolete">Modo de patrón seleccionado.</translation>
     </message>
@@ -46,147 +37,118 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - About</source>
         <translation type="obsolete">Hydrogen - Acerca de</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;Compiled modules: </source>
         <translation type="obsolete">&lt;i&gt;Módulos compilados:</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AboutDialog.cpp.svn-base" line="58"/>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Página del proyecto&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;b&gt;Mailing lists:&lt;/b&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;b&gt;Listas de correo:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;b&gt;Authors:&lt;/b&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;b&gt;Autores:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Maintainer, main coder&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">Mantenedor, programador principal&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Drumkits and demo songs&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
         <translation type="obsolete">Drumkits y canciones de ejemplo&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Testing, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Pruebas, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Faq, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Faq, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Patches, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parches, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;NetBSD patch&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parche para NetBSD&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Packages&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Paquetes&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Russian translation&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Traducción al ruso&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Jack patches, bug fix&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parches para Jack, arreglo de errores&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Spanish manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Manual en español&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Bug reports, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Notificación de fallos, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Demo songs, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Canciones de demostración, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parches para Jack&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;German manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Manual en alemán&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;French translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Traducción al francés&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Spanish translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Traducción al español&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Italian manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Manual en italiano&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AboutDialog.cpp.svn-base" line="47"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;Compiled modules: %1&lt;/i&gt;&lt;/center&gt;</source>
         <translation type="obsolete">&lt;i&gt;Módulos compilados: %1&lt;/i&gt;&lt;/center&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;&lt;ul&gt;Bug fix, test&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
         <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Arreglo de errores, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AboutDialog.cpp.svn-base" line="102"/>
         <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Programador principal y mantenedor:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AboutDialog.cpp.svn-base" line="56"/>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Página web&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AboutDialog.cpp.svn-base" line="60"/>
         <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Listas de correo&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AboutDialog.cpp.svn-base" line="106"/>
         <source>Translator:%1Alessandro Cominu</source>
         <translation>Traductor: %1 Alessandro Cominu</translation>
     </message>
@@ -194,37 +156,30 @@
 <context>
     <name>AboutDialog_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>About Hydrogen...</source>
         <translation type="obsolete">Acerca de...</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>About</source>
         <translation type="obsolete">Acerca de</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Authors</source>
         <translation type="obsolete">Autores</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>License</source>
         <translation type="obsolete">Licencia</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Ok</source>
         <translation type="obsolete">Ok</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="115"/>
         <source>###</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>This program is distributed under the terms of the GPL v2.
 
 <byte value="x9"/><byte value="x9"/>    GNU GENERAL PUBLIC LICENSE
@@ -720,37 +675,30 @@ Pepito Grillo, Presidente de Asuntillos Varios.
  Esta Licencia Pública General no permite que incluya sus programas en programas propietarios. Si su programa es una biblioteca de subrutinas, puede considerar más útil el permitir el enlazado de aplicaciones propietarias con la biblioteca. Si este es el caso, use la Licencia Pública General de GNU para Bibliotecas en lugar de esta Licencia.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="112"/>
         <source>About Hydrogen</source>
         <translation>Acerca de Hydrogen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="116"/>
         <source>A&amp;bout</source>
         <translation>Ace&amp;rca</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="117"/>
         <source>&amp;Authors</source>
         <translation>&amp;Autores</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="530"/>
         <source>&amp;License</source>
         <translation>&amp;Licencia</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="113"/>
         <source>&amp;OK</source>
         <translation>&amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="114"/>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_about_dialog.h" line="529"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1102,12 +1050,10 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Audio Engine Info</source>
         <translation type="obsolete">Hydrogen - Información del motor de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/AudioEngineInfoForm.cpp.svn-base" line="53"/>
         <source>Audio Engine Info</source>
         <translation>Información del motor de sonido</translation>
     </message>
@@ -1115,147 +1061,118 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Engine Info</source>
         <translation type="obsolete">Información del motor de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="341"/>
         <source>Playing notes</source>
         <translation>Polifonía</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="347"/>
         <source>Process time</source>
         <translation>Tiempo de elaboración</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Current pattern</source>
         <translation type="obsolete">Patrón actual</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="343"/>
         <source>Audio engine state</source>
         <translation>Estado del motor de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="351"/>
         <source>Song state</source>
         <translation>Estado de la canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio Driver Info</source>
         <translation type="obsolete">Información del controlador de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="367"/>
         <source>Buffer size</source>
         <translation>Tamaño del buffer</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio driver</source>
         <translation type="obsolete">Controlador de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="371"/>
         <source>Sample rate</source>
         <translation>Tasa de sampleo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Midi driver</source>
         <translation type="obsolete">Controlador Midi</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Close</source>
         <translation type="obsolete">Cerrar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="335"/>
         <source>Form1</source>
         <translation>Forma1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="373"/>
         <source>###</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="374"/>
         <source>Frames</source>
         <translation>Marcos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="358"/>
         <source>Ticks</source>
         <translation>Partes</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Midi Driver Info</source>
         <translation type="obsolete">Información del controlador Midi</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="353"/>
         <source>Song position</source>
         <translation>Posición de la canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="354"/>
         <source>Patterns</source>
         <translation>Patrones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="352"/>
         <source>Selected pattern</source>
         <translation>Patrón seleccionado</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="342"/>
         <source>Selected instrument</source>
         <translation>Instrumento seleccionado</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="362"/>
         <source>Connected to</source>
         <translation>Conectado a</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="336"/>
         <source>Synth</source>
         <translation>Sintetizador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="339"/>
         <source>Sampler</source>
         <translation>Sampler</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="348"/>
         <source>Sequencer</source>
         <translation>Secuenciador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="359"/>
         <source>MIDI input</source>
         <translation>Entrada MIDI</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="372"/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="364"/>
         <source>Audio output</source>
         <translation>Salida de Audio</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="366"/>
         <source>Realtime frames</source>
         <translation>Marcos en tiempo real</translation>
     </message>
@@ -1263,27 +1180,22 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DelayFxMixerLine</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delay time</source>
         <translation type="obsolete">Tiempo eco</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Feedback</source>
         <translation type="obsolete">Retroalimentación</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set delay feedback [</source>
         <translation type="obsolete">Feedback del eco [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set delay time [</source>
         <translation type="obsolete">Tiempo eco [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delay time </source>
         <translation type="obsolete">Tiempo eco</translation>
     </message>
@@ -1291,7 +1203,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DownloadWidget</name>
     <message>
-        <location filename="../../gui/src/widgets/.svn/text-base/DownloadWidget.cpp.svn-base" line="211"/>
         <source>(%1K/%2K) - ETA %3</source>
         <translation>(%1K/%2K) - TEA %3</translation>
     </message>
@@ -1299,57 +1210,46 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DrumkitManager</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Drumkit manager</source>
         <translation type="obsolete">Hydrogen - Gestor de drumkits</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - import drumkit</source>
         <translation type="obsolete">Hydrogen - Importar drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - export drumkit</source>
         <translation type="obsolete">Hydrogen - Exportar drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
         <translation type="obsolete">Nombre: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Author: %1</source>
         <translation type="obsolete">Autor: %1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Info: &lt;br&gt;%1</source>
         <translation type="obsolete">Información: &lt;br&gt;%1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Drumkit loaded: [%1]</source>
         <translation type="obsolete">Instrumento cargado: [%1]</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Drumkit manager</source>
         <translation type="obsolete">Administrador de drumkits</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Import drumkit</source>
         <translation type="obsolete">Importar drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Export drumkit</source>
         <translation type="obsolete">Exportar drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>The drumkit will be installed in %1/.hydrogen/data/</source>
         <translation type="obsolete">El drumkit será instalado en %1/.hydrogen/data/</translation>
     </message>
@@ -1357,72 +1257,58 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DrumkitManager_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Drumkit info</source>
         <translation type="obsolete">Información sobre el drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="207"/>
         <source>Drumkit name</source>
         <translation>Nombre del drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Drumkit author</source>
         <translation type="obsolete">Autor del drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="200"/>
         <source>Delete drumkit</source>
         <translation>Eliminar drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="203"/>
         <source>Load drumkit</source>
         <translation>Cargar drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="204"/>
         <source>Load</source>
         <translation>Cargar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="205"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="206"/>
         <source>Info</source>
         <translation>Información</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="209"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="220"/>
         <source>Browse</source>
         <translation>Examinar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="219"/>
         <source>Import</source>
         <translation>Importar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="210"/>
         <source>Drumkit filename</source>
         <translation>Nombre de drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>The drumkit will be installed zncxbmzbxcmznxbcmz</source>
         <translation type="obsolete">El drumkit será instalado en</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;b&gt;
 Download more drumkits at &lt;br&gt;
 http://hydrogen.sf.net
@@ -1433,47 +1319,38 @@ http://hydrogen.sf.net
 &lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="223"/>
         <source>Export</source>
         <translation>Exportar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="221"/>
         <source>Drumkit directory</source>
         <translation>Directorio de drumkits</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="198"/>
         <source>Form1</source>
         <translation>Forma1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="199"/>
         <source>### Drumkit author</source>
         <translation>Autor drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="202"/>
         <source>### Drumkit info</source>
         <translation>Información de drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>New Item</source>
         <translation type="obsolete">Nuevo elemento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="218"/>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
         <translation>El drumkit se instalará zncxbmzbxcmznxbcmz</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="201"/>
         <source>### Drumkit name</source>
         <translation>Nombre de drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_DrumkitManager_UI.h" line="217"/>
         <source>&lt;b&gt;
 Download more drumkits at &lt;br&gt;
 http://www.hydrogen-music.org
@@ -1487,42 +1364,34 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>ExportSongDialog</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Export song</source>
         <translation type="obsolete">Hydrogen - Exportar canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/ExportSongDialog.cpp.svn-base" line="70"/>
         <source>Wave file (*.wav)</source>
         <translation>Archivo de sonido (*.wav)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Exported</source>
         <translation type="obsolete">Exportado</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>seconds.</source>
         <translation type="obsolete">segundos.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/ExportSongDialog.cpp.svn-base" line="73"/>
         <source>Export song</source>
         <translation>Exportar canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Exported %1</source>
         <translation type="obsolete">Exportado %1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>%1 seconds.</source>
         <translation type="obsolete">%1 segundos.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/ExportSongDialog.cpp.svn-base" line="49"/>
         <source>Sample rate: %1</source>
         <translation>Tasa de muestreo: %1</translation>
     </message>
@@ -1530,62 +1399,50 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Browse...</source>
         <translation type="obsolete">Examinar...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="115"/>
         <source>Export filename</source>
         <translation>Nombre de archivo a exportar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Cancel</source>
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Export</source>
         <translation type="obsolete">Exportar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="108"/>
         <source>Export Whole Song to WAV</source>
         <translation>Exportar la canción a WAV</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="110"/>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="112"/>
         <source>&amp;Export</source>
         <translation>&amp;Exportar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="113"/>
         <source>Alt+E</source>
         <translation>Alt+E</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="116"/>
         <source>&amp;Browse...</source>
         <translation>E&amp;xaminar...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="117"/>
         <source>Alt+B</source>
         <translation>Alt+B</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="114"/>
         <source>textLabel1</source>
         <translation>etiquetaTexto1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="109"/>
         <source>&amp;Close</source>
         <translation>&amp;Cerrar</translation>
     </message>
@@ -1593,7 +1450,6 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>FileBrowser</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/FileBrowser.cpp.svn-base" line="189"/>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
         <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
     </message>
@@ -1601,32 +1457,26 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>FilePreview</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Play sample</source>
         <translation type="obsolete">Reproducir muestra</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Size -</source>
         <translation type="obsolete">Tamaño -</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Size: %1 bytes</source>
         <translation type="obsolete">Tamaño: %1 bytes</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Size: - </source>
         <translation type="obsolete">Tamaño: -</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Samplerate: %1</source>
         <translation type="obsolete">Frecuencia de muestreo: %1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Samplerate: - </source>
         <translation type="obsolete">Frecuencia de muestreo: -</translation>
     </message>
@@ -1634,12 +1484,10 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>FxMixerLine</name>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="759"/>
         <source>FX on/off</source>
         <translation>Efecto si/no</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="776"/>
         <source>Master output</source>
         <translation>Salida principal</translation>
     </message>
@@ -1647,12 +1495,10 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>HelpBrowser</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Manual</source>
         <translation type="obsolete">Hydrogen - Manual</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Manual</source>
         <translation type="obsolete">Manual</translation>
     </message>
@@ -1660,72 +1506,58 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>HydrogenApp</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Load instrument</source>
         <translation type="obsolete">Hydrogen - Cargar instrumento</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Song Info:</source>
         <translation type="obsolete">Información de la canción:</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio files (*.wav *.au *.aiff)</source>
         <translation type="obsolete">Archivos de audio (*.wav *.au *.aiff)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Song Info:     </source>
         <translation type="obsolete">Información de la canción:</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>No OSS driver support</source>
         <translation type="obsolete">El controlador OSS no está soportado</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>No JACK driver support</source>
         <translation type="obsolete">El controlador JACK no está soportado</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Unknown audio driver</source>
         <translation type="obsolete">Controlador de audio desconocido</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Error starting audio driver</source>
         <translation type="obsolete">Error iniciando controlador de audio</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Jack driver: server shutdown</source>
         <translation type="obsolete">Controlador Jack: cierre del servidor</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Jack driver: cannot activate client</source>
         <translation type="obsolete">Controlador Jack: no se puede activar el cliente</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Jack driver: cannot connect output port</source>
         <translation type="obsolete">Controlador Jack: no se puede conectar al puerto de salida</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Jack driver: error in port register</source>
         <translation type="obsolete">Controlador Jack: error en el registro del puerto</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Unknown error</source>
         <translation type="obsolete">Error desconocido</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF)</source>
         <translation type="obsolete">Archivos de audio (*.wav *.WAV *.au *.AU *.aiff *.AIFF)</translation>
     </message>
@@ -1733,107 +1565,86 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Instrument editor</source>
         <translation type="obsolete">Editor de instrumentos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="69"/>
         <source>Show instrument properties</source>
         <translation>Mostrar propiedades de instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="84"/>
         <source>Show layers properties</source>
         <translation>Mostrar propiedades de capas</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="105"/>
         <source>Random pitch factor</source>
         <translation>Factor aleatorio de tono </translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="119"/>
         <source>Filter Cutoff</source>
         <translation>Filtro de Corte </translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="122"/>
         <source>Filter resonance</source>
         <translation>Filtro de resonancia</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="131"/>
         <source>Attack</source>
         <translation>Ataque </translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="132"/>
         <source>Decay</source>
         <translation>Decay</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="133"/>
         <source>Sustain</source>
         <translation>Sustain</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="134"/>
         <source>Release</source>
         <translation>Release</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="224"/>
         <source>Layer gain</source>
         <translation>Ganancia de capa</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Layer pitch</source>
         <translation type="obsolete">Tono de capa</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Empty layer</source>
         <translation type="obsolete">Capa vacía</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="492"/>
         <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
         <translation>Archivos de audio (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="493"/>
         <source>Hydrogen - Load instrument</source>
         <translation>Hydrogen - Cargar instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="548"/>
         <source>New instrument name</source>
         <translation>Nombre de instrumento nuevo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="147"/>
         <source>Instrument gain</source>
         <translation>Nivel de instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="68"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="83"/>
         <source>Layers</source>
         <translation>Capas</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="230"/>
         <source>Layer pitch (Coarse)</source>
         <translation>Afinación de capa (gruesa)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/InstrumentEditor/.svn/text-base/InstrumentEditor.cpp.svn-base" line="235"/>
         <source>Layer pitch (Fine)</source>
         <translation>Afinación de capa (fina)</translation>
     </message>
@@ -1841,22 +1652,18 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>InstrumentLine</name>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorInstrumentList.cpp.svn-base" line="91"/>
         <source>Clear notes</source>
         <translation>Borrar notas</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorInstrumentList.cpp.svn-base" line="92"/>
         <source>Fill notes</source>
         <translation>Llenar notas</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorInstrumentList.cpp.svn-base" line="93"/>
         <source>Randomize velocity</source>
         <translation>Intensidad aleatoria</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorInstrumentList.cpp.svn-base" line="95"/>
         <source>Delete instrument</source>
         <translation>Eliminar instrumento</translation>
     </message>
@@ -1864,37 +1671,30 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>InstrumentPropertiesDialog</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Instrument properties</source>
         <translation type="obsolete">Hydrogen - Propiedades del instrumento</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Instrument properties</source>
         <translation type="obsolete">Propiedades del instrumento</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
         <translation type="obsolete">Archivos de audio (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Load instrument</source>
         <translation type="obsolete">Hydrogen - Cargar instrumento</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set FX %1 level </source>
         <translation type="obsolete">Nivel Efectos %1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Empty layer</source>
         <translation type="obsolete">Capa vacía</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Instrument name</source>
         <translation type="obsolete">Nombre del instrumento</translation>
     </message>
@@ -1902,107 +1702,86 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>InstrumentPropertiesDialog_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Instrument name</source>
         <translation type="obsolete">Nombre del instrumento</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Sample filename</source>
         <translation type="obsolete">Nombre de la muestra</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Browse</source>
         <translation type="obsolete">Examinar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Drumkit</source>
         <translation type="obsolete">Drumkit</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Cancel</source>
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Ok</source>
         <translation type="obsolete">Aceptar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>1</source>
         <translation type="obsolete">1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>2</source>
         <translation type="obsolete">2</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>3</source>
         <translation type="obsolete">3</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>4</source>
         <translation type="obsolete">4</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>5</source>
         <translation type="obsolete">5</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>6</source>
         <translation type="obsolete">6</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>7</source>
         <translation type="obsolete">7</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>8</source>
         <translation type="obsolete">8</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Play layer</source>
         <translation type="obsolete">Reproducir capa</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Gain</source>
         <translation type="obsolete">Ganancia</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pitch</source>
         <translation type="obsolete">Tono</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>End velocity</source>
         <translation type="obsolete">Intensidad final</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Start velocity</source>
         <translation type="obsolete">Intensidad inicial</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>sample size in frames</source>
         <translation type="obsolete">Tamaño de la muestra (en marcos)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delete</source>
         <translation type="obsolete">Eliminar</translation>
     </message>
@@ -2010,22 +1789,18 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>InstrumentRack</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/InstrumentRack.cpp.svn-base" line="54"/>
         <source>Show Instrument editor</source>
         <translation>Ver editor de instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/InstrumentRack.cpp.svn-base" line="55"/>
         <source>Instrument</source>
         <translation>Instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/InstrumentRack.cpp.svn-base" line="66"/>
         <source>Show sound library</source>
         <translation>Ver biblioteca de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/InstrumentRack.cpp.svn-base" line="67"/>
         <source>Sound library</source>
         <translation>Biblioteca de sonido</translation>
     </message>
@@ -2033,32 +1808,26 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>FX on/off</source>
         <translation type="obsolete">Efectos si/no</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="1037"/>
         <source>Edit FX parameters</source>
         <translation>Editar parámetros efectos</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Ladspa FX name (double click to change FX)</source>
         <translation type="obsolete">Nombre Efecto Ladspa (doble click para cambiar de FX)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="1025"/>
         <source>FX bypass</source>
         <translation>Brincar Efectos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="1044"/>
         <source>Ladspa FX name</source>
         <translation>Nombre de efecto Ladspa </translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="1047"/>
         <source>Effect return</source>
         <translation>Retorno de efectos </translation>
     </message>
@@ -2066,32 +1835,26 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>LadspaFXProperties</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXProperties.cpp.svn-base" line="95"/>
         <source>Select FX</source>
         <translation>Seleccionar Efecto</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXProperties.cpp.svn-base" line="212"/>
         <source>[%1] LADSPA FX Properties</source>
         <translation>[%1] Propiedades Efecto LADSPA</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXProperties.cpp.svn-base" line="332"/>
         <source>LADSPA FX %1 Properties</source>
         <translation>Propiedades Efecto LADSPA %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXProperties.cpp.svn-base" line="333"/>
         <source>No plugin</source>
         <translation>Sin plugin</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXProperties.cpp.svn-base" line="395"/>
         <source>Activate</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXProperties.cpp.svn-base" line="392"/>
         <source>Deactivate</source>
         <translation>Desactivar</translation>
     </message>
@@ -2099,42 +1862,34 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>LadspaFXSelector</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="106"/>
         <source>Groups</source>
         <translation>Grupos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="125"/>
         <source>Uncategorized</source>
         <translation>Sin categoría</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="181"/>
         <source>Stereo</source>
         <translation>Estereo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="184"/>
         <source>Mono</source>
         <translation>Mono</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="188"/>
         <source>Not supported</source>
         <translation>No soportado</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="53"/>
         <source>Select LADSPA FX</source>
         <translation>Seleccionar Efecto LADSPA</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="128"/>
         <source>Categorized (LRDF)</source>
         <translation>Categorizado (LRDF)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/LadspaFXSelector.cpp.svn-base" line="131"/>
         <source>Recently Used</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2142,102 +1897,82 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>LadspaFXSelector_UI</name>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="184"/>
         <source>Form1</source>
         <translation>Forma1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Categories</source>
         <translation type="obsolete">Categorías</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Groups</source>
         <translation type="obsolete">Grupos</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>test</source>
         <translation type="obsolete">prueba</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Subitem-------</source>
         <translation type="obsolete">Subelemento-------</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>LADSPA plugins</source>
         <translation type="obsolete">Plugins LADSPA</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>New Item</source>
         <translation type="obsolete">Nuevo elemento</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Cancel</source>
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Ok</source>
         <translation type="obsolete">Aceptar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Plugin info</source>
         <translation type="obsolete">Información del plugin</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Name:</source>
         <translation type="obsolete">Nombre:</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>### fx name</source>
         <translation type="obsolete">### nombre Efecto</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Label:</source>
         <translation type="obsolete">Etiqueta:</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="205"/>
         <source>### fx label</source>
         <translation>### Etiqueta Efecto</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Type:</source>
         <translation type="obsolete">Tipo:</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>ID:</source>
         <translation type="obsolete">ID:</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="216"/>
         <source>### fx type</source>
         <translation>### Tipo Efecto</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="217"/>
         <source>### fx ID</source>
         <translation>### ID Efecto</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Maker:</source>
         <translation type="obsolete">Creador:</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>### FX maker
 1
 2
@@ -2250,12 +1985,10 @@ http://www.hydrogen-music.org(new line)
 4</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Copyright:</source>
         <translation type="obsolete">Copyright:</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>### copyright
 1
 2
@@ -2268,32 +2001,26 @@ http://www.hydrogen-music.org(new line)
 4</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="185"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="186"/>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="187"/>
         <source>&amp;OK</source>
         <translation>&amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="188"/>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="190"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="197"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2302,13 +2029,11 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="199"/>
         <source>### fx name
 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="204"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2317,7 +2042,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="210"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2326,7 +2050,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="215"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2335,7 +2058,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="222"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2344,7 +2066,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="225"/>
         <source>### FX maker
 1
 2</source>
@@ -2353,7 +2074,6 @@ p, li { white-space: pre-wrap; }
 2</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="230"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2362,7 +2082,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="234"/>
         <source>### copyright
 1
 2
@@ -2376,102 +2095,82 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Open</source>
         <translation type="obsolete">Abrir</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Open Demo</source>
         <translation type="obsolete">Abrir demo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Exit</source>
         <translation type="obsolete">Salir</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>New</source>
         <translation type="obsolete">Nueva canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Save as...</source>
         <translation type="obsolete">Guardar como...</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Export</source>
         <translation type="obsolete">Exportar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Preferences</source>
         <translation type="obsolete">Preferencias</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show mixer</source>
         <translation type="obsolete">Mostrar mezclador</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show audio engine info</source>
         <translation type="obsolete">Mostrar información del motor de sonido</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show song editor</source>
         <translation type="obsolete">Mostrar editor de canciones</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show drumkit manager</source>
         <translation type="obsolete">Mostrar gestor de drumkits</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>User manual</source>
         <translation type="obsolete">Manual de usuario</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>About</source>
         <translation type="obsolete">Acerca de</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>File</source>
         <translation type="obsolete">Archivo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Window</source>
         <translation type="obsolete">Ventana</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Help</source>
         <translation type="obsolete">Ayuda</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Save song</source>
         <translation type="obsolete">Hydrogen - Guardar canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Open song</source>
         <translation type="obsolete">Hydrogen - Abrir canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>?</source>
         <translation type="obsolete">?</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>
 The song has unsaved changes
 Do you want to save the changes before exiting?
@@ -2482,37 +2181,30 @@ La canción ha sido modificada
 </translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="748"/>
         <source>&amp;Save</source>
         <translation>&amp;Guardar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="748"/>
         <source>&amp;Discard</source>
         <translation>&amp;Descartar las modificaciones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="879"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1181"/>
         <source>Error loading song.</source>
         <translation>Error al cargar la canción.</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Error restoring last song.</source>
         <translation type="obsolete">Error cargando la última canción usada.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="118"/>
         <source>Hydrogen Ready.</source>
         <translation>Listo.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="747"/>
         <source>
 The document contains unsaved changes
 Do you want to save the changes before exiting?
@@ -2523,302 +2215,242 @@ El documento ha sido modificado
 </translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;File</source>
         <translation type="obsolete">&amp;Archivo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;Window</source>
         <translation type="obsolete">&amp;Ventana</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="773"/>
         <source>Hydrogen Song (*.h2song)</source>
         <translation>Canción Hydrogen (*.h2song)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="467"/>
         <source>Save song</source>
         <translation>Guardar canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="775"/>
         <source>Open song</source>
         <translation>Abrir canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Quit</source>
         <translation type="obsolete">Salir</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Open recent</source>
         <translation type="obsolete">Abrir reciente</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Save</source>
         <translation type="obsolete">Guardar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show instrument editor</source>
         <translation type="obsolete">Mostrar editor de instrumentos</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;Debug</source>
         <translation type="obsolete">&amp;Depurar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="280"/>
         <source>Print Objects</source>
         <translation>Imprimir objetos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1462"/>
         <source>Export MIDI file</source>
         <translation>Exportar archivo MIDI</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1460"/>
         <source>Midi file (*.mid)</source>
         <translation>Archivo MIDI (*.mid)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="209"/>
         <source>&amp;New</source>
         <translation>&amp;Nuevo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="214"/>
         <source>&amp;Open</source>
         <translation>&amp;Abrir</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="215"/>
         <source>Open &amp;Demo</source>
         <translation>Abrir &amp;Demo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="217"/>
         <source>Open &amp;recent</source>
         <translation>Abrir &amp;reciente</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="231"/>
         <source>Export &amp;MIDI file</source>
         <translation>Exportar archivo &amp;MIDI</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="268"/>
         <source>&amp;Preferences</source>
         <translation>&amp;Preferencias</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="238"/>
         <source>&amp;Quit</source>
         <translation>&amp;Salir</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show &amp;mixer</source>
         <translation type="obsolete">Ver &amp;mezclador</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show &amp;song editor</source>
         <translation type="obsolete">Ver &amp;editor de canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show &amp;drumkit manager</source>
         <translation type="obsolete">Ver a&amp;dministrador de drumkits</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show &amp;instrument editor</source>
         <translation type="obsolete">Ver editor de drum&amp;kits</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="278"/>
         <source>Show &amp;audio engine info</source>
         <translation>Ver info de motor de &amp;audio</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="286"/>
         <source>&amp;User manual</source>
         <translation>Manual de &amp;usuario</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="288"/>
         <source>&amp;About</source>
         <translation>&amp;Acerca</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="748"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>No OSS driver support</source>
         <translation type="obsolete">No hay soporte para el controlador OSS</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>No JACK driver support</source>
         <translation type="obsolete">No hay soporte para el controlador JACK</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1495"/>
         <source>Unknown audio driver</source>
         <translation>Controlador de audio desconocido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1499"/>
         <source>Error starting audio driver</source>
         <translation>Error iniciando controlador de audio</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1503"/>
         <source>Jack driver: server shutdown</source>
         <translation>Controlador Jack: cierre del servidor</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1507"/>
         <source>Jack driver: cannot activate client</source>
         <translation>Controlador Jack: no se puede activar el cliente</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1511"/>
         <source>Jack driver: cannot connect output port</source>
         <translation>Controlador Jack no se puede conectar al puerto de salida</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1515"/>
         <source>Jack driver: error in port register</source>
         <translation>Controlador Jack: error en el registro del puerto</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Unknown error</source>
         <translation type="obsolete">Error desconocido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="232"/>
         <source>&amp;Export song</source>
         <translation>&amp;Exportar canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show song properties</source>
         <translation type="obsolete">Mostrar propiedades de canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show &amp;pattern editor</source>
         <translation type="obsolete">Ver editor de &amp;patrones</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Save &amp;as</source>
         <translation type="obsolete">Guardar c&amp;omo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;View</source>
         <translation type="obsolete">&amp;Vista</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="277"/>
         <source>De&amp;bug</source>
         <translation>De&amp;bug</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;Help</source>
         <translation type="obsolete">A&amp;yuda</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="207"/>
         <source>&amp;Project</source>
         <translation>&amp;Proyecto</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="210"/>
         <source>Show info</source>
-        <translation>Ver info</translation>
+        <translation type="obsolete">Ver info</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="222"/>
         <source>Save &amp;as...</source>
         <translation>Gu&amp;ardar como...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="247"/>
         <source>Instruments</source>
-        <translation>Instrumentos</translation>
+        <translation type="obsolete">Instrumentos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="248"/>
         <source>Add instrument</source>
-        <translation>Añadir instrumento</translation>
+        <translation type="obsolete">Añadir instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="249"/>
         <source>Clear all</source>
-        <translation>Eliminar todo</translation>
+        <translation type="obsolete">Eliminar todo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="250"/>
         <source>Save library</source>
-        <translation>Guardar biblioteca</translation>
+        <translation type="obsolete">Guardar biblioteca</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="251"/>
         <source>Export library</source>
-        <translation>Exportar biblioteca</translation>
+        <translation type="obsolete">Exportar biblioteca</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="252"/>
         <source>Import library</source>
-        <translation>Importar biblioteca</translation>
+        <translation type="obsolete">Importar biblioteca</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="258"/>
         <source>&amp;Tools</source>
         <translation>Herramien&amp;tas</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="265"/>
         <source>&amp;Mixer</source>
         <translation>&amp;Mezclador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="267"/>
         <source>&amp;Instrument Rack</source>
         <translation>Rack de &amp;instrumentos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="271"/>
         <source>OLD &amp;drumkit manager (Obsolete)</source>
         <translation>VIEJO gestor de &amp;drumkits (Obsoleto)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="279"/>
         <source>debug action</source>
         <translation>depurar acción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="285"/>
         <source>&amp;Info</source>
         <translation>&amp;Info</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="380"/>
         <source>
 The song has unsaved changes
  Do you want to save the changes before exiting?
@@ -2829,147 +2461,106 @@ La canción ha sido modificada
 </translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="534"/>
         <source>Song saved.</source>
         <translation>Canción guardada.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="877"/>
         <source>Clear all instruments?</source>
         <translation>¿Eliminar todos los instrumentos?</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="878"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="896"/>
         <source>Instrument %1</source>
         <translation>Instrumento %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1519"/>
         <source>Unknown error %1</source>
         <translation>Error desconocido %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1638"/>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Está usando una versión de desarrollo de Hydrogen, por favor ayúdenos a reportar errores o sugerencias en la lista de correo hydrogen-devel.&lt;br&gt;&lt;br&gt;¡Gracias!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="522"/>
         <source>Could not save song.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="226"/>
         <source>Open &amp;Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="227"/>
-        <source>Export pattern as...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="263"/>
-        <source>Playlist editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="585"/>
         <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="587"/>
         <source>Save Pattern as ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="618"/>
         <source>Pattern saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="704"/>
         <source>Hydrogen Song (*.h2pattern)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="707"/>
         <source>Open Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1642"/>
         <source>Don&apos;t show this message anymore</source>
         <translation type="unfinished">No mostrar este mensaje de nuevo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1329"/>
         <source>Playlist: Set song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="1702"/>
         <source>Playlist: Aktiv song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="210"/>
         <source>Show &amp;info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="227"/>
         <source>Expor&amp;t pattern as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="247"/>
         <source>I&amp;nstruments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="248"/>
         <source>&amp;Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="249"/>
         <source>&amp;Clear all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="250"/>
         <source>&amp;Save library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="251"/>
         <source>&amp;Export library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp~" line="252"/>
-        <source>&amp; Import library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../gui/src/MainForm.cpp" line="263"/>
         <source>Playlist &amp;editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="252"/>
         <source>&amp;Import library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/MainForm.cpp.svn-base" line="288"/>
         <source></source>
         <comment>Info|About</comment>
         <translation type="unfinished"></translation>
@@ -2978,52 +2569,42 @@ La canción ha sido modificada
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Peak volume (left channel)</source>
         <translation type="obsolete">Pico (canal izquierdo)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Master output</source>
         <translation type="obsolete">Salida principal</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set master volume [</source>
         <translation type="obsolete">Volumen principal [</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="565"/>
         <source>Set master volume [%1]</source>
         <translation>Volumen principal [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="518"/>
         <source>Swing</source>
         <translation>Swing</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="514"/>
         <source>Humanize time</source>
         <translation>Humanizar tiempo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="510"/>
         <source>Humanize velocity</source>
         <translation>Humanizar intensidad</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="694"/>
         <source>Set humanize time parameter [%1]</source>
         <translation>Parametro de humanización de tiempo [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="698"/>
         <source>Set humanize velocity parameter [%1]</source>
         <translation>Parámetro de humanización de intensidad [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="702"/>
         <source>Set swing factor [%1]</source>
         <translation>Factor de swing [%1]</translation>
     </message>
@@ -3031,152 +2612,122 @@ La canción ha sido modificada
 <context>
     <name>Mixer</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show faders panel</source>
         <translation type="obsolete">Ver panel de volúmenes</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="121"/>
         <source>Show FX panel</source>
         <translation>Ver panel de efectos</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Swing factor</source>
         <translation type="obsolete">Factor de Swing</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Human time</source>
         <translation type="obsolete">Humanización (tempo)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Human velocity</source>
         <translation type="obsolete">Humanización (intensidad)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delay FX</source>
         <translation type="obsolete">Eco FX</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set humanize time parameter [</source>
         <translation type="obsolete">Humanización (tempo) [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set humanize velocity parameter [</source>
         <translation type="obsolete">Humanización (intensidad) [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set swing factor [</source>
         <translation type="obsolete">Factor de swing [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set delay wet level [</source>
         <translation type="obsolete">Nivel de eco [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delay FX enabled</source>
         <translation type="obsolete">Eco FX activado</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delay FX disabled</source>
         <translation type="obsolete">Eco FX desactivado</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Humanize Time FX enabled</source>
         <translation type="obsolete">Humanización (tempo) activada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Humanize Time FX disabled</source>
         <translation type="obsolete">Humanización (tempo) desactivada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Humanize Velocity FX enabled</source>
         <translation type="obsolete">Humanización (intensidad) activada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Humanize Velocity FX disabled</source>
         <translation type="obsolete">Humanización (intensidad) desactivada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Swing factor FX enabled</source>
         <translation type="obsolete">Función de Swing activada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Swing factor FX disabled</source>
         <translation type="obsolete">Función de Swing desactivada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Mixer</source>
         <translation type="obsolete">Hydrogen - Mezclador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="140"/>
         <source>Show instrument peaks</source>
         <translation>Mostrar picos de instrumento</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="709"/>
         <source>Show instrument peaks = On</source>
         <translation>Mostrar picos de instrumento = Sí</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="713"/>
         <source>Show instrument peaks = Off</source>
         <translation>Mostrar picos de instrumento = No</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>No plugin</source>
         <translation type="obsolete">Sin plugin</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="56"/>
         <source>Mixer</source>
         <translation>Mezclador</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set humanize time parameter [%1]</source>
         <translation type="obsolete">Parametro de tiempo de humanización [%1]</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set humanize velocity parameter [%1]</source>
         <translation type="obsolete">Parámetro de velocidad de humanización [%1]</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set swing factor [%1]</source>
         <translation type="obsolete">Factor de swing [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="642"/>
         <source>Set FX %1 level </source>
         <translation>Nivel Efecto %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/Mixer.cpp.svn-base" line="768"/>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Volumen Efecto LADSPA ( %1 )</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Instrument name</source>
         <translation type="obsolete">Nombre del instrumento</translation>
     </message>
@@ -3184,72 +2735,58 @@ La canción ha sido modificada
 <context>
     <name>MixerLine</name>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="76"/>
         <source>Play sample</source>
         <translation>Reproducir muestra</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Load external sample</source>
         <translation type="obsolete">Cargar muestra externa</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="100"/>
         <source>Mute</source>
         <translation>Silencio</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="112"/>
         <source>Solo</source>
         <translation>Solo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delay</source>
         <translation type="obsolete">Eco</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="116"/>
         <source>Pan</source>
         <translation>Balance</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Peak volume</source>
         <translation type="obsolete">Volumen de pico</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="152"/>
         <source>Instrument name (double click to edit)</source>
         <translation>Nombre del instrumento (doble click para editar)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set instrument volume [</source>
         <translation type="obsolete">Volumen del instrumento [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set instrument pan [</source>
         <translation type="obsolete">Balance del instrumento [</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set instrument delay [</source>
         <translation type="obsolete">Eco del instrumento [</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="244"/>
         <source>Set instrument volume [%1]</source>
         <translation>Volumen del instrumento [%1]</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Set instrument pan [%1]</source>
         <translation type="obsolete">Balance del instrumento [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/.svn/text-base/MixerLine.cpp.svn-base" line="381"/>
         <source>Set instr. pan [%1]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3257,42 +2794,34 @@ La canción ha sido modificada
 <context>
     <name>OldDrumkitManager</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="52"/>
         <source>Drumkit manager</source>
         <translation>Gestor de drumkits</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="64"/>
         <source>The drumkit will be installed in %1</source>
         <translation>El drumkit se instalará en %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="150"/>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>Nombre: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="151"/>
         <source>Author: %1</source>
         <translation>Autor: %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="152"/>
         <source>Info: &lt;br&gt;%1</source>
         <translation>Información: &lt;br&gt;%1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="177"/>
         <source>Drumkit loaded: [%1]</source>
         <translation>Drumkit cargado: [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="206"/>
         <source>Import drumkit</source>
         <translation>Importar drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/DrumkitManager.cpp.svn-base" line="269"/>
         <source>Export drumkit</source>
         <translation>Exportar drumkit</translation>
     </message>
@@ -3300,32 +2829,26 @@ La canción ha sido modificada
 <context>
     <name>PatternEditorInstrumentList</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Mute</source>
         <translation type="obsolete">Silencio</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Lock</source>
         <translation type="obsolete">Bloquear</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Solo</source>
         <translation type="obsolete">Solo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Clear notes</source>
         <translation type="obsolete">Eliminar notas</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Fill notes</source>
         <translation type="obsolete">Llenar notas</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Randomize velocity</source>
         <translation type="obsolete">Intensidad aleatoria</translation>
     </message>
@@ -3333,197 +2856,158 @@ La canción ha sido modificada
 <context>
     <name>PatternEditorPanel</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern Editor</source>
         <translation type="obsolete">Editor de patrones</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Grid resolution</source>
         <translation type="obsolete">Resolución de la rejilla</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="138"/>
         <source>Hear new notes</source>
         <translation>Escuchar notas nuevas</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern name</source>
         <translation type="obsolete">Nombre del patrón</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern size</source>
         <translation type="obsolete">Tamaño del patrón</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern editor - </source>
         <translation type="obsolete">Editor de patrones - </translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;b&gt;No pattern selected! (NULL pattern)&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;¡Ningún patrón seleccionado! (patrón NULL)&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>No pattern selected! (NULL pattern)</source>
         <translation type="obsolete">¡Ningún patrón seleccionado! (patrón NULL)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern name: &lt;b&gt;</source>
         <translation type="obsolete">Nombre del patrón: &lt;b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="634"/>
         <source>Hear new notes = On</source>
         <translation>Escuchar notas nuevas = Si</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="637"/>
         <source>Hear new notes = Off</source>
         <translation>Escuchar notas nuevas = No</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="618"/>
         <source>Pattern editor - %1</source>
         <translation>Editor de patrones - %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="155"/>
         <source>Record keyboard/midi events</source>
         <translation>Grabar eventos de teclado/midi</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="170"/>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Cuantizar eventos de teclado/midi a la rejilla</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="650"/>
         <source>Record keyboard/midi events = On</source>
         <translation>Grabar eventos de teclado/midi = On</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="653"/>
         <source>Record keyboard/midi events = Off</source>
         <translation>Grabar eventos de teclado/midi =Off</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="666"/>
         <source>Quantize incoming keyboard/midi events = On</source>
         <translation>Cuantizar eventos teclado/midi entrantes = On</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="669"/>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Cuantizar eventos de teclado/midi entrantes = Off</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern name: &lt;b&gt;%1&lt;/b&gt;</source>
         <translation type="obsolete">Nombre del patrón: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show velocity editor</source>
         <translation type="obsolete">Ver editor de intensidad</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Show pitch editor</source>
         <translation type="obsolete">Ver editor de tono</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="191"/>
         <source>Zoom in</source>
         <translation>Acercar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="206"/>
         <source>Zoom out</source>
         <translation>Alejar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="826"/>
         <source>Is not possible to change the pattern size when playing.</source>
         <translation>No es posible cambiar el tamaño del patrón al tocar.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="90"/>
         <source>Select pattern size</source>
         <translation>Seleccionar tamaño del patrón</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="101"/>
         <source>Select grid resolution</source>
         <translation>Seleccionar resolución de rejilla</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Move selected instrument down</source>
         <translation type="obsolete">Mover instrumento seleccionado abajo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Move selected instrument up</source>
         <translation type="obsolete">Mover instrumento seleccionado arriba</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="222"/>
         <source>Show drum editor</source>
         <translation>Ver editor de tambores</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="239"/>
         <source>Show piano roll editor</source>
         <translation>Ver editor de pianola</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="388"/>
         <source>Select note properties</source>
         <translation>Seleccionar propiedades de nota</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="951"/>
         <source>Velocity</source>
         <translation>Intensidad</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="958"/>
         <source>Pan</source>
         <translation>Balance</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="620"/>
         <source>No pattern selected</source>
         <translation>No se ha seleccionado un patrón</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="972"/>
         <source>Cutoff</source>
         <translation>Filtro de limite</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="974"/>
         <source>Resonance</source>
         <translation>Resonancia</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="220"/>
         <source>Drum</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="237"/>
         <source>Piano</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PatternEditor/.svn/text-base/PatternEditorPanel.cpp.svn-base" line="965"/>
         <source>Lead and Lag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3531,7 +3015,6 @@ La canción ha sido modificada
 <context>
     <name>PatternFillDialog</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PatternFillDialog.cpp.svn-base" line="43"/>
         <source>Fill with selected pattern</source>
         <translation>Rellenar con el patrón seleccionado</translation>
     </message>
@@ -3539,52 +3022,42 @@ La canción ha sido modificada
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="151"/>
         <source>Form 1</source>
         <translation>Forma 1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Mode</source>
         <translation type="obsolete">Modo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="154"/>
         <source>&amp;Fill</source>
         <translation>&amp;Llenar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="155"/>
         <source>Alt+F</source>
         <translation>Alt+F</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="156"/>
         <source>&amp;Clear</source>
         <translation>&amp;Limpiar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="157"/>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="160"/>
         <source>To:</source>
         <translation>A: </translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="158"/>
         <source>From:</source>
         <translation>De: </translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="161"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="162"/>
         <source>OK</source>
         <translation>Aceptar</translation>
     </message>
@@ -3592,12 +3065,10 @@ La canción ha sido modificada
 <context>
     <name>PatternPropertiesDialog</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Pattern properties</source>
         <translation type="obsolete">Hydrogen - Propiedades del patrón</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PatternPropertiesDialog.cpp.svn-base" line="36"/>
         <source>Pattern properties</source>
         <translation>Propiedades del patrón</translation>
     </message>
@@ -3605,47 +3076,38 @@ La canción ha sido modificada
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Pattern Name</source>
         <translation type="obsolete">Nombre del patrón</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Cancel</source>
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source> Ok </source>
         <translation type="obsolete">Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="95"/>
         <source>Form1</source>
         <translation>Forma1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="97"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="98"/>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="99"/>
         <source>&amp;OK</source>
         <translation>&amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="100"/>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="96"/>
         <source>New Pattern Name</source>
         <translation>Nombre del patrón nuevo</translation>
     </message>
@@ -3653,212 +3115,170 @@ La canción ha sido modificada
 <context>
     <name>PlayerControl</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="179"/>
         <source>Song Mode</source>
         <translation>Modo canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Live Mode</source>
         <translation type="obsolete">Modo live</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="615"/>
         <source>Playing.</source>
         <translation>Reproduciendo.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="634"/>
         <source>Stopped.</source>
         <translation>Parado.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="676"/>
         <source>Song mode selected.</source>
         <translation>Modo canción seleccionado.</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Live mode selected.</source>
         <translation type="obsolete">Modo live seleccionado.</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Play</source>
         <translation type="obsolete">Reproducir</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="121"/>
         <source>Stop</source>
         <translation>Parar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>BPM</source>
         <translation type="obsolete">BPM</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="166"/>
         <source>Pattern Mode</source>
         <translation>Modo de patrón</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Play button disabled while using jack-transport slave mode.</source>
         <translation type="obsolete">Botón de reproducción desactivado usando el modo esclavo de jack-transport.</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Stop button disabled while using jack-transport slave mode.</source>
         <translation type="obsolete">Botón de parada desactivado usando el modo esclavo de jack-transport.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="692"/>
         <source>Pattern mode selected.</source>
         <translation>Modo de patrón seleccionado.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="357"/>
         <source>Jack-transport on/off</source>
         <translation>Transporte Jack si/no</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="817"/>
         <source>Jack-transport mode = On</source>
         <translation>Modo de transporte Jack = Si</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="823"/>
         <source>Jack-transport mode = Off</source>
         <translation>Modo de transporte Jack = No</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="865"/>
         <source>New BPM value</source>
         <translation>Nuevo valor de BPM</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="96"/>
         <source>Rewind</source>
         <translation>Regresar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="109"/>
         <source>Play/ Pause</source>
         <translation>Tocar/ Pausa</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="133"/>
         <source>Fast Forward</source>
         <translation>Adelantar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="191"/>
         <source>Switch Song/ Pattern Mode</source>
         <translation>Cambiar modo Canción/Patrón</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="620"/>
         <source>Pause.</source>
         <translation>Pausa.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="856"/>
         <source>JACK-transport will work only with JACK driver.</source>
         <translation>JACK-transport operará sólo con el controlador JACK.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="145"/>
         <source>Loop song</source>
         <translation>Repetir canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="938"/>
         <source>Loop song = On</source>
         <translation>Ciclar canción = Si</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="941"/>
         <source>Loop song = Off</source>
         <translation>Activar canción = No</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="403"/>
         <source>Show mixer</source>
         <translation>Ver mezclador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="404"/>
         <source>Mixer</source>
         <translation>Mezclador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="416"/>
         <source>Show Instrument Rack</source>
         <translation>Ver rack de instrumentos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="417"/>
         <source>Instrument rack</source>
         <translation>Rack de instrumentos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="210"/>
         <source>BeatCounter Panel on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="224"/>
         <source>Key coma handle beatcounter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="229"/>
         <source>Note length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="234"/>
         <source>Strokes to count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="285"/>
         <source>Set BPM / Set BPM and play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="371"/>
         <source>Jack-Time-Master on/off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="721"/>
         <source> BC Panel on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="727"/>
         <source> BC Panel off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="738"/>
         <source> Count BPM and start PLAY</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="743"/>
         <source> Count and set BPM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="842"/>
         <source> Jack-Time-Master mode = On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PlayerControl.cpp.svn-base" line="850"/>
         <source> Jack-Time-Master mode = Off</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3866,126 +3286,102 @@ La canción ha sido modificada
 <context>
     <name>PlaylistDialog</name>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="53"/>
         <source>Play List Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="82"/>
         <source>Song list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="82"/>
         <source>Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="82"/>
         <source>exec Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Zoom in</source>
         <translation type="obsolete">Acercar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="194"/>
         <source>Add Song to PlayList</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="654"/>
         <source>No Song selected!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="289"/>
         <source>Load Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="417"/>
         <source>Hydrogen Playlist (*.h2playlist)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="419"/>
         <source>Save Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="449"/>
         <source>No Song in List or no Song selected!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="458"/>
         <source>Hydrogen Playlist (*.sh)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="459"/>
         <source>Add Script to selected Song</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="493"/>
         <source>No Script in use!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="510"/>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="518"/>
         <source>Set your Default Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="540"/>
         <source>No Script selected!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="676"/>
         <source>Error loading song.</source>
         <translation type="unfinished">Error al cargar la canción.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="129"/>
         <source>sort</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="345"/>
         <source>Hydrogen Scripts (*.sh)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="347"/>
         <source>New Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="468"/>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="599"/>
         <source>No Script!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/.svn/text-base/PlaylistDialog.cpp.svn-base" line="684"/>
         <source>Playlist: Set song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3993,67 +3389,54 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="184"/>
         <source>PlayList Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="185"/>
         <source>Add song to playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="186"/>
         <source>Remove song from playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="188"/>
         <source>Load script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="189"/>
         <source>Remove script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="190"/>
         <source>Song list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="191"/>
         <source>Load list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="192"/>
         <source>Save list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="196"/>
         <source>Edit script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="193"/>
         <source>Play selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="194"/>
         <source>Stop</source>
         <translation type="unfinished">Parar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="187"/>
         <source>Clear playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="195"/>
         <source>New Script</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4061,67 +3444,54 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Preferences</source>
         <translation type="obsolete">Hydrogen - Preferencias</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="334"/>
         <source>Slow</source>
         <translation>Lenta</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="337"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="340"/>
         <source>Fast</source>
         <translation>Rápida</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;b&gt;NULL DRIVER&lt;/b&gt;&lt;br&gt;Please select an audio driver&lt;br&gt;</source>
         <translation type="obsolete">&lt;b&gt;CONTROLADOR NULO&lt;/b&gt;&lt;br&gt;Por favor seleccione un controlador de audio&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="426"/>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
         <translation>&lt;b&gt;Sistema Open Sound&lt;/b&gt;&lt;br&gt;Controlador de audio simple [/dev/dsp]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="479"/>
         <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
         <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;No compilado&lt;/font&gt;&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="439"/>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
         <translation>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Controlador de audio de baja latencia</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="50"/>
         <source>Preferences</source>
         <translation>Preferencias</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="452"/>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Controlador ALSA&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="416"/>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
         <translation>&lt;b&gt;Selección automática de controlador&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="465"/>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Controlador PortAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/PreferencesDialog.cpp.svn-base" line="477"/>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Controlador CoreAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -4129,482 +3499,386 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Preferences</source>
         <translation type="obsolete">Preferencias</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Cancel</source>
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Ok</source>
         <translation type="obsolete">Ok</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Restore last used song</source>
         <translation type="obsolete">Recuperar última canción usada</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>General</source>
         <translation type="obsolete">General</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Metronome</source>
         <translation type="obsolete">Metrónomo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Enabled</source>
         <translation type="obsolete">Activado</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Volume</source>
         <translation type="obsolete">Volumen</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio driver</source>
         <translation type="obsolete">Controlador de sonido</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Restart driver</source>
         <translation type="obsolete">Reiniciar controlador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="456"/>
         <source>Buffer size</source>
         <translation>Tamaño del buffer</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="455"/>
         <source>Device</source>
         <translation>Dispositivo de sonido</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Enable Track Outputs</source>
         <translation type="obsolete">Activar salida por pista</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Max notes</source>
         <translation type="obsolete">Polifonía máxima</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Notes</source>
         <translation type="obsolete">Notas</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Audio System</source>
         <translation type="obsolete">Sistema de sonido</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Midi Input</source>
         <translation type="obsolete">Entrada MIDI</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="479"/>
         <source>Input</source>
         <translation>Entrada</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="502"/>
         <source>Channel</source>
         <translation>Canal</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="483"/>
         <source>All</source>
         <translation>Todo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Midi System</source>
         <translation type="obsolete">Sistema Midi</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Application interface</source>
         <translation type="obsolete">Interfaz de usuario</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Interface mode</source>
         <translation type="obsolete">Modo de interfaz</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&lt;i&gt;After a change the application must be restarted.&lt;/i&gt;</source>
         <translation type="obsolete">&lt;i&gt;Reiniciar la aplicación después de hacer un cambio.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Mixer</source>
         <translation type="obsolete">Mezclador</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="509"/>
         <source>Meters falloff speed</source>
         <translation>Velocidad de caída de picos</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="513"/>
         <source>Slow</source>
         <translation>Lenta</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="514"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="515"/>
         <source>Fast</source>
         <translation>Rápida</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="505"/>
         <source>Application font</source>
         <translation>Fuente para la aplicación</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="516"/>
         <source>Mixer font</source>
         <translation>Fuente para el mixer</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="508"/>
         <source>Select font</source>
         <translation>Seleccionar fuente</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="504"/>
         <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Reiniciar la aplicación para usar la nueva fuente.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Appearance</source>
         <translation type="obsolete">Apariencia</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Oss</source>
         <translation type="obsolete">OSS</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Jack</source>
         <translation type="obsolete">JACK</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="454"/>
         <source>Sample rate</source>
         <translation>Frecuencia de muestreo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>22050</source>
         <translation type="obsolete">22050</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="460"/>
         <source>44100</source>
         <translation>44100</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="461"/>
         <source>48000</source>
         <translation>48000</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Jack Transport Slave</source>
         <translation type="obsolete">Esclavo de Transporte Jack</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="473"/>
         <source>###</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="484"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="485"/>
         <source>2</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="486"/>
         <source>3</source>
         <translation>3</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="487"/>
         <source>4</source>
         <translation>4</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="488"/>
         <source>5</source>
         <translation>5</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="489"/>
         <source>6</source>
         <translation>6</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="490"/>
         <source>7</source>
         <translation>7</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="491"/>
         <source>8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="492"/>
         <source>9</source>
         <translation>8</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="493"/>
         <source>10</source>
         <translation>10</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="494"/>
         <source>11</source>
         <translation>11</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="495"/>
         <source>12</source>
         <translation>12</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="496"/>
         <source>13</source>
         <translation>13</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="497"/>
         <source>14</source>
         <translation>14</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="498"/>
         <source>15</source>
         <translation>15</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="499"/>
         <source>16</source>
         <translation>16</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Child frame</source>
         <translation type="obsolete">Marco hijo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Top level</source>
         <translation type="obsolete">Nivel superior</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="443"/>
         <source>Form1</source>
         <translation>Forma1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Connect to Default Output Pair</source>
         <translation type="obsolete">Conectar al par de salida predeterminado</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="471"/>
         <source>Polyphony</source>
         <translation>Polifonía</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Fonts</source>
         <translation type="obsolete">Fuentes</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>LADSPA Plugin path</source>
         <translation type="obsolete">Ruta a los plugins LADSPA </translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Application</source>
         <translation type="obsolete">Aplicación</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="506"/>
         <source>Style</source>
         <translation>Estilo</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Single paned</source>
         <translation type="obsolete">Panel simple</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="444"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="445"/>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="446"/>
         <source>&amp;OK</source>
         <translation>&amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="447"/>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="452"/>
         <source>&amp;General</source>
         <translation>&amp;General</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;Restore last used song</source>
         <translation type="obsolete">&amp;Restaurar canción más reciente</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="449"/>
         <source>Alt+R</source>
         <translation>Alt+R</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="478"/>
         <source>Audio &amp;System</source>
         <translation>&amp;Sistema de Audio</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="470"/>
         <source>Metronome volume</source>
         <translation>Volumen de metrónomo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="474"/>
         <source>Connect to &amp;Default Output Pair</source>
         <translation>Conectar a par de salida por &amp;defecto</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="477"/>
         <source>Alt+D</source>
         <translation>Alt+D</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>&amp;Enable Track Outputs</source>
         <translation type="obsolete">Habilitar Salidas d&amp;e pista</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Alt+E</source>
         <translation type="obsolete">Alt+E</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="462"/>
         <source>88200</source>
         <translation>88200</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="463"/>
         <source>96000</source>
         <translation>96000</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="503"/>
         <source>&amp;Midi System</source>
         <translation>Sistema &amp;Midi</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="501"/>
         <source>Midi driver</source>
         <translation>Controlador Midi</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="500"/>
         <source>Ignore note-off</source>
         <translation>Ignorar note-off</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="517"/>
         <source>&amp;Appearance</source>
         <translation>&amp;Apariencia</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="448"/>
         <source>&amp;Reopen last used song</source>
         <translation>&amp;Recargar canción más reciente</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="453"/>
         <source>Restart output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="472"/>
         <source>Audio output details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="467"/>
         <source>Post-Fader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="468"/>
         <source>Pre-Fader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="469"/>
         <source>Track output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="476"/>
         <source>Track Outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="450"/>
         <source>Always play selected pattern in Pattern Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="451"/>
         <source>Use lash</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4612,27 +3886,22 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>SimpleHTMLBrowser</name>
     <message>
-        <location filename="../../gui/src/.svn/text-base/HelpBrowser.cpp.svn-base" line="43"/>
         <source>Manual</source>
         <translation>Manual</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/HelpBrowser.cpp.svn-base" line="49"/>
         <source>Welcome to Hydrogen</source>
         <translation>Bienvenido(a) a Hydrogen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/HelpBrowser.cpp.svn-base" line="57"/>
         <source>Don&apos;t show this message anymore</source>
         <translation>No mostrar este mensaje de nuevo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/HelpBrowser.cpp.svn-base" line="62"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/HelpBrowser.cpp.svn-base" line="67"/>
         <source>Documentation index</source>
         <translation>Indice de documentación</translation>
     </message>
@@ -4640,99 +3909,80 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>SongEditorPanel</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Song Editor</source>
         <translation type="obsolete">Hydrogen - Editor de canciones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="78"/>
         <source>Create new pattern</source>
         <translation>Crear nuevo patrón</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="90"/>
         <source>Move the selected pattern down</source>
         <translation>Mover el patrón seleccionado hacia abajo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="102"/>
         <source>Move the selected pattern up</source>
         <translation>Mover el patrón seleccionado hacia arriba</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Song operations</source>
         <translation type="obsolete">Operaciones sobre la canción</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Song loop</source>
         <translation type="obsolete">Repetir canción (loop)</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Song properties</source>
         <translation type="obsolete">Propiedades de la canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="66"/>
         <source>Clear pattern sequence</source>
         <translation>Eliminar la secuencia del patrón</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Delete all patterns</source>
         <translation type="obsolete">Eliminar todos los patrones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="50"/>
         <source>Song Editor</source>
         <translation>Editor de canciones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="114"/>
         <source>Select mode</source>
         <translation>Seleccionar modo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="126"/>
         <source>Draw mode</source>
         <translation>Modo de dibujo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="434"/>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Advertencia, esto borrará su secuencia de patrones.
 ¿Está seguro(a)?</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="434"/>
         <source>&amp;Ok</source>
         <translation>&amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="434"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="349"/>
         <source>Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="138"/>
         <source>stacked mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="516"/>
         <source>stacked pattern mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditorPanel.cpp.svn-base" line="519"/>
         <source>single pattern mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4740,52 +3990,42 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="658"/>
         <source>Edit</source>
         <translation>Modificar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="659"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="660"/>
         <source>Delete</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="662"/>
         <source>Properties</source>
         <translation>Propiedades</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Can&apos;t delete the pattern while the audio engine is playing</source>
         <translation type="obsolete">No se puede borrar un patrón mientras se reproduce</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="661"/>
         <source>Fill/Clear ...</source>
         <translation>Llenar/Limpiar ...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="664"/>
         <source>Save Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="663"/>
         <source>Load Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="937"/>
         <source>Hydrogen Song (*.h2pattern)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SongEditor/.svn/text-base/SongEditor.cpp.svn-base" line="940"/>
         <source>Open Pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4793,12 +4033,10 @@ Are you sure?</source>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen - Song properties</source>
         <translation type="obsolete">Hydrogen - Propiedades de la canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/.svn/text-base/SongPropertiesDialog.cpp.svn-base" line="40"/>
         <source>Song properties</source>
         <translation>Propiedades de la canción</translation>
     </message>
@@ -4806,57 +4044,46 @@ Are you sure?</source>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Cancel</source>
         <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source> Ok </source>
         <translation type="obsolete">Ok</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="87"/>
         <source>Notes</source>
         <translation>Notas</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="86"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="88"/>
         <source>Song name</source>
         <translation>Título de la canción</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="85"/>
         <source>Form1</source>
         <translation>Forma1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="91"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="92"/>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="89"/>
         <source> &amp;OK</source>
         <translation> &amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="90"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="93"/>
         <source>License</source>
         <translation type="unfinished">Licencia</translation>
     </message>
@@ -4864,12 +4091,10 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryExportDialog.cpp.svn-base" line="47"/>
         <source>Export Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryExportDialog.cpp.svn-base" line="107"/>
         <source>Export drumkit</source>
         <translation type="unfinished">Exportar drumkit</translation>
     </message>
@@ -4877,17 +4102,14 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h" line="58"/>
         <source>Dialog</source>
         <translation type="unfinished">Diálogo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h" line="59"/>
         <source>Browse</source>
         <translation type="unfinished">Examinar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h" line="60"/>
         <source>Export</source>
         <translation type="unfinished">Exportar</translation>
     </message>
@@ -4895,77 +4117,62 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="51"/>
         <source>Sound Library import</source>
         <translation>Importación de biblioteca de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="55"/>
         <source>Sound library</source>
         <translation>Biblioteca de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="55"/>
         <source>Status</source>
         <translation>Estado</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="122"/>
         <source>Updating SoundLibrary list...</source>
         <translation>Actualizando lista de biblioteca de sonido...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="230"/>
         <source>Installed</source>
         <translation>Instalación completada</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="234"/>
         <source>New</source>
         <translation>Nueva </translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="318"/>
         <source>Author: %1</source>
         <translation>Autor: %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="367"/>
         <source>Downloading SoundLibrary...</source>
         <translation>Descargando Biblioteca de Sonido...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="447"/>
         <source>SoundLibrary imported in %1</source>
         <translation>Biblioteca de sonido importada en %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="454"/>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Ocurrió un error al importar la Biblioteca de sonido.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="423"/>
         <source>Import drumkit</source>
         <translation>Importar drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="196"/>
         <source>Drumkits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="201"/>
         <source>Songs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="205"/>
         <source>Patterns</source>
         <translation type="unfinished">Patrones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryImportDialog.cpp.svn-base" line="320"/>
         <source>License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4973,72 +4180,58 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryImportDialog_UI</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="166"/>
         <source>Dialog</source>
         <translation>Diálogo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="175"/>
         <source>Internet</source>
         <translation>Internet</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="174"/>
         <source>Update list</source>
         <translation>Actualizar lista</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="167"/>
         <source>Sound Library Name</source>
         <translation>Nombre de biblioteca de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="168"/>
         <source>Sound library Info</source>
         <translation>Info de biblioteca de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="170"/>
         <source>Author...</source>
         <translation>Autor...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="171"/>
         <source>Download and install</source>
         <translation>Descargar e instalar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="178"/>
         <source>Local file</source>
         <translation>Fichero local</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="176"/>
         <source>Browse...</source>
         <translation>Examinar...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="177"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="173"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Close</source>
         <translation type="obsolete">Cerrar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="169"/>
         <source>License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="172"/>
         <source>Edit server list</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5046,74 +4239,60 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="78"/>
         <source>Load</source>
         <translation>Cargar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="63"/>
         <source>Export</source>
         <translation>Exportar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="64"/>
         <source>Rename</source>
         <translation>Renombrar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="70"/>
         <source>Delete</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="171"/>
         <source>System drumkits</source>
         <translation>Drumkits de sistema</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="175"/>
         <source>User drumkits</source>
         <translation>Drumkits de usuario</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="419"/>
         <source>Drumkit loaded: [%1]</source>
         <translation>Drumkit cargado: [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="454"/>
         <source>Warning, the selected drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>Advertencia, el drumkit seleccionado será eliminado del disco.
 ¿Desea continuar?</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="454"/>
         <source>&amp;Ok</source>
         <translation>&amp;Aceptar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="454"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Import drumkit</source>
         <translation type="obsolete">Importar drumkit</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="136"/>
         <source>Songs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="155"/>
         <source>Patterns</source>
         <translation type="unfinished">Patrones</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryPanel.cpp.svn-base" line="504"/>
         <source>Error loading song.</source>
         <translation type="unfinished">Error al cargar la canción.</translation>
     </message>
@@ -5121,17 +4300,14 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryRepositoryDialog.cpp.svn-base" line="38"/>
         <source>Edit repository settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryRepositoryDialog.cpp.svn-base" line="75"/>
         <source>Edit server list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryRepositoryDialog.cpp.svn-base" line="75"/>
         <source>URL</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5139,17 +4315,14 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h" line="73"/>
         <source>Dialog</source>
         <translation type="unfinished">Diálogo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h" line="74"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h" line="75"/>
         <source>Delete</source>
         <translation type="unfinished">Eliminar</translation>
     </message>
@@ -5157,7 +4330,6 @@ Are you sure?</source>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibrarySaveDialog.cpp.svn-base" line="33"/>
         <source>Save Sound Library</source>
         <translation>Guardar Biblioteca de sonido</translation>
     </message>
@@ -5165,37 +4337,30 @@ Are you sure?</source>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="113"/>
         <source>Dialog</source>
         <translation>Diálogo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="114"/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="115"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="116"/>
         <source>Information</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="117"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="118"/>
         <source>Save soundlibrary</source>
         <translation>Guardar Biblioteca de sonido</translation>
     </message>
     <message>
-        <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="119"/>
         <source>License</source>
         <translation type="unfinished">Licencia</translation>
     </message>
@@ -5203,7 +4368,6 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryTree</name>
     <message>
-        <location filename="../../gui/src/SoundLibrary/.svn/text-base/SoundLibraryTree.cpp.svn-base" line="30"/>
         <source>Sound library</source>
         <translation>Biblioteca de sonido</translation>
     </message>
@@ -5211,17 +4375,14 @@ Are you sure?</source>
 <context>
     <name>SplashScreen</name>
     <message>
-        <location filename="" line="774861684"/>
         <source>Hydrogen</source>
         <translation type="obsolete">Hydrogen</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Alpha Version </source>
         <translation type="obsolete">Versión Alfa</translation>
     </message>
     <message>
-        <location filename="" line="774861684"/>
         <source>Modules: </source>
         <translation type="obsolete">Módulos:</translation>
     </message>
@@ -5229,17 +4390,14 @@ Are you sure?</source>
 <context>
     <name>midiTable</name>
     <message>
-        <location filename="../../gui/src/widgets/.svn/text-base/midiTable.cpp.svn-base" line="114"/>
         <source>Event</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/widgets/.svn/text-base/midiTable.cpp.svn-base" line="115"/>
         <source>Param.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/widgets/.svn/text-base/midiTable.cpp.svn-base" line="115"/>
         <source>Action</source>
         <translation type="unfinished"></translation>
     </message>
