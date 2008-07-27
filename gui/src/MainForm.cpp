@@ -207,7 +207,7 @@ void MainForm::createMenuBar()
 	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "&Project" ) );
 
 	m_pFileMenu->addAction( trUtf8( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
-	m_pFileMenu->addAction( trUtf8( "Show info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
+	m_pFileMenu->addAction( trUtf8( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
@@ -224,7 +224,7 @@ void MainForm::createMenuBar()
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction ( trUtf8 ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "" ) );
-	m_pFileMenu->addAction( trUtf8( "Export pattern as..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
+	m_pFileMenu->addAction( trUtf8( "Expor&t pattern as..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
@@ -244,12 +244,12 @@ void MainForm::createMenuBar()
 
 
 	// INSTRUMENTS MENU
-	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "Instruments" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "Add instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "Clear all" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "Save library" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "Export library" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
+	m_pInstrumentsMenu->addAction( trUtf8( "&Add instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( trUtf8( "&Clear all" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( trUtf8( "&Save library" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( trUtf8( "&Export library" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( trUtf8( "&Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
 
 
 
@@ -260,7 +260,7 @@ void MainForm::createMenuBar()
 //	if ( Preferences::getInstance()->getInterfaceMode() == Preferences::SINGLE_PANED ) {
 //		m_pWindowMenu->addAction( trUtf8("Show song editor"), this, SLOT( action_window_showSongEditor() ), QKeySequence( "" ) );
 //	}
-	m_pToolsMenu->addAction( trUtf8("Playlist editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pToolsMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 
 	m_pToolsMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 
