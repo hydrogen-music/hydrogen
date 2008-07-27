@@ -250,7 +250,6 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.SaveFile();
 
 
-
 // This is a workaround in agog of LIB_ID
 	if ( mode == 1 ){
 
@@ -260,7 +259,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 #ifdef WIN32
 // ??? 		QString filename = "xcopy " + sPatternXmlFilename + " " + sDirectory + " &";	
 #else
-		QString filename = "/bin/ln -s " + sPatternXmlFilename + " " + sDirectory + " &";
+		QString filename = "/bin/cp " + sPatternXmlFilename + " " + sDirectory + " &";
 		//WARNINGLOG( "linke Patternfile" + filename );
 #endif		
 		char *file;
@@ -270,6 +269,11 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 		delete [] file;
 	}
 //~ This is a workaround in agog of LIB_ID
+#ifdef WIN32
+		Sleep ( 5 );
+#else
+		usleep ( 5000 );
+#endif 
 		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 
 

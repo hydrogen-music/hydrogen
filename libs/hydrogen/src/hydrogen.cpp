@@ -2563,7 +2563,7 @@ void Hydrogen::handleBeatCounter()
 
 						int sleeptime =  (float) rtstartframe / (float) bcsamplerate * ( int ) 1000 ;
 						#ifdef WIN32
-						sleep( sleeptime );
+						Sleep( sleeptime );
 						#else
 						usleep( 1000 * sleeptime );
 						#endif
