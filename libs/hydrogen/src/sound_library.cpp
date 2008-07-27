@@ -302,7 +302,7 @@ void Drumkit::removeDrumkit( const QString& sDrumkitName )
 {
 	_INFOLOG( "Removing drumkit: " + sDrumkitName );
 
-	QString dataDir = Preferences::getInstance()->getDataDirectory();
+	QString dataDir = Preferences::getInstance()->getDataDirectory() + "drumkits/";
 	dataDir += sDrumkitName;
 	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
 	_INFOLOG( cmd );

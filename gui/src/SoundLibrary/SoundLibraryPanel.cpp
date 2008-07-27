@@ -436,10 +436,11 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	QString sSoundLibrary = m_pSoundLibraryTree->currentItem()->text( 0 );
 
+
 	bool bIsUserSoundLibrary =false;
 	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for ( uint i = 0; i < userList.size(); ++i ) {
-		if ( userList[ i ] == sSoundLibrary ) {
+		if ( userList[ i ].endsWith( sSoundLibrary ) ) {
 			bIsUserSoundLibrary = true;
 			break;
 		}

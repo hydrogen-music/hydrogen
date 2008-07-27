@@ -38,6 +38,8 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/fx/Effects.h>
 
+#include "gui/src/HydrogenApp.h"
+#include "gui/src/InstrumentRack.h"
 
 #include <cstdlib>
 #include <cassert>
@@ -268,6 +270,8 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 		delete [] file;
 	}
 //~ This is a workaround in agog of LIB_ID
+		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+
 
 	return 0; // ok
 }
