@@ -38,6 +38,7 @@ using namespace H2Core;
 #include "SongEditorPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
 #include "../widgets/Button.h"
 #include "../PatternFillDialog.h"
 #include "../PatternPropertiesDialog.h"
@@ -991,7 +992,16 @@ void SongEditorPatternList::patternPopup_save()
 	if ( err != 0 ) {
 		_ERRORLOG( "Error saving the pattern" );
 	}
+
+#ifdef WIN32
+	Sleep ( 10 );
+#else
+	usleep ( 10000 );
+#endif 
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
+
+
 
 void SongEditorPatternList::patternPopup_edit()
 {

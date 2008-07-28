@@ -199,7 +199,7 @@ void SoundLibraryPanel::updateDrumkitList()
 
 		QString filenameforpattern = absPath + "/patterns/";
 		
-		
+
 		if (pInfo) {
 			std::vector<QString> patternListforDrumkit = mng.getPatternsForDrumkit( pInfo->getName() );
 

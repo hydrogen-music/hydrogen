@@ -38,8 +38,6 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/fx/Effects.h>
 
-#include "gui/src/HydrogenApp.h"
-#include "gui/src/InstrumentRack.h"
 
 #include <cstdlib>
 #include <cassert>
@@ -244,11 +242,6 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.SaveFile();
 
 
-#ifdef WIN32
-		Sleep ( 5 );
-#else
-		usleep ( 5000 );
-#endif 
 
 	return 0; // ok
 }
