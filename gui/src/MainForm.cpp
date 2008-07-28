@@ -40,7 +40,6 @@ using namespace H2Core;
 #include "ExportSongDialog.h"
 #include "Mixer/Mixer.h"
 #include "HelpBrowser.h"
-#include "DrumkitManager.h"
 #include "AudioEngineInfoForm.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
@@ -126,7 +125,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getPlayerControl()->installEventFilter(this);
 	InstrumentEditorPanel::getInstance()->installEventFilter(this);
-	h2app->getDrumkitManager()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
 
 	installEventFilter( this );
@@ -267,8 +265,6 @@ void MainForm::createMenuBar()
 	m_pToolsMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
 	m_pToolsMenu->addAction( trUtf8("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
 
-	m_pToolsMenu->addSeparator();				// -----
-	m_pToolsMenu->addAction( trUtf8("OLD &drumkit manager (Obsolete)"), this, SLOT( action_window_showDrumkitManager() ), QKeySequence( "Alt+D" ) );
 	//~ Tools menu
 
 
@@ -966,14 +962,6 @@ void MainForm::action_file_export() {
 
 
 
-void MainForm::action_window_showDrumkitManager()
-{
-	bool isVisible = h2app->getDrumkitManager()->isVisible();
-	h2app->getDrumkitManager()->setHidden( isVisible );
-}
-
-
-
 void MainForm::action_window_showDrumkitManagerPanel()
 {
 	InstrumentRack *pPanel = HydrogenApp::getInstance()->getInstrumentRack();
@@ -1023,16 +1011,6 @@ void MainForm::closeAll() {
 	QSize size = h2app->getSongEditorPanel()->frameSize();
 	songEditorProp.visible = h2app->getSongEditorPanel()->isVisible();
 	pref->setSongEditorProperties( songEditorProp );
-
-
-	// save drumkit manager properties
-	WindowProperties drumkitMngProp;
-	drumkitMngProp.x = h2app->getDrumkitManager()->x();
-	drumkitMngProp.y = h2app->getDrumkitManager()->y();
-	drumkitMngProp.width = h2app->getDrumkitManager()->width();
-	drumkitMngProp.height = h2app->getDrumkitManager()->height();
-	drumkitMngProp.visible = h2app->getDrumkitManager()->isVisible();
-	pref->setDrumkitManagerProperties( drumkitMngProp );
 
 
 	// save audio engine info properties

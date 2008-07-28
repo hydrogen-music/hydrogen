@@ -45,7 +45,6 @@ class SongEditor;
 class Mixer;
 class AudioEngineInfoForm;
 class SimpleHTMLBrowser;
-class OldDrumkitManager;
 class LadspaFXProperties;
 class LadspaFXInfo;
 class LadspaFXGroup;
@@ -80,7 +79,6 @@ class HydrogenApp : public QObject, public Object
 		PlayerControl* getPlayerControl() {	return m_pPlayerControl;	}
 		InstrumentRack* getInstrumentRack(){	return m_pInstrumentRack;	}
 
-		OldDrumkitManager* getDrumkitManager() {	return m_pDrumkitManager;	}	// to be removed
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 
@@ -111,8 +109,6 @@ class HydrogenApp : public QObject, public Object
 		InstrumentRack* m_pInstrumentRack;
 		PlayerControl *m_pPlayerControl;
 		PlaylistDialog *m_pPlaylistDialog;
-
-		OldDrumkitManager *m_pDrumkitManager;	// to be removed
 
 		QTimer *m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;

@@ -142,12 +142,14 @@ LadspaFX::~LadspaFX()
 	INFOLOG( QString( "DESTROY - %1 - %2" ).arg( m_sLibraryPath ).arg( m_sLabel ) );
 
 	if ( m_d ) {
+		/*
 		if ( m_d->deactivate ) {
 			if ( m_handle ) {
 				INFOLOG( "deactivate" );
 				m_d->deactivate( m_handle );
 			}
-		}
+		}*/
+		deactivate();
 
 		if ( m_d->cleanup ) {
 			if ( m_handle ) {

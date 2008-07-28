@@ -29,7 +29,6 @@
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
 #include "HelpBrowser.h"
-#include "DrumkitManager.h"
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
 
@@ -109,7 +108,6 @@ HydrogenApp::~HydrogenApp()
 
 	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
-	delete m_pDrumkitManager;
 	delete m_pMixer;
 	delete m_pPlaylistDialog;
 
@@ -206,17 +204,6 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pMixer->hide();
 	}
 
-
-	// DRUMKIT MANAGER
-	m_pDrumkitManager = new OldDrumkitManager( 0 );
-	WindowProperties drumkitMngProp = pPref->getDrumkitManagerProperties();
-	m_pDrumkitManager->move( drumkitMngProp.x, drumkitMngProp.y );
-	if ( drumkitMngProp.visible ) {
-		m_pDrumkitManager->show();
-	}
-	else {
-		m_pDrumkitManager->hide();
-	}
 
 	// HELP BROWSER
 	QString sDocPath = QString( DataPath::get_data_path() ) + "/doc";

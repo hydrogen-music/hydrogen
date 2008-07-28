@@ -395,12 +395,6 @@ public:
 		songEditorProperties = prop;
 	}
 
-	WindowProperties getDrumkitManagerProperties() {
-		return drumkitManagerProperties;
-	}
-	void setDrumkitManagerProperties( const WindowProperties& prop ) {
-		drumkitManagerProperties = prop;
-	}
 
 	WindowProperties getAudioEngineInfoProperties() {
 		return audioEngineInfoProperties;

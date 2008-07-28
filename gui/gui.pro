@@ -140,7 +140,6 @@ TRANSLATIONS = \
 FORMS = \
 	src/UI/about_dialog.ui \
 	src/UI/AudioEngineInfoForm_UI.ui \
-	src/UI/DrumkitManager_UI.ui \
 	src/UI/ExportSongDialog_UI.ui \
 	src/UI/LadspaFXSelector_UI.ui \
 	src/UI/PatternFillDialog_UI.ui \
@@ -198,7 +197,6 @@ SOURCES += \
 	\
 	src/AboutDialog.cpp \
 	src/AudioEngineInfoForm.cpp \
-	src/DrumkitManager.cpp \
 	src/ExportSongDialog.cpp \
 	src/HelpBrowser.cpp \
 	src/HydrogenApp.cpp \
@@ -257,7 +255,6 @@ HEADERS += \
 	\
 	src/AboutDialog.h \
 	src/AudioEngineInfoForm.h \
-	src/DrumkitManager.h \
 	src/ExportSongDialog.h \
 	src/EventListener.h \
 	src/HelpBrowser.h \

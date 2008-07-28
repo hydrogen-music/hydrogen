@@ -389,7 +389,6 @@ void Preferences::loadPreferences( bool bGlobal )
 				setMixerProperties( readWindowProperties( guiNode, "mixer_properties", mixerProperties ) );
 				setPatternEditorProperties( readWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties ) );
 				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
-				setDrumkitManagerProperties( readWindowProperties( guiNode, "drumkitManager_properties", drumkitManagerProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
 
