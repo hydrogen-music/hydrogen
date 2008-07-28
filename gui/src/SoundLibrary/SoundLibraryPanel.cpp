@@ -77,6 +77,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	m_pPatternMenu->addSeparator();
 	m_pPatternMenu->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
 
+	m_pPatternMenuList = new QMenu( this );
+	m_pPatternMenuList->addSeparator();
+	m_pPatternMenuList->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
+
 // DRUMKIT LIST
 	m_pSoundLibraryTree = new SoundLibraryTree( NULL );
 	connect( m_pSoundLibraryTree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
@@ -192,11 +196,28 @@ void SoundLibraryPanel::updateDrumkitList()
 		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
 		QString absPath =  userList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
+
+		QString filenameforpattern = absPath + "/patterns/";
+		std::vector<QString> patternListforDrumkit = mng.getPatternListFromDrumkit( filenameforpattern );
+		
 		if (pInfo) {
 			m_userDrumkitInfoList.push_back( pInfo );
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pUserDrumkitsItem );
 			pDrumkitItem->setText( 0, pInfo->getName() );
+
+			if( patternListforDrumkit.size() > 0){
+				m_pPatternItemList = new QTreeWidgetItem( pDrumkitItem );
+				m_pPatternItemList->setText( 0, trUtf8( "Patterns" ) );
+				m_pPatternItemList->setToolTip( 0, "Patterns for this drumkit" );
+	
+				for (uint i = 0; i < patternListforDrumkit.size(); i++) {
+					QString absPath = filenameforpattern + patternListforDrumkit[i];
+					QTreeWidgetItem* pPatternItemList = new QTreeWidgetItem( m_pPatternItemList );
+					pPatternItemList->setText( 0 , patternListforDrumkit[ i ] );
+					QString patternPath = filenameforpattern + patternListforDrumkit[i] + ".h2pattern";
+				}
+			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
@@ -248,7 +269,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 	UNUSED( column );
 
 //	INFOLOG( "[on_DrumkitList_itemActivated]" );
-	if ( item == m_pSystemDrumkitsItem || item == m_pUserDrumkitsItem || item == m_pSystemDrumkitsItem->parent() || item->parent() == m_pSongItem || item == m_pSongItem || item == m_pPatternItem || item->parent() == m_pPatternItem ) {
+	if ( item == m_pSystemDrumkitsItem || item == m_pUserDrumkitsItem || item == m_pSystemDrumkitsItem->parent() || item->parent() == m_pSongItem || item == m_pSongItem || item == m_pPatternItem || item->parent() == m_pPatternItem || item == m_pPatternItemList || item->parent() == m_pPatternItemList || item->parent()->parent() == m_pPatternItemList ) {
 		return;
 	}
 
@@ -258,6 +279,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 	else {
 		// e' stato selezionato uno strumento
 		QString selectedName = item->text(0);
+		if( item->text(0) == "Patterns" ) return;
 
 		QString sInstrName = selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 );
 		QString sDrumkitName = item->parent()->text(0);
@@ -281,7 +303,6 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	if( m_pSoundLibraryTree->currentItem() == NULL )
 		return;
 	
-
 	if (
 		( m_pSoundLibraryTree->currentItem()->parent() == NULL ) ||
 		( m_pSoundLibraryTree->currentItem() == m_pUserDrumkitsItem ) ||
@@ -304,6 +325,10 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	else if ( m_pSoundLibraryTree->currentItem()->parent()->parent() == m_pUserDrumkitsItem ) {
 		m_pInstrumentMenu->popup( pos );
 	}
+	else if ( m_pSoundLibraryTree->currentItem()->parent()->parent()->parent() ==  m_pPatternItemList ) {
+		m_pPatternMenuList->popup( pos );
+	}
+	
 
 	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pSystemDrumkitsItem ) {
 		m_pDrumkitMenu->popup( pos );

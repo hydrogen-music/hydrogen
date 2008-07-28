@@ -72,11 +72,13 @@ class SoundLibraryPanel : public QWidget, private Object
 		QMenu* m_pInstrumentMenu;
 		QMenu* m_pSongMenu;
 		QMenu* m_pPatternMenu;
+		QMenu* m_pPatternMenuList;
 
 		QTreeWidgetItem* m_pSystemDrumkitsItem;
 		QTreeWidgetItem* m_pUserDrumkitsItem;
 		QTreeWidgetItem* m_pSongItem;
 		QTreeWidgetItem* m_pPatternItem;
+		QTreeWidgetItem* m_pPatternItemList;
 
 		std::vector<H2Core::Drumkit*> m_systemDrumkitInfoList;
 		std::vector<H2Core::Drumkit*> m_userDrumkitInfoList;

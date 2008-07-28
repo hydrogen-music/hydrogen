@@ -180,13 +180,13 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 	// check if the directory exists
 	QDir dir( sDrumkitDir );
-	QDir dirPattern( sDrumkitDir + "/Pattern" );
+	QDir dirPattern( sDrumkitDir + "/patterns" );
 	if ( !dir.exists() ) {
 		dir.mkdir( sDrumkitDir );// create the drumkit directory
-		dir.mkdir( sDrumkitDir + "/Pattern" ); //create the pattern dir
+		dir.mkdir( sDrumkitDir + "/patterns" ); //create the pattern dir
 	}else{
 		if ( !dirPattern.exists() ) {
-			dir.mkdir( sDrumkitDir + "/Pattern" ); //create the pattern dir
+			dir.mkdir( sDrumkitDir + "/patterns" ); //create the pattern dir
 		}
 
 	}
@@ -195,7 +195,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	// create the drumkit.xml file
 	switch ( mode ){
 		case 1: //save
-			sPatternXmlFilename = sDrumkitDir + QString( "/Pattern/" ) + QString( patternname + QString( ".h2pattern" ));
+			sPatternXmlFilename = sDrumkitDir + QString( "/patterns/" ) + QString( patternname + QString( ".h2pattern" ));
 			WARNINGLOG( "Patternfile" + sPatternXmlFilename );
 			//TiXmlDocument doc( sPatternXmlFilename.c_str() );
 			break;
@@ -351,6 +351,32 @@ std::vector<QString> LocalFileMng::getPatternList()
 
 	if ( !dir.exists() ) {
 		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sDirectory ) );
+	} else {
+		QFileInfoList fileList = dir.entryInfoList();
+		dir.setFilter( QDir::Dirs );
+		for ( int i = 0; i < fileList.size(); ++i ) {
+			QString sFile = fileList.at( i ).fileName();
+
+			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
+				continue;
+			}
+
+			list.push_back( sFile.left( sFile.indexOf( "." ) ) );
+		}
+	}
+
+	return list;
+}
+
+// only to know what is better 
+std::vector<QString> LocalFileMng::getPatternListFromDrumkit( const QString& sFilename )
+{
+	std::vector<QString> list;
+
+	QDir dir( sFilename );
+
+	if ( !dir.exists() ) {
+		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sFilename ) );
 	} else {
 		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
