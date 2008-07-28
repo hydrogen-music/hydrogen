@@ -274,8 +274,6 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 #else
 		usleep ( 5000 );
 #endif 
-		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
-
 
 	return 0; // ok
 }
