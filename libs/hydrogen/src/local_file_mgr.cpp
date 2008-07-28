@@ -207,7 +207,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 	TiXmlElement rootNode( "drumkit_pattern" );
 	//LIB_ID just in work to get better usability
-	writeXmlString( &rootNode, "LIB_ID", "in_work" );
+	//writeXmlString( &rootNode, "LIB_ID", "in_work" );
 	writeXmlString( &rootNode, "pattern_for_drumkit", instr->get_drumkit_name() );
 
 
