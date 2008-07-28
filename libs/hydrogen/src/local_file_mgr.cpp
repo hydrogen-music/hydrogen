@@ -174,28 +174,22 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 	Pattern *pat = song->get_pattern_list()->get( selectedpattern );
 
-	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() + "drumkits/" +  instr->get_drumkit_name();
+	QString sPatternDir = Preferences::getInstance()->getDataDirectory() + "patterns/" +  instr->get_drumkit_name();
 
-	INFOLOG( "[savePattern]" + sDrumkitDir );
+	INFOLOG( "[savePattern]" + sPatternDir );
 
 	// check if the directory exists
-	QDir dir( sDrumkitDir );
-	QDir dirPattern( sDrumkitDir + "/patterns" );
+	QDir dir( sPatternDir );
+	QDir dirPattern( sPatternDir );
 	if ( !dir.exists() ) {
-		dir.mkdir( sDrumkitDir );// create the drumkit directory
-		dir.mkdir( sDrumkitDir + "/patterns" ); //create the pattern dir
-	}else{
-		if ( !dirPattern.exists() ) {
-			dir.mkdir( sDrumkitDir + "/patterns" ); //create the pattern dir
-		}
-
+		dir.mkdir( sPatternDir );// create the drumkit directory
 	}
 
 	QString sPatternXmlFilename = "";
 	// create the drumkit.xml file
 	switch ( mode ){
 		case 1: //save
-			sPatternXmlFilename = sDrumkitDir + QString( "/patterns/" ) + QString( patternname + QString( ".h2pattern" ));
+			sPatternXmlFilename = sPatternDir + "/" + QString( patternname + QString( ".h2pattern" ));
 			WARNINGLOG( "Patternfile" + sPatternXmlFilename );
 			//TiXmlDocument doc( sPatternXmlFilename.c_str() );
 			break;
@@ -250,25 +244,6 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.SaveFile();
 
 
-// This is a workaround in agog of LIB_ID
-	if ( mode == 1 ){
-
-		sPatternXmlFilename.replace(QRegExp(" "), "\\ ");
-
-		QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns/" ;
-#ifdef WIN32
-// ??? 		QString filename = "xcopy " + sPatternXmlFilename + " " + sDirectory + " &";	
-#else
-		QString filename = "/bin/cp " + sPatternXmlFilename + " " + sDirectory + " &";
-		//WARNINGLOG( "linke Patternfile" + filename );
-#endif		
-		char *file;
-		file = new char[filename.length() + 1];
-		strcpy(file, filename.toAscii());
-		std::system(file); 
-		delete [] file;
-	}
-//~ This is a workaround in agog of LIB_ID
 #ifdef WIN32
 		Sleep ( 5 );
 #else
@@ -369,14 +344,14 @@ std::vector<QString> LocalFileMng::getPatternList()
 }
 
 // only to know what is better 
-std::vector<QString> LocalFileMng::getPatternListFromDrumkit( const QString& sFilename )
+std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumkit )
 {
 	std::vector<QString> list;
 
-	QDir dir( sFilename );
+	QDir dir( Preferences::getInstance()->getDataDirectory() + "/patterns/" + sDrumkit );
 
 	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sFilename ) );
+		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sDrumkit ) );
 	} else {
 		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );

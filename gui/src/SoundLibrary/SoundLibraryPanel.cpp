@@ -198,9 +198,11 @@ void SoundLibraryPanel::updateDrumkitList()
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 
 		QString filenameforpattern = absPath + "/patterns/";
-		std::vector<QString> patternListforDrumkit = mng.getPatternListFromDrumkit( filenameforpattern );
+		
 		
 		if (pInfo) {
+			std::vector<QString> patternListforDrumkit = mng.getPatternsForDrumkit( pInfo->getName() );
+
 			m_userDrumkitInfoList.push_back( pInfo );
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( m_pUserDrumkitsItem );

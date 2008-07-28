@@ -57,7 +57,7 @@ public:
 	std::vector<QString> getSystemDrumkitList();
 	std::vector<QString> getSongList();
 	std::vector<QString> getPatternList();
-	std::vector<QString> getPatternListFromDrumkit( const QString& sFilename );
+	std::vector<QString> getPatternsForDrumkit( const QString&  );
 
 	QString getDrumkitDirectory( const QString& drumkitName );
 	QString getDrumkitNameForPattern( const QString& patternDir );
