@@ -327,16 +327,15 @@ std::vector<QString> LocalFileMng::getPatternList()
 	if ( !dir.exists() ) {
 		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sDirectory ) );
 	} else {
+		dir.setFilter( QDir::Files );
 		QFileInfoList fileList = dir.entryInfoList();
-		dir.setFilter( QDir::Dirs );
+		
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = fileList.at( i ).fileName();
-
-			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
-				continue;
+			
+			if( sFile.endsWith(".h2pattern") ){
+				list.push_back( sFile.left( sFile.indexOf( "." ) ) );
 			}
-
-			list.push_back( sFile.left( sFile.indexOf( "." ) ) );
 		}
 	}
 

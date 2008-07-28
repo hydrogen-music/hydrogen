@@ -327,9 +327,9 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	else if ( m_pSoundLibraryTree->currentItem()->parent()->parent() == m_pUserDrumkitsItem ) {
 		m_pInstrumentMenu->popup( pos );
 	}
-	else if ( m_pSoundLibraryTree->currentItem()->parent()->parent()->parent() ==  m_pPatternItemList ) {
-		m_pPatternMenuList->popup( pos );
-	}
+	//else if ( m_pSoundLibraryTree->currentItem()->parent()->parent()->parent() ==  m_pPatternItemList ) {
+	//	m_pPatternMenuList->popup( pos );
+	//}
 	
 
 	if ( m_pSoundLibraryTree->currentItem()->parent() == m_pSystemDrumkitsItem ) {
