@@ -496,51 +496,61 @@
     <patternList>
         <pattern>
             <name>Pattern 1</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 2</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 3</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 4</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 5</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 6</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 7</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 8</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 9</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>
         <pattern>
             <name>Pattern 10</name>
+            <category>not_categorized</category>
             <size>192</size>
             <noteList />
         </pattern>

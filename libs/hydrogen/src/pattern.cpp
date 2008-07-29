@@ -75,10 +75,6 @@ Pattern* Pattern::copy()
 		Note *pNote = new Note( pos->second );
 		newPat->note_map.insert( std::make_pair( pos->first, pNote ) );
 	}
-	INFOLOG( "Pattern dump" );
-	INFOLOG( "Pattern name: " + __name );
-	INFOLOG( "Pattern category: " + __category );
-	INFOLOG( "Pattern lenght: " + to_string( get_lenght() ) );
 
 	return newPat;
 }
