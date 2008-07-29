@@ -347,6 +347,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 
 	Pattern *emptyPattern = Pattern::get_empty_pattern();
 	emptyPattern->set_name( trUtf8("Pattern") );
+	emptyPattern->set_category( trUtf8("not_categorized") );
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern );
 	if ( dialog->exec() == QDialog::Accepted ) {

@@ -415,7 +415,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
-	ERRORLOG( "[on_drumkitLoadAction] not implemented yet" );
+//	ERRORLOG( "[on_drumkitLoadAction] not implemented yet" );
 
 	QString sDrumkitName = m_pSoundLibraryTree->currentItem()->text(0);
 

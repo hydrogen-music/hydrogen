@@ -530,10 +530,12 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 	QString sName = "";	// name
 	sName = LocalFileMng::readXmlString( pattern, "name", sName );
 
+	QString sCategory = ""; // category
+	sCategory = LocalFileMng::readXmlString( pattern, "category", sCategory );
 	int nSize = -1;
 	nSize = LocalFileMng::readXmlInt( pattern, "size", nSize, false, false );
 
-	pPattern = new Pattern( sName, nSize );
+	pPattern = new Pattern( sName, sCategory, nSize );
 
 
 

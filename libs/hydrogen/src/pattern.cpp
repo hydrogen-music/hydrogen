@@ -29,11 +29,12 @@
 namespace H2Core
 {
 
-Pattern::Pattern( const QString& name, unsigned lenght )
+Pattern::Pattern( const QString& name, const QString& category, unsigned lenght )
 		: Object( "Pattern" )
 {
 //	INFOLOG( "INIT: " + m_sName );
 	set_name( name );
+	set_category( category );
 	set_lenght( lenght );
 }
 
@@ -56,7 +57,7 @@ Pattern::~Pattern()
 /// Returns an empty Pattern
 Pattern* Pattern::get_empty_pattern()
 {
-	Pattern *pat = new Pattern( "Pattern" );
+	Pattern *pat = new Pattern( "Pattern", "not_categorized" );
 	return pat;
 }
 
@@ -64,9 +65,9 @@ Pattern* Pattern::get_empty_pattern()
 
 Pattern* Pattern::copy()
 {
-	ERRORLOG( "not implemented yet!!!" );
+//	ERRORLOG( "not implemented yet!!!" );
 
-	Pattern *newPat = new Pattern( __name );
+	Pattern *newPat = new Pattern( __name, __category );
 	newPat->set_lenght( get_lenght() );
 
 	std::multimap <int, Note*>::iterator pos;
@@ -74,6 +75,10 @@ Pattern* Pattern::copy()
 		Note *pNote = new Note( pos->second );
 		newPat->note_map.insert( std::make_pair( pos->first, pNote ) );
 	}
+	INFOLOG( "Pattern dump" );
+	INFOLOG( "Pattern name: " + __name );
+	INFOLOG( "Pattern category: " + __category );
+	INFOLOG( "Pattern lenght: " + to_string( get_lenght() ) );
 
 	return newPat;
 }
@@ -84,6 +89,7 @@ void Pattern::dump()
 {
 	INFOLOG( "Pattern dump" );
 	INFOLOG( "Pattern name: " + __name );
+	INFOLOG( "Pattern category: " + __category );
 	INFOLOG( "Pattern lenght: " + to_string( get_lenght() ) );
 }
 

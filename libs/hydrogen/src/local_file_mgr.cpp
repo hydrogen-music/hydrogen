@@ -112,10 +112,11 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 	TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
 
 	QString sName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+	QString sCategory( LocalFileMng::readXmlString( patternNode,"category", "" ) );
 
 	int nSize = -1;
 	nSize = LocalFileMng::readXmlInt( patternNode, "size",nSize ,false,false );
-	pPattern = new Pattern( sName, nSize );
+	pPattern = new Pattern( sName, sCategory, nSize );
 
 
 
@@ -212,6 +213,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	// pattern
 	TiXmlElement patternNode( "pattern" );
 	LocalFileMng::writeXmlString( &patternNode, "pattern_name", realpatternname );
+	LocalFileMng::writeXmlString( &patternNode, "category", pat->get_category() );
 	writeXmlString( &patternNode, "size", to_string( pat->get_lenght() ) );
 
 		TiXmlElement noteListNode( "noteList" );
