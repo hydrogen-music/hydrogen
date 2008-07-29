@@ -31,7 +31,8 @@ using namespace std;
 using namespace H2Core;
 
 PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern)
- : QDialog(parent) {
+ : QDialog(parent)
+{
 	setupUi( this );
 	setWindowTitle( trUtf8( "Pattern properties" ) );
 //	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
@@ -50,23 +51,22 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 }
 
 
-
-
 /**
  * Destructor
  */
-PatternPropertiesDialog::~PatternPropertiesDialog() {
+PatternPropertiesDialog::~PatternPropertiesDialog()
+{
 }
 
 
-
-void PatternPropertiesDialog::on_cancelBtn_clicked() {
+void PatternPropertiesDialog::on_cancelBtn_clicked()
+{
 	reject();
 }
 
 
-
-void PatternPropertiesDialog::on_okBtn_clicked() {
+void PatternPropertiesDialog::on_okBtn_clicked()
+{
 	QString pattName = patternNameTxt->text();
 	QString pattCategory = categoryComboBox->currentText();
 
@@ -74,7 +74,6 @@ void PatternPropertiesDialog::on_okBtn_clicked() {
 	pattern->set_category( pattCategory );
 	accept();
 }
-
 
 
 /**
@@ -95,6 +94,7 @@ bool PatternPropertiesDialog::nameCheck( QString pattName )
 	return true;
 }
 
+
 void PatternPropertiesDialog::on_categoryComboBox_editTextChanged()
 {
 	if ( categoryComboBox->currentText() == pattern->get_category() ){
@@ -106,7 +106,9 @@ void PatternPropertiesDialog::on_categoryComboBox_editTextChanged()
 	}
 }
 
-void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
+
+void PatternPropertiesDialog::on_patternNameTxt_textChanged()
+{
 
 	if ( nameCheck( patternNameTxt->text() )) {
 		okBtn->setEnabled(true);
@@ -115,5 +117,3 @@ void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
 		okBtn->setEnabled(false);
 	}
 }
-
-
