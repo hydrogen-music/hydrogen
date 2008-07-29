@@ -53,18 +53,18 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 
 	Preferences *pPref = H2Core::Preferences::getInstance();
 
-	std::list<QString>::const_iterator cur_musicCategories;
+	std::list<QString>::const_iterator cur_patternCategories;
 	
-	if(pPref->m_musicCategories.size() == 0){ 	
-		pPref->m_musicCategories.push_back("not_categorized");
+	if(pPref->m_patternCategories.size() == 0){ 	
+		pPref->m_patternCategories.push_back("not_categorized");
 	}
 
 	//categoryComboBox->clear();
 
-	for( cur_musicCategories = pPref->m_musicCategories.begin(); cur_musicCategories != pPref->m_musicCategories.end(); ++cur_musicCategories )
+	for( cur_patternCategories = pPref->m_patternCategories.begin(); cur_patternCategories != pPref->m_patternCategories.end(); ++cur_patternCategories )
 	{
-		if ( categoryComboBox->currentText() != *cur_musicCategories ){
-			categoryComboBox->addItem( *cur_musicCategories );
+		if ( categoryComboBox->currentText() != *cur_patternCategories ){
+			categoryComboBox->addItem( *cur_patternCategories );
 		}
 	}
 }
@@ -90,18 +90,18 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	QString pattCategory = categoryComboBox->currentText();
 
 	Preferences *pPref = H2Core::Preferences::getInstance();
-	std::list<QString>::const_iterator cur_testmusicCategories;
+	std::list<QString>::const_iterator cur_testpatternCategories;
 
 	bool test = true;
-	for( cur_testmusicCategories = pPref->m_musicCategories.begin(); cur_testmusicCategories != pPref->m_musicCategories.end(); ++cur_testmusicCategories )
+	for( cur_testpatternCategories = pPref->m_patternCategories.begin(); cur_testpatternCategories != pPref->m_patternCategories.end(); ++cur_testpatternCategories )
 	{
-		if ( categoryComboBox->currentText() == *cur_testmusicCategories ){
+		if ( categoryComboBox->currentText() == *cur_testpatternCategories ){
 			test = false;
 		}
 	}
 
 	if (test == true ) {
-		pPref->m_musicCategories.push_back( pattCategory );
+		pPref->m_patternCategories.push_back( pattCategory );
 	}
 
 	pattern->set_name(pattName);

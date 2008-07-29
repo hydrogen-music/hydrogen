@@ -37,7 +37,7 @@
       <item>
        <widget class="QLabel" name="label" >
         <property name="text" >
-         <string>Music category</string>
+         <string>Pattern category</string>
         </property>
        </widget>
       </item>

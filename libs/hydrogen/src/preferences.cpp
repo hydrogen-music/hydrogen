@@ -267,16 +267,16 @@ void Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "serverList node not found" );
 			}
 
-			m_musicCategories.clear();
-			TiXmlNode* pMusicCategoriesNode = rootNode->FirstChild( "musicCategories" );
-			if ( pMusicCategoriesNode ) {
+			m_patternCategories.clear();
+			TiXmlNode* pPatternCategoriesNode = rootNode->FirstChild( "patternCategories" );
+			if ( pPatternCategoriesNode ) {
 				TiXmlNode* pCategoriesNode = 0;
-				for ( pCategoriesNode = pMusicCategoriesNode->FirstChild( "categories" ); pCategoriesNode; pCategoriesNode = pCategoriesNode->NextSibling( "categories" ) ) {
+				for ( pCategoriesNode = pPatternCategoriesNode->FirstChild( "categories" ); pCategoriesNode; pCategoriesNode = pCategoriesNode->NextSibling( "categories" ) ) {
 					QString sFilename = pCategoriesNode->FirstChild()->Value();
-					m_musicCategories.push_back( sFilename );
+					m_patternCategories.push_back( sFilename );
 				}
 			} else {
-				WARNINGLOG( "musicCategories node not found" );
+				WARNINGLOG( "patternCategories node not found" );
 			}
 
 
@@ -596,13 +596,13 @@ void Preferences::savePreferences()
 	rootNode.InsertEndChild( serverListNode );
 
 
-	std::list<QString>::const_iterator cur_musicCategories;
+	std::list<QString>::const_iterator cur_patternCategories;
 
-	TiXmlElement musicCategoriesNode( "musicCategories" );
-	for( cur_musicCategories = m_musicCategories.begin(); cur_musicCategories != m_musicCategories.end(); ++cur_musicCategories ){
-		LocalFileMng::writeXmlString( &musicCategoriesNode , QString("categories") , QString( *cur_musicCategories ) );
+	TiXmlElement patternCategoriesNode( "patternCategories" );
+	for( cur_patternCategories = m_patternCategories.begin(); cur_patternCategories != m_patternCategories.end(); ++cur_patternCategories ){
+		LocalFileMng::writeXmlString( &patternCategoriesNode , QString("categories") , QString( *cur_patternCategories ) );
 	}
-	rootNode.InsertEndChild( musicCategoriesNode );
+	rootNode.InsertEndChild( patternCategoriesNode );
 
 
 

@@ -152,7 +152,7 @@ public:
 	//~ beatcounter
 
 	std::list<QString> sServerList;
-	std::list<QString> m_musicCategories;
+	std::list<QString> m_patternCategories;
 
 	//___ audio engine properties ___
 	QString m_sAudioDriver;		///< Audio Driver
