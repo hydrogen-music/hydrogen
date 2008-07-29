@@ -1049,6 +1049,7 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 		// pattern
 		TiXmlElement patternNode( "pattern" );
 		LocalFileMng::writeXmlString( &patternNode, "name", pat->get_name() );
+		LocalFileMng::writeXmlString( &patternNode, "category", pat->get_category() );
 		LocalFileMng::writeXmlString( &patternNode, "size", to_string( pat->get_lenght() ) );
 
 		TiXmlElement noteListNode( "noteList" );

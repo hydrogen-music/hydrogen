@@ -48,6 +48,7 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 		void on_cancelBtn_clicked();
 		void on_okBtn_clicked();
 		void on_patternNameTxt_textChanged();
+		void on_categoryComboBox_editTextChanged();
 
 	private:
 		H2Core::Pattern *pattern;

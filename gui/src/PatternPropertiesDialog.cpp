@@ -95,6 +95,16 @@ bool PatternPropertiesDialog::nameCheck( QString pattName )
 	return true;
 }
 
+void PatternPropertiesDialog::on_categoryComboBox_editTextChanged()
+{
+	if ( categoryComboBox->currentText() == pattern->get_category() ){
+		okBtn->setEnabled( false );
+	}
+	else 
+	{
+		okBtn->setEnabled(true);
+	}
+}
 
 void PatternPropertiesDialog::on_patternNameTxt_textChanged() {
 
