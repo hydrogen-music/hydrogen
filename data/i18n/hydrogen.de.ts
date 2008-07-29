@@ -2079,7 +2079,7 @@ Das Dokument wurde geändert
     </message>
     <message>
         <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation>OLD &amp;Drumkit-Manager</translation>
+        <translation type="obsolete">OLD &amp;Drumkit-Manager</translation>
     </message>
     <message>
         <source>debug action</source>
@@ -2347,7 +2347,7 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation>Drumkit-Verwaltung</translation>
+        <translation type="obsolete">Drumkit-Verwaltung</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1/.hydrogen/data/</source>
@@ -2355,31 +2355,31 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>Name: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Name: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation>Autor: %1</translation>
+        <translation type="obsolete">Autor: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation>Infos: &lt;br&gt;%1</translation>
+        <translation type="obsolete">Infos: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation>Drumkit geladen: [%1]</translation>
+        <translation type="obsolete">Drumkit geladen: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation>Drumkit importieren</translation>
+        <translation type="obsolete">Drumkit importieren</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation>Drumkit exportieren</translation>
+        <translation type="obsolete">Drumkit exportieren</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1</source>
-        <translation>Das Drumkit wird installiert sein in %1</translation>
+        <translation type="obsolete">Das Drumkit wird installiert sein in %1</translation>
     </message>
 </context>
 <context>
@@ -2618,6 +2618,10 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source>New Pattern Name</source>
         <translation>Neuer Patternname</translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
+        <translation type="unfinished">Pattern Kategorie</translation>
     </message>
 </context>
 <context>
@@ -3354,6 +3358,10 @@ Fortsetzen?</translation>
     <message>
         <source>single pattern mode</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation type="unfinished">nicht_kategorisiert</translation>
     </message>
 </context>
 <context>

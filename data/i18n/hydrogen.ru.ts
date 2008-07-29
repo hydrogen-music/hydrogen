@@ -2564,10 +2564,6 @@ Do you want to save the changes before exiting?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>debug action</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2921,7 +2917,7 @@ The song has unsaved changes
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation type="unfinished">Управление драмкитами</translation>
+        <translation type="obsolete">Управление драмкитами</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1/.hydrogen/data/</source>
@@ -2929,31 +2925,27 @@ The song has unsaved changes
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished">Имя: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Имя: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Автор: %1</translation>
+        <translation type="obsolete">Автор: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation type="unfinished">Комментарий: &lt;br&gt;%1</translation>
+        <translation type="obsolete">Комментарий: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Загружен драмкит: [%1]</translation>
+        <translation type="obsolete">Загружен драмкит: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Импортировать драмкит</translation>
+        <translation type="obsolete">Импортировать драмкит</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Экспортировать драмкит</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Экспортировать драмкит</translation>
     </message>
 </context>
 <context>
@@ -3299,6 +3291,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>Form1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4167,6 +4163,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

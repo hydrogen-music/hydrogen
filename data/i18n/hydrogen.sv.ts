@@ -1255,10 +1255,6 @@ Vill du spara ändringarna innan du avslutar?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>De&amp;bug</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1488,35 +1484,23 @@ The song has unsaved changes
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished">Namn: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Namn: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Upphovsman: %1</translation>
+        <translation type="obsolete">Upphovsman: %1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Drumkit laddat: [1%]</translation>
+        <translation type="obsolete">Drumkit laddat: [1%]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Importera drumkit</translation>
+        <translation type="obsolete">Importera drumkit</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Exportera drumkit</translation>
-    </message>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Exportera drumkit</translation>
     </message>
 </context>
 <context>
@@ -1750,6 +1734,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>Alt+O</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2457,6 +2445,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

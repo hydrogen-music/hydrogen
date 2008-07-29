@@ -1828,10 +1828,6 @@ Voulez-vous enregistrer les changements avant de quitter?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>De&amp;bug</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2189,35 +2185,31 @@ The song has unsaved changes
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation type="unfinished">Gestionnaire de Kit</translation>
+        <translation type="obsolete">Gestionnaire de Kit</translation>
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished">Nom: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Nom: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Auteur: %1</translation>
+        <translation type="obsolete">Auteur: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation type="unfinished">Info: &lt;br&gt;%1</translation>
+        <translation type="obsolete">Info: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Kit Chargé: [%1]</translation>
+        <translation type="obsolete">Kit Chargé: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Importer Kit</translation>
+        <translation type="obsolete">Importer Kit</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Exporter Kit</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Exporter Kit</translation>
     </message>
 </context>
 <context>
@@ -2467,6 +2459,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>New Pattern Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3309,6 +3305,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

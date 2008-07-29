@@ -2440,7 +2440,7 @@ El documento ha sido modificado
     </message>
     <message>
         <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation>VIEJO gestor de &amp;drumkits (Obsoleto)</translation>
+        <translation type="obsolete">VIEJO gestor de &amp;drumkits (Obsoleto)</translation>
     </message>
     <message>
         <source>debug action</source>
@@ -2795,35 +2795,35 @@ La canción ha sido modificada
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation>Gestor de drumkits</translation>
+        <translation type="obsolete">Gestor de drumkits</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1</source>
-        <translation>El drumkit se instalará en %1</translation>
+        <translation type="obsolete">El drumkit se instalará en %1</translation>
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>Nombre: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Nombre: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation>Autor: %1</translation>
+        <translation type="obsolete">Autor: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation>Información: &lt;br&gt;%1</translation>
+        <translation type="obsolete">Información: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation>Drumkit cargado: [%1]</translation>
+        <translation type="obsolete">Drumkit cargado: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation>Importar drumkit</translation>
+        <translation type="obsolete">Importar drumkit</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation>Exportar drumkit</translation>
+        <translation type="obsolete">Exportar drumkit</translation>
     </message>
 </context>
 <context>
@@ -3110,6 +3110,10 @@ La canción ha sido modificada
     <message>
         <source>New Pattern Name</source>
         <translation>Nombre del patrón nuevo</translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3984,6 +3988,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

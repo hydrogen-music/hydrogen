@@ -2094,10 +2094,6 @@ Do you want to save the changes before exiting?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>debug action</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2463,7 +2459,7 @@ The song has unsaved changes
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation type="unfinished">ドラムキット管理</translation>
+        <translation type="obsolete">ドラムキット管理</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1/.hydrogen/data/</source>
@@ -2471,31 +2467,27 @@ The song has unsaved changes
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished">名前: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">名前: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">作者: %1</translation>
+        <translation type="obsolete">作者: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation type="unfinished">情報: &lt;br&gt;%1</translation>
+        <translation type="obsolete">情報: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">読み込まれたドラムキット: [%1]</translation>
+        <translation type="obsolete">読み込まれたドラムキット: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">ドラムキットのインポート</translation>
+        <translation type="obsolete">ドラムキットのインポート</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">ドラムキットのエクスポート</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">ドラムキットのエクスポート</translation>
     </message>
 </context>
 <context>
@@ -2777,6 +2769,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>Form1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3656,6 +3652,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

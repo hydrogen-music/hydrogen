@@ -1098,7 +1098,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation>STARY menedżer &amp;zestawów perkusyjnych (nieaktualny)</translation>
+        <translation type="obsolete">STARY menedżer &amp;zestawów perkusyjnych (nieaktualny)</translation>
     </message>
     <message>
         <source>De&amp;bug</source>
@@ -1436,35 +1436,35 @@ The song has unsaved changes
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation>Menedżer zestawów</translation>
+        <translation type="obsolete">Menedżer zestawów</translation>
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>Nazwa: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Nazwa: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation>Autor: %1</translation>
+        <translation type="obsolete">Autor: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation>Informacja:  &lt;br&gt;%1</translation>
+        <translation type="obsolete">Informacja:  &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation>Zestaw załadowany: [%1]</translation>
+        <translation type="obsolete">Zestaw załadowany: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation>Import zestawu perkusyjnego</translation>
+        <translation type="obsolete">Import zestawu perkusyjnego</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation>Eksport zestawu perkusyjnego</translation>
+        <translation type="obsolete">Eksport zestawu perkusyjnego</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1</source>
-        <translation>Zestaw perkusyjny będzie zainstalowany w %1</translation>
+        <translation type="obsolete">Zestaw perkusyjny będzie zainstalowany w %1</translation>
     </message>
 </context>
 <context>
@@ -1652,6 +1652,10 @@ The song has unsaved changes
     <message>
         <source>New Pattern Name</source>
         <translation>Nazwa Nowego Układu</translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2346,6 +2350,10 @@ Kontynuować?</translation>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

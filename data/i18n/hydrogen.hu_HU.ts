@@ -1602,10 +1602,6 @@ Kívánja menteni a dokumentum változásait kilépés előtt?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>De&amp;bug</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1871,35 +1867,31 @@ The song has unsaved changes
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation type="unfinished">Dobszerkó</translation>
+        <translation type="obsolete">Dobszerkó</translation>
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished">Név: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Név: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Szerző: %1</translation>
+        <translation type="obsolete">Szerző: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation type="unfinished">Rövid leírás: &lt;br&gt;%1</translation>
+        <translation type="obsolete">Rövid leírás: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Dobszerkó betöltve: [%1]</translation>
+        <translation type="obsolete">Dobszerkó betöltve: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Dobszerkó importálása</translation>
+        <translation type="obsolete">Dobszerkó importálása</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Dobszerkó exportálása</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Dobszerkó exportálása</translation>
     </message>
 </context>
 <context>
@@ -2125,6 +2117,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>New Pattern Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2919,6 +2915,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

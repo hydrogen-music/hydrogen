@@ -1310,10 +1310,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>debug action</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1679,7 +1675,7 @@ The song has unsaved changes
     <name>OldDrumkitManager</name>
     <message>
         <source>Drumkit manager</source>
-        <translation type="unfinished">Gestore drumkit</translation>
+        <translation type="obsolete">Gestore drumkit</translation>
     </message>
     <message>
         <source>The drumkit will be installed in %1/.hydrogen/data/</source>
@@ -1687,31 +1683,27 @@ The song has unsaved changes
     </message>
     <message>
         <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="unfinished">Nome: &lt;b&gt;%1&lt;/b&gt;</translation>
+        <translation type="obsolete">Nome: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Autore: %1</translation>
+        <translation type="obsolete">Autore: %1</translation>
     </message>
     <message>
         <source>Info: &lt;br&gt;%1</source>
-        <translation type="unfinished">Informazioni: &lt;br&gt;%1</translation>
+        <translation type="obsolete">Informazioni: &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Drumkit caricato: [%1]</translation>
+        <translation type="obsolete">Drumkit caricato: [%1]</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Importa drumkit</translation>
+        <translation type="obsolete">Importa drumkit</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Esporta drumkit</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Esporta drumkit</translation>
     </message>
 </context>
 <context>
@@ -1989,6 +1981,10 @@ The song has unsaved changes
     </message>
     <message>
         <source>Alt+O</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern category</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2840,6 +2836,10 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
