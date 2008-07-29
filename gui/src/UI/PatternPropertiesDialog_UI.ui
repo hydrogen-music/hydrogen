@@ -42,15 +42,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox" >
+       <widget class="QComboBox" name="categoryComboBox" >
         <property name="editable" >
          <bool>true</bool>
         </property>
-        <item>
-         <property name="text" >
-          <string>not_categorized</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>

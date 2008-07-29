@@ -40,6 +40,13 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 
 	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
+
+	QString category = pattern->get_category();
+	
+	if ( category == "" ){
+		category = "not_categorized";
+	}
+	categoryComboBox->addItem( category );
 }
 
 
@@ -61,8 +68,10 @@ void PatternPropertiesDialog::on_cancelBtn_clicked() {
 
 void PatternPropertiesDialog::on_okBtn_clicked() {
 	QString pattName = patternNameTxt->text();
+	QString pattCategory = categoryComboBox->currentText();
 
 	pattern->set_name(pattName);
+	pattern->set_category( pattCategory );
 	accept();
 }
 
