@@ -77,6 +77,9 @@ Preferences::Preferences()
 	//server list
 	std::list<QString> sServerList;
 
+	//musicCategories
+	std::list<QString> m_musicCategories;
+
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH enviroment variable" );
@@ -262,6 +265,18 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 			} else {
 				WARNINGLOG( "serverList node not found" );
+			}
+
+			m_musicCategories.clear();
+			TiXmlNode* pMusicCategoriesNode = rootNode->FirstChild( "musicCategories" );
+			if ( pMusicCategoriesNode ) {
+				TiXmlNode* pCategoriesNode = 0;
+				for ( pCategoriesNode = pMusicCategoriesNode->FirstChild( "categories" ); pCategoriesNode; pCategoriesNode = pCategoriesNode->NextSibling( "categories" ) ) {
+					QString sFilename = pCategoriesNode->FirstChild()->Value();
+					m_musicCategories.push_back( sFilename );
+				}
+			} else {
+				WARNINGLOG( "musicCategories node not found" );
 			}
 
 
@@ -579,6 +594,18 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( &serverListNode , QString("server") , QString( *cur_Server ) );
 	}
 	rootNode.InsertEndChild( serverListNode );
+
+
+	std::list<QString>::const_iterator cur_musicCategories;
+
+	TiXmlElement musicCategoriesNode( "musicCategories" );
+	for( cur_musicCategories = m_musicCategories.begin(); cur_musicCategories != m_musicCategories.end(); ++cur_musicCategories ){
+		LocalFileMng::writeXmlString( &musicCategoriesNode , QString("categories") , QString( *cur_musicCategories ) );
+	}
+	rootNode.InsertEndChild( musicCategoriesNode );
+
+
+
 
 	LocalFileMng::writeXmlString( &rootNode, "lastNews", m_sLastNews );
 

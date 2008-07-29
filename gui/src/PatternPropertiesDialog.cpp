@@ -23,6 +23,7 @@
 #include "PatternPropertiesDialog.h"
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Pattern.h>
+#include <hydrogen/Preferences.h>
 
 #include "Skin.h"
 
@@ -38,6 +39,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 //	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	this->pattern = pattern;
+	
 
 	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
@@ -48,6 +50,23 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 		category = "not_categorized";
 	}
 	categoryComboBox->addItem( category );
+
+	Preferences *pPref = H2Core::Preferences::getInstance();
+
+	std::list<QString>::const_iterator cur_musicCategories;
+	
+	if(pPref->m_musicCategories.size() == 0){ 	
+		pPref->m_musicCategories.push_back("not_categorized");
+	}
+
+	//categoryComboBox->clear();
+
+	for( cur_musicCategories = pPref->m_musicCategories.begin(); cur_musicCategories != pPref->m_musicCategories.end(); ++cur_musicCategories )
+	{
+		if ( categoryComboBox->currentText() != *cur_musicCategories ){
+			categoryComboBox->addItem( *cur_musicCategories );
+		}
+	}
 }
 
 
@@ -69,6 +88,21 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 {
 	QString pattName = patternNameTxt->text();
 	QString pattCategory = categoryComboBox->currentText();
+
+	Preferences *pPref = H2Core::Preferences::getInstance();
+	std::list<QString>::const_iterator cur_testmusicCategories;
+
+	bool test = true;
+	for( cur_testmusicCategories = pPref->m_musicCategories.begin(); cur_testmusicCategories != pPref->m_musicCategories.end(); ++cur_testmusicCategories )
+	{
+		if ( categoryComboBox->currentText() == *cur_testmusicCategories ){
+			test = false;
+		}
+	}
+
+	if (test == true ) {
+		pPref->m_musicCategories.push_back( pattCategory );
+	}
 
 	pattern->set_name(pattName);
 	pattern->set_category( pattCategory );
