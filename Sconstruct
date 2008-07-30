@@ -198,7 +198,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Append( LIBS = ["sndfile"] )
 	
 	if lrdf: env.Append( LIBS = ["lrdf"] )
-	if flac: enc.Append( LIBS = ["FLAC","FLAC++"] )
+	if flac: env.Append( LIBS = ["FLAC","FLAC++"] )
 	if lash: env.Append( LIBS = ["lash"])
 	if jack: env.Append( LIBS = ["jack"])
 	if alsa: env.Append( LIBS = ["asound"])
