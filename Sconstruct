@@ -12,7 +12,7 @@ import sys
 import glob
 
 def printStatus( value ):
-    if value: 
+    if value:
 	return "enabled"
     else:
 	return "disabled"
@@ -55,22 +55,22 @@ def get_platform_flags():
 		if alsa: cppflags += " -DALSA_SUPPORT"
 		if jack: cppflags += " -DJACK_SUPPORT"
 		if lash: cppflags += " -DLASH_SUPPORT"
-		
+
 
 		cppflags += " -DFLAC_SUPPORT"
 		cppflags += " -DLADSPA_SUPPORT"
 		cppflags += " -DLRDF_SUPPORT"
 		cppflags += " -DOSS_SUPPORT"
-		
-		
+
+
 		includes.append( '/usr/lib/lash-1.0' )
-	
+
 	if libarchive: cppflags += " -DLIBARCHIVE_SUPPORT"
 
 	includes.append( './' )
 	includes.append( 'gui/src/' )
 	includes.append( '3rdparty/install/include' )
-	
+
 	if sys.platform == 'linux2':
 		ldflags += " -lasound"
 
@@ -78,8 +78,9 @@ def get_platform_flags():
 		pass
 	elif sys.platform == "win32":
 		includes.append( '3rdparty\install\include' )
-		includes.append( 'build\pthreads\include' )	
+		includes.append( 'build\pthreads\include' )
 		includes.append( '3rdparty\libarchive\include' )
+		includes.append( 'windows\timeFix' )
 	else:
 		raise Exception( "Platform '%s' not supported" % sys.platform )
 
@@ -91,12 +92,12 @@ def download_3rdparty_libs():
 	print " * Downloading required 3rdparty libraries"
 
 	curdir = os.path.abspath( os.path.curdir )
-	
+
 	if sys.platform != "win32":
 		prefix = os.path.abspath( os.path.curdir ) + "/3rdparty/install"
 	else:
 		prefix = os.path.abspath( os.path.curdir ) + "\3rdparty\install"
-		
+
 
 	compile_flags = "--enable-static --disable-shared"
 
@@ -106,11 +107,11 @@ def download_3rdparty_libs():
 
 	if not os.path.exists( "3rdparty/install" ):
 		os.mkdir( "3rdparty/install" )
-	
+
 	if not os.path.exists( "3rdparty/install/lib" ):
 		os.mkdir( "3rdparty/install/lib" )
-	
-	
+
+
 
 
 	if not os.path.exists( "3rdparty/libsndfile.tar.gz" ) and not os.path.exists("3rdparty/libsndfile.zip"):
@@ -120,8 +121,8 @@ def download_3rdparty_libs():
 		else:
 			print " * Downloading libsndfile.zip"
 			urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1_0_17.zip", "3rdparty/libsndfile.zip")
-			
-	
+
+
 	if sys.platform != "win32":
 		#unix commands
 		if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
@@ -136,7 +137,7 @@ def download_3rdparty_libs():
 			Execute( "unzip 3rdparty\libsndfile.zip -d 3rdparty" )
 			Execute( "copy 3rdparty\libsndfile-1_0_17\libsndfile-1.dll 3rdparty\install\lib")
 			Execute( "copy 3rdparty\libsndfile-1_0_17\sndfile.h 3rdparty\install\lib")
-		
+
 
 
 
@@ -195,13 +196,17 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	env.Append( LIBS = lib_hydrogen )
 	env.Append( LIBS = ["sndfile"] )
-	env.Append( LIBS = ["lrdf", "FLAC", "FLAC++"] )
-
+	
+	if lrdf: env.Append( LIBS = ["lrdf"] )
+	if flac: enc.Append( LIBS = ["FLAC","FLAC++"] )
 	if lash: env.Append( LIBS = ["lash"])
 	if jack: env.Append( LIBS = ["jack"])
 	if alsa: env.Append( LIBS = ["asound"])
 	if libarchive: env.Append( LIBS = ["archive"])
 	else: env.Append( LIBS = ["tar"])
+	
+	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
+	env.Append( LIBPATH = 'build\pthreads\lib' )
 
 	#app = env.Program(target = 'hydrogengui', source = src, LIBS = libs )
 	app = env.Program(target = 'hydrogengui', source = src )
@@ -209,7 +214,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	env.Alias('programs', app)
 	env.Default('programs')
-	
+
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/i18n"))
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/img"))
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/drumkits"))
@@ -226,30 +231,56 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 
 opts = Options()
+
+#platform independent settings
 opts.Add('debug', 'Set to 1 to build with debug informations', 0)
-
-if sys.platform != "win32":
-	opts.Add('lash', 'Set to 1 to enable lash',0)
-	opts.Add('alsa', 'Set to 1 to enable alsa',1)
-	opts.Add('jack', 'Set to 1 to enable jack',1)
-
-else:
-	#alsa, lash and jack are not available on windows
-	opts.Add('lash', 'Set to 1 to enable lash',0)
-	opts.Add('alsa', 'Set to 1 to enable alsa',0)
-	opts.Add('jack', 'Set to 1 to enable jack',0)
-
-	
 opts.Add('libarchive', 'Set to 1 to enable libarchive instead of libtar', 0)
 opts.Add('prefix','Default: /usr/local',"/usr/local")
 opts.Add('destdir','Default: none',"")
 
+#platform dependent settings
+if sys.platform != "win32":
+	opts.Add('lash', 'Set to 1 to enable lash',0)
+	lash = int(ARGUMENTS.get('lash',0))
+	
+	
+	opts.Add('alsa', 'Set to 1 to enable alsa',1)
+	alsa = int(ARGUMENTS.get('alsa',1))
+	
+
+	opts.Add('jack', 'Set to 1 to enable jack',1)	
+	jack = int(ARGUMENTS.get('jack',1))
+	
+
+	opts.Add('lrdf', 'Set to 1 to enable lrdf',1)
+	lrdf = int(ARGUMENTS.get('lrdf',1))
+	
+
+	opts.Add('flac', 'Set to 1 to enable flac',1)
+	flac = int(ARGUMENTS.get('flac',1))
+
+else:
+	#alsa, lash and jack are not available on windows
+	opts.Add('lash', 'Set to 1 to enable lash',0)
+	lash = int(ARGUMENTS.get('lash',0))
+	
+
+	opts.Add('alsa', 'Set to 1 to enable alsa',0)
+	alsa = int(ARGUMENTS.get('alsa',0))
+	
+
+	opts.Add('jack', 'Set to 1 to enable jack',0)
+	jack = int(ARGUMENTS.get('jack',0))
+	
+	opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
+	lrdf = int(ARGUMENTS.get('lrdf',0))
+	
+	opts.Add('flac', 'Set to 1 to enable flac',0)
+	flac = int(ARGUMENTS.get('flac',0))
+
 
 
 debug =int(ARGUMENTS.get('debug', 0))
-lash = int(ARGUMENTS.get('lash',0))
-alsa = int(ARGUMENTS.get('alsa',1))
-jack = int(ARGUMENTS.get('jack',1))
 libarchive = int(ARGUMENTS.get('libarchive', 0))
 install_prefix = ARGUMENTS.get('prefix',"/usr/local")
 destdir = ARGUMENTS.get('destdir',"")
@@ -271,20 +302,12 @@ if platform == "darwin" or platform == "win32":
 
 
 
-
 #Check if all required libraries are installed
 conf = Configure(env)
 if not conf.CheckCHeader('sndfile.h'):
     print 'libsndfile must be installed!'
     Exit(1)
 
-if not conf.CheckCHeader('lrdf.h'):
-    print 'lrdf must be installed!'
-    Exit(1)
-
-if not conf.CheckCHeader('FLAC/all.h'):
-    print 'FLAC must be installed!'
-    Exit(1)
 
 
 # it seems that conf.CheckCHeader  dislikes like the "++" in filenames
@@ -322,6 +345,15 @@ elif not libarchive and not conf.CheckCHeader("libtar.h"):
     print 'libtar must be installed!'
     Exit(1)
 
+#lrdf: categorizing of ladspa effects
+if lrdf and not conf.CheckCHeader('lrdf.h'):
+    print 'lrdf must be installed!'
+    Exit(1)
+
+#flac: support for flac samples
+if flac and not conf.CheckCHeader('FLAC/all.h'):
+    print 'FLAC must be installed!'
+    Exit(1)
 
 
 
