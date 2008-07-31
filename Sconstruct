@@ -55,6 +55,8 @@ def get_platform_flags():
 		if alsa: cppflags += " -DALSA_SUPPORT"
 		if jack: cppflags += " -DJACK_SUPPORT"
 		if lash: cppflags += " -DLASH_SUPPORT"
+		if portaudio: cppflags += " -DPORTAUDIO_SUPPORT"
+		if portmidi: cppflags += " -DPORTMIDI_SUPPORT"	
 
 
 		cppflags += " -DFLAC_SUPPORT"
@@ -204,6 +206,8 @@ def get_hydrogen_gui( lib_hydrogen ):
 	if alsa: env.Append( LIBS = ["asound"])
 	if libarchive: env.Append( LIBS = ["archive"])
 	else: env.Append( LIBS = ["tar"])
+	if portaudio: env.Append( LIBS = [ "portaudio" ] )
+	if portmidi: env.Append( LIBS = [ "portmidi" ] )
 	
 	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
 	env.Append( LIBPATH = 'build\pthreads\lib' )
@@ -240,6 +244,12 @@ opts.Add('destdir','Default: none',"")
 
 #platform dependent settings
 if sys.platform != "win32":
+	opts.Add('portmidi', 'Set to 1 to enable portmidi',0)
+	portmidi = int(ARGUMENTS.get('portmidi',0))
+	
+	opts.Add('portaudio', 'Set to 1 to enable portaudio',0)
+	portaudio = int(ARGUMENTS.get('portaudio',0))
+	
 	opts.Add('lash', 'Set to 1 to enable lash',0)
 	lash = int(ARGUMENTS.get('lash',0))
 	
@@ -261,6 +271,11 @@ if sys.platform != "win32":
 
 else:
 	#alsa, lash and jack are not available on windows
+	opts.Add('portmidi', 'Set to 1 to enable portmidi',1)
+	
+	opts.Add('portaudio', 'Set to 1 to enable portaudio',1)
+	portaudio = int(ARGUMENTS.get('portaudio',1))
+	
 	opts.Add('lash', 'Set to 1 to enable lash',0)
 	lash = int(ARGUMENTS.get('lash',0))
 	
@@ -282,6 +297,7 @@ else:
 
 debug =int(ARGUMENTS.get('debug', 0))
 libarchive = int(ARGUMENTS.get('libarchive', 0))
+
 install_prefix = ARGUMENTS.get('prefix',"/usr/local")
 destdir = ARGUMENTS.get('destdir',"")
 
@@ -378,6 +394,8 @@ print "      lash: " + printStatus( lash )
 print "      alsa: " + printStatus( alsa )
 print "      jack: " + printStatus( jack )
 print "libarchive: " + printStatus( libarchive ) + (' (using libtar instead)', '')[libarchive]
+print " portaudio: " + printStatus( portaudio )
+print "  portmidi: " + printStatus( portmidi ) 
 
 print "\n================================================================="
 print ""
