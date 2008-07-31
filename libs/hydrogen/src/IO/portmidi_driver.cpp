@@ -82,12 +82,12 @@ void* PortMidiDriver_thread( void* param )
 					msg.m_nChannel = nEventType - 240;
 					msg.m_type = MidiMessage::SYSTEM_EXCLUSIVE;
 				} else {
-					_ERRORLOG( "Unhandled midi message type: " + toString( nEventType ) );
+					_ERRORLOG( "Unhandled midi message type: " + QString::number( nEventType ) );
 					_INFOLOG( "MIDI msg: " );
-					_INFOLOG( toString( buffer[0].timestamp ) );
-					_INFOLOG( toString( Pm_MessageStatus( buffer[0].message ) ) );
-					_INFOLOG( toString( Pm_MessageData1( buffer[0].message ) ) );
-					_INFOLOG( toString( Pm_MessageData2( buffer[0].message ) ) );
+					_INFOLOG( QString::number( buffer[0].timestamp ) );
+					_INFOLOG( QString::number( Pm_MessageStatus( buffer[0].message ) ) );
+					_INFOLOG( QString::number( Pm_MessageData1( buffer[0].message ) ) );
+					_INFOLOG( QString::number( Pm_MessageData2( buffer[0].message ) ) );
 				}
 
 				msg.m_nData1 = Pm_MessageData1( buffer[0].message );
@@ -135,7 +135,7 @@ void PortMidiDriver::open()
 	int nInputBufferSize = 100;
 
 	int nDeviceId = -1;
-	string sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
 	int nDevices = Pm_CountDevices();
 	for ( int i = 0; i < nDevices; i++ ) {
 		const PmDeviceInfo *info = Pm_GetDeviceInfo( i );
@@ -144,7 +144,7 @@ void PortMidiDriver::open()
 		}
 
 		if ( info->input == TRUE ) {
-			if ( info->name == sMidiPortName ) {
+			if ( info->name == sMidiPortName.toStdString() ) {
 				nDeviceId = i;
 			}
 		}
@@ -160,7 +160,7 @@ void PortMidiDriver::open()
 		ERRORLOG( "Error opening midi input device" );
 	}
 
-	INFOLOG( string( "Device: " ).append( info->interf ).append( " " ).append( info->name ) );
+	//INFOLOG( string( "Device: " ).append( info->interf ).append( " " ).append( info->name ) );
 	TIME_START;
 
 	PmError err = Pm_OpenInput(
