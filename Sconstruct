@@ -207,8 +207,10 @@ def get_hydrogen_gui( lib_hydrogen ):
 	if libarchive: env.Append( LIBS = ["archive"])
 	else: env.Append( LIBS = ["tar"])
 	if portaudio: env.Append( LIBS = [ "portaudio" ] )
-	if portmidi: env.Append( LIBS = [ "portmidi" ] )
-	
+	if portmidi: 
+		env.Append( LIBS = [ "portmidi" ] )
+		env.Append( LIBS = [ "porttime" ] )
+		
 	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
 	env.Append( LIBPATH = 'build\pthreads\lib' )
 
