@@ -68,11 +68,11 @@ int PortAudioDriver::connect()
 
 	int err = Pa_Initialize();
 	
-	/*
+	
 	if ( err != paNoError ) {
-		ERRORLOG( string( "Portaudio error in Pa_Initialize: " ).append( Pa_GetErrorText( err ) ) );
+		ERRORLOG( "Portaudio error in Pa_Initialize: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
-	}*/
+	}
 
 	err = Pa_OpenDefaultStream(
 	          &m_pStream,        /* passes back stream pointer */
@@ -85,19 +85,19 @@ int PortAudioDriver::connect()
 	          portAudioCallback, /* specify our custom callback */
 	          this );        /* pass our data through to callback */
 	
-	/*
+	
 	if ( err != paNoError ) {
-		ERRORLOG( string( "Portaudio error in Pa_OpenDefaultStream: " ).append( Pa_GetErrorText( err ) ) );
+		ERRORLOG(  "Portaudio error in Pa_OpenDefaultStream: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
-	}*/
+	}
 
 	err = Pa_StartStream( m_pStream );
 	
-	/*
+	
 	if ( err != paNoError ) {
-		ERRORLOG( string( "Portaudio error in Pa_StartStream: " ).append( Pa_GetErrorText( err ) ) );
+		ERRORLOG(  "Portaudio error in Pa_StartStream: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
-	}*/
+	}
 	return 0;
 }
 
@@ -105,17 +105,17 @@ void PortAudioDriver::disconnect()
 {
 	int err = Pa_StopStream( m_pStream );
 	
-	/*
+	
 	if ( err != paNoError ) {
-		ERRORLOG( string( "Err: " ).append( Pa_GetErrorText( err ) ) );
-	}*/
+		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
+	}
 
 	err = Pa_CloseStream( m_pStream );
 
-	/*
+	
 	if ( err != paNoError ) {
-		ERRORLOG( string( "Err: " ).append( Pa_GetErrorText( err ) ) );
-	}*/
+		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
+	}
 
 	Pa_Terminate();
 
