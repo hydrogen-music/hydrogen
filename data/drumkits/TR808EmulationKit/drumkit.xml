@@ -2,6 +2,7 @@
     <name>TR808EmulationKit</name>
     <author>ArtemioLabs [http://artemiolabs.com]</author>
     <info>This drum kit contains 16 original sounds that were synthesized from scratch (using only basic synth waves, like sine, noise etc.). It simulates the sounds of the legendary Roland TR-808 Rhythm Composer. More kits from ArtemioLabs: http://artemiolabs.com/downloads/audio/hydrogen/</info>
+    <license>GPL</license>
     <instrumentList>
         <instrument>
             <id>0</id>
