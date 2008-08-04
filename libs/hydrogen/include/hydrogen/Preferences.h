@@ -145,6 +145,11 @@ public:
 	QString m_sPreferencesDirectory;
 
 	bool m_bFollowPlayhead;
+	
+	// switch to enable / disable lash, only on h2 startup
+	bool m_brestartLash;
+	bool m_bsetLash;
+
 
 	//beatcounter
 	bool m_bbc;

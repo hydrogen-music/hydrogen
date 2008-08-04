@@ -138,20 +138,23 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 
 #ifdef LASH_SUPPORT
-	LashClient* lashClient = LashClient::getInstance();
-	if (lashClient->isConnected())
-	{
-		// send alsa client id now since it can only be sent
-		// after the audio engine has been started.
-		Preferences *pref = Preferences::getInstance();
-		if ( pref->m_sMidiDriver == "ALSA" ) {
-//			infoLog("[LASH] Sending alsa seq id to LASH server");
-			lashClient->sendAlsaClientId();
+
+	if ( Preferences::getInstance()->useLash() ){
+		LashClient* lashClient = LashClient::getInstance();
+		if (lashClient->isConnected())
+		{
+			// send alsa client id now since it can only be sent
+			// after the audio engine has been started.
+			Preferences *pref = Preferences::getInstance();
+			if ( pref->m_sMidiDriver == "ALSA" ) {
+	//			infoLog("[LASH] Sending alsa seq id to LASH server");
+				lashClient->sendAlsaClientId();
+			}
+			// start timer for polling lash events
+			lashPollTimer = new QTimer(this);
+			connect( lashPollTimer, SIGNAL( timeout() ), this, SLOT( onLashPollTimer() ) );
+			lashPollTimer->start(500);
 		}
-		// start timer for polling lash events
-		lashPollTimer = new QTimer(this);
-		connect( lashPollTimer, SIGNAL( timeout() ), this, SLOT( onLashPollTimer() ) );
-		lashPollTimer->start(500);
 	}
 #endif
 
@@ -291,6 +294,7 @@ void MainForm::createMenuBar()
 void MainForm::onLashPollTimer()
 {
 #ifdef LASH_SUPPORT	
+if ( Preferences::getInstance()->useLash() ){
 	LashClient* client = LashClient::getInstance();
 	
 	if (!client->isConnected())
@@ -362,6 +366,7 @@ void MainForm::onLashPollTimer()
 	   lashPollTimer->stop();
 	   action_file_exit();
    }
+}
 #endif
 }
 

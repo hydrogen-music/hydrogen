@@ -25,14 +25,13 @@
 #include "version.h"
 #include <getopt.h>
 
+#include "SplashScreen.h"
+#include "HydrogenApp.h"
+#include "MainForm.h"
 
 #ifdef LASH_SUPPORT
 #include <hydrogen/LashClient.h>
 #endif
-
-#include "SplashScreen.h"
-#include "HydrogenApp.h"
-#include "MainForm.h"
 
 #include <hydrogen/midiMap.h>
 #include <hydrogen/audio_engine.h>
@@ -42,6 +41,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
+
 
 #include <iostream>
 using namespace std;
@@ -134,9 +134,7 @@ int main(int argc, char *argv[])
 		Object::use_verbose_log( true );
 #endif
 
-#ifdef LASH_SUPPORT
-		LashClient *lashClient = new LashClient("hydrogen", "Hydrogen", &argc, &argv);
-#endif
+
 
 		// Options...
 		char *cp;
@@ -197,6 +195,12 @@ int main(int argc, char *argv[])
 		_INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
+
+#ifdef LASH_SUPPORT
+
+	LashClient *lashClient = new LashClient("hydrogen", "Hydrogen", &argc, &argv);
+
+#endif
 		if (sSelectedDriver == "auto") {
 			pPref->m_sAudioDriver = "Auto";
 		}
@@ -258,7 +262,7 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef LASH_SUPPORT
-		
+	if ( H2Core::Preferences::getInstance()->useLash() ){	
 		if (lashClient->isConnected())
 		{
 			lash_event_t* lash_event = lashClient->getNextEvent();
@@ -281,7 +285,7 @@ int main(int argc, char *argv[])
 				lash_event_destroy(lash_event);
 			}
 		}
-		
+	}	
 #endif
 
 		

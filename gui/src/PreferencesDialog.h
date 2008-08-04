@@ -50,6 +50,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_sampleRateComboBox_editTextChanged( const QString& text );
 		void on_midiPortComboBox_activated( int index );
 		void on_styleComboBox_activated( int index );
+		void on_useLashCheckbox_clicked();
 
 
 	private:

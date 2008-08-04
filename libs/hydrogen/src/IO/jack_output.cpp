@@ -109,15 +109,17 @@ int JackOutput::connect()
 	bool connect_output_ports = connect_out_flag;
 	
 #ifdef LASH_SUPPORT
-	LashClient* lashClient = LashClient::getInstance();
-	if (lashClient && lashClient->isConnected())
-	{
-//		infoLog("[LASH] Sending Jack client name to LASH server");
-		lashClient->sendJackClientName();
-		
-		if (!lashClient->isNewProject())
+	if ( Preferences::getInstance()->useLash() ){
+		LashClient* lashClient = LashClient::getInstance();
+		if (lashClient && lashClient->isConnected())
 		{
-			connect_output_ports = false;
+	//		infoLog("[LASH] Sending Jack client name to LASH server");
+			lashClient->sendJackClientName();
+			
+			if (!lashClient->isNewProject())
+			{
+				connect_output_ports = false;
+			}
 		}
 	}
 #endif
@@ -501,10 +503,12 @@ int JackOutput::init( unsigned nBufferSize )
 //	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
 #ifdef LASH_SUPPORT
-	LashClient* lashClient = LashClient::getInstance();
-	if (lashClient->isConnected())
-	{
-		lashClient->setJackClientName(sClientName.toStdString());
+	if ( Preferences::getInstance()->useLash() ){
+		LashClient* lashClient = LashClient::getInstance();
+		if (lashClient->isConnected())
+		{
+			lashClient->setJackClientName(sClientName.toStdString());
+		}
 	}
 #endif
 

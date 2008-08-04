@@ -73,6 +73,9 @@ Preferences::Preferences()
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
 	m_bJackTrackOuts = false;
+	// switch to enable / disable lash, only on h2 startup
+	m_brestartLash = false;
+	m_bsetLash = false;
 
 	//server list
 	std::list<QString> sServerList;
@@ -228,6 +231,9 @@ void Preferences::loadPreferences( bool bGlobal )
 			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
+			
+			//restore the right m_bsetlash value
+			m_bsetLash = m_bUseLash;
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			recordEvents = LocalFileMng::readXmlBool( rootNode, "recordEvents", recordEvents );
@@ -549,6 +555,13 @@ void Preferences::savePreferences()
 	
 	LocalFileMng::writeXmlString( &rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
+	//set the right m_bUselash value to activate lash on next startup
+	if ( m_bsetLash == true ){
+		m_bUseLash = true;
+	}
+	if ( m_bsetLash == false ){
+		m_bUseLash = false;
+	}
 	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bUseLash ? "true": "false" );
 
 

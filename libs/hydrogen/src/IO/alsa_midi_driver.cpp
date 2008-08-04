@@ -83,10 +83,12 @@ void* alsaMidiDriver_thread( void* param )
 	clientId = snd_seq_client_id( seq_handle );
 
 #ifdef LASH_SUPPORT
-	LashClient* lashClient = LashClient::getInstance();
-	if (lashClient && lashClient->isConnected())
-	{
-		lashClient->setAlsaClientId((unsigned char) clientId);
+	if ( Preferences::getInstance()->useLash() ){
+		LashClient* lashClient = LashClient::getInstance();
+		if (lashClient && lashClient->isConnected())
+		{
+			lashClient->setAlsaClientId((unsigned char) clientId);
+		}
 	}
 #endif
 

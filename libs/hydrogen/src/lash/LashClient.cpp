@@ -33,21 +33,27 @@
 
 #include <lash-1.0/lash/lash.h>
 #include <hydrogen/LashClient.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/h2_exception.h>
 #include <string>
+
+using namespace H2Core;
 
 LashClient* LashClient::instance = NULL; /// static reference of LashClient class (Singleton)
 
 LashClient::LashClient(const char* lashClass, const char* viewName, int* argc, char*** argv)
 {
-	newProject = true;
-	lash_args_t *lash_args = lash_extract_args(argc, argv);
-	lashClient = lash_init(lash_args, lashClass, LASH_Config_File, LASH_PROTOCOL(2, 0));
-	
-	if (isConnected())
-	{
-		sendEvent(LASH_Client_Name, viewName);
-	}
-	
+	if ( H2Core::Preferences::getInstance()->useLash() ){
+		newProject = true;
+		lash_args_t *lash_args = lash_extract_args(argc, argv);
+		lashClient = lash_init(lash_args, lashClass, LASH_Config_File, LASH_PROTOCOL(2, 0));
+		
+		if (isConnected())
+		{
+			sendEvent(LASH_Client_Name, viewName);
+		}
+	}	
+
 	instance = this;
 }
 
