@@ -143,7 +143,7 @@
      <bool>true</bool>
     </property>
     <property name="sortingEnabled" >
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <column>
      <property name="text" >
@@ -172,6 +172,9 @@
       <width>201</width>
       <height>331</height>
      </rect>
+    </property>
+    <property name="alternatingRowColors" >
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

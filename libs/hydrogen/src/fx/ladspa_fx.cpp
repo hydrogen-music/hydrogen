@@ -70,6 +70,17 @@ void LadspaFXGroup::addChild( LadspaFXGroup *pChild )
 	m_childGroups.push_back( pChild );
 }
 
+bool LadspaFXGroup::alphabeticOrder( LadspaFXGroup* a, LadspaFXGroup* b )
+{
+	return ( a->getName() < b->getName() );
+}
+
+void LadspaFXGroup::sort()
+{
+	std::sort( m_ladspaList.begin(), m_ladspaList.end(), LadspaFXInfo::alphabeticOrder );
+	std::sort( m_childGroups.begin(), m_childGroups.end(), LadspaFXGroup::alphabeticOrder );
+}
+
 
 
 ////////////////
@@ -92,6 +103,11 @@ LadspaFXInfo::LadspaFXInfo( const QString& sName )
 LadspaFXInfo::~LadspaFXInfo()
 {
 //	infoLog( "DESTROY " + m_sName );
+}
+
+bool LadspaFXInfo::alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b )
+{
+	return ( a->m_sName < b->m_sName );
 }
 
 

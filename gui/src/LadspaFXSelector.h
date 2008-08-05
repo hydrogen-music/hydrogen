@@ -50,10 +50,13 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public O
 
 	private:
 		QString m_sSelectedPluginName;
+		QTreeWidgetItem* m_pCurrentItem;
 
 		void buildLadspaGroups();
 #ifdef LADSPA_SUPPORT
-		void addGroup(QTreeWidgetItem* pItem, H2Core::LadspaFXGroup *pGroup);
+		void addGroup(QTreeWidgetItem *parent, H2Core::LadspaFXGroup *pGroup);
+		void addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup );
+		void buildGroup(QTreeWidgetItem *pNewItem, H2Core::LadspaFXGroup *pGroup);
 
 		std::vector<H2Core::LadspaFXInfo*> findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup );
 #endif

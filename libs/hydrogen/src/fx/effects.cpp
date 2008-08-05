@@ -220,10 +220,9 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 	}
 
 	INFOLOG( QString( "Loaded %1 LADSPA plugins" ).arg( m_pluginList.size() ) );
-
+	std::sort( m_pluginList.begin(), m_pluginList.end(), LadspaFXInfo::alphabeticOrder );
 	return m_pluginList;
 }
-
 
 
 
@@ -247,32 +246,16 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	LadspaFXGroup *pUncategorizedGroup = new LadspaFXGroup( "Uncategorized" );
 	m_pRootGroup->addChild( pUncategorizedGroup );
 
-	map<LadspaFXInfo*, QString> fxGroupMap;
-
-	// build alphabetical list
-	for ( unsigned i = 0; i < m_pluginList.size(); i++ ) {
-		LadspaFXInfo *pInfo = m_pluginList[ i ];
-		char ch = pInfo->m_sName[0].toAscii();
-		fxGroupMap[ pInfo ] = ch;
-	}
-
-	for ( map<LadspaFXInfo*, QString>::iterator it = fxGroupMap.begin(); it != fxGroupMap.end(); it++ ) {
-		QString sGroup = it->second;
-		LadspaFXInfo *pInfo = it->first;
-
-		LadspaFXGroup *pGroup = NULL;
-		for ( unsigned i = 0; i < pUncategorizedGroup->getChildList().size(); i++ ) {
-			LadspaFXGroup *pChild = ( pUncategorizedGroup->getChildList() )[ i ];
-			if ( pChild->getName() == sGroup ) {
-				pGroup = pChild;
-				break;
-			}
-		}
-		if ( !pGroup ) {
-			pGroup = new LadspaFXGroup( sGroup );
+	char C = 0;
+	LadspaFXGroup* pGroup;
+	for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
+		char ch = (*i)->m_sName[0].toAscii();
+		if ( ch != C ) {
+			C = ch;
+			pGroup = new LadspaFXGroup( QString( C ) );
 			pUncategorizedGroup->addChild( pGroup );
 		}
-		pGroup->addLadspaInfo( pInfo );
+		pGroup->addLadspaInfo( *i );
 	}
 
 
@@ -399,6 +382,7 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 		}
 		lrdf_free_uris ( uris );
 	}
+	pGroup->sort();
 }
 
 

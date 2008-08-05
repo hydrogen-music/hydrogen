@@ -42,6 +42,7 @@ using namespace H2Core;
 
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
  : QDialog( NULL )
+ , m_pCurrentItem( NULL )
  , Object( "LadspaFXSelector" )
 {
 	//INFOLOG( "INIT" );
@@ -74,7 +75,6 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	}
 	buildLadspaGroups();
 
-	m_pGroupsListView->sortItems( 0 , Qt::AscendingOrder);
 	m_pGroupsListView->setItemHidden( m_pGroupsListView->headerItem(), true );
 
 
@@ -86,6 +86,8 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 #endif
 
 	connect( m_pPluginsListBox, SIGNAL( itemSelectionChanged () ), this, SLOT( pluginSelected() ) );
+	pluginSelected();
+// 	on_m_pGroupsListView_currentItemChanged( m_pGroupsListView->currentItem(), NULL );
 }
 
 
@@ -103,34 +105,49 @@ void LadspaFXSelector::buildLadspaGroups()
 	m_pGroupsListView->clear();
 
 	QTreeWidgetItem* pRootItem = new QTreeWidgetItem( );
-	pRootItem->setText( 0, trUtf8("Groups") );
-	m_pGroupsListView->addTopLevelItem( pRootItem );
-	m_pGroupsListView->setItemExpanded( pRootItem, true );
+// 	pRootItem->setText( 0, trUtf8("Groups") );
+// 	m_pGroupsListView->addTopLevelItem( pRootItem );
+// 	m_pGroupsListView->setItemExpanded( pRootItem, true );
 	
 	H2Core::LadspaFXGroup* pFXGroup = Effects::getInstance()->getLadspaFXGroup();
 	for (uint i = 0; i < pFXGroup->getChildList().size(); i++) {
 		H2Core::LadspaFXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
-		addGroup( pRootItem, pNewGroup );
+		addGroup( m_pGroupsListView, pNewGroup );
 	}
+	m_pGroupsListView->setCurrentItem( m_pCurrentItem );
 #endif
 }
 
 
 
 #ifdef LADSPA_SUPPORT
-void LadspaFXSelector::addGroup( QTreeWidgetItem *pItem, H2Core::LadspaFXGroup *pGroup )
+void LadspaFXSelector::addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup )
+{
+	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( parent );
+	QFont f = pNewItem->font( 0 );
+	f.setBold( true );
+	pNewItem->setFont( 0, f );
+	buildGroup( pNewItem, pGroup );
+}
+
+void LadspaFXSelector::addGroup( QTreeWidgetItem * parent, H2Core::LadspaFXGroup *pGroup )
+{
+	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( parent );
+	buildGroup( pNewItem, pGroup );
+}
+
+void LadspaFXSelector::buildGroup( QTreeWidgetItem *pNewItem, H2Core::LadspaFXGroup *pGroup )
 {
 	QString sGroupName = pGroup->getName();
 	if (sGroupName == QString("Uncategorized")) {
-		sGroupName = trUtf8("Uncategorized");
+		sGroupName = trUtf8("Alphabetic List");
 	}
 	else if (sGroupName == QString("Categorized(LRDF)")) {
-		sGroupName = trUtf8("Categorized (LRDF)");
+		sGroupName = trUtf8("Categorized");
 	}
 	else if (sGroupName == QString("Recently Used")) {
 		sGroupName = trUtf8("Recently Used");
 	}
-	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( pItem );
 	pNewItem->setText( 0, sGroupName );
 
 
@@ -142,7 +159,7 @@ void LadspaFXSelector::addGroup( QTreeWidgetItem *pItem, H2Core::LadspaFXGroup *
 	for(uint i = 0; i < pGroup->getLadspaInfo().size(); i++) {
 		H2Core::LadspaFXInfo* pInfo = (pGroup->getLadspaInfo())[i];
 		if (pInfo->m_sName == m_sSelectedPluginName) {
-			m_pGroupsListView->setItemSelected(pNewItem, true);
+			m_pCurrentItem = pNewItem;
 			break;
 		}
 	}
@@ -165,7 +182,7 @@ void LadspaFXSelector::pluginSelected()
         
 	if ( m_pPluginsListBox->selectedItems().isEmpty() ) return;
 
-	QString sSelected = m_pPluginsListBox->selectedItems().first()->text();
+	QString sSelected = m_pPluginsListBox->currentItem()->text();
 	m_sSelectedPluginName = sSelected;
 
 
@@ -226,23 +243,26 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 
 	QString itemText = currentItem->text( 0 );
 
-	//m_pPluginsListBox->clear(); // ... Why not anyway ? Jakob Lund
+	m_pPluginsListBox->clear(); // ... Why not anyway ? Jakob Lund
 
-	while( m_pPluginsListBox->count() != 0) {
-		m_pPluginsListBox->takeItem( 0 );
-	}
+// 	while( m_pPluginsListBox->count() != 0) {    // NOTE commented out:
+// 		m_pPluginsListBox->takeItem( 0 );    // This way of clearing the list causes multiple signal emissions,
+// 	}                                            // each time calling pluginSelected().  Jakob.
 
 	H2Core::LadspaFXGroup* pFXGroup = Effects::getInstance()->getLadspaFXGroup();
 
 	std::vector<H2Core::LadspaFXInfo*> pluginList = findPluginsInGroup( itemText, pFXGroup );
-	for (uint i = 0; i < pluginList.size(); i++) {
+	
+	int selectedIndex = -1;
+	for (int i = 0; i < pluginList.size(); i++) {
 		//INFOLOG( "adding plugin: " + pluginList[ i ]->m_sName );
 		m_pPluginsListBox->addItem( pluginList[ i ]->m_sName );
 		if ( pluginList[ i ]->m_sName == m_sSelectedPluginName ) {
-			m_pPluginsListBox->setCurrentRow( i );
+			selectedIndex = i;
 		}
 	}
-	m_pPluginsListBox->sortItems();
+	if ( selectedIndex >= 0 )
+		m_pPluginsListBox->setCurrentRow( selectedIndex );
 #endif
 }
 

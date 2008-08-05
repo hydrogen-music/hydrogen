@@ -50,6 +50,7 @@ public:
 	unsigned m_nOCPorts;	///< output control port
 	unsigned m_nIAPorts;	///< input audio port
 	unsigned m_nOAPorts;	///< output audio port
+	static bool alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b );
 };
 
 
@@ -78,6 +79,10 @@ public:
 		m_childGroups.clear();
 		m_ladspaList.clear();
 	}
+	
+	static bool alphabeticOrder( LadspaFXGroup*, LadspaFXGroup* );
+	void sort();
+	
 
 private:
 	QString m_sName;

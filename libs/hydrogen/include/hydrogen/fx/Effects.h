@@ -64,7 +64,7 @@ private:
 
 	void RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
 	void getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
-
+	
 };
 
 };
