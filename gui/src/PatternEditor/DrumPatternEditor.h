@@ -67,7 +67,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		void updateEditor();
 
 	private:
-		uint m_nGridWidth;
+		float m_nGridWidth;
 		uint m_nGridHeight;
 		int m_nEditorHeight;
 		uint m_nResolution;

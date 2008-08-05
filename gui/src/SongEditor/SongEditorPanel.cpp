@@ -145,29 +145,33 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// zoom-in btn
 	Button* pZoomInBtn = new Button(
-			pBackPanel,
-			"/skin_btn_on.png",
+			NULL,
+			"/songEditor/btn_new_on.png",
+			"/songEditor/btn_new_off.png",
+			"/songEditor/btn_new_over.png",
+/*			"/skin_btn_on.png",
 			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize( 17, 17 ),
-			true
+			"/skin_btn_over.png",*/
+			QSize( 19, 13 )
 	);
-	pZoomInBtn->setText( "-" );
-	connect( pZoomInBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnPressed(Button* ) ) );
+// 	pZoomInBtn->setText( "-" );
+	connect( pZoomInBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnPressed(Button* ) ) );
 
 
 
 	// zoom-out btn
 	Button* pZoomOutBtn = new Button(
-			pBackPanel,
-			"/skin_btn_on.png",
+			NULL,
+			"/songEditor/btn_minus_on.png",
+			"/songEditor/btn_minus_off.png",
+			"/songEditor/btn_minus_over.png",
+/*			"/skin_btn_on.png",
 			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize( 17, 17 ),
-			true
+			"/skin_btn_over.png",*/
+			QSize( 19, 13 )
 	);
-	pZoomOutBtn->setText( "+" );
-	connect( pZoomOutBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnPressed(Button* ) ) );
+// 	pZoomOutBtn->setText( "+" );
+	connect( pZoomOutBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnPressed(Button* ) ) );
 
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );

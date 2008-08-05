@@ -825,11 +825,10 @@ void NotePropertiesRuler::zoomIn()
 
 void NotePropertiesRuler::zoomOut()
 {
-	m_nGridWidth = m_nGridWidth / 2;
-	if (m_nGridWidth < 3) {
-		m_nGridWidth = 3;
+	if ( m_nGridWidth > 1.5 ) {
+		m_nGridWidth = m_nGridWidth / 2;
+		updateEditor();
 	}
-	updateEditor();
 }
 
 

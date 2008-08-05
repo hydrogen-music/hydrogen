@@ -172,22 +172,22 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//editor_top_hbox->addWidget(quantizeEventsBtn);
 
 
-	PixmapWidget *pZoom = new PixmapWidget( NULL );
-	pZoom->setFixedSize( 73, 20 );
-	pZoom->setPixmap( "/patternEditor/background_zoom-new.png" );
-	pZoom->move( 0, 3 );
-	editor_top_hbox_2->addWidget( pZoom );
+// 	PixmapWidget *pZoom = new PixmapWidget( NULL );
+// 	pZoom->setFixedSize( 73, 20 );
+// 	pZoom->setPixmap( "/patternEditor/background_zoom-new.png" );
+// 	pZoom->move( 0, 3 );
+// 	editor_top_hbox_2->addWidget( pZoom );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
-			pZoom,
+			NULL,
 			"/songEditor/btn_new_on.png",
 			"/songEditor/btn_new_off.png",
 			"/songEditor/btn_new_over.png",
 			QSize(19, 13)
 	);
-	zoom_in_btn->move( 51, 3 );
-	//zoom_in_btn->setText("+");
+// 	zoom_in_btn->move( 51, 3 );
+// 	zoom_in_btn->setText("+");
 	zoom_in_btn->setToolTip( trUtf8( "Zoom in" ) );
 	connect(zoom_in_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomInBtnClicked(Button*) ) );
 	//editor_top_hbox_2->addWidget(zoom_in_btn);
@@ -195,13 +195,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// zoom-out btn
 	Button *zoom_out_btn = new Button(
-			pZoom,
+			NULL,
 			"/songEditor/btn_minus_on.png",
 			"/songEditor/btn_minus_off.png",
 			"/songEditor/btn_minus_over.png",
 			QSize(19, 13)
 	);
-	zoom_out_btn->move( 2, 3 );
+// 	zoom_out_btn->move( 2, 3 );
 	//zoom_out_btn->setText("-");
 	zoom_out_btn->setToolTip( trUtf8( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomOutBtnClicked(Button*) ) );
@@ -355,6 +355,15 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
 
+	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
+	pPatternEditorHScrollBarLayout->setSpacing( 0 );
+	pPatternEditorHScrollBarLayout->setMargin( 0 );
+	pPatternEditorHScrollBarLayout->addWidget( m_pPatternEditorHScrollBar );
+	pPatternEditorHScrollBarLayout->addWidget( zoom_in_btn );
+	pPatternEditorHScrollBarLayout->addWidget( zoom_out_btn );
+
+	QWidget *pPatternEditorHScrollBarContainer = new QWidget();
+	pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
 
 
 	QPalette label_palette;
@@ -416,7 +425,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
 
 	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
-	pGrid->addWidget( m_pPatternEditorHScrollBar, 10, 1 );
+	pGrid->addWidget( pPatternEditorHScrollBarContainer, 10, 1 );
 	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
 	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
@@ -786,6 +795,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pDrumPatternEditor->zoom_in();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
+	m_pNotePanEditor->zoomIn();
 
 	resizeEvent( NULL );
 }
@@ -799,6 +809,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pDrumPatternEditor->zoom_out();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
+	m_pNotePanEditor->zoomOut();
 
 	resizeEvent( NULL );
 }

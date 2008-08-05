@@ -51,7 +51,7 @@ class PatternEditorRuler : public QWidget, public Object, public EventListener
 	private:
 		uint m_nRulerWidth;
 		uint m_nRulerHeight;
-		uint m_nGridWidth;
+		float m_nGridWidth;
 
 		QPixmap *m_pBackground;
 		QPixmap m_tickPosition;

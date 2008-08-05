@@ -57,7 +57,7 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
-		uint m_nGridWidth;
+		float m_nGridWidth;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;
 
