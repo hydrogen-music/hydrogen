@@ -614,7 +614,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	INFOLOG( "[saveDrumkit]" );
 	info->dump();	// debug
 
-	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() + info->getName();
+	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() + "drumkits/" + info->getName();
 
 	// check if the directory exists
 	QDir dir( sDrumkitDir );
