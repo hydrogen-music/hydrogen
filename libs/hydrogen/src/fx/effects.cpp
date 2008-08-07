@@ -27,6 +27,7 @@
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/audio_engine.h>
 
+#include <algorithm>
 #include <QDir>
 #include <QLibrary>
 #include <cassert>

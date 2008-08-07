@@ -27,6 +27,7 @@
 
 #include <QDir>
 
+#include <algorithm>
 #include <cstdio>
 #include <vector>
 using namespace std;
