@@ -309,7 +309,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem * curren
 
 				SoundLibraryNameLbl->setText( info.m_sName );
 				
-				if( info.m_sType != "pattern" ){
+				if( info.m_sType == "pattern" ){
 					SoundLibraryInfoLbl->setText("");
 				} else {
 					SoundLibraryInfoLbl->setText( info.m_sInfo );
