@@ -89,17 +89,14 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	connect( m_pSoundLibraryTree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
 	connect( m_pSoundLibraryTree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
 
-	/*
-	m_pFileBrowser = new FileBrowser( NULL );
-	m_pFileBrowser->hide();
-	*/
+
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
 	pVBox->setMargin( 0 );
 
 	pVBox->addWidget( m_pSoundLibraryTree );
-	//	pVBox->addWidget( pButtonsPanel );
+	
 
 	this->setLayout( pVBox );
 
@@ -120,7 +117,6 @@ SoundLibraryPanel::~SoundLibraryPanel()
 	}
 	m_userDrumkitInfoList.clear();
 
-	//INFOLOG( "DESTROY" );
 }
 
 
@@ -138,8 +134,7 @@ void SoundLibraryPanel::updateDrumkitList()
 
 		m_pSongItem = new QTreeWidgetItem( m_pSoundLibraryTree );
 		m_pSongItem->setText( 0, trUtf8( "Songs" ) );
-		//m_pSoundLibraryTree->setItemExpanded( m_pSongItem, false );
-		m_pSongItem->setToolTip( 0, "double-click expand Songs list" );
+		m_pSongItem->setToolTip( 0, "double click to expand the list" );
 
 		for (uint i = 0; i < songList.size(); i++) 
 		{
@@ -157,8 +152,7 @@ void SoundLibraryPanel::updateDrumkitList()
 				
 		m_pPatternItem = new QTreeWidgetItem( m_pSoundLibraryTree );
 		m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
-		//m_pSoundLibraryTree->setItemExpanded( m_pPatternItem, false );
-		m_pPatternItem->setToolTip( 0, "double-click expand Patterns list" );
+		m_pPatternItem->setToolTip( 0, "double click to expand the list" );
 
 		for (uint i = 0; i < patternList.size(); i++) 
 		{
@@ -193,7 +187,6 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); ++i) {
-		//QString absPath = Preferences::getInstance()->getDataDirectory() + "/drumkits/" + userList[i];
 		QString absPath =  userList[i];
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 
@@ -261,7 +254,6 @@ void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, Q
 {
 	UNUSED( current );
 	UNUSED( previous );
-//	INFOLOG( "[on_DrumkitList_ItemChanged]" );
 }
 
 
@@ -415,8 +407,6 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
-//	ERRORLOG( "[on_drumkitLoadAction] not implemented yet" );
-
 	QString sDrumkitName = m_pSoundLibraryTree->currentItem()->text(0);
 
 	Drumkit *drumkitInfo = NULL;
