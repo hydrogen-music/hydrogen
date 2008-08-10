@@ -131,15 +131,15 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex" >
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab" >
     <property name="geometry" >
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>537</width>
-      <height>357</height>
+      <width>533</width>
+      <height>346</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -199,8 +199,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>537</width>
-      <height>357</height>
+      <width>533</width>
+      <height>346</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -235,7 +235,7 @@
        <x>10</x>
        <y>50</y>
        <width>291</width>
-       <height>131</height>
+       <height>136</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
@@ -463,6 +463,9 @@
         <property name="alignment" >
          <set>Qt::AlignTop</set>
         </property>
+        <property name="wordWrap" >
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -473,7 +476,7 @@
        <x>10</x>
        <y>190</y>
        <width>291</width>
-       <height>46</height>
+       <height>52</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout" >
@@ -518,7 +521,7 @@
        <x>10</x>
        <y>10</y>
        <width>521</width>
-       <height>123</height>
+       <height>127</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
