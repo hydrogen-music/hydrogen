@@ -2282,7 +2282,9 @@ void Hydrogen::setPatternPos( int pos )
 	if ( getState() != STATE_PLAYING ) {
 		// find pattern immediately when not playing
 		int dummy;
-		m_nSongPos = findPatternInTick( totalTick, m_pSong->is_loop_enabled(), &dummy );
+// 		m_nSongPos = findPatternInTick( totalTick, m_pSong->is_loop_enabled(), &dummy );
+		m_nSongPos = pos;
+		m_nPatternTickPosition = 0;
 	}
 	m_pAudioDriver->locate( ( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize ) );
 
