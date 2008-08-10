@@ -506,7 +506,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 	drumkitInfo->setName( sDrumkitName );
 	drumkitInfo->setAuthor( author );
 	drumkitInfo->setInfo( info );
-	drumkitInfo->setLicense( info );
+	drumkitInfo->setLicense( license );
 
 	InstrumentList *instrumentList = new InstrumentList();
 
@@ -640,6 +640,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	writeXmlString( &rootNode, "name", info->getName() );	// name
 	writeXmlString( &rootNode, "author", info->getAuthor() );	// author
 	writeXmlString( &rootNode, "info", info->getInfo() );	// info
+	writeXmlString( &rootNode, "license", info->getLicense() );	// license
 
 	TiXmlElement instrumentListNode( "instrumentList" );		// instrument list
 	unsigned nInstrument = info->getInstrumentList()->get_size();

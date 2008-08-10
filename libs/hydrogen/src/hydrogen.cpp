@@ -2100,6 +2100,7 @@ float Hydrogen::getMaxProcessTime()
 int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 {
 	_INFOLOG( drumkitInfo->getName() );
+	m_currentDrumkit = drumkitInfo->getName();
 	LocalFileMng fileMng;
 	QString sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
 

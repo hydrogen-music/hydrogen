@@ -120,6 +120,17 @@ public:
 
 	int loadDrumkit( Drumkit *drumkitInfo );
 
+	//return the name of the current drumkit
+	QString m_currentDrumkit;
+
+	const QString& getCurrentDrumkitname() {
+		return m_currentDrumkit;
+	}
+
+	void setCurrentDrumkitname( const QString& currentdrumkitname ) {
+		this->m_currentDrumkit = currentdrumkitname;
+	}
+
 	void raiseError( unsigned nErrorCode );
 
 

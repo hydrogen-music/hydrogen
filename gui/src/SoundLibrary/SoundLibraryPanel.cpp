@@ -28,6 +28,7 @@
 #include "FileBrowser.h"
 
 #include "SoundLibrarySaveDialog.h"
+#include "SoundLibraryPropertiesDialog.h"
 #include "SoundLibraryExportDialog.h"
 
 #include "../HydrogenApp.h"
@@ -61,7 +62,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	m_pDrumkitMenu = new QMenu( this );
 	m_pDrumkitMenu->addAction( trUtf8( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
 	m_pDrumkitMenu->addAction( trUtf8( "Export" ), this, SLOT( on_drumkitExportAction() ) );
-	m_pDrumkitMenu->addAction( trUtf8( "Rename" ), this, SLOT( on_drumkitRenameAction() ) );
+	m_pDrumkitMenu->addAction( trUtf8( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
 	m_pDrumkitMenu->addSeparator();
 	m_pDrumkitMenu->addAction( trUtf8( "Delete" ), this, SLOT( on_drumkitDeleteAction() ) );
 
@@ -453,8 +454,13 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	QString sSoundLibrary = m_pSoundLibraryTree->currentItem()->text( 0 );
 
+	//if we delete the current loaded drumkit we can get truble with some empty pointers
+	if ( sSoundLibrary == Hydrogen::get_instance()->getCurrentDrumkitname() ){
+		QMessageBox::warning( this, "Hydrogen", QString( "You try to delet the current loaded drumkit.\nThis is not possible!") );
+		return;
+	}
 
-	bool bIsUserSoundLibrary =false;
+	bool bIsUserSoundLibrary = false;
 	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for ( uint i = 0; i < userList.size(); ++i ) {
 		if ( userList[ i ].endsWith( sSoundLibrary ) ) {
@@ -488,10 +494,60 @@ void SoundLibraryPanel::on_drumkitExportAction()
 
 
 
-void SoundLibraryPanel::on_drumkitRenameAction()
+void SoundLibraryPanel::on_drumkitPropertiesAction()
 {
-	QMessageBox::warning( this, "Hydrogen", QString( "Not implemented yet.") );
-	ERRORLOG( "not implemented yet" );
+
+	QString sDrumkitName = m_pSoundLibraryTree->currentItem()->text(0);
+
+	Drumkit *drumkitInfo = NULL;
+	
+
+	// find the drumkit in the list
+	for ( uint i = 0; i < m_systemDrumkitInfoList.size(); i++ ) {
+		Drumkit *pInfo = m_systemDrumkitInfoList[i];
+		if ( pInfo->getName() == sDrumkitName ) {
+			drumkitInfo = pInfo;
+			break;
+		}
+	}
+	for ( uint i = 0; i < m_userDrumkitInfoList.size(); i++ ) {
+		Drumkit*pInfo = m_userDrumkitInfoList[i];
+		if ( pInfo->getName() == sDrumkitName ) {
+			drumkitInfo = pInfo;
+			break;
+		}
+	}
+
+	assert( drumkitInfo );
+
+
+	QString sPreDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+
+	Drumkit *preDrumkitInfo = NULL;
+	
+
+	// find the drumkit in the list
+	for ( uint i = 0; i < m_systemDrumkitInfoList.size(); i++ ) {
+		Drumkit *prInfo = m_systemDrumkitInfoList[i];
+		if ( prInfo->getName() == sPreDrumkitName ) {
+			preDrumkitInfo = prInfo;
+			break;
+		}
+	}
+	for ( uint i = 0; i < m_userDrumkitInfoList.size(); i++ ) {
+		Drumkit *prInfo = m_userDrumkitInfoList[i];
+		if ( prInfo->getName() == sPreDrumkitName ) {
+			preDrumkitInfo = prInfo;
+			break;
+		}
+	}
+
+	assert( preDrumkitInfo );
+	
+	//open the soundlibrary save dialog 
+	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, preDrumkitInfo );
+	dialog.exec();
+
 }
 
 

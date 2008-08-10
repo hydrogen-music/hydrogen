@@ -38,6 +38,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/note.h>
+#include <hydrogen/hydrogen.h>
 
 namespace H2Core
 {
@@ -252,6 +253,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			QString sId = LocalFileMng::readXmlString( instrumentNode, "id", "" );			// instrument id
 			QString sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
+			Hydrogen::get_instance()->setCurrentDrumkitname( sDrumkit ); 
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted

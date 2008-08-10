@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>SoundLibrarySaveDialog_UI</class>
- <widget class="QDialog" name="SoundLibrarySaveDialog_UI" >
+ <class>SoundLibraryPropertiesDialog_UI</class>
+ <widget class="QDialog" name="SoundLibraryPropertiesDialog_UI" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -161,7 +161,7 @@
     </size>
    </property>
   </widget>
-  <widget class="QWidget" name="" >
+  <widget class="QWidget" name="layoutWidget" >
    <property name="geometry" >
     <rect>
      <x>360</x>
@@ -193,7 +193,7 @@
   <connection>
    <sender>m_cancelBtn</sender>
    <signal>clicked()</signal>
-   <receiver>SoundLibrarySaveDialog_UI</receiver>
+   <receiver>SoundLibraryPropertiesDialog_UI</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

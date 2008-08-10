@@ -57,7 +57,7 @@ class SoundLibraryPanel : public QWidget, private Object
 
 		void on_drumkitLoadAction();
 		void on_drumkitDeleteAction();
-		void on_drumkitRenameAction();
+		void on_drumkitPropertiesAction();
 		void on_drumkitExportAction();
 		void on_instrumentDeleteAction();
 		void on_songLoadAction();

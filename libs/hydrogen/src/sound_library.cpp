@@ -87,6 +87,7 @@ Drumkit* Drumkit::load( const QString& sFilename )
 {
 	LocalFileMng mng;
 	return mng.loadDrumkit( sFilename );
+
 }
 
 
