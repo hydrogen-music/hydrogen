@@ -724,6 +724,14 @@ int audioEngine_process( uint32_t nframes, void *arg )
 			_INFOLOG( "End of song." );
 			return 1;	// kill the audio AudioDriver thread
 		}
+#ifdef JACK_SUPPORT
+		else if ( m_pAudioDriver->get_class_name() == "JackOutput" ) {
+			// Do something clever :-s ... Jakob Lund
+			// Mainly to keep sync with Ardour.
+			static_cast<JackOutput*>(m_pAudioDriver)->locateInNCycles( 0 );
+		}
+#endif
+
 
 		return 0;
 	} else if ( res2 == 2 ) {	// send pattern change

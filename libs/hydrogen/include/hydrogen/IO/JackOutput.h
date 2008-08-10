@@ -98,11 +98,14 @@ public:
 	virtual void updateTransportInfo();
 	virtual void setBpm( float fBPM );
 	void calculateFrameOffset();
+	void locateInNCycles( unsigned long frame, int cycles_to_wait = 2 );
 
 private:
 	void relocateBBT();
 	long long bbt_frame_offset;
-	int must_relocate;
+	int must_relocate;         	// A countdown to wait for valid information from another Time Master.
+	int locate_countdown;      	// (Unrelated) countdown, for postponing a call to 'locate'.
+	unsigned long locate_frame;	// The frame to locate to (used in 'locateInNCycles'.)
 
 	JackProcessCallback processCallback;
 	jack_port_t *output_port_1;

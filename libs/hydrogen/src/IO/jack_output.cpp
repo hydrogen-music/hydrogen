@@ -77,6 +77,7 @@ JackOutput::JackOutput( JackProcessCallback processCallback )
 	this->processCallback = processCallback;
 
 	must_relocate = 0;
+	locate_countdown = 0;
 	bbt_frame_offset = 0;
 	track_port_count = 0;
 }
@@ -210,6 +211,12 @@ void JackOutput::calculateFrameOffset()
 int oldpo = 0;
 //int changer = 0;
 
+void JackOutput::locateInNCycles( unsigned long frame, int cycles_to_wait )
+{
+	locate_countdown = cycles_to_wait;
+	locate_frame = frame;
+}
+
 /// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
 void JackOutput::relocateBBT()
 {
@@ -270,6 +277,10 @@ void JackOutput::relocateBBT()
 
 void JackOutput::updateTransportInfo()
 {
+	if ( locate_countdown == 1 )
+		locate( locate_frame );
+	if ( locate_countdown > 0 )
+		locate_countdown--;
 
 	if ( Preferences::getInstance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
 		m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
