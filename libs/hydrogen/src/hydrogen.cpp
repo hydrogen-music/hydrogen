@@ -1029,8 +1029,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	// When starting from the beginning, we prime the note queue with notes between 0 and nFrames
 	// plus lookahead. lookahead should be equal or greater than the nLeadLagFactor + nMaxTimeHumanize.
 	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
-	if ( framepos == 0 ) {
-		tickNumber_start = 0; // a.k.a.: (int)( framepos / m_pAudioDriver->m_transport.m_nTickSize );
+	if ( framepos == 0 || ( m_pSong->get_mode() == Song::SONG_MODE && m_nSongPos == -1 ) ) {
+		tickNumber_start = (int)( framepos / m_pAudioDriver->m_transport.m_nTickSize );
 	}
 	else {
 		tickNumber_start = (int)( (framepos + lookahead) / m_pAudioDriver->m_transport.m_nTickSize );
@@ -1180,16 +1180,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			m_nPatternTickPosition = tick - m_nPatternStartTick;
 			assert( m_nPatternTickPosition < nPatternSize );
 		}
-		/*
-					else {
-						_ERRORLOG( "Pattern mode. m_pPlayingPatterns->getSize() = 0" );
-						_ERRORLOG( "Panic! Stopping audio engine");
-						// PANIC!
-						m_pAudioDriver->stop();
-					}
-				}
-		*/
-
 
 		// metronome
 // 		if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) ) {
@@ -1244,9 +1234,9 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						//~
 
 						// cannot play note before 0 frame
-						if (tick + nOffset / m_pAudioDriver->m_transport.m_nTickSize < 0) {
+						if (tick + nOffset / m_pAudioDriver->m_transport.m_nTickSize < tickNumber_start ) {
 							_INFOLOG(" offset before 0 frame ");
-							nOffset = 0 - (int) (tick * m_pAudioDriver->m_transport.m_nTickSize);
+							nOffset = tickNumber_start - (int) (tick * m_pAudioDriver->m_transport.m_nTickSize);
 						}
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_position( tick );
