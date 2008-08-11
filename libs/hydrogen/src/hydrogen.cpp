@@ -2690,6 +2690,11 @@ float Hydrogen::getNewBpmJTM()
 	return m_nNewBpmJTM;
 }
 
+void Hydrogen::setNewBpmJTM( float bpmJTM )
+{
+	m_nNewBpmJTM = bpmJTM;
+}
+
 
 void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 {

@@ -203,6 +203,7 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
+	Hydrogen::get_instance()->setNewBpmJTM( fBpm ); 
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
 	float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );

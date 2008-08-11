@@ -185,6 +185,7 @@ public:
 	unsigned long getTimeMasterFrames();
 	long getTickForHumanPosition( int humanpos );
 	float getNewBpmJTM();
+	void setNewBpmJTM( float bpmJTM);
 	void ComputeHumantimeFrames(uint32_t nFrames);
 
 private:
