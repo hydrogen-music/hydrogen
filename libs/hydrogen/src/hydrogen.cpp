@@ -1176,9 +1176,10 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					m_nPatternStartTick = tick;
 				}
 			}
-// 			m_nPatternTickPosition = tick % nPatternSize;
 			m_nPatternTickPosition = tick - m_nPatternStartTick;
-			assert( m_nPatternTickPosition < nPatternSize );
+			if ( m_nPatternTickPosition > nPatternSize ) {
+				m_nPatternTickPosition = tick % nPatternSize;
+			}
 		}
 
 		// metronome
