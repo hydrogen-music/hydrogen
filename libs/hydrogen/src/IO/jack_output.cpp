@@ -247,8 +247,7 @@ void JackOutput::relocateBBT()
 		}
 		float hydrogen_ticks_to_locate =  bar_ticks + ( m_JackTransportPos.beat-1 )*hydrogen_TPB + m_JackTransportPos.tick *( hydrogen_TPB/m_JackTransportPos.ticks_per_beat ) ;
 	
-// 		char bbt[30];
-// 		sprintf( bbt, "Locating BBT: [%d,%d,%d]", m_JackTransportPos.bar, m_JackTransportPos.beat, m_JackTransportPos.tick );
+// 		INFOLOG( QString( "Position from Time Master: BBT [%1,%2,%3]" ) . arg( m_JackTransportPos.bar ) . arg( m_JackTransportPos.beat ) . arg( m_JackTransportPos.tick ) );
 // 		WARNINGLOG( QString(bbt) + " -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+" =>tick " + to_string( hydrogen_ticks_to_locate ) );
 	
 		float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
@@ -347,9 +346,9 @@ void JackOutput::updateTransportInfo()
 				must_relocate = 2;
 			} else {
 				if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
-					// NOTE There's no timebase_master. If audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match.
-					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
+					// If There's no timebase_master, and audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match, but hopefully it was calculated correctly:
 					m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
+					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
 					if ( m_transport.m_status == TransportInfo::ROLLING )
 							H->triggerRelocateDuringPlay();
 				} else {
@@ -357,7 +356,6 @@ void JackOutput::updateTransportInfo()
 					// ... will this actually happen? keeping it for now ( jakob lund )
 					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();
 				}
-// 				bbt_frame_offset = 0;
 			}
 		}
 		
