@@ -1328,6 +1328,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				QString msg = Preferences::getInstance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
 				HydrogenApp::getInstance()->setStatusBarMessage( msg, 5000 );
 				HydrogenApp::getInstance()->getSongEditorPanel()->setModeActionBtn( Preferences::getInstance()->patternModePlaysSelected() );
+				HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
 				
 				return TRUE;
 			
