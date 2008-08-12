@@ -1029,7 +1029,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	// When starting from the beginning, we prime the note queue with notes between 0 and nFrames
 	// plus lookahead. lookahead should be equal or greater than the nLeadLagFactor + nMaxTimeHumanize.
 	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
-	if ( framepos == 0 || ( m_pSong->get_mode() == Song::SONG_MODE && m_nSongPos == -1 ) ) {
+	if ( framepos == 0 || ( m_audioEngineState == STATE_PLAYING && m_pSong->get_mode() == Song::SONG_MODE && m_nSongPos == -1 ) ) {
 		tickNumber_start = (int)( framepos / m_pAudioDriver->m_transport.m_nTickSize );
 	}
 	else {
