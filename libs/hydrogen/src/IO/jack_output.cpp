@@ -657,8 +657,8 @@ int JackOutput::getNumTracks()
 }
 
 
-
-void JackOutput::initTimeMaster(void)
+//beginn jack time master
+void JackOutput::initTimeMaster()
 {
 	if ( client == NULL) return;
 
@@ -690,9 +690,22 @@ void JackOutput::com_release()
 }
 
 
-///this must be fixed to a valid c++ callback as a member of JackOutput
-void jack_timebase_callback(jack_transport_state_t state, jack_nframes_t nframes,
-	      jack_position_t *pos, int new_pos, void *arg)
+void JackOutput::jack_timebase_callback(jack_transport_state_t state,
+					jack_nframes_t nframes,
+              				jack_position_t *pos,
+					int new_pos, void *arg)
+{
+	JackOutput *me = static_cast<JackOutput*>(arg);
+	if(me) {
+		me->jack_timebase_callback_impl(state, nframes, pos, new_pos);
+	}
+}
+
+
+void JackOutput::jack_timebase_callback_impl(jack_transport_state_t
+					     state, jack_nframes_t nframes,
+                                             jack_position_t *pos, int
+					     new_pos)
 {
 	Hydrogen * H = Hydrogen::get_instance();	
 
@@ -705,9 +718,6 @@ void jack_timebase_callback(jack_transport_state_t state, jack_nframes_t nframes
 	
 	state_current = state;
 	
-	//JackOutput *p = (JackOutput *) arg;
-	//current_frame = H->getTotalFrames();
-	//current_frame = H->getHumantimeFrames();
 	current_frame = H->getTimeMasterFrames();
 	nframes = current_frame;
 	int posi =  H->getPatternPos();
@@ -750,9 +760,7 @@ void jack_timebase_callback(jack_transport_state_t state, jack_nframes_t nframes
 		pos->tick = 0;
 	}
 
-
-state_last = state_current;
-	
+	state_last = state_current;	
 }
 
 };

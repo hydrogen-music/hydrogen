@@ -67,12 +67,6 @@ public:
 		return m_JackTransportPos;
 	}
 
-//jack timebase callback
-	void initTimeMaster(void);
-	friend void jack_timebase_callback(jack_transport_state_t state, jack_nframes_t nframes, 
-                                       jack_position_t *pos, int new_pos, void *arg);
- 	void com_release();
-//~ jack timebase callback
 
 	void setPortName( int nPort, bool bLeftChannel, const QString& sName );
 	void makeTrackOutputs( Song * );
@@ -99,6 +93,25 @@ public:
 	virtual void setBpm( float fBPM );
 	void calculateFrameOffset();
 	void locateInNCycles( unsigned long frame, int cycles_to_wait = 2 );
+
+//jack timebase callback
+	void initTimeMaster();
+ 	void com_release();
+//~ jack timebase callback
+
+protected:
+//jack timebase callback
+	static void jack_timebase_callback(jack_transport_state_t state,
+                                           jack_nframes_t nframes,
+                                           jack_position_t *pos,
+                                           int new_pos,
+                                           void *arg);
+
+	void jack_timebase_callback_impl(jack_transport_state_t state,
+                                         jack_nframes_t nframes,
+                                         jack_position_t *pos,
+                                         int new_pos);
+//~ jack timebase callback
 
 private:
 	void relocateBBT();
@@ -133,12 +146,6 @@ private:
 //~ jack timebase callback
 
 };
-
-//this must be fixed to a valid c++ callback as a member of JackOutput
-//jack timebase callback
-	void jack_timebase_callback(jack_transport_state_t state, jack_nframes_t nframes, 
-                            jack_position_t *pos, int new_pos, void *arg);
-//~jack timebase callback
 
 #else
 
