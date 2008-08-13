@@ -696,7 +696,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( ev->button() == Qt::MidButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ){
+	if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
 		togglePattern( row );
 	} else {
 		engine->setSelectedPatternNumber( row );

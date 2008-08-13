@@ -110,7 +110,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
-		assert( pNote->get_position() == column );
+		assert( (int)pNote->get_position() == column );
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 			continue;
 		}
@@ -124,7 +124,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 		}
 		else if ( m_mode == PAN ){
 			float pan_L, pan_R;
-			if ( ev->button() == Qt::MidButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) {
+			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				val = 0.5;
 			}
 			if ( val > 0.5 ) {
@@ -140,7 +140,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 			pNote->set_pan_r( pan_R );
 		}
 		else if ( m_mode == LEADLAG ){
-			if ( ev->button() == Qt::MidButton || ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) {
+			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				pNote->set_leadlag(0.0);
 			} else {
 				pNote->set_leadlag((val * -2.0) + 1.0);
@@ -201,7 +201,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
 	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
-		assert( pNote->get_position() == column );
+		assert( (int)pNote->get_position() == column );
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 			continue;
 		}
