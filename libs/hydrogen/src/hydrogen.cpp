@@ -2614,7 +2614,6 @@ unsigned long Hydrogen::getTimeMasterFrames()
 {
 	float allframes = 0 ;
 
-
 	if ( m_pAudioDriver->m_transport.m_status == TransportInfo::STOPPED ){
 
 		int oldtick = getTickPosition();
@@ -2623,8 +2622,8 @@ unsigned long Hydrogen::getTimeMasterFrames()
 			allframes = framesforposition + allframes;
 		}
 		unsigned long framesfortimemaster = (unsigned int)(allframes + oldtick * (float)m_pAudioDriver->m_transport.m_nTickSize);
-		return framesfortimemaster;
 		m_nHumantimeFrames = framesfortimemaster;
+		return framesfortimemaster;
 	}else
 	{
 	return m_nHumantimeFrames;

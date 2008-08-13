@@ -104,7 +104,7 @@ void LadspaFXSelector::buildLadspaGroups()
 #ifdef LADSPA_SUPPORT
 	m_pGroupsListView->clear();
 
-	QTreeWidgetItem* pRootItem = new QTreeWidgetItem( );
+//	QTreeWidgetItem* pRootItem = new QTreeWidgetItem( );
 // 	pRootItem->setText( 0, trUtf8("Groups") );
 // 	m_pGroupsListView->addTopLevelItem( pRootItem );
 // 	m_pGroupsListView->setItemExpanded( pRootItem, true );
@@ -254,7 +254,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 	std::vector<H2Core::LadspaFXInfo*> pluginList = findPluginsInGroup( itemText, pFXGroup );
 	
 	int selectedIndex = -1;
-	for (int i = 0; i < pluginList.size(); i++) {
+	for (int i = 0; i < (int)pluginList.size(); i++) {
 		//INFOLOG( "adding plugin: " + pluginList[ i ]->m_sName );
 		m_pPluginsListBox->addItem( pluginList[ i ]->m_sName );
 		if ( pluginList[ i ]->m_sName == m_sSelectedPluginName ) {

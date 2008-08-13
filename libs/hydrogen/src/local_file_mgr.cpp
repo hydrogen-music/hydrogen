@@ -408,11 +408,11 @@ std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std
 	newVector.resize(firstVector.size()+ secondVector.size());
 
 
-	for ( int i = 0; i < secondVector.size(); ++i ) 
+	for ( int i = 0; i < (int)secondVector.size(); ++i ) 
 	{
 		QString toFind = secondVector[i];
 		
-		for ( int ii = 0; ii < firstVector.size(); ++ii ) 
+		for ( int ii = 0; ii < (int)firstVector.size(); ++ii ) 
 		{
 			if( toFind == firstVector[ii])
 			{

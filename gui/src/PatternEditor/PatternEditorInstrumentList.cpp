@@ -359,7 +359,7 @@ void InstrumentLine::functionDeleteInstrument()
 	Instrument *pInstr = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	// if the instrument was the last on the instruments list, select the next-last
-	if ( m_nInstrumentNumber >= pEngine->getSong()->get_instrument_list()->get_size() -1 ) {
+	if ( m_nInstrumentNumber >= (int)pEngine->getSong()->get_instrument_list()->get_size() -1 ) {
 		Hydrogen::get_instance()->setSelectedInstrumentNumber(std::max(0, m_nInstrumentNumber - 1) );
 	}
 
@@ -370,7 +370,7 @@ void InstrumentLine::functionDeleteInstrument()
 
 	// delete all the notes using this instrument
 	PatternList* pPatternList = pEngine->getSong()->get_pattern_list();
-	for ( int nPattern = 0; nPattern < pPatternList->get_size(); ++nPattern ) {
+	for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) {
 		H2Core::Pattern *pPattern = pPatternList->get( nPattern );
 
 		std::multimap <int, Note*>::iterator pos;
@@ -465,7 +465,7 @@ void PatternEditorInstrumentList::moveInstrumentLine( int nSourceInstrument , in
 		Song *pSong = engine->getSong();
 		InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
-		if ( ( nTargetInstrument > pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
+		if ( ( nTargetInstrument > (int)pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
 			AudioEngine::get_instance()->unlock();
 			return;
 		}
@@ -664,7 +664,7 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( abs(event->pos().y() - __drag_start_position.y()) < m_nGridHeight) {
+	if ( abs(event->pos().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
 		return;
 	}
 
