@@ -82,7 +82,7 @@ void Playlist::setNextSongByNumber(int SongNumber)
 	
 	int realNumber = SongNumber;
 	
-	if ( realNumber > Hydrogen::get_instance()->Hydrogen::get_instance()->m_PlayList.size() -1 || Hydrogen::get_instance()->m_PlayList.size() == 0 )
+	if ( realNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
 		return;	
 
 	setSelectedSongNr(  realNumber );
@@ -112,7 +112,7 @@ _INFOLOG( "index" + to_string( index ) );
 	}
 
 	index = index +1;
-	if (index > Hydrogen::get_instance()->m_PlayList.size() -1 || index < 0) 
+	if ( (int) index > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || index < 0) 
 		return;
 	setSelectedSongNr( index );
 	setActiveSongNumber( index );
