@@ -2280,7 +2280,7 @@ void Hydrogen::setPatternPos( int pos )
 
 	if ( getState() != STATE_PLAYING ) {
 		// find pattern immediately when not playing
-		int dummy;
+//		int dummy;
 // 		m_nSongPos = findPatternInTick( totalTick, m_pSong->is_loop_enabled(), &dummy );
 		m_nSongPos = pos;
 		m_nPatternTickPosition = 0;
@@ -2538,7 +2538,7 @@ void Hydrogen::handleBeatCounter()
 				beatDiffs[beatCount - 2] = beatDiff ;
 		// Compute and reset:
 			if (beatCount == m_nbeatsToCount){
-				unsigned long currentframe = getRealtimeFrames();
+//				unsigned long currentframe = getRealtimeFrames();
 				double beatTotalDiffs = 0;
 				for(int i = 0; i < (m_nbeatsToCount - 1); i++) 
 					beatTotalDiffs += beatDiffs[i];
@@ -2693,7 +2693,8 @@ void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 }
 //~ jack transport master
 void Hydrogen::triggerRelocateDuringPlay() {
-	m_nPatternStartTick = -1; // This forces the barline position to be recalculated in Pattern Mode.
+	if ( m_pSong->get_mode() == Song::PATTERN_MODE )
+		m_nPatternStartTick = -1; // This forces the barline position 
 }
 
 void Hydrogen::togglePlaysSelected() {

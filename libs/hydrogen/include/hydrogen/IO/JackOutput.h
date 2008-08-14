@@ -34,6 +34,8 @@
 #include <jack/transport.h>
 
 #include <hydrogen/globals.h>
+#include <hydrogen/hydrogen.h>
+
 
 
 namespace H2Core
@@ -114,6 +116,7 @@ protected:
 //~ jack timebase callback
 
 private:
+	H2Core::Hydrogen *m_pEngine;
 	void relocateBBT();
 	long long bbt_frame_offset;
 	int must_relocate;         	// A countdown to wait for valid information from another Time Master.

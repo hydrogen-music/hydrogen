@@ -221,9 +221,7 @@ void JackOutput::locateInNCycles( unsigned long frame, int cycles_to_wait )
 void JackOutput::relocateBBT()
 {
 	//wolke if hydrogen is jack time master this is not relevant
-	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		//Hydrogen::get_instance()->setHumantimeFrames(m_JackTransportPos.frame );
-		if ( m_transport.m_status != TransportInfo::ROLLING )
+	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&  m_transport.m_status != TransportInfo::ROLLING) {
 		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
 		WARNINGLOG( "Relocate: Call it off" );
 		calculateFrameOffset();
@@ -347,7 +345,19 @@ void JackOutput::updateTransportInfo()
 			} else {
 				if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
 					// If There's no timebase_master, and audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match, but hopefully it was calculated correctly:
-					m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
+
+					//this perform Jakobs mod in pattern mode, but both m_transport.m_nFrames works with the same result in pattern Mode
+					// in songmode the first case dont work. 
+					//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();
+					//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
+					//if we remove this we also can remove *m_pEngine from header
+					if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
+						m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
+					}
+					else
+					{
+						m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();
+					}
 					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
 					if ( m_transport.m_status == TransportInfo::ROLLING )
 							H->triggerRelocateDuringPlay();
@@ -615,7 +625,7 @@ void JackOutput::stop()
 
 void JackOutput::locate( unsigned long nFrame )
 {
-	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
+	if ( ( Preferences::getInstance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT /*|| Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER*/ ) {
 		if ( client ) {
 			WARNINGLOG( QString( "Calling jack_transport_locate(%1)" ).arg( nFrame ) );
 			jack_transport_locate( client, nFrame );
