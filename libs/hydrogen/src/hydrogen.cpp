@@ -2227,6 +2227,10 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		}
 	}
 
+	#ifdef JACK_SUPPORT
+	renameJackPorts();
+	#endif
+
 	return 0;	//ok
 }
 
@@ -2267,9 +2271,7 @@ void Hydrogen::functionDeleteInstrument( int instrumentnumber)
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 
 	delete pInstr;
-	#ifdef JACK_SUPPORT
-	renameJackPorts();
-	#endif
+
 	AudioEngine::get_instance()->unlock();
 
 	// this will force an update...
