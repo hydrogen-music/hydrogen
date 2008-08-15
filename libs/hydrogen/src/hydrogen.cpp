@@ -2104,7 +2104,6 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	QString sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
 
 
-
 	//current instrument list
 	InstrumentList *songInstrList = m_pSong->get_instrument_list();
 
@@ -2118,12 +2117,23 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		from our old instrumentlist with
 		pos > pDrumkitInstrList->get_size() stay in the
 		new instrumentlist
-	*/
-
+		
+	wolke: info!
+		this has moved to the end of this function
+		because we get lost objects in memory
+		now: 
+		1. the new drumkit will loaded
+		2. all not used instruments will complete deleted 
+	
+	old funktion:
 	while ( pDrumkitInstrList->get_size() < songInstrList->get_size() )
 	{
 		songInstrList->del(songInstrList->get_size() - 1);
 	}
+	*/
+	
+	//needed for the new delete function
+	int instrumentDiff =  songInstrList->get_size() - pDrumkitInstrList->get_size();
 
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->get_size(); ++nInstr ) {
 		Instrument *pInstr = NULL;
@@ -2210,9 +2220,61 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	audioEngine_renameJackPorts();
 	AudioEngine::get_instance()->unlock();
 
+//wolke: new delete funktion
+	if ( instrumentDiff >=0	){
+		for ( int i = 0; i < instrumentDiff ; i++ ){
+			functionDeleteInstrument( m_pSong->get_instrument_list()->get_size() - 1);
+		}
+	}
+
 	return 0;	//ok
 }
 
+
+//this is also a new function and will used from the new delete function in Hydrogen::loadDrumkit to delete the instruments by number
+void Hydrogen::functionDeleteInstrument( int instrumentnumber)
+{
+	AudioEngine::get_instance()->lock("InstrumentLine::Hydrogen::functionDeleteInstrument");
+	Instrument *pInstr = m_pSong->get_instrument_list()->get( instrumentnumber );
+
+	// if the instrument was the last on the instruments list, select the next-last
+	if ( instrumentnumber >= (int)getSong()->get_instrument_list()->get_size() -1 ) {
+		Hydrogen::get_instance()->setSelectedInstrumentNumber(std::max(0, instrumentnumber - 1) );
+	}
+
+	// delete the instrument from the instruments list
+	getSong()->get_instrument_list()->del( instrumentnumber );
+	getSong()->__is_modified = true;
+
+
+	// delete all the notes using this instrument
+	PatternList* pPatternList = getSong()->get_pattern_list();
+	for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) {
+		H2Core::Pattern *pPattern = pPatternList->get( nPattern );
+
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = pPattern->note_map.begin(); pos != pPattern->note_map.end(); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			if ( pNote->get_instrument() == pInstr ) {
+				delete pNote;
+				pPattern->note_map.erase( pos );
+			}
+		}
+	}
+
+	// stop all notes playing
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+
+	delete pInstr;
+	#ifdef JACK_SUPPORT
+	renameJackPorts();
+	#endif
+	AudioEngine::get_instance()->unlock();
+
+	// this will force an update...
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+}
 
 
 void Hydrogen::raiseError( unsigned nErrorCode )

@@ -92,7 +92,6 @@ public:
 	unsigned long getRealtimeFrames();
 
 
-
 	PatternList * getCurrentPatternList();
 	void setCurrentPatternList( PatternList * pPatternList );
 
@@ -119,6 +118,7 @@ public:
 	float getMaxProcessTime();
 
 	int loadDrumkit( Drumkit *drumkitInfo );
+	void functionDeleteInstrument( int instrumentnumber);
 
 	//return the name of the current drumkit
 	QString m_currentDrumkit;
