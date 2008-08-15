@@ -2228,7 +2228,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	}
 
 	#ifdef JACK_SUPPORT
-	renameJackPorts();
+		renameJackPorts();
 	#endif
 
 	return 0;	//ok
@@ -2530,7 +2530,9 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 #ifdef JACK_SUPPORT
 void Hydrogen::renameJackPorts()
 {
-	audioEngine_renameJackPorts();
+	if( Preferences::getInstance()->m_bJackTrackOuts == true ){
+		audioEngine_renameJackPorts();
+	}
 }
 #endif
 

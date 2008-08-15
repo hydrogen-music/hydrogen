@@ -157,7 +157,9 @@ public:
 
 	int getSelectedInstrumentNumber();
 	void setSelectedInstrumentNumber( int nInstrument );
+#ifdef JACK_SUPPORT
 	void renameJackPorts();
+#endif
 
 	///playlist vector
 	struct HPlayListNode
