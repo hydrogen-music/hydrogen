@@ -1,3 +1,4 @@
+#include "libs/hydrogen/include/hydrogen/note.h" /* defines Note */
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
@@ -2238,7 +2239,8 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 //this is also a new function and will used from the new delete function in Hydrogen::loadDrumkit to delete the instruments by number
 void Hydrogen::functionDeleteInstrument( int instrumentnumber)
 {
-	AudioEngine::get_instance()->lock("InstrumentLine::Hydrogen::functionDeleteInstrument");
+//	hi seems that it not necessary to lock the audio engine for this process
+//	AudioEngine::get_instance()->lock("InstrumentLine::Hydrogen::functionDeleteInstrument");
 	Instrument *pInstr = m_pSong->get_instrument_list()->get( instrumentnumber );
 
 	// if the instrument was the last on the instruments list, select the next-last
@@ -2246,13 +2248,32 @@ void Hydrogen::functionDeleteInstrument( int instrumentnumber)
 		Hydrogen::get_instance()->setSelectedInstrumentNumber(std::max(0, instrumentnumber - 1) );
 	}
 
+
+	// new! this check if a pattern has an active note 
+	//if there is an note inside the pattern the intrument would not be deleted
+	PatternList* pPatternList = getSong()->get_pattern_list();
+	for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) {
+		H2Core::Pattern *pPattern = pPatternList->get( nPattern );
+
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = pPattern->note_map.begin(); pos != pPattern->note_map.end(); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			if ( pNote->get_instrument() == pInstr ) {
+				if( pNote->get_velocity() >= 0.0){ 
+//					AudioEngine::get_instance()->unlock();
+					return;
+				}
+			}
+		}
+	}
+
 	// delete the instrument from the instruments list
 	getSong()->get_instrument_list()->del( instrumentnumber );
 	getSong()->__is_modified = true;
 
-
 	// delete all the notes using this instrument
-	PatternList* pPatternList = getSong()->get_pattern_list();
+//	PatternList* pPatternList = getSong()->get_pattern_list();
 	for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) {
 		H2Core::Pattern *pPattern = pPatternList->get( nPattern );
 
@@ -2272,7 +2293,7 @@ void Hydrogen::functionDeleteInstrument( int instrumentnumber)
 
 	delete pInstr;
 
-	AudioEngine::get_instance()->unlock();
+//	AudioEngine::get_instance()->unlock();
 
 	// this will force an update...
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
