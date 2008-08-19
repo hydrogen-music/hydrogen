@@ -474,7 +474,12 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 	//INFOLOG( directory );
 
 	// che if the drumkit.xml file exists
+	
 	QString drumkitInfoFile = directory + "/drumkit.xml";
+	QFileInfo fInfo( directory );
+
+	if( fInfo.isFile() ) 
+		return NULL;
 
 	if ( QFile( drumkitInfoFile ).exists() == false ) {
 		ERRORLOG( "Load Instrument: Data file " + drumkitInfoFile + " not found." );
