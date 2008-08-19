@@ -33,7 +33,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 {
 	INFOLOG( "INIT" );
 
-	resize( 310, 450 );
+	resize( 290, 450 );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
@@ -49,7 +49,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 			"/instrumentEditor/instrument_show_on.png",
 			"/instrumentEditor/instrument_show_off.png",
 			"/instrumentEditor/instrument_show_off.png",
-			QSize( 150, 24 )
+			QSize( 130, 24 )
 	);
 	m_pShowInstrumentEditorBtn->setToolTip( trUtf8( "Show Instrument editor" ) );
 	m_pShowInstrumentEditorBtn->setText( trUtf8( "Instrument" ) );
