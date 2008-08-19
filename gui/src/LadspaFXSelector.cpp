@@ -42,8 +42,8 @@ using namespace H2Core;
 
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
  : QDialog( NULL )
- , m_pCurrentItem( NULL )
  , Object( "LadspaFXSelector" )
+ , m_pCurrentItem( NULL )
 {
 	//INFOLOG( "INIT" );
 
