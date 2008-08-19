@@ -1,4 +1,3 @@
-#include "libs/hydrogen/include/hydrogen/note.h" /* defines Note */
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]

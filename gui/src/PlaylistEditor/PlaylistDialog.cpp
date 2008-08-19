@@ -60,6 +60,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	headers << trUtf8 ( "Song list" );
 	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
 	m_pPlaylistTree->setHeaderItem ( header );
+	m_pPlaylistTree->setAlternatingRowColors( true );
 
 	addSongBTN->setEnabled ( true );
 	loadListBTN->setEnabled ( true );
@@ -85,6 +86,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistTree->header()->resizeSection ( 0, 405 );
 	m_pPlaylistTree->header()->resizeSection ( 1, 405 );
 	m_pPlaylistTree->header()->resizeSection ( 2, 15 );
+	m_pPlaylistTree->setAlternatingRowColors( true );
 
 	addSongBTN->setEnabled ( true );
 	loadListBTN->setEnabled ( true );
