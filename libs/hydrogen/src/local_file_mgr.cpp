@@ -189,13 +189,9 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	switch ( mode ){
 		case 1: //save
 			sPatternXmlFilename = sPatternDir + "/" + QString( patternname + QString( ".h2pattern" ));
-			WARNINGLOG( "Patternfile" + sPatternXmlFilename );
-			//TiXmlDocument doc( sPatternXmlFilename.c_str() );
 			break;
 		case 2: //save as
 			sPatternXmlFilename = patternname;
-			WARNINGLOG( "Patternfile" + sPatternXmlFilename );
-			//TiXmlDocument doc( sPatternXmlFilename.c_str() );
 			break;
 		default:
 			WARNINGLOG( "Pattern Save unknown status");
@@ -345,7 +341,7 @@ std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumki
 	QDir dir( Preferences::getInstance()->getDataDirectory() + "/patterns/" + sDrumkit );
 
 	if ( !dir.exists() ) {
-		WARNINGLOG( QString( "No patterns for drumkit '%1'." ).arg( sDrumkit ) );
+		INFOLOG( QString( "No patterns for drumkit '%1'." ).arg( sDrumkit ) );
 	} else {
 		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
