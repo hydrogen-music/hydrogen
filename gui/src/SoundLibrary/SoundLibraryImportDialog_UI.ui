@@ -28,7 +28,7 @@
     <attribute name="title" >
      <string>Internet</string>
     </attribute>
-    <widget class="QWidget" name="widget" >
+    <widget class="QWidget" name="widget_1" >
      <property name="geometry" >
       <rect>
        <x>310</x>
@@ -197,7 +197,7 @@
     <attribute name="title" >
      <string>Local file</string>
     </attribute>
-    <widget class="QWidget" name="widget" >
+    <widget class="QWidget" name="widget_2" >
      <property name="geometry" >
       <rect>
        <x>10</x>

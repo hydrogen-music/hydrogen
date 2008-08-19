@@ -133,7 +133,7 @@
    <property name="currentIndex" >
     <number>1</number>
    </property>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_1" >
     <property name="geometry" >
      <rect>
       <x>0</x>
@@ -194,7 +194,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_2" >
     <property name="geometry" >
      <rect>
       <x>0</x>
@@ -229,7 +229,7 @@
       <string>Restart output</string>
      </property>
     </widget>
-    <widget class="QWidget" name="layoutWidget" >
+    <widget class="QWidget" name="layoutWidget_1" >
      <property name="geometry" >
       <rect>
        <x>10</x>
@@ -369,7 +369,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget" >
+    <widget class="QWidget" name="layoutWidget_2" >
      <property name="geometry" >
       <rect>
        <x>10</x>
@@ -470,7 +470,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget" >
+    <widget class="QWidget" name="layoutWidget_3" >
      <property name="geometry" >
       <rect>
        <x>10</x>
@@ -503,7 +503,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_3" >
     <property name="geometry" >
      <rect>
       <x>0</x>
@@ -515,7 +515,7 @@
     <attribute name="title" >
      <string>&amp;Midi System</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget" >
+    <widget class="QWidget" name="layoutWidget_4" >
      <property name="geometry" >
       <rect>
        <x>10</x>
@@ -685,7 +685,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_4" >
     <property name="geometry" >
      <rect>
       <x>0</x>
@@ -710,7 +710,7 @@
       <string>&lt;i>After a font change the application must be restarted.&lt;/i></string>
      </property>
     </widget>
-    <widget class="QWidget" name="layoutWidget" >
+    <widget class="QWidget" name="layoutWidget_5" >
      <property name="geometry" >
       <rect>
        <x>10</x>
@@ -770,7 +770,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget" >
+    <widget class="QWidget" name="layoutWidget_6" >
      <property name="geometry" >
       <rect>
        <x>10</x>

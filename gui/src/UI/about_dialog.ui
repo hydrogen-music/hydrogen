@@ -106,7 +106,7 @@
    <property name="currentIndex" >
     <number>2</number>
    </property>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_1" >
     <attribute name="title" >
      <string>A&amp;bout</string>
     </attribute>
@@ -136,7 +136,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_2" >
     <attribute name="title" >
      <string>&amp;Authors</string>
     </attribute>
@@ -154,7 +154,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab_3" >
     <attribute name="title" >
      <string>&amp;License</string>
     </attribute>

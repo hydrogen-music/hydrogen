@@ -24,7 +24,7 @@
    <property name="title" >
     <string>Synth</string>
    </property>
-   <widget class="QWidget" name="layoutWidget" >
+   <widget class="QWidget" name="layoutWidget_1" >
     <property name="geometry" >
      <rect>
       <x>10</x>
@@ -81,7 +81,7 @@
    <property name="title" >
     <string>Sampler</string>
    </property>
-   <widget class="QWidget" name="layoutWidget" >
+   <widget class="QWidget" name="layoutWidget_2" >
     <property name="geometry" >
      <rect>
       <x>10</x>
@@ -126,7 +126,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="layoutWidget" >
+  <widget class="QWidget" name="layoutWidget_3" >
    <property name="geometry" >
     <rect>
      <x>10</x>
@@ -210,7 +210,7 @@
    <property name="title" >
     <string>Sequencer</string>
    </property>
-   <widget class="QWidget" name="layoutWidget" >
+   <widget class="QWidget" name="layoutWidget_4" >
     <property name="geometry" >
      <rect>
       <x>11</x>
@@ -323,7 +323,7 @@
    <property name="title" >
     <string>MIDI input</string>
    </property>
-   <widget class="QWidget" name="layoutWidget_3" >
+   <widget class="QWidget" name="layoutWidget_5" >
     <property name="geometry" >
      <rect>
       <x>10</x>
@@ -394,7 +394,7 @@
    <property name="title" >
     <string>Audio output</string>
    </property>
-   <widget class="QWidget" name="layoutWidget" >
+   <widget class="QWidget" name="layoutWidget_6" >
     <property name="geometry" >
      <rect>
       <x>10</x>
