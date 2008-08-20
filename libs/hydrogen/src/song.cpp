@@ -92,6 +92,12 @@ Song::~Song()
 	INFOLOG( QString( "DESTROY '%1'" ).arg( __name ) );
 }
 
+void Song::purge_instrument( Instrument * I )
+{
+	for ( int nPattern = 0; nPattern < (int)__pattern_list->get_size(); ++nPattern ) {
+		__pattern_list->get( nPattern )->purge_instrument( I );
+	}
+}
 
 
 ///Load a song from file

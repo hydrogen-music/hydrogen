@@ -118,7 +118,10 @@ public:
 	float getMaxProcessTime();
 
 	int loadDrumkit( Drumkit *drumkitInfo );
-	void functionDeleteInstrument( int instrumentnumber);
+	
+	/// delete an instrument. If `conditional` is true, and there are patterns that
+	/// use this instrument, it's not deleted anyway
+	void removeInstrument( int instrumentnumber, bool conditional );
 
 	//return the name of the current drumkit
 	QString m_currentDrumkit;
