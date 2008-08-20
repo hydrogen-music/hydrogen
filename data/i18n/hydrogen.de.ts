@@ -2159,7 +2159,7 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation type="unfinished">Öffne &amp;Paterrn</translation>
+        <translation>Öffne &amp;Pattern</translation>
     </message>
     <message>
         <source>Export pattern as...</source>
@@ -2172,63 +2172,63 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation type="unfinished">Hydrogen Pattern (*.h2pattern)</translation>
+        <translation>Hydrogen Pattern (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation type="unfinished">Speicher Pattern als...</translation>
+        <translation>Speichere Pattern als...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Pattern gespeichert.</translation>
+        <translation>Pattern gespeichert.</translation>
     </message>
     <message>
         <source>Hydrogen Song (*.h2pattern)</source>
-        <translation type="unfinished">Hydrogen Song (*.h2pattern)</translation>
+        <translation>Hydrogen Song (*.h2pattern)</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation type="unfinished">Öffne Pattern</translation>
+        <translation>Öffne Pattern</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation type="unfinished">Diese Nachricht nicht mehr anzeigen</translation>
+        <translation>Diese Nachricht nicht mehr anzeigen</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation type="unfinished">Wiedergabe Liste: Song %1</translation>
+        <translation>Wiedergabeliste: Song %1</translation>
     </message>
     <message>
         <source>Playlist: Aktiv song No. %1</source>
-        <translation type="unfinished">Wiedergabe Liste:  Song %1</translation>
+        <translation>Wiedergabeliste:  Aktiver Song Nr.  %1</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
-        <translation type="unfinished">Zeige  &amp;Information</translation>
+        <translation>Zeige  &amp;Information</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
-        <translation type="unfinished">Expor&amp;tiere Pattern als...</translation>
+        <translation>Expor&amp;tiere Pattern als...</translation>
     </message>
     <message>
         <source>I&amp;nstruments</source>
-        <translation type="unfinished">I&amp;nstrumente</translation>
+        <translation>I&amp;nstrumente</translation>
     </message>
     <message>
         <source>&amp;Add instrument</source>
-        <translation type="unfinished">Instrument &amp;hinzufügen</translation>
+        <translation>Instrument &amp;hinzufügen</translation>
     </message>
     <message>
         <source>&amp;Clear all</source>
-        <translation type="unfinished">&amp;Alle Instr. löschen</translation>
+        <translation>&amp;Alle Instr. löschen</translation>
     </message>
     <message>
         <source>&amp;Save library</source>
-        <translation type="unfinished">Bibliothek  &amp;speichern</translation>
+        <translation>Bibliothek  &amp;speichern</translation>
     </message>
     <message>
         <source>&amp;Export library</source>
-        <translation type="unfinished">Bibliothek &amp;exportieren</translation>
+        <translation>Bibliothek &amp;exportieren</translation>
     </message>
     <message>
         <source>&amp; Import library</source>
@@ -2236,11 +2236,11 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Playlist &amp;editor</source>
-        <translation type="unfinished">Wiedergabe &amp;Liste</translation>
+        <translation>Wiedergabe&amp;liste editieren</translation>
     </message>
     <message>
         <source>&amp;Import library</source>
-        <translation type="unfinished">Bibliothek &amp;importieren</translation>
+        <translation>Bibliothek &amp;importieren</translation>
     </message>
     <message>
         <source></source>
@@ -2507,7 +2507,7 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Select note properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaften der Note wählen</translation>
     </message>
     <message>
         <source>Velocity</source>
@@ -3367,7 +3367,7 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>not_categorized</source>
-        <translation type="unfinished">nicht_kategorisiert</translation>
+        <translation>nicht_kategorisiert</translation>
     </message>
 </context>
 <context>
