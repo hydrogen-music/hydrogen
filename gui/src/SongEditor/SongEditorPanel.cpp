@@ -149,12 +149,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_new_on.png",
 			"/songEditor/btn_new_off.png",
 			"/songEditor/btn_new_over.png",
-/*			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",*/
 			QSize( 19, 13 )
 	);
-// 	pZoomInBtn->setText( "-" );
 	connect( pZoomInBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnPressed(Button* ) ) );
 
 
@@ -165,12 +161,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_minus_on.png",
 			"/songEditor/btn_minus_off.png",
 			"/songEditor/btn_minus_over.png",
-/*			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",*/
 			QSize( 19, 13 )
 	);
-// 	pZoomOutBtn->setText( "+" );
 	connect( pZoomOutBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnPressed(Button* ) ) );
 
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
