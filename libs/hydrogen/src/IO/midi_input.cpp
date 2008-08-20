@@ -134,10 +134,6 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 	INFOLOG( "handleNoteOnMessage" );
 
-	actionManager * aH = actionManager::getInstance();
-	midiMap * mM = midiMap::getInstance();
-
-	aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
 
 	int nMidiChannelFilter = Preferences::getInstance()->m_nMidiChannelFilter;
 	int nChannel = msg.m_nChannel;
@@ -148,6 +144,12 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		handleNoteOffMessage( msg );
 		return;
 	}
+
+
+	actionManager * aH = actionManager::getInstance();
+	midiMap * mM = midiMap::getInstance();
+
+	aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
 
 	bool bIsChannelValid = true;
 	if ( nMidiChannelFilter != -1 ) {
