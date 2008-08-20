@@ -361,7 +361,6 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
 					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
-					m_bUseMidiTransport = LocalFileMng::readXmlBool( midiDriverNode, "useMidiTransport", true );
 				}
 
 
