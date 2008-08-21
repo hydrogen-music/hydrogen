@@ -225,7 +225,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
-	patternModeFollowsSelection->setChecked( pPref->patternModePlaysSelected() );
+
 
 	//restore the right m_bsetlash value 
 	if ( pPref->m_brestartLash == true ){ 
@@ -379,7 +379,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
-	pPref->setPatternModePlaysSelected( patternModeFollowsSelection->isChecked() );
+	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref. 
 
 	//check preferences 
 	if ( pPref->m_brestartLash == true ){ 
@@ -388,7 +388,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->savePreferences();
 
-	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref. 
+	
 
 	if (m_bNeedDriverRestart) {
 		(Hydrogen::get_instance())->restartDrivers();
