@@ -373,15 +373,6 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 	}
 
 	if (
-		( m_pSoundLibraryTree->currentItem()->parent() == m_pPatternItem ) ||
-		( m_pSoundLibraryTree->currentItem()->parent()->parent() == m_pPatternItem )
-	) {
-		//here can follow some drag and drop functions for patterns
-		return;
-	}
-
-
-	if (
 		( m_pSoundLibraryTree->currentItem()->parent() == m_pSystemDrumkitsItem ) ||
 		( m_pSoundLibraryTree->currentItem()->parent() == m_pUserDrumkitsItem )
 	) {
@@ -405,6 +396,10 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 		if ( m_pSoundLibraryTree->currentItem()->parent()->text(0) == NULL )
 		{
+			return;
+		}
+
+		if ( m_pSoundLibraryTree->currentItem()->parent()->parent() == m_pPatternItem ) {
 			return;
 		}
 		
