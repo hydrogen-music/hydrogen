@@ -164,8 +164,8 @@ void SoundLibraryPanel::updateDrumkitList()
 			mng.getPatternList( absPath );
 		}
 //this is the second step to push the mng.funktion 
-		std::vector<QString> allPatternDirList = mng.getallPatternList();//full pattern path list
-		std::vector<QString> patternNameList = mng.getAllPatternName();//pattern name list
+		std::vector<QString> allPatternDirList = mng.getallPatternList();
+		std::vector<QString> patternNameList = mng.getAllPatternName();
 		std::vector<QString> allCategoryNameList = mng.getAllCategoriesFromPattern();
 
 //now sorting via category
@@ -176,8 +176,6 @@ void SoundLibraryPanel::updateDrumkitList()
 				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( m_pPatternItem );
 				pCategoryItem->setText( 0, categoryName  );
 				for (uint i = 0; i < allPatternDirList.size(); ++i) {
-					//QString dir = allPatternDirList[i];
-					//ERRORLOG( "HHHHHHHHHHHHHHHHHHHHHHHHHHHH " + dir );
 					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[i]);
 
 					if ( patternCategory == categoryName ){
@@ -612,7 +610,6 @@ void SoundLibraryPanel::on_songLoadAction()
 
 void SoundLibraryPanel::on_patternLoadAction()
 {
-
 	LocalFileMng mng;
 
 	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 );
@@ -629,7 +626,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 			mng.getPatternList( absPath );
 		}
 
-	std::vector<QString> allPatternDirList = mng.getallPatternList();//full pattern path list
+	std::vector<QString> allPatternDirList = mng.getallPatternList();
 
 	for (uint i = 0; i < allPatternDirList.size(); ++i) {
 		QString testName = allPatternDirList[i];
