@@ -80,8 +80,8 @@ Preferences::Preferences()
 	//server list
 	std::list<QString> sServerList;
 
-	//musicCategories
-	std::list<QString> m_musicCategories;
+//	//musicCategories
+//	std::list<QString> m_musicCategories;
 
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {

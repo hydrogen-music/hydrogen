@@ -55,12 +55,22 @@ public:
 	std::vector<QString> getDrumkitsFromDirectory( QString );
 	std::vector<QString> getUserDrumkitList();
 	std::vector<QString> getSystemDrumkitList();
+	std::vector<QString> getPatternDirList();
 	std::vector<QString> getSongList();
-	std::vector<QString> getPatternList();
 	std::vector<QString> getPatternsForDrumkit( const QString&  );
+	std::vector<QString> getAllPatternName();
+	int getPatternList( const QString& );
+	int mergeAllPatternList( std::vector<QString> );
+
+	std::vector<QString> getallPatternList(){
+		return m_allPatternList;
+	}
+	std::vector<QString> getAllCategoriesFromPattern();
 
 	QString getDrumkitDirectory( const QString& drumkitName );
 	QString getDrumkitNameForPattern( const QString& patternDir );
+	QString getCategoryFromPatternName( const QString& patternPathName );
+	QString getPatternNameFromPatternDir( const QString& patternDirName);
 
 	Drumkit* loadDrumkit( const QString& directory );
 	int saveDrumkit( Drumkit *pDrumkit );
@@ -82,6 +92,7 @@ public:
 
 private:
 	void fileCopy( const QString& sOrigFilename, const QString& sDestFilename );
+	std::vector<QString> m_allPatternList;
 };
 
 

@@ -270,7 +270,7 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	if ( sInfo.m_sType == "pattern" )
 	{
 		H2Core::LocalFileMng mng;
-		std::vector<QString> patternList = mng.getPatternList();
+		std::vector<QString> patternList = mng.getAllPatternName();
 		for ( uint i = 0; i < patternList.size(); ++i ) {
 			if ( patternList[ i ] == soundLibraryItemName ) {
 				return true;

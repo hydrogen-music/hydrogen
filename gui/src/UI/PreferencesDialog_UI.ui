@@ -131,15 +131,15 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex" >
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_1" >
     <property name="geometry" >
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>533</width>
-      <height>346</height>
+      <width>537</width>
+      <height>355</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -199,8 +199,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>533</width>
-      <height>346</height>
+      <width>537</width>
+      <height>355</height>
      </rect>
     </property>
     <attribute name="title" >

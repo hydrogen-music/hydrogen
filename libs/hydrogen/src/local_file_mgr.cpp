@@ -48,7 +48,9 @@
 
 #include "xml/tinyxml.h"
 
-
+#include <algorithm>
+//#include <cstdio>
+//#include <vector>
 
 namespace H2Core
 {
@@ -82,6 +84,47 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 
 	QString sDrumkitName( LocalFileMng::readXmlString( rootNode,"pattern_for_drumkit", "" ) );
 	return sDrumkitName;
+	
+}
+
+
+QString LocalFileMng::getCategoryFromPatternName( const QString& patternPathName )
+{
+	QString sCatrgory = patternPathName;
+	TiXmlDocument doc( sCatrgory.toAscii() );
+	doc.LoadFile();
+
+
+	TiXmlNode* rootNode;	// root element
+	if ( !( rootNode = doc.FirstChild( "drumkit_pattern" ) ) ) {
+		ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found "); 
+		 return NULL;
+	}
+
+	TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
+	QString sCategoryName( LocalFileMng::readXmlString( patternNode,"category", "" ) );
+
+	return sCategoryName;
+	
+}
+
+QString LocalFileMng::getPatternNameFromPatternDir( const QString& patternDirName)
+{
+	QString sDir = patternDirName;
+	TiXmlDocument doc( sDir.toAscii() );
+	doc.LoadFile();
+
+
+	TiXmlNode* rootNode;	// root element
+	if ( !( rootNode = doc.FirstChild( "drumkit_pattern" ) ) ) {
+		ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found "); 
+		 return NULL;
+	}
+
+	TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
+	QString sPatternName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+
+	return sPatternName;
 	
 }
 
@@ -308,32 +351,110 @@ std::vector<QString> LocalFileMng::getSongList()
 	return list;
 }
 
-std::vector<QString> LocalFileMng::getPatternList()
+int LocalFileMng::getPatternList( const QString&  sPatternDir)
 {
 	std::vector<QString> list;
-	QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "/patterns/";
-
-	QDir dir( sDirectory );
+	QDir dir( sPatternDir );
 
 	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getPatternList] Directory %1patterns not found" ).arg( sDirectory ) );
+		ERRORLOG( QString( "[getPatternList] Directory %1patterns not found" ).arg( sPatternDir ) );
 	} else {
 		dir.setFilter( QDir::Files );
 		QFileInfoList fileList = dir.entryInfoList();
 		
 		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = fileList.at( i ).fileName();
+			QString sFile = sPatternDir + "/" + fileList.at( i ).fileName();
 			
 			if( sFile.endsWith(".h2pattern") ){
-				list.push_back( sFile.left( sFile.indexOf( "." ) ) );
+				list.push_back( sFile/*.left( sFile.indexOf( "." ) )*/ );
+			}
+		}
+	}
+	mergeAllPatternList( list );
+	return 0;
+}
+
+
+std::vector<QString> LocalFileMng::getAllPatternName()
+{
+	std::vector<QString> alllist;
+
+	for (uint i = 0; i < m_allPatternList.size(); ++i) {
+		QString patternInfoFile =  m_allPatternList[i];
+
+
+		TiXmlDocument doc( patternInfoFile.toAscii() );
+		doc.LoadFile();
+
+		TiXmlNode* rootNode;	// root element
+		if ( !( rootNode = doc.FirstChild( "drumkit_pattern" ) ) ) {
+			ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found "); 
+		}else{
+			TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
+
+			QString sPatternName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+			alllist.push_back(sPatternName);
+		}
+
+	}
+	return alllist;
+}
+
+
+
+std::vector<QString> LocalFileMng::getAllCategoriesFromPattern()
+{
+	Preferences *pPref = H2Core::Preferences::getInstance();
+	std::list<QString>::const_iterator cur_testpatternCategories;
+
+	std::vector<QString> categorylist;
+	for (uint i = 0; i < m_allPatternList.size(); ++i) {
+		QString patternInfoFile =  m_allPatternList[i];
+		
+		TiXmlDocument doc( patternInfoFile.toAscii() );
+		doc.LoadFile();
+
+		TiXmlNode* rootNode;	// root element
+		if ( !( rootNode = doc.FirstChild( "drumkit_pattern" ) ) ) {
+			ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found "); 
+		}else{
+			TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
+			bool test = true;
+			QString sCategoryName( LocalFileMng::readXmlString( patternNode,"category", "" ) );
+
+
+			if ( sCategoryName != "" ){
+				bool test = true;
+				for (uint i = 0; i < categorylist.size(); ++i){
+					if ( sCategoryName == categorylist[i] ){
+						test = false;
+					}
+				}
+				 if (test == true){
+					categorylist.push_back(sCategoryName);
+
+					//this merge new categories to user categories list
+					bool test2 = true;
+					for( cur_testpatternCategories = pPref->m_patternCategories.begin(); cur_testpatternCategories != pPref->m_patternCategories.end(); ++cur_testpatternCategories ){
+						if ( sCategoryName == *cur_testpatternCategories ){
+							test2 = false;
+						}
+					}
+				
+					if (test2 == true ) {
+						pPref->m_patternCategories.push_back( sCategoryName );
+					}
+				}
 			}
 		}
 	}
 
-	return list;
+	std::sort(categorylist.begin(), categorylist.end());
+	return categorylist;
 }
 
-// only to know what is better 
+
+
 std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumkit )
 {
 	std::vector<QString> list;
@@ -389,6 +510,8 @@ std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory 
 	return list;
 }
 
+
+
 std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std::vector<QString> secondVector )
 {
 	/*
@@ -421,6 +544,20 @@ std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std
 
 	return newVector;
 }
+
+
+std::vector<QString> LocalFileMng::getPatternDirList()
+{
+	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() + "patterns" );;
+}
+
+
+int  LocalFileMng::mergeAllPatternList( std::vector<QString> current )
+{
+	m_allPatternList = mergeQStringVectors (m_allPatternList, current );
+	return 0; 
+}
+
 
 
 std::vector<QString> LocalFileMng::getUserDrumkitList()
