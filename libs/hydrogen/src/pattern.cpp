@@ -58,17 +58,22 @@ void Pattern::purge_instrument( Instrument * I )
 {
 	bool locked = false;
 	std::list< Note* > slate;
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
+	
+	std::multimap <int, Note*>::iterator pos = note_map.begin();
+	while ( pos != note_map.end() ) {
 		Note *pNote = pos->second;
 		assert( pNote );
+		
 		if ( pNote->get_instrument() == I ) {
 			if ( !locked ) {
 				H2Core::AudioEngine::get_instance()->lock("Pattern::purge_instrument");
 				locked = true;
 			}
-			note_map.erase( pos );
 			slate.push_back( pNote );
+			
+			note_map.erase( pos++ );
+		} else {
+			++pos;
 		}
 	}
 	
