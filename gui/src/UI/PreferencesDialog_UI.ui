@@ -138,8 +138,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>537</width>
-      <height>355</height>
+      <width>533</width>
+      <height>349</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -167,24 +167,11 @@
       <string>Alt+R</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="patternModeFollowsSelection" >
-     <property name="geometry" >
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>511</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text" >
-      <string>Always play selected pattern in Pattern Mode</string>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="useLashCheckbox" >
      <property name="geometry" >
       <rect>
        <x>10</x>
-       <y>70</y>
+       <y>40</y>
        <width>511</width>
        <height>31</height>
       </rect>
@@ -199,8 +186,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>537</width>
-      <height>355</height>
+      <width>533</width>
+      <height>349</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -508,8 +495,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>537</width>
-      <height>357</height>
+      <width>533</width>
+      <height>349</height>
      </rect>
     </property>
     <attribute name="title" >
@@ -690,8 +677,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>537</width>
-      <height>357</height>
+      <width>533</width>
+      <height>349</height>
      </rect>
     </property>
     <attribute name="title" >
