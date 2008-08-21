@@ -26,7 +26,7 @@
 
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
-
+#include <cassert>
 
 namespace H2Core
 {
@@ -266,8 +266,19 @@ public:
 	void set_soloed( bool soloed ) {
 		__soloed = soloed;
 	}
+	inline void enqueue() {
+		__queued++;
+	}
+	inline void dequeue() {
+		assert( __queued > 0 );
+		__queued--;
+	}
+	inline int is_queued() {
+		return __queued;
+	}
 
 private:
+	int __queued;
 	InstrumentLayer* __layer_list[MAX_LAYERS];
 	ADSR* __adsr;
 	bool __muted;

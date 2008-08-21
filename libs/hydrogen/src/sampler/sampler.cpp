@@ -108,6 +108,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	while ( ( int )__playing_notes_queue.size() > m_nMaxNotes ) {
 		Note *oldNote = __playing_notes_queue[ 0 ];
 		__playing_notes_queue.erase( __playing_notes_queue.begin() );
+		oldNote->get_instrument()->dequeue();
 		delete oldNote;	// FIXME: send note-off instead of removing the note from the list?
 	}
 
@@ -120,6 +121,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		unsigned res = __render_note( pNote, nFrames, pSong );
 		if ( res == 1 ) {	// la nota e' finita
 			__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
+			pNote->get_instrument()->dequeue();
 			delete pNote;
 			pNote = NULL;
 		} else {
@@ -657,6 +659,7 @@ void Sampler::stop_playing_notes( Instrument* instrument )
 			assert( pNote );
 			if ( pNote->get_instrument() == instrument ) {
 				delete pNote;
+				instrument->dequeue();
 				__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
 			}
 			++i;
@@ -665,6 +668,7 @@ void Sampler::stop_playing_notes( Instrument* instrument )
 		// delete all copied notes in the playing notes queue
 		for ( unsigned i = 0; i < __playing_notes_queue.size(); ++i ) {
 			Note *pNote = __playing_notes_queue[i];
+			pNote->get_instrument()->dequeue();
 			delete pNote;
 		}
 		__playing_notes_queue.clear();
@@ -688,6 +692,7 @@ void Sampler::preview_sample( Sample* sample )
 
 	stop_playing_notes( __preview_instrument );
 	note_on( previewNote );
+	__preview_instrument->enqueue();
 
 	AudioEngine::get_instance()->unlock();
 }
@@ -696,17 +701,20 @@ void Sampler::preview_sample( Sample* sample )
 
 void Sampler::preview_instrument( Instrument* instr )
 {
+	Instrument * old_preview;
 	AudioEngine::get_instance()->lock( "Sampler::previewInstrument" );
 
 	stop_playing_notes( __preview_instrument );
 
-	delete __preview_instrument;
+	old_preview = __preview_instrument
 	__preview_instrument = instr;
 
 	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
 	note_on( previewNote );	// exclusive note
+	instr->enqueue();
 	AudioEngine::get_instance()->unlock();
+	delete old_preview;
 }
 
 

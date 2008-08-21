@@ -115,7 +115,6 @@ bool operator> (const Note& pNote1, const Note &pNote2) {
 std::priority_queue<Note*, std::deque<Note*>, std::greater<Note> > m_songNoteQueue;	/// Song Note FIFO
 std::deque<Note*> m_midiNoteQueue;	///< Midi Note FIFO
 
-
 Song *m_pSong;				///< Current song
 PatternList* m_pNextPatterns;		///< Next pattern (used only in Pattern mode)
 bool m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
@@ -309,6 +308,7 @@ void audioEngine_destroy()
 
 	// delete all copied notes in the song notes queue
 	while(!m_songNoteQueue.empty()){
+		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -413,6 +413,7 @@ void audioEngine_stop( bool bLockEngine )
 
 	// delete all copied notes in the song notes queue
 	while(!m_songNoteQueue.empty()){
+		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -541,6 +542,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			pNote->set_pitch( pNote->get_pitch() + ( fMaxPitchDeviation * getGaussian( 0.2 ) - fMaxPitchDeviation / 2.0 ) * pNote->get_instrument()->get_random_pitch_factor() );
 
 			AudioEngine::get_instance()->get_sampler()->note_on( pNote );	// aggiungo la nota alla lista di note da eseguire
+			
 			m_songNoteQueue.pop();			// rimuovo la nota dalla lista di note
 
 			// raise noteOn event
@@ -644,6 +646,7 @@ void audioEngine_clearNoteQueue()
 	//_INFOLOG( "clear notes...");
 
 	while (!m_songNoteQueue.empty()) {       // delete all copied notes in the song notes queue
+		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -1059,6 +1062,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			if ( ( int )note->get_position() <= tick ) {
 				// printf ("tick=%d  pos=%d\n", tick, note->getPosition());
 				m_midiNoteQueue.pop_front();
+				note->get_instrument()->enqueue();
 				m_songNoteQueue.push( note );
 			} else {
 				break;
@@ -1200,6 +1204,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				m_pMetronomeInstrument->set_volume( Preferences::getInstance()->m_fMetronomeVolume );
 
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument, tick, fVelocity, 0.5, 0.5, -1, fPitch );
+				m_pMetronomeInstrument->enqueue();
 				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
@@ -1242,6 +1247,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						pCopiedNote->set_position( tick );
 
 						pCopiedNote->m_nHumanizeDelay = nOffset;	// humanize time
+						pNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );
 						//pCopiedNote->dumpInfo();
 					}
@@ -1670,6 +1676,7 @@ Hydrogen::~Hydrogen()
 	removeSong();
 	audioEngine_stopAudioDrivers();
 	audioEngine_destroy();
+	kill_instruments();
 	instance = NULL;
 }
 
@@ -2178,21 +2185,21 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 //this is also a new function and will used from the new delete function in Hydrogen::loadDrumkit to delete the instruments by number
 void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 {
-//	hi seems that it not necessary to lock the audio engine for this process
-//	AudioEngine::get_instance()->lock("InstrumentLine::Hydrogen::functionDeleteInstrument");
 	Instrument *pInstr = m_pSong->get_instrument_list()->get( instrumentnumber );
 
 
-	// new! this check if a pattern has an active note 
-	//if there is an note inside the pattern the intrument would not be deleted
 	PatternList* pPatternList = getSong()->get_pattern_list();
 	
 	if ( conditional ) {
+	// new! this check if a pattern has an active note 
+	//if there is an note inside the pattern the intrument would not be deleted
 		for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) {
-			if( pPatternList->get( nPattern )->references_instrument( pInstr ) )
+			if( pPatternList->get( nPattern )->references_instrument( pInstr ) ) {
 				return;
-		
+			}
 		}
+	} else {
+		getSong()->purge_instrument( pInstr );
 	}
 
 	// if the instrument was the last on the instruments list, select the next-last
@@ -2203,16 +2210,16 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	getSong()->get_instrument_list()->del( instrumentnumber );
 	getSong()->__is_modified = true;
 	
-	getSong()->purge_instrument( pInstr );
-
-	// stop all notes playing
-	AudioEngine::get_instance()->lock( "Hydrogen::removeInstrument" );
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes( pInstr );
-	AudioEngine::get_instance()->unlock();
+	// At this point the instrument has been removed from both the instrument list and every pattern in the song.
+	// Hence there's no way (NOTE) to play on that instrument, and once all notes have stopped playing it will be save to delete.
+	instrument_death_row.push_back( pInstr );
+	kill_instruments(); // checks if there are still notes.
 	
-	delete pInstr;
+	// the ugly name is just for debugging...
+	QString xxx_name = QString( "XXX_%1" ) . arg( pInstr->get_name() );
+	pInstr->set_name( xxx_name );
 	
-	// this will force an update...
+	// this will force a GUI update.
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
@@ -2721,6 +2728,25 @@ void Hydrogen::togglePlaysSelected() {
 	
 	AudioEngine::get_instance()->unlock();
 	
+}
+
+void Hydrogen::kill_instruments() {
+	int c = 0;
+	Instrument * pInstr = NULL;
+	while ( instrument_death_row.size() && ( pInstr = instrument_death_row.front() )->is_queued() == 0 )
+	{
+		instrument_death_row.pop_front();
+		WARNINGLOG( QString( "Deleting unused instrument (%1). %2 unused remain." ) \
+			. arg( pInstr->get_name() ) \
+			. arg( instrument_death_row.size() ) );
+		delete pInstr;
+		c++;
+	}
+	if ( c == 0 && pInstr != NULL ) {
+		WARNINGLOG( QString( "Instrument %1 still has %2 active notes. Delaying 'delete instrument' operation." ) \
+			. arg( pInstr->get_name() ) \
+			. arg( pInstr->is_queued() ) );
+	}
 }
 
 };

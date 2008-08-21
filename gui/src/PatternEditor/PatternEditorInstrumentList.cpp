@@ -167,7 +167,10 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		const int nLength = -1;
 		const float fPitch = 0.0f;
 		Song *pSong = Hydrogen::get_instance()->getSong();
+		
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
+		pInstr->enqueue();
+		
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
 		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 	}

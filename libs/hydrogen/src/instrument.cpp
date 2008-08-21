@@ -40,6 +40,7 @@ Instrument::Instrument(
     ADSR* adsr
 )
 		: Object( "Instrument" )
+		,__queued( 0 )
 		, __adsr( adsr )
 		, __name( name )
 		, __filter_resonance( 0.0 )

@@ -50,9 +50,9 @@ Note::Note(
 		, m_fBandPassFilterBuffer_R( 0.0 )
 		, m_fLowPassFilterBuffer_L( 0.0 )
 		, m_fLowPassFilterBuffer_R( 0.0 )
-		, __leadlag( 0.0 )
 		, __position( position )
 		, __velocity( velocity )
+		, __leadlag( 0.0 )
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );
