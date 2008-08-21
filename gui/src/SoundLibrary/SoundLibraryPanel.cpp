@@ -612,21 +612,35 @@ void SoundLibraryPanel::on_songLoadAction()
 
 void SoundLibraryPanel::on_patternLoadAction()
 {
+
+	LocalFileMng mng;
+
 	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 );
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *pPatternList = song->get_pattern_list();
-
-
-//	std::vector<QString> allPatternDirList = mng.getallPatternList();//full pattern path list
-//	std::vector<QString> patternNameList = mng.getAllPatternName()	
-
-
-	QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "patterns";
 	
-	LocalFileMng mng;
-	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern (sDirectory + "/" +  patternName + ".h2pattern" );
+	QString sDirectory = "";
+
+	std::vector<QString> patternDirList = mng.getPatternDirList();
+
+		for (uint i = 0; i < patternDirList.size(); ++i) {
+			QString absPath =  patternDirList[i];
+			mng.getPatternList( absPath );
+		}
+
+	std::vector<QString> allPatternDirList = mng.getallPatternList();//full pattern path list
+
+	for (uint i = 0; i < allPatternDirList.size(); ++i) {
+		QString testName = allPatternDirList[i];
+		if( testName.contains( patternName )){
+
+			sDirectory = allPatternDirList[i];
+		
+		} 
+	}
+
+	Pattern* err = mng.loadPattern (sDirectory );
 
 	if ( err == 0 )
 	{

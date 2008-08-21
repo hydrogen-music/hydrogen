@@ -419,7 +419,6 @@ std::vector<QString> LocalFileMng::getAllCategoriesFromPattern()
 			ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found "); 
 		}else{
 			TiXmlNode* patternNode = rootNode->FirstChild( "pattern" );
-			bool test = true;
 			QString sCategoryName( LocalFileMng::readXmlString( patternNode,"category", "" ) );
 
 
