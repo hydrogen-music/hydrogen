@@ -23,6 +23,7 @@
 
 #include "SoundLibraryImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
+#include "SoundLibraryPanel.h"
 
 #include "../widgets/DownloadWidget.h"
 #include "../HydrogenApp.h"

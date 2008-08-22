@@ -23,6 +23,8 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
+#include <hydrogen/Pattern.h>
+#include <hydrogen/note.h>
 using namespace H2Core;
 
 #include <cassert>
@@ -30,6 +32,8 @@ using namespace H2Core;
 #include "../HydrogenApp.h"
 
 #include "NotePropertiesRuler.h"
+#include "PatternEditorPanel.h"
+#include "DrumPatternEditor.h"
 
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )

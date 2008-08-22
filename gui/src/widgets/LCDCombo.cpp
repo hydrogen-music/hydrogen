@@ -22,14 +22,9 @@
 
 #include "LCDCombo.h"
 
-#include <string>
-#include <iostream>
-
 #include "../Skin.h"
 #include "LCD.h"
 #include "Button.h"
-
-#include <QtGui>
 
 #include <hydrogen/globals.h>
 
@@ -71,6 +66,11 @@ LCDCombo::~LCDCombo()
 {
 }
 
+
+QString LCDCombo::getText()
+{
+	return display->getText();
+};
 
 
 void LCDCombo::changeText(QAction* pAction)

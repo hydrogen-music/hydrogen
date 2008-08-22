@@ -39,9 +39,11 @@
 #include <QFileDialog>
 #include <vector>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
 
 using namespace H2Core;
-
+using namespace std;
 
 PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		: QDialog ( pParent )

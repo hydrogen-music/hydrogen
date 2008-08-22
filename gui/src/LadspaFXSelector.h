@@ -28,11 +28,15 @@
 #include "ui_LadspaFXSelector_UI.h"
 
 #include <hydrogen/Object.h>
-#include <hydrogen/fx/LadspaFX.h>
 
+#include <QtGui>
 #include <string>
 #include <vector>
 
+namespace H2Core {
+	class LadspaFXInfo;
+	class LadspaFXGroup;
+}
 
 class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public Object
 {

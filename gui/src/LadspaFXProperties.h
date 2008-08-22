@@ -23,21 +23,14 @@
 #ifndef LADSPA_FX_PROPERTIES_H
 #define LADSPA_FX_PROPERTIES_H
 
-
 #include <vector>
-using std::vector;
-
-#include <QWidget>
-#include <QLabel>
-#include <QFrame>
-#include <QPushButton>
-#include <QScrollArea>
-
-#include "widgets/Fader.h"
-#include "widgets/LCD.h"
-#include "Mixer/MixerLine.h"
+#include <QtGui>
 
 #include <hydrogen/Object.h>
+
+class Fader;
+class LCDDisplay;
+class InstrumentNameWidget;
 
 class LadspaFXProperties : public QWidget, public Object {
 	Q_OBJECT
@@ -52,7 +45,7 @@ class LadspaFXProperties : public QWidget, public Object {
 		void closeEvent( QCloseEvent *ev );
 
 	public slots:
-		void faderChanged(Fader * ref);
+		void faderChanged( Fader* ref );
 		void selectFXBtnClicked();
 		void activateBtnClicked();
 		void updateOutputControls();
@@ -62,20 +55,20 @@ class LadspaFXProperties : public QWidget, public Object {
 
 		QLabel *m_pNameLbl;
 
-		vector<Fader*> m_pInputControlFaders;
-		vector<InstrumentNameWidget*> m_pInputControlNames;
-		vector<LCDDisplay*> m_pInputControlLabel;
+		std::vector<Fader*> m_pInputControlFaders;
+		std::vector<InstrumentNameWidget*> m_pInputControlNames;
+		std::vector<LCDDisplay*> m_pInputControlLabel;
 
-		vector<Fader*> m_pOutputControlFaders;
-		vector<InstrumentNameWidget*> m_pOutputControlNames;
+		std::vector<Fader*> m_pOutputControlFaders;
+		std::vector<InstrumentNameWidget*> m_pOutputControlNames;
 
 		QScrollArea* m_pScrollArea;
-		QFrame *m_pFrame;
+		QFrame* m_pFrame;
 
 		QPushButton *m_pSelectFXBtn;
 		QPushButton *m_pActivateBtn;
 
-		QTimer *m_pTimer;
+		QTimer* m_pTimer;
 };
 
 #endif

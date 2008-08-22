@@ -28,14 +28,12 @@
 
 #include "config.h"
 
-
 #ifdef LASH_SUPPORT
 
 #include <lash-1.0/lash/lash.h>
 #include <hydrogen/LashClient.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
-#include <string>
 
 using namespace H2Core;
 
@@ -104,7 +102,7 @@ void LashClient::sendEvent(LASH_Event_Type eventType, const char* value)
 	lash_send_event(lashClient, event);
 }
 
-void LashClient::setJackClientName(string name)
+void LashClient::setJackClientName( const std::string& name )
 {
 	jackClientName = name;
 }

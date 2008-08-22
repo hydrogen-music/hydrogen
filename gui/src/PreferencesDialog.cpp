@@ -274,7 +274,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	Preferences *pPref = Preferences::getInstance();
 
-	midiTableWidget->saveMidiTable();
+	midiTable->saveMidiTable();
 
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {

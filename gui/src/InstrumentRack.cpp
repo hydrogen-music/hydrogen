@@ -21,8 +21,10 @@
  */
 
 #include "InstrumentRack.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "Skin.h"
+#include "widgets/Button.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 
 #include <QGridLayout>
 

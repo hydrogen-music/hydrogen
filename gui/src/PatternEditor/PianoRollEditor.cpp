@@ -22,12 +22,13 @@
 
 #include "PianoRollEditor.h"
 
-#include <QtGui>
 #include <cassert>
 
-#include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
+#include <hydrogen/note.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/Pattern.h>
 using namespace H2Core;
 
 #include "../HydrogenApp.h"

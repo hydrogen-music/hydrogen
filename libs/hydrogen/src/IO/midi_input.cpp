@@ -146,8 +146,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	}
 
 
-	actionManager * aH = actionManager::getInstance();
-	midiMap * mM = midiMap::getInstance();
+	ActionManager * aH = ActionManager::getInstance();
+	MidiMap * mM = MidiMap::getInstance();
 
 	aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
 
@@ -242,8 +242,8 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	*/
 	
 	
-	actionManager * aH = actionManager::getInstance();
-	midiMap * mM = midiMap::getInstance();
+	ActionManager * aH = ActionManager::getInstance();
+	MidiMap * mM = MidiMap::getInstance();
 	
 	if ( msg.m_sysexData.size() == 6 ) {
 		if (

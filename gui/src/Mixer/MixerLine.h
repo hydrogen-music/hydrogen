@@ -28,8 +28,6 @@
 
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>
-#include "../widgets/LCD.h"
-#include "../widgets/PixmapWidget.h"
 
 class Fader;
 class MasterFader;
@@ -41,6 +39,8 @@ class InstrumentPropertiesDialog;
 class InstrumentNameWidget;
 class LCDDisplay;
 class Rotary;
+
+#include "../widgets/PixmapWidget.h"
 
 
 class InstrumentNameWidget : public PixmapWidget
@@ -270,12 +270,9 @@ class LadspaFXMixerLine : public PixmapWidget
 		void setFxActive( bool active );
 		void setPeaks( float fPeak_L, float fPeak_R );
 		void getPeaks( float *fPeak_L, float *fPeak_R );
-
-		void setName(QString name) {     m_pNameLCD->setText( name );        }
-
+		void setName( QString name );
 		float getVolume();
-		void setVolume(float value);
-
+		void setVolume( float value );
 
 	public slots:
 		void click(Button *ref);

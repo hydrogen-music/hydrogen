@@ -20,28 +20,29 @@
  *
  */
 
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/IO/JackOutput.h>
-#include <hydrogen/Preferences.h>
-using namespace H2Core;
-
-#include <QTimer>
-#include <QPixmap>
-#include <QPaintEvent>
-#include <QInputDialog>
-#include <QPainter>
-#include <string>
 
 #include "Skin.h"
 #include "PlayerControl.h"
 #include "InstrumentRack.h"
+#include "HydrogenApp.h"
+
+#include "widgets/LCD.h"
+#include "widgets/Button.h"
+#include "widgets/CpuLoadWidget.h"
+#include "widgets/MidiActivityWidget.h"
+#include "widgets/PixmapWidget.h"
 
 #include "Mixer/Mixer.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/audio_engine.h>
+#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/Preferences.h>
 using namespace H2Core;
+
 
 //beatconter global
 int bcDisplaystatus = 0;

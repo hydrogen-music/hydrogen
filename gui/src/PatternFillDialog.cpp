@@ -22,14 +22,12 @@
  */
 
 #include "PatternFillDialog.h"
+
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Song.h>
-#include "Skin.h"
+#include <hydrogen/Pattern.h>
 
-#include <qradiobutton.h>
-#include <qlineedit.h>
-#include <qpixmap.h>
-#include <qpushbutton.h>
+#include "Skin.h"
 
 
 PatternFillDialog::PatternFillDialog(QWidget* parent, FillRange* pRange)
@@ -38,21 +36,17 @@ PatternFillDialog::PatternFillDialog(QWidget* parent, FillRange* pRange)
 {
 	setupUi( this );
 
-	setMaximumSize( width(), height() );
-	setMinimumSize( width(), height() );
+	setFixedSize( width(), height() );
 	setWindowTitle( trUtf8( "Fill with selected pattern" ) );
-//	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
-	this->fillRange = pRange;
-	this->textChanged();
+
+	__fill_range = pRange;
+	__text_changed();
 }
 
 
 
-
-/**
- * Destructor
- */
-PatternFillDialog::~PatternFillDialog() {
+PatternFillDialog::~PatternFillDialog()
+{
 }
 
 
@@ -66,9 +60,9 @@ void PatternFillDialog::on_cancelBtn_clicked()
 
 void PatternFillDialog::on_okBtn_clicked()
 {
-	fillRange->fromVal = fromText->text().toUInt();
-	fillRange->toVal =   toText->text().toUInt();
-	fillRange->bInsert = fillRB->isChecked();
+	__fill_range->fromVal = fromText->text().toUInt();
+	__fill_range->toVal = toText->text().toUInt();
+	__fill_range->bInsert = fillRB->isChecked();
 	accept();
 }
 
@@ -76,20 +70,18 @@ void PatternFillDialog::on_okBtn_clicked()
 
 void PatternFillDialog::on_fromText_textChanged( const QString& )
 {
-	textChanged();
+	__text_changed();
 }
 
 
 void PatternFillDialog::on_toText_textChanged( const QString& )
 {
-	textChanged();
+	__text_changed();
 }
 
 
-/**
- * Do some name check
- */
-void PatternFillDialog::textChanged()
+
+void PatternFillDialog::__text_changed()
 {
 	int fromVal, toVal;
 

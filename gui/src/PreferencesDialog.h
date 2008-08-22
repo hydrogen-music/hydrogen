@@ -36,7 +36,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 {
 	Q_OBJECT
 	public:
-		PreferencesDialog(QWidget* parent);
+		PreferencesDialog( QWidget* parent );
 		~PreferencesDialog();
 
 	private slots:
@@ -55,6 +55,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 
 	private:
 		bool m_bNeedDriverRestart;
+
 		void updateDriverInfo();
 };
 

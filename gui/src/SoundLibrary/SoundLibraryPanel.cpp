@@ -49,6 +49,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/Pattern.h>
 using namespace H2Core;
 
 #include <cassert>

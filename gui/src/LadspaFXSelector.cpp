@@ -28,15 +28,8 @@
 #include <hydrogen/Preferences.h>
 
 #include <hydrogen/fx/Effects.h>
+#include <hydrogen/fx/LadspaFX.h>
 
-#include <QPixmap>
-#include <QLabel>
-#include <QPushButton>
-#include <QString>
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
-#include <QListWidget>
-#include <QListWidgetItem>
 using namespace std;
 using namespace H2Core;
 

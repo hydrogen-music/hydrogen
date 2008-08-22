@@ -26,7 +26,9 @@
 #include "config.h"
 #include <QtGui>
 
-#include "LCD.h"
+class LCDDisplay;
+
+#include <hydrogen/Object.h>
 
 class RotaryTooltip : public QWidget
 {

@@ -23,7 +23,7 @@
 #ifndef INSTRUMENT_EDITOR_PANEL_H
 #define INSTRUMENT_EDITOR_PANEL_H
 
-#include <QWidget>
+#include <QtGui>
 #include <hydrogen/Object.h>
 #include "InstrumentEditor.h"
 

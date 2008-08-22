@@ -21,7 +21,6 @@
  */
 #include "SongEditorPanel.h"
 
-//#include "config.h"
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
@@ -29,15 +28,14 @@
 #include "../widgets/PixmapWidget.h"
 #include "../Skin.h"
 
+#include "SongEditor.h"
+
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/Pattern.h>
 using namespace H2Core;
-
-#include <QMessageBox>
-#include <QPixmap>
-#include <QResizeEvent>
-#include <QScrollBar>
+using namespace std;
 
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )

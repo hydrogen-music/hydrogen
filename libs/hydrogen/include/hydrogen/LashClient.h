@@ -21,23 +21,14 @@
  */
 
 
-
-#include "config.h"
-
 #ifdef LASH_SUPPORT
 
 #ifndef LASH_CLIENT
 #define LASH_CLIENT
 
-#include "config.h"
-
 #include <lash-1.0/lash/lash.h>
 
-
-
 #include <string>
-
-using namespace std;
 
 
 class LashClient
@@ -54,7 +45,7 @@ public:
 	void sendEvent(LASH_Event_Type eventType, const char* value);
 	void sendEvent(LASH_Event_Type eventType);
 
-	void setJackClientName(std::string jackClientName);
+	void setJackClientName( const std::string& jackClientName );
 	void sendJackClientName();
 	void setAlsaClientId(unsigned char id);
 	void sendAlsaClientId();

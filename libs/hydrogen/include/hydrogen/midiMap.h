@@ -22,33 +22,33 @@
 #ifndef MIDIMAP_H
 #define MIDIMAP_H
 
-#include "action.h"
 
+#include <map>
 
-class midiMap : public Object
+class Action;
+
+class MidiMap : public Object
 {
 	public:
-		midiMap();
-		~midiMap();
+		static MidiMap* __instance;
+		~MidiMap();
 
-		static midiMap * instance;
-		static midiMap * getInstance();
+		static MidiMap* getInstance();
 
-		void registerMMCEvent( QString,action * );
-		void registerNoteEvent( int , action * );
+		void registerMMCEvent( QString, Action* );
+		void registerNoteEvent( int , Action* );
 
-		map <QString , action *> getMMCMap();
+		std::map< QString, Action* > getMMCMap();
 
-		action * getMMCAction( QString );
-		action * getNoteAction( int note );
+		Action* getMMCAction( QString );
+		Action* getNoteAction( int note );
 
 		void setupNoteArray();
-		
-		
 
 	private:
+		MidiMap();
 
-		action * noteArray[128];
-		map <QString , action *> mmcMap;
+		Action* __note_array[ 128 ];
+		std::map< QString, Action* > mmcMap;
 };
 #endif

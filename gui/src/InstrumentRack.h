@@ -26,10 +26,10 @@
 
 #include <hydrogen/Object.h>
 
-#include "widgets/Button.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
+#include <QtGui>
 
-#include <QWidget>
+class ToggleButton;
+class SoundLibraryPanel;
 
 class InstrumentRack : public QWidget, private Object
 {

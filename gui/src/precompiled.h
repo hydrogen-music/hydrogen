@@ -16,34 +16,7 @@
 #include <map>
 
 // QT
-#include <QLibrary>
-#include <QDir>
-#include <QWidget>
-#include <QPixmap>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QFrame>
-#include <QLabel>
-#include <QLayout>
-#include <QTimer>
-#include <QGridLayout>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QCursor>
-#include <QKeyEvent>
-#include <QScrollArea>
-#include <QResizeEvent>
-#include <QPushButton>
-#include <QPalette>
-#include <QDialog>
-#include <QApplication>
-#include <QString>
-#include <QEvent>
-#include <QtNetwork>
-#include <QAction>
-#include <QFile>
-#include <QObject>
-
+#include <QtGui>
 
 #include <iostream>
 #include <fstream>

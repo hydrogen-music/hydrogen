@@ -26,22 +26,19 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/IO/AudioOutput.h>
-using namespace H2Core;
 
 
 #include "LadspaFXProperties.h"
 #include "HydrogenApp.h"
 #include "LadspaFXSelector.h"
 #include "Skin.h"
+#include "widgets/Fader.h"
+#include "widgets/LCD.h"
 
-#include <QPixmap>
-#include <QTimer>
-#include <QLabel>
-#include <QShowEvent>
-#include <QFrame>
-#include <QCloseEvent>
+#include "Mixer/Mixer.h"
+#include "Mixer/MixerLine.h"
 
-
+using namespace std;
 using namespace H2Core;
 
 LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)

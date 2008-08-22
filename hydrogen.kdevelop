@@ -114,32 +114,10 @@
       <path>gui/objs/ui_SoundLibraryImportDialog_UI.h</path>
       <path>gui/objs/ui_SoundLibraryRepositoryDialog_UI.h</path>
       <path>gui/objs/ui_SoundLibrarySaveDialog_UI.h</path>
-      <path>gui/src/AboutDialog.cpp</path>
-      <path>gui/src/AboutDialog.h</path>
-      <path>gui/src/AudioEngineInfoForm.cpp</path>
-      <path>gui/src/AudioEngineInfoForm.h</path>
-      <path>gui/src/EventListener.h</path>
-      <path>gui/src/ExportSongDialog.cpp</path>
-      <path>gui/src/ExportSongDialog.h</path>
-      <path>gui/src/FilePreview.cpp</path>
-      <path>gui/src/FilePreview.h</path>
-      <path>gui/src/HelpBrowser.cpp</path>
-      <path>gui/src/HelpBrowser.h</path>
-      <path>gui/src/HydrogenApp.cpp</path>
-      <path>gui/src/HydrogenApp.h</path>
       <path>gui/src/InstrumentEditor/moc_InstrumentEditor.cc</path>
       <path>gui/src/InstrumentEditor/moc_InstrumentEditorPanel.cc</path>
       <path>gui/src/InstrumentEditor/moc_LayerPreview.cc</path>
       <path>gui/src/InstrumentEditor/moc_WaveDisplay.cc</path>
-      <path>gui/src/InstrumentRack.cpp</path>
-      <path>gui/src/InstrumentRack.h</path>
-      <path>gui/src/LadspaFXProperties.cpp</path>
-      <path>gui/src/LadspaFXProperties.h</path>
-      <path>gui/src/LadspaFXSelector.cpp</path>
-      <path>gui/src/LadspaFXSelector.h</path>
-      <path>gui/src/main.cpp</path>
-      <path>gui/src/MainForm.cpp</path>
-      <path>gui/src/MainForm.h</path>
       <path>gui/src/Mixer/moc_Mixer.cc</path>
       <path>gui/src/Mixer/moc_MixerLine.cc</path>
       <path>gui/src/moc_AboutDialog.cc</path>
@@ -164,22 +142,11 @@
       <path>gui/src/PatternEditor/moc_PatternEditorInstrumentList.cc</path>
       <path>gui/src/PatternEditor/moc_PatternEditorPanel.cc</path>
       <path>gui/src/PatternEditor/moc_PatternEditorRuler.cc</path>
-      <path>gui/src/PatternFillDialog.cpp</path>
-      <path>gui/src/PatternFillDialog.h</path>
-      <path>gui/src/PatternPropertiesDialog.cpp</path>
-      <path>gui/src/PatternPropertiesDialog.h</path>
-      <path>gui/src/PlayerControl.cpp</path>
-      <path>gui/src/PlayerControl.h</path>
       <path>gui/src/PlaylistEditor/moc_PlaylistDialog.cc</path>
       <path>gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h</path>
       <path>gui/src/precompiled.h</path>
-      <path>gui/src/PreferencesDialog.cpp</path>
-      <path>gui/src/PreferencesDialog.h</path>
-      <path>gui/src/Skin.h</path>
       <path>gui/src/SongEditor/moc_SongEditor.cc</path>
       <path>gui/src/SongEditor/moc_SongEditorPanel.cc</path>
-      <path>gui/src/SongPropertiesDialog.cpp</path>
-      <path>gui/src/SongPropertiesDialog.h</path>
       <path>gui/src/SoundLibrary/moc_FileBrowser.cc</path>
       <path>gui/src/SoundLibrary/moc_SoundLibraryExportDialog.cc</path>
       <path>gui/src/SoundLibrary/moc_SoundLibraryImportDialog.cc</path>
@@ -193,8 +160,6 @@
       <path>gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h</path>
       <path>gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h</path>
       <path>gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h</path>
-      <path>gui/src/SplashScreen.cpp</path>
-      <path>gui/src/SplashScreen.h</path>
       <path>gui/src/UI</path>
       <path>gui/src/UI/ui_about_dialog.h</path>
       <path>gui/src/UI/ui_AudioEngineInfoForm_UI.h</path>
@@ -390,6 +355,11 @@
       <pcs>automatic_%2Fhome%2Fcomix%2Fprogetti%2Fhydrogen_svn%2Ftrunk</pcs>
       <pcs>Qt4</pcs>
     </references>
+    <designerintegration>
+      <qtdesigner>
+        <implementation class="MidiTable" path="gui/src/UI/PreferencesDialog_UI.ui" implementationpath="gui/src/widgets/midiTable.h" />
+      </qtdesigner>
+    </designerintegration>
   </kdevcppsupport>
   <cppsupportpart>
     <filetemplates>

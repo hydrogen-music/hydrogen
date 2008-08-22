@@ -30,12 +30,7 @@
 #include "EventListener.h"
 #include "ui_AudioEngineInfoForm_UI.h"
 
-#include <QLabel>
-#include <QTimer>
-#include <QPixmap>
-#include <QHideEvent>
-#include <QShowEvent>
-#include <QWidget>
+#include <QtGui>
 
 /**
  * Audio Engine information form

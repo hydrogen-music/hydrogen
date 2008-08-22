@@ -23,14 +23,11 @@
 #define ACTION_H
 #include <hydrogen/Object.h>
 #include <map>
-#include <string>
-
-using namespace std;
 
 
-class action : public Object {
+class Action : public Object {
 	public:
-		action( QString );
+		Action( QString );
 		
 		QString getType();
 		QStringList getParameterList();
@@ -45,22 +42,22 @@ class action : public Object {
 
 
 
-class actionManager : public Object
+class ActionManager : public Object
 {
-	private:
-		static actionManager *instance;
-		QStringList actionList;
-		QStringList eventList;
-
 	public:
-		static actionManager* getInstance();
+		static ActionManager* getInstance();
 
-		bool handleAction( action * );
+		bool handleAction( Action * );
 		
 		QStringList getActionList();
 		QStringList getEventList();
 
-		actionManager();
-		~actionManager();
+		ActionManager();
+		~ActionManager();
+
+	private:
+		static ActionManager *instance;
+		QStringList actionList;
+		QStringList eventList;
 };
 #endif

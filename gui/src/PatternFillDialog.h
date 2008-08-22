@@ -25,15 +25,15 @@
 
 #include "config.h"
 
+#include <QtGui>
 #include "ui_PatternFillDialog_UI.h"
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Pattern.h>
 
-
-/**
- * FillRange struct
- */
+namespace H2Core
+{
+	class Pattern;
+}
 
 struct FillRange {
 
@@ -43,14 +43,14 @@ struct FillRange {
 };
 
 
-/**
- * Pattern Fill Dialog
- */
+///
+/// Pattern Fill Dialog
+///
 class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public Object
 {
 	Q_OBJECT
 	public:
-		PatternFillDialog(QWidget* parent, FillRange* range);
+		PatternFillDialog( QWidget* parent, FillRange* range );
 		~PatternFillDialog();
 
 	private slots:
@@ -60,9 +60,11 @@ class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public
 		void on_toText_textChanged(const QString & text);
 
 	private:
-		H2Core::Pattern *pattern;
-		FillRange *fillRange;
-		void textChanged();
+		H2Core::Pattern* __pattern;
+		FillRange* __fill_range;
+
+		/// Does some name check
+		void __text_changed();
 
 
 };

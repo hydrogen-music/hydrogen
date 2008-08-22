@@ -28,14 +28,17 @@
 #include "../EventListener.h"
 
 #include <hydrogen/Object.h>
-#include <hydrogen/note.h>
-#include <hydrogen/Pattern.h>
 
 #include <QtGui>
 
+namespace H2Core
+{
+	class Note;
+	class Pattern;
+}
+
 class PatternEditorInstrumentList;
 class PatternEditorPanel;
-
 
 ///
 /// Drum pattern editor

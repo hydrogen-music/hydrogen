@@ -23,19 +23,21 @@
 #ifndef SONG_EDITOR_PANEL_H
 #define SONG_EDITOR_PANEL_H
 
-#include "SongEditor.h"
 
 #include "../EventListener.h"
 #include <hydrogen/Object.h>
 
-#include <QScrollArea>
-#include <QWidget>
-#include <QTimer>
-#include <QResizeEvent>
+#include <QtGui>
 
 class Button;
+class SongEditor;
+class SongEditorPatternList;
+class SongEditorPositionRuler;
+class ToggleButton;
 
-enum SongEditorActionMode {
+
+enum SongEditorActionMode
+{
 	SELECT_ACTION,
 	DRAW_ACTION
 };
@@ -92,7 +94,7 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		QScrollBar *m_pHScrollBar;
 
 
-		SongEditor *m_pSongEditor;
+		SongEditor* m_pSongEditor;
 		SongEditorPatternList *m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
 

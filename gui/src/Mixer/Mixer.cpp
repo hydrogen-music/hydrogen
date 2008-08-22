@@ -24,22 +24,20 @@
 #include "MixerLine.h"
 
 #include "../Skin.h"
-#include "../widgets/Button.h"
 #include "../HydrogenApp.h"
 #include "../LadspaFXProperties.h"
-#include "../PatternEditor/PatternEditorPanel.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
+#include "../widgets/Button.h"
+#include "../widgets/PixmapWidget.h"
 
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
-#include <hydrogen/audio_engine.h>
+#include <hydrogen/fx/Effects.h>
 using namespace H2Core;
-
-#include <QtGui>
 
 #include <cassert>
 
@@ -49,7 +47,7 @@ using namespace H2Core;
 
 Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
-   // : QWidget( pParent, Qt::WindowStaysOnTopHint )
+// : QWidget( pParent, Qt::WindowStaysOnTopHint )
 // : QWidget( pParent, Qt::Tool )
  , Object( "Mixer" )
 {

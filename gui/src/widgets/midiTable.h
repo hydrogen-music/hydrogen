@@ -28,14 +28,12 @@
 
 #include <QtGui>
 
-class midiTable : public QTableWidget, public Object
+class MidiTable : public QTableWidget, public Object
 {
 	Q_OBJECT
 	public:
-			
-
-		midiTable(QWidget*);
-		~midiTable();
+		MidiTable( QWidget* pParent );
+		~MidiTable();
 
 		void setupMidiTable();
 		void saveMidiTable();
@@ -45,7 +43,7 @@ class midiTable : public QTableWidget, public Object
 		void updateTable();
 	
 	private:
-		int rowCount;
+		int __row_count;
 
 };
 

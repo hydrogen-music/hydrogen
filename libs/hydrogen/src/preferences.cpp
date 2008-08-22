@@ -458,9 +458,11 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
 			}
 
-			if ( midiMap::instance != NULL) delete midiMap::instance;
-
-			midiMap * mM = midiMap::getInstance();	
+			// FIXME: hack hack hack! Isn't better to create a "release" method in MidiMap class instead of destroying a singleton?
+			if ( MidiMap::__instance != NULL) {
+				delete MidiMap::__instance;
+			}
+			MidiMap* mM = MidiMap::getInstance();
 			
 			
 			TiXmlNode* pMidiEventMapNode = rootNode->FirstChild( "midiEventMap" );
@@ -471,33 +473,20 @@ void Preferences::loadPreferences( bool bGlobal )
 					
 					if( pMidiEventNode->FirstChild()->Value() == QString("mmcEvent")){
 						QString event = pMidiEventNode->FirstChild("mmcEvent")->FirstChild()->Value();
-	
 						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
-
 						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
-	
-						action * pAction = new action( s_action );
-
+						Action* pAction = new Action( s_action );
 						pAction->addParameter( s_param );
-				
 						mM->registerMMCEvent(event, pAction);
-						
 					}
 
-					
 					if( pMidiEventNode->FirstChild()->Value() == QString("noteEvent")){
 						QString event = pMidiEventNode->FirstChild("noteEvent")->FirstChild()->Value();
-	
 						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
-
 						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
-
 						QString s_eventParameter = pMidiEventNode->FirstChild("eventParameter")->FirstChild()->Value();
-	
-						action * pAction = new action( s_action );
-
+						Action* pAction = new Action( s_action );
 						pAction->addParameter( s_param );
-				
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
 				}
@@ -780,28 +769,21 @@ void Preferences::savePreferences()
 	}
 	rootNode.InsertEndChild( filesNode );
 
-	midiMap * mM = midiMap::getInstance();
-	std::map< QString , action *> mmcMap = mM->getMMCMap();
-
+	MidiMap * mM = MidiMap::getInstance();
+	std::map< QString, Action* > mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	TiXmlElement midiEventMapNode( "midiEventMap" );
 	{
-		
-		std::map< QString , action *>::iterator dIter( mmcMap.begin() );
+		std::map< QString, Action* >::iterator dIter( mmcMap.begin() );
 		for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
 			
-			QString event;
-			action * pAction;
-
-			event = dIter->first;
-			pAction = dIter->second;
+			QString event = dIter->first;
+			Action * pAction = dIter->second;
 
 			if ( pAction->getType() != "NOTHING" ){
 				TiXmlElement midiEventNode( "midiEvent" );
-				
 				LocalFileMng::writeXmlString( &midiEventNode, "mmcEvent" , event );
-
 				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType());
 
 				if ( pAction->getParameterList().size() != 0 ){
@@ -809,19 +791,16 @@ void Preferences::savePreferences()
 				}
 
 				midiEventMapNode.InsertEndChild(midiEventNode);
-
 			}
 		}
 		
 		for( int note=0; note < 128; note++ ){
-			action * pAction = mM->getNoteAction( note );
-			if( pAction != NULL && pAction->getType() != "NOTHING")
-			{
+			Action * pAction = mM->getNoteAction( note );
+			if( pAction != NULL && pAction->getType() != "NOTHING") {
 				TiXmlElement midiEventNode( "midiEvent" );
 				
 				LocalFileMng::writeXmlString( &midiEventNode, "noteEvent" , QString("NOTE") );
 				LocalFileMng::writeXmlString( &midiEventNode, "eventParameter" , QString::number( note ) );
-
 				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType() );
 
 				if ( pAction->getParameterList().size() != 0 ){

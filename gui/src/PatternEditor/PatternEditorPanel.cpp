@@ -29,15 +29,19 @@
 using namespace H2Core;
 
 
+#include "HydrogenApp.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorInstrumentList.h"
 #include "PatternEditorRuler.h"
 #include "NotePropertiesRuler.h"
+#include "DrumPatternEditor.h"
+#include "PianoRollEditor.h"
 
 #include "../MainForm.h"
 #include "../widgets/Button.h"
 #include "../widgets/Fader.h"
 #include "../widgets/PixmapWidget.h"
+#include "../widgets/LCDCombo.h"
 
 #include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"

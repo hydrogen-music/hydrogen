@@ -27,10 +27,7 @@
 #include "config.h"
 
 #include <iostream>
-
-using std::cout;
 #include <string>
-
 #include <QtGui>
 
 #include <hydrogen/Object.h>

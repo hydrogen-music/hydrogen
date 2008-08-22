@@ -30,34 +30,35 @@
 #include <hydrogen/action.h>
 #include <map>
 
-actionManager* actionManager::instance = NULL;
+ActionManager* ActionManager::instance = NULL;
 
 using namespace H2Core;
 
+
 /* Class action */
 
-QString action::getType(){
+Action::Action( QString s ) : Object( "action" ) {
+	type = s;
+	QStringList parameterList;
+}
+
+QString Action::getType(){
 	return type;
 }
 
-QStringList action::getParameterList(){
+QStringList Action::getParameterList(){
 	return parameterList;
 }
 
-void action::addParameter( QString param ){
+void Action::addParameter( QString param ){
 	parameterList.append( param );
-}
-
-action::action( QString s ) : Object( "action" ) {
-	type = s;
-	QStringList parameterList;
 }
 
 
 /* Class actionManager */
 
 
-actionManager::actionManager() : Object( "actionManager" ) {
+ActionManager::ActionManager() : Object( "actionManager" ) {
 	INFOLOG( "actionManager Init" );
 	
 	actionList <<""
@@ -85,32 +86,33 @@ actionManager::actionManager() : Object( "actionManager" ) {
 }
 
 
-actionManager::~actionManager(){
+ActionManager::~ActionManager(){
 	INFOLOG( "actionManager delete" );
 	instance = NULL;
 }
 
 
 /// Return an instance of actionManager
-actionManager* actionManager::getInstance()
+ActionManager* ActionManager::getInstance()
 {
 	if ( instance == NULL ) {
-		instance = new actionManager();
+		instance = new ActionManager();
 	}
 	
 	return instance;
 }
 
-QStringList actionManager::getActionList(){
+QStringList ActionManager::getActionList()
+{
 	return actionList;
 }
 
-QStringList actionManager::getEventList(){
+QStringList ActionManager::getEventList(){
 	return eventList;
 }
 
-bool actionManager::handleAction( action * pAction ){
-
+bool ActionManager::handleAction( Action * pAction )
+{
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	/* 
@@ -121,116 +123,108 @@ bool actionManager::handleAction( action * pAction ){
 
 	QString sActionString = pAction->getType();
 
-	
-	if( sActionString == "PLAY" )
-	{
+	if( sActionString == "PLAY" ) {
 		int nState = pEngine->getState();
-		if ( nState == STATE_READY ){
+		if ( nState == STATE_READY ) {
 			pEngine->sequencer_play();
 		}
 	}
 
-	if( sActionString == "PLAY_TOGGLE" )
-	{
+	if( sActionString == "PLAY_TOGGLE" ) {
 		int nState = pEngine->getState();
-		switch ( nState ) 
-		{
-			case STATE_READY:
-				pEngine->sequencer_play();
-				break;
+		switch ( nState ) {
+		case STATE_READY:
+			pEngine->sequencer_play();
+			break;
 
-			case STATE_PLAYING:
-				pEngine->sequencer_stop();
-				break;
+		case STATE_PLAYING:
+			pEngine->sequencer_stop();
+			break;
 
-			default:
-				ERRORLOG( "[Hydrogen::actionManager(PLAY): Unhandled case" );
+		default:
+			ERRORLOG( "[Hydrogen::actionManager(PLAY): Unhandled case" );
 		}
 	}
 
-	if( sActionString == "PAUSE" )
-	{	
+	if ( sActionString == "PAUSE" ) {
 		pEngine->sequencer_stop();
 	}
 
-	if( sActionString == "STOP" )
-	{	
+	if( sActionString == "STOP" ) {
 		pEngine->sequencer_stop();
 		pEngine->setPatternPos( 0 );
 	}
 
-	if( sActionString == "MUTE" ){
+	if( sActionString == "MUTE" ) {
 		pEngine->getSong()->__is_muted = true;
 	}
 
-	if( sActionString == "UNMUTE" ){
+	if( sActionString == "UNMUTE" ) {
 		pEngine->getSong()->__is_muted = false;
 	}
 
-	if( sActionString == "MUTE_TOGGLE" ){
+	if( sActionString == "MUTE_TOGGLE" ) {
 		pEngine->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
 	}
 
-	if( sActionString == "BEATCOUNTER" ){
+	if( sActionString == "BEATCOUNTER" ) {
 		pEngine->handleBeatCounter();
 	}
 
-	if( sActionString == "TAP_TEMPO" ){
+	if( sActionString == "TAP_TEMPO" ) {
 		pEngine->onTapTempoAccelEvent();
 	}
 
-	if( sActionString == "RECORD" ){
+	if( sActionString == "RECORD" ) {
 		Preferences *pref = ( Preferences::getInstance() );
 		pref->setRecordEvents( true );
 
 		//(HydrogenApp::getInstance() )->setStatusBarMessage(QString("Record keyboard/midi events = On") , 2000 );
-		
 	}
 
-	if( sActionString == "BPM_INCR" ){
+	if( sActionString == "BPM_INCR" ) {
 		AudioEngine::get_instance()->lock( "Action::BPM_INCR" );
 
 		int mult = 1;	
 
-		if( pAction->getParameterList().size() > 0){
+		if( pAction->getParameterList().size() > 0) {
 			bool ok;
-			mult = pAction->getParameterList().at(0).toInt(&ok,10);
+			mult = pAction->getParameterList().at(0).toInt( &ok, 10 );
 		}
 
-
 		Song* pSong = pEngine->getSong();
-		if (pSong->__bpm  < 300) {
-			pEngine->setBPM( pSong->__bpm + 1*mult );
+		if ( pSong->__bpm  < 300 ) {
+			pEngine->setBPM( pSong->__bpm + 1 * mult );
 		}
 		AudioEngine::get_instance()->unlock();
 	}
 
-	if( sActionString == "BPM_DECR" ){
+	if( sActionString == "BPM_DECR" ) {
 		AudioEngine::get_instance()->lock( "Action::BPM_DECR" );
 
-		int mult = 1;	
+		int mult = 1;
 
-		if( pAction->getParameterList().size() > 0){
+		if( pAction->getParameterList().size() > 0 ) {
 			bool ok;
-			mult = pAction->getParameterList().at(0).toInt(&ok,10);
+			mult = pAction->getParameterList().at(0).toInt( &ok, 10 );
 		}
 
 		Song* pSong = pEngine->getSong();
 		if (pSong->__bpm  > 40 ) {
-			pEngine->setBPM( pSong->__bpm - 1*mult );
+			pEngine->setBPM( pSong->__bpm - 1 * mult );
 		}
 		AudioEngine::get_instance()->unlock();
 	}
 
-	if( sActionString == ">>_NEXT_BAR"){
-		pEngine->setPatternPos(pEngine->getPatternPos() +1 );
+	if ( sActionString == ">>_NEXT_BAR" ) {
+		pEngine->setPatternPos(pEngine->getPatternPos() + 1 );
 	}
 
-	if( sActionString == "<<_PREVIOUS_BAR"){
-		pEngine->setPatternPos(pEngine->getPatternPos() -1 );
+	if ( sActionString == "<<_PREVIOUS_BAR" ) {
+		pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
 	}
 	
-	if( sActionString == "RECORD_TOGGLE"){
+	if( sActionString == "RECORD_TOGGLE" ) {
 	}
 
 	return true;

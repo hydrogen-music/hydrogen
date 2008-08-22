@@ -20,13 +20,9 @@
  *
  */
 
-
 #include "AudioEngineInfoForm.h"
 
-#include <QWidget>
-#include <QPixmap>
-#include <QHideEvent>
-#include <QShowEvent>
+#include <QtGui>
 
 #include "HydrogenApp.h"
 

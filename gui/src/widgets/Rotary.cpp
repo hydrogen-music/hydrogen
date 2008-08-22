@@ -20,9 +20,8 @@
  *
  */
 #include "Rotary.h"
+#include "LCD.h"
 #include "../Skin.h"
-
-#include <QtGui>
 
 #include <hydrogen/globals.h>
 

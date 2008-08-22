@@ -27,9 +27,10 @@
 #include "config.h"
 
 #include <hydrogen/Object.h>
-#include "PixmapWidget.h"
 
 #include <QtGui>
+
+class PixmapWidget;
 
 /**
  * Generic Button with pixmaps and text.

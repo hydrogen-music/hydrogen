@@ -31,7 +31,6 @@
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>
 #include "../EventListener.h"
-#include "../widgets/PixmapWidget.h"
 
 class Button;
 class ToggleButton;
@@ -39,6 +38,7 @@ class MixerLine;
 class FxMixerLine;
 class MasterMixerLine;
 class LadspaFXMixerLine;
+class PixmapWidget;
 
 class Mixer : public QWidget, public EventListener, public Object
 {

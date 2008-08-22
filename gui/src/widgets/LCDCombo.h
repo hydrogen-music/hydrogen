@@ -25,32 +25,24 @@
 
 #include "config.h"
 
-#include <string>
-#include <iostream>
-
-#include "LCDCombo.h"
-
-#include "../Skin.h"
-#include "LCD.h"
-#include "Button.h"
-
 #include <QtGui>
 
 #include <hydrogen/Object.h>
 
+class Button;
+class LCDDisplay;
 
 class LCDCombo : public QWidget, public Object
 {
 	Q_OBJECT
 	public:
 		LCDCombo(QWidget *pParent, int digits = 5);
-
 		~LCDCombo();
 
 		int count();
 		int length();
 		void update();
-		QString getText() { return display->getText(); };
+		QString getText();
 		bool addItem(const QString &text );
 		void addSeparator();
 		inline void insertItem(int index, const QString &text );

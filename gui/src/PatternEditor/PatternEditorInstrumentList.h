@@ -26,18 +26,20 @@
 
 #include "config.h"
 
+#include <hydrogen/globals.h>
+
 #include <QtGui>
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Pattern.h>
 #include "../widgets/PixmapWidget.h"
-#include "../widgets/Button.h"
 
-
+namespace H2Core
+{
+	class Pattern;
+}
 
 class PatternEditorPanel;
-
-
+class ToggleButton;
 
 class InstrumentLine : public PixmapWidget
 {

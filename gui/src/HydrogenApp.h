@@ -25,16 +25,19 @@
 
 #include "config.h"
 
-#include <iostream>
-
-#include <QtGui>
-
 #include <hydrogen/Object.h>
-#include <hydrogen/Song.h>
 #include <hydrogen/globals.h>
 
 #include "EventListener.h"
+
+#include <iostream>
 #include <vector>
+#include <QtGui>
+
+namespace H2Core
+{
+	class Song;
+}
 
 class SongEditorPanel;
 class MainForm;

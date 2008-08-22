@@ -26,9 +26,6 @@
 
 #include "config.h"
 
-#include <string>
-#include <iostream>
-
 #include <QtGui>
 
 #include <hydrogen/Object.h>

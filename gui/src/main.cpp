@@ -302,8 +302,8 @@ int main(int argc, char *argv[])
 		delete H2Core::EventQueue::get_instance();
 		delete H2Core::AudioEngine::get_instance();
 
-		delete midiMap::getInstance();
-		delete actionManager::getInstance();
+		delete MidiMap::getInstance();
+		delete ActionManager::getInstance();
 
 		_INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;

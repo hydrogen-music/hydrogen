@@ -30,6 +30,7 @@
 #include "../Skin.h"
 #include "../widgets/Rotary.h"
 #include "../widgets/Button.h"
+#include "../widgets/LCD.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
@@ -1058,6 +1059,10 @@ LadspaFXMixerLine::~LadspaFXMixerLine()
 
 
 
+void LadspaFXMixerLine::setName(QString name)
+{
+	m_pNameLCD->setText( name );
+}
 
 void LadspaFXMixerLine::click(Button *ref)
 {

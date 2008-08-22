@@ -19,7 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include "config.h"
 #include "version.h"
 
 #include <hydrogen/hydrogen.h>
@@ -32,19 +31,19 @@
 #include <hydrogen/event_queue.h>
 using namespace H2Core;
 
-
+#include "AboutDialog.h"
+#include "AudioEngineInfoForm.h"
+#include "ExportSongDialog.h"
+#include "HydrogenApp.h"
+#include "InstrumentRack.h"
 #include "Skin.h"
 #include "MainForm.h"
-#include "AboutDialog.h"
 #include "PlayerControl.h"
-#include "ExportSongDialog.h"
-#include "Mixer/Mixer.h"
 #include "HelpBrowser.h"
-#include "AudioEngineInfoForm.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
-#include "InstrumentRack.h"
 
+#include "Mixer/Mixer.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "SongEditor/SongEditor.h"
@@ -67,7 +66,7 @@ using namespace H2Core;
 
 #include <cassert>
 
-using std::map;
+using namespace std;
 using namespace H2Core;
 
 MainForm::MainForm( QApplication *app, const QString& songFilename )
@@ -275,7 +274,6 @@ void MainForm::createMenuBar()
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		m_pDebugMenu->addAction( trUtf8( "debug action" ), this, SLOT( action_debug_debugCommand() ) );
 		m_pDebugMenu->addAction( trUtf8( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		//~ DEBUG menu
 	}
@@ -1381,59 +1379,6 @@ void MainForm::action_debug_printObjects()
 
 
 
-/// Riceve un comando testuale ed esegue una azione di debug
-void MainForm::action_debug_debugCommand()
-{
-	INFOLOG( "[action_debug_debugCommand]" );
-
-	static QString sLastCommand = "";
-	bool bIsOkPressed;
-	QString cmd = QInputDialog::getText( this, "Hydrogen", "Command", QLineEdit::Normal, sLastCommand, &bIsOkPressed );
-	if (bIsOkPressed) {
-		sLastCommand = cmd;
-
-		if ( cmd == "print current pattern list" ) {
-			Hydrogen *pEngine = Hydrogen::get_instance();
-
-			std::cout << "*** print current pattern list ***" << std::endl;
-
-			std::cout << "Pattern pos: " << pEngine->getPatternPos() << std::endl;
-
-			std::cout << std::endl;
-
-			std::cout << "----------------------------------------------------------------------" << std::endl;
-			std::cout << "Song pattern list" << std::endl;
-			std::cout << "----------------------------------------------------------------------" << std::endl;
-			PatternList *pSongPatternList = pEngine->getSong()->get_pattern_list();
-			for ( uint i = 0; i <pSongPatternList->get_size(); i++ ) {
-				H2Core::Pattern *pPat = pSongPatternList->get( i );
-				std::cout << "   |->[" << i << "] " << pPat->get_name().toStdString() << std::endl;
-			}
-			std::cout << "----------------------------------------------------------------------" << std::endl;
-
-			std::cout << std::endl;
-
-			cout << "----------------------------------------------------------------------" << std::endl;
-			cout << "Current pattern list" << std::endl;
-			cout << "----------------------------------------------------------------------" << std::endl;
-			PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
-			for ( uint i = 0; i <pCurrentPatternList->get_size(); i++ ) {
-				H2Core::Pattern *pPat = pCurrentPatternList->get( i );
-				cout << "   |->[" << i << "] " << pPat->get_name().toStdString() << std::endl;
-			}
-			cout << "----------------------------------------------------------------------" << std::endl;
-		}
-		else if ( cmd == "crash" ) {
-			Song *pBadPointer = NULL;
-			pBadPointer->__bpm = 1000000;
-		}
-		else {
-			QMessageBox::warning( this, "Hydrogen", "action not found" );
-		}
-
-	}
-
-}
 
 
 

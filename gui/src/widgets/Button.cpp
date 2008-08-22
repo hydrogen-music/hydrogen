@@ -20,11 +20,10 @@
  *
  */
 
-#include <QtGui>
-
 #include "Button.h"
-#include "../Skin.h"
 
+#include "PixmapWidget.h"
+#include "../Skin.h"
 
 #include <qglobal.h>	// for QT_VERSION
 

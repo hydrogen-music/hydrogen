@@ -21,13 +21,12 @@
  */
 
 #include "PatternPropertiesDialog.h"
+#include "Skin.h"
+
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Preferences.h>
 
-#include "Skin.h"
-
-#include <QPixmap>
 using namespace std;
 using namespace H2Core;
 
@@ -36,10 +35,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 {
 	setupUi( this );
 	setWindowTitle( trUtf8( "Pattern properties" ) );
-//	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	this->pattern = pattern;
-	
 
 	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
@@ -55,8 +52,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 
 	std::list<QString>::const_iterator cur_patternCategories;
 	
-	if(pPref->m_patternCategories.size() == 0){ 	
-		pPref->m_patternCategories.push_back("not_categorized");
+	if ( pPref->m_patternCategories.size() == 0 ) {
+		pPref->m_patternCategories.push_back( "not_categorized" );
 	}
 
 	//categoryComboBox->clear();
@@ -110,9 +107,6 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 }
 
 
-/**
- * Do some name check
- */
 bool PatternPropertiesDialog::nameCheck( QString pattName )
 {
 	if (pattName == "") {
@@ -131,11 +125,10 @@ bool PatternPropertiesDialog::nameCheck( QString pattName )
 
 void PatternPropertiesDialog::on_categoryComboBox_editTextChanged()
 {
-	if ( categoryComboBox->currentText() == pattern->get_category() ){
+	if ( categoryComboBox->currentText() == pattern->get_category() ) {
 		okBtn->setEnabled( false );
 	}
-	else 
-	{
+	else {
 		okBtn->setEnabled(true);
 	}
 }
@@ -143,11 +136,10 @@ void PatternPropertiesDialog::on_categoryComboBox_editTextChanged()
 
 void PatternPropertiesDialog::on_patternNameTxt_textChanged()
 {
-
-	if ( nameCheck( patternNameTxt->text() )) {
-		okBtn->setEnabled(true);
+	if ( nameCheck( patternNameTxt->text() ) ) {
+		okBtn->setEnabled( true );
 	}
 	else {
-		okBtn->setEnabled(false);
+		okBtn->setEnabled( false );
 	}
 }

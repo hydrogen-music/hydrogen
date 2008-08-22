@@ -25,9 +25,11 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/Pattern.h>
 using namespace H2Core;
 
 #include "PatternEditorRuler.h"
+#include "PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 

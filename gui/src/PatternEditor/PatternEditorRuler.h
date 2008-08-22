@@ -24,9 +24,16 @@
 #define PATTERN_EDITOR_RULER_H
 
 #include "../EventListener.h"
-#include <QWidget>
+
+#include <QtGui>
 #include <hydrogen/Object.h>
-#include "PatternEditorPanel.h"
+
+class PatternEditorPanel;
+
+namespace H2Core
+{
+	class Pattern;
+}
 
 class PatternEditorRuler : public QWidget, public Object, public EventListener
 {
@@ -39,8 +46,8 @@ class PatternEditorRuler : public QWidget, public Object, public EventListener
 		void paintEvent(QPaintEvent *ev);
 		void updateStart(bool start);
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
+		void showEvent( QShowEvent *ev );
+		void hideEvent( QHideEvent *ev );
 
 		void zoomIn();
 		void zoomOut();

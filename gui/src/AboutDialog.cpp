@@ -29,14 +29,6 @@
 
 #include <vector>
 
-class Author {
-	public:
-		QString m_sName;
-		QString m_sEmail;
-		QString m_sInfo;
-
-		Author( QString sName, QString sEmail, QString sInfo ) : m_sName( sName ), m_sEmail( sEmail ), m_sInfo( sInfo ) {}
-};
 
 
 AboutDialog::AboutDialog(QWidget* parent)
@@ -61,6 +53,8 @@ AboutDialog::AboutDialog(QWidget* parent)
 	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-announce<br>";
 	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-devel<br>";
 	aboutTxt->setText( about );
+
+
 
 	std::vector<Author> authorList;
 	authorList.push_back( Author( "Antonio Piraino", "", "Italian manual" ) );

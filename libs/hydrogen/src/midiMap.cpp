@@ -24,67 +24,70 @@
 #include <hydrogen/midiMap.h>
 #include <map>
 
-midiMap * midiMap::instance = NULL;
+MidiMap * MidiMap::__instance = NULL;
 
-midiMap::midiMap() : Object( "midiMap" )
+MidiMap::MidiMap()
+ : Object( "midiMap" )
 {
 	//constructor
-	for(int note = 0; note < 128; note++ ){
-		noteArray[ note ] = new action("NOTHING");
+	for(int note = 0; note < 128; note++ ) {
+		__note_array[ note ] = new Action("NOTHING");
 	}
 }
 
-midiMap::~midiMap()
+MidiMap::~MidiMap()
 {
-	std::map< QString , action *>::iterator dIter(mmcMap.begin());
+	std::map< QString , Action *>::iterator dIter( mmcMap.begin() );
 
-	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ )
-	{
+	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ) {
 		delete dIter->second;
 	}
 
-	for(int i = 0; i < 128; i++){
-		delete noteArray[i];
+	for( int i = 0; i < 128; i++ ) {
+		delete __note_array[ i ];
 	}
 
-	instance = NULL;
+	__instance = NULL;
 }
 
-midiMap * midiMap::getInstance(){
-	if( instance == NULL ){
-		instance = new midiMap();
+MidiMap* MidiMap::getInstance()
+{
+	if( __instance == NULL ) {
+		__instance = new MidiMap();
 	}
-	return instance;
+	return __instance;
 }
 
-map <QString,action *> midiMap::getMMCMap(){
+std::map< QString, Action* > MidiMap::getMMCMap()
+{
 	return mmcMap;
 }
 
-void midiMap::registerMMCEvent( QString eventString , action * pAction ){
+void MidiMap::registerMMCEvent( QString eventString , Action* pAction )
+{
 	mmcMap[ eventString ] = pAction;
 }
 
-void midiMap::registerNoteEvent( int note , action * pAction ){
-	
-	if( note >= 0 && note < 128 ){
-		delete noteArray[ note ];
-		noteArray[ note ] = pAction;
+void MidiMap::registerNoteEvent( int note, Action* pAction )
+{
+	if( note >= 0 && note < 128 ) {
+		delete __note_array[ note ];
+		__note_array[ note ] = pAction;
 	}
 }
 
-action * midiMap::getMMCAction( QString eventString ){
-	
-	std::map< QString , action *>::iterator dIter;
-	dIter = mmcMap.find( eventString );
+Action* MidiMap::getMMCAction( QString eventString )
+{
+	std::map< QString, Action *>::iterator dIter = mmcMap.find( eventString );
 	if ( dIter == mmcMap.end() ){
 		return NULL;
-	}	
+	}
 
 	return mmcMap[eventString];
 }
 
-action * midiMap::getNoteAction( int note ){
-	return noteArray[ note ];
+Action* MidiMap::getNoteAction( int note )
+{
+	return __note_array[ note ];
 }
 

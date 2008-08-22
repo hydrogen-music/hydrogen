@@ -24,13 +24,15 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <hydrogen/Object.h>
-#include <hydrogen/Pattern.h>
-#include <hydrogen/note.h>
 #include "../EventListener.h"
 
-#include <QWidget>
-#include <QPixmap>
+#include <QtGui>
 
+namespace H2Core
+{
+	class Pattern;
+	class Note;
+}
 
 class PianoRollEditor: public QWidget, public EventListener, public Object
 {

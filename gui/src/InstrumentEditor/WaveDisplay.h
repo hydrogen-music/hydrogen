@@ -23,13 +23,13 @@
 #ifndef WAVE_DISPLAY
 #define WAVE_DISPLAY
 
-#include "config.h"
-
 #include <QtGui>
-
 #include <hydrogen/Object.h>
-#include <hydrogen/instrument.h>
 
+namespace H2Core
+{
+	class InstrumentLayer;
+}
 
 class WaveDisplay : public QWidget, public Object
 {

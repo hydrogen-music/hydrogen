@@ -23,24 +23,27 @@
 #ifndef PLAYER_CONTROL_H
 #define PLAYER_CONTROL_H
 
-#include <QLabel>
-#include <QWidget>
-#include <QPixmap>
-#include <QPaintEvent>
+#include <QtGui>
 
 #include "EventListener.h"
-#include "HydrogenApp.h"
-
-#include "widgets/LCD.h"
-#include "widgets/Button.h"
-#include "widgets/CpuLoadWidget.h"
-#include "widgets/MidiActivityWidget.h"
-#include "widgets/PixmapWidget.h"
-
 #include <hydrogen/Object.h>
-#include <hydrogen/hydrogen.h>
 
+namespace H2Core
+{
+	class Hydrogen;
+}
 
+class LCDSpinBox;
+class LCDDisplay;
+class Button;
+class ToggleButton;
+class CpuLoadWidget;
+class MidiActivityWidget;
+class PixmapWidget;
+
+///
+///
+///
 class MetronomeWidget : public QWidget, public Object, public EventListener
 {
 	Q_OBJECT

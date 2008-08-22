@@ -27,22 +27,25 @@
 
 #include <QtGui>
 #include "ui_PatternPropertiesDialog_UI.h"
-#include <hydrogen/Song.h>
 
-/**
- * Pattern Properties Dialog
- */
+namespace H2Core
+{
+	class Pattern;
+}
+
+///
+///Pattern Properties Dialog
+///
 class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialog_UI
 {
 	Q_OBJECT
 	public:
-		/** Constructor */
-		PatternPropertiesDialog(QWidget* parent, H2Core::Pattern *pattern);
+		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern );
 
-		/** Destructor */
 		~PatternPropertiesDialog();
-		static bool nameCheck( QString );
 
+		/// Does some name check
+		static bool nameCheck( QString );
 
 	private slots:
 		void on_cancelBtn_clicked();

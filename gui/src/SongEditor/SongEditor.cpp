@@ -20,8 +20,6 @@
  *
  */
 
-#include <QtGui>
-
 #include <assert.h>
 #include <algorithm>
 
@@ -37,6 +35,7 @@ using namespace H2Core;
 
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
@@ -47,6 +46,8 @@ using namespace H2Core;
 #include "../Skin.h"
 #include <hydrogen/LocalFileMng.h>
 
+
+using namespace std;
 
 SongEditor::SongEditor( QWidget *parent )
  : QWidget( parent )

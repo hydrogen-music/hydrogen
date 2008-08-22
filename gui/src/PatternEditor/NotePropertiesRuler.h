@@ -28,7 +28,13 @@
 #include <QtGui>
 
 #include <hydrogen/Object.h>
-#include "PatternEditorPanel.h"
+
+namespace H2Core
+{
+	class Pattern;
+}
+
+class PatternEditorPanel;
 
 class NotePropertiesRuler : public QWidget, public Object, public EventListener
 {

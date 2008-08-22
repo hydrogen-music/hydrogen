@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include "config.h"
+
 #include "version.h"
 
 #include "HydrogenApp.h"
@@ -34,15 +34,18 @@
 
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "Mixer/Mixer.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
+
+#include "Mixer/Mixer.h"
+#include "Mixer/MixerLine.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/Song.h>
 
 #include <QtGui>
 

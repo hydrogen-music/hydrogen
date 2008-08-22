@@ -24,23 +24,11 @@
 #ifndef PATTERN_EDITOR_PANEL_H
 #define PATTERN_EDITOR_PANEL_H
 
-#include <QShowEvent>
-#include <QResizeEvent>
-#include <QMenu>
-#include <QScrollArea>
-#include <QWidget>
-#include <QPixmap>
-#include <QLabel>
-#include <QScrollBar>
+#include <QtGui>
 
 #include <hydrogen/Object.h>
 
-#include "DrumPatternEditor.h"
-#include "PianoRollEditor.h"
-
 #include "../EventListener.h"
-#include "../widgets/LCD.h"
-#include "../widgets/LCDCombo.h"
 
 
 class Button;
@@ -49,8 +37,15 @@ class Fader;
 class PatternEditorRuler;
 class PatternEditorInstrumentList;
 class NotePropertiesRuler;
+class LCDCombo;
+class DrumPatternEditor;
+class PianoRollEditor;
 
 
+namespace H2Core
+{
+	class Pattern;
+}
 
 ///
 /// Pattern Editor Panel

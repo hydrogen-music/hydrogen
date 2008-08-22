@@ -24,17 +24,10 @@
 #define MAINFORM_H
 
 #include <QtNetwork>
-#include <QMenuBar>
-#include <QMainWindow>
-#include <QApplication>
-#include <QAction>
-#include <QCloseEvent>
-#include <QStatusBar>
-#include <QTimer>
+#include <QtGui>
 
 #include <map>
 
-#include "HydrogenApp.h"
 #include "EventListener.h"
 #include "config.h"
 
@@ -92,7 +85,6 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void action_window_showDrumkitManagerPanel();
 
 		void action_debug_printObjects();
-		void action_debug_debugCommand();
 		void action_debug_showAudioEngineInfo();
 
 		void closeEvent( QCloseEvent* ev );

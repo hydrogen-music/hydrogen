@@ -25,9 +25,7 @@
 
 #include "config.h"
 
-#include <QWidget>
-#include <QTreeWidgetItem>
-#include <QMouseEvent>
+#include <QtGui>
 
 #include <vector>
 

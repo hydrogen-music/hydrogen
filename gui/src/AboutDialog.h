@@ -31,13 +31,23 @@
 
 class AboutDialog : public QDialog, public Ui_AboutDialog_UI
 {
-	Q_OBJECT
-	public:
-		AboutDialog(QWidget* parent);
-		~AboutDialog();
+Q_OBJECT
+public:
+	AboutDialog(QWidget* parent);
+	~AboutDialog();
 
-	private slots:
-		void on_okBtn_clicked();
+private slots:
+	void on_okBtn_clicked();
+
+private:
+	class Author {
+		public:
+			QString m_sName;
+			QString m_sEmail;
+			QString m_sInfo;
+
+			Author( QString sName, QString sEmail, QString sInfo ) : m_sName( sName ), m_sEmail( sEmail ), m_sInfo( sInfo ) {}
+	};
 };
 
 #endif

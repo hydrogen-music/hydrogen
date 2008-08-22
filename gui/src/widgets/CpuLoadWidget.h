@@ -25,16 +25,12 @@
 
 #include "config.h"
 
-#include <string>
 #include <iostream>
 
 #include "../EventListener.h"
 #include <hydrogen/Object.h>
 
-#include <QWidget>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QPaintEvent>
+#include <QtGui>
 
 ///
 /// Shows CPU load
