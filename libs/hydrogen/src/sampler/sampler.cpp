@@ -23,20 +23,22 @@
 #include <cassert>
 #include <cmath>
 
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/adsr.h>
-#include <hydrogen/data_path.h>
-#include <hydrogen/audio_engine.h>
+#include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/JackOutput.h>
 
+#include <hydrogen/adsr.h>
+#include <hydrogen/audio_engine.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/globals.h>
-#include <hydrogen/Song.h>
-#include <hydrogen/note.h>
-#include <hydrogen/instrument.h>
-#include <hydrogen/sample.h>
-#include <hydrogen/fx/Effects.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/instrument.h>
+#include <hydrogen/note.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/sample.h>
+#include <hydrogen/Song.h>
+
+#include <hydrogen/fx/Effects.h>
+#include <hydrogen/sampler/Sampler.h>
 
 namespace H2Core
 {

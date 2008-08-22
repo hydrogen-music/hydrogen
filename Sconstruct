@@ -214,9 +214,7 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
 	env.Append( LIBPATH = 'build\pthreads\lib' )
 
-	#app = env.Program(target = 'hydrogengui', source = src, LIBS = libs )
-	app = env.Program(target = 'hydrogengui', source = src )
-
+	app = env.Program(target = 'hydrogen', source = src )
 
 	env.Alias('programs', app)
 	env.Default('programs')

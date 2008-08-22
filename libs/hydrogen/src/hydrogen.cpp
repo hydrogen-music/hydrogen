@@ -21,11 +21,11 @@
  */
 
 #ifdef WIN32
-#include "timeHelper.h"
-#include "timersub.h"
+#    include "timeHelper.h"
+#    include "timersub.h"
 #else
-#include <unistd.h>
-#include <sys/time.h>
+#    include <unistd.h>
+#    include <sys/time.h>
 #endif
 
 #include <pthread.h>
@@ -98,6 +98,7 @@ timeval currentTime, lastTime;		///< timeval
 double lastBeatTime, currentBeatTime, beatDiff;		///< timediff
 float beatCountBpm;			///< bpm
 //~ beatcounter
+
 //jack time master
 float m_nNewBpmJTM = 120;
 unsigned long m_nHumantimeFrames = 0;
@@ -134,7 +135,6 @@ Instrument *m_pMetronomeInstrument = NULL;	///< Metronome instrument
 unsigned m_nBufferSize = 0;
 float *m_pMainBuffer_L = NULL;
 float *m_pMainBuffer_R = NULL;
-bool m_bUseDefaultOuts = false;
 
 
 Hydrogen* hydrogenInstance = NULL;		///< Hydrogen class instance (used for log)
@@ -190,14 +190,6 @@ void audioEngine_restartAudioDrivers();
 void audioEngine_startAudioDrivers();
 void audioEngine_stopAudioDrivers();
 
-/*
-inline unsigned long currentTime() {
-	struct timeval now;
-	gettimeofday(&now, NULL);
-	return now.tv_sec * 1000 + now.tv_usec / 1000;
-}
-*/
-
 
 inline timeval currentTime2()
 {
@@ -239,7 +231,6 @@ void audioEngine_raiseError( unsigned nErrorCode )
 
 void updateTickSize()
 {
-//	hydrogenInstance->infoLog("UpdateTickSize");
 	float sampleRate = ( float )m_pAudioDriver->getSampleRate();
 	m_pAudioDriver->m_transport.m_nTickSize = ( sampleRate * 60.0 /  m_pSong->__bpm / m_pSong->__resolution );
 }
@@ -270,15 +261,6 @@ void audioEngine_init()
 	m_pMainBuffer_L = NULL;
 	m_pMainBuffer_R = NULL;
 
-// 	for (unsigned i=0; i < MAX_INSTRUMENTS; ++i) {
-// 		m_pTrackBuffers_L[i] = NULL;
-// 		m_pTrackBuffers_R[i] = NULL;
-// 	}
-
-	Preferences *preferences = Preferences::getInstance();
-	m_bUseDefaultOuts = preferences->m_bJackConnectDefaults;
-
-
 	srand( time( NULL ) );
 
 	// Create metronome instrument
@@ -307,7 +289,7 @@ void audioEngine_destroy()
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 
 	// delete all copied notes in the song notes queue
-	while(!m_songNoteQueue.empty()){
+	while ( !m_songNoteQueue.empty() ) {
 		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
@@ -362,7 +344,6 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 		return 0;	// FIXME!!
 	}
 
-	//Preferences *preferencesMng = Preferences::getInstance();
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
 	m_pAudioDriver->m_transport.m_nFrames = nTotalFrames;	// reset total frames
@@ -417,7 +398,6 @@ void audioEngine_stop( bool bLockEngine )
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
-
 	/*	// delete all copied notes in the playing notes queue
 		for (unsigned i = 0; i < m_playingNotesQueue.size(); ++i) {
 			Note *note = m_playingNotesQueue[i];
@@ -432,7 +412,6 @@ void audioEngine_stop( bool bLockEngine )
 		delete note;
 	}
 	m_midiNoteQueue.clear();
-
 
 	if ( bLockEngine ) {
 		AudioEngine::get_instance()->unlock();
@@ -506,13 +485,12 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		framepos = m_nRealtimeFrames;
 	}
 
-	// leggo da m_songNoteQueue
-	while (!m_songNoteQueue.empty()) {
+	// reading from m_songNoteQueue
+	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames = (int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
-
 
 		// if there is a negative Humanize delay, take into account so we don't miss the time slice.
 		// ignore positive delay, or we might end the queue processing prematurely based on NoteQueue placement.
@@ -550,7 +528,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			EventQueue::get_instance()->push_event( EVENT_NOTEON, nInstrument );
 			continue;
 		} else {
-			// la nota non andra' in esecuzione
+			// this note will not be played
 			break;
 		}
 	}
@@ -694,10 +672,8 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 }
 
 /// Main audio processing function. Called by audio drivers.
-int audioEngine_process( uint32_t nframes, void *arg )
+int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
-	UNUSED( arg );
-
 	if ( AudioEngine::get_instance()->try_lock( "audioEngine_process" ) == false ) {
 		return 0;
 	}
@@ -733,17 +709,13 @@ int audioEngine_process( uint32_t nframes, void *arg )
 			static_cast<JackOutput*>(m_pAudioDriver)->locateInNCycles( 0 );
 		}
 #endif
-
-
 		return 0;
 	} else if ( res2 == 2 ) {	// send pattern change
 		sendPatternChange = true;
 	}
 
-
 	// play all notes
 	audioEngine_process_playNotes( nframes );
-
 
 	timeval renderTime_start = currentTime2();
 
@@ -1377,10 +1349,10 @@ void audioEngine_noteOff( Note *note )
 
 
 
-unsigned long audioEngine_getTickPosition()
-{
-	return m_nPatternTickPosition;
-}
+// unsigned long audioEngine_getTickPosition()
+// {
+// 	return m_nPatternTickPosition;
+// }
 
 
 AudioOutput* createDriver( const QString& sDriver )
@@ -1402,8 +1374,7 @@ AudioOutput* createDriver( const QString& sDriver )
 			pDriver = NULL;
 		} else {
 #ifdef JACK_SUPPORT
-			m_bUseDefaultOuts = pPref->m_bJackConnectDefaults;
-			( ( JackOutput* ) pDriver )->setConnectDefaults( m_bUseDefaultOuts );
+			( ( JackOutput* ) pDriver )->setConnectDefaults( Preferences::getInstance()->m_bJackConnectDefaults );
 #endif
 		}
 	} else if ( sDriver == "Alsa" ) {
@@ -1865,7 +1836,7 @@ float Hydrogen::getMasterPeak_R()
 
 unsigned long Hydrogen::getTickPosition()
 {
-	return audioEngine_getTickPosition();
+	return m_nPatternTickPosition;
 }
 
 

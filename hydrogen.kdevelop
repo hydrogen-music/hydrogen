@@ -1,44 +1,295 @@
 <?xml version = '1.0'?>
 <kdevelop>
   <general>
-    <author>Comix</author>
-    <email>acominu@tiscali.it</email>
-    <version>$VERSION$</version>
-    <projectmanagement>KDevTrollProject</projectmanagement>
+    <author>Alessandro Cominu</author>
+    <email>cominu@gmail.com</email>
+    <version>1</version>
+    <projectmanagement>KDevCustomProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
-    <keywords>
-      <keyword>Qt</keyword>
-    </keywords>
+    <ignoreparts/>
+    <projectname>hydrogen</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
     <description/>
-    <ignoreparts/>
-    <secondaryLanguages/>
-    <versioncontrol/>
-    <projectname>hydrogen</projectname>
     <defaultencoding/>
   </general>
-  <kdevfileview>
-    <groups>
-      <group pattern="*.cpp;*.cxx;*.h" name="Sources" />
-      <group pattern="*.ui" name="User Interface" />
-      <group pattern="*.png" name="Icons" />
-      <group pattern="*" name="Others" />
-      <hidenonprojectfiles>false</hidenonprojectfiles>
-      <hidenonlocation>false</hidenonlocation>
-    </groups>
-    <tree>
-      <showvcsfields>false</showvcsfields>
-      <hidenonprojectfiles>false</hidenonprojectfiles>
-      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
-    </tree>
-  </kdevfileview>
+  <kdevcustomproject>
+    <run>
+      <directoryradio>executable</directoryradio>
+      <mainprogram>/home/comix/progetti/hydrogen_svn/trunk</mainprogram>
+      <programargs/>
+      <globaldebugarguments/>
+      <globalcwd>/home/comix/progetti/hydrogen_svn/trunk</globalcwd>
+      <useglobalprogram>false</useglobalprogram>
+      <terminal>false</terminal>
+      <autocompile>false</autocompile>
+      <autoinstall>false</autoinstall>
+      <autokdesu>false</autokdesu>
+      <envvars/>
+    </run>
+    <filetypes>
+      <filetype>*.java</filetype>
+      <filetype>*.h</filetype>
+      <filetype>*.H</filetype>
+      <filetype>*.hh</filetype>
+      <filetype>*.hxx</filetype>
+      <filetype>*.hpp</filetype>
+      <filetype>*.c</filetype>
+      <filetype>*.C</filetype>
+      <filetype>*.cc</filetype>
+      <filetype>*.cpp</filetype>
+      <filetype>*.c++</filetype>
+      <filetype>*.cxx</filetype>
+      <filetype>Makefile</filetype>
+      <filetype>CMakeLists.txt</filetype>
+    </filetypes>
+    <blacklist>
+      <path>config.h</path>
+      <path>docs</path>
+      <path>docs/docs.h</path>
+      <path>extra</path>
+      <path>extra/hydrogenPlayer</path>
+      <path>extra/hydrogenPlayer/HydrogenPlayer.cpp</path>
+      <path>extra/hydrogenSynth</path>
+      <path>extra/hydrogenSynth/HydrogenSynth.cpp</path>
+      <path>gui/objs</path>
+      <path>gui/objs/moc_AboutDialog.cpp</path>
+      <path>gui/objs/moc_AudioEngineInfoForm.cpp</path>
+      <path>gui/objs/moc_Button.cpp</path>
+      <path>gui/objs/moc_ClickableLabel.cpp</path>
+      <path>gui/objs/moc_CpuLoadWidget.cpp</path>
+      <path>gui/objs/moc_DownloadWidget.cpp</path>
+      <path>gui/objs/moc_DrumkitManager.cpp</path>
+      <path>gui/objs/moc_DrumPatternEditor.cpp</path>
+      <path>gui/objs/moc_ExportSongDialog.cpp</path>
+      <path>gui/objs/moc_Fader.cpp</path>
+      <path>gui/objs/moc_FileBrowser.cpp</path>
+      <path>gui/objs/moc_HelpBrowser.cpp</path>
+      <path>gui/objs/moc_HydrogenApp.cpp</path>
+      <path>gui/objs/moc_InstrumentEditor.cpp</path>
+      <path>gui/objs/moc_InstrumentEditorPanel.cpp</path>
+      <path>gui/objs/moc_InstrumentRack.cpp</path>
+      <path>gui/objs/moc_LadspaFXProperties.cpp</path>
+      <path>gui/objs/moc_LadspaFXSelector.cpp</path>
+      <path>gui/objs/moc_LayerPreview.cpp</path>
+      <path>gui/objs/moc_LCDCombo.cpp</path>
+      <path>gui/objs/moc_LCD.cpp</path>
+      <path>gui/objs/moc_MainForm.cpp</path>
+      <path>gui/objs/moc_MidiActivityWidget.cpp</path>
+      <path>gui/objs/moc_midiTable.cpp</path>
+      <path>gui/objs/moc_Mixer.cpp</path>
+      <path>gui/objs/moc_MixerLine.cpp</path>
+      <path>gui/objs/moc_NotePropertiesRuler.cpp</path>
+      <path>gui/objs/moc_PatternEditorInstrumentList.cpp</path>
+      <path>gui/objs/moc_PatternEditorPanel.cpp</path>
+      <path>gui/objs/moc_PatternEditorRuler.cpp</path>
+      <path>gui/objs/moc_PatternFillDialog.cpp</path>
+      <path>gui/objs/moc_PatternPropertiesDialog.cpp</path>
+      <path>gui/objs/moc_PlayerControl.cpp</path>
+      <path>gui/objs/moc_PlaylistDialog.cpp</path>
+      <path>gui/objs/moc_PreferencesDialog.cpp</path>
+      <path>gui/objs/moc_Rotary.cpp</path>
+      <path>gui/objs/moc_SongEditor.cpp</path>
+      <path>gui/objs/moc_SongEditorPanel.cpp</path>
+      <path>gui/objs/moc_SongPropertiesDialog.cpp</path>
+      <path>gui/objs/moc_SoundLibraryExportDialog.cpp</path>
+      <path>gui/objs/moc_SoundLibraryImportDialog.cpp</path>
+      <path>gui/objs/moc_SoundLibraryPanel.cpp</path>
+      <path>gui/objs/moc_SoundLibraryRepositoryDialog.cpp</path>
+      <path>gui/objs/moc_SoundLibrarySaveDialog.cpp</path>
+      <path>gui/objs/moc_SoundLibraryTree.cpp</path>
+      <path>gui/objs/moc_SplashScreen.cpp</path>
+      <path>gui/objs/moc_WaveDisplay.cpp</path>
+      <path>gui/objs/ui_about_dialog.h</path>
+      <path>gui/objs/ui_AudioEngineInfoForm_UI.h</path>
+      <path>gui/objs/ui_DrumkitManager_UI.h</path>
+      <path>gui/objs/ui_ExportSongDialog_UI.h</path>
+      <path>gui/objs/ui_LadspaFXSelector_UI.h</path>
+      <path>gui/objs/ui_PatternFillDialog_UI.h</path>
+      <path>gui/objs/ui_PatternPropertiesDialog_UI.h</path>
+      <path>gui/objs/ui_PlaylistDialog_UI.h</path>
+      <path>gui/objs/ui_PreferencesDialog_UI.h</path>
+      <path>gui/objs/ui_SongPropertiesDialog_UI.h</path>
+      <path>gui/objs/ui_SoundLibraryExportDialog_UI.h</path>
+      <path>gui/objs/ui_SoundLibraryImportDialog_UI.h</path>
+      <path>gui/objs/ui_SoundLibraryRepositoryDialog_UI.h</path>
+      <path>gui/objs/ui_SoundLibrarySaveDialog_UI.h</path>
+      <path>gui/src/AboutDialog.cpp</path>
+      <path>gui/src/AboutDialog.h</path>
+      <path>gui/src/AudioEngineInfoForm.cpp</path>
+      <path>gui/src/AudioEngineInfoForm.h</path>
+      <path>gui/src/EventListener.h</path>
+      <path>gui/src/ExportSongDialog.cpp</path>
+      <path>gui/src/ExportSongDialog.h</path>
+      <path>gui/src/FilePreview.cpp</path>
+      <path>gui/src/FilePreview.h</path>
+      <path>gui/src/HelpBrowser.cpp</path>
+      <path>gui/src/HelpBrowser.h</path>
+      <path>gui/src/HydrogenApp.cpp</path>
+      <path>gui/src/HydrogenApp.h</path>
+      <path>gui/src/InstrumentEditor/moc_InstrumentEditor.cc</path>
+      <path>gui/src/InstrumentEditor/moc_InstrumentEditorPanel.cc</path>
+      <path>gui/src/InstrumentEditor/moc_LayerPreview.cc</path>
+      <path>gui/src/InstrumentEditor/moc_WaveDisplay.cc</path>
+      <path>gui/src/InstrumentRack.cpp</path>
+      <path>gui/src/InstrumentRack.h</path>
+      <path>gui/src/LadspaFXProperties.cpp</path>
+      <path>gui/src/LadspaFXProperties.h</path>
+      <path>gui/src/LadspaFXSelector.cpp</path>
+      <path>gui/src/LadspaFXSelector.h</path>
+      <path>gui/src/main.cpp</path>
+      <path>gui/src/MainForm.cpp</path>
+      <path>gui/src/MainForm.h</path>
+      <path>gui/src/Mixer/moc_Mixer.cc</path>
+      <path>gui/src/Mixer/moc_MixerLine.cc</path>
+      <path>gui/src/moc_AboutDialog.cc</path>
+      <path>gui/src/moc_AudioEngineInfoForm.cc</path>
+      <path>gui/src/moc_DrumkitManager.cc</path>
+      <path>gui/src/moc_ExportSongDialog.cc</path>
+      <path>gui/src/moc_FilePreview.cc</path>
+      <path>gui/src/moc_HelpBrowser.cc</path>
+      <path>gui/src/moc_HydrogenApp.cc</path>
+      <path>gui/src/moc_InstrumentRack.cc</path>
+      <path>gui/src/moc_LadspaFXProperties.cc</path>
+      <path>gui/src/moc_LadspaFXSelector.cc</path>
+      <path>gui/src/moc_MainForm.cc</path>
+      <path>gui/src/moc_PatternFillDialog.cc</path>
+      <path>gui/src/moc_PatternPropertiesDialog.cc</path>
+      <path>gui/src/moc_PlayerControl.cc</path>
+      <path>gui/src/moc_PreferencesDialog.cc</path>
+      <path>gui/src/moc_SongPropertiesDialog.cc</path>
+      <path>gui/src/moc_SplashScreen.cc</path>
+      <path>gui/src/PatternEditor/moc_DrumPatternEditor.cc</path>
+      <path>gui/src/PatternEditor/moc_NotePropertiesRuler.cc</path>
+      <path>gui/src/PatternEditor/moc_PatternEditorInstrumentList.cc</path>
+      <path>gui/src/PatternEditor/moc_PatternEditorPanel.cc</path>
+      <path>gui/src/PatternEditor/moc_PatternEditorRuler.cc</path>
+      <path>gui/src/PatternFillDialog.cpp</path>
+      <path>gui/src/PatternFillDialog.h</path>
+      <path>gui/src/PatternPropertiesDialog.cpp</path>
+      <path>gui/src/PatternPropertiesDialog.h</path>
+      <path>gui/src/PlayerControl.cpp</path>
+      <path>gui/src/PlayerControl.h</path>
+      <path>gui/src/PlaylistEditor/moc_PlaylistDialog.cc</path>
+      <path>gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h</path>
+      <path>gui/src/precompiled.h</path>
+      <path>gui/src/PreferencesDialog.cpp</path>
+      <path>gui/src/PreferencesDialog.h</path>
+      <path>gui/src/Skin.h</path>
+      <path>gui/src/SongEditor/moc_SongEditor.cc</path>
+      <path>gui/src/SongEditor/moc_SongEditorPanel.cc</path>
+      <path>gui/src/SongPropertiesDialog.cpp</path>
+      <path>gui/src/SongPropertiesDialog.h</path>
+      <path>gui/src/SoundLibrary/moc_FileBrowser.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibraryExportDialog.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibraryImportDialog.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibraryPanel.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibraryPropertiesDialog.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibraryRepositoryDialog.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibrarySaveDialog.cc</path>
+      <path>gui/src/SoundLibrary/moc_SoundLibraryTree.cc</path>
+      <path>gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h</path>
+      <path>gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h</path>
+      <path>gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h</path>
+      <path>gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h</path>
+      <path>gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h</path>
+      <path>gui/src/SplashScreen.cpp</path>
+      <path>gui/src/SplashScreen.h</path>
+      <path>gui/src/UI</path>
+      <path>gui/src/UI/ui_about_dialog.h</path>
+      <path>gui/src/UI/ui_AudioEngineInfoForm_UI.h</path>
+      <path>gui/src/UI/ui_DrumkitManager_UI.h</path>
+      <path>gui/src/UI/ui_ExportSongDialog_UI.h</path>
+      <path>gui/src/UI/ui_LadspaFXSelector_UI.h</path>
+      <path>gui/src/UI/ui_PatternFillDialog_UI.h</path>
+      <path>gui/src/UI/ui_PatternPropertiesDialog_UI.h</path>
+      <path>gui/src/UI/ui_PreferencesDialog_UI.h</path>
+      <path>gui/src/UI/ui_SongPropertiesDialog_UI.h</path>
+      <path>gui/src/widgets/moc_Button.cc</path>
+      <path>gui/src/widgets/moc_ClickableLabel.cc</path>
+      <path>gui/src/widgets/moc_CpuLoadWidget.cc</path>
+      <path>gui/src/widgets/moc_DownloadWidget.cc</path>
+      <path>gui/src/widgets/moc_Fader.cc</path>
+      <path>gui/src/widgets/moc_LCD.cc</path>
+      <path>gui/src/widgets/moc_LCDCombo.cc</path>
+      <path>gui/src/widgets/moc_MidiActivityWidget.cc</path>
+      <path>gui/src/widgets/moc_midiTable.cc</path>
+      <path>gui/src/widgets/moc_Rotary.cc</path>
+      <path>libs/hydrogen/src/xml</path>
+      <path>libs/hydrogen/src/xml/tinystr.cpp</path>
+      <path>libs/hydrogen/src/xml/tinystr.h</path>
+      <path>libs/hydrogen/src/xml/tinyxml.cpp</path>
+      <path>libs/hydrogen/src/xml/tinyxmlerror.cpp</path>
+      <path>libs/hydrogen/src/xml/tinyxml.h</path>
+      <path>libs/hydrogen/src/xml/tinyxmlparser.cpp</path>
+      <path>plugins</path>
+      <path>plugins/wasp</path>
+      <path>plugins/wasp/include</path>
+      <path>plugins/wasp/include/Gd.h</path>
+      <path>plugins/wasp/include/ladspa.h</path>
+      <path>plugins/wasp/include/LFO.h</path>
+      <path>plugins/wasp/include/waveshaper.h</path>
+      <path>plugins/wasp/wasp_booster</path>
+      <path>plugins/wasp/wasp_booster/booster.c</path>
+      <path>plugins/wasp/wasp_noisifier</path>
+      <path>plugins/wasp/wasp_noisifier/noisifier.c</path>
+      <path>plugins/wasp/wasp_xshaper</path>
+      <path>plugins/wasp/wasp_xshaper/xshaper.c</path>
+      <path>version.h</path>
+    </blacklist>
+    <build>
+      <buildtool>other</buildtool>
+      <builddir/>
+    </build>
+    <other>
+      <prio>0</prio>
+      <otherbin>python build/scons.py</otherbin>
+      <defaulttarget/>
+      <otheroptions>debug=1</otheroptions>
+      <selectedenvironment>default</selectedenvironment>
+      <environments>
+        <default/>
+      </environments>
+    </other>
+    <make>
+      <abortonerror>false</abortonerror>
+      <numberofjobs>0</numberofjobs>
+      <prio>0</prio>
+      <dontact>false</dontact>
+      <makebin/>
+      <defaulttarget/>
+      <makeoptions/>
+      <selectedenvironment>default</selectedenvironment>
+      <environments>
+        <default/>
+      </environments>
+    </make>
+  </kdevcustomproject>
+  <kdevdebugger>
+    <general>
+      <dbgshell/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
+      <breakonloadinglibs>true</breakonloadinglibs>
+      <separatetty>false</separatetty>
+      <floatingtoolbar>false</floatingtoolbar>
+      <raiseGDBOnStart>false</raiseGDBOnStart>
+    </general>
+    <display>
+      <staticmembers>false</staticmembers>
+      <demanglenames>true</demanglenames>
+      <outputradix>10</outputradix>
+    </display>
+  </kdevdebugger>
   <kdevdoctreeview>
     <ignoretocs>
+      <toc>ada</toc>
+      <toc>ada_bugs_gcc</toc>
       <toc>bash</toc>
       <toc>bash_bugs</toc>
       <toc>clanlib</toc>
-      <toc>w3c-dom-level2-html</toc>
       <toc>fortran_bugs_gcc</toc>
       <toc>gnome1</toc>
       <toc>gnustep</toc>
@@ -61,35 +312,23 @@
       <toc>ruby</toc>
       <toc>ruby_bugs</toc>
       <toc>sdl</toc>
-      <toc>stl</toc>
-      <toc>w3c-svg</toc>
       <toc>sw</toc>
+      <toc>w3c-dom-level2-html</toc>
+      <toc>w3c-svg</toc>
       <toc>w3c-uaag10</toc>
       <toc>wxwidgets_bugs</toc>
     </ignoretocs>
+    <ignoreqt_xml>
+      <toc>Guide to the Qt Translation Tools</toc>
+      <toc>Qt Assistant Manual</toc>
+      <toc>Qt Designer Manual</toc>
+      <toc>Qt Reference Documentation</toc>
+      <toc>qmake User Guide</toc>
+    </ignoreqt_xml>
     <ignoredoxygen>
       <toc>KDE Libraries (Doxygen)</toc>
     </ignoredoxygen>
   </kdevdoctreeview>
-  <kdevdebugger>
-    <general>
-      <dbgshell/>
-      <programargs>-n -V</programargs>
-      <gdbpath/>
-      <configGdbScript/>
-      <runShellScript/>
-      <runGdbScript/>
-      <breakonloadinglibs>true</breakonloadinglibs>
-      <separatetty>true</separatetty>
-      <floatingtoolbar>false</floatingtoolbar>
-      <raiseGDBOnStart>false</raiseGDBOnStart>
-    </general>
-    <display>
-      <staticmembers>true</staticmembers>
-      <demanglenames>true</demanglenames>
-      <outputradix>10</outputradix>
-    </display>
-  </kdevdebugger>
   <kdevfilecreate>
     <filetypes/>
     <useglobaltypes>
@@ -98,57 +337,23 @@
       <type ext="h" />
     </useglobaltypes>
   </kdevfilecreate>
-  <kdevtrollproject>
-    <general>
-      <activedir>gui</activedir>
-    </general>
-    <run>
-      <directoryradio>executable</directoryradio>
-      <customdirectory>/</customdirectory>
-      <mainprogram>/home/comix/hydrogen_svn/trunk_qstring_ovunque</mainprogram>
-      <programargs>-n -V</programargs>
-      <terminal>true</terminal>
-      <autocompile>true</autocompile>
-      <envvars/>
-      <globaldebugarguments/>
-      <globalcwd>/home/comix/hydrogen_svn/trunk_qstring_ovunque</globalcwd>
-      <useglobalprogram>true</useglobalprogram>
-      <autoinstall>false</autoinstall>
-      <autokdesu>false</autokdesu>
-    </run>
-    <make>
-      <abortonerror>true</abortonerror>
-      <numberofjobs>1</numberofjobs>
-      <dontact>false</dontact>
-      <makebin>make</makebin>
-      <prio>0</prio>
-      <envvars/>
-      <runmultiplejobs>false</runmultiplejobs>
-    </make>
-    <qmake>
-      <savebehaviour>2</savebehaviour>
-      <replacePaths>false</replacePaths>
-      <disableDefaultOpts>true</disableDefaultOpts>
-      <enableFilenamesOnly>false</enableFilenamesOnly>
-      <showVariablesInTree>true</showVariablesInTree>
-      <showParseErrors>true</showParseErrors>
-    </qmake>
-  </kdevtrollproject>
   <kdevcppsupport>
-    <references>
-      <pcs>Qt4</pcs>
-      <pcs>automatic_%2Fhome%2Fcomix%2Fprogetti%2Fhydrogen_svn%2Ftrunk</pcs>
-    </references>
+    <qt>
+      <used>false</used>
+      <version>3</version>
+      <includestyle>3</includestyle>
+      <root></root>
+      <designerintegration>EmbeddedKDevDesigner</designerintegration>
+      <qmake>/usr/bin/qmake</qmake>
+      <designer></designer>
+      <designerpluginpaths/>
+    </qt>
     <codecompletion>
-      <includeGlobalFunctions>true</includeGlobalFunctions>
-      <includeTypes>true</includeTypes>
-      <includeEnums>true</includeEnums>
-      <includeTypedefs>false</includeTypedefs>
       <automaticCodeCompletion>false</automaticCodeCompletion>
-      <automaticArgumentsHint>false</automaticArgumentsHint>
+      <automaticArgumentsHint>true</automaticArgumentsHint>
       <automaticHeaderCompletion>true</automaticHeaderCompletion>
       <codeCompletionDelay>250</codeCompletionDelay>
-      <argumentsHintDelay>500</argumentsHintDelay>
+      <argumentsHintDelay>400</argumentsHintDelay>
       <headerCompletionDelay>250</headerCompletionDelay>
       <showOnlyAccessibleItems>false</showOnlyAccessibleItems>
       <completionBoxItemOrder>0</completionBoxItemOrder>
@@ -157,68 +362,49 @@
       <statusBarTypeEvaluation>false</statusBarTypeEvaluation>
       <namespaceAliases>std=_GLIBCXX_STD;__gnu_cxx=std</namespaceAliases>
       <processPrimaryTypes>true</processPrimaryTypes>
-      <processFunctionArguments>true</processFunctionArguments>
-      <preProcessAllHeaders>true</preProcessAllHeaders>
-      <parseMissingHeaders>false</parseMissingHeaders>
-      <resolveIncludePaths>true</resolveIncludePaths>
+      <processFunctionArguments>false</processFunctionArguments>
+      <preProcessAllHeaders>false</preProcessAllHeaders>
+      <parseMissingHeadersExperimental>false</parseMissingHeadersExperimental>
+      <resolveIncludePathsUsingMakeExperimental>false</resolveIncludePathsUsingMakeExperimental>
       <alwaysParseInBackground>true</alwaysParseInBackground>
       <usePermanentCaching>true</usePermanentCaching>
-      <alwaysIncludeNamespaces>true</alwaysIncludeNamespaces>
+      <alwaysIncludeNamespaces>false</alwaysIncludeNamespaces>
       <includePaths>.;</includePaths>
-      <parseMissingHeadersExperimental>true</parseMissingHeadersExperimental>
-      <resolveIncludePathsUsingMakeExperimental>false</resolveIncludePathsUsingMakeExperimental>
     </codecompletion>
     <creategettersetter>
-      <prefixGet>get_</prefixGet>
-      <prefixSet>set_</prefixSet>
-      <prefixVariable>__</prefixVariable>
-      <parameterName>the_value</parameterName>
+      <prefixGet/>
+      <prefixSet>set</prefixSet>
+      <prefixVariable>m_,_</prefixVariable>
+      <parameterName>theValue</parameterName>
       <inlineGet>true</inlineGet>
       <inlineSet>true</inlineSet>
     </creategettersetter>
-    <qt>
-      <used>true</used>
-      <version>4</version>
-      <root>/usr/lib/qt4</root>
-      <includestyle>4</includestyle>
-      <designerintegration>ExternalDesigner</designerintegration>
-      <qmake>/usr/bin/qmake</qmake>
-      <designer>/usr/bin/designer-qt4</designer>
-      <designerpluginpaths/>
-    </qt>
     <splitheadersource>
       <enabled>false</enabled>
       <synchronize>true</synchronize>
       <orientation>Vertical</orientation>
     </splitheadersource>
+    <references>
+      <pcs>automatic_%2Fhome%2Fcomix%2Fhydrogen_svn%2Ftrunk_qstring_ovunque</pcs>
+      <pcs>automatic_%2Finv%2FTOOLS</pcs>
+      <pcs>automatic_%2Fhome%2Fcomix%2Fprogetti%2Fhydrogen_svn%2Ftrunk</pcs>
+      <pcs>Qt4</pcs>
+    </references>
   </kdevcppsupport>
-  <kdevcvsservice>
-    <recursivewhenupdate>true</recursivewhenupdate>
-    <prunedirswhenupdate>true</prunedirswhenupdate>
-    <createdirswhenupdate>true</createdirswhenupdate>
-    <recursivewhencommitremove>true</recursivewhencommitremove>
-    <revertoptions>-C</revertoptions>
-  </kdevcvsservice>
   <cppsupportpart>
     <filetemplates>
       <interfacesuffix>.h</interfacesuffix>
       <implementationsuffix>.cpp</implementationsuffix>
     </filetemplates>
   </cppsupportpart>
-  <kdevdocumentation>
-    <projectdoc>
-      <docsystem/>
-      <docurl/>
-      <usermanualurl/>
-    </projectdoc>
-  </kdevdocumentation>
-  <kdevvisualadvance>
-    <emulator>VisualBoyAdvance</emulator>
-    <binary/>
-    <addOptions/>
-    <terminal>false</terminal>
-    <fullscreen>false</fullscreen>
-    <graphicFilter>-f0</graphicFilter>
-    <scaling>-1</scaling>
-  </kdevvisualadvance>
+  <kdevfileview>
+    <groups>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidenonlocation>false</hidenonlocation>
+    </groups>
+    <tree>
+      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+    </tree>
+  </kdevfileview>
 </kdevelop>

@@ -31,6 +31,7 @@
 #include <hydrogen/Pattern.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
+#include <hydrogen/instrument.h>
 using namespace H2Core;
 
 

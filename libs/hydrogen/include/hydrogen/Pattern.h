@@ -44,8 +44,8 @@ public:
 	~Pattern();
 
 	/**
-	  Delete notes that pertain to instrument I
-	  The function is real-time safe (it locks the audio data while deleting notes)
+	  Delete notes that pertain to instrument I.
+	  The function is thread safe (it locks the audio data while deleting notes)
 	*/
 	void purge_instrument( Instrument * I );
 	
@@ -57,7 +57,7 @@ public:
 	static Pattern* get_empty_pattern();
 	Pattern* copy();
 
-	void dump();
+	void debug_dump();
 
 	unsigned get_lenght() {
 		return __lenght;
@@ -102,7 +102,11 @@ public:
 	void replace( Pattern* new_pattern, unsigned pos );
 	int index_of( Pattern* pattern );
 
-	Pattern * del( Pattern *pattern ); // returns NULL if the pattern is not in the list :)
+	/// Remove a pattern from the list (every instance in the list), the pattern is not deleted!!!
+	/// Returns NULL if the pattern is not in the list
+	Pattern * del( Pattern *pattern ); 
+
+	/// Remove one pattern from the list, the pattern is not deleted!!!
 	void del( unsigned index );
 
 private:

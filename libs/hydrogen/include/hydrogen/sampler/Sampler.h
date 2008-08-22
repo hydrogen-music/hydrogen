@@ -26,8 +26,6 @@
 
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/instrument.h>
 
 #include <inttypes.h>
 #include <vector>
@@ -40,7 +38,8 @@ namespace H2Core
 class Note;
 class Song;
 class Sample;
-
+class Instrument;
+class AudioOutput;
 
 ///
 /// Waveform based sampler.
@@ -78,14 +77,14 @@ public:
 private:
 	std::vector<Note*> __playing_notes_queue;
 	static Sampler* __instance;
-	AudioOutput *__audio_output;
+	AudioOutput* __audio_output;
 
 	/// Instrument used for the preview feature.
-	Instrument *__preview_instrument;
+	Instrument* __preview_instrument;
 
 #ifdef JACK_SUPPORT
-	float *__track_out_L[MAX_INSTRUMENTS];
-	float *__track_out_R[MAX_INSTRUMENTS];
+	float* __track_out_L[ MAX_INSTRUMENTS ];
+	float* __track_out_R[ MAX_INSTRUMENTS ];
 #endif
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
@@ -118,12 +117,9 @@ private:
 	    float fSendFXLevel_R,
 	    Song* pSong
 	);
-
-
-
 };
 
-};
+} // namespace
 
 #endif
 

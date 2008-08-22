@@ -129,7 +129,7 @@ Pattern* Pattern::copy()
 
 
 
-void Pattern::dump()
+void Pattern::debug_dump()
 {
 	INFOLOG( "Pattern dump" );
 	INFOLOG( "Pattern name: " + __name );
@@ -234,21 +234,20 @@ void PatternList::replace( Pattern* newPattern, unsigned int pos )
 
 int PatternList::index_of( Pattern* pattern )
 {
-	int r = 0;
 	if ( get_size() < 1 ) return -1;
 
 	std::vector<Pattern*>::iterator i;
 
+	int r = 0;
 	for ( i = list.begin(); i != list.end(); ++i ) {
 		if ( *i == pattern ) return r;
-		r++;
+		++r;
 	}
 	return -1;
 }
 
 
 
-/// Remove a pattern from the list (every instance in the list), the pattern is not deleted!!!
 Pattern * PatternList::del( Pattern * p )
 {
 	bool did_delete = false;
@@ -260,7 +259,8 @@ Pattern * PatternList::del( Pattern * p )
 		if ( *i == p ) {
 			i = list.erase( i );
 			did_delete = true;
-			break; // NOTE: Do we need to delete EVERY instance of p in the list? Better to avoid adding more than one copy of a pattern in the first place! Using the iterator i after modifying the list is dangerous, so either just delete one OR...
+			break;
+			// NOTE: Do we need to delete EVERY instance of p in the list? Better to avoid adding more than one copy of a pattern in the first place! Using the iterator i after modifying the list is dangerous, so either just delete one OR...
 			// ... or roll back the iterator after deleting :
 // 			i--;
 		}
@@ -271,7 +271,7 @@ Pattern * PatternList::del( Pattern * p )
 
 
 
-/// Remove one pattern from the list, the pattern is not deleted!!!
+
 void PatternList::del( unsigned pos )
 {
 	if ( pos >= ( unsigned )list.size() ) {
