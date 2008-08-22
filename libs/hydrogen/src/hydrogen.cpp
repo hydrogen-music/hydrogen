@@ -2733,8 +2733,9 @@ void Hydrogen::togglePlaysSelected() {
 void Hydrogen::kill_instruments() {
 	int c = 0;
 	Instrument * pInstr = NULL;
-	while ( instrument_death_row.size() && ( pInstr = instrument_death_row.front() )->is_queued() == 0 )
+	while ( instrument_death_row.size() && instrument_death_row.front()->is_queued() == 0 )
 	{
+		pInstr = instrument_death_row.front();
 		instrument_death_row.pop_front();
 		WARNINGLOG( QString( "Deleting unused instrument (%1). %2 unused remain." ) \
 			. arg( pInstr->get_name() ) \
@@ -2742,7 +2743,8 @@ void Hydrogen::kill_instruments() {
 		delete pInstr;
 		c++;
 	}
-	if ( c == 0 && pInstr != NULL ) {
+	if ( instrument_death_row.size() ) {
+		pInstr = instrument_death_row.front();
 		WARNINGLOG( QString( "Instrument %1 still has %2 active notes. Delaying 'delete instrument' operation." ) \
 			. arg( pInstr->get_name() ) \
 			. arg( pInstr->is_queued() ) );

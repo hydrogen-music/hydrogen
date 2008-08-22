@@ -706,7 +706,7 @@ void Sampler::preview_instrument( Instrument* instr )
 
 	stop_playing_notes( __preview_instrument );
 
-	old_preview = __preview_instrument
+	old_preview = __preview_instrument;
 	__preview_instrument = instr;
 
 	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
