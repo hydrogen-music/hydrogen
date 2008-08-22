@@ -363,7 +363,9 @@ void InstrumentLine::functionDeleteInstrument()
 	pEngine->removeInstrument( m_nInstrumentNumber, false );
 	
 	AudioEngine::get_instance()->lock("InstrumentLine::functionDeleteInstrument");
+#ifdef JACK_SUPPORT
 	pEngine->renameJackPorts();
+#endif
 	AudioEngine::get_instance()->unlock();
 }
 
