@@ -548,7 +548,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 	ERRORLOG(sText);
 	
 
-	if(sText.startsWith("Songs:") or sText.startsWith("Patterns:")) return;
+	if(sText.startsWith("Songs:") or sText.startsWith("Patterns:") or sText.startsWith("move pattern:")or sText.startsWith("drag pattern:")) return;
 
 	if (sText.startsWith("move instrument:")) {
 
@@ -572,7 +572,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitName = tokens.at( 0 );
 		QString sInstrumentName = tokens.at( 1 );
-
+		
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
 		Hydrogen *pEngine = Hydrogen::get_instance();
 

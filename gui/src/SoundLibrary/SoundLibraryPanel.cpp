@@ -401,6 +401,42 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		}
 
 		if ( m_pSoundLibraryTree->currentItem()->parent()->parent() == m_pPatternItem ) {
+
+			LocalFileMng mng;
+		
+			QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 );
+			
+			QString sDirectory = "";
+		
+			std::vector<QString> patternDirList = mng.getPatternDirList();
+		
+				for (uint i = 0; i < patternDirList.size(); ++i) {
+					QString absPath =  patternDirList[i];
+					mng.getPatternList( absPath );
+				}
+		
+			std::vector<QString> allPatternDirList = mng.getallPatternList();
+		
+			for (uint i = 0; i < allPatternDirList.size(); ++i) {
+				QString testName = allPatternDirList[i];
+				if( testName.contains( patternName )){
+		
+					sDirectory = allPatternDirList[i];
+				
+				} 
+			}
+
+			QString dragtype = "drag pattern";
+			QString sText = dragtype + "::" + sDirectory;
+
+			QDrag *pDrag = new QDrag(this);
+			QMimeData *pMimeData = new QMimeData;
+
+			pMimeData->setText( sText );
+			pDrag->setMimeData( pMimeData);
+			//drag->setPixmap(iconPixmap);
+
+			pDrag->start( Qt::CopyAction | Qt::MoveAction );
 			return;
 		}
 		

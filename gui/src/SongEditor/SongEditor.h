@@ -113,6 +113,8 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void patternPopup_fill();
 		void inlineEditingFinished();
 		void inlineEditingEntered();
+		virtual void dragEnterEvent(QDragEnterEvent *event);
+		virtual void dropEvent(QDropEvent *event);
 
 
 	private:
@@ -141,6 +143,9 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void togglePattern( int );
 
 		virtual void patternChangedEvent();
+		void mouseMoveEvent(QMouseEvent *event);
+		void movePatternLine(int,int);
+		QPoint __drag_start_position;
 
 };
 

@@ -641,6 +641,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_nGridHeight = 18;
 	setAttribute(Qt::WA_NoBackground);
 	
+	setAcceptDrops(true);
+
 	patternBeingEdited = NULL;
 	
 	line = new QLineEdit( "Inline Pattern Name", this );
@@ -1246,6 +1248,132 @@ void SongEditorPatternList::fillRangeWithPattern(FillRange* pRange, int nPattern
 	pSong->__is_modified = true;
 }
 
+
+///drag & drop
+void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
+{
+	if ( event->mimeData()->hasFormat("text/plain") ) {
+			event->acceptProposedAction();
+	}
+}
+
+
+void SongEditorPatternList::dropEvent(QDropEvent *event)
+{
+	QString sText = event->mimeData()->text();
+	ERRORLOG(sText);
+	
+	if(sText.startsWith("Songs:") or sText.startsWith("Instruments:")) return;
+
+	if (sText.startsWith("move pattern:")) {
+		Hydrogen *engine = Hydrogen::get_instance();
+		int nSourcePattern = engine->getSelectedPatternNumber();
+
+		int nTargetPattern = event->pos().y() / m_nGridHeight;
+
+		if ( nSourcePattern == nTargetPattern ) {
+			event->acceptProposedAction();
+			return;
+		}
+
+		movePatternLine( nSourcePattern , nTargetPattern );
+
+		event->acceptProposedAction();
+	}else {
+
+
+		PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+
+		QStringList tokens = sText.split( "::" );
+		QString sPatternName = tokens.at( 1 );
+
+		int nTargetPattern = event->pos().y() / m_nGridHeight;
+
+		LocalFileMng mng;
+		Pattern* err = mng.loadPattern( sPatternName );
+		if ( err == 0 ) {
+			_ERRORLOG( "Error loading the pattern" );
+		}else{
+			H2Core::Pattern *pNewPattern = err;
+			pPatternList->add( pNewPattern );
+
+			for (int nPatr = pPatternList->get_size() +1 ; nPatr >= nTargetPattern; nPatr--) {
+				H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
+				pPatternList->replace( pPattern, nPatr );
+			}
+			pPatternList->replace( pNewPattern, nTargetPattern );
+
+			Hydrogen::get_instance()->getSong()->__is_modified = true;
+			createBackground();
+			update();
+		}
+		HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+		event->acceptProposedAction();
+		
+	}
+}
+
+
+
+void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPattern )
+{
+		Hydrogen *engine = Hydrogen::get_instance();
+
+		Song *pSong = engine->getSong();
+		PatternList *pPatternList = pSong->get_pattern_list();
+
+
+
+		// move instruments...
+		H2Core::Pattern *pSourcePattern = pPatternList->get( nSourcePattern );//Instrument *pSourceInstr = pPatternList->get(nSourcePattern);
+		if ( nSourcePattern < nTargetPattern) {
+			for (int nPatr = nSourcePattern; nPatr < nTargetPattern; nPatr++) {
+				H2Core::Pattern *pPattern = pPatternList->get(nPatr + 1);
+				pPatternList->replace( pPattern, nPatr );
+			}
+			pPatternList->replace( pSourcePattern, nTargetPattern );
+		}
+		else {
+			for (int nPatr = nSourcePattern; nPatr >= nTargetPattern; nPatr--) {
+				H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
+				pPatternList->replace( pPattern, nPatr );
+			}
+			pPatternList->replace( pSourcePattern, nTargetPattern );
+		}
+		engine->setSelectedPatternNumber( nTargetPattern );
+		HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+		
+}
+
+
+void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
+{
+	if (!(event->buttons() & Qt::LeftButton)) {
+		return;
+	}
+	if ( abs(event->pos().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
+		return;
+	}
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	Instrument *instr = song->get_instrument_list()->get( 0 );
+	assert( instr );
+
+	QString sText = QString("move pattern:%1");
+
+	QDrag *pDrag = new QDrag(this);
+	QMimeData *pMimeData = new QMimeData;
+
+	pMimeData->setText( sText );
+	pDrag->setMimeData( pMimeData);
+	//drag->setPixmap(iconPixmap);
+
+	pDrag->start( Qt::CopyAction | Qt::MoveAction );
+
+	// propago l'evento
+	QWidget::mouseMoveEvent(event);
+}
 
 // ::::::::::::::::::::::::::
 
