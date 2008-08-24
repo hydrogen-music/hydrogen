@@ -30,7 +30,6 @@ namespace H2Core
 {
 
 class Note;
-class Instrument;
 
 ///
 /// The Pattern is a Note container.
@@ -42,17 +41,6 @@ public:
 
 	Pattern( const QString& name, const QString& category, unsigned lenght = MAX_NOTES );
 	~Pattern();
-
-	/**
-	  Delete notes that pertain to instrument I.
-	  The function is thread safe (it locks the audio data while deleting notes)
-	*/
-	void purge_instrument( Instrument * I );
-	
-	/**
-	  Check if there are any notes pertaining to I
-	*/
-	bool references_instrument( Instrument * I );
 	
 	static Pattern* get_empty_pattern();
 	Pattern* copy();

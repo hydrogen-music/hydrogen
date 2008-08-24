@@ -118,10 +118,7 @@ public:
 	float getMaxProcessTime();
 
 	int loadDrumkit( Drumkit *drumkitInfo );
-	
-	/// delete an instrument. If `conditional` is true, and there are patterns that
-	/// use this instrument, it's not deleted anyway
-	void removeInstrument( int instrumentnumber, bool conditional );
+	void functionDeleteInstrument( int instrumentnumber); 	
 
 	//return the name of the current drumkit
 	QString m_currentDrumkit;
@@ -192,8 +189,6 @@ public:
 	float getNewBpmJTM();
 	void setNewBpmJTM( float bpmJTM);
 	void ComputeHumantimeFrames(uint32_t nFrames);
-	
-	void kill_instruments();
 
 private:
 	static Hydrogen* instance;
@@ -204,7 +199,6 @@ private:
 	// used for song export
 	Song::SongMode m_oldEngineMode;
 	bool m_bOldLoopEnabled;
-	std::list<Instrument*> instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
 };
 
 };

@@ -350,7 +350,6 @@ void HydrogenApp::showInfoSplash()
 
 void HydrogenApp::onEventQueueTimer()
 {
-	// use the timer to do schedule instrument slaughter;
 	EventQueue *pQueue = EventQueue::get_instance();
 
 	Event event;

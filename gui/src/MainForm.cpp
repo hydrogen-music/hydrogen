@@ -1605,7 +1605,6 @@ QString MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	Hydrogen::get_instance()->kill_instruments();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	QString sOldFilename = pSong->get_filename();

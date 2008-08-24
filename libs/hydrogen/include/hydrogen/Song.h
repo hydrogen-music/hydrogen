@@ -78,12 +78,6 @@ public:
 
 	Song( const QString& name, const QString& author, float bpm, float volume );
 	~Song();
-	
-	/**
-	  Remove all the notes in the song that play on instrument I.
-	  The function is real-time safe (it locks the audio data while deleting notes)
-	*/
-	void purge_instrument( Instrument* I );
 
 	void set_volume( float volume ) {
 		__volume = volume;

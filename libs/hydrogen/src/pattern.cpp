@@ -23,7 +23,6 @@
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/note.h>
-#include <hydrogen/audio_engine.h>
 
 #include <vector>
 #include <cassert>
@@ -51,53 +50,6 @@ Pattern::~Pattern()
 		Note *pNote = pos->second;
 		delete pNote;
 	}
-}
-
-
-void Pattern::purge_instrument( Instrument * I )
-{
-	bool locked = false;
-	std::list< Note* > slate;
-	
-	std::multimap <int, Note*>::iterator pos = note_map.begin();
-	while ( pos != note_map.end() ) {
-		Note *pNote = pos->second;
-		assert( pNote );
-		
-		if ( pNote->get_instrument() == I ) {
-			if ( !locked ) {
-				H2Core::AudioEngine::get_instance()->lock("Pattern::purge_instrument");
-				locked = true;
-			}
-			slate.push_back( pNote );
-			
-			note_map.erase( pos++ );
-		} else {
-			++pos;
-		}
-	}
-	
-	if ( locked ) {
-		H2Core::AudioEngine::get_instance()->unlock();
-		while ( slate.size() ) {
-			delete slate.front();
-			slate.pop_front();
-		}
-	}
-}
-
-
-bool Pattern::references_instrument( Instrument * I )
-{
-	std::multimap <int, Note*>::const_iterator pos;
-	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
-		Note *pNote = pos->second;
-		assert( pNote );
-		if ( pNote->get_instrument() == I ) {
-			return true;
-		}
-	}
-	return false;
 }
 
 

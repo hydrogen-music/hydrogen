@@ -26,7 +26,6 @@
 
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
-#include <cassert>
 
 namespace H2Core
 {
@@ -104,31 +103,18 @@ public:
 	    ADSR* adsr
 	);
 	
-	/// create a new object without anything in it.
-	static Instrument * create_empty();
 	~Instrument();
 
-	/// creates a new object; loads samples from drumkit/instrument.
 	static Instrument* load_instrument(
 	    const QString& drumkit_name,
 	    const QString& instrument_name
 	);
 	
-	/// loads state _and_ samples into an Instrument from a `placeholder` instrument
-	/// (i.e. an Instrument that has everything but the actal samples.)
-	void load_from_placeholder( Instrument* placeholder, bool is_live = true );
-	
-	/// loads instrument from path into a `live` Instrument object.
-	void load_from_name(
-	    const QString& drumkit_name,
-	    const QString& instrument_name,
-	    bool is_live = true
-	);
 
 	/**
 	\brief Returns a layer in the list
 	 */
-	inline InstrumentLayer* get_layer( int index );
+	InstrumentLayer* get_layer( int index );
 
 	/**
 	\brief Sets a layer in the list
@@ -146,7 +132,7 @@ public:
 	void set_id( const QString& id ) {
 		__id = id;
 	}
-	inline const QString& get_id() {
+	const QString& get_id() {
 		return __id;
 	}
 
@@ -158,88 +144,88 @@ public:
 	void set_mute_group( int group ) {
 		__mute_group = group;
 	}
-	inline int get_mute_group() {
+	int get_mute_group() {
 		return __mute_group;
 	}
 
 	void set_muted( bool muted ) {
 		__muted = muted;
 	}
-	inline bool is_muted() {
+	bool is_muted() {
 		return __muted;
 	}
 
-	inline float get_pan_l() {
+	float get_pan_l() {
 		return __pan_l;
 	}
 	void set_pan_l( float val ) {
 		__pan_l = val;
 	}
 
-	inline float get_pan_r() {
+	float get_pan_r() {
 		return __pan_r;
 	}
 	void set_pan_r( float val ) {
 		__pan_r = val;
 	}
 
-	inline float get_gain() {
+	float get_gain() {
 		return __gain;
 	}
 	void set_gain( float gain ) {
 		__gain = gain;
 	}
 
-	inline float get_volume() {
+	float get_volume() {
 		return __volume;
 	}
 	void set_volume( float volume ) {
 		__volume = volume;
 	}
 
-	inline bool is_filter_active() {
+	bool is_filter_active() {
 		return __filter_active;
 	}
 	void set_filter_active( bool active ) {
 		__filter_active = active;
 	}
 
-	inline float get_filter_resonance() {
+	float get_filter_resonance() {
 		return __filter_resonance;
 	}
 	void set_filter_resonance( float val ) {
 		__filter_resonance = val;
 	}
 
-	inline float get_filter_cutoff() {
+	float get_filter_cutoff() {
 		return __filter_cutoff;
 	}
 	void set_filter_cutoff( float val ) {
 		__filter_cutoff = val;
 	}
 
-	inline float get_peak_l() {
+	float get_peak_l() {
 		return __peak_l;
 	}
 	void set_peak_l( float val ) {
 		__peak_l = val;
 	}
 
-	inline float get_peak_r() {
+	float get_peak_r() {
 		return __peak_r;
 	}
 	void set_peak_r( float val ) {
 		__peak_r = val;
 	}
 
-	inline float get_fx_level( int index ) {
+	float get_fx_level( int index ) {
 		return __fx_level[index];
 	}
 	void set_fx_level( float level, int index ) {
 		__fx_level[index] = level;
 	}
 
-	inline float get_random_pitch_factor() {
+	float get_random_pitch_factor() {
 		return __random_pitch_factor;
 	}
 	void set_random_pitch_factor( float val ) {
@@ -253,32 +239,21 @@ public:
 		return __drumkit_name;
 	}
 
-	inline bool is_active() {
+	bool is_active() {
 		return __active;
 	}
 	void set_active( bool active ) {
 		__active = active;
 	}
 
-	inline bool is_soloed() {
+	bool is_soloed() {
 		return __soloed;
 	}
 	void set_soloed( bool soloed ) {
 		__soloed = soloed;
 	}
-	inline void enqueue() {
-		__queued++;
-	}
-	inline void dequeue() {
-		assert( __queued > 0 );
-		__queued--;
-	}
-	inline int is_queued() {
-		return __queued;
-	}
 
 private:
-	int __queued;
 	InstrumentLayer* __layer_list[MAX_LAYERS];
 	ADSR* __adsr;
 	bool __muted;
