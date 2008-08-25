@@ -404,7 +404,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 			LocalFileMng mng;
 		
-			QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 );
+			QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 ) + ".h2pattern";
 			
 			QString sDirectory = "";
 		
@@ -653,7 +653,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 {
 	LocalFileMng mng;
 
-	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 );
+	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 ) + ".h2pattern";
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *pPatternList = song->get_pattern_list();
