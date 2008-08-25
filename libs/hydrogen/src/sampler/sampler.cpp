@@ -95,12 +95,20 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 
 #ifdef JACK_SUPPORT
-	int numtracks = ( ( JackOutput* )__audio_output )->getNumTracks( );
+	JackOutput* jao;
+	jao = dynamic_cast<JackOutput*>(__audio_output);
+	if (jao) {
+		int numtracks = jao->getNumTracks();
 
-	if ( __audio_output->has_track_outs() ) {
-		for(int nTrack = 0; nTrack < numtracks; nTrack++) {
-			memset( __track_out_L[nTrack], 0, ( ( JackOutput* )__audio_output )->getBufferSize( ) * sizeof( float ) );
-			memset( __track_out_R[nTrack], 0, ( ( JackOutput* )__audio_output )->getBufferSize( ) * sizeof( float ) );
+		if ( jao->has_track_outs() ) {
+			for(int nTrack = 0; nTrack < numtracks; nTrack++) {
+				memset( __track_out_L[nTrack],
+					0,
+					jao->getBufferSize( ) * sizeof( float ) );
+				memset( __track_out_R[nTrack],
+					0,
+					jao->getBufferSize( ) * sizeof( float ) );
+			}
 		}
 	}
 #endif // JACK_SUPPORT
@@ -398,14 +406,15 @@ int Sampler::__render_note_no_resample(
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
 
-		if ( __audio_output->has_track_outs() ) {
 #ifdef JACK_SUPPORT
+		if ( __audio_output->has_track_outs()
+		     && dynamic_cast<JackOutput*>(__audio_output) ) {
                         assert( __track_out_L[ nInstrument ] );
                         assert( __track_out_R[ nInstrument ] );
 			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L;
 			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R;
-#endif
 		}
+#endif
 
                 fVal_L = fVal_L * cost_L;
 		fVal_R = fVal_R * cost_R;
@@ -568,14 +577,15 @@ int Sampler::__render_note_resample(
 		}
 
 
-		if ( __audio_output->has_track_outs() ) {
 #ifdef JACK_SUPPORT
+		if ( __audio_output->has_track_outs()
+			&& dynamic_cast<JackOutput*>(__audio_output) ) {
 			assert( __track_out_L[ nInstrument ] );
                         assert( __track_out_R[ nInstrument ] );
 			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L);
 			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R);
-#endif
 		}
+#endif
 
 		fVal_L = fVal_L * cost_L;
 		fVal_R = fVal_R * cost_R;
@@ -723,11 +733,15 @@ void Sampler::makeTrackOutputQueues( )
 	INFOLOG( "Making Output Queues" );
 
 #ifdef JACK_SUPPORT
-	if ( __audio_output->has_track_outs() ) {
-		for (int nTrack = 0; nTrack < ( ( JackOutput* )__audio_output )->getNumTracks( ); nTrack++) {
-			__track_out_L[nTrack] = ( ( JackOutput* )__audio_output )->getTrackOut_L( nTrack );
+	JackOutput* jao = 0;
+	if (__audio_output && __audio_output->has_track_outs() ) {
+		jao = dynamic_cast<JackOutput*>(__audio_output);
+	}
+	if ( jao ) {
+		for (int nTrack = 0; nTrack < jao->getNumTracks( ); nTrack++) {
+			__track_out_L[nTrack] = jao->getTrackOut_L( nTrack );
 			assert( __track_out_L[ nTrack ] );
-			__track_out_R[nTrack] = ( ( JackOutput* )__audio_output )->getTrackOut_R( nTrack );
+			__track_out_R[nTrack] = jao->getTrackOut_R( nTrack );
 			assert( __track_out_R[ nTrack ] );
 		}
 	}
