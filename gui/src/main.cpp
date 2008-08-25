@@ -358,6 +358,12 @@ void showUsage()
 	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
 	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
+#ifdef LASH_SUPPORT
+	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
+		  << "                            it (LASH 0.5.3 and later)." << std::endl;
+	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
+		  << "                          from a crash." << std::endl;
+#endif
 	std::cout << "   -n, --nosplash - Hide splash screen" << std::endl;
 	std::cout << "   -V, --verbose - Print a lot of debugging info" << std::endl;
 	std::cout << "   -v, --version - Show version info" << std::endl;
