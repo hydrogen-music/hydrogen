@@ -838,6 +838,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	}
 
 	if ( !m_bEnablePatternResize ) {
+		__pattern_size_combo->set_text(QString::number(m_pPattern->get_lenght() / nEighth ),false);
 		QMessageBox::information( this, "Hydrogen", trUtf8( "Is not possible to change the pattern size when playing." ) );
 		return;
 	}

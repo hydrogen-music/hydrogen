@@ -47,6 +47,7 @@ class LCDCombo : public QWidget, public Object
 		void addSeparator();
 		inline void insertItem(int index, const QString &text );
 		void set_text( const QString &text );
+		void set_text( const QString &text, bool );
 
 
 	private slots:

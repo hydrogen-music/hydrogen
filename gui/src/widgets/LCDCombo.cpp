@@ -170,7 +170,6 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 }
 
 
-
 void LCDCombo::set_text( const QString &text)
 {
 	if (display->getText() == text) {
@@ -182,7 +181,25 @@ void LCDCombo::set_text( const QString &text)
 		if ( items.at(i) == text )
 			active = i;
 	}
+	
 	emit valueChanged( text );
+
+}
+
+void LCDCombo::set_text( const QString &text, bool emit_on_change)
+{
+	if (display->getText() == text) {
+		return;
+	}
+	//INFOLOG( text );
+	display->setText( text );
+	for ( int i = 0; i < items.size(); i++ ) {
+		if ( items.at(i) == text )
+			active = i;
+	}
+	
+	if(emit_on_change)
+		emit valueChanged( text );
 }
 
 
