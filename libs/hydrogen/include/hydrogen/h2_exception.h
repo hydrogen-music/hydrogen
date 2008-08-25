@@ -25,6 +25,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <QString>
 
 namespace H2Core
 {
