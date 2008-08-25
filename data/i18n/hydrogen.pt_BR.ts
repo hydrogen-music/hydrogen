@@ -1733,6 +1733,26 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
+    <name>H2Core::SoundLibraryPropertiesDialog</name>
+    <message>
+        <source>SoundLibrary Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, you change the drumkit name. This creat a new drumkit with this name.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>HydrogenApp</name>
     <message>
         <source>Song Info:     </source>
@@ -2020,11 +2040,11 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Uncategorized</source>
-        <translation type="unfinished">Sem categoria</translation>
+        <translation type="obsolete">Sem categoria</translation>
     </message>
     <message>
         <source>Categorized (LRDF)</source>
-        <translation type="unfinished">Categorizado (LRDF)</translation>
+        <translation type="obsolete">Categorizado (LRDF)</translation>
     </message>
     <message>
         <source>Stereo</source>
@@ -2040,6 +2060,14 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Recently Used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alphabetic List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2582,10 +2610,6 @@ Salvar as modifica�es antes de sair?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>debug action</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2638,10 +2662,6 @@ The song has unsaved changes
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen Song (*.h2pattern)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2739,6 +2759,21 @@ The song has unsaved changes
     <message>
         <source>Set swing factor [%1]</source>
         <translation type="unfinished">Ajustar o fator de swing [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiTable</name>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Param.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3285,18 +3320,6 @@ The song has unsaved changes
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Key coma handle beatcounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Strokes to count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Set BPM / Set BPM and play</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3527,6 +3550,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3869,10 +3896,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Always play selected pattern in Pattern Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Use lash</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4011,11 +4034,11 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2pattern)</source>
+        <source>Open Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open Pattern</source>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4261,10 +4284,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Songs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4275,6 +4294,41 @@ Are you sure?</source>
     <message>
         <source>Error loading song.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryPropertiesDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished">Lincen�</translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
     </message>
 </context>
 <context>
@@ -4337,12 +4391,12 @@ Are you sure?</source>
         <translation type="unfinished">Cancelar</translation>
     </message>
     <message>
-        <source>Save soundlibrary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>License</source>
         <translation type="unfinished">Lincen�</translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4354,17 +4408,5 @@ Are you sure?</source>
 </context>
 <context>
     <name>midiTable</name>
-    <message>
-        <source>Event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Param.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Action</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>

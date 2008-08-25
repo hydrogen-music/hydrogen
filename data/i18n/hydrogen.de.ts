@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="de_DE">
+<!DOCTYPE TS><TS>
 <defaultcodec></defaultcodec>
 <context>
     <name>@default</name>
@@ -1483,6 +1482,26 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
+    <name>H2Core::SoundLibraryPropertiesDialog</name>
+    <message>
+        <source>SoundLibrary Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, you change the drumkit name. This creat a new drumkit with this name.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished">&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Abbrechen</translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Instrument editor</source>
@@ -1657,7 +1676,7 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Uncategorized</source>
-        <translation>Nicht eingeordnet</translation>
+        <translation type="obsolete">Nicht eingeordnet</translation>
     </message>
     <message>
         <source>Stereo</source>
@@ -1677,10 +1696,18 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Categorized (LRDF)</source>
-        <translation>Kategorisiert (via LRDF)</translation>
+        <translation type="obsolete">Kategorisiert (via LRDF)</translation>
     </message>
     <message>
         <source>Recently Used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alphabetic List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Categorized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2084,10 +2111,6 @@ Das Dokument wurde geändert
         <translation type="obsolete">OLD &amp;Drumkit-Manager</translation>
     </message>
     <message>
-        <source>debug action</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Print Objects</source>
         <translation>Objekte ausgeben</translation>
     </message>
@@ -2184,7 +2207,7 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Hydrogen Song (*.h2pattern)</source>
-        <translation>Hydrogen Song (*.h2pattern)</translation>
+        <translation type="obsolete">Hydrogen Song (*.h2pattern)</translation>
     </message>
     <message>
         <source>Open Pattern</source>
@@ -2277,6 +2300,21 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Swingfaktor [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiTable</name>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished">Ereignis</translation>
+    </message>
+    <message>
+        <source>Param.</source>
+        <translation type="unfinished">Param.</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished">Aktion</translation>
     </message>
 </context>
 <context>
@@ -2731,15 +2769,15 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Key coma handle beatcounter</source>
-        <translation type="unfinished">Taste Komma verwendet Takt Zähler </translation>
+        <translation type="obsolete">Taste Komma verwendet Takt Zähler </translation>
     </message>
     <message>
         <source>Note length</source>
-        <translation type="unfinished">Noten Länge</translation>
+        <translation type="obsolete">Noten Länge</translation>
     </message>
     <message>
         <source>Strokes to count</source>
-        <translation type="unfinished">Anzahl Anschläge </translation>
+        <translation type="obsolete">Anzahl Anschläge </translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -2978,6 +3016,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;CoreAudio Treiber&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>Please restart hydrogen to enable/disable LASH support</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3273,10 +3315,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Always play selected pattern in Pattern Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Use lash</source>
         <translation type="unfinished">Lash benutzen</translation>
     </message>
@@ -3402,11 +3440,15 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>Hydrogen Song (*.h2pattern)</source>
-        <translation>Hydrogen Song (*.h2pattern)</translation>
+        <translation type="obsolete">Hydrogen Song (*.h2pattern)</translation>
     </message>
     <message>
         <source>Open Pattern</source>
         <translation>Öffne Pattern</translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation type="unfinished">Hydrogen Pattern (*.h2pattern)</translation>
     </message>
 </context>
 <context>
@@ -3644,7 +3686,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Rename</source>
-        <translation>Umbenennen</translation>
+        <translation type="obsolete">Umbenennen</translation>
     </message>
     <message>
         <source>Songs</source>
@@ -3657,6 +3699,41 @@ Are you sure?</source>
     <message>
         <source>Error loading song.</source>
         <translation>Fehler beim Laden des Songs.</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation type="unfinished">Eigenschaften</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryPropertiesDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished">Information</translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished">Lizenz</translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -3720,11 +3797,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save soundlibrary</source>
-        <translation>Soundbibliothek speichern</translation>
+        <translation type="obsolete">Soundbibliothek speichern</translation>
     </message>
     <message>
         <source>License</source>
         <translation>Lizenz</translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3745,15 +3826,15 @@ Are you sure?</source>
     <name>midiTable</name>
     <message>
         <source>Event</source>
-        <translation>Ereignis</translation>
+        <translation type="obsolete">Ereignis</translation>
     </message>
     <message>
         <source>Param.</source>
-        <translation>Param.</translation>
+        <translation type="obsolete">Param.</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation>Aktion</translation>
+        <translation type="obsolete">Aktion</translation>
     </message>
 </context>
 </TS>

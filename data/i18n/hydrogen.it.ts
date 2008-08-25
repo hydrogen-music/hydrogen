@@ -11,7 +11,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Sviluppatore principale:&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Sviluppatore principale e collaboratori:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
@@ -50,11 +50,11 @@
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -402,7 +402,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;consider it more useful to permit linking proprietary applications with the&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;library.  If this is what you want to do, use the GNU Library General&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;Public License instead of this License.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -424,7 +424,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation>Stato audio engine</translation>
+        <translation>Stato engine audio</translation>
     </message>
     <message>
         <source>Song state</source>
@@ -432,11 +432,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Buffer size</source>
-        <translation>Grandezza buffer</translation>
+        <translation>Dimensione buffer</translation>
     </message>
     <message>
         <source>Sample rate</source>
-        <translation>Sample rate</translation>
+        <translation>Frequenza campionamento</translation>
     </message>
     <message>
         <source>Song position</source>
@@ -460,47 +460,47 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Ticks</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Sampler</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Synth</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Sequencer</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>MIDI input</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingresso MIDI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Audio output</source>
-        <translation type="unfinished"></translation>
+        <translation>Uscita audio</translation>
     </message>
     <message>
         <source>Realtime frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame in tempo reale</translation>
     </message>
 </context>
 <context>
@@ -537,81 +537,81 @@ http://www.hydrogen-music.org
     <name>DrumkitManager_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>### Drumkit author</source>
-        <translation type="unfinished"></translation>
+        <translation>### Autore drumkit</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina drumkit</translation>
     </message>
     <message>
         <source>### Drumkit name</source>
-        <translation type="unfinished"></translation>
+        <translation>### Nome drumkit</translation>
     </message>
     <message>
         <source>### Drumkit info</source>
-        <translation type="unfinished"></translation>
+        <translation>### Informazioni drumkit</translation>
     </message>
     <message>
         <source>Load drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri drumkit</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Salva</translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autore</translation>
+        <translation>Autore</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Informazioni</translation>
+        <translation>Informazioni</translation>
     </message>
     <message>
         <source>Drumkit name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome drumkit</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">Importa</translation>
+        <translation>Importa</translation>
     </message>
     <message>
         <source>Drumkit filename</source>
-        <translation type="unfinished">Filename del drumkit</translation>
+        <translation>Nome file drumkit</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>&lt;b&gt;
 Download more drumkits at &lt;br&gt;
 http://www.hydrogen-music.org
 &lt;/b&gt;</source>
-        <translation type="unfinished">&lt;b&gt;
+        <translation>&lt;b&gt;
 Scarica drumkit aggiuntivi da&lt;br&gt;
 http://www.hydrogen-music.org
 &lt;/b&gt;</translation>
     </message>
     <message>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation type="unfinished"></translation>
+        <translation>### Il drumkit sarà installato in</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Esporta</translation>
+        <translation>Esporta</translation>
     </message>
     <message>
         <source>Drumkit directory</source>
-        <translation type="unfinished">Directory del drumkit</translation>
+        <translation>Directory destinazione</translation>
     </message>
 </context>
 <context>
@@ -653,19 +653,19 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>textLabel1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -699,6 +699,27 @@ http://www.hydrogen-music.org
     <message>
         <source>Master output</source>
         <translation>Uscita principale</translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SoundLibraryPropertiesDialog</name>
+    <message>
+        <source>SoundLibrary Properties</source>
+        <translation>Proprietà Libreria</translation>
+    </message>
+    <message>
+        <source>Warning, you change the drumkit name. This creat a new drumkit with this name.
+Are you sure?</source>
+        <translation>Attenzione, stai cambiando il nome del drumkit. Verrà creato un nuovo drumkit con questo nome.
+Confermi?</translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Annulla</translation>
     </message>
 </context>
 <context>
@@ -737,39 +758,39 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Random pitch factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fattore random pitch</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro di taglio</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro di risonanza</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished"></translation>
+        <translation>Attack</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer pitch (grezzo)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation type="unfinished"></translation>
+        <translation>Layer pitch (Fine)</translation>
     </message>
     <message>
         <source>General</source>
@@ -777,7 +798,7 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -803,19 +824,19 @@ http://www.hydrogen-music.org
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra editor strumento</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Strumento</translation>
+        <translation>Strumento</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra libreria</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished">Sound Library</translation>
+        <translation>LIbreria Suoni</translation>
     </message>
 </context>
 <context>
@@ -826,81 +847,89 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Edit FX parameters</source>
-        <translation type="unfinished">Modifica i parametri</translation>
+        <translation>Modifica parametri degli effetti</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation type="unfinished">Nome FX LADSPA</translation>
+        <translation>Nome effetto LADSPA</translation>
     </message>
     <message>
         <source>FX bypass</source>
-        <translation type="unfinished"></translation>
+        <translation>Escludi effetto</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation type="unfinished"></translation>
+        <translation>Ritorno dell&apos;effetto</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation type="unfinished">Seleziona FX</translation>
+        <translation>Seleziona effetto</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation type="unfinished">[%1] Proprieta&apos; LADSPA FX </translation>
+        <translation>[%1] Proprietà effetto LADSPA</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation type="unfinished">Proprieta&apos; LADSPA FX %1</translation>
+        <translation>Proprietà effetto LADSPA %1</translation>
     </message>
     <message>
         <source>No plugin</source>
-        <translation type="unfinished">Nessun plugin</translation>
+        <translation>Nessun plugin</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation type="unfinished">Attiva</translation>
+        <translation>Attiva</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation type="unfinished">Disattiva</translation>
+        <translation>Disattiva</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXSelector</name>
     <message>
         <source>Groups</source>
-        <translation type="unfinished">Gruppi</translation>
+        <translation>Gruppi</translation>
     </message>
     <message>
         <source>Uncategorized</source>
-        <translation type="unfinished">Senza categoria</translation>
+        <translation type="obsolete">Senza categoria</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished">Stereo</translation>
+        <translation>Stereo</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <source>Not supported</source>
-        <translation type="unfinished">Non supportato</translation>
+        <translation>Non supportato</translation>
     </message>
     <message>
         <source>Select LADSPA FX</source>
-        <translation type="unfinished">Seleziona FX LADSPA</translation>
+        <translation>Seleziona effetto LADSPA</translation>
     </message>
     <message>
         <source>Categorized (LRDF)</source>
-        <translation type="unfinished">Categorie (LRDF)</translation>
+        <translation type="obsolete">Per Categoria (LRDF)</translation>
     </message>
     <message>
         <source>Recently Used</source>
-        <translation type="unfinished"></translation>
+        <translation>Recenti</translation>
+    </message>
+    <message>
+        <source>Alphabetic List</source>
+        <translation>Ordine alfabetico</translation>
+    </message>
+    <message>
+        <source>Categorized</source>
+        <translation>Ordine per categoria</translation>
     </message>
 </context>
 <context>
@@ -931,39 +960,39 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>### fx label</source>
-        <translation type="unfinished"></translation>
+        <translation>### etichetta effetto</translation>
     </message>
     <message>
         <source>### fx type</source>
-        <translation type="unfinished"></translation>
+        <translation>### tipo effetto</translation>
     </message>
     <message>
         <source>### fx ID</source>
-        <translation type="unfinished"></translation>
+        <translation>### ID effetto</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -971,12 +1000,13 @@ http://www.hydrogen-music.org
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Nome:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### fx name
 1</source>
-        <translation type="unfinished"></translation>
+        <translation>### nome effetto
+1</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -984,7 +1014,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Etichetta:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -992,7 +1022,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tipo:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1000,7 +1030,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1008,13 +1038,15 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Autore:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### FX maker
 1
 2</source>
-        <translation type="unfinished"></translation>
+        <translation>### Autore effetto
+1
+2</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1022,14 +1054,17 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### copyright
 1
 2
 3</source>
-        <translation type="unfinished"></translation>
+        <translation>### copyright
+1
+2
+3</translation>
     </message>
 </context>
 <context>
@@ -1044,7 +1079,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -1146,7 +1181,7 @@ Vuoi salvare la canzone prima di uscire dal programma?
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished">&amp;Esci</translation>
+        <translation>&amp;Esci</translation>
     </message>
     <message>
         <source>Show &amp;mixer</source>
@@ -1295,138 +1330,141 @@ Vuoi salvare la canzone prima di uscire dal programma?
     </message>
     <message>
         <source>&amp;Project</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Progetto</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Strumenti</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Mixer</translation>
     </message>
     <message>
         <source>&amp;Instrument Rack</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rack Strumenti</translation>
     </message>
     <message>
         <source>debug action</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">debug azioni</translation>
     </message>
     <message>
         <source>Print Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Stampa Oggetti</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Informazioni</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canzone salvata</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore sconosciuto %1</translation>
     </message>
     <message>
         <source>
 The song has unsaved changes
  Do you want to save the changes before exiting?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+La canzone ha subito cambiamenti
+Vuoi salvare la canzone prima di uscire dal programma?
+</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminare tutti gli strumenti?</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Instrument %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento %1</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation type="unfinished"></translation>
+        <translation>Stai usando una versione di sviluppo di Hydrogen, aiutaci riportando bug o suggerimenti nella mailing list hydrogen-devel&lt;br&gt;&lt;br&gt;Grazie!</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvataggio canzone fallito.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri &amp;Pattern</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva Pattern come ...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern salvato.</translation>
     </message>
     <message>
         <source>Hydrogen Song (*.h2pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Canzone Hydrogen (*.h2song)</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri Pattern</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation type="unfinished"></translation>
+        <translation>Non mostrare più questo messaggio</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist: Imposta canzone No. %1</translation>
     </message>
     <message>
         <source>Playlist: Aktiv song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist: Attiva canzone No. %1</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra &amp;Info</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Espor&amp;ta pattern come...</translation>
     </message>
     <message>
         <source>I&amp;nstruments</source>
-        <translation type="unfinished"></translation>
+        <translation>Strume&amp;nti</translation>
     </message>
     <message>
         <source>&amp;Add instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aggiungi strumento</translation>
     </message>
     <message>
         <source>&amp;Clear all</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Elimina tutti</translation>
     </message>
     <message>
         <source>&amp;Save library</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Salva libreria</translation>
     </message>
     <message>
         <source>&amp;Export library</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Esporta libreria</translation>
     </message>
     <message>
         <source>Playlist &amp;editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist &amp;editor</translation>
     </message>
     <message>
         <source>&amp;Import library</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importa libreria</translation>
     </message>
     <message>
         <source></source>
@@ -1450,31 +1488,46 @@ The song has unsaved changes
     </message>
     <message>
         <source>Set master volume [%1]</source>
-        <translation type="unfinished">Volume principale [%1]</translation>
+        <translation>Volume principale [%1]</translation>
     </message>
     <message>
         <source>Swing</source>
-        <translation type="unfinished">Swing</translation>
+        <translation>Swing</translation>
     </message>
     <message>
         <source>Humanize time</source>
-        <translation type="unfinished">Umanizza tempo</translation>
+        <translation>Umanizza tempo</translation>
     </message>
     <message>
         <source>Humanize velocity</source>
-        <translation type="unfinished">Umanizza intensita&apos;</translation>
+        <translation>Umanizza intensità</translation>
     </message>
     <message>
         <source>Set humanize time parameter [%1]</source>
-        <translation type="unfinished">Umanizza (tempo) [%1]</translation>
+        <translation>Umanizza (tempo) [%1]</translation>
     </message>
     <message>
         <source>Set humanize velocity parameter [%1]</source>
-        <translation type="unfinished">Umanizza (intensita&apos;) [%1]</translation>
+        <translation>Umanizza (intensità) [%1]</translation>
     </message>
     <message>
         <source>Set swing factor [%1]</source>
-        <translation type="unfinished">Fattore di swing [%1]</translation>
+        <translation>Fattore di swing [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiTable</name>
+    <message>
+        <source>Event</source>
+        <translation>Evento</translation>
+    </message>
+    <message>
+        <source>Param.</source>
+        <translation>Param.</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Azione</translation>
     </message>
 </context>
 <context>
@@ -1485,7 +1538,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Show FX panel</source>
-        <translation type="unfinished">Mostra pannello effetti</translation>
+        <translation>Mostra pannello effetti</translation>
     </message>
     <message>
         <source>Swing factor</source>
@@ -1553,15 +1606,15 @@ The song has unsaved changes
     </message>
     <message>
         <source>Show instrument peaks</source>
-        <translation type="unfinished">Visualizza il valore di picco per gli strumenti</translation>
+        <translation>Visualizza il valore di picco degli strumenti</translation>
     </message>
     <message>
         <source>Show instrument peaks = On</source>
-        <translation type="unfinished">Visualizzazione del valore di picco per gli strumenti attiva</translation>
+        <translation>Visualizza valore di picco degli strumenti = Attivo</translation>
     </message>
     <message>
         <source>Show instrument peaks = Off</source>
-        <translation type="unfinished">Visualizzazione del valore di picco per gli strumenti non attiva</translation>
+        <translation>Visualizza valore di picco degli strumenti = Non attivo</translation>
     </message>
     <message>
         <source>No plugin</source>
@@ -1585,7 +1638,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Set humanize time parameter [%1]</source>
@@ -1601,11 +1654,11 @@ The song has unsaved changes
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation type="unfinished">Imposta livello FX %1</translation>
+        <translation>Imposta livello effetto %1</translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation type="unfinished">Imposta volume LADSPA FX ( %1 )</translation>
+        <translation>Imposta volume effetto LADSPA ( %1 )</translation>
     </message>
     <message>
         <source>Instrument name</source>
@@ -1616,7 +1669,7 @@ The song has unsaved changes
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation type="unfinished">Suona sample</translation>
+        <translation>Suona sample</translation>
     </message>
     <message>
         <source>Load external sample</source>
@@ -1624,11 +1677,11 @@ The song has unsaved changes
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Muto</translation>
+        <translation>Escludi</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Delay</source>
@@ -1636,7 +1689,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Pan</translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Peak volume</source>
@@ -1644,7 +1697,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Instrument name (double click to edit)</source>
-        <translation type="unfinished">Nome strumento (doppio click per modificare le proprieta&apos;)</translation>
+        <translation>Nome strumento (doppio click per modificarne le proprietà)</translation>
     </message>
     <message>
         <source>Set instrument volume [</source>
@@ -1660,7 +1713,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Volume strumento [%1]</translation>
+        <translation>Volume strumento [%1]</translation>
     </message>
     <message>
         <source>Set instrument pan [%1]</source>
@@ -1668,7 +1721,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan strumento [%1]</translation>
     </message>
 </context>
 <context>
@@ -1745,7 +1798,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Hear new notes</source>
-        <translation type="unfinished">Ascolta le nuove note</translation>
+        <translation>Ascolta le nuove note</translation>
     </message>
     <message>
         <source>Pattern name</source>
@@ -1773,39 +1826,39 @@ The song has unsaved changes
     </message>
     <message>
         <source>Hear new notes = On</source>
-        <translation type="unfinished">Ascolta le nuove note = Attivo</translation>
+        <translation>Ascolta le nuove note = Attivo</translation>
     </message>
     <message>
         <source>Hear new notes = Off</source>
-        <translation type="unfinished">Ascolta le nuove note = Disattivo</translation>
+        <translation>Ascolta le nuove note = Non attivo</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
-        <translation type="unfinished">Editor di pattern - %1</translation>
+        <translation>Editor di pattern - %1</translation>
     </message>
     <message>
         <source>Record keyboard/midi events</source>
-        <translation type="unfinished">Registra eventi da tastiera/midi</translation>
+        <translation>Registra eventi da tastiera/midi</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation type="unfinished">Quantizza alla griglia gli eventi da tastiera/midi</translation>
+        <translation>Quantizza alla griglia gli eventi da tastiera/midi</translation>
     </message>
     <message>
         <source>Record keyboard/midi events = On</source>
-        <translation type="unfinished">Registra eventi da tastiera/midi = On</translation>
+        <translation>Registra eventi da tastiera/midi = Attivo</translation>
     </message>
     <message>
         <source>Record keyboard/midi events = Off</source>
-        <translation type="unfinished">Registra eventi da tastiera/midi = Off</translation>
+        <translation>Registra eventi da tastiera/midi = Non attivo</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation type="unfinished">Quantizza eventi in arrivo da tastiera/midi = On</translation>
+        <translation>Quantizza eventi in arrivo da tastiera/midi = Attivo</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation type="unfinished">Quantizza eventi in arrivo da tastiera/midi = Off</translation>
+        <translation>Quantizza eventi in arrivo da tastiera/midi = Non attivo</translation>
     </message>
     <message>
         <source>Pattern name: &lt;b&gt;%1&lt;/b&gt;</source>
@@ -1813,15 +1866,15 @@ The song has unsaved changes
     </message>
     <message>
         <source>Is not possible to change the pattern size when playing.</source>
-        <translation type="unfinished">Non e&apos; possibile cambiare la dimensione del pattern mentre sta&apos; suonando.</translation>
+        <translation>Non è possibile cambiare la dimensione del pattern durante la riproduzione.</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Seleziona la grandezza del pattern</translation>
+        <translation>Seleziona la dimensione del pattern</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
-        <translation type="unfinished">Seleziona la risoluzione della griglia</translation>
+        <translation>Seleziona la risoluzione della griglia</translation>
     </message>
     <message>
         <source>Move selected instrument down</source>
@@ -1833,62 +1886,62 @@ The song has unsaved changes
     </message>
     <message>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumenta Zoom</translation>
     </message>
     <message>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translation>Diminuisci Zoom</translation>
     </message>
     <message>
         <source>Show drum editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra editor</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra editor da tastiera</translation>
     </message>
     <message>
         <source>No pattern selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun pattern selezionato</translation>
     </message>
     <message>
         <source>Select note properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona proprietà nota</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglio</translation>
     </message>
     <message>
         <source>Resonance</source>
-        <translation type="unfinished"></translation>
+        <translation>Risonanza</translation>
     </message>
     <message>
         <source>Drum</source>
-        <translation type="unfinished"></translation>
+        <translation>Batteria</translation>
     </message>
     <message>
         <source>Piano</source>
-        <translation type="unfinished"></translation>
+        <translation>Piano</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation type="unfinished"></translation>
+        <translation>Anticipo e Ritardo</translation>
     </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation type="unfinished">Riempi con il pattern selezionato</translation>
+        <translation>Riempi con il pattern selezionato</translation>
     </message>
 </context>
 <context>
@@ -1899,39 +1952,39 @@ The song has unsaved changes
     </message>
     <message>
         <source>&amp;Fill</source>
-        <translation type="unfinished">&amp;Riempi</translation>
+        <translation>&amp;Riempi</translation>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Pulisci</translation>
+        <translation>&amp;Svuota</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished">Da:</translation>
+        <translation>A:</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished">A:</translation>
+        <translation>Da:</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Form 1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1942,7 +1995,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Pattern properties</source>
-        <translation type="unfinished">Proprieta&apos; del pattern</translation>
+        <translation>Proprietà del pattern</translation>
     </message>
 </context>
 <context>
@@ -1961,38 +2014,38 @@ The song has unsaved changes
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>New Pattern Name</source>
-        <translation type="unfinished">Nuovo nome del pattern</translation>
+        <translation>Nuovo Nome Pattern</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Pattern category</source>
-        <translation type="unfinished"></translation>
+        <translation>Categoria pattern</translation>
     </message>
 </context>
 <context>
     <name>PlayerControl</name>
     <message>
         <source>Song Mode</source>
-        <translation type="unfinished">Modalita&apos; canzone</translation>
+        <translation>Modalità canzone</translation>
     </message>
     <message>
         <source>Live Mode</source>
@@ -2000,15 +2053,15 @@ The song has unsaved changes
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">In esecuzione.</translation>
+        <translation>In esecuzione.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished">Fermato.</translation>
+        <translation>Fermato.</translation>
     </message>
     <message>
         <source>Song mode selected.</source>
-        <translation type="unfinished">Modalita&apos; canzone selezionata.</translation>
+        <translation>Modalità canzone selezionata.</translation>
     </message>
     <message>
         <source>Live mode selected.</source>
@@ -2016,7 +2069,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Pattern Mode</source>
-        <translation type="unfinished">Modalita&apos; Pattern</translation>
+        <translation>Modalità Pattern</translation>
     </message>
     <message>
         <source>Play button disabled while using jack-transport slave mode.</source>
@@ -2028,59 +2081,59 @@ The song has unsaved changes
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation type="unfinished">Modalita&apos; pattern selezionata.</translation>
+        <translation>Modalità pattern selezionata.</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation type="unfinished">Attiva/Disattiva modalita&apos; Jack-transport</translation>
+        <translation>Attiva/Disattiva modalità Jack-transport</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
-        <translation type="unfinished">Modalita&apos; Jack-transport = Attivata</translation>
+        <translation>Modalità Jack-transport = Attivata</translation>
     </message>
     <message>
         <source>Jack-transport mode = Off</source>
-        <translation type="unfinished">Modalita&apos; Jack-transport = Disattivata</translation>
+        <translation>Modalità Jack-transport = Disattivata</translation>
     </message>
     <message>
         <source>New BPM value</source>
-        <translation type="unfinished">Nuovo valore per BPM</translation>
+        <translation>Nuovo valore per BPM</translation>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Indietro</translation>
+        <translation>Indietro</translation>
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation type="unfinished">Play/Pausa</translation>
+        <translation>Riproduci / Pausa</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Avanti</translation>
+        <translation>Avanti</translation>
     </message>
     <message>
         <source>Switch Song/ Pattern Mode</source>
-        <translation type="unfinished">Seleziona modalita Song/Pattern</translation>
+        <translation>Seleziona modalità Canzone / Pattern</translation>
     </message>
     <message>
         <source>Pause.</source>
-        <translation type="unfinished">Pausa.</translation>
+        <translation>Pausa.</translation>
     </message>
     <message>
         <source>JACK-transport will work only with JACK driver.</source>
-        <translation type="unfinished">JACK-transport funziona solo con il driver JACK.</translation>
+        <translation>JACK-transport attivato solo con il driver JACK.</translation>
     </message>
     <message>
         <source>Loop song</source>
-        <translation type="unfinished">Loop canzone</translation>
+        <translation>Riproduzione continua canzone</translation>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation type="unfinished">Loop canzone = Attivo</translation>
+        <translation>Riproduzione continua canzone = Attivo</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation type="unfinished">Loop canzone = Disattivato</translation>
+        <translation>Riproduzione continua canzone = Disattivato</translation>
     </message>
     <message>
         <source>Show instrument editor</source>
@@ -2088,7 +2141,7 @@ The song has unsaved changes
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Mostra mixer</translation>
+        <translation>Mostra mixer</translation>
     </message>
     <message>
         <source>Show drumkit manager</source>
@@ -2096,221 +2149,225 @@ The song has unsaved changes
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra Rack strumenti</translation>
     </message>
     <message>
         <source>Instrument rack</source>
-        <translation type="unfinished"></translation>
+        <translation>Rack strumenti</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>Pannello contatore BPM attivo</translation>
     </message>
     <message>
         <source>Key coma handle beatcounter</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Tasto &apos;virgola&apos; per gestire contatore BPM</translation>
     </message>
     <message>
         <source>Note length</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Lunghezza nota</translation>
     </message>
     <message>
         <source>Strokes to count</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Colpi da contare</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta BPM / Imposta BPM e riproduci</translation>
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack-Time-Master attivo / non attivo</translation>
     </message>
     <message>
         <source> BC Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>Pannello BC attivo</translation>
     </message>
     <message>
         <source> BC Panel off</source>
-        <translation type="unfinished"></translation>
+        <translation>Pannello BC non attivo</translation>
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation type="unfinished"></translation>
+        <translation>Conta BPM e riproduci</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Conta e imposta BPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità Jack-Time-Master = Attiva</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità Jack-Time-Master = Non attiva</translation>
     </message>
 </context>
 <context>
     <name>PlaylistDialog</name>
     <message>
         <source>Play List Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Browser Playlist</translation>
     </message>
     <message>
         <source>Song list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista canzoni</translation>
     </message>
     <message>
         <source>Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Script</translation>
     </message>
     <message>
         <source>exec Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Esegui script</translation>
     </message>
     <message>
         <source>Add Song to PlayList</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi canzone alla Playlist</translation>
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna canzone selezionata!</translation>
     </message>
     <message>
         <source>Load Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri Playlist</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen Playlist (*.h2playlist)</translation>
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva Playlist</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna canzone nella lista o nessuna canzone selezionata!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell script (*.sh)</translation>
     </message>
     <message>
         <source>Add Script to selected Song</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi script alla canzone selezionata</translation>
     </message>
     <message>
         <source>No Script in use!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno script in uso!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è impostato alcun editor di testo predefinito. Per favore selezionarne uno
+Non utilizzare editor di testo da console
+Purtroppo al momento non sono supportati.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un editor di testo predefinito</translation>
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno script selezionato!</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Errore durante il caricamento della canzone.</translation>
+        <translation>Errore durante il caricamento della canzone.</translation>
     </message>
     <message>
         <source>sort</source>
-        <translation type="unfinished"></translation>
+        <translation>ordina</translation>
     </message>
     <message>
         <source>Hydrogen Scripts (*.sh)</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell Scripts (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo script</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il nome dello script o il suo percorso contiene spazi.
+IMPORTANTE
+Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>No Script!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno script!</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist: imposta canzone No. %1</translation>
     </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Browser Playlist</translation>
     </message>
     <message>
         <source>Add song to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi canzone alla playlist</translation>
     </message>
     <message>
         <source>Remove song from playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi canzone dalla playlist</translation>
     </message>
     <message>
         <source>Load script</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri script</translation>
     </message>
     <message>
         <source>Remove script</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi script</translation>
     </message>
     <message>
         <source>Song list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista canzoni</translation>
     </message>
     <message>
         <source>Load list</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri canzone</translation>
     </message>
     <message>
         <source>Save list</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva playlist</translation>
     </message>
     <message>
         <source>Edit script</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica script</translation>
     </message>
     <message>
         <source>Play selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduci selezione</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma</translation>
     </message>
     <message>
         <source>Clear playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Svuota playlist</translation>
     </message>
     <message>
         <source>New Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo script</translation>
     </message>
 </context>
 <context>
@@ -2321,15 +2378,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Lenta</translation>
+        <translation>Lenta</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normale</translation>
+        <translation>Normale</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Veloce</translation>
+        <translation>Veloce</translation>
     </message>
     <message>
         <source>&lt;b&gt;NULL DRIVER&lt;/b&gt;&lt;br&gt;Please select an audio driver&lt;br&gt;</source>
@@ -2337,35 +2394,39 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
-        <translation type="unfinished">&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Driver audio semplice [/dev/dsp]</translation>
+        <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Driver audio semplice [/dev/dsp]</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Non compilato&lt;/font&gt;&lt;/b&gt;</translation>
+        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Non compilato&lt;/font&gt;&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
-        <translation type="unfinished">&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Audio driver professionale</translation>
+        <translation>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Audio driver a bassa latenza</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Preferenze</translation>
+        <translation>Preferenze</translation>
     </message>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;Driver ALSA&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Driver ALSA&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;b&gt;Selezione automatica del driver&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Selezione automatica del driver&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;Driver PortAudio&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Driver PortAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Driver CoreAudio&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>Please restart hydrogen to enable/disable LASH support</source>
+        <translation>Riavviare Hydrogen per attivare / disattivare il supporto LASH</translation>
     </message>
 </context>
 <context>
@@ -2412,11 +2473,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Grandezza buffer</translation>
+        <translation>Dimensione buffer</translation>
     </message>
     <message>
         <source>Device</source>
-        <translation type="unfinished">Dispositivo audio</translation>
+        <translation>Dispositivo audio</translation>
     </message>
     <message>
         <source>Enable Track Outputs</source>
@@ -2440,15 +2501,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">Ingresso</translation>
+        <translation>Ingresso</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished">Canale</translation>
+        <translation>Canale</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Tutti</translation>
+        <translation>Tutti</translation>
     </message>
     <message>
         <source>Midi System</source>
@@ -2472,35 +2533,35 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Meters falloff speed</source>
-        <translation type="unfinished">Velocita&apos; picchi</translation>
+        <translation>Velocità picchi</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Lenta</translation>
+        <translation>Lenta</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normale</translation>
+        <translation>Normale</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Veloce</translation>
+        <translation>Veloce</translation>
     </message>
     <message>
         <source>Application font</source>
-        <translation type="unfinished">Font per applicazione</translation>
+        <translation>Caratteri Applicazione</translation>
     </message>
     <message>
         <source>Mixer font</source>
-        <translation type="unfinished">Font per mixer</translation>
+        <translation>Caratteri mixer</translation>
     </message>
     <message>
         <source>Select font</source>
-        <translation type="unfinished">Seleziona font</translation>
+        <translation>Seleziona caratteri</translation>
     </message>
     <message>
         <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="unfinished">&lt;i&gt;Riavviare l&apos;applicazione per usare i nuovi font.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Riavviare l&apos;applicazione per usare i nuovi caratteri.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Appearance</source>
@@ -2512,7 +2573,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Polyphony</source>
-        <translation type="unfinished">Polifonia</translation>
+        <translation>Polifonia</translation>
     </message>
     <message>
         <source>Fonts</source>
@@ -2532,7 +2593,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Stile interfaccia</translation>
+        <translation>Stile interfaccia</translation>
     </message>
     <message>
         <source>Single paned</source>
@@ -2544,15 +2605,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;General</source>
-        <translation type="unfinished">&amp;Generale</translation>
+        <translation>&amp;Generale</translation>
     </message>
     <message>
         <source>&amp;Restore last used song</source>
@@ -2560,15 +2621,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation type="unfinished">&amp;Sistema audio</translation>
+        <translation>&amp;Sistema audio</translation>
     </message>
     <message>
         <source>Metronome volume</source>
-        <translation type="unfinished">Volume metronomo</translation>
+        <translation>Volume metronomo</translation>
     </message>
     <message>
         <source>Connect to &amp;Default Output Pair</source>
-        <translation type="unfinished">Connesso alle uscite audio &amp;principali</translation>
+        <translation>Connetti alle uscite audio &amp;principali</translation>
     </message>
     <message>
         <source>&amp;Enable Track Outputs</source>
@@ -2576,186 +2637,186 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Midi System</source>
-        <translation type="unfinished">Sistema &amp;midi</translation>
+        <translation>Sistema &amp;midi</translation>
     </message>
     <message>
         <source>Midi driver</source>
-        <translation type="unfinished">Driver Midi</translation>
+        <translation>Driver Midi</translation>
     </message>
     <message>
         <source>Ignore note-off</source>
-        <translation type="unfinished">Ignora il note-off</translation>
+        <translation>Ignora il note-off</translation>
     </message>
     <message>
         <source>&amp;Appearance</source>
-        <translation type="unfinished">&amp;Apparenza</translation>
+        <translation>&amp;Aspetto grafico</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Reopen last used song</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ripristina all&apos;avvio l&apos;ultima canzone usata</translation>
     </message>
     <message>
         <source>Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished"></translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Sample rate</translation>
+        <translation>Frequenza campionamento</translation>
     </message>
     <message>
         <source>44100</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>48000</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>96000</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Restart output</source>
-        <translation type="unfinished"></translation>
+        <translation>Riavvia output</translation>
     </message>
     <message>
         <source>Audio output details</source>
-        <translation type="unfinished"></translation>
+        <translation>Dettagli uscita audio</translation>
     </message>
     <message>
         <source>Post-Fader</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Pre-Fader</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Track output</source>
-        <translation type="unfinished"></translation>
+        <translation>Uscita traccia</translation>
     </message>
     <message>
         <source>Track Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Uscita tracce</translation>
     </message>
     <message>
         <source>Always play selected pattern in Pattern Mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Riproduci sempre pattern selezionato in modalità Pattern</translation>
     </message>
     <message>
         <source>Use lash</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa LASH</translation>
     </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
     <message>
         <source>Manual</source>
-        <translation type="unfinished">Manuale utente</translation>
+        <translation>Manuale utente</translation>
     </message>
     <message>
         <source>Welcome to Hydrogen</source>
-        <translation type="unfinished">Benvenuto su Hydrogen</translation>
+        <translation>Benvenuto in Hydrogen</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation type="unfinished">Non mostrare più questo messaggio</translation>
+        <translation>Non mostrare più questo messaggio</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Documentation index</source>
-        <translation type="unfinished">Indice della documentazione</translation>
+        <translation>Indice documentazione</translation>
     </message>
 </context>
 <context>
@@ -2766,15 +2827,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Create new pattern</source>
-        <translation type="unfinished">Crea un nuovo pattern</translation>
+        <translation>Crea un nuovo pattern</translation>
     </message>
     <message>
         <source>Move the selected pattern down</source>
-        <translation type="unfinished">Sposta il pattern selezionato in basso</translation>
+        <translation>Sposta il pattern selezionato in basso</translation>
     </message>
     <message>
         <source>Move the selected pattern up</source>
-        <translation type="unfinished">Muovi il pattern selezionato in alto</translation>
+        <translation>Sposta il pattern selezionato in alto</translation>
     </message>
     <message>
         <source>Song operations</source>
@@ -2790,7 +2851,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation type="unfinished">Pulisci la sequenza di pattern</translation>
+        <translation>Elimina la sequenza di pattern</translation>
     </message>
     <message>
         <source>Delete all patterns</source>
@@ -2798,68 +2859,68 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Editor di canzone</translation>
+        <translation>Editor di canzone</translation>
     </message>
     <message>
         <source>Select mode</source>
-        <translation type="unfinished">Modalità di selezione</translation>
+        <translation>Modalità di selezione</translation>
     </message>
     <message>
         <source>Draw mode</source>
-        <translation type="unfinished">Modalità di modifica</translation>
+        <translation>Modalità di modifica</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation type="unfinished">Attenzione, l&apos;intera sequenza di pattern verrà cancellata.
-Sei sicuro?</translation>
+        <translation>Attenzione, l&apos;intera sequenza di pattern verrà cancellata.
+Confermi?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;Ok</translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern</translation>
     </message>
     <message>
         <source>stacked mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern multipli</translation>
     </message>
     <message>
         <source>stacked pattern mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità pattern multipli</translation>
     </message>
     <message>
         <source>single pattern mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità pattern singolo</translation>
     </message>
     <message>
         <source>not_categorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna categoria</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPatternList</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">Modifica</translation>
+        <translation>Modifica</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Elimina</translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Proprieta&apos;</translation>
+        <translation>Proprietà</translation>
     </message>
     <message>
         <source>Can&apos;t delete the pattern while the audio engine is playing</source>
@@ -2867,23 +2928,27 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation type="unfinished">Riempi/Pulisci ...</translation>
+        <translation>Riempi/Svuota ...</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva Pattern</translation>
     </message>
     <message>
         <source>Load Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Carica Pattern</translation>
     </message>
     <message>
         <source>Hydrogen Song (*.h2pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Canzone Hydrogen (*.h2song)</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri Pattern</translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation>Hydrogen Pattern (*.h2pattern)</translation>
     </message>
 </context>
 <context>
@@ -2894,7 +2959,7 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Song properties</source>
-        <translation type="unfinished">Proprieta&apos; canzone</translation>
+        <translation>Proprietà canzone</translation>
     </message>
 </context>
 <context>
@@ -2909,65 +2974,65 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation type="unfinished">Appunti</translation>
+        <translation>Note</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autore</translation>
+        <translation>Autore</translation>
     </message>
     <message>
         <source>Song name</source>
-        <translation type="unfinished">Titolo canzone</translation>
+        <translation>Titolo canzone</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source> &amp;OK</source>
-        <translation type="unfinished"> &amp;Ok</translation>
+        <translation> &amp;Ok</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
         <source>Export Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta libreria</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Esporta drumkit</translation>
+        <translation>Esporta drumkit</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta</translation>
     </message>
 </context>
 <context>
@@ -3018,26 +3083,26 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkits</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation type="unfinished"></translation>
+        <translation>Canzoni</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Pattern</translation>
+        <translation>Pattern</translation>
     </message>
     <message>
         <source>License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza: %1</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Internet</source>
@@ -3045,62 +3110,62 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Update list</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiorna list</translation>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome libreria</translation>
     </message>
     <message>
         <source>Sound library Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Informazioni su libreria</translation>
     </message>
     <message>
         <source>Author...</source>
-        <translation type="unfinished"></translation>
+        <translation>Autore...</translation>
     </message>
     <message>
         <source>Download and install</source>
-        <translation type="unfinished"></translation>
+        <translation>Scarica e installa</translation>
     </message>
     <message>
         <source>Local file</source>
-        <translation type="unfinished"></translation>
+        <translation>File locale</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Cerca...</translation>
+        <translation>Cerca...</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Installa</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza...</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica lista server</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Apri</translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Esporta</translation>
+        <translation>Esporta</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Elimina</translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <source>Import drumkit</source>
@@ -3112,119 +3177,159 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Drumkit caricato: [%1]</translation>
+        <translation>Drumkit caricato: [%1]</translation>
     </message>
     <message>
         <source>System drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit di sistema</translation>
     </message>
     <message>
         <source>User drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit utente</translation>
     </message>
     <message>
         <source>Warning, the selected drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Attenzione, il drumkit selezionato sarà eliminato dal computer.
+Confermi?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Rinomina</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation type="unfinished"></translation>
+        <translation>Canzoni</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Pattern</translation>
+        <translation>Pattern</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Errore durante il caricamento della canzone.</translation>
+        <translation>Errore durante il caricamento della canzone.</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Proprietà</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryPropertiesDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nome</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Autore</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Informazioni</translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation>Licenza</translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation>Salva</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica preferenze repository</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica lista server</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva libreria</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autore</translation>
+        <translation>Autore</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informazioni</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <source>Save soundlibrary</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Salva libreria</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza</translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation>Salva</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished">Sound Library</translation>
+        <translation>Libreria</translation>
     </message>
 </context>
 <context>
@@ -3242,15 +3347,15 @@ Are you sure?</source>
     <name>midiTable</name>
     <message>
         <source>Event</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Evento</translation>
     </message>
     <message>
         <source>Param.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Param.</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Azione</translation>
     </message>
 </context>
 </TS>
