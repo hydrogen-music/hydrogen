@@ -1,132 +1,13 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name></name>
-    <message>
-        <source>Record keyboard/midi events</source>
-        <translation type="obsolete">Neem via toetsenbord/midi op</translation>
-    </message>
-    <message>
-        <source>Hear new notes</source>
-        <translation type="obsolete">Speel nieuwe noten</translation>
-    </message>
-    <message>
-        <source>Select grid resolution</source>
-        <translation type="obsolete">Selecteer raster resolutie</translation>
-    </message>
-</context>
-<context>
     <name>AboutDialog</name>
     <message>
         <source>About</source>
         <translation type="unfinished">Info</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Compiled modules: %1&lt;/i&gt;&lt;/center&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Gecompileerde modules: %1&lt;/i&gt;&lt;/center&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished">&lt;b&gt;Project pagina&lt;/ba&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Mailing lists:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Mailing lijsten:&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Maintainer, main coder&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">Maintainer, hoofd programmeur&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Drum kits, demo patterns, web site&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">Drumkits, voorbeeld patronen, web site&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>GUI graphics, coding&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">GUI figuren, coderen&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Drum kits, demo patterns&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">Drumkits, voorbeeld patronen&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Russian translation&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Russische vertaling&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches, bug fix&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Jack patches, bug fixen&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Testing, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Testen, ideeën...&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;NetBSD patch&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;NetBSD patch&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Interface design concept&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Interface ontwerp&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Spaanse handleiding&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug reports, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Fouten melden, ideeën&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Patches, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Patches, testen&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Faq, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;FAQ, testen&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Portuguese(Brazil) translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Portugese vertaling&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;German manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Duitse handleiding&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Mac OSX port&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Mac OSX port&lt;/ul&gt;&lt;/li&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;French translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Franse vertaling&lt;/ul&gt;&lt;/li&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Packages&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Paketten&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Spaanse vertaling&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Italian manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Italiaanse handleiding&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug fix, test&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Bugs repareren, testen&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Dutch manual and translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Nederlandse handleiding en vertaling&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
@@ -538,10 +419,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Form1</translation>
     </message>
     <message>
-        <source>Engine Info</source>
-        <translation type="obsolete">Driver info</translation>
-    </message>
-    <message>
         <source>Audio engine state</source>
         <translation type="unfinished">Driver status</translation>
     </message>
@@ -586,32 +463,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Instrument</translation>
     </message>
     <message>
-        <source>Audio Driver Info</source>
-        <translation type="obsolete">Audio driver info</translation>
-    </message>
-    <message>
         <source>Sample rate</source>
         <translation type="unfinished">Sample rate</translation>
     </message>
     <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Audio driver</translation>
-    </message>
-    <message>
         <source>Buffer size</source>
         <translation type="unfinished">Buffer grootte</translation>
-    </message>
-    <message>
-        <source>Midi Driver Info</source>
-        <translation type="obsolete">Midi driver info</translation>
-    </message>
-    <message>
-        <source>Midi driver</source>
-        <translation type="obsolete">Midi driver</translation>
-    </message>
-    <message>
-        <source>textLabel2</source>
-        <translation type="obsolete">textLabel2</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -654,64 +511,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>DrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">Drumkit manager</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">De drumkit zal geïnstalleerd worden in %1/.hydrogen/data/</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Naam: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Auteur: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">Info: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Geladen drumkit:[%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Drumkit importeren</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Drumkit exporteren</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManagerPanel</name>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Drumkit importeren</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Drumkit exporteren</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation type="obsolete">Laden</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="obsolete">Exporteren</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Wissen</translation>
-    </message>
-</context>
-<context>
     <name>DrumkitManager_UI</name>
     <message>
         <source>Form1</source>
@@ -724,14 +523,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Load drumkit</source>
         <translation type="unfinished">Drumkit laden</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">Nieuw</translation>
-    </message>
-    <message>
-        <source>Drumkit info</source>
-        <translation type="obsolete">Drumkit info</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
@@ -811,14 +602,6 @@ http://www.hydrogen-music.org
         <translation type="unfinished">Wav bestand (*.wav)</translation>
     </message>
     <message>
-        <source>Exported %1</source>
-        <translation type="obsolete">Geëxporteerd: %1</translation>
-    </message>
-    <message>
-        <source>%1 seconds.</source>
-        <translation type="obsolete">%1 seconden.</translation>
-    </message>
-    <message>
         <source>Sample rate: %1</source>
         <translation type="unfinished">Sample rate: %1</translation>
     </message>
@@ -832,10 +615,6 @@ http://www.hydrogen-music.org
     <message>
         <source>Export filename</source>
         <translation type="unfinished">Bestandsnaam</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="obsolete">&amp;Annuleren</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -874,29 +653,6 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
-    <name>FilePreview</name>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">Speel sample</translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="obsolete">Groote: %1 bytes</translation>
-    </message>
-    <message>
-        <source>Samplerate: %1</source>
-        <translation type="obsolete">Samplerate: %1</translation>
-    </message>
-    <message>
-        <source>Size: - </source>
-        <translation type="obsolete">Groote: -</translation>
-    </message>
-    <message>
-        <source>Samplerate: - </source>
-        <translation type="obsolete">Samplerate: -</translation>
-    </message>
-</context>
-<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -928,18 +684,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>HydrogenApp</name>
-    <message>
-        <source>Song Info:     </source>
-        <translation type="obsolete">Info:</translation>
-    </message>
-</context>
-<context>
     <name>InstrumentEditor</name>
-    <message>
-        <source>Instrument editor</source>
-        <translation type="obsolete">Instrument editor</translation>
-    </message>
     <message>
         <source>Random pitch factor</source>
         <translation type="unfinished">Willekeurige pitch</translation>
@@ -975,10 +720,6 @@ Are you sure?</source>
     <message>
         <source>Layer gain</source>
         <translation type="unfinished">Layer gain</translation>
-    </message>
-    <message>
-        <source>Layer pitch</source>
-        <translation type="obsolete">Layer pitch</translation>
     </message>
     <message>
         <source>Show instrument properties</source>
@@ -1112,14 +853,6 @@ Are you sure?</source>
         <translation type="unfinished">Groepen</translation>
     </message>
     <message>
-        <source>Uncategorized</source>
-        <translation type="obsolete">(geen categorie)</translation>
-    </message>
-    <message>
-        <source>Categorized (LRDF)</source>
-        <translation type="obsolete">Categorie (LRDF)</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">Stereo</translation>
     </message>
@@ -1151,30 +884,6 @@ Are you sure?</source>
         <translation type="unfinished">Form1</translation>
     </message>
     <message>
-        <source>Categories</source>
-        <translation type="obsolete">Categorieën</translation>
-    </message>
-    <message>
-        <source>Groups</source>
-        <translation type="obsolete">Groepen</translation>
-    </message>
-    <message>
-        <source>test</source>
-        <translation type="obsolete">test</translation>
-    </message>
-    <message>
-        <source>Subitem-------</source>
-        <translation type="obsolete">Subitem-------</translation>
-    </message>
-    <message>
-        <source>LADSPA plugins</source>
-        <translation type="obsolete">LADSPA plugins</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">Nieuw item</translation>
-    </message>
-    <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Annuleren</translation>
     </message>
@@ -1191,32 +900,8 @@ Are you sure?</source>
         <translation type="unfinished">Alt+O</translation>
     </message>
     <message>
-        <source>Plugin info</source>
-        <translation type="obsolete">Plugin info</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Naam:</translation>
-    </message>
-    <message>
-        <source>### fx name</source>
-        <translation type="obsolete">### fx naam</translation>
-    </message>
-    <message>
-        <source>Label:</source>
-        <translation type="obsolete">Label:</translation>
-    </message>
-    <message>
         <source>### fx label</source>
         <translation type="unfinished">### fx label</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">Type: </translation>
-    </message>
-    <message>
-        <source>ID:</source>
-        <translation type="obsolete">ID: </translation>
     </message>
     <message>
         <source>### fx type</source>
@@ -1225,38 +910,6 @@ Are you sure?</source>
     <message>
         <source>### fx ID</source>
         <translation type="unfinished">### fx ID</translation>
-    </message>
-    <message>
-        <source>Maker:</source>
-        <translation type="obsolete">Maker:</translation>
-    </message>
-    <message>
-        <source>### FX maker
-1
-2
-3
-4</source>
-        <translation type="obsolete">### FX maker
-1
-2
-3
-4</translation>
-    </message>
-    <message>
-        <source>Copyright:</source>
-        <translation type="obsolete">Copyright:</translation>
-    </message>
-    <message>
-        <source>### copyright
-1
-2
-3
-4</source>
-        <translation type="obsolete">### copyright
-1
-2
-3
-4</translation>
     </message>
     <message>
         <source>1</source>
@@ -1341,43 +994,20 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Fout bij het laden van de opname.</translation>
     </message>
     <message>
-        <source>Error restoring last song.</source>
-        <translation type="obsolete">Fout bij het herstellen van de laatste opname.</translation>
-    </message>
-    <message>
         <source>Hydrogen Ready.</source>
         <translation type="unfinished">Hydrogen Klaar.</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;Bestand</translation>
     </message>
     <message>
         <source>&amp;New</source>
         <translation type="unfinished">&amp;Nieuw</translation>
     </message>
     <message>
-        <source>Ctrl+N</source>
-        <comment>File|New</comment>
-        <translation type="obsolete">Ctrl+N</translation>
-    </message>
-    <message>
         <source>&amp;Open</source>
         <translation type="unfinished">&amp;Openen</translation>
     </message>
     <message>
-        <source>Ctrl+O</source>
-        <comment>File|Open</comment>
-        <translation type="obsolete">Ctrl+O</translation>
-    </message>
-    <message>
         <source>Open &amp;Demo</source>
         <translation type="unfinished">Open &amp;voorbeeld</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <comment>File|Open Demo</comment>
-        <translation type="obsolete">Ctrl+V</translation>
     </message>
     <message>
         <source>Open &amp;recent</source>
@@ -1388,112 +1018,20 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Op&amp;slaan</translation>
     </message>
     <message>
-        <source>Ctrl+S</source>
-        <comment>File|Save</comment>
-        <translation type="obsolete">Ctrl+S</translation>
-    </message>
-    <message>
-        <source>Save &amp;as</source>
-        <translation type="obsolete">Opslaan &amp;als</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <comment>File|Save as</comment>
-        <translation type="obsolete">Ctrl+Shift+A</translation>
-    </message>
-    <message>
         <source>&amp;Export song</source>
         <translation type="unfinished">&amp;Exporteren</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <comment>File|Export song</comment>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
         <translation type="unfinished">Exporteren naar &amp;MIDI</translation>
     </message>
     <message>
-        <source>Ctrl+M</source>
-        <comment>File|Export midi file</comment>
-        <translation type="obsolete">Ctrl+M</translation>
-    </message>
-    <message>
-        <source>Show song properties</source>
-        <translation type="obsolete">Opname info</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <comment>File|Show song properties</comment>
-        <translation type="obsolete">Ctrl+N</translation>
-    </message>
-    <message>
         <source>&amp;Preferences</source>
         <translation type="unfinished">&amp;Instellingen</translation>
     </message>
     <message>
-        <source>Ctrl+P</source>
-        <comment>File|Preferences</comment>
-        <translation type="obsolete">Ctrl+I</translation>
-    </message>
-    <message>
         <source>&amp;Quit</source>
         <translation type="unfinished">&amp;Afsluiten</translation>
-    </message>
-    <message>
-        <source>Ctrl+Q</source>
-        <comment>File|Preferences</comment>
-        <translation type="obsolete">Ctrl+Q</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation type="obsolete">B&amp;eeld</translation>
-    </message>
-    <message>
-        <source>Show &amp;mixer</source>
-        <translation type="obsolete">Toon &amp;mixer</translation>
-    </message>
-    <message>
-        <source>Alt+M</source>
-        <comment>View|Show mixer</comment>
-        <translation type="obsolete">Alt+M</translation>
-    </message>
-    <message>
-        <source>Show &amp;song editor</source>
-        <translation type="obsolete">Toon &amp;opname editor</translation>
-    </message>
-    <message>
-        <source>Alt+S</source>
-        <comment>View|Show song editor</comment>
-        <translation type="obsolete">Alt+O</translation>
-    </message>
-    <message>
-        <source>Show &amp;pattern editor</source>
-        <translation type="obsolete">Toon &amp;patroon editor</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <comment>View|Show pattern editor</comment>
-        <translation type="obsolete">Alt+P</translation>
-    </message>
-    <message>
-        <source>Show &amp;drumkit manager</source>
-        <translation type="obsolete">Toon &amp;drumkit manager</translation>
-    </message>
-    <message>
-        <source>Alt+D</source>
-        <comment>View|Show drumkit manager</comment>
-        <translation type="obsolete">Alt+D</translation>
-    </message>
-    <message>
-        <source>Show &amp;instrument editor</source>
-        <translation type="obsolete">Toon &amp;instrument editor</translation>
-    </message>
-    <message>
-        <source>Alt+I</source>
-        <comment>View|Show Instrument editor</comment>
-        <translation type="obsolete">Alt+I</translation>
     </message>
     <message>
         <source>De&amp;bug</source>
@@ -1504,31 +1042,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Toon &amp;audio engine info</translation>
     </message>
     <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Help</translation>
-    </message>
-    <message>
         <source>&amp;User manual</source>
         <translation type="unfinished">&amp;Handleiding</translation>
     </message>
     <message>
-        <source>Ctrl+?</source>
-        <comment>Help|User manual</comment>
-        <translation type="obsolete">Ctrl+H</translation>
-    </message>
-    <message>
         <source>&amp;About</source>
         <translation type="unfinished">&amp;Over</translation>
-    </message>
-    <message>
-        <source>
-The song has unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation type="obsolete">
-De opname is gewijzigd,
-wilt u de wijzigingen opslaan voor het afsluiten?
-</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -1836,82 +1355,12 @@ The song has unsaved changes
         <translation type="unfinished">Stel instrument volume in [%1]</translation>
     </message>
     <message>
-        <source>Set instrument pan [%1]</source>
-        <translation type="obsolete">Stel instrument pan in [%1]</translation>
-    </message>
-    <message>
         <source>Set instr. pan [%1]</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>OldDrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">Drumkit manager</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">De drumkit zal geïnstalleerd worden in %1/.hydrogen/data/</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Naam: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Auteur: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">Info: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Geladen drumkit:[%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Drumkit importeren</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Drumkit exporteren</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Mute</source>
-        <translation type="obsolete">Dempen</translation>
-    </message>
-    <message>
-        <source>Lock</source>
-        <translation type="obsolete">Vastleggen</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation type="obsolete">Solo</translation>
-    </message>
-    <message>
-        <source>Clear notes</source>
-        <translation type="obsolete">Wis noten</translation>
-    </message>
-    <message>
-        <source>Fill notes</source>
-        <translation type="obsolete">Vul noten</translation>
-    </message>
-    <message>
-        <source>Randomize velocity</source>
-        <translation type="obsolete">Willekeurige velocity</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Pattern Editor</source>
-        <translation type="obsolete">Patroon Editor</translation>
-    </message>
     <message>
         <source>Select pattern size</source>
         <translation type="unfinished">Selecteer patroon groote</translation>
@@ -1933,28 +1382,12 @@ The song has unsaved changes
         <translation type="unfinished">Plaats keyboard/midi noten op het raster</translation>
     </message>
     <message>
-        <source>Move selected instrument down</source>
-        <translation type="obsolete">Verplaats geselecteerd instrument naar boven</translation>
-    </message>
-    <message>
-        <source>Move selected instrument up</source>
-        <translation type="obsolete">Verplaats geselecteerd instrument naar beneden</translation>
-    </message>
-    <message>
         <source>Zoom in</source>
         <translation type="unfinished">Vergroot</translation>
     </message>
     <message>
         <source>Zoom out</source>
         <translation type="unfinished">Verklein</translation>
-    </message>
-    <message>
-        <source>Show velocity editor</source>
-        <translation type="obsolete">Toon velocity editor</translation>
-    </message>
-    <message>
-        <source>Show pitch editor</source>
-        <translation type="obsolete">Toon pitch editor</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
@@ -2484,24 +1917,12 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Al&amp;gemeen</translation>
     </message>
     <message>
-        <source>&amp;Restore last used song</source>
-        <translation type="obsolete">&amp;Herlaad laatst gebuikte opname</translation>
-    </message>
-    <message>
         <source>Alt+R</source>
         <translation type="unfinished">Alt+H</translation>
     </message>
     <message>
         <source>Audio &amp;System</source>
         <translation type="unfinished">Audio &amp;Systeem</translation>
-    </message>
-    <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Audio driver</translation>
-    </message>
-    <message>
-        <source>Restart driver</source>
-        <translation type="obsolete">Herstart driver</translation>
     </message>
     <message>
         <source>###</source>
@@ -2532,14 +1953,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Alt+V</translation>
     </message>
     <message>
-        <source>&amp;Enable Track Outputs</source>
-        <translation type="obsolete">Maak &amp;Track Outputs mogelijk</translation>
-    </message>
-    <message>
-        <source>Alt+E</source>
-        <translation type="obsolete">Alt+T</translation>
-    </message>
-    <message>
         <source>44100</source>
         <translation type="unfinished">44100</translation>
     </message>
@@ -2558,10 +1971,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&amp;Midi System</source>
         <translation type="unfinished">&amp;Midi Systeem</translation>
-    </message>
-    <message>
-        <source>Midi Input</source>
-        <translation type="obsolete">Midi Input</translation>
     </message>
     <message>
         <source>Midi driver</source>
@@ -2652,10 +2061,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">&amp;Voorkomen</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation type="obsolete">Programma</translation>
-    </message>
-    <message>
         <source>Application font</source>
         <translation type="unfinished">Programma lettertype</translation>
     </message>
@@ -2664,32 +2069,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Stijl</translation>
     </message>
     <message>
-        <source>Interface mode</source>
-        <translation type="obsolete">Interface mode</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Na een wijziging moet het programma herstart worden.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Select font</source>
         <translation type="unfinished">Selecteer lettertype</translation>
-    </message>
-    <message>
-        <source>Child frame</source>
-        <translation type="obsolete">Kind frame</translation>
-    </message>
-    <message>
-        <source>Top level</source>
-        <translation type="obsolete">Hoofd level</translation>
-    </message>
-    <message>
-        <source>Single paned</source>
-        <translation type="obsolete">Enkel venster</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation type="obsolete">Mixer</translation>
     </message>
     <message>
         <source>Slow</source>
@@ -2818,10 +2199,6 @@ Ben je zeker?</translation>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Annuleren</translation>
-    </message>
-    <message>
-        <source>Follow playhead</source>
-        <translation type="obsolete">Volg speelhoofd</translation>
     </message>
     <message>
         <source>Pattern</source>
@@ -3088,14 +2465,6 @@ Ben je zeker?</translation>
         <translation type="unfinished">Wissen</translation>
     </message>
     <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Drumkit importeren</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Drumkit exporteren</translation>
-    </message>
-    <message>
         <source>Drumkit loaded: [%1]</source>
         <translation type="unfinished">Geladen drumkit:[%1]</translation>
     </message>
@@ -3242,15 +2611,5 @@ Are you sure?</source>
         <source>Sound library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SplashScreen</name>
-    <message>
-        <source>Hydrogen</source>
-        <translation type="obsolete">Hydrogen</translation>
-    </message>
-</context>
-<context>
-    <name>midiTable</name>
 </context>
 </TS>

@@ -651,29 +651,6 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
-    <name>FilePreview</name>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">Odtwarza próbkę</translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="obsolete">Rozmiar: %1B</translation>
-    </message>
-    <message>
-        <source>Samplerate: %1</source>
-        <translation type="obsolete">Częstotliwość próbkowania: %1</translation>
-    </message>
-    <message>
-        <source>Size: - </source>
-        <translation type="obsolete">Rozmiar: - </translation>
-    </message>
-    <message>
-        <source>Samplerate: - </source>
-        <translation type="obsolete">Częstotliwość próbkowania: - </translation>
-    </message>
-</context>
-<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -874,14 +851,6 @@ Are you sure?</source>
         <translation>Grupy</translation>
     </message>
     <message>
-        <source>Uncategorized</source>
-        <translation type="obsolete">Bez kategorii</translation>
-    </message>
-    <message>
-        <source>Categorized (LRDF)</source>
-        <translation type="obsolete">Skategoryzowane (LRDF)</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation>Stereo</translation>
     </message>
@@ -929,28 +898,8 @@ Are you sure?</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nazwa:</translation>
-    </message>
-    <message>
-        <source>### fx name</source>
-        <translation type="obsolete">### nazwa efektu</translation>
-    </message>
-    <message>
-        <source>Label:</source>
-        <translation type="obsolete">Etykieta:</translation>
-    </message>
-    <message>
         <source>### fx label</source>
         <translation>### etykieta efektu</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">Typ:</translation>
-    </message>
-    <message>
-        <source>ID:</source>
-        <translation type="obsolete">ID:</translation>
     </message>
     <message>
         <source>### fx type</source>
@@ -959,30 +908,6 @@ Are you sure?</source>
     <message>
         <source>### fx ID</source>
         <translation>### ID efektu</translation>
-    </message>
-    <message>
-        <source>Maker:</source>
-        <translation type="obsolete">Twórca:</translation>
-    </message>
-    <message>
-        <source>### FX maker
-1
-2
-3
-4</source>
-        <translation type="obsolete">### twórca efektu1234</translation>
-    </message>
-    <message>
-        <source>Copyright:</source>
-        <translation type="obsolete">Copyright:</translation>
-    </message>
-    <message>
-        <source>### copyright
-1
-2
-3
-4</source>
-        <translation type="obsolete">### copyright1234</translation>
     </message>
     <message>
         <source>1</source>
@@ -1073,10 +998,6 @@ p, li { white-space: pre-wrap; }
         <translation>&amp;Nowy</translation>
     </message>
     <message>
-        <source>Show info</source>
-        <translation type="obsolete">Pokaż info</translation>
-    </message>
-    <message>
         <source>&amp;Open</source>
         <translation>&amp;Otwórz</translation>
     </message>
@@ -1125,20 +1046,12 @@ p, li { white-space: pre-wrap; }
         <translation>&amp;Preferencje</translation>
     </message>
     <message>
-        <source>OLD &amp;drumkit manager (Obsolete)</source>
-        <translation type="obsolete">STARY menedżer &amp;zestawów perkusyjnych (nieaktualny)</translation>
-    </message>
-    <message>
         <source>De&amp;bug</source>
         <translation>&amp;Odpluskwianie</translation>
     </message>
     <message>
         <source>Show &amp;audio engine info</source>
         <translation>Pokaż informacje o silniku &amp;audio</translation>
-    </message>
-    <message>
-        <source>debug action</source>
-        <translation type="obsolete">akcja</translation>
     </message>
     <message>
         <source>Print Objects</source>
@@ -1236,30 +1149,6 @@ The song has unsaved changes
  Do you want to save the changes before exiting?
 </source>
         <translation>Utwór zawiera niezachowane zmiany Czy chcesz zachować te zmiany przed wyjściem?</translation>
-    </message>
-    <message>
-        <source>Instruments</source>
-        <translation type="obsolete">Instrumenty</translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
-        <translation type="obsolete">Dodaj instrument</translation>
-    </message>
-    <message>
-        <source>Clear all</source>
-        <translation type="obsolete">Wyczyść wszystko</translation>
-    </message>
-    <message>
-        <source>Save library</source>
-        <translation type="obsolete">Zachowaj bibliotekę</translation>
-    </message>
-    <message>
-        <source>Export library</source>
-        <translation type="obsolete">Eksportuj bibliotekę</translation>
-    </message>
-    <message>
-        <source>Import library</source>
-        <translation type="obsolete">Importuj bibliotekę</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
@@ -1463,47 +1352,8 @@ The song has unsaved changes
         <translation>Ustawia głośność instrumentu [%1]</translation>
     </message>
     <message>
-        <source>Set instrument pan [%1]</source>
-        <translation type="obsolete">Ustawia  panoramę instrumentu [%1]</translation>
-    </message>
-    <message>
         <source>Set instr. pan [%1]</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OldDrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">Menedżer zestawów</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Nazwa: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Autor: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">Informacja:  &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Zestaw załadowany: [%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Import zestawu perkusyjnego</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Eksport zestawu perkusyjnego</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1</source>
-        <translation type="obsolete">Zestaw perkusyjny będzie zainstalowany w %1</translation>
     </message>
 </context>
 <context>
@@ -1851,10 +1701,6 @@ The song has unsaved changes
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Zoom in</source>
-        <translation type="obsolete">Powiększenie</translation>
-    </message>
-    <message>
         <source>Add Song to PlayList</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2080,10 +1926,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>&amp;System Audio</translation>
     </message>
     <message>
-        <source>Restart driver</source>
-        <translation type="obsolete">Uruchom ponownie sterownik</translation>
-    </message>
-    <message>
         <source>###</source>
         <translation>###</translation>
     </message>
@@ -2122,14 +1964,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Alt+D</source>
         <translation>Alt+D</translation>
-    </message>
-    <message>
-        <source>&amp;Enable Track Outputs</source>
-        <translation type="obsolete">Włącz Wyjścia Ści&amp;eżek</translation>
-    </message>
-    <message>
-        <source>Alt+E</source>
-        <translation type="obsolete">Alt+E</translation>
     </message>
     <message>
         <source>Polyphony</source>
@@ -2654,10 +2488,6 @@ Kontynuować?</translation>
         <translation>&amp;Anuluj</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Zmień nazwę</translation>
-    </message>
-    <message>
         <source>Songs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2765,10 +2595,6 @@ Kontynuować?</translation>
         <translation>Anuluj</translation>
     </message>
     <message>
-        <source>Save soundlibrary</source>
-        <translation type="obsolete">Zachowaj Bibliotekę Dźwięków</translation>
-    </message>
-    <message>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2783,8 +2609,5 @@ Kontynuować?</translation>
         <source>Sound library</source>
         <translation>Biblioteka dźwięków</translation>
     </message>
-</context>
-<context>
-    <name>midiTable</name>
 </context>
 </TS>

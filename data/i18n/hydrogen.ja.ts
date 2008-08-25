@@ -1,212 +1,13 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name></name>
-    <message>
-        <source>Record keyboard/midi events</source>
-        <translation type="obsolete">キーボード/MIDI のイベントを録音する</translation>
-    </message>
-    <message>
-        <source>Hear new notes</source>
-        <translation type="obsolete">新しい音符を聞く</translation>
-    </message>
-    <message>
-        <source>Select grid resolution</source>
-        <translation type="obsolete">グリッド分解度の選択</translation>
-    </message>
-</context>
-<context>
     <name>AboutDialog</name>
-    <message>
-        <source>Hydrogen - About</source>
-        <translation type="obsolete">Hydrogen - このプログラムについて</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Compiled modules: </source>
-        <translation type="obsolete">&lt;i&gt;Módulos compilados:</translation>
-    </message>
     <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished">&lt;b&gt;プロジェクトページ&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;メーリングリスト:&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Authors:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;作者:&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Maintainer, main coder&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">Mantenedor, programador principal&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Drumkits and demo songs&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">Drumkits y canciones de ejemplo&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Testing, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Pruebas, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Faq, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Faq, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Patches, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parches, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;NetBSD patch&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parche para NetBSD&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Packages&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Paquetes&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Russian translation&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Traducción al ruso&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches, bug fix&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parches para Jack, arreglo de errores&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Manual en español&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug reports, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Notificación de fallos, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Demo songs, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Canciones de demostración, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Parches para Jack&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;German manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Manual en alemán&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;French translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Traducción al francés&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Traducción al español&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Italian manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Manual en italiano&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>About</source>
         <translation type="unfinished">このプログラムについて</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Compiled modules: %1&lt;/i&gt;&lt;/center&gt;</source>
-        <translation type="obsolete">&lt;i&gt;コンパイル済みモジュール: %1&lt;/i&gt;&lt;/center&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug fix, test&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Arreglo de errores, pruebas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Maintainer, main coder&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">メンテナ、メインコーダ&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Drum kits, demo patterns, web site&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">ドラムキット、デモパターン、ウェブサイト&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>GUI graphics, coding&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">GUI グラフィックス、コーディング&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Drum kits, demo patterns&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">ドラムキット、デモパターン&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Russian translation&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;ロシア語翻訳&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches, bug fix&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Jack patches、バグフィックス&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Testing, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;テスト、アイデア..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;NetBSD patch&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;NetBSD パッチ&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Interface design concept&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;インターフェイスデザインコンセプト&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;スペイン語マニュアル&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug reports, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;バグレポート、アイデア&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Patches, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;パッチ、テスト&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Faq, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;FAQ、テスト&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Portuguese(Brazil) translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;ポルトガル語 (ブラジル) 翻訳&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;German manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;ドイツ語マニュアル&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Mac OSX port&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Mac OSX ポート&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;French translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;フランス語翻訳&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Packages&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;パッケージ&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;スペイン語翻訳&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Italian manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;イタリア語マニュアル&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug fix, test&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;バグフィックス、テスト&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;パッチ&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
@@ -227,26 +28,6 @@
 </context>
 <context>
     <name>AboutDialog_UI</name>
-    <message>
-        <source>About Hydrogen...</source>
-        <translation type="obsolete">Hydrogen について...</translation>
-    </message>
-    <message>
-        <source>About</source>
-        <translation type="obsolete">このプログラムについて</translation>
-    </message>
-    <message>
-        <source>Authors</source>
-        <translation type="obsolete">作者</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation type="obsolete">ライセンス</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation type="obsolete">Ok</translation>
-    </message>
     <message>
         <source>###</source>
         <translation type="unfinished">###</translation>
@@ -627,10 +408,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
-        <source>Hydrogen - Audio Engine Info</source>
-        <translation type="obsolete">Hydrogen - Información del motor de sonido</translation>
-    </message>
-    <message>
         <source>Audio Engine Info</source>
         <translation type="unfinished">オーディオエンジン情報</translation>
     </message>
@@ -638,20 +415,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Engine Info</source>
-        <translation type="obsolete">エンジン情報</translation>
-    </message>
-    <message>
         <source>Playing notes</source>
         <translation type="unfinished">Playing notes</translation>
     </message>
     <message>
         <source>Process time</source>
         <translation type="unfinished">プロセスタイム</translation>
-    </message>
-    <message>
-        <source>Current pattern</source>
-        <translation type="obsolete">Patrón actual</translation>
     </message>
     <message>
         <source>Audio engine state</source>
@@ -662,28 +431,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">ソング状態</translation>
     </message>
     <message>
-        <source>Audio Driver Info</source>
-        <translation type="obsolete">オーディオドライバ情報</translation>
-    </message>
-    <message>
         <source>Buffer size</source>
         <translation type="unfinished">バッファサイズ</translation>
     </message>
     <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">オーディオドライバ</translation>
-    </message>
-    <message>
         <source>Sample rate</source>
         <translation type="unfinished">サンプルレート</translation>
-    </message>
-    <message>
-        <source>Midi driver</source>
-        <translation type="obsolete">MIDI ドライバ</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Cerrar</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -700,10 +453,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Ticks</source>
         <translation type="unfinished">Ticks</translation>
-    </message>
-    <message>
-        <source>Midi Driver Info</source>
-        <translation type="obsolete">MIDI ドライバ情報</translation>
     </message>
     <message>
         <source>Song position</source>
@@ -755,29 +504,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>DelayFxMixerLine</name>
-    <message>
-        <source>Delay time</source>
-        <translation type="obsolete">Tiempo eco</translation>
-    </message>
-    <message>
-        <source>Feedback</source>
-        <translation type="obsolete">Feedback</translation>
-    </message>
-    <message>
-        <source>Set delay feedback [</source>
-        <translation type="obsolete">Feedback del eco [</translation>
-    </message>
-    <message>
-        <source>Set delay time [</source>
-        <translation type="obsolete">Tiempo eco [</translation>
-    </message>
-    <message>
-        <source>Delay time </source>
-        <translation type="obsolete">Tiempo eco</translation>
-    </message>
-</context>
-<context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1K/%2K) - ETA %3</source>
@@ -785,80 +511,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>DrumkitManager</name>
-    <message>
-        <source>Hydrogen - Drumkit manager</source>
-        <translation type="obsolete">Hydrogen - Gestor de drumkits</translation>
-    </message>
-    <message>
-        <source>Hydrogen - import drumkit</source>
-        <translation type="obsolete">Hydrogen - Importar drumkit</translation>
-    </message>
-    <message>
-        <source>Hydrogen - export drumkit</source>
-        <translation type="obsolete">Hydrogen - Exportar drumkit</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">名前: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">作者: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">情報: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">読み込まれたドラムキット: [%1]</translation>
-    </message>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">ドラムキット管理</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">ドラムキットのインポート</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">ドラムキットのエクスポート</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">ドラムキットは %1/.hydrogen/data/ にインストールされました</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManagerPanel</name>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">ドラムキットのインポート</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">ドラムキットのエクスポート</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation type="obsolete">読み込み</translation>
-    </message>
-</context>
-<context>
     <name>DrumkitManager_UI</name>
-    <message>
-        <source>Drumkit info</source>
-        <translation type="obsolete">ドラムキットの情報</translation>
-    </message>
     <message>
         <source>Drumkit name</source>
         <translation type="unfinished">ドラムキットの名前</translation>
-    </message>
-    <message>
-        <source>Drumkit author</source>
-        <translation type="obsolete">Autor del drumkit</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
@@ -897,20 +553,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">ドラムキットのファイル名</translation>
     </message>
     <message>
-        <source>The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation type="obsolete">El drumkit ser instalado en</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://hydrogen.sf.net
-&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;
-Bájate más drumkits en &lt;br&gt;
-http://hydrogen.sf.net
-&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation type="unfinished">エクスポート</translation>
     </message>
@@ -929,10 +571,6 @@ http://hydrogen.sf.net
     <message>
         <source>### Drumkit info</source>
         <translation type="unfinished">### ドラムキットの情報</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">New Item</translation>
     </message>
     <message>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
@@ -956,32 +594,12 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>ExportSongDialog</name>
     <message>
-        <source>Hydrogen - Export song</source>
-        <translation type="obsolete">Hydrogen - Exportar canción</translation>
-    </message>
-    <message>
         <source>Wave file (*.wav)</source>
         <translation type="unfinished">Wave ファイル (*.wav)</translation>
     </message>
     <message>
-        <source>Exported</source>
-        <translation type="obsolete">Exportado</translation>
-    </message>
-    <message>
-        <source>seconds.</source>
-        <translation type="obsolete">segundos.</translation>
-    </message>
-    <message>
         <source>Export song</source>
         <translation type="unfinished">ソングのエクスポート</translation>
-    </message>
-    <message>
-        <source>Exported %1</source>
-        <translation type="obsolete">Exportado %1</translation>
-    </message>
-    <message>
-        <source>%1 seconds.</source>
-        <translation type="obsolete">%1 segundos.</translation>
     </message>
     <message>
         <source>Sample rate: %1</source>
@@ -991,20 +609,8 @@ http://www.hydrogen-music.org(new line)
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Browse...</source>
-        <translation type="obsolete">参照...</translation>
-    </message>
-    <message>
         <source>Export filename</source>
         <translation type="unfinished">エクスポートファイル名</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="obsolete">Exportar</translation>
     </message>
     <message>
         <source>Export Whole Song to WAV</source>
@@ -1047,33 +653,6 @@ http://www.hydrogen-music.org(new line)
     </message>
 </context>
 <context>
-    <name>FilePreview</name>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">サンプルの再生</translation>
-    </message>
-    <message>
-        <source>Size -</source>
-        <translation type="obsolete">Tamaño -</translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="obsolete">サイズ: %1 bytes</translation>
-    </message>
-    <message>
-        <source>Size: - </source>
-        <translation type="obsolete">サイズ: -</translation>
-    </message>
-    <message>
-        <source>Samplerate: %1</source>
-        <translation type="obsolete">サンプルレート: %1</translation>
-    </message>
-    <message>
-        <source>Samplerate: - </source>
-        <translation type="obsolete">サンプルレート: -</translation>
-    </message>
-</context>
-<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -1105,77 +684,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>HelpBrowser</name>
-    <message>
-        <source>Hydrogen - Manual</source>
-        <translation type="obsolete">Hydrogen - Manual</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation type="obsolete">マニュアル</translation>
-    </message>
-</context>
-<context>
-    <name>HydrogenApp</name>
-    <message>
-        <source>Hydrogen - Load instrument</source>
-        <translation type="obsolete">Hydrogen - Load instrument</translation>
-    </message>
-    <message>
-        <source>Song Info:</source>
-        <translation type="obsolete">ソングの情報:</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.au *.aiff)</source>
-        <translation type="obsolete">Audio files (*.wav *.au *.aiff)</translation>
-    </message>
-    <message>
-        <source>No OSS driver support</source>
-        <translation type="obsolete">No OSS driver support</translation>
-    </message>
-    <message>
-        <source>No JACK driver support</source>
-        <translation type="obsolete">No JACK driver support</translation>
-    </message>
-    <message>
-        <source>Unknown audio driver</source>
-        <translation type="obsolete">Unknown audio driver</translation>
-    </message>
-    <message>
-        <source>Error starting audio driver</source>
-        <translation type="obsolete">Error starting audio driver</translation>
-    </message>
-    <message>
-        <source>Jack driver: server shutdown</source>
-        <translation type="obsolete">Jack driver: server shutdown</translation>
-    </message>
-    <message>
-        <source>Jack driver: cannot activate client</source>
-        <translation type="obsolete">Jack driver: cannot activate client</translation>
-    </message>
-    <message>
-        <source>Jack driver: cannot connect output port</source>
-        <translation type="obsolete">Driver Jack: no se puede conectar al puerto de salida</translation>
-    </message>
-    <message>
-        <source>Jack driver: error in port register</source>
-        <translation type="obsolete">Jack driver: error en el registro del puerto</translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <translation type="obsolete">Error desconocido</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF)</source>
-        <translation type="obsolete">Archivos de audio (*.wav *.WAV *.au *.AU *.aiff *.AIFF)</translation>
-    </message>
-</context>
-<context>
     <name>InstrumentEditor</name>
-    <message>
-        <source>Instrument editor</source>
-        <translation type="obsolete">楽器エディタ</translation>
-    </message>
     <message>
         <source>Show instrument properties</source>
         <translation type="unfinished">楽器プロパティの表示</translation>
@@ -1215,14 +724,6 @@ Are you sure?</source>
     <message>
         <source>Layer gain</source>
         <translation type="unfinished">Layer gain</translation>
-    </message>
-    <message>
-        <source>Layer pitch</source>
-        <translation type="obsolete">Layer pitch</translation>
-    </message>
-    <message>
-        <source>Empty layer</source>
-        <translation type="obsolete">Capa vacía</translation>
     </message>
     <message>
         <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
@@ -1277,124 +778,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentPropertiesDialog</name>
-    <message>
-        <source>Hydrogen - Instrument properties</source>
-        <translation type="obsolete">Hydrogen - 楽器のプロパティ</translation>
-    </message>
-    <message>
-        <source>Instrument properties</source>
-        <translation type="obsolete">楽器のプロパティ</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
-        <translation type="obsolete">Archivos de audio (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Load instrument</source>
-        <translation type="obsolete">Hydrogen - Cargar instrumento</translation>
-    </message>
-    <message>
-        <source>Set FX %1 level </source>
-        <translation type="obsolete">Nivel FX %1</translation>
-    </message>
-    <message>
-        <source>Empty layer</source>
-        <translation type="obsolete">Capa vacía</translation>
-    </message>
-    <message>
-        <source>Instrument name</source>
-        <translation type="obsolete">楽器の名前</translation>
-    </message>
-</context>
-<context>
-    <name>InstrumentPropertiesDialog_UI</name>
-    <message>
-        <source>Instrument name</source>
-        <translation type="obsolete">楽器の名前</translation>
-    </message>
-    <message>
-        <source>Sample filename</source>
-        <translation type="obsolete">Nombre de archivo del sample</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="obsolete">参照</translation>
-    </message>
-    <message>
-        <source>Drumkit</source>
-        <translation type="obsolete">Drumkit</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation type="obsolete">Ok</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="obsolete">1</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="obsolete">2</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="obsolete">3</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="obsolete">4</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="obsolete">5</translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation type="obsolete">6</translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation type="obsolete">7</translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation type="obsolete">8</translation>
-    </message>
-    <message>
-        <source>Play layer</source>
-        <translation type="obsolete">Reproducir capa</translation>
-    </message>
-    <message>
-        <source>Gain</source>
-        <translation type="obsolete">Ganancia</translation>
-    </message>
-    <message>
-        <source>Pitch</source>
-        <translation type="obsolete">Tono</translation>
-    </message>
-    <message>
-        <source>End velocity</source>
-        <translation type="obsolete">Potencia final</translation>
-    </message>
-    <message>
-        <source>Start velocity</source>
-        <translation type="obsolete">Potencia inicial</translation>
-    </message>
-    <message>
-        <source>sample size in frames</source>
-        <translation type="obsolete">Tamaño de la muestra (en frames)</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Eliminar</translation>
-    </message>
-</context>
-<context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
@@ -1416,16 +799,8 @@ Are you sure?</source>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <source>FX on/off</source>
-        <translation type="obsolete">FX on/off</translation>
-    </message>
-    <message>
         <source>Edit FX parameters</source>
         <translation type="unfinished">FX パラメータを変更</translation>
-    </message>
-    <message>
-        <source>Ladspa FX name (double click to change FX)</source>
-        <translation type="obsolete">Nombre FX Ladspa (doble click para cambiar de FX)</translation>
     </message>
     <message>
         <source>FX bypass</source>
@@ -1474,10 +849,6 @@ Are you sure?</source>
         <translation type="unfinished">グループ</translation>
     </message>
     <message>
-        <source>Uncategorized</source>
-        <translation type="obsolete">カテゴリ無し</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">ステレオ</translation>
     </message>
@@ -1492,10 +863,6 @@ Are you sure?</source>
     <message>
         <source>Select LADSPA FX</source>
         <translation type="unfinished">FX LADSPA の選択</translation>
-    </message>
-    <message>
-        <source>Categorized (LRDF)</source>
-        <translation type="obsolete">カテゴリ (LRDF)</translation>
     </message>
     <message>
         <source>Recently Used</source>
@@ -1517,64 +884,8 @@ Are you sure?</source>
         <translation type="unfinished">Form1</translation>
     </message>
     <message>
-        <source>Categories</source>
-        <translation type="obsolete">カテゴリ</translation>
-    </message>
-    <message>
-        <source>Groups</source>
-        <translation type="obsolete">グループ</translation>
-    </message>
-    <message>
-        <source>test</source>
-        <translation type="obsolete">テスト</translation>
-    </message>
-    <message>
-        <source>Subitem-------</source>
-        <translation type="obsolete">Subitem-------</translation>
-    </message>
-    <message>
-        <source>LADSPA plugins</source>
-        <translation type="obsolete">LADSPA プラグイン</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">新しいアイテム</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation type="obsolete">Ok</translation>
-    </message>
-    <message>
-        <source>Plugin info</source>
-        <translation type="obsolete">プラグイン情報</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">名前:</translation>
-    </message>
-    <message>
-        <source>### fx name</source>
-        <translation type="obsolete">### FX 名</translation>
-    </message>
-    <message>
-        <source>Label:</source>
-        <translation type="obsolete">ラベル:</translation>
-    </message>
-    <message>
         <source>### fx label</source>
         <translation type="unfinished">### FX ラベル</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">タイプ:</translation>
-    </message>
-    <message>
-        <source>ID:</source>
-        <translation type="obsolete">ID:</translation>
     </message>
     <message>
         <source>### fx type</source>
@@ -1583,38 +894,6 @@ Are you sure?</source>
     <message>
         <source>### fx ID</source>
         <translation type="unfinished">### FX ID</translation>
-    </message>
-    <message>
-        <source>Maker:</source>
-        <translation type="obsolete">マーカー:</translation>
-    </message>
-    <message>
-        <source>### FX maker
-1
-2
-3
-4</source>
-        <translation type="obsolete">### FX マーカー
-1
-2
-3
-4</translation>
-    </message>
-    <message>
-        <source>Copyright:</source>
-        <translation type="obsolete">Copyright:</translation>
-    </message>
-    <message>
-        <source>### copyright
-1
-2
-3
-4</source>
-        <translation type="obsolete">### Copyright
-1
-2
-3
-4</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -1711,91 +990,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
-        <source>Open</source>
-        <translation type="obsolete">Abrir</translation>
-    </message>
-    <message>
-        <source>Open Demo</source>
-        <translation type="obsolete">Abrir ejemplo</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation type="obsolete">Salir</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Nueva canción</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation type="obsolete">別名で保存する...</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="obsolete">Exportar</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation type="obsolete">Preferencias</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation type="obsolete">Mostrar mezclador</translation>
-    </message>
-    <message>
-        <source>Show audio engine info</source>
-        <translation type="obsolete">Mostrar información del motor de sonido</translation>
-    </message>
-    <message>
-        <source>Show song editor</source>
-        <translation type="obsolete">Mostrar editor de canciones</translation>
-    </message>
-    <message>
-        <source>Show drumkit manager</source>
-        <translation type="obsolete">Mostrar gestor de drumkits</translation>
-    </message>
-    <message>
-        <source>User manual</source>
-        <translation type="obsolete">Manual de usuario</translation>
-    </message>
-    <message>
-        <source>About</source>
-        <translation type="obsolete">このプログラムについて</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Archivo</translation>
-    </message>
-    <message>
-        <source>Window</source>
-        <translation type="obsolete">ウィンドウ</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Ayuda</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Save song</source>
-        <translation type="obsolete">Hydrogen - ソングを保存する</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Open song</source>
-        <translation type="obsolete">Hydrogen - Abrir canción</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="obsolete">?</translation>
-    </message>
-    <message>
-        <source>
-The song has unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation type="obsolete">
-ソングの変更が保存されていません
-終了する前に変更を保存しますか?</translation>
-    </message>
-    <message>
         <source>&amp;Save</source>
         <translation type="unfinished">&amp;保存する</translation>
     </message>
@@ -1812,10 +1006,6 @@ Do you want to save the changes before exiting?
         <translation type="unfinished">ソングの読み込みに失敗しました.</translation>
     </message>
     <message>
-        <source>Error restoring last song.</source>
-        <translation type="obsolete">最後のソングの復旧でエラーが発生しました.</translation>
-    </message>
-    <message>
         <source>Hydrogen Ready.</source>
         <translation type="unfinished">Hydrogen Ready.</translation>
     </message>
@@ -1830,14 +1020,6 @@ Do you want to save the changes before exiting?
 </translation>
     </message>
     <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;ファイル</translation>
-    </message>
-    <message>
-        <source>&amp;Window</source>
-        <translation type="obsolete">&amp;ウィンドウ</translation>
-    </message>
-    <message>
         <source>Hydrogen Song (*.h2song)</source>
         <translation type="unfinished">Hydrogen のソングファイル (*.h2song)</translation>
     </message>
@@ -1848,26 +1030,6 @@ Do you want to save the changes before exiting?
     <message>
         <source>Open song</source>
         <translation type="unfinished">ソングを開く</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Salir</translation>
-    </message>
-    <message>
-        <source>Open recent</source>
-        <translation type="obsolete">Abrir reciente</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">保存する</translation>
-    </message>
-    <message>
-        <source>Show instrument editor</source>
-        <translation type="obsolete">Mostrar editor de instrumentos</translation>
-    </message>
-    <message>
-        <source>&amp;Debug</source>
-        <translation type="obsolete">&amp;Depurar</translation>
     </message>
     <message>
         <source>Print Objects</source>
@@ -1910,22 +1072,6 @@ Do you want to save the changes before exiting?
         <translation type="unfinished">&amp;終了</translation>
     </message>
     <message>
-        <source>Show &amp;mixer</source>
-        <translation type="obsolete">&amp;ミキサーの表示</translation>
-    </message>
-    <message>
-        <source>Show &amp;song editor</source>
-        <translation type="obsolete">&amp;ソングエディタの表示</translation>
-    </message>
-    <message>
-        <source>Show &amp;drumkit manager</source>
-        <translation type="obsolete">&amp;ドラムキット管理の表示</translation>
-    </message>
-    <message>
-        <source>Show &amp;instrument editor</source>
-        <translation type="obsolete">&amp;楽器エディタの表示</translation>
-    </message>
-    <message>
         <source>Show &amp;audio engine info</source>
         <translation type="unfinished">&amp;オーディオエンジン情報の表示</translation>
     </message>
@@ -1940,14 +1086,6 @@ Do you want to save the changes before exiting?
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;キャンセル</translation>
-    </message>
-    <message>
-        <source>No OSS driver support</source>
-        <translation type="obsolete">El driver OSS no está soportado</translation>
-    </message>
-    <message>
-        <source>No JACK driver support</source>
-        <translation type="obsolete">El driver JACK no está soportado</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
@@ -1974,132 +1112,12 @@ Do you want to save the changes before exiting?
         <translation type="unfinished">Jack driver: ポートレジスタでのエラー</translation>
     </message>
     <message>
-        <source>Unknown error</source>
-        <translation type="obsolete">Error desconocido</translation>
-    </message>
-    <message>
         <source>&amp;Export song</source>
         <translation type="unfinished">&amp;ソングのエクスポート</translation>
     </message>
     <message>
-        <source>Show song properties</source>
-        <translation type="obsolete">ソングのプロパティ表示</translation>
-    </message>
-    <message>
-        <source>Show &amp;pattern editor</source>
-        <translation type="obsolete">&amp;パターンエディタの表示</translation>
-    </message>
-    <message>
-        <source>Ctrl+N</source>
-        <comment>File|New</comment>
-        <translation type="obsolete">Ctrl+N
-ファイル|新しいファイル</translation>
-    </message>
-    <message>
-        <source>Ctrl+O</source>
-        <comment>File|Open</comment>
-        <translation type="obsolete">Ctrl+O
-ファイル|ファイルを開く</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <comment>File|Open Demo</comment>
-        <translation type="obsolete">Ctrl+D
-ファイル|デモファイルを開く</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <comment>File|Save</comment>
-        <translation type="obsolete">Ctl+S
-</translation>
-    </message>
-    <message>
-        <source>Save &amp;as</source>
-        <translation type="obsolete">&amp;別名で保存する</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <comment>File|Save as</comment>
-        <translation type="obsolete">Ctrl+Shift+S
-ファイル|別名で保存する</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <comment>File|Export song</comment>
-        <translation type="obsolete">Ctrl+E
-ファイル|ソングをエクスポートする</translation>
-    </message>
-    <message>
-        <source>Ctrl+M</source>
-        <comment>File|Export midi file</comment>
-        <translation type="obsolete">Ctrl+M
-ファイル|MIDI ファイルへエクスポート</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <comment>File|Show song properties</comment>
-        <translation type="obsolete">Ctrl+Shift+P
-ファイル|ソングのプロパティ表示</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <comment>File|Preferences</comment>
-        <translation type="obsolete">Ctrl+P
-ファイル|プリファレンス</translation>
-    </message>
-    <message>
-        <source>Ctrl+Q</source>
-        <comment>File|Preferences</comment>
-        <translation type="obsolete">Ctrl+Q
-ファイル|プリファレンス</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation type="obsolete">&amp;表示</translation>
-    </message>
-    <message>
-        <source>Alt+M</source>
-        <comment>View|Show mixer</comment>
-        <translation type="obsolete">Alt+M
-表示|ミキサーの表示</translation>
-    </message>
-    <message>
-        <source>Alt+S</source>
-        <comment>View|Show song editor</comment>
-        <translation type="obsolete">Alt+S
-表示|ソングエディタの表示</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <comment>View|Show pattern editor</comment>
-        <translation type="obsolete">Alt+P
-表示|パターンエディタの表示</translation>
-    </message>
-    <message>
-        <source>Alt+D</source>
-        <comment>View|Show drumkit manager</comment>
-        <translation type="obsolete">Alt+D
-表示|ドラムキット管理の表示</translation>
-    </message>
-    <message>
-        <source>Alt+I</source>
-        <comment>View|Show Instrument editor</comment>
-        <translation type="obsolete">Alt+I
-表示|楽器エディタの表示</translation>
-    </message>
-    <message>
         <source>De&amp;bug</source>
         <translation type="unfinished">&amp;デバッグ</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;ヘルプ</translation>
-    </message>
-    <message>
-        <source>Ctrl+?</source>
-        <comment>Help|User manual</comment>
-        <translation type="obsolete">Ctrl+?
-ヘルプ|ユーザマニュアル</translation>
     </message>
     <message>
         <source>&amp;Project</source>
@@ -2237,14 +1255,6 @@ The song has unsaved changes
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <source>Master output</source>
-        <translation type="obsolete">Salida principal</translation>
-    </message>
-    <message>
-        <source>Set master volume [</source>
-        <translation type="obsolete">Volumen principal [</translation>
-    </message>
-    <message>
         <source>Set master volume [%1]</source>
         <translation type="unfinished">マスタボリュームの設定 [%1]</translation>
     </message>
@@ -2291,78 +1301,6 @@ The song has unsaved changes
 <context>
     <name>Mixer</name>
     <message>
-        <source>Show faders panel</source>
-        <translation type="obsolete">FX パネルの表示</translation>
-    </message>
-    <message>
-        <source>Swing factor</source>
-        <translation type="obsolete">Factor de Swing</translation>
-    </message>
-    <message>
-        <source>Human time</source>
-        <translation type="obsolete">Humanización (tempo)</translation>
-    </message>
-    <message>
-        <source>Human velocity</source>
-        <translation type="obsolete">Humanización (intensidad)</translation>
-    </message>
-    <message>
-        <source>Delay FX</source>
-        <translation type="obsolete">Eco FX</translation>
-    </message>
-    <message>
-        <source>Set humanize time parameter [</source>
-        <translation type="obsolete">Humanización (tempo) [</translation>
-    </message>
-    <message>
-        <source>Set humanize velocity parameter [</source>
-        <translation type="obsolete">Humanización (intensidad) [</translation>
-    </message>
-    <message>
-        <source>Set swing factor [</source>
-        <translation type="obsolete">Factor de swing [</translation>
-    </message>
-    <message>
-        <source>Set delay wet level [</source>
-        <translation type="obsolete">Nivel de eco [</translation>
-    </message>
-    <message>
-        <source>Delay FX enabled</source>
-        <translation type="obsolete">Eco FX activado</translation>
-    </message>
-    <message>
-        <source>Delay FX disabled</source>
-        <translation type="obsolete">Eco FX desactivado</translation>
-    </message>
-    <message>
-        <source>Humanize Time FX enabled</source>
-        <translation type="obsolete">Humanización (tempo) activada</translation>
-    </message>
-    <message>
-        <source>Humanize Time FX disabled</source>
-        <translation type="obsolete">Humanización (tempo) desactivada</translation>
-    </message>
-    <message>
-        <source>Humanize Velocity FX enabled</source>
-        <translation type="obsolete">Humanización (intensidad) activada</translation>
-    </message>
-    <message>
-        <source>Humanize Velocity FX disabled</source>
-        <translation type="obsolete">Humanización (intensidad) desactivada</translation>
-    </message>
-    <message>
-        <source>Swing factor FX enabled</source>
-        <translation type="obsolete">Función de Swing activada</translation>
-    </message>
-    <message>
-        <source>Swing factor FX disabled</source>
-        <translation type="obsolete">Función de Swing desactivada</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Mixer</source>
-        <translation type="obsolete">Hydrogen - Mezclador</translation>
-    </message>
-    <message>
         <source>Show instrument peaks</source>
         <translation type="unfinished">楽器の peak の表示</translation>
     </message>
@@ -2375,24 +1313,8 @@ The song has unsaved changes
         <translation type="unfinished">楽器の peak の表示 = Off</translation>
     </message>
     <message>
-        <source>No plugin</source>
-        <translation type="obsolete">Sin plugin</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation type="unfinished">ミキサー</translation>
-    </message>
-    <message>
-        <source>Set humanize time parameter [%1]</source>
-        <translation type="obsolete">Parametro de tiempo de humanización [%1]</translation>
-    </message>
-    <message>
-        <source>Set humanize velocity parameter [%1]</source>
-        <translation type="obsolete">Parámetro de velocidad de humanización [%1]</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation type="obsolete">Factor de swing [%1]</translation>
     </message>
     <message>
         <source>Set FX %1 level </source>
@@ -2401,54 +1323,6 @@ The song has unsaved changes
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation type="unfinished">FX LADSPA ボリューム ( %1 )</translation>
-    </message>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">サンプルの再生</translation>
-    </message>
-    <message>
-        <source>Load external sample</source>
-        <translation type="obsolete">Cargar sample externo</translation>
-    </message>
-    <message>
-        <source>Mute</source>
-        <translation type="obsolete">ミュート</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation type="obsolete">ソロ</translation>
-    </message>
-    <message>
-        <source>Delay</source>
-        <translation type="obsolete">Eco</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation type="obsolete">パン</translation>
-    </message>
-    <message>
-        <source>Instrument name (double click to edit)</source>
-        <translation type="obsolete">楽器名 (ダブルクリックで編集)</translation>
-    </message>
-    <message>
-        <source>Set instrument volume [</source>
-        <translation type="obsolete">Volumen del instrumento [</translation>
-    </message>
-    <message>
-        <source>Set instrument pan [</source>
-        <translation type="obsolete">Pan del instrumento [</translation>
-    </message>
-    <message>
-        <source>Set instrument delay [</source>
-        <translation type="obsolete">Eco del instrumento [</translation>
-    </message>
-    <message>
-        <source>Set instrument volume [%1]</source>
-        <translation type="obsolete">楽器のボリューム設定 [%1]</translation>
-    </message>
-    <message>
-        <source>Set instrument pan [%1]</source>
-        <translation type="obsolete">楽器の pan 設定 [%1]</translation>
     </message>
     <message>
         <source>Show FX panel</source>
@@ -2482,113 +1356,15 @@ The song has unsaved changes
         <translation type="unfinished">楽器のボリューム設定 [%1]</translation>
     </message>
     <message>
-        <source>Set instrument pan [%1]</source>
-        <translation type="obsolete">楽器の pan 設定 [%1]</translation>
-    </message>
-    <message>
         <source>Set instr. pan [%1]</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>OldDrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">ドラムキット管理</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">ドラムキットは %1/.hydrogen/data/ にインストールされました</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">名前: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">作者: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">情報: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">読み込まれたドラムキット: [%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">ドラムキットのインポート</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">ドラムキットのエクスポート</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Mute</source>
-        <translation type="obsolete">ミュート</translation>
-    </message>
-    <message>
-        <source>Lock</source>
-        <translation type="obsolete">ロック</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation type="obsolete">ソロ</translation>
-    </message>
-    <message>
-        <source>Clear notes</source>
-        <translation type="obsolete">音符のクリア</translation>
-    </message>
-    <message>
-        <source>Fill notes</source>
-        <translation type="obsolete">音符で埋める</translation>
-    </message>
-    <message>
-        <source>Randomize velocity</source>
-        <translation type="obsolete">velocity をランダムにする</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Pattern Editor</source>
-        <translation type="obsolete">パターンエディタ</translation>
-    </message>
-    <message>
-        <source>Grid resolution</source>
-        <translation type="obsolete">グリッド分解度</translation>
-    </message>
     <message>
         <source>Hear new notes</source>
         <translation type="unfinished">新しい音符を聞く</translation>
-    </message>
-    <message>
-        <source>Pattern name</source>
-        <translation type="obsolete">パターンの名前</translation>
-    </message>
-    <message>
-        <source>Pattern size</source>
-        <translation type="obsolete">パターンのサイズ</translation>
-    </message>
-    <message>
-        <source>Pattern editor - </source>
-        <translation type="obsolete">Editor de patrones - </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;No pattern selected! (NULL pattern)&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;¡Ningún patrón seleccionado! (patrón NULL)&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>No pattern selected! (NULL pattern)</source>
-        <translation type="obsolete">¡Ningn patrón seleccionado! (patrón NULL)</translation>
-    </message>
-    <message>
-        <source>Pattern name: &lt;b&gt;</source>
-        <translation type="obsolete">パターンの名前: &lt;b&gt;</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
@@ -2627,18 +1403,6 @@ The song has unsaved changes
         <translation type="unfinished">Quantize incoming keyboard/midi events = Off</translation>
     </message>
     <message>
-        <source>Pattern name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">パターンの名前: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Show velocity editor</source>
-        <translation type="obsolete">ベロシティ変更の表示</translation>
-    </message>
-    <message>
-        <source>Show pitch editor</source>
-        <translation type="obsolete">ピッチ変更の表示</translation>
-    </message>
-    <message>
         <source>Zoom in</source>
         <translation type="unfinished">ズームイン</translation>
     </message>
@@ -2657,14 +1421,6 @@ The song has unsaved changes
     <message>
         <source>Select grid resolution</source>
         <translation type="unfinished">グリッド分解度の選択</translation>
-    </message>
-    <message>
-        <source>Move selected instrument down</source>
-        <translation type="obsolete">選択した楽器を下げる</translation>
-    </message>
-    <message>
-        <source>Move selected instrument up</source>
-        <translation type="obsolete">選択した楽器を上げる</translation>
     </message>
     <message>
         <source>Show drum editor</source>
@@ -2760,28 +1516,12 @@ The song has unsaved changes
 <context>
     <name>PatternPropertiesDialog</name>
     <message>
-        <source>Hydrogen - Pattern properties</source>
-        <translation type="obsolete">Hydrogen - Propriedades del patrón</translation>
-    </message>
-    <message>
         <source>Pattern properties</source>
         <translation type="unfinished">パターンのプロパティ</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
-    <message>
-        <source>Pattern Name</source>
-        <translation type="obsolete">パターンの名前</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source> Ok </source>
-        <translation type="obsolete">Ok</translation>
-    </message>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;キャンセル</translation>
@@ -2818,10 +1558,6 @@ The song has unsaved changes
         <translation type="unfinished">ソングモード</translation>
     </message>
     <message>
-        <source>Live Mode</source>
-        <translation type="obsolete">Modo live</translation>
-    </message>
-    <message>
         <source>Playing.</source>
         <translation type="unfinished">再生.</translation>
     </message>
@@ -2834,32 +1570,12 @@ The song has unsaved changes
         <translation type="unfinished">ソングモード選択.</translation>
     </message>
     <message>
-        <source>Live mode selected.</source>
-        <translation type="obsolete">Modo live seleccionado.</translation>
-    </message>
-    <message>
-        <source>Play</source>
-        <translation type="obsolete">Reproducir</translation>
-    </message>
-    <message>
         <source>Stop</source>
         <translation type="unfinished">停止</translation>
     </message>
     <message>
-        <source>BPM</source>
-        <translation type="obsolete">BPM</translation>
-    </message>
-    <message>
         <source>Pattern Mode</source>
         <translation type="unfinished">パターンモード</translation>
-    </message>
-    <message>
-        <source>Play button disabled while using jack-transport slave mode.</source>
-        <translation type="obsolete">Botón de reproducción desactivado usando el modo esclavo de jack-transport.</translation>
-    </message>
-    <message>
-        <source>Stop button disabled while using jack-transport slave mode.</source>
-        <translation type="obsolete">Botón de parada desactivado usando el modo esclavo de jack-transport.</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
@@ -2918,16 +1634,8 @@ The song has unsaved changes
         <translation type="unfinished">ソングのループ = オフ</translation>
     </message>
     <message>
-        <source>Show instrument editor</source>
-        <translation type="obsolete">Mostrar editor de instrumentos</translation>
-    </message>
-    <message>
         <source>Show mixer</source>
         <translation type="unfinished">Mostrar mezclador</translation>
-    </message>
-    <message>
-        <source>Show drumkit manager</source>
-        <translation type="obsolete">Mostrar gestor de drumkits</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -3135,10 +1843,6 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Hydrogen - Preferences</source>
-        <translation type="obsolete">Hydrogen - Preferencias</translation>
-    </message>
-    <message>
         <source>Slow</source>
         <translation type="unfinished">遅い</translation>
     </message>
@@ -3149,10 +1853,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Fast</source>
         <translation type="unfinished">早い</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;NULL DRIVER&lt;/b&gt;&lt;br&gt;Please select an audio driver&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;DRIVER NULL&lt;/b&gt;&lt;br&gt;Por favor selecciona un driver de audio&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
@@ -3194,72 +1894,12 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
-        <source>Preferences</source>
-        <translation type="obsolete">Preferencias</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation type="obsolete">Ok</translation>
-    </message>
-    <message>
-        <source>Restore last used song</source>
-        <translation type="obsolete">最後に使用したソングを復元する</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">一般</translation>
-    </message>
-    <message>
-        <source>Metronome</source>
-        <translation type="obsolete">メトロノーム</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation type="obsolete">利用する</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation type="obsolete">ボリューム</translation>
-    </message>
-    <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">オーディオドライバ</translation>
-    </message>
-    <message>
-        <source>Restart driver</source>
-        <translation type="obsolete">ドライバ再起動</translation>
-    </message>
-    <message>
         <source>Buffer size</source>
         <translation type="unfinished">バッファサイズ</translation>
     </message>
     <message>
         <source>Device</source>
         <translation type="unfinished">デバイス</translation>
-    </message>
-    <message>
-        <source>Enable Track Outputs</source>
-        <translation type="obsolete">Activar salida por pista</translation>
-    </message>
-    <message>
-        <source>Max notes</source>
-        <translation type="obsolete">最大の音符</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation type="obsolete">Notas</translation>
-    </message>
-    <message>
-        <source>Audio System</source>
-        <translation type="obsolete">オーディオシステム</translation>
-    </message>
-    <message>
-        <source>Midi Input</source>
-        <translation type="obsolete">MIDI 入力</translation>
     </message>
     <message>
         <source>Input</source>
@@ -3272,26 +1912,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>All</source>
         <translation type="unfinished">すべて</translation>
-    </message>
-    <message>
-        <source>Midi System</source>
-        <translation type="obsolete">MIDI システム</translation>
-    </message>
-    <message>
-        <source>Application interface</source>
-        <translation type="obsolete">Interfaz de usuario</translation>
-    </message>
-    <message>
-        <source>Interface mode</source>
-        <translation type="obsolete">インターフェイスモード</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;変更は再起動後有効になります.&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation type="obsolete">ミキサー</translation>
     </message>
     <message>
         <source>Meters falloff speed</source>
@@ -3326,24 +1946,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">&lt;i&gt;フォントの変更は再起動後有効になります.&lt;/i&gt;</translation>
     </message>
     <message>
-        <source>Appearance</source>
-        <translation type="obsolete">外観</translation>
-    </message>
-    <message>
-        <source>Oss</source>
-        <translation type="obsolete">OSS</translation>
-    </message>
-    <message>
-        <source>Jack</source>
-        <translation type="obsolete">JACK</translation>
-    </message>
-    <message>
         <source>Sample rate</source>
         <translation type="unfinished">サンプルレート</translation>
-    </message>
-    <message>
-        <source>22050</source>
-        <translation type="obsolete">22050</translation>
     </message>
     <message>
         <source>44100</source>
@@ -3352,10 +1956,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>48000</source>
         <translation type="unfinished">48000</translation>
-    </message>
-    <message>
-        <source>Jack Transport Slave</source>
-        <translation type="obsolete">Jack Transport Slave</translation>
     </message>
     <message>
         <source>###</source>
@@ -3426,44 +2026,16 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">16</translation>
     </message>
     <message>
-        <source>Child frame</source>
-        <translation type="obsolete">子フレーム</translation>
-    </message>
-    <message>
-        <source>Top level</source>
-        <translation type="obsolete">トップレベル</translation>
-    </message>
-    <message>
         <source>Form1</source>
         <translation type="unfinished">Form1</translation>
-    </message>
-    <message>
-        <source>Connect to Default Output Pair</source>
-        <translation type="obsolete">Conectar al par de salida predeterminado</translation>
     </message>
     <message>
         <source>Polyphony</source>
         <translation type="unfinished">ポリフォニー</translation>
     </message>
     <message>
-        <source>Fonts</source>
-        <translation type="obsolete">Fuentes</translation>
-    </message>
-    <message>
-        <source>LADSPA Plugin path</source>
-        <translation type="obsolete">Ruta a los plugins LADSPA </translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation type="obsolete">アプリケーション</translation>
-    </message>
-    <message>
         <source>Style</source>
         <translation type="unfinished">スタイル</translation>
-    </message>
-    <message>
-        <source>Single paned</source>
-        <translation type="obsolete">シングルパネル</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3486,10 +2058,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">&amp;一般</translation>
     </message>
     <message>
-        <source>&amp;Restore last used song</source>
-        <translation type="obsolete">&amp;最後に使用したソングを復元する</translation>
-    </message>
-    <message>
         <source>Alt+R</source>
         <translation type="unfinished">Alt+R</translation>
     </message>
@@ -3508,14 +2076,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Alt+D</source>
         <translation type="unfinished">Alt+D</translation>
-    </message>
-    <message>
-        <source>&amp;Enable Track Outputs</source>
-        <translation type="obsolete">&amp;トラック出力を有効にする</translation>
-    </message>
-    <message>
-        <source>Alt+E</source>
-        <translation type="obsolete">Alt+E</translation>
     </message>
     <message>
         <source>88200</source>
@@ -3600,10 +2160,6 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>SongEditorPanel</name>
     <message>
-        <source>Hydrogen - Song Editor</source>
-        <translation type="obsolete">Hydrogen - Editor de canciones</translation>
-    </message>
-    <message>
         <source>Create new pattern</source>
         <translation type="unfinished">新しいパターンの作成</translation>
     </message>
@@ -3616,20 +2172,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">選択したパターンを上げる</translation>
     </message>
     <message>
-        <source>Song operations</source>
-        <translation type="obsolete">ソング操作</translation>
-    </message>
-    <message>
-        <source>Song loop</source>
-        <translation type="obsolete">ソングのループ</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation type="unfinished">パターンシーケンスのクリア</translation>
-    </message>
-    <message>
-        <source>Delete all patterns</source>
-        <translation type="obsolete">全てのパターンを削除する</translation>
     </message>
     <message>
         <source>Song Editor</source>
@@ -3656,10 +2200,6 @@ Are you sure?</source>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;キャンセル</translation>
-    </message>
-    <message>
-        <source>Follow playhead</source>
-        <translation type="obsolete">Follow playhead</translation>
     </message>
     <message>
         <source>Pattern</source>
@@ -3701,10 +2241,6 @@ Are you sure?</source>
         <translation type="unfinished">プロパティ</translation>
     </message>
     <message>
-        <source>Can&apos;t delete the pattern while the audio engine is playing</source>
-        <translation type="obsolete">No se puede borrar un patrón mientras se reproduce</translation>
-    </message>
-    <message>
         <source>Fill/Clear ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3728,24 +2264,12 @@ Are you sure?</source>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
-        <source>Hydrogen - Song properties</source>
-        <translation type="obsolete">Hydrogen - </translation>
-    </message>
-    <message>
         <source>Song properties</source>
         <translation type="unfinished">ソングのプロパティ</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source> Ok </source>
-        <translation type="obsolete">Ok</translation>
-    </message>
     <message>
         <source>Notes</source>
         <translation type="unfinished">備考</translation>
@@ -3919,10 +2443,6 @@ Are you sure?</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="obsolete">Cerrar</translation>
-    </message>
-    <message>
         <source>License...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3936,14 +2456,6 @@ Are you sure?</source>
     <message>
         <source>Load</source>
         <translation type="unfinished">読み込み</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">ドラムキットのインポート</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">ドラムキットのエクスポート</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
@@ -4100,23 +2612,5 @@ Are you sure?</source>
         <source>Sound library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SplashScreen</name>
-    <message>
-        <source>Hydrogen</source>
-        <translation type="obsolete">Hydrogen</translation>
-    </message>
-    <message>
-        <source>Alpha Version </source>
-        <translation type="obsolete">Versión Alfa</translation>
-    </message>
-    <message>
-        <source>Modules: </source>
-        <translation type="obsolete">Módulos:</translation>
-    </message>
-</context>
-<context>
-    <name>midiTable</name>
 </context>
 </TS>

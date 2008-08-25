@@ -6,16 +6,8 @@
         <translation type="unfinished">Om</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Compiled modules: %1&lt;/i&gt;&lt;/center&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Kompilerade moduler: %1&lt;/i&gt;&lt;/center&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished">&lt;b&gt;Project sida&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Mailing lists:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Mailing lista:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
@@ -443,24 +435,8 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Valt instrument</translation>
     </message>
     <message>
-        <source>Audio Driver Info</source>
-        <translation type="obsolete">Ljud Drivrutins Information</translation>
-    </message>
-    <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Ljud drivrutin</translation>
-    </message>
-    <message>
         <source>Buffer size</source>
         <translation type="unfinished">Buffer storlek</translation>
-    </message>
-    <message>
-        <source>Midi Driver Info</source>
-        <translation type="obsolete">Midi Drivrutins Information</translation>
-    </message>
-    <message>
-        <source>Midi driver</source>
-        <translation type="obsolete">Midi drivrutin</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -535,33 +511,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>DrumkitManager</name>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">Drumkittet kommer att installeras i %1/.hydrogen/data/</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Namn: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Upphovsman: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Drumkit laddat: [1%]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Importera drumkit</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Exportera drumkit</translation>
-    </message>
-</context>
-<context>
     <name>DrumkitManager_UI</name>
     <message>
         <source>Load</source>
@@ -570,10 +519,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Load drumkit</source>
         <translation type="unfinished">Ladda drumkit</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">Ny Artikel</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
@@ -705,21 +650,6 @@ http://www.hydrogen-music.org
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>FilePreview</name>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">Spela sample</translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="obsolete">Storlek: %1 bytes</translation>
-    </message>
-    <message>
-        <source>Size: - </source>
-        <translation type="obsolete">Storlek: - </translation>
     </message>
 </context>
 <context>
@@ -923,14 +853,6 @@ Are you sure?</source>
         <translation type="unfinished">Grupper</translation>
     </message>
     <message>
-        <source>Uncategorized</source>
-        <translation type="obsolete">Okategoriserat</translation>
-    </message>
-    <message>
-        <source>Categorized (LRDF)</source>
-        <translation type="obsolete">Kategoriserat (LRDF)</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -958,32 +880,8 @@ Are you sure?</source>
 <context>
     <name>LadspaFXSelector_UI</name>
     <message>
-        <source>Categories</source>
-        <translation type="obsolete">Kategorier</translation>
-    </message>
-    <message>
-        <source>Groups</source>
-        <translation type="obsolete">Grupper</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">Ny Artikel</translation>
-    </message>
-    <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Avbryt</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Namn:</translation>
-    </message>
-    <message>
-        <source>### fx name</source>
-        <translation type="obsolete">### fx namn</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">Typ:</translation>
     </message>
     <message>
         <source>### fx type</source>
@@ -1091,16 +989,8 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Kunde inte ladda sång.</translation>
     </message>
     <message>
-        <source>Error restoring last song.</source>
-        <translation type="obsolete">Kunde inte återställa senaste sången.</translation>
-    </message>
-    <message>
         <source>Hydrogen Ready.</source>
         <translation type="unfinished">Hydrogen Klar.</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;Arkiv</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1123,20 +1013,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">&amp;Spara</translation>
     </message>
     <message>
-        <source>Save &amp;as</source>
-        <translation type="obsolete">Spara so&amp;m...</translation>
-    </message>
-    <message>
         <source>&amp;Export song</source>
         <translation type="unfinished">&amp;Exportera sång</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
         <translation type="unfinished">Exportera &amp;MIDI fil</translation>
-    </message>
-    <message>
-        <source>Show song properties</source>
-        <translation type="obsolete">Visa sång data...</translation>
     </message>
     <message>
         <source>&amp;Preferences</source>
@@ -1147,36 +1029,8 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">&amp;Avsluta</translation>
     </message>
     <message>
-        <source>&amp;View</source>
-        <translation type="obsolete">&amp;Visa</translation>
-    </message>
-    <message>
-        <source>Show &amp;mixer</source>
-        <translation type="obsolete">Visa &amp;mixer</translation>
-    </message>
-    <message>
-        <source>Show &amp;song editor</source>
-        <translation type="obsolete">Visa &amp;sång editor</translation>
-    </message>
-    <message>
-        <source>Show &amp;pattern editor</source>
-        <translation type="obsolete">Visa &amp;pattern editor</translation>
-    </message>
-    <message>
-        <source>Show &amp;drumkit manager</source>
-        <translation type="obsolete">Visa &amp;drumkit manager</translation>
-    </message>
-    <message>
-        <source>Show &amp;instrument editor</source>
-        <translation type="obsolete">Visa &amp;instrument editor</translation>
-    </message>
-    <message>
         <source>Show &amp;audio engine info</source>
         <translation type="unfinished">Visa &amp;audio engine info</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Hjälp</translation>
     </message>
     <message>
         <source>&amp;User manual</source>
@@ -1185,16 +1039,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&amp;About</source>
         <translation type="unfinished">&amp;Om...</translation>
-    </message>
-    <message>
-        <source>
-The song has unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation type="obsolete">
-Sången har osparade ändringar
-Vill du spara ändringarna innan du avslutar?
-</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -1512,61 +1356,7 @@ The song has unsaved changes
     </message>
 </context>
 <context>
-    <name>OldDrumkitManager</name>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">Drumkittet kommer att installeras i %1/.hydrogen/data/</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Namn: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Upphovsman: %1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Drumkit laddat: [1%]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Importera drumkit</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Exportera drumkit</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Mute</source>
-        <translation type="obsolete">Ljudlöst</translation>
-    </message>
-    <message>
-        <source>Lock</source>
-        <translation type="obsolete">Lås</translation>
-    </message>
-    <message>
-        <source>Clear notes</source>
-        <translation type="obsolete">Rensa noter</translation>
-    </message>
-    <message>
-        <source>Fill notes</source>
-        <translation type="obsolete">Fyll noter</translation>
-    </message>
-    <message>
-        <source>Randomize velocity</source>
-        <translation type="obsolete">Slumpvald hastighet</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Pattern Editor</source>
-        <translation type="obsolete">Mönster Editor</translation>
-    </message>
     <message>
         <source>Select pattern size</source>
         <translation type="unfinished">Välj mönster storlek</translation>
@@ -1586,22 +1376,6 @@ The song has unsaved changes
     <message>
         <source>Zoom out</source>
         <translation type="unfinished">Zooma ut</translation>
-    </message>
-    <message>
-        <source>Move selected instrument down</source>
-        <translation type="obsolete">Flytta ner valt instrument</translation>
-    </message>
-    <message>
-        <source>Move selected instrument up</source>
-        <translation type="obsolete">Flytta upp valt instrument</translation>
-    </message>
-    <message>
-        <source>Show velocity editor</source>
-        <translation type="obsolete">Visa hastighets editor</translation>
-    </message>
-    <message>
-        <source>Show pitch editor</source>
-        <translation type="obsolete">Visa pitch editor</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
@@ -1697,10 +1471,6 @@ The song has unsaved changes
 </context>
 <context>
     <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Mode</source>
-        <translation type="obsolete">Läge</translation>
-    </message>
     <message>
         <source>&amp;Fill</source>
         <translation type="unfinished">&amp;Fyll</translation>
@@ -2127,20 +1897,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">&amp;Allmänt</translation>
     </message>
     <message>
-        <source>&amp;Restore last used song</source>
-        <translation type="obsolete">&amp;Återställ senaste använda sång</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation type="unfinished">Ljud &amp;System</translation>
-    </message>
-    <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Ljud drivrutin</translation>
-    </message>
-    <message>
-        <source>Restart driver</source>
-        <translation type="obsolete">Starta om drivrutin</translation>
     </message>
     <message>
         <source>Polyphony</source>
@@ -2175,10 +1933,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">&amp;Utseende</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation type="obsolete">Applikation</translation>
-    </message>
-    <message>
         <source>Application font</source>
         <translation type="unfinished">Applikation font</translation>
     </message>
@@ -2187,20 +1941,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Stil</translation>
     </message>
     <message>
-        <source>Interface mode</source>
-        <translation type="obsolete">Gränssnitt läge</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Efter en ändring måste applikationen startas om.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Select font</source>
         <translation type="unfinished">Välj teckensnitt</translation>
-    </message>
-    <message>
-        <source>Top level</source>
-        <translation type="obsolete">Topp nivå</translation>
     </message>
     <message>
         <source>Slow</source>
@@ -2719,14 +2461,6 @@ Are you sure?</source>
         <translation type="unfinished">Ta bort</translation>
     </message>
     <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Importera drumkit</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Exportera drumkit</translation>
-    </message>
-    <message>
         <source>Drumkit loaded: [%1]</source>
         <translation type="unfinished">Drumkit laddat: [1%]</translation>
     </message>
@@ -2873,8 +2607,5 @@ Are you sure?</source>
         <source>Sound library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>midiTable</name>
 </context>
 </TS>

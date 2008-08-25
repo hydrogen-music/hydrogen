@@ -1,104 +1,13 @@
 <!DOCTYPE TS><TS>
 <context>
-    <name></name>
-    <message>
-        <source>Record keyboard/midi events</source>
-        <translation type="obsolete">Billentyű/MIDI események rögzítése</translation>
-    </message>
-    <message>
-        <source>Hear new notes</source>
-        <translation type="obsolete">Lejátsza az új hangokat</translation>
-    </message>
-</context>
-<context>
     <name>AboutDialog</name>
     <message>
         <source>About</source>
         <translation type="unfinished">Névjegy</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Compiled modules: %1&lt;/i&gt;&lt;/center&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Lefordított modulok: %1&lt;/i&gt;&lt;/center&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished">&lt;b&gt;Honlap&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Mailing lists:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b &gt;Levelezőlisták:&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Authors:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Szerzők:&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Maintainer, main coder&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">Karbantartás, lényegi programozás&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Drumkits and demo songs&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">Dobok, demók&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Russian translation&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Orosz fordítás&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches, bug fix&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Jack patchek, hibajavítások&lt;br&gt;&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Testing, ideas..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Tesztelés, ötletek..&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Spanyol kézikönyv&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug reports, ideas&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Hibajelentések, ötletek&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Patches, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Patchek, tesztelés&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Faq, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;GYIK, tesztelés&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Demo songs, testing&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Demók, tesztelés&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Jack patches&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Jack patchek&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;German manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Német kézikönyv&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;French translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Francia fordítás&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Packages&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Csomagok&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Spanish translation&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Spanyol fordítás&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Italian manual&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Olasz kézikönyv&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;&lt;ul&gt;Bug fix, test&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</source>
-        <translation type="obsolete">&lt;i&gt;&lt;ul&gt;Hibajavítás, tesztelés&lt;/ul&gt;&lt;/i&gt;&lt;/p&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
@@ -119,22 +28,6 @@
 </context>
 <context>
     <name>AboutDialog_UI</name>
-    <message>
-        <source>About Hydrogen...</source>
-        <translation type="obsolete">A Hydrogen névjegye...</translation>
-    </message>
-    <message>
-        <source>About</source>
-        <translation type="obsolete">Névjegy</translation>
-    </message>
-    <message>
-        <source>Authors</source>
-        <translation type="obsolete">Szerzők</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation type="obsolete">Jogok</translation>
-    </message>
     <message>
         <source>About Hydrogen</source>
         <translation type="unfinished"></translation>
@@ -522,32 +415,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Audio Driver Info</source>
-        <translation type="obsolete">Hangkátrya meghajtó információk</translation>
-    </message>
-    <message>
         <source>Sample rate</source>
         <translation type="unfinished">Mintavétel</translation>
     </message>
     <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Hang meghajtó</translation>
-    </message>
-    <message>
         <source>Buffer size</source>
         <translation type="unfinished">Bufferméret</translation>
-    </message>
-    <message>
-        <source>Midi Driver Info</source>
-        <translation type="obsolete">Midi meghajtó információk</translation>
-    </message>
-    <message>
-        <source>Midi driver</source>
-        <translation type="obsolete">Midi meghajtó</translation>
-    </message>
-    <message>
-        <source>Engine Info</source>
-        <translation type="obsolete">Programmag információk</translation>
     </message>
     <message>
         <source>Audio engine state</source>
@@ -638,60 +511,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>DrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">Dobszerkó</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Név: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Szerző: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">Rövid leírás: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Dobszerkó betöltve: [%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Dobszerkó importálása</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Dobszerkó exportálása</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManagerPanel</name>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Dobszerkó importálása</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Dobszerkó exportálása</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation type="obsolete">Betöltés</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="obsolete">Exportálás</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Törlés</translation>
-    </message>
-</context>
-<context>
     <name>DrumkitManager_UI</name>
     <message>
         <source>Load</source>
@@ -700,14 +519,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Load drumkit</source>
         <translation type="unfinished">Dobszerkó betöltése</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">Új bejegyzés</translation>
-    </message>
-    <message>
-        <source>Drumkit info</source>
-        <translation type="obsolete">Dobszerkó infó</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
@@ -740,16 +551,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Drumkit filename</source>
         <translation type="unfinished">Dobszerkó fájl neve</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://hydrogen.sf.net
-&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;
-Még több dobszerkó letöltése &lt;br&gt;
-http://hydrogen.sf.net
-&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Export</source>
@@ -798,14 +599,6 @@ http://www.hydrogen-music.org
         <translation type="unfinished">Hanghullám hang (*.wav)</translation>
     </message>
     <message>
-        <source>Exported %1</source>
-        <translation type="obsolete">A %1 kész van</translation>
-    </message>
-    <message>
-        <source>%1 seconds.</source>
-        <translation type="obsolete">%1 másodperc.</translation>
-    </message>
-    <message>
         <source>Sample rate: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -813,20 +606,8 @@ http://www.hydrogen-music.org
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Export</source>
-        <translation type="obsolete">Exportálás</translation>
-    </message>
-    <message>
         <source>Export filename</source>
         <translation type="unfinished">Export fájlnév</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="obsolete">Tallóz...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Mégsem</translation>
     </message>
     <message>
         <source>Export Whole Song to WAV</source>
@@ -869,29 +650,6 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
-    <name>FilePreview</name>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">Minta lejátszása</translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="obsolete">Méret: %1 Byte</translation>
-    </message>
-    <message>
-        <source>Samplerate: %1</source>
-        <translation type="obsolete">Mintavétel: %1</translation>
-    </message>
-    <message>
-        <source>Size: - </source>
-        <translation type="obsolete">Méret: -</translation>
-    </message>
-    <message>
-        <source>Samplerate: - </source>
-        <translation type="obsolete">Mintavétel: -</translation>
-    </message>
-</context>
-<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -923,61 +681,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>HelpBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation type="obsolete">Kézikönyv</translation>
-    </message>
-</context>
-<context>
-    <name>HydrogenApp</name>
-    <message>
-        <source>Song Info:     </source>
-        <translation type="obsolete">Információk a számról:</translation>
-    </message>
-    <message>
-        <source>No OSS driver support</source>
-        <translation type="obsolete">Az OSS meghajtóprogram nem támogatott</translation>
-    </message>
-    <message>
-        <source>No JACK driver support</source>
-        <translation type="obsolete">A JACK meghajtóprogram nem támogatott</translation>
-    </message>
-    <message>
-        <source>Unknown audio driver</source>
-        <translation type="obsolete">Ismeretlen audió meghajtó</translation>
-    </message>
-    <message>
-        <source>Error starting audio driver</source>
-        <translation type="obsolete">Audió meghajtó indítási hiba</translation>
-    </message>
-    <message>
-        <source>Jack driver: server shutdown</source>
-        <translation type="obsolete">Jack meghajtó: kiszolgáló leállt</translation>
-    </message>
-    <message>
-        <source>Jack driver: cannot activate client</source>
-        <translation type="obsolete">Jack meghajtó: kliens nem aktiválható</translation>
-    </message>
-    <message>
-        <source>Jack driver: cannot connect output port</source>
-        <translation type="obsolete">Jack meghajtó: nem sikerül csatlakozni a kimenethez</translation>
-    </message>
-    <message>
-        <source>Jack driver: error in port register</source>
-        <translation type="obsolete">Jack meghajtó: hiba a port regiszterben</translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <translation type="obsolete">Nagy gáz van, ismeretlen a hiba forrása</translation>
-    </message>
-</context>
-<context>
     <name>InstrumentEditor</name>
-    <message>
-        <source>Empty layer</source>
-        <translation type="obsolete">Üres réteg</translation>
-    </message>
     <message>
         <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
         <translation type="unfinished">Hang fájlok (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
@@ -1071,68 +775,6 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>InstrumentPropertiesDialog</name>
-    <message>
-        <source>Instrument properties</source>
-        <translation type="obsolete">Hangszer tulajdonságai</translation>
-    </message>
-    <message>
-        <source>Empty layer</source>
-        <translation type="obsolete">Üres réteg</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
-        <translation type="obsolete">Hang fájlok (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Load instrument</source>
-        <translation type="obsolete">Hydrogen - Hangszer betöltése</translation>
-    </message>
-    <message>
-        <source>Set FX %1 level </source>
-        <translation type="obsolete">Effekt %1 szint</translation>
-    </message>
-    <message>
-        <source>Instrument name</source>
-        <translation type="obsolete">Hangszer neve</translation>
-    </message>
-</context>
-<context>
-    <name>InstrumentPropertiesDialog_UI</name>
-    <message>
-        <source>Browse</source>
-        <translation type="obsolete">Tallóz</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Törlés</translation>
-    </message>
-    <message>
-        <source>Play layer</source>
-        <translation type="obsolete">Réteg lejátszása</translation>
-    </message>
-    <message>
-        <source>Start velocity</source>
-        <translation type="obsolete">Kezdési sebesség</translation>
-    </message>
-    <message>
-        <source>End velocity</source>
-        <translation type="obsolete">Vég sebessége</translation>
-    </message>
-    <message>
-        <source>Gain</source>
-        <translation type="obsolete">Erősítés</translation>
-    </message>
-    <message>
-        <source>sample size in frames</source>
-        <translation type="obsolete">Minta mérete keretekben</translation>
-    </message>
-    <message>
-        <source>Pitch</source>
-        <translation type="obsolete">Hangmagasság</translation>
-    </message>
-</context>
-<context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
@@ -1154,16 +796,8 @@ Are you sure?</source>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <source>FX on/off</source>
-        <translation type="obsolete">FX be/ki</translation>
-    </message>
-    <message>
         <source>Edit FX parameters</source>
         <translation type="unfinished">Effekt paraméterek módosítása</translation>
-    </message>
-    <message>
-        <source>Ladspa FX name (double click to change FX)</source>
-        <translation type="obsolete">Ladspa effekt neve (dupla kattintással megváltoztatható)</translation>
     </message>
     <message>
         <source>FX bypass</source>
@@ -1216,14 +850,6 @@ Are you sure?</source>
         <translation type="unfinished">Csoportok</translation>
     </message>
     <message>
-        <source>Uncategorized</source>
-        <translation type="obsolete">Kategóriába nem sorolt</translation>
-    </message>
-    <message>
-        <source>Categorized (LRDF)</source>
-        <translation type="obsolete">Kategorizált (LRDF)</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation type="unfinished">Sztereó</translation>
     </message>
@@ -1250,54 +876,6 @@ Are you sure?</source>
 </context>
 <context>
     <name>LadspaFXSelector_UI</name>
-    <message>
-        <source>Categories</source>
-        <translation type="obsolete">Kategóriák</translation>
-    </message>
-    <message>
-        <source>Groups</source>
-        <translation type="obsolete">Csoportok</translation>
-    </message>
-    <message>
-        <source>test</source>
-        <translation type="obsolete">Teszt</translation>
-    </message>
-    <message>
-        <source>Subitem-------</source>
-        <translation type="obsolete">Albejegyzés</translation>
-    </message>
-    <message>
-        <source>LADSPA plugins</source>
-        <translation type="obsolete">LADSPA plugin</translation>
-    </message>
-    <message>
-        <source>New Item</source>
-        <translation type="obsolete">Új bejegyzés</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Mégsem</translation>
-    </message>
-    <message>
-        <source>Plugin info</source>
-        <translation type="obsolete">Plugin infó</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Név:</translation>
-    </message>
-    <message>
-        <source>Label:</source>
-        <translation type="obsolete">Címke:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">Típus:</translation>
-    </message>
-    <message>
-        <source>Maker:</source>
-        <translation type="obsolete">Gyártó:</translation>
-    </message>
     <message>
         <source>Form1</source>
         <translation type="unfinished"></translation>
@@ -1408,105 +986,16 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">A számot nem lehet betölteni.</translation>
     </message>
     <message>
-        <source>Error restoring last song.</source>
-        <translation type="obsolete">Az utolsó számot nem lehet visszaállítani.</translation>
-    </message>
-    <message>
         <source>Hydrogen Ready.</source>
         <translation type="unfinished">Hydrogen kész.</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;Fájl</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Új</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation type="obsolete">Megnyit</translation>
-    </message>
-    <message>
-        <source>Open Demo</source>
-        <translation type="obsolete">Demó megnyitása</translation>
-    </message>
-    <message>
-        <source>Open recent</source>
-        <translation type="obsolete">Korábbit megnyit</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Mentés</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation type="obsolete">Mentés másként...</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="obsolete">Exportálás</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
         <translation type="unfinished">Exportálás MIDI-be</translation>
     </message>
     <message>
-        <source>Preferences</source>
-        <translation type="obsolete">Beállítások</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Kilépés</translation>
-    </message>
-    <message>
-        <source>&amp;Window</source>
-        <translation type="obsolete">&amp;Ablak</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation type="obsolete">Keverő</translation>
-    </message>
-    <message>
-        <source>Show song editor</source>
-        <translation type="obsolete">Számszerkesztő</translation>
-    </message>
-    <message>
-        <source>Show drumkit manager</source>
-        <translation type="obsolete">Dobszerkó</translation>
-    </message>
-    <message>
-        <source>Show instrument editor</source>
-        <translation type="obsolete">Hangszer szerkesztő</translation>
-    </message>
-    <message>
-        <source>Show audio engine info</source>
-        <translation type="obsolete">Hangeszköz információk</translation>
-    </message>
-    <message>
-        <source>&amp;Debug</source>
-        <translation type="obsolete">&amp;Nyomkövetés</translation>
-    </message>
-    <message>
         <source>Print Objects</source>
         <translation type="unfinished">Objektumok nyomtatása</translation>
-    </message>
-    <message>
-        <source>User manual</source>
-        <translation type="obsolete">Felhasználói kézikönyv</translation>
-    </message>
-    <message>
-        <source>About</source>
-        <translation type="obsolete">Névjegy</translation>
-    </message>
-    <message>
-        <source>
-The song has unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation type="obsolete">
-Kívánja menteni a változásokat?
-</translation>
     </message>
     <message>
         <source>&amp;Save</source>
@@ -1542,14 +1031,6 @@ Kívánja menteni a dokumentum változásait kilépés előtt?
         <translation type="unfinished">Szám megnyitása</translation>
     </message>
     <message>
-        <source>No OSS driver support</source>
-        <translation type="obsolete">Az OSS meghajtóprogram nem támogatott</translation>
-    </message>
-    <message>
-        <source>No JACK driver support</source>
-        <translation type="obsolete">A JACK meghajtóprogram nem támogatott</translation>
-    </message>
-    <message>
         <source>Unknown audio driver</source>
         <translation type="unfinished">Ismeretlen audió meghajtó</translation>
     </message>
@@ -1572,10 +1053,6 @@ Kívánja menteni a dokumentum változásait kilépés előtt?
     <message>
         <source>Jack driver: error in port register</source>
         <translation type="unfinished">Jack meghajtó: hiba a port regiszterben</translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <translation type="obsolete">Nagy gáz van, ismeretlen a hiba forrása</translation>
     </message>
     <message>
         <source>&amp;Project</source>
@@ -1769,14 +1246,6 @@ The song has unsaved changes
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <source>Peak volume (left channel)</source>
-        <translation type="obsolete">Csúcs hangerő (bal cstorna)</translation>
-    </message>
-    <message>
-        <source>Master output</source>
-        <translation type="obsolete">Master kimenet</translation>
-    </message>
-    <message>
         <source>Set master volume [%1]</source>
         <translation type="unfinished">Master hangerő [%1]</translation>
     </message>
@@ -1827,14 +1296,6 @@ The song has unsaved changes
         <translation type="unfinished">Keverő</translation>
     </message>
     <message>
-        <source>No plugin</source>
-        <translation type="obsolete">Nincs plugin</translation>
-    </message>
-    <message>
-        <source>Instrument name</source>
-        <translation type="obsolete">Hangszer neve</translation>
-    </message>
-    <message>
         <source>Set FX %1 level </source>
         <translation type="unfinished">Effekt %1 szint</translation>
     </message>
@@ -1878,10 +1339,6 @@ The song has unsaved changes
         <translation type="unfinished">Balansz</translation>
     </message>
     <message>
-        <source>Peak volume</source>
-        <translation type="obsolete">Csúcs hangerő</translation>
-    </message>
-    <message>
         <source>Instrument name (double click to edit)</source>
         <translation type="unfinished">Hangszer neve (dupla kattintással megváltoztatható)</translation>
     </message>
@@ -1890,77 +1347,15 @@ The song has unsaved changes
         <translation type="unfinished">[%1] hangszer hangerejének beállítása</translation>
     </message>
     <message>
-        <source>Set instrument pan [%1]</source>
-        <translation type="obsolete">[%1] hangszer balansz beállítása</translation>
-    </message>
-    <message>
         <source>Set instr. pan [%1]</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>OldDrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">Dobszerkó</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Név: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Szerző: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">Rövid leírás: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Dobszerkó betöltve: [%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Dobszerkó importálása</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Dobszerkó exportálása</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Mute</source>
-        <translation type="obsolete">Némít</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation type="obsolete">Szóló</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Pattern Editor</source>
-        <translation type="obsolete">Motívumok szerkesztése</translation>
-    </message>
-    <message>
-        <source>Grid resolution</source>
-        <translation type="obsolete">Hálóköz</translation>
-    </message>
     <message>
         <source>Hear new notes</source>
         <translation type="unfinished">Lejátsza az új hangokat</translation>
-    </message>
-    <message>
-        <source>Pattern name</source>
-        <translation type="obsolete">Motívum neve</translation>
-    </message>
-    <message>
-        <source>Pattern size</source>
-        <translation type="obsolete">Motívum hossza</translation>
     </message>
     <message>
         <source>Record keyboard/midi events</source>
@@ -1973,10 +1368,6 @@ The song has unsaved changes
     <message>
         <source>Pattern editor - %1</source>
         <translation type="unfinished">Motívumok szerkesztése - %1</translation>
-    </message>
-    <message>
-        <source>Pattern name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Motívum neve: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
@@ -2123,14 +1514,6 @@ The song has unsaved changes
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Pattern Name</source>
-        <translation type="obsolete">Motívum neve</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Mégsem</translation>
-    </message>
-    <message>
         <source>Form1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2161,10 +1544,6 @@ The song has unsaved changes
 </context>
 <context>
     <name>PlayerControl</name>
-    <message>
-        <source>Play</source>
-        <translation type="obsolete">Lejátszás</translation>
-    </message>
     <message>
         <source>Stop</source>
         <translation type="unfinished">Állj</translation>
@@ -2206,16 +1585,8 @@ The song has unsaved changes
         <translation type="unfinished">Jack-transport mode = Ki</translation>
     </message>
     <message>
-        <source>Show instrument editor</source>
-        <translation type="obsolete">Hangszer szerkesztő</translation>
-    </message>
-    <message>
         <source>Show mixer</source>
         <translation type="unfinished">Keverő</translation>
-    </message>
-    <message>
-        <source>Show drumkit manager</source>
-        <translation type="obsolete">Dobszerkó</translation>
     </message>
     <message>
         <source>Rewind</source>
@@ -2514,44 +1885,8 @@ The path to the script and the scriptname must without whitespaces.</source>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Mégsem</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Általános</translation>
-    </message>
-    <message>
-        <source>Restore last used song</source>
-        <translation type="obsolete">Utolsó szám visszaállítása induláskor</translation>
-    </message>
-    <message>
-        <source>Audio System</source>
-        <translation type="obsolete">Hangrendszer</translation>
-    </message>
-    <message>
-        <source>Metronome</source>
-        <translation type="obsolete">Metronóm</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation type="obsolete">Hangerő</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation type="obsolete">Engedélyezve</translation>
-    </message>
-    <message>
-        <source>Max notes</source>
-        <translation type="obsolete">Hangjegyek max. száma</translation>
-    </message>
-    <message>
         <source>Polyphony</source>
         <translation type="unfinished">Polifónia</translation>
-    </message>
-    <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Audió meghajtó</translation>
     </message>
     <message>
         <source>Device</source>
@@ -2566,30 +1901,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Mitavétel</translation>
     </message>
     <message>
-        <source>Restart driver</source>
-        <translation type="obsolete">Meghajtóprogram újraindítása</translation>
-    </message>
-    <message>
-        <source>Oss</source>
-        <translation type="obsolete">OSS</translation>
-    </message>
-    <message>
-        <source>Connect to Default Output Pair</source>
-        <translation type="obsolete">Csatlakozás az alapértelmezett kimeneti párhoz</translation>
-    </message>
-    <message>
-        <source>Enable Track Outputs</source>
-        <translation type="obsolete">Kimenetek figyelésének engedélyezése</translation>
-    </message>
-    <message>
-        <source>Midi System</source>
-        <translation type="obsolete">Midi rendszer</translation>
-    </message>
-    <message>
-        <source>Midi Input</source>
-        <translation type="obsolete">Midi bemenet</translation>
-    </message>
-    <message>
         <source>Input</source>
         <translation type="unfinished">Bemenet</translation>
     </message>
@@ -2602,14 +1913,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Összes</translation>
     </message>
     <message>
-        <source>Appearance</source>
-        <translation type="obsolete">Megjelenés</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation type="obsolete">Alkalmazás</translation>
-    </message>
-    <message>
         <source>Application font</source>
         <translation type="unfinished">Alkalmazás betütípusa</translation>
     </message>
@@ -2618,28 +1921,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Stílus</translation>
     </message>
     <message>
-        <source>Interface mode</source>
-        <translation type="obsolete">Interfész mód</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;A változások csak a program újraindítása után lépnek érvénybe.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Select font</source>
         <translation type="unfinished">Betütípus kiválasztása</translation>
-    </message>
-    <message>
-        <source>Child frame</source>
-        <translation type="obsolete">Gyermekablak</translation>
-    </message>
-    <message>
-        <source>Top level</source>
-        <translation type="obsolete">Felső szint</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation type="obsolete">Keverő</translation>
     </message>
     <message>
         <source>Slow</source>
@@ -2884,24 +2167,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Kijelölt felfelé mozgatása</translation>
     </message>
     <message>
-        <source>Song operations</source>
-        <translation type="obsolete">Számműveletek</translation>
-    </message>
-    <message>
-        <source>Song loop</source>
-        <translation type="obsolete">Kezdés előről</translation>
-    </message>
-    <message>
-        <source>Song properties</source>
-        <translation type="obsolete">Szám tulajdonságai</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation type="unfinished">Motívum törlése</translation>
-    </message>
-    <message>
-        <source>Delete all patterns</source>
-        <translation type="obsolete">Összes motívum törlése</translation>
     </message>
     <message>
         <source>Select mode</source>
@@ -3004,10 +2271,6 @@ Are you sure?</source>
     <message>
         <source>Notes</source>
         <translation type="unfinished">Hangjegyek</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Mégsem</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -3193,14 +2456,6 @@ Are you sure?</source>
         <translation type="unfinished">Törlés</translation>
     </message>
     <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Dobszerkó importálása</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Dobszerkó exportálása</translation>
-    </message>
-    <message>
         <source>Drumkit loaded: [%1]</source>
         <translation type="unfinished">Dobszerkó betöltve: [%1]</translation>
     </message>
@@ -3347,8 +2602,5 @@ Are you sure?</source>
         <source>Sound library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>midiTable</name>
 </context>
 </TS>

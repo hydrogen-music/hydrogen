@@ -511,29 +511,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>DrumkitManagerPanel</name>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://hydrogen.sf.net
-&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;
-Scarica altri drumkit all&apos;indirizzo &lt;br&gt;
-http://hydrogen.sf.net
-&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;
-Scarica drumkit aggiuntivi da&lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
     <name>DrumkitManager_UI</name>
     <message>
         <source>Form1</source>
@@ -676,21 +653,6 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
-    <name>FilePreview</name>
-    <message>
-        <source>Play sample</source>
-        <translation type="obsolete">Suona sample</translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="obsolete">Dimensioni: %1 bytes</translation>
-    </message>
-    <message>
-        <source>Size: - </source>
-        <translation type="obsolete">Dimensioni -</translation>
-    </message>
-</context>
-<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -724,10 +686,6 @@ Confermi?</translation>
 </context>
 <context>
     <name>InstrumentEditor</name>
-    <message>
-        <source>Instrument editor</source>
-        <translation type="obsolete">Editor di strumenti</translation>
-    </message>
     <message>
         <source>Show instrument properties</source>
         <translation>Visualizza le proprietà dello strumento</translation>
@@ -842,10 +800,6 @@ Confermi?</translation>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <source>FX on/off</source>
-        <translation type="obsolete">FX acceso/spento</translation>
-    </message>
-    <message>
         <source>Edit FX parameters</source>
         <translation>Modifica parametri degli effetti</translation>
     </message>
@@ -896,10 +850,6 @@ Confermi?</translation>
         <translation>Gruppi</translation>
     </message>
     <message>
-        <source>Uncategorized</source>
-        <translation type="obsolete">Senza categoria</translation>
-    </message>
-    <message>
         <source>Stereo</source>
         <translation>Stereo</translation>
     </message>
@@ -916,10 +866,6 @@ Confermi?</translation>
         <translation>Seleziona effetto LADSPA</translation>
     </message>
     <message>
-        <source>Categorized (LRDF)</source>
-        <translation type="obsolete">Per Categoria (LRDF)</translation>
-    </message>
-    <message>
         <source>Recently Used</source>
         <translation>Recenti</translation>
     </message>
@@ -934,30 +880,6 @@ Confermi?</translation>
 </context>
 <context>
     <name>LadspaFXSelector_UI</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nome:</translation>
-    </message>
-    <message>
-        <source>Label:</source>
-        <translation type="obsolete">Label:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">Tipo:</translation>
-    </message>
-    <message>
-        <source>ID:</source>
-        <translation type="obsolete">ID:</translation>
-    </message>
-    <message>
-        <source>Maker:</source>
-        <translation type="obsolete">Autore:</translation>
-    </message>
-    <message>
-        <source>Copyright:</source>
-        <translation type="obsolete">Copyright:</translation>
-    </message>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
@@ -1104,40 +1026,12 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Canzone Hydrogen (*.h2song)</translation>
     </message>
     <message>
-        <source>&amp;File</source>
-        <translation type="obsolete">&amp;File</translation>
-    </message>
-    <message>
-        <source>&amp;Window</source>
-        <translation type="obsolete">&amp;Visualizza</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Salva canzone</translation>
     </message>
     <message>
         <source>Open song</source>
         <translation>Apri canzone</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Esci</translation>
-    </message>
-    <message>
-        <source>Open recent</source>
-        <translation type="obsolete">Apri recenti</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Salva</translation>
-    </message>
-    <message>
-        <source>Show instrument editor</source>
-        <translation type="obsolete">Apri editor di strumenti</translation>
-    </message>
-    <message>
-        <source>&amp;Debug</source>
-        <translation type="obsolete">&amp;Debug</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
@@ -1168,10 +1062,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Salva &amp;come...</translation>
     </message>
     <message>
-        <source>&amp;Export</source>
-        <translation type="obsolete">&amp;Esporta</translation>
-    </message>
-    <message>
         <source>Export &amp;MIDI file</source>
         <translation>Esporta file &amp;MIDI</translation>
     </message>
@@ -1182,22 +1072,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
     <message>
         <source>&amp;Quit</source>
         <translation>&amp;Esci</translation>
-    </message>
-    <message>
-        <source>Show &amp;mixer</source>
-        <translation type="obsolete">Visualizza &amp;mixer</translation>
-    </message>
-    <message>
-        <source>Show &amp;song editor</source>
-        <translation type="obsolete">Visualizza editor di &amp;canzoni</translation>
-    </message>
-    <message>
-        <source>Show &amp;drumkit manager</source>
-        <translation type="obsolete">Visualizza gestore &amp;drumkit</translation>
-    </message>
-    <message>
-        <source>Show &amp;instrument editor</source>
-        <translation type="obsolete">Visualizza editor di &amp;strumenti</translation>
     </message>
     <message>
         <source>Show &amp;audio engine info</source>
@@ -1214,14 +1088,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
-    </message>
-    <message>
-        <source>No OSS driver support</source>
-        <translation type="obsolete">OSS driver non supportato</translation>
-    </message>
-    <message>
-        <source>No JACK driver support</source>
-        <translation type="obsolete">Jack driver non supportato</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
@@ -1248,85 +1114,12 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Jack driver: errore in port register</translation>
     </message>
     <message>
-        <source>Unknown error</source>
-        <translation type="obsolete">Errore sconosciuto</translation>
-    </message>
-    <message>
         <source>&amp;Export song</source>
         <translation>&amp;Esporta la canzone</translation>
     </message>
     <message>
-        <source>Show song properties</source>
-        <translation type="obsolete">Informazioni sulla canzone</translation>
-    </message>
-    <message>
-        <source>Show &amp;pattern editor</source>
-        <translation type="obsolete">Visualizza l&apos;editor di &amp;Pattern</translation>
-    </message>
-    <message>
-        <source>No ALSA driver support</source>
-        <translation type="obsolete">ALSA driver non supportato</translation>
-    </message>
-    <message>
-        <source>Ctrl+N</source>
-        <comment>File|New</comment>
-        <translation type="obsolete">File|Nuovo</translation>
-    </message>
-    <message>
-        <source>Ctrl+O</source>
-        <comment>File|Open</comment>
-        <translation type="obsolete">File|Apri</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <comment>File|Open Demo</comment>
-        <translation type="obsolete">File|Apri demo</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <comment>File|Save</comment>
-        <translation type="obsolete">File|Salva</translation>
-    </message>
-    <message>
-        <source>Save &amp;as</source>
-        <translation type="obsolete">Salva &amp;con nome</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <comment>File|Save as</comment>
-        <translation type="obsolete">File|Salva con nome</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <comment>File|Export song</comment>
-        <translation type="obsolete">File|Esporta la canzone</translation>
-    </message>
-    <message>
-        <source>Ctrl+M</source>
-        <comment>File|Export midi file</comment>
-        <translation type="obsolete">File|Esporta midi file</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <comment>File|Show song properties</comment>
-        <translation type="obsolete">File|Informazioni sulla canzone</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <comment>File|Preferences</comment>
-        <translation type="obsolete">File|Preferenze</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation type="obsolete">&amp;Visualizza</translation>
-    </message>
-    <message>
         <source>De&amp;bug</source>
         <translation>&amp;Debug</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Aiuto</translation>
     </message>
     <message>
         <source>&amp;Project</source>
@@ -1343,10 +1136,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
     <message>
         <source>&amp;Instrument Rack</source>
         <translation>&amp;Rack Strumenti</translation>
-    </message>
-    <message>
-        <source>debug action</source>
-        <translation type="obsolete">debug azioni</translation>
     </message>
     <message>
         <source>Print Objects</source>
@@ -1411,10 +1200,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Pattern salvato.</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2pattern)</source>
-        <translation type="obsolete">Canzone Hydrogen (*.h2song)</translation>
-    </message>
-    <message>
         <source>Open Pattern</source>
         <translation>Apri Pattern</translation>
     </message>
@@ -1475,18 +1260,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <source>Peak volume (left channel)</source>
-        <translation type="obsolete">Picco (canale sinistro)</translation>
-    </message>
-    <message>
-        <source>Master output</source>
-        <translation type="obsolete">Uscita principale</translation>
-    </message>
-    <message>
-        <source>Set master volume [</source>
-        <translation type="obsolete">Volume principale [</translation>
-    </message>
-    <message>
         <source>Set master volume [%1]</source>
         <translation>Volume principale [%1]</translation>
     </message>
@@ -1533,76 +1306,8 @@ Vuoi salvare la canzone prima di uscire dal programma?
 <context>
     <name>Mixer</name>
     <message>
-        <source>Show faders panel</source>
-        <translation type="obsolete">Mostra strumenti</translation>
-    </message>
-    <message>
         <source>Show FX panel</source>
         <translation>Mostra pannello effetti</translation>
-    </message>
-    <message>
-        <source>Swing factor</source>
-        <translation type="obsolete">Fattore di Swing</translation>
-    </message>
-    <message>
-        <source>Human time</source>
-        <translation type="obsolete">Umanizza (tempo)</translation>
-    </message>
-    <message>
-        <source>Human velocity</source>
-        <translation type="obsolete">Umanizza (intensita&apos;)</translation>
-    </message>
-    <message>
-        <source>Delay FX</source>
-        <translation type="obsolete">Eco FX</translation>
-    </message>
-    <message>
-        <source>Set humanize time parameter [</source>
-        <translation type="obsolete">Umanizza (tempo) [</translation>
-    </message>
-    <message>
-        <source>Set humanize velocity parameter [</source>
-        <translation type="obsolete">Umanizza (intensita&apos;) [</translation>
-    </message>
-    <message>
-        <source>Set swing factor [</source>
-        <translation type="obsolete">Fattore di swing [</translation>
-    </message>
-    <message>
-        <source>Set delay wet level [</source>
-        <translation type="obsolete">Livello eco [</translation>
-    </message>
-    <message>
-        <source>Delay FX enabled</source>
-        <translation type="obsolete">Eco FX attivo</translation>
-    </message>
-    <message>
-        <source>Delay FX disabled</source>
-        <translation type="obsolete">Eco FX non attivo</translation>
-    </message>
-    <message>
-        <source>Humanize Time FX enabled</source>
-        <translation type="obsolete">Umanizza (tempo) attivo</translation>
-    </message>
-    <message>
-        <source>Humanize Time FX disabled</source>
-        <translation type="obsolete">Umanizza (tempo) non attivo</translation>
-    </message>
-    <message>
-        <source>Humanize Velocity FX enabled</source>
-        <translation type="obsolete">Umanizza (intensita&apos;) attivo</translation>
-    </message>
-    <message>
-        <source>Humanize Velocity FX disabled</source>
-        <translation type="obsolete">Umanizza (intensita&apos;) non attivo</translation>
-    </message>
-    <message>
-        <source>Swing factor FX enabled</source>
-        <translation type="obsolete">Funzione Swing attiva</translation>
-    </message>
-    <message>
-        <source>Swing factor FX disabled</source>
-        <translation type="obsolete">Funzione Swing non attiva</translation>
     </message>
     <message>
         <source>Show instrument peaks</source>
@@ -1617,40 +1322,8 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Visualizza valore di picco degli strumenti = Non attivo</translation>
     </message>
     <message>
-        <source>No plugin</source>
-        <translation type="obsolete">Nessun plugin</translation>
-    </message>
-    <message>
-        <source>Set FX1 level [%1]</source>
-        <translation type="obsolete">Livello FX1 [%1]</translation>
-    </message>
-    <message>
-        <source>Set FX2 level [%1]</source>
-        <translation type="obsolete">Livello FX2 [%1]</translation>
-    </message>
-    <message>
-        <source>Set FX3 level [%1]</source>
-        <translation type="obsolete">Livello FX3 [%1]</translation>
-    </message>
-    <message>
-        <source>Set FX4 level [%1]</source>
-        <translation type="obsolete">Livello FX4 [%1]</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixer</translation>
-    </message>
-    <message>
-        <source>Set humanize time parameter [%1]</source>
-        <translation type="obsolete">Umanizza (tempo) [%1]</translation>
-    </message>
-    <message>
-        <source>Set humanize velocity parameter [%1]</source>
-        <translation type="obsolete">Umanizza (intensita&apos;) [%1]</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation type="obsolete">Fattore di swing [%1]</translation>
     </message>
     <message>
         <source>Set FX %1 level </source>
@@ -1660,20 +1333,12 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Imposta volume effetto LADSPA ( %1 )</translation>
     </message>
-    <message>
-        <source>Instrument name</source>
-        <translation type="obsolete">Nome strumento</translation>
-    </message>
 </context>
 <context>
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
         <translation>Suona sample</translation>
-    </message>
-    <message>
-        <source>Load external sample</source>
-        <translation type="obsolete">Carica sample esterno</translation>
     </message>
     <message>
         <source>Mute</source>
@@ -1684,40 +1349,16 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Solo</translation>
     </message>
     <message>
-        <source>Delay</source>
-        <translation type="obsolete">Eco</translation>
-    </message>
-    <message>
         <source>Pan</source>
         <translation>Pan</translation>
-    </message>
-    <message>
-        <source>Peak volume</source>
-        <translation type="obsolete">Picco volume</translation>
     </message>
     <message>
         <source>Instrument name (double click to edit)</source>
         <translation>Nome strumento (doppio click per modificarne le proprietà)</translation>
     </message>
     <message>
-        <source>Set instrument volume [</source>
-        <translation type="obsolete">Volume strumento [</translation>
-    </message>
-    <message>
-        <source>Set instrument pan [</source>
-        <translation type="obsolete">Pan strumento [</translation>
-    </message>
-    <message>
-        <source>Set instrument delay [</source>
-        <translation type="obsolete">Eco strumento [</translation>
-    </message>
-    <message>
         <source>Set instrument volume [%1]</source>
         <translation>Volume strumento [%1]</translation>
-    </message>
-    <message>
-        <source>Set instrument pan [%1]</source>
-        <translation type="obsolete">Pan strumento [%1]</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
@@ -1725,104 +1366,10 @@ Vuoi salvare la canzone prima di uscire dal programma?
     </message>
 </context>
 <context>
-    <name>OldDrumkitManager</name>
-    <message>
-        <source>Drumkit manager</source>
-        <translation type="obsolete">Gestore drumkit</translation>
-    </message>
-    <message>
-        <source>The drumkit will be installed in %1/.hydrogen/data/</source>
-        <translation type="obsolete">Il drumkit verrà installato in %1/.hydrogen/data/</translation>
-    </message>
-    <message>
-        <source>Name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Nome: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="obsolete">Autore: %1</translation>
-    </message>
-    <message>
-        <source>Info: &lt;br&gt;%1</source>
-        <translation type="obsolete">Informazioni: &lt;br&gt;%1</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="obsolete">Drumkit caricato: [%1]</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Importa drumkit</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Esporta drumkit</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Mute</source>
-        <translation type="obsolete">Muto</translation>
-    </message>
-    <message>
-        <source>Lock</source>
-        <translation type="obsolete">Blocca</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation type="obsolete">Solo</translation>
-    </message>
-    <message>
-        <source>Clear notes</source>
-        <translation type="obsolete">Elimina note</translation>
-    </message>
-    <message>
-        <source>Fill notes</source>
-        <translation type="obsolete">Riempi di note</translation>
-    </message>
-    <message>
-        <source>Randomize velocity</source>
-        <translation type="obsolete">Velocity casuale</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Pattern Editor</source>
-        <translation type="obsolete">Editor di pattern</translation>
-    </message>
-    <message>
-        <source>Grid resolution</source>
-        <translation type="obsolete">Risol. griglia</translation>
-    </message>
     <message>
         <source>Hear new notes</source>
         <translation>Ascolta le nuove note</translation>
-    </message>
-    <message>
-        <source>Pattern name</source>
-        <translation type="obsolete">Nome pattern</translation>
-    </message>
-    <message>
-        <source>Pattern size</source>
-        <translation type="obsolete">Grandezza pattern</translation>
-    </message>
-    <message>
-        <source>Pattern editor - </source>
-        <translation type="obsolete">Editor di pattern - </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;No pattern selected! (NULL pattern)&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Nessun pattern selezionato! (NULL pattern)&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>No pattern selected! (NULL pattern)</source>
-        <translation type="obsolete">Nessun pattern selezionato! (NULL pattern)</translation>
-    </message>
-    <message>
-        <source>Pattern name: &lt;b&gt;</source>
-        <translation type="obsolete">Nome pattern: &lt;b&gt;</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
@@ -1861,10 +1408,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Quantizza eventi in arrivo da tastiera/midi = Non attivo</translation>
     </message>
     <message>
-        <source>Pattern name: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Nome pattern: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Is not possible to change the pattern size when playing.</source>
         <translation>Non è possibile cambiare la dimensione del pattern durante la riproduzione.</translation>
     </message>
@@ -1875,14 +1418,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
     <message>
         <source>Select grid resolution</source>
         <translation>Seleziona la risoluzione della griglia</translation>
-    </message>
-    <message>
-        <source>Move selected instrument down</source>
-        <translation type="obsolete">Muovi lo strumento selezionato in basso</translation>
-    </message>
-    <message>
-        <source>Move selected instrument up</source>
-        <translation type="obsolete">Muovi lo strumento selezionato in alto</translation>
     </message>
     <message>
         <source>Zoom in</source>
@@ -1947,10 +1482,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
-        <source>Mode</source>
-        <translation type="obsolete">Modalità</translation>
-    </message>
-    <message>
         <source>&amp;Fill</source>
         <translation>&amp;Riempi</translation>
     </message>
@@ -1990,28 +1521,12 @@ Vuoi salvare la canzone prima di uscire dal programma?
 <context>
     <name>PatternPropertiesDialog</name>
     <message>
-        <source>Hydrogen - Pattern properties</source>
-        <translation type="obsolete">Hydrogen - Proprieta&apos; pattern</translation>
-    </message>
-    <message>
         <source>Pattern properties</source>
         <translation>Proprietà del pattern</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
-    <message>
-        <source>Pattern Name</source>
-        <translation type="obsolete">Nome pattern</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annulla</translation>
-    </message>
-    <message>
-        <source> Ok </source>
-        <translation type="obsolete">Ok</translation>
-    </message>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
@@ -2048,10 +1563,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Modalità canzone</translation>
     </message>
     <message>
-        <source>Live Mode</source>
-        <translation type="obsolete">Modalita&apos; live</translation>
-    </message>
-    <message>
         <source>Playing.</source>
         <translation>In esecuzione.</translation>
     </message>
@@ -2064,20 +1575,8 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Modalità canzone selezionata.</translation>
     </message>
     <message>
-        <source>Live mode selected.</source>
-        <translation type="obsolete">Modalita&apos; live selezionata.</translation>
-    </message>
-    <message>
         <source>Pattern Mode</source>
         <translation>Modalità Pattern</translation>
-    </message>
-    <message>
-        <source>Play button disabled while using jack-transport slave mode.</source>
-        <translation type="obsolete">Il pulsante Play e&apos; disattivato con la modalita&apos; jack-transport slave.</translation>
-    </message>
-    <message>
-        <source>Stop button disabled while using jack-transport slave mode.</source>
-        <translation type="obsolete">Il pulsante Stop e&apos; disattivato con la modalita&apos; jack-transport slave.</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
@@ -2136,16 +1635,8 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Riproduzione continua canzone = Disattivato</translation>
     </message>
     <message>
-        <source>Show instrument editor</source>
-        <translation type="obsolete">Apri editor di strumenti</translation>
-    </message>
-    <message>
         <source>Show mixer</source>
         <translation>Mostra mixer</translation>
-    </message>
-    <message>
-        <source>Show drumkit manager</source>
-        <translation type="obsolete">Mostra gestore Drumkit</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -2166,18 +1657,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
     <message>
         <source>BeatCounter Panel on</source>
         <translation>Pannello contatore BPM attivo</translation>
-    </message>
-    <message>
-        <source>Key coma handle beatcounter</source>
-        <translation type="obsolete">Tasto &apos;virgola&apos; per gestire contatore BPM</translation>
-    </message>
-    <message>
-        <source>Note length</source>
-        <translation type="obsolete">Lunghezza nota</translation>
-    </message>
-    <message>
-        <source>Strokes to count</source>
-        <translation type="obsolete">Colpi da contare</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -2373,10 +1852,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Hydrogen - Preferences</source>
-        <translation type="obsolete">Hydrogen - Preferenze</translation>
-    </message>
-    <message>
         <source>Slow</source>
         <translation>Lenta</translation>
     </message>
@@ -2387,10 +1862,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>Fast</source>
         <translation>Veloce</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;NULL DRIVER&lt;/b&gt;&lt;br&gt;Please select an audio driver&lt;br&gt;</source>
-        <translation type="obsolete">&lt;b&gt;NULL DRIVER&lt;/b&gt;&lt;br&gt;Seleziona un driver audio&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
@@ -2432,72 +1903,12 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
-        <source>Preferences</source>
-        <translation type="obsolete">Preferenze</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annulla</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation type="obsolete">Ok</translation>
-    </message>
-    <message>
-        <source>Restore last used song</source>
-        <translation type="obsolete">Ripristina l&apos;ultima canzone usata</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Generale</translation>
-    </message>
-    <message>
-        <source>Metronome</source>
-        <translation type="obsolete">Metronomo</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation type="obsolete">Attivo</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation type="obsolete">Volume</translation>
-    </message>
-    <message>
-        <source>Audio driver</source>
-        <translation type="obsolete">Driver audio</translation>
-    </message>
-    <message>
-        <source>Restart driver</source>
-        <translation type="obsolete">Riavvia driver</translation>
-    </message>
-    <message>
         <source>Buffer size</source>
         <translation>Dimensione buffer</translation>
     </message>
     <message>
         <source>Device</source>
         <translation>Dispositivo audio</translation>
-    </message>
-    <message>
-        <source>Enable Track Outputs</source>
-        <translation type="obsolete">Abilita uscite per traccia</translation>
-    </message>
-    <message>
-        <source>Max notes</source>
-        <translation type="obsolete">Polifonia</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation type="obsolete">Note</translation>
-    </message>
-    <message>
-        <source>Audio System</source>
-        <translation type="obsolete">Impostazioni Audio</translation>
-    </message>
-    <message>
-        <source>Midi Input</source>
-        <translation type="obsolete">Ingresso MIDI</translation>
     </message>
     <message>
         <source>Input</source>
@@ -2510,26 +1921,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>All</source>
         <translation>Tutti</translation>
-    </message>
-    <message>
-        <source>Midi System</source>
-        <translation type="obsolete">Impostazioni Midi</translation>
-    </message>
-    <message>
-        <source>Application interface</source>
-        <translation type="obsolete">Interfaccia utente</translation>
-    </message>
-    <message>
-        <source>Interface mode</source>
-        <translation type="obsolete">Tipo di interfaccia</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Riavviare l&apos;applicazione dopo un cambiamento.&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation type="obsolete">Mixer</translation>
     </message>
     <message>
         <source>Meters falloff speed</source>
@@ -2564,44 +1955,12 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>&lt;i&gt;Riavviare l&apos;applicazione per usare i nuovi caratteri.&lt;/i&gt;</translation>
     </message>
     <message>
-        <source>Appearance</source>
-        <translation type="obsolete">Interfaccia grafica</translation>
-    </message>
-    <message>
-        <source>Connect to Default Output Pair</source>
-        <translation type="obsolete">Connetti all&apos;uscita principale</translation>
-    </message>
-    <message>
         <source>Polyphony</source>
         <translation>Polifonia</translation>
     </message>
     <message>
-        <source>Fonts</source>
-        <translation type="obsolete">Caratteri</translation>
-    </message>
-    <message>
-        <source>Use Jack Transport</source>
-        <translation type="obsolete">Usa Jack Transport</translation>
-    </message>
-    <message>
-        <source>LADSPA Plugin path</source>
-        <translation type="obsolete">Directory Plugin LADSPA</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation type="obsolete">Applicazione</translation>
-    </message>
-    <message>
         <source>Style</source>
         <translation>Stile interfaccia</translation>
-    </message>
-    <message>
-        <source>Single paned</source>
-        <translation type="obsolete">Singola finestra</translation>
-    </message>
-    <message>
-        <source>Alsa</source>
-        <translation type="obsolete">Alsa</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2616,10 +1975,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>&amp;Generale</translation>
     </message>
     <message>
-        <source>&amp;Restore last used song</source>
-        <translation type="obsolete">&amp;Ricarica l&apos;ultima canzone usata all&apos;avvio</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>&amp;Sistema audio</translation>
     </message>
@@ -2630,10 +1985,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>Connect to &amp;Default Output Pair</source>
         <translation>Connetti alle uscite audio &amp;principali</translation>
-    </message>
-    <message>
-        <source>&amp;Enable Track Outputs</source>
-        <translation type="obsolete">&amp;Abilita uscite per traccia</translation>
     </message>
     <message>
         <source>&amp;Midi System</source>
@@ -2788,10 +2139,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>Uscita tracce</translation>
     </message>
     <message>
-        <source>Always play selected pattern in Pattern Mode</source>
-        <translation type="obsolete">Riproduci sempre pattern selezionato in modalità Pattern</translation>
-    </message>
-    <message>
         <source>Use lash</source>
         <translation>Usa LASH</translation>
     </message>
@@ -2822,10 +2169,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
 <context>
     <name>SongEditorPanel</name>
     <message>
-        <source>Hydrogen - Song Editor</source>
-        <translation type="obsolete">Hydrogen - Editor di canzone</translation>
-    </message>
-    <message>
         <source>Create new pattern</source>
         <translation>Crea un nuovo pattern</translation>
     </message>
@@ -2838,24 +2181,8 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>Sposta il pattern selezionato in alto</translation>
     </message>
     <message>
-        <source>Song operations</source>
-        <translation type="obsolete">Operazioni sulla canzone</translation>
-    </message>
-    <message>
-        <source>Song loop</source>
-        <translation type="obsolete">Ripeti canzone (loop)</translation>
-    </message>
-    <message>
-        <source>Song properties</source>
-        <translation type="obsolete">Proprieta&apos; canzone</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Elimina la sequenza di pattern</translation>
-    </message>
-    <message>
-        <source>Delete all patterns</source>
-        <translation type="obsolete">Elimina tutti i pattern</translation>
     </message>
     <message>
         <source>Song Editor</source>
@@ -2923,10 +2250,6 @@ Confermi?</translation>
         <translation>Proprietà</translation>
     </message>
     <message>
-        <source>Can&apos;t delete the pattern while the audio engine is playing</source>
-        <translation type="obsolete">Non e&apos; possibile eliminare un pattern mentre e&apos; in esecuzione</translation>
-    </message>
-    <message>
         <source>Fill/Clear ...</source>
         <translation>Riempi/Svuota ...</translation>
     </message>
@@ -2937,10 +2260,6 @@ Confermi?</translation>
     <message>
         <source>Load Pattern</source>
         <translation>Carica Pattern</translation>
-    </message>
-    <message>
-        <source>Hydrogen Song (*.h2pattern)</source>
-        <translation type="obsolete">Canzone Hydrogen (*.h2song)</translation>
     </message>
     <message>
         <source>Open Pattern</source>
@@ -2954,24 +2273,12 @@ Confermi?</translation>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
-        <source>Hydrogen - Song properties</source>
-        <translation type="obsolete">Hydrogen - Proprieta&apos; canzone</translation>
-    </message>
-    <message>
         <source>Song properties</source>
         <translation>Proprietà canzone</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annulla</translation>
-    </message>
-    <message>
-        <source> Ok </source>
-        <translation type="obsolete">Ok</translation>
-    </message>
     <message>
         <source>Notes</source>
         <translation>Note</translation>
@@ -3168,14 +2475,6 @@ Confermi?</translation>
         <translation>Elimina</translation>
     </message>
     <message>
-        <source>Import drumkit</source>
-        <translation type="obsolete">Importa drumkit</translation>
-    </message>
-    <message>
-        <source>Export drumkit</source>
-        <translation type="obsolete">Esporta drumkit</translation>
-    </message>
-    <message>
         <source>Drumkit loaded: [%1]</source>
         <translation>Drumkit caricato: [%1]</translation>
     </message>
@@ -3200,10 +2499,6 @@ Confermi?</translation>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Rinomina</translation>
     </message>
     <message>
         <source>Songs</source>
@@ -3313,10 +2608,6 @@ Confermi?</translation>
         <translation>Annulla</translation>
     </message>
     <message>
-        <source>Save soundlibrary</source>
-        <translation type="obsolete">Salva libreria</translation>
-    </message>
-    <message>
         <source>License</source>
         <translation>Licenza</translation>
     </message>
@@ -3330,32 +2621,6 @@ Confermi?</translation>
     <message>
         <source>Sound library</source>
         <translation>Libreria</translation>
-    </message>
-</context>
-<context>
-    <name>SplashScreen</name>
-    <message>
-        <source>Alpha Version </source>
-        <translation type="obsolete">Versione Alpha</translation>
-    </message>
-    <message>
-        <source>Modules: </source>
-        <translation type="obsolete">Moduli: </translation>
-    </message>
-</context>
-<context>
-    <name>midiTable</name>
-    <message>
-        <source>Event</source>
-        <translation type="obsolete">Evento</translation>
-    </message>
-    <message>
-        <source>Param.</source>
-        <translation type="obsolete">Param.</translation>
-    </message>
-    <message>
-        <source>Action</source>
-        <translation type="obsolete">Azione</translation>
     </message>
 </context>
 </TS>

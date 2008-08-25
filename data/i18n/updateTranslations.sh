@@ -14,12 +14,12 @@ else
 	LRELEASE=$(which lrelease)
 fi;
 
-UI=`find . | grep "\.ui"`
-CPP=`find . | grep "\.cpp"`
-H=`find . | grep "\.h"`
+UI=`find . | grep "\.ui$"`
+CPP=`find . | grep "\.cpp$"`
+H=`find . | grep "\.h$"`
 FILES="$UI $CPP $H"
 
-CMD="$LUPDATE ${FILES} -ts"
+CMD="$LUPDATE -noobsolete ${FILES} -ts"
 
 
 
