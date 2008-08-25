@@ -75,7 +75,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	
 	bool reload = false;
 
-	//load the selectet drumkit to save it correct.... later the old drimkit will reloaded 
+	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded 
 	if ( drumkitinfo != NULL ){
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->getName() ){
 			Hydrogen::get_instance()->loadDrumkit( drumkitinfo );
@@ -85,7 +85,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		
 	//check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
 	if ( nameTxt->text() != oldName  ){
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, you change the drumkit name. This creat a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! You're changing the drumkit name. This creates a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( res == 1 ) {
 			return;
 		}
