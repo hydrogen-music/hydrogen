@@ -82,7 +82,7 @@ class MidiInput : public Object
 {
 public:
 	MidiInput( const QString class_name );
-	~MidiInput();
+	virtual ~MidiInput();
 
 	virtual void open() = 0;
 	virtual void close() = 0;
