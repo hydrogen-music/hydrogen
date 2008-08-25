@@ -42,39 +42,39 @@ def subdirsContaining( root, patterns ):
 
 def get_platform_flags():
 	includes = []
-	cppflags = ""
-	ldflags = ""
+	cppflags = []
+	ldflags = []
 
 	if sys.platform == "linux2" or sys.platform == "darwin":
 		if debug:
-			cppflags += " -Wall -g2 -ggdb -O0"
+			cppflags += ['-Wall',  '-g2', '-ggdb', '-O0']
 		else:
-			cppflags += " -O3 -fomit-frame-pointer -funroll-loops"
+			cppflags += ['-O3', '-fomit-frame-pointer', '-funroll-loops']
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
 
-		if alsa: cppflags += " -DALSA_SUPPORT"
-		if jack: cppflags += " -DJACK_SUPPORT"
-		if lash: cppflags += " -DLASH_SUPPORT"
-		if portaudio: cppflags += " -DPORTAUDIO_SUPPORT"
-		if portmidi: cppflags += " -DPORTMIDI_SUPPORT"	
+		if alsa: cppflags.append('-DALSA_SUPPORT')
+		if jack: cppflags.append('-DJACK_SUPPORT')
+		if lash: cppflags.append('-DLASH_SUPPORT')
+                if lrdf: cppflags.append('-DLRDF_SUPPORT')
+		if portaudio: cppflags.append('-DPORTAUDIO_SUPPORT')
+		if portmidi: cppflags.append('-DPORTMIDI_SUPPORT')
 
 
-		cppflags += " -DFLAC_SUPPORT"
-		cppflags += " -DLADSPA_SUPPORT"
-		cppflags += " -DLRDF_SUPPORT"
-		cppflags += " -DOSS_SUPPORT"
+		cppflags.append('-DFLAC_SUPPORT')
+		cppflags.append('-DLADSPA_SUPPORT')
+		cppflags.append('-DOSS_SUPPORT')
 
 
 		includes.append( '/usr/lib/lash-1.0' )
 
-	if libarchive: cppflags += " -DLIBARCHIVE_SUPPORT"
+	if libarchive: cppflags.append('-DLIBARCHIVE_SUPPORT')
 
 	includes.append( './' )
 	includes.append( 'gui/src/' )
 	includes.append( '3rdparty/install/include' )
 
 	if sys.platform == 'linux2':
-		ldflags += " -lasound"
+		ldflags.append('-lasound')
 
 	elif sys.platform == 'darwin':
 		pass
@@ -202,7 +202,8 @@ def get_hydrogen_gui( lib_hydrogen ):
 	if lrdf: env.Append( LIBS = ["lrdf"] )
 	if flac: env.Append( LIBS = ["FLAC","FLAC++"] )
 	if lash: env.Append( LIBS = ["lash"])
-	if jack: env.Append( LIBS = ["jack"])
+	if jack:
+            env.Append( LIBS = ["jack"])
 	if alsa: env.Append( LIBS = ["asound"])
 	if libarchive: env.Append( LIBS = ["archive"])
 	else: env.Append( LIBS = ["tar"])
