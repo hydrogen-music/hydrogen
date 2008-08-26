@@ -661,9 +661,8 @@ void MainForm::action_file_open() {
 
 	
 
-	static QString lastUsedDir = Preferences::getInstance()->getDataDirectory() + "songs";
+	static QString lastUsedDir = Preferences::getInstance()->getDataDirectory() + "/songs";
 	
-
 	QFileDialog *fd = new QFileDialog(this);
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
