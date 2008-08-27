@@ -668,17 +668,21 @@ http://www.hydrogen-music.org
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Warning, you change the drumkit name. This creat a new drumkit with this name.
-Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Ok</source>
         <translation type="unfinished">&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Anuluj</translation>
+    </message>
+    <message>
+        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2533,6 +2537,10 @@ Kontynuować?</translation>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Anuluj</translation>
+    </message>
+    <message>
+        <source>Save changes made to instruments into sound library</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

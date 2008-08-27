@@ -670,18 +670,21 @@ http://www.hydrogen-music.org
         <translation>Proprietà Libreria</translation>
     </message>
     <message>
-        <source>Warning, you change the drumkit name. This creat a new drumkit with this name.
-Are you sure?</source>
-        <translation>Attenzione, stai cambiando il nome del drumkit. Verrà creato un nuovo drumkit con questo nome.
-Confermi?</translation>
-    </message>
-    <message>
         <source>&amp;Ok</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
+    </message>
+    <message>
+        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2546,6 +2549,10 @@ Confermi?</translation>
     <message>
         <source>Cancel</source>
         <translation>Annulla</translation>
+    </message>
+    <message>
+        <source>Save changes made to instruments into sound library</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="de_DE">
+<!DOCTYPE TS><TS>
 <defaultcodec></defaultcodec>
 <context>
     <name>AboutDialog</name>
@@ -669,12 +668,7 @@ http://www.hydrogen-music.org
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
         <source>SoundLibrary Properties</source>
-        <translation type="unfinished">Eigenschaften</translation>
-    </message>
-    <message>
-        <source>Warning, you change the drumkit name. This creat a new drumkit with this name.
-Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Soundlibrary Eigenschaften</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -683,6 +677,17 @@ Are you sure?</source>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Abbrechen</translation>
+    </message>
+    <message>
+        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
+        <translation type="unfinished">Nicht möglich, es lassen sich nur Änderungen an Instrumenten innerhalb der aktuell verwendeten Soundlibrary speichern.</translation>
+    </message>
+    <message>
+        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
+Are you sure?</source>
+        <translation type="unfinished">Achtung! Bei Änderungen des Drumkit-Namens wird ein neues Drumkit dieses Namens erstellt.
+Sind sie sicher?
+</translation>
     </message>
 </context>
 <context>
@@ -2545,6 +2550,10 @@ Are you sure?</source>
     <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Save changes made to instruments into sound library</source>
+        <translation type="unfinished">Änderungen an den Instrumenten übernehmen</translation>
     </message>
 </context>
 <context>
