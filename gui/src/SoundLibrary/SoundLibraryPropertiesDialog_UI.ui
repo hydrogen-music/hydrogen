@@ -197,7 +197,7 @@
     </rect>
    </property>
    <property name="text" >
-    <string>save changes inside instruments to soundlibrary </string>
+    <string>Save changes made to instruments into sound library</string>
    </property>
   </widget>
  </widget>
