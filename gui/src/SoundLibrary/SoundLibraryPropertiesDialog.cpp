@@ -74,10 +74,11 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
 	
 	bool reload = false;
-
+	 
 	if ( saveChanges_checkBox->isChecked() ){
+		//test if the drumkit is loaded 
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->getName() ){
-			QMessageBox::information( this, "Hydrogen", trUtf8 ( "this is not possible, you only can save changes inside instruments to the current loaded soundlibrary"));
+			QMessageBox::information( this, "Hydrogen", trUtf8 ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
 			saveChanges_checkBox->setChecked( false );
 			return;
 		}
@@ -94,7 +95,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		
 	//check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
 	if ( nameTxt->text() != oldName  ){
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! You're changing the drumkit name. This creates a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( res == 1 ) {
 			return;
 		}
