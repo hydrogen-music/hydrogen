@@ -75,8 +75,17 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	
 	bool reload = false;
 
+	if ( saveChanges_checkBox->isChecked() ){
+		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->getName() ){
+			QMessageBox::information( this, "Hydrogen", trUtf8 ( "this is not possible, you only can save changes inside instruments to the current loaded soundlibrary"));
+			saveChanges_checkBox->setChecked( false );
+			return;
+		}
+		reload = true;
+	}
+	
 	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded 
-	if ( drumkitinfo != NULL ){
+	if ( drumkitinfo != NULL && ( !saveChanges_checkBox->isChecked() ) ){
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->getName() ){
 			Hydrogen::get_instance()->loadDrumkit( drumkitinfo );
 			Hydrogen::get_instance()->getSong()->__is_modified = true;	
@@ -114,8 +123,10 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//check pre loaded drumkit name  and reload the old drumkit 
 	if ( predrumkit != NULL ){
-		Hydrogen::get_instance()->loadDrumkit( predrumkit );
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		if ( predrumkit->getName() !=  Hydrogen::get_instance()->getCurrentDrumkitname() ){
+			Hydrogen::get_instance()->loadDrumkit( predrumkit );
+			Hydrogen::get_instance()->getSong()->__is_modified = true;
+		}
 	}
 
 	//reload if necessary
