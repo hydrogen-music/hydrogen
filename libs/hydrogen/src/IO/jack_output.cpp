@@ -227,10 +227,12 @@ void JackOutput::relocateBBT()
 		calculateFrameOffset();
 	 	return;
 	} else {
-		if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ) 
+		if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ){
+			calculateFrameOffset();
 			return;
+		}
 		
-		WARNINGLOG( "..." );
+		INFOLOG( "..." );
 	
 		Hydrogen * H = Hydrogen::get_instance();
 		Song * S = H->getSong();
