@@ -233,34 +233,58 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	InstrumentList *iList = pSong->get_instrument_list();
 	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
-	for ( unsigned nPatternList = 0; nPatternList < pSong->get_pattern_group_vector()->size(); nPatternList++ ) {
-//		infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
-		PatternList *pPatternList = ( *( pSong->get_pattern_group_vector() ) )[ nPatternList ];
+	for ( unsigned nPatternList = 0 ;
+	      nPatternList < pSong->get_pattern_group_vector()->size() ;
+	      nPatternList++ ) {
+		// infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
+		PatternList *pPatternList =
+			( *(pSong->get_pattern_group_vector()) )[ nPatternList ];
 
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
-		for ( unsigned nPattern = 0; nPattern < pPatternList->get_size(); nPattern++ ) {
+		for ( unsigned nPattern = 0 ;
+		      nPattern < pPatternList->get_size() ;
+		      nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
-//			infoLog( "      |-> pattern: " + pPattern->getName() );
+			// infoLog( "      |-> pattern: " + pPattern->getName() );
 			if ( ( int )pPattern->get_lenght() > nMaxPatternLength ) {
 				nMaxPatternLength = pPattern->get_lenght();
 			}
 
-			for ( unsigned nNote = 0; nNote < pPattern->get_lenght(); nNote++ ) {
+			for ( unsigned nNote = 0 ;
+			      nNote < pPattern->get_lenght() ;
+			      nNote++ ) {
 				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pPattern->note_map.lower_bound( nNote ); pos != pPattern->note_map.upper_bound( nNote ); ++pos ) {
+				for ( pos = pPattern->note_map.lower_bound( nNote ) ;
+				      pos != pPattern->note_map.upper_bound( nNote );
+				      ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote ) {
-						int nVelocity = ( int )( 127.0 * pNote->get_velocity() );
-						int nInstr = iList->get_pos(pNote->get_instrument());
+						int nVelocity =
+							(int)( 127.0 * pNote->get_velocity() );
+						int nInstr =
+							iList->get_pos(pNote->get_instrument());
 						int nPitch = 36 + nInstr;
-						eventList.push_back( new SMFNoteOnEvent( nStartTicks + nNote, DRUM_CHANNEL, nPitch, nVelocity ) );
-
+						eventList.push_back(
+							new SMFNoteOnEvent(
+								nStartTicks + nNote,
+								DRUM_CHANNEL,
+								nPitch,
+								nVelocity
+								)
+							);
 						int nLength = 12;
 						if ( pNote->get_lenght() != -1 ) {
 							nLength = pNote->get_lenght();
 						}
-						eventList.push_back( new SMFNoteOffEvent( nStartTicks + nNote + nLength, DRUM_CHANNEL, nPitch, nVelocity ) );
+						eventList.push_back(
+							new SMFNoteOffEvent(
+								nStartTicks + nNote + nLength,
+								DRUM_CHANNEL,
+								nPitch,
+								nVelocity
+								)
+							);
 					}
 				}
 			}
@@ -270,7 +294,9 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 
 	// awful bubble sort..
 	for ( unsigned i = 0; i < eventList.size(); i++ ) {
-		for ( vector<SMFEvent*>::iterator it = eventList.begin(); it != ( eventList.end() - 1 ); it++ ) {
+		for ( vector<SMFEvent*>::iterator it = eventList.begin() ;
+		      it != ( eventList.end() - 1 ) ;
+		      it++ ) {
 			SMFEvent *pEvent = *it;
 			SMFEvent *pNextEvent = *( it + 1 );
 			if ( pNextEvent->m_nTicks < pEvent->m_nTicks ) {
@@ -282,12 +308,15 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	}
 
 	unsigned nLastTick = 1;
-	for ( vector<SMFEvent*>::iterator it = eventList.begin(); it != eventList.end(); it++ ) {
+	for ( vector<SMFEvent*>::iterator it = eventList.begin() ;
+	      it != eventList.end();
+	      it++ ) {
 		SMFEvent *pEvent = *it;
 		pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
 		nLastTick = pEvent->m_nTicks;
 
-//		infoLog( " pos: " + toString( (*it)->m_nTicks ) + ", delta: " + toString( (*it)->m_nDeltaTime ) );
+		// infoLog( " pos: " + toString( (*it)->m_nTicks ) + ", delta: "
+		//          + toString( (*it)->m_nDeltaTime ) );
 
 		pTrack1->addEvent( *it );
 	}
