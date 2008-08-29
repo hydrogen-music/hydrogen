@@ -1554,6 +1554,8 @@ void audioEngine_stopAudioDrivers()
 {
 	_INFOLOG( "[audioEngine_stopAudioDrivers]" );
 
+	AudioEngine::get_instance()->lock( "audioEngine_stopAudioDrivers" );
+
 	// check current state
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		audioEngine_stop();
@@ -1581,7 +1583,6 @@ void audioEngine_stopAudioDrivers()
 	}
 
 
-	AudioEngine::get_instance()->lock( "audioEngine_stopAudioDrivers" );
 	// change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
 	EventQueue::get_instance()->push_event( EVENT_STATE, STATE_INITIALIZED );
