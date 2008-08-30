@@ -58,9 +58,8 @@ Sample::~Sample()
 
 Sample* Sample::load( const QString& filename )
 {
-	// is a flac file?
-	QString ext = filename.right( filename.length() - 4 );
-	if ( ( ext == "flac" ) || ( ext == "FLAC" ) ) {
+	// is it a flac file?
+	if ( ( filename.endsWith( "flac") ) || ( filename.endsWith( "FLAC" )) ) {
 		return load_flac( filename );
 	} else {
 		return load_wave( filename );
