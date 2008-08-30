@@ -26,6 +26,7 @@
 #include <hydrogen/Song.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/SoundLibrary.h>
+#include <hydrogen/audio_engine.h>
 
 #include <cassert>
 
@@ -39,6 +40,7 @@ Instrument::Instrument(
     ADSR* adsr
 )
 		: Object( "Instrument" )
+		,__queued( 0 )
 		, __adsr( adsr )
 		, __name( name )
 		, __filter_resonance( 0.0 )
@@ -81,7 +83,7 @@ Instrument::~Instrument()
 
 
 
-InstrumentLayer* Instrument::get_layer( int nLayer )
+inline InstrumentLayer* Instrument::get_layer( int nLayer )
 {
 	if ( nLayer < 0 ) {
 		ERRORLOG( QString( "nLayer < 0 (nLayer=%1)" ).arg( nLayer ) );
@@ -112,62 +114,124 @@ void Instrument::set_adsr( ADSR* adsr )
 	__adsr = adsr;
 }
 
+void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
+{
+	LocalFileMng mgr;
+	QString path = mgr.getDrumkitDirectory( placeholder->get_drumkit_name() ) + placeholder->get_drumkit_name() + "/";
+	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+		InstrumentLayer *pNewLayer = placeholder->get_layer( nLayer );
+		if ( pNewLayer != NULL ) {
+			// this is a 'placeholder sample:
+			Sample *pNewSample = pNewLayer->get_sample();
+			
+			// now we load the actal data:
+			Sample *pSample = Sample::load( path + pNewSample->get_filename() );
+			InstrumentLayer *pOldLayer = this->get_layer( nLayer );
 
-Instrument* Instrument::load_instrument(
+			if ( pSample == NULL ) {
+				_ERRORLOG( "Error loading sample. Creating a new empty layer." );
+				if ( is_live )
+					AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+				
+				this->set_layer( NULL, nLayer );
+				
+				if ( is_live )
+					AudioEngine::get_instance()->unlock();
+				delete pOldLayer;
+				continue;
+			}
+			InstrumentLayer *pLayer = new InstrumentLayer( pSample );
+			pLayer->set_start_velocity( pNewLayer->get_start_velocity() );
+			pLayer->set_end_velocity( pNewLayer->get_end_velocity() );
+			pLayer->set_gain( pNewLayer->get_gain() );
+
+			if ( is_live )
+				AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+			
+			this->set_layer( pLayer, nLayer );	// set the new layer
+			
+			if ( is_live )
+				AudioEngine::get_instance()->unlock();
+			delete pOldLayer;		// delete the old layer
+
+		} else {
+			InstrumentLayer *pOldLayer = this->get_layer( nLayer );
+			if ( is_live )
+				AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+			
+			this->set_layer( NULL, nLayer );
+			
+			if ( is_live )
+				AudioEngine::get_instance()->unlock();
+			delete pOldLayer;		// delete the old layer
+		}
+
+	}
+	if ( is_live )
+		AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+	
+	// update instrument properties
+	this->set_id( placeholder->get_id() );
+	this->set_name( placeholder->get_name() );
+	this->set_pan_l( placeholder->get_pan_l() );
+	this->set_pan_r( placeholder->get_pan_r() );
+	this->set_volume( placeholder->get_volume() );
+	this->set_drumkit_name( placeholder->get_drumkit_name() );
+	this->set_muted( placeholder->is_muted() );
+	this->set_random_pitch_factor( placeholder->get_random_pitch_factor() );
+	this->set_adsr( new ADSR( *( placeholder->get_adsr() ) ) );
+	this->set_filter_active( placeholder->is_filter_active() );
+	this->set_filter_cutoff( placeholder->get_filter_cutoff() );
+	this->set_filter_resonance( placeholder->get_filter_resonance() );
+	this->set_mute_group( placeholder->get_mute_group() );
+	
+	if ( is_live )
+		AudioEngine::get_instance()->unlock();
+}
+
+Instrument * Instrument::create_empty()
+{
+	return new Instrument( "", "Empty Instrument", new ADSR() );
+}
+
+Instrument * Instrument::load_instrument(
     const QString& drumkit_name,
     const QString& instrument_name
 )
 {
-	Instrument *pInstrument = NULL;
+	Instrument * I = create_empty();
+	I->load_from_name( drumkit_name, instrument_name, false );
+	return I;
+}
+
+void Instrument::load_from_name(
+    const QString& drumkit_name,
+    const QString& instrument_name,
+    bool is_live
+)
+{
+	Instrument * pInstr = NULL;
+	
 	LocalFileMng mgr;
+	QString sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
 
 	// find the drumkit
 	Drumkit *pDrumkitInfo = mgr.loadDrumkit( mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name );
 	assert( pDrumkitInfo );
 
+	// find the instrument
 	InstrumentList *pInstrList = pDrumkitInfo->getInstrumentList();
 	for ( unsigned nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
-		Instrument *pInstr = pInstrList->get( nInstr );
+		pInstr = pInstrList->get( nInstr );
 		if ( pInstr->get_name() == instrument_name ) {
-			// creo un nuovo strumento
-
-			pInstrument = new Instrument( "", "", new ADSR( *( pInstr->get_adsr() ) ) );
-
-			// copio tutte le proprieta' dello strumento
-			pInstrument->set_name( pInstr->get_name() );
-			pInstrument->set_pan_l( pInstr->get_pan_l() );
-			pInstrument->set_pan_r( pInstr->get_pan_r() );
-			pInstrument->set_volume( pInstr->get_volume() );
-			pInstrument->set_drumkit_name( pInstr->get_drumkit_name() );
-			pInstrument->set_muted( pInstr->is_muted() );
-			pInstrument->set_random_pitch_factor( pInstr->get_random_pitch_factor() );
-			pInstrument->set_filter_active( pInstr->is_filter_active() );
-			pInstrument->set_filter_cutoff( pInstr->get_filter_cutoff() );
-			pInstrument->set_filter_resonance( pInstr->get_filter_resonance() );
-			pInstrument->set_mute_group( pInstr->get_mute_group() );
-
-			for ( int nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-				InstrumentLayer *pOrigLayer = pInstr->get_layer( nLayer );
-				if ( pOrigLayer ) {
-					QString sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
-					QString sSampleFilename = sDrumkitPath + drumkit_name + "/" + pOrigLayer->get_sample()->get_filename();
-					Sample* pSample = Sample::load( sSampleFilename );
-					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
-					pLayer->set_start_velocity( pOrigLayer->get_start_velocity() );
-					pLayer->set_end_velocity( pOrigLayer->get_end_velocity() );
-					pLayer->set_gain( pOrigLayer->get_gain() );
-					pInstrument->set_layer( pLayer, nLayer );
-				} else {
-					pInstrument->set_layer( NULL, nLayer );
-				}
-			}
 			break;
 		}
 	}
-
+	
+	if ( pInstr != NULL ) {
+		load_from_placeholder( pInstr, is_live );
+	}
 	delete pDrumkitInfo;
-
-	return pInstrument;
 }
 
 

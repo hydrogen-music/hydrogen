@@ -288,9 +288,9 @@ void audioEngine_destroy()
 	}
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 
-
 	// delete all copied notes in the song notes queue
 	while ( !m_songNoteQueue.empty() ) {
+		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -394,6 +394,7 @@ void audioEngine_stop( bool bLockEngine )
 
 	// delete all copied notes in the song notes queue
 	while(!m_songNoteQueue.empty()){
+		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -521,7 +522,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			AudioEngine::get_instance()->get_sampler()->note_on( pNote );	// aggiungo la nota alla lista di note da eseguire
 			
 			m_songNoteQueue.pop();			// rimuovo la nota dalla lista di note
-
+			pNote->get_instrument()->dequeue();
 			// raise noteOn event
 			int nInstrument = m_pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
 			EventQueue::get_instance()->push_event( EVENT_NOTEON, nInstrument );
@@ -623,6 +624,7 @@ void audioEngine_clearNoteQueue()
 	//_INFOLOG( "clear notes...");
 
 	while (!m_songNoteQueue.empty()) {       // delete all copied notes in the song notes queue
+		m_songNoteQueue.top()->get_instrument()->dequeue();
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -1032,6 +1034,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			if ( ( int )note->get_position() <= tick ) {
 				// printf ("tick=%d  pos=%d\n", tick, note->getPosition());
 				m_midiNoteQueue.pop_front();
+				note->get_instrument()->enqueue();
 				m_songNoteQueue.push( note );
 			} else {
 				break;
@@ -1173,6 +1176,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				m_pMetronomeInstrument->set_volume( Preferences::getInstance()->m_fMetronomeVolume );
 
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument, tick, fVelocity, 0.5, 0.5, -1, fPitch );
+				m_pMetronomeInstrument->enqueue();
 				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
@@ -1215,6 +1219,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						pCopiedNote->set_position( tick );
 
 						pCopiedNote->m_nHumanizeDelay = nOffset;	// humanize time
+						pNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );
 						//pCopiedNote->dumpInfo();
 					}
@@ -1643,6 +1648,7 @@ Hydrogen::~Hydrogen()
 	removeSong();
 	audioEngine_stopAudioDrivers();
 	audioEngine_destroy();
+	kill_instruments();
 	instance = NULL;
 }
 
@@ -2070,7 +2076,7 @@ float Hydrogen::getMaxProcessTime()
 
 int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 {
-	_INFOLOG( drumkitInfo->getName() );
+	INFOLOG( drumkitInfo->getName() );
 	m_currentDrumkit = drumkitInfo->getName();
 	LocalFileMng fileMng;
 	QString sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
@@ -2114,10 +2120,11 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 			pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
-	                pInstr = new Instrument( "", "", new ADSR() ); 
-	                AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" ); 
+			pInstr = Instrument::create_empty();
+			// The instrument isn't playing yet; no need for locking :-) - Jakob Lund.
+			// AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
 			songInstrList->add( pInstr );
-			AudioEngine::get_instance()->unlock();
+			// AudioEngine::get_instance()->unlock();
 		}
 
 		Instrument *pNewInstr = pDrumkitInstrList->get( nInstr );
@@ -2125,76 +2132,15 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		_INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" ).arg( nInstr ).arg( pDrumkitInstrList->get_size() ).arg( pNewInstr->get_name() ) );
 		
 		// creo i nuovi layer in base al nuovo strumento
-                for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) { 
-                        InstrumentLayer *pNewLayer = pNewInstr->get_layer( nLayer ); 
-                        if ( pNewLayer != NULL ) { 
-                                Sample *pNewSample = pNewLayer->get_sample(); 
-                                QString sSampleFilename = sDrumkitPath + drumkitInfo->getName() + "/" + pNewSample->get_filename(); 
-                                _INFOLOG( "    |-> Loading layer [ " + sSampleFilename + " ]" ); 
-
-                                // carico il nuovo sample e creo il nuovo layer 
-                                Sample *pSample = Sample::load( sSampleFilename ); 
-//                              pSample->setFilename( pNewSample->getFilename() );      // riuso il path del nuovo sample (perche' e' gia relativo al path del drumkit) 
-                                InstrumentLayer *pOldLayer = pInstr->get_layer( nLayer ); 
-
-                                if ( pSample == NULL ) { 
-                                        //_ERRORLOG( "Error Loading drumkit: NULL sample, now using /emptySample.wav" ); 
-                                        //pSample = Sample::load(string(DataPath::getDataPath() ).append( "/emptySample.wav" )); 
-                                        //pSample->m_sFilename = string(DataPath::getDataPath() ).append( "/emptySample.wav" ); 
-                                        _ERRORLOG( "Error loading sample. Creating a new empty layer." ); 
-                                        AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" ); 
-                                        pInstr->set_layer( NULL, nLayer ); 
-                                        AudioEngine::get_instance()->unlock(); 
-                                        delete pOldLayer; 
-                                        continue; 
-                                } 
-                                InstrumentLayer *pLayer = new InstrumentLayer( pSample ); 
-                                pLayer->set_start_velocity( pNewLayer->get_start_velocity() ); 
-                                pLayer->set_end_velocity( pNewLayer->get_end_velocity() ); 
-                                pLayer->set_gain( pNewLayer->get_gain() ); 
-
-                                AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" ); 
-                                pInstr->set_layer( pLayer, nLayer );    // set the new layer 
-                                AudioEngine::get_instance()->unlock(); 
-                                delete pOldLayer;               // delete the old layer 
-
-                        } else { 
-                                InstrumentLayer *pOldLayer = pInstr->get_layer( nLayer ); 
-                                AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" ); 
-                                pInstr->set_layer( NULL, nLayer ); 
-                                AudioEngine::get_instance()->unlock(); 
-                                delete pOldLayer;               // delete the old layer 
-                        } 
-
-	                } 
-                AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" ); 
-                // update instrument properties 
-                pInstr->set_id( pNewInstr->get_id() ); 
-                pInstr->set_name( pNewInstr->get_name() ); 
-                pInstr->set_pan_l( pNewInstr->get_pan_l() ); 
-                pInstr->set_pan_r( pNewInstr->get_pan_r() ); 
-                pInstr->set_volume( pNewInstr->get_volume() ); 
-                pInstr->set_drumkit_name( pNewInstr->get_drumkit_name() ); 
-                pInstr->set_muted( pNewInstr->is_muted() ); 
-                pInstr->set_random_pitch_factor( pNewInstr->get_random_pitch_factor() ); 
-                pInstr->set_adsr( new ADSR( *( pNewInstr->get_adsr() ) ) ); 
-                pInstr->set_filter_active( pNewInstr->is_filter_active() ); 
-                pInstr->set_filter_cutoff( pNewInstr->get_filter_cutoff() ); 
-                pInstr->set_filter_resonance( pNewInstr->get_filter_resonance() ); 
-                pInstr->set_mute_group( pNewInstr->get_mute_group() ); 
-                AudioEngine::get_instance()->unlock(); 
-        } 
- 
-	        AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" ); 
-        	audioEngine_renameJackPorts(); 
-        	AudioEngine::get_instance()->unlock(); 
-
+		// Moved code from here right into the Instrument class - Jakob Lund.
+		pInstr->load_from_placeholder( pNewInstr );
+	}
 
 
 //wolke: new delete funktion
 	if ( instrumentDiff >=0	){
 		for ( int i = 0; i < instrumentDiff ; i++ ){
-			functionDeleteInstrument( m_pSong->get_instrument_list()->get_size() - 1);
+			removeInstrument( m_pSong->get_instrument_list()->get_size() - 1, true );
 		}
 	}
 
@@ -2209,59 +2155,42 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 
 //this is also a new function and will used from the new delete function in Hydrogen::loadDrumkit to delete the instruments by number
-void Hydrogen::functionDeleteInstrument( int instrumentnumber)
+void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 {
 	Instrument *pInstr = m_pSong->get_instrument_list()->get( instrumentnumber );
 
 
 	PatternList* pPatternList = getSong()->get_pattern_list();
 	
-        // new! this check if a pattern has an active note  
-        //if there is an note inside the pattern the intrument would not be deleted 
-        for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) { 
-                H2Core::Pattern *pPattern = pPatternList->get( nPattern ); 
-
-                std::multimap <int, Note*>::iterator pos; 
-                for ( pos = pPattern->note_map.begin(); pos != pPattern->note_map.end(); ++pos ) { 
-                        Note *pNote = pos->second; 
-                        assert( pNote ); 
-                        if ( pNote->get_instrument() == pInstr ) { 
-                                if( pNote->get_velocity() >= 0.0){  
-//                                      AudioEngine::get_instance()->unlock(); 
-                                       return; 
-                                } 
-                        } 
-                } 
-        } 
+	if ( conditional ) {
+	// new! this check if a pattern has an active note 
+	//if there is an note inside the pattern the intrument would not be deleted
+		for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) {
+			if( pPatternList->get( nPattern )->references_instrument( pInstr ) ) {
+				return;
+			}
+		}
+	} else {
+		getSong()->purge_instrument( pInstr );
+	}
 
 	// if the instrument was the last on the instruments list, select the next-last
 	if ( instrumentnumber >= (int)getSong()->get_instrument_list()->get_size() -1 ) {
 		Hydrogen::get_instance()->setSelectedInstrumentNumber(std::max(0, instrumentnumber - 1) );
 	}
 	// delete the instrument from the instruments list
+	AudioEngine::get_instance()->lock( "Hydrogen::removeInstrument" );
 	getSong()->get_instrument_list()->del( instrumentnumber );
 	getSong()->__is_modified = true;
-
- 	 
-        // delete all the notes using this instrument 
-	//      PatternList* pPatternList = getSong()->get_pattern_list(); 
-	for ( int nPattern = 0; nPattern < (int)pPatternList->get_size(); ++nPattern ) { 
-		H2Core::Pattern *pPattern = pPatternList->get( nPattern ); 
-
-		std::multimap <int, Note*>::iterator pos; 
-		for ( pos = pPattern->note_map.begin(); pos != pPattern->note_map.end(); ++pos ) { 
-			Note *pNote = pos->second; 
-			assert( pNote ); 
-			if ( pNote->get_instrument() == pInstr ) { 
-				delete pNote; 
-				pPattern->note_map.erase( pos ); 
-			} 
-		} 
-	} 
-
-	// stop all notes playing 
-        AudioEngine::get_instance()->get_sampler()->stop_playing_notes();	
-        delete pInstr;
+	AudioEngine::get_instance()->unlock();
+	
+	// At this point the instrument has been removed from both the instrument list and every pattern in the song.
+	// Hence there's no way (NOTE) to play on that instrument, and once all notes have stopped playing it will be save to delete.
+	// the ugly name is just for debugging...
+	QString xxx_name = QString( "XXX_%1" ) . arg( pInstr->get_name() );
+	pInstr->set_name( xxx_name );
+	instrument_death_row.push_back( pInstr );
+	kill_instruments(); // checks if there are still notes.
 	
 	// this will force a GUI update.
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -2753,8 +2682,6 @@ void Hydrogen::triggerRelocateDuringPlay() {
 		m_nPatternStartTick = -1; // This forces the barline position 
 }
 
-
-
 void Hydrogen::togglePlaysSelected() {
 	if ( getSong()->get_mode() != Song::PATTERN_MODE )
 		return;
@@ -2777,7 +2704,26 @@ void Hydrogen::togglePlaysSelected() {
 	
 }
 
-
+void Hydrogen::kill_instruments() {
+	int c = 0;
+	Instrument * pInstr = NULL;
+	while ( instrument_death_row.size() && instrument_death_row.front()->is_queued() == 0 )
+	{
+		pInstr = instrument_death_row.front();
+		instrument_death_row.pop_front();
+		INFOLOG( QString( "Deleting unused instrument (%1). %2 unused remain." ) \
+			. arg( pInstr->get_name() ) \
+			. arg( instrument_death_row.size() ) );
+		delete pInstr;
+		c++;
+	}
+	if ( instrument_death_row.size() ) {
+		pInstr = instrument_death_row.front();
+		INFOLOG( QString( "Instrument %1 still has %2 active notes. Delaying 'delete instrument' operation." ) \
+			. arg( pInstr->get_name() ) \
+			. arg( pInstr->is_queued() ) );
+	}
+}
 
 };
 
