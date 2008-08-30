@@ -192,7 +192,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			if ( pref->getHearNewNotes() ) {
 				Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 				AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
-//				pSelectedInstrument->enqueue();
 			}
 		}
 		pSong->__is_modified = true;
