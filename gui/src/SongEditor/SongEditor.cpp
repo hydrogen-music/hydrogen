@@ -992,7 +992,15 @@ void SongEditorPatternList::patternPopup_save()
 	LocalFileMng fileMng;
 	int err = fileMng.savePattern( song , nSelectedPattern, patternname, realpatternname, 1 );
 	if ( err != 0 ) {
-		_ERRORLOG( "Error saving the pattern" );
+		switch ( err ){
+			case 1: //file exists 
+				QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Error saving pattern!\nThe pattern-file exists." ));
+				break;	
+			default: //anything else
+				_ERRORLOG( "Error saving the pattern" );
+				break;
+
+	}
 	}
 
 #ifdef WIN32

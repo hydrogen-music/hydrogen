@@ -405,6 +405,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 			LocalFileMng mng;
 		
 			QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 ) + ".h2pattern";
+			QString drumkitname = m_pSoundLibraryTree->currentItem()->toolTip ( 0 );
 			
 			QString sDirectory = "";
 		
@@ -419,7 +420,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		
 			for (uint i = 0; i < allPatternDirList.size(); ++i) {
 				QString testName = allPatternDirList[i];
-				if( testName.contains( patternName )){
+				if( testName.contains( patternName ) && testName.contains( drumkitname )){
 		
 					sDirectory = allPatternDirList[i];
 				
@@ -654,6 +655,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	LocalFileMng mng;
 
 	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 ) + ".h2pattern";
+	QString drumkitname = m_pSoundLibraryTree->currentItem()->toolTip ( 0 );
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *pPatternList = song->get_pattern_list();
@@ -671,10 +673,8 @@ void SoundLibraryPanel::on_patternLoadAction()
 
 	for (uint i = 0; i < allPatternDirList.size(); ++i) {
 		QString testName = allPatternDirList[i];
-		if( testName.contains( patternName )){
-
-			sDirectory = allPatternDirList[i];
-		
+		if( testName.contains( patternName ) && testName.contains( drumkitname )){
+			sDirectory = allPatternDirList[i];		
 		} 
 	}
 

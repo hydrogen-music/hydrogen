@@ -241,6 +241,12 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 			break;
 
 	}
+
+//test if the file exists 
+	QFile testfile(sPatternXmlFilename);
+	if ( testfile.exists() && mode == 1)
+		return 1;
+
 	TiXmlDocument doc( sPatternXmlFilename.toAscii() );
 
 	TiXmlElement rootNode( "drumkit_pattern" );
