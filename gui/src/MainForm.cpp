@@ -495,6 +495,7 @@ void MainForm::action_file_save_as()
 	}
 	h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
 	//update SoundlibraryPanel
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
@@ -535,6 +536,7 @@ void MainForm::action_file_save()
 		h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
 	}
 	//update SoundlibraryPanel
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
@@ -621,6 +623,7 @@ void MainForm::action_file_export_pattern_as()
 	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
 	
 	//update SoundlibraryPanel
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
@@ -920,18 +923,18 @@ void MainForm::action_instruments_exportLibrary()
 
 void MainForm::action_instruments_importLibrary()
 {
-  SoundLibraryImportDialog dialog( this );
-  dialog.exec();
+	SoundLibraryImportDialog dialog( this );
+	dialog.exec();
 }
 
 
 
 void MainForm::action_instruments_saveLibrary()
 {
-  SoundLibrarySaveDialog dialog( this );
-  dialog.exec();
-
-  HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	SoundLibrarySaveDialog dialog( this );
+	dialog.exec();
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
 

@@ -995,7 +995,7 @@ void SongEditorPatternList::patternPopup_save()
 		switch ( err ){
 			case 1: //file exists 
 				QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Error saving pattern!\nThe pattern-file exists." ));
-				break;	
+				return; //exit patternPopup_save without update the drumkitlist	
 			default: //anything else
 				_ERRORLOG( "Error saving the pattern" );
 				break;
@@ -1008,6 +1008,7 @@ void SongEditorPatternList::patternPopup_save()
 #else
 	usleep ( 10000 );
 #endif 
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 

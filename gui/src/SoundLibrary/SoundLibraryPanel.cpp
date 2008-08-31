@@ -78,6 +78,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	m_pPatternMenu = new QMenu( this );
 	m_pPatternMenu->addSeparator();
 	m_pPatternMenu->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
+	m_pPatternMenu->addAction( trUtf8( "Delete" ), this, SLOT( on_patternDeleteAction() ) );
 
 	m_pPatternMenuList = new QMenu( this );
 	m_pPatternMenuList->addSeparator();
@@ -101,6 +102,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	
 
 	this->setLayout( pVBox );
+
+	expandpatternlist = false;
+	expandsongslist = false;
 
 	updateDrumkitList();
 }
@@ -137,6 +141,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		m_pSongItem = new QTreeWidgetItem( m_pSoundLibraryTree );
 		m_pSongItem->setText( 0, trUtf8( "Songs" ) );
 		m_pSongItem->setToolTip( 0, "double click to expand the list" );
+		m_pSoundLibraryTree->setItemExpanded( m_pSongItem, expandsongslist );
 
 		for (uint i = 0; i < songList.size(); i++) 
 		{
@@ -158,7 +163,8 @@ void SoundLibraryPanel::updateDrumkitList()
 		m_pPatternItem = new QTreeWidgetItem( m_pSoundLibraryTree );
 		m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
 		m_pPatternItem->setToolTip( 0, "double click to expand the list" );
-
+		m_pSoundLibraryTree->setItemExpanded( m_pPatternItem, expandpatternlist );
+			
 //this is to push the mng.getPatternList in all patterns/drumkit dirs
 		for (uint i = 0; i < patternDirList.size(); ++i) {
 			QString absPath =  patternDirList[i];
@@ -535,8 +541,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
 	Drumkit::removeDrumkit( sSoundLibrary );
-
-	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	test_expandedItems();
+	updateDrumkitList();
 }
 
 
@@ -694,3 +700,51 @@ void SoundLibraryPanel::on_patternLoadAction()
 	HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
 }
 
+
+void SoundLibraryPanel::on_patternDeleteAction()
+{
+	LocalFileMng mng;
+
+	QString patternName = m_pSoundLibraryTree->currentItem()->text( 0 ) + ".h2pattern";
+	QString drumkitname = m_pSoundLibraryTree->currentItem()->toolTip ( 0 );
+	
+	QString sDirectory = "";
+
+	std::vector<QString> patternDirList = mng.getPatternDirList();
+
+		for (uint i = 0; i < patternDirList.size(); ++i) {
+			QString absPath =  patternDirList[i];
+			mng.getPatternList( absPath );
+		}
+
+	std::vector<QString> allPatternDirList = mng.getallPatternList();
+
+	for (uint i = 0; i < allPatternDirList.size(); ++i) {
+		QString testName = allPatternDirList[i];
+		if( testName.contains( patternName ) && testName.contains( drumkitname )){
+			sDirectory = allPatternDirList[i];		
+		} 
+	}
+
+	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+	if ( res == 1 ) {
+		return;
+	}
+
+	QFile rmfile(sDirectory );
+	bool err = rmfile.remove();
+	if ( err == false )
+	{
+		_ERRORLOG ( "Error removing the pattern" );
+	}
+
+	test_expandedItems();
+	updateDrumkitList();
+}
+
+
+void SoundLibraryPanel::test_expandedItems()
+{
+	expandsongslist = m_pSoundLibraryTree->isItemExpanded( m_pSongItem );
+	expandpatternlist = m_pSoundLibraryTree->isItemExpanded( m_pPatternItem );
+}
