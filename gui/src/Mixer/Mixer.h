@@ -51,6 +51,7 @@ class Mixer : public QWidget, public EventListener, public Object
 		void hideEvent ( QHideEvent *ev );
 		void resizeEvent ( QResizeEvent *ev );
 		void soloClicked(uint nLine);
+		bool isSoloClicked(uint nLine);
 
 		void getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R );
 

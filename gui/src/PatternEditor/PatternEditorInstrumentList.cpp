@@ -138,6 +138,12 @@ void InstrumentLine::setMuted(bool isMuted)
 }
 
 
+void InstrumentLine::setSoloed( bool soloed )
+{
+	m_pSoloBtn->setPressed( soloed );
+}
+
+
 
 void InstrumentLine::muteClicked()
 {
@@ -482,6 +488,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
+	Mixer * mixer = HydrogenApp::getInstance()->getMixer();
 
 	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
@@ -516,6 +523,9 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			pLine->setName( pInstr->get_name() );
 			pLine->setSelected( nInstr == nSelectedInstr );
 			pLine->setMuted( pInstr->is_muted() );
+			if ( mixer ) {
+				pLine->setSoloed( mixer->isSoloClicked( nInstr ) );
+			}
 
 		}
 	}

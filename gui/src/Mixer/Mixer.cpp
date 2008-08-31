@@ -246,34 +246,43 @@ void Mixer::soloClicked(MixerLine* ref)
 /// used in PatternEditorInstrumentList
 void Mixer::soloClicked(uint nLine)
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
-	int nInstruments = pInstrList->get_size();
-
-	bool isSoloClicked = m_pMixerLine[ nLine ]->isSoloClicked();
-
-	if (!isSoloClicked) {
-		for ( int i = 0; i < nInstruments; i++ ) {
-			m_pMixerLine[i]->setSoloClicked( false );
-			m_pMixerLine[i]->setMuteClicked( true );
-			pInstrList->get( i )->set_muted( true );
-		}
-		m_pMixerLine[nLine]->setSoloClicked( true );
-		m_pMixerLine[nLine]->setMuteClicked( false );
-		pInstrList->get( nLine )->set_muted( false );
-	}
-	else {
-		for ( int i = 0; i < nInstruments; i++ ) {
-			m_pMixerLine[i]->setMuteClicked( false );
-			m_pMixerLine[i]->setSoloClicked( false );
-			pInstrList->get( i )->set_muted( false );
-		}
-	}
+	MixerLine * L = m_pMixerLine[ nLine ];
+	L->setSoloClicked( !L->isSoloClicked() );
+	soloClicked( L );
+// 	Hydrogen *pEngine = Hydrogen::get_instance();
+// 	Song *pSong = pEngine->getSong();
+// 	InstrumentList *pInstrList = pSong->get_instrument_list();
+// 	int nInstruments = pInstrList->get_size();
+// 
+// 	bool isSoloClicked = m_pMixerLine[ nLine ]->isSoloClicked();
+// 
+// 	if (!isSoloClicked) {
+// 		for ( int i = 0; i < nInstruments; i++ ) {
+// 			m_pMixerLine[i]->setSoloClicked( false );
+// 			m_pMixerLine[i]->setMuteClicked( true );
+// 			pInstrList->get( i )->set_muted( true );
+// 		}
+// 		m_pMixerLine[nLine]->setSoloClicked( true );
+// 		m_pMixerLine[nLine]->setMuteClicked( false );
+// 		pInstrList->get( nLine )->set_muted( false );
+// 	}
+// 	else {
+// 		for ( int i = 0; i < nInstruments; i++ ) {
+// 			m_pMixerLine[i]->setMuteClicked( false );
+// 			m_pMixerLine[i]->setSoloClicked( false );
+// 			pInstrList->get( i )->set_muted( false );
+// 		}
+// 	}
 
 }
 
-
+bool Mixer::isSoloClicked( uint n )
+{
+	if ( n >= MAX_INSTRUMENTS || m_pMixerLine[ n ] == NULL ) {
+		return false;
+	}
+	return m_pMixerLine[ n ]->isSoloClicked();
+}
 
 void Mixer::noteOnClicked( MixerLine* ref )
 {
