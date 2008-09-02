@@ -653,6 +653,29 @@ http://www.hydrogen-music.org
     </message>
 </context>
 <context>
+    <name>FilePreview</name>
+    <message>
+        <source>&amp;Play sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size: %1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preview not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -2263,6 +2286,11 @@ Ben je zeker?</translation>
         <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Error saving pattern!
+The pattern-file exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
@@ -2507,6 +2535,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, the selected pattern will be deleted from disk.
+Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
