@@ -160,6 +160,9 @@
      <height>0</height>
     </size>
    </property>
+   <property name="text" >
+    <string/>
+   </property>
   </widget>
   <widget class="QWidget" name="layoutWidget" >
    <property name="geometry" >
@@ -170,7 +173,7 @@
      <height>28</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" >
+   <layout class="QHBoxLayout" >
     <item>
      <widget class="QPushButton" name="saveBtn" >
       <property name="text" >
@@ -201,6 +204,15 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>nameTxt</tabstop>
+  <tabstop>authorTxt</tabstop>
+  <tabstop>licenseTxt</tabstop>
+  <tabstop>infoTxt</tabstop>
+  <tabstop>saveChanges_checkBox</tabstop>
+  <tabstop>saveBtn</tabstop>
+  <tabstop>m_cancelBtn</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
