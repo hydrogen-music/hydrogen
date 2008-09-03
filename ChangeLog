@@ -5,6 +5,12 @@
 	* Jack port follows instrument names
 	* Mute groups for instruments
 	* New drumkit manager (with downloadable drumkits)
+	* Save and load patterns
+	* Jack transport master
+	* Beatcounter
+	* Playlist editor
+	* MMC
+	* Lead / lag (pattern editor) 
 
 2008-02-05 Alessandro Cominu <comix@users.sourceforge.net>
 	* Release 0.9.3.1
