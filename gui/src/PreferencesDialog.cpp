@@ -237,7 +237,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	useLashCheckbox->setChecked( pPref->m_bsetLash );	
 
-	sBcountOffset->setValue( pPref->m_coutOffset );
+	sBcountOffset->setValue( pPref->m_countOffset );
 	sBstartOffset->setValue( pPref->m_startOffset );
 
 	m_bNeedDriverRestart = false;
@@ -389,7 +389,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_bsetLash = false ; //if m_bsetlash = true, when the pref. Dialog closed lash would be activatet this case we dont want 
 	}
 
-	pPref->m_coutOffset = sBcountOffset->value();
+	pPref->m_countOffset = sBcountOffset->value();
 	pPref->m_startOffset = sBstartOffset->value();
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 

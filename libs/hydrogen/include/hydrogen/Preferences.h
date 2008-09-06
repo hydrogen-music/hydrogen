@@ -155,7 +155,7 @@ public:
 	bool m_bbc;
 	bool m_mmcsetplay;
 	
-	int m_coutOffset;
+	int m_countOffset;
 	int m_startOffset;
 	//~ beatcounter
 

@@ -2494,11 +2494,11 @@ int Hydrogen::getBcStatus()
 
 void Hydrogen::setBcOffsetAdjust()
 {
-	//individuel fine tuneing for the beatcounter
+	//individual fine tuning for the beatcounter
 	//to adjust  ms_offset from different people and controller
 	Preferences *pref = Preferences::getInstance();
 
-	m_nCoutOffset = pref->m_coutOffset;
+	m_nCoutOffset = pref->m_countOffset;
 	m_nStartOffset = pref->m_startOffset;
 }
 
