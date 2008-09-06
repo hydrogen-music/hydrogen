@@ -431,6 +431,10 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( setPlay == "SET_PLAY_ON" ) {
 						m_mmcsetplay = SET_PLAY_ON;
 					}
+				
+				m_coutOffset = LocalFileMng::readXmlInt( guiNode, "countoffset", 0 );
+				m_startOffset = LocalFileMng::readXmlInt( guiNode, "playoffset", 0 );
+				
 				//~ beatcounter
 
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
@@ -753,6 +757,9 @@ void Preferences::savePreferences()
 				setPlay = "SET_PLAY_ON";
 			}
 			LocalFileMng::writeXmlString( &guiNode, "setplay", setPlay );
+
+		LocalFileMng::writeXmlString( &guiNode, "countoffset", to_string(m_coutOffset) );
+		LocalFileMng::writeXmlString( &guiNode, "playoffset", to_string(m_startOffset) );
 		//~ beatcounter
 
 		// User interface style

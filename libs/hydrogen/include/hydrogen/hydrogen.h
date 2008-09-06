@@ -181,6 +181,7 @@ public:
 	float getNoteLengh();
 	int getBcStatus();
 	void handleBeatCounter();
+	void setBcOffsetAdjust();
 
 	/// jack time master
 	unsigned long getHumantimeFrames();

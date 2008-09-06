@@ -237,6 +237,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	useLashCheckbox->setChecked( pPref->m_bsetLash );	
 
+	sBcountOffset->setValue( pPref->m_coutOffset );
+	sBstartOffset->setValue( pPref->m_startOffset );
+
 	m_bNeedDriverRestart = false;
 }
 
@@ -385,6 +388,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	if ( pPref->m_brestartLash == true ){ 
 		pPref->m_bsetLash = false ; //if m_bsetlash = true, when the pref. Dialog closed lash would be activatet this case we dont want 
 	}
+
+	pPref->m_coutOffset = sBcountOffset->value();
+	pPref->m_startOffset = sBstartOffset->value();
+	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 	pPref->savePreferences();
 
@@ -634,3 +641,4 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	}
 	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
+

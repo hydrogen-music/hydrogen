@@ -25,16 +25,7 @@
     <property name="spacing" >
      <number>6</number>
     </property>
-    <property name="leftMargin" >
-     <number>0</number>
-    </property>
-    <property name="topMargin" >
-     <number>0</number>
-    </property>
-    <property name="rightMargin" >
-     <number>0</number>
-    </property>
-    <property name="bottomMargin" >
+    <property name="margin" >
      <number>0</number>
     </property>
     <item>
@@ -45,7 +36,7 @@
       <property name="sizeType" >
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0" >
        <size>
         <width>184</width>
         <height>16</height>
@@ -111,7 +102,7 @@
       <property name="sizeType" >
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0" >
        <size>
         <width>183</width>
         <height>16</height>
@@ -136,13 +127,24 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="toolTip" >
+    <string/>
+   </property>
    <property name="tabShape" >
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex" >
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_1" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>537</width>
+      <height>355</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>&amp;General</string>
     </attribute>
@@ -181,8 +183,80 @@
       <string>Use lash</string>
      </property>
     </widget>
+    <widget class="QSpinBox" name="sBcountOffset" >
+     <property name="geometry" >
+      <rect>
+       <x>11</x>
+       <y>91</y>
+       <width>52</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</string>
+     </property>
+     <property name="minimum" >
+      <number>-200</number>
+     </property>
+     <property name="maximum" >
+      <number>200</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bClabel_2" >
+     <property name="geometry" >
+      <rect>
+       <x>70</x>
+       <y>91</y>
+       <width>331</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Beat counter drift compensation in 1/10 ms   </string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="sBstartOffset" >
+     <property name="geometry" >
+      <rect>
+       <x>11</x>
+       <y>121</y>
+       <width>52</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </string>
+     </property>
+     <property name="minimum" >
+      <number>-500</number>
+     </property>
+     <property name="maximum" >
+      <number>500</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label" >
+     <property name="geometry" >
+      <rect>
+       <x>70</x>
+       <y>121</y>
+       <width>261</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Beat counter start offset in ms    </string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_2" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>537</width>
+      <height>355</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>Audio &amp;System</string>
     </attribute>
@@ -219,22 +293,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="1" column="1" >
@@ -371,22 +433,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >
@@ -508,6 +558,14 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab_3" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>537</width>
+      <height>355</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>&amp;Midi System</string>
     </attribute>
@@ -521,22 +579,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="1" column="0" >
@@ -694,6 +740,14 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab_4" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>537</width>
+      <height>355</height>
+     </rect>
+    </property>
     <attribute name="title" >
      <string>&amp;Appearance</string>
     </attribute>
@@ -720,22 +774,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="0" column="0" >
@@ -792,22 +834,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" >
-      <property name="leftMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
+      <property name="spacing" >
        <number>6</number>
       </property>
       <item row="0" column="1" >

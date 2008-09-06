@@ -53,6 +53,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_useLashCheckbox_clicked();
 
 
+
 	private:
 		bool m_bNeedDriverRestart;
 

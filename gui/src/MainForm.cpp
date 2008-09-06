@@ -157,11 +157,15 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	}
 #endif
 
+	
 //playlist display timer
 	QTimer *playlistDisplayTimer = new QTimer(this);
 	connect( playlistDisplayTimer, SIGNAL( timeout() ), this, SLOT( onPlaylistDisplayTimer() ) );
 	playlistDisplayTimer->start(15000);	// update player control at 
 // ~ playlist display timer
+	
+//beatcouter
+	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 }
 
