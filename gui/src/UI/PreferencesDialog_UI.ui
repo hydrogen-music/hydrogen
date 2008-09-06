@@ -427,9 +427,9 @@
      <property name="geometry" >
       <rect>
        <x>10</x>
-       <y>280</y>
+       <y>240</y>
        <width>291</width>
-       <height>58</height>
+       <height>79</height>
       </rect>
      </property>
      <layout class="QGridLayout" >
@@ -494,6 +494,23 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="manualTransportOffsetLabel" >
+        <property name="text" >
+         <string>Manual Transport Offset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QSpinBox" name="manualTransportOffsetSpinBox" >
+        <property name="minimum" >
+         <number>-10</number>
+        </property>
+        <property name="maximum" >
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
     <widget class="QGroupBox" name="groupBox" >
@@ -530,10 +547,13 @@
        <x>10</x>
        <y>190</y>
        <width>291</width>
-       <height>52</height>
+       <height>41</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" >
+      <property name="spacing" >
+       <number>-1</number>
+      </property>
       <item>
        <widget class="QCheckBox" name="connectDefaultsCheckBox" >
         <property name="text" >

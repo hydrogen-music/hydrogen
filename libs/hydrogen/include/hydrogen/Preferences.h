@@ -189,6 +189,7 @@ public:
 	bool m_bJackConnectDefaults;
 	bool m_bJackTrackOuts;
 	int m_nJackTrackOutputMode;
+	int m_nJackManualTransportOffset; // +/- buffer size
 	//jack time master
 	bool m_bJackMasterMode ;
 	//~ jack time master

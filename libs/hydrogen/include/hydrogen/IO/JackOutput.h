@@ -58,6 +58,9 @@ public:
 	int connect();
 	void disconnect();
 	void deactivate();
+	// Workaround for buggy transports.  Offsets the transport frame
+	// by the returned amount.
+	int getManualTransportAdjustment();
 	unsigned getBufferSize();
 	unsigned getSampleRate();
 	int getNumTracks();
@@ -114,7 +117,6 @@ protected:
                                          jack_position_t *pos,
                                          int new_pos);
 //~ jack timebase callback
-
 private:
 	H2Core::Hydrogen *m_pEngine;
 	void relocateBBT();

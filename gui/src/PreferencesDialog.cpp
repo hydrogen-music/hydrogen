@@ -126,6 +126,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
 	trackOutputComboBox->setCurrentIndex( pPref->m_nJackTrackOutputMode );
+	manualTransportOffsetSpinBox->setValue( pPref->m_nJackManualTransportOffset );
 	//~ JACK
 
 
@@ -642,3 +643,7 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
+void PreferencesDialog::on_manualTransportOffsetSpinBox_valueChanged( int value )
+{
+	Preferences::getInstance()->m_nJackManualTransportOffset = value;
+}
