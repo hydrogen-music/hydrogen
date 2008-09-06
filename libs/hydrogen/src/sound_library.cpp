@@ -174,11 +174,9 @@ void Drumkit::install( const QString& filename )
 		// extract tarball
 		r = archive_read_extract(drumkitFile, entry, 0);
 		if (r == ARCHIVE_WARN) {
-			_WARNINGLOG( QString( "warning while extracting %1 (%2)")
-				.arg(filename).arg(archive_error_string(drumkitFile)));
+			_WARNINGLOG( QString( "warning while extracting %1 (%2)").arg(filename).arg(archive_error_string(drumkitFile)));
 		} else if (r != ARCHIVE_OK) {
-			_ERRORLOG( QString( "error while extracting %1 (%2)")
-				.arg(filename).arg(archive_error_string(drumkitFile)));
+			_ERRORLOG( QString( "error while extracting %1 (%2)").arg(filename).arg(archive_error_string(drumkitFile)));
 			break;
 		}
 	}
@@ -226,7 +224,7 @@ void Drumkit::install( const QString& filename )
                 _ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( strerror( errno ) ) );
         }
 }
-#endif 
+#endif
 
 #endif
 

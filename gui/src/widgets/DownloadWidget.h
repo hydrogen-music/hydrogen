@@ -30,106 +30,59 @@
 
 #include <hydrogen/Object.h>
 
-/*
-The RedirectHttp class is borrowed from AmaroK.
-
-Copyright (C) 2005 - 2007 by
-    Christian Muehlhaeuser, Last.fm Ltd <chris@last.fm>
-    Erik Jaelevik, Last.fm Ltd <erik@last.fm>
-    Jono Cole, Last.fm Ltd <jono@last.fm>
-*/
-class RedirectHttp : public QHttp
-{
-    Q_OBJECT
-
-    public:
-
-        RedirectHttp( QObject* parent = 0 );
-        ~RedirectHttp();
-
-        int get( const QString& path, QIODevice* to = 0 );
-        int post( const QString& path, QIODevice* data = 0, QIODevice* to = 0 );
-        int post( const QString& path, const QByteArray& data, QIODevice* to = 0 );
-        int request( const QHttpRequestHeader& header, QIODevice* data = 0, QIODevice* to = 0 );
-        int request( const QHttpRequestHeader& header, const QByteArray& data, QIODevice* to = 0 );
-
-    private slots:
-        void onHeaderReceived( const QHttpResponseHeader& resp );
-
-        void onRequestFinished( int id, bool error );
-        void onRequestStarted( int id );
-
-    private:
-
-        enum RequestMode
-        {
-            GET = 0,
-            POST,
-            POSTIO,
-            REQUEST,
-            REQUESTIO
-        };
-
-        QByteArray m_data;
-        QIODevice* m_device;
-        QIODevice* m_to;
-        QHttpRequestHeader m_header;
-
-        QHash<int,int> m_idTrans;
-        int m_mode;
-        int m_lastRequest;
-};
-
-
 class Download : public QDialog, public Object
 {
-	Q_OBJECT
+Q_OBJECT
 
-	public:
-		Download( QWidget* pParent, const QString& sRemoteURL, const QString& sLocalFile );
-		~Download();
+public:
+	Download( QWidget* parent, const QString& download_url, const QString& local_file );
+	~Download();
 
-		int getPercentDone() {	return (int)m_fPercDownload;	}
-		const QString& getXMLContent() {	return m_sFeedXML;	}
+	int get_percent_done() {	return (int)__download_percent;	}
+	const QString& get_xml_content() {	return __feed_xml_string;	}
 
-	private slots:
-		void fetchDone( bool bError );
-		void fetchProgress( int done, int total );
-		void httpRequestFinished(int requestId, bool error);
+private slots:
+	void __fetch_done( bool bError );
+	void __fetch_progress( int done, int total );
+	void __http_request_finished( int requestId, bool error );
+	void __header_received( const QHttpResponseHeader& res );
 
-	protected:
-		//QHttp m_httpClient;
-		RedirectHttp m_httpClient;
-		QTime m_time;
+protected:
+	QHttp __http_client;
+	QTime __time;
 
-		float m_fPercDownload;
-		int m_nETA;
-		int m_nBytesCurrent;
-		int m_nBytesTotal;
-		QString m_sRemoteURL;
-		QString m_sLocalFile;
-		QString m_sFeedXML;
+	float __download_percent;
+	int __eta;
+	int __bytes_current;
+	int __bytes_total;
+	QString __remote_url;
+	QString __local_file;
+	QString __feed_xml_string;
+
+	QString __redirect_url;
 };
 
 
 
 class DownloadWidget : public Download
 {
-	Q_OBJECT
+Q_OBJECT
 
-	public:
-		DownloadWidget( QWidget* pParent, const QString& sTitleText, const QString& sRemoteURL, const QString& sLocalFile = "" );
-		~DownloadWidget();
+public:
+	DownloadWidget( QWidget* parent, const QString& title, const QString& download_url, const QString& local_file = "" );
+	~DownloadWidget();
 
-	private slots:
-		void updateStats();
+	QString get_redirect_url() {	return __redirect_url;	}
 
-	private:
- 		QTimer *m_pUpdateTimer;
-		QTimer *m_pCloseTimer;
-		QLabel *m_pURLLabel;
-		QLabel *m_pETALabel;
-		QProgressBar* m_pProgressBar;
+private slots:
+	void updateStats();
+
+private:
+	QTimer* __update_timer;
+	QTimer* __close_timer;
+	QLabel* __url_label;
+	QLabel* __eta_label;
+	QProgressBar* __progress_bar;
 };
 
 #endif
