@@ -45,18 +45,18 @@ class SoundLibraryPanel : public QWidget, private Object
 {
 Q_OBJECT
 public:
-	SoundLibraryPanel( QWidget *pParent );
+	SoundLibraryPanel( QWidget* parent );
 	~SoundLibraryPanel();
 
 	void updateDrumkitList();
 	void test_expandedItems();
 
 private slots:
-	void on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous );
-	void on_DrumkitList_itemActivated( QTreeWidgetItem * item, int column );
+	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
+	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
 	void on_DrumkitList_leftClicked( QPoint pos );
 	void on_DrumkitList_rightClicked( QPoint pos );
-	void on_DrumkitList_mouseMove( QMouseEvent *event );
+	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
 	void on_drumkitLoadAction();
 	void on_drumkitDeleteAction();
@@ -68,26 +68,26 @@ private slots:
 	void on_patternDeleteAction();
 
 private:
-	SoundLibraryTree *m_pSoundLibraryTree;
+	SoundLibraryTree *__sound_library_tree;
 	//FileBrowser *m_pFileBrowser;
 
-	QPoint m_startDragPosition;
-	QMenu* m_pDrumkitMenu;
-	QMenu* m_pInstrumentMenu;
-	QMenu* m_pSongMenu;
-	QMenu* m_pPatternMenu;
-	QMenu* m_pPatternMenuList;
+	QPoint __start_drag_position;
+	QMenu* __drumkit_menu;
+	QMenu* __instrument_menu;
+	QMenu* __song_menu;
+	QMenu* __pattern_menu;
+	QMenu* __pattern_menu_list;
 
-	QTreeWidgetItem* m_pSystemDrumkitsItem;
-	QTreeWidgetItem* m_pUserDrumkitsItem;
-	QTreeWidgetItem* m_pSongItem;
-	QTreeWidgetItem* m_pPatternItem;
-	QTreeWidgetItem* m_pPatternItemList;
+	QTreeWidgetItem* __system_drumkits_item;
+	QTreeWidgetItem* __user_drumkits_item;
+	QTreeWidgetItem* __song_item;
+	QTreeWidgetItem* __pattern_item;
+	QTreeWidgetItem* __pattern_item_list;
 
-	std::vector<H2Core::Drumkit*> m_systemDrumkitInfoList;
-	std::vector<H2Core::Drumkit*> m_userDrumkitInfoList;
-	bool expandpatternlist;
-	bool expandsongslist;
+	std::vector<H2Core::Drumkit*> __system_drumkit_info_list;
+	std::vector<H2Core::Drumkit*> __user_drumkit_info_list;
+	bool __expand_pattern_list;
+	bool __expand_songs_list;
 };
 
 #endif
