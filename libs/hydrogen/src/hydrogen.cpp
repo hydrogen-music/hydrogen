@@ -1670,10 +1670,6 @@ Hydrogen* Hydrogen::get_instance()
 /// Start the internal sequencer
 void Hydrogen::sequencer_play()
 {
-	// play from start if pattern mode is enabled
-	if ( m_pSong->get_mode() == Song::PATTERN_MODE ) {
-		setPatternPos( 0 );
-	}
 	m_pAudioDriver->play();
 }
 
