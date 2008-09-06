@@ -36,6 +36,9 @@
 #include <hydrogen/LashClient.h>
 #endif
 
+//#define OFFSET_BUFFER - getBufferSize()
+#define OFFSET_BUFFER
+
 namespace H2Core
 {
 
@@ -222,7 +225,7 @@ void JackOutput::relocateBBT()
 {
 	//wolke if hydrogen is jack time master this is not relevant
 	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&  m_transport.m_status != TransportInfo::ROLLING) {
-		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
+		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() OFFSET_BUFFER;
 		WARNINGLOG( "Relocate: Call it off" );
 		calculateFrameOffset();
 	 	return;
@@ -358,7 +361,7 @@ void JackOutput::updateTransportInfo()
 					}
 					else
 					{
-						m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();
+						m_transport.m_nFrames = H->getHumantimeFrames() OFFSET_BUFFER;
 					}
 					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
 					if ( m_transport.m_status == TransportInfo::ROLLING )
@@ -366,7 +369,7 @@ void JackOutput::updateTransportInfo()
 				} else {
 					///this is experimantal... but it works for the moment... fix me fix :-) wolke
 					// ... will this actually happen? keeping it for now ( jakob lund )
-					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();
+					m_transport.m_nFrames = H->getHumantimeFrames() OFFSET_BUFFER;
 				}
 			}
 		}
