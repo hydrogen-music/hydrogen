@@ -40,16 +40,19 @@
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
 
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/data_path.h>
-#include <hydrogen/sample.h>
 #include <hydrogen/adsr.h>
+#include <hydrogen/audio_engine.h>
+#include <hydrogen/data_path.h>
+#include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/audio_engine.h>
+#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Pattern.h>
+#include <hydrogen/sample.h>
+#include <hydrogen/Song.h>
+#include <hydrogen/SoundLibrary.h>
+
 using namespace H2Core;
 
 #include <cassert>
@@ -57,9 +60,19 @@ using namespace H2Core;
 SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
  : QWidget( pParent )
  , Object( "SoundLibraryPanel" )
+ , m_pSoundLibraryTree( NULL )
+ , m_pDrumkitMenu( NULL )
+ , m_pInstrumentMenu( NULL )
+ , m_pSongMenu( NULL )
+ , m_pPatternMenu( NULL )
+ , m_pPatternMenuList( NULL )
+ , m_pSystemDrumkitsItem( NULL )
+ , m_pUserDrumkitsItem( NULL )
+ , m_pSongItem( NULL )
+ , m_pPatternItem( NULL )
+ , m_pPatternItemList( NULL )
 {
 	//INFOLOG( "INIT" );
-
 	m_pDrumkitMenu = new QMenu( this );
 	m_pDrumkitMenu->addAction( trUtf8( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
 	m_pDrumkitMenu->addAction( trUtf8( "Export" ), this, SLOT( on_drumkitExportAction() ) );
@@ -745,6 +758,7 @@ void SoundLibraryPanel::on_patternDeleteAction()
 
 void SoundLibraryPanel::test_expandedItems()
 {
+	assert( m_pSoundLibraryTree );
 	expandsongslist = m_pSoundLibraryTree->isItemExpanded( m_pSongItem );
 	expandpatternlist = m_pSoundLibraryTree->isItemExpanded( m_pPatternItem );
 }

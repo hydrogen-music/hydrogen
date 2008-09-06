@@ -29,63 +29,65 @@
 
 #include <vector>
 
-#include <hydrogen/Song.h>
 #include <hydrogen/Object.h>
-#include <hydrogen/SoundLibrary.h>
+
+namespace H2Core
+{
+	class Song;
+	class Drumkit;
+	class SoundLibrary;
+}
 
 class SoundLibraryTree;
 class ToggleButton;
 
 class SoundLibraryPanel : public QWidget, private Object
 {
-	Q_OBJECT
-	public:
-		SoundLibraryPanel( QWidget *pParent );
-		~SoundLibraryPanel();
+Q_OBJECT
+public:
+	SoundLibraryPanel( QWidget *pParent );
+	~SoundLibraryPanel();
 
-		void updateDrumkitList();
-		void test_expandedItems();
+	void updateDrumkitList();
+	void test_expandedItems();
 
-	private slots:
-		void on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous );
-		void on_DrumkitList_itemActivated( QTreeWidgetItem * item, int column );
-		void on_DrumkitList_leftClicked( QPoint pos );
-		void on_DrumkitList_rightClicked( QPoint pos );
-		void on_DrumkitList_mouseMove( QMouseEvent *event );
+private slots:
+	void on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous );
+	void on_DrumkitList_itemActivated( QTreeWidgetItem * item, int column );
+	void on_DrumkitList_leftClicked( QPoint pos );
+	void on_DrumkitList_rightClicked( QPoint pos );
+	void on_DrumkitList_mouseMove( QMouseEvent *event );
 
-		void on_drumkitLoadAction();
-		void on_drumkitDeleteAction();
-		void on_drumkitPropertiesAction();
-		void on_drumkitExportAction();
-		void on_instrumentDeleteAction();
-		void on_songLoadAction();
-		void on_patternLoadAction();
-		void on_patternDeleteAction();
+	void on_drumkitLoadAction();
+	void on_drumkitDeleteAction();
+	void on_drumkitPropertiesAction();
+	void on_drumkitExportAction();
+	void on_instrumentDeleteAction();
+	void on_songLoadAction();
+	void on_patternLoadAction();
+	void on_patternDeleteAction();
 
-	private:
-		SoundLibraryTree *m_pSoundLibraryTree;
-		//FileBrowser *m_pFileBrowser;
+private:
+	SoundLibraryTree *m_pSoundLibraryTree;
+	//FileBrowser *m_pFileBrowser;
 
-		QPoint m_startDragPosition;
-		QMenu* m_pDrumkitMenu;
-		QMenu* m_pInstrumentMenu;
-		QMenu* m_pSongMenu;
-		QMenu* m_pPatternMenu;
-		QMenu* m_pPatternMenuList;
+	QPoint m_startDragPosition;
+	QMenu* m_pDrumkitMenu;
+	QMenu* m_pInstrumentMenu;
+	QMenu* m_pSongMenu;
+	QMenu* m_pPatternMenu;
+	QMenu* m_pPatternMenuList;
 
-		QTreeWidgetItem* m_pSystemDrumkitsItem;
-		QTreeWidgetItem* m_pUserDrumkitsItem;
-		QTreeWidgetItem* m_pSongItem;
-		QTreeWidgetItem* m_pPatternItem;
-		QTreeWidgetItem* m_pPatternItemList;
+	QTreeWidgetItem* m_pSystemDrumkitsItem;
+	QTreeWidgetItem* m_pUserDrumkitsItem;
+	QTreeWidgetItem* m_pSongItem;
+	QTreeWidgetItem* m_pPatternItem;
+	QTreeWidgetItem* m_pPatternItemList;
 
-		std::vector<H2Core::Drumkit*> m_systemDrumkitInfoList;
-		std::vector<H2Core::Drumkit*> m_userDrumkitInfoList;
-		bool expandpatternlist;
-		bool expandsongslist;
-	
-
-
+	std::vector<H2Core::Drumkit*> m_systemDrumkitInfoList;
+	std::vector<H2Core::Drumkit*> m_userDrumkitInfoList;
+	bool expandpatternlist;
+	bool expandsongslist;
 };
 
 #endif
