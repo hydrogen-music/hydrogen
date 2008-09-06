@@ -1502,7 +1502,7 @@ void MainForm::getLatestVersion()
 	#endif
 
 
-	QString sRequest = QString("/getLatestVersion.php?UsingVersion=%1").arg(VERSION.c_str());
+	QString sRequest = QString("/getLatestVersion.php?UsingVersion=%1").arg( get_version().c_str() );
 	sRequest += QString( "&OS=%1" ).arg( os );
 
 	//INFOLOG( sRequest );
@@ -1530,7 +1530,7 @@ void MainForm::latestVersionDone(bool bError)
 	QString sLatest_micro = sLatestVersion.section( '.', 2, 2 );
 //	INFOLOG( "Latest available version is: " + QString( sLatestVersion.ascii() ) );
 
-	QString sCurrentVersion = VERSION.c_str();
+	QString sCurrentVersion = get_version().c_str();
 	QString sCurrent_major = sCurrentVersion.section( '.', 0, 0 );
 	QString sCurrent_minor = sCurrentVersion.section( '.', 1, 1 );
 	QString sCurrent_micro = sCurrentVersion.section( '.', 2, 2 );

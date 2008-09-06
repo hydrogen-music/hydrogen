@@ -203,7 +203,7 @@ Song* SongReader::readSong( const QString& filename )
 
 
 	m_sSongVersion = LocalFileMng::readXmlString( songNode, "version", "Unknown version" );
-	if ( m_sSongVersion != QString( VERSION.c_str() ) ) {
+	if ( m_sSongVersion != QString( get_version().c_str() ) ) {
 		WARNINGLOG( "Trying to load a song created with a different version of hydrogen." );
 		WARNINGLOG( "Song [" + filename + "] saved with version " + m_sSongVersion );
 	}

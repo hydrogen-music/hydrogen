@@ -47,8 +47,6 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	UNUSED( pParent );
 
 	INFOLOG( "INIT" );
-	ERRORLOG("CHI CAVOLO LO USA??? Eliminare InstrumentEditorPanel");
-
 
 	m_pInstrumentEditor = new InstrumentEditor( 0 );
 

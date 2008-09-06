@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 					break;
 
 				case 'v':
-					std::cout << VERSION << std::endl;
+					std::cout << get_version() << std::endl;
 					exit(0);
 					break;
 
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
  */
 void showInfo()
 {
-	cout << "\nHydrogen " + VERSION + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
+	cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 

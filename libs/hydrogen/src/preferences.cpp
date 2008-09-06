@@ -536,7 +536,7 @@ void Preferences::savePreferences()
 	TiXmlElement rootNode( "hydrogen_preferences" );
 
 	// hydrogen version
-	LocalFileMng::writeXmlString( &rootNode, "version", QString( VERSION.c_str() ) );
+	LocalFileMng::writeXmlString( &rootNode, "version", QString( get_version().c_str() ) );
 
 	////// GENERAL ///////
 	LocalFileMng::writeXmlString( &rootNode, "restoreLastSong", restoreLastSong ? "true": "false" );

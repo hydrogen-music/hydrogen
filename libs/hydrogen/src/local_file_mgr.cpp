@@ -1081,7 +1081,7 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 {
 	INFOLOG( "Saving song " + filename );
 
-	// FIXME: verificare se e' possibile scrivere il file
+	// FIXME: has the file write-permssion?
 	// FIXME: verificare che il file non sia gia' esistente
 	// FIXME: effettuare copia di backup per il file gia' esistente
 
@@ -1089,7 +1089,7 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 
 	TiXmlElement songNode( "song" );
 
-	LocalFileMng::writeXmlString( &songNode, "version", QString( VERSION.c_str() ) );
+	LocalFileMng::writeXmlString( &songNode, "version", QString( get_version().c_str() ) );
 	LocalFileMng::writeXmlString( &songNode, "bpm", to_string( song->__bpm ) );
 	LocalFileMng::writeXmlString( &songNode, "volume", to_string( song->get_volume() ) );
 	LocalFileMng::writeXmlString( &songNode, "metronomeVolume", to_string( song->get_metronome_volume() ) );
