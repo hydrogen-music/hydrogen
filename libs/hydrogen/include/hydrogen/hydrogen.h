@@ -193,18 +193,22 @@ public:
 	void setNewBpmJTM( float bpmJTM);
 	void ComputeHumantimeFrames(uint32_t nFrames);
 	
-	void kill_instruments();
 
 private:
-	static Hydrogen* instance;
-
-	/// Constructor
-	Hydrogen();
+	static Hydrogen* __instance;
 
 	// used for song export
 	Song::SongMode m_oldEngineMode;
 	bool m_bOldLoopEnabled;
-	std::list<Instrument*> instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
+
+	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
+
+
+	/// Private constructor
+	Hydrogen();
+
+	void __kill_instruments();
+
 };
 
 };

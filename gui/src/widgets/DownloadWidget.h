@@ -30,6 +30,56 @@
 
 #include <hydrogen/Object.h>
 
+/*
+The RedirectHttp class is borrowed from AmaroK.
+
+Copyright (C) 2005 - 2007 by
+    Christian Muehlhaeuser, Last.fm Ltd <chris@last.fm>
+    Erik Jaelevik, Last.fm Ltd <erik@last.fm>
+    Jono Cole, Last.fm Ltd <jono@last.fm>
+*/
+class RedirectHttp : public QHttp
+{
+    Q_OBJECT
+
+    public:
+
+        RedirectHttp( QObject* parent = 0 );
+        ~RedirectHttp();
+
+        int get( const QString& path, QIODevice* to = 0 );
+        int post( const QString& path, QIODevice* data = 0, QIODevice* to = 0 );
+        int post( const QString& path, const QByteArray& data, QIODevice* to = 0 );
+        int request( const QHttpRequestHeader& header, QIODevice* data = 0, QIODevice* to = 0 );
+        int request( const QHttpRequestHeader& header, const QByteArray& data, QIODevice* to = 0 );
+
+    private slots:
+        void onHeaderReceived( const QHttpResponseHeader& resp );
+
+        void onRequestFinished( int id, bool error );
+        void onRequestStarted( int id );
+
+    private:
+
+        enum RequestMode
+        {
+            GET = 0,
+            POST,
+            POSTIO,
+            REQUEST,
+            REQUESTIO
+        };
+
+        QByteArray m_data;
+        QIODevice* m_device;
+        QIODevice* m_to;
+        QHttpRequestHeader m_header;
+
+        QHash<int,int> m_idTrans;
+        int m_mode;
+        int m_lastRequest;
+};
+
 
 class Download : public QDialog, public Object
 {
@@ -46,10 +96,10 @@ class Download : public QDialog, public Object
 		void fetchDone( bool bError );
 		void fetchProgress( int done, int total );
 		void httpRequestFinished(int requestId, bool error);
-		void readResponseHeader( const QHttpResponseHeader& );
 
 	protected:
-		QHttp m_httpClient;
+		//QHttp m_httpClient;
+		RedirectHttp m_httpClient;
 		QTime m_time;
 
 		float m_fPercDownload;

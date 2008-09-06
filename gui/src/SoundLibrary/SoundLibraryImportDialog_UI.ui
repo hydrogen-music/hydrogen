@@ -5,260 +5,310 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>772</width>
-    <height>499</height>
+    <width>770</width>
+    <height>534</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Dialog</string>
   </property>
-  <widget class="QTabWidget" name="tabWidget" >
-   <property name="geometry" >
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>751</width>
-     <height>481</height>
-    </rect>
-   </property>
-   <property name="currentIndex" >
-    <number>0</number>
-   </property>
-   <widget class="QWidget" name="Internet" >
-    <attribute name="title" >
-     <string>Internet</string>
-    </attribute>
-    <widget class="QWidget" name="widget_1" >
-     <property name="geometry" >
-      <rect>
-       <x>310</x>
-       <y>10</y>
-       <width>431</width>
-       <height>431</height>
-      </rect>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
      </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="leftMargin" >
-       <number>0</number>
-      </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="SoundLibraryNameLbl" >
-        <property name="maximumSize" >
-         <size>
-          <width>16777215</width>
-          <height>50</height>
-         </size>
+     <widget class="QWidget" name="Internet" >
+      <attribute name="title" >
+       <string>Internet</string>
+      </attribute>
+      <widget class="QWidget" name="widget_1" >
+       <property name="geometry" >
+        <rect>
+         <x>320</x>
+         <y>10</y>
+         <width>421</width>
+         <height>431</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" >
+        <property name="spacing" >
+         <number>6</number>
         </property>
-        <property name="font" >
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
+        <property name="leftMargin" >
+         <number>0</number>
         </property>
-        <property name="text" >
-         <string>Sound Library Name</string>
+        <property name="topMargin" >
+         <number>0</number>
         </property>
-        <property name="alignment" >
-         <set>Qt::AlignCenter</set>
+        <property name="rightMargin" >
+         <number>0</number>
         </property>
-        <property name="wordWrap" >
-         <bool>true</bool>
+        <property name="bottomMargin" >
+         <number>0</number>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="SoundLibraryInfoLbl" >
-        <property name="text" >
-         <string>Sound library Info</string>
+        <item>
+         <widget class="QLabel" name="SoundLibraryNameLbl" >
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="font" >
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text" >
+           <string>Sound Library Name</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="SoundLibraryInfoLbl" >
+          <property name="text" >
+           <string>Sound library Info</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+          <property name="wordWrap" >
+           <bool>true</bool>
+          </property>
+          <property name="margin" >
+           <number>-1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="LicenseLbl" >
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>License...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="AuthorLbl" >
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Author...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="DownloadBtn" >
+          <property name="text" >
+           <string>Download and install</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="" >
+       <property name="geometry" >
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>301</width>
+         <height>431</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="QComboBox" name="repositoryCombo" />
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="UpdateListBtn" >
+            <property name="text" >
+             <string>Update list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="EditListBtn" >
+            <property name="text" >
+             <string>Edit server list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTreeWidget" name="m_pDrumkitTree" >
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
+          </property>
+          <property name="indentation" >
+           <number>15</number>
+          </property>
+          <property name="rootIsDecorated" >
+           <bool>false</bool>
+          </property>
+          <property name="itemsExpandable" >
+           <bool>false</bool>
+          </property>
+          <column>
+           <property name="text" >
+            <string>1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>Local file</string>
+      </attribute>
+      <widget class="QWidget" name="widget_2" >
+       <property name="geometry" >
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>721</width>
+         <height>68</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="leftMargin" >
+         <number>0</number>
         </property>
-        <property name="alignment" >
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        <property name="topMargin" >
+         <number>0</number>
         </property>
-        <property name="wordWrap" >
-         <bool>true</bool>
+        <property name="rightMargin" >
+         <number>0</number>
         </property>
-        <property name="margin" >
-         <number>-1</number>
+        <property name="bottomMargin" >
+         <number>0</number>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="LicenseLbl" >
-        <property name="maximumSize" >
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
+        <property name="horizontalSpacing" >
+         <number>6</number>
         </property>
-        <property name="text" >
-         <string>License...</string>
+        <property name="verticalSpacing" >
+         <number>6</number>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="AuthorLbl" >
-        <property name="maximumSize" >
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="text" >
-         <string>Author...</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="DownloadBtn" >
-        <property name="text" >
-         <string>Download and install</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+        <item row="0" column="1" >
+         <widget class="QPushButton" name="BrowseBtn" >
+          <property name="text" >
+           <string>Browse...</string>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QPushButton" name="InstallBtn" >
+          <property name="text" >
+           <string>Install</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" >
+         <widget class="QLineEdit" name="SoundLibraryPathTxt" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Maximum" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </widget>
-    <widget class="QPushButton" name="EditListBtn" >
-     <property name="geometry" >
-      <rect>
-       <x>160</x>
-       <y>40</y>
-       <width>140</width>
-       <height>28</height>
-      </rect>
-     </property>
-     <property name="text" >
-      <string>Edit server list</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="repositoryCombo" >
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>11</y>
-       <width>289</width>
-       <height>24</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QTreeWidget" name="m_pDrumkitTree" >
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>75</y>
-       <width>289</width>
-       <height>365</height>
-      </rect>
-     </property>
-     <property name="alternatingRowColors" >
-      <bool>true</bool>
-     </property>
-     <property name="indentation" >
-      <number>15</number>
-     </property>
-     <property name="rootIsDecorated" >
-      <bool>false</bool>
-     </property>
-     <property name="itemsExpandable" >
-      <bool>false</bool>
-     </property>
-     <column>
-      <property name="text" >
-       <string>1</string>
-      </property>
-     </column>
-    </widget>
-    <widget class="QPushButton" name="UpdateListBtn" >
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>40</y>
-       <width>140</width>
-       <height>28</height>
-      </rect>
-     </property>
-     <property name="text" >
-      <string>Update list</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="tab_2" >
-    <attribute name="title" >
-     <string>Local file</string>
-    </attribute>
-    <widget class="QWidget" name="widget_2" >
-     <property name="geometry" >
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>721</width>
-       <height>68</height>
-      </rect>
-     </property>
-     <layout class="QGridLayout" >
-      <property name="leftMargin" >
-       <number>0</number>
-      </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <property name="horizontalSpacing" >
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing" >
-       <number>6</number>
-      </property>
-      <item row="0" column="1" >
-       <widget class="QPushButton" name="BrowseBtn" >
-        <property name="text" >
-         <string>Browse...</string>
-        </property>
-        <property name="flat" >
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" >
-       <widget class="QPushButton" name="InstallBtn" >
-        <property name="text" >
-         <string>Install</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" >
-       <widget class="QLineEdit" name="SoundLibraryPathTxt" >
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Maximum" hsizetype="Expanding" >
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="readOnly" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </widget>
-  </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="close_btn" >
+       <property name="text" >
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

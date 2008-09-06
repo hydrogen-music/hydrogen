@@ -170,8 +170,8 @@ int	audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
 void	audioEngine_stop( bool bLockEngine = false );
 void	audioEngine_setSong( Song *newSong );
 void	audioEngine_removeSong();
-void	audioEngine_noteOn( Note *note );
-void	audioEngine_noteOff( Note *note );
+static void	audioEngine_noteOn( Note *note );
+static void	audioEngine_noteOff( Note *note );
 int	audioEngine_process( uint32_t nframes, void *arg );
 inline void audioEngine_clearNoteQueue();
 inline void audioEngine_process_checkBPMChanged();
@@ -1615,7 +1615,7 @@ void audioEngine_restartAudioDrivers()
 //----------------------------------------------------------------------------
 
 
-Hydrogen* Hydrogen::instance = NULL;		/// static reference of Hydrogen class (Singleton)
+Hydrogen* Hydrogen::__instance = NULL;		/// static reference of Hydrogen class (Singleton)
 
 
 
@@ -1623,7 +1623,7 @@ Hydrogen* Hydrogen::instance = NULL;		/// static reference of Hydrogen class (Si
 Hydrogen::Hydrogen()
 		: Object( "Hydrogen" )
 {
-	if ( instance ) {
+	if ( __instance ) {
 		_ERRORLOG( "Hydrogen audio engine is already running" );
 		throw H2Exception( "Hydrogen audio engine is already running" );
 	}
@@ -1631,7 +1631,7 @@ Hydrogen::Hydrogen()
 	_INFOLOG( "[Hydrogen]" );
 
 	hydrogenInstance = this;
-	instance = this;
+// 	__instance = this;
 	audioEngine_init();
 	audioEngine_startAudioDrivers();
 
@@ -1648,8 +1648,8 @@ Hydrogen::~Hydrogen()
 	removeSong();
 	audioEngine_stopAudioDrivers();
 	audioEngine_destroy();
-	kill_instruments();
-	instance = NULL;
+	__kill_instruments();
+	__instance = NULL;
 }
 
 
@@ -1657,10 +1657,10 @@ Hydrogen::~Hydrogen()
 /// Return the Hydrogen instance
 Hydrogen* Hydrogen::get_instance()
 {
-	if ( instance == NULL ) {
-		instance = new Hydrogen();
+	if ( __instance == NULL ) {
+		__instance = new Hydrogen();
 	}
-	return instance;
+	return __instance;
 }
 
 
@@ -2189,8 +2189,8 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	// the ugly name is just for debugging...
 	QString xxx_name = QString( "XXX_%1" ) . arg( pInstr->get_name() );
 	pInstr->set_name( xxx_name );
-	instrument_death_row.push_back( pInstr );
-	kill_instruments(); // checks if there are still notes.
+	__instrument_death_row.push_back( pInstr );
+	__kill_instruments(); // checks if there are still notes.
 	
 	// this will force a GUI update.
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -2676,13 +2676,19 @@ void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 	if ( ( m_audioEngineState == STATE_PLAYING ) )
 	m_nHumantimeFrames = nFrames + m_nHumantimeFrames;
 }
+
+
 //~ jack transport master
-void Hydrogen::triggerRelocateDuringPlay() {
+
+void Hydrogen::triggerRelocateDuringPlay()
+{
 	if ( m_pSong->get_mode() == Song::PATTERN_MODE )
 		m_nPatternStartTick = -1; // This forces the barline position 
 }
 
-void Hydrogen::togglePlaysSelected() {
+
+void Hydrogen::togglePlaysSelected()
+{
 	if ( getSong()->get_mode() != Song::PATTERN_MODE )
 		return;
 	Preferences * P = Preferences::getInstance();
@@ -2704,21 +2710,21 @@ void Hydrogen::togglePlaysSelected() {
 	
 }
 
-void Hydrogen::kill_instruments() {
+void Hydrogen::__kill_instruments()
+{
 	int c = 0;
 	Instrument * pInstr = NULL;
-	while ( instrument_death_row.size() && instrument_death_row.front()->is_queued() == 0 )
-	{
-		pInstr = instrument_death_row.front();
-		instrument_death_row.pop_front();
+	while ( __instrument_death_row.size() && __instrument_death_row.front()->is_queued() == 0 ) {
+		pInstr = __instrument_death_row.front();
+		__instrument_death_row.pop_front();
 		INFOLOG( QString( "Deleting unused instrument (%1). %2 unused remain." ) \
 			. arg( pInstr->get_name() ) \
-			. arg( instrument_death_row.size() ) );
+			. arg( __instrument_death_row.size() ) );
 		delete pInstr;
 		c++;
 	}
-	if ( instrument_death_row.size() ) {
-		pInstr = instrument_death_row.front();
+	if ( __instrument_death_row.size() ) {
+		pInstr = __instrument_death_row.front();
 		INFOLOG( QString( "Instrument %1 still has %2 active notes. Delaying 'delete instrument' operation." ) \
 			. arg( pInstr->get_name() ) \
 			. arg( pInstr->is_queued() ) );

@@ -125,14 +125,10 @@ public:
 	    bool is_live = true
 	);
 
-	/**
-	\brief Returns a layer in the list
-	 */
+	/// Returns a layer in the list
 	inline InstrumentLayer* get_layer( int index );
 
-	/**
-	\brief Sets a layer in the list
-	 */
+	/// Sets a layer in the list
 	void set_layer( InstrumentLayer* layer, unsigned index );
 
 
@@ -282,7 +278,7 @@ private:
 	InstrumentLayer* __layer_list[MAX_LAYERS];
 	ADSR* __adsr;
 	bool __muted;
-	QString __name;		///< Instrument name
+	QString __name;			///< Instrument name
 	float __pan_l;			///< Pan of the instrument (left)
 	float __pan_r;			///< Pan of the instrument (right)
 	float __gain;
@@ -293,8 +289,8 @@ private:
 	float __peak_r;			///< current peak value (right)
 	float __fx_level[MAX_FX];	///< Ladspa FX level
 	float __random_pitch_factor;
-	QString __id;		///< ID of the instrument
-	QString __drumkit_name;	///< Drumkit name
+	QString __id;			///< ID of the instrument
+	QString __drumkit_name;		///< Drumkit name
 	bool __filter_active;		///< Is filter active?
 	int __mute_group;		///< Mute group
 

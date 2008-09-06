@@ -24,32 +24,202 @@
 
 #include <cmath>
 
-#include <hydrogen/globals.h>
+
+RedirectHttp::RedirectHttp( QObject* parent )
+		: QHttp( parent )
+		, m_device( 0 )
+		, m_to( 0 )
+		, m_lastRequest( 0 )
+{
+	connect( this, SIGNAL( responseHeaderReceived( const QHttpResponseHeader& ) ), SLOT( onHeaderReceived( const QHttpResponseHeader& ) ) );
+	connect( this, SIGNAL( requestFinished( int , bool ) ), SLOT( onRequestFinished( int , bool ) ) );
+	connect( this, SIGNAL( requestStarted( int ) ), SLOT( onRequestStarted( int ) ) );
+}
+
+
+RedirectHttp::~RedirectHttp()
+{
+}
+
+
+int RedirectHttp::get( const QString& path, QIODevice* to )
+{
+	m_mode = GET;
+	m_data = QByteArray();
+	m_to = to;
+
+	m_lastRequest = QHttp::get( path, to );
+	return m_lastRequest;
+}
+
+
+int RedirectHttp::post( const QString& path, QIODevice* data, QIODevice* to )
+{
+	m_mode = POSTIO;
+	m_data = QByteArray();
+	m_device = data;
+	m_to = to;
+
+	m_lastRequest = QHttp::post( path, data );
+	return m_lastRequest;
+}
+
+
+int RedirectHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
+{
+	m_mode = POST;
+	m_data = data;
+	m_to = to;
+
+	m_lastRequest = QHttp::post( path, data );
+	return m_lastRequest;
+}
+
+
+int RedirectHttp::request( const QHttpRequestHeader& header, QIODevice* data, QIODevice* to )
+{
+	m_mode = REQUESTIO;
+	m_data = QByteArray();
+	m_device = data;
+	m_header = header;
+	m_to = to;
+
+	m_lastRequest = QHttp::request( header, data, to );
+	return m_lastRequest;
+}
+
+
+int RedirectHttp::request( const QHttpRequestHeader& header, const QByteArray& data, QIODevice* to )
+{
+	m_mode = REQUEST;
+	m_data = data;
+	m_header = header;
+	m_to = to;
+
+	m_lastRequest = QHttp::request( header, data, to );
+	return m_lastRequest;
+}
+
+
+void RedirectHttp::onHeaderReceived( const QHttpResponseHeader& resp )
+{
+	switch ( resp.statusCode() ) {
+		case 301:   //Moved Permanently
+		case 302:
+		case 307: { //Temporary Redirect
+			QString redirectUrl = resp.value( "location" );
+			_INFOLOG( "Http request returned redirect (301, 302 or 307): " + redirectUrl );
+
+			blockSignals( true );
+
+			abort();
+			close();
+
+			QUrl url( redirectUrl );
+
+			if ( !url.isValid() )
+				return;
+
+			setHost( url.host(), url.port() > 0 ? url.port() : 80 );
+
+			int oldId = m_lastRequest;
+
+			int id;
+
+			switch ( m_mode ) {
+				case GET:
+					id = get( url.path(), m_to );
+					break;
+
+				case POST:
+					id = post( url.path(), m_data, m_to );
+					break;
+
+				case POSTIO:
+					id = post( url.path(), m_device, m_to );
+					break;
+
+				case REQUEST:
+					m_header.setRequest( "GET", url.path() );
+					m_header.setValue( "Host", url.host() );
+
+					id = request( m_header, m_data, m_to );
+					break;
+
+				case REQUESTIO:
+					m_header.setRequest( "GET", url.path() );
+					m_header.setValue( "Host", url.host() );
+
+					id = request( m_header, m_device, m_to );
+					break;
+			}
+
+			m_idTrans.insert( id, oldId );
+
+			blockSignals( false );
+		}
+
+		break;
+	}
+}
+
+
+void RedirectHttp::onRequestFinished( int id, bool error )
+{
+	int tId = id;
+
+	if ( m_idTrans.contains( id ) ) {
+		tId = m_idTrans.value( id );
+	}
+
+	if ( id != tId )
+		emit requestFinished( tId, error );
+}
+
+
+void RedirectHttp::onRequestStarted( int id )
+{
+	int tId = id;
+
+	if ( m_idTrans.contains( id ) ) {
+		tId = m_idTrans.value( id );
+	}
+
+	if ( id != tId )
+		emit requestStarted( tId );
+}
+
+
+
+
+////////
+
+
+
 
 Download::Download( QWidget* pParent, const QString& sRemoteURL, const QString& sLocalFile )
- : QDialog( pParent )
- , Object( "Download" )
- , m_fPercDownload( 0 )
- , m_nETA( 0 )
- , m_nBytesCurrent( 0 )
- , m_nBytesTotal( 0 )
- , m_sRemoteURL( sRemoteURL )
- , m_sLocalFile( sLocalFile )
+		: QDialog( pParent )
+		, Object( "Download" )
+		, m_fPercDownload( 0 )
+		, m_nETA( 0 )
+		, m_nBytesCurrent( 0 )
+		, m_nBytesTotal( 0 )
+		, m_sRemoteURL( sRemoteURL )
+		, m_sLocalFile( sLocalFile )
 {
 	if ( m_sLocalFile != "" ) {
 		INFOLOG( QString( "Downloading %1 in %2" ).arg( sRemoteURL ).arg( sLocalFile ) );
-	}
-	else {
+
+	} else {
 		INFOLOG( QString( "Downloading %1" ).arg( sRemoteURL ) );
 	}
 
 	QUrl url( sRemoteURL );
 
 	// download del feed...
-	connect( &m_httpClient, SIGNAL( done(bool) ), this, SLOT( fetchDone(bool) ) );
+	connect( &m_httpClient, SIGNAL( done( bool ) ), this, SLOT( fetchDone( bool ) ) );
 	connect( &m_httpClient, SIGNAL( dataReadProgress( int, int ) ), this, SLOT( fetchProgress( int, int ) ) );
 	connect( &m_httpClient, SIGNAL( requestFinished( int, bool ) ), this, SLOT( httpRequestFinished( int, bool ) ) );
-	connect( &m_httpClient, SIGNAL( responseHeaderReceived( const QHttpResponseHeader & ) ),this, SLOT( readResponseHeader( const QHttpResponseHeader & ) ) );
 
 	QString sPath = url.path();
 	sPath = sPath.replace( " ", "%20" );
@@ -79,19 +249,23 @@ void Download::fetchDone( bool bError )
 		ERRORLOG( "Error retrieving the resource." );
 		return;
 	}
-	INFOLOG( "Download completed" );
+
+	INFOLOG( "Download completed. " );
+
+	INFOLOG( m_httpClient.errorString().toStdString().c_str() );
 
 	if ( m_sLocalFile == "" ) {
 		// store the text received only when not using the file.
 		m_sFeedXML = m_httpClient.readAll();
 		//INFOLOG( m_sFeedXML.toStdString() );
-	}
-	else {
+
+	} else {
 		QFile file( m_sLocalFile );
-		if ( !file.open( QIODevice::WriteOnly) ) {
+
+		if ( !file.open( QIODevice::WriteOnly ) ) {
 			ERRORLOG( QString( "Unable to save %1" ).arg( m_sLocalFile ) );
-        	}
-		else {
+
+		} else {
 			file.write( m_httpClient.readAll() );
 			file.flush();
 			file.close();
@@ -106,25 +280,19 @@ void Download::fetchProgress ( int done, int total )
 	m_nBytesCurrent = done;
 	m_nBytesTotal = total;
 
-	m_fPercDownload = (float)done / (float)total * 100.0;
+	m_fPercDownload = ( float )done / ( float )total * 100.0;
 }
 
 
 
-void Download::httpRequestFinished(int requestId, bool error)
+void Download::httpRequestFinished( int requestId, bool error )
 {
-	UNUSED( requestId );
-	UNUSED( error );
-	INFOLOG( "httpRequestFinished" );
-	//m_bFinished = true;
+	if ( error ) {
+		INFOLOG( "Error" );
+		ERRORLOG( m_httpClient.errorString() );
+	}
 }
 
-
-
-void Download::readResponseHeader( const QHttpResponseHeader & )
-{
-	INFOLOG( "readResponseHeader" );
-}
 
 
 
@@ -133,7 +301,7 @@ void Download::readResponseHeader( const QHttpResponseHeader & )
 
 
 DownloadWidget::DownloadWidget( QWidget* pParent, const QString& sTitleText, const QString& sRemoteURL, const QString& sLocalFile )
- : Download( pParent, sRemoteURL, sLocalFile )
+		: Download( pParent, sRemoteURL, sLocalFile )
 {
 	setWindowTitle( sTitleText );
 	setModal( true );
@@ -154,7 +322,7 @@ DownloadWidget::DownloadWidget( QWidget* pParent, const QString& sTitleText, con
 	m_pProgressBar->setMaximum( 100 );
 
 	m_pETALabel = new QLabel( NULL );
-//	m_pETALabel->setFont( boldFont );
+// m_pETALabel->setFont( boldFont );
 	m_pETALabel->setAlignment( Qt::AlignHCenter );
 
 
@@ -188,32 +356,33 @@ DownloadWidget::~DownloadWidget()
 void DownloadWidget::updateStats()
 {
 	if ( m_fPercDownload > 0 ) {
-		m_nETA = (int)( round( ( m_time.elapsed() / m_fPercDownload * ( 100 - m_fPercDownload ) ) / 1000 ) );
+		m_nETA = ( int )( round( ( m_time.elapsed() / m_fPercDownload * ( 100 - m_fPercDownload ) ) / 1000 ) );
 	}
 
 	m_pProgressBar->setValue( getPercentDone() );
+
 	int hours = m_nETA / 60 / 60;
 	int minutes = ( m_nETA / 60 ) % 60;
 	int seconds = m_nETA % 60;
-	
+
 	QString m_sHours = QString( "%1" ).arg( hours );
 	QString m_sMinutes = QString( "%1" ).arg( minutes );
 	QString m_sSeconds = QString( "%1" ).arg( seconds );
 
-	m_sHours = m_sHours.rightJustified(2,'0');
-	m_sMinutes = m_sMinutes.rightJustified(2,'0');
-	m_sSeconds = m_sSeconds.rightJustified(2,'0');
+	m_sHours = m_sHours.rightJustified( 2, '0' );
+	m_sMinutes = m_sMinutes.rightJustified( 2, '0' );
+	m_sSeconds = m_sSeconds.rightJustified( 2, '0' );
 
 	QString sETA = m_sHours + ":" + m_sMinutes + ":" +  m_sSeconds;
-	
+
 	//QString sETA = QString( "%1:%2:%3" ).arg( 24 , 3 ).arg( minutes , 2 ).arg( seconds );
 
-	m_pETALabel->setText( trUtf8( "(%1K/%2K) - ETA %3" ).arg( m_nBytesCurrent / 1024 ).arg( m_nBytesTotal / 1024 ).arg( sETA ) );
+	m_pETALabel->setText( trUtf8( "(%1KiB/%2KiB) - ETA %3" ).arg( m_nBytesCurrent / 1024 ).arg( m_nBytesTotal / 1024 ).arg( sETA ) );
 
-	if ( m_fPercDownload == 100 ){
+	if ( m_fPercDownload == 100 ) {
 		m_pUpdateTimer->stop();
 
-		m_pCloseTimer->start( 1000 );	// close the window after 1 second
+		m_pCloseTimer->start( 1000 ); // close the window after 1 second
 	}
 }
 

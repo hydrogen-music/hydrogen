@@ -34,28 +34,24 @@ namespace H2Core
 {
 
 
-Instrument::Instrument(
-    const QString& id,
-    const QString& name,
-    ADSR* adsr
-)
+Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
 		: Object( "Instrument" )
-		,__queued( 0 )
+		, __queued( 0 )
 		, __adsr( adsr )
+		, __muted( false )
 		, __name( name )
+		, __volume( 1.0 )
 		, __filter_resonance( 0.0 )
 		, __filter_cutoff( 1.0 )
 		, __random_pitch_factor( 0.0 )
-		, __volume( 1.0 )
 		, __id( id )
-		, __muted( false )
 		, __filter_active( false )
-		, __active( true )
-		, __soloed( false )
-		, __peak_l( 0.0 )
 		, __pan_l( 1.0 )
-		, __peak_r( 0.0 )
 		, __pan_r( 1.0 )
+		, __soloed( false )
+		, __active( true )
+		, __peak_l( 0.0 )
+		, __peak_r( 0.0 )
 		, __gain( 1.0 )
 		, __drumkit_name( "" )
 		, __mute_group( -1 )
