@@ -161,7 +161,14 @@ def get_hydrogen_lib():
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
 	env.CacheDir( "scons_cache" )
-	env.Decider( "MD5-timestamp" )
+	
+
+	#env.Decider is not known in older scons version
+	try:
+		env.Decider( "MD5-timestamp" )
+	except AttributeError:
+		env.SourceSignatures('MD5')
+
 
 	src = scanFiles( "libs/hydrogen", ['*.cpp', '*.cc', '*.c' ], [ 'moc_'] )
 	src.append( "version.cpp" )
@@ -192,7 +199,12 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
 	#
 	env.CacheDir( "scons_cache" )
-	env.Decider( "MD5-timestamp" )
+	
+	#env.Decider is not known in older scons version
+	try:
+		env.Decider( "MD5-timestamp" )
+	except AttributeError:
+		env.SourceSignatures('MD5')
 
 	# rcc needs a -name flag because examples use identified resource files
 	def takebasename(file):
