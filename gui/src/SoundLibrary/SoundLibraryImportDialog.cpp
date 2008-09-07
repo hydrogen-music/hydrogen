@@ -352,7 +352,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
 			}
 
-			for ( int i = 0; i < 5; ++i ) {
+			for ( int i = 0; i < 30; ++i ) {
 				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
 

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>770</width>
-    <height>536</height>
+    <width>795</width>
+    <height>688</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -22,114 +22,13 @@
       <attribute name="title" >
        <string>Internet</string>
       </attribute>
-      <widget class="QWidget" name="widget_1" >
+      <widget class="QWidget" name="layoutWidget" >
        <property name="geometry" >
         <rect>
-         <x>320</x>
-         <y>10</y>
-         <width>421</width>
-         <height>431</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" >
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <property name="leftMargin" >
-         <number>0</number>
-        </property>
-        <property name="topMargin" >
-         <number>0</number>
-        </property>
-        <property name="rightMargin" >
-         <number>0</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="SoundLibraryNameLbl" >
-          <property name="maximumSize" >
-           <size>
-            <width>16777215</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="font" >
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text" >
-           <string>Sound Library Name</string>
-          </property>
-          <property name="alignment" >
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="wordWrap" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="SoundLibraryInfoLbl" >
-          <property name="text" >
-           <string>Sound library Info</string>
-          </property>
-          <property name="alignment" >
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="wordWrap" >
-           <bool>true</bool>
-          </property>
-          <property name="margin" >
-           <number>-1</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="LicenseLbl" >
-          <property name="maximumSize" >
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string>License...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="AuthorLbl" >
-          <property name="maximumSize" >
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string>Author...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="DownloadBtn" >
-          <property name="text" >
-           <string>Download and install</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="" >
-       <property name="geometry" >
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>301</width>
-         <height>431</height>
+         <x>9</x>
+         <y>9</y>
+         <width>375</width>
+         <height>588</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" >
@@ -199,6 +98,122 @@
             <string>1</string>
            </property>
           </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="" >
+       <property name="geometry" >
+        <rect>
+         <x>390</x>
+         <y>9</y>
+         <width>374</width>
+         <height>588</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="QLabel" name="SoundLibraryNameLbl" >
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="font" >
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text" >
+           <string>Sound Library Name</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QLabel" name="SoundLibraryInfoLbl" >
+            <property name="text" >
+             <string>Sound library Info</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+            <property name="wordWrap" >
+             <bool>true</bool>
+            </property>
+            <property name="margin" >
+             <number>-1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="LicenseLbl" >
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>License...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="AuthorLbl" >
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Author...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>372</width>
+            <height>21</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="DownloadBtn" >
+          <property name="text" >
+           <string>Download and install</string>
+          </property>
          </widget>
         </item>
        </layout>
