@@ -1364,10 +1364,6 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	Instrument *instr = song->get_instrument_list()->get( 0 );
-	assert( instr );
 
 	QString sText = QString("move pattern:%1");
 
@@ -1380,7 +1376,6 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 
 	pDrag->start( Qt::CopyAction | Qt::MoveAction );
 
-	// propago l'evento
 	QWidget::mouseMoveEvent(event);
 }
 
