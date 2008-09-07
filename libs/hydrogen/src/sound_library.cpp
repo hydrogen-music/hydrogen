@@ -196,6 +196,10 @@ void Drumkit::install( const QString& filename )
         gunzippedName += ".tar";
         FILE *pGunzippedFile = fopen( gunzippedName.toAscii(), "wb" );
         gzFile gzipFile = gzopen( filename.toAscii(), "rb" );
+	if ( !gzipFile ) {	
+		throw H2Exception( "Error opening gzip file" );
+	}
+
         uchar buf[4096];
         while ( gzread( gzipFile, buf, 4096 ) > 0 ) {
                 fwrite( buf, sizeof( uchar ), 4096, pGunzippedFile );
@@ -212,6 +216,7 @@ void Drumkit::install( const QString& filename )
 
         if ( tar_open( &tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) { 
                 _ERRORLOG( QString( "[Drumkit::install] tar_open(): %1" ).arg( strerror( errno ) ) );
+		return;
         }
 
         char destDir[1024];

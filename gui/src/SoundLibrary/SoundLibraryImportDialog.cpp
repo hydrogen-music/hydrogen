@@ -341,7 +341,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			QString dataDir = H2Core::Preferences::getInstance()->getDataDirectory();
 
 			if( sType == "drumkit") {
-				sLocalFile = QDir::tempPath() + QFileInfo( sURL ).fileName();
+				sLocalFile = QDir::tempPath() + "/" + QFileInfo( sURL ).fileName();
 			}
 
 			if( sType == "song") {
