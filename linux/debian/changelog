@@ -1,6 +1,18 @@
-hydrogen (0.9.4SVN) unstable; urgency=low
+hydrogen (0.9.4beta2) unstable; urgency=low
 
-  * 0.9.4 development release
+  * Version 0.9.4 beta2
+  
+  * QT4 port
+  * Autosave
+  * Jack port follows instrument names
+  * Mute groups for instruments
+  * New drumkit manager (with downloadable drumkits)
+  * Save and load patterns
+  * Jack transport master
+  * Beatcounter
+  * Playlist editor
+  * MMC
+  * Lead / lag (pattern editor) 
 
- -- Alessandro Cominu <comix@users.sf.net>  Tue, 21 June 2007 12:00:00 +0200
+ -- Alessandro Cominu <comix@users.sf.net>  Mon, 08 Sep 2008 12:00:00 +0200
 
