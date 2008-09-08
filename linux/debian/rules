@@ -9,7 +9,7 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	touch configure-stamp
-	cd ..; prefix=/usr ./configure
+	#cd ..; prefix=/usr ./configure
 
 
 build: build-stamp
@@ -19,8 +19,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	#cd ..; $(MAKE) clean
-	cd ..; $(MAKE)
+	cd ..; scons
 
 	touch build-stamp
 
@@ -31,7 +30,7 @@ clean:
 	-find . -name '*.py[co]' | xargs rm -f
 
 	# Add here commands to clean up after the build process.
-	#cd ..; $(MAKE) distclean
+	cd ..; scons -c
 	dh_clean
 
 
@@ -43,8 +42,8 @@ install: build
 
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
 
-	cd ..; $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/hydrogen/usr install
-
+	#cd ..; $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/hydrogen/usr install
+	cd ..; scons destdir=$(CURDIR)/debian/hydrogen/ prefix=/usr/ install
 docs:
 
 
