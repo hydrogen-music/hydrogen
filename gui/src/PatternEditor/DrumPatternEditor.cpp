@@ -251,6 +251,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
+		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 	}
 }
 
@@ -297,6 +298,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
+		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 	}
 
 }
@@ -631,6 +633,7 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 	update( 0, 0, width(), height() );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 	/// \todo [DrumPatternEditor::setResolution] aggiornare la risoluzione del Ruler in alto."
 }
 
