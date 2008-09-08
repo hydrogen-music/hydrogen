@@ -193,11 +193,25 @@ unsigned JackOutput::getBufferSize()
 	return jack_server_bufferSize;
 }
 
-int JackOutput::getManualTransportAdjustment()
+/* JackOutput::getArdourTransportAdjustment()
+ *
+ * When using Hydrogen and Ardour together with the JACK transport,
+ * Ardour will offset Hydrogen (or any software audio source) so that
+ * the audio is two periods early.  This is a known bug with Ardour,
+ * and affects versions from 0.99 thru 2.4.x.  The Ardour bug is
+ * # 1742 and # 2385.
+ *
+ * Because Ardour is such an important application to Hydrogen users,
+ * and because this bug affects so many versions of Ardour, this
+ * workaround is provided.  However, when using this workaround,
+ * Hydrogen is not exactly conforming to the Transport.  It is enabled
+ * in the PreferencesDialog.
+ */
+unsigned JackOutput::getArdourTransportAdjustment()
 {
-	int rv = getBufferSize()
-		* Preferences::getInstance()->m_nJackManualTransportOffset;
-	return rv;
+	if (Preferences::getInstance()->m_nJackArdourTransportWorkaround)
+		return getBufferSize();
+	return 0;
 }
 
 unsigned JackOutput::getSampleRate()
@@ -224,7 +238,7 @@ void JackOutput::relocateBBT()
 {
 	//wolke if hydrogen is jack time master this is not relevant
 	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&  m_transport.m_status != TransportInfo::ROLLING) {
-		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getManualTransportAdjustment();
+		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getArdourTransportAdjustment();
 		WARNINGLOG( "Relocate: Call it off" );
 		calculateFrameOffset();
 	 	return;
@@ -352,7 +366,7 @@ void JackOutput::updateTransportInfo()
 
 					//this perform Jakobs mod in pattern mode, but both m_transport.m_nFrames works with the same result in pattern Mode
 					// in songmode the first case dont work. 
-					//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames() - getManualTransportAdjustment();
+					//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames() - getArdourTransportAdjustment();
 					//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
 					//if we remove this we also can remove *m_pEngine from header
 					if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
@@ -360,7 +374,7 @@ void JackOutput::updateTransportInfo()
 					}
 					else
 					{
-						m_transport.m_nFrames = H->getHumantimeFrames() - getManualTransportAdjustment();
+						m_transport.m_nFrames = H->getHumantimeFrames() - getArdourTransportAdjustment();
 					}
 					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
 					if ( m_transport.m_status == TransportInfo::ROLLING )
@@ -368,7 +382,7 @@ void JackOutput::updateTransportInfo()
 				} else {
 					///this is experimantal... but it works for the moment... fix me fix :-) wolke
 					// ... will this actually happen? keeping it for now ( jakob lund )
-					m_transport.m_nFrames = H->getHumantimeFrames() - getManualTransportAdjustment();
+					m_transport.m_nFrames = H->getHumantimeFrames() - getArdourTransportAdjustment();
 				}
 			}
 		}

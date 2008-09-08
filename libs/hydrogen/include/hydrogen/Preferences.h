@@ -188,8 +188,9 @@ public:
 	bool m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
 	bool m_bJackTrackOuts;
+	// See JackOutput::getArdourTransportAdjustment() for this:
+	bool m_nJackArdourTransportWorkaround;
 	int m_nJackTrackOutputMode;
-	int m_nJackManualTransportOffset; // +/- buffer size
 	//jack time master
 	bool m_bJackMasterMode ;
 	//~ jack time master

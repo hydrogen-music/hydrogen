@@ -51,8 +51,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_midiPortComboBox_activated( int index );
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
-		void on_manualTransportOffsetSpinBox_valueChanged( int i );
-
+		void on_ardourTransportWorkaround_stateChanged( int state );
 
 	private:
 		bool m_bNeedDriverRestart;
