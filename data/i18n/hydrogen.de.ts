@@ -1,4 +1,5 @@
-<!DOCTYPE TS><TS>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS><TS version="1.1" language="de_DE">
 <defaultcodec></defaultcodec>
 <context>
     <name>AboutDialog</name>
@@ -43,7 +44,7 @@
     </message>
     <message>
         <source>&amp;Authors</source>
-        <translation>&amp;Authoren</translation>
+        <translation>&amp;Autoren</translation>
     </message>
     <message>
         <source>&amp;License</source>
@@ -535,7 +536,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Author</source>
-        <translation>Author</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Info</source>
@@ -2126,13 +2127,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Post-Fader</source>
-        <translation>Post-Fader
-</translation>
+        <translation>Post-Fader</translation>
     </message>
     <message>
         <source>Pre-Fader</source>
-        <translation>Pre-Fader
-</translation>
+        <translation>Pre-Fader</translation>
     </message>
     <message>
         <source>Track output</source>
@@ -2319,7 +2318,7 @@ The pattern-file exists.</source>
     </message>
     <message>
         <source>Author</source>
-        <translation>Author</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Song name</source>
@@ -2491,7 +2490,7 @@ The pattern-file exists.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schliessen</translation>
     </message>
 </context>
 <context>
@@ -2552,7 +2551,7 @@ Are you sure?</source>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtung! Das ausgewählte Pattern wird von der Festplatte gelöscht werden. Sind sie sicher? </translation>
     </message>
 </context>
 <context>
@@ -2587,7 +2586,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation type="unfinished">Änderungen an den Instrumenten übernehmen</translation>
+        <translation>Änderungen an den Instrumenten übernehmen</translation>
     </message>
 </context>
 <context>
