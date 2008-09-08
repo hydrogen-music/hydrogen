@@ -507,8 +507,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DownloadWidget</name>
     <message>
-        <source>(%1K/%2K) - ETA %3</source>
-        <translation>(%1K/%2K) - ETA %3</translation>
+        <source>(%1/%2 KiB) - ETA %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -651,29 +651,6 @@ http://www.hydrogen-music.org
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
         <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
-    </message>
-</context>
-<context>
-    <name>FilePreview</name>
-    <message>
-        <source>&amp;Play sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Samplerate: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preview not available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2169,6 +2146,26 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Use lash</source>
         <translation>Lash benutzen</translation>
     </message>
+    <message>
+        <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
+        <translation type="unfinished">Zuerst, justiere die Zeitdifferenz zwischen Tastatur-/Controller-Anschlägen und den von Hydrogen errechneten BPM-Werten</translation>
+    </message>
+    <message>
+        <source>Beat counter drift compensation in 1/10 ms   </source>
+        <translation type="unfinished">Takt-Zähler-Kompensation in 1/10 ms      </translation>
+    </message>
+    <message>
+        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
+        <translation type="unfinished">Zweitens, justiere die Zeitdifferenz zwischen letzten Tastatur/Controller Anschlag und dem zeitverzögerten Sequenzer Start. </translation>
+    </message>
+    <message>
+        <source>Beat counter start offset in ms    </source>
+        <translation type="unfinished">Takt-Zähler-Startverzögerung in ms           </translation>
+    </message>
+    <message>
+        <source>Enable timing offset (workaround for Ardour bug)</source>
+        <translation type="unfinished">Aktiviere Zeitverzögerung (behebt den Jack-Transport-Bug von Ardour)</translation>
+    </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
@@ -2491,6 +2488,10 @@ The pattern-file exists.</source>
     <message>
         <source>Edit server list</source>
         <translation>Bearbeite Server-Liste</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

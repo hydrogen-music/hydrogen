@@ -506,8 +506,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DownloadWidget</name>
     <message>
-        <source>(%1K/%2K) - ETA %3</source>
-        <translation></translation>
+        <source>(%1/%2 KiB) - ETA %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -650,29 +650,6 @@ http://www.hydrogen-music.org
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
         <translation></translation>
-    </message>
-</context>
-<context>
-    <name>FilePreview</name>
-    <message>
-        <source>&amp;Play sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size: %1 bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Samplerate: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Preview not available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2168,6 +2145,26 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Use lash</source>
         <translation>Usa LASH</translation>
     </message>
+    <message>
+        <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Beat counter drift compensation in 1/10 ms   </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Beat counter start offset in ms    </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable timing offset (workaround for Ardour bug)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
@@ -2489,6 +2486,10 @@ The pattern-file exists.</source>
     <message>
         <source>Edit server list</source>
         <translation>Modifica lista server</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
