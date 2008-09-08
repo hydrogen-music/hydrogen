@@ -21,6 +21,7 @@
  */
 
 #include <QtGui>
+#include <QLibraryInfo>
 #include "config.h"
 #include "version.h"
 #include <getopt.h>
@@ -217,10 +218,18 @@ int main(int argc, char *argv[])
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
 
+		QTranslator qttor( 0 );
 		QTranslator tor( 0 );
 		QString sTranslationFile = QString("hydrogen.") + QLocale::system().name();
 		QString sLocale = QLocale::system().name();
 		if ( sLocale != "C") {
+			if (qttor.load( QString( "qt_" ) + sLocale,
+				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+				pQApp->installTranslator( &qttor );
+                        else
+				_INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(QLocale::system().name()));
+
+
 			QString sTranslationPath = "data/i18n";
 			QString total = sTranslationPath + "/" + sTranslationFile + ".qm";
 
