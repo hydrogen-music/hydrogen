@@ -77,7 +77,7 @@ class Note : public Object
 {
 public:
 
-	float m_fSamplePosition;
+	float m_fSamplePosition; ///< Place marker for overlapping process() cycles
 	int m_nHumanizeDelay;	///< Used in "humanize" function
 	NoteKey m_noteKey;
 
