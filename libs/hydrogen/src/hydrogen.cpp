@@ -1281,14 +1281,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 								   * nLeadLagFactor);
 						//~
 
-						// cannot play note before 0 frame
-						if (tick
-						    + nOffset / m_pAudioDriver->m_transport.m_nTickSize
-						    < tickNumber_start ) {
-							_INFOLOG(" offset before 0 frame ");
-							nOffset = tickNumber_start
-								- (int) (tick * m_pAudioDriver->m_transport.m_nTickSize);
-						}
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_position( tick );
 
