@@ -275,8 +275,10 @@ void JackOutput::relocateBBT()
 		m_transport.m_nTickSize = fNewTickSize;
 	
 		long long nNewFrames = ( long long )( hydrogen_ticks_to_locate * fNewTickSize );
+#ifndef JACK_NO_BBT_OFFSET
 		if ( m_JackTransportPos.valid & JackBBTFrameOffset )
 			nNewFrames += m_JackTransportPos.bbt_offset ;
+#endif
 		m_transport.m_nFrames = nNewFrames;
 	
 		/// offset between jack- and internal position

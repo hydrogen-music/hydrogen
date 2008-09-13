@@ -162,6 +162,8 @@ def get_hydrogen_lib():
 	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
 	env.CacheDir( "scons_cache" )
 	
+        if jack:
+            env.ParseConfig('pkg-config --modversion jack', get_jack_api_flags)
 
 	#env.Decider is not known in older scons version
 	try:
@@ -255,7 +257,17 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	return app
 
-
+def get_jack_api_flags(xenv, pkg_ver):
+    (major, minor, patch) = pkg_ver.rstrip().split('.')
+    major = int(major)
+    minor = int(minor)
+    patch = int(patch)
+    rv = ""
+    if (major == 0) and (minor < 102):
+        rv = "-DJACK_NO_BBT_OFFSET"
+    if (major == 0) and (minor == 102) and (patch < 4):
+        rv = "-DJACK_NO_BBT_OFFSET"
+    xenv.MergeFlags(rv)
 
 opts = Options()
 
