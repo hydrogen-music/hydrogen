@@ -971,6 +971,8 @@ void PlayerControl::showButtonClicked( Button* pRef )
 
 void PlayerControl::showMessage( const QString& msg, int msec )
 {
+	if ( m_pScrollTimer->isActive ())
+		m_pScrollTimer->stop();
 	m_pStatusLabel->setText( msg );
 	m_pStatusTimer->start( msec );
 

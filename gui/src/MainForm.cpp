@@ -1647,5 +1647,5 @@ void MainForm::onPlaylistDisplayTimer()
 		songname = Hydrogen::get_instance()->getSong()->__name;
 	}
 	QString message = (trUtf8("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
-	HydrogenApp::getInstance()->setScrollStatusBarMessage( message, 2000, true );
+	HydrogenApp::getInstance()->setScrollStatusBarMessage( message, 2000 );
 }
