@@ -287,6 +287,10 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 }
 
 
+void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
+{
+	getPlayerControl()->showScrollMessage( msg, msec , test);
+}
 
 
 

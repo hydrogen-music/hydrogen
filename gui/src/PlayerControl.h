@@ -85,6 +85,7 @@ class PlayerControl : public QLabel, public Object
 		~PlayerControl();
 
 		void showMessage( const QString& msg, int msec );
+		void showScrollMessage( const QString& msg, int msec, bool test );
 
 	private slots:
 		void playBtnClicked(Button* ref);
@@ -107,6 +108,7 @@ class PlayerControl : public QLabel, public Object
 		void metronomeButtonClicked(Button* ref);
 		void onBpmTimerEvent();
 		void onStatusTimerEvent();
+		void onScrollTimerEvent();
 		void showButtonClicked( Button* pRef );
 
 		//beatcounter
@@ -178,6 +180,8 @@ class PlayerControl : public QLabel, public Object
 
 		LCDDisplay *m_pStatusLabel;
 		QTimer *m_pStatusTimer;
+		QTimer *m_pScrollTimer;
+		QString m_pScrollMessage; 
 };
 
 

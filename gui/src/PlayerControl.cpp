@@ -434,6 +434,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pStatusTimer = new QTimer( this );
 	connect( m_pStatusTimer, SIGNAL( timeout() ), this, SLOT( onStatusTimerEvent() ) );
+
+	m_pScrollTimer = new QTimer( this );
+	connect( m_pScrollTimer, SIGNAL( timeout() ), this, SLOT( onScrollTimerEvent() ) );
+	m_pScrollMessage = "";
 }
 
 
@@ -973,6 +977,41 @@ void PlayerControl::showMessage( const QString& msg, int msec )
 
 }
 
+
+
+void PlayerControl::showScrollMessage( const QString& msg, int msec, bool test )
+{
+
+	if ( test == false ){
+		m_pStatusLabel->setText( msg );
+		m_pScrollTimer->start( msec );	
+	}else
+	{
+		m_pScrollMessage = msg;
+		m_pStatusLabel->setText( msg );
+		m_pStatusTimer->start( msec );
+		m_pScrollTimer->start( msec );	
+		
+	}
+	
+
+}
+
+void PlayerControl::onScrollTimerEvent()
+{
+	int lwl = 25;
+	int msgLength = m_pScrollMessage.length();
+	if ( msgLength > lwl)
+		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 );
+	m_pScrollTimer->stop();
+
+	if ( msgLength > lwl){
+		showScrollMessage( m_pScrollMessage, 150, false );
+	}else
+	{
+		showMessage( m_pScrollMessage, 2000 );
+	}
+}
 
 void PlayerControl::onStatusTimerEvent()
 {

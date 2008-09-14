@@ -84,6 +84,7 @@ class HydrogenApp : public QObject, public Object
 
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
+		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
 
 #ifdef LADSPA_SUPPORT
 		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}

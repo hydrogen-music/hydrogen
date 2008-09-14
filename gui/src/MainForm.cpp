@@ -161,7 +161,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 //playlist display timer
 	QTimer *playlistDisplayTimer = new QTimer(this);
 	connect( playlistDisplayTimer, SIGNAL( timeout() ), this, SLOT( onPlaylistDisplayTimer() ) );
-	playlistDisplayTimer->start(15000);	// update player control at 
+	playlistDisplayTimer->start(30000);	// update player control at 
 // ~ playlist display timer
 	
 //beatcouter
@@ -497,7 +497,7 @@ void MainForm::action_file_save_as()
 		song->set_filename(filename);
 		action_file_save();
 	}
-	h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
+	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
 	//update SoundlibraryPanel
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
@@ -537,7 +537,7 @@ void MainForm::action_file_save()
 
 		updateRecentUsedSongList();
 
-		h2app->setStatusBarMessage( trUtf8("Song saved."), 10000 );
+		h2app->setScrollStatusBarMessage( trUtf8("Song saved.") + QString(" Into: ") + filename, 2000 );
 	}
 	//update SoundlibraryPanel
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
@@ -1308,7 +1308,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 					break;
 				Playlist::get_instance()->setPrevSongPlaylist();
 				songnumber = Playlist::get_instance()->getActiveSongNumber();
-				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
+				HydrogenApp::getInstance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
 				return TRUE;
 				break;
 
@@ -1317,7 +1317,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 					break;
 				Playlist::get_instance()->setNextSongPlaylist();
 				songnumber = Playlist::get_instance()->getActiveSongNumber();
-				HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
+				HydrogenApp::getInstance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
 				return TRUE;
 				break;
 
@@ -1634,10 +1634,18 @@ void MainForm::onAutoSaveTimer()
 void MainForm::onPlaylistDisplayTimer()
 {
 	if( Hydrogen::get_instance()->m_PlayList.size() == 0)
-					return;
+		return;
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	QString songname = "";
 	if ( songnumber == -1 )
-					return; 
-	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Playlist: Aktiv song No. %1" ).arg( songnumber +1 ), 7500 );
+			return;
 
+	if ( Hydrogen::get_instance()->getSong()->__name == "Untitled Song" ){
+		songname = Hydrogen::get_instance()->getSong()->get_filename(); 
+	}else
+	{
+		songname = Hydrogen::get_instance()->getSong()->__name;
+	}
+	QString message = (trUtf8("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
+	HydrogenApp::getInstance()->setScrollStatusBarMessage( message, 2000, true );
 }
