@@ -14,5 +14,13 @@ hydrogen (0.9.4beta2) unstable; urgency=low
   * MMC
   * Lead / lag (pattern editor) 
 
- -- Alessandro Cominu <comix@users.sf.net>  Mon, 08 Sep 2008 12:00:00 +0200
+
+  * config option 'jack transport buffer offset' for ardour bug
+  * fix broken lead / lag
+  * several fixes into soundlibrary import
+  * download class now supports http redirect correctly
+  * config option 'adjust beatcounter offset' to get exact results with different hardware
+  * new statusbar message to display longer messages than 30 chars setScrollStatusBarMessage( QString message, int ms )
+
+ -- Alessandro Cominu <comix@users.sf.net>  Mon, 15 Sep 2008 12:00:00 +0200
 
