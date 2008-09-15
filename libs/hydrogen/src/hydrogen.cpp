@@ -1281,6 +1281,9 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 								   * nLeadLagFactor);
 						//~
 
+						if((tick == 0) && (nOffset < 0)) {
+							nOffset = 0;
+						}
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_position( tick );
 
