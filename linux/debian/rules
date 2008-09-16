@@ -4,30 +4,17 @@
 #export DH_VERBOSE=1
 
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
+configure: 
 	# Add here commands to configure the package.
-	touch configure-stamp
-	#cd ..; prefix=/usr ./configure
 
-
-build: build-stamp
-
-
-build-stamp: configure-stamp
-	dh_testdir
-
+build:  
 	# Add here commands to compile the package.
-	cd ..; scons
+	#cd ..; scons
 
-	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp
-	-find . -name '*.py[co]' | xargs rm -f
 
 	# Add here commands to clean up after the build process.
 	cd ..; scons -c
@@ -39,11 +26,11 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
 
-	#cd ..; $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/hydrogen/usr install
-	cd ..; scons destdir=$(CURDIR)/debian/hydrogen/ prefix=/usr/ install
+	cd ..; scons --no-cache destdir=$(CURDIR)/debian/hydrogen/ prefix=/usr/ install
+
+	find $(CURDIR)/debian/hydrogen -name '.svn' | xargs rm -rf
 docs:
 
 
