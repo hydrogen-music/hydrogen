@@ -117,7 +117,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	up_btn->setFontSize(7);
 	up_btn->setToolTip( trUtf8( "sort" ) );
-	connect(up_btn, SIGNAL(clicked(Button*)), this, SLOT(on_upBTN_clicked()) );
+	connect(up_btn, SIGNAL(clicked(Button*)), this, SLOT(o_upBClicked()) );
 	sideBarLayout->addWidget(up_btn);
 
 	// zoom-in btn
@@ -131,7 +131,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	down_btn->setFontSize(7);
 	down_btn->setToolTip( trUtf8( "sort" ) );
-	connect(down_btn, SIGNAL(clicked(Button*)), this, SLOT(on_downBTN_clicked()));
+	connect(down_btn, SIGNAL(clicked(Button*)), this, SLOT(o_downBClicked()));
 	sideBarLayout->addWidget(down_btn);
 	
 
@@ -554,7 +554,7 @@ void PlaylistDialog::on_editScriptBTN_clicked()
 }
 
 
-void PlaylistDialog::on_upBTN_clicked()
+void PlaylistDialog::o_upBClicked()
 {	
 
 	Playlist* pList = Playlist::get_instance();
@@ -580,7 +580,7 @@ void PlaylistDialog::on_upBTN_clicked()
 }
 
 
-void PlaylistDialog::on_downBTN_clicked()
+void PlaylistDialog::o_downBClicked()
 {
 
 	Playlist* pList = Playlist::get_instance();
