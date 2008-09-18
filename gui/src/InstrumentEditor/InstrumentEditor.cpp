@@ -526,7 +526,6 @@ void InstrumentEditor::loadLayer()
 		else {
 			pLayer = new H2Core::InstrumentLayer(newSample);
 			pInstr->set_layer( pLayer, m_nSelectedLayer );
-			engine->renameJackPorts();
 		}
 
 		pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
