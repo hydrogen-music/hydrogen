@@ -868,7 +868,9 @@ void MainForm::action_instruments_addInstrument()
 
 	Instrument *pNewInstr = new Instrument(to_string( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
+#ifdef JACK_SUPPORT
 	Hydrogen::get_instance()->renameJackPorts();
+#endif
 	AudioEngine::get_instance()->unlock();
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
