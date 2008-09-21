@@ -1,63 +1,66 @@
-<!DOCTYPE TS><TS>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS><TS version="1.1" language="nl_NL">
+<defaultcodec></defaultcodec>
 <context>
     <name>AboutDialog</name>
     <message>
         <source>About</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;Project pagina&lt;/ba&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Project pagina&lt;/ba&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Mailing lijst&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hoofd programmeur:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Translator:%1Alessandro Cominu</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertaler: %1Alessandro Cominu</translation>
     </message>
 </context>
 <context>
     <name>AboutDialog_UI</name>
     <message>
         <source>About Hydrogen</source>
-        <translation type="unfinished">Info over Hydrogen</translation>
+        <translation>Info over Hydrogen</translation>
     </message>
     <message>
         <source>A&amp;bout</source>
-        <translation type="unfinished">&amp;Info</translation>
+        <translation>&amp;Info</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished">###</translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>&amp;Authors</source>
-        <translation type="unfinished">&amp;Auteurs</translation>
+        <translation>&amp;Auteurs</translation>
     </message>
     <message>
         <source>&amp;License</source>
-        <translation type="unfinished">&amp;Licentie</translation>
+        <translation>&amp;Licentie</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;This program is distributed under the terms of the GPL v2.&lt;/span&gt;&lt;/p&gt;
@@ -402,265 +405,265 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;consider it more useful to permit linking proprietary applications with the&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;library.  If this is what you want to do, use the GNU Library General&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;Public License instead of this License.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation type="unfinished">Audio Engine Info</translation>
+        <translation>Audio info</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Form1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation type="unfinished">Driver status</translation>
+        <translation>Driver status</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished">###</translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>Playing notes</source>
-        <translation type="unfinished">Gespeelde noten</translation>
+        <translation>Gespeelde noten</translation>
     </message>
     <message>
         <source>Process time</source>
-        <translation type="unfinished">Proces tijd</translation>
+        <translation>Proces tijd</translation>
     </message>
     <message>
         <source>Song position</source>
-        <translation type="unfinished">Positie</translation>
+        <translation>Positie</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Patroon</translation>
+        <translation>Patroon</translation>
     </message>
     <message>
         <source>Song state</source>
-        <translation type="unfinished">Opname status</translation>
+        <translation>Opname status</translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation type="unfinished">Frames</translation>
+        <translation>Frames</translation>
     </message>
     <message>
         <source>Ticks</source>
-        <translation type="unfinished">Tellen</translation>
+        <translation>Tellen</translation>
     </message>
     <message>
         <source>Selected pattern</source>
-        <translation type="unfinished">Patroon</translation>
+        <translation>Patroon</translation>
     </message>
     <message>
         <source>Selected instrument</source>
-        <translation type="unfinished">Instrument</translation>
+        <translation>Instrument</translation>
     </message>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Sample rate</translation>
+        <translation>Sample rate</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Buffer grootte</translation>
+        <translation>Buffer grootte</translation>
     </message>
     <message>
         <source>Connected to</source>
-        <translation type="unfinished">Verbonden met</translation>
+        <translation>Verbonden met</translation>
     </message>
     <message>
         <source>Sampler</source>
-        <translation type="unfinished"></translation>
+        <translation>Sampler</translation>
     </message>
     <message>
         <source>Synth</source>
-        <translation type="unfinished"></translation>
+        <translation>Synth</translation>
     </message>
     <message>
         <source>Sequencer</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequencer</translation>
     </message>
     <message>
         <source>MIDI input</source>
-        <translation type="unfinished"></translation>
+        <translation>MIDI ingang</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam</translation>
     </message>
     <message>
         <source>Audio output</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio uitgang</translation>
     </message>
     <message>
         <source>Realtime frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Realtime frames</translation>
     </message>
 </context>
 <context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1/%2 KiB) - Geschatte tijd: %3</translation>
     </message>
 </context>
 <context>
     <name>DrumkitManager_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Form1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Laden</translation>
+        <translation>Laden</translation>
     </message>
     <message>
         <source>Load drumkit</source>
-        <translation type="unfinished">Drumkit laden</translation>
+        <translation>Drumkit laden</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
-        <translation type="unfinished">Verwijderen</translation>
+        <translation>Verwijderen</translation>
     </message>
     <message>
         <source>### Drumkit info</source>
-        <translation type="unfinished">### Drumkit info</translation>
+        <translation>### Drumkit info</translation>
     </message>
     <message>
         <source>### Drumkit author</source>
-        <translation type="unfinished">### Drumkit auteur</translation>
+        <translation>### Drumkit auteur</translation>
     </message>
     <message>
         <source>### Drumkit name</source>
-        <translation type="unfinished">### Drumkit naam</translation>
+        <translation>### Drumkit naam</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Opslaan</translation>
+        <translation>Opslaan</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Auteur</translation>
+        <translation>Auteur</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Drumkit name</source>
-        <translation type="unfinished">Drumkit naam</translation>
+        <translation>Drumkit naam</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">Importeren</translation>
+        <translation>Importeren</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Bladeren</translation>
+        <translation>Bladeren</translation>
     </message>
     <message>
         <source>Drumkit filename</source>
-        <translation type="unfinished">Drumkit bestandsnaam</translation>
+        <translation>Drumkit bestandsnaam</translation>
     </message>
     <message>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation type="unfinished">### De drumkit zal geïnstalleerd worden zncxbmzbxcmznxbcmz</translation>
+        <translation>### De drumkit zal geïnstalleerd worden zncxbmzbxcmznxbcmz</translation>
     </message>
     <message>
         <source>&lt;b&gt;
 Download more drumkits at &lt;br&gt;
 http://www.hydrogen-music.org
 &lt;/b&gt;</source>
-        <translation type="unfinished">&lt;b&gt;
+        <translation>&lt;b&gt;
 Dowload meer drumkits op &lt;br&gt;
 http://www.hydrogen-music.org
 &lt;/b&gt;</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exporteren</translation>
+        <translation>Exporteren</translation>
     </message>
     <message>
         <source>Drumkit directory</source>
-        <translation type="unfinished">Drumkit map</translation>
+        <translation>Drumkit map</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
-        <translation type="unfinished">Exporteren</translation>
+        <translation>Exporteren</translation>
     </message>
     <message>
         <source>Wave file (*.wav)</source>
-        <translation type="unfinished">Wav bestand (*.wav)</translation>
+        <translation>Wav bestand (*.wav)</translation>
     </message>
     <message>
         <source>Sample rate: %1</source>
-        <translation type="unfinished">Sample rate: %1</translation>
+        <translation>Sample rate: %1</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
         <source>Export Whole Song to WAV</source>
-        <translation type="unfinished">Exporteer de opname naar WAV</translation>
+        <translation>Exporteer de opname naar WAV</translation>
     </message>
     <message>
         <source>Export filename</source>
-        <translation type="unfinished">Bestandsnaam</translation>
+        <translation>Bestandsnaam</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+A</translation>
+        <translation>Alt+A</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exporteren</translation>
+        <translation>&amp;Exporteren</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Bladeren...</translation>
+        <translation>&amp;Bladeren...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>textLabel1</source>
-        <translation type="unfinished">textLabel1</translation>
+        <translation>textLabel1</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Afsluiten</translation>
+        <translation>&amp;Afsluiten</translation>
     </message>
 </context>
 <context>
     <name>FileBrowser</name>
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
-        <translation type="unfinished">FX aan/uit</translation>
+        <translation>FX aan/uit</translation>
     </message>
     <message>
         <source>Master output</source>
-        <translation type="unfinished">Master uitgang</translation>
+        <translation>Master uitgang</translation>
     </message>
 </context>
 <context>
@@ -671,253 +674,254 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Dit is niet mogelijk, je kan enkel wijzigingen opslaan van instrumment in de geladen geluids bibliotheek</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opgelet! Door de drumkit naam te wijzigen wordt een nieuwe drumkit met deze naam aangemaakt
+Ben je zeker dat je de naam wilt wijzigen?</translation>
     </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
     <message>
         <source>Random pitch factor</source>
-        <translation type="unfinished">Willekeurige pitch</translation>
+        <translation>Willekeurige pitch</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation type="unfinished">Filter Cutoff</translation>
+        <translation>Filter Cutoff</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation type="unfinished">Filter tonen</translation>
+        <translation>Filter tonen</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Attack</translation>
+        <translation>Attack</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Decay</translation>
+        <translation>Decay</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Sustain</translation>
+        <translation>Sustain</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>Instrument gain</source>
-        <translation type="unfinished">Instrument gain</translation>
+        <translation>Instrument gain</translation>
     </message>
     <message>
         <source>Layer gain</source>
-        <translation type="unfinished">Layer gain</translation>
+        <translation>Laag gain</translation>
     </message>
     <message>
         <source>Show instrument properties</source>
-        <translation type="unfinished">Toon instrument eigenschappen</translation>
+        <translation>Toon instrument eigenschappen</translation>
     </message>
     <message>
         <source>Show layers properties</source>
-        <translation type="unfinished">Toon layer eigenschappen</translation>
+        <translation>Toon laag eigenschappen</translation>
     </message>
     <message>
         <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
-        <translation type="unfinished">Audio bestanden (*.wav *WAV *.au *.AU *.aiff *.AIFF .flac *.FLAC)</translation>
+        <translation>Audio bestanden (*.wav *WAV *.au *.AU *.aiff *.AIFF .flac *.FLAC)</translation>
     </message>
     <message>
         <source>Hydrogen - Load instrument</source>
-        <translation type="unfinished">Hydrogen - Laad instrument</translation>
+        <translation>Hydrogen - Laad instrument</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Nieuwe instrument naam</translation>
+        <translation>Nieuwe instrument naam</translation>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation type="unfinished"></translation>
+        <translation>Laag picht (grof)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation type="unfinished"></translation>
+        <translation>Laag pitch (fijn)</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Algemeen</translation>
     </message>
     <message>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagen</translation>
     </message>
 </context>
 <context>
     <name>InstrumentLine</name>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Wis noten</translation>
+        <translation>Wis noten</translation>
     </message>
     <message>
         <source>Fill notes</source>
-        <translation type="unfinished">Vul noten</translation>
+        <translation>Vul noten</translation>
     </message>
     <message>
         <source>Randomize velocity</source>
-        <translation type="unfinished">Willekeurige velocity</translation>
+        <translation>Willekeurige velocity</translation>
     </message>
     <message>
         <source>Delete instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwijderen</translation>
     </message>
 </context>
 <context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon instrument bewerker</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrument</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon geluids bibliotheek</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluids bibliotheek</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>FX bypass</source>
-        <translation type="unfinished">FX bypass</translation>
+        <translation>FX bypass</translation>
     </message>
     <message>
         <source>Edit FX parameters</source>
-        <translation type="unfinished">Bewerk FX parameters</translation>
+        <translation>Bewerk FX parameters</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation type="unfinished">Ladspa FX naam</translation>
+        <translation>Ladspa FX naam</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation type="unfinished">Effect volume</translation>
+        <translation>Effect volume</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation type="unfinished">Selecteer FX</translation>
+        <translation>Selecteer FX</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation type="unfinished">Schakel aan</translation>
+        <translation>Inschakelen</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation type="unfinished">[%1] LADSPA FX eigenschappen</translation>
+        <translation>[%1] LADSPA FX eigenschappen</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation type="unfinished">Schakel uit</translation>
+        <translation>Uitschakelen</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation type="unfinished">LADSPA FX %1 instellingen</translation>
+        <translation>LADSPA FX %1 instellingen</translation>
     </message>
     <message>
         <source>No plugin</source>
-        <translation type="unfinished">Geen plugin</translation>
+        <translation>Geen plugin</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXSelector</name>
     <message>
         <source>Select LADSPA FX</source>
-        <translation type="unfinished">Selecteer LADSPA FX</translation>
+        <translation>Selecteer LADSPA FX</translation>
     </message>
     <message>
         <source>Groups</source>
-        <translation type="unfinished">Groepen</translation>
+        <translation>Groepen</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished">Stereo</translation>
+        <translation>Stereo</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <source>Not supported</source>
-        <translation type="unfinished">Niet ondersteund</translation>
+        <translation>Niet ondersteund</translation>
     </message>
     <message>
         <source>Recently Used</source>
-        <translation type="unfinished"></translation>
+        <translation>Recent gebruikt</translation>
     </message>
     <message>
         <source>Alphabetic List</source>
-        <translation type="unfinished"></translation>
+        <translation>Alfabetische lijst</translation>
     </message>
     <message>
         <source>Categorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Categoriën</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXSelector_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Form1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+A</translation>
+        <translation>Alt+A</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>### fx label</source>
-        <translation type="unfinished">### fx label</translation>
+        <translation>### fx label</translation>
     </message>
     <message>
         <source>### fx type</source>
-        <translation type="unfinished">### fx type</translation>
+        <translation>### fx type</translation>
     </message>
     <message>
         <source>### fx ID</source>
-        <translation type="unfinished">### fx ID</translation>
+        <translation>### fx ID</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -930,7 +934,8 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>### fx name
 1</source>
-        <translation type="unfinished"></translation>
+        <translation>### fx name
+1</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -968,7 +973,7 @@ p, li { white-space: pre-wrap; }
         <source>### FX maker
 1
 2</source>
-        <translation type="unfinished">### FX maker
+        <translation>### FX maker
 1
 2</translation>
     </message>
@@ -985,7 +990,7 @@ p, li { white-space: pre-wrap; }
 1
 2
 3</source>
-        <translation type="unfinished">### copyright
+        <translation>### copyright
 1
 2
 3</translation>
@@ -995,295 +1000,303 @@ p, li { white-space: pre-wrap; }
     <name>MainForm</name>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Fout bij het laden van de opname.</translation>
+        <translation>Fout bij het laden van de opname.</translation>
     </message>
     <message>
         <source>Hydrogen Ready.</source>
-        <translation type="unfinished">Hydrogen Klaar.</translation>
+        <translation>Hydrogen is klaar.</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Nieuw</translation>
+        <translation>&amp;Nieuw</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished">&amp;Openen</translation>
+        <translation>&amp;Openen</translation>
     </message>
     <message>
         <source>Open &amp;Demo</source>
-        <translation type="unfinished">Open &amp;voorbeeld</translation>
+        <translation>Open &amp;voorbeeld</translation>
     </message>
     <message>
         <source>Open &amp;recent</source>
-        <translation type="unfinished">Open &amp;recent</translation>
+        <translation>Open &amp;recent</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished">Op&amp;slaan</translation>
+        <translation>Op&amp;slaan</translation>
     </message>
     <message>
         <source>&amp;Export song</source>
-        <translation type="unfinished">&amp;Exporteren</translation>
+        <translation>&amp;Exporteren</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
-        <translation type="unfinished">Exporteren naar &amp;MIDI</translation>
+        <translation>Exporteren naar &amp;MIDI</translation>
     </message>
     <message>
         <source>&amp;Preferences</source>
-        <translation type="unfinished">&amp;Instellingen</translation>
+        <translation>&amp;Instellingen</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished">&amp;Afsluiten</translation>
+        <translation>&amp;Afsluiten</translation>
     </message>
     <message>
         <source>De&amp;bug</source>
-        <translation type="unfinished">&amp;Debug</translation>
+        <translation>&amp;Debug</translation>
     </message>
     <message>
         <source>Show &amp;audio engine info</source>
-        <translation type="unfinished">Toon &amp;audio engine info</translation>
+        <translation>Toon &amp;audio engine info</translation>
     </message>
     <message>
         <source>&amp;User manual</source>
-        <translation type="unfinished">&amp;Handleiding</translation>
+        <translation>&amp;Handleiding</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation type="unfinished">&amp;Over</translation>
+        <translation>&amp;Over</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished">&amp;Negeren</translation>
+        <translation>&amp;Negeren</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>
 The document contains unsaved changes
 Do you want to save the changes before exiting?
 </source>
-        <translation type="unfinished">De opname is gewijzigd,
+        <translation>De opname is gewijzigd,
 wilt u de wijzigingen opslaan voor het afsluiten?
 </translation>
     </message>
     <message>
         <source>Hydrogen Song (*.h2song)</source>
-        <translation type="unfinished">Hydrogen Opname (*.h2song)</translation>
+        <translation>Hydrogen Opname (*.h2song)</translation>
     </message>
     <message>
         <source>Save song</source>
-        <translation type="unfinished">Opname opslaan</translation>
+        <translation>Opname opslaan</translation>
     </message>
     <message>
         <source>Open song</source>
-        <translation type="unfinished">Open opname</translation>
+        <translation>Open opname</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuleren</translation>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Midi file (*.mid)</source>
-        <translation type="unfinished">MIDI file (*.mid)</translation>
+        <translation>MIDI file (*.mid)</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Exporteer MIDI bestand</translation>
+        <translation>Exporteer MIDI bestand</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
-        <translation type="unfinished">Onbekende audio driver</translation>
+        <translation>Onbekende audio driver</translation>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Fout bij het starten van de audio driver</translation>
+        <translation>Fout bij het starten van de audio driver</translation>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation type="unfinished">Jack driver: proces gestopt</translation>
+        <translation>Jack driver: proces gestopt</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation type="unfinished">Jack driver: kan client niet activeren</translation>
+        <translation>Jack driver: kan client niet activeren</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation type="unfinished">Jack driver: Kan niet verbinden met uitgangspoort</translation>
+        <translation>Jack driver: kan niet verbinden met uitgangspoort</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation type="unfinished">Jack driver: Fout in het register</translation>
+        <translation>Jack driver: fout in het poort register</translation>
     </message>
     <message>
         <source>&amp;Project</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Project</translation>
     </message>
     <message>
         <source>Save &amp;as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Opslaan &amp;als ...</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Ex&amp;tra</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Mixer</translation>
     </message>
     <message>
         <source>&amp;Instrument Rack</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Instrument rack</translation>
     </message>
     <message>
         <source>Print Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Print objecten</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Info</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Opname opgeslaan.</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ongekende error: %1</translation>
     </message>
     <message>
         <source>
 The song has unsaved changes
  Do you want to save the changes before exiting?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+De opname is nog niet opgeslaan
+Wil je de opname opslaan voor af te sluiten?
+</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wis alle instrumenten?</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Instrument %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrument %1</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation type="unfinished"></translation>
+        <translation>Je gebruikt een ontwikkel versie van Hydrogen. Help ons Hydrogen beter te maken door bugs te melden en voorstellen te doen in de hydrogen-devel mailing lijst.&lt;br&gt;&lt;br&gt;Dank u!</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kon de opname niet opslaan.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Open &amp;patroon</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen Patroon (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sla patroon op als ...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroon opgeslaan.</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Open patroon</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon deze boodschap niet meer</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Playlist: Aktiv song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Afspeellijst: opname nummer: %1</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon &amp;info</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Expor&amp;teer patroon als ...</translation>
     </message>
     <message>
         <source>I&amp;nstruments</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;nstrumenten</translation>
     </message>
     <message>
         <source>&amp;Add instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrument toevoegen</translation>
     </message>
     <message>
         <source>&amp;Clear all</source>
-        <translation type="unfinished"></translation>
+        <translation>Wis alles</translation>
     </message>
     <message>
         <source>&amp;Save library</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotheek op&amp;slaan</translation>
     </message>
     <message>
         <source>&amp;Export library</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotheek exporteren</translation>
     </message>
     <message>
         <source>Playlist &amp;editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Afspeellijst bewerken</translation>
     </message>
     <message>
         <source>&amp;Import library</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotheek importeren</translation>
     </message>
     <message>
         <source></source>
         <comment>Info|About</comment>
-        <translation type="unfinished"></translation>
+        <translation>
+Info|Over</translation>
+    </message>
+    <message>
+        <source>Song saved as.</source>
+        <translation>Opname opgeslaan</translation>
+    </message>
+    <message>
+        <source>Playlist: Song No. %1</source>
+        <translation>Afspeellijst: opname nummer: %1</translation>
     </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
     <message>
         <source>Humanize velocity</source>
-        <translation type="unfinished">Humanize velocity</translation>
+        <translation>Menselijke velocity</translation>
     </message>
     <message>
         <source>Humanize time</source>
-        <translation type="unfinished">Humanize time</translation>
+        <translation>Menselijke tijd</translation>
     </message>
     <message>
         <source>Swing</source>
-        <translation type="unfinished">Swing</translation>
+        <translation>Swing</translation>
     </message>
     <message>
         <source>Set master volume [%1]</source>
-        <translation type="unfinished">Master volume [%1]</translation>
+        <translation>Master volume [%1]</translation>
     </message>
     <message>
         <source>Set humanize time parameter [%1]</source>
-        <translation type="unfinished">Stel humanize tijd parameter [%1]</translation>
+        <translation>Menselijke tijd parameter [%1]</translation>
     </message>
     <message>
         <source>Set humanize velocity parameter [%1]</source>
-        <translation type="unfinished">Stel humanize velocity parameter [%1]</translation>
+        <translation>Menselijke velocity parameter [%1]</translation>
     </message>
     <message>
         <source>Set swing factor [%1]</source>
-        <translation type="unfinished">Stel swing factor [%1]</translation>
+        <translation>Swing factor [%1]</translation>
     </message>
 </context>
 <context>
@@ -1305,165 +1318,165 @@ The song has unsaved changes
     <name>Mixer</name>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Show FX panel</source>
-        <translation type="unfinished">Toon FX venster</translation>
+        <translation>Toon FX venster</translation>
     </message>
     <message>
         <source>Show instrument peaks</source>
-        <translation type="unfinished">Toon piek volumes</translation>
+        <translation>Toon piek volumes</translation>
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation type="unfinished">Stel FX %1 volume in</translation>
+        <translation>Stel FX %1 volume in</translation>
     </message>
     <message>
         <source>Show instrument peaks = On</source>
-        <translation type="unfinished">Toon piek volumes = Aan</translation>
+        <translation>Toon piek volumes = Aan</translation>
     </message>
     <message>
         <source>Show instrument peaks = Off</source>
-        <translation type="unfinished">Toon piek volumes = Uit</translation>
+        <translation>Toon piek volumes = Uit</translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation type="unfinished">Stel LADSPA FX ( %1 ) volume in</translation>
+        <translation>Stel LADSPA FX ( %1 ) volume in</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation type="unfinished">Speel voorbeeld</translation>
+        <translation>Speel voorbeeld</translation>
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Dempen</translation>
+        <translation>Dempen</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Pan</translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Instrument name (double click to edit)</source>
-        <translation type="unfinished">Instrument naam (dubbelklik om te bewerken)</translation>
+        <translation>Instrument naam (dubbelklik om te bewerken)</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Stel instrument volume in [%1]</translation>
+        <translation>Instrument volume [%1]</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrument pan [%1]</translation>
     </message>
 </context>
 <context>
     <name>PatternEditorPanel</name>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Selecteer patroon groote</translation>
+        <translation>Selecteer patroon groote</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
-        <translation type="unfinished">Selecteer raster resolutie</translation>
+        <translation>Selecteer raster resolutie</translation>
     </message>
     <message>
         <source>Hear new notes</source>
-        <translation type="unfinished">Speel nieuwe noten</translation>
+        <translation>Speel nieuwe noten</translation>
     </message>
     <message>
         <source>Record keyboard/midi events</source>
-        <translation type="unfinished">Neem via toetsenbord/midi op</translation>
+        <translation>Neem via toetsenbord/midi op</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation type="unfinished">Plaats keyboard/midi noten op het raster</translation>
+        <translation>Plaats keyboard/midi noten op het raster</translation>
     </message>
     <message>
         <source>Zoom in</source>
-        <translation type="unfinished">Vergroot</translation>
+        <translation>Inzoomen</translation>
     </message>
     <message>
         <source>Zoom out</source>
-        <translation type="unfinished">Verklein</translation>
+        <translation>Uitzoomen</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
-        <translation type="unfinished">Patroon editor - %1</translation>
+        <translation>Patroon editor - %1</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
-        <translation type="unfinished">Speel nieuwe noten = Aan</translation>
+        <translation>Speel nieuwe noten = Aan</translation>
     </message>
     <message>
         <source>Hear new notes = Off</source>
-        <translation type="unfinished">Speel nieuwe noten = Uit</translation>
+        <translation>Speel nieuwe noten = Uit</translation>
     </message>
     <message>
         <source>Record keyboard/midi events = On</source>
-        <translation type="unfinished">Neem toetsenbord/midi op = Aan</translation>
+        <translation>Neem toetsenbord/midi op = Aan</translation>
     </message>
     <message>
         <source>Record keyboard/midi events = Off</source>
-        <translation type="unfinished">Neem toetsenbord/midi op = Uit</translation>
+        <translation>Neem toetsenbord/midi op = Uit</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation type="unfinished">Quantiseer toetsenbord/midi = Aan</translation>
+        <translation>Quantiseer toetsenbord/midi = Aan</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation type="unfinished">Quantiseer toetsenbord/midi = Uit</translation>
+        <translation>Quantiseer toetsenbord/midi = Uit</translation>
     </message>
     <message>
         <source>Is not possible to change the pattern size when playing.</source>
-        <translation type="unfinished">Het is niet mogelijk om de patroon grootte te wijzigen gedurende het spelen.</translation>
+        <translation>Het is niet mogelijk om de patroon grootte te wijzigen gedurende het spelen.</translation>
     </message>
     <message>
         <source>Show drum editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon drum editor</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon piano editor</translation>
     </message>
     <message>
         <source>No pattern selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Geen patroon geselecteerd</translation>
     </message>
     <message>
         <source>Select note properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecteer noot opties</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocity</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Cutoff</translation>
     </message>
     <message>
         <source>Resonance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resonantie</translation>
     </message>
     <message>
         <source>Drum</source>
-        <translation type="unfinished"></translation>
+        <translation>Drum</translation>
     </message>
     <message>
         <source>Piano</source>
-        <translation type="unfinished"></translation>
+        <translation>Piano</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
@@ -1474,187 +1487,187 @@ The song has unsaved changes
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Vul met geselecteerd patroon</translation>
     </message>
 </context>
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+A</translation>
+        <translation>Alt+A</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuleren</translation>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Form 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Form 1</translation>
     </message>
     <message>
         <source>&amp;Fill</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vullen</translation>
     </message>
     <message>
         <source>Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+V</translation>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Wissen</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished"></translation>
+        <translation>Van:</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished"></translation>
+        <translation>Naar:</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
-        <translation type="unfinished">Patroon eigenschappen</translation>
+        <translation>Patroon eigenschappen</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Form1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+A</translation>
+        <translation>Alt+A</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>New Pattern Name</source>
-        <translation type="unfinished">Patroon naam</translation>
+        <translation>Patroon naam</translation>
     </message>
     <message>
         <source>Pattern category</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroon categorie</translation>
     </message>
 </context>
 <context>
     <name>PlayerControl</name>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Terugspoelen</translation>
+        <translation>Terugspoelen</translation>
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation type="unfinished">Start/Pause</translation>
+        <translation>Start/Pause</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Doorspoelen</translation>
+        <translation>Doorspoelen</translation>
     </message>
     <message>
         <source>Loop song</source>
-        <translation type="unfinished">Herhaal opname</translation>
+        <translation>Herhaal opname</translation>
     </message>
     <message>
         <source>Pattern Mode</source>
-        <translation type="unfinished">Patroon mode</translation>
+        <translation>Patroon mode</translation>
     </message>
     <message>
         <source>Song Mode</source>
-        <translation type="unfinished">Opname mode</translation>
+        <translation>Opname mode</translation>
     </message>
     <message>
         <source>Switch Song/ Pattern Mode</source>
-        <translation type="unfinished">Schakel Patroon/Opname mode</translation>
+        <translation>Schakel tussen Patroon/Opname mode</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation type="unfinished">Jack-transport aan/uit</translation>
+        <translation>Jack-transport aan/uit</translation>
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">Gestart.</translation>
+        <translation>Gestart.</translation>
     </message>
     <message>
         <source>Pause.</source>
-        <translation type="unfinished">Pause.</translation>
+        <translation>Pause.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished">Gestopt.</translation>
+        <translation>Gestopt.</translation>
     </message>
     <message>
         <source>Song mode selected.</source>
-        <translation type="unfinished">Opname mode geslecteerd.</translation>
+        <translation>Opname mode geslecteerd.</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation type="unfinished">Patroon mode geselecteerd.</translation>
+        <translation>Patroon mode geselecteerd.</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
-        <translation type="unfinished">Jack-transport mode = Aan</translation>
+        <translation>Jack-transport mode = Aan</translation>
     </message>
     <message>
         <source>Jack-transport mode = Off</source>
-        <translation type="unfinished">Jack-transport mode = Uit</translation>
+        <translation>Jack-transport mode = Uit</translation>
     </message>
     <message>
         <source>JACK-transport will work only with JACK driver.</source>
-        <translation type="unfinished">Jack-transport zal enkel werken met de JACK driver.</translation>
+        <translation>Jack-transport zal enkel werken met de JACK driver.</translation>
     </message>
     <message>
         <source>New BPM value</source>
-        <translation type="unfinished">Nieuwe BPM waarde</translation>
+        <translation>Nieuwe BPM waarde</translation>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation type="unfinished">Herhaal opame = Aan</translation>
+        <translation>Herhaal opame = Aan</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation type="unfinished">Herhaal liejdje = Uit</translation>
+        <translation>Herhaal opname = Uit</translation>
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon mixer</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
-        <translation type="unfinished"></translation>
+        <translation>Toon instrument rack</translation>
     </message>
     <message>
         <source>Instrument rack</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrument rack</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>BeatCounter paneel aan</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -1662,31 +1675,31 @@ The song has unsaved changes
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack-Time-Master aan/uit</translation>
     </message>
     <message>
         <source> BC Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>BC paneel aan</translation>
     </message>
     <message>
         <source> BC Panel off</source>
-        <translation type="unfinished"></translation>
+        <translation>BC paneel uit</translation>
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation type="unfinished"></translation>
+        <translation>Tel BPM en afspelen</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Tel BPM en BPM opslaan</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack-Time-Master mode = Aan</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack-Time-Master mode = Uit</translation>
     </message>
 </context>
 <context>
@@ -1847,262 +1860,262 @@ The path to the script and the scriptname must without whitespaces.</source>
     <name>PreferencesDialog</name>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Instellingen</translation>
+        <translation>Instellingen</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Traag</translation>
+        <translation>Traag</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normaal</translation>
+        <translation>Normaal</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Snel</translation>
+        <translation>Snel</translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;b&gt;Automatische driver selectie&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Automatische driver selectie&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
-        <translation type="unfinished">&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</translation>
+        <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Niet ingebouwd&lt;/font&gt;&lt;/b&gt;</translation>
+        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Niet ingebouwd&lt;/font&gt;&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
-        <translation type="unfinished">&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Lage latency audio driver</translation>
+        <translation>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Lage latency audio driver</translation>
     </message>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation type="unfinished"></translation>
+        <translation>Je moet Hydrogen herstarten om LASH ondersteuning in of uit te schakelen</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Form1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+A</translation>
+        <translation>Alt+A</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>&amp;General</source>
-        <translation type="unfinished">Al&amp;gemeen</translation>
+        <translation>Al&amp;gemeen</translation>
     </message>
     <message>
         <source>Alt+R</source>
-        <translation type="unfinished">Alt+H</translation>
+        <translation>Alt+H</translation>
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation type="unfinished">Audio &amp;Systeem</translation>
+        <translation>Audio &amp;Systeem</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished">###</translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>Device</source>
-        <translation type="unfinished">Apparaat</translation>
+        <translation>Apparaat</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Buffer grootte</translation>
+        <translation>Buffer grootte</translation>
     </message>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Sample rate</translation>
+        <translation>Sample rate</translation>
     </message>
     <message>
         <source>Metronome volume</source>
-        <translation type="unfinished">Metronoom volume</translation>
+        <translation>Metronoom volume</translation>
     </message>
     <message>
         <source>Connect to &amp;Default Output Pair</source>
-        <translation type="unfinished">&amp;Verbind standaard uitvoer paar</translation>
+        <translation>&amp;Verbind standaard uitvoer paar</translation>
     </message>
     <message>
         <source>Alt+D</source>
-        <translation type="unfinished">Alt+V</translation>
+        <translation>Alt+V</translation>
     </message>
     <message>
         <source>44100</source>
-        <translation type="unfinished">44100</translation>
+        <translation>44100</translation>
     </message>
     <message>
         <source>48000</source>
-        <translation type="unfinished">48000</translation>
+        <translation>48000</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>96000</source>
-        <translation type="unfinished">96000</translation>
+        <translation>96000</translation>
     </message>
     <message>
         <source>&amp;Midi System</source>
-        <translation type="unfinished">&amp;Midi Systeem</translation>
+        <translation>&amp;Midi Systeem</translation>
     </message>
     <message>
         <source>Midi driver</source>
-        <translation type="unfinished">Midi driver</translation>
+        <translation>Midi driver</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">Input</translation>
+        <translation>Ingang</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alles</translation>
+        <translation>Alles</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>6</source>
-        <translation type="unfinished">6</translation>
+        <translation>6</translation>
     </message>
     <message>
         <source>7</source>
-        <translation type="unfinished">7</translation>
+        <translation>7</translation>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
-        <translation type="unfinished">9</translation>
+        <translation>9</translation>
     </message>
     <message>
         <source>10</source>
-        <translation type="unfinished">10</translation>
+        <translation>10</translation>
     </message>
     <message>
         <source>11</source>
-        <translation type="unfinished">11</translation>
+        <translation>11</translation>
     </message>
     <message>
         <source>12</source>
-        <translation type="unfinished">12</translation>
+        <translation>12</translation>
     </message>
     <message>
         <source>13</source>
-        <translation type="unfinished">13</translation>
+        <translation>13</translation>
     </message>
     <message>
         <source>14</source>
-        <translation type="unfinished">14</translation>
+        <translation>14</translation>
     </message>
     <message>
         <source>15</source>
-        <translation type="unfinished">15</translation>
+        <translation>15</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished">16</translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished">Kanaal</translation>
+        <translation>Kanaal</translation>
     </message>
     <message>
         <source>Ignore note-off</source>
-        <translation type="unfinished">Negeer noot af</translation>
+        <translation>Negeer noot af</translation>
     </message>
     <message>
         <source>&amp;Appearance</source>
-        <translation type="unfinished">&amp;Voorkomen</translation>
+        <translation>&amp;Voorkomen</translation>
     </message>
     <message>
         <source>Application font</source>
-        <translation type="unfinished">Programma lettertype</translation>
+        <translation>Programma lettertype</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Stijl</translation>
+        <translation>Stijl</translation>
     </message>
     <message>
         <source>Select font</source>
-        <translation type="unfinished">Selecteer lettertype</translation>
+        <translation>Selecteer lettertype</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Traag</translation>
+        <translation>Traag</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normaal</translation>
+        <translation>Normaal</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Snel</translation>
+        <translation>Snel</translation>
     </message>
     <message>
         <source>Mixer font</source>
-        <translation type="unfinished">Mixer lettertype</translation>
+        <translation>Mixer lettertype</translation>
     </message>
     <message>
         <source>Meters falloff speed</source>
-        <translation type="unfinished">Meters afval snelheid</translation>
+        <translation>Meters afval snelheid</translation>
     </message>
     <message>
         <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation type="unfinished">&lt;i&gt;Na het wijzigen van een lettertype moet het programma herstart worden.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Na het wijzigen van een lettertype moet het programma herstart worden.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&amp;Reopen last used song</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Heropen laatst gebruikte opname</translation>
     </message>
     <message>
         <source>Polyphony</source>
@@ -2110,19 +2123,19 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Restart output</source>
-        <translation type="unfinished"></translation>
+        <translation>Herstart uitgang</translation>
     </message>
     <message>
         <source>Audio output details</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio uitgang details</translation>
     </message>
     <message>
         <source>Post-Fader</source>
-        <translation type="unfinished"></translation>
+        <translation>Post-Fader</translation>
     </message>
     <message>
         <source>Pre-Fader</source>
-        <translation type="unfinished"></translation>
+        <translation>Pre-Fader</translation>
     </message>
     <message>
         <source>Track output</source>
@@ -2134,7 +2147,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Use lash</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebruik LASH</translation>
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
@@ -2161,72 +2174,72 @@ The path to the script and the scriptname must without whitespaces.</source>
     <name>SimpleHTMLBrowser</name>
     <message>
         <source>Manual</source>
-        <translation type="unfinished">Handleiding</translation>
+        <translation>Handleiding</translation>
     </message>
     <message>
         <source>Welcome to Hydrogen</source>
-        <translation type="unfinished">Welkom bij Hydrogen</translation>
+        <translation>Welkom bij Hydrogen</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation type="unfinished">Toon deze boodschap niet meer</translation>
+        <translation>Toon deze boodschap niet meer</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Documentation index</source>
-        <translation type="unfinished">Documentatie index</translation>
+        <translation>Documentatie index</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPanel</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Opname editor</translation>
+        <translation>Opname editor</translation>
     </message>
     <message>
         <source>Create new pattern</source>
-        <translation type="unfinished">Maak een nieuw patroon</translation>
+        <translation>Maak een nieuw patroon</translation>
     </message>
     <message>
         <source>Move the selected pattern down</source>
-        <translation type="unfinished">Verplaats het geselecteerde patroon naar beneden</translation>
+        <translation>Verplaats het geselecteerde patroon naar beneden</translation>
     </message>
     <message>
         <source>Move the selected pattern up</source>
-        <translation type="unfinished">Verplaats het geselecteerde patroon naar boven</translation>
+        <translation>Verplaats het geselecteerde patroon naar boven</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation type="unfinished">Wis patroon sequenties</translation>
+        <translation>Wis patroon sequenties</translation>
     </message>
     <message>
         <source>Select mode</source>
-        <translation type="unfinished">Selectie mode</translation>
+        <translation>Selectie mode</translation>
     </message>
     <message>
         <source>Draw mode</source>
-        <translation type="unfinished">Teken mode</translation>
+        <translation>Teken mode</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation type="unfinished">Opgepast, dit zal alle sequenties voor het patroon wissen
+        <translation>Opgepast, dit zal alle sequenties voor het patroon wissen
 Ben je zeker?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;Ok</translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroon</translation>
     </message>
     <message>
         <source>stacked mode</source>
@@ -2249,101 +2262,102 @@ Ben je zeker?</translation>
     <name>SongEditorPatternList</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">Bewerken</translation>
+        <translation>Bewerken</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiëren</translation>
+        <translation>Kopiëren</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Wissen</translation>
+        <translation>Wissen</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Eigenschappen</translation>
+        <translation>Eigenschappen</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Opvullen/Wissen ...</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroon opslaan</translation>
     </message>
     <message>
         <source>Load Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroon laden</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Patroon openen</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen patroon (*.h2pattern)</translation>
     </message>
     <message>
         <source>Error saving pattern!
 The pattern-file exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Er deed zich een probleem voor bij het opslaan van het patroon!
+Het patroon bestand bestaat al.</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
         <source>Song properties</source>
-        <translation type="unfinished">Liedje eigenschappen</translation>
+        <translation>Opname eigenschappen</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Form1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>Song name</source>
-        <translation type="unfinished">Opname naam</translation>
+        <translation>Opname naam</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Auteur</translation>
+        <translation>Auteur</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation type="unfinished">Commentaar</translation>
+        <translation>Commentaar</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+A</translation>
+        <translation>Alt+A</translation>
     </message>
     <message>
         <source> &amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
         <source>Export Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporteer geluid bibliotheek</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation type="unfinished">Drumkit exporteren</translation>
+        <translation>Exporteer drumkit</translation>
     </message>
 </context>
 <context>
@@ -2354,74 +2368,74 @@ The pattern-file exists.</source>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkennen</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exporteren</translation>
+        <translation>Exporteren</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
         <source>Sound Library import</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek importeren</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek updaten ...</translation>
     </message>
     <message>
         <source>Installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Geïnstalleerd</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieuw</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Auteur: %1</translation>
+        <translation>Auteur: %1</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek downloaden ...</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Drumkit importeren</translation>
+        <translation>Drumkit importeren</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek geïmporteerd in %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
-        <translation type="unfinished"></translation>
+        <translation>Er is een fout opgetreden bij het importeren van de geluid bibliotheek.</translation>
     </message>
     <message>
         <source>Drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkits</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation type="unfinished"></translation>
+        <translation>Opnames</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Patronen</translation>
     </message>
     <message>
         <source>License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie: %1</translation>
     </message>
 </context>
 <context>
@@ -2432,116 +2446,118 @@ The pattern-file exists.</source>
     </message>
     <message>
         <source>Internet</source>
-        <translation type="unfinished"></translation>
+        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
-        <translation type="unfinished"></translation>
+        <translation>Update lijst</translation>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek naam</translation>
     </message>
     <message>
         <source>Sound library Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek info</translation>
     </message>
     <message>
         <source>Author...</source>
-        <translation type="unfinished"></translation>
+        <translation>Auteur ...</translation>
     </message>
     <message>
         <source>Download and install</source>
-        <translation type="unfinished"></translation>
+        <translation>Downloaden en installeren</translation>
     </message>
     <message>
         <source>Local file</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaal bestand</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bladeren ...</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Installeren</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie ...</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewerk server lijst</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluiten</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Laden</translation>
+        <translation>Laden</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exporteren</translation>
+        <translation>Exporteren</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Wissen</translation>
+        <translation>Wissen</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Geladen drumkit:[%1]</translation>
+        <translation>Geladen drumkit:[%1]</translation>
     </message>
     <message>
         <source>System drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Systeem drumkits</translation>
     </message>
     <message>
         <source>User drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebruiker drumkits</translation>
     </message>
     <message>
         <source>Warning, the selected drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opgelet, de geselecteerde drumkit zal gewist worden.
+Ben je zeker dat je verder wilt gaan?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annuleren</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation type="unfinished"></translation>
+        <translation>Opnames</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Patronen</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fout bij het laden van de opname</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschappen</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Opgelet, het geselecteerde patroon zal gewist worden.
+Ben je zeker dat verder wilt gaan?</translation>
     </message>
 </context>
 <context>
@@ -2552,31 +2568,31 @@ Are you sure?</source>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Auteur</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informatie</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licientie</translation>
     </message>
     <message>
         <source>Save </source>
-        <translation type="unfinished"></translation>
+        <translation>Opslaan</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemaakte wijzigingen opslaan in geluids bibliotheek</translation>
     </message>
 </context>
 <context>
@@ -2587,11 +2603,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewerk server lijst</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -2602,18 +2618,18 @@ Are you sure?</source>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Toevoegen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Wissen</translation>
+        <translation>Wissen</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek opslaan</translation>
     </message>
 </context>
 <context>
@@ -2624,34 +2640,34 @@ Are you sure?</source>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Auteur</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informatie</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuleren</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie</translation>
     </message>
     <message>
         <source>Save </source>
-        <translation type="unfinished"></translation>
+        <translation>Opslaan</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Geluid bibliotheek</translation>
     </message>
 </context>
 </TS>
