@@ -369,6 +369,15 @@ if not conf.CheckCHeader('sndfile.h'):
 
 # these libraries are optional (can be enabled/disabled, see 'scons -h')
 
+if portaudio and not conf.CheckCHeader('portaudio.h'):
+    print "portaudio must be installed!"
+    Exit(1)
+
+if portmidi and not conf.CheckCHeader('portmidi.h'):
+    print "portmidi must be installed!"
+    Exit(1)
+
+
 #alsa: (default: enabled)
 if alsa and not conf.CheckCHeader('alsa/asoundlib.h'):
     print 'alsa must be installed!'
