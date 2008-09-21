@@ -71,7 +71,8 @@ ActionManager::ActionManager() : Object( "actionManager" ) {
 	<< "BPM_INCR"
 	<< "BPM_DECR"
 	<< "BEATCOUNTER"
-	<< "TAP_TEMPO";
+	<< "TAP_TEMPO"
+	<< "PANIC";
 
 	eventList << ""
 	<< "MMC_PLAY"
@@ -225,6 +226,10 @@ bool ActionManager::handleAction( Action * pAction )
 	}
 	
 	if( sActionString == "RECORD_TOGGLE" ) {
+	}
+
+	if( sActionString == "PANIC" ) {
+		pEngine->__panic();
 	}
 
 	return true;

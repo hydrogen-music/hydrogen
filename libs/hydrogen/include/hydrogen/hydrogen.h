@@ -193,6 +193,8 @@ public:
 	float getNewBpmJTM();
 	void setNewBpmJTM( float bpmJTM);
 	void ComputeHumantimeFrames(uint32_t nFrames);
+
+	void __panic();
 	
 
 private:

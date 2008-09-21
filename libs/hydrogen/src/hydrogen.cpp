@@ -2919,5 +2919,14 @@ void Hydrogen::__kill_instruments()
 	}
 }
 
+
+
+void Hydrogen::__panic()
+{
+	sequencer_stop();	
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+}
+
+
 };
 

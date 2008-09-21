@@ -1324,6 +1324,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				return TRUE;
 				break;
 
+			case  Qt::Key_F12 : //panic button stop all playing notes
+				Hydrogen::get_instance()->__panic();
+//				QMessageBox::information( this, "Hydrogen", trUtf8( "Panic" ) );
+				return TRUE;
+				break;
+
 			case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
 				Hydrogen::get_instance()->setPatternPos( Hydrogen::get_instance()->getPatternPos() - 1 );
 				return TRUE;
