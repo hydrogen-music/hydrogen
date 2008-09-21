@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="nl_NL">
+<!DOCTYPE TS><TS>
 <defaultcodec></defaultcodec>
 <context>
     <name>AboutDialog</name>
@@ -1798,7 +1797,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afspeellijst: opname nummer: %1</translation>
     </message>
 </context>
 <context>
@@ -1845,7 +1844,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Stop</translation>
     </message>
     <message>
         <source>Clear playlist</source>
