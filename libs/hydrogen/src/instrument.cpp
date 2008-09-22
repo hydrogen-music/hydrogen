@@ -140,6 +140,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 			pLayer->set_start_velocity( pNewLayer->get_start_velocity() );
 			pLayer->set_end_velocity( pNewLayer->get_end_velocity() );
 			pLayer->set_gain( pNewLayer->get_gain() );
+			 pLayer->set_pitch(pNewLayer->get_pitch()); 
 
 			if ( is_live )
 				AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
