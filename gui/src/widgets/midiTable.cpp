@@ -55,9 +55,9 @@ void MidiTable::updateTable()
 		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( __row_count - 1, 0 ) );
 		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( cellWidget( __row_count - 1, 2 ) );
 
-		if( eventCombo == NULL or actionCombo == NULL) return;
+		if( eventCombo == NULL || actionCombo == NULL) return;
 
-		if( actionCombo->currentText() != "" and eventCombo->currentText() != "" ) {
+		if( actionCombo->currentText() != "" && eventCombo->currentText() != "" ) {
 			insertNewRow("", "", 0, 0);
 		}
 	}

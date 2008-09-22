@@ -74,7 +74,7 @@ void SoundLibraryRepositoryDialog::on_AddBtn_clicked()
 
 	QString text = QInputDialog::getText(this, trUtf8("Edit server list"), trUtf8("URL"), QLineEdit::Normal,QString(""), &ok);
 	
-	if( ok and !text.isEmpty() ){
+	if( ok && !text.isEmpty() ){
 		pPref->sServerList.push_back( text );
 	}
 
