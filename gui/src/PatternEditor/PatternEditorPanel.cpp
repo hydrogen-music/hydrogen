@@ -212,38 +212,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//editor_top_hbox_2->addWidget(zoom_out_btn);
 
 
-	// show drum editor btn
-	__show_drum_btn = new ToggleButton(
-			NULL,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize(40, 17),
-			true
-	);
-	__show_drum_btn->setText( trUtf8("Drum") );
-	__show_drum_btn->setPressed( true );
-	__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
-	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
-	editor_top_hbox->addWidget(__show_drum_btn);
-	__show_drum_btn->hide();
-
-
-	// show piano roll btn
-	__show_piano_btn = new ToggleButton(
-			NULL,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize(40, 17),
-			true
-	);
-	__show_piano_btn->setText( trUtf8("Piano") );
-	__show_piano_btn->setPressed( false );
-	__show_piano_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
-	connect(__show_piano_btn, SIGNAL(clicked(Button*)), this, SLOT( showPianoEditorBtnClick(Button*)));
-	editor_top_hbox->addWidget(__show_piano_btn);
-	__show_piano_btn->hide();
 // End Editor TOP
 
 
