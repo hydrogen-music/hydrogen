@@ -50,6 +50,17 @@ using namespace H2Core;
 
 #include <QtGui>
 
+
+void PatternEditorPanel::updateSLnameLabel( QString name )
+{
+	QFont font;
+	font.setBold( true );
+	pSLlabel->setFont( font );
+	pSLlabel->setText( name );
+} 
+
+
+
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , Object( "PatternEditorPanel" )
@@ -59,7 +70,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::getInstance();
-
+	
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget(0);
@@ -80,6 +91,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->setMargin(0);
 	editor_top_hbox_2->setAlignment(Qt::AlignLeft);
 
+
+	//soundlibrary name
+	pSLlabel = new QLabel( NULL );
+	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit );
+	pSLlabel->setFixedSize( 170, 20 );
+	pSLlabel->move( 10, 3 );
+	pSLlabel->setToolTip( trUtf8("Loaded Soundlibrary") );
+	editor_top_hbox->addWidget( pSLlabel ); 
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( NULL );

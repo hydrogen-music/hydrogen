@@ -490,7 +490,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
-	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( drumkitInfo->getName() ), 2000 );
+	HydrogenApp::getInstance()->onDrumkitLoad( drumkitInfo->getName() );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
 

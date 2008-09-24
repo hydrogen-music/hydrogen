@@ -64,6 +64,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 
+		void updateSLnameLabel( QString name );
+
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
@@ -96,7 +98,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 	private:
 		H2Core::Pattern *m_pPattern;
 		QPixmap m_backgroundPixmap;
-
+		QLabel *pSLlabel;
 
 		// Editor top
 		LCDCombo *__pattern_size_combo;

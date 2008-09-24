@@ -351,7 +351,10 @@ void HydrogenApp::showInfoSplash()
 	}
 }
 
-
+void HydrogenApp::onDrumkitLoad( QString name ){
+	setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
+	m_pPatternEditorPanel->updateSLnameLabel( name );
+}
 
 void HydrogenApp::onEventQueueTimer()
 {

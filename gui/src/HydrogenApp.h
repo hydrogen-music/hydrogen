@@ -93,6 +93,8 @@ class HydrogenApp : public QObject, public Object
 		void removeEventListener( EventListener* pListener );
 		void closeFXProperties();
 
+		void onDrumkitLoad( QString name );
+
 	public slots:
 		void onEventQueueTimer();
 
