@@ -142,6 +142,8 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateDrumkitList()
 {
+	QString currentSL = Hydrogen::get_instance()->m_currentDrumkit ; 
+
 	LocalFileMng mng;
 
 	__sound_library_tree->clear();
@@ -237,6 +239,9 @@ void SoundLibraryPanel::updateDrumkitList()
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->getName() );
+			if ( QString(pInfo->getName()) == currentSL ){
+				pDrumkitItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
@@ -259,6 +264,9 @@ void SoundLibraryPanel::updateDrumkitList()
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->getName() );
+			if ( QString(pInfo->getName()) == currentSL ){
+				pDrumkitItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
@@ -465,6 +473,26 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
+	QString cSLibrary =  Hydrogen::get_instance()->m_currentDrumkit;
+ 
+	for (uint i = 0; i < systemList.size() ; i++){
+		if (  !__system_drumkits_item->child( i )) break;
+		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == cSLibrary){
+			( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );
+			break;
+		}
+	}
+
+	for (uint i = 0; i < userList.size() ; i++){
+		if (  !__user_drumkits_item->child( i )) break;
+		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == cSLibrary){
+			( __user_drumkits_item->child( i ) )->setBackground(0, QBrush());
+			break;
+		}
+	}
+
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 
 	Drumkit *drumkitInfo = NULL;
@@ -478,7 +506,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-		Drumkit*pInfo = __user_drumkit_info_list[i];
+		Drumkit *pInfo = __user_drumkit_info_list[i];
 		if ( pInfo->getName() == sDrumkitName ) {
 			drumkitInfo = pInfo;
 			break;
@@ -491,6 +519,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
 	HydrogenApp::getInstance()->onDrumkitLoad( drumkitInfo->getName() );
+
+	__sound_library_tree->currentItem()->setBackgroundColor ( 0, QColor( 50, 50, 50) );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
