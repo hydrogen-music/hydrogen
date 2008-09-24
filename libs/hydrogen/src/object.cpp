@@ -50,9 +50,9 @@ Object::Object( const QString& class_name )
 	++__objects;
 	__logger = Logger::get_instance();
 
-
+#ifdef CONFIG_DEBUG
 	Object::use_verbose_log( true );
-
+#endif
 
 	if ( __use_log ) {
 		int nInstances = __object_map[ __class_name ];
@@ -68,8 +68,9 @@ Object::Object( const QString& class_name )
 Object::Object( const Object& obj )
 {
 
+#ifdef CONFIG_DEBUG
 	use_verbose_log( true );
-
+#endif
 	__class_name = obj.get_class_name();
 
 	++__objects;
