@@ -170,10 +170,12 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		}
 		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( aselected );
-		m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+		m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
 		}
 
-	QTimer *timer = new QTimer( this );
+	timer = new QTimer( this );
 	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
 	timer->start( 1000 );	// update player control at 1 fps
 
@@ -212,6 +214,7 @@ void PlaylistDialog::on_removeFromListBTN_clicked()
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
+	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 	QTreeWidgetItem * m_pItem = m_pPlaylist->topLevelItem ( 1 );
 
 
@@ -237,6 +240,12 @@ void PlaylistDialog::on_removeFromListBTN_clicked()
 			///avoid segfault if the last item will be removed!!
 			delete m_pPlaylistItem;
 			updatePlayListVector();
+			if (  Playlist::get_instance()->getActiveSongNumber() == index ){
+				Playlist::get_instance()->setActiveSongNumber( -1 );
+			}else if (  Playlist::get_instance()->getActiveSongNumber() > index  ){
+				Playlist::get_instance()->setActiveSongNumber(  Playlist::get_instance()->getActiveSongNumber() -1 );
+			}
+			
 		}
 	}
 }
@@ -331,7 +340,6 @@ void PlaylistDialog::on_loadListBTN_clicked()
 			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( 0 );
 			m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 			Playlist::get_instance()->setSelectedSongNr( 0 );
-//			Playlist::get_instance()->setNextSongByNumber( 0 );
 		}
 
 	}
@@ -556,6 +564,7 @@ void PlaylistDialog::on_editScriptBTN_clicked()
 
 void PlaylistDialog::o_upBClicked()
 {	
+	timer->stop();
 
 	Playlist* pList = Playlist::get_instance();
 
@@ -563,17 +572,24 @@ void PlaylistDialog::o_upBClicked()
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 
-	if (index == 0 ) return;
+	if (index == 0 ){
+		timer->start( 1000 ); 
+		return;
+	}
 
 	QTreeWidgetItem* tmpPlaylistItem = m_pPlaylist->takeTopLevelItem ( index );
 
 	m_pPlaylist->insertTopLevelItem ( index -1, tmpPlaylistItem );
 	m_pPlaylist->setCurrentItem ( tmpPlaylistItem ); 
 
-	if ( pList->getSelectedSongNr() > 0 )
+	if ( pList->getSelectedSongNr() >= 0 )
 		pList->setSelectedSongNr( pList->getSelectedSongNr() -1 );
-	if ( pList->getActiveSongNumber() > 0 )
+
+	if ( pList->getActiveSongNumber() == index ){
 		pList->setActiveSongNumber( pList->getActiveSongNumber() -1 );
+	}else if ( pList->getActiveSongNumber() == index -1 ){
+		pList->setActiveSongNumber( pList->getActiveSongNumber() +1 );
+	}
 
 	updatePlayListVector();
 
@@ -582,7 +598,7 @@ void PlaylistDialog::o_upBClicked()
 
 void PlaylistDialog::o_downBClicked()
 {
-
+	timer->stop();
 	Playlist* pList = Playlist::get_instance();
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -590,8 +606,10 @@ void PlaylistDialog::o_downBClicked()
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 
-	if ( index == length - 1) 
-			return;
+	if ( index == length - 1){
+		timer->start( 1000 );
+		return;
+	}
 
 
 	QTreeWidgetItem* tmpPlaylistItem = m_pPlaylist->takeTopLevelItem ( index );
@@ -599,11 +617,14 @@ void PlaylistDialog::o_downBClicked()
 	m_pPlaylist->insertTopLevelItem ( index +1, tmpPlaylistItem );
 	m_pPlaylist->setCurrentItem ( tmpPlaylistItem ); 
 
-	if ( pList->getSelectedSongNr() > 0 )
+	if ( pList->getSelectedSongNr() >= 0 )
 		pList->setSelectedSongNr( pList->getSelectedSongNr() +1 );
-	if (pList ->getActiveSongNumber() > 0 )
-		pList->setActiveSongNumber( pList->getActiveSongNumber() +1 );
 
+	if (pList ->getActiveSongNumber() == index ){
+		pList->setActiveSongNumber( pList->getActiveSongNumber() +1 );
+	}else if ( pList->getActiveSongNumber() == index +1 ){
+		pList->setActiveSongNumber( pList->getActiveSongNumber() -1 );
+	}
 	updatePlayListVector();
 
 }
@@ -761,18 +782,32 @@ void PlaylistDialog::updatePlayListVector()
 
 		Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
 	}
+	timer->start( 1000 );
 }
 
 
 void PlaylistDialog::updateActiveSongNumber()
-{			
+{
+	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
+
+	for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
+		if ( !m_pPlaylist->topLevelItem( i ) )
+			break;
+		( m_pPlaylist->topLevelItem( i ) )->setBackground( 0, QBrush() );
+		( m_pPlaylist->topLevelItem( i ) )->setBackground( 1, QBrush() );
+		( m_pPlaylist->topLevelItem( i ) )->setBackground( 2, QBrush() );
+		
+	}
+		
 	int selected = Playlist::get_instance()->getActiveSongNumber();
 	if ( selected == -1 ) 
 		return;
 	
-	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );	
-	m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+	//m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+	m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+	m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
+	m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
 }
 
 

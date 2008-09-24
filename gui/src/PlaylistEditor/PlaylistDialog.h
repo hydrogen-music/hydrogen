@@ -75,6 +75,7 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 		void updatePlayListVector();
 		void setFirstItemCurrent();
 		Button *zoom_in_btn;
+		QTimer *timer;
 };
 
 

@@ -239,8 +239,8 @@ void SoundLibraryPanel::updateDrumkitList()
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->getName() );
-			if ( QString(pInfo->getName()) == currentSL ){
-				pDrumkitItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+			if ( QString(pInfo->getName() ) == currentSL ){
+				pDrumkitItem->setBackgroundColor( 0, QColor( 50, 50, 50) );
 			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
@@ -264,8 +264,8 @@ void SoundLibraryPanel::updateDrumkitList()
 
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->getName() );
-			if ( QString(pInfo->getName()) == currentSL ){
-				pDrumkitItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+			if ( QString( pInfo->getName() ) == currentSL ){
+				pDrumkitItem->setBackgroundColor( 0, QColor( 50, 50, 50) );
 			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
@@ -478,7 +478,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
  
 	for (uint i = 0; i < systemList.size() ; i++){
-		if (  !__system_drumkits_item->child( i )) 
+		if (  !__system_drumkits_item->child( i ) )
 			break;
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
 			( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );
@@ -487,10 +487,10 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	}
 
 	for (uint i = 0; i < userList.size() ; i++){
-		if (  !__user_drumkits_item->child( i )) 
+		if (  !__user_drumkits_item->child( i ) )
 			break;
 		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
-			( __user_drumkits_item->child( i ) )->setBackground(0, QBrush());
+			( __user_drumkits_item->child( i ) )->setBackground(0, QBrush() );
 			break;
 		}
 	}
