@@ -475,19 +475,21 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 {
 	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
 	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	QString cSLibrary =  Hydrogen::get_instance()->m_currentDrumkit;
+	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
  
 	for (uint i = 0; i < systemList.size() ; i++){
-		if (  !__system_drumkits_item->child( i )) break;
-		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == cSLibrary){
+		if (  !__system_drumkits_item->child( i )) 
+			break;
+		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
 			( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );
 			break;
 		}
 	}
 
 	for (uint i = 0; i < userList.size() ; i++){
-		if (  !__user_drumkits_item->child( i )) break;
-		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == cSLibrary){
+		if (  !__user_drumkits_item->child( i )) 
+			break;
+		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
 			( __user_drumkits_item->child( i ) )->setBackground(0, QBrush());
 			break;
 		}
