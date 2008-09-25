@@ -511,9 +511,9 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	//saveTab_authorTxt->setText( QString( drumkitInfo->getAuthor().c_str() ) );
 	//saveTab_infoTxt->append( QString( drumkitInfo->getInfo().c_str() ) );
 
-//	HydrogenApp::getInstance()->getPatternEditorPanel()->getPatternEditor()->updateEditor( true );
+	//HydrogenApp::getInstance()->getPatternEditorPanel()->getPatternEditor()->updateEditor( true );
 
-//HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+	//HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 }
 
 
@@ -535,9 +535,7 @@ void SoundLibraryPanel::restore_background_color()
 	for (uint i = 0; i < systemList.size() ; i++){
 		if (  !__system_drumkits_item->child( i ) )
 			break;
-		( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );
-		
-		
+		( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );		
 	}
 
 	for (uint i = 0; i < userList.size() ; i++){
