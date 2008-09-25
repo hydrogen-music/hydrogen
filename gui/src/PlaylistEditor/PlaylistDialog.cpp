@@ -23,6 +23,8 @@
 
 #include "PlaylistDialog.h"
 #include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
@@ -723,6 +725,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 
 	pH2App->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( index +1 ), 5000 );
+
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 
 ///exec script
 ///this is very very simple and only an experiment

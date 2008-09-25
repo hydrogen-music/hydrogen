@@ -50,6 +50,7 @@ public:
 
 	void updateDrumkitList();
 	void test_expandedItems();
+	void update_background_color();
 
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
@@ -88,6 +89,9 @@ private:
 	std::vector<H2Core::Drumkit*> __user_drumkit_info_list;
 	bool __expand_pattern_list;
 	bool __expand_songs_list;
+	void restore_background_color();
+	void change_background_color();
+
 };
 
 #endif

@@ -453,6 +453,7 @@ void MainForm::action_file_new()
 	song->set_filename( "" );
 	h2app->setSong(song);
  	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 
@@ -631,6 +632,8 @@ void MainForm::action_file_export_pattern_as()
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
+
+
 void MainForm::action_file_open() {
 	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
@@ -694,6 +697,8 @@ void MainForm::action_file_open() {
 	if (filename != "") {
 		openSongFile( filename );
 	}
+
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 

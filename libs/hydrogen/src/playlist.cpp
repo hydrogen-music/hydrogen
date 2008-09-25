@@ -20,15 +20,15 @@
  *
  */
 
-//#include "PlaylistDialog.h"
-
+#include "gui/src/HydrogenApp.h"
+#include "gui/src/InstrumentRack.h"
+#include "gui/src/SoundLibrary/SoundLibraryPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
-#include "gui/src/HydrogenApp.h"
 
 #include <vector>
 #include <cstdlib>
@@ -93,6 +93,8 @@ void Playlist::setNextSongByNumber(int SongNumber)
 
 	loadSong( selected );
 	execScript( realNumber );
+
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 
@@ -122,6 +124,8 @@ _INFOLOG( "index" + to_string( index ) );
 
 	loadSong( selected );
 	execScript( index );
+
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 
@@ -152,6 +156,8 @@ void Playlist::setPrevSongPlaylist()
 
 	loadSong( selected );
 	execScript( index );
+
+	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 

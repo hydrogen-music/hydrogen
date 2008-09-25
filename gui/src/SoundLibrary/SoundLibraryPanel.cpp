@@ -473,27 +473,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
-	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
- 
-	for (uint i = 0; i < systemList.size() ; i++){
-		if (  !__system_drumkits_item->child( i ) )
-			break;
-		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
-			( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );
-			break;
-		}
-	}
-
-	for (uint i = 0; i < userList.size() ; i++){
-		if (  !__user_drumkits_item->child( i ) )
-			break;
-		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
-			( __user_drumkits_item->child( i ) )->setBackground(0, QBrush() );
-			break;
-		}
-	}
+	restore_background_color();
 
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 
@@ -534,6 +514,64 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 //	HydrogenApp::getInstance()->getPatternEditorPanel()->getPatternEditor()->updateEditor( true );
 
 //HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+}
+
+
+
+void SoundLibraryPanel::update_background_color()
+{
+	restore_background_color();
+	change_background_color();
+}
+
+
+
+void SoundLibraryPanel::restore_background_color()
+{
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
+	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
+ 
+	for (uint i = 0; i < systemList.size() ; i++){
+		if (  !__system_drumkits_item->child( i ) )
+			break;
+		( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );
+		
+		
+	}
+
+	for (uint i = 0; i < userList.size() ; i++){
+		if (  !__user_drumkits_item->child( i ) )
+			break;
+		( __user_drumkits_item->child( i ) )->setBackground(0, QBrush() );
+	}
+}
+
+
+
+void SoundLibraryPanel::change_background_color()
+{
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
+	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
+ 
+	for (uint i = 0; i < systemList.size() ; i++){
+		if (  !__system_drumkits_item->child( i ) )
+			break;
+		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
+			( __system_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
+			break;
+		}
+	}
+
+	for (uint i = 0; i < userList.size() ; i++){
+		if (  !__user_drumkits_item->child( i ) )
+			break;
+		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
+			( __user_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
+			break;
+		}
+	}
 }
 
 
