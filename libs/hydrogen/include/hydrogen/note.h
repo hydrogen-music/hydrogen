@@ -23,6 +23,7 @@
 #ifndef H2_NOTE_H
 #define H2_NOTE_H
 
+#include <cassert>
 #include <hydrogen/Object.h>
 #include <hydrogen/adsr.h>
 
@@ -170,9 +171,17 @@ public:
 
 
 	void set_leadlag( float leadlag ) {
-		__leadlag = leadlag;
+		if(leadlag > 1.0) {
+			__leadlag = 1.0;
+		} else if (leadlag < -1.0) {
+			__leadlag = -1.0;
+		} else {
+			__leadlag = leadlag;
+		}
 	}
 	float get_leadlag() const {
+		assert(__leadlag <=  1.0);
+		assert(__leadlag >= -1.0);
 		return __leadlag;
 	}
 
