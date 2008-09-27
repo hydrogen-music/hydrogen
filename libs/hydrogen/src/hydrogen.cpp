@@ -1414,6 +1414,12 @@ void audioEngine_noteOff( Note *note )
 
 
 
+// unsigned long audioEngine_getTickPosition()
+// {
+// 	return m_nPatternTickPosition;
+// }
+
+
 AudioOutput* createDriver( const QString& sDriver )
 {
 	_INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
@@ -1882,8 +1888,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 				);
 
 			// hear note if its not in the future
-			// Let the scheduler worry if it's in the future or not.
-			if ( pref->getHearNewNotes() ) {
+			if ( pref->getHearNewNotes()
+			     && position <= getTickPosition() ) {
 				hearnote = true;
 			}
 
@@ -1924,31 +1930,10 @@ float Hydrogen::getMasterPeak_R()
 }
 
 
-// Returns the current (real-time) tick, relative to the current
-// (or first) pattern being played.
+
 unsigned long Hydrogen::getTickPosition()
 {
-	if( m_pSong == 0 ) {
-		return 0;
-	}
-	TransportInfo& xsp = m_pAudioDriver->m_transport;
-	int tick, starttick, patsize, rv;
-	tick = xsp.m_nFrames / xsp.m_nTickSize;
-	starttick = 0;
-	patsize = 1;
-	if( m_pSong->get_mode() == Song::SONG_MODE ) {
-		rv = findPatternInTick( tick, m_pSong->is_loop_enabled(), &starttick);
-		if(m_nSongSizeInTicks > 0) patsize = m_nSongSizeInTicks;
-	} else if( (m_pSong->get_mode() == Song::PATTERN_MODE)
-		   && (m_pPlayingPatterns->get_size() != 0)) {
-		starttick = m_nPatternStartTick;
-		patsize = m_pPlayingPatterns->get(0)->get_lenght();
-	} // else make do with the absolute tick.
-	tick = ( tick - starttick );
-	if(patsize > 1) tick %= patsize;
-	if(tick < 0) tick += patsize;
-	assert(tick >= 0);
-	return (unsigned)tick;
+	return m_nPatternTickPosition;
 }
 
 
