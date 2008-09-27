@@ -258,6 +258,7 @@ void HydrogenApp::setSong(Song* song)
 	Preferences::getInstance()->setLastSongFilename( song->get_filename() );
 
 	m_pSongEditorPanel->updateAll();
+	m_pPatternEditorPanel->updateSLnameLabel();
 
 	QString songName( song->__name );
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(get_version().c_str()) + QString( " - " ) + songName ) );
@@ -353,7 +354,7 @@ void HydrogenApp::showInfoSplash()
 
 void HydrogenApp::onDrumkitLoad( QString name ){
 	setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
-	m_pPatternEditorPanel->updateSLnameLabel( name );
+	m_pPatternEditorPanel->updateSLnameLabel( );
 }
 
 void HydrogenApp::onEventQueueTimer()

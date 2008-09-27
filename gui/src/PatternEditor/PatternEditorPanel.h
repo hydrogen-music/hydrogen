@@ -64,7 +64,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 
-		void updateSLnameLabel( QString name );
+		void updateSLnameLabel( );
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();

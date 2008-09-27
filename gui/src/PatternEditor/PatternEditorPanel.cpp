@@ -51,12 +51,12 @@ using namespace H2Core;
 #include <QtGui>
 
 
-void PatternEditorPanel::updateSLnameLabel( QString name )
+void PatternEditorPanel::updateSLnameLabel( )
 {
 	QFont font;
 	font.setBold( true );
 	pSLlabel->setFont( font );
-	pSLlabel->setText( name );
+	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit  );
 } 
 
 
