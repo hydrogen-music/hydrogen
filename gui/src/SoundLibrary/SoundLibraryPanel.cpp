@@ -663,10 +663,10 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 		}
 	}
 
-//	if ( preDrumkitInfo == NULL ){
-//		QMessageBox::warning( this, "Hydrogen", QString( "The current loaded song missing his soundlibrary.\nPlease load a existing soundlibrary first") );
-//		return;
-//	}
+	if ( preDrumkitInfo == NULL ){
+		QMessageBox::warning( this, "Hydrogen", QString( "The current loaded song missing his soundlibrary.\nPlease load a existing soundlibrary first") );
+		return;
+	}
 	assert( preDrumkitInfo );
 	
 	//open the soundlibrary save dialog 
