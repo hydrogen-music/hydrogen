@@ -1270,9 +1270,9 @@ void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
 void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
 	QString sText = event->mimeData()->text();
-	ERRORLOG(sText);
 
 	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") )
+		event->acceptProposedAction();
 		return;
 
 	if (sText.startsWith("move pattern:")) {
