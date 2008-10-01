@@ -413,6 +413,10 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 			return;
 		}
 
+		if ( __sound_library_tree->currentItem()->parent() == __pattern_item ) {
+			return;
+		}
+
 		if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item ) {
 
 			LocalFileMng mng;

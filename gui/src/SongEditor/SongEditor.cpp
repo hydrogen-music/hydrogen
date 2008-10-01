@@ -1271,8 +1271,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
 	QString sText = event->mimeData()->text();
 	ERRORLOG(sText);
-	
-	if(sText.startsWith("Songs:") or sText.startsWith("Instruments:")) return;
+
+	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") )
+		return;
 
 	if (sText.startsWith("move pattern:")) {
 		Hydrogen *engine = Hydrogen::get_instance();
