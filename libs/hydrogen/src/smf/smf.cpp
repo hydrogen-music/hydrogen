@@ -323,6 +323,10 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 
 	// save the midi file
 	m_file = fopen( sFilename.toAscii(), "wb" );
+	
+	if( m_file == NULL ) 
+		return;
+	
 	vector<char> smfVect = smf.getBuffer();
 	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
 		fwrite( &smfVect[ i ], 1, 1, m_file );
