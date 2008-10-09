@@ -20,6 +20,7 @@
  *
  */
 
+/*
 #include "PianoRollEditor.h"
 
 #include <cassert>
@@ -220,3 +221,4 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent*)
 	INFOLOG("Mouse release event" );
 }
 
+*/

@@ -268,8 +268,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 
-
-	m_pPianoRollScrollView = new QScrollArea( NULL );
+/*
+	 = new QScrollArea( NULL );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -281,6 +281,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	m_pPianoRollScrollView->hide();
+*/
 //~ EDITOR
 
 
@@ -413,7 +414,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
 
 	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
-	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
+//	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
 
 	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
 	pGrid->addWidget( pPatternEditorHScrollBarContainer, 10, 1 );
@@ -532,8 +533,8 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 	m_pEditorScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 	// piano roll Editor
-	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
-	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
+//	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+//	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 
 	// Ruler
@@ -688,15 +689,16 @@ void PatternEditorPanel::stateChangedEvent(int state)
 void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 {
 	UNUSED( ev );
-	QScrollArea *pScrollArea = NULL;
+	QScrollArea *pScrollArea = m_pEditorScrollView;
 
+/*
 	if ( m_pPianoRollScrollView->isVisible() ) {
 		pScrollArea = m_pPianoRollScrollView;
 	}
 	else {
 		pScrollArea = m_pEditorScrollView;
 	}
-
+*/
 
 	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
 	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
@@ -747,7 +749,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 	__show_piano_btn->setPressed( false );
 
 
-	m_pPianoRollScrollView->hide();
+//	m_pPianoRollScrollView->hide();
 	m_pEditorScrollView->show();
 	m_pInstrListScrollView->show();
 
@@ -766,11 +768,11 @@ void PatternEditorPanel::showPianoEditorBtnClick(Button *ref)
 	__show_drum_btn->setPressed( false );
 
 
-	m_pPianoRollScrollView->show();
+//	m_pPianoRollScrollView->show();
 	m_pEditorScrollView->hide();
 	m_pInstrListScrollView->hide();
 
-	m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
+//	m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
 
 	// force a re-sync of extern scrollbars
 	resizeEvent( NULL );

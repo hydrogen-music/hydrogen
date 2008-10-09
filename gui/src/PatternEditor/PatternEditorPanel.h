@@ -39,7 +39,7 @@ class PatternEditorInstrumentList;
 class NotePropertiesRuler;
 class LCDCombo;
 class DrumPatternEditor;
-class PianoRollEditor;
+//class PianoRollEditor;
 
 
 namespace H2Core
@@ -115,8 +115,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		DrumPatternEditor *m_pDrumPatternEditor;
 
 		// piano roll editor
-		QScrollArea* m_pPianoRollScrollView;
-		PianoRollEditor *m_pPianoRollEditor;
+//		QScrollArea* m_pPianoRollScrollView;
+//		PianoRollEditor *m_pPianoRollEditor;
 
 		// ruler
 		QScrollArea* m_pRulerScrollView;
