@@ -269,7 +269,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 /*
-	 = new QScrollArea( NULL );
+	m_pPianoRollScrollView = new QScrollArea( NULL );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
