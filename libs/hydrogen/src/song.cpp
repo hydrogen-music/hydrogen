@@ -119,7 +119,7 @@ bool Song::save( const QString& filename )
 	SongWriter writer;
 	writer.writeSong( this, filename );
 
-	return !QDir( filename ).exists();
+	return QFile::exists( filename );
 }
 
 
