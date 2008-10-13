@@ -192,7 +192,13 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 
-	TiXmlDocument doc( filename.toAscii() );
+	#ifdef win32
+  		TiXmlDocument doc( filename.toAscii().constData() );
+	#else
+   		TiXmlDocument doc( filename.toUtf8().constData() );
+	#endif
+
+
 	doc.LoadFile();
 
 	TiXmlNode* songNode;	// root element
