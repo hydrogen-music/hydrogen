@@ -60,7 +60,7 @@ AudioEngine::AudioEngine()
 	Effects::getInstance();
 #endif
 
-	Sequencer::getInstance();
+//	Sequencer::getInstance();
 }
 
 
@@ -72,7 +72,7 @@ AudioEngine::~AudioEngine()
 	delete Effects::getInstance();
 #endif
 
-	delete Sequencer::getInstance();
+//	delete Sequencer::getInstance();
 	delete __sampler;
 	delete __synth;
 }

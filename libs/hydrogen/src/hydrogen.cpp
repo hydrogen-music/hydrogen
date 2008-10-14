@@ -293,15 +293,15 @@ void audioEngine_init()
 
 void audioEngine_destroy()
 {
-	AudioEngine::get_instance()->lock( "audioEngine_destroy" );
-	_INFOLOG( "*** Hydrogen audio engine shutdown ***" );
-
 	// check current state
 	if ( m_audioEngineState != STATE_INITIALIZED ) {
 		_ERRORLOG( "Error the audio engine is not in INITIALIZED state" );
 		return;
 	}
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+
+	AudioEngine::get_instance()->lock( "audioEngine_destroy" );
+	_INFOLOG( "*** Hydrogen audio engine shutdown ***" );
 
 	// delete all copied notes in the song notes queue
 	while ( !m_songNoteQueue.empty() ) {
