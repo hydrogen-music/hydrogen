@@ -201,6 +201,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	WindowProperties mixerProp = pPref->getMixerProperties();
 	m_pMixer->resize( mixerProp.width, mixerProp.height );
 	m_pMixer->move( mixerProp.x, mixerProp.y );
+	m_pMixer->updateMixer();
 	if ( mixerProp.visible ) {
 		m_pMixer->show();
 	}
