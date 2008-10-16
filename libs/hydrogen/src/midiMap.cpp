@@ -32,6 +32,7 @@ MidiMap::MidiMap()
 	//constructor
 	for(int note = 0; note < 128; note++ ) {
 		__note_array[ note ] = new Action("NOTHING");
+		__cc_array[ note ] = new Action("NOTHING");
 	}
 }
 
@@ -45,6 +46,7 @@ MidiMap::~MidiMap()
 
 	for( int i = 0; i < 128; i++ ) {
 		delete __note_array[ i ];
+		delete __cc_array[ i ];
 	}
 
 	__instance = NULL;
@@ -76,6 +78,14 @@ void MidiMap::registerNoteEvent( int note, Action* pAction )
 	}
 }
 
+void MidiMap::registerCCEvent( int parameter , Action * pAction ){
+	if( parameter >= 0 and parameter < 128 )
+	{
+		delete __cc_array[ parameter ];
+		__cc_array[ parameter ] = pAction;
+	}
+}
+
 Action* MidiMap::getMMCAction( QString eventString )
 {
 	std::map< QString, Action *>::iterator dIter = mmcMap.find( eventString );
@@ -91,3 +101,6 @@ Action* MidiMap::getNoteAction( int note )
 	return __note_array[ note ];
 }
 
+Action * MidiMap::getCCAction( int parameter ){
+	return __cc_array[ parameter ];
+}

@@ -63,6 +63,11 @@ public:
 	void midi_noteOn( Note *note );
 	void midi_noteOff( Note *note );
 
+	///Last received midi message
+	QString lastMidiEvent;
+	int lastMidiEventParameter;
+
+
 	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
 	void togglePlaysSelected( void );
 // ***** ~SEQUENCER ********

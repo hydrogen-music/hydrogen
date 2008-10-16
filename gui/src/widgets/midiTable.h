@@ -41,9 +41,13 @@ class MidiTable : public QTableWidget, public Object
 
 	private slots:
 		void updateTable();
+		void midiSensePressed( int );
 	
 	private:
 		int __row_count;
+		int currentMidiAutosenseRow;
+		QSignalMapper *signalMapper;
+		QTimer* m_pUpdateTimer;
 
 };
 

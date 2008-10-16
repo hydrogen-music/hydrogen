@@ -484,7 +484,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
 						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
 						Action* pAction = new Action( s_action );
-						pAction->addParameter( s_param );
+						pAction->setParameter1( s_param );
 						mM->registerMMCEvent(event, pAction);
 					}
 
@@ -494,9 +494,20 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
 						QString s_eventParameter = pMidiEventNode->FirstChild("eventParameter")->FirstChild()->Value();
 						Action* pAction = new Action( s_action );
-						pAction->addParameter( s_param );
+						pAction->setParameter1( s_param );
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
+
+					if( pMidiEventNode->FirstChild()->Value() == QString("ccEvent") ){
+						QString event = pMidiEventNode->FirstChild("ccEvent")->FirstChild()->Value();
+						QString s_action = pMidiEventNode->FirstChild("action")->FirstChild()->Value();
+						QString s_param = pMidiEventNode->FirstChild("parameter")->FirstChild()->Value();
+						QString s_eventParameter = pMidiEventNode->FirstChild("eventParameter")->FirstChild()->Value();
+						Action * pAction = new Action( s_action );
+						pAction->setParameter1( s_param );
+						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
+					}
+
 				}
 			} else {
 				WARNINGLOG( "midiMap node not found" );
@@ -705,6 +716,12 @@ void Preferences::savePreferences()
 			} else {
 				LocalFileMng::writeXmlString( &midiDriverNode, "ignore_note_off", "false" );
 			}
+
+			if ( m_bMidiDiscardNoteAfterAction ) {
+				LocalFileMng::writeXmlString( &midiDriverNode, "discard_note_after_action", "true" );
+			} else {
+				LocalFileMng::writeXmlString( &midiDriverNode, "discard_note_after_action", "false" );
+			}
 		}
 		audioEngineNode.InsertEndChild( midiDriverNode );
 
@@ -796,12 +813,10 @@ void Preferences::savePreferences()
 
 			if ( pAction->getType() != "NOTHING" ){
 				TiXmlElement midiEventNode( "midiEvent" );
+
 				LocalFileMng::writeXmlString( &midiEventNode, "mmcEvent" , event );
 				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType());
-
-				if ( pAction->getParameterList().size() != 0 ){
-					LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameterList().at(0) );
-				}
+				LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameter1() );
 
 				midiEventMapNode.InsertEndChild(midiEventNode);
 			}
@@ -815,10 +830,26 @@ void Preferences::savePreferences()
 				LocalFileMng::writeXmlString( &midiEventNode, "noteEvent" , QString("NOTE") );
 				LocalFileMng::writeXmlString( &midiEventNode, "eventParameter" , QString::number( note ) );
 				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType() );
+				LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameter1() );
+	
 
-				if ( pAction->getParameterList().size() != 0 ){
-					LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameterList().at(0) );
-				}
+				midiEventMapNode.InsertEndChild(midiEventNode);
+			}
+		}
+
+		for( int parameter=0; parameter < 128; parameter++ ){
+			Action * pAction = mM->getCCAction( parameter );
+			if( pAction != NULL && pAction->getType() != "NOTHING")
+			{
+				TiXmlElement midiEventNode( "midiEvent" );
+				
+				LocalFileMng::writeXmlString( &midiEventNode, "ccEvent" , QString("CC") );
+				LocalFileMng::writeXmlString( &midiEventNode, "eventParameter" , QString::number( parameter ) );
+				
+
+				LocalFileMng::writeXmlString( &midiEventNode, "action" , pAction->getType() );
+
+				LocalFileMng::writeXmlString( &midiEventNode, "parameter" , pAction->getParameter1() );
 
 				midiEventMapNode.InsertEndChild(midiEventNode);
 			}
