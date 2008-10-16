@@ -169,8 +169,11 @@ void Sampler::note_on( Note *note )
 
 void Sampler::note_off( Note* note )
 {
-	UNUSED( note );
-	ERRORLOG( "not implemented yet" );
+//this is in work. i planing a sustain-curve that users can edit
+//in moment only stop_playing_notes delete the current playing note.
+	stop_playing_notes( note->get_instrument() );
+//also the note_off msg from midi keyboard should be recorded into drum pattern note_map.
+//all this will develop into branch: new_fx_rack_and_sample_fun
 }
 
 

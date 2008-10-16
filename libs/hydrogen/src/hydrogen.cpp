@@ -529,6 +529,18 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 					      - fMaxPitchDeviation / 2.0 )
 					  * pNote->get_instrument()->get_random_pitch_factor() );
 
+///new note off stuff
+//not in use for the moment, but it works! i am planing a bit more than only delete the note. better way is that
+//users can edit the sustain-curve to fade out the sample.
+//more details see sampler.cpp: Sampler::note_off( Note* note )
+
+			//stop note bevore playing new note, only if set into the planned instrumenteditor checkbox `always stop note`
+			//Instrument * noteInstrument = pNote->get_instrument();
+			//if ( noteInstrument->is_stop_notes() ){ 
+			//	AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+			//}
+///~new note off stuff
+
 			// aggiungo la nota alla lista di note da eseguire
 			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
 			

@@ -273,6 +273,15 @@ public:
 		return __queued;
 	}
 
+	inline bool is_stop_notes() {
+		return __stop_notes;
+	}
+	void set_stop_note( bool stopnotes ) {
+		__stop_notes = stopnotes;
+	}
+
+
+
 private:
 	int __queued;
 	InstrumentLayer* __layer_list[MAX_LAYERS];
@@ -296,6 +305,7 @@ private:
 
 	bool __active;			///< is the instrument active?
 	bool __soloed;
+	bool __stop_notes;		///
 };
 
 
