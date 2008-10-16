@@ -86,18 +86,18 @@ ActionManager::ActionManager() : Object( "ActionManager" ) {
 	<< "BPM_CC_RELATIVE"
 	<< "MASTER_VOLUME_RELATIVE"
 	<< "MASTER_VOLUME_ABSOLUTE"
-	<< "STRIP_VOLUME_RELATIVE"
+/*	<< "STRIP_VOLUME_RELATIVE"
 	<< "STRIP_VOLUME_ABSOLUTE"
-/*	<< "EFFECT1_LEVEL_RELATIVE"
+	<< "EFFECT1_LEVEL_RELATIVE"
 	<< "EFFECT2_LEVEL_RELATIVE"
 	<< "EFFECT3_LEVEL_RELATIVE"
 	<< "EFFECT4_LEVEL_RELATIVE"
 	<< "EFFECT1_LEVEL_ABSOLUTE"
 	<< "EFFECT2_LEVEL_ABSOLUTE"
 	<< "EFFECT3_LEVEL_ABSOLUTE"
-	<< "EFFECT4_LEVEL_ABSOLUTE"*/
+	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "PAN_RELATIVE"
-	<< "PAN_ABSOULTE"
+	<< "PAN_ABSOULTE"*/
 	<< "BEATCOUNTER"
 	<< "TAP_TEMPO";
 
@@ -139,8 +139,8 @@ QStringList ActionManager::getEventList(){
 	return eventList;
 }
 
-/*
 
+/*
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 {
 	//helper function to set fx levels
@@ -164,7 +164,6 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 	return true;
 
 }*/
-
 
 bool ActionManager::handleAction( Action * pAction ){
 
@@ -280,7 +279,7 @@ bool ActionManager::handleAction( Action * pAction ){
 	
 
 
-
+	*/
 
 	if( sActionString == "MASTER_VOLUME_RELATIVE" ){
 		//increments/decrements the volume of the whole song	
@@ -307,6 +306,8 @@ bool ActionManager::handleAction( Action * pAction ){
 
 	}
 
+	
+
 	if( sActionString == "MASTER_VOLUME_ABSOLUTE" ){
 		//sets the volume of a mixer strip to a given level (percentage)
 
@@ -326,6 +327,8 @@ bool ActionManager::handleAction( Action * pAction ){
 		}
 
 	}
+
+	/*
 
 	if( sActionString == "STRIP_VOLUME_RELATIVE" ){
 		//increments/decrements the volume of one mixer strip	
