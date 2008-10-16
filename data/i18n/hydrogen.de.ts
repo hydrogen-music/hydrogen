@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="de_DE">
+<!DOCTYPE TS><TS>
 <defaultcodec></defaultcodec>
 <context>
     <name>AboutDialog</name>
@@ -59,7 +58,8 @@
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;This program is distributed under the terms of the GPL v2.&lt;/span&gt;&lt;/p&gt;
@@ -506,6 +506,104 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>AudioFileBrowser</name>
+    <message>
+        <source>Audio File Browser</source>
+        <translation type="unfinished">Audio Datei Browser</translation>
+    </message>
+    <message>
+        <source>Size: %1 bytes</source>
+        <translation type="unfinished">Größe: %1 bytes</translation>
+    </message>
+    <message>
+        <source>Samplerate: %1</source>
+        <translation type="unfinished">Sampelrate: %1</translation>
+    </message>
+    <message>
+        <source>Samplelength: </source>
+        <translation type="unfinished">Sampellänge: </translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"> s</translation>
+    </message>
+    <message>
+        <source>No clicking audio preview for samples longer than 10 minutes!</source>
+        <translation type="unfinished">Audio Dateien länger als 10 Minuten können nicht durch anklicken abgespielt werden!  </translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished">Name:</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished">Größe:</translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished">Sampelrate:</translation>
+    </message>
+    <message>
+        <source>Samplelength:</source>
+        <translation type="unfinished">Sampellänge:</translation>
+    </message>
+</context>
+<context>
+    <name>AudioFileBrowser_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished">Öffne</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished">Name:</translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished">Sampelrate:</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished">Größe:</translation>
+    </message>
+    <message>
+        <source>Length:</source>
+        <translation type="unfinished">Länge:</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+    <message>
+        <source>Pla&amp;y samples by clicking</source>
+        <translation type="unfinished">Spiele Dateien durch &amp;anklicken </translation>
+    </message>
+    <message>
+        <source>&amp;Up</source>
+        <translation type="unfinished">Ho&amp;ch</translation>
+    </message>
+    <message>
+        <source>&amp;Home</source>
+        <translation type="unfinished">Persö&amp;hnlicher Ordner</translation>
+    </message>
+    <message>
+        <source>&amp;Play Sample</source>
+        <translation type="unfinished">&amp;Spiele Datei</translation>
+    </message>
+    <message>
+        <source>&amp;Filename to instrument name</source>
+        <translation type="unfinished">&amp;Dateiname wird Instrument Name</translation>
+    </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation type="unfinished">S&amp;topp</translation>
+    </message>
+</context>
+<context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
@@ -692,6 +790,13 @@ Sind sie sicher?
     </message>
 </context>
 <context>
+    <name>HydrogenApp</name>
+    <message>
+        <source>Drumkit loaded: [%1]</source>
+        <translation type="unfinished">Drumkit geladen: [%1]</translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -732,14 +837,6 @@ Sind sie sicher?
     <message>
         <source>Layer gain</source>
         <translation>Aussteuerung des Layers</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
-        <translation>Audiodateien (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Load instrument</source>
-        <translation>Hydrogen - Instrument laden</translation>
     </message>
     <message>
         <source>New instrument name</source>
@@ -1217,10 +1314,6 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <translation>Wiedergabeliste: Song %1</translation>
     </message>
     <message>
-        <source>Playlist: Aktiv song No. %1</source>
-        <translation>Wiedergabeliste:  Aktiver Song Nr.  %1</translation>
-    </message>
-    <message>
         <source>Show &amp;info</source>
         <translation>Zeige  &amp;Information</translation>
     </message>
@@ -1259,6 +1352,14 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source></source>
         <comment>Info|About</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved as.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1433,14 +1534,6 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <translation>Gitterdichte wählen</translation>
     </message>
     <message>
-        <source>Show drum editor</source>
-        <translation>Drumeditor anzeigen</translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation>Piano-Roll Editor anzeigen</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>Kein Pattern ausgewählt</translation>
     </message>
@@ -1465,16 +1558,12 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <translation>Resonanz</translation>
     </message>
     <message>
-        <source>Drum</source>
-        <translation>Drum</translation>
-    </message>
-    <message>
-        <source>Piano</source>
-        <translation>Piano</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Lead and Lag</translation>
+    </message>
+    <message>
+        <source>Loaded Soundlibrary</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2135,11 +2224,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Track output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spur Ausgang</translation>
     </message>
     <message>
         <source>Track Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spur Ausgänge</translation>
     </message>
     <message>
         <source>Use lash</source>
@@ -2514,10 +2603,6 @@ The pattern-file exists.</source>
     <message>
         <source>User drumkits</source>
         <translation>Benutzer Drumkits</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation>Drumkit geladen: [%1]</translation>
     </message>
     <message>
         <source>Warning, the selected drumkit will be deleted from disk.

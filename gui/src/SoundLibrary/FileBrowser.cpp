@@ -228,7 +228,7 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath() );
 				if (pNewSample) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
-					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample);
+					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample, 192);
 				}
 			}
 		}

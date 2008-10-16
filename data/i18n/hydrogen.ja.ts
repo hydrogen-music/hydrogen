@@ -57,7 +57,8 @@
         <translation type="unfinished">Alt+O</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;This program is distributed under the terms of the GPL v2.&lt;/span&gt;&lt;/p&gt;
@@ -504,6 +505,104 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>AudioFileBrowser</name>
+    <message>
+        <source>Audio File Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size: %1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplelength: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No clicking audio preview for samples longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplelength:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioFileBrowser_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pla&amp;y samples by clicking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Play Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Filename to instrument name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
@@ -688,6 +787,13 @@ Are you sure?</source>
     </message>
 </context>
 <context>
+    <name>HydrogenApp</name>
+    <message>
+        <source>Drumkit loaded: [%1]</source>
+        <translation type="unfinished">読み込まれたドラムキット: [%1]</translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -728,14 +834,6 @@ Are you sure?</source>
     <message>
         <source>Layer gain</source>
         <translation type="unfinished">Layer gain</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
-        <translation type="unfinished">オーディオ ファイル (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Load instrument</source>
-        <translation type="unfinished">Hydrogen - 楽器読み込み</translation>
     </message>
     <message>
         <source>New instrument name</source>
@@ -1211,10 +1309,6 @@ The song has unsaved changes
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Playlist: Aktiv song No. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show &amp;info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1253,6 +1347,14 @@ The song has unsaved changes
     <message>
         <source></source>
         <comment>Info|About</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved as.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1427,14 +1529,6 @@ The song has unsaved changes
         <translation type="unfinished">グリッド分解度の選択</translation>
     </message>
     <message>
-        <source>Show drum editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1459,15 +1553,11 @@ The song has unsaved changes
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drum</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Piano</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loaded Soundlibrary</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2489,10 +2579,6 @@ The pattern-file exists.</source>
     <message>
         <source>Load</source>
         <translation type="unfinished">読み込み</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">読み込まれたドラムキット: [%1]</translation>
     </message>
     <message>
         <source>Export</source>

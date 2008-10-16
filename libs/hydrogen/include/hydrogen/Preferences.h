@@ -144,6 +144,9 @@ public:
 	QString m_sPreferencesFilename;
 	QString m_sPreferencesDirectory;
 
+	QString __lastsampleDirectory; // audio file browser
+	bool __playsamplesonclicking; // audio file browser
+
 	bool m_bFollowPlayhead;
 	
 	// switch to enable / disable lash, only on h2 startup

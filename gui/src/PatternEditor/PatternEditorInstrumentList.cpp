@@ -530,8 +530,6 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 		}
 	}
 
-
-
 }
 
 
@@ -557,7 +555,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 	ERRORLOG(sText);
 	
 
-	if(sText.startsWith("Songs:") or sText.startsWith("Patterns:") or sText.startsWith("move pattern:")or sText.startsWith("drag pattern:")) return;
+	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
 
 	if (sText.startsWith("move instrument:")) {
 
@@ -626,7 +624,6 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		event->acceptProposedAction();
 	}
-
 }
 
 

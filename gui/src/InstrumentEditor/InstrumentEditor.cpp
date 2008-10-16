@@ -46,7 +46,7 @@ using namespace H2Core;
 #include "InstrumentEditor.h"
 #include "WaveDisplay.h"
 #include "LayerPreview.h"
-
+#include "AudioFileBrowser/AudioFileBrowser.h"
 
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
  : QWidget( pParent )
@@ -485,27 +485,25 @@ void InstrumentEditor::loadLayer()
 	static QString lastUsedDir = QDir::homePath();
 
 	Hydrogen *engine = Hydrogen::get_instance();
-	MainForm *pMainForm = HydrogenApp::getInstance()->getMainForm();
 
-	QFileDialog *fd = new QFileDialog( (QWidget*)pMainForm );
-	fd->setFileMode( QFileDialog::ExistingFile );
-	fd->setFilter( trUtf8("Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)") );
-	fd->setWindowTitle( trUtf8("Hydrogen - Load instrument") );
-	fd->setDirectory( lastUsedDir );
+	AudioFileBrowser *fb = new AudioFileBrowser( NULL );
+	QStringList filename;
+	filename << "false" << "false" << "";
 
-//	FilePreview *pPreview = new FilePreview();
-//	fd->setContentsPreviewEnabled( TRUE );
-//	fd->setContentsPreview( pPreview, pPreview );
-//	fd->setPreviewMode( QFileDialog::Contents );
-
-	QString filename = "";
-	if (fd->exec() == QDialog::Accepted) {
-		filename = fd->selectedFiles().front();
+	if (fb->exec() == QDialog::Accepted) {
+		filename = fb->selectedFile();
 	}
 
-	if (filename != "") {
-		lastUsedDir = fd->directory().absolutePath();
-		Sample *newSample = Sample::load( filename );
+	delete fb;
+
+	bool fnc = false;	
+	if ( filename[0] ==  "true" ){
+		fnc = true;
+	}
+
+	if (filename[2] != "") {
+
+		Sample *newSample = Sample::load( filename[2] );
 
 		H2Core::Instrument *pInstr = NULL;
 
@@ -528,6 +526,17 @@ void InstrumentEditor::loadLayer()
 			pInstr->set_layer( pLayer, m_nSelectedLayer );
 		}
 
+		if ( fnc ){
+			QString newfilename = filename[2].section( '/', -1 );
+				newfilename.replace( "." + newfilename.section( '.', -1 ), "");
+			m_pInstrument->set_name( newfilename );
+		}
+
+		//set automatic velocity
+		if ( filename[1] ==  "true" ){
+			setAutoVelocity();
+		}
+
 		pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
 
 		AudioEngine::get_instance()->unlock();
@@ -535,6 +544,33 @@ void InstrumentEditor::loadLayer()
 
 	selectedInstrumentChangedEvent();    // update all
 	m_pLayerPreview->updateAll();
+}
+
+
+void InstrumentEditor::setAutoVelocity()
+{
+	int layerinuse[ MAX_LAYERS - 1 ] = {0};
+	int layers = 0;
+	for ( int i = 0; i < MAX_LAYERS - 1; i++ ) {
+		InstrumentLayer *pLayers = m_pInstrument->get_layer( i );
+		if ( pLayers ) {
+			layers++;
+			layerinuse[i] = i;
+		}
+	}
+
+	float velocityrange = 1.0 / layers;
+
+	for ( int i = 0; i < MAX_LAYERS - 1; i++ ) {
+		if ( layerinuse[i] == i ){
+			layers--;
+			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
+			if ( pLayer ) {
+				pLayer->set_start_velocity( layers * velocityrange);
+				pLayer->set_end_velocity( layers * velocityrange + velocityrange );
+			}
+		}
+	}
 }
 
 

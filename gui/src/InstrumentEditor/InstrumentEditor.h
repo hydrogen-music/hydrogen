@@ -55,6 +55,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );
+		void setFileforLayer(QString filename );
 
 	private slots:
 		void rotaryChanged(Rotary *ref);
@@ -126,6 +127,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		//~ implements EventListener interface
 
 		void loadLayer();
+		void setAutoVelocity();
 };
 
 

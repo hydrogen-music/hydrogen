@@ -57,7 +57,8 @@
         <translation></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;This program is distributed under the terms of the GPL v2.&lt;/span&gt;&lt;/p&gt;
@@ -402,7 +403,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;consider it more useful to permit linking proprietary applications with the&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;library.  If this is what you want to do, use the GNU Library General&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;Public License instead of this License.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -501,6 +502,104 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Realtime frames</source>
         <translation>Frame in tempo reale</translation>
+    </message>
+</context>
+<context>
+    <name>AudioFileBrowser</name>
+    <message>
+        <source>Audio File Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size: %1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplelength: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No clicking audio preview for samples longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplelength:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioFileBrowser_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annulla</translation>
+    </message>
+    <message>
+        <source>Pla&amp;y samples by clicking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Play Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Filename to instrument name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Stop</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -688,6 +787,13 @@ Are you sure?</source>
     </message>
 </context>
 <context>
+    <name>HydrogenApp</name>
+    <message>
+        <source>Drumkit loaded: [%1]</source>
+        <translation type="unfinished">Drumkit caricato: [%1]</translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -700,14 +806,6 @@ Are you sure?</source>
     <message>
         <source>Layer gain</source>
         <translation>Gain del layer</translation>
-    </message>
-    <message>
-        <source>Audio files (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</source>
-        <translation>File audio (*.wav *.WAV *.au *.AU *.aiff *.AIFF *.flac *.FLAC)</translation>
-    </message>
-    <message>
-        <source>Hydrogen - Load instrument</source>
-        <translation>Hydrogen - Carica strumento</translation>
     </message>
     <message>
         <source>New instrument name</source>
@@ -1215,10 +1313,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Playlist: Imposta canzone No. %1</translation>
     </message>
     <message>
-        <source>Playlist: Aktiv song No. %1</source>
-        <translation>Playlist: Attiva canzone No. %1</translation>
-    </message>
-    <message>
         <source>Show &amp;info</source>
         <translation>Mostra &amp;Info</translation>
     </message>
@@ -1257,6 +1351,14 @@ Vuoi salvare la canzone prima di uscire dal programma?
     <message>
         <source></source>
         <comment>Info|About</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved as.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1431,14 +1533,6 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Diminuisci Zoom</translation>
     </message>
     <message>
-        <source>Show drum editor</source>
-        <translation>Mostra editor</translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation>Mostra editor da tastiera</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>Nessun pattern selezionato</translation>
     </message>
@@ -1463,16 +1557,12 @@ Vuoi salvare la canzone prima di uscire dal programma?
         <translation>Risonanza</translation>
     </message>
     <message>
-        <source>Drum</source>
-        <translation>Batteria</translation>
-    </message>
-    <message>
-        <source>Piano</source>
-        <translation>Piano</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Anticipo e Ritardo</translation>
+    </message>
+    <message>
+        <source>Loaded Soundlibrary</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2505,10 +2595,6 @@ The pattern-file exists.</source>
     <message>
         <source>Delete</source>
         <translation>Elimina</translation>
-    </message>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation>Drumkit caricato: [%1]</translation>
     </message>
     <message>
         <source>System drumkits</source>
