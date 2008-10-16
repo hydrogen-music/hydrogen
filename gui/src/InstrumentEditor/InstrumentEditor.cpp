@@ -54,48 +54,48 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
  , m_pInstrument( NULL )
  , m_nSelectedLayer( 0 )
 {
-	setFixedWidth( 248 );
+	setFixedWidth( 290 );
 
+// Instrument properties top
+	m_pInstrumentPropTop = new PixmapWidget( this );
+	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
 
 	m_pShowInstrumentBtn = new ToggleButton(
-			this,
+			m_pInstrumentPropTop,
 			"/skin_btn_on.png",
 			"/skin_btn_off.png",
 			"/skin_btn_over.png",
-			QSize( 96, 17 ),
+			QSize( 100, 17 ),
 			true
 	);
 	m_pShowInstrumentBtn->setText(trUtf8("General"));
 	m_pShowInstrumentBtn->setToolTip( trUtf8( "Show instrument properties" ) );
 	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
-	m_pShowInstrumentBtn->move( 23, 0 );
+	m_pShowInstrumentBtn->move( 40, 7 );
 	m_pShowInstrumentBtn->setPressed( true );
 
 
 	m_pShowLayersBtn = new ToggleButton(
-			this,
+			m_pInstrumentPropTop,
 			"/skin_btn_on.png",
 			"/skin_btn_off.png",
 			"/skin_btn_over.png",
-			QSize( 96, 17 ),
+			QSize( 100, 17 ),
 			true
 	);
 	m_pShowLayersBtn->setText( trUtf8("Layers") );
 	m_pShowLayersBtn->setToolTip( trUtf8( "Show layers properties" ) );
 	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
-	m_pShowLayersBtn->move( 119, 0 );
-
-
+	m_pShowLayersBtn->move( 144, 7 );
 
 
 // Instrument properties
 	m_pInstrumentProp = new PixmapWidget( this );
-	m_pInstrumentProp->move(0, 20);
+	m_pInstrumentProp->move(0, 31);
 	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
 
-
 	m_pNameLbl = new ClickableLabel( m_pInstrumentProp );
-	m_pNameLbl->setGeometry( 8, 36, 232, 25 );
+	m_pNameLbl->setGeometry( 8, 5, 275, 28 );
 
 	QFont boldFont;
 	boldFont.setBold(true);
@@ -103,7 +103,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
 
 	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Random pitch factor" ), false, true );
-	m_pRandomPitchRotary->move( 96, 223 );
+	m_pRandomPitchRotary->move( 117, 192 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Filter
@@ -122,9 +122,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Filter resonance" ), false, true );
 	connect( m_pResonanceRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pFilterBypassBtn->move( 49, 183 );
-	m_pCutoffRotary->move( 96, 177 );
-	m_pResonanceRotary->move( 149, 177 );
+	m_pFilterBypassBtn->move( 70, 152 );
+	m_pCutoffRotary->move( 117, 146 );
+	m_pResonanceRotary->move( 170, 146 );
 	//~ Filter
 
 	// ADSR
@@ -136,22 +136,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pDecayRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	connect( m_pSustainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	connect( m_pReleaseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
-	m_pAttackRotary->move( 32, 83 );
-	m_pDecayRotary->move( 84, 83 );
-	m_pSustainRotary->move( 136, 83 );
-	m_pReleaseRotary->move( 188, 83 );
+	m_pAttackRotary->move( 53, 52 );
+	m_pDecayRotary->move( 105, 52 );
+	m_pSustainRotary->move( 157, 52 );
+	m_pReleaseRotary->move( 209, 52 );
 	//~ ADSR
 
 	// instrument gain
 	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Instrument gain" ), false, false );
 	connect( m_pInstrumentGain, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
-	m_pInstrumentGainLCD->move( 46, 136 );
-	m_pInstrumentGain->move( 96, 131 );
+	m_pInstrumentGainLCD->move( 67, 105 );
+	m_pInstrumentGain->move( 117, 100 );
 
 
 	m_pMuteGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pMuteGroupLCD->move( 139, 136 );
+	m_pMuteGroupLCD->move( 160, 105 );
 
 	m_pAddMuteGroupBtn = new Button(
 			m_pInstrumentProp,
@@ -161,7 +161,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			QSize( 16, 8 )
 	);
 
-	m_pAddMuteGroupBtn->move( 181, 135 );
+	m_pAddMuteGroupBtn->move( 202, 104 );
 	connect( m_pAddMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
 
@@ -172,7 +172,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			"/lcd/LCDSpinBox_down_over.png",
 			QSize(16,8)
 	);
-	m_pDelMuteGroupBtn->move( 181, 144 );
+	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
 //~ Instrument properties
@@ -183,19 +183,21 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 // LAYER properties
 	m_pLayerProp = new PixmapWidget( this );
-	m_pLayerProp->move( 0, 20 );
+	m_pLayerProp->move( 0, 31 );
 	m_pLayerProp->hide();
 	m_pLayerProp->setPixmap( "/instrumentEditor/layerTab.png" );
 
+
+
 	// Layer preview
 	m_pLayerPreview = new LayerPreview( m_pLayerProp );
-	m_pLayerPreview->move( 7, 35 );
+	m_pLayerPreview->move( 6, 4 );
 
 
 	// Waveform display
 	m_pWaveDisplay = new WaveDisplay( m_pLayerProp );
 	m_pWaveDisplay->updateDisplay( NULL );
-	m_pWaveDisplay->move( 6, 232 );
+	m_pWaveDisplay->move( 5, 201 );
 
 	m_pLoadLayerBtn = new Button(
 			m_pLayerProp,
@@ -213,8 +215,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			QSize( 94, 13 )
 	);
 
-	m_pLoadLayerBtn->move( 28, 298 );
-	m_pRemoveLayerBtn->move( 125, 298 );
+	m_pLoadLayerBtn->move( 48, 267 );
+	m_pRemoveLayerBtn->move( 145, 267 );
 
 	connect( m_pLoadLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	connect( m_pRemoveLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
@@ -237,14 +239,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineRotary->setMax( 50.0 );
 	connect( m_pLayerPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pLayerGainLCD->move( 34, 332 + 3 );
-	m_pLayerGainRotary->move( 82, 332 );
+	m_pLayerGainLCD->move( 54, 301 + 3 );
+	m_pLayerGainRotary->move( 102, 301 );
 
-	m_pLayerPitchCoarseLCD->move( 34, 391 + 3 );
-	m_pLayerPitchCoarseRotary->move( 82, 391 );
+	m_pLayerPitchCoarseLCD->move( 54, 360 + 3 );
+	m_pLayerPitchCoarseRotary->move( 102, 360 );
 
-	m_pLayerPitchFineLCD->move(  131, 391 + 3 );
-	m_pLayerPitchFineRotary->move( 179, 391 );
+	m_pLayerPitchFineLCD->move(  151, 360 + 3 );
+	m_pLayerPitchFineRotary->move( 199, 360 );
 //~ Layer properties
 
 
