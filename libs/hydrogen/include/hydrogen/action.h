@@ -47,7 +47,7 @@ class Action : public Object {
 };
 
 
-
+bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
 
 
 class ActionManager : public Object
