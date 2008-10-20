@@ -38,7 +38,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 235;
+	int w = 277;
 	int h = 58;
 	resize( w, h );
 

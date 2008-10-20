@@ -23,6 +23,9 @@
 #define ACTION_H
 #include <hydrogen/Object.h>
 #include <map>
+#include <string>
+
+using namespace std;
 
 
 class Action : public Object {
@@ -30,20 +33,30 @@ class Action : public Object {
 		Action( QString );
 		
 		QString getType();
-		QStringList getParameterList();
-		void addParameter( QString );
+		
+		void setParameter1( QString );
+		void setParameter2( QString );
+
+		QString getParameter1();
+		QString getParameter2();
 
 	private:
 		QString type;
-		QStringList parameterList;
+		QString parameter1;
+		QString parameter2;
 };
 
 
-
+bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
 
 
 class ActionManager : public Object
 {
+	private:
+		static ActionManager *instance;
+		QStringList actionList;
+		QStringList eventList;
+
 	public:
 		static ActionManager* getInstance();
 
@@ -54,10 +67,5 @@ class ActionManager : public Object
 
 		ActionManager();
 		~ActionManager();
-
-	private:
-		static ActionManager *instance;
-		QStringList actionList;
-		QStringList eventList;
 };
 #endif

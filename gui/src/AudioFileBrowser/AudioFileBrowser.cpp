@@ -52,7 +52,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 
 
         model = new QDirModel();
-	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
 	model->setNameFilters( QStringList() << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
 	model->setSorting( QDir::DirsFirst |QDir::Name );
 	__index = model->index( QDir::currentPath() );

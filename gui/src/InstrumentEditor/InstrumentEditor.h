@@ -74,6 +74,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 
 		// Instrument properties
 		PixmapWidget *m_pInstrumentProp;
+		PixmapWidget *m_pInstrumentPropTop;
 		ClickableLabel *m_pNameLbl;
 
 		// ADSR

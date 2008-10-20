@@ -37,11 +37,13 @@ class MidiMap : public Object
 
 		void registerMMCEvent( QString, Action* );
 		void registerNoteEvent( int , Action* );
+		void registerCCEvent( int , Action * );
 
 		std::map< QString, Action* > getMMCMap();
 
 		Action* getMMCAction( QString );
 		Action* getNoteAction( int note );
+		Action * getCCAction( int parameter );
 
 		void setupNoteArray();
 
@@ -49,6 +51,8 @@ class MidiMap : public Object
 		MidiMap();
 
 		Action* __note_array[ 128 ];
+		Action* __cc_array[ 128 ];
+
 		std::map< QString, Action* > mmcMap;
 };
 #endif

@@ -181,6 +181,7 @@ public:
 	QString m_sMidiPortName;
 	int m_nMidiChannelFilter;
 	bool m_bMidiNoteOffIgnore;
+	bool m_bMidiDiscardNoteAfterAction;
 
 	//___  alsa audio driver properties ___
 	QString m_sAlsaAudioDevice;
