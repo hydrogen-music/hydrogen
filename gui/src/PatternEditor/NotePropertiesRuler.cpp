@@ -119,7 +119,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 			continue;
 		}
 
-		if ( m_mode == VELOCITY ) {
+		if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
 			pNote->set_velocity( val );
 
 			char valueChar[100];
@@ -209,7 +209,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 			continue;
 		}
-		if ( m_mode == VELOCITY ) {
+		if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
 			float val = pNote->get_velocity() + delta;
 			if (val > 1.0) {
 				val = 1.0;

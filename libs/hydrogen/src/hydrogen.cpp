@@ -542,8 +542,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 ///~new note off stuff
 
 			// aggiungo la nota alla lista di note da eseguire
+			if ( pNote->get_noteoff() ){
+				AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+			}
 			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
-			
+
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event

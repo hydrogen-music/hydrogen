@@ -199,6 +199,15 @@ public:
 		return __pitch;
 	}
 
+	void set_noteoff( bool noteOff ) {
+		__noteoff = noteOff;
+	}
+	float get_noteoff() const {
+		return __noteoff;
+	}
+
+	
+
 
 private:
 	Instrument* __instrument;
@@ -207,6 +216,7 @@ private:
 	float __pan_l;			///< Pan of the note (left volume) [0..1]
 	float __pan_r;			///< Pan of the note (right volume) [0..1]
 	float __leadlag;		///< Lead or lag offset of the note
+	bool __noteoff;			///< note type
 
 	int __lenght;
 	float __pitch;

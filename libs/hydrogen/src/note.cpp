@@ -53,6 +53,7 @@ Note::Note(
 		, __position( position )
 		, __velocity( velocity )
 		, __leadlag( 0.0 )
+		, __noteoff( false)
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );
@@ -75,6 +76,7 @@ Note::Note( const Note* pNote )
 	set_leadlag(    pNote->get_leadlag()    );
 	set_lenght(	pNote->get_lenght()	);
 	set_pitch(	pNote->get_pitch()	);
+	set_noteoff(	pNote->get_noteoff()	);
 	m_noteKey	=	pNote->m_noteKey;
 	m_fCutoff	=	pNote->m_fCutoff;
 	m_fResonance	=	pNote->m_fResonance;
@@ -127,7 +129,7 @@ void Note::set_instrument( Instrument* instrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + to_string( get_position() ) + "\t humanize offset" + to_string(m_nHumanizeDelay) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + to_string( get_pitch() ) );
+	INFOLOG( "pos: " + to_string( get_position() ) + "\t humanize offset" + to_string(m_nHumanizeDelay) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + to_string( get_pitch() ) + "\t noteoff: " + to_string( get_noteoff() ) );
 }
 
 

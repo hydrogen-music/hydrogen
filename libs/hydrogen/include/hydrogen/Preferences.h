@@ -110,6 +110,7 @@ public:
 	H2RGBColor m_patternEditor_selectedRowColor;
 	H2RGBColor m_patternEditor_textColor;
 	H2RGBColor m_patternEditor_noteColor;
+	H2RGBColor m_patternEditor_noteoffColor;
 	H2RGBColor m_patternEditor_lineColor;
 	H2RGBColor m_patternEditor_line1Color;
 	H2RGBColor m_patternEditor_line2Color;
