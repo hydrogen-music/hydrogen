@@ -244,9 +244,9 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	const float fPitch = 0.0f;
 	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
 
-	if ( pInstr && AudioEngine::get_instance()->get_sampler()->istInstrumentPlaying( pInstr ) ){
-		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true, true );
-	}
+//	if ( pInstr && AudioEngine::get_instance()->get_sampler()->istInstrumentPlaying( pInstr ) ){
+//		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true, true );
+//	}
 	pEngine->midi_noteOff( pNewNote );
 
 }

@@ -61,18 +61,25 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public O
 		void on_m_pPathHometoolButton_clicked();
 		void on_m_pPathUptoolButton_clicked();
 		void on_playSamplescheckBox_clicked();
+		
+		virtual void keyPressEvent (QKeyEvent *ev);
+		virtual void keyReleaseEvent (QKeyEvent *ev);
 
 
 	private:
 		InstrumentEditor* m_pInstrumentEditor;
 		QString m_psamplefilename;
 		QStringList m_pselectedFile;
+		
 		QDirModel *model;
 		QTreeView *tree;
+		QModelIndex __index;
+
+
 		SampleWaveDisplay *m_pSampleWaveDisplay;
 		QString sEmptySampleFilename;
 		QStringList filters;
-		QModelIndex __index;
+		
 
 
 };

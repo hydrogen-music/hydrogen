@@ -460,22 +460,22 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
 
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
-
+	
 		// draw the "dot"
-		p.drawLine(x_pos, y_pos, x_pos + 5, y_pos + 5);		// A
-		p.drawLine(x_pos, y_pos, x_pos - 5, y_pos + 5);		// B
-		p.drawLine(x_pos, y_pos + 8, x_pos + 5, y_pos + 5);	// C
-		p.drawLine(x_pos - 5, y_pos + 5, x_pos, y_pos + 8);	// D
+		p.drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
+		p.drawLine(x_pos, y_pos, x_pos - 3, y_pos + 3);		// B
+		p.drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 3);	// C
+		p.drawLine(x_pos - 3, y_pos + 3, x_pos, y_pos + 6);	// D
 
-		p.drawLine(x_pos, y_pos + 3, x_pos + 4, y_pos + 5);
-		p.drawLine(x_pos, y_pos + 3, x_pos - 4, y_pos + 5);
-		p.drawLine(x_pos, y_pos + 7, x_pos + 4, y_pos + 5);
-		p.drawLine(x_pos - 4, y_pos + 5, x_pos, y_pos + 7);
+		p.drawLine(x_pos, y_pos + 1, x_pos + 2, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 1, x_pos - 2, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 5, x_pos + 2, y_pos + 3);
+		p.drawLine(x_pos - 2, y_pos + 3, x_pos, y_pos + 5);
 
-		p.drawLine(x_pos, y_pos + 4, x_pos + 3, y_pos + 5);
-		p.drawLine(x_pos, y_pos + 4, x_pos - 3, y_pos + 5);
-		p.drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 5);
-		p.drawLine(x_pos - 3, y_pos + 5, x_pos, y_pos + 6);		
+		p.drawLine(x_pos, y_pos + 2, x_pos + 1, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 2, x_pos - 1, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
+		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);	
 
 
 	}		

@@ -496,6 +496,8 @@ void InstrumentEditor::loadLayer()
 		filename = fb->selectedFile();
 	}
 
+	
+
 	delete fb;
 
 	bool fnc = false;	
@@ -503,45 +505,66 @@ void InstrumentEditor::loadLayer()
 		fnc = true;
 	}
 
-	if (filename[2] != "") {
+	//use auto velocity if we want to work with multiple filenames
+	if ( filename.size() > 3) filename[1] = "true";
 
-		Sample *newSample = Sample::load( filename[2] );
+	int selectedLayer =  m_nSelectedLayer;
+	
+	
 
-		H2Core::Instrument *pInstr = NULL;
+	if (filename.size() > 2) {
+		
+		for(int i=2;i < filename.size();++i) 
+		{
+			if( i-2 >= MAX_LAYERS ) break;
 
-		AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::browseBtnClicked" );
-		Song *song = engine->getSong();
-		InstrumentList *instrList = song->get_instrument_list();
-		pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
+			Sample *newSample = Sample::load( filename[i] );
+	
+			H2Core::Instrument *pInstr = NULL;
+	
+			AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::browseBtnClicked" );
+			Song *song = engine->getSong();
+			InstrumentList *instrList = song->get_instrument_list();
+			pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
+	
+			/* 
+				if we're using multiple layers, we start inserting the first layer 
+				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
+		 	*/
+			
+			selectedLayer = m_nSelectedLayer + i - 2;
 
-		H2Core::InstrumentLayer *pLayer = pInstr->get_layer( m_nSelectedLayer );
-		if (pLayer != NULL) {
-			// delete old sample
-			Sample *oldSample = pLayer->get_sample();
-			delete oldSample;
+			
+			H2Core::InstrumentLayer *pLayer = pInstr->get_layer( selectedLayer );
+			if (pLayer != NULL) {
+				// delete old sample
+				Sample *oldSample = pLayer->get_sample();
+				delete oldSample;
+	
+				// insert new sample from newInstrument
+				pLayer->set_sample( newSample );
+			}
+			else {
+				pLayer = new H2Core::InstrumentLayer(newSample);
+				pInstr->set_layer( pLayer, selectedLayer );
+			}
+	
+			if ( fnc ){
+				QString newfilename = filename[i].section( '/', -1 );
+					newfilename.replace( "." + newfilename.section( '.', -1 ), "");
+				m_pInstrument->set_name( newfilename );
+			}
+	
+			//set automatic velocity
+			if ( filename[1] ==  "true" ){
+				setAutoVelocity();
+			}
+	
+			pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
+	
+			AudioEngine::get_instance()->unlock();
 
-			// insert new sample from newInstrument
-			pLayer->set_sample( newSample );
 		}
-		else {
-			pLayer = new H2Core::InstrumentLayer(newSample);
-			pInstr->set_layer( pLayer, m_nSelectedLayer );
-		}
-
-		if ( fnc ){
-			QString newfilename = filename[2].section( '/', -1 );
-				newfilename.replace( "." + newfilename.section( '.', -1 ), "");
-			m_pInstrument->set_name( newfilename );
-		}
-
-		//set automatic velocity
-		if ( filename[1] ==  "true" ){
-			setAutoVelocity();
-		}
-
-		pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
-
-		AudioEngine::get_instance()->unlock();
 	}
 
 	selectedInstrumentChangedEvent();    // update all
@@ -551,9 +574,9 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
-	int layerinuse[ MAX_LAYERS - 1 ] = {0};
+	int layerinuse[ MAX_LAYERS ] = {0};
 	int layers = 0;
-	for ( int i = 0; i < MAX_LAYERS - 1; i++ ) {
+	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
 		InstrumentLayer *pLayers = m_pInstrument->get_layer( i );
 		if ( pLayers ) {
 			layers++;
@@ -563,7 +586,7 @@ void InstrumentEditor::setAutoVelocity()
 
 	float velocityrange = 1.0 / layers;
 
-	for ( int i = 0; i < MAX_LAYERS - 1; i++ ) {
+	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
 		if ( layerinuse[i] == i ){
 			layers--;
 			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
