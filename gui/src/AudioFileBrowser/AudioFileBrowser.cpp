@@ -99,6 +99,7 @@ void AudioFileBrowser::keyPressEvent (QKeyEvent *ev){
 	
 	if( ev->modifiers()==Qt::ControlModifier ){
 		tree->setSelectionMode( QAbstractItemView::MultiSelection );
+		openBTN->setEnabled( true );
 	}
 	
 }
@@ -348,4 +349,17 @@ void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 	pathLineEdit->setText( updir );
 	tree->setRootIndex( model->index( updir ) );
 	tree->collapse( model->index( updir  ) );
+}
+
+
+
+void AudioFileBrowser::on_hiddenCB_clicked()
+{
+	if ( hiddenCB->isChecked() ){
+	 	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
+	}else
+	{
+	 	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+		tree->setRootIndex( model->index( pathLineEdit->text() ) );
+	}
 }
