@@ -73,6 +73,7 @@ public:
 	void set_audio_output( AudioOutput* audio_output );
 	void makeTrackOutputQueues();
 
+	bool istInstrumentPlaying( Instrument* instrument );
 
 private:
 	std::vector<Note*> __playing_notes_queue;

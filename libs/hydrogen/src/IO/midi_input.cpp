@@ -27,6 +27,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
 #include <hydrogen/action.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/midiMap.h>
 
 namespace H2Core
@@ -209,7 +210,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				nInstrument = MAX_INSTRUMENTS - 1;
 			}
 
-			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true );
+			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true );
 		}
 	}
 }
@@ -239,11 +240,15 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	const float fVelocity = 0.0f;
 	const float fPan_L = 0.5f;
 	const float fPan_R = 0.5f;
-	const int nLenght = -1;
+	const int nLenght = 1;
 	const float fPitch = 0.0f;
 	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
 
+	if ( pInstr && AudioEngine::get_instance()->get_sampler()->istInstrumentPlaying( pInstr ) ){
+		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true, true );
+	}
 	pEngine->midi_noteOff( pNewNote );
+
 }
 
 

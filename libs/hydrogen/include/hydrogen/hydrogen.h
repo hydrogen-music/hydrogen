@@ -79,7 +79,7 @@ public:
 	Song* getSong();
 	void removeSong();
 
-	void addRealtimeNote ( int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool forcePlay=false );
+	void addRealtimeNote ( int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool noteoff=false, bool forcePlay=false );
 
 	float getMasterPeak_L();
 	void setMasterPeak_L( float value );

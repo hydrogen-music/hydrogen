@@ -759,7 +759,21 @@ void Sampler::makeTrackOutputQueues( )
 
 }
 
-
+bool Sampler::istInstrumentPlaying( Instrument* instrument )
+{
+	if ( instrument ) { // stop all notes using this instrument
+		for ( unsigned i = 0; i < __playing_notes_queue.size(); ) {
+			Note *pNote = __playing_notes_queue[ i ];
+			assert( pNote );
+			if ( pNote->get_instrument() == instrument ) {
+				return true;
+			}
+			++i;
+		}
+	} else {
+	return false;
+	}
+}
 
 };
 

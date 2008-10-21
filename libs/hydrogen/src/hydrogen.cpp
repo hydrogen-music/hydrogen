@@ -1809,6 +1809,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 				float pan_L,
 				float pan_R,
 				float pitch,
+				bool noteOff,
 				bool forcePlay )
 {
 	UNUSED( pitch );
@@ -1901,6 +1902,10 @@ void Hydrogen::addRealtimeNote( int instrument,
 			currentPattern->note_map.insert(
 				std::make_pair( column, note )
 				);
+			if ( noteOff ) {
+				note->set_noteoff( true );
+				note->set_lenght( 1 );
+			}
 
 			// hear note if its not in the future
 			if ( pref->getHearNewNotes()
