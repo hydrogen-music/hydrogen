@@ -33,6 +33,7 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/audio_engine.h>
 
+#include <QModelIndex>
 #include <QTreeWidget>
 #include <QMessageBox>
 
@@ -67,10 +68,11 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	tree->header()->resizeSection( 0, 405 );
 	tree->setAlternatingRowColors( true );
 	tree->setRootIndex( model->index( Preferences::getInstance()->__lastsampleDirectory ) );
+	
 
 	pathLineEdit->setText( Preferences::getInstance()->__lastsampleDirectory );
 	m_psamplefilename = "";	
-	m_pselectedFile << "false" << "false" << "";
+	m_pselectedFile << "false" << "false";
 
 	sEmptySampleFilename = DataPath::get_data_path() + "/emptySample.wav";
 
@@ -86,7 +88,6 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 }
 
 
-
 AudioFileBrowser::~AudioFileBrowser()
 {
 	Sample *pNewSample = Sample::load( sEmptySampleFilename );
@@ -94,6 +95,19 @@ AudioFileBrowser::~AudioFileBrowser()
 	INFOLOG ( "DESTROY" );
 }
 
+void AudioFileBrowser::keyPressEvent (QKeyEvent *ev){
+	
+	if( ev->modifiers()==Qt::ControlModifier ){
+		tree->setSelectionMode( QAbstractItemView::MultiSelection );
+	}
+	
+}
+
+void AudioFileBrowser::keyReleaseEvent (QKeyEvent *ev){
+
+	tree->setSelectionMode( QAbstractItemView::SingleSelection );
+
+}
 
 void AudioFileBrowser::updateModelIndex()
 {
@@ -140,6 +154,8 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 	QString message = "Name: " + name;
 	filelineedit->setText( path2 );
 	pathLineEdit->setText( onlypath );
+
+	
 
 
 	if 	(
@@ -233,6 +249,34 @@ void AudioFileBrowser::on_cancelBTN_clicked()
 
 void AudioFileBrowser::on_openBTN_clicked()
 {
+	if( tree->selectionModel()->selectedIndexes().size() / 4 > 0){
+
+		QList<QModelIndex>::iterator i;
+		QList<QModelIndex> list = tree->selectionModel()->selectedIndexes();	
+
+
+    		for (i = list.begin(); i != list.end(); ++i){
+			QString path2 = (*i).data().toString();
+			if 	(
+			( path2.endsWith( ".wav" ) ) ||
+			( path2.endsWith( ".WAV" ) ) ||
+			( path2.endsWith( ".au" ) ) ||
+			( path2.endsWith( ".AU" ) ) ||
+			( path2.endsWith( ".aiff" ) ) ||
+			( path2.endsWith( ".AIFF" ) ) ||
+			( path2.endsWith( ".flac" ) ) ||
+			( path2.endsWith( ".FLAC" ) )
+			) {
+				QString path = pathLineEdit->text();
+				QString act_filename = path + path2;
+				m_pselectedFile << act_filename ;
+		
+			}
+			++i;++i;++i;
+		}
+	}
+
+	/*
 	if 	(
 		( ( filelineedit->text().endsWith( ".wav" ) ) ||
 		( filelineedit->text().endsWith( ".WAV" ) ) ||
@@ -250,6 +294,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 		{
 			m_pselectedFile << "false" << "false" << "";
 		}
+	*/
 	Preferences::getInstance()->__lastsampleDirectory = pathLineEdit->text();
 	accept();
 }
