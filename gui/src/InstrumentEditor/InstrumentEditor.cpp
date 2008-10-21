@@ -574,7 +574,7 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
-	int layerinuse[ MAX_LAYERS - 1 ] = {0};
+	int layerinuse[ MAX_LAYERS ] = {0};
 	int layers = 0;
 	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
 		InstrumentLayer *pLayers = m_pInstrument->get_layer( i );
