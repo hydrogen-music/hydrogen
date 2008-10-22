@@ -33,6 +33,7 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/audio_engine.h>
 
+#include <QApplication>
 #include <QModelIndex>
 #include <QTreeWidget>
 #include <QMessageBox>
@@ -170,8 +171,9 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 		( path2.endsWith( ".FLAC" ) )
 		) {
 
-
+			QApplication::setOverrideCursor(Qt::WaitCursor);
 			Sample *pNewSample = Sample::load( path2 );
+			QApplication::restoreOverrideCursor();
 			if ( pNewSample ) {
 				m_pNBytesLable->setText( trUtf8( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
 				m_pSamplerateLable->setText( trUtf8( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
