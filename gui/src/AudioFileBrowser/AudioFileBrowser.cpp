@@ -186,8 +186,13 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 				delete pNewSample;
 				m_psamplefilename = path2;
 
-				
+				m_pSampleWaveDisplay->updateDisplay( path2 );
+				m_pPlayBtn->setEnabled( true );
+				openBTN->setEnabled( true );
+
+
 				if (playSamplescheckBox->isChecked()){
+					//important this will only working correct if m_pSampleWaveDisplay->updateDisplay( file ) is ready with painting the wav file. else the playing sample get crackled sound!!
 					if ( sec <= 600.00){
 						on_m_pPlayBtn_clicked();
 					}else
@@ -195,10 +200,6 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 						QMessageBox::information ( this, "Hydrogen", trUtf8( "No clicking audio preview for samples longer than 10 minutes!" )  );
 					}
 				}
-
-				m_pSampleWaveDisplay->updateDisplay( path2 );
-				m_pPlayBtn->setEnabled( true );
-				openBTN->setEnabled( true );
 
 			}
 		
