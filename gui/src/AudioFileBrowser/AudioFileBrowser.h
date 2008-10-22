@@ -61,6 +61,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public O
 		void on_m_pPathHometoolButton_clicked();
 		void on_m_pPathUptoolButton_clicked();
 		void on_playSamplescheckBox_clicked();
+		void on_hiddenCB_clicked();
 		
 		virtual void keyPressEvent (QKeyEvent *ev);
 		virtual void keyReleaseEvent (QKeyEvent *ev);

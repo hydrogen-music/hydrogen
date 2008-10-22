@@ -36,6 +36,11 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
+#include <hydrogen/Pattern.h>
+
+#include "gui/src/HydrogenApp.h"
+#include "gui/src/PatternEditor/PatternEditorPanel.h"
+#include "gui/src/PatternEditor/DrumPatternEditor.h"
 
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
@@ -759,21 +764,56 @@ void Sampler::makeTrackOutputQueues( )
 
 }
 
-bool Sampler::istInstrumentPlaying( Instrument* instrument )
-{
-	if ( instrument ) { // stop all notes using this instrument
-		for ( unsigned i = 0; i < __playing_notes_queue.size(); ) {
-			Note *pNote = __playing_notes_queue[ i ];
-			assert( pNote );
-			if ( pNote->get_instrument() == instrument ) {
-				return true;
-			}
-			++i;
-		}
-	} else {
-	return false;
-	}
-}
 
+
+void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
+{
+
+	if ( instrument ) { // stop all notes using this instrument
+		Hydrogen *pEngine = Hydrogen::get_instance();	
+		Song* mSong = pEngine->getSong();
+		int selectedpattern = pEngine->__get_selected_PatterNumber();
+		Pattern* currentPattern = NULL;
+		PatternList *pPatternList = mSong->get_pattern_list();
+
+		if ( ( selectedpattern != -1 )
+		&& ( selectedpattern < ( int )pPatternList->get_size() ) ) {
+			currentPattern = pPatternList->get( selectedpattern );
+		}
+
+		
+		if ( currentPattern ) {
+				int patternsize = currentPattern->get_lenght();
+	
+				for ( unsigned nNote = 0 ;
+				nNote < currentPattern->get_lenght() ;
+				nNote++ ) {
+					std::multimap <int, Note*>::iterator pos;
+					for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
+					pos != currentPattern->note_map.upper_bound( nNote ) ;
+					++pos ) {
+						Note *pNote = pos->second;
+						if ( pNote!=NULL ) {
+							if ( pNote->get_instrument() == instrument
+							&& pNote->get_position() == noteOnTick ) {
+								AudioEngine::get_instance()->lock("Sample::setnotelenght_event");
+	
+	
+								if ( ticks >  patternsize ) ticks = -1;
+								pNote->set_lenght( ticks );
+								Hydrogen::get_instance()->getSong()->__is_modified = true;
+								AudioEngine::get_instance()->unlock(); // unlock the audio engine
+															
+							}
+						}
+					}
+				}
+			}
+	
+		}
+
+	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+
+}
 };
 

@@ -200,6 +200,7 @@ public:
 	void ComputeHumantimeFrames(uint32_t nFrames);
 
 	void __panic();
+	int __get_selected_PatterNumber();
 	
 
 private:

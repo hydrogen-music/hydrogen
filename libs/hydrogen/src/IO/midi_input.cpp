@@ -151,6 +151,8 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 }
 
+
+
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 	INFOLOG( "handleNoteOnMessage" );
@@ -180,6 +182,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	pEngine->lastMidiEventParameter = msg.m_nData1;
 	
 	bool action = aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
+	__noteOnTick = pEngine->getTickPosition();
 	
 	if ( action && Preferences::getInstance()->m_bMidiDiscardNoteAfterAction)
 	{
@@ -227,7 +230,11 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 
+	__noteOffTick = pEngine->getTickPosition();
+	unsigned long notelenght = computeDeltaNoteOnOfftime();
+
 	int nNote = msg.m_nData1;
+	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to controll release velocity
 	int nInstrument = nNote - 36;
 	if ( nInstrument < 0 ) {
 		nInstrument = 0;
@@ -236,6 +243,11 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 		nInstrument = MAX_INSTRUMENTS - 1;
 	}
 	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
+
+	if ( pInstr ){ //set the notelength
+		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght, __noteOnTick );
+	}
+
 	const unsigned nPosition = 0;
 	const float fVelocity = 0.0f;
 	const float fPan_L = 0.5f;
@@ -244,14 +256,17 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	const float fPitch = 0.0f;
 	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
 
-//	if ( pInstr && AudioEngine::get_instance()->get_sampler()->istInstrumentPlaying( pInstr ) ){
-//		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true, true );
-//	}
 	pEngine->midi_noteOff( pNewNote );
 
 }
 
-
+unsigned long MidiInput::computeDeltaNoteOnOfftime()
+{
+	unsigned long  __notelenghtTicks = __noteOffTick - __noteOnTick;
+	//INFOLOG( QString( "notenlänge %1" ).arg( __notelenghtTicks ));
+	return __notelenghtTicks;
+	
+}
 
 void MidiInput::handleSysexMessage( const MidiMessage& msg )
 {

@@ -102,6 +102,12 @@ protected:
 	void handleNoteOffMessage( const MidiMessage& msg );
 
 
+private:
+	unsigned long  __noteOnTick;
+	unsigned long  __noteOffTick;
+	unsigned long computeDeltaNoteOnOfftime();
+
+
 
 };
 

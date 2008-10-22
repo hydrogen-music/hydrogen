@@ -1902,11 +1902,12 @@ void Hydrogen::addRealtimeNote( int instrument,
 			currentPattern->note_map.insert(
 				std::make_pair( column, note )
 				);
+/*
 			if ( noteOff ) {
 				note->set_noteoff( true );
 				note->set_lenght( 1 );
 			}
-
+*/
 			// hear note if its not in the future
 			if ( pref->getHearNewNotes()
 			     && position <= getTickPosition() ) {
@@ -2945,6 +2946,11 @@ void Hydrogen::__panic()
 {
 	sequencer_stop();	
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+}
+
+int Hydrogen::__get_selected_PatterNumber()
+{
+	return m_nSelectedPatternNumber;
 }
 
 

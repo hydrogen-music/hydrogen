@@ -89,7 +89,7 @@
     <rect>
      <x>10</x>
      <y>530</y>
-     <width>271</width>
+     <width>216</width>
      <height>21</height>
     </rect>
    </property>
@@ -109,6 +109,16 @@
    <layout class="QHBoxLayout" name="horizontalLayout" >
     <item>
      <widget class="QLineEdit" name="pathLineEdit" />
+    </item>
+    <item>
+     <widget class="QRadioButton" name="hiddenCB" >
+      <property name="toolTip" >
+       <string>View hidden folders</string>
+      </property>
+      <property name="text" >
+       <string/>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QToolButton" name="m_pPathUptoolButton" >
@@ -230,6 +240,7 @@
  </widget>
  <tabstops>
   <tabstop>pathLineEdit</tabstop>
+  <tabstop>hiddenCB</tabstop>
   <tabstop>m_pPathUptoolButton</tabstop>
   <tabstop>m_pPathHometoolButton</tabstop>
   <tabstop>treeView</tabstop>
@@ -238,6 +249,7 @@
   <tabstop>m_pStopBtn</tabstop>
   <tabstop>useNameCheckBox</tabstop>
   <tabstop>playSamplescheckBox</tabstop>
+  <tabstop>autoVelCheckBox</tabstop>
   <tabstop>openBTN</tabstop>
   <tabstop>cancelBTN</tabstop>
  </tabstops>
