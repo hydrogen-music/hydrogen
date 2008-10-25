@@ -62,6 +62,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		NotePropertiesRuler* getVelocityEditor() {	return m_pNoteVelocityEditor;	}
 		NotePropertiesRuler* getPanEditor() {	return m_pNotePanEditor;	}
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
+		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 
 		void updateSLnameLabel( );
@@ -137,6 +138,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		// note leadlag editor
 		QScrollArea* m_pNoteLeadLagScrollView;
 		NotePropertiesRuler *m_pNoteLeadLagEditor;
+
+		// note notekey editor
+		QScrollArea* m_pNoteNoteKeyScrollView;
+		NotePropertiesRuler *m_pNoteNoteKeyEditor;
+		
 
 
 		QScrollBar *m_pPatternEditorHScrollBar;

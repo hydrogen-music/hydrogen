@@ -58,12 +58,16 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	else if ( m_mode == LEADLAG ) {
 		m_nEditorHeight = 100;
 	}
+	else if ( m_mode == NOTEKEY ) {
+		m_nEditorHeight = 210;
+	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
 
 	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
+//m_pBackground->load("/patternEditor/Klaviaturklein.png");
 	updateEditor();
 	show();
 
@@ -105,6 +109,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 	else if (val < 0.0) {
 		val = 0.0;
 	}
+	int keyval = val;
 	val = val / height();
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -161,6 +166,77 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 
 			}
 		}
+
+		else if ( m_mode == NOTEKEY ){
+			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				;
+			} else {
+				//set the note hight
+				//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+				if (keyval >= 6 && keyval <= 15 ){//note c
+					pNote->m_noteKey.m_key = H2Core::NoteKey::C;
+				}
+				if (keyval >= 16 && keyval <= 25 ){//note cis / cs
+					pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
+				}
+				if (keyval >= 26 && keyval <= 35 ){//note d
+					pNote->m_noteKey.m_key = H2Core::NoteKey::D;
+				}
+				if (keyval >= 36 && keyval <= 45 ){//note dis / ef
+					pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
+				}
+				if (keyval >= 46 && keyval <= 55 ){//note E
+					pNote->m_noteKey.m_key = H2Core::NoteKey::E;
+				}
+				if (keyval >= 56 && keyval <= 65 ){//note f
+					pNote->m_noteKey.m_key = H2Core::NoteKey::F;
+				}
+				if (keyval >= 66 && keyval <= 75 ){//note fis
+					pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
+				}
+				if (keyval >= 76 && keyval <= 85 ){//note g
+					pNote->m_noteKey.m_key = H2Core::NoteKey::G;
+				}
+				if (keyval >= 86 && keyval <= 95 ){//note gis / af
+					pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
+				}
+				if (keyval >= 96 && keyval <= 105 ){//note a
+					pNote->m_noteKey.m_key = H2Core::NoteKey::A;
+				}
+				if (keyval >= 106 && keyval <= 115 ){//note his / bf
+					pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
+				}
+				if (keyval >= 116 && keyval <= 125 ){//note h / b
+					pNote->m_noteKey.m_key = H2Core::NoteKey::B;
+				}
+				
+				//set the note oktave 
+				if (keyval >= 135 && keyval <= 145 ){
+					pNote->m_noteKey.m_nOctave = -3;
+				}
+				else if( keyval >= 146 && keyval <= 155 ){
+					pNote->m_noteKey.m_nOctave = -2;
+				}
+				else if( keyval >= 156 && keyval <= 165 ){
+					pNote->m_noteKey.m_nOctave = -1;
+				}
+				else if( keyval >= 166 && keyval <= 175 ){
+					pNote->m_noteKey.m_nOctave = 0;
+				}
+				else if( keyval >= 176 && keyval <= 185 ){
+					pNote->m_noteKey.m_nOctave = 1;
+				}
+				else if( keyval >= 186 && keyval <= 195 ){
+					pNote->m_noteKey.m_nOctave = 2;
+				}
+				else if( keyval >= 196 && keyval <= 205 ){
+					pNote->m_noteKey.m_nOctave = 3;
+				}
+			}
+		}
+
+
+
 		pSong->__is_modified = true;
 		updateEditor();
 		break;
@@ -779,6 +855,278 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 }
 
 
+
+void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
+{
+	if ( !isVisible() ) {
+		return;
+	}
+
+	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+
+	H2RGBColor valueColor(
+			(int)( pStyle->m_patternEditor_backgroundColor.getRed() * ( 1 - 0.3 ) ),
+			(int)( pStyle->m_patternEditor_backgroundColor.getGreen() * ( 1 - 0.3 ) ),
+			(int)( pStyle->m_patternEditor_backgroundColor.getBlue() * ( 1 - 0.3 ) )
+	);
+
+	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
+	QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
+	QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
+	QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
+
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor horizLinesColor(
+			pStyle->m_patternEditor_backgroundColor.getRed() - 100,
+			pStyle->m_patternEditor_backgroundColor.getGreen() - 100,
+			pStyle->m_patternEditor_backgroundColor.getBlue() - 100
+	);
+
+	unsigned nNotes = MAX_NOTES;
+	if (m_pPattern) {
+		nNotes = m_pPattern->get_lenght();
+	}
+	QPainter p( pixmap );
+
+
+	p.fillRect( 0, 0, width(), height(), QColor(0,0,0) );
+	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
+
+
+	p.setPen( horizLinesColor );
+	for (unsigned y = 10; y < 80; y = y + 10 ) {
+		p.setPen( QPen( res_1, 1, Qt::DashLine ) );
+		if (y == 40) p.setPen( QPen( QColor(0,0,0), 1, Qt::SolidLine ) );
+		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+/*		if (y == 20 )p.drawText ( 5, y +2 , QString("O")); 
+		if (y == 30 )p.drawText ( 6, y +2 , QString("c"));
+		if (y == 40 )p.drawText ( 7, y +2 , QString("t"));
+		if (y == 50 )p.drawText ( 5, y +2 , QString("a")); 
+		if (y == 60 )p.drawText ( 6, y +2 , QString("v"));
+		if (y == 70 )p.drawText ( 6, y +2 , QString("e"));
+*/
+	}
+
+	for (unsigned y = 90; y < 210; y = y + 10 ) {
+		p.setPen( QPen( QColor( 255, 255, 255 ), 9, Qt::SolidLine, Qt::FlatCap) );
+		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) 
+			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) ); 
+		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+/*		if (y == 100 )p.drawText ( 5, y +2 , QString("H")); 
+		if (y == 110 )p.drawText ( 6, y +2 , QString("a"));
+		if (y == 120 )p.drawText ( 7, y +2 , QString("l"));
+		if (y == 130 )p.drawText ( 5, y +2 , QString("f"));
+		if (y == 150 )p.drawText ( 5, y +2 , QString("s")); 
+		if (y == 160 )p.drawText ( 6, y +2 , QString("t"));
+		if (y == 170 )p.drawText ( 7, y +2 , QString("e"));
+		if (y == 180 )p.drawText ( 5, y +2 , QString("p"));
+		if (y == 190 )p.drawText ( 5, y +2 , QString("s"));
+*/
+	}
+
+	// vertical lines
+	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
+	int nBase;
+	if (pPatternEditor->isUsingTriplets()) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+
+	int n4th = 4 * MAX_NOTES / (nBase * 4);
+	int n8th = 4 * MAX_NOTES / (nBase * 8);
+	int n16th = 4 * MAX_NOTES / (nBase * 16);
+	int n32th = 4 * MAX_NOTES / (nBase * 32);
+	int n64th = 4 * MAX_NOTES / (nBase * 64);
+	int nResolution = pPatternEditor->getResolution();
+
+
+	if ( !pPatternEditor->isUsingTriplets() ) {
+
+		for (uint i = 0; i < nNotes + 1; i++) {
+			uint x = 20 + i * m_nGridWidth;
+
+			if ( (i % n4th) == 0 ) {
+				if (nResolution >= 4) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+					p.drawLine(x, 0, x, m_nEditorHeight);
+				}
+			}
+			else if ( (i % n8th) == 0 ) {
+				if (nResolution >= 8) {
+					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+					p.drawLine(x, 0, x, m_nEditorHeight);
+				}
+			}
+			else if ( (i % n16th) == 0 ) {
+				if (nResolution >= 16) {
+					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.drawLine(x, 0, x, m_nEditorHeight);
+				}
+			}
+			else if ( (i % n32th) == 0 ) {
+				if (nResolution >= 32) {
+					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+					p.drawLine(x, 0, x, m_nEditorHeight);
+				}
+			}
+			else if ( (i % n64th) == 0 ) {
+				if (nResolution >= 64) {
+					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
+					p.drawLine(x, 0, x, m_nEditorHeight);
+				}
+			}
+		}
+	}
+	else {	// Triplets
+		uint nCounter = 0;
+		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
+
+		for (uint i = 0; i < nNotes + 1; i++) {
+			uint x = 20 + i * m_nGridWidth;
+
+			if ( (i % nSize) == 0) {
+				if ((nCounter % 3) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+				}
+				else {
+					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+				}
+				p.drawLine(x, 0, x, m_nEditorHeight);
+				nCounter++;
+			}
+		}
+	}
+
+
+	p.setPen(res_1);
+	p.drawLine(0, 0, m_nEditorWidth, 0);
+	p.drawLine(0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1);
+
+//paint the oktave	
+	if ( m_pPattern ) {
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		Song *pSong = Hydrogen::get_instance()->getSong();
+ 
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+
+			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+
+			int oktave = 0;
+			if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
+
+			if (pNote->m_noteKey.m_nOctave == -3){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 70-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_nOctave == -2){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 60-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_nOctave == -1){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 50-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_nOctave == 0){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 40-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_nOctave == 1){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 30-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_nOctave == 2){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 20-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_nOctave == 3){
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos-3, 10-3, 6, 6);
+			}
+		}
+	}
+
+//paint the note 
+	if ( m_pPattern ) {
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		Song *pSong = Hydrogen::get_instance()->getSong();
+ 
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+
+			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+
+			int oktave = 0;
+			if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
+
+			if (pNote->m_noteKey.m_key == 0 ){//note c
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 200-4, 8, 8);
+			}
+			if (pNote->m_noteKey.m_key == 1 ){//note cis
+				p.setBrush(QColor( 255, 255, 255  ));
+				p.drawEllipse( x_pos-3, 190-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_key == 2 ){//note d
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 180-4, 8, 8);
+			}
+			if (pNote->m_noteKey.m_key == 3 ){//note dis
+				p.setBrush(QColor( 255, 255, 255));
+				p.drawEllipse( x_pos-3, 170-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_key == 4 ){//note e
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 160-4, 8, 8);
+			}
+			if (pNote->m_noteKey.m_key == 5 ){//note f
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 150-4, 8, 8);
+			}
+			if (pNote->m_noteKey.m_key == 6 ){//note fis
+				p.setBrush(QColor( 255, 255, 255));
+				p.drawEllipse( x_pos-3, 140-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_key == 7 ){//note g
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 130-4, 8, 8);
+			}
+			if (pNote->m_noteKey.m_key == 8 ){//note gis
+				p.setBrush(QColor( 255, 255, 255));
+				p.drawEllipse( x_pos-3, 120-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_key == 9 ){//note a
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 110-4, 8, 8);
+			}
+			if (pNote->m_noteKey.m_key == 10 ){//note ais
+				p.setBrush(QColor( 255, 255, 255));
+				p.drawEllipse( x_pos-3, 100-3, 6, 6);
+			}
+			if (pNote->m_noteKey.m_key == 11 ){//note h
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos-4, 90-4, 8, 8);
+			}
+		}
+	}	
+}
+
+
+
+
 void NotePropertiesRuler::updateEditor()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -811,6 +1159,9 @@ void NotePropertiesRuler::updateEditor()
 	}
 	else if ( m_mode == LEADLAG ) {
 		createLeadLagBackground( m_pBackground );
+	}
+	else if ( m_mode == NOTEKEY ) {
+		createNoteKeyBackground( m_pBackground );
 	}
 
 	// redraw all

@@ -797,9 +797,9 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 							if ( pNote->get_instrument() == instrument
 							&& pNote->get_position() == noteOnTick ) {
 								AudioEngine::get_instance()->lock("Sample::setnotelenght_event");
-	
-	
-								if ( ticks >  patternsize ) ticks = -1;
+		
+								if ( ticks >  patternsize ) 
+									ticks = patternsize - noteOnTick;
 								pNote->set_lenght( ticks );
 								Hydrogen::get_instance()->getSong()->__is_modified = true;
 								AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -808,8 +808,7 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 						}
 					}
 				}
-			}
-	
+			}	
 		}
 
 	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();

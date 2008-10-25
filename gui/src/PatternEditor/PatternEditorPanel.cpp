@@ -339,6 +339,22 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 //~ NOTE_LEADLAG EDITOR
 
+
+// NOTE_NOTEKEY EDITOR
+
+
+	m_pNoteNoteKeyScrollView = new QScrollArea( NULL );
+	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this, NotePropertiesRuler::NOTEKEY );
+	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
+	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
+
+
+//~ NOTE_NOTEKEY EDITOR
+
+
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , NULL  );
 	connect( m_pPatternEditorHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
@@ -390,6 +406,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesCombo->addItem( trUtf8("Velocity") );
 	pPropertiesCombo->addItem( trUtf8("Pan") );
 	pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
+	pPropertiesCombo->addItem( trUtf8("NoteKey") );
 	pPropertiesCombo->update();
 	connect( pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
 
@@ -421,6 +438,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
 	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
 
 	pGrid->addWidget( pPropertiesPanel, 4, 0 );
 	pGrid->setRowStretch( 2, 100 );
@@ -788,6 +806,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pDrumPatternEditor->zoom_in();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
+	m_pNoteNoteKeyEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 
 	resizeEvent( NULL );
@@ -802,6 +821,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pDrumPatternEditor->zoom_out();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
+	m_pNoteNoteKeyEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
 
 	resizeEvent( NULL );
@@ -845,6 +865,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	m_pNoteVelocityEditor->updateEditor();
 	m_pNotePanEditor->updateEditor();
 	m_pNoteLeadLagEditor->updateEditor();
+	m_pNoteNoteKeyEditor->updateEditor();
 
 	resizeEvent( NULL );
 
@@ -956,6 +977,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	if ( text == trUtf8( "Velocity" ) ) {
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteVelocityScrollView->show();
 
 		m_pNoteVelocityEditor->updateEditor();
@@ -963,6 +985,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	else if ( text == trUtf8( "Pan" ) ) {
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
 		m_pNotePanScrollView->show();
 
 		m_pNotePanEditor->updateEditor();
@@ -970,9 +993,18 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	else if ( text == trUtf8( "Lead and Lag" ) ) {
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
  
 		m_pNoteLeadLagEditor->updateEditor();
+	}
+	else if ( text == trUtf8( "NoteKey" ) ) {
+		m_pNoteVelocityScrollView->hide();
+		m_pNotePanScrollView->hide();
+		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->show();
+ 
+		m_pNoteNoteKeyEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Cutoff" ) ) {
 	}

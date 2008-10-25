@@ -236,14 +236,10 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			const float fPitch = 0.0f;
 			Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 			poffNote->set_noteoff( true );
+
+			
 			m_pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
 
-			// hear note
-			Preferences *pref = Preferences::getInstance();
-			if ( pref->getHearNewNotes() ) {
-				Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-				AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
-			}
 			pSong->__is_modified = true;
 ///
 		}
@@ -273,6 +269,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	}
 }
 
@@ -321,6 +318,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	}
 
 }
@@ -365,7 +363,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		uint y = m_nGridHeight * nInstr;
 		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
-			painter.fillRect( 0, y + 1, (20 + nNotes * m_nGridWidth), m_nGridHeight - 1, selectedRowColor );
+			painter.fillRect( 0, y + 1, ( 20 + nNotes * m_nGridWidth ), m_nGridHeight - 1, selectedRowColor );
 		}
 	}
 
@@ -457,9 +455,9 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	}
 	else if ( note->get_lenght() == 1 && note->get_noteoff() == true ){
 		p.setPen( noteoffColor );
-		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
+		uint x_pos = 20 + ( pos * m_nGridWidth );// - m_nGridWidth / 2.0;
 
-		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+		uint y_pos = ( nInstrument * m_nGridHeight ) + (m_nGridHeight / 2) - 3;
 	
 		// draw the "dot"
 		p.drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
@@ -681,6 +679,7 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	/// \todo [DrumPatternEditor::setResolution] aggiornare la risoluzione del Ruler in alto."
 }
 

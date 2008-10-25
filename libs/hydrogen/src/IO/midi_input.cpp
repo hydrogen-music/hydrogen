@@ -263,7 +263,6 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 unsigned long MidiInput::computeDeltaNoteOnOfftime()
 {
 	unsigned long  __notelenghtTicks = __noteOffTick - __noteOnTick;
-	//INFOLOG( QString( "notenlänge %1" ).arg( __notelenghtTicks ));
 	return __notelenghtTicks;
 	
 }
