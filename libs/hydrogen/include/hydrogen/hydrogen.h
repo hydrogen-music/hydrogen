@@ -201,6 +201,7 @@ public:
 
 	void __panic();
 	int __get_selected_PatterNumber();
+	unsigned int __getMidiRealtimeNoteTickPosition();
 	
 
 private:

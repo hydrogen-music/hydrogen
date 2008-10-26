@@ -169,6 +169,7 @@ int m_nSongSizeInTicks = 0;
 struct timeval m_currentTickTime;
 
 unsigned long m_nRealtimeFrames = 0;
+unsigned int m_naddrealtimenotetickposition = 0;
 
 
 
@@ -1863,6 +1864,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 
 	unsigned position = column;
+	m_naddrealtimenotetickposition = column;
+	
 
 	Instrument *instrRef = 0;
 	if ( song ) {
@@ -2965,6 +2968,10 @@ int Hydrogen::__get_selected_PatterNumber()
 	return m_nSelectedPatternNumber;
 }
 
+unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
+{
+	return m_naddrealtimenotetickposition;
+}
 
 };
 

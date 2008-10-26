@@ -182,7 +182,6 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	pEngine->lastMidiEventParameter = msg.m_nData1;
 	
 	bool action = aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
-	__noteOnTick = pEngine->getTickPosition();
 	
 	if ( action && Preferences::getInstance()->m_bMidiDiscardNoteAfterAction)
 	{
@@ -216,6 +215,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true );
 		}
 	}
+	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
 }
 
 
