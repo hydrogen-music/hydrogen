@@ -496,9 +496,9 @@ void InstrumentEditor::loadLayer()
 		filename = fb->selectedFile();
 	}
 
-	
-
 	delete fb;
+
+	if ( filename[2] == "") return;
 
 	bool fnc = false;	
 	if ( filename[0] ==  "true" ){
