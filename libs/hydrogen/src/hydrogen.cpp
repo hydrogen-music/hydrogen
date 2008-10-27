@@ -2010,7 +2010,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 			int octave = divider -3;
 			int notehigh = msg1 - (12 * divider);
 
-			ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
+			//ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
 			note2->m_noteKey.m_nOctave = octave;
 			if ( notehigh == 0) note2->m_noteKey.m_key = H2Core::NoteKey::C;
 			else if ( notehigh == 1 ) note2->m_noteKey.m_key = H2Core::NoteKey::Cs;
