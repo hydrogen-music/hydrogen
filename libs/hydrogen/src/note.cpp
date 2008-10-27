@@ -138,8 +138,14 @@ NoteKey Note::stringToKey( const QString& str )
 {
 	NoteKey key;
 
+
 	QString sKey = str.left( str.length() - 1 );
 	QString sOct = str.mid( str.length() - 1, str.length() );
+
+	if ( sKey.endsWith( "-" ) ){
+		sKey.replace("-", "");
+		sOct.insert( 0, "-");
+	}
 	int nOctave = sOct.toInt();
 
 //	_INFOLOG( "skey: " + sKey );

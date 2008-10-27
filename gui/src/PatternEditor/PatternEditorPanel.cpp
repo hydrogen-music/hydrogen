@@ -577,6 +577,9 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 	// leadlag ruler
 	m_pNoteLeadLagScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+
+	// notekey ruler
+	m_pNoteNoteKeyScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 }
 
 
