@@ -201,6 +201,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // 	pZoom->move( 0, 3 );
 // 	editor_top_hbox_2->addWidget( pZoom );
 
+	QComboBox *selInstrument = new QComboBox( NULL );
+	selInstrument->setFixedSize( 170, 20 );
+	selInstrument->move( 2, 1 );
+	selInstrument->addItem ( QString( "keyb: play drumset" ));
+	selInstrument->addItem ( QString( "keyb: play instrument" ));
+	editor_top_hbox_2->addWidget( selInstrument );
+	connect( selInstrument, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( playselectedinstrument(QString) ) );
+
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
 			NULL,
@@ -1012,5 +1020,16 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	}
 	else {
 		ERRORLOG( "Unknown text: " + text );
+	}
+}
+
+
+void PatternEditorPanel::playselectedinstrument( QString text )
+{
+	if ( text == "keyb: play drumset" ){
+		Preferences::getInstance()->__playselectedinstrument = false;
+	}else
+	{
+		Preferences::getInstance()->__playselectedinstrument = true;
 	}
 }

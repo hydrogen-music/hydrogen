@@ -127,6 +127,7 @@ Preferences::Preferences()
 	
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
 	__playsamplesonclicking = false; // audio file browser
+	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings

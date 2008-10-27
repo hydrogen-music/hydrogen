@@ -187,9 +187,6 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	{
 		return;
 	}
-
-
-
 	
 
 	bool bPatternSelect = false;
@@ -212,7 +209,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				nInstrument = MAX_INSTRUMENTS - 1;
 			}
 
-			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true );
+			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
 		}
 	}
 	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();

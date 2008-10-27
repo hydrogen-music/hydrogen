@@ -148,6 +148,8 @@ public:
 	QString __lastsampleDirectory; // audio file browser
 	bool __playsamplesonclicking; // audio file browser
 
+	bool __playselectedinstrument;
+
 	bool m_bFollowPlayhead;
 	
 	// switch to enable / disable lash, only on h2 startup

@@ -96,6 +96,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
+		void playselectedinstrument( QString text );
+
 	private:
 		H2Core::Pattern *m_pPattern;
 		QPixmap m_backgroundPixmap;

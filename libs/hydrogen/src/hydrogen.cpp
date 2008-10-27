@@ -1813,7 +1813,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 				float pan_R,
 				float pitch,
 				bool noteOff,
-				bool forcePlay )
+				bool forcePlay,
+				int msg1 )
 {
 	UNUSED( pitch );
 
@@ -1826,11 +1827,14 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 	AudioEngine::get_instance()->lock( "Hydrogen::addRealtimeNote" );
 
+
 	Song *song = getSong();
-	if ( instrument >= ( int )song->get_instrument_list()->get_size() ) {
-		// unused instrument
-		AudioEngine::get_instance()->unlock();
-		return;
+	if ( !pref->__playselectedinstrument ){
+		if ( instrument >= ( int )song->get_instrument_list()->get_size() ) {
+			// unused instrument
+			AudioEngine::get_instance()->unlock();
+			return;
+		}
 	}
 
 	Pattern* currentPattern = NULL;
@@ -1865,7 +1869,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 	unsigned position = column;
 	m_naddrealtimenotetickposition = column;
-	
+
 
 	Instrument *instrRef = 0;
 	if ( song ) {
@@ -1906,47 +1910,126 @@ void Hydrogen::addRealtimeNote( int instrument,
 				hearnote = true;
 			}
 		} else {
-			// create the new note
-			Note *note = new Note( instrRef,
-					       position,
-					       velocity,
-					       pan_L,
-					       pan_R,
-					       -1,
-					       0 );
-			currentPattern->note_map.insert(
-				std::make_pair( column, note )
-				);
-/*
-			if ( noteOff ) {
-				note->set_noteoff( true );
-				note->set_lenght( 1 );
+			if ( !pref->__playselectedinstrument ){
+				// create the new note
+				Note *note = new Note( instrRef,
+						position,
+						velocity,
+						pan_L,
+						pan_R,
+						-1,
+						0 );
+				currentPattern->note_map.insert(
+					std::make_pair( column, note )
+					);
+	/*
+				if ( noteOff ) {
+					note->set_noteoff( true );
+					note->set_lenght( 1 );
+				}
+	*/
+				// hear note if its not in the future
+				if ( pref->getHearNewNotes()
+					&& position <= getTickPosition() ) {
+					hearnote = true;
+				}
+	
+				song->__is_modified = true;
+	
+				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 			}
-*/
-			// hear note if its not in the future
-			if ( pref->getHearNewNotes()
-			     && position <= getTickPosition() ) {
-				hearnote = true;
+			else if ( pref->__playselectedinstrument ){
+
+				Note *note = new Note( song->get_instrument_list()->get( getSelectedInstrumentNumber()),
+							position,
+							velocity,
+							pan_L,
+							pan_R,
+							-1,
+							0 );
+	
+				int divider = msg1 / 12;
+				int octave = divider -3;
+				int notehigh = msg1 - (12 * divider);
+				note->m_noteKey.m_nOctave = octave;
+				if ( notehigh == 0) note->m_noteKey.m_key = H2Core::NoteKey::C;
+				else if ( notehigh == 1 ) note->m_noteKey.m_key = H2Core::NoteKey::Cs;
+				else if ( notehigh == 2 ) note->m_noteKey.m_key = H2Core::NoteKey::D;
+				else if ( notehigh == 3 ) note->m_noteKey.m_key = H2Core::NoteKey::Ef;
+				else if ( notehigh == 4 ) note->m_noteKey.m_key = H2Core::NoteKey::E;
+				else if ( notehigh == 5 ) note->m_noteKey.m_key = H2Core::NoteKey::F;
+				else if ( notehigh == 6 ) note->m_noteKey.m_key = H2Core::NoteKey::Fs;
+				else if ( notehigh == 7 ) note->m_noteKey.m_key = H2Core::NoteKey::G;
+				else if ( notehigh == 8 ) note->m_noteKey.m_key = H2Core::NoteKey::Af;
+				else if ( notehigh == 9 ) note->m_noteKey.m_key = H2Core::NoteKey::A;
+				else if ( notehigh == 10 ) note->m_noteKey.m_key = H2Core::NoteKey::Bf;
+				else if ( notehigh == 11 ) note->m_noteKey.m_key = H2Core::NoteKey::B;
+
+				currentPattern->note_map.insert(
+					std::make_pair( column, note )
+					);
+
+				// hear note if its not in the future
+				if ( pref->getHearNewNotes()
+					&& position <= getTickPosition() ) {
+					hearnote = true;
+				}
+	
+				song->__is_modified = true;
+	
+				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );				
 			}
-
-			song->__is_modified = true;
-
-			EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 		}
 	} else if ( pref->getHearNewNotes() ) {
 		hearnote = true;
 	}
+	
+	if ( !pref->__playselectedinstrument ){
+		if ( hearnote && instrRef ) {
+			Note *note2 = new Note( instrRef,
+						realcolumn,
+						velocity,
+						pan_L,
+						pan_R,
+						-1,
+						0 );
+			midi_noteOn( note2 );
+		}
+	}else
+	{
+		if ( hearnote  ) {
+			Note *note2 = new Note( song->get_instrument_list()->get( getSelectedInstrumentNumber()),
+						realcolumn,
+						velocity,
+						pan_L,
+						pan_R,
+						-1,
+						0 );
 
-	if ( hearnote && instrRef ) {
-		Note *note2 = new Note( instrRef,
-					realcolumn,
-					velocity,
-					pan_L,
-					pan_R,
-					-1,
-					0 );
-		midi_noteOn( note2 );
+			int divider = msg1 / 12;
+			int octave = divider -3;
+			int notehigh = msg1 - (12 * divider);
+
+			ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
+			note2->m_noteKey.m_nOctave = octave;
+			if ( notehigh == 0) note2->m_noteKey.m_key = H2Core::NoteKey::C;
+			else if ( notehigh == 1 ) note2->m_noteKey.m_key = H2Core::NoteKey::Cs;
+			else if ( notehigh == 2 ) note2->m_noteKey.m_key = H2Core::NoteKey::D;
+			else if ( notehigh == 3 ) note2->m_noteKey.m_key = H2Core::NoteKey::Ef;
+			else if ( notehigh == 4 ) note2->m_noteKey.m_key = H2Core::NoteKey::E;
+			else if ( notehigh == 5 ) note2->m_noteKey.m_key = H2Core::NoteKey::F;
+			else if ( notehigh == 6 ) note2->m_noteKey.m_key = H2Core::NoteKey::Fs;
+			else if ( notehigh == 7 ) note2->m_noteKey.m_key = H2Core::NoteKey::G;
+			else if ( notehigh == 8 ) note2->m_noteKey.m_key = H2Core::NoteKey::Af;
+			else if ( notehigh == 9 ) note2->m_noteKey.m_key = H2Core::NoteKey::A;
+			else if ( notehigh == 10 ) note2->m_noteKey.m_key = H2Core::NoteKey::Bf;
+			else if ( notehigh == 11 ) note2->m_noteKey.m_key = H2Core::NoteKey::B;
+
+			midi_noteOn( note2 );
+		}	
+
 	}
+
 
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 }
