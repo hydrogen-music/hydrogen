@@ -128,6 +128,7 @@ Preferences::Preferences()
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
 	__playsamplesonclicking = false; // audio file browser
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
+	__rightclickedpattereditor = false; //right click into pattern editor add note-off-note or edit note-length
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings

@@ -227,20 +227,22 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				}
 			}	
 ///
-			// create the new note
-			const unsigned nPosition = nColumn;
-			const float fVelocity = 0.0f;
-			const float fPan_L = 0.5f;
-			const float fPan_R = 0.5f;
-			const int nLength = 1;
-			const float fPitch = 0.0f;
-			Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-			poffNote->set_noteoff( true );
-
-			
-			m_pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
-
-			pSong->__is_modified = true;
+			if ( Preferences::getInstance()->__rightclickedpattereditor ){
+				// create the new note
+				const unsigned nPosition = nColumn;
+				const float fVelocity = 0.0f;
+				const float fPan_L = 0.5f;
+				const float fPan_R = 0.5f;
+				const int nLength = 1;
+				const float fPitch = 0.0f;
+				Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+				poffNote->set_noteoff( true );
+	
+				
+				m_pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
+	
+				pSong->__is_modified = true;
+			}
 ///
 		}
 		// potrei essere sulla coda di una nota precedente..
@@ -297,6 +299,9 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 	if (row >= MAX_INSTRUMENTS) {
 		return;
 	}
+
+	if ( Preferences::getInstance()->__rightclickedpattereditor )
+		return;
 
 	if (m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_noteoff() ) return;

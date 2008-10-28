@@ -1017,39 +1017,42 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
-
-			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
-
-			int oktave = 0;
-			if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
-
-			if (pNote->m_noteKey.m_nOctave == -3){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 70-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_nOctave == -2){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 60-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_nOctave == -1){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 50-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_nOctave == 0){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 40-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_nOctave == 1){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 30-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_nOctave == 2){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 20-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_nOctave == 3){
-				p.setBrush(QColor( 99, 160, 233 ));
-				p.drawEllipse( x_pos-3, 10-3, 6, 6);
+			
+			//check the note type
+			if ( !pNote->get_noteoff() ) {	
+				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+	
+				int oktave = 0;
+				if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
+	
+				if (pNote->m_noteKey.m_nOctave == -3){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 70-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_nOctave == -2){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 60-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_nOctave == -1){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 50-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_nOctave == 0){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 40-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_nOctave == 1){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 30-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_nOctave == 2){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 20-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_nOctave == 3){
+					p.setBrush(QColor( 99, 160, 233 ));
+					p.drawEllipse( x_pos-3, 10-3, 6, 6);
+				}
 			}
 		}
 	}
@@ -1067,58 +1070,60 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				continue;
 			}
 
-			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
-
-			int oktave = 0;
-			if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
-
-			if (pNote->m_noteKey.m_key == 0 ){//note c
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 200-4, 8, 8);
-			}
-			if (pNote->m_noteKey.m_key == 1 ){//note cis
-				p.setBrush(QColor( 255, 255, 255  ));
-				p.drawEllipse( x_pos-3, 190-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_key == 2 ){//note d
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 180-4, 8, 8);
-			}
-			if (pNote->m_noteKey.m_key == 3 ){//note dis
-				p.setBrush(QColor( 255, 255, 255));
-				p.drawEllipse( x_pos-3, 170-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_key == 4 ){//note e
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 160-4, 8, 8);
-			}
-			if (pNote->m_noteKey.m_key == 5 ){//note f
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 150-4, 8, 8);
-			}
-			if (pNote->m_noteKey.m_key == 6 ){//note fis
-				p.setBrush(QColor( 255, 255, 255));
-				p.drawEllipse( x_pos-3, 140-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_key == 7 ){//note g
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 130-4, 8, 8);
-			}
-			if (pNote->m_noteKey.m_key == 8 ){//note gis
-				p.setBrush(QColor( 255, 255, 255));
-				p.drawEllipse( x_pos-3, 120-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_key == 9 ){//note a
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 110-4, 8, 8);
-			}
-			if (pNote->m_noteKey.m_key == 10 ){//note ais
-				p.setBrush(QColor( 255, 255, 255));
-				p.drawEllipse( x_pos-3, 100-3, 6, 6);
-			}
-			if (pNote->m_noteKey.m_key == 11 ){//note h
-				p.setBrush(QColor( 0, 0, 0));
-				p.drawEllipse( x_pos-4, 90-4, 8, 8);
+			if ( !pNote->get_noteoff() ) {
+				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+	
+				int oktave = 0;
+				if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
+	
+				if (pNote->m_noteKey.m_key == 0 ){//note c
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 200-4, 8, 8);
+				}
+				if (pNote->m_noteKey.m_key == 1 ){//note cis
+					p.setBrush(QColor( 255, 255, 255  ));
+					p.drawEllipse( x_pos-3, 190-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_key == 2 ){//note d
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 180-4, 8, 8);
+				}
+				if (pNote->m_noteKey.m_key == 3 ){//note dis
+					p.setBrush(QColor( 255, 255, 255));
+					p.drawEllipse( x_pos-3, 170-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_key == 4 ){//note e
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 160-4, 8, 8);
+				}
+				if (pNote->m_noteKey.m_key == 5 ){//note f
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 150-4, 8, 8);
+				}
+				if (pNote->m_noteKey.m_key == 6 ){//note fis
+					p.setBrush(QColor( 255, 255, 255));
+					p.drawEllipse( x_pos-3, 140-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_key == 7 ){//note g
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 130-4, 8, 8);
+				}
+				if (pNote->m_noteKey.m_key == 8 ){//note gis
+					p.setBrush(QColor( 255, 255, 255));
+					p.drawEllipse( x_pos-3, 120-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_key == 9 ){//note a
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 110-4, 8, 8);
+				}
+				if (pNote->m_noteKey.m_key == 10 ){//note ais
+					p.setBrush(QColor( 255, 255, 255));
+					p.drawEllipse( x_pos-3, 100-3, 6, 6);
+				}
+				if (pNote->m_noteKey.m_key == 11 ){//note h
+					p.setBrush(QColor( 0, 0, 0));
+					p.drawEllipse( x_pos-4, 90-4, 8, 8);
+				}
 			}
 		}
 	}	

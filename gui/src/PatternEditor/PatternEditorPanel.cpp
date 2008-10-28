@@ -202,12 +202,22 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // 	editor_top_hbox_2->addWidget( pZoom );
 
 	QComboBox *selInstrument = new QComboBox( NULL );
-	selInstrument->setFixedSize( 170, 20 );
+	selInstrument->setFixedSize( 100, 20 );
 	selInstrument->move( 2, 1 );
-	selInstrument->addItem ( QString( "keyb: play drumset" ));
-	selInstrument->addItem ( QString( "keyb: play instrument" ));
+	selInstrument->addItem ( QString( "drumset" ));
+	selInstrument->addItem ( QString( "instrument" ));
+	selInstrument->setToolTip( trUtf8( "Midi keyboard or computer keys play whole drumset or single instruments" ) );
 	editor_top_hbox_2->addWidget( selInstrument );
 	connect( selInstrument, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( playselectedinstrument(QString) ) );
+
+	QComboBox *rightclickSelection = new QComboBox( NULL );
+	rightclickSelection->setFixedSize( 100, 20 );
+	rightclickSelection->move( 2, 1 );
+	rightclickSelection->addItem ( QString( "note length" ));
+	rightclickSelection->addItem ( QString( "note off" ));
+	rightclickSelection->setToolTip( trUtf8( "Right click into pattern editor add note-off-note or edit note-length" ) );
+	editor_top_hbox_2->addWidget( rightclickSelection );
+	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
@@ -1027,12 +1037,26 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 }
 
 
+
 void PatternEditorPanel::playselectedinstrument( QString text )
 {
-	if ( text == "keyb: play drumset" ){
+	if ( text == "drumset" ){
 		Preferences::getInstance()->__playselectedinstrument = false;
 	}else
 	{
 		Preferences::getInstance()->__playselectedinstrument = true;
 	}
 }
+
+
+void PatternEditorPanel::rightclickSelect( QString text )
+{
+	if ( text == "note length" ){
+		Preferences::getInstance()->__rightclickedpattereditor = false;
+	}else
+	{
+		Preferences::getInstance()->__rightclickedpattereditor = true;
+	}
+
+}
+
