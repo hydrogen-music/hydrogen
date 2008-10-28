@@ -569,6 +569,7 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
+			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 
 			QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
 
@@ -586,9 +587,13 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 				continue;
 			}
 			//assert( instrRef );
+			bool noteoff = false;
+			if ( nNoteOff == "true" ) 
+				noteoff = true;
 
 			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch, Note::stringToKey( sKey ) );
 			pNote->set_leadlag(fLeadLag);
+			pNote->set_noteoff( noteoff );
 			pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );
 		}
 	} else {

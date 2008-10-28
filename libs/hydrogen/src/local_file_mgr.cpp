@@ -178,6 +178,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
+			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 
 			QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
 
@@ -194,9 +195,13 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 				continue;
 			}
 			//assert( instrRef );
+			bool noteoff = false;
+			if ( nNoteOff == "true" ) 
+				noteoff = true;
 
 			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch, Note::stringToKey( sKey ) );
 			pNote->set_leadlag(fLeadLag);
+			pNote->set_noteoff( noteoff );
 			pPattern->note_map.insert( std::make_pair( pNote->get_position(),pNote ) );
 		}
 	}
@@ -279,6 +284,10 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 			writeXmlString( &noteNode, "length", to_string( pNote->get_lenght() ) );
 			writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
+
+			QString noteoff = "false"; 
+			if ( pNote->get_noteoff() ) noteoff = "true";			
+			writeXmlString( &noteNode, "note_off", noteoff );
 			noteListNode.InsertEndChild( noteNode );
 		}
 		patternNode.InsertEndChild( noteListNode );
@@ -1214,6 +1223,10 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 
 			LocalFileMng::writeXmlString( &noteNode, "length", to_string( pNote->get_lenght() ) );
 			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
+
+			QString noteoff = "false"; 
+			if ( pNote->get_noteoff() ) noteoff = "true";			
+			LocalFileMng::writeXmlString( &noteNode, "note_off", noteoff );
 			noteListNode.InsertEndChild( noteNode );
 		}
 		patternNode.InsertEndChild( noteListNode );
