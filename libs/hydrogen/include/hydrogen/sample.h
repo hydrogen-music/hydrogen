@@ -37,7 +37,18 @@ namespace H2Core
 class Sample : public Object
 {
 public:
-	Sample( unsigned frames, const QString& filename, float* data_L = NULL, float* data_R = NULL );
+	Sample( unsigned frames,
+		const QString& filename, 
+		float* data_L = NULL,
+		float* data_R = NULL,
+		const QString& sample_mode = "normal",
+		unsigned fade_out_startframe = -1,
+		int repeats = -1,
+		unsigned start_frame = -1,
+		unsigned loop_frame = -1,
+		unsigned end_frame = -1);
+		
+
 	~Sample();
 
 	float* get_data_l() {
@@ -75,6 +86,12 @@ private:
 	unsigned __sample_rate;		///< samplerate for this sample
 	QString __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
+	QString __sample_mode;		///< loop mode
+	unsigned __fade_out_startframe;	///< start frame for fade out
+	int __repeats;			///< repats from the loop section
+	unsigned __start_frame;		///< start frame
+	unsigned __loop_frame;		///< beginn of the loop section
+	unsigned __end_frame; 		///< sample end frame
 
 	//static int __total_used_bytes;
 

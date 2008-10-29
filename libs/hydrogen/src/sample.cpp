@@ -33,13 +33,29 @@ using namespace std;
 namespace H2Core
 {
 
-Sample::Sample( unsigned frames, const QString& filename, float* data_l, float* data_r )
+Sample::Sample( unsigned frames,
+		const QString& filename, 
+		float* data_l,
+		float* data_r,
+		const QString& sample_mode,
+		unsigned fade_out_startframe,
+		int repeats,
+		unsigned start_frame,
+		unsigned loop_frame,
+		unsigned end_frame  )
+
 		: Object( "Sample" )
 		, __data_l( data_l )
 		, __data_r( data_r )
 		, __sample_rate( 44100 )
 		, __filename( filename )
 		, __n_frames( frames )
+		, __sample_mode( sample_mode )
+		, __fade_out_startframe( fade_out_startframe )
+		, __repeats( repeats )
+		, __start_frame( start_frame )
+		, __loop_frame( loop_frame )
+		, __end_frame( end_frame ) 
 {
 		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
 }
