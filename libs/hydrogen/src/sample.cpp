@@ -27,6 +27,9 @@
 #include <sndfile.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+//#include <vector>
+
 
 using namespace std;
 
@@ -136,12 +139,24 @@ Sample* Sample::load_wave( const QString& filename )
 	}
 	delete[] pTmpBuffer;
 
-
 	Sample *pSample = new Sample( soundInfo.frames, filename );
 	pSample->__data_l = data_l;
 	pSample->__data_r = data_r;
 	pSample->__sample_rate = soundInfo.samplerate;
 	return pSample;
+}
+
+
+void Sample::reverse_sample( Sample* Sample )
+{
+	float *data_l = new float[ Sample->get_n_frames() ];
+	float *data_r = new float[ Sample->get_n_frames() ];
+	data_l = Sample->__data_l;
+	data_r = Sample->__data_r;
+	reverse(data_l, data_l + Sample->get_n_frames());
+	reverse(data_r, data_r + Sample->get_n_frames());
+	Sample->__data_l = data_l;
+	Sample->__data_r = data_r;
 }
 
 

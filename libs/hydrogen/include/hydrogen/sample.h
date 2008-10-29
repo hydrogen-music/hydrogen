@@ -79,6 +79,8 @@ public:
 		return __n_frames;
 	}
 
+	void reverse_sample( Sample* Sample );
+
 private:
 	float *__data_l;	///< Left channel data
 	float *__data_r;	///< Right channel data
