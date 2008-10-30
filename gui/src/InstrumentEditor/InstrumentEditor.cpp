@@ -185,7 +185,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerProp = new PixmapWidget( this );
 	m_pLayerProp->move( 0, 31 );
 	m_pLayerProp->hide();
-	m_pLayerProp->setPixmap( "/instrumentEditor/layerTab.png" );
+	m_pLayerProp->setPixmap( "/instrumentEditor/layerTabnew.png" );
 
 
 
@@ -204,7 +204,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			"/instrumentEditor/loadLayer_on.png",
 			"/instrumentEditor/loadLayer_off.png",
 			"/instrumentEditor/loadLayer_over.png",
-			QSize( 94, 13 )
+			QSize( 90, 13 )
 	);
 
 	m_pRemoveLayerBtn = new Button(
@@ -212,22 +212,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			"/instrumentEditor/deleteLayer_on.png",
 			"/instrumentEditor/deleteLayer_off.png",
 			"/instrumentEditor/deleteLayer_over.png",
-			QSize( 94, 13 )
+			QSize( 90, 13 )
 	);
 
 	m_pSamleEditorBtn = new Button(
 			m_pLayerProp,
-			"/instrumentEditor/deleteLayer_on.png",
-			"/instrumentEditor/deleteLayer_off.png",
-			"/instrumentEditor/deleteLayer_over.png",
-			QSize( 60, 13 )
+			"/instrumentEditor/editLayer_on.png",
+			"/instrumentEditor/editLayer_off.png",
+			"/instrumentEditor/editLayer_over.png",
+			QSize( 90, 13 )
 	);
 
 
 
-	m_pLoadLayerBtn->move( 48, 267 );
-	m_pRemoveLayerBtn->move( 145, 267 );
-	m_pSamleEditorBtn->move( 200, 267 );
+	m_pLoadLayerBtn->move( 6, 266 );
+	m_pRemoveLayerBtn->move( 99, 266 );
+	m_pSamleEditorBtn->move( 191, 266 );
 
 	connect( m_pLoadLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	connect( m_pRemoveLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
