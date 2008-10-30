@@ -53,7 +53,7 @@ class LadspaFXInfo;
 class LadspaFXGroup;
 class InstrumentRack;
 class PlaylistDialog;
-//class AudioFileBrowser;
+class SampleEditor;
 
 class HydrogenApp : public QObject, public Object
 {
@@ -72,14 +72,14 @@ class HydrogenApp : public QObject, public Object
 		void showMixer(bool bShow);
 		void showAudioEngineInfoForm();
 		void showPlaylistDialog();
-//		void showAudioFileBrowser();
+		void showSampleEditor( QString name );
 
 		Mixer* getMixer() {	return m_pMixer;	}
 		MainForm* getMainForm() {	return m_pMainForm;	}
 		SongEditorPanel* getSongEditorPanel() {	return m_pSongEditorPanel;	}
 		AudioEngineInfoForm* getAudioEngineInfoForm() {	return m_pAudioEngineInfoForm;	}
 		PlaylistDialog* getPlayListDialog() {	return m_pPlaylistDialog;	}
-//		AudioFileBrowser* getAudioFileBrowser() {  return m_pAudioFileBrowser;	}
+		SampleEditor* getSampleEditor() {  return m_pSampleEditor;	}
 		SimpleHTMLBrowser* getHelpBrowser() {	return m_pHelpBrowser;	}
 		PatternEditorPanel* getPatternEditorPanel() {	return m_pPatternEditorPanel;	}
 		PlayerControl* getPlayerControl() {	return m_pPlayerControl;	}
@@ -107,7 +107,6 @@ class HydrogenApp : public QObject, public Object
 #ifdef LADSPA_SUPPORT
 		LadspaFXProperties *m_pLadspaFXProperties[MAX_FX];
 #endif
-
 		MainForm *m_pMainForm;
 		Mixer *m_pMixer;
 		PatternEditorPanel* m_pPatternEditorPanel;
@@ -118,7 +117,7 @@ class HydrogenApp : public QObject, public Object
 		InstrumentRack* m_pInstrumentRack;
 		PlayerControl *m_pPlayerControl;
 		PlaylistDialog *m_pPlaylistDialog;
-//		AudioFileBrowser *m_pAudioFileBrowser;
+		SampleEditor *m_pSampleEditor;
 
 		QTimer *m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;

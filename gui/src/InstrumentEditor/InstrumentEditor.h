@@ -120,6 +120,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 
 		Button *m_pLoadLayerBtn;
 		Button *m_pRemoveLayerBtn;
+		Button *m_pSamleEditorBtn;
 		//~ Layer properties
 
 

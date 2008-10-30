@@ -215,12 +215,23 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			QSize( 94, 13 )
 	);
 
+	m_pSamleEditorBtn = new Button(
+			m_pLayerProp,
+			"/instrumentEditor/deleteLayer_on.png",
+			"/instrumentEditor/deleteLayer_off.png",
+			"/instrumentEditor/deleteLayer_over.png",
+			QSize( 60, 13 )
+	);
+
+
+
 	m_pLoadLayerBtn->move( 48, 267 );
 	m_pRemoveLayerBtn->move( 145, 267 );
+	m_pSamleEditorBtn->move( 200, 267 );
 
 	connect( m_pLoadLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	connect( m_pRemoveLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
-
+	connect( m_pSamleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Layer gain" ), false, false );
@@ -474,6 +485,16 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		AudioEngine::get_instance()->unlock();
 		selectedInstrumentChangedEvent();    // update all
 		m_pLayerPreview->updateAll();
+	}
+	else if ( pButton == m_pSamleEditorBtn ){
+		if ( m_pInstrument ) {
+			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
+			if ( pLayer ) {
+				QString name = pLayer->get_sample()->get_filename();
+				HydrogenApp::getInstance()->showSampleEditor( name );
+			}
+		}
+		
 	}
 	else {
 		ERRORLOG( "[buttonClicked] unhandled button" );
