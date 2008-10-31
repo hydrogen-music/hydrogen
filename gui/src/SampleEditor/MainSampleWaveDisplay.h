@@ -39,11 +39,19 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		void updateDisplay( QString filename );
 
 		void paintEvent(QPaintEvent *ev);
+		int m_pStartFramePosition;
+		int m_pLoopFramePosition;
+		int m_pEndFramePosition;
+		bool m_pmove;
 
 	private:
 		QPixmap m_background;
 		int *m_pPeakDatal;
 		int *m_pPeakDatar;
+		virtual void mouseMoveEvent(QMouseEvent *ev);
+		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
+
 };
 
 

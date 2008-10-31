@@ -49,6 +49,10 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_pPeakDatal = new int[ w ];
 	m_pPeakDatar = new int[ w ];
 
+	m_pStartFramePosition = 25;
+	m_pLoopFramePosition = 25;
+	m_pEndFramePosition = width() -25;
+	m_pmove = false;
 }
 
 
@@ -82,13 +86,30 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 		
 	}
 
-	int VHight = height();
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 23, 4, 23, height() -4 );
 	painter.drawLine( width() -23, 4,width() -23, height() -4 );
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
 	painter.drawLine( 0, VCenterl, width(),VCenterl );
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
+
+	QFont font;
+	font.setWeight( 63 );
+	painter.setFont( font );
+//start frame pointer
+	painter.setPen( QColor( 32, 173, 0, 200 ) );
+	painter.drawLine( m_pStartFramePosition, 4, m_pStartFramePosition, height() -4 );	
+	painter.drawText( m_pStartFramePosition -10, 250, 10,20, Qt::AlignRight, "S" );
+//endframe pointer
+	painter.setPen( QColor( 217, 68, 0, 200 ) );
+	painter.drawLine( m_pEndFramePosition, 4, m_pEndFramePosition, height() -4 );
+	painter.drawText( m_pEndFramePosition -10, 123, 10, 20, Qt::AlignRight, "E" );
+//loopframe pointer
+	painter.setPen( QColor( 93, 170, 254, 200 ) );
+	painter.drawLine( m_pLoopFramePosition, 4, m_pLoopFramePosition, height() -4 );
+	painter.drawText( m_pLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
+
+
 
 }
 
@@ -142,9 +163,70 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 			m_pPeakDatar[ i ] = nValr;
 		}
 	}
-
+ERRORLOG( "jhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" );
 	delete pNewSample;
 	update();
 
 }
+
+
+void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
+{
+//startframe pointer
+	if  ( ev->y() >= 230 ) {
+		m_pStartFramePosition = ev->x() ;
+		if ( m_pStartFramePosition > m_pLoopFramePosition ) m_pLoopFramePosition = m_pStartFramePosition;
+		update();
+	}
+//loopframeposition
+	else if  ( ev->y() <= 40 ) {
+		m_pLoopFramePosition = ev->x() ;
+		if ( m_pLoopFramePosition < m_pStartFramePosition ) m_pStartFramePosition = m_pLoopFramePosition;
+		update();
+	}
+//endframeposition
+	else if  ( ev->y() >= 90 && ev->y() <= 150  ) {
+		m_pEndFramePosition = ev->x() ;
+		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
+			m_pLoopFramePosition = m_pEndFramePosition;
+		}
+		update();
+	}
+}
+
+
+
+void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
+{
+//startframepointer
+	if  (ev->y()>=240 ) {
+		m_pStartFramePosition = ev->x() ;
+		if ( m_pStartFramePosition > m_pLoopFramePosition ) m_pLoopFramePosition = m_pStartFramePosition;
+		update();
+	}
+
+//loopframeposition
+	else if  (ev->y()<=40 ) {
+		m_pLoopFramePosition = ev->x() ;
+		if ( m_pLoopFramePosition < m_pStartFramePosition ) m_pStartFramePosition = m_pLoopFramePosition;
+		update();
+	}
+//endframeposition
+	else if  ( ev->y() >= 90 && ev->y() <= 150  ) {
+		m_pEndFramePosition = ev->x() ;
+		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
+			m_pLoopFramePosition = m_pEndFramePosition;
+		}
+		update();
+	}
+}
+
+
+void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
+{
+}
+
+
+
+
 
