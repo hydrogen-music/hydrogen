@@ -25,6 +25,10 @@
 #include "InstrumentEditor/InstrumentEditor.h"
 #include "../widgets/Button.h"
 
+#include "MainSampleWaveDisplay.h"
+#include "DetailWaveDisplay.h"
+#include "TargetWaveDisplay.h"
+
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
@@ -59,6 +63,20 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	m_end_frame = m_pSample->get_end_frame();
 	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
 	m_fade_out_type = m_pSample->get_fade_out_type();
+
+// wavedisplays
+	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
+	m_pMainSampleWaveDisplay->updateDisplay( Sample->get_filename() );
+	m_pMainSampleWaveDisplay->move( 1, 3 );
+
+//	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
+//	m_pTargetSampleView->updateDisplay( Sample->get_filename() );
+//	m_pTargetSampleView->move( 1, 1 );
+
+//	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
+//	m_pSampleAdjustView->updateDisplay( Sample->get_filename() );
+//	m_pSampleAdjustView->move( 1, 1 );
+
 
 // mainSampleview = 624 x 265
 // mainSampleAdjustView = 180 x 265
@@ -107,6 +125,7 @@ void SampleEditor::on_ApplyChangesPushButton_clicked()
 {
 	setAllSampleProps();	
 	m_pSample->sampleEditProzess( m_pSample );
+	m_pSampleEditorStatus = true;
 }
 
 
@@ -135,12 +154,14 @@ void SampleEditor::setSampleName( QString name )
 
 void SampleEditor::setAllSampleProps()
 {
-	m_pSample->set_sample_is_modified( m_sample_is_modified );
-	m_pSample->set_sample_mode( m_sample_mode );
-	m_pSample->set_start_frame( m_start_frame );
-	m_pSample->set_loop_frame( m_loop_frame );
-	m_pSample->set_repeats( m_repeats );
-	m_pSample->set_end_frame( m_end_frame );
-	m_pSample->set_fade_out_startframe( m_fade_out_startframe );
-	m_pSample->set_fade_out_type( m_fade_out_type );
+	if ( !m_pSampleEditorStatus ){
+		m_pSample->set_sample_is_modified( m_sample_is_modified );
+		m_pSample->set_sample_mode( m_sample_mode );
+		m_pSample->set_start_frame( m_start_frame );
+		m_pSample->set_loop_frame( m_loop_frame );
+		m_pSample->set_repeats( m_repeats );
+		m_pSample->set_end_frame( m_end_frame );
+		m_pSample->set_fade_out_startframe( m_fade_out_startframe );
+		m_pSample->set_fade_out_type( m_fade_out_type );
+	}
 }

@@ -36,7 +36,9 @@
 
 
 class Button;
-//class SampleWaveDisplay;
+class 	MainSampleWaveDisplay;
+class	TargetWaveDisplay;
+class	DetailWaveDisplay;
 
 ///
 /// This dialog is used to preview audiofiles
@@ -83,6 +85,10 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		unsigned m_end_frame; 		///< sample end frame
 
 		void setAllSampleProps();
+
+	MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
+	TargetWaveDisplay *m_pTargetSampleView;
+	DetailWaveDisplay *m_pSampleAdjustView;
 		
 };
 
