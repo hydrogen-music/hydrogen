@@ -12,7 +12,7 @@
   <property name="windowTitle" >
    <string>Dialog</string>
   </property>
-  <widget class="QFrame" name="targetsampleview" >
+  <widget class="QFrame" name="targetSampleView" >
    <property name="geometry" >
     <rect>
      <x>10</x>
@@ -28,7 +28,7 @@
     <enum>QFrame::Raised</enum>
    </property>
   </widget>
-  <widget class="QPushButton" name="PlayButton" >
+  <widget class="QPushButton" name="PlayPushButton" >
    <property name="geometry" >
     <rect>
      <x>155</x>
@@ -259,7 +259,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="comboBox" >
+     <widget class="QComboBox" name="FadeOutTypeComboBox" >
       <property name="toolTip" >
        <string>fade-out type</string>
       </property>
@@ -271,11 +271,6 @@
       <item>
        <property name="text" >
         <string>log</string>
-       </property>
-      </item>
-      <item>
-       <property name="text" >
-        <string>rev log</string>
        </property>
       </item>
      </widget>
@@ -290,9 +285,9 @@
   <tabstop>LoopCountSpinBox</tabstop>
   <tabstop>EndFrameSpinBox</tabstop>
   <tabstop>FadeOutFrameSpinBox</tabstop>
-  <tabstop>comboBox</tabstop>
+  <tabstop>FadeOutTypeComboBox</tabstop>
   <tabstop>ApplyChangesPushButton</tabstop>
-  <tabstop>PlayButton</tabstop>
+  <tabstop>PlayPushButton</tabstop>
   <tabstop>RestoreSamplePushButton</tabstop>
   <tabstop>ClosePushButton</tabstop>
  </tabstops>

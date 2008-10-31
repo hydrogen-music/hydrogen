@@ -46,7 +46,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Song.h>
+//#include <hydrogen/sample.h>
 
 #include <QtGui>
 
@@ -321,7 +321,7 @@ void HydrogenApp::showPlaylistDialog()
 
 
 
-void HydrogenApp::showSampleEditor( QString name )
+void HydrogenApp::showSampleEditor( QString name, Sample* Sample )
 {
 	if ( m_pSampleEditor ){
 		if ( m_pSampleEditor->m_pSampleEditorStatus == false ){
@@ -339,7 +339,7 @@ void HydrogenApp::showSampleEditor( QString name )
 		}
 	}
 	
-	m_pSampleEditor = new SampleEditor( 0 );
+	m_pSampleEditor = new SampleEditor( 0, Sample );
 	m_pSampleEditor->show();
 	m_pSampleEditor->setSampleName( name );
 }

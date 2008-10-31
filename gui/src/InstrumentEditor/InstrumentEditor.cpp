@@ -490,8 +490,9 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
-				QString name = pLayer->get_sample()->get_filename();
-				HydrogenApp::getInstance()->showSampleEditor( name );
+				Sample* pSample = pLayer->get_sample();
+				QString name = pSample->get_filename();
+				HydrogenApp::getInstance()->showSampleEditor( name, pSample );
 			}
 		}
 		

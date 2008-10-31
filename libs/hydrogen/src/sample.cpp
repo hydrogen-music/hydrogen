@@ -40,12 +40,14 @@ Sample::Sample( unsigned frames,
 		const QString& filename, 
 		float* data_l,
 		float* data_r,
+		bool sample_is_modified,
 		const QString& sample_mode,
-		unsigned fade_out_startframe,
-		int repeats,
 		unsigned start_frame,
 		unsigned loop_frame,
-		unsigned end_frame  )
+		int repeats,
+		unsigned end_frame,
+		unsigned fade_out_startframe,
+		int fade_out_type  )
 
 		: Object( "Sample" )
 		, __data_l( data_l )
@@ -53,12 +55,14 @@ Sample::Sample( unsigned frames,
 		, __sample_rate( 44100 )
 		, __filename( filename )
 		, __n_frames( frames )
+		, __sample_is_modified( sample_is_modified )
 		, __sample_mode( sample_mode )
-		, __fade_out_startframe( fade_out_startframe )
-		, __repeats( repeats )
 		, __start_frame( start_frame )
 		, __loop_frame( loop_frame )
-		, __end_frame( end_frame ) 
+		, __repeats( repeats )
+		, __end_frame( end_frame )
+		, __fade_out_startframe( fade_out_startframe )
+		, __fade_out_type( fade_out_type )
 {
 		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
 }
@@ -143,11 +147,15 @@ Sample* Sample::load_wave( const QString& filename )
 	pSample->__data_l = data_l;
 	pSample->__data_r = data_r;
 	pSample->__sample_rate = soundInfo.samplerate;
+//	pSample->reverse_sample( pSample ); // test reverse
 	return pSample;
 }
 
+/// sample_editor functions process
+/// also prozess must run if a song will load
 
-void Sample::reverse_sample( Sample* Sample )
+//simple reverse example 
+void Sample::sampleEditProzess( Sample* Sample )
 {
 	float *data_l = new float[ Sample->get_n_frames() ];
 	float *data_r = new float[ Sample->get_n_frames() ];

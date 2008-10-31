@@ -38,7 +38,7 @@
 using namespace H2Core;
 using namespace std;
 
-SampleEditor::SampleEditor ( QWidget* pParent )
+SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
 {
@@ -47,8 +47,36 @@ SampleEditor::SampleEditor ( QWidget* pParent )
 	setWindowTitle ( trUtf8 ( "SampleEditor" ) );
 	setFixedSize ( width(), height() );
 	installEventFilter( this );
-	m_pSampleEditorStatus = false; //set true if sample changes are save
+	m_pSampleEditorStatus = true; //set true if sample changes are save
+	m_pSample = Sample;
+
+//get all sample modificationen 
+	m_sample_is_modified = m_pSample->get_sample_is_modified();
+	m_sample_mode = m_pSample->get_sample_mode();
+	m_start_frame = m_pSample->get_start_frame();
+	m_loop_frame = m_pSample->get_loop_frame();
+	m_repeats = m_pSample->get_repeats();
+	m_end_frame = m_pSample->get_end_frame();
+	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
+	m_fade_out_type = m_pSample->get_fade_out_type();
+
+// mainSampleview = 624 x 265
+// mainSampleAdjustView = 180 x 265
+// targetSampleView = 451 x 91
+// StartFrameSpinBox
+// LoopFrameSpinBox
+// ProcessingTypeComboBox :forward, reverse, pingpong
+// LoopCountSpinBox
+// EndFrameSpinBox
+// FadeOutFrameSpinBox
+// FadeOutTypeComboBox: lin, log
+// ApplyChangesPushButton
+// PlayPushButton
+// RestoreSamplePushButton
+// ClosePushButton
+
 }
+
 
 
 SampleEditor::~SampleEditor()
@@ -57,14 +85,40 @@ SampleEditor::~SampleEditor()
 }
 
 
+
+void SampleEditor::on_ClosePushButton_clicked()
+{
+	if ( !m_pSampleEditorStatus ){
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		if ( err == 0 ){
+			m_pSampleEditorStatus = true;
+			accept();	
+		}else
+		{
+			return;
+		}
+	}
+	accept();
+}
+
+
+
+void SampleEditor::on_ApplyChangesPushButton_clicked()
+{
+	setAllSampleProps();	
+	m_pSample->sampleEditProzess( m_pSample );
+}
+
+
+
 bool SampleEditor::getCloseQuestion()
 {
 	bool close = false;
 	int err = QMessageBox::information( this, "Hydrogen", tr( "Close dialog! maybe there is some unsaved work on sample.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 	if ( err == 0 ) close = true;
 	return close;
-
 }
+
 
 
 void SampleEditor::setSampleName( QString name )
@@ -79,3 +133,14 @@ void SampleEditor::setSampleName( QString name )
 
 
 
+void SampleEditor::setAllSampleProps()
+{
+	m_pSample->set_sample_is_modified( m_sample_is_modified );
+	m_pSample->set_sample_mode( m_sample_mode );
+	m_pSample->set_start_frame( m_start_frame );
+	m_pSample->set_loop_frame( m_loop_frame );
+	m_pSample->set_repeats( m_repeats );
+	m_pSample->set_end_frame( m_end_frame );
+	m_pSample->set_fade_out_startframe( m_fade_out_startframe );
+	m_pSample->set_fade_out_type( m_fade_out_type );
+}

@@ -41,12 +41,14 @@ public:
 		const QString& filename, 
 		float* data_L = NULL,
 		float* data_R = NULL,
+		bool sample_is_modified = false,
 		const QString& sample_mode = "normal",
-		unsigned fade_out_startframe = -1,
-		int repeats = -1,
 		unsigned start_frame = -1,
 		unsigned loop_frame = -1,
-		unsigned end_frame = -1);
+		int repeats = -1,
+		unsigned end_frame = -1,
+		unsigned fade_out_startframe = -1,
+		int fade_out_type = -1);
 		
 
 	~Sample();
@@ -79,7 +81,66 @@ public:
 		return __n_frames;
 	}
 
-	void reverse_sample( Sample* Sample );
+	///beginn of sample edit 
+
+	void set_sample_is_modified( bool is_modified ) {
+		__sample_is_modified = is_modified;
+	}
+	bool get_sample_is_modified() const {
+		return __sample_is_modified;
+	}
+
+	void set_sample_mode( QString sample_mode ) {
+		__sample_mode = sample_mode;
+	}
+	QString get_sample_mode() const {
+		return __sample_mode;
+	}
+
+	void set_start_frame( unsigned start_frame ) {
+		__start_frame = start_frame;
+	}
+	unsigned get_start_frame() const {
+		return __start_frame;
+	}
+
+	void set_loop_frame( unsigned loop_frame ) {
+		 __loop_frame = loop_frame;
+	}
+	unsigned get_loop_frame() const {
+		return __loop_frame;
+	}
+
+	void set_repeats( int repeats ) {
+		__repeats = repeats;
+	}
+	int get_repeats() const {
+		return __repeats;
+	}
+
+	void set_end_frame( unsigned end_frame ) {
+		__end_frame = end_frame;
+	}
+	unsigned get_end_frame() const {
+		return __end_frame;
+	}
+
+	void set_fade_out_startframe( unsigned fade_out_startframe ) {
+		__fade_out_startframe = fade_out_startframe;
+	}
+	unsigned get_fade_out_startframe() const {
+		return __fade_out_startframe;
+	}
+
+	void set_fade_out_type( int fade_out_type ) {
+		__fade_out_type = fade_out_type;
+	}
+	int get_fade_out_type() const {
+		return __fade_out_type;
+	}
+
+
+	void sampleEditProzess( Sample* Sample );
 
 private:
 	float *__data_l;	///< Left channel data
@@ -88,12 +149,14 @@ private:
 	unsigned __sample_rate;		///< samplerate for this sample
 	QString __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
+	bool __sample_is_modified;	///< true if sample is modified
 	QString __sample_mode;		///< loop mode
-	unsigned __fade_out_startframe;	///< start frame for fade out
-	int __repeats;			///< repats from the loop section
 	unsigned __start_frame;		///< start frame
 	unsigned __loop_frame;		///< beginn of the loop section
+	int __repeats;			///< repeats from the loop section
 	unsigned __end_frame; 		///< sample end frame
+	unsigned __fade_out_startframe;	///< start frame for fade out
+	int __fade_out_type;		///< fade out type 1=lin, 2=log
 
 	//static int __total_used_bytes;
 
