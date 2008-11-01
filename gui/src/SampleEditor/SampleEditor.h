@@ -88,6 +88,9 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	unsigned m_end_frame; 		///< sample end frame
 
 	double m_divider;
+	bool m_ponewayStart;
+	bool m_ponewayLoop;
+	bool m_ponewayEnd;
 
 	void setAllSampleProps();
 	virtual void mouseReleaseEvent(QMouseEvent *ev);

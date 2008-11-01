@@ -64,6 +64,10 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
 	m_fade_out_type = m_pSample->get_fade_out_type();
 
+	m_ponewayStart = false;
+	m_ponewayLoop = false;
+	m_ponewayEnd = false;
+
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 // wavedisplays
 	m_divider = m_pSample->get_n_frames() / 574.0F;
@@ -82,9 +86,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	QApplication::restoreOverrideCursor();
 
 	unsigned slframes = m_pSample->get_n_frames();
-	StartFrameSpinBox->setMaximum( slframes );
-	LoopCountSpinBox->setMaximum( slframes );
-	EndFrameSpinBox->setMaximum( slframes );
+	StartFrameSpinBox->setRange(0, slframes );
+	LoopFrameSpinBox->setRange(0, slframes );
+	EndFrameSpinBox->setRange(0, slframes );
 	if ( !m_pSample->get_sample_is_modified() ){
 		EndFrameSpinBox->setValue( slframes ); 
 	}else
@@ -198,15 +202,22 @@ void SampleEditor::returnAllMainWaveDisplayValues()
 
 	StartFrameSpinBox->setValue( m_start_frame );
 	LoopFrameSpinBox->setValue( m_loop_frame );
-	EndFrameSpinBox->setValue( m_end_frame );	
+	EndFrameSpinBox->setValue( m_end_frame );
+	m_ponewayStart = true;	
+	m_ponewayLoop = true;
+	m_ponewayEnd = true;
 }
 
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
-
-	m_pMainSampleWaveDisplay->m_pStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
-	m_pMainSampleWaveDisplay->updateDisplayPointer();
+	if ( !m_ponewayStart ){
+		m_pMainSampleWaveDisplay->m_pStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->updateDisplayPointer();		
+	}else
+	{
+		m_ponewayStart = false;
+	}
 	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
 }
 
@@ -214,16 +225,23 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 
 void SampleEditor::valueChangedLoopFrameSpinBox( int )
 {
-
-	m_pMainSampleWaveDisplay->m_pLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
-	m_pMainSampleWaveDisplay->updateDisplayPointer();
+	if ( !m_ponewayLoop ){
+		m_pMainSampleWaveDisplay->m_pLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->updateDisplayPointer();
+	}else
+	{
+		m_ponewayLoop = false;
+	}
 }
-
 
 
 void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
-
-	m_pMainSampleWaveDisplay->m_pEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
-	m_pMainSampleWaveDisplay->updateDisplayPointer();
+	if ( !m_ponewayEnd ){
+		m_pMainSampleWaveDisplay->m_pEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->updateDisplayPointer();
+	}else
+	{
+		m_ponewayEnd = false;
+	}
 }
