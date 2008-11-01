@@ -24,6 +24,8 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/instrument.h>
+#include "HydrogenApp.h"
+#include "SampleEditor.h"
 using namespace H2Core;
 
 #include "MainSampleWaveDisplay.h"
@@ -115,6 +117,13 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
+void MainSampleWaveDisplay::updateDisplayPointer()
+{
+	update();
+}
+
+
+
 void MainSampleWaveDisplay::updateDisplay( QString filename )
 {
 
@@ -163,7 +172,6 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 			m_pPeakDatar[ i ] = nValr;
 		}
 	}
-ERRORLOG( "jhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" );
 	delete pNewSample;
 	update();
 
@@ -172,58 +180,64 @@ ERRORLOG( "jhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-//startframe pointer
-	if  ( ev->y() >= 230 ) {
-		m_pStartFramePosition = ev->x() ;
-		if ( m_pStartFramePosition > m_pLoopFramePosition ) m_pLoopFramePosition = m_pStartFramePosition;
-		update();
-	}
-//loopframeposition
-	else if  ( ev->y() <= 40 ) {
-		m_pLoopFramePosition = ev->x() ;
-		if ( m_pLoopFramePosition < m_pStartFramePosition ) m_pStartFramePosition = m_pLoopFramePosition;
-		update();
-	}
-//endframeposition
-	else if  ( ev->y() >= 90 && ev->y() <= 150  ) {
-		m_pEndFramePosition = ev->x() ;
-		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
-			m_pLoopFramePosition = m_pEndFramePosition;
-		}
-		update();
-	}
+	testPosition( ev );
+	update();
 }
 
 
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
+	testPosition( ev );
+	update();
+}
+
+
+void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
+{
 //startframepointer
 	if  (ev->y()>=240 ) {
 		m_pStartFramePosition = ev->x() ;
-		if ( m_pStartFramePosition > m_pLoopFramePosition ) m_pLoopFramePosition = m_pStartFramePosition;
-		update();
+		if ( m_pStartFramePosition > m_pLoopFramePosition ) 
+			m_pLoopFramePosition = m_pStartFramePosition;
+		if ( m_pStartFramePosition > m_pEndFramePosition ){
+			m_pEndFramePosition = m_pStartFramePosition;
+		}
+//		update();
 	}
 
 //loopframeposition
 	else if  (ev->y()<=40 ) {
 		m_pLoopFramePosition = ev->x() ;
-		if ( m_pLoopFramePosition < m_pStartFramePosition ) m_pStartFramePosition = m_pLoopFramePosition;
-		update();
+		if ( m_pLoopFramePosition < m_pStartFramePosition ) 
+			m_pStartFramePosition = m_pLoopFramePosition;
+//		update();
 	}
 //endframeposition
-	else if  ( ev->y() >= 90 && ev->y() <= 150  ) {
+	else if  ( ev->y() >= 90 && ev->y() <= 160  ) {
 		m_pEndFramePosition = ev->x() ;
 		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
 			m_pLoopFramePosition = m_pEndFramePosition;
 		}
-		update();
+		if ( m_pEndFramePosition <  m_pStartFramePosition ){
+			m_pStartFramePosition = m_pEndFramePosition;
+		}
+//		update();
 	}
+
+	if ( ( m_pStartFramePosition ) >= width() -25 ) m_pStartFramePosition =width() -25;
+	if ( ( m_pLoopFramePosition ) >= width() -25 ) m_pLoopFramePosition =width() -25;
+	if ( ( m_pEndFramePosition ) >= width() -25 ) m_pEndFramePosition =width() -25;
+	if ( ( m_pStartFramePosition ) <= 25 ) m_pStartFramePosition = 25;
+	if ( ( m_pLoopFramePosition ) <= 25 ) m_pLoopFramePosition = 25;
+	if ( ( m_pEndFramePosition ) <= 25 ) m_pEndFramePosition = 25;
 }
 
 
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	update();
+	HydrogenApp::getInstance()->getSampleEditor()->returnAllMainWaveDisplayValues();
 }
 
 

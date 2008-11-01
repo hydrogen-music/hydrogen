@@ -64,7 +64,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
 	m_fade_out_type = m_pSample->get_fade_out_type();
 
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 // wavedisplays
+	m_divider = m_pSample->get_n_frames() / 574.0F;
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pMainSampleWaveDisplay->updateDisplay( Sample->get_filename() );
 	m_pMainSampleWaveDisplay->move( 1, 3 );
@@ -77,8 +79,20 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 //	m_pSampleAdjustView->updateDisplay( Sample->get_filename() );
 //	m_pSampleAdjustView->move( 1, 1 );
 
+	QApplication::restoreOverrideCursor();
 
-// mainSampleview = 624 x 265
+	unsigned slframes = m_pSample->get_n_frames();
+	StartFrameSpinBox->setMaximum( slframes );
+	LoopCountSpinBox->setMaximum( slframes );
+	EndFrameSpinBox->setMaximum( slframes );
+	if ( !m_pSample->get_sample_is_modified() ){
+		EndFrameSpinBox->setValue( slframes ); 
+	}else
+	{
+		EndFrameSpinBox->setValue( m_end_frame );
+	}
+
+// mainSampleview = 624(575) x 265 
 // mainSampleAdjustView = 180 x 265
 // targetSampleView = 451 x 91
 // StartFrameSpinBox
@@ -92,7 +106,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 // PlayPushButton
 // RestoreSamplePushButton
 // ClosePushButton
-
+	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
+	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
+	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
 }
 
 
@@ -164,4 +180,50 @@ void SampleEditor::setAllSampleProps()
 		m_pSample->set_fade_out_startframe( m_fade_out_startframe );
 		m_pSample->set_fade_out_type( m_fade_out_type );
 	}
+}
+
+
+void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
+{
+
+}
+
+void SampleEditor::returnAllMainWaveDisplayValues()
+{
+//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_n_frames()));
+	m_sample_is_modified = true;
+	m_start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
+	m_loop_frame = m_pMainSampleWaveDisplay->m_pLoopFramePosition  * m_divider - 25 * m_divider;
+	m_end_frame = m_pMainSampleWaveDisplay->m_pEndFramePosition  * m_divider - 25 * m_divider ;
+
+	StartFrameSpinBox->setValue( m_start_frame );
+	LoopFrameSpinBox->setValue( m_loop_frame );
+	EndFrameSpinBox->setValue( m_end_frame );	
+}
+
+
+void SampleEditor::valueChangedStartFrameSpinBox( int )
+{
+
+	m_pMainSampleWaveDisplay->m_pStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
+	m_pMainSampleWaveDisplay->updateDisplayPointer();
+	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
+}
+
+
+
+void SampleEditor::valueChangedLoopFrameSpinBox( int )
+{
+
+	m_pMainSampleWaveDisplay->m_pLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
+	m_pMainSampleWaveDisplay->updateDisplayPointer();
+}
+
+
+
+void SampleEditor::valueChangedEndFrameSpinBox( int )
+{
+
+	m_pMainSampleWaveDisplay->m_pEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
+	m_pMainSampleWaveDisplay->updateDisplayPointer();
 }

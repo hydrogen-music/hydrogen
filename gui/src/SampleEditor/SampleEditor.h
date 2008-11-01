@@ -55,13 +55,16 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void setSampleName( QString name);
 		bool getCloseQuestion();
 		bool m_pSampleEditorStatus;
+		void returnAllMainWaveDisplayValues();
 
 
 
 	private slots:
 		void on_ClosePushButton_clicked();
 		void on_ApplyChangesPushButton_clicked();
-
+		void valueChangedStartFrameSpinBox( int );
+		void valueChangedLoopFrameSpinBox( int );
+		void valueChangedEndFrameSpinBox( int );
 
 	private:
 /*
@@ -72,19 +75,22 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	unsigned __loop_frame;		///< beginn of the loop section
 	unsigned __end_frame; 		///< sample end frame
 */		
-		QString m_samplename;
-		H2Core::Sample* m_pSample;
+	QString m_samplename;
+	H2Core::Sample* m_pSample;
 
-		bool m_sample_is_modified;	///< true if sample is modified
-		QString m_sample_mode;		///< loop mode
-		unsigned m_fade_out_startframe;	///< start frame for fade out
-		int m_fade_out_type;		///< fade out type 1=lin, 2=log
-		int m_repeats;			///< repats from the loop section
-		unsigned m_start_frame;		///< start frame
-		unsigned m_loop_frame;		///< beginn of the loop section
-		unsigned m_end_frame; 		///< sample end frame
+	bool m_sample_is_modified;	///< true if sample is modified
+	QString m_sample_mode;		///< loop mode
+	unsigned m_fade_out_startframe;	///< start frame for fade out
+	int m_fade_out_type;		///< fade out type 1=lin, 2=log
+	int m_repeats;			///< repats from the loop section
+	unsigned m_start_frame;		///< start frame
+	unsigned m_loop_frame;		///< beginn of the loop section
+	unsigned m_end_frame; 		///< sample end frame
 
-		void setAllSampleProps();
+	double m_divider;
+
+	void setAllSampleProps();
+	virtual void mouseReleaseEvent(QMouseEvent *ev);
 
 	MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 	TargetWaveDisplay *m_pTargetSampleView;

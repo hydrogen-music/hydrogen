@@ -25,8 +25,8 @@
 
 #include <QtGui>
 #include <hydrogen/Object.h>
-
-
+#include "SampleEditor.h"
+class SampleEditor;
 
 class MainSampleWaveDisplay : public QWidget, public Object
 {
@@ -37,12 +37,14 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		~MainSampleWaveDisplay();
 
 		void updateDisplay( QString filename );
+		void updateDisplayPointer();
 
 		void paintEvent(QPaintEvent *ev);
 		int m_pStartFramePosition;
 		int m_pLoopFramePosition;
 		int m_pEndFramePosition;
 		bool m_pmove;
+
 
 	private:
 		QPixmap m_background;
@@ -51,7 +53,7 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-
+		void testPosition( QMouseEvent *ev );
 };
 
 
