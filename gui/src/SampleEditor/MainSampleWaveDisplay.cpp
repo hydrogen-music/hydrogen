@@ -73,19 +73,25 @@ MainSampleWaveDisplay::~MainSampleWaveDisplay()
 void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::Antialiasing );
+	painter.setRenderHint( QPainter::HighQualityAntialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
 	painter.setPen( QColor( 230, 230, 230 ) );
 	int VCenterl = height() / 4;
 	int VCenterr = height() / 4 + height() / 2;
+	bool issmaller = false;
+	if ( width() >= m_pSampleLenght  ) issmaller = true;
 
 	for ( int x = 25; x < width() -25; x++ ) {
-		painter.drawLine( x, VCenterl, x, m_pPeakDatal[x] + VCenterl );
-		painter.drawLine( x, VCenterl, x, -m_pPeakDatal[x] + VCenterl );
-		painter.drawLine( x, VCenterr, x, m_pPeakDatar[x] + VCenterr );
-		painter.drawLine( x, VCenterr, x, -m_pPeakDatar[x] + VCenterr );
-		
+		if ( !issmaller || x <= m_pSampleLenght){ 
+			painter.drawLine( x, -m_pPeakDatal[x -25] +VCenterl, x, -m_pPeakDatal[x -24] +VCenterl  );
+			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatal[x -24] +VCenterr  );	
+		}else
+		{
+			painter.drawLine( x, 0 +VCenterl, x, 0 +VCenterl  );
+			painter.drawLine( x, 0 +VCenterr, x, 0 +VCenterr  );
+		}
+	
 	}
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
@@ -132,7 +138,11 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 	if ( pNewSample ) {
 
 		int nSampleLenght = pNewSample->get_n_frames();
-		float nScaleFactor = nSampleLenght / width();
+		m_pSampleLenght = nSampleLenght;
+		float nScaleFactor = nSampleLenght / (width() -50);
+		if ( nScaleFactor < 1 ){ 
+			nScaleFactor = 1;
+		}
 
 		float fGain = height() / 4.0 * 1.0;
 
@@ -141,13 +151,10 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 		int nSamplePos =0;
 		int nVall;
 		for ( int i = 0; i < width(); ++i ){
-			nVall = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
 					int newVall = (int)( pSampleDatal[ nSamplePos ] * fGain );
-					if ( newVall > nVall ) {
-						nVall = newVall;
-					}
+					nVall = newVall;
 				}
 				++nSamplePos;
 			}
@@ -159,13 +166,10 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 		nSamplePos = 0;
 		int nValr;
 		for ( int i = 0; i < width(); ++i ){
-			nValr = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
 					int newValr = (int)( pSampleDatar[ nSamplePos ] * fGain );
-					if ( newValr > nValr ) {
-						nValr = newValr;
-					}
+					nValr = newValr;
 				}
 				++nSamplePos;
 			}
@@ -239,8 +243,6 @@ void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 	update();
 	HydrogenApp::getInstance()->getSampleEditor()->returnAllMainWaveDisplayValues();
 }
-
-
 
 
 

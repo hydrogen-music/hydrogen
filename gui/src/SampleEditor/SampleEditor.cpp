@@ -67,25 +67,31 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	m_ponewayStart = false;
 	m_ponewayLoop = false;
 	m_ponewayEnd = false;
+	unsigned slframes = m_pSample->get_n_frames();
+	m_pzoomfactor = 1;
+	m_pdetailframe = 0;
+	m_plineColor = "default";
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 // wavedisplays
 	m_divider = m_pSample->get_n_frames() / 574.0F;
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pMainSampleWaveDisplay->updateDisplay( Sample->get_filename() );
-	m_pMainSampleWaveDisplay->move( 1, 3 );
+	m_pMainSampleWaveDisplay->move( 1, 1 );
 
-//	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
-//	m_pTargetSampleView->updateDisplay( Sample->get_filename() );
-//	m_pTargetSampleView->move( 1, 1 );
+	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
+	m_pSampleAdjustView->updateDisplay( Sample->get_filename() );
+	m_pSampleAdjustView->move( 1, 1 );
 
-//	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
-//	m_pSampleAdjustView->updateDisplay( Sample->get_filename() );
-//	m_pSampleAdjustView->move( 1, 1 );
+	float *pSampleData = Sample->get_data_l();
+	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
+	m_pTargetSampleView->updateDisplay( pSampleData, slframes );
+	m_pTargetSampleView->move( 1, 1 );
+
 
 	QApplication::restoreOverrideCursor();
 
-	unsigned slframes = m_pSample->get_n_frames();
+
 	StartFrameSpinBox->setRange(0, slframes );
 	LoopFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setRange(0, slframes );
@@ -96,20 +102,22 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 		EndFrameSpinBox->setValue( m_end_frame );
 	}
 
-// mainSampleview = 624(575) x 265 
-// mainSampleAdjustView = 180 x 265
-// targetSampleView = 451 x 91
-// StartFrameSpinBox
-// LoopFrameSpinBox
-// ProcessingTypeComboBox :forward, reverse, pingpong
-// LoopCountSpinBox
-// EndFrameSpinBox
-// FadeOutFrameSpinBox
-// FadeOutTypeComboBox: lin, log
-// ApplyChangesPushButton
-// PlayPushButton
-// RestoreSamplePushButton
-// ClosePushButton
+// mainSampleview = 624(575) x 265 :-)
+// mainSampleAdjustView = 180 x 265 :-(
+// targetSampleView = 451 x 91 :-(
+// StartFrameSpinBox :-)
+// LoopFrameSpinBox :-)
+// ProcessingTypeComboBox :forward, reverse, pingpong :-(
+// LoopCountSpinBox :-(
+// EndFrameSpinBox :-)
+// FadeOutFrameSpinBox :-(
+// FadeOutTypeComboBox: lin, log :-(
+// ApplyChangesPushButton :-()
+// PlayPushButton :-(
+// RestoreSamplePushButton :-(
+// ClosePushButton :-()
+// verticalzoomSlider
+
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
 	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
@@ -119,6 +127,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 
 SampleEditor::~SampleEditor()
 {
+	delete m_pMainSampleWaveDisplay;
+	delete m_pSampleAdjustView;
+	delete m_pTargetSampleView;
 	INFOLOG ( "DESTROY" );
 }
 
@@ -146,6 +157,7 @@ void SampleEditor::on_ApplyChangesPushButton_clicked()
 	setAllSampleProps();	
 	m_pSample->sampleEditProzess( m_pSample );
 	m_pSampleEditorStatus = true;
+	m_pTargetSampleView->reloadDisplay();
 }
 
 
@@ -211,11 +223,16 @@ void SampleEditor::returnAllMainWaveDisplayValues()
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
+	m_pdetailframe = StartFrameSpinBox->value();
+	m_plineColor = "Start";
 	if ( !m_ponewayStart ){
 		m_pMainSampleWaveDisplay->m_pStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
-		m_pMainSampleWaveDisplay->updateDisplayPointer();		
+		m_pMainSampleWaveDisplay->updateDisplayPointer();
+		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
+				
 	}else
 	{
+		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 		m_ponewayStart = false;
 	}
 	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
@@ -224,12 +241,16 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 
 
 void SampleEditor::valueChangedLoopFrameSpinBox( int )
-{
+{	
+	m_pdetailframe = LoopFrameSpinBox->value();
+	m_plineColor = "Loop";
 	if ( !m_ponewayLoop ){
 		m_pMainSampleWaveDisplay->m_pLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
+		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 	}else
 	{
+		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 		m_ponewayLoop = false;
 	}
 }
@@ -237,11 +258,22 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 
 void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
+	m_pdetailframe = EndFrameSpinBox->value();
+	m_plineColor = "End";
 	if ( !m_ponewayEnd ){
 		m_pMainSampleWaveDisplay->m_pEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
+		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 	}else
 	{
 		m_ponewayEnd = false;
+		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 	}
+}
+
+
+void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
+{
+	m_pzoomfactor = value / 10 +1;
+	m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor, m_plineColor );
 }

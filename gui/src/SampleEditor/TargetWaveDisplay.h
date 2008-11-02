@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <hydrogen/Object.h>
+#include <hydrogen/sample.h>
 
 namespace H2Core
 {
@@ -39,14 +40,18 @@ class TargetWaveDisplay : public QWidget, public Object
 		TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
-		void updateDisplay( H2Core::InstrumentLayer *pLayer );
+		void updateDisplay( float *sampleData, unsigned nSampleLenght );
 
 		void paintEvent(QPaintEvent *ev);
+		void reloadDisplay();
 
 	private:
 		QPixmap m_background;
 		QString m_sSampleName;
 		int *m_pPeakData;
+		float *m_psampleData; 
+		unsigned m_pSampleLenght;
+		
 };
 
 

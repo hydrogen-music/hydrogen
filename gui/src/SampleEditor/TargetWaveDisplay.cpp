@@ -38,11 +38,11 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 277;
-	int h = 58;
+	int w = 451;
+	int h = 91;
 	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/background.png" );
+	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/targetsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
@@ -72,8 +72,7 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.setPen( QColor( 102, 150, 205 ) );
 	int VCenter = height() / 2;
 	for ( int x = 0; x < width(); x++ ) {
-		painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-		painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+		painter.drawLine( x, -m_pPeakData[x] +VCenter, x, -m_pPeakData[x +1] +VCenter  );
 	}
 
 	QFont font;
@@ -85,46 +84,62 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+
+void TargetWaveDisplay::updateDisplay( float *pSampleData, unsigned nSampleLenght )
 {
-	if ( pLayer && pLayer->get_sample() ) {
-		// Extract the filename from the complete path
-		QString sName = pLayer->get_sample()->get_filename();
-		int nPos = sName.lastIndexOf( "/" );
-		m_sSampleName = sName.mid( nPos + 1, sName.length() );
 
-//		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
-		int nSampleLenght = pLayer->get_sample()->get_n_frames();
-		float nScaleFactor = nSampleLenght / width();
 
-		float fGain = height() / 2.0 * pLayer->get_gain();
+	if ( pSampleData ) {
+		m_psampleData = pSampleData;
+		 m_pSampleLenght = nSampleLenght;
+	
+		float nScaleFactor = nSampleLenght / (width());
 
-		float *pSampleData = pLayer->get_sample()->get_data_l();
+
+		float fGain = height() / 2.0 * 1.0;
 
 		int nSamplePos =0;
 		int nVal;
 		for ( int i = 0; i < width(); ++i ){
-			nVal = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
 					int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
-					if ( newVal > nVal ) {
-						nVal = newVal;
-					}
+					nVal = newVal;
 				}
 				++nSamplePos;
 			}
 			m_pPeakData[ i ] = nVal;
 		}
-	}
-	else {
-		m_sSampleName = "-";
-		for ( int i =0; i < width(); ++i ){
-			m_pPeakData[ i ] = 0;
-		}
+
 	}
 
 	update();
+
 }
 
+void TargetWaveDisplay::reloadDisplay()
+{
+
+	float nScaleFactor = m_pSampleLenght / (width());
+
+
+	float fGain = height() / 2.0 * 1.0;
+
+	int nSamplePos =0;
+	int nVal;
+	for ( int i = 0; i < width(); ++i ){
+		for ( int j = 0; j < nScaleFactor; ++j ) {
+			if ( j < m_pSampleLenght ) {
+				int newVal = (int)( m_psampleData[ nSamplePos ] * fGain );
+				nVal = newVal;
+			}
+			++nSamplePos;
+		}
+		m_pPeakData[ i ] = nVal;
+	}
+
+
+	update();
+
+}

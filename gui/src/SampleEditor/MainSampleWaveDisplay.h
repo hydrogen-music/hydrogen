@@ -54,6 +54,7 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
+		int m_pSampleLenght;
 };
 
 

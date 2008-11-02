@@ -30,7 +30,7 @@ using namespace H2Core;
 #include "../Skin.h"
 
 
-DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent)
+DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
  , Object( "DetailWaveDisplay" )
  , m_sSampleName( "" )
@@ -38,16 +38,18 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent)
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 277;
-	int h = 58;
+	int w = 180;
+	int h = 265;
 	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/background.png" );
+	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/detailsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakData = new int[ w ];
+	m_pnormalimagedetailframes = 180;	
+	m_pDetailSamplePosition = 0;
+	m_pzoomFactor = 1;
 
 }
 
@@ -57,74 +59,104 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent)
 DetailWaveDisplay::~DetailWaveDisplay()
 {
 	//INFOLOG( "DESTROY" );
-
-	delete[] m_pPeakData;
+	delete[] m_pPeakDatal;
+	delete[] m_pPeakDatar;
 }
 
 
+void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor, QString type)
+{
+	m_pDetailSamplePosition = posi ;
+	m_pzoomFactor = zoomfactor;
+	m_ptype = type;
+	update();
+}
 
 void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::Antialiasing );
+	painter.setRenderHint( QPainter::HighQualityAntialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
-	painter.setPen( QColor( 102, 150, 205 ) );
-	int VCenter = height() / 2;
-	for ( int x = 0; x < width(); x++ ) {
-		painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-		painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+	painter.setPen( QColor( 230, 230, 230 ) );
+	int VCenterl = height() / 4;
+	int VCenterr = height() / 4 + height() / 2;
+
+//	int imagedetailframes = m_pnormalimagedetailframes / m_pzoomFactor;
+	int startpos = m_pDetailSamplePosition  - m_pnormalimagedetailframes / 2 ;
+//				0		- 	 -90	
+	for ( int x = 0; x < width() ; x++ ) {
+		if ( (startpos) > 0 ){
+			painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pzoomFactor) +VCenterl, x, (-m_pPeakDatal[startpos ] *m_pzoomFactor)+VCenterl );
+			painter.drawLine( x, (-m_pPeakDatar[startpos -1] *m_pzoomFactor) +VCenterr, x, (-m_pPeakDatar[startpos ] *m_pzoomFactor)+VCenterr );
+			//ERRORLOG( QString("startpos: %1").arg(startpos) );
+		}
+		else
+		{
+			painter.drawLine( x, 0 +VCenterl, x, 0+VCenterl );
+			painter.drawLine( x, 0 +VCenterr, x, 0+VCenterr );
+		}
+		startpos++;
+		
 	}
 
-	QFont font;
-	font.setWeight( 63 );
-	painter.setFont( font );
-	painter.setPen( QColor( 255 , 255, 255, 200 ) );
-	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
+
+	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
+	painter.drawLine( 0, VCenterl, width(),VCenterl );
+	painter.drawLine( 0, VCenterr, width(),VCenterr );
+	QColor _color;
+	if ( m_ptype == "Start" )
+		 _color = QColor( 32, 173, 0 );
+	else if ( m_ptype == "Loop" )
+		_color = QColor( 93, 170, 254 );
+	else if ( m_ptype == "End" )
+		_color = QColor( 217, 68, 0 );
+	else 
+		_color = QColor(  255, 255, 255 );
+
+	painter.setPen( QPen( _color, 1, Qt::SolidLine ) );
+	painter.drawLine( 90, 0, 90,265 );
 }
 
 
 
-void DetailWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void DetailWaveDisplay::updateDisplay( QString filename )
 {
-	if ( pLayer && pLayer->get_sample() ) {
-		// Extract the filename from the complete path
-		QString sName = pLayer->get_sample()->get_filename();
-		int nPos = sName.lastIndexOf( "/" );
-		m_sSampleName = sName.mid( nPos + 1, sName.length() );
 
-//		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
+	Sample *pNewSample = Sample::load( filename );
 
-		int nSampleLenght = pLayer->get_sample()->get_n_frames();
-		float nScaleFactor = nSampleLenght / width();
+	if ( pNewSample ) {
 
-		float fGain = height() / 2.0 * pLayer->get_gain();
+		int nSampleLenght = pNewSample->get_n_frames();
 
-		float *pSampleData = pLayer->get_sample()->get_data_l();
+		m_pPeakDatal = new int[ nSampleLenght ];
+		m_pPeakDatar = new int[ nSampleLenght ];
+
+		float fGain = height() / 4.0 * 1.0;
+
+		float *pSampleDatal = pNewSample->get_data_l();
 
 		int nSamplePos =0;
-		int nVal;
-		for ( int i = 0; i < width(); ++i ){
-			nVal = 0;
-			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLenght ) {
-					int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
-					if ( newVal > nVal ) {
-						nVal = newVal;
-					}
-				}
-				++nSamplePos;
-			}
-			m_pPeakData[ i ] = nVal;
+//		int nVall;
+		for ( int i = 0; i < nSampleLenght; i++ ){
+			m_pPeakDatal[ i ] = (int)( pSampleDatal[ i ] * fGain );
 		}
-	}
-	else {
-		m_sSampleName = "-";
-		for ( int i =0; i < width(); ++i ){
-			m_pPeakData[ i ] = 0;
-		}
-	}
 
-	update();
+		float *pSampleDatar = pNewSample->get_data_r();
+
+		nSamplePos = 0;
+//		int nValr;
+
+		for ( int i = 0; i < nSampleLenght; i++ ){
+			m_pPeakDatar[ i ] = (int)( pSampleDatar[ i ] * fGain );
+		}
+
+	}
+	delete pNewSample;
+//	update();
+
 }
+
+
+//ERRORLOG( QString("sampleval: %1").arg(pSampleDatal[ newVall ]) );
 

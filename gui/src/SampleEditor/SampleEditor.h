@@ -65,6 +65,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void valueChangedStartFrameSpinBox( int );
 		void valueChangedLoopFrameSpinBox( int );
 		void valueChangedEndFrameSpinBox( int );
+		void on_verticalzoomSlider_valueChanged ( int value );
 
 	private:
 /*
@@ -96,8 +97,11 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	virtual void mouseReleaseEvent(QMouseEvent *ev);
 
 	MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
-	TargetWaveDisplay *m_pTargetSampleView;
-	DetailWaveDisplay *m_pSampleAdjustView;
+	TargetWaveDisplay *m_pTargetSampleView; ///important this lecks memory and will removed
+	DetailWaveDisplay *m_pSampleAdjustView; 
+	QString m_plineColor;
+	float m_pzoomfactor;
+	unsigned m_pdetailframe;
 		
 };
 

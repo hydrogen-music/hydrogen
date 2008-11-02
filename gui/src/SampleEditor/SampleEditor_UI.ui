@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
-    <height>498</height>
+    <width>861</width>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <property name="geometry" >
     <rect>
      <x>10</x>
-     <y>395</y>
+     <y>385</y>
      <width>451</width>
      <height>91</height>
     </rect>
@@ -32,7 +32,7 @@
    <property name="geometry" >
     <rect>
      <x>155</x>
-     <y>360</y>
+     <y>350</y>
      <width>75</width>
      <height>26</height>
     </rect>
@@ -45,7 +45,7 @@
    <property name="geometry" >
     <rect>
      <x>255</x>
-     <y>360</y>
+     <y>350</y>
      <width>121</width>
      <height>26</height>
     </rect>
@@ -58,7 +58,7 @@
    <property name="geometry" >
     <rect>
      <x>10</x>
-     <y>360</y>
+     <y>350</y>
      <width>111</width>
      <height>26</height>
     </rect>
@@ -71,7 +71,7 @@
    <property name="geometry" >
     <rect>
      <x>740</x>
-     <y>460</y>
+     <y>450</y>
      <width>81</width>
      <height>26</height>
     </rect>
@@ -84,68 +84,8 @@
    <property name="geometry" >
     <rect>
      <x>5</x>
-     <y>15</y>
-     <width>816</width>
-     <height>296</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout" >
-    <item row="0" column="0" >
-     <layout class="QVBoxLayout" name="verticalLayout" >
-      <item>
-       <widget class="QFrame" name="mainSampleview" >
-        <property name="minimumSize" >
-         <size>
-          <width>624</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="frameShape" >
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow" >
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QScrollBar" name="mainSampleHScrollBar" >
-        <property name="orientation" >
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="0" column="1" >
-     <layout class="QVBoxLayout" name="verticalLayout_2" >
-      <item>
-       <widget class="QFrame" name="mainSampleAdjustView" >
-        <property name="frameShape" >
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow" >
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QScrollBar" name="mainSampleAdjustHScrollBar" >
-        <property name="orientation" >
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget" >
-   <property name="geometry" >
-    <rect>
-     <x>6</x>
-     <y>325</y>
-     <width>816</width>
+     <y>305</y>
+     <width>846</width>
      <height>24</height>
     </rect>
    </property>
@@ -273,6 +213,72 @@
         <string>log</string>
        </property>
       </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>7</x>
+     <y>18</y>
+     <width>843</width>
+     <height>276</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2" >
+    <item>
+     <widget class="QFrame" name="mainSampleview" >
+      <property name="minimumSize" >
+       <size>
+        <width>624</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="maximumSize" >
+       <size>
+        <width>624</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="frameShape" >
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow" >
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="mainSampleAdjustView" >
+      <property name="minimumSize" >
+       <size>
+        <width>180</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="maximumSize" >
+       <size>
+        <width>180</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="frameShape" >
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow" >
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSlider" name="verticalzoomSlider" >
+      <property name="value" >
+       <number>1</number>
+      </property>
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
      </widget>
     </item>
    </layout>

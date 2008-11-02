@@ -28,7 +28,7 @@
 
 namespace H2Core
 {
-	class InstrumentLayer;
+	class Sample;
 }
 
 class DetailWaveDisplay : public QWidget, public Object
@@ -39,14 +39,20 @@ class DetailWaveDisplay : public QWidget, public Object
 		DetailWaveDisplay(QWidget* pParent);
 		~DetailWaveDisplay();
 
-		void updateDisplay( H2Core::InstrumentLayer *pLayer );
+		void updateDisplay( QString filename );
 
 		void paintEvent(QPaintEvent *ev);
+		void setDetailSamplePosition( unsigned posi, float zoomfactor, QString type);
 
 	private:
 		QPixmap m_background;
 		QString m_sSampleName;
-		int *m_pPeakData;
+		int *m_pPeakDatal;
+		int *m_pPeakDatar;
+		int m_pDetailSamplePosition; 
+		int m_pnormalimagedetailframes;
+		float m_pzoomFactor;
+		QString m_ptype;
 };
 
 
