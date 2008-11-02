@@ -49,7 +49,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	Q_OBJECT
 	public:
 		
-		SampleEditor( QWidget* pParent, H2Core::Sample* Sample );
+		SampleEditor( QWidget* pParent, H2Core::Sample *Sample );
 		~SampleEditor();
 
 		void setSampleName( QString name);
@@ -66,6 +66,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void valueChangedLoopFrameSpinBox( int );
 		void valueChangedEndFrameSpinBox( int );
 		void on_verticalzoomSlider_valueChanged ( int value );
+		void on_PlayPushButton_clicked();
 
 	private:
 /*
@@ -77,7 +78,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	unsigned __end_frame; 		///< sample end frame
 */		
 	QString m_samplename;
-	H2Core::Sample* m_pSample;
+	H2Core::Sample *m_pSample;
 
 	bool m_sample_is_modified;	///< true if sample is modified
 	QString m_sample_mode;		///< loop mode

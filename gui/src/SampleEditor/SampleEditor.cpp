@@ -23,6 +23,7 @@
 #include "SampleEditor.h"
 #include "../HydrogenApp.h"
 #include "InstrumentEditor/InstrumentEditor.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "../widgets/Button.h"
 
 #include "MainSampleWaveDisplay.h"
@@ -34,6 +35,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/hydrogen.h>
 
 #include <QModelIndex>
 #include <QTreeWidget>
@@ -121,6 +123,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
 	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
+
 }
 
 
@@ -199,10 +202,13 @@ void SampleEditor::setAllSampleProps()
 }
 
 
+
 void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 {
 
 }
+
+
 
 void SampleEditor::returnAllMainWaveDisplayValues()
 {
@@ -219,6 +225,7 @@ void SampleEditor::returnAllMainWaveDisplayValues()
 	m_ponewayLoop = true;
 	m_ponewayEnd = true;
 }
+
 
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
@@ -256,6 +263,7 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 }
 
 
+
 void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
 	m_pdetailframe = EndFrameSpinBox->value();
@@ -272,8 +280,26 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 }
 
 
+
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_pzoomfactor = value / 10 +1;
 	m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor, m_plineColor );
+}
+
+
+
+void SampleEditor::on_PlayPushButton_clicked()
+{
+		const int selectedlayer = InstrumentEditorPanel::getInstance()->getselectedLayer();
+		const float pan_L = 0.5f;
+		const float pan_R = 0.5f;
+		const int nLength = -1;
+		const float fPitch = 0.0f;
+		Song *pSong = Hydrogen::get_instance()->getSong();
+		
+		Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+		
+		Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedlayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+		AudioEngine::get_instance()->get_sampler()->note_on(pNote);	
 }

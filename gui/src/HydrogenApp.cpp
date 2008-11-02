@@ -321,7 +321,7 @@ void HydrogenApp::showPlaylistDialog()
 
 
 
-void HydrogenApp::showSampleEditor( QString name, Sample* Sample )
+void HydrogenApp::showSampleEditor( QString name, Sample *Sample )
 {
 	if ( m_pSampleEditor ){
 		if ( m_pSampleEditor->m_pSampleEditorStatus == false ){

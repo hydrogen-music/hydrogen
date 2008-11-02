@@ -73,7 +73,7 @@ class HydrogenApp : public QObject, public Object
 		void showMixer(bool bShow);
 		void showAudioEngineInfoForm();
 		void showPlaylistDialog();
-		void showSampleEditor( QString name,  H2Core::Sample* Sample );
+		void showSampleEditor( QString name,  H2Core::Sample *Sample );
 
 		Mixer* getMixer() {	return m_pMixer;	}
 		MainForm* getMainForm() {	return m_pMainForm;	}
