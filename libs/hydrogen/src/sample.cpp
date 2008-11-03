@@ -28,7 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-//#include <vector>
+#include <vector>
 
 
 using namespace std;
@@ -157,6 +157,60 @@ Sample* Sample::load_wave( const QString& filename )
 //simple reverse example 
 void Sample::sampleEditProzess( Sample* Sample )
 {
+
+	unsigned onesamplelength =  __end_frame - __start_frame;
+	unsigned looplength = __end_frame - __loop_frame ;
+	unsigned repeatslength = looplength * __repeats;
+	unsigned newlength = 0;
+	if (onesamplelength == looplength){	
+		newlength = onesamplelength + onesamplelength * __repeats ;
+	}else
+	{
+		newlength =onesamplelength + repeatslength;
+	}
+/*
+	if ( __repeats == 0 )__repeats = 1;
+	float *tempdata_l = new float[ newlength ];
+	float *tempdata_r = new float[ newlength ];
+	float *looptempdata_l = new float[ looplength ];
+	float *looptempdata_r = new float[ looplength ];
+
+	long int z = __loop_frame;
+	long int y = __start_frame;
+	for (int i = 0; i < __end_frame - __start_frame; i++){ //first vector
+		
+		tempdata_l[i] = Sample->__data_l[y];
+		tempdata_r[i] = Sample->__data_r[y];
+		y++;
+	}
+
+	for (int i = 0; i < __end_frame - __loop_frame; i++){ //loop vector
+		
+		looptempdata_l[i] = Sample->__data_l[z];
+		looptempdata_r[i] = Sample->__data_r[z];
+		z++;
+	}
+
+
+	for ( int i = 0; i< __repeats;i++){
+		unsigned tempdataend = onesamplelength * (i+1);
+		copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
+	}
+*/
+	ERRORLOG( QString("beginlang: %1").arg(onesamplelength) );
+	ERRORLOG( QString("looplang: %1").arg(looplength) );	
+	ERRORLOG( QString("newlength: %1").arg(newlength) );
+
+
+	
+	
+
+
+//	Sample->__data_l = tempdata_l;
+//	Sample->__data_r = tempdata_r;
+//	Sample->__n_frames = newlength;
+	
+/*
 	float *data_l = new float[ Sample->get_n_frames() ];
 	float *data_r = new float[ Sample->get_n_frames() ];
 	data_l = Sample->__data_l;
@@ -165,6 +219,7 @@ void Sample::sampleEditProzess( Sample* Sample )
 	reverse(data_r, data_r + Sample->get_n_frames());
 	Sample->__data_l = data_l;
 	Sample->__data_r = data_r;
+*/
 }
 
 

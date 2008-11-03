@@ -84,7 +84,7 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 
 //	int imagedetailframes = m_pnormalimagedetailframes / m_pzoomFactor;
 	int startpos = m_pDetailSamplePosition  - m_pnormalimagedetailframes / 2 ;
-//				0		- 	 -90	
+
 	for ( int x = 0; x < width() ; x++ ) {
 		if ( (startpos) > 0 ){
 			painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pzoomFactor) +VCenterl, x, (-m_pPeakDatal[startpos ] *m_pzoomFactor)+VCenterl );
@@ -158,5 +158,4 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 }
 
 
-//ERRORLOG( QString("sampleval: %1").arg(pSampleDatal[ newVall ]) );
 

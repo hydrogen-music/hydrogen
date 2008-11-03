@@ -2467,6 +2467,8 @@ unsigned long Hydrogen::getRealtimeFrames()
 long Hydrogen::getTickForPosition( int pos )
 {
 	int nPatternGroups = m_pSong->get_pattern_group_vector()->size();
+	if( nPatternGroups == 0 ) return -1;	
+
 	if ( pos >= nPatternGroups ) {
 		if ( m_pSong->is_loop_enabled() ) {
 			pos = pos % nPatternGroups;

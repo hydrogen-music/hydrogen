@@ -55,6 +55,8 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_pLoopFramePosition = 25;
 	m_pEndFramePosition = width() -25;
 	m_pmove = false;
+	m_plocator = -1;
+	m_pupdateposi = false;
 }
 
 
@@ -68,18 +70,30 @@ MainSampleWaveDisplay::~MainSampleWaveDisplay()
 	delete[] m_pPeakDatar;
 }
 
-
+void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi)
+{
+	m_pupdateposi = updateposi;
+	if ( !updateposi ){
+		m_plocator = -1;
+	}else
+	{
+		m_plocator = pos;
+	}
+	update();
+}
 
 void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::HighQualityAntialiasing );
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
+	bool issmaller = false;
+
+	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 	painter.setPen( QColor( 230, 230, 230 ) );
 	int VCenterl = height() / 4;
 	int VCenterr = height() / 4 + height() / 2;
-	bool issmaller = false;
+
 	if ( width() >= m_pSampleLenght  ) issmaller = true;
 
 	for ( int x = 25; x < width() -25; x++ ) {
@@ -94,10 +108,14 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	
 	}
 
+
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 23, 4, 23, height() -4 );
 	painter.drawLine( width() -23, 4,width() -23, height() -4 );
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
+	painter.drawLine( m_plocator, 4, m_plocator, height() -4);
 	painter.drawLine( 0, VCenterl, width(),VCenterl );
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 
@@ -116,7 +134,6 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.setPen( QColor( 93, 170, 254, 200 ) );
 	painter.drawLine( m_pLoopFramePosition, 4, m_pLoopFramePosition, height() -4 );
 	painter.drawText( m_pLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
-
 
 
 }

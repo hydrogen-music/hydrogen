@@ -42,13 +42,13 @@ public:
 		float* data_L = NULL,
 		float* data_R = NULL,
 		bool sample_is_modified = false,
-		const QString& sample_mode = "normal",
-		unsigned start_frame = -1,
-		unsigned loop_frame = -1,
-		int repeats = -1,
-		unsigned end_frame = -1,
-		unsigned fade_out_startframe = -1,
-		int fade_out_type = -1);
+		const QString& sample_mode = "forward",
+		unsigned start_frame = 0,
+		unsigned loop_frame = 0,
+		int repeats = 0,
+		unsigned end_frame = 0,
+		unsigned fade_out_startframe = 0,
+		int fade_out_type = 1);
 		
 
 	~Sample();
@@ -165,6 +165,7 @@ private:
 
 	/// loads a FLAC file
 	static Sample* load_flac( const QString& filename );
+	Sample *tempsample;
 };
 
 };

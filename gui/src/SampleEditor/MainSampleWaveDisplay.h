@@ -39,6 +39,7 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		void updateDisplay( QString filename );
 		void updateDisplayPointer();
 
+		void paintLocatorEvent( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
 		int m_pStartFramePosition;
 		int m_pLoopFramePosition;
@@ -55,6 +56,8 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
 		int m_pSampleLenght;
+		int m_plocator;
+		bool m_pupdateposi;
 };
 
 

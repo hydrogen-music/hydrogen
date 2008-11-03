@@ -60,49 +60,58 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 
 	private slots:
+		void on_LoopCountSpinBox_valueChanged( int );
+		void on_ProcessingTypeComboBox_currentIndexChanged( int );
 		void on_ClosePushButton_clicked();
 		void on_ApplyChangesPushButton_clicked();
 		void valueChangedStartFrameSpinBox( int );
 		void valueChangedLoopFrameSpinBox( int );
 		void valueChangedEndFrameSpinBox( int );
-		void on_verticalzoomSlider_valueChanged ( int value );
 		void on_PlayPushButton_clicked();
+		void on_verticalzoomSlider_valueChanged ( int value );
+		void updateMainsamplePostionRuler();
 
 	private:
 /*
-	QString __sample_mode;		///< loop mode
-	unsigned __fade_out_startframe;	///< start frame for fade out
-	int __repeats;			///< repats from the loop section
-	unsigned __start_frame;		///< start frame
-	unsigned __loop_frame;		///< beginn of the loop section
-	unsigned __end_frame; 		///< sample end frame
+		QString __sample_mode;		///< loop mode
+		unsigned __fade_out_startframe;	///< start frame for fade out
+		int __repeats;			///< repats from the loop section
+		unsigned __start_frame;		///< start frame
+		unsigned __loop_frame;		///< beginn of the loop section
+		unsigned __end_frame; 		///< sample end frame
 */		
-	QString m_samplename;
-	H2Core::Sample *m_pSample;
+		QString m_samplename;
+		H2Core::Sample *m_pSample;
+	
+		bool m_sample_is_modified;	///< true if sample is modified
+		QString m_sample_mode;		///< loop mode
+		unsigned m_fade_out_startframe;	///< start frame for fade out
+		int m_fade_out_type;		///< fade out type 1=lin, 2=log
+		int m_repeats;			///< repats from the loop section
+		unsigned m_start_frame;		///< start frame
+		unsigned m_loop_frame;		///< beginn of the loop section
+		unsigned m_end_frame; 		///< sample end frame
+	
+		double m_divider;
+		bool m_ponewayStart;
+		bool m_ponewayLoop;
+		bool m_ponewayEnd;
+	
+		void setAllSampleProps();
 
-	bool m_sample_is_modified;	///< true if sample is modified
-	QString m_sample_mode;		///< loop mode
-	unsigned m_fade_out_startframe;	///< start frame for fade out
-	int m_fade_out_type;		///< fade out type 1=lin, 2=log
-	int m_repeats;			///< repats from the loop section
-	unsigned m_start_frame;		///< start frame
-	unsigned m_loop_frame;		///< beginn of the loop section
-	unsigned m_end_frame; 		///< sample end frame
 
-	double m_divider;
-	bool m_ponewayStart;
-	bool m_ponewayLoop;
-	bool m_ponewayEnd;
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
+	
+		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
+		TargetWaveDisplay *m_pTargetSampleView; ///important this lecks memory and will removed
+		DetailWaveDisplay *m_pSampleAdjustView; 
+		QString m_plineColor;
+		float m_pzoomfactor;
+		unsigned m_pdetailframe;
+		unsigned long m_prealtimeframeend;
+		unsigned m_pslframes;
+		QTimer *m_pTimer;
 
-	void setAllSampleProps();
-	virtual void mouseReleaseEvent(QMouseEvent *ev);
-
-	MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
-	TargetWaveDisplay *m_pTargetSampleView; ///important this lecks memory and will removed
-	DetailWaveDisplay *m_pSampleAdjustView; 
-	QString m_plineColor;
-	float m_pzoomfactor;
-	unsigned m_pdetailframe;
 		
 };
 
