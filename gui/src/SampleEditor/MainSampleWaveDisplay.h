@@ -45,7 +45,7 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		int m_pLoopFramePosition;
 		int m_pEndFramePosition;
 		bool m_pmove;
-
+		void testPositionFromSampleeditor();
 
 	private:
 		QPixmap m_background;

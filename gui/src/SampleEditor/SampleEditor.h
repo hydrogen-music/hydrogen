@@ -98,6 +98,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		bool m_ponewayEnd;
 	
 		void setAllSampleProps();
+		void testPositionsSpinBoxes();
 
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);

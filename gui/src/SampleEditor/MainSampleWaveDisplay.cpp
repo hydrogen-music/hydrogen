@@ -198,7 +198,11 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 
 }
 
-
+void MainSampleWaveDisplay::testPositionFromSampleeditor()
+{
+	testPosition( NULL );
+	update();
+}
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	testPosition( ev );

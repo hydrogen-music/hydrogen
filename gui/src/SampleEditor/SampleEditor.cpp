@@ -54,29 +54,29 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	setFixedSize ( width(), height() );
 	installEventFilter( this );
 	m_pSampleEditorStatus = true; //set true if sample changes are save
-	m_pSample = Sample::load( Sample->get_filename() );
+	m_pSample = Sample;
 
 //get all sample modificationen 
-	m_sample_is_modified = Sample->get_sample_is_modified();
-	m_sample_mode = Sample->get_sample_mode();
-	m_start_frame = Sample->get_start_frame();
-	m_loop_frame = Sample->get_loop_frame();
-	m_repeats = Sample->get_repeats();
+	m_sample_is_modified = m_pSample->get_sample_is_modified();
+	m_sample_mode = m_pSample->get_sample_mode();
+	m_start_frame = m_pSample->get_start_frame();
+	m_loop_frame = m_pSample->get_loop_frame();
+	m_repeats = m_pSample->get_repeats();
 	if (m_sample_is_modified) {
-		m_end_frame = Sample->get_end_frame();
+		m_end_frame = m_pSample->get_end_frame();
 	}else
 	{
-		m_end_frame = Sample->get_n_frames();
+		m_end_frame = m_pSample->get_n_frames();
 	}
 		ERRORLOG( QString("endframe: %1").arg(m_end_frame) );
-	m_fade_out_startframe = Sample->get_fade_out_startframe();
-	m_fade_out_type = Sample->get_fade_out_type();
+	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
+	m_fade_out_type = m_pSample->get_fade_out_type();
 
 	m_ponewayStart = false;
 	m_ponewayLoop = false;
 	m_ponewayEnd = false;
 	m_pslframes = 0;
-	unsigned slframes = Sample->get_n_frames();
+	unsigned slframes = m_pSample->get_n_frames();
 	m_pzoomfactor = 1;
 	m_pdetailframe = 0;
 	m_plineColor = "default";
@@ -104,7 +104,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	StartFrameSpinBox->setRange(0, slframes );
 	LoopFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setRange(0, slframes );
-	if ( !Sample->get_sample_is_modified() ){
+	if ( !m_pSample->get_sample_is_modified() ){
 		EndFrameSpinBox->setValue( slframes ); 
 	}else
 	{
@@ -248,12 +248,14 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 		m_start_frame = StartFrameSpinBox->value();
+//		m_pMainSampleWaveDisplay->testPositionFromSampleeditor();
 				
 	}else
 	{
 		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 		m_ponewayStart = false;
 	}
+	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
 	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
 }
@@ -274,6 +276,7 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 		m_ponewayLoop = false;
 	}
+	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
 }
 
@@ -293,6 +296,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 		m_ponewayEnd = false;
 		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 	}
+	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
 }
 
@@ -369,4 +373,20 @@ void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_pzoomfactor = value / 10 +1;
 	m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor, m_plineColor );
+}
+
+
+void SampleEditor::testPositionsSpinBoxes()
+{
+//m_start_frame;
+//m_loop_frame;
+//m_end_frame;
+	if (  m_start_frame > m_loop_frame ) m_loop_frame = m_start_frame;
+	if (  m_start_frame > m_end_frame ) m_end_frame = m_start_frame;
+	if (  m_loop_frame > m_end_frame ) m_end_frame = m_loop_frame;
+	if (  m_end_frame < m_loop_frame ) m_loop_frame = m_end_frame;
+	if (  m_end_frame < m_start_frame ) m_start_frame = m_end_frame;
+	StartFrameSpinBox->setValue( m_start_frame );
+	LoopFrameSpinBox->setValue( m_loop_frame );
+	EndFrameSpinBox->setValue( m_end_frame );
 }
