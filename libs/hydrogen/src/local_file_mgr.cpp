@@ -243,7 +243,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	}
 
 //test if the file exists 
-	QFile testfile(sPatternXmlFilename);
+	QFile testfile( sPatternXmlFilename );
 	if ( testfile.exists() && mode == 1)
 		return 1;
 
@@ -288,7 +288,9 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.InsertEndChild( rootNode );
 	doc.SaveFile();
 
-
+	QFile anotherTestfile( sPatternXmlFilename );
+	if ( ! anotherTestfile.exists() )
+		return 1;
 
 	return 0; // ok
 }
