@@ -77,6 +77,7 @@ public:
 	/// Loads a sample from disk
 	static Sample* load( const QString& filename );
 
+
 	unsigned get_n_frames() {
 		return __n_frames;
 	}
@@ -141,12 +142,14 @@ public:
 
 
 	void sampleEditProzess( Sample* Sample );
-
-private:
+	void setmod();
 	float *__data_l;	///< Left channel data
 	float *__data_r;	///< Right channel data
-
 	unsigned __sample_rate;		///< samplerate for this sample
+private:
+
+
+//	unsigned __sample_rate;		///< samplerate for this sample
 	QString __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
 	bool __sample_is_modified;	///< true if sample is modified
@@ -157,6 +160,7 @@ private:
 	unsigned __end_frame; 		///< sample end frame
 	unsigned __fade_out_startframe;	///< start frame for fade out
 	int __fade_out_type;		///< fade out type 1=lin, 2=log
+
 
 	//static int __total_used_bytes;
 

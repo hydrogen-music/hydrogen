@@ -30,6 +30,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "gui/src/HydrogenApp.h"
+#include "gui/src/SampleEditor/SampleEditor.h"
 
 using namespace std;
 
@@ -75,7 +77,6 @@ Sample::~Sample()
 	delete[] __data_r;
 	//INFOLOG( "DESTROY " + m_sFilename);
 }
-
 
 
 
@@ -130,6 +131,7 @@ Sample* Sample::load_wave( const QString& filename )
 	float *data_l = new float[ soundInfo.frames ];
 	float *data_r = new float[ soundInfo.frames ];
 
+
 	if ( soundInfo.channels == 1 ) {	// MONO sample
 		for ( long int i = 0; i < soundInfo.frames; i++ ) {
 			data_l[i] = pTmpBuffer[i];
@@ -150,109 +152,6 @@ Sample* Sample::load_wave( const QString& filename )
 //	pSample->reverse_sample( pSample ); // test reverse
 	return pSample;
 }
-
-/// sample_editor functions process
-/// also prozess must run if a song will load
-
-//simple reverse example 
-void Sample::sampleEditProzess( Sample* Sample )
-{
-
-	unsigned onesamplelength =  __end_frame - __start_frame;
-	unsigned looplength = __end_frame - __loop_frame ;
-	unsigned repeatslength = looplength * __repeats;
-	unsigned newlength = 0;
-	if (onesamplelength == looplength){	
-		newlength = onesamplelength + onesamplelength * __repeats ;
-	}else
-	{
-		newlength =onesamplelength + repeatslength;
-	}
-/*
-	if ( __repeats == 0 )__repeats = 1;
-	float *tempdata_l = new float[ newlength ];
-	float *tempdata_r = new float[ newlength ];
-	float *looptempdata_l = new float[ looplength ];
-	float *looptempdata_r = new float[ looplength ];
-
-	long int z = __loop_frame;
-	long int y = __start_frame;
-	for (int i = 0; i < __end_frame - __start_frame; i++){ //first vector
-		
-		tempdata_l[i] = Sample->__data_l[y];
-		tempdata_r[i] = Sample->__data_r[y];
-		y++;
-	}
-
-	for (int i = 0; i < __end_frame - __loop_frame; i++){ //loop vector
-		
-		looptempdata_l[i] = Sample->__data_l[z];
-		looptempdata_r[i] = Sample->__data_r[z];
-		z++;
-	}
-
-
-	for ( int i = 0; i< __repeats;i++){
-		unsigned tempdataend = onesamplelength * (i+1);
-		copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
-	}
-*/
-	ERRORLOG( QString("beginlang: %1").arg(onesamplelength) );
-	ERRORLOG( QString("looplang: %1").arg(looplength) );	
-	ERRORLOG( QString("newlength: %1").arg(newlength) );
-
-
-	
-	
-
-
-//	Sample->__data_l = tempdata_l;
-//	Sample->__data_r = tempdata_r;
-//	Sample->__n_frames = newlength;
-	
-/*
-	float *data_l = new float[ Sample->get_n_frames() ];
-	float *data_r = new float[ Sample->get_n_frames() ];
-	data_l = Sample->__data_l;
-	data_r = Sample->__data_r;
-	reverse(data_l, data_l + Sample->get_n_frames());
-	reverse(data_r, data_r + Sample->get_n_frames());
-	Sample->__data_l = data_l;
-	Sample->__data_r = data_r;
-*/
-}
-
-
-/*
-void Sample::save( const string& sFilename )
-{
-	errorLog( "[save] not implemented yet" );
-	infoLog( "saving " + sFilename );
-
-	SF_INFO soundInfo;
-	soundInfo.samplerate = m_nSampleRate;
-	soundInfo.channels = 2;
-	soundInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-
-	SNDFILE* file = sf_open( sFilename.c_str(), SFM_WRITE, &soundInfo );
-
-	float *pData = new float[ getNFrames() * 2 ];	// always stereo
-
-	// prepare the interleaved buffer
-	for ( unsigned i = 0; i < getNFrames(); i++ ) {
-		pData[ i * 2 ] = m_pData_L[ i ];
-		pData[ i * 2 + 1 ] = m_pData_R[ i ];
-	}
-
-	sf_writef_float( file, pData, getNFrames() );
-
-	sf_close( file );
-
-	delete[] pData;
-}
-*/
-
-
 
 };
 

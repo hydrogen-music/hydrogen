@@ -44,18 +44,22 @@
 using namespace H2Core;
 using namespace std;
 
-SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
+SampleEditor::SampleEditor ( QWidget* pParent, InstrumentLayer * mLayer )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
+		, m_pLayer( mLayer )
+		, m_pSampleEditorStatus( true )
+		, m_pSample ( mLayer->get_sample() )
+		, m_poldSample ( NULL )
+		, m_proldSample ( NULL )
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );
 	setWindowTitle ( trUtf8 ( "SampleEditor" ) );
 	setFixedSize ( width(), height() );
 	installEventFilter( this );
-	m_pSampleEditorStatus = true; //set true if sample changes are save
-	m_pSample = Sample;
 
+	m_poldSample = Sample::load( m_pSample->get_filename() );//this is 
 //get all sample modificationen 
 	m_sample_is_modified = m_pSample->get_sample_is_modified();
 	m_sample_mode = m_pSample->get_sample_mode();
@@ -66,7 +70,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 		m_end_frame = m_pSample->get_end_frame();
 	}else
 	{
-		m_end_frame = m_pSample->get_n_frames();
+		m_end_frame = m_poldSample->get_n_frames();
 	}
 		ERRORLOG( QString("endframe: %1").arg(m_end_frame) );
 	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
@@ -76,29 +80,11 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	m_ponewayLoop = false;
 	m_ponewayEnd = false;
 	m_pslframes = 0;
-	unsigned slframes = m_pSample->get_n_frames();
+	unsigned slframes = m_poldSample->get_n_frames();
 	m_pzoomfactor = 1;
 	m_pdetailframe = 0;
 	m_plineColor = "default";
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-// wavedisplays
-	m_divider = m_pSample->get_n_frames() / 574.0F;
-	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
-	m_pMainSampleWaveDisplay->updateDisplay( Sample->get_filename() );
-	m_pMainSampleWaveDisplay->move( 1, 1 );
-
-	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
-	m_pSampleAdjustView->updateDisplay( Sample->get_filename() );
-	m_pSampleAdjustView->move( 1, 1 );
-
-	float *pSampleData = Sample->get_data_l();
-	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
-	m_pTargetSampleView->updateDisplay( pSampleData, slframes );
-	m_pTargetSampleView->move( 1, 1 );
-
-
-	QApplication::restoreOverrideCursor();
 
 	LoopCountSpinBox->setRange(0, 20000 );
 	StartFrameSpinBox->setRange(0, slframes );
@@ -110,7 +96,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 	{
 		EndFrameSpinBox->setValue( m_end_frame );
 	}
-	m_pSample->set_end_frame( m_end_frame );
+
+
+//	m_pSample->set_end_frame( m_end_frame );
 
 // mainSampleview = 624(575) x 265 :-)
 // mainSampleAdjustView = 180 x 265 :-(
@@ -138,14 +126,57 @@ SampleEditor::SampleEditor ( QWidget* pParent, Sample* Sample )
 
 
 
+
+
 SampleEditor::~SampleEditor()
 {
 	delete m_pMainSampleWaveDisplay;
 	delete m_pSampleAdjustView;
 	delete m_pTargetSampleView;
+	delete m_poldSample;
 	INFOLOG ( "DESTROY" );
 }
 
+
+void SampleEditor::intDisplays()
+{
+	H2Core::Instrument *m_pInstrument = NULL;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if (pSong != NULL) {
+		InstrumentList *pInstrList = pSong->get_instrument_list();
+		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		if ( nInstr >= (int)pInstrList->get_size() ) {
+			nInstr = -1;
+		}
+
+		if (nInstr == -1) {
+			m_pInstrument = NULL;
+		}
+		else {
+			m_pInstrument = pInstrList->get( nInstr );
+			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
+		}
+	}
+/*
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+// wavedisplays
+	m_divider = m_poldSample->get_n_frames() / 574.0F;
+	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
+	m_pMainSampleWaveDisplay->updateDisplay( m_poldSample->get_filename() );
+	m_pMainSampleWaveDisplay->move( 1, 1 );
+
+	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
+	m_pSampleAdjustView->updateDisplay( m_poldSample->get_filename() );
+	m_pSampleAdjustView->move( 1, 1 );
+
+	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
+	m_pTargetSampleView->updateDisplay( mLayer );
+	m_pTargetSampleView->move( 1, 1 );
+*/
+
+	QApplication::restoreOverrideCursor();
+
+}
 
 
 void SampleEditor::on_ClosePushButton_clicked()
@@ -167,10 +198,11 @@ void SampleEditor::on_ClosePushButton_clicked()
 
 void SampleEditor::on_ApplyChangesPushButton_clicked()
 {
-	setAllSampleProps();	
+//	setAllSampleProps();	
+	createNewLayer();
 	m_pSampleEditorStatus = true;
-	m_pTargetSampleView->reloadDisplay();
-	m_pSample->sampleEditProzess( m_pSample );
+	m_pTargetSampleView->updateDisplay( m_pLayer );
+	
 }
 
 
@@ -196,23 +228,194 @@ void SampleEditor::setSampleName( QString name )
 }
 
 
+/*
+void SampleEditor::getAllSampleProps()
+{
 
-void SampleEditor::setAllSampleProps()
+	m_pSample->set_sample_is_modified( m_sample_is_modified );
+	m_pSample->set_sample_mode( m_sample_mode );
+	m_pSample->set_start_frame( m_start_frame );
+	m_pSample->set_loop_frame( m_loop_frame );
+	m_pSample->set_repeats( m_repeats );
+	m_pSample->set_end_frame( m_end_frame );
+	ERRORLOG( QString("setAllSampleProps: %1").arg(m_end_frame) );
+	m_pSample->set_fade_out_startframe( m_fade_out_startframe );
+	m_pSample->set_fade_out_type( m_fade_out_type );
+
+}
+*/
+
+
+void SampleEditor::createNewLayer()
 {
 	if ( !m_pSampleEditorStatus ){
-		m_pSample->set_sample_is_modified( m_sample_is_modified );
-		m_pSample->set_sample_mode( m_sample_mode );
-		m_pSample->set_start_frame( m_start_frame );
-		m_pSample->set_loop_frame( m_loop_frame );
-		m_pSample->set_repeats( m_repeats );
-		m_pSample->set_end_frame( m_end_frame );
-		ERRORLOG( QString("setAllSampleProps: %1").arg(m_end_frame) );
-		m_pSample->set_fade_out_startframe( m_fade_out_startframe );
-		m_pSample->set_fade_out_type( m_fade_out_type );
+	
+		//create new  sample length
+		unsigned onesamplelength =  m_end_frame - m_start_frame;
+		unsigned looplength =  m_end_frame - m_loop_frame ;
+		unsigned repeatslength = looplength * m_repeats;
+		unsigned newlength = 0;
+		if (onesamplelength == looplength){	
+			newlength = onesamplelength + onesamplelength * m_repeats ;
+		}else
+		{
+			newlength =onesamplelength + repeatslength;
+		}
+	
+		ERRORLOG( QString("startlang: %1").arg(onesamplelength) );
+		ERRORLOG( QString("looplang: %1").arg(looplength) );	
+		ERRORLOG( QString("newlength: %1").arg(newlength) );
+
+
+		Sample *newSample = new Sample( newlength, m_poldSample->get_filename() );	
+
+		//create temp data
+		float *tempdata_l = new float[ newlength ];
+		float *tempdata_r = new float[ newlength ];
+
+		float *looptempdata_l = new float[ looplength ];
+		float *looptempdata_r = new float[ looplength ];
+
+		long int z = m_loop_frame;
+		long int y = m_start_frame;
+
+	        for ( unsigned i = 0; i < onesamplelength; i++, y++){ //first vector
+
+	                tempdata_l[i] = m_poldSample->__data_l[y];
+	                tempdata_r[i] = m_poldSample->__data_r[y];
+	        }
+
+		for ( unsigned i = 0; i < looplength; i++, z++){ //loop vector
+
+			looptempdata_l[i] = m_poldSample->__data_l[z];
+			looptempdata_r[i] = m_poldSample->__data_r[z];
+		}
+		
+	        for ( int i = 0; i< m_repeats;i++){
+	                unsigned tempdataend = onesamplelength + ( looplength * i );
+	                copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
+			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
+
+	        }
+
+		newSample->__data_l = tempdata_l;
+		newSample->__data_r = tempdata_r;
+
+		newSample->__sample_rate = m_poldSample->get_sample_rate();
+
+		AudioEngine::get_instance()->lock( "SampeEditor::insert new sample" );
+		if (m_pLayer != NULL) {
+			// delete old sample
+			Sample *proldSample = m_pLayer->get_sample();
+			m_pSample = NULL;
+			delete proldSample;
+			m_pSample = newSample;
+//			m_psample = newSample;
+//			proldSample = NULL;
+			// insert new sample from newInstrument
+			m_pLayer->set_sample( newSample );
+		}
+		else {	
+		
+			delete[] tempdata_l;
+			tempdata_l = NULL;
+			delete[] tempdata_r;
+			tempdata_r = NULL;
+			delete[] looptempdata_l;
+			looptempdata_l = NULL;
+			delete[] looptempdata_r;
+			looptempdata_r = NULL;
+			return;
+		}
+		AudioEngine::get_instance()->unlock();
+	
+		delete[] tempdata_l;
+//		tempdata_l = NULL;
+		delete[] tempdata_r;
+//		tempdata_r = NULL;
+		delete[] looptempdata_l;
+//		looptempdata_l = NULL;
+		delete[] looptempdata_r;
+//		looptempdata_r = NULL;
+
 	}
+
+
+/*
+Sample* Sample::load_wave( const QString& filename )
+{
+	// file exists?
+	if ( QFile( filename ).exists() == false ) {
+		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
+		return NULL;
+	}
+
+
+	SF_INFO soundInfo;
+	SNDFILE* file = sf_open( filename.toAscii(), SFM_READ, &soundInfo );
+	if ( !file ) {
+		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
+	}
+
+
+	float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
+
+	//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+	sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+	sf_close( file );
+
+	float *data_l = new float[ soundInfo.frames ];
+	float *data_r = new float[ soundInfo.frames ];
+
+
+	if ( soundInfo.channels == 1 ) {	// MONO sample
+		for ( long int i = 0; i < soundInfo.frames; i++ ) {
+			data_l[i] = pTmpBuffer[i];
+			data_r[i] = pTmpBuffer[i];
+		}
+	} else if ( soundInfo.channels == 2 ) { // STEREO sample
+		for ( long int i = 0; i < soundInfo.frames; i++ ) {
+			data_l[i] = pTmpBuffer[i * 2];
+			data_r[i] = pTmpBuffer[i * 2 + 1];
+		}
+	}
+	delete[] pTmpBuffer;
+
+	Sample *pSample = new Sample( soundInfo.frames, filename );
+	pSample->__data_l = data_l;
+	pSample->__data_r = data_r;
+	pSample->__sample_rate = soundInfo.samplerate;
+//	pSample->reverse_sample( pSample ); // test reverse
+	return pSample;
 }
 
+//simple reverse example 
+void Sample::sampleEditProzess( Sample* Sample )
+{
 
+	unsigned onesamplelength =  __end_frame - __start_frame;
+	unsigned looplength = __end_frame - __loop_frame ;
+	unsigned repeatslength = looplength * __repeats;
+	unsigned newlength = 0;
+	if (onesamplelength == looplength){	
+		newlength = onesamplelength + onesamplelength * __repeats ;
+	}else
+	{
+		newlength =onesamplelength + repeatslength;
+	}
+
+	ERRORLOG( QString("beginlang: %1").arg(onesamplelength) );
+	ERRORLOG( QString("looplang: %1").arg(looplength) );	
+	ERRORLOG( QString("newlength: %1").arg(newlength) );
+//neuer weg :-) im sampleeditor wird ein komplett neues sample gebaut. 
+//das neue sample wird hier zusammengesetz und an den editor zurückgegeben.dort wird es in dem aktuellen layer das alte sample ersetzen.
+// das targetsamplewavedispay wird wie gwhabt durch den instrumentlayer das sample laden. so werden änderungen auch hier sichtbar sichtbar	
+
+}
+*/
+
+
+}
 
 void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 {

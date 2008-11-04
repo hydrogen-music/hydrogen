@@ -49,13 +49,22 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	Q_OBJECT
 	public:
 		
-		SampleEditor( QWidget* pParent, H2Core::Sample *Sample );
+		SampleEditor( QWidget* pParent, H2Core::InstrumentLayer *mLayer );
 		~SampleEditor();
 
 		void setSampleName( QString name);
 		bool getCloseQuestion();
 		bool m_pSampleEditorStatus;
 		void returnAllMainWaveDisplayValues();
+
+		bool m_sample_is_modified;	///< true if sample is modified
+		QString m_sample_mode;		///< loop mode
+		unsigned m_fade_out_startframe;	///< start frame for fade out
+		int m_fade_out_type;		///< fade out type 1=lin, 2=log
+		int m_repeats;			///< repats from the loop section
+		unsigned m_start_frame;		///< start frame
+		unsigned m_loop_frame;		///< beginn of the loop section
+		unsigned m_end_frame; 		///< sample end frame
 
 
 
@@ -71,6 +80,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void on_verticalzoomSlider_valueChanged ( int value );
 		void updateMainsamplePostionRuler();
 
+
 	private:
 /*
 		QString __sample_mode;		///< loop mode
@@ -82,23 +92,20 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 */		
 		QString m_samplename;
 		H2Core::Sample *m_pSample;
+		H2Core::Sample *m_poldSample;
+		H2Core::Sample *m_proldSample;
+		H2Core::InstrumentLayer *m_pLayer;
 	
-		bool m_sample_is_modified;	///< true if sample is modified
-		QString m_sample_mode;		///< loop mode
-		unsigned m_fade_out_startframe;	///< start frame for fade out
-		int m_fade_out_type;		///< fade out type 1=lin, 2=log
-		int m_repeats;			///< repats from the loop section
-		unsigned m_start_frame;		///< start frame
-		unsigned m_loop_frame;		///< beginn of the loop section
-		unsigned m_end_frame; 		///< sample end frame
 	
 		double m_divider;
 		bool m_ponewayStart;
 		bool m_ponewayLoop;
 		bool m_ponewayEnd;
-	
+
+		void intDisplays();	
 		void setAllSampleProps();
 		void testPositionsSpinBoxes();
+		void createNewLayer();
 
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);

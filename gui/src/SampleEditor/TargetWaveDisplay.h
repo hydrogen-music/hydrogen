@@ -40,16 +40,14 @@ class TargetWaveDisplay : public QWidget, public Object
 		TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
-		void updateDisplay( float *sampleData, unsigned nSampleLenght );
+		void updateDisplay( H2Core::InstrumentLayer *pLayer );
 
 		void paintEvent(QPaintEvent *ev);
-		void reloadDisplay();
 
 	private:
 		QPixmap m_background;
 		QString m_sSampleName;
 		int *m_pPeakData;
-		float *m_psampleData; 
 		unsigned m_pSampleLenght;
 		
 };

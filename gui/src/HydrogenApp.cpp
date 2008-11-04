@@ -131,7 +131,6 @@ HydrogenApp::~HydrogenApp()
 		delete m_pLadspaFXProperties[nFX];
 	}
 	#endif
-
 	
 }
 
@@ -321,7 +320,7 @@ void HydrogenApp::showPlaylistDialog()
 
 
 
-void HydrogenApp::showSampleEditor( QString name, Sample *Sample )
+void HydrogenApp::showSampleEditor( QString name, InstrumentLayer *mLayer )
 {
 	if ( m_pSampleEditor ){
 		if ( m_pSampleEditor->m_pSampleEditorStatus == false ){
@@ -339,7 +338,7 @@ void HydrogenApp::showSampleEditor( QString name, Sample *Sample )
 		}
 	}
 	
-	m_pSampleEditor = new SampleEditor( 0, Sample );
+	m_pSampleEditor = new SampleEditor( 0, mLayer);
 	m_pSampleEditor->show();
 	m_pSampleEditor->setSampleName( name );
 }

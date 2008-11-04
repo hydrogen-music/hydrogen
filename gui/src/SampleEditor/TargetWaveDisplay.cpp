@@ -85,23 +85,21 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void TargetWaveDisplay::updateDisplay( float *pSampleData, unsigned nSampleLenght )
+void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
+	if ( pLayer && pLayer->get_sample() ) {
 
+		int nSampleLenght = pLayer->get_sample()->get_n_frames();
+		float nScaleFactor = nSampleLenght / width();
 
+		float fGain = height() / 2.0 * pLayer->get_gain();
 
-	if ( pSampleData ) {
-		m_psampleData = pSampleData;
-		 m_pSampleLenght = nSampleLenght;
-	
-		float nScaleFactor = nSampleLenght / (width());
-
-
-		float fGain = height() / 2.0 * 1.0;
+		float *pSampleData = pLayer->get_sample()->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;
 		for ( int i = 0; i < width(); ++i ){
+			nVal = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
 					int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
@@ -111,34 +109,7 @@ void TargetWaveDisplay::updateDisplay( float *pSampleData, unsigned nSampleLengh
 			}
 			m_pPeakData[ i ] = nVal;
 		}
-
 	}
-
-	update();
-
-}
-
-void TargetWaveDisplay::reloadDisplay()
-{
-
-	float nScaleFactor = m_pSampleLenght / (width());
-
-
-	float fGain = height() / 2.0 * 1.0;
-
-	int nSamplePos =0;
-	int nVal;
-	for ( int i = 0; i < width(); ++i ){
-		for ( int j = 0; j < nScaleFactor; ++j ) {
-			if ( j < m_pSampleLenght ) {
-				int newVal = (int)( m_psampleData[ nSamplePos ] * fGain );
-				nVal = newVal;
-			}
-			++nSamplePos;
-		}
-		m_pPeakData[ i ] = nVal;
-	}
-
 
 	update();
 
