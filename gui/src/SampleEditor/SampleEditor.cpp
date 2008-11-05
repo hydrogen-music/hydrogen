@@ -44,58 +44,45 @@
 using namespace H2Core;
 using namespace std;
 
-SampleEditor::SampleEditor ( QWidget* pParent, InstrumentLayer * mLayer )
+SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
-		, m_pLayer( mLayer )
 		, m_pSampleEditorStatus( true )
-		, m_pSample ( mLayer->get_sample() )
-		, m_poldSample ( NULL )
-		, m_proldSample ( NULL )
+		, m_pSamplefromFile ( NULL )
+		, m_pSelectedLayer ( nSelectedLayer )
+		, m_samplename ( mSamplefilename )
+		, m_pzoomfactor ( 1 )
+		, m_pdetailframe ( 0 )
+		, m_plineColor ( "default" )
+		, m_ponewayStart ( false )
+		, m_ponewayLoop ( false )
+		, m_ponewayEnd ( false )
+		, m_pslframes ( 0 )
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "SampleEditor" ) );
+
+	QString newfilename = mSamplefilename.section( '/', -1 );
+
+	setWindowTitle ( QString( "SampleEditor" + newfilename) );
 	setFixedSize ( width(), height() );
 	installEventFilter( this );
 
-	m_poldSample = Sample::load( m_pSample->get_filename() );//this is 
-//get all sample modificationen 
-	m_sample_is_modified = m_pSample->get_sample_is_modified();
-	m_sample_mode = m_pSample->get_sample_mode();
-	m_start_frame = m_pSample->get_start_frame();
-	m_loop_frame = m_pSample->get_loop_frame();
-	m_repeats = m_pSample->get_repeats();
-	if (m_sample_is_modified) {
-		m_end_frame = m_pSample->get_end_frame();
-	}else
-	{
-		m_end_frame = m_poldSample->get_n_frames();
-	}
-		ERRORLOG( QString("endframe: %1").arg(m_end_frame) );
-	m_fade_out_startframe = m_pSample->get_fade_out_startframe();
-	m_fade_out_type = m_pSample->get_fade_out_type();
+//this new sample give us the not changed real samplelength 
+	m_pSamplefromFile = Sample::load( mSamplefilename );
 
-	m_ponewayStart = false;
-	m_ponewayLoop = false;
-	m_ponewayEnd = false;
-	m_pslframes = 0;
-	unsigned slframes = m_poldSample->get_n_frames();
-	m_pzoomfactor = 1;
-	m_pdetailframe = 0;
-	m_plineColor = "default";
-
+//this 
+	unsigned slframes = m_pSamplefromFile->get_n_frames();
 
 	LoopCountSpinBox->setRange(0, 20000 );
 	StartFrameSpinBox->setRange(0, slframes );
 	LoopFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setRange(0, slframes );
-	if ( !m_pSample->get_sample_is_modified() ){
-		EndFrameSpinBox->setValue( slframes ); 
-	}else
-	{
-		EndFrameSpinBox->setValue( m_end_frame );
-	}
+	EndFrameSpinBox->setValue( slframes );
+
+	getAllFrameInfos();
+	intDisplays();
+	
 
 
 //	m_pSample->set_end_frame( m_end_frame );
@@ -133,10 +120,59 @@ SampleEditor::~SampleEditor()
 	delete m_pMainSampleWaveDisplay;
 	delete m_pSampleAdjustView;
 	delete m_pTargetSampleView;
-	delete m_poldSample;
+	delete m_pSamplefromFile;
 	INFOLOG ( "DESTROY" );
 }
 
+
+//this 
+void SampleEditor::getAllFrameInfos()
+{
+	H2Core::Instrument *m_pInstrument = NULL;
+	Sample* pSample = NULL;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if (pSong != NULL) {
+		InstrumentList *pInstrList = pSong->get_instrument_list();
+		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		if ( nInstr >= (int)pInstrList->get_size() ) {
+			nInstr = -1;
+		}
+
+		if (nInstr == -1) {
+			m_pInstrument = NULL;
+		}
+		else {
+			m_pInstrument = pInstrList->get( nInstr );
+			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
+		}
+	}
+	H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_pSelectedLayer );
+	if ( pLayer ) {
+		pSample = pLayer->get_sample();
+	}
+
+//this values are needed if we restore a sample from from disk if a new song with sample changes will load 
+	m_sample_is_modified = pSample->get_sample_is_modified();
+	m_sample_mode = pSample->get_sample_mode();
+	m_start_frame = pSample->get_start_frame();
+	m_loop_frame = pSample->get_loop_frame();
+	m_repeats = pSample->get_repeats();
+	m_end_frame = m_pSamplefromFile->get_end_frame();
+
+	m_fade_out_startframe = pSample->get_fade_out_startframe();
+	m_fade_out_type = pSample->get_fade_out_type();
+	
+}
+
+
+void SampleEditor::getAllLocalFrameInfos()
+{
+	m_start_frame = StartFrameSpinBox->value();
+	m_loop_frame = LoopFrameSpinBox->value();
+	m_repeats = LoopCountSpinBox->value();
+	m_end_frame = EndFrameSpinBox->value();
+
+}
 
 void SampleEditor::intDisplays()
 {
@@ -157,26 +193,31 @@ void SampleEditor::intDisplays()
 			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
 		}
 	}
-/*
+
+	H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_pSelectedLayer );
+
 	QApplication::setOverrideCursor(Qt::WaitCursor);
+
 // wavedisplays
-	m_divider = m_poldSample->get_n_frames() / 574.0F;
+	m_divider = m_pSamplefromFile->get_n_frames() / 574.0F;
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
-	m_pMainSampleWaveDisplay->updateDisplay( m_poldSample->get_filename() );
+	m_pMainSampleWaveDisplay->updateDisplay( m_pSamplefromFile->get_filename() );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
 	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
-	m_pSampleAdjustView->updateDisplay( m_poldSample->get_filename() );
+	m_pSampleAdjustView->updateDisplay( m_pSamplefromFile->get_filename() );
 	m_pSampleAdjustView->move( 1, 1 );
 
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
-	m_pTargetSampleView->updateDisplay( mLayer );
+	m_pTargetSampleView->updateDisplay( pLayer );
 	m_pTargetSampleView->move( 1, 1 );
-*/
+
 
 	QApplication::restoreOverrideCursor();
 
 }
+
+
 
 
 void SampleEditor::on_ClosePushButton_clicked()
@@ -196,12 +237,11 @@ void SampleEditor::on_ClosePushButton_clicked()
 
 
 
-void SampleEditor::on_ApplyChangesPushButton_clicked()
+void SampleEditor::on_PrevChangesPushButton_clicked()
 {
-//	setAllSampleProps();	
+	getAllLocalFrameInfos();	
 	createNewLayer();
 	m_pSampleEditorStatus = true;
-	m_pTargetSampleView->updateDisplay( m_pLayer );
 	
 }
 
@@ -215,17 +255,6 @@ bool SampleEditor::getCloseQuestion()
 	return close;
 }
 
-
-
-void SampleEditor::setSampleName( QString name )
-{
-	QString newfilename = name.section( '/', -1 );
-//	newfilename.replace( "." + newfilename.section( '.', -1 ), "");
-
-	QString windowname = "SampleEditor " + newfilename;
-	m_samplename = name;
-	setWindowTitle ( windowname );
-}
 
 
 /*
@@ -249,172 +278,46 @@ void SampleEditor::getAllSampleProps()
 void SampleEditor::createNewLayer()
 {
 	if ( !m_pSampleEditorStatus ){
-	
-		//create new  sample length
-		unsigned onesamplelength =  m_end_frame - m_start_frame;
-		unsigned looplength =  m_end_frame - m_loop_frame ;
-		unsigned repeatslength = looplength * m_repeats;
-		unsigned newlength = 0;
-		if (onesamplelength == looplength){	
-			newlength = onesamplelength + onesamplelength * m_repeats ;
-		}else
-		{
-			newlength =onesamplelength + repeatslength;
-		}
-	
-		ERRORLOG( QString("startlang: %1").arg(onesamplelength) );
-		ERRORLOG( QString("looplang: %1").arg(looplength) );	
-		ERRORLOG( QString("newlength: %1").arg(newlength) );
-
-
-		Sample *newSample = new Sample( newlength, m_poldSample->get_filename() );	
-
-		//create temp data
-		float *tempdata_l = new float[ newlength ];
-		float *tempdata_r = new float[ newlength ];
-
-		float *looptempdata_l = new float[ looplength ];
-		float *looptempdata_r = new float[ looplength ];
-
-		long int z = m_loop_frame;
-		long int y = m_start_frame;
-
-	        for ( unsigned i = 0; i < onesamplelength; i++, y++){ //first vector
-
-	                tempdata_l[i] = m_poldSample->__data_l[y];
-	                tempdata_r[i] = m_poldSample->__data_r[y];
-	        }
-
-		for ( unsigned i = 0; i < looplength; i++, z++){ //loop vector
-
-			looptempdata_l[i] = m_poldSample->__data_l[z];
-			looptempdata_r[i] = m_poldSample->__data_r[z];
-		}
+//		getAllFrameInfos();
 		
-	        for ( int i = 0; i< m_repeats;i++){
-	                unsigned tempdataend = onesamplelength + ( looplength * i );
-	                copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
-			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
-
-	        }
-
-		newSample->__data_l = tempdata_l;
-		newSample->__data_r = tempdata_r;
-
-		newSample->__sample_rate = m_poldSample->get_sample_rate();
+		Sample *editSample = Sample::load_edit_wave( m_samplename,
+							    m_start_frame,
+							    m_loop_frame,
+							    m_end_frame,
+							    m_repeats );
 
 		AudioEngine::get_instance()->lock( "SampeEditor::insert new sample" );
-		if (m_pLayer != NULL) {
-			// delete old sample
-			Sample *proldSample = m_pLayer->get_sample();
-			m_pSample = NULL;
-			delete proldSample;
-			m_pSample = newSample;
-//			m_psample = newSample;
-//			proldSample = NULL;
-			// insert new sample from newInstrument
-			m_pLayer->set_sample( newSample );
-		}
-		else {	
-		
-			delete[] tempdata_l;
-			tempdata_l = NULL;
-			delete[] tempdata_r;
-			tempdata_r = NULL;
-			delete[] looptempdata_l;
-			looptempdata_l = NULL;
-			delete[] looptempdata_r;
-			looptempdata_r = NULL;
-			return;
-		}
-		AudioEngine::get_instance()->unlock();
+
+		H2Core::Instrument *m_pInstrument = NULL;
+		Song *pSong = Hydrogen::get_instance()->getSong();
+		if (pSong != NULL) {
+			InstrumentList *pInstrList = pSong->get_instrument_list();
+			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			if ( nInstr >= (int)pInstrList->get_size() ) {
+				nInstr = -1;
+			}
 	
-		delete[] tempdata_l;
-//		tempdata_l = NULL;
-		delete[] tempdata_r;
-//		tempdata_r = NULL;
-		delete[] looptempdata_l;
-//		looptempdata_l = NULL;
-		delete[] looptempdata_r;
-//		looptempdata_r = NULL;
-
-	}
-
-
-/*
-Sample* Sample::load_wave( const QString& filename )
-{
-	// file exists?
-	if ( QFile( filename ).exists() == false ) {
-		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
-		return NULL;
-	}
-
-
-	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( filename.toAscii(), SFM_READ, &soundInfo );
-	if ( !file ) {
-		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
-	}
-
-
-	float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
-
-	//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-	sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-	sf_close( file );
-
-	float *data_l = new float[ soundInfo.frames ];
-	float *data_r = new float[ soundInfo.frames ];
-
-
-	if ( soundInfo.channels == 1 ) {	// MONO sample
-		for ( long int i = 0; i < soundInfo.frames; i++ ) {
-			data_l[i] = pTmpBuffer[i];
-			data_r[i] = pTmpBuffer[i];
+			if (nInstr == -1) {
+				m_pInstrument = NULL;
+			}
+			else {
+				m_pInstrument = pInstrList->get( nInstr );
+				//INFOLOG( "new instr: " + m_pInstrument->m_sName );
+			}
 		}
-	} else if ( soundInfo.channels == 2 ) { // STEREO sample
-		for ( long int i = 0; i < soundInfo.frames; i++ ) {
-			data_l[i] = pTmpBuffer[i * 2];
-			data_r[i] = pTmpBuffer[i * 2 + 1];
+	
+		H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_pSelectedLayer );
+
+		Sample *oldSample = pLayer->get_sample();
+		delete oldSample;
+	
+		// insert new sample from newInstrument
+		pLayer->set_sample( editSample );
+
+		AudioEngine::get_instance()->unlock();
+		m_pTargetSampleView->updateDisplay( pLayer );
 		}
-	}
-	delete[] pTmpBuffer;
-
-	Sample *pSample = new Sample( soundInfo.frames, filename );
-	pSample->__data_l = data_l;
-	pSample->__data_r = data_r;
-	pSample->__sample_rate = soundInfo.samplerate;
-//	pSample->reverse_sample( pSample ); // test reverse
-	return pSample;
-}
-
-//simple reverse example 
-void Sample::sampleEditProzess( Sample* Sample )
-{
-
-	unsigned onesamplelength =  __end_frame - __start_frame;
-	unsigned looplength = __end_frame - __loop_frame ;
-	unsigned repeatslength = looplength * __repeats;
-	unsigned newlength = 0;
-	if (onesamplelength == looplength){	
-		newlength = onesamplelength + onesamplelength * __repeats ;
-	}else
-	{
-		newlength =onesamplelength + repeatslength;
-	}
-
-	ERRORLOG( QString("beginlang: %1").arg(onesamplelength) );
-	ERRORLOG( QString("looplang: %1").arg(looplength) );	
-	ERRORLOG( QString("newlength: %1").arg(newlength) );
-//neuer weg :-) im sampleeditor wird ein komplett neues sample gebaut. 
-//das neue sample wird hier zusammengesetz und an den editor zurückgegeben.dort wird es in dem aktuellen layer das alte sample ersetzen.
-// das targetsamplewavedispay wird wie gwhabt durch den instrumentlayer das sample laden. so werden änderungen auch hier sichtbar sichtbar	
-
-}
-*/
-
-
+		
 }
 
 void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
@@ -519,13 +422,30 @@ void SampleEditor::on_PlayPushButton_clicked()
 	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedlayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 
-	m_pslframes = m_pSample->get_n_frames();
+
+	setSamplelengthFrames();
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
 	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_end_frame - m_start_frame;
 	
 }
+
+void SampleEditor::on_PlayOrigPushButton_clicked()
+{
+	Sample *pNewSample = Sample::load( m_samplename );
+	if ( pNewSample ){
+		int length = ( ( pNewSample->get_n_frames() / pNewSample->get_sample_rate() + 1) * 100 );
+		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
+	}
+
+	setSamplelengthFrames();
+	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
+	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
+	m_pTimer->start(40);	// update ruler at 25 fps	
+	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_end_frame - m_start_frame;
+}
+
 
 void SampleEditor::updateMainsamplePostionRuler()
 {
@@ -542,6 +462,28 @@ void SampleEditor::updateMainsamplePostionRuler()
 		m_pTimer->stop();
 	}
 }
+
+
+
+void SampleEditor::setSamplelengthFrames()
+{
+getAllLocalFrameInfos();
+//	getAllFrameInfos();
+
+	//create new  sample length
+	unsigned onesamplelength =  m_end_frame - m_start_frame;
+	unsigned looplength =  m_end_frame - m_loop_frame ;
+	unsigned repeatslength = looplength * m_repeats;
+	unsigned newlength = 0;
+	if (onesamplelength == looplength){	
+		newlength = onesamplelength + onesamplelength * m_repeats ;
+	}else
+	{
+		newlength =onesamplelength + repeatslength;
+	}
+	m_pslframes = newlength;
+}
+
 
 
 void SampleEditor::on_LoopCountSpinBox_valueChanged( int )

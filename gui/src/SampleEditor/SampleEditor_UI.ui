@@ -28,43 +28,30 @@
     <enum>QFrame::Raised</enum>
    </property>
   </widget>
-  <widget class="QPushButton" name="PlayPushButton" >
+  <widget class="QPushButton" name="PlayOrigPushButton" >
    <property name="geometry" >
     <rect>
-     <x>155</x>
+     <x>230</x>
      <y>350</y>
-     <width>75</width>
+     <width>151</width>
      <height>26</height>
     </rect>
    </property>
    <property name="text" >
-    <string>&amp;Play</string>
+    <string>P&amp;lay original sample</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="RestoreSamplePushButton" >
+  <widget class="QPushButton" name="PrevChangesPushButton" >
    <property name="geometry" >
     <rect>
-     <x>255</x>
+     <x>10</x>
      <y>350</y>
      <width>121</width>
      <height>26</height>
     </rect>
    </property>
    <property name="text" >
-    <string>&amp;Restore Sample</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="ApplyChangesPushButton" >
-   <property name="geometry" >
-    <rect>
-     <x>10</x>
-     <y>350</y>
-     <width>111</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text" >
-    <string>&amp;Apply changes</string>
+    <string>&amp;Apply Changes</string>
    </property>
   </widget>
   <widget class="QPushButton" name="ClosePushButton" >
@@ -286,6 +273,19 @@
     </item>
    </layout>
   </widget>
+  <widget class="QPushButton" name="PlayPushButton" >
+   <property name="geometry" >
+    <rect>
+     <x>140</x>
+     <y>350</y>
+     <width>76</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>&amp;Play</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>StartFrameSpinBox</tabstop>
@@ -295,9 +295,8 @@
   <tabstop>EndFrameSpinBox</tabstop>
   <tabstop>FadeOutFrameSpinBox</tabstop>
   <tabstop>FadeOutTypeComboBox</tabstop>
-  <tabstop>ApplyChangesPushButton</tabstop>
-  <tabstop>PlayPushButton</tabstop>
-  <tabstop>RestoreSamplePushButton</tabstop>
+  <tabstop>PrevChangesPushButton</tabstop>
+  <tabstop>PlayOrigPushButton</tabstop>
   <tabstop>ClosePushButton</tabstop>
  </tabstops>
  <resources/>

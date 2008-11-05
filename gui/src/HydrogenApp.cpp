@@ -320,7 +320,7 @@ void HydrogenApp::showPlaylistDialog()
 
 
 
-void HydrogenApp::showSampleEditor( QString name, InstrumentLayer *mLayer )
+void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 {
 	if ( m_pSampleEditor ){
 		if ( m_pSampleEditor->m_pSampleEditorStatus == false ){
@@ -338,9 +338,8 @@ void HydrogenApp::showSampleEditor( QString name, InstrumentLayer *mLayer )
 		}
 	}
 	
-	m_pSampleEditor = new SampleEditor( 0, mLayer);
+	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name);
 	m_pSampleEditor->show();
-	m_pSampleEditor->setSampleName( name );
 }
 
 

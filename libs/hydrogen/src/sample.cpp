@@ -153,5 +153,103 @@ Sample* Sample::load_wave( const QString& filename )
 	return pSample;
 }
 
+
+Sample* Sample::load_edit_wave( const QString& filename,
+				const unsigned startframe,
+				const unsigned loppframe,
+				const unsigned endframe,
+				const int loops )
+{
+	// file exists?
+	if ( QFile( filename ).exists() == false ) {
+		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
+		return NULL;
+	}
+
+
+	SF_INFO soundInfo;
+	SNDFILE* file = sf_open( filename.toAscii(), SFM_READ, &soundInfo );
+	if ( !file ) {
+		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
+	}
+
+	unsigned onesamplelength =  endframe - startframe;
+	unsigned looplength =  endframe - loppframe;
+	unsigned repeatslength = looplength * loops;
+	unsigned newlength = 0;
+	if (onesamplelength == looplength){	
+		newlength = onesamplelength + onesamplelength * loops ;
+	}else
+	{
+		newlength =onesamplelength + repeatslength;
+	}
+
+	float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
+
+	//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+	sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+	sf_close( file );
+
+	float *origdata_l = new float[ soundInfo.frames ];
+	float *origdata_r = new float[ soundInfo.frames ];
+
+
+	if ( soundInfo.channels == 1 ) {	// MONO sample
+		for ( long int i = 0; i < soundInfo.frames; i++ ) {
+			origdata_l[i] = pTmpBuffer[i];
+			origdata_r[i] = pTmpBuffer[i];
+		}
+	} else if ( soundInfo.channels == 2 ) { // STEREO sample
+		for ( long int i = 0; i < soundInfo.frames; i++ ) {
+			origdata_l[i] = pTmpBuffer[i * 2];
+			origdata_r[i] = pTmpBuffer[i * 2 + 1];
+		}
+	}
+	delete[] pTmpBuffer;
+
+	float *tempdata_l = new float[ newlength ];
+	float *tempdata_r = new float[ newlength ];
+
+	float *looptempdata_l = new float[ looplength ];
+	float *looptempdata_r = new float[ looplength ];
+
+	long int z = loppframe;
+	long int y = startframe;
+
+	for ( unsigned i = 0; i < newlength; i++){ //first vector
+
+		tempdata_l[i] = 0;
+		tempdata_r[i] = 0;
+	}
+
+	for ( unsigned i = 0; i < onesamplelength; i++, y++){ //first vector
+
+		tempdata_l[i] = origdata_l[y];
+		tempdata_r[i] = origdata_r[y];
+	}
+
+	for ( unsigned i = 0; i < looplength; i++, z++){ //loop vector
+
+		looptempdata_l[i] = origdata_l[z];
+		looptempdata_r[i] = origdata_r[z];
+	}
+	
+	for ( int i = 0; i< loops ;i++){
+		unsigned tempdataend = onesamplelength + ( looplength * i );
+		copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
+		copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
+
+	}
+
+
+	Sample *pSample = new Sample( newlength, filename );
+	pSample->__data_l = tempdata_l;
+	pSample->__data_r = tempdata_r;
+	pSample->__sample_rate = soundInfo.samplerate;
+//	pSample->reverse_sample( pSample ); // test reverse
+	return pSample;
+
+
+}
 };
 

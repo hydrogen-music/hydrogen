@@ -77,6 +77,13 @@ public:
 	/// Loads a sample from disk
 	static Sample* load( const QString& filename );
 
+	/// Loads an modified sample
+	static Sample* load_edit_wave( const QString& filename,
+				const unsigned startframe,
+				const unsigned loppframe,
+				const unsigned endframe,
+				const int loops );
+
 
 	unsigned get_n_frames() {
 		return __n_frames;
@@ -143,13 +150,12 @@ public:
 
 	void sampleEditProzess( Sample* Sample );
 	void setmod();
+
+private:
+
 	float *__data_l;	///< Left channel data
 	float *__data_r;	///< Right channel data
 	unsigned __sample_rate;		///< samplerate for this sample
-private:
-
-
-//	unsigned __sample_rate;		///< samplerate for this sample
 	QString __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
 	bool __sample_is_modified;	///< true if sample is modified

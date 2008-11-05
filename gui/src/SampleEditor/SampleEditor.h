@@ -49,7 +49,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	Q_OBJECT
 	public:
 		
-		SampleEditor( QWidget* pParent, H2Core::InstrumentLayer *mLayer );
+		SampleEditor( QWidget* pParent, int nSelectedLayer, QString nSampleFilename );
 		~SampleEditor();
 
 		void setSampleName( QString name);
@@ -57,6 +57,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		bool m_pSampleEditorStatus;
 		void returnAllMainWaveDisplayValues();
 
+		//this values come from the real sample to restore a frm song loaded sample
 		bool m_sample_is_modified;	///< true if sample is modified
 		QString m_sample_mode;		///< loop mode
 		unsigned m_fade_out_startframe;	///< start frame for fade out
@@ -72,11 +73,12 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void on_LoopCountSpinBox_valueChanged( int );
 		void on_ProcessingTypeComboBox_currentIndexChanged( int );
 		void on_ClosePushButton_clicked();
-		void on_ApplyChangesPushButton_clicked();
+		void on_PrevChangesPushButton_clicked();
 		void valueChangedStartFrameSpinBox( int );
 		void valueChangedLoopFrameSpinBox( int );
 		void valueChangedEndFrameSpinBox( int );
 		void on_PlayPushButton_clicked();
+		void on_PlayOrigPushButton_clicked();
 		void on_verticalzoomSlider_valueChanged ( int value );
 		void updateMainsamplePostionRuler();
 
@@ -89,23 +91,37 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		unsigned __start_frame;		///< start frame
 		unsigned __loop_frame;		///< beginn of the loop section
 		unsigned __end_frame; 		///< sample end frame
-*/		
+*/
+		H2Core::Sample *m_pSamplefromFile;
+		int m_pSelectedLayer;
 		QString m_samplename;
+/*
+		, m_pSampleEditorStatus( true )
+		, m_pSamplefromFile ( NULL )
+		, m_pSelectedLayer ( nSelectedLayer )
+		, m_samplename ( mSamplefilename )
+		, m_pzoomfactor ( 1 )
+		, m_pdetailframe ( 0 )
+		, m_plineColor ( "default" )
+		, m_ponewayStart ( false )
+		, m_ponewayLoop ( false )
+		, m_ponewayEnd ( false )
+		, m_pslframes ( 0 )
 		H2Core::Sample *m_pSample;
-		H2Core::Sample *m_poldSample;
+		H2Core::Sample *m_pSamplefromFile;
 		H2Core::Sample *m_proldSample;
 		H2Core::InstrumentLayer *m_pLayer;
-	
+*/	
 	
 		double m_divider;
-		bool m_ponewayStart;
-		bool m_ponewayLoop;
-		bool m_ponewayEnd;
 
-		void intDisplays();	
+		void intDisplays();
+		void getAllFrameInfos();
+		void getAllLocalFrameInfos();
 		void setAllSampleProps();
 		void testPositionsSpinBoxes();
 		void createNewLayer();
+		void setSamplelengthFrames();
 
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
@@ -113,9 +129,13 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView; ///important this lecks memory and will removed
 		DetailWaveDisplay *m_pSampleAdjustView; 
-		QString m_plineColor;
+
 		float m_pzoomfactor;
 		unsigned m_pdetailframe;
+		QString m_plineColor;
+		bool m_ponewayStart;
+		bool m_ponewayLoop;
+		bool m_ponewayEnd;
 		unsigned long m_prealtimeframeend;
 		unsigned m_pslframes;
 		QTimer *m_pTimer;
