@@ -444,7 +444,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
-	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_end_frame - m_start_frame;
+	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 }
 
 

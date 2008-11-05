@@ -248,13 +248,18 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		reverse( tempdata_r, tempdata_r + onesamplelength );		
 		}
 
+
+	if ( loopmode == "pingpong" &&  startframe == loppframe){
+		reverse(looptempdata_l, looptempdata_l + looplength);
+		reverse(looptempdata_r, looptempdata_r + looplength);
+	}
 	
 	for ( int i = 0; i< loops ;i++){
-
+			
 		unsigned tempdataend = onesamplelength + ( looplength * i );
 		copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 		copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
-		if ( loopmode == "pingpong" ){
+		if ( loopmode == "pingpong" && loops > 1){
 			reverse(looptempdata_l, looptempdata_l + looplength);
 			reverse(looptempdata_r, looptempdata_r + looplength);
 		}
