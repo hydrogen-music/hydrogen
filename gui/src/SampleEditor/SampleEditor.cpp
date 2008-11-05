@@ -433,7 +433,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
-	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_end_frame - m_start_frame;
+	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 	
 }
 
@@ -461,8 +461,6 @@ void SampleEditor::updateMainsamplePostionRuler()
 		if ( m_pPlayButton == true){
 			m_pMainSampleWaveDisplay->paintLocatorEvent( m_pPositionsRulerPath[frame] / m_divider + 25 , true);
 			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pzoomfactor , 0);
-			ERRORLOG(QString("frames  %1").arg(frame));	
-			ERRORLOG(QString("m_pPositionsRulerPath  %1").arg(m_pPositionsRulerPath[frame]));
 		}else{
 			m_pMainSampleWaveDisplay->paintLocatorEvent( frame / m_divider + 25 , true);
 			m_pSampleAdjustView->setDetailSamplePosition( frame, m_pzoomfactor , 0);
@@ -497,7 +495,7 @@ void SampleEditor::createPositionsRulerPath()
 	unsigned *normalframes = new unsigned[ normallength ];
 
 
-	for ( long int i = 0; i < normallength; i++ ) {
+	for ( unsigned i = 0; i < normallength; i++ ) {
 		normalframes[i] = i;
 	}
 
@@ -550,9 +548,7 @@ void SampleEditor::createPositionsRulerPath()
 		reverse( tempframes + m_loop_frame, tempframes + newlength);		
 		}
 
-	m_pPositionsRulerPath = tempframes;	
-
-
+	m_pPositionsRulerPath = tempframes;
 }
 
 void SampleEditor::setSamplelengthFrames()
