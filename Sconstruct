@@ -65,7 +65,7 @@ def get_platform_flags():
 		cppflags.append('-DOSS_SUPPORT')
 
 
-		includes.append( '/usr/lib/lash-1.0' )
+		if lash: includes.append( '/usr/lib/lash-1.0' )
 
 	if libarchive: cppflags.append('-DLIBARCHIVE_SUPPORT')
 
