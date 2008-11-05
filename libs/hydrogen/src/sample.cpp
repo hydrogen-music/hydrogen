@@ -162,7 +162,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 				const QString loopmode)
 {
 	_INFOLOG( QString( "mode: " + loopmode) );
-	_INFOLOG( QString( "loops: " ).arg( loops ) );
+	_INFOLOG( QString( "loops: %1" ).arg( loops ) );
 	// file exists?
 	if ( QFile( filename ).exists() == false ) {
 		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
@@ -247,7 +247,6 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		reverse( tempdata_l, tempdata_l + onesamplelength );
 		reverse( tempdata_r, tempdata_r + onesamplelength );		
 		}
-
 
 	if ( loopmode == "pingpong" &&  startframe == loppframe){
 		reverse(looptempdata_l, looptempdata_l + looplength);

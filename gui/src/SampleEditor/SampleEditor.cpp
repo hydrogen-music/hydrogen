@@ -40,6 +40,7 @@
 #include <QModelIndex>
 #include <QTreeWidget>
 #include <QMessageBox>
+#include <algorithm>
 
 using namespace H2Core;
 using namespace std;
@@ -58,6 +59,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 		, m_ponewayLoop ( false )
 		, m_ponewayEnd ( false )
 		, m_pslframes ( 0 )
+		, m_pPositionsRulerPath ( NULL )
+		, m_pPlayButton ( false )
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );
@@ -425,6 +428,8 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 
 	setSamplelengthFrames();
+	createPositionsRulerPath();
+	m_pPlayButton = true;
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
@@ -453,22 +458,106 @@ void SampleEditor::updateMainsamplePostionRuler()
 	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
 	if ( realpos < m_prealtimeframeend ){
 		unsigned frame = m_pslframes - ( m_prealtimeframeend  - realpos );
-		m_pMainSampleWaveDisplay->paintLocatorEvent( frame / m_divider + 25 , true);
-		m_pSampleAdjustView->setDetailSamplePosition( frame, m_pzoomfactor , 0);
+		if ( m_pPlayButton == true){
+			m_pMainSampleWaveDisplay->paintLocatorEvent( m_pPositionsRulerPath[frame] / m_divider + 25 , true);
+			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pzoomfactor , 0);
+			ERRORLOG(QString("frames  %1").arg(frame));	
+			ERRORLOG(QString("m_pPositionsRulerPath  %1").arg(m_pPositionsRulerPath[frame]));
+		}else{
+			m_pMainSampleWaveDisplay->paintLocatorEvent( frame / m_divider + 25 , true);
+			m_pSampleAdjustView->setDetailSamplePosition( frame, m_pzoomfactor , 0);
+		}
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}else
 	{
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 //		m_pSampleAdjustView->setDetailSamplePosition( 0, m_pzoomfactor , 0);
 		m_pTimer->stop();
+		m_pPlayButton = false;
 	}
 }
 
+void SampleEditor::createPositionsRulerPath()
+{
+	setSamplelengthFrames();
 
+	unsigned onesamplelength =  m_end_frame - m_start_frame;
+	unsigned looplength =  m_end_frame - m_loop_frame;
+	unsigned repeatslength = looplength * m_repeats;
+	unsigned newlength = 0;
+	if (onesamplelength == looplength){	
+		newlength = onesamplelength + onesamplelength * m_repeats ;
+	}else
+	{
+		newlength =onesamplelength + repeatslength;
+	}
+
+	unsigned  normallength = m_pSamplefromFile->get_n_frames();
+
+	unsigned *normalframes = new unsigned[ normallength ];
+
+
+	for ( long int i = 0; i < normallength; i++ ) {
+		normalframes[i] = i;
+	}
+
+
+	unsigned *tempframes = new unsigned[ newlength ];
+	unsigned *loopframes = new unsigned[ looplength ];
+
+	QString loopmode = m_sample_mode;
+	long int z = m_loop_frame;
+	long int y = m_start_frame;
+
+	for ( unsigned i = 0; i < newlength; i++){ //first vector
+		tempframes[i] = 0;
+	}
+
+	for ( unsigned i = 0; i < onesamplelength; i++, y++){ //first vector
+
+		tempframes[i] = normalframes[y];
+	}
+
+	for ( unsigned i = 0; i < looplength; i++, z++){ //loop vector
+
+		loopframes[i] = normalframes[z];
+	}
+
+		
+	if ( loopmode == "reverse" ){
+		reverse(loopframes, loopframes + looplength);
+	}
+
+	if ( loopmode == "reverse" && m_repeats > 0 && m_start_frame == m_loop_frame ){
+		reverse( tempframes, tempframes + onesamplelength );		
+		}
+
+	if ( loopmode == "pingpong" &&  m_start_frame == m_loop_frame){
+		reverse(loopframes, loopframes + looplength);
+	}
+	
+	for ( int i = 0; i< m_repeats ;i++){			
+		unsigned tempdataend = onesamplelength + ( looplength * i );
+		copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
+		if ( loopmode == "pingpong" && m_repeats > 1){
+			reverse(loopframes, loopframes + looplength);
+		}
+
+	}
+
+	
+	if ( m_repeats == 0 && loopmode == "reverse" ){
+		reverse( tempframes + m_loop_frame, tempframes + newlength);		
+		}
+
+	m_pPositionsRulerPath = tempframes;	
+
+
+}
 
 void SampleEditor::setSamplelengthFrames()
 {
-getAllLocalFrameInfos();
+	getAllLocalFrameInfos();
 //	getAllFrameInfos();
 
 	//create new  sample length

@@ -122,6 +122,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void testPositionsSpinBoxes();
 		void createNewLayer();
 		void setSamplelengthFrames();
+		void createPositionsRulerPath();
 
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
@@ -139,6 +140,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		unsigned long m_prealtimeframeend;
 		unsigned m_pslframes;
 		QTimer *m_pTimer;
+		unsigned *m_pPositionsRulerPath;
+		bool m_pPlayButton;
 
 		
 };
