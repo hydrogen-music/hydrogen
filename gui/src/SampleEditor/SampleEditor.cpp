@@ -284,7 +284,8 @@ void SampleEditor::createNewLayer()
 							    m_start_frame,
 							    m_loop_frame,
 							    m_end_frame,
-							    m_repeats );
+							    m_repeats,
+							    m_sample_mode);
 
 		AudioEngine::get_instance()->lock( "SampeEditor::insert new sample" );
 
@@ -439,7 +440,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
 	}
 
-	setSamplelengthFrames();
+	m_pslframes = pNewSample->get_n_frames();
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	

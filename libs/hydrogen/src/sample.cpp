@@ -158,8 +158,11 @@ Sample* Sample::load_edit_wave( const QString& filename,
 				const unsigned startframe,
 				const unsigned loppframe,
 				const unsigned endframe,
-				const int loops )
+				const int loops,
+				const QString loopmode)
 {
+	_INFOLOG( QString( "mode: " + loopmode) );
+	_INFOLOG( QString( "loops: " ).arg( loops ) );
 	// file exists?
 	if ( QFile( filename ).exists() == false ) {
 		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
@@ -233,13 +236,36 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		looptempdata_l[i] = origdata_l[z];
 		looptempdata_r[i] = origdata_r[z];
 	}
+
+		
+	if ( loopmode == "reverse" ){
+		reverse(looptempdata_l, looptempdata_l + looplength);
+		reverse(looptempdata_r, looptempdata_r + looplength);
+	}
+
+	if ( loopmode == "reverse" && loops > 0 && startframe == loppframe ){
+		reverse( tempdata_l, tempdata_l + onesamplelength );
+		reverse( tempdata_r, tempdata_r + onesamplelength );		
+		}
+
 	
 	for ( int i = 0; i< loops ;i++){
+
 		unsigned tempdataend = onesamplelength + ( looplength * i );
 		copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 		copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
+		if ( loopmode == "pingpong" ){
+			reverse(looptempdata_l, looptempdata_l + looplength);
+			reverse(looptempdata_r, looptempdata_r + looplength);
+		}
 
 	}
+
+	
+	if ( loops == 0 && loopmode == "reverse" ){
+		reverse( tempdata_l + loppframe, tempdata_l + newlength);
+		reverse( tempdata_r + loppframe, tempdata_r + newlength);		
+		}
 
 
 	Sample *pSample = new Sample( newlength, filename );

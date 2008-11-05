@@ -597,7 +597,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 	if ( !pPatternEditor->isUsingTriplets() ) {
 
-		for (uint i = 0; i < MAX_NOTES + 1; i++) {
+		for (uint i = 0; i < nNotes +1 ; i++) {
 			uint x = 20 + i * m_nGridWidth;
 
 			if ( (i % n4th) == 0 ) {
@@ -636,7 +636,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		uint nCounter = 0;
 		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
 
-		for (uint i = 0; i < MAX_NOTES + 1; i++) {
+		for (uint i = 0; i < nNotes +1; i++) {
 			uint x = 20 + i * m_nGridWidth;
 
 			if ( (i % nSize) == 0) {
@@ -752,7 +752,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
  
 	if ( !pPatternEditor->isUsingTriplets() ) {
  
-		for (uint i = 0; i < MAX_NOTES + 1; i++) {
+		for (uint i = 0; i < nNotes + 1; i++) {
 			uint x = 20 + i * m_nGridWidth;
  
 			if ( (i % n4th) == 0 ) {
@@ -791,7 +791,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 		uint nCounter = 0;
 		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
  
-		for (uint i = 0; i < MAX_NOTES + 1; i++) {
+		for (uint i = 0; i < nNotes + 1; i++) {
 			uint x = 20 + i * m_nGridWidth;
  
 			if ( (i % nSize) == 0) {

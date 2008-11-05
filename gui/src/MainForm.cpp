@@ -623,6 +623,7 @@ void MainForm::action_file_export_pattern_as()
 		if ( err != 0 )
 		{
 			_ERRORLOG ( "Error saving the pattern" );
+			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") ); 
 		}
 	}
 	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );

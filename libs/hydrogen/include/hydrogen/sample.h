@@ -82,7 +82,8 @@ public:
 				const unsigned startframe,
 				const unsigned loppframe,
 				const unsigned endframe,
-				const int loops );
+				const int loops,
+				const QString loopmode );
 
 
 	unsigned get_n_frames() {
