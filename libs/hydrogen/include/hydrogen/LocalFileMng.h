@@ -106,7 +106,8 @@ public:
 	SongWriter();
 	~SongWriter();
 
-	void writeSong( Song *song, const QString& filename );
+	// Returns 0 on success.
+	int writeSong( Song *song, const QString& filename );
 };
 
 };

@@ -105,6 +105,10 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
 
+	protected:
+		// Returns true if handled, false if aborted.
+		bool handleUnsavedChanges();
+
 	private:
 		HydrogenApp* h2app;
 

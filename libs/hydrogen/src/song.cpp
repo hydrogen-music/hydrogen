@@ -117,8 +117,12 @@ Song* Song::load( const QString& filename )
 bool Song::save( const QString& filename )
 {
 	SongWriter writer;
-	writer.writeSong( this, filename );
+	int err;
+	err = writer.writeSong( this, filename );
 
+	if( err ) {
+		return false;
+	}
 	return QFile::exists( filename );
 }
 

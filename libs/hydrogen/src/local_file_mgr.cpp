@@ -1078,10 +1078,11 @@ SongWriter::~SongWriter()
 }
 
 
-
-void SongWriter::writeSong( Song *song, const QString& filename )
+// Returns 0 on success, passes the TinyXml error code otherwise.
+int SongWriter::writeSong( Song *song, const QString& filename )
 {
 	INFOLOG( "Saving song " + filename );
+	int rv = 0; // return value
 
 	// FIXME: has the file write-permssion?
 	// FIXME: verificare che il file non sia gia' esistente
@@ -1290,10 +1291,17 @@ void SongWriter::writeSong( Song *song, const QString& filename )
 
 
 	doc.InsertEndChild( songNode );
-	doc.SaveFile();
+	rv = ( doc.SaveFile() ? 0 : doc.ErrorId() );
 
-	song->__is_modified = false;
+	if( rv ) {
+		WARNINGLOG("File save reported an error.");
+	} else {
+		song->__is_modified = false;
+		INFOLOG("Save was successful.");
+	}
 	song->set_filename( filename );
+
+	return rv;
 }
 
 
