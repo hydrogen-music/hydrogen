@@ -74,7 +74,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 //this new sample give us the not changed real samplelength 
 	m_pSamplefromFile = Sample::load( mSamplefilename );
 
-//this 
 	unsigned slframes = m_pSamplefromFile->get_n_frames();
 
 	LoopCountSpinBox->setRange(0, 20000 );
@@ -85,10 +84,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 	intDisplays();
 	getAllFrameInfos();
-	
-
-
-//	m_pSample->set_end_frame( m_end_frame );
 
 // mainSampleview = 624(575) x 265 :-)
 // mainSampleAdjustView = 180 x 265 :-(
@@ -116,8 +111,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 
 
-
-
 SampleEditor::~SampleEditor()
 {
 	delete m_pMainSampleWaveDisplay;
@@ -128,7 +121,8 @@ SampleEditor::~SampleEditor()
 }
 
 
-//this 
+
+
 void SampleEditor::getAllFrameInfos()
 {
 	H2Core::Instrument *m_pInstrument = NULL;
@@ -202,6 +196,8 @@ void SampleEditor::getAllLocalFrameInfos()
 
 }
 
+
+
 void SampleEditor::intDisplays()
 {
 	H2Core::Instrument *m_pInstrument = NULL;
@@ -240,11 +236,9 @@ void SampleEditor::intDisplays()
 	m_pTargetSampleView->updateDisplay( pLayer );
 	m_pTargetSampleView->move( 1, 1 );
 
-
 	QApplication::restoreOverrideCursor();
 
 }
-
 
 
 
@@ -303,6 +297,7 @@ void SampleEditor::getAllSampleProps()
 */
 
 
+
 void SampleEditor::createNewLayer()
 {
 	if ( !m_pSampleEditorStatus ){
@@ -350,6 +345,8 @@ void SampleEditor::createNewLayer()
 		}
 		
 }
+
+
 
 void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 {
@@ -438,6 +435,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 }
 
 
+
 void SampleEditor::on_PlayPushButton_clicked()
 {
 
@@ -464,6 +462,8 @@ void SampleEditor::on_PlayPushButton_clicked()
 	
 }
 
+
+
 void SampleEditor::on_PlayOrigPushButton_clicked()
 {
 	Sample *pNewSample = Sample::load( m_samplename );
@@ -478,6 +478,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	m_pTimer->start(40);	// update ruler at 25 fps	
 	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 }
+
 
 
 void SampleEditor::updateMainsamplePostionRuler()
@@ -501,6 +502,8 @@ void SampleEditor::updateMainsamplePostionRuler()
 		m_pPlayButton = false;
 	}
 }
+
+
 
 void SampleEditor::createPositionsRulerPath()
 {
@@ -578,6 +581,8 @@ void SampleEditor::createPositionsRulerPath()
 	m_pPositionsRulerPath = tempframes;
 }
 
+
+
 void SampleEditor::setSamplelengthFrames()
 {
 	getAllLocalFrameInfos();
@@ -606,6 +611,7 @@ void SampleEditor::on_LoopCountSpinBox_valueChanged( int )
 }
 
 
+
 void SampleEditor::on_ProcessingTypeComboBox_currentIndexChanged( int )
 {
 	switch ( ProcessingTypeComboBox->currentIndex() ){
@@ -626,7 +632,6 @@ void SampleEditor::on_ProcessingTypeComboBox_currentIndexChanged( int )
 
 
 
-
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_pzoomfactor = value / 10 +1;
@@ -634,11 +639,10 @@ void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 }
 
 
+
 void SampleEditor::testPositionsSpinBoxes()
 {
-//m_start_frame;
-//m_loop_frame;
-//m_end_frame;
+
 	if (  m_start_frame > m_loop_frame ) m_loop_frame = m_start_frame;
 	if (  m_start_frame > m_end_frame ) m_end_frame = m_start_frame;
 	if (  m_loop_frame > m_end_frame ) m_end_frame = m_loop_frame;
