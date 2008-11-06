@@ -159,7 +159,9 @@ Sample* Sample::load_edit_wave( const QString& filename,
 				const unsigned loppframe,
 				const unsigned endframe,
 				const int loops,
-				const QString loopmode)
+				const QString loopmode,
+ 				const unsigned fadeoutstartframe,
+				const int fadeouttype)
 {
 	_INFOLOG( QString( "mode: " + loopmode) );
 	_INFOLOG( QString( "loops: %1" ).arg( loops ) );
@@ -276,9 +278,16 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	pSample->__data_l = tempdata_l;
 	pSample->__data_r = tempdata_r;
 	pSample->__sample_rate = soundInfo.samplerate;
-//	pSample->reverse_sample( pSample ); // test reverse
-	return pSample;
+	pSample->__sample_is_modified = true;
+	pSample->__sample_mode = loopmode;
+	pSample->__start_frame = startframe;
+	pSample->__loop_frame = loppframe;
+	pSample->__end_frame = endframe;
+	pSample->__repeats = loops;
+	pSample->__fade_out_startframe = fadeoutstartframe;
+	pSample->__fade_out_type = fadeouttype;
 
+	return pSample;
 
 }
 };

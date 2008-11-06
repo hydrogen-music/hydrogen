@@ -83,8 +83,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
 
-	getAllFrameInfos();
 	intDisplays();
+	getAllFrameInfos();
 	
 
 
@@ -164,7 +164,32 @@ void SampleEditor::getAllFrameInfos()
 
 	m_fade_out_startframe = pSample->get_fade_out_startframe();
 	m_fade_out_type = pSample->get_fade_out_type();
-	
+
+	if (m_sample_is_modified) {
+		m_end_frame = pSample->get_end_frame();
+
+		if ( m_sample_mode == "forward" ) 
+			ProcessingTypeComboBox->setCurrentIndex ( 0 );
+		if ( m_sample_mode == "reverse" ) 
+			ProcessingTypeComboBox->setCurrentIndex ( 1 );
+		if ( m_sample_mode == "pingpong" ) 
+			ProcessingTypeComboBox->setCurrentIndex ( 2 );
+
+		StartFrameSpinBox->setValue( m_start_frame );
+		LoopFrameSpinBox->setValue( m_loop_frame );
+		EndFrameSpinBox->setValue( m_end_frame );
+		LoopCountSpinBox->setValue( m_repeats );
+		FadeOutFrameSpinBox->setValue( m_fade_out_startframe );
+		FadeOutTypeComboBox->setCurrentIndex( m_fade_out_type );
+
+		m_pMainSampleWaveDisplay->m_pStartFramePosition = m_start_frame / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->updateDisplayPointer();
+		m_pMainSampleWaveDisplay->m_pLoopFramePosition =  m_loop_frame / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->updateDisplayPointer();
+		m_pMainSampleWaveDisplay->m_pEndFramePosition =  m_end_frame / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->updateDisplayPointer();
+
+	}
 }
 
 
@@ -288,7 +313,9 @@ void SampleEditor::createNewLayer()
 							    m_loop_frame,
 							    m_end_frame,
 							    m_repeats,
-							    m_sample_mode);
+							    m_sample_mode,
+							    m_fade_out_startframe,
+							    m_fade_out_type);
 
 		AudioEngine::get_instance()->lock( "SampeEditor::insert new sample" );
 

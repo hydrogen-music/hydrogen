@@ -48,7 +48,7 @@ public:
 		int repeats = 0,
 		unsigned end_frame = 0,
 		unsigned fade_out_startframe = 0,
-		int fade_out_type = 1);
+		int fade_out_type = 0);
 		
 
 	~Sample();
@@ -83,7 +83,9 @@ public:
 				const unsigned loppframe,
 				const unsigned endframe,
 				const int loops,
-				const QString loopmode );
+				const QString loopmode,
+ 				const unsigned fadeoutstartframe,
+				const int fadeouttype);
 
 
 	unsigned get_n_frames() {
@@ -166,7 +168,7 @@ private:
 	int __repeats;			///< repeats from the loop section
 	unsigned __end_frame; 		///< sample end frame
 	unsigned __fade_out_startframe;	///< start frame for fade out
-	int __fade_out_type;		///< fade out type 1=lin, 2=log
+	int __fade_out_type;		///< fade out type 0=lin, 1=log
 
 
 	//static int __total_used_bytes;
