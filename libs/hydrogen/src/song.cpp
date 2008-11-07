@@ -360,6 +360,15 @@ Song* SongReader::readSong( const QString& filename )
 						continue;
 					}
 					QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
+					bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", "false");
+					QString sMode = LocalFileMng::readXmlString( layerNode, "smode", "forward" );
+					unsigned sStartframe = LocalFileMng::readXmlInt( layerNode, "startframe", 0);
+					unsigned sLoopFrame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0);
+					int sLoops = LocalFileMng::readXmlInt( layerNode, "loops", 0);
+					unsigned sEndframe = LocalFileMng::readXmlInt( layerNode, "endframe", 0);
+					unsigned sFadeout = LocalFileMng::readXmlInt( layerNode, "fadeout", 0);
+					int sFadeoutType = LocalFileMng::readXmlInt( layerNode, "fadeouttype", 0); 
+
 					float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
 					float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
 					float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
@@ -368,7 +377,21 @@ Song* SongReader::readSong( const QString& filename )
 					if ( drumkitPath != "" ) {
 						sFilename = drumkitPath + "/" + sFilename;
 					}
-					Sample *pSample = Sample::load( sFilename );
+
+					Sample *pSample = NULL;
+					if ( !sIsModified ){
+						pSample = Sample::load( sFilename );
+					}else
+					{
+						pSample = Sample::load_edit_wave( sFilename,
+										  sStartframe,
+										  sLoopFrame,
+										  sEndframe,
+										  sLoops,
+										  sMode,
+										  sFadeout,
+										  sFadeoutType);
+					}
 					if ( pSample == NULL ) {
 						ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 						pInstrument->set_muted( true );
