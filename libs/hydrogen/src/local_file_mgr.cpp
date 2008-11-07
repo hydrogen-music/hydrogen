@@ -1173,6 +1173,14 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			if ( pSample == NULL ) continue;
 
 			QString sFilename = pSample->get_filename();
+			bool sIsModified = pSample->get_sample_is_modified(); 
+			QString sMode = pSample->get_sample_mode();
+			unsigned sStartframe = pSample->get_start_frame();
+			unsigned sLoopFrame =  pSample->get_loop_frame();
+			int sLoops = pSample->get_repeats();
+			unsigned sEndframe =  pSample->get_end_frame();
+			unsigned sFadeout = pSample->get_fade_out_startframe();
+			int sFadeoutType =  pSample->get_fade_out_type();
 
 			if ( instr->get_drumkit_name() != "" ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -1182,6 +1190,14 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", sFilename );
+			LocalFileMng::writeXmlBool( &layerNode, "ismodified", sIsModified);
+			LocalFileMng::writeXmlString( &layerNode, "smode", sMode );
+			LocalFileMng::writeXmlString( &layerNode, "startframe", to_string( sStartframe ) );
+			LocalFileMng::writeXmlString( &layerNode, "loopframe", to_string( sLoopFrame ) );
+			LocalFileMng::writeXmlString( &layerNode, "loops", to_string( sLoops ) );
+			LocalFileMng::writeXmlString( &layerNode, "endframe", to_string( sEndframe ) );
+			LocalFileMng::writeXmlString( &layerNode, "fadeout", to_string( sFadeout ) );
+			LocalFileMng::writeXmlString( &layerNode, "fadeouttype", to_string( sFadeoutType ) );
 			LocalFileMng::writeXmlString( &layerNode, "min", to_string( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( &layerNode, "max", to_string( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( &layerNode, "gain", to_string( pLayer->get_gain() ) );
