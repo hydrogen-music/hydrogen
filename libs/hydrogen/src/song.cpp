@@ -382,10 +382,8 @@ Song* SongReader::readSong( const QString& filename )
 					Sample *pSample = NULL;
 					if ( !sIsModified ){
 						pSample = Sample::load( sFilename );
-						ERRORLOG( "dölkfsssssjgjgkjjkjfdlksdlkfjgadkjfglkjdsafglkjdsafglkjsdgfflkjsdhglkglkjdsfhgdsgf" );
 					}else
 					{
-						ERRORLOG( "---------------------------------------------------------------------------------" );
 						pSample = Sample::load_edit_wave( sFilename,
 										  sStartframe,
 										  sLoopFrame,
