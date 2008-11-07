@@ -359,8 +359,9 @@ Song* SongReader::readSong( const QString& filename )
 						ERRORLOG( "nLayer > MAX_LAYERS" );
 						continue;
 					}
+					//bool sIsModified = false;
 					QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
-					bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", "false");
+					bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", false);
 					QString sMode = LocalFileMng::readXmlString( layerNode, "smode", "forward" );
 					unsigned sStartframe = LocalFileMng::readXmlInt( layerNode, "startframe", 0);
 					unsigned sLoopFrame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0);
@@ -381,8 +382,10 @@ Song* SongReader::readSong( const QString& filename )
 					Sample *pSample = NULL;
 					if ( !sIsModified ){
 						pSample = Sample::load( sFilename );
+						ERRORLOG( "dölkfsssssjgjgkjjkjfdlksdlkfjgadkjfglkjdsafglkjdsafglkjsdgfflkjsdhglkglkjdsfhgdsgf" );
 					}else
 					{
+						ERRORLOG( "---------------------------------------------------------------------------------" );
 						pSample = Sample::load_edit_wave( sFilename,
 										  sStartframe,
 										  sLoopFrame,
