@@ -160,6 +160,7 @@ void SampleEditor::getAllFrameInfos()
 	m_fade_out_startframe = pSample->get_fade_out_startframe();
 	m_fade_out_type = pSample->get_fade_out_type();
 
+
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
 
@@ -174,8 +175,9 @@ void SampleEditor::getAllFrameInfos()
 		LoopFrameSpinBox->setValue( m_loop_frame );
 		EndFrameSpinBox->setValue( m_end_frame );
 		LoopCountSpinBox->setValue( m_repeats );
-		FadeOutFrameSpinBox->setValue( m_fade_out_startframe );
-		FadeOutTypeComboBox->setCurrentIndex( m_fade_out_type );
+
+		FadeOutFrameSpinBox->setValue( pSample->get_fade_out_startframe() );
+		FadeOutTypeComboBox->setCurrentIndex( pSample->get_fade_out_type() );
 
 		m_pMainSampleWaveDisplay->m_pStartFramePosition = m_start_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();

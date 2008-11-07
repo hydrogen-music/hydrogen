@@ -89,7 +89,7 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 		if ( (startpos) > 0 ){
 			painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pzoomFactor) +VCenterl, x, (-m_pPeakDatal[startpos ] *m_pzoomFactor)+VCenterl );
 			painter.drawLine( x, (-m_pPeakDatar[startpos -1] *m_pzoomFactor) +VCenterr, x, (-m_pPeakDatar[startpos ] *m_pzoomFactor)+VCenterr );
-			//ERRORLOG( QString("startpos: %1").arg(startpos) );
+			//ERRORLOG( QString("startpos: %1").arg(startpos) )
 		}
 		else
 		{
@@ -127,10 +127,15 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 	if ( pNewSample ) {
 
-		int nSampleLenght = pNewSample->get_n_frames();
+		int m_pSampleLenght = pNewSample->get_n_frames();
 
-		m_pPeakDatal = new int[ nSampleLenght ];
-		m_pPeakDatar = new int[ nSampleLenght ];
+		m_pPeakDatal = new int[ m_pSampleLenght + m_pnormalimagedetailframes /2 ];
+		m_pPeakDatar = new int[ m_pSampleLenght + m_pnormalimagedetailframes /2 ];
+
+		for ( int i = 0 ; i < m_pSampleLenght + m_pnormalimagedetailframes /2 ; i++){
+			m_pPeakDatal[ i ] = 0;
+			m_pPeakDatar[ i ] = 0;
+		}
 
 		float fGain = height() / 4.0 * 1.0;
 
@@ -138,7 +143,7 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 		int nSamplePos =0;
 //		int nVall;
-		for ( int i = 0; i < nSampleLenght; i++ ){
+		for ( int i = 0; i < m_pSampleLenght; i++ ){
 			m_pPeakDatal[ i ] = (int)( pSampleDatal[ i ] * fGain );
 		}
 
@@ -147,7 +152,7 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 		nSamplePos = 0;
 //		int nValr;
 
-		for ( int i = 0; i < nSampleLenght; i++ ){
+		for ( int i = 0; i < m_pSampleLenght; i++ ){
 			m_pPeakDatar[ i ] = (int)( pSampleDatar[ i ] * fGain );
 		}
 
