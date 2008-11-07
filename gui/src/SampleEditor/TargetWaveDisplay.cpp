@@ -24,6 +24,10 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/instrument.h>
+
+#include "HydrogenApp.h"
+#include "SampleEditor.h"
+
 using namespace H2Core;
 
 #include "TargetWaveDisplay.h"
@@ -38,7 +42,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 451;
+	int w = 841;
 	int h = 91;
 	resize( w, h );
 
@@ -66,10 +70,10 @@ TargetWaveDisplay::~TargetWaveDisplay()
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::Antialiasing );
+	painter.setRenderHint( QPainter::HighQualityAntialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
-	painter.setPen( QColor( 102, 150, 205 ) );
+	painter.setPen( QColor( 255 , 255, 255 ) );
 	int VCenter = height() / 2;
 	for ( int x = 0; x < width(); x++ ) {
 		painter.drawLine( x, -m_pPeakData[x] +VCenter, x, -m_pPeakData[x +1] +VCenter  );
@@ -78,12 +82,18 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	QFont font;
 	font.setWeight( 63 );
 	painter.setFont( font );
-	painter.setPen( QColor( 255 , 255, 255, 200 ) );
-	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
+//start frame pointer
+	painter.setPen( QColor( 99, 175, 254, 200 ) );
+	painter.drawLine( m_pFadeOutFramePosition, 4, m_pFadeOutFramePosition, height() -4 );	
+	painter.drawText( m_pFadeOutFramePosition , 1, 10,20, Qt::AlignRight, "F" );
+
 }
 
 
-
+void TargetWaveDisplay::updateDisplayPointer()
+{
+	update();
+}
 
 void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
@@ -113,4 +123,32 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 
 	update();
 
+}
+
+
+void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
+{
+	testPosition( ev );
+	update();
+}
+
+
+
+void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
+{
+	testPosition( ev );
+	update();
+}
+
+
+void TargetWaveDisplay::testPosition( QMouseEvent *ev )
+{
+		m_pFadeOutFramePosition = ev->x() ;
+}
+
+
+void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
+{
+	update();
+	HydrogenApp::getInstance()->getSampleEditor()->returnAllTargetDisplayValues();
 }

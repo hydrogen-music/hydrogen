@@ -376,39 +376,9 @@ if ( Preferences::getInstance()->useLash() ){
 /// return true if the app needs to be closed.
 bool MainForm::action_file_exit()
 {
-	if ( Hydrogen::get_instance()->getSong()->__is_modified ) {
-		int res = QMessageBox::information(
-				this,
-				"Hydrogen",
-				trUtf8("\nThe song has unsaved changes\n Do you want to save the changes before exiting?\n"),
-				trUtf8("&Save"),
-				trUtf8("&Discard"),
-				trUtf8("&Cancel"),
-				0,	// Enter == button 0
-				2 	// Escape == button 2
-		);
-		switch( res ) {
-			case 0:
-				// Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::get_instance()->getSong()->get_filename() != "") {
-					action_file_save();
-				} else {
-					action_file_save_as();
-				}
-				// save
-				break;
-			case 1:
-				// Discard clicked or Alt+D pressed
-				// don't save but exit
-				break;
-			case 2:
-				// Cancel clicked or Alt+C pressed or Escape pressed
-				// don't exit
-				return false;
-				break;
-			default:
-				ERRORLOG( "Unknown return code: " + to_string( res ) );
-		}
+	bool proceed = handleUnsavedChanges();
+	if(!proceed) {
+		return false;
 	}
 	closeAll();
 	return true;
@@ -422,31 +392,9 @@ void MainForm::action_file_new()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	if ( Hydrogen::get_instance()->getSong()->__is_modified ) {
-		switch(
-				QMessageBox::information( this, "Hydrogen",
-						trUtf8("\nThe document contains unsaved changes\n"
-						"Do you want to save the changes before exiting?\n"),
-						trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),
-						0,      // Enter == button 0
-						2 ) ) { // Escape == button 2
-			case 0: // Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::get_instance()->getSong()->get_filename() != "") {
-					action_file_save();
-				} else {
-					// never been saved
-					action_file_save_as();
-				}
-				// save
-				break;
-			case 1: // Discard clicked or Alt+D pressed
-				// don't save but exit
-				break;
-			case 2: // Cancel clicked or Alt+C pressed or Escape pressed
-				// don't exit
-				return;
-				break;
-		}
+	bool proceed = handleUnsavedChanges();
+	if(!proceed) {
+		return;
 	}
 
 	Song * song = Song::get_empty_song();
@@ -640,37 +588,10 @@ void MainForm::action_file_open() {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	if ( Hydrogen::get_instance()->getSong()->__is_modified ) {
-		switch(
-			QMessageBox::information( this, "Hydrogen",
-					trUtf8("\nThe document contains unsaved changes\n"
-					"Do you want to save the changes before exiting?\n"),
-					trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),
-					0,      // Enter == button 0
-					2 ) ) { // Escape == button 2
-			case 0: // Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::get_instance()->getSong()->get_filename() != "") {
-					action_file_save();
-				}
-				else {
-					action_file_save_as();
-				}
-				// save
-				break;
-			case 1: // Discard clicked or Alt+D pressed
-				// don't save but exit
-				break;
-			case 2: // Cancel clicked or Alt+C pressed or Escape pressed
-				// don't exit
-				return;
-				break;
-		}
+	bool proceed = handleUnsavedChanges();
+	if(!proceed) {
+		return;
 	}
-
-	
-	 
-
-	
 
 	static QString lastUsedDir = Preferences::getInstance()->getDataDirectory() + "/songs";
 	
@@ -755,33 +676,10 @@ void MainForm::action_file_openDemo()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	if ( ( Hydrogen::get_instance()->getSong())->__is_modified ) {
-		switch(
-			QMessageBox::information( this, "Hydrogen",
-					trUtf8("\nThe document contains unsaved changes\n"
-					"Do you want to save the changes before exiting?\n"),
-					trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),
-					0,      // Enter == button 0
-					2 ) ) { // Escape == button 2
-			case 0: // Save clicked or Alt+S pressed or Enter pressed.
-				if ( Hydrogen::get_instance()->getSong()->get_filename() != "") {
-					action_file_save_as();
-				}
-				else {
-					action_file_save_as();
-				}
-				// save
-				break;
-			case 1: // Discard clicked or Alt+D pressed
-				// don't save but exit
-				break;
-			case 2: // Cancel clicked or Alt+C pressed or Escape pressed
-				// don't exit
-				return;
-				break;
-		}
+	bool proceed = handleUnsavedChanges();
+	if(!proceed) {
+		return;
 	}
-
 
 	QFileDialog *fd = new QFileDialog(this);
 	fd->setFileMode(QFileDialog::ExistingFile);
@@ -1661,4 +1559,42 @@ void MainForm::onPlaylistDisplayTimer()
 	}
 	QString message = (trUtf8("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
 	HydrogenApp::getInstance()->setScrollStatusBarMessage( message, 2000 );
+}
+
+// Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
+// Returns false if not (i.e. Cancel)
+bool MainForm::handleUnsavedChanges()
+{
+	bool done = false;
+	bool rv = true;
+	while ( !done && Hydrogen::get_instance()->getSong()->__is_modified ) {
+		switch(
+				QMessageBox::information( this, "Hydrogen",
+						trUtf8("\nThe document contains unsaved changes.\n"
+						"Do you want to save the changes?\n"),
+						trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),
+						0,      // Enter == button 0
+						2 ) ) { // Escape == button 2
+			case 0: // Save clicked or Alt+S pressed or Enter pressed.
+				// If the save fails, the __is_modified flag will still be true
+				if ( Hydrogen::get_instance()->getSong()->get_filename() != "") {
+					action_file_save();
+				} else {
+					// never been saved
+					action_file_save_as();
+				}
+				// save
+				break;
+			case 1: // Discard clicked or Alt+D pressed
+				// don't save but exit
+				done = true;
+				break;
+			case 2: // Cancel clicked or Alt+C pressed or Escape pressed
+				// don't exit
+				done = true;
+				rv = false;
+				break;
+		}
+	}
+	return rv;
 }

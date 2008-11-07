@@ -17,7 +17,7 @@
     <rect>
      <x>10</x>
      <y>385</y>
-     <width>451</width>
+     <width>841</width>
      <height>91</height>
     </rect>
    </property>
@@ -57,8 +57,8 @@
   <widget class="QPushButton" name="ClosePushButton" >
    <property name="geometry" >
     <rect>
-     <x>740</x>
-     <y>450</y>
+     <x>775</x>
+     <y>295</y>
      <width>81</width>
      <height>26</height>
     </rect>
@@ -71,8 +71,8 @@
    <property name="geometry" >
     <rect>
      <x>5</x>
-     <y>305</y>
-     <width>846</width>
+     <y>295</y>
+     <width>621</width>
      <height>24</height>
     </rect>
    </property>
@@ -172,46 +172,13 @@
       </property>
      </widget>
     </item>
-    <item>
-     <widget class="QSpinBox" name="FadeOutFrameSpinBox" >
-      <property name="minimumSize" >
-       <size>
-        <width>140</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="toolTip" >
-       <string>Adjust fade-out start frame</string>
-      </property>
-      <property name="maximum" >
-       <number>1000000000</number>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="FadeOutTypeComboBox" >
-      <property name="toolTip" >
-       <string>fade-out type</string>
-      </property>
-      <item>
-       <property name="text" >
-        <string>lin</string>
-       </property>
-      </item>
-      <item>
-       <property name="text" >
-        <string>log</string>
-       </property>
-      </item>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="layoutWidget" >
    <property name="geometry" >
     <rect>
-     <x>7</x>
-     <y>18</y>
+     <x>5</x>
+     <y>10</y>
      <width>843</width>
      <height>276</height>
     </rect>
@@ -286,6 +253,70 @@
     <string>&amp;Play</string>
    </property>
   </widget>
+  <widget class="QLabel" name="newlengthLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>400</x>
+     <y>350</y>
+     <width>236</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>new sample length:</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="" >
+   <property name="geometry" >
+    <rect>
+     <x>640</x>
+     <y>350</y>
+     <width>209</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3" >
+    <item>
+     <widget class="QComboBox" name="FadeOutTypeComboBox" >
+      <property name="minimumSize" >
+       <size>
+        <width>60</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip" >
+       <string>fade-out type</string>
+      </property>
+      <item>
+       <property name="text" >
+        <string>off</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>lin</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSpinBox" name="FadeOutFrameSpinBox" >
+      <property name="minimumSize" >
+       <size>
+        <width>140</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip" >
+       <string>Adjust fade-out start frame</string>
+      </property>
+      <property name="maximum" >
+       <number>1000000000</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>StartFrameSpinBox</tabstop>
@@ -293,8 +324,6 @@
   <tabstop>ProcessingTypeComboBox</tabstop>
   <tabstop>LoopCountSpinBox</tabstop>
   <tabstop>EndFrameSpinBox</tabstop>
-  <tabstop>FadeOutFrameSpinBox</tabstop>
-  <tabstop>FadeOutTypeComboBox</tabstop>
   <tabstop>PrevChangesPushButton</tabstop>
   <tabstop>PlayOrigPushButton</tabstop>
   <tabstop>ClosePushButton</tabstop>

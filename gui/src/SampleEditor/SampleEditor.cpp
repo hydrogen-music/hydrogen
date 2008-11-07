@@ -67,7 +67,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
 
-	setWindowTitle ( QString( "SampleEditor" + newfilename) );
+	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
 	installEventFilter( this );
 
@@ -87,19 +87,20 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 // mainSampleview = 624(575) x 265 :-)
 // mainSampleAdjustView = 180 x 265 :-(
-// targetSampleView = 451 x 91 :-( will removed
+// targetSampleView = 841 x 91 :-( will removed
 // StartFrameSpinBox :-)
 // LoopFrameSpinBox :-)
 // ProcessingTypeComboBox :forward, reverse, pingpong :-)
 // LoopCountSpinBox :-(
 // EndFrameSpinBox :-)
 // FadeOutFrameSpinBox :-(
-// FadeOutTypeComboBox: lin, log :-(
+// FadeOutTypeComboBox: off, lin, log :-(
 // ApplyChangesPushButton :-()
 // PlayPushButton :-)
 // RestoreSamplePushButton :-(
 // ClosePushButton :-()
 // verticalzoomSlider
+// newlengthLabel
 
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
@@ -183,6 +184,9 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->m_pEndFramePosition =  m_end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
+		float divider = pSample->get_n_frames() / 841.0F;
+		m_pTargetSampleView->m_pFadeOutFramePosition = FadeOutFrameSpinBox->value() / divider;
+
 	}
 }
 
@@ -193,7 +197,8 @@ void SampleEditor::getAllLocalFrameInfos()
 	m_loop_frame = LoopFrameSpinBox->value();
 	m_repeats = LoopCountSpinBox->value();
 	m_end_frame = EndFrameSpinBox->value();
-
+	m_fade_out_startframe = FadeOutFrameSpinBox->value();
+	m_fade_out_type = FadeOutTypeComboBox->currentIndex();
 }
 
 
@@ -369,6 +374,29 @@ void SampleEditor::returnAllMainWaveDisplayValues()
 	m_ponewayStart = true;	
 	m_ponewayLoop = true;
 	m_ponewayEnd = true;
+	setSamplelengthFrames();
+}
+
+
+void SampleEditor::returnAllTargetDisplayValues()
+{
+	setSamplelengthFrames();
+	float divider = m_pslframes / 841.0F;
+//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_n_frames()));
+	m_sample_is_modified = true;
+	m_fade_out_startframe = m_pTargetSampleView->m_pFadeOutFramePosition * divider;
+	FadeOutFrameSpinBox->setValue( m_fade_out_startframe );
+
+}
+
+
+void SampleEditor::on_FadeOutFrameSpinBox_valueChanged( int )
+{
+	setSamplelengthFrames();
+	float divider = m_pslframes / 841.0F;
+	m_pTargetSampleView->m_pFadeOutFramePosition = FadeOutFrameSpinBox->value() / divider;
+	m_pTargetSampleView->updateDisplayPointer();
+	m_pSampleEditorStatus = false;
 }
 
 
@@ -392,6 +420,7 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
 	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
+	setSamplelengthFrames();
 }
 
 
@@ -412,6 +441,7 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 	}
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
+	setSamplelengthFrames();
 }
 
 
@@ -432,6 +462,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 	}
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
+	setSamplelengthFrames();
 }
 
 
@@ -600,6 +631,8 @@ void SampleEditor::setSamplelengthFrames()
 		newlength =onesamplelength + repeatslength;
 	}
 	m_pslframes = newlength;
+	newlengthLabel->setText(QString("new sample length: %1 frames").arg(newlength));
+	FadeOutFrameSpinBox->setMaximum( newlength );
 }
 
 
@@ -608,6 +641,7 @@ void SampleEditor::on_LoopCountSpinBox_valueChanged( int )
 {
 	m_repeats = LoopCountSpinBox->value() ;
 	m_pSampleEditorStatus = false;
+	setSamplelengthFrames();
 }
 
 
@@ -652,3 +686,12 @@ void SampleEditor::testPositionsSpinBoxes()
 	LoopFrameSpinBox->setValue( m_loop_frame );
 	EndFrameSpinBox->setValue( m_end_frame );
 }
+
+
+
+
+void SampleEditor::on_FadeOutTypeComboBox_currentIndexChanged( int )
+{
+		m_pSampleEditorStatus = false;
+}
+

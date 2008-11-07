@@ -27,6 +27,8 @@
 #include <hydrogen/Object.h>
 #include <hydrogen/sample.h>
 
+class SampleEditor;
+
 namespace H2Core
 {
 	class InstrumentLayer;
@@ -41,14 +43,20 @@ class TargetWaveDisplay : public QWidget, public Object
 		~TargetWaveDisplay();
 
 		void updateDisplay( H2Core::InstrumentLayer *pLayer );
+		void updateDisplayPointer();
 
 		void paintEvent(QPaintEvent *ev);
+		int m_pFadeOutFramePosition;
 
 	private:
 		QPixmap m_background;
 		QString m_sSampleName;
 		int *m_pPeakData;
 		unsigned m_pSampleLenght;
+		virtual void mouseMoveEvent(QMouseEvent *ev);
+		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
+		void testPosition( QMouseEvent *ev );
 		
 };
 

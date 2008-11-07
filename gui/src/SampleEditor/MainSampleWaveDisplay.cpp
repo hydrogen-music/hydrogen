@@ -221,7 +221,7 @@ void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
 //startframepointer
-	if  (ev->y()>=240 ) {
+	if  (ev->y()>=200 ) {
 		m_pStartFramePosition = ev->x() ;
 		if ( m_pStartFramePosition > m_pLoopFramePosition ) 
 			m_pLoopFramePosition = m_pStartFramePosition;
@@ -232,14 +232,14 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 	}
 
 //loopframeposition
-	else if  (ev->y()<=40 ) {
+	else if  (ev->y()<=65 ) {
 		m_pLoopFramePosition = ev->x() ;
 		if ( m_pLoopFramePosition < m_pStartFramePosition ) 
 			m_pStartFramePosition = m_pLoopFramePosition;
 //		update();
 	}
 //endframeposition
-	else if  ( ev->y() >= 90 && ev->y() <= 160  ) {
+	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
 		m_pEndFramePosition = ev->x() ;
 		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
 			m_pLoopFramePosition = m_pEndFramePosition;

@@ -327,6 +327,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 			m_pSampleEditor->show();
 			bool close = m_pSampleEditor->getCloseQuestion();
 			if ( close ){
+				m_pSampleEditor->close();
 				delete m_pSampleEditor;
 			}else
 			{
@@ -334,6 +335,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 			}
 		}else
 		{
+			m_pSampleEditor->close();
 			delete m_pSampleEditor;
 		}
 	}

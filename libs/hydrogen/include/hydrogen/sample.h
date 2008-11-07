@@ -168,7 +168,7 @@ private:
 	int __repeats;			///< repeats from the loop section
 	unsigned __end_frame; 		///< sample end frame
 	unsigned __fade_out_startframe;	///< start frame for fade out
-	int __fade_out_type;		///< fade out type 0=lin, 1=log
+	int __fade_out_type;		///< fade out type 0=off, 1=lin , 2=log
 
 
 	//static int __total_used_bytes;

@@ -163,8 +163,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
  				const unsigned fadeoutstartframe,
 				const int fadeouttype)
 {
-	_INFOLOG( QString( "mode: " + loopmode) );
-	_INFOLOG( QString( "loops: %1" ).arg( loops ) );
+//	_INFOLOG( QString( "mode: " + loopmode) );
+//	_INFOLOG( QString( "loops: %1" ).arg( loops ) );
 	// file exists?
 	if ( QFile( filename ).exists() == false ) {
 		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
@@ -273,6 +273,27 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		reverse( tempdata_r + loppframe, tempdata_r + newlength);		
 		}
 
+
+///fadeout
+// fadeoutstartframe
+// newlength
+
+//lin fade out
+
+//	_INFOLOG( QString( "type: %1" ).arg( fadeouttype ) );
+//	_INFOLOG( QString( "frames: %1" ).arg( fadeoutstartframe ) );
+
+	if (fadeouttype == 1){
+		double y = 1.0F;
+		unsigned differ = newlength - fadeoutstartframe;
+		if ( differ <= 0 ) differ = 1;
+		double subtract = (double)1.0F / differ;
+		for ( unsigned i = fadeoutstartframe; i< newlength; i++, y = y - subtract){			
+			tempdata_l[i] = tempdata_l[i] * y;
+			tempdata_r[i] = tempdata_r[i] * y;
+			//_INFOLOG( QString( "y: %1" ).arg( y ) );
+		}
+	}
 
 	Sample *pSample = new Sample( newlength, filename );
 	pSample->__data_l = tempdata_l;

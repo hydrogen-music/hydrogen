@@ -56,12 +56,13 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		bool getCloseQuestion();
 		bool m_pSampleEditorStatus;
 		void returnAllMainWaveDisplayValues();
+		void returnAllTargetDisplayValues();
 
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_sample_is_modified;	///< true if sample is modified
 		QString m_sample_mode;		///< loop mode
 		unsigned m_fade_out_startframe;	///< start frame for fade out
-		int m_fade_out_type;		///< fade out type 0=lin, 1=log
+		int m_fade_out_type;		///< fade out type 0=off, 1=lin , 2=log
 		int m_repeats;			///< repats from the loop section
 		unsigned m_start_frame;		///< start frame
 		unsigned m_loop_frame;		///< beginn of the loop section
@@ -81,6 +82,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void on_PlayOrigPushButton_clicked();
 		void on_verticalzoomSlider_valueChanged ( int value );
 		void updateMainsamplePostionRuler();
+		void on_FadeOutFrameSpinBox_valueChanged( int );
+		void on_FadeOutTypeComboBox_currentIndexChanged( int );
 
 
 	private:
