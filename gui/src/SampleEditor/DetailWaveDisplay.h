@@ -52,7 +52,6 @@ class DetailWaveDisplay : public QWidget, public Object
 		int m_pDetailSamplePosition; 
 		int m_pnormalimagedetailframes;
 		float m_pzoomFactor;
-		int m_pSampleLenght;
 		QString m_ptype;
 };
 

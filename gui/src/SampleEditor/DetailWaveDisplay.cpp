@@ -127,12 +127,12 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 	if ( pNewSample ) {
 
-		int m_pSampleLenght = pNewSample->get_n_frames();
+		int mSampleLenght = pNewSample->get_n_frames();
 
-		m_pPeakDatal = new int[ m_pSampleLenght + m_pnormalimagedetailframes /2 ];
-		m_pPeakDatar = new int[ m_pSampleLenght + m_pnormalimagedetailframes /2 ];
+		m_pPeakDatal = new int[ mSampleLenght + m_pnormalimagedetailframes /2 ];
+		m_pPeakDatar = new int[ mSampleLenght + m_pnormalimagedetailframes /2 ];
 
-		for ( int i = 0 ; i < m_pSampleLenght + m_pnormalimagedetailframes /2 ; i++){
+		for ( int i = 0 ; i < mSampleLenght + m_pnormalimagedetailframes /2 ; i++){
 			m_pPeakDatal[ i ] = 0;
 			m_pPeakDatar[ i ] = 0;
 		}
@@ -140,21 +140,15 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 		float fGain = height() / 4.0 * 1.0;
 
 		float *pSampleDatal = pNewSample->get_data_l();
+		float *pSampleDatar = pNewSample->get_data_r();
 
 		int nSamplePos =0;
 //		int nVall;
-		for ( int i = 0; i < m_pSampleLenght; i++ ){
+		for ( int i = 0; i < mSampleLenght; i++ ){
 			m_pPeakDatal[ i ] = (int)( pSampleDatal[ i ] * fGain );
-		}
-
-		float *pSampleDatar = pNewSample->get_data_r();
-
-		nSamplePos = 0;
-//		int nValr;
-
-		for ( int i = 0; i < m_pSampleLenght; i++ ){
 			m_pPeakDatar[ i ] = (int)( pSampleDatar[ i ] * fGain );
 		}
+
 
 	}
 	delete pNewSample;
