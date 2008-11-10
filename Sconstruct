@@ -275,7 +275,7 @@ opts = Options()
 opts.Add('debug', 'Set to 1 to build with debug informations', 0)
 opts.Add('libarchive', 'Set to 1 to enable libarchive instead of libtar', 0)
 opts.Add('prefix','Default: /usr/local',"/usr/local")
-opts.Add('destdir','Default: none',"")
+opts.Add('DESTDIR','Default: none',"")
 
 #platform dependent settings
 if sys.platform != "win32":
@@ -334,7 +334,7 @@ debug =int(ARGUMENTS.get('debug', 0))
 libarchive = int(ARGUMENTS.get('libarchive', 0))
 
 install_prefix = ARGUMENTS.get('prefix',"/usr/local")
-destdir = ARGUMENTS.get('destdir',"")
+destdir = ARGUMENTS.get('DESTDIR',"")
 
 
 #get includes ( important if you compile on non-standard envorionments)

@@ -73,6 +73,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 //this new sample give us the not changed real samplelength 
 	m_pSamplefromFile = Sample::load( mSamplefilename );
+	if (!m_pSamplefromFile) reject();
 
 	unsigned slframes = m_pSamplefromFile->get_n_frames();
 
