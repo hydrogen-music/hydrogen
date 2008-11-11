@@ -141,9 +141,23 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 //wolke some background images hear note rec quant
+//record midi/keyboard events
+	QComboBox *recordMidi = new QComboBox( NULL );
+	recordMidi->setFixedSize( 60, 20 );
+	recordMidi->move( 2, 1 );
+	recordMidi->addItem ( QString( "off" ));
+	recordMidi->addItem ( QString( "pattern" ));
+	recordMidi->addItem ( QString( "song" ));
+	recordMidi->setToolTip( trUtf8( "Record keyboard/midi events to Pattern or to Song" ) );
+	editor_top_hbox_2->addWidget( recordMidi );
+	bool recevent = pPref->getRecordEvents();
+	if ( recevent ) recordMidi->setCurrentIndex( 1 );
+	connect( recordMidi, SIGNAL( currentIndexChanged( int ) ), this, SLOT( selectRecord( int) ) );
+
+
 
 	PixmapWidget *pRec = new PixmapWidget( NULL );
-	pRec->setFixedSize( 150, 20 );
+	pRec->setFixedSize( 110, 20 );
 	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
 	pRec->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pRec );
@@ -160,24 +174,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	hearNotesBtn->move( 34, 3 );
 	hearNotesBtn->setToolTip( trUtf8( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL(clicked(Button*)), this, SLOT( hearNotesBtnClick(Button*)));
-	//editor_top_hbox->addWidget(hearNotesBtn);
-	// restore hear new notes button state
 	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
-
-
-	// Record events btn
-	ToggleButton* recordEventsBtn = new ToggleButton(
-			pRec,
-			"/patternEditor/btn_record_on.png",
-			"/patternEditor/btn_record_off.png",
-			"/patternEditor/btn_record_off.png",
-			QSize(15, 13)
-	);
-	recordEventsBtn->move( 74, 3 );
-	recordEventsBtn->setPressed( pPref->getRecordEvents());
-	recordEventsBtn->setToolTip( trUtf8( "Record keyboard/midi events" ) );
-	connect( recordEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( recordEventsBtnClick(Button*)));
-	//editor_top_hbox->addWidget(recordEventsBtn);
 
 
 	// quantize
@@ -188,18 +185,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/patternEditor/btn_quant_off.png",
 			QSize(15, 13)
 	);
-	quantizeEventsBtn->move( 130, 3 );
+	quantizeEventsBtn->move( 90, 3 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
-	//editor_top_hbox->addWidget(quantizeEventsBtn);
 
-
-// 	PixmapWidget *pZoom = new PixmapWidget( NULL );
-// 	pZoom->setFixedSize( 73, 20 );
-// 	pZoom->setPixmap( "/patternEditor/background_zoom-new.png" );
-// 	pZoom->move( 0, 3 );
-// 	editor_top_hbox_2->addWidget( pZoom );
 
 	QComboBox *selInstrument = new QComboBox( NULL );
 	selInstrument->setFixedSize( 100, 20 );
@@ -218,6 +208,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	rightclickSelection->setToolTip( trUtf8( "Right click into pattern editor add note-off-note or edit note-length" ) );
 	editor_top_hbox_2->addWidget( rightclickSelection );
 	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
+
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
@@ -681,21 +672,6 @@ void PatternEditorPanel::hearNotesBtnClick(Button *ref)
 
 
 
-void PatternEditorPanel::recordEventsBtnClick(Button *ref)
-{
-	Preferences *pref = ( Preferences::getInstance() );
-	pref->setRecordEvents( ref->isPressed() );
-
-	if (ref->isPressed() ) {
-		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Record keyboard/midi events = On" ), 2000 );
-	}
-	else {
-		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Record keyboard/midi events = Off" ), 2000 );
-	}
-
-
-}
-
 
 void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
 {
@@ -910,20 +886,6 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument - 1 );
 		pInstrumentList->replace( pTemp, nSelectedInstrument );
 
-/*
-		// devo spostare tutte le note...
-		PatternList *pPatternList = pSong->getPatternList();
-		for ( int nPattern = 0; nPattern < pPatternList->getSize(); nPattern++ ) {
-			Pattern *pPattern = pPatternList->get( nPattern );
-			Sequence *pSeq1 = pPattern->m_pSequenceList->get( nSelectedInstrument );
-			Sequence *pSeq2 = pPattern->m_pSequenceList->get( nSelectedInstrument - 1 );
-
-			// swap notelist..
-			map <int, Note*> noteList = pSeq1->m_noteList;
-			pSeq1->m_noteList = pSeq2->m_noteList;
-			pSeq2->m_noteList = noteList;
-		}
-*/
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
@@ -951,20 +913,6 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument + 1 );
 		pInstrumentList->replace( pTemp, nSelectedInstrument );
 
-/*
-		// devo spostare tutte le note...
-		PatternList *pPatternList = pSong->getPatternList();
-		for ( int nPattern = 0; nPattern < pPatternList->getSize(); nPattern++ ) {
-			Pattern *pPattern = pPatternList->get( nPattern );
-			Sequence *pSeq1 = pPattern->m_pSequenceList->get( nSelectedInstrument );
-			Sequence *pSeq2 = pPattern->m_pSequenceList->get( nSelectedInstrument + 1 );
-
-			// swap notelist..
-			map <int, Note*> noteList = pSeq1->m_noteList;
-			pSeq1->m_noteList = pSeq2->m_noteList;
-			pSeq2->m_noteList = noteList;
-		}
-*/
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
@@ -1056,6 +1004,34 @@ void PatternEditorPanel::rightclickSelect( QString text )
 	}else
 	{
 		Preferences::getInstance()->__rightclickedpattereditor = true;
+	}
+
+}
+
+void PatternEditorPanel::selectRecord( int index )
+{
+	Preferences *pref = ( Preferences::getInstance() );
+	switch ( index ){
+		case 0:
+			{
+			pref->setRecordEvents( false );
+			( HydrogenApp::getInstance() )->setScrollStatusBarMessage( trUtf8( "Record keyboard/midi events = Off" ), 2000 );
+			break;
+			}
+		case 1:
+			{
+			pref->setRecordEvents( true );
+			HydrogenApp::getInstance()->setScrollStatusBarMessage( trUtf8( "Record keyboard/midi events = On, record into the selected pattern" ), 2000 );
+			pref->__recordsong = false;
+			break;
+			}
+		case 2:
+			{
+			pref->setRecordEvents( true );
+			HydrogenApp::getInstance()->setScrollStatusBarMessage( trUtf8( "Record keyboard/midi events = On, record into the whole song" ), 2000 );
+			pref->__recordsong = true;
+			break;
+			}
 	}
 
 }

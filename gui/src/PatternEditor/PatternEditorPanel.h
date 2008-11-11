@@ -79,7 +79,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void patternSizeChanged( QString text );
 
 		void hearNotesBtnClick(Button *ref);
-		void recordEventsBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
 
 		void showDrumEditorBtnClick(Button *ref);
@@ -98,6 +97,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 
 		void playselectedinstrument( QString text );
 		void rightclickSelect( QString text );
+		void selectRecord( int index );
 
 	private:
 		H2Core::Pattern *m_pPattern;

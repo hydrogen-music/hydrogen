@@ -129,6 +129,7 @@ Preferences::Preferences()
 	__playsamplesonclicking = false; // audio file browser
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 	__rightclickedpattereditor = false; //right click into pattern editor add note-off-note or edit note-length
+	__recordsong = false;//  midi keys and keys can record m_playingpattern in songmode
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings

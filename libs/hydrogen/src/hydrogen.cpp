@@ -1838,10 +1838,22 @@ void Hydrogen::addRealtimeNote( int instrument,
 	}
 
 	Pattern* currentPattern = NULL;
-	PatternList *pPatternList = m_pSong->get_pattern_list();
-	if ( ( m_nSelectedPatternNumber != -1 )
-	     && ( m_nSelectedPatternNumber < ( int )pPatternList->get_size() ) ) {
-		currentPattern = pPatternList->get( m_nSelectedPatternNumber );
+	if ( m_pSong->get_mode() == Song::PATTERN_MODE ||
+	   ( !Preferences::getInstance()->__recordsong && m_audioEngineState != STATE_PLAYING )){
+		PatternList *pPatternList = m_pSong->get_pattern_list();
+		if ( ( m_nSelectedPatternNumber != -1 )
+		&& ( m_nSelectedPatternNumber < ( int )pPatternList->get_size() ) ) {
+			currentPattern = pPatternList->get( m_nSelectedPatternNumber );
+		}
+	}else
+	{
+		std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector();
+		Pattern *pPattern = NULL;
+		int pos = getPatternPos() +1;
+		for ( int i = 0; i < pos; ++i ) {
+			PatternList *pColumn = ( *pColumns )[i];
+			currentPattern = pColumn->get( 0 );	
+		}
 	}
 
 	// Get current column and compensate for "lookahead"

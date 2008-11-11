@@ -150,6 +150,7 @@ public:
 
 	bool __playselectedinstrument; // midi keys and keys play instrument or drumset
 	bool __rightclickedpattereditor; //right click into pattern editor add note-off-note or edit note-length 
+	bool __recordsong;//  midi keys and keys can record m_playingpattern in songmode
 
 
 	bool m_bFollowPlayhead;
