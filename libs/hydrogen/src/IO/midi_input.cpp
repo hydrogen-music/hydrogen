@@ -241,8 +241,12 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	}
 	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
 
+	float fStep = pow( 1.0594630943593, (nNote -36) );
+	if ( !Preferences::getInstance()->__playselectedinstrument ) 
+		fStep = 1;
+
 	if ( pInstr ){ //set the notelength
-		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght, __noteOnTick );
+		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
 	}
 
 	const unsigned nPosition = 0;

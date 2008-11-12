@@ -313,7 +313,11 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		if (nLen <= 0) {
 			nLen = -1;
 		}
-		m_pDraggedNote->set_lenght( nLen );
+
+		float fNotePitch = m_pDraggedNote->m_noteKey.m_nOctave * 12 + m_pDraggedNote->m_noteKey.m_key;
+		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+
+		m_pDraggedNote->set_lenght( nLen * fStep);
 
 		Hydrogen::get_instance()->getSong()->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -483,8 +487,11 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	}		
 	else {
+		float fNotePitch = note->m_noteKey.m_nOctave * 12 + note->m_noteKey.m_key;
+		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+
 		uint x = 20 + (pos * m_nGridWidth);
-		int w = m_nGridWidth * note->get_lenght();
+		int w = m_nGridWidth * note->get_lenght() / fStep;
 		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );

@@ -21,6 +21,9 @@
      <height>91</height>
     </rect>
    </property>
+   <property name="cursor" >
+    <cursorShape>SplitHCursor</cursorShape>
+   </property>
    <property name="frameShape" >
     <enum>QFrame::StyledPanel</enum>
    </property>
@@ -198,6 +201,9 @@
         <height>265</height>
        </size>
       </property>
+      <property name="cursor" >
+       <cursorShape>SplitHCursor</cursorShape>
+      </property>
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -266,7 +272,7 @@
     <string>new sample length:</string>
    </property>
   </widget>
-  <widget class="QWidget" name="" >
+  <widget class="QWidget" name="layoutWidget" >
    <property name="geometry" >
     <rect>
      <x>640</x>
