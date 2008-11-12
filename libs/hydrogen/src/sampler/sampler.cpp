@@ -774,11 +774,24 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 		Song* mSong = pEngine->getSong();
 		int selectedpattern = pEngine->__get_selected_PatterNumber();
 		Pattern* currentPattern = NULL;
-		PatternList *pPatternList = mSong->get_pattern_list();
 
-		if ( ( selectedpattern != -1 )
-		&& ( selectedpattern < ( int )pPatternList->get_size() ) ) {
-			currentPattern = pPatternList->get( selectedpattern );
+
+		if ( mSong->get_mode() == Song::PATTERN_MODE ||
+		( !Preferences::getInstance()->__recordsong && pEngine->getState() != STATE_PLAYING )){
+			PatternList *pPatternList = mSong->get_pattern_list();
+			if ( ( selectedpattern != -1 )
+			&& ( selectedpattern < ( int )pPatternList->get_size() ) ) {
+				currentPattern = pPatternList->get( selectedpattern );
+			}
+		}else
+		{
+			std::vector<PatternList*> *pColumns = mSong->get_pattern_group_vector();
+			Pattern *pPattern = NULL;
+			int pos = pEngine->getPatternPos() +1;
+			for ( int i = 0; i < pos; ++i ) {
+				PatternList *pColumn = ( *pColumns )[i];
+				currentPattern = pColumn->get( 0 );	
+			}
 		}
 
 		
