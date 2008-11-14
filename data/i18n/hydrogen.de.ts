@@ -602,6 +602,18 @@ p, li { white-space: pre-wrap; }
         <source>&amp;Stop</source>
         <translation type="unfinished">S&amp;topp</translation>
     </message>
+    <message>
+        <source>View hidden folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Be careful, this change all Layer velocity settings </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set automatic velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DownloadWidget</name>
@@ -704,6 +716,10 @@ http://www.hydrogen-music.org
     <message>
         <source>Sample rate: %1</source>
         <translation>Samplerate: %1</translation>
+    </message>
+    <message>
+        <source>Export failed!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1115,15 +1131,6 @@ p, li { white-space: pre-wrap; }
         <translation>Hydrogen ist bereit.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation>
-Das Dokument wurde geändert
-Änderungen vor Beenden speichern?</translation>
-    </message>
-    <message>
         <source>Hydrogen Song (*.h2song)</source>
         <translation>Hydrogen-Song (*.h2song)</translation>
     </message>
@@ -1248,16 +1255,6 @@ Das Dokument wurde geändert
         <translation>&amp;Info</translation>
     </message>
     <message>
-        <source>
-The song has unsaved changes
- Do you want to save the changes before exiting?
-</source>
-        <translation>
-Diese Komposition hat ungesicherte Änderungen.
-Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
-</translation>
-    </message>
-    <message>
         <source>Song saved.</source>
         <translation>Komposition gespeichert.</translation>
     </message>
@@ -1362,6 +1359,17 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <source>Playlist: Song No. %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The document contains unsaved changes.
+Do you want to save the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1407,6 +1415,10 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source>Action</source>
         <translation>Aktion</translation>
+    </message>
+    <message>
+        <source>press button to record midi event</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1490,16 +1502,8 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <translation>Patterneditor - %1</translation>
     </message>
     <message>
-        <source>Record keyboard/midi events</source>
-        <translation>Tastatur/Midi aufnehmen</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Tastatur/Midi ins Raster quantisieren</translation>
-    </message>
-    <message>
-        <source>Record keyboard/midi events = On</source>
-        <translation>&apos;Tastatur/Midi aufnehmen&apos; ist aktiviert</translation>
     </message>
     <message>
         <source>Record keyboard/midi events = Off</source>
@@ -1563,7 +1567,31 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Geladene Klangbibliothek</translation>
+    </message>
+    <message>
+        <source>Record keyboard/midi events to Pattern or to Song</source>
+        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge werden im ausgewählten Pattern oder im Ganzen Song aufgenommen</translation>
+    </message>
+    <message>
+        <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
+        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge spielen die geladene Klangbibliothek im Grund-Ton oder das ausgewählte Instrument mit Tonhöhen-Veränderung</translation>
+    </message>
+    <message>
+        <source>Right click into pattern editor add note-off-note or edit note-length</source>
+        <translation type="unfinished">Rechtsklick im  Pattern-Editor erzeugt eine Aus-Note oder editiert die Noten länge </translation>
+    </message>
+    <message>
+        <source>NoteKey</source>
+        <translation type="unfinished">Note</translation>
+    </message>
+    <message>
+        <source>Record keyboard/midi events = On, record into the selected pattern</source>
+        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge = Ein, aufnahme ins ausgewählte Pattern </translation>
+    </message>
+    <message>
+        <source>Record keyboard/midi events = On, record into the whole song</source>
+        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge = Ein, aufnahme in den Song </translation>
     </message>
 </context>
 <context>
@@ -2253,6 +2281,104 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Enable timing offset (workaround for Ardour bug)</source>
         <translation type="unfinished">Aktiviere Zeitverzögerung (behebt den Jack-Transport-Bug von Ardour)</translation>
+    </message>
+</context>
+<context>
+    <name>SampleEditor</name>
+    <message>
+        <source>Unsaved changes left. This changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished">Es sind noch nicht gespeicherte änderungen vorhanden. Diese Änderungen werden verloren gehen.
+Sind sie sicher? </translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished">&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Abbrechen</translation>
+    </message>
+    <message>
+        <source>Close dialog! maybe there is some unsaved work on sample.
+Are you sure?</source>
+        <translation type="unfinished">Schließe Fenster. Möglicherweise sind noch ungespeicherte änderungen an diesen Sampel.
+Sind sie sicher?</translation>
+    </message>
+</context>
+<context>
+    <name>SampleEditor_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>P&amp;lay original sample</source>
+        <translation type="unfinished">Spie&amp;le Original</translation>
+    </message>
+    <message>
+        <source>&amp;Apply Changes</source>
+        <translation type="unfinished">&amp;Anwenden</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Schließen</translation>
+    </message>
+    <message>
+        <source>Adjust sample start frame</source>
+        <translation type="unfinished">Justiere Sampel-Start</translation>
+    </message>
+    <message>
+        <source>Adjust sample loop begin frame</source>
+        <translation type="unfinished">Justieren den Sampel Loop-Anfang</translation>
+    </message>
+    <message>
+        <source>set processing</source>
+        <translation type="unfinished">Sampleverarbeitung einstellen</translation>
+    </message>
+    <message>
+        <source>forward</source>
+        <translation type="unfinished">vörwärts</translation>
+    </message>
+    <message>
+        <source>reverse</source>
+        <translation type="unfinished">rückwärts</translation>
+    </message>
+    <message>
+        <source>pingpong</source>
+        <translation type="unfinished">hin und her</translation>
+    </message>
+    <message>
+        <source>loops</source>
+        <translation type="unfinished">Wiederholungen</translation>
+    </message>
+    <message>
+        <source>Adjust sample end &amp; loop end frame</source>
+        <translation type="unfinished">Justiere Sampel ende &amp; Wiederholungs-Ende</translation>
+    </message>
+    <message>
+        <source>&amp;Play</source>
+        <translation type="unfinished">S&amp;piele</translation>
+    </message>
+    <message>
+        <source>new sample length:</source>
+        <translation type="unfinished">Neue Sempellänge:</translation>
+    </message>
+    <message>
+        <source>fade-out type</source>
+        <translation type="unfinished">Art der Ausblendung</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation type="unfinished">aus</translation>
+    </message>
+    <message>
+        <source>lin</source>
+        <translation type="unfinished">lin</translation>
+    </message>
+    <message>
+        <source>Adjust fade-out start frame</source>
+        <translation type="unfinished">Justiere den Anfang der Ausblendung</translation>
     </message>
 </context>
 <context>
