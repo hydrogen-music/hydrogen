@@ -1856,6 +1856,11 @@ void Hydrogen::addRealtimeNote( int instrument,
 		}
 	}
 
+	if( currentPattern == NULL ){
+		AudioEngine::get_instance()->unlock(); // unlock the audio engine
+		return;
+	}
+
 	// Get current column and compensate for "lookahead"
 	unsigned int column = getTickPosition();
 	unsigned int lookaheadTicks = m_nLookaheadFrames
