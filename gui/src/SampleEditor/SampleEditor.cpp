@@ -48,7 +48,7 @@ using namespace std;
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
-		, m_pSampleEditorStatus( true )
+		, m_pSampleEditorStatus( false )
 		, m_pSamplefromFile ( NULL )
 		, m_pSelectedLayer ( nSelectedLayer )
 		, m_samplename ( mSamplefilename )
@@ -231,13 +231,14 @@ void SampleEditor::intDisplays()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 // wavedisplays
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	m_divider = m_pSamplefromFile->get_n_frames() / 574.0F;
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
-	m_pMainSampleWaveDisplay->updateDisplay( m_pSamplefromFile->get_filename() );
+	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
 	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
-	m_pSampleAdjustView->updateDisplay( m_pSamplefromFile->get_filename() );
+	m_pSampleAdjustView->updateDisplay( m_samplename );
 	m_pSampleAdjustView->move( 1, 1 );
 
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
@@ -642,9 +643,19 @@ void SampleEditor::setSamplelengthFrames()
 
 void SampleEditor::on_LoopCountSpinBox_valueChanged( int )
 {
+	if ( m_pslframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
+		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
+		m_pTimer->stop();
+		m_pPlayButton = false;
+	}
 	m_repeats = LoopCountSpinBox->value() ;
 	m_pSampleEditorStatus = false;
 	setSamplelengthFrames();
+	if ( m_pslframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
+		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);	
+	}
+	
 }
 
 

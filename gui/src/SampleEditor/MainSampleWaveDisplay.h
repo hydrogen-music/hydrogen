@@ -36,7 +36,7 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
-		void updateDisplay( QString filename );
+		void updateDisplay( const QString& filename );
 		void updateDisplayPointer();
 
 		void paintLocatorEvent( int pos, bool last_event);

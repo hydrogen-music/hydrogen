@@ -147,11 +147,11 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 
 
 
-void MainSampleWaveDisplay::updateDisplay( QString filename )
+void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 {
 
 	Sample *pNewSample = Sample::load( filename );
-
+	
 	if ( pNewSample ) {
 
 		int nSampleLenght = pNewSample->get_n_frames();
@@ -164,36 +164,36 @@ void MainSampleWaveDisplay::updateDisplay( QString filename )
 		float fGain = height() / 4.0 * 1.0;
 
 		float *pSampleDatal = pNewSample->get_data_l();
+		float *pSampleDatar = pNewSample->get_data_r();
 
-		int nSamplePos =0;
+		unsigned nSamplePos = 0;
 		int nVall;
+		int nValr;
+		int newVall = 0;
+		int newValr = 0;
 		for ( int i = 0; i < width(); ++i ){
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
-					int newVall = (int)( pSampleDatal[ nSamplePos ] * fGain );
-					nVall = newVall;
+					if ( pSampleDatal[ nSamplePos ] || pSampleDatar[ nSamplePos ] ){
+						newVall = (int)( pSampleDatal[ nSamplePos ] * fGain );
+						newValr = (int)( pSampleDatar[ nSamplePos ] * fGain );
+						//ERRORLOG( QString("newVall: %1").arg(pSampleDatal[ nSamplePos ]) );
+						nVall = newVall;
+						nValr = newValr;
+					}else
+					{
+						nVall = 0;	
+						nValr = 0;
+					}
 				}
 				++nSamplePos;
 			}
 			m_pPeakDatal[ i ] = nVall;
-		}
-
-		float *pSampleDatar = pNewSample->get_data_r();
-
-		nSamplePos = 0;
-		int nValr;
-		for ( int i = 0; i < width(); ++i ){
-			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLenght ) {
-					int newValr = (int)( pSampleDatar[ nSamplePos ] * fGain );
-					nValr = newValr;
-				}
-				++nSamplePos;
-			}
 			m_pPeakDatar[ i ] = nValr;
 		}
 	}
 	delete pNewSample;
+	pNewSample = NULL;
 	update();
 
 }

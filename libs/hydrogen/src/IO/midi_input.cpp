@@ -155,7 +155,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
-	INFOLOG( "handleNoteOnMessage" );
+//	INFOLOG( "handleNoteOnMessage" );
 
 
 	int nMidiChannelFilter = Preferences::getInstance()->m_nMidiChannelFilter;
@@ -194,7 +194,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bIsChannelValid ) {
 		if ( bPatternSelect ) {
 			int patternNumber = nNote - 36;
-			INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
+			//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
 
 			pEngine->sequencer_setNextPattern( patternNumber, false, false );
 		} else {
@@ -219,7 +219,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 {
-	INFOLOG( "handleNoteOffMessage" );
+//	INFOLOG( "handleNoteOffMessage" );
 	if ( Preferences::getInstance()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
