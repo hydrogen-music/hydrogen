@@ -1094,33 +1094,101 @@ void MainForm::openSongFile( const QString& sFilename )
 
 void MainForm::initKeyInstMap()
 {
+
+	QString loc = QLocale::system().name();
 	int instr = 0;
-	keycodeInstrumentMap[Qt::Key_Z] = instr++;
-	keycodeInstrumentMap[Qt::Key_S] = instr++;
-	keycodeInstrumentMap[Qt::Key_X] = instr++;
-	keycodeInstrumentMap[Qt::Key_D] = instr++;
-	keycodeInstrumentMap[Qt::Key_C] = instr++;
-	keycodeInstrumentMap[Qt::Key_V] = instr++;
-	keycodeInstrumentMap[Qt::Key_G] = instr++;
-	keycodeInstrumentMap[Qt::Key_B] = instr++;
-	keycodeInstrumentMap[Qt::Key_H] = instr++;
-	keycodeInstrumentMap[Qt::Key_N] = instr++;
-	keycodeInstrumentMap[Qt::Key_J] = instr++;
-	keycodeInstrumentMap[Qt::Key_M] = instr++;
 
-	keycodeInstrumentMap[Qt::Key_Q] = instr++;
-	keycodeInstrumentMap[Qt::Key_2] = instr++;
-	keycodeInstrumentMap[Qt::Key_W] = instr++;
-	keycodeInstrumentMap[Qt::Key_3] = instr++;
-	keycodeInstrumentMap[Qt::Key_E] = instr++;
-	keycodeInstrumentMap[Qt::Key_R] = instr++;
-	keycodeInstrumentMap[Qt::Key_5] = instr++;
-	keycodeInstrumentMap[Qt::Key_T] = instr++;
-	keycodeInstrumentMap[Qt::Key_6] = instr++;
-	keycodeInstrumentMap[Qt::Key_Y] = instr++;
-	keycodeInstrumentMap[Qt::Key_7] = instr++;
-	keycodeInstrumentMap[Qt::Key_U] = instr++;
+///POSIX Locale
+//locale for keyboardlayout QWERTZ
+// de_DE, de_AT, de_LU, de_CH, de
 
+//locale for keyboardlayout AZERTY
+// fr_BE, fr_CA, fr_FR, fr_LU, fr_CH
+
+//locale for keyboardlayout QWERTY
+// en_GB, en_US, en_ZA, usw.
+
+	if ( loc.contains( "de" ) || loc.contains( "DE" )){ ///QWERTZ
+		keycodeInstrumentMap[Qt::Key_Y] = instr++;
+		keycodeInstrumentMap[Qt::Key_S] = instr++;
+		keycodeInstrumentMap[Qt::Key_X] = instr++;
+		keycodeInstrumentMap[Qt::Key_D] = instr++;
+		keycodeInstrumentMap[Qt::Key_C] = instr++;
+		keycodeInstrumentMap[Qt::Key_V] = instr++;
+		keycodeInstrumentMap[Qt::Key_G] = instr++;
+		keycodeInstrumentMap[Qt::Key_B] = instr++;
+		keycodeInstrumentMap[Qt::Key_H] = instr++;
+		keycodeInstrumentMap[Qt::Key_N] = instr++;
+		keycodeInstrumentMap[Qt::Key_J] = instr++;
+		keycodeInstrumentMap[Qt::Key_M] = instr++;
+	
+		keycodeInstrumentMap[Qt::Key_Q] = instr++;
+		keycodeInstrumentMap[Qt::Key_2] = instr++;
+		keycodeInstrumentMap[Qt::Key_W] = instr++;
+		keycodeInstrumentMap[Qt::Key_3] = instr++;
+		keycodeInstrumentMap[Qt::Key_E] = instr++;
+		keycodeInstrumentMap[Qt::Key_R] = instr++;
+		keycodeInstrumentMap[Qt::Key_5] = instr++;
+		keycodeInstrumentMap[Qt::Key_T] = instr++;
+		keycodeInstrumentMap[Qt::Key_6] = instr++;
+		keycodeInstrumentMap[Qt::Key_Z] = instr++;
+		keycodeInstrumentMap[Qt::Key_7] = instr++;
+		keycodeInstrumentMap[Qt::Key_U] = instr++;
+	}
+	else if ( loc.contains( "fr" ) || loc.contains( "FR" )){ ///AZERTY
+		keycodeInstrumentMap[Qt::Key_W] = instr++;
+		keycodeInstrumentMap[Qt::Key_S] = instr++;
+		keycodeInstrumentMap[Qt::Key_X] = instr++;
+		keycodeInstrumentMap[Qt::Key_D] = instr++;
+		keycodeInstrumentMap[Qt::Key_C] = instr++;
+		keycodeInstrumentMap[Qt::Key_V] = instr++;
+		keycodeInstrumentMap[Qt::Key_G] = instr++;
+		keycodeInstrumentMap[Qt::Key_B] = instr++;
+		keycodeInstrumentMap[Qt::Key_H] = instr++;
+		keycodeInstrumentMap[Qt::Key_N] = instr++;
+		keycodeInstrumentMap[Qt::Key_J] = instr++;
+		keycodeInstrumentMap[Qt::Key_Question] = instr++;
+	
+		keycodeInstrumentMap[Qt::Key_A] = instr++;
+		keycodeInstrumentMap[Qt::Key_2] = instr++;
+		keycodeInstrumentMap[Qt::Key_Z] = instr++;
+		keycodeInstrumentMap[Qt::Key_3] = instr++;
+		keycodeInstrumentMap[Qt::Key_E] = instr++;
+		keycodeInstrumentMap[Qt::Key_R] = instr++;
+		keycodeInstrumentMap[Qt::Key_5] = instr++;
+		keycodeInstrumentMap[Qt::Key_T] = instr++;
+		keycodeInstrumentMap[Qt::Key_6] = instr++;
+		keycodeInstrumentMap[Qt::Key_Y] = instr++;
+		keycodeInstrumentMap[Qt::Key_7] = instr++;
+		keycodeInstrumentMap[Qt::Key_U] = instr++;
+	}else
+	{ /// default QWERTY
+		keycodeInstrumentMap[Qt::Key_Z] = instr++;
+		keycodeInstrumentMap[Qt::Key_S] = instr++;
+		keycodeInstrumentMap[Qt::Key_X] = instr++;
+		keycodeInstrumentMap[Qt::Key_D] = instr++;
+		keycodeInstrumentMap[Qt::Key_C] = instr++;
+		keycodeInstrumentMap[Qt::Key_V] = instr++;
+		keycodeInstrumentMap[Qt::Key_G] = instr++;
+		keycodeInstrumentMap[Qt::Key_B] = instr++;
+		keycodeInstrumentMap[Qt::Key_H] = instr++;
+		keycodeInstrumentMap[Qt::Key_N] = instr++;
+		keycodeInstrumentMap[Qt::Key_J] = instr++;
+		keycodeInstrumentMap[Qt::Key_M] = instr++;
+	
+		keycodeInstrumentMap[Qt::Key_Q] = instr++;
+		keycodeInstrumentMap[Qt::Key_2] = instr++;
+		keycodeInstrumentMap[Qt::Key_W] = instr++;
+		keycodeInstrumentMap[Qt::Key_3] = instr++;
+		keycodeInstrumentMap[Qt::Key_E] = instr++;
+		keycodeInstrumentMap[Qt::Key_R] = instr++;
+		keycodeInstrumentMap[Qt::Key_5] = instr++;
+		keycodeInstrumentMap[Qt::Key_T] = instr++;
+		keycodeInstrumentMap[Qt::Key_6] = instr++;
+		keycodeInstrumentMap[Qt::Key_Y] = instr++;
+		keycodeInstrumentMap[Qt::Key_7] = instr++;
+		keycodeInstrumentMap[Qt::Key_U] = instr++;
+	}
 
 	/*
 	// QWERTY etc.... rows of the keyboard

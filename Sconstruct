@@ -191,13 +191,6 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	
-	#hi, can't compile h2 with Qt3Support on my linux machines anymore (debian unstable & ubuntu )
-	#, although i have correct installed "libqt4-qt3support"
-	#after correct one error into SoundLibraryPanal.cpp i get linking or what ever errors (sorry never seen before) after compiling. 
-	#so, think it is better to disable qt3 support for now
-	#
-	#env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml','Qt3Support'], debug=False)
-	#
 	env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
 	#
 	env.CacheDir( "scons_cache" )
