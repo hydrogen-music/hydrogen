@@ -174,10 +174,9 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 		for ( int i = 0; i < width(); ++i ){
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
-					if ( pSampleDatal[ nSamplePos ] || pSampleDatar[ nSamplePos ] ){
+					if ( pSampleDatal[ nSamplePos ] && pSampleDatar[ nSamplePos ] ){
 						newVall = (int)( pSampleDatal[ nSamplePos ] * fGain );
 						newValr = (int)( pSampleDatar[ nSamplePos ] * fGain );
-						//ERRORLOG( QString("newVall: %1").arg(pSampleDatal[ nSamplePos ]) );
 						nVall = newVall;
 						nValr = newValr;
 					}else
@@ -198,11 +197,16 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 }
 
+
+
 void MainSampleWaveDisplay::testPositionFromSampleeditor()
 {
 	testPosition( NULL );
 	update();
 }
+
+
+
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	testPosition( ev );

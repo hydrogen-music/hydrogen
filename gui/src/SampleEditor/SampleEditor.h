@@ -126,6 +126,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void createNewLayer();
 		void setSamplelengthFrames();
 		void createPositionsRulerPath();
+		void testpTimer();
 
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);

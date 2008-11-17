@@ -263,6 +263,7 @@ void SampleEditor::on_ClosePushButton_clicked()
 			return;
 		}
 	}
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	accept();
 }
 
@@ -366,6 +367,7 @@ void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 
 void SampleEditor::returnAllMainWaveDisplayValues()
 {
+	testpTimer();
 //	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_n_frames()));
 	m_sample_is_modified = true;
 	m_start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
@@ -407,6 +409,7 @@ void SampleEditor::on_FadeOutFrameSpinBox_valueChanged( int )
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
+	testpTimer();
 	m_pdetailframe = StartFrameSpinBox->value();
 	m_plineColor = "Start";
 	if ( !m_ponewayStart ){
@@ -430,7 +433,8 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 
 
 void SampleEditor::valueChangedLoopFrameSpinBox( int )
-{	
+{
+	testpTimer();	
 	m_pdetailframe = LoopFrameSpinBox->value();
 	m_plineColor = "Loop";
 	if ( !m_ponewayLoop ){
@@ -452,6 +456,7 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 
 void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
+	testpTimer();
 	m_pdetailframe = EndFrameSpinBox->value();
 	m_plineColor = "End";
 	if ( !m_ponewayEnd ){
@@ -521,7 +526,7 @@ void SampleEditor::updateMainsamplePostionRuler()
 	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
 	if ( realpos < m_prealtimeframeend ){
 		unsigned frame = m_pslframes - ( m_prealtimeframeend  - realpos );
-		if ( m_pPlayButton == true){
+		if ( m_pPlayButton == true ){
 			m_pMainSampleWaveDisplay->paintLocatorEvent( m_pPositionsRulerPath[frame] / m_divider + 25 , true);
 			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pzoomfactor , 0);
 		}else{
@@ -532,7 +537,6 @@ void SampleEditor::updateMainsamplePostionRuler()
 	}else
 	{
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
-//		m_pSampleAdjustView->setDetailSamplePosition( 0, m_pzoomfactor , 0);
 		m_pTimer->stop();
 		m_pPlayButton = false;
 	}
@@ -643,6 +647,7 @@ void SampleEditor::setSamplelengthFrames()
 
 void SampleEditor::on_LoopCountSpinBox_valueChanged( int )
 {
+	testpTimer();
 	if ( m_pslframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
 		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
@@ -702,10 +707,18 @@ void SampleEditor::testPositionsSpinBoxes()
 }
 
 
-
-
 void SampleEditor::on_FadeOutTypeComboBox_currentIndexChanged( int )
 {
 		m_pSampleEditorStatus = false;
 }
 
+
+void SampleEditor::testpTimer()
+{
+	if ( m_pTimer->isActive () ){
+		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
+		m_pTimer->stop();
+		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+		m_pPlayButton = false;
+	}
+}
