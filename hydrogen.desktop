@@ -20,4 +20,4 @@ TryExec=hydrogen
 Terminal=false
 StartupNotify=true
 
-Icon=/usr/local/share/pixmaps/h2-icon.svg
+Icon=/usr/share/pixmaps/h2-icon.svg
