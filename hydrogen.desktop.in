@@ -20,4 +20,4 @@ TryExec=hydrogen
 Terminal=false
 StartupNotify=true
 
-Icon=@ac_prefix@/share/hydrogen/data/img/gray/icon64.png
+Icon=@ac_prefix@/share/pixmaps/h2-icon.svg

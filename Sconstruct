@@ -248,6 +248,10 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/DefaultSong.h2song"))
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/bin/', source="./hydrogen"))
 
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/applications', source="hydrogen.desktop"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/pixmaps', source="./data/img/gray/h2-icon.svg"))
+
+
 	return app
 
 def get_jack_api_flags(xenv, pkg_ver):
