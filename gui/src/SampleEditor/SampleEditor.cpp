@@ -231,7 +231,7 @@ void SampleEditor::intDisplays()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 // wavedisplays
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+//	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	m_divider = m_pSamplefromFile->get_n_frames() / 574.0F;
 	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
@@ -263,7 +263,7 @@ void SampleEditor::on_ClosePushButton_clicked()
 			return;
 		}
 	}
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+//	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	accept();
 }
 
