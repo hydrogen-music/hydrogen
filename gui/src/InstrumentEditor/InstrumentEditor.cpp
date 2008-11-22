@@ -175,6 +175,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
+	m_pIsStopNoteCheckBox = new QCheckBox ( QString( "Auto-Stop-Note" ), m_pInstrumentProp );
+	m_pIsStopNoteCheckBox->move( 15, 250 );
+	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample.\n This will save dsp-load and sounds better for cymbals." ) );
+	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
+
 //~ Instrument properties
 
 
@@ -327,6 +332,9 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		// random pitch
 		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor());
+
+		//Stop Note
+		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
 
 		// instr gain
 		char tmp[20];
@@ -701,5 +709,10 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 	}
 
 	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
+{
+	m_pInstrument->set_stop_note( on );
 }
 

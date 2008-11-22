@@ -64,6 +64,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		void labelClicked( ClickableLabel* pRef );
 
 		void muteGroupBtnClicked(Button *pRef);
+		void onIsStopNoteCheckBoxClicked( bool on );
 
 	private:
 		H2Core::Instrument *m_pInstrument;
@@ -121,6 +122,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		Button *m_pLoadLayerBtn;
 		Button *m_pRemoveLayerBtn;
 		Button *m_pSamleEditorBtn;
+		QCheckBox *m_pIsStopNoteCheckBox;
 		//~ Layer properties
 
 

@@ -693,6 +693,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			float fGain = readXmlFloat( instrumentNode, "gain", 1.0f, false, false );
 			QString sMuteGroup = readXmlString( instrumentNode, "muteGroup", "-1", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
+			bool isStopNote = readXmlBool( instrumentNode, "isStopNote", false );
 
 			// some sanity checks
 			if ( id == "" ) {
@@ -749,6 +750,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			pInstrument->set_drumkit_name( drumkitInfo->getName() );
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
+			pInstrument->set_stop_note( isStopNote );
 
 			pInstrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
 			instrumentList->add( pInstrument );
@@ -839,6 +841,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 		LocalFileMng::writeXmlString( &instrumentNode, "Release", to_string( instr->get_adsr()->__release ) );
 
 		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", to_string( instr->get_mute_group() ) );
+		LocalFileMng::writeXmlBool( &instrumentNode, "isStopNote", instr->is_stop_notes() );
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
@@ -1165,6 +1168,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( &instrumentNode, "randomPitchFactor", to_string( instr->get_random_pitch_factor() ) );
 
 		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", to_string( instr->get_mute_group() ) );
+		LocalFileMng::writeXmlBool( &instrumentNode, "isStopNote", instr->is_stop_notes() );
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );

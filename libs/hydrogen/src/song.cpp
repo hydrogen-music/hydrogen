@@ -294,6 +294,7 @@ Song* SongReader::readSong( const QString& filename )
 			float fFilterResonance = LocalFileMng::readXmlFloat( instrumentNode, "filterResonance", 0.0f, false );
 			QString sMuteGroup = LocalFileMng::readXmlString( instrumentNode, "muteGroup", "-1", false );
 			int nMuteGroup = sMuteGroup.toInt();
+			bool isStopNote = LocalFileMng::readXmlBool( instrumentNode, "isStopNote", false );
 
 
 			if ( sId == "" ) {
@@ -319,6 +320,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_filter_resonance( fFilterResonance );
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
+			pInstrument->set_stop_note( isStopNote );
 
 			QString drumkitPath = "";
 			if ( ( sDrumkit != "" ) && ( sDrumkit != "-" ) ) {

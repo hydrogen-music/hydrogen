@@ -537,10 +537,10 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 //more details see sampler.cpp: Sampler::note_off( Note* note )
 
 			//stop note bevore playing new note, only if set into the planned instrumenteditor checkbox `always stop note`
-			//Instrument * noteInstrument = pNote->get_instrument();
-			//if ( noteInstrument->is_stop_notes() ){ 
-			//	AudioEngine::get_instance()->get_sampler()->note_off( pNote );
-			//}
+			Instrument * noteInstrument = pNote->get_instrument();
+			if ( noteInstrument->is_stop_notes() ){ 
+				AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+			}
 ///~new note off stuff
 
 			// aggiungo la nota alla lista di note da eseguire
