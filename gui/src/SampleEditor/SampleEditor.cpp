@@ -167,10 +167,10 @@ void SampleEditor::getAllFrameInfos()
 
 	SampleEditor::HVeloVector velovector;
 	velovector.m_hxframe = 0;
-	velovector.m_hyvalue = 10;
+	velovector.m_hyvalue = 0;
 	m_volumen.push_back( velovector );
 	velovector.m_hxframe = 841;
-	velovector.m_hyvalue = 10;
+	velovector.m_hyvalue = 0;
 	m_volumen.push_back( velovector );
 
 	if (m_sample_is_modified) {

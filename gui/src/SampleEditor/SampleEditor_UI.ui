@@ -22,10 +22,10 @@
     </rect>
    </property>
    <property name="cursor" >
-    <cursorShape>SplitHCursor</cursorShape>
+    <cursorShape>CrossCursor</cursorShape>
    </property>
    <property name="frameShape" >
-    <enum>QFrame::StyledPanel</enum>
+    <enum>QFrame::Box</enum>
    </property>
    <property name="frameShadow" >
     <enum>QFrame::Raised</enum>
@@ -76,7 +76,7 @@
      <x>5</x>
      <y>295</y>
      <width>621</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout" >
@@ -278,7 +278,7 @@
      <x>640</x>
      <y>350</y>
      <width>209</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3" >
