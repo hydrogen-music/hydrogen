@@ -57,6 +57,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		bool m_pSampleEditorStatus;
 		void returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
+		void sortVectors();
 
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_sample_is_modified;	///< true if sample is modified
@@ -68,6 +69,21 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		unsigned m_loop_frame;		///< beginn of the loop section
 		unsigned m_end_frame; 		///< sample end frame
 
+		struct HVeloVector
+		{
+			int m_hxframe;
+			int m_hyvalue;
+		};
+	
+		std::vector<HVeloVector> m_volumen;
+
+		struct Comparator
+		{
+			bool operator()( HVeloVector const& lhs, HVeloVector const& rhs)
+			{
+				return lhs.m_hxframe < rhs.m_hxframe;
+			}
+		};
 
 
 	private slots:
@@ -87,6 +103,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 
 	private:
+
 /*
 		QString __sample_mode;		///< loop mode
 		unsigned __fade_out_startframe;	///< start frame for fade out

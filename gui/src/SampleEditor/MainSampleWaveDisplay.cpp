@@ -99,7 +99,7 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	for ( int x = 25; x < width() -25; x++ ) {
 		if ( !issmaller || x <= m_pSampleLenght){ 
 			painter.drawLine( x, -m_pPeakDatal[x -25] +VCenterl, x, -m_pPeakDatal[x -24] +VCenterl  );
-			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatal[x -24] +VCenterr  );	
+			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatar[x -24] +VCenterr  );	
 		}else
 		{
 			painter.drawLine( x, 0 +VCenterl, x, 0 +VCenterl  );

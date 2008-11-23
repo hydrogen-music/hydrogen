@@ -85,6 +85,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 	intDisplays();
 	getAllFrameInfos();
+	
+	
 
 // mainSampleview = 624(575) x 265 :-)
 // mainSampleAdjustView = 180 x 265 :-(
@@ -161,6 +163,15 @@ void SampleEditor::getAllFrameInfos()
 	m_fade_out_startframe = pSample->get_fade_out_startframe();
 	m_fade_out_type = pSample->get_fade_out_type();
 
+	//velovector
+
+	SampleEditor::HVeloVector velovector;
+	velovector.m_hxframe = 0;
+	velovector.m_hyvalue = 10;
+	m_volumen.push_back( velovector );
+	velovector.m_hxframe = 841;
+	velovector.m_hyvalue = 10;
+	m_volumen.push_back( velovector );
 
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
@@ -394,6 +405,14 @@ void SampleEditor::returnAllTargetDisplayValues()
 	FadeOutFrameSpinBox->setValue( m_fade_out_startframe );
 
 }
+
+
+void SampleEditor::sortVectors()
+{
+	sort(m_volumen.begin(), m_volumen.end(), Comparator());
+}
+
+
 
 
 void SampleEditor::on_FadeOutFrameSpinBox_valueChanged( int )
