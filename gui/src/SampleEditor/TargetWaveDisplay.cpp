@@ -55,6 +55,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 
 	m_pPeakDatal = new int[ w ];
 	m_pPeakDatar = new int[ w ];
+	m_pmove = false;
 
 }
 
@@ -73,6 +74,7 @@ TargetWaveDisplay::~TargetWaveDisplay()
 
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
+	SampleEditor *sEditor = HydrogenApp::getInstance()->getSampleEditor();
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::HighQualityAntialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
@@ -98,19 +100,19 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( m_pFadeOutFramePosition, 4, m_pFadeOutFramePosition, height() -4 );	
 	painter.drawText( m_pFadeOutFramePosition , 1, 10,20, Qt::AlignRight, "F" );
 
-	for ( int i = 0; i < HydrogenApp::getInstance()->getSampleEditor()->m_volumen.size(); i++){
+	for ( int i = 0; i < sEditor->m_volumen.size() -1; i++){
 		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,2 , Qt::SolidLine) );
-		painter.drawLine( HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i - 1].m_hxframe, HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i - 1].m_hyvalue,HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hxframe, HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hyvalue );
+		painter.drawLine( sEditor->m_volumen[i].m_hxframe, sEditor->m_volumen[i].m_hyvalue, sEditor->m_volumen[i + 1].m_hxframe, sEditor->m_volumen[i +1].m_hyvalue );
 		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
 		painter.setBrush(QColor( 99, 160, 233 ));
-		if ( HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hxframe == 0 ||  
-		     HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hxframe == 841 ){
-			painter.drawEllipse ( HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hxframe - 12/2, HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hyvalue  - 12/2, 12, 12 );
-		}else
-		{
-			painter.drawEllipse ( HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hxframe - 6/2, HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hyvalue  - 6/2, 6, 6 );
-		}
+		painter.drawEllipse ( sEditor->m_volumen[i].m_hxframe - 6/2, sEditor->m_volumen[i].m_hyvalue  - 6/2, 6, 6 );
+
 	}
+
+	//first rect
+	painter.drawRect ( sEditor->m_volumen[0].m_hxframe - 12/2, sEditor->m_volumen[0].m_hyvalue  - 6/2, 12, 6 );
+	//last rect 
+	painter.drawRect ( sEditor->m_volumen[sEditor->m_volumen.size() -1].m_hxframe - 12/2, sEditor->m_volumen[sEditor->m_volumen.size() -1].m_hyvalue  - 6/2, 12, 6 );
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 0, lcenter, 841, lcenter );	
@@ -175,6 +177,32 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 
 void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
+	int snapradius = 10;
+	SampleEditor *sEditor = HydrogenApp::getInstance()->getSampleEditor();
+	m_pmove = true;
+
+	if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() <= 10 || ev->y() >=80 ){
+		update();
+		m_pmove = false;
+		return;
+	}
+
+	for ( int i = 1; i < sEditor->m_volumen.size(); ++i){
+		if ( sEditor->m_volumen[i].m_hxframe >= ev->x() - snapradius && sEditor->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+			sEditor->m_volumen.erase( sEditor->m_volumen.begin() + i);
+			SampleEditor::HVeloVector velovector;
+			velovector.m_hxframe = ev->x();
+			velovector.m_hyvalue = ev->y();
+			sEditor->m_volumen.push_back( velovector );
+			sEditor->sortVectors();	
+			update();
+			return;
+		}else
+		{
+			m_pmove = false;	
+		}
+	}
+
 	testPosition( ev );
 	update();
 }
@@ -183,29 +211,50 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
-	testPosition( ev );
+	SampleEditor *sEditor = HydrogenApp::getInstance()->getSampleEditor();
+	int snapradius = 3;
+	bool newpoint = true;
 
-	if (ev->button() == Qt::LeftButton ){
-		SampleEditor::HVeloVector velovector;
-		velovector.m_hxframe = ev->x();
-		velovector.m_hyvalue = ev->y();
-		HydrogenApp::getInstance()->getSampleEditor()->m_volumen.push_back( velovector );
-		HydrogenApp::getInstance()->getSampleEditor()->sortVectors();		
+	// add new point
+
+	// test if there is already a point
+	for ( int i = 1; i < sEditor->m_volumen.size(); ++i){
+		if ( sEditor->m_volumen[i].m_hxframe >= ev->x() - snapradius && sEditor->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+			newpoint = false;
+		}
 	}
+	int x = ev->x();
+	int y = ev->y();	
+	if (ev->button() == Qt::LeftButton && !m_pmove && newpoint){
+		SampleEditor::HVeloVector velovector;
+		if ( ev->y() <= 10 ) y = 10;
+		if ( ev->y() >= 80 ) y = 80;
+		if ( ev->x() <= 1 ) x = 1;
+		if ( ev->x() >= 840 ) x = 840;
+		velovector.m_hxframe = x;
+		velovector.m_hyvalue = y;
+		sEditor->m_volumen.push_back( velovector );
+		sEditor->sortVectors();		
+	}
+
+
+	//remove point
+	snapradius = 10;
 	if (ev->button() == Qt::RightButton ){
 
-		if ( ev->x() == 0 || ev->x() == 841 ){
+		if ( ev->x() <= 0 || ev->x() >= 831 ){
 			update();
 			return;
 		}
 
-		for ( int i = 1; i < HydrogenApp::getInstance()->getSampleEditor()->m_volumen.size(); i++){
-			if ( ev->x() > HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i].m_hxframe && 
-			     ev->x() < HydrogenApp::getInstance()->getSampleEditor()->m_volumen[i + 1].m_hxframe){
-				HydrogenApp::getInstance()->getSampleEditor()->m_volumen.erase(HydrogenApp::getInstance()->getSampleEditor()->m_volumen.begin() +  i);
+		for ( int i = 0; i < sEditor->m_volumen.size(); i++){
+			if ( sEditor->m_volumen[i].m_hxframe >= ev->x() - snapradius && sEditor->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+				if ( sEditor->m_volumen.begin() + i == sEditor->m_volumen.end()) return;
+				sEditor->m_volumen.erase( sEditor->m_volumen.begin() +  i);
 			}
 		}	
 	}
+	testPosition( ev );
 	update();
 }
 
