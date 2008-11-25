@@ -323,7 +323,13 @@ void SampleEditor::createNewLayer()
 {
 	if ( !m_pSampleEditorStatus ){
 //		getAllFrameInfos();
-		
+
+		SampleVeloPan::SampleVeloVector svelovector;
+		SampleVeloPan::SamplePanVector spanvector;
+
+		if ( (m_volumen.size() > 2 )|| ( m_volumen.size() == 2 &&  (m_volumen[0].m_hyvalue > 0 || m_volumen[1].m_hyvalue > 0 ))){
+		}
+
 		Sample *editSample = Sample::load_edit_wave( m_samplename,
 							    m_start_frame,
 							    m_loop_frame,
@@ -409,6 +415,7 @@ void SampleEditor::returnAllTargetDisplayValues()
 
 void SampleEditor::sortVectors()
 {
+	//sort the volume vector to xframes a < b
 	sort(m_volumen.begin(), m_volumen.end(), Comparator());
 }
 

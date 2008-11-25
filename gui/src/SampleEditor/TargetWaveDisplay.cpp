@@ -55,7 +55,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 
 	m_pPeakDatal = new int[ w ];
 	m_pPeakDatar = new int[ w ];
-	m_pmove = false;
+	m_pvmove = false;
 
 }
 
@@ -179,11 +179,11 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	int snapradius = 10;
 	SampleEditor *sEditor = HydrogenApp::getInstance()->getSampleEditor();
-	m_pmove = true;
+	m_pvmove = true;
 
 	if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() <= 0 || ev->y() >= 91 ){
 		update();
-		m_pmove = false;
+		m_pvmove = false;
 		return;
 	}
 
@@ -211,7 +211,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 			return;
 		}else
 		{
-			m_pmove = false;	
+			m_pvmove = false;	
 		}
 	}
 
@@ -237,7 +237,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	}
 	int x = ev->x();
 	int y = ev->y();	
-	if (ev->button() == Qt::LeftButton && !m_pmove && newpoint){
+	if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
 		SampleEditor::HVeloVector velovector;
 		if ( ev->y() <= 0 ) y = 0;
 		if ( ev->y() >= 91 ) y = 91;
@@ -261,8 +261,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 		for ( int i = 0; i < (int)sEditor->m_volumen.size(); i++){
 			if ( sEditor->m_volumen[i].m_hxframe >= ev->x() - snapradius && sEditor->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
-				if ( sEditor->m_volumen.begin() + i == sEditor->m_volumen.begin()) return;
-				if ( sEditor->m_volumen.begin() + i == sEditor->m_volumen.end()) return;
+				if ( sEditor->m_volumen[i].m_hxframe == 0 || sEditor->m_volumen[i].m_hxframe == 841) return;
 				sEditor->m_volumen.erase( sEditor->m_volumen.begin() +  i);
 			}
 		}	

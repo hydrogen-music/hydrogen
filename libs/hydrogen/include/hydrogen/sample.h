@@ -34,6 +34,46 @@ namespace H2Core
 /**
 \ingroup H2CORE
 */
+
+class SampleVeloPan
+{
+public:
+	struct SampleVeloVector
+	{
+		int m_SampleVeloframe;
+		int m_SampleVelovalue;
+	};
+
+	std::vector<SampleVeloVector> m_Samplevolumen;
+
+	struct SamplePanVector
+	{
+		int m_SamplePanframe;
+		int m_SamplePanvalue;
+	};
+
+	std::vector<SamplePanVector> m_SamplePan;
+
+	SampleVeloPan() {
+		SampleVeloVector velovector;
+		velovector.m_SampleVeloframe = -1;
+		velovector.m_SampleVelovalue = -1;
+		m_Samplevolumen.push_back( velovector );
+		SamplePanVector panvector;
+		panvector.m_SamplePanframe = -1;	
+		panvector.m_SamplePanvalue = -1;
+		m_SamplePan.push_back( panvector );
+	}
+
+	SampleVeloPan( const SampleVeloPan& velopan ) {
+		m_Samplevolumen = velopan.m_Samplevolumen;
+		m_SamplePan = velopan.m_SamplePan;
+	}
+
+
+};
+
+
 class Sample : public Object
 {
 public:
@@ -48,7 +88,8 @@ public:
 		int repeats = 0,
 		unsigned end_frame = 0,
 		unsigned fade_out_startframe = 0,
-		int fade_out_type = 0);
+		int fade_out_type = 0,
+		SampleVeloPan velopan = SampleVeloPan());
 		
 
 	~Sample();
@@ -154,6 +195,7 @@ public:
 	void sampleEditProzess( Sample* Sample );
 	void setmod();
 
+
 private:
 
 	float *__data_l;	///< Left channel data
@@ -169,6 +211,7 @@ private:
 	unsigned __end_frame; 		///< sample end frame
 	unsigned __fade_out_startframe;	///< start frame for fade out
 	int __fade_out_type;		///< fade out type 0=off, 1=lin , 2=log
+	SampleVeloPan __velo_pan;	///< volume and pan vector
 
 
 	//static int __total_used_bytes;

@@ -49,7 +49,8 @@ Sample::Sample( unsigned frames,
 		int repeats,
 		unsigned end_frame,
 		unsigned fade_out_startframe,
-		int fade_out_type  )
+		int fade_out_type,
+		SampleVeloPan velopan )
 
 		: Object( "Sample" )
 		, __data_l( data_l )
@@ -65,6 +66,7 @@ Sample::Sample( unsigned frames,
 		, __end_frame( end_frame )
 		, __fade_out_startframe( fade_out_startframe )
 		, __fade_out_type( fade_out_type )
+		, __velo_pan( velopan )
 {
 		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
 }
