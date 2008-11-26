@@ -117,7 +117,7 @@ void SampleWaveDisplay::updateDisplay( QString filename )
 			nVal = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
 				if ( j < nSampleLenght ) {
-					int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
+					int newVal = static_cast<int>( pSampleData[ nSamplePos ] * fGain );
 					if ( newVal > nVal ) {
 						nVal = newVal;
 					}
