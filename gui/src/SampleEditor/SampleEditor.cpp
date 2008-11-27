@@ -1,3 +1,4 @@
+#include "libs/hydrogen/include/hydrogen/sample.h" /* defines SampleVeloPan */
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
@@ -129,13 +130,14 @@ SampleEditor::~SampleEditor()
 
 void SampleEditor::getAllFrameInfos()
 {
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	H2Core::Instrument *m_pInstrument = NULL;
 	Sample* pSample = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= (int)pInstrList->get_size() ) {
+		if ( nInstr >= static_cast<int>(pInstrList->get_size()) ) {
 			nInstr = -1;
 		}
 
@@ -164,14 +166,23 @@ void SampleEditor::getAllFrameInfos()
 	m_fade_out_type = pSample->get_fade_out_type();
 
 	//velovector
-
-	SampleEditor::HVeloVector velovector;
+	pEngine->m_volumen.clear();
+	Hydrogen::HVeloVector velovector;
 	velovector.m_hxframe = 0;
 	velovector.m_hyvalue = 0;
-	m_volumen.push_back( velovector );
+	pEngine->m_volumen.push_back( velovector );
 	velovector.m_hxframe = 841;
 	velovector.m_hyvalue = 0;
-	m_volumen.push_back( velovector );
+	pEngine->m_volumen.push_back( velovector );
+
+	pEngine->m_pan.clear();
+	Hydrogen::HPanVector panvector;
+	panvector.m_hxframe = 0;
+	panvector.m_hyvalue = 45;
+	pEngine->m_pan.push_back( panvector );
+	panvector.m_hxframe = 841;
+	panvector.m_hyvalue = 45;
+	pEngine->m_pan.push_back( panvector );
 
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
@@ -224,7 +235,7 @@ void SampleEditor::intDisplays()
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= (int)pInstrList->get_size() ) {
+		if ( nInstr >= static_cast<int>(pInstrList->get_size()) ) {
 			nInstr = -1;
 		}
 
@@ -321,14 +332,10 @@ void SampleEditor::getAllSampleProps()
 
 void SampleEditor::createNewLayer()
 {
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	if ( !m_pSampleEditorStatus ){
 //		getAllFrameInfos();
 
-		SampleVeloPan::SampleVeloVector svelovector;
-		SampleVeloPan::SamplePanVector spanvector;
-
-		if ( (m_volumen.size() > 2 )|| ( m_volumen.size() == 2 &&  (m_volumen[0].m_hyvalue > 0 || m_volumen[1].m_hyvalue > 0 ))){
-		}
 
 		Sample *editSample = Sample::load_edit_wave( m_samplename,
 							    m_start_frame,
@@ -346,7 +353,7 @@ void SampleEditor::createNewLayer()
 		if (pSong != NULL) {
 			InstrumentList *pInstrList = pSong->get_instrument_list();
 			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-			if ( nInstr >= (int)pInstrList->get_size() ) {
+			if ( nInstr >= static_cast<int>(pInstrList->get_size()) ) {
 				nInstr = -1;
 			}
 	
@@ -411,14 +418,6 @@ void SampleEditor::returnAllTargetDisplayValues()
 	FadeOutFrameSpinBox->setValue( m_fade_out_startframe );
 
 }
-
-
-void SampleEditor::sortVectors()
-{
-	//sort the volume vector to xframes a < b
-	sort(m_volumen.begin(), m_volumen.end(), Comparator());
-}
-
 
 
 

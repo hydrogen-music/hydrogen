@@ -202,7 +202,43 @@ public:
 	void __panic();
 	int __get_selected_PatterNumber();
 	unsigned int __getMidiRealtimeNoteTickPosition();
-	
+
+	///sample editor vectors
+
+	void sortVectors();
+
+	struct HVeloVector
+	{
+		int m_hxframe;
+		int m_hyvalue;
+	};
+
+	std::vector<HVeloVector> m_volumen;
+
+	struct VolComparator
+	{
+		bool operator()( HVeloVector const& lhs, HVeloVector const& rhs)
+		{
+			return lhs.m_hxframe < rhs.m_hxframe;
+		}
+	};
+
+	struct HPanVector
+	{
+		int m_hxframe;
+		int m_hyvalue;
+	};
+
+	std::vector<HPanVector> m_pan;
+
+	struct PanComparator
+	{
+		bool operator()( HPanVector const& lhs, HPanVector const& rhs)
+		{
+			return lhs.m_hxframe < rhs.m_hxframe;
+		}
+	};
+
 
 private:
 	static Hydrogen* __instance;

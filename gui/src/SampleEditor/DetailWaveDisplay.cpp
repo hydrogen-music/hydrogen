@@ -143,8 +143,8 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 		float *pSampleDatar = pNewSample->get_data_r();
 
 		for ( int i = 0; i < mSampleLenght; i++ ){
-			m_pPeakDatal[ i ] = (int)( pSampleDatal[ i ] * fGain );
-			m_pPeakDatar[ i ] = (int)( pSampleDatar[ i ] * fGain );
+			m_pPeakDatal[ i ] = static_cast<int>( pSampleDatal[ i ] * fGain );
+			m_pPeakDatar[ i ] = static_cast<int>( pSampleDatar[ i ] * fGain );
 		}
 
 

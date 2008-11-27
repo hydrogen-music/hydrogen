@@ -38,6 +38,7 @@
 #include <iostream>
 #include <ctime>
 #include <cmath>
+#include <algorithm>
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/event_queue.h>
@@ -1848,7 +1849,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 	}else
 	{
 		std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector();
-		Pattern *pPattern = NULL;
+//		Pattern *pPattern = NULL;
 		int pos = getPatternPos() +1;
 		for ( int i = 0; i < pos; ++i ) {
 			PatternList *pColumn = ( *pColumns )[i];
@@ -3073,6 +3074,13 @@ int Hydrogen::__get_selected_PatterNumber()
 unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
 {
 	return m_naddrealtimenotetickposition;
+}
+
+
+void Hydrogen::sortVectors()
+{
+	//sort the volume vector to xframes a < b
+	sort(m_volumen.begin(), m_volumen.end(), VolComparator());
 }
 
 };
