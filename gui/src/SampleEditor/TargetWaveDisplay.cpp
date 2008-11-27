@@ -182,7 +182,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	int snapradius = 10;
 	m_pvmove = true;
 
-	if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() <= 0 || ev->y() >= 91 ){
+	if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() < 0 || ev->y() > 91 ){
 		update();
 		m_pvmove = false;
 		return;

@@ -303,7 +303,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			unsigned deltastartframe = pEngine->m_volumen[i - 1].m_hxframe * divider;
 			unsigned deltaendframe = pEngine->m_volumen[i].m_hxframe * divider;
 
-			if ( i == static_cast<int>(pEngine->m_volumen.size())) deltaendframe = newlength;
+			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = newlength;
 			unsigned deltaIdiff = deltaendframe - deltastartframe ;
 			double subtract = 0.0F;
 
