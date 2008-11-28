@@ -296,9 +296,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			double k = (91 - static_cast<int>(pEngine->m_volumen[i].m_hyvalue))/91.0F;
 
 			unsigned deltastartframe = pEngine->m_volumen[i - 1].m_hxframe * divider;
-			unsigned deltaendframe = pEngin
-	unsigned __fade_out_startframe;	///< start frame for fade out
-	int __fade_out_type;		///< fade out type 0=off, 1=lin , 2=loge->m_volumen[i].m_hxframe * divider;
+			unsigned deltaendframe = pEngine->m_volumen[i].m_hxframe * divider;
+
 
 			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = newlength;
 			unsigned deltaIdiff = deltaendframe - deltastartframe ;
