@@ -3077,11 +3077,17 @@ unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
 }
 
 
-void Hydrogen::sortVectors()
+void Hydrogen::sortVolVectors()
 {
 	//sort the volume vector to xframes a < b
 	sort(m_volumen.begin(), m_volumen.end(), VolComparator());
 }
 
+
+void Hydrogen::sortPanVectors()
+{
+	//sort the pan vector to xframes a < b
+	sort(m_pan.begin(), m_pan.end(), PanComparator());
+}
 };
 

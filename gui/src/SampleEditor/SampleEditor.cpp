@@ -66,6 +66,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	setupUi ( this );
 	INFOLOG ( "INIT" );
 
+	m_pTimer = new QTimer(this);
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePostionRuler()));
+
 	QString newfilename = mSamplefilename.section( '/', -1 );
 
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
@@ -84,34 +87,18 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
 
+
 	intDisplays();
 	getAllFrameInfos();
-	
-	
 
 // mainSampleview = 624(575) x 265 :-)
-// mainSampleAdjustView = 180 x 265 :-(
-// targetSampleView = 841 x 91 :-( will removed
-// StartFrameSpinBox :-)
-// LoopFrameSpinBox :-)
-// ProcessingTypeComboBox :forward, reverse, pingpong :-)
-// LoopCountSpinBox :-(
-// EndFrameSpinBox :-)
-// FadeOutFrameSpinBox :-(
-// FadeOutTypeComboBox: off, lin, log :-(
-// ApplyChangesPushButton :-()
-// PlayPushButton :-)
-// RestoreSamplePushButton :-(
-// ClosePushButton :-()
-// verticalzoomSlider
-// newlengthLabel
+// mainSampleAdjustView = 180 x 265 :-)
+// targetSampleView = 841 x 91 :-)
 
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
 	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
 
-	m_pTimer = new QTimer(this);
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePostionRuler()));
 }
 
 
@@ -162,27 +149,44 @@ void SampleEditor::getAllFrameInfos()
 	m_repeats = pSample->get_repeats();
 	m_end_frame = m_pSamplefromFile->get_end_frame();
 
-	m_fade_out_startframe = pSample->get_fade_out_startframe();
-	m_fade_out_type = pSample->get_fade_out_type();
-
-	//velovector
-	pEngine->m_volumen.clear();
 	Hydrogen::HVeloVector velovector;
-	velovector.m_hxframe = 0;
-	velovector.m_hyvalue = 0;
-	pEngine->m_volumen.push_back( velovector );
-	velovector.m_hxframe = 841;
-	velovector.m_hyvalue = 0;
-	pEngine->m_volumen.push_back( velovector );
+	//velovector
+	if ( pSample->__velo_pan.m_Samplevolumen[0].m_SampleVeloframe == -1 ){
+		pEngine->m_volumen.clear();
+		velovector.m_hxframe = 0;
+		velovector.m_hyvalue = 0;
+		pEngine->m_volumen.push_back( velovector );
+		velovector.m_hxframe = 841;
+		velovector.m_hyvalue = 0;
+		pEngine->m_volumen.push_back( velovector );
+	}else
+	{
+		pEngine->m_volumen.clear();
+		for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_Samplevolumen.size()); i++){
+			velovector.m_hxframe = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVeloframe;
+			velovector.m_hyvalue = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVelovalue;
+			pEngine->m_volumen.push_back( velovector );	
+		}
+	}
 
-	pEngine->m_pan.clear();
 	Hydrogen::HPanVector panvector;
-	panvector.m_hxframe = 0;
-	panvector.m_hyvalue = 45;
-	pEngine->m_pan.push_back( panvector );
-	panvector.m_hxframe = 841;
-	panvector.m_hyvalue = 45;
-	pEngine->m_pan.push_back( panvector );
+	if ( pSample->__velo_pan.m_SamplePan[0].m_SamplePanframe == -1 ){
+		pEngine->m_pan.clear();
+		panvector.m_hxframe = 0;
+		panvector.m_hyvalue = 45;
+		pEngine->m_pan.push_back( panvector );
+		panvector.m_hxframe = 841;
+		panvector.m_hyvalue = 45;
+		pEngine->m_pan.push_back( panvector );
+	}else
+	{
+		pEngine->m_pan.clear();
+		for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_SamplePan.size()); i++){
+			panvector.m_hxframe = pSample->__velo_pan.m_SamplePan[i].m_SamplePanframe;
+			panvector.m_hyvalue = pSample->__velo_pan.m_SamplePan[i].m_SamplePanvalue;
+			pEngine->m_pan.push_back( panvector );
+		}
+	}
 
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
@@ -199,8 +203,6 @@ void SampleEditor::getAllFrameInfos()
 		EndFrameSpinBox->setValue( m_end_frame );
 		LoopCountSpinBox->setValue( m_repeats );
 
-		FadeOutFrameSpinBox->setValue( pSample->get_fade_out_startframe() );
-		FadeOutTypeComboBox->setCurrentIndex( pSample->get_fade_out_type() );
 
 		m_pMainSampleWaveDisplay->m_pStartFramePosition = m_start_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
@@ -209,10 +211,11 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->m_pEndFramePosition =  m_end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
-		float divider = pSample->get_n_frames() / 841.0F;
-		m_pTargetSampleView->m_pFadeOutFramePosition = FadeOutFrameSpinBox->value() / divider;
 
 	}
+//	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
+//	m_pSampleAdjustView->updateDisplay( m_samplename );
+	m_pTargetSampleView->updateDisplay( pLayer );
 }
 
 
@@ -222,8 +225,6 @@ void SampleEditor::getAllLocalFrameInfos()
 	m_loop_frame = LoopFrameSpinBox->value();
 	m_repeats = LoopCountSpinBox->value();
 	m_end_frame = EndFrameSpinBox->value();
-	m_fade_out_startframe = FadeOutFrameSpinBox->value();
-	m_fade_out_type = FadeOutTypeComboBox->currentIndex();
 }
 
 
@@ -248,7 +249,6 @@ void SampleEditor::intDisplays()
 		}
 	}
 
-	H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_pSelectedLayer );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -264,7 +264,7 @@ void SampleEditor::intDisplays()
 	m_pSampleAdjustView->move( 1, 1 );
 
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
-	m_pTargetSampleView->updateDisplay( pLayer );
+//	m_pTargetSampleView->updateDisplay( pLayer );
 	m_pTargetSampleView->move( 1, 1 );
 
 	QApplication::restoreOverrideCursor();
@@ -311,40 +311,17 @@ bool SampleEditor::getCloseQuestion()
 
 
 
-/*
-void SampleEditor::getAllSampleProps()
-{
-
-	m_pSample->set_sample_is_modified( m_sample_is_modified );
-	m_pSample->set_sample_mode( m_sample_mode );
-	m_pSample->set_start_frame( m_start_frame );
-	m_pSample->set_loop_frame( m_loop_frame );
-	m_pSample->set_repeats( m_repeats );
-	m_pSample->set_end_frame( m_end_frame );
-	ERRORLOG( QString("setAllSampleProps: %1").arg(m_end_frame) );
-	m_pSample->set_fade_out_startframe( m_fade_out_startframe );
-	m_pSample->set_fade_out_type( m_fade_out_type );
-
-}
-*/
-
-
-
 void SampleEditor::createNewLayer()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	if ( !m_pSampleEditorStatus ){
-//		getAllFrameInfos();
 
+	if ( !m_pSampleEditorStatus ){
 
 		Sample *editSample = Sample::load_edit_wave( m_samplename,
 							    m_start_frame,
 							    m_loop_frame,
 							    m_end_frame,
 							    m_repeats,
-							    m_sample_mode,
-							    m_fade_out_startframe,
-							    m_fade_out_type);
+							    m_sample_mode);
 
 		AudioEngine::get_instance()->lock( "SampeEditor::insert new sample" );
 
@@ -411,25 +388,14 @@ void SampleEditor::returnAllMainWaveDisplayValues()
 void SampleEditor::returnAllTargetDisplayValues()
 {
 	setSamplelengthFrames();
-	float divider = m_pslframes / 841.0F;
-//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_n_frames()));
 	m_sample_is_modified = true;
-	m_fade_out_startframe = m_pTargetSampleView->m_pFadeOutFramePosition * divider;
-	FadeOutFrameSpinBox->setValue( m_fade_out_startframe );
 
 }
 
-
-
-void SampleEditor::on_FadeOutFrameSpinBox_valueChanged( int )
+void SampleEditor::setTrue()
 {
-	setSamplelengthFrames();
-	float divider = m_pslframes / 841.0F;
-	m_pTargetSampleView->m_pFadeOutFramePosition = FadeOutFrameSpinBox->value() / divider;
-	m_pTargetSampleView->updateDisplayPointer();
 	m_pSampleEditorStatus = false;
 }
-
 
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
@@ -665,7 +631,6 @@ void SampleEditor::setSamplelengthFrames()
 	}
 	m_pslframes = newlength;
 	newlengthLabel->setText(QString("new sample length: %1 frames").arg(newlength));
-	FadeOutFrameSpinBox->setMaximum( newlength );
 }
 
 
@@ -732,15 +697,12 @@ void SampleEditor::testPositionsSpinBoxes()
 }
 
 
-void SampleEditor::on_FadeOutTypeComboBox_currentIndexChanged( int )
-{
-		m_pSampleEditorStatus = false;
-}
+
 
 
 void SampleEditor::testpTimer()
 {
-	if ( m_pTimer->isActive () ){
+	if ( m_pTimer->isActive() ){
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();

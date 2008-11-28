@@ -58,7 +58,6 @@ class TargetWaveDisplay : public QWidget, public Object
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		void testPosition( QMouseEvent *ev );
 		
 };
 

@@ -207,7 +207,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 			}
 
 			pEngine->m_volumen.push_back( velovector );
-			pEngine->sortVectors();	
+			pEngine->sortVolVectors();	
 			update();
 			return;
 		}else
@@ -216,8 +216,8 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		}
 	}
 
-	testPosition( ev );
 	update();
+	HydrogenApp::getInstance()->getSampleEditor()->setTrue();
 }
 
 
@@ -247,7 +247,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		velovector.m_hxframe = x;
 		velovector.m_hyvalue = y;
 		pEngine->m_volumen.push_back( velovector );
-		pEngine->sortVectors();		
+		pEngine->sortVolVectors();		
 	}
 
 
@@ -267,15 +267,12 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			}
 		}	
 	}
-	testPosition( ev );
 	update();
+	HydrogenApp::getInstance()->getSampleEditor()->setTrue();
 }
 
 
-void TargetWaveDisplay::testPosition( QMouseEvent *ev )
-{
-		m_pFadeOutFramePosition = ev->x() ;
-}
+
 
 
 void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)

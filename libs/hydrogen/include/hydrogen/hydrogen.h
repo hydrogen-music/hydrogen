@@ -205,7 +205,8 @@ public:
 
 	///sample editor vectors
 
-	void sortVectors();
+	void sortVolVectors();
+	void sortPanVectors();
 
 	struct HVeloVector
 	{

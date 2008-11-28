@@ -87,8 +87,6 @@ public:
 		unsigned loop_frame = 0,
 		int repeats = 0,
 		unsigned end_frame = 0,
-		unsigned fade_out_startframe = 0,
-		int fade_out_type = 0,
 		SampleVeloPan velopan = SampleVeloPan());
 		
 
@@ -124,9 +122,7 @@ public:
 				const unsigned loppframe,
 				const unsigned endframe,
 				const int loops,
-				const QString loopmode,
- 				const unsigned fadeoutstartframe,
-				const int fadeouttype);
+				const QString loopmode);
 
 
 	unsigned get_n_frames() {
@@ -177,24 +173,11 @@ public:
 		return __end_frame;
 	}
 
-	void set_fade_out_startframe( unsigned fade_out_startframe ) {
-		__fade_out_startframe = fade_out_startframe;
-	}
-	unsigned get_fade_out_startframe() const {
-		return __fade_out_startframe;
-	}
-
-	void set_fade_out_type( int fade_out_type ) {
-		__fade_out_type = fade_out_type;
-	}
-	int get_fade_out_type() const {
-		return __fade_out_type;
-	}
-
 
 	void sampleEditProzess( Sample* Sample );
 	void setmod();
 
+	SampleVeloPan __velo_pan;	///< volume and pan vector
 
 private:
 
@@ -209,9 +192,7 @@ private:
 	unsigned __loop_frame;		///< beginn of the loop section
 	int __repeats;			///< repeats from the loop section
 	unsigned __end_frame; 		///< sample end frame
-	unsigned __fade_out_startframe;	///< start frame for fade out
-	int __fade_out_type;		///< fade out type 0=off, 1=lin , 2=log
-	SampleVeloPan __velo_pan;	///< volume and pan vector
+
 
 
 	//static int __total_used_bytes;

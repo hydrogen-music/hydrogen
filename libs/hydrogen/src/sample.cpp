@@ -50,8 +50,6 @@ Sample::Sample( unsigned frames,
 		unsigned loop_frame,
 		int repeats,
 		unsigned end_frame,
-		unsigned fade_out_startframe,
-		int fade_out_type,
 		SampleVeloPan velopan )
 
 		: Object( "Sample" )
@@ -66,8 +64,6 @@ Sample::Sample( unsigned frames,
 		, __loop_frame( loop_frame )
 		, __repeats( repeats )
 		, __end_frame( end_frame )
-		, __fade_out_startframe( fade_out_startframe )
-		, __fade_out_type( fade_out_type )
 		, __velo_pan( velopan )
 {
 		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
@@ -163,9 +159,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 				const unsigned loppframe,
 				const unsigned endframe,
 				const int loops,
-				const QString loopmode,
- 				const unsigned fadeoutstartframe,
-				const int fadeouttype)
+				const QString loopmode)
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -288,6 +282,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 
 		//1. write velopan into sample
 		SampleVeloPan::SampleVeloVector velovec;
+		pSample->__velo_pan.m_Samplevolumen.clear();
 		for (int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){		
 			velovec.m_SampleVeloframe = pEngine->m_volumen[i].m_hxframe;
 			velovec.m_SampleVelovalue = pEngine->m_volumen[i].m_hyvalue;
@@ -301,7 +296,9 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			double k = (91 - static_cast<int>(pEngine->m_volumen[i].m_hyvalue))/91.0F;
 
 			unsigned deltastartframe = pEngine->m_volumen[i - 1].m_hxframe * divider;
-			unsigned deltaendframe = pEngine->m_volumen[i].m_hxframe * divider;
+			unsigned deltaendframe = pEngin
+	unsigned __fade_out_startframe;	///< start frame for fade out
+	int __fade_out_type;		///< fade out type 0=off, 1=lin , 2=loge->m_volumen[i].m_hxframe * divider;
 
 			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = newlength;
 			unsigned deltaIdiff = deltaendframe - deltastartframe ;
@@ -315,8 +312,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			}
 			//_INFOLOG( QString( "start y %1, end y %2 sub: %3, deltadiff %4" ).arg( y ).arg( k ).arg(subtract).arg(deltaIdiff) );
 			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){			
-//				tempdata_l[z] = tempdata_l[z] * y;
-//				tempdata_r[z] = tempdata_r[z] * y;
+				tempdata_l[z] = tempdata_l[z] * y;
+				tempdata_r[z] = tempdata_r[z] * y;
 				y = y - subtract;
 			}
 		}
@@ -327,27 +324,13 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	if ( (pEngine->m_pan.size() > 2 )|| ( pEngine->m_pan.size() == 2 &&  (pEngine->m_pan[0].m_hyvalue != 45 || pEngine->m_pan[1].m_hyvalue != 45 ))){
 		//first step write velopan into sample
 		SampleVeloPan::SamplePanVector panvec;
+		pSample->__velo_pan.m_SamplePan.clear();
 		for (int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){		
 			panvec.m_SamplePanframe = pEngine->m_pan[i].m_hxframe;
 			panvec.m_SamplePanvalue = pEngine->m_pan[i].m_hyvalue;
 			pSample->__velo_pan.m_SamplePan.push_back( panvec );
 		}
 		
-	}
-
-
-///fadeout
-
-	if (fadeouttype == 1){
-		double y = 1.0F;
-		int differ = newlength - fadeoutstartframe;
-		if ( differ <= 0 ) differ = 1;
-		double subtract = (double)1.0F / differ;
-		for ( unsigned i = fadeoutstartframe; i< newlength; i++, y = y - subtract){			
-			tempdata_l[i] = tempdata_l[i] * y;
-			tempdata_r[i] = tempdata_r[i] * y;
-			//_INFOLOG( QString( "y: %1" ).arg( y ) );
-		}
 	}
 
 
@@ -360,8 +343,6 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	pSample->__loop_frame = loppframe;
 	pSample->__end_frame = endframe;
 	pSample->__repeats = loops;
-	pSample->__fade_out_startframe = fadeoutstartframe;
-	pSample->__fade_out_type = fadeouttype;
 
 
 

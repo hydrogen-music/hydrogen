@@ -189,6 +189,7 @@ Song* SongReader::readSong( const QString& filename )
 {
 	INFOLOG( filename );
 	Song* song = NULL;
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	if (QFile( filename ).exists() == false ) {
 		ERRORLOG( "Song file " + filename + " not found." );
@@ -369,8 +370,6 @@ Song* SongReader::readSong( const QString& filename )
 					unsigned sLoopFrame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0);
 					int sLoops = LocalFileMng::readXmlInt( layerNode, "loops", 0);
 					unsigned sEndframe = LocalFileMng::readXmlInt( layerNode, "endframe", 0);
-					unsigned sFadeout = LocalFileMng::readXmlInt( layerNode, "fadeout", 0);
-					int sFadeoutType = LocalFileMng::readXmlInt( layerNode, "fadeouttype", 0); 
 
 					float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
 					float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
@@ -386,14 +385,29 @@ Song* SongReader::readSong( const QString& filename )
 						pSample = Sample::load( sFilename );
 					}else
 					{
+						pEngine->m_volumen.clear();
+						Hydrogen::HVeloVector velovector;
+						for ( TiXmlNode* volumeNode = layerNode->FirstChild( "volume" ); volumeNode; volumeNode = volumeNode->NextSibling( "volume" ) )  {
+							velovector.m_hxframe = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0);
+							velovector.m_hyvalue = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0);
+							pEngine->m_volumen.push_back( velovector );
+							//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
+						}
+
+						pEngine->m_pan.clear();
+						Hydrogen::HPanVector panvector;
+						for ( TiXmlNode* panNode = layerNode->FirstChild( "pan" ); panNode; panNode = panNode->NextSibling( "pan" ) ) {
+							panvector.m_hxframe = LocalFileMng::readXmlInt( panNode, "pan-position", 0);
+							panvector.m_hyvalue = LocalFileMng::readXmlInt( panNode, "pan-value", 0);
+							pEngine->m_pan.push_back( panvector );
+						}
+					
 						pSample = Sample::load_edit_wave( sFilename,
 										  sStartframe,
 										  sLoopFrame,
 										  sEndframe,
 										  sLoops,
-										  sMode,
-										  sFadeout,
-										  sFadeoutType);
+										  sMode);
 					}
 					if ( pSample == NULL ) {
 						ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -407,6 +421,8 @@ Song* SongReader::readSong( const QString& filename )
 					pInstrument->set_layer( pLayer, nLayer );
 					nLayer++;
 				}
+			pEngine->m_volumen.clear();
+			pEngine->m_pan.clear();
 			}
 
 			instrumentList->add( pInstrument );

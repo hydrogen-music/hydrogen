@@ -1183,8 +1183,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			unsigned sLoopFrame =  pSample->get_loop_frame();
 			int sLoops = pSample->get_repeats();
 			unsigned sEndframe =  pSample->get_end_frame();
-			unsigned sFadeout = pSample->get_fade_out_startframe();
-			int sFadeoutType =  pSample->get_fade_out_type();
+
 
 			if ( instr->get_drumkit_name() != "" ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -1200,12 +1199,25 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( &layerNode, "loopframe", to_string( sLoopFrame ) );
 			LocalFileMng::writeXmlString( &layerNode, "loops", to_string( sLoops ) );
 			LocalFileMng::writeXmlString( &layerNode, "endframe", to_string( sEndframe ) );
-			LocalFileMng::writeXmlString( &layerNode, "fadeout", to_string( sFadeout ) );
-			LocalFileMng::writeXmlString( &layerNode, "fadeouttype", to_string( sFadeoutType ) );
 			LocalFileMng::writeXmlString( &layerNode, "min", to_string( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( &layerNode, "max", to_string( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( &layerNode, "gain", to_string( pLayer->get_gain() ) );
 			LocalFileMng::writeXmlString( &layerNode, "pitch", to_string( pLayer->get_pitch() ) );
+
+			for (int y = 0; y < static_cast<int>(pSample->__velo_pan.m_Samplevolumen.size()); y++){
+				TiXmlElement volumeNode( "volume" );
+				LocalFileMng::writeXmlString( &volumeNode, "volume-position", to_string( pSample->__velo_pan.m_Samplevolumen[y].m_SampleVeloframe ) );
+				LocalFileMng::writeXmlString( &volumeNode, "volume-value", to_string( pSample->__velo_pan.m_Samplevolumen[y].m_SampleVelovalue ) );
+				layerNode.InsertEndChild( volumeNode );
+			}
+
+			for (int y = 0; y < static_cast<int>(pSample->__velo_pan.m_SamplePan.size()); y++){
+				TiXmlElement panNode( "pan" );
+				LocalFileMng::writeXmlString( &panNode, "pan-position", to_string( pSample->__velo_pan.m_SamplePan[y].m_SamplePanframe ) );
+				LocalFileMng::writeXmlString( &panNode, "pan-value", to_string( pSample->__velo_pan.m_SamplePan[y].m_SamplePanvalue ) );
+				layerNode.InsertEndChild( panNode );
+			}
+
 
 			instrumentNode.InsertEndChild( layerNode );
 		}
