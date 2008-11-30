@@ -55,6 +55,9 @@ class TargetWaveDisplay : public QWidget, public Object
 		int *m_pPeakDatar;
 		unsigned m_pSampleLenght;
 		bool m_pvmove;
+		QString m_info;
+		int m_x;
+		int m_y;
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);

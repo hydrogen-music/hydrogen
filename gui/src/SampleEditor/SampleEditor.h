@@ -82,6 +82,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void updateMainsamplePostionRuler();
 
 
+
 	private:
 
 /*

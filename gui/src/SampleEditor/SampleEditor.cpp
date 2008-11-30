@@ -94,6 +94,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 // mainSampleview = 624(575) x 265 :-)
 // mainSampleAdjustView = 180 x 265 :-)
 // targetSampleView = 841 x 91 :-)
+// EditTypeComboBox
 
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
@@ -685,7 +686,6 @@ void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 
 void SampleEditor::testPositionsSpinBoxes()
 {
-
 	if (  m_start_frame > m_loop_frame ) m_loop_frame = m_start_frame;
 	if (  m_start_frame > m_end_frame ) m_end_frame = m_start_frame;
 	if (  m_loop_frame > m_end_frame ) m_end_frame = m_loop_frame;
@@ -695,9 +695,6 @@ void SampleEditor::testPositionsSpinBoxes()
 	LoopFrameSpinBox->setValue( m_loop_frame );
 	EndFrameSpinBox->setValue( m_end_frame );
 }
-
-
-
 
 
 void SampleEditor::testpTimer()

@@ -298,7 +298,6 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			unsigned deltastartframe = pEngine->m_volumen[i - 1].m_hxframe * divider;
 			unsigned deltaendframe = pEngine->m_volumen[i].m_hxframe * divider;
 
-
 			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = newlength;
 			unsigned deltaIdiff = deltaendframe - deltastartframe ;
 			double subtract = 0.0F;
@@ -332,7 +331,6 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		
 	}
 
-
 	pSample->__data_l = tempdata_l;
 	pSample->__data_r = tempdata_r;
 	pSample->__sample_rate = soundInfo.samplerate;
@@ -342,8 +340,6 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	pSample->__loop_frame = loppframe;
 	pSample->__end_frame = endframe;
 	pSample->__repeats = loops;
-
-
 
 	return pSample;
 

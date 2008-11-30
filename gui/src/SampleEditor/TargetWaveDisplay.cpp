@@ -57,7 +57,9 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	m_pPeakDatal = new int[ w ];
 	m_pPeakDatar = new int[ w ];
 	m_pvmove = false;
-
+	m_info = "";
+	m_x = -10;
+	m_y = -10;
 }
 
 
@@ -102,23 +104,60 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawText( m_pFadeOutFramePosition , 1, 10,20, Qt::AlignRight, "F" );
 
 	for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()) -1; i++){
-		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,2 , Qt::SolidLine) );
-		painter.drawLine( pEngine->m_volumen[i].m_hxframe, pEngine->m_volumen[i].m_hyvalue, pEngine->m_volumen[i + 1].m_hxframe, pEngine->m_volumen[i +1].m_hyvalue );
+		//volume line
 		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
+		painter.drawLine( pEngine->m_volumen[i].m_hxframe, pEngine->m_volumen[i].m_hyvalue, pEngine->m_volumen[i + 1].m_hxframe, pEngine->m_volumen[i +1].m_hyvalue );
 		painter.setBrush(QColor( 99, 160, 233 ));
 		painter.drawEllipse ( pEngine->m_volumen[i].m_hxframe - 6/2, pEngine->m_volumen[i].m_hyvalue  - 6/2, 6, 6 );
-
 	}
 
-	//first rect
+	for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()) -1; i++){
+		//pan line
+		painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
+		painter.drawLine( pEngine->m_pan[i].m_hxframe, pEngine->m_pan[i].m_hyvalue, pEngine->m_pan[i + 1].m_hxframe, pEngine->m_pan[i +1].m_hyvalue );
+		painter.setBrush(QColor( 77, 189, 55 ));
+		painter.drawEllipse ( pEngine->m_pan[i].m_hxframe - 6/2, pEngine->m_pan[i].m_hyvalue  - 6/2, 6, 6 );
+	}
+
+	//volume line
+	//first rect 
+	painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
+	painter.setBrush(QColor( 99, 160, 233 ));
 	painter.drawRect ( pEngine->m_volumen[0].m_hxframe - 12/2, pEngine->m_volumen[0].m_hyvalue  - 6/2, 12, 6 );
 	//last rect 
 	painter.drawRect ( pEngine->m_volumen[pEngine->m_volumen.size() -1].m_hxframe - 12/2, pEngine->m_volumen[pEngine->m_volumen.size() -1].m_hyvalue  - 6/2, 12, 6 );
+
+	//pan line
+	//first rect 
+	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
+	painter.setBrush(QColor( 77, 189, 55 ));
+	painter.drawRect ( pEngine->m_pan[0].m_hxframe - 12/2, pEngine->m_pan[0].m_hyvalue  - 6/2, 12, 6 );
+	//last rect 
+	painter.drawRect ( pEngine->m_pan[pEngine->m_pan.size() -1].m_hxframe - 12/2, pEngine->m_pan[pEngine->m_pan.size() -1].m_hyvalue  - 6/2, 12, 6 );
+
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 0, lcenter, 841, lcenter );	
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 0, rcenter, 841, rcenter );
+
+	if (m_y < 50){
+		if (m_x < 800){
+			painter.drawText( m_x +5, m_y, 40, 20, Qt::AlignLeft, QString( m_info ) );
+		}else
+		{
+			painter.drawText( m_x - 30, m_y, 40, 20, Qt::AlignLeft, QString( m_info ) );
+		}
+		
+	}else
+	{
+		if (m_x < 800){
+			painter.drawText( m_x +5, m_y -20, 40, 20, Qt::AlignLeft, QString( m_info ) );
+		}else
+		{
+			painter.drawText( m_x - 30, m_y -20, 40, 20, Qt::AlignLeft, QString( m_info ) );
+		}
+	}
 
 }
 
@@ -180,39 +219,91 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	int snapradius = 10;
-	m_pvmove = true;
+	QString editType = HydrogenApp::getInstance()->getSampleEditor()->EditTypeComboBox->currentText();
 
-	if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() < 0 || ev->y() > 91 ){
-		update();
-		m_pvmove = false;
-		return;
-	}
 
-	for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
-		if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
-			pEngine->m_volumen.erase( pEngine->m_volumen.begin() + i);
-			Hydrogen::HVeloVector velovector;
-			if ( i == 0 ){
-				velovector.m_hxframe = 0;
-				velovector.m_hyvalue = ev->y();
-			}
-			else if ( i == static_cast<int>(pEngine->m_volumen.size()) ){
-				velovector.m_hxframe = pEngine->m_volumen[i].m_hxframe;
-				velovector.m_hyvalue = ev->y();
-				
+
+	///edit volume points
+	if( editType == "volume" ){
+		m_pvmove = true;
+	
+		if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() < 0 || ev->y() > 91 ){
+			update();
+			m_pvmove = false;
+			return;
+		}
+		float info = (91 - ev->y()) / 91.0;
+		m_info.setNum( info, 'g', 2 );
+		m_x = ev->x();
+		m_y = ev->y();
+	
+		for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
+			if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+				pEngine->m_volumen.erase( pEngine->m_volumen.begin() + i);
+				Hydrogen::HVeloVector velovector;
+				if ( i == 0 ){
+					velovector.m_hxframe = 0;
+					velovector.m_hyvalue = ev->y();
+				}
+				else if ( i == static_cast<int>(pEngine->m_volumen.size()) ){
+					velovector.m_hxframe = pEngine->m_volumen[i].m_hxframe;
+					velovector.m_hyvalue = ev->y();
+					
+				}else
+				{
+					velovector.m_hxframe = ev->x();
+					velovector.m_hyvalue = ev->y();
+				}
+	
+				pEngine->m_volumen.push_back( velovector );
+				pEngine->sortVolVectors();	
+				update();
+				return;
 			}else
 			{
-				velovector.m_hxframe = ev->x();
-				velovector.m_hyvalue = ev->y();
+				m_pvmove = false;	
 			}
-
-			pEngine->m_volumen.push_back( velovector );
-			pEngine->sortVolVectors();	
+		}
+	///edit panorama points
+	}else if( editType == "panorama" ){
+		m_pvmove = true;
+	
+		if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() < 0 || ev->y() > 91 ){
 			update();
+			m_pvmove = false;
 			return;
-		}else
-		{
-			m_pvmove = false;	
+		}
+		float info = (45 - ev->y()) / 45.0;
+		m_info.setNum( info, 'g', 2 );
+		m_x = ev->x();
+		m_y = ev->y();
+	
+		for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
+			if ( pEngine->m_pan[i].m_hxframe >= ev->x() - snapradius && pEngine->m_pan[i].m_hxframe <= ev->x() + snapradius ){
+				pEngine->m_pan.erase( pEngine->m_pan.begin() + i);
+				Hydrogen::HPanVector panvector;
+				if ( i == 0 ){
+					panvector.m_hxframe = 0;
+					panvector.m_hyvalue = ev->y();
+				}
+				else if ( i == static_cast<int>(pEngine->m_pan.size()) ){
+					panvector.m_hxframe = pEngine->m_volumen[i].m_hxframe;
+					panvector.m_hyvalue = ev->y();
+					
+				}else
+				{
+					panvector.m_hxframe = ev->x();
+					panvector.m_hyvalue = ev->y();
+				}
+	
+				pEngine->m_pan.push_back( panvector );
+				pEngine->sortPanVectors();	
+				update();
+				return;
+			}else
+			{
+				m_pvmove = false;	
+			}
 		}
 	}
 
@@ -229,44 +320,100 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	bool newpoint = true;
 
 	// add new point
-
-	// test if there is already a point
-	for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); ++i){
-		if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
-			newpoint = false;
-		}
-	}
-	int x = ev->x();
-	int y = ev->y();	
-	if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
-		Hydrogen::HVeloVector velovector;
-		if ( ev->y() <= 0 ) y = 0;
-		if ( ev->y() >= 91 ) y = 91;
-		if ( ev->x() <= 6 ) x = 6;
-		if ( ev->x() >= 835 ) x = 835;
-		velovector.m_hxframe = x;
-		velovector.m_hyvalue = y;
-		pEngine->m_volumen.push_back( velovector );
-		pEngine->sortVolVectors();		
-	}
+	QString editType = HydrogenApp::getInstance()->getSampleEditor()->EditTypeComboBox->currentText();
 
 
-	//remove point
-	snapradius = 10;
-	if (ev->button() == Qt::RightButton ){
-
-		if ( ev->x() <= 0 || ev->x() >= 841 ){
-			update();
-			return;
-		}
-
-		for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
+	///edit volume points
+	if( editType == "volume" ){
+		// test if there is already a point
+		for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); ++i){
 			if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
-				if ( pEngine->m_volumen[i].m_hxframe == 0 || pEngine->m_volumen[i].m_hxframe == 841) return;
-				pEngine->m_volumen.erase( pEngine->m_volumen.begin() +  i);
+				newpoint = false;
 			}
-		}	
+		}
+		int x = ev->x();
+		int y = ev->y();	
+		if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
+			float info = (91 - ev->y()) / 91.0;
+			m_info.setNum( info, 'g', 2 );
+			m_x = ev->x();
+			m_y = ev->y();
+			Hydrogen::HVeloVector velovector;
+			if ( ev->y() <= 0 ) y = 0;
+			if ( ev->y() >= 91 ) y = 91;
+			if ( ev->x() <= 6 ) x = 6;
+			if ( ev->x() >= 835 ) x = 835;
+			velovector.m_hxframe = x;
+			velovector.m_hyvalue = y;
+			pEngine->m_volumen.push_back( velovector );
+			pEngine->sortVolVectors();		
+		}
+	
+	
+		//remove point
+		snapradius = 10;
+		if (ev->button() == Qt::RightButton ){
+	
+			if ( ev->x() <= 0 || ev->x() >= 841 ){
+				update();
+				return;
+			}
+			m_info = "";
+
+			for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
+				if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+					if ( pEngine->m_volumen[i].m_hxframe == 0 || pEngine->m_volumen[i].m_hxframe == 841) return;
+					pEngine->m_volumen.erase( pEngine->m_volumen.begin() +  i);
+				}
+			}	
+		}
 	}
+	///edit panorama points
+	else if( editType == "panorama" ){
+		// test if there is already a point
+		for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); ++i){
+			if ( pEngine->m_pan[i].m_hxframe >= ev->x() - snapradius && pEngine->m_pan[i].m_hxframe <= ev->x() + snapradius ){
+				newpoint = false;
+			}
+		}
+		int x = ev->x();
+		int y = ev->y();	
+		if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
+			float info = (45 - ev->y()) / 45.0;
+			m_info.setNum( info, 'g', 2 );
+			m_x = ev->x();
+			m_y = ev->y();
+			Hydrogen::HPanVector panvector;
+			if ( ev->y() <= 0 ) y = 0;
+			if ( ev->y() >= 91 ) y = 91;
+			if ( ev->x() <= 6 ) x = 6;
+			if ( ev->x() >= 835 ) x = 835;
+			panvector.m_hxframe = x;
+			panvector.m_hyvalue = y;
+			pEngine->m_pan.push_back( panvector );
+			pEngine->sortPanVectors();		
+		}
+	
+	
+		//remove point
+		snapradius = 10;
+		if (ev->button() == Qt::RightButton ){
+	
+			if ( ev->x() <= 0 || ev->x() >= 841 ){
+				update();
+				return;
+			}
+			m_info = "";
+
+			for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
+				if ( pEngine->m_pan[i].m_hxframe >= ev->x() - snapradius && pEngine->m_pan[i].m_hxframe <= ev->x() + snapradius ){
+					if ( pEngine->m_pan[i].m_hxframe == 0 || pEngine->m_pan[i].m_hxframe == 841) return;
+					pEngine->m_pan.erase( pEngine->m_pan.begin() +  i);
+				}
+			}	
+		}
+	}
+
 	update();
 	HydrogenApp::getInstance()->getSampleEditor()->setTrue();
 }
