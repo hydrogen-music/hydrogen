@@ -287,7 +287,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 					panvector.m_hyvalue = ev->y();
 				}
 				else if ( i == static_cast<int>(pEngine->m_pan.size()) ){
-					panvector.m_hxframe = pEngine->m_volumen[i].m_hxframe;
+					panvector.m_hxframe = pEngine->m_pan[i].m_hxframe;
 					panvector.m_hyvalue = ev->y();
 					
 				}else
