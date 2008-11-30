@@ -403,6 +403,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 				update();
 				return;
 			}
+
 			m_info = "";
 
 			for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
