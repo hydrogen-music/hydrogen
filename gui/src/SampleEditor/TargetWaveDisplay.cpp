@@ -142,20 +142,20 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 0, rcenter, 841, rcenter );
 
 	if (m_y < 50){
-		if (m_x < 800){
-			painter.drawText( m_x +5, m_y, 40, 20, Qt::AlignLeft, QString( m_info ) );
+		if (m_x < 790){
+			painter.drawText( m_x +5, m_y, 60, 20, Qt::AlignLeft, QString( m_info ) );
 		}else
 		{
-			painter.drawText( m_x - 30, m_y, 40, 20, Qt::AlignLeft, QString( m_info ) );
+			painter.drawText( m_x - 65, m_y, 60, 20, Qt::AlignRight, QString( m_info ) );
 		}
 		
 	}else
 	{
-		if (m_x < 800){
-			painter.drawText( m_x +5, m_y -20, 40, 20, Qt::AlignLeft, QString( m_info ) );
+		if (m_x < 790){
+			painter.drawText( m_x +5, m_y -20, 60, 20, Qt::AlignLeft, QString( m_info ) );
 		}else
 		{
-			painter.drawText( m_x - 30, m_y -20, 40, 20, Qt::AlignLeft, QString( m_info ) );
+			painter.drawText( m_x - 65, m_y -20, 60, 20, Qt::AlignRight, QString( m_info ) );
 		}
 	}
 
@@ -403,7 +403,6 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 				update();
 				return;
 			}
-
 			m_info = "";
 
 			for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
