@@ -308,7 +308,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			{
 				subtract = ( k - y) / deltaIdiff * (-1);
 			}
-			//_INFOLOG( QString( "start y %1, end y %2 sub: %3, deltadiff %4" ).arg( y ).arg( k ).arg(subtract).arg(deltaIdiff) );
+
 			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){			
 				tempdata_l[z] = tempdata_l[z] * y;
 				tempdata_r[z] = tempdata_r[z] * y;
@@ -327,6 +327,46 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			panvec.m_SamplePanframe = pEngine->m_pan[i].m_hxframe;
 			panvec.m_SamplePanvalue = pEngine->m_pan[i].m_hyvalue;
 			pSample->__velo_pan.m_SamplePan.push_back( panvec );
+		}
+
+		float divider = newlength / 841.0F;
+		for (int i = 1; i  < static_cast<int>(pEngine->m_pan.size()); i++){
+			
+			double y =  (45 - static_cast<int>(pEngine->m_pan[i - 1].m_hyvalue))/45.0F;
+			double k = (45 - static_cast<int>(pEngine->m_pan[i].m_hyvalue))/45.0F;
+
+			unsigned deltastartframe = pEngine->m_pan[i - 1].m_hxframe * divider;
+			unsigned deltaendframe = pEngine->m_pan[i].m_hxframe * divider;
+
+			if ( i == static_cast<int>(pEngine->m_pan.size()) -1) deltaendframe = newlength;
+			unsigned deltaIdiff = deltaendframe - deltastartframe ;
+			double subtract = 0.0F;
+
+			
+			if ( y > k ){
+				subtract = (y - k) / deltaIdiff;
+			}else
+			{
+				subtract = ( k - y) / deltaIdiff * (-1);
+			}
+
+			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
+				if( y < 0 ){
+					double k = 1 + y;
+					tempdata_l[z] = tempdata_l[z] * k;
+					tempdata_r[z] = tempdata_r[z];
+				}
+				else if(y > 0){
+					double k = 1 - y;
+					tempdata_l[z] = tempdata_l[z];
+					tempdata_r[z] = tempdata_r[z] * k;
+				}
+				else if(y == 0){
+					tempdata_l[z] = tempdata_l[z];
+					tempdata_r[z] = tempdata_r[z];
+				}
+				y = y - subtract;	
+			}
 		}
 		
 	}
