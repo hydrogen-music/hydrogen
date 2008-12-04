@@ -247,9 +247,8 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/doc"))
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/DefaultSong.h2song"))
 	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/bin/', source="./hydrogen"))
-
-	env.Alias(target="install", source=env.Install(dir=  destdir + '/usr/share/applications', source="./hydrogen.desktop"))
-	env.Alias(target="install", source=env.Install(dir= destdir + '/usr/share/pixmaps', source="./data/img/gray/h2-icon.svg"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/applications', source="./hydrogen.desktop"))
+	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/pixmaps', source="./data/img/gray/h2-icon.svg"))
 
 
 	return app
