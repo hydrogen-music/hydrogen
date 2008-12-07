@@ -187,7 +187,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	uint nQuarter = 48;
 
-	for ( int i = 0; i < 64; i++ ) {
+	for ( int i = 0; i < 64 ; i++ ) {
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
@@ -210,15 +210,25 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 void PatternEditorRuler::zoomIn()
 {
-	m_nGridWidth *= 2;
+	if (m_nGridWidth >= 3){
+		m_nGridWidth *= 2;
+	}else
+	{
+		m_nGridWidth *= 1.5;
+	}
 	update();
 }
 
 void PatternEditorRuler::zoomOut()
 {
 	if ( m_nGridWidth > 1.5 ) {
-		m_nGridWidth /= 2;
-		update();
+		if (m_nGridWidth > 3){
+			m_nGridWidth /= 2;
+		}else
+		{
+			m_nGridWidth /= 1.5;
+		}
+	update();
 	}
 }
 

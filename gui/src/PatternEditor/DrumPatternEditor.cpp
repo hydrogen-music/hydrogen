@@ -201,7 +201,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		m_bRightBtnPressed = true;
 		m_pDraggedNote = NULL;
 
-		int nRealColumn = (ev->x() - 20) /  (int)m_nGridWidth;
+		int nRealColumn = (ev->x() - 20) /  static_cast<float>(m_nGridWidth);
 
 		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );
 
@@ -640,7 +640,12 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 
 void DrumPatternEditor::zoom_in()
 {
-	m_nGridWidth = m_nGridWidth * 2;
+	if (m_nGridWidth >= 3){
+		m_nGridWidth *= 2;
+	}else
+	{
+		m_nGridWidth *= 1.5;
+	}
 	updateEditor();
 }
 
@@ -649,7 +654,12 @@ void DrumPatternEditor::zoom_in()
 void DrumPatternEditor::zoom_out()
 {
 	if ( m_nGridWidth > 1.5 ) {
-		m_nGridWidth = m_nGridWidth / 2;
+		if (m_nGridWidth > 3){
+			m_nGridWidth /= 2;
+		}else
+		{
+			m_nGridWidth /= 1.5;
+		}
 		updateEditor();
 	}
 }
