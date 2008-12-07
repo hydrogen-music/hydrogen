@@ -12,7 +12,7 @@ import sys
 import glob
 
 def printStatus( value ):
-    if value:
+    if str(value) == "1":
 	return "enabled"
     else:
 	return "disabled"
@@ -40,24 +40,26 @@ def subdirsContaining( root, patterns ):
 
 
 
-def get_platform_flags():
+def get_platform_flags( opts ):
 	includes = []
 	cppflags = []
 	ldflags = []
 
+	env = Environment( options = opts )
+
 	if sys.platform == "linux2" or sys.platform == "darwin":
-		if debug:
-			cppflags += ['-Wall',  '-g2', '-ggdb', '-O0']
-		else:
-			cppflags += ['-O3', '-fomit-frame-pointer', '-funroll-loops']
+		#if debug:
+		#	cppflags += ['-Wall',  '-g2', '-ggdb', '-O0']
+		#else:
+		#		cppflags += ['-O3', '-fomit-frame-pointer', '-funroll-loops']
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
 
-		if alsa: cppflags.append('-DALSA_SUPPORT')
-		if jack: cppflags.append('-DJACK_SUPPORT')
-		if lash: cppflags.append('-DLASH_SUPPORT')
-                if lrdf: cppflags.append('-DLRDF_SUPPORT')
-		if portaudio: cppflags.append('-DPORTAUDIO_SUPPORT')
-		if portmidi: cppflags.append('-DPORTMIDI_SUPPORT')
+		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
+		if str(env['jack']) == "1": cppflags.append('-DJACK_SUPPORT')
+		if str(env['lash']) == "1": cppflags.append('-DLASH_SUPPORT')
+                if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
+		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
+		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
 
 
 		cppflags.append('-DFLAC_SUPPORT')
@@ -65,9 +67,9 @@ def get_platform_flags():
 		cppflags.append('-DOSS_SUPPORT')
 
 
-		if lash: includes.append( '/usr/lib/lash-1.0' )
+		if str(env['lash']) == "1": includes.append( '/usr/lib/lash-1.0' )
 
-	if libarchive: cppflags.append('-DLIBARCHIVE_SUPPORT')
+	if str(env['libarchive']) == "1": cppflags.append('-DLIBARCHIVE_SUPPORT')
 
 	includes.append( './' )
 	includes.append( 'gui/src/' )
@@ -149,8 +151,8 @@ def get_svn_revision():
 
 
 
-def get_hydrogen_lib():
-	includes, cppflags, ldflags = get_platform_flags()
+def get_hydrogen_lib( opts ):
+	includes, cppflags, ldflags = get_platform_flags( opts )
 
 	includes.append( "libs/hydrogen/include" )
 	includes.append( "/usr/include/lash-1.0")
@@ -158,11 +160,11 @@ def get_hydrogen_lib():
 	#location of qt4.py
 	qt4ToolLocation="."
 
-	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
+	env = Environment(options = opts , tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
 	env.CacheDir( "scons_cache" )
 	
-        if jack:
+        if str(env['jack']) == "1":
             env.ParseConfig('pkg-config --modversion jack', get_jack_api_flags)
 
 	#env.Decider is not known in older scons version
@@ -179,8 +181,8 @@ def get_hydrogen_lib():
 	return static_lib
 
 
-def get_hydrogen_gui( lib_hydrogen ):
-	includes, cppflags, ldflags = get_platform_flags()
+def get_hydrogen_gui( lib_hydrogen , opts ):
+	includes, cppflags, ldflags = get_platform_flags( opts )
 
 	includes.append( "libs/hydrogen/include" )
 	includes.append( "gui/src/UI" )
@@ -189,15 +191,8 @@ def get_hydrogen_gui( lib_hydrogen ):
 	#location of qt4.py
 	qt4ToolLocation="."
 
-	env = Environment(tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
+	env = Environment(options = opts , tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	
-	#hi, can't compile h2 with Qt3Support on my linux machines anymore (debian unstable & ubuntu )
-	#, although i have correct installed "libqt4-qt3support"
-	#after correct one error into SoundLibraryPanal.cpp i get linking or what ever errors (sorry never seen before) after compiling. 
-	#so, think it is better to disable qt3 support for now
-	#
-	#env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml','Qt3Support'], debug=False)
-	#
 	env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
 	#
 	env.CacheDir( "scons_cache" )
@@ -223,17 +218,15 @@ def get_hydrogen_gui( lib_hydrogen ):
 
 	env.Append( LIBS = lib_hydrogen )
 	env.Append( LIBS = ["sndfile"] )
-	
-	if lrdf: env.Append( LIBS = ["lrdf"] )
-	if flac: env.Append( LIBS = ["FLAC","FLAC++"] )
-	if lash: env.Append( LIBS = ["lash"])
-	if jack:
-            env.Append( LIBS = ["jack"])
-	if alsa: env.Append( LIBS = ["asound"])
-	if libarchive: env.Append( LIBS = ["archive"])
+	if str(env['lrdf'] == "1"): env.Append( LIBS = ["lrdf"] )
+	if str(env['flac'] == "1"): env.Append( LIBS = ["FLAC","FLAC++"] )
+	if str(env['lash'] == "1"): env.Append( LIBS = ["lash"])
+	if str(env['jack'] == "1"): env.Append( LIBS = ["jack"])
+	if str(env['alsa'] == "1"): env.Append( LIBS = ["asound"])
+	if str(env['libarchive']) == "1": env.Append( LIBS = ["archive"])
 	else: env.Append( LIBS = ["tar"])
-	if portaudio: env.Append( LIBS = [ "portaudio" ] )
-	if portmidi: 
+	if str(env['portaudio']) == "1": env.Append( LIBS = [ "portaudio" ] )
+	if str(env['portmidi']) == "1":
 		env.Append( LIBS = [ "portmidi" ] )
 		env.Append( LIBS = [ "porttime" ] )
 	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
@@ -244,20 +237,18 @@ def get_hydrogen_gui( lib_hydrogen ):
 	env.Alias('programs', app)
 	env.Default('programs')
 
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/i18n"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/img"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/drumkits"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/demo_songs"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/hydrogen.default.conf"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/emptySample.wav"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/click.wav"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/doc"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/share/hydrogen/data', source="./data/DefaultSong.h2song"))
-	env.Alias(target="install", source=env.Install(dir= destdir + install_prefix + '/bin/', source="./hydrogen"))
-
-
-	env.Alias(target="install", source=env.Install(dir=  destdir + '/usr/share/applications', source="./hydrogen.desktop"))
-	env.Alias(target="install", source=env.Install(dir= destdir + '/usr/share/pixmaps', source="./data/img/gray/h2-icon.svg"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/i18n"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/img"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/drumkits"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/demo_songs"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/hydrogen.default.conf"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/emptySample.wav"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/click.wav"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/doc"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/DefaultSong.h2song"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/bin/', source="./hydrogen"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/applications', source="./hydrogen.desktop"))
+	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/pixmaps', source="./data/img/gray/h2-icon.svg"))
 
 
 	return app
@@ -274,7 +265,7 @@ def get_jack_api_flags(xenv, pkg_ver):
         rv = "-DJACK_NO_BBT_OFFSET"
     xenv.MergeFlags(rv)
 
-opts = Options()
+opts = Options('scache.conf')
 
 #platform independent settings
 opts.Add('debug', 'Set to 1 to build with debug informations', 0)
@@ -285,66 +276,46 @@ opts.Add('DESTDIR','Default: none',"")
 #platform dependent settings
 if sys.platform != "win32":
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',0)
-	portmidi = int(ARGUMENTS.get('portmidi',0))
 	
 	opts.Add('portaudio', 'Set to 1 to enable portaudio',0)
-	portaudio = int(ARGUMENTS.get('portaudio',0))
 	
 	opts.Add('lash', 'Set to 1 to enable lash',0)
-	lash = int(ARGUMENTS.get('lash',0))
 	
 	
 	opts.Add('alsa', 'Set to 1 to enable alsa',1)
-	alsa = int(ARGUMENTS.get('alsa',1))
 	
 
 	opts.Add('jack', 'Set to 1 to enable jack',1)	
-	jack = int(ARGUMENTS.get('jack',1))
 	
 
 	opts.Add('lrdf', 'Set to 1 to enable lrdf',1)
-	lrdf = int(ARGUMENTS.get('lrdf',1))
 	
 
 	opts.Add('flac', 'Set to 1 to enable flac',1)
-	flac = int(ARGUMENTS.get('flac',1))
-
 else:
 	#alsa, lash and jack are not available on windows
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',1)
 	
 	opts.Add('portaudio', 'Set to 1 to enable portaudio',1)
-	portaudio = int(ARGUMENTS.get('portaudio',1))
 	
 	opts.Add('lash', 'Set to 1 to enable lash',0)
-	lash = int(ARGUMENTS.get('lash',0))
 	
-
 	opts.Add('alsa', 'Set to 1 to enable alsa',0)
-	alsa = int(ARGUMENTS.get('alsa',0))
 	
-
 	opts.Add('jack', 'Set to 1 to enable jack',0)
-	jack = int(ARGUMENTS.get('jack',0))
 	
 	opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
-	lrdf = int(ARGUMENTS.get('lrdf',0))
 	
 	opts.Add('flac', 'Set to 1 to enable flac',0)
-	flac = int(ARGUMENTS.get('flac',0))
 
-
-
-debug =int(ARGUMENTS.get('debug', 0))
-libarchive = int(ARGUMENTS.get('libarchive', 0))
-
-install_prefix = ARGUMENTS.get('prefix',"/usr/local")
-destdir = ARGUMENTS.get('DESTDIR',"")
 
 
 #get includes ( important if you compile on non-standard envorionments)
-includes, a , b = get_platform_flags()
+
+includes, a , b = get_platform_flags( opts )
+
 env = Environment(options = opts, CPPPATH = includes)
+
 
 Help(opts.GenerateHelpText(env))
 
@@ -374,52 +345,51 @@ if not conf.CheckCHeader('sndfile.h'):
 
 # these libraries are optional (can be enabled/disabled, see 'scons -h')
 
-if portaudio and not conf.CheckCHeader('portaudio.h'):
+if str(env['portaudio']) == "1" and not conf.CheckCHeader('portaudio.h'):
     print "portaudio must be installed!"
     Exit(1)
 
-if portmidi and not conf.CheckCHeader('portmidi.h'):
+if str(env['portmidi']) == "1" and not conf.CheckCHeader('portmidi.h'):
     print "portmidi must be installed!"
     Exit(1)
 
 
 #alsa: (default: enabled)
-if alsa and not conf.CheckCHeader('alsa/asoundlib.h'):
+if str(env['alsa']) == "1" and not conf.CheckCHeader('alsa/asoundlib.h'):
     print 'alsa must be installed!'
     Exit(1)
 
 #jack: (default: enabled)
-if jack and not conf.CheckCHeader('jack/jack.h'):
+if str(env['jack']) == "1" and not conf.CheckCHeader('jack/jack.h'):
     print 'jack must be installed!'
     Exit(1)
 
 #lash: (default: disabled)
-if lash and not os.path.isdir("/usr/include/lash-1.0"):
+if str(env['lash']) == "1" and not os.path.isdir("/usr/include/lash-1.0"):
     print 'liblash must be installed!'
     Exit(1)
 
 #libarchive: (default: disabled)
-if libarchive and not conf.CheckCHeader("archive.h"):
+if str(env['libarchive']) == "1" and not conf.CheckCHeader("archive.h"):
     print 'libarchive must be installed!'
     Exit(1)
 #libtar: needed if not libarchive
-elif not libarchive and not conf.CheckCHeader("zlib.h"):
+elif not str(env['libarchive']) == "1" and not conf.CheckCHeader("zlib.h"):
     print 'zlib devel package must be installed!'
     Exit(1)
-elif not libarchive and not conf.CheckCHeader("libtar.h"):
+elif not str(env['libarchive']) == "1" and not conf.CheckCHeader("libtar.h"):
     print 'libtar must be installed!'
     Exit(1)
 
 #lrdf: categorizing of ladspa effects
-if lrdf and not conf.CheckCHeader('lrdf.h'):
+if str(env['lrdf']) == "1" and not conf.CheckCHeader('lrdf.h'):
     print 'lrdf must be installed!'
     Exit(1)
 
 #flac: support for flac samples
-if flac and not conf.CheckCHeader('FLAC/all.h'):
+if str(env['flac']) == "1" and not conf.CheckCHeader('FLAC/all.h'):
     print 'FLAC must be installed!'
     Exit(1)
-
 
 
 print ""
@@ -429,26 +399,25 @@ print ""
 print " Revision: %s" % get_svn_revision()
 print " Platform: %s" % platform
 
-if debug:
+if str(env['debug']) == "1" :
 	print " Debug build"
 else:
 	print " Release build"
 
-print " Prefix: " + install_prefix
-print " Destdir: " + destdir
+print " Prefix: " + env['prefix']
+print " Destdir: " + env['DESTDIR']
 print "================================================================="
 print "Feature Overview:\n"
 
-print "      lash: " + printStatus( lash )
-print "      alsa: " + printStatus( alsa )
-print "      jack: " + printStatus( jack )
-print "libarchive: " + printStatus( libarchive ) + (' (using libtar instead)', '')[libarchive]
-print " portaudio: " + printStatus( portaudio )
-print "  portmidi: " + printStatus( portmidi ) 
+print "      lash: " + printStatus( env["lash"] )
+print "      alsa: " + printStatus( env["alsa"] )
+print "      jack: " + printStatus( env["jack"] )
+print "libarchive: " + printStatus( env["libarchive"] ) + (' (using libtar instead)', '')[env['libarchive']]
+print " portaudio: " + printStatus( env["portaudio"] )
+print "  portmidi: " + printStatus( env["portmidi"] ) 
 
 print "\n================================================================="
 print ""
-
 
 # write the config.h file
 conf = open("config.h", "w")
@@ -458,8 +427,8 @@ conf.write( "#define HYD_CONFIG_H\n" )
 conf.write( "#include <string>\n" )
 
 
-if debug: conf.write( "#define CONFIG_DEBUG\n" )
-if lash: conf.write( "#define LASH\n" )
+if str(env['debug']) == "1": conf.write( "#define CONFIG_DEBUG\n" )
+if str(env['lash']) == "1": conf.write( "#define LASH\n" )
 
 conf.write( "#ifndef QT_BEGIN_NAMESPACE\n" )
 conf.write( "#    define QT_BEGIN_NAMESPACE\n" )
@@ -468,8 +437,8 @@ conf.write( "#ifndef QT_END_NAMESPACE\n" )
 conf.write( "#    define QT_END_NAMESPACE\n" )
 conf.write( "#endif\n" )
 
-conf.write( "#define CONFIG_PREFIX \"%s\"\n" % install_prefix )
-conf.write( "#define DATA_PATH \"%s/share/hydrogen/data\"\n" % install_prefix )
+conf.write( "#define CONFIG_PREFIX \"%s\"\n" % env['prefix'] )
+conf.write( "#define DATA_PATH \"%s/share/hydrogen/data\"\n" % env['prefix'] )
 
 conf.write( "#endif\n" )
 
@@ -485,6 +454,7 @@ version.write( "std::string get_version() { return VERSION;	}\n" )
 version.close()
 
 
-libhyd = get_hydrogen_lib()
-app = get_hydrogen_gui( libhyd )
+libhyd = get_hydrogen_lib( opts )
+app = get_hydrogen_gui( libhyd , opts )
 
+opts.Save("scache.conf",env)
