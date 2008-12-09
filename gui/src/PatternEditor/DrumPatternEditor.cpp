@@ -315,8 +315,13 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 
 		float fNotePitch = m_pDraggedNote->m_noteKey.m_nOctave * 12 + m_pDraggedNote->m_noteKey.m_key;
-		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
-
+		float fStep = 0;
+		if(nLen > -1){
+			fStep = pow( 1.0594630943593, ( double )fNotePitch );
+		}else
+		{
+			fStep = 1.0; 
+		}
 		m_pDraggedNote->set_lenght( nLen * fStep);
 
 		Hydrogen::get_instance()->getSong()->__is_modified = true;
@@ -740,6 +745,7 @@ void DrumPatternEditor::patternChangedEvent()
 {
 	updateEditor();
 }
+
 
 void DrumPatternEditor::selectedPatternChangedEvent()
 {
