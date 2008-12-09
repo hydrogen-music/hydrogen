@@ -1177,7 +1177,12 @@ void NotePropertiesRuler::updateEditor()
 
 void NotePropertiesRuler::zoomIn()
 {
-	m_nGridWidth = m_nGridWidth * 2;
+	if (m_nGridWidth >= 3){
+		m_nGridWidth *= 2;
+	}else
+	{
+		m_nGridWidth *= 1.5;
+	}
 	updateEditor();
 }
 
@@ -1186,11 +1191,15 @@ void NotePropertiesRuler::zoomIn()
 void NotePropertiesRuler::zoomOut()
 {
 	if ( m_nGridWidth > 1.5 ) {
-		m_nGridWidth = m_nGridWidth / 2;
-		updateEditor();
+		if (m_nGridWidth > 3){
+			m_nGridWidth /=  2;
+		}else
+		{
+			m_nGridWidth /= 1.5;
+		}
+	updateEditor();
 	}
 }
-
 
 
 void NotePropertiesRuler::selectedPatternChangedEvent()

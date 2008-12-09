@@ -210,18 +210,28 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 void PatternEditorRuler::zoomIn()
 {
-	m_nGridWidth *= 2;
+	if (m_nGridWidth >= 3){
+		m_nGridWidth *= 2;
+	}else
+	{
+		m_nGridWidth *= 1.5;
+	}
 	update();
 }
+
 
 void PatternEditorRuler::zoomOut()
 {
 	if ( m_nGridWidth > 1.5 ) {
-		m_nGridWidth /= 2;
-		update();
+		if (m_nGridWidth > 3){
+			m_nGridWidth /= 2;
+		}else
+		{
+			m_nGridWidth /= 1.5;
+		}
+	update();
 	}
 }
-
 
 
 void PatternEditorRuler::selectedPatternChangedEvent()
