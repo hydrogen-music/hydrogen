@@ -367,7 +367,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 
 	
-
 	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->get_size() ) ) {
 		// the number of instruments is changed...recreate all
 		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();

@@ -87,14 +87,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
 
-
 	intDisplays();
 	getAllFrameInfos();
-
-// mainSampleview = 624(575) x 265 :-)
-// mainSampleAdjustView = 180 x 265 :-)
-// targetSampleView = 841 x 91 :-)
-// EditTypeComboBox
 
 	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
@@ -204,7 +198,6 @@ void SampleEditor::getAllFrameInfos()
 		EndFrameSpinBox->setValue( m_end_frame );
 		LoopCountSpinBox->setValue( m_repeats );
 
-
 		m_pMainSampleWaveDisplay->m_pStartFramePosition = m_start_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pMainSampleWaveDisplay->m_pLoopFramePosition =  m_loop_frame / m_divider + 25 ;
@@ -212,10 +205,7 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->m_pEndFramePosition =  m_end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
-
 	}
-//	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
-//	m_pSampleAdjustView->updateDisplay( m_samplename );
 	m_pTargetSampleView->updateDisplay( pLayer );
 }
 
@@ -393,10 +383,13 @@ void SampleEditor::returnAllTargetDisplayValues()
 
 }
 
+
+
 void SampleEditor::setTrue()
 {
 	m_pSampleEditorStatus = false;
 }
+
 
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
@@ -483,7 +476,6 @@ void SampleEditor::on_PlayPushButton_clicked()
 	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedlayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 
-
 	setSamplelengthFrames();
 	createPositionsRulerPath();
 	m_pPlayButton = true;
@@ -560,7 +552,6 @@ void SampleEditor::createPositionsRulerPath()
 		normalframes[i] = i;
 	}
 
-
 	unsigned *tempframes = new unsigned[ newlength ];
 	unsigned *loopframes = new unsigned[ looplength ];
 
@@ -581,8 +572,7 @@ void SampleEditor::createPositionsRulerPath()
 
 		loopframes[i] = normalframes[z];
 	}
-
-		
+	
 	if ( loopmode == "reverse" ){
 		reverse(loopframes, loopframes + looplength);
 	}
@@ -695,6 +685,7 @@ void SampleEditor::testPositionsSpinBoxes()
 	LoopFrameSpinBox->setValue( m_loop_frame );
 	EndFrameSpinBox->setValue( m_end_frame );
 }
+
 
 
 void SampleEditor::testpTimer()
