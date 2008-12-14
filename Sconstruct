@@ -132,7 +132,7 @@ def download_3rdparty_libs():
 		if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
 			Execute( "cd 3rdparty; tar xzf libsndfile.tar.gz" )
 			Execute( "cd 3rdparty/libsndfile-1.0.17; ./configure --disable-flac --prefix=%s %s" % (prefix, compile_flags) )
-			res = Execute( "cd 3rdparty\libsndfile-1.0.17; make -j2; make install" )
+			res = Execute( "cd 3rdparty/libsndfile-1.0.17; make -j2; make install" )
 			if res != 0:
 				raise Exception( "Error compiling 3rdparty libraries" )
 	else:
