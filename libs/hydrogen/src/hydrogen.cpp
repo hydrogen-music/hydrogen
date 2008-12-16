@@ -23,8 +23,7 @@
 #include "config.h"
 
 #ifdef WIN32
-#    include "timeHelper.h"
-#    include "timersub.h"
+#    include "hydrogen/timeHelper.h"
 #else
 #    include <unistd.h>
 #    include <sys/time.h>
