@@ -192,6 +192,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
 			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, to_string( i / 4 + 1 ) );
+			//ERRORLOG(QString("nText_x: %1, true, value: %2").arg(nText_x).arg(i / 4 + 1));
 		}
 		else {
 			painter.setPen( lineColor );
@@ -216,6 +217,7 @@ void PatternEditorRuler::zoomIn()
 	{
 		m_nGridWidth *= 1.5;
 	}
+//	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 	update();
 }
 
@@ -228,6 +230,7 @@ void PatternEditorRuler::zoomOut()
 		{
 			m_nGridWidth /= 1.5;
 		}
+//	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 	update();
 	}
 }
