@@ -129,6 +129,12 @@ bool Object::is_using_verbose_log()
 
 void Object::print_object_map()
 {
+	if (!__use_log) {
+		std::cout << "[Object::print_object_map -- "
+			"object map disabled.]" << std::endl;
+		return;
+	}
+
 	std::cout << "[Object::print_object_map]" << std::endl;
 
 	map<QString, int>::iterator iter = __object_map.begin();

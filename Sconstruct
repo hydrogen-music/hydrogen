@@ -81,7 +81,7 @@ def get_platform_flags( opts ):
 	elif sys.platform == 'darwin':
 		pass
 	elif sys.platform == "win32":
-		includes.append( '3rdparty\install\include' )
+		includes.append( '3rdparty\libsndfile-1_0_17' )
 		includes.append( 'build\pthreads\include' )
 		includes.append( '3rdparty\libarchive\include' )
 		includes.append( 'windows\timeFix' )
@@ -108,6 +108,8 @@ def download_3rdparty_libs():
 
 	if not os.path.exists( "3rdparty" ):
 		os.mkdir( "3rdparty" )
+	
+
 
 	if not os.path.exists( "3rdparty/install" ):
 		os.mkdir( "3rdparty/install" )
@@ -132,7 +134,7 @@ def download_3rdparty_libs():
 		if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
 			Execute( "cd 3rdparty; tar xzf libsndfile.tar.gz" )
 			Execute( "cd 3rdparty/libsndfile-1.0.17; ./configure --disable-flac --prefix=%s %s" % (prefix, compile_flags) )
-			res = Execute( "cd 3rdparty\libsndfile-1.0.17; make -j2; make install" )
+			res = Execute( "cd 3rdparty/libsndfile-1.0.17; make -j2; make install" )
 			if res != 0:
 				raise Exception( "Error compiling 3rdparty libraries" )
 	else:
@@ -146,9 +148,12 @@ def download_3rdparty_libs():
 
 
 def get_svn_revision():
-	p = subprocess.Popen("svnversion -n", shell=True, stdout=subprocess.PIPE)
-	return p.stdout.read()
-
+	
+	if sys.platform != "win32":
+		p = subprocess.Popen("svnversion -n", shell=True, stdout=subprocess.PIPE)
+		return p.stdout.read()
+	else:
+		return "win32 build"
 
 
 def get_hydrogen_lib( opts ):
@@ -156,6 +161,7 @@ def get_hydrogen_lib( opts ):
 
 	includes.append( "libs/hydrogen/include" )
 	includes.append( "/usr/include/lash-1.0")
+
 
 	#location of qt4.py
 	qt4ToolLocation="."
@@ -375,11 +381,11 @@ if str(env['libarchive']) == "1" and not conf.CheckCHeader("archive.h"):
     Exit(1)
 #libtar: needed if not libarchive
 elif not str(env['libarchive']) == "1" and not conf.CheckCHeader("zlib.h"):
-    print 'zlib devel package must be installed!'
-    Exit(1)
+   print 'zlib devel package must be installed!'
+   Exit(1)
 elif not str(env['libarchive']) == "1" and not conf.CheckCHeader("libtar.h"):
-    print 'libtar must be installed!'
-    Exit(1)
+   print 'libtar must be installed!'
+   Exit(1)
 
 #lrdf: categorizing of ladspa effects
 if str(env['lrdf']) == "1" and not conf.CheckCHeader('lrdf.h'):
