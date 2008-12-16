@@ -196,7 +196,7 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 
-	#ifdef win32
+	#ifdef WIN32
   		TiXmlDocument doc( filename.toAscii().constData() );
 	#else
    		TiXmlDocument doc( filename.toUtf8().constData() );
