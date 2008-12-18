@@ -53,6 +53,10 @@ def get_platform_flags( opts ):
 		else:
 			cppflags += ['-O3', '-fomit-frame-pointer', '-funroll-loops']
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
+		
+		#add support for C++0X standard
+		cppflags += ['-std=c++0x']
+
 
 		if str(env['oss']) == "1": cppflags.append('-DOSS_SUPPORT')
 		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
