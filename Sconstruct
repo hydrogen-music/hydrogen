@@ -53,10 +53,9 @@ def get_platform_flags( opts ):
 		else:
 			cppflags += ['-O3', '-fomit-frame-pointer', '-funroll-loops']
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
-		
-		#add support for C++0X standard
-		cppflags += ['-std=c++0x']
 
+		#add support for C0X standard
+		cppflags += ['-std=c++0x']
 
 		if str(env['oss']) == "1": cppflags.append('-DOSS_SUPPORT')
 		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
@@ -65,7 +64,8 @@ def get_platform_flags( opts ):
                 if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
 		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
 		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
-
+		
+		if sys.platform == "darwin" and str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
 
 		cppflags.append('-DFLAC_SUPPORT')
 		cppflags.append('-DLADSPA_SUPPORT')
@@ -83,7 +83,9 @@ def get_platform_flags( opts ):
 		ldflags.append('-lasound')
 
 	elif sys.platform == 'darwin':
-		pass
+		includes.append( [ '/sw/include', '/usr/local/include' ] )
+		ldflags.append( [ '-L/sw/lib', '-F/sw/lib', '-F/sw/lib/qt4-mac/lib', '-L/usr/local/lib' ] )
+
 	elif sys.platform == "win32":
 		includes.append( '3rdparty\libsndfile-1_0_17' )
 		includes.append( 'build\pthreads\include' )
@@ -240,6 +242,14 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	if str(env['portmidi']) == "1":
 		env.Append( LIBS = [ "portmidi" ] )
 		env.Append( LIBS = [ "porttime" ] )
+
+	if sys.platform == "darwin" and str(env['coreaudio']) == "1":
+		env.Append( LINKFLAGS = ['-framework','ApplicationServices'])
+		env.Append( LINKFLAGS = ['-framework','AudioUnit'])
+		env.Append( LINKFLAGS = ['-framework','Coreaudio'])
+
+
+
 	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
 	env.Append( LIBPATH = 'build\pthreads\lib' )
 
@@ -285,6 +295,9 @@ opts.Add('prefix','Default: /usr/local',"/usr/local")
 opts.Add('DESTDIR','Default: none',"")
 
 #platform dependent settings
+if sys.platform == "darwin":
+	opts.Add('coreaudio', 'Set to 1 to enable Coreaudio',1)
+
 if sys.platform != "win32":
 	opts.Add('oss', 'Set to 1 to enable oss',1)
 
@@ -432,6 +445,8 @@ print "      jack: " + printStatus( env["jack"] )
 print "libarchive: " + printStatus( env["libarchive"] ) + (' (using libtar instead)', '')[env['libarchive']]
 print " portaudio: " + printStatus( env["portaudio"] )
 print "  portmidi: " + printStatus( env["portmidi"] ) 
+if sys.platform == "darwin":
+	print " coreaudio: " + printStatus( env["coreaudio"] )
 
 print "\n================================================================="
 print ""
