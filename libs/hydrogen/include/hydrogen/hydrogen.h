@@ -22,7 +22,7 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
-#include <cstdint> // for uint32_t et al
+#include <stdint.h> // for uint32_t et al
 #include <hydrogen/action.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Object.h>

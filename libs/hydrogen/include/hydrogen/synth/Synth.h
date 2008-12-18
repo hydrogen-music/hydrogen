@@ -24,7 +24,7 @@
 #ifndef SYNTH_H
 #define SYNTH_H
 
-#include <cstdint> // For uint32_t et al
+#include <stdint.h> // For uint32_t et al
 
 #include <hydrogen/Object.h>
 #include <hydrogen/note.h>
