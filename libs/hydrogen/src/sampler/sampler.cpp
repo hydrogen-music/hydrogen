@@ -399,7 +399,7 @@ int Sampler::__render_note_no_resample(
 	}
 
 	float fadeout = 1.0F;
-	int steps = __audio_output->getSampleRate() / 50; // 1/50 sec
+	int steps = __audio_output->getSampleRate() / 100; // 1/100 sec
 	float substract = fadeout / steps;
 	bool fade_note_out = false;
 	
@@ -449,7 +449,7 @@ int Sampler::__render_note_no_resample(
 				fadeout = 0.0F;
 				retValue = 1;
 			}
-//			ERRORLOG(QString("true %1, steps %2").arg(fadeout).arg(steps));		
+			//ERRORLOG(QString("true %1, steps %2").arg(fadeout).arg(steps));		
 		}
 
 #ifdef JACK_SUPPORT
@@ -589,7 +589,7 @@ int Sampler::__render_note_resample(
 	}
 
 	float fadeout = 1.0F;
-	int steps = __audio_output->getSampleRate() / 50; // 1/50 sec
+	int steps = __audio_output->getSampleRate() / 100; // 1/100 sec
 	float substract = fadeout / steps;
 	bool fade_note_out = false;
 
