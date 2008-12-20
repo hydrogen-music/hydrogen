@@ -63,8 +63,25 @@ void* diskWriterDriver_thread( void* param )
 	while ( pDriver->m_processCallback( pDriver->m_nBufferSize, NULL ) == 0 ) {
 		// process...
 		for ( unsigned i = 0; i < pDriver->m_nBufferSize; i++ ) {
-			pData[i * 2] = pData_L[i];
-			pData[i * 2 + 1] = pData_R[i];
+			if(pData_L[i] > 1){
+				pData[i * 2] = 1;
+			}
+			else if(pData_L[i] < -1){
+				pData[i * 2] = -1;
+			}else
+			{ 
+				pData[i * 2] = pData_L[i];
+			}
+
+			if(pData_R[i] > 1){
+				pData[i * 2 + 1] = 1;
+			}
+			else if(pData_R[i] < -1){
+				pData[i * 2 + 1] = -1;
+			}else
+			{ 
+				pData[i * 2 + 1] = pData_R[i];
+			}
 		}
 		int res = sf_writef_float( m_file, pData, pDriver->m_nBufferSize );
 		if ( res != ( int )pDriver->m_nBufferSize ) {

@@ -22,6 +22,7 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
+#include <stdint.h> // for uint32_t et al
 #include <hydrogen/action.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Object.h>
@@ -61,7 +62,7 @@ public:
 	void sequencer_stop();
 
 	void midi_noteOn( Note *note );
-	void midi_noteOff( Note *note );
+	void midi_noteOff( int id );
 
 	///Last received midi message
 	QString lastMidiEvent;

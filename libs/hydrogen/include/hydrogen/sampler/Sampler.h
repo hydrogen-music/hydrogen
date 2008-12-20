@@ -61,6 +61,8 @@ public:
 	/// Stop playing a note.
 	void note_off( Note *note );
 
+	void add_note_off( QString id );
+
 	void stop_playing_notes( Instrument *instr = NULL );
 
 	int get_playing_notes_number() {
@@ -77,6 +79,7 @@ public:
 
 private:
 	std::vector<Note*> __playing_notes_queue;
+	std::vector<QString> __stop_notes_intrument_ids_queue;
 	static Sampler* __instance;
 	AudioOutput* __audio_output;
 

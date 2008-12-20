@@ -174,13 +174,17 @@ void Sampler::note_on( Note *note )
 
 void Sampler::note_off( Note* note )
 {
-//this is in work. i planing a sustain-curve that users can edit
-//in moment only stop_playing_notes delete the current playing note.
+//note_off has change to add_note_off
 	stop_playing_notes( note->get_instrument() );
-//also the note_off msg from midi keyboard should be recorded into drum pattern note_map.
-//all this will develop into branch: new_fx_rack_and_sample_fun
+
 }
 
+
+
+void Sampler::add_note_off( QString id )
+{
+	__stop_notes_intrument_ids_queue.push_back( id );
+}
 
 
 /// Render a note
@@ -394,7 +398,11 @@ int Sampler::__render_note_no_resample(
 		nInstrument = 0;
 	}
 
-
+	float fadeout = 1.0F;
+	int steps = __audio_output->getSampleRate() / 50; // 1/50 sec
+	float substract = fadeout / steps;
+	bool fade_note_out = false;
+	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
 			if ( pNote->m_adsr.release() == 0 ) {
@@ -417,18 +425,45 @@ int Sampler::__render_note_no_resample(
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
 
+		if ( __stop_notes_intrument_ids_queue.size() >0 ){
+			//ERRORLOG(QString("noteoff-queue: %1").arg(__stop_notes_intrument_ids_queue.size()));
+			for ( unsigned i = 0; i < __stop_notes_intrument_ids_queue.size(); ) {
+				QString id = __stop_notes_intrument_ids_queue[ i ];
+				//assert( id );
+				if ( pNote->get_instrument()->get_id() == id ) {
+					fade_note_out = true;
+					if ( __stop_notes_intrument_ids_queue.size() == 1){
+						__stop_notes_intrument_ids_queue.clear();
+					}else
+					{
+						__stop_notes_intrument_ids_queue.erase( __stop_notes_intrument_ids_queue.begin() + i );
+					}
+				}
+				++i;
+			}
+		}
+		if(fade_note_out){
+			fadeout -= substract;
+			steps--;
+			if (steps <= 0 || fadeout <= 0.0F ){
+				fadeout = 0.0F;
+				retValue = 1;
+			}
+//			ERRORLOG(QString("true %1, steps %2").arg(fadeout).arg(steps));		
+		}
+
 #ifdef JACK_SUPPORT
 		if ( __audio_output->has_track_outs()
 		     && dynamic_cast<JackOutput*>(__audio_output) ) {
                         assert( __track_out_L[ nInstrument ] );
                         assert( __track_out_R[ nInstrument ] );
-			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L;
-			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R;
+			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L * fadeout;
+			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R * fadeout;
 		}
 #endif
 
-                fVal_L = fVal_L * cost_L;
-		fVal_R = fVal_R * cost_R;
+                fVal_L = fVal_L * cost_L * fadeout;
+		fVal_R = fVal_R * cost_R * fadeout;
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {
@@ -553,6 +588,10 @@ int Sampler::__render_note_resample(
 		nInstrument = 0;
 	}
 
+	float fadeout = 1.0F;
+	int steps = __audio_output->getSampleRate() / 50; // 1/50 sec
+	float substract = fadeout / steps;
+	bool fade_note_out = false;
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -587,19 +626,46 @@ int Sampler::__render_note_resample(
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
 
+		if ( __stop_notes_intrument_ids_queue.size() >0 ){
+			//ERRORLOG(QString("resample noteoff-queue: %1").arg(__stop_notes_intrument_ids_queue.size()));
+			for ( unsigned i = 0; i < __stop_notes_intrument_ids_queue.size(); ) {
+				QString id = __stop_notes_intrument_ids_queue[ i ];
+				//assert( id );
+				if ( pNote->get_instrument()->get_id() == id ) {
+					fade_note_out = true;
+					if ( __stop_notes_intrument_ids_queue.size() == 1){
+						__stop_notes_intrument_ids_queue.clear();
+					}else
+					{
+						__stop_notes_intrument_ids_queue.erase( __stop_notes_intrument_ids_queue.begin() + i );
+					}
+				}
+				++i;
+			}
+		}
+
+		if(fade_note_out){
+			fadeout -= substract;
+			steps--;
+			if (steps <= 0 || fadeout <= 0.0F ){
+				fadeout = 0.0F;
+				retValue = 1;
+			}
+			//ERRORLOG(QString("resample true %1").arg(fadeout));		
+		}
 
 #ifdef JACK_SUPPORT
 		if ( __audio_output->has_track_outs()
 			&& dynamic_cast<JackOutput*>(__audio_output) ) {
 			assert( __track_out_L[ nInstrument ] );
                         assert( __track_out_R[ nInstrument ] );
-			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L);
-			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R);
+			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L * fadeout);
+			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R * fadeout);
 		}
 #endif
 
-		fVal_L = fVal_L * cost_L;
-		fVal_R = fVal_R * cost_R;
+		fVal_L = fVal_L * cost_L * fadeout;
+		fVal_R = fVal_R * cost_R * fadeout;
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {

@@ -257,11 +257,11 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	const float fPitch = 0.0f;
 
 	if ( Preferences::getInstance()->__playselectedinstrument )
-		pInstr= pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
+		nInstrument = pEngine->getSelectedInstrumentNumber();
 
-	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
+//	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
 
-	pEngine->midi_noteOff( pNewNote );
+	pEngine->midi_noteOff( nInstrument );
 
 }
 

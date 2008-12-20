@@ -23,8 +23,7 @@
 #include "config.h"
 
 #ifdef WIN32
-#    include "timeHelper.h"
-#    include "timersub.h"
+#    include "hydrogen/timeHelper.h"
 #else
 #    include <unistd.h>
 #    include <sys/time.h>
@@ -540,13 +539,15 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			//stop note bevore playing new note, only if set into the planned instrumenteditor checkbox `always stop note`
 			Instrument * noteInstrument = pNote->get_instrument();
 			if ( noteInstrument->is_stop_notes() ){ 
-				AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+//				AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+				AudioEngine::get_instance()->get_sampler()->add_note_off( pNote->get_instrument()->get_id() );
 			}
 ///~new note off stuff
 
 			// aggiungo la nota alla lista di note da eseguire
 			if ( pNote->get_noteoff() ){
-				AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+				//AudioEngine::get_instance()->get_sampler()->note_off( pNote );
+				AudioEngine::get_instance()->get_sampler()->add_note_off( pNote->get_instrument()->get_id() );
 			}
 			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
 
@@ -1424,10 +1425,8 @@ void audioEngine_noteOff( Note *note )
 		return;
 	}
 
-	AudioEngine::get_instance()->get_sampler()->note_off( note );
-
+//	AudioEngine::get_instance()->get_sampler()->note_off( note );
 	AudioEngine::get_instance()->unlock();
-
 	delete note;
 }
 
@@ -1801,9 +1800,11 @@ void Hydrogen::midi_noteOn( Note *note )
 
 
 
-void Hydrogen::midi_noteOff( Note *note )
+void Hydrogen::midi_noteOff( int id )
 {
-	audioEngine_noteOff( note );
+	//ERRORLOG(QString("id: %1").arg(id));
+	QString strid = to_string( id );
+	AudioEngine::get_instance()->get_sampler()->add_note_off( strid );
 }
 
 
