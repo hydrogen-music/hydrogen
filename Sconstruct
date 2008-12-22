@@ -240,6 +240,9 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 		env.Append( LIBS = [ "portmidi" ] )
 		env.Append( LIBS = [ "porttime" ] )
 
+	if sys.platform == "darwin":
+		env.Append( LIBS = ["z"] )
+
 	if sys.platform == "darwin" and str(env['coreaudio']) == "1":
 		env.Append( LINKFLAGS = ['-framework','ApplicationServices'])
 		env.Append( LINKFLAGS = ['-framework','AudioUnit'])
