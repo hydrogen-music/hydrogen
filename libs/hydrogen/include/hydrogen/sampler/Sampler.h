@@ -76,6 +76,7 @@ public:
 	void makeTrackOutputQueues();
 
 	void setPlayingNotelenght( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
+	bool is_instrument_playing( Instrument* pInstr );
 
 private:
 	std::vector<Note*> __playing_notes_queue;
@@ -90,6 +91,8 @@ private:
 	float* __track_out_L[ MAX_INSTRUMENTS ];
 	float* __track_out_R[ MAX_INSTRUMENTS ];
 #endif
+
+	bool fade_note_out;
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 

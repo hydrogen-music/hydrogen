@@ -74,6 +74,8 @@ Sampler::Sampler()
 	__preview_instrument = new Instrument( sEmptySampleFilename, "preview", new ADSR() );
 	__preview_instrument->set_volume( 0.8 );
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
+
+	fade_note_out = false;
 }
 
 
@@ -399,9 +401,9 @@ int Sampler::__render_note_no_resample(
 	}
 
 	float fadeout = 1.0F;
-	int steps = __audio_output->getSampleRate() / 100; // 1/100 sec
+	int steps = __audio_output->getSampleRate() / 100; //
+		if(steps > nBufferSize) steps = nBufferSize - 1;
 	float substract = fadeout / steps;
-	bool fade_note_out = false;
 	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -426,7 +428,7 @@ int Sampler::__render_note_no_resample(
 		}
 
 		if ( __stop_notes_intrument_ids_queue.size() >0 ){
-			//ERRORLOG(QString("noteoff-queue: %1").arg(__stop_notes_intrument_ids_queue.size()));
+			//ERRORLOG(QString("noteoff-queue: %1, fade_note_out: %2").arg(__stop_notes_intrument_ids_queue.size()).arg(fade_note_out));
 			for ( unsigned i = 0; i < __stop_notes_intrument_ids_queue.size(); ) {
 				QString id = __stop_notes_intrument_ids_queue[ i ];
 				//assert( id );
@@ -447,6 +449,7 @@ int Sampler::__render_note_no_resample(
 			steps--;
 			if (steps <= 0 || fadeout <= 0.0F ){
 				fadeout = 0.0F;
+				fade_note_out = false;
 				retValue = 1;
 			}
 			//ERRORLOG(QString("true %1, steps %2").arg(fadeout).arg(steps));		
@@ -590,8 +593,8 @@ int Sampler::__render_note_resample(
 
 	float fadeout = 1.0F;
 	int steps = __audio_output->getSampleRate() / 100; // 1/100 sec
+		if(steps > nBufferSize) steps = nBufferSize - 1;
 	float substract = fadeout / steps;
-	bool fade_note_out = false;
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -649,6 +652,7 @@ int Sampler::__render_note_resample(
 			steps--;
 			if (steps <= 0 || fadeout <= 0.0F ){
 				fadeout = 0.0F;
+				fade_note_out = false;
 				retValue = 1;
 			}
 			//ERRORLOG(QString("resample true %1").arg(fadeout));		
@@ -834,7 +838,6 @@ void Sampler::makeTrackOutputQueues( )
 
 void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
 {
-
 	if ( instrument ) { // stop all notes using this instrument
 		Hydrogen *pEngine = Hydrogen::get_instance();	
 		Song* mSong = pEngine->getSong();
@@ -903,7 +906,20 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 		}
 
 	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
-
 }
+
+bool Sampler::is_instrument_playing( Instrument* instrument )
+{
+
+	if ( instrument ) { // stop all notes using this instrument
+		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+			if ( instrument->get_name() == __playing_notes_queue[ j ]->get_instrument()->get_name()){
+				return true;
+			}
+		}
+		
+	}
+}
+
 };
 

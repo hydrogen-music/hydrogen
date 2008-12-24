@@ -245,24 +245,16 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	if ( !Preferences::getInstance()->__playselectedinstrument ) 
 		fStep = 1;
 
-	if ( pInstr ){ //set the notelength
-		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
+	if ( Preferences::getInstance()->__playselectedinstrument ){
+		nInstrument = pEngine->getSelectedInstrumentNumber();
+		pInstr= pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
 	}
 
-	const unsigned nPosition = 0;
-	const float fVelocity = 0.0f;
-	const float fPan_L = 0.5f;
-	const float fPan_R = 0.5f;
-	const int nLenght = 1;
-	const float fPitch = 0.0f;
-
-	if ( Preferences::getInstance()->__playselectedinstrument )
-		nInstrument = pEngine->getSelectedInstrumentNumber();
-
-//	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
-
-	pEngine->midi_noteOff( nInstrument );
-
+	bool use_note_off = AudioEngine::get_instance()->get_sampler()->is_instrument_playing( pInstr );
+	if(use_note_off){
+		pEngine->midi_noteOff( nInstrument );
+		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
+	}
 }
 
 unsigned long MidiInput::computeDeltaNoteOnOfftime()
