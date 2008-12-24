@@ -85,34 +85,9 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 	private:
 
-/*
-		QString __sample_mode;		///< loop mode
-		unsigned __fade_out_startframe;	///< start frame for fade out
-		int __repeats;			///< repats from the loop section
-		unsigned __start_frame;		///< start frame
-		unsigned __loop_frame;		///< beginn of the loop section
-		unsigned __end_frame; 		///< sample end frame
-*/
 		H2Core::Sample *m_pSamplefromFile;
 		int m_pSelectedLayer;
-		QString m_samplename;
-/*
-		, m_pSampleEditorStatus( true )
-		, m_pSamplefromFile ( NULL )
-		, m_pSelectedLayer ( nSelectedLayer )
-		, m_samplename ( mSamplefilename )
-		, m_pzoomfactor ( 1 )
-		, m_pdetailframe ( 0 )
-		, m_plineColor ( "default" )
-		, m_ponewayStart ( false )
-		, m_ponewayLoop ( false )
-		, m_ponewayEnd ( false )
-		, m_pslframes ( 0 )
-		H2Core::Sample *m_pSample;
-		H2Core::Sample *m_pSamplefromFile;
-		H2Core::Sample *m_proldSample;
-		H2Core::InstrumentLayer *m_pLayer;
-*/	
+		QString m_samplename;	
 	
 		double m_divider;
 
