@@ -39,29 +39,6 @@ ActionManager* ActionManager::instance = NULL;
 using namespace H2Core;
 
 /* Class Action */
-
-QString Action::getType(){
-	return type;
-}
-
-
-
-void Action::setParameter1( QString text ){
-	parameter1 = text;
-}
-
-void Action::setParameter2( QString text ){
-	parameter2 = text;
-}
-
-QString Action::getParameter1(){
-	return parameter1;
-}
-
-QString Action::getParameter2(){
-	return parameter2;
-}
-
 Action::Action( QString s ) : Object( "Action" ) {
 	type = s;
 	QString parameter1 = "0";
@@ -70,7 +47,6 @@ Action::Action( QString s ) : Object( "Action" ) {
 
 
 /* Class ActionManager */
-
 
 ActionManager::ActionManager() : Object( "ActionManager" ) {
 	INFOLOG( "ActionManager Init" );
@@ -125,23 +101,13 @@ ActionManager::~ActionManager(){
 	instance = NULL;
 }
 
-
-/// Return an instance of ActionManager
 ActionManager* ActionManager::getInstance()
 {
 	if ( instance == NULL ) {
 		instance = new ActionManager();
 	}
-	
+			
 	return instance;
-}
-
-QStringList ActionManager::getActionList(){
-	return actionList;
-}
-
-QStringList ActionManager::getEventList(){
-	return eventList;
 }
 
 
