@@ -1410,6 +1410,7 @@ void audioEngine_noteOn( Note *note )
 
 void audioEngine_noteOff( Note *note )
 {
+/*
 	if ( note == NULL )	{
 		_ERRORLOG( "Error, note == NULL" );
 	}
@@ -1428,6 +1429,7 @@ void audioEngine_noteOff( Note *note )
 //	AudioEngine::get_instance()->get_sampler()->note_off( note );
 	AudioEngine::get_instance()->unlock();
 	delete note;
+*/
 }
 
 

@@ -75,7 +75,6 @@ Sampler::Sampler()
 	__preview_instrument->set_volume( 0.8 );
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
 
-	fade_note_out = false;
 }
 
 
@@ -404,6 +403,7 @@ int Sampler::__render_note_no_resample(
 	int steps = __audio_output->getSampleRate() / 100; //
 		if(steps > nBufferSize) steps = nBufferSize - 1;
 	float substract = fadeout / steps;
+	bool fade_note_out = false;
 	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -412,26 +412,10 @@ int Sampler::__render_note_no_resample(
 			}
 		}
 
-		fADSRValue = pNote->m_adsr.get_value( 1 );
-		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
-		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
-
-		// Low pass resonant filter
-		if ( bUseLPF ) {
-			pNote->m_fBandPassFilterBuffer_L = fResonance * pNote->m_fBandPassFilterBuffer_L + fCutoff * ( fVal_L - pNote->m_fLowPassFilterBuffer_L );
-			pNote->m_fLowPassFilterBuffer_L += fCutoff * pNote->m_fBandPassFilterBuffer_L;
-			fVal_L = pNote->m_fLowPassFilterBuffer_L;
-
-			pNote->m_fBandPassFilterBuffer_R = fResonance * pNote->m_fBandPassFilterBuffer_R + fCutoff * ( fVal_R - pNote->m_fLowPassFilterBuffer_R );
-			pNote->m_fLowPassFilterBuffer_R += fCutoff * pNote->m_fBandPassFilterBuffer_R;
-			fVal_R = pNote->m_fLowPassFilterBuffer_R;
-		}
-
 		if ( __stop_notes_intrument_ids_queue.size() >0 ){
 			//ERRORLOG(QString("noteoff-queue: %1, fade_note_out: %2").arg(__stop_notes_intrument_ids_queue.size()).arg(fade_note_out));
 			for ( unsigned i = 0; i < __stop_notes_intrument_ids_queue.size(); ) {
 				QString id = __stop_notes_intrument_ids_queue[ i ];
-				//assert( id );
 				if ( pNote->get_instrument()->get_id() == id ) {
 					fade_note_out = true;
 					if ( __stop_notes_intrument_ids_queue.size() == 1){
@@ -455,18 +439,33 @@ int Sampler::__render_note_no_resample(
 			//ERRORLOG(QString("true %1, steps %2").arg(fadeout).arg(steps));		
 		}
 
+		fADSRValue = pNote->m_adsr.get_value( 1 );
+		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue * fadeout;
+		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue * fadeout;
+
+		// Low pass resonant filter
+		if ( bUseLPF ) {
+			pNote->m_fBandPassFilterBuffer_L = fResonance * pNote->m_fBandPassFilterBuffer_L + fCutoff * ( fVal_L - pNote->m_fLowPassFilterBuffer_L );
+			pNote->m_fLowPassFilterBuffer_L += fCutoff * pNote->m_fBandPassFilterBuffer_L;
+			fVal_L = pNote->m_fLowPassFilterBuffer_L;
+
+			pNote->m_fBandPassFilterBuffer_R = fResonance * pNote->m_fBandPassFilterBuffer_R + fCutoff * ( fVal_R - pNote->m_fLowPassFilterBuffer_R );
+			pNote->m_fLowPassFilterBuffer_R += fCutoff * pNote->m_fBandPassFilterBuffer_R;
+			fVal_R = pNote->m_fLowPassFilterBuffer_R;
+		}
+
 #ifdef JACK_SUPPORT
 		if ( __audio_output->has_track_outs()
 		     && dynamic_cast<JackOutput*>(__audio_output) ) {
                         assert( __track_out_L[ nInstrument ] );
                         assert( __track_out_R[ nInstrument ] );
-			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L * fadeout;
-			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R * fadeout;
+			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L;
+			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R;
 		}
 #endif
 
-                fVal_L = fVal_L * cost_L * fadeout;
-		fVal_R = fVal_R * cost_R * fadeout;
+                fVal_L = fVal_L * cost_L;
+		fVal_R = fVal_R * cost_R;
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {
@@ -593,8 +592,9 @@ int Sampler::__render_note_resample(
 
 	float fadeout = 1.0F;
 	int steps = __audio_output->getSampleRate() / 100; // 1/100 sec
-		if(steps > nBufferSize) steps = nBufferSize - 1;
+	if(steps > nBufferSize) steps = nBufferSize - 1;
 	float substract = fadeout / steps;
+	bool fade_note_out = false;
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -611,22 +611,6 @@ int Sampler::__render_note_resample(
 		} else {
 			fVal_L = linear_interpolation( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff );
 			fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
-		}
-
-		// ADSR envelope
-		fADSRValue = pNote->m_adsr.get_value( fStep );
-		fVal_L = fVal_L * fADSRValue;
-		fVal_R = fVal_R * fADSRValue;
-
-		// Low pass resonant filter
-		if ( bUseLPF ) {
-			pNote->m_fBandPassFilterBuffer_L = fResonance * pNote->m_fBandPassFilterBuffer_L + fCutoff * ( fVal_L - pNote->m_fLowPassFilterBuffer_L );
-			pNote->m_fLowPassFilterBuffer_L += fCutoff * pNote->m_fBandPassFilterBuffer_L;
-			fVal_L = pNote->m_fLowPassFilterBuffer_L;
-
-			pNote->m_fBandPassFilterBuffer_R = fResonance * pNote->m_fBandPassFilterBuffer_R + fCutoff * ( fVal_R - pNote->m_fLowPassFilterBuffer_R );
-			pNote->m_fLowPassFilterBuffer_R += fCutoff * pNote->m_fBandPassFilterBuffer_R;
-			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
 
 		if ( __stop_notes_intrument_ids_queue.size() >0 ){
@@ -658,18 +642,34 @@ int Sampler::__render_note_resample(
 			//ERRORLOG(QString("resample true %1").arg(fadeout));		
 		}
 
+		// ADSR envelope
+		fADSRValue = pNote->m_adsr.get_value( fStep );
+		fVal_L = fVal_L * fADSRValue * fadeout;
+		fVal_R = fVal_R * fADSRValue * fadeout;
+
+		// Low pass resonant filter
+		if ( bUseLPF ) {
+			pNote->m_fBandPassFilterBuffer_L = fResonance * pNote->m_fBandPassFilterBuffer_L + fCutoff * ( fVal_L - pNote->m_fLowPassFilterBuffer_L );
+			pNote->m_fLowPassFilterBuffer_L += fCutoff * pNote->m_fBandPassFilterBuffer_L;
+			fVal_L = pNote->m_fLowPassFilterBuffer_L;
+
+			pNote->m_fBandPassFilterBuffer_R = fResonance * pNote->m_fBandPassFilterBuffer_R + fCutoff * ( fVal_R - pNote->m_fLowPassFilterBuffer_R );
+			pNote->m_fLowPassFilterBuffer_R += fCutoff * pNote->m_fBandPassFilterBuffer_R;
+			fVal_R = pNote->m_fLowPassFilterBuffer_R;
+		}
+
 #ifdef JACK_SUPPORT
 		if ( __audio_output->has_track_outs()
 			&& dynamic_cast<JackOutput*>(__audio_output) ) {
 			assert( __track_out_L[ nInstrument ] );
                         assert( __track_out_R[ nInstrument ] );
-			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L * fadeout);
-			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R * fadeout);
+			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L);
+			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R);
 		}
 #endif
 
-		fVal_L = fVal_L * cost_L * fadeout;
-		fVal_R = fVal_R * cost_R * fadeout;
+		fVal_L = fVal_L * cost_L;
+		fVal_R = fVal_R * cost_R;
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {

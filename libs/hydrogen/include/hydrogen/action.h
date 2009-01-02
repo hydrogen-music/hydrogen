@@ -31,14 +31,28 @@ using namespace std;
 class Action : public Object {
 	public:
 		Action( QString );
+			
+		void setParameter1( QString text ){
+			parameter1 = text;
+		}
 		
-		QString getType();
+		void setParameter2( QString text ){
+			parameter2 = text;
+		}
 		
-		void setParameter1( QString );
-		void setParameter2( QString );
+		QString getParameter1(){
+			return parameter1;
+		}
+		
+		QString getParameter2(){
+			return parameter2;
+		}
 
-		QString getParameter1();
-		QString getParameter2();
+		QString getType(){
+			return type;
+		}
+		
+
 
 	private:
 		QString type;
@@ -58,12 +72,17 @@ class ActionManager : public Object
 		QStringList eventList;
 
 	public:
-		static ActionManager* getInstance();
-
 		bool handleAction( Action * );
 		
-		QStringList getActionList();
-		QStringList getEventList();
+		static ActionManager* getInstance();
+		
+		QStringList getActionList(){
+			return actionList;
+		}
+		
+		QStringList getEventList(){
+			return eventList;
+		}
 
 		ActionManager();
 		~ActionManager();

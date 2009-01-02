@@ -92,7 +92,6 @@ private:
 	float* __track_out_R[ MAX_INSTRUMENTS ];
 #endif
 
-	bool fade_note_out;
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 

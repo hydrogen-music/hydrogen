@@ -152,7 +152,7 @@ public:
 	}
 	void set_pan_l( float pan ) {
 		if ( pan > 0.5 ) {
-			INFOLOG( "Pan R > 0.5" );
+//			INFOLOG( "Pan R > 0.5" );
 			pan = 0.5;
 		}
 		__pan_l = pan;
@@ -163,7 +163,7 @@ public:
 	}
 	void set_pan_r( float pan ) {
 		if ( pan > 0.5 ) {
-			INFOLOG( "Pan R > 0.5" );
+//			INFOLOG( "Pan R > 0.5" );
 			pan = 0.5;
 		}
 		__pan_r = pan;
