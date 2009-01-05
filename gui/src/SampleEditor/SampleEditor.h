@@ -69,7 +69,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 
 	private slots:
-		void on_LoopCountSpinBox_valueChanged( int );
+		void valueChangedLoopCountSpinBox( int );
 		void valueChangedProcessingTypeComboBox( const QString );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();
