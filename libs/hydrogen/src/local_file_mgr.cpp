@@ -365,7 +365,7 @@ int LocalFileMng::getPatternList( const QString&  sPatternDir)
 	QDir dir( sPatternDir );
 
 	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getPatternList] Directory %1patterns not found" ).arg( sPatternDir ) );
+		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sPatternDir ) );
 	} else {
 		dir.setFilter( QDir::Files );
 		QFileInfoList fileList = dir.entryInfoList();
