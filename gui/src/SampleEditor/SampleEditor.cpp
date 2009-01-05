@@ -48,7 +48,7 @@ using namespace std;
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
-		, m_pSampleEditorStatus( false )
+		, m_pSampleEditorStatus( true )
 		, m_pSamplefromFile ( NULL )
 		, m_pSelectedLayer ( nSelectedLayer )
 		, m_samplename ( mSamplefilename )
@@ -89,9 +89,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	intDisplays();
 	getAllFrameInfos();
 
-	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
-	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
-	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
+//	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
+//	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
+//	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
 
 }
 
@@ -107,6 +107,22 @@ SampleEditor::~SampleEditor()
 }
 
 
+void SampleEditor::closeEvent(QCloseEvent *event)
+{
+	if ( !m_pSampleEditorStatus ){
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		if ( err == 0 ){
+			m_pSampleEditorStatus = true;
+			HydrogenApp::getInstance()->closeSampleEditor();;	
+		}else
+		{
+			return;
+		}
+	}else
+	{
+		HydrogenApp::getInstance()->closeSampleEditor();
+	}
+}
 
 
 void SampleEditor::getAllFrameInfos()
@@ -206,6 +222,11 @@ void SampleEditor::getAllFrameInfos()
 
 	}
 	m_pTargetSampleView->updateDisplay( pLayer );
+
+	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
+	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
+	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
+	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
 }
 
 
@@ -269,14 +290,16 @@ void SampleEditor::on_ClosePushButton_clicked()
 		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
-			accept();	
+			HydrogenApp::getInstance()->closeSampleEditor();	
 		}else
 		{
 			return;
 		}
+	}else
+	{
+		HydrogenApp::getInstance()->closeSampleEditor();
+//		accept();
 	}
-//	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
-	accept();
 }
 
 
@@ -296,6 +319,7 @@ bool SampleEditor::getCloseQuestion()
 	bool close = false;
 	int err = QMessageBox::information( this, "Hydrogen", tr( "Close dialog! maybe there is some unsaved work on sample.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 	if ( err == 0 ) close = true;
+	
 	return close;
 }
 
@@ -645,7 +669,7 @@ void SampleEditor::on_LoopCountSpinBox_valueChanged( int )
 
 
 
-void SampleEditor::on_ProcessingTypeComboBox_currentIndexChanged( int )
+void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 {
 	switch ( ProcessingTypeComboBox->currentIndex() ){
 		case 0 :// 

@@ -95,6 +95,7 @@ class HydrogenApp : public QObject, public Object
 		void addEventListener( EventListener* pListener );
 		void removeEventListener( EventListener* pListener );
 		void closeFXProperties();
+		void closeSampleEditor();
 
 		void onDrumkitLoad( QString name );
 

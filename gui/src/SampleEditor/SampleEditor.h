@@ -70,7 +70,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 	private slots:
 		void on_LoopCountSpinBox_valueChanged( int );
-		void on_ProcessingTypeComboBox_currentIndexChanged( int );
+		void valueChangedProcessingTypeComboBox( const QString );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();
 		void valueChangedStartFrameSpinBox( int );
@@ -87,7 +87,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 		H2Core::Sample *m_pSamplefromFile;
 		int m_pSelectedLayer;
-		QString m_samplename;	
+		QString m_samplename;
 	
 		double m_divider;
 
@@ -100,7 +100,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void setSamplelengthFrames();
 		void createPositionsRulerPath();
 		void testpTimer();
-
+		void closeEvent(QCloseEvent *event);
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 	

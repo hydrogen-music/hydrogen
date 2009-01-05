@@ -46,7 +46,7 @@ class TargetWaveDisplay : public QWidget, public Object
 		void updateDisplayPointer();
 
 		void paintEvent(QPaintEvent *ev);
-		int m_pFadeOutFramePosition;
+//		int m_pFadeOutFramePosition;
 
 	private:
 		QPixmap m_background;

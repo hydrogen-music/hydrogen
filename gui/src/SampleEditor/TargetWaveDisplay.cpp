@@ -99,9 +99,9 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	font.setWeight( 63 );
 	painter.setFont( font );
 //start frame pointer
-	painter.setPen( QColor( 99, 175, 254, 200 ) );
-	painter.drawLine( m_pFadeOutFramePosition, 4, m_pFadeOutFramePosition, height() -4 );	
-	painter.drawText( m_pFadeOutFramePosition , 1, 10,20, Qt::AlignRight, "F" );
+//	painter.setPen( QColor( 99, 175, 254, 200 ) );
+//	painter.drawLine( m_pFadeOutFramePosition, 4, m_pFadeOutFramePosition, height() -4 );	
+//	painter.drawText( m_pFadeOutFramePosition , 1, 10,20, Qt::AlignRight, "F" );
 
 	for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()) -1; i++){
 		//volume line
