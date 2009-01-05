@@ -555,7 +555,7 @@ std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std
 
 std::vector<QString> LocalFileMng::getPatternDirList()
 {
-	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() + "patterns" );;
+	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() + "patterns" );
 }
 
 
