@@ -72,6 +72,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 
 
+
 NotePropertiesRuler::~NotePropertiesRuler()
 {
 	//infoLog("DESTROY");
@@ -801,7 +802,9 @@ void NotePropertiesRuler::updateEditor()
 		editorWidth =  20 + MAX_NOTES * m_nGridWidth;
 	}
 	resize( editorWidth, height() );
-
+		
+	delete m_pBackground;
+	m_pBackground = new QPixmap( editorWidth, m_nEditorHeight );
 
 	if ( m_mode == VELOCITY ) {
 		createVelocityBackground( m_pBackground );
