@@ -1204,7 +1204,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					bSendPatternChange = true;
 				}
 				if ( m_nPatternStartTick == -1 ) {
-					m_nPatternStartTick = tick;
+					m_nPatternStartTick = tick - (tick % nPatternSize);
 // 					_WARNINGLOG( "set Pattern Start Tick to "
 //						     + to_string( m_nPatternStartTick ) );
 				} else {
