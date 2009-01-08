@@ -122,8 +122,8 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		m_pPattern = NULL;
 	}
 
-	delete m_pBackground;
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
+//	delete m_pBackground;
+//	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 
 	bool bActive = false;	// is the pattern playing now?
 	PatternList *pList = pEngine->getCurrentPatternList();
