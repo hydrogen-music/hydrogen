@@ -56,7 +56,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_nRulerHeight = 25;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
-	setFixedSize( size() );
+//	setFixedSize( size() );
 
 	bool ok = m_tickPosition.load( Skin::getImagePath() + "/patternEditor/tickPosition.png" );
 	if( ok == false ){
@@ -122,8 +122,6 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		m_pPattern = NULL;
 	}
 
-//	delete m_pBackground;
-//	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 
 	bool bActive = false;	// is the pattern playing now?
 	PatternList *pList = pEngine->getCurrentPatternList();
@@ -194,7 +192,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
 			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, to_string( i / 4 + 1 ) );
-			//ERRORLOG(QString("nText_x: %1, true, value: %2").arg(nText_x).arg(i / 4 + 1));
+//			ERRORLOG(QString("nText_x: %1, true, value: %2").arg(nText_x).arg(i / 4 + 1));
 		}
 		else {
 			painter.setPen( lineColor );
@@ -211,6 +209,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 }
 
 
+
 void PatternEditorRuler::zoomIn()
 {
 	if (m_nGridWidth >= 3){
@@ -219,9 +218,16 @@ void PatternEditorRuler::zoomIn()
 	{
 		m_nGridWidth *= 1.5;
 	}
-//	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
+	delete m_pBackground;
+	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
+	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	m_pBackground->fill( backgroundColor );
 	update();
 }
+
 
 void PatternEditorRuler::zoomOut()
 {
@@ -232,11 +238,16 @@ void PatternEditorRuler::zoomOut()
 		{
 			m_nGridWidth /= 1.5;
 		}
-//	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
+	delete m_pBackground;
+	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
+	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	m_pBackground->fill( backgroundColor );
 	update();
 	}
 }
-
 
 
 void PatternEditorRuler::selectedPatternChangedEvent()

@@ -783,6 +783,9 @@ void PatternEditorPanel::showPianoEditorBtnClick(Button *ref)
 
 void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 {
+	if(m_pPatternEditorRuler->getGridWidth() >=24){
+		return;
+	}
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomIn();
 	m_pDrumPatternEditor->zoom_in();
