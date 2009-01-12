@@ -51,6 +51,9 @@ class PatternEditorRuler : public QWidget, public Object, public EventListener
 
 		void zoomIn();
 		void zoomOut();
+		float getGridWidth() const {
+		return m_nGridWidth;
+		};
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );

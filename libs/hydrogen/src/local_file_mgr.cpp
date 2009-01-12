@@ -352,8 +352,9 @@ std::vector<QString> LocalFileMng::getSongList()
 	if ( !dir.exists() ) {
 		ERRORLOG( QString( "[getSongList] Directory %1 not found" ).arg( sDirectory ) );
 	} else {
-		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
+		QFileInfoList fileList = dir.entryInfoList();
+		
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = fileList.at( i ).fileName();
 
@@ -374,7 +375,7 @@ int LocalFileMng::getPatternList( const QString&  sPatternDir)
 	QDir dir( sPatternDir );
 
 	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getPatternList] Directory %1patterns not found" ).arg( sPatternDir ) );
+		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sPatternDir ) );
 	} else {
 		dir.setFilter( QDir::Files );
 		QFileInfoList fileList = dir.entryInfoList();
@@ -480,8 +481,9 @@ std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumki
 	if ( !dir.exists() ) {
 		INFOLOG( QString( "No patterns for drumkit '%1'." ).arg( sDrumkit ) );
 	} else {
-		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
+		QFileInfoList fileList = dir.entryInfoList();
+		
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = fileList.at( i ).fileName();
 
@@ -510,8 +512,9 @@ std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory 
 	if ( !dir.exists() ) {
 		ERRORLOG( QString( "[getDrumkitList] Directory %1 not found" ).arg( sDirectory ) );
 	} else {
-		QFileInfoList fileList = dir.entryInfoList();
 		dir.setFilter( QDir::Dirs );
+		QFileInfoList fileList = dir.entryInfoList();
+		
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = fileList.at( i ).fileName();
 			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) || 
@@ -564,7 +567,7 @@ std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std
 
 std::vector<QString> LocalFileMng::getPatternDirList()
 {
-	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() + "patterns" );;
+	return getDrumkitsFromDirectory( Preferences::getInstance()->getDataDirectory() + "patterns" );
 }
 
 

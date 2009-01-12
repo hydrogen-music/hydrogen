@@ -339,8 +339,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 			delete m_pSampleEditor;
 			m_pSampleEditor = NULL;
 		//}
-	}
-	
+	}	
 	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name);
 	m_pSampleEditor->show();
 }
