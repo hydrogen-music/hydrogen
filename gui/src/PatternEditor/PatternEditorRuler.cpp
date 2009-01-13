@@ -211,6 +211,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 }
 
 
+
 void PatternEditorRuler::zoomIn()
 {
 	if (m_nGridWidth >= 3){
