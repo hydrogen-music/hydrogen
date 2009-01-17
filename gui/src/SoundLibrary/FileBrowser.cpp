@@ -156,7 +156,7 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 void FileBrowser::updateFileInfo( QString sFilename, unsigned nSampleRate, unsigned nBytes )
 {
 
-	char sFileSizeUnit[5];
+	char sFileSizeUnit[6];
 	char sFileSize[32];
 
 	if( nBytes >= 1073741824 ){

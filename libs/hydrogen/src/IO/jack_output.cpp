@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <cassert>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/Song.h>
@@ -437,71 +438,90 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 }
 
 
-int JackOutput::init( unsigned nBufferSize )
+#define CLIENT_FAILURE(msg) {						\
+		ERRORLOG("Could not connect to JACK server (" msg ")"); \
+		if (client) {						\
+			ERRORLOG("...but JACK returned a non-null pointer?"); \
+			(client) = 0;					\
+		}							\
+		if (tries) ERRORLOG("...trying again.");		\
+	}
+
+
+#define CLIENT_SUCCESS(msg) {				\
+		assert(client);				\
+		INFOLOG(msg);				\
+		tries = 0;				\
+	}
+
+int JackOutput::init( unsigned /*nBufferSize*/ )
 {
-	UNUSED( nBufferSize );
 
 	output_port_name_1 = Preferences::getInstance()->m_sJackPortName1;
 	output_port_name_2 = Preferences::getInstance()->m_sJackPortName2;
 
-
-// test!!!
-	if ( ( client = jack_client_open( "hydrogen", JackNullOption, NULL ) ) == NULL ) {
-		WARNINGLOG( "Error: can't start JACK server" );
-		return 3;
-	}
-
-	// check if another hydrogen instance is connected to jack
-	if ( ( client = jack_client_new( "hydrogen-tmp" ) ) == 0 ) {
-		WARNINGLOG( "Jack server not running?" );
-		return 3;
-	}
-
-	std::vector<QString> clientList;
-	const char **readports = jack_get_ports( client, NULL, NULL, JackPortIsOutput );
-	int nPort = 0;
-	while ( readports && readports[nPort] ) {
-		QString sPort = readports[nPort];
-		int nColonPos = sPort.indexOf( ":" );
-		QString sClient = sPort.mid( 0, nColonPos );
-		bool bClientExist = false;
-		for ( int j = 0; j < ( int )clientList.size(); j++ ) {
-			if ( sClient == clientList[ j ] ) {
-				bClientExist = true;
-				break;
-			}
-		}
-		if ( !bClientExist ) {
-			clientList.push_back( sClient );
-		}
-		nPort++;
-	}
-	jack_client_close( client );
-
-	QString sClientName = "";
-	for ( int nInstance = 1; nInstance < 16; nInstance++ ) {
-//		sprintf( clientName, "Hydrogen-%d", nInstance );
-		//	sprintf( clientName, "Hydrogen-%d", getpid() );
-		sClientName = QString( "Hydrogen-%1" ).arg( nInstance );
-		bool bExist = false;
-		for ( int i = 0; i < ( int )clientList.size(); i++ ) {
-			if ( sClientName == clientList[ i ] ) {
-				bExist = true;
-				break;
-			}
-		}
-		if ( !bExist ) {
+	QString sClientName = "Hydrogen";
+	jack_status_t status;
+	int tries = 2;  // Sometimes jackd doesn't stop and start fast enough.
+	while ( tries > 0 ) {
+		--tries;
+		client = jack_client_open(
+			sClientName.toAscii(),
+			JackNullOption,
+			&status);
+		switch(status) {
+		case JackFailure:
+			CLIENT_FAILURE("unknown error");
 			break;
+		case JackInvalidOption:
+			CLIENT_FAILURE("invalid option");
+			break;
+		case JackNameNotUnique:
+			if (client) {
+				sClientName = jack_get_client_name(client);
+				CLIENT_SUCCESS(QString("Jack assigned the client name '%1'")
+					       .arg(sClientName));
+			} else {
+				CLIENT_FAILURE("name not unique");
+			}
+			break;
+		case JackServerStarted:
+			CLIENT_SUCCESS("JACK Server started for Hydrogen.");
+			break;
+		case JackServerFailed:
+			CLIENT_FAILURE("unable to connect");
+			break;
+		case JackServerError:
+			CLIENT_FAILURE("communication error");
+			break;
+		case JackNoSuchClient:
+			CLIENT_FAILURE("unknown client type");
+			break;
+		case JackLoadFailure:
+			CLIENT_FAILURE("can't load internal client");
+			break;
+		case JackInitFailure:
+			CLIENT_FAILURE("can't initialize client");
+			break;
+		case JackShmFailure:
+			CLIENT_FAILURE("unable to access shared memory");
+			break;
+		case JackVersionError:
+			CLIENT_FAILURE("client/server protocol version mismatch");
+		default:
+			if (status) {
+				ERRORLOG("Unknown status with JACK server.");
+				if (client) {
+					CLIENT_SUCCESS("Client pointer is *not* null..."
+						       " assuming we're OK");
+				}
+			} else {
+				CLIENT_SUCCESS("Connected to JACK server");
+			}				
 		}
 	}
 
-
-	// try to become a client of the JACK server
-	if ( ( client = jack_client_new( sClientName.toAscii() ) ) == 0 ) {
-		ERRORLOG( "Jack server not running? (jack_client_new). Using " + sClientName + " as client name"  );
-		return 3;
-	}
-
+	// Here, client should either be valid, or NULL.	
 	jack_server_sampleRate = jack_get_sample_rate ( client );
 	jack_server_bufferSize = jack_get_buffer_size ( client );
 
