@@ -464,8 +464,8 @@ int Sampler::__render_note_no_resample(
 			int nBufferPos = nInitialBufferPos;
 			int nSamplePos = nInitialSamplePos;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
-				pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L;
-				pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R;
+				pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L * cost_L;
+				pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R * cost_R;
 				++nSamplePos;
 				++nBufferPos;
 			}
@@ -646,8 +646,8 @@ int Sampler::__render_note_resample(
 					fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
 				}
 
-				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L;
-				pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R;
+				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L * cost_L;
+				pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R * cost_R;
 				fSamplePos += fStep;
 				++nBufferPos;
 			}
