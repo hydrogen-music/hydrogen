@@ -107,9 +107,6 @@ Preferences::Preferences()
 	}
 
 	
-
-	m_ladspaPathVect.push_back( QString( "%1/lib/hydrogen/plugins" ).arg( CONFIG_PREFIX ) );
-	QString qStringPath = qApp->applicationDirPath() + "/plugins";
 	m_ladspaPathVect.push_back( qStringPath );
 
 
