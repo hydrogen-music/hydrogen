@@ -107,7 +107,6 @@ Preferences::Preferences()
 	}
 
 	
-	m_ladspaPathVect.push_back( qStringPath );
 
 
 	m_pDefaultUIStyle = new UIStyle();
