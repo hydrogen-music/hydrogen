@@ -293,8 +293,11 @@ Song* SongReader::readSong( const QString& filename )
 			float fFilterCutoff = LocalFileMng::readXmlFloat( instrumentNode, "filterCutoff", 1.0f, false );
 			float fFilterResonance = LocalFileMng::readXmlFloat( instrumentNode, "filterResonance", 0.0f, false );
 			QString sMuteGroup = LocalFileMng::readXmlString( instrumentNode, "muteGroup", "-1", false );
+			QString sMidiOutChannel = LocalFileMng::readXmlString( instrumentNode, "midiOutChannel", "-1", false, false );
+			QString sMidiOutNote = LocalFileMng::readXmlString( instrumentNode, "midiOutNote", "60", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
-
+			int nMidiOutChannel = sMidiOutChannel.toInt();
+			int nMidiOutNote = sMidiOutNote.toInt();
 
 			if ( sId == "" ) {
 				ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
@@ -319,6 +322,8 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_filter_resonance( fFilterResonance );
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
+			pInstrument->set_midi_out_channel( nMidiOutChannel );
+			pInstrument->set_midi_out_note( nMidiOutNote );
 
 			QString drumkitPath = "";
 			if ( ( sDrumkit != "" ) && ( sDrumkit != "-" ) ) {

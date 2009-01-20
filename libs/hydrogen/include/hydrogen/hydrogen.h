@@ -28,6 +28,7 @@
 #include <hydrogen/Object.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 #include <hydrogen/SoundLibrary.h>
 
 
@@ -117,6 +118,7 @@ public:
 
 	AudioOutput* getAudioOutput();
 	MidiInput* getMidiInput();
+	MidiOutput* getMidiOutput();
 
 	int getState();
 

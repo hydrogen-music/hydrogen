@@ -163,6 +163,8 @@ void Sampler::note_on( Note *note )
 	
 	pInstr->enqueue();
 	__playing_notes_queue.push_back( note );
+	
+	Hydrogen::get_instance()->getMidiOutput()->handleQueueNote(note);
 }
 
 

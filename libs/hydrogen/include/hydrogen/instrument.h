@@ -157,7 +157,22 @@ public:
 	inline int get_mute_group() {
 		return __mute_group;
 	}
-
+	void set_midi_out_channel( int channel ) {
+		if ((channel > -2) && (channel < 16)) {
+			__midi_out_channel = channel;
+		}
+	}
+	inline int get_midi_out_channel() {
+		return __midi_out_channel;
+	}
+	void set_midi_out_note( int note ) {
+		if ((note >= 0) && (note < 128)) {
+			__midi_out_note = note;
+		}
+	}
+	inline int get_midi_out_note() {
+		return __midi_out_note;
+	}
 	void set_muted( bool muted ) {
 		__muted = muted;
 	}
@@ -302,6 +317,8 @@ private:
 	QString __drumkit_name;		///< Drumkit name
 	bool __filter_active;		///< Is filter active?
 	int __mute_group;		///< Mute group
+	int __midi_out_channel;		///< Midi out channel
+	int __midi_out_note;		///< Midi out note
 
 	bool __active;			///< is the instrument active?
 	bool __soloed;

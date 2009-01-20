@@ -26,6 +26,7 @@
 #ifdef ALSA_SUPPORT
 
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 
 #include <alsa/asoundlib.h>
 #include <string>
@@ -38,11 +39,11 @@ namespace H2Core
 /// Alsa Midi Driver
 /// Based on Matthias Nagorni alsa sequencer example
 ///
-class AlsaMidiDriver : public MidiInput
+class AlsaMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
 public:
 	AlsaMidiDriver();
-	~AlsaMidiDriver();
+	virtual ~AlsaMidiDriver();
 
 	virtual void open();
 	virtual void close();
@@ -50,7 +51,8 @@ public:
 
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-
+	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueAllNoteOff();
 
 private:
 };

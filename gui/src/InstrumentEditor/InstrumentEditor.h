@@ -64,6 +64,8 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		void labelClicked( ClickableLabel* pRef );
 
 		void muteGroupBtnClicked(Button *pRef);
+		void midiOutChannelBtnClicked(Button *pRef);
+		void midiOutNoteBtnClicked(Button *pRef);
 
 	private:
 		H2Core::Instrument *m_pInstrument;
@@ -99,6 +101,15 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		LCDDisplay *m_pMuteGroupLCD;
 		Button *m_pAddMuteGroupBtn;
 		Button *m_pDelMuteGroupBtn;
+		
+		// Instrument midi out
+		LCDDisplay *m_pMidiOutChannelLCD;
+		Button *m_pAddMidiOutChannelBtn;
+		Button *m_pDelMidiOutChannelBtn;
+		
+		LCDDisplay *m_pMidiOutNoteLCD;
+		Button *m_pAddMidiOutNoteBtn;
+		Button *m_pDelMidiOutNoteBtn;		
 
 
 		//~ Instrument properties

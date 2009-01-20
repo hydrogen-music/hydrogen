@@ -31,7 +31,7 @@
 namespace H2Core
 {
 
-class PortMidiDriver : public MidiInput
+class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
 public:
 	PmStream *m_pMidiIn;
@@ -43,6 +43,9 @@ public:
 	virtual void open();
 	virtual void close();
 	virtual std::vector<QString> getOutputPortList();
+	
+	virtual void handleQueueNote(Note* pNote) {}
+	virtual void handleQueueAllNoteOff() {}
 
 private:
 

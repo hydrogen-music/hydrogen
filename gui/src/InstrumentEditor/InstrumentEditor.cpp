@@ -20,7 +20,6 @@
  *
  */
 
-
 #include <QtGui>
 
 #include <math.h>
@@ -96,6 +95,62 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pNameLbl = new ClickableLabel( m_pInstrumentProp );
 	m_pNameLbl->setGeometry( 8, 5, 275, 28 );
+	
+	/////////////
+	//Midi Out
+	
+	m_pMidiOutChannelLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pMidiOutChannelLCD->move( 67, 243 );
+
+	m_pAddMidiOutChannelBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize( 16, 8 )
+	);
+
+	m_pAddMidiOutChannelBtn->move( 109, 243 );
+	connect( m_pAddMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
+
+
+	m_pDelMidiOutChannelBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16,8)
+	);
+	m_pDelMidiOutChannelBtn->move( 109, 251 );
+	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
+	
+	///
+	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pMidiOutNoteLCD->move( 160, 243 );
+
+	m_pAddMidiOutNoteBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize( 16, 8 )
+	);
+
+	m_pAddMidiOutNoteBtn->move( 202, 243 );
+	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
+
+
+	m_pDelMidiOutNoteBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16,8)
+	);
+	m_pDelMidiOutNoteBtn->move( 202, 251 );
+	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
+	
+	/////////////
 
 	QFont boldFont;
 	boldFont.setBold(true);
@@ -328,7 +383,23 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
-		m_pMuteGroupLCD->setText( sMuteGroup );
+                m_pMuteGroupLCD->setText( sMuteGroup );		
+		
+		// midi out
+		QString sMidiOutChannel = to_string( m_pInstrument->get_midi_out_channel()+1);
+		if (m_pInstrument->get_midi_out_channel() == -1 ) {
+			sMidiOutChannel = "Off";
+		}
+		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
+		
+		//Convert note id into notation
+		{
+			int note = m_pInstrument->get_midi_out_note();
+			int octave = (note / 12) - 2;
+			const char *noteStrs[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+			QString sMidiOutNote = QString(noteStrs[note % 12]) + QString::number(octave);
+			m_pMidiOutNoteLCD->setText( sMidiOutNote );			
+		}
 
 		// select the last valid layer
 		for (int i = MAX_LAYERS - 1; i >= 0; i-- ) {
@@ -680,4 +751,33 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 
 	selectedInstrumentChangedEvent();	// force an update
 }
+
+void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)
+{
+	assert( m_pInstrument );
+
+	if (pRef == m_pAddMidiOutChannelBtn ) {
+		m_pInstrument->set_midi_out_channel( m_pInstrument->get_midi_out_channel() + 1);
+	}
+	else if (pRef == m_pDelMidiOutChannelBtn ) {
+		m_pInstrument->set_midi_out_channel( m_pInstrument->get_midi_out_channel() - 1);
+	}
+
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
+{
+	assert( m_pInstrument );
+
+	if (pRef == m_pAddMidiOutNoteBtn ) {
+		m_pInstrument->set_midi_out_note( m_pInstrument->get_midi_out_note() + 1);
+	}
+	else if (pRef == m_pDelMidiOutNoteBtn ) {
+		m_pInstrument->set_midi_out_note( m_pInstrument->get_midi_out_note() - 1);
+	}
+
+	selectedInstrumentChangedEvent();	// force an update
+}
+
 

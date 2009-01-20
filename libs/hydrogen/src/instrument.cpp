@@ -55,6 +55,8 @@ Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
 		, __gain( 1.0 )
 		, __drumkit_name( "" )
 		, __mute_group( -1 )
+		, __midi_out_channel( -1 )
+		, __midi_out_note( 60 )
 		, __stop_notes( false )
 {
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {

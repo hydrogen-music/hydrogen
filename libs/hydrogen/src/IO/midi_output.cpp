@@ -4,9 +4,6 @@
  *
  * http://www.hydrogen-music.org
  *
- * CoreMidi driver for Hydrogen
- * Copyright(c) 2005-2006 by Jonathan Dempsey
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,49 +18,47 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Some cleanup . . . (20060222 Jonathan Dempsey)
- * Removed some unused code (20060514 Jonathan Dempsey)
  */
 
-#ifndef CORE_MIDI_DRIVER_H
-#define CORE_MIDI_DRIVER_H
-
-#ifdef COREMIDI_SUPPORT
-
-#include <CoreMidi/CoreMidi.h>
-#include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/event_queue.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/instrument.h>
+#include <hydrogen/note.h>
+#include <hydrogen/action.h>
+#include <hydrogen/midiMap.h>
 
 namespace H2Core
 {
 
-class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
+MidiOutput::MidiOutput( const QString class_name )
+		: Object( class_name )
 {
-public:
-	CoreMidiDriver();
-	~CoreMidiDriver();
-
-	bool m_bRunning;
-
-	virtual void open();
-	virtual void close();
-	virtual std::vector<QString> getOutputPortList();
+	//INFOLOG( "INIT" );
 	
-	virtual void handleQueueNote(Note* pNote) {}
-	virtual void handleQueueAllNoteOff() {}
-
-	MIDIClientRef  h2MIDIClient;
-	ItemCount cmSources;
-	MIDIEndpointRef cmH2Src;
-
-	MIDIPortRef h2InputRef;
-
-};
-
 }
-; // namespace
-
-#endif // COREMIDI_SUPPORT
 
 
-#endif
+MidiOutput::~MidiOutput()
+{
+	//INFOLOG( "DESTROY" );
+}
 
+/*
+void MidiOutput::queueMidiMessage( const MidiMessage& msg )
+{
+	m_pendingMessages.push_back(msg);
+}
+
+bool MidiOutput::hasQueuedMessages()
+{
+	return !m_pendingMessages.empty();
+}
+	
+void MidiOutput::processQueuedMessages()
+{
+	/// Do something...
+}
+*/
+};
