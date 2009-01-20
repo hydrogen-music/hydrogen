@@ -389,7 +389,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//check preferences 
 	if ( pPref->m_brestartLash == true ){ 
-		pPref->m_bsetLash = false ; //if m_bsetlash = true, when the pref. Dialog closed lash would be activatet this case we dont want 
+		pPref->m_bsetLash = true ; 
 	}
 
 	pPref->m_countOffset = sBcountOffset->value();
