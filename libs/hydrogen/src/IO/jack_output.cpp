@@ -521,6 +521,10 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 		}
 	}
 
+	if (client == 0) {
+	    return -1;
+	}
+
 	// Here, client should either be valid, or NULL.	
 	jack_server_sampleRate = jack_get_sample_rate ( client );
 	jack_server_bufferSize = jack_get_buffer_size ( client );
