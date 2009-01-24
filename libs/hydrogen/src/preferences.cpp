@@ -108,10 +108,6 @@ Preferences::Preferences()
 
 	
 
-	m_ladspaPathVect.push_back( QString( "%1/lib/hydrogen/plugins" ).arg( CONFIG_PREFIX ) );
-	QString qStringPath = qApp->applicationDirPath() + "/plugins";
-	m_ladspaPathVect.push_back( qStringPath );
-
 
 	m_pDefaultUIStyle = new UIStyle();
 
@@ -565,15 +561,7 @@ void Preferences::savePreferences()
 	
 	LocalFileMng::writeXmlString( &rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
-	//set the right m_bUselash value to activate lash on next startup
-	if ( m_bsetLash == true ){
-		m_bUseLash = true;
-	}
-	if ( m_bsetLash == false ){
-		m_bUseLash = false;
-	}
-	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bUseLash ? "true": "false" );
-
+	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bsetLash ? "true": "false" );
 
 	//show development version warning
 	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
