@@ -6,6 +6,8 @@ Comment=Create drum sequences
 Comment[de]=Schlagzeugsequenzen erstellen
 Comment[ru]=Создание партий ударных инструментов
 
+GenericName=Drum Machine
+
 Encoding=UTF-8
 Version=0.9.4
 
