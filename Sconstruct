@@ -169,7 +169,7 @@ def get_hydrogen_lib( opts ):
 	includes, cppflags, ldflags = get_platform_flags( opts )
 
 	includes.append( "libs/hydrogen/include" )
-	includes.append( "/usr/include/lash-1.0")
+	if str(env['lash']) == "1": includes.append( "/usr/include/lash-1.0")
 
 
 	#location of qt4.py
