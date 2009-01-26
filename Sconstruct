@@ -169,7 +169,7 @@ def get_hydrogen_lib( opts ):
 	includes, cppflags, ldflags = get_platform_flags( opts )
 
 	includes.append( "libs/hydrogen/include" )
-	if str(env['lash']) == "1": includes.append( "/usr/include/lash-1.0")
+	
 
 
 	#location of qt4.py
@@ -179,8 +179,11 @@ def get_hydrogen_lib( opts ):
 	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
 	env.CacheDir( "scons_cache" )
 	
+
         if str(env['jack']) == "1":
             env.ParseConfig('pkg-config --modversion jack', get_jack_api_flags)
+
+	if str(env['lash']) == "1": includes.append( "/usr/include/lash-1.0")
 
 	#env.Decider is not known in older scons version
 	try:
