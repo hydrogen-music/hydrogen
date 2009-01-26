@@ -48,6 +48,12 @@ SoundLibrarySaveDialog::~SoundLibrarySaveDialog()
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
 	INFOLOG( "!!!" );
+
+	if(nameTxt->text() == ""){
+			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
+			return;
+	}
+
 	H2Core::Drumkit::save(
 			nameTxt->text(),
 			authorTxt->text(),
