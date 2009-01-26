@@ -49,10 +49,16 @@ def get_platform_flags( opts ):
 
 	if sys.platform == "linux2" or sys.platform == "darwin":
 		if str(env['debug']) == "1":
-			cppflags += ['-Wall',  '-g2', '-ggdb', '-O0']
+			cppflags += ['-Wall',  '-g2', '-ggdb', '-O0'] 
+			for flag in env["optflags"].split(" "):
+				cppflags.append(flag)
+			
 		else:
 			cppflags += ['-O3', '-fomit-frame-pointer', '-funroll-loops']
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
+			for flag in env["optflags"].split(" "):
+				cppflags.append(flag)
+
 
 		if str(env['oss']) == "1": cppflags.append('-DOSS_SUPPORT')
 		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
@@ -293,6 +299,7 @@ opts.Add('debug', 'Set to 1 to build with debug informations', 0)
 opts.Add('libarchive', 'Set to 1 to enable libarchive instead of libtar', 0)
 opts.Add('prefix','Default: /usr/local',"/usr/local")
 opts.Add('DESTDIR','Default: none',"")
+opts.Add('optflags','Default: none',"")
 
 #platform dependent settings
 if sys.platform == "darwin":
@@ -307,16 +314,12 @@ if sys.platform != "win32":
 	
 	opts.Add('lash', 'Set to 1 to enable lash',0)
 	
-	
 	opts.Add('alsa', 'Set to 1 to enable alsa',1)
 	
-
 	opts.Add('jack', 'Set to 1 to enable jack',1)	
 	
-
 	opts.Add('lrdf', 'Set to 1 to enable lrdf',1)
 	
-
 	opts.Add('flac', 'Set to 1 to enable flac',1)
 else:
 	#alsa, lash,oss and jack are not available on windows
