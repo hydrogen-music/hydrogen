@@ -252,10 +252,20 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 
 	bool use_note_off = AudioEngine::get_instance()->get_sampler()->is_instrument_playing( pInstr );
 	if(use_note_off){
-		pEngine->midi_noteOff( nInstrument );
+		Note *offnote = new Note( pInstr,
+					0.0,
+					0.0,
+					0.0,
+					0.0,
+					-1,
+					0 );
+		offnote->set_noteoff( true );
+		
+		AudioEngine::get_instance()->get_sampler()->note_on( offnote );
 		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
 	}
 }
+
 
 unsigned long MidiInput::computeDeltaNoteOnOfftime()
 {

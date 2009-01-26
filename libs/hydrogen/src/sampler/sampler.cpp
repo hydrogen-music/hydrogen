@@ -161,30 +161,60 @@ void Sampler::note_on( Note *note )
 			Note *pNote = __playing_notes_queue[ j ];
 
 			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == pInstr->get_mute_group() ) ) {
-				//warningLog("release");
+				ERRORLOG("release");
 				pNote->m_adsr.release();
 			}
+			
 		}
 	}
 	
+	if( note->get_noteoff() ){
+		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+			Note *pNote = __playing_notes_queue[ j ];
+
+			if ( ( pNote->get_instrument() == pInstr ) ) {
+				//ERRORLOG("note_off");
+				pNote->m_adsr.release();
+			}
+			
+		}		
+	}
+	
 	pInstr->enqueue();
-	__playing_notes_queue.push_back( note );
+	if( !note->get_noteoff() ){
+		__playing_notes_queue.push_back( note );
+	}else
+	{
+		delete note;
+	}
+}
+
+
+
+void Sampler::stop_note_on( Note* note )
+{
+//	assert( note );
+/*
+	Instrument *pInstr = note->get_instrument();
+	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+		Note *pNote = __playing_notes_queue[ j ];
+
+		if ( ( pNote->get_instrument() == pInstr ) ) {
+			ERRORLOG("fucj_off");
+			pNote->m_adsr.release();
+		}
+		
+	}
+	pInstr->enqueue();
+*/
+	note_on( note );
 }
 
 
 
 void Sampler::note_off( Note* note )
 {
-//note_off has change to add_note_off
 	stop_playing_notes( note->get_instrument() );
-
-}
-
-
-
-void Sampler::add_note_off( QString id )
-{
-	__stop_notes_intrument_ids_queue.push_back( id );
 }
 
 
@@ -204,7 +234,6 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		// use this to support realtime events when not playing
 		nFramepos = pEngine->getRealtimeFrames();
 	}
-
 
 	Instrument *pInstr = pNote->get_instrument();
 	if ( !pInstr ) {
@@ -367,6 +396,7 @@ int Sampler::__render_note_no_resample(
 		retValue = 0; // the note is not ended yet
 	}
 
+
 	//ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
@@ -398,12 +428,6 @@ int Sampler::__render_note_no_resample(
 	if( nInstrument < 0 ) {
 		nInstrument = 0;
 	}
-
-	float fadeout = 1.0F;
-	int steps = __audio_output->getSampleRate() / 100; //
-		if(steps > nBufferSize) steps = nBufferSize - 1;
-	float substract = fadeout / steps;
-	bool fade_note_out = false;
 	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -412,36 +436,9 @@ int Sampler::__render_note_no_resample(
 			}
 		}
 
-		if ( __stop_notes_intrument_ids_queue.size() >0 ){
-			//ERRORLOG(QString("noteoff-queue: %1, fade_note_out: %2").arg(__stop_notes_intrument_ids_queue.size()).arg(fade_note_out));
-			for ( unsigned i = 0; i < __stop_notes_intrument_ids_queue.size(); ) {
-				QString id = __stop_notes_intrument_ids_queue[ i ];
-				if ( pNote->get_instrument()->get_id() == id ) {
-					fade_note_out = true;
-					if ( __stop_notes_intrument_ids_queue.size() == 1){
-						__stop_notes_intrument_ids_queue.clear();
-					}else
-					{
-						__stop_notes_intrument_ids_queue.erase( __stop_notes_intrument_ids_queue.begin() + i );
-					}
-				}
-				++i;
-			}
-		}
-		if(fade_note_out){
-			fadeout -= substract;
-			steps--;
-			if (steps <= 0 || fadeout <= 0.0F ){
-				fadeout = 0.0F;
-				fade_note_out = false;
-				retValue = 1;
-			}
-			//ERRORLOG(QString("true %1, steps %2").arg(fadeout).arg(steps));		
-		}
-
 		fADSRValue = pNote->m_adsr.get_value( 1 );
-		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue * fadeout;
-		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue * fadeout;
+		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
+		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
 
 		// Low pass resonant filter
 		if ( bUseLPF ) {
@@ -590,12 +587,6 @@ int Sampler::__render_note_resample(
 		nInstrument = 0;
 	}
 
-	float fadeout = 1.0F;
-	int steps = __audio_output->getSampleRate() / 100; // 1/100 sec
-	if(steps > nBufferSize) steps = nBufferSize - 1;
-	float substract = fadeout / steps;
-	bool fade_note_out = false;
-
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
 			if ( pNote->m_adsr.release() == 0 ) {
@@ -613,39 +604,10 @@ int Sampler::__render_note_resample(
 			fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
 		}
 
-		if ( __stop_notes_intrument_ids_queue.size() >0 ){
-			//ERRORLOG(QString("resample noteoff-queue: %1").arg(__stop_notes_intrument_ids_queue.size()));
-			for ( unsigned i = 0; i < __stop_notes_intrument_ids_queue.size(); ) {
-				QString id = __stop_notes_intrument_ids_queue[ i ];
-				//assert( id );
-				if ( pNote->get_instrument()->get_id() == id ) {
-					fade_note_out = true;
-					if ( __stop_notes_intrument_ids_queue.size() == 1){
-						__stop_notes_intrument_ids_queue.clear();
-					}else
-					{
-						__stop_notes_intrument_ids_queue.erase( __stop_notes_intrument_ids_queue.begin() + i );
-					}
-				}
-				++i;
-			}
-		}
-
-		if(fade_note_out){
-			fadeout -= substract;
-			steps--;
-			if (steps <= 0 || fadeout <= 0.0F ){
-				fadeout = 0.0F;
-				fade_note_out = false;
-				retValue = 1;
-			}
-			//ERRORLOG(QString("resample true %1").arg(fadeout));		
-		}
-
 		// ADSR envelope
 		fADSRValue = pNote->m_adsr.get_value( fStep );
-		fVal_L = fVal_L * fADSRValue * fadeout;
-		fVal_R = fVal_R * fADSRValue * fadeout;
+		fVal_L = fVal_L * fADSRValue;
+		fVal_R = fVal_R * fADSRValue;
 
 		// Low pass resonant filter
 		if ( bUseLPF ) {

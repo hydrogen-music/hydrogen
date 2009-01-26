@@ -62,7 +62,6 @@ public:
 	void sequencer_stop();
 
 	void midi_noteOn( Note *note );
-	void midi_noteOff( int id );
 
 	///Last received midi message
 	QString lastMidiEvent;

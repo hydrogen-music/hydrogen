@@ -202,7 +202,7 @@ public:
 	void set_noteoff( bool noteOff ) {
 		__noteoff = noteOff;
 	}
-	float get_noteoff() const {
+	bool get_noteoff() const {
 		return __noteoff;
 	}
 

@@ -531,26 +531,14 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 					      - fMaxPitchDeviation / 2.0 )
 					  * pNote->get_instrument()->get_random_pitch_factor() );
 
-///new note off stuff
-//not in use for the moment, but it works! i am planing a bit more than only delete the note. better way is that
-//users can edit the sustain-curve to fade out the sample.
-//more details see sampler.cpp: Sampler::note_off( Note* note )
-
-			//stop note bevore playing new note, only if set into the planned instrumenteditor checkbox `always stop note`
 			Instrument * noteInstrument = pNote->get_instrument();
 			if ( noteInstrument->is_stop_notes() ){ 
-//				AudioEngine::get_instance()->get_sampler()->note_off( pNote );
-				AudioEngine::get_instance()->get_sampler()->add_note_off( pNote->get_instrument()->get_id() );
-			}
-///~new note off stuff
 
-			// aggiungo la nota alla lista di note da eseguire
-			if ( pNote->get_noteoff() ){
-				//AudioEngine::get_instance()->get_sampler()->note_off( pNote );
-				AudioEngine::get_instance()->get_sampler()->add_note_off( pNote->get_instrument()->get_id() );
+				AudioEngine::get_instance()->get_sampler()->stop_note_on( pNote );
+			}else
+			{
+				AudioEngine::get_instance()->get_sampler()->note_on( pNote );
 			}
-			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
-
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
@@ -1802,15 +1790,6 @@ void Hydrogen::midi_noteOn( Note *note )
 
 
 
-void Hydrogen::midi_noteOff( int id )
-{
-	//ERRORLOG(QString("id: %1").arg(id));
-	QString strid = to_string( id );
-	AudioEngine::get_instance()->get_sampler()->add_note_off( strid );
-}
-
-
-
 void Hydrogen::addRealtimeNote( int instrument,
 				float velocity,
 				float pan_L,
@@ -1943,12 +1922,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 				currentPattern->note_map.insert(
 					std::make_pair( column, note )
 					);
-	/*
-				if ( noteOff ) {
-					note->set_noteoff( true );
-					note->set_lenght( 1 );
-				}
-	*/
+
 				// hear note if its not in the future
 				if ( pref->getHearNewNotes()
 					&& position <= getTickPosition() ) {
@@ -1969,7 +1943,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 							-1,
 							0 );
 	
-				int divider = msg1 / 12;
+								int divider = msg1 / 12;
 				int octave = divider -3;
 				int notehigh = msg1 - (12 * divider);
 				note->m_noteKey.m_nOctave = octave;
