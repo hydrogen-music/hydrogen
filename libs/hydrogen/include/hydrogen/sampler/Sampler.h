@@ -60,8 +60,7 @@ public:
 
 	/// Stop playing a note.
 	void note_off( Note *note );
-	void stop_note_on( Note *note );
-
+	void midi_keyboard_note_off( int key );
 
 	void stop_playing_notes( Instrument *instr = NULL );
 

@@ -533,12 +533,19 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			Instrument * noteInstrument = pNote->get_instrument();
 			if ( noteInstrument->is_stop_notes() ){ 
-
-				AudioEngine::get_instance()->get_sampler()->stop_note_on( pNote );
-			}else
-			{
-				AudioEngine::get_instance()->get_sampler()->note_on( pNote );
+				Note *pOffNote = new Note( noteInstrument,
+							0.0,
+							0.0,
+							0.0,
+							0.0,
+							-1,
+							0 );
+				pOffNote->set_noteoff( true );
+				AudioEngine::get_instance()->get_sampler()->note_on( pOffNote );
 			}
+
+			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
+
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
@@ -1947,6 +1954,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 				int octave = divider -3;
 				int notehigh = msg1 - (12 * divider);
 				note->m_noteKey.m_nOctave = octave;
+				note->set_midimsg1( msg1 );
 				if ( notehigh == 0) note->m_noteKey.m_key = H2Core::NoteKey::C;
 				else if ( notehigh == 1 ) note->m_noteKey.m_key = H2Core::NoteKey::Cs;
 				else if ( notehigh == 2 ) note->m_noteKey.m_key = H2Core::NoteKey::D;
@@ -2020,6 +2028,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 			else if ( notehigh == 10 ) note2->m_noteKey.m_key = H2Core::NoteKey::Bf;
 			else if ( notehigh == 11 ) note2->m_noteKey.m_key = H2Core::NoteKey::B;
 
+			note2->set_midimsg1( msg1 );
 			midi_noteOn( note2 );
 		}	
 

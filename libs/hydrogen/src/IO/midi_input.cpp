@@ -252,16 +252,20 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 
 	bool use_note_off = AudioEngine::get_instance()->get_sampler()->is_instrument_playing( pInstr );
 	if(use_note_off){
-		Note *offnote = new Note( pInstr,
-					0.0,
-					0.0,
-					0.0,
-					0.0,
-					-1,
-					0 );
-		offnote->set_noteoff( true );
-		
-		AudioEngine::get_instance()->get_sampler()->note_on( offnote );
+		if ( Preferences::getInstance()->__playselectedinstrument ){
+			AudioEngine::get_instance()->get_sampler()->midi_keyboard_note_off( msg.m_nData1 );
+		}else
+		{
+			Note *offnote = new Note( pInstr,
+						0.0,
+						0.0,
+						0.0,
+						0.0,
+						-1,
+						0 );
+			offnote->set_noteoff( true );
+			AudioEngine::get_instance()->get_sampler()->note_on( offnote );
+		}
 		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
 	}
 }

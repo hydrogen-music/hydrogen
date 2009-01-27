@@ -206,6 +206,13 @@ public:
 		return __noteoff;
 	}
 
+	void set_midimsg1( int midimsg ) {
+		__midimsg1 = midimsg;
+	}
+	int get_midimsg1() const {
+		return __midimsg1;
+	}
+
 	
 
 
@@ -220,6 +227,7 @@ private:
 
 	int __lenght;
 	float __pitch;
+	int __midimsg1;
 
 };
 

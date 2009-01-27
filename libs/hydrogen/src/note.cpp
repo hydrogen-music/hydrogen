@@ -54,6 +54,7 @@ Note::Note(
 		, __velocity( velocity )
 		, __leadlag( 0.0 )
 		, __noteoff( false)
+		, __midimsg1(-1)
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );
@@ -77,6 +78,7 @@ Note::Note( const Note* pNote )
 	set_lenght(	pNote->get_lenght()	);
 	set_pitch(	pNote->get_pitch()	);
 	set_noteoff(	pNote->get_noteoff()	);
+	set_midimsg1(	pNote->get_midimsg1()	);
 	m_noteKey	=	pNote->m_noteKey;
 	m_fCutoff	=	pNote->m_fCutoff;
 	m_fResonance	=	pNote->m_fResonance;

@@ -153,21 +153,20 @@ void Sampler::note_on( Note *note )
 	//infoLog( "[noteOn]" );
 	assert( note );
 
-	// mute groups
 	Instrument *pInstr = note->get_instrument();
+
+	// mute groups	
 	if ( pInstr->get_mute_group() != -1 ) {
 		// remove all notes using the same mute group
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
 			Note *pNote = __playing_notes_queue[ j ];
-
 			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == pInstr->get_mute_group() ) ) {
-				ERRORLOG("release");
 				pNote->m_adsr.release();
 			}
-			
 		}
 	}
-	
+
+	//note off notes	
 	if( note->get_noteoff() ){
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
 			Note *pNote = __playing_notes_queue[ j ];
@@ -175,9 +174,8 @@ void Sampler::note_on( Note *note )
 			if ( ( pNote->get_instrument() == pInstr ) ) {
 				//ERRORLOG("note_off");
 				pNote->m_adsr.release();
-			}
-			
-		}		
+			}	
+		}
 	}
 	
 	pInstr->enqueue();
@@ -189,27 +187,16 @@ void Sampler::note_on( Note *note )
 	}
 }
 
-
-
-void Sampler::stop_note_on( Note* note )
+void Sampler::midi_keyboard_note_off( int key )
 {
-//	assert( note );
-/*
-	Instrument *pInstr = note->get_instrument();
 	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
 		Note *pNote = __playing_notes_queue[ j ];
 
-		if ( ( pNote->get_instrument() == pInstr ) ) {
-			ERRORLOG("fucj_off");
+		if ( ( pNote->get_midimsg1() == key) ) {
 			pNote->m_adsr.release();
-		}
-		
+		}	
 	}
-	pInstr->enqueue();
-*/
-	note_on( note );
 }
-
 
 
 void Sampler::note_off( Note* note )
