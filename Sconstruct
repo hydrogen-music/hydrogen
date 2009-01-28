@@ -74,7 +74,6 @@ def get_platform_flags( opts ):
 		cppflags.append('-DLADSPA_SUPPORT')
 		
 
-		if str(env['lash']) == "1": includes.append( '/usr/lib/lash-1.0' )
 
 	if str(env['libarchive']) == "1": cppflags.append('-DLIBARCHIVE_SUPPORT')
 
