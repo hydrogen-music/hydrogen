@@ -803,12 +803,24 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 				QString sOrigFilename = pSample->get_filename();
 
 				QString sDestFilename = sOrigFilename;
+		
+				/*
+					Till rev. 743, the samples got copied into the
+					root of the drumkit folder.
+					
+					Now the sample gets only copied to the folder
+					if it doesn't reside in a subfolder of the drumkit dir.
+				*/
+			
+				if( sOrigFilename.startsWith( sDrumkitDir ) ){
+					INFOLOG("sample is already in drumkit dir");
+				} else {
+					int nPos = sDestFilename.lastIndexOf( '/' );
+					sDestFilename = sDestFilename.mid( nPos + 1, sDestFilename.size() - nPos - 1 );
+					sDestFilename = sDrumkitDir + "/" + sDestFilename;
 
-				int nPos = sDestFilename.lastIndexOf( '/' );
-				sDestFilename = sDestFilename.mid( nPos + 1, sDestFilename.size() - nPos - 1 );
-				sDestFilename = sDrumkitDir + "/" + sDestFilename;
-
-				fileCopy( sOrigFilename, sDestFilename );
+					fileCopy( sOrigFilename, sDestFilename );
+				}
 			}
 		}
 
@@ -841,11 +853,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 			QString sFilename = pSample->get_filename();
 
-			//if (instr->getDrumkitName() != "") {
-			// se e' specificato un drumkit, considero solo il nome del file senza il path
-			int nPos = sFilename.lastIndexOf( "/" );
-			sFilename = sFilename.mid( nPos + 1, sFilename.length() );
-			//}
+			sFilename = sFilename.remove( sDrumkitDir + "/" );
 
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", sFilename );
