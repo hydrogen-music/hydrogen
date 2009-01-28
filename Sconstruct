@@ -448,7 +448,7 @@ print "      lash: " + printStatus( env["lash"] )
 print "      oss: " + printStatus( env["oss"] )
 print "      alsa: " + printStatus( env["alsa"] )
 print "      jack: " + printStatus( env["jack"] )
-print "libarchive: " + printStatus( env["libarchive"] ) + (' (using libtar instead)', '')[env['libarchive']]
+print "libarchive: " + printStatus( env["libarchive"] ) 
 print " portaudio: " + printStatus( env["portaudio"] )
 print "  portmidi: " + printStatus( env["portmidi"] ) 
 if sys.platform == "darwin":
