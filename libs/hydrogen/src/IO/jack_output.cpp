@@ -373,7 +373,7 @@ void JackOutput::updateTransportInfo()
 					//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
 					//if we remove this we also can remove *m_pEngine from header
 					if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
-						m_transport.m_nFrames = m_JackTransportPos.frame - bbt_frame_offset;
+						m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/; ///see comment in svn changeset 753
 					}
 					else
 					{
