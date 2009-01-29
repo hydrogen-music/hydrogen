@@ -67,10 +67,10 @@ def get_platform_flags( opts ):
                 if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
 		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
 		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
+                if str(env['flac']) == "1": cppflags.append('-DFLAC_SUPPORT')
 		
 		if sys.platform == "darwin" and str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
 
-		cppflags.append('-DFLAC_SUPPORT')
 		cppflags.append('-DLADSPA_SUPPORT')
 		
 
