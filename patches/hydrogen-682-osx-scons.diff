@@ -1,0 +1,94 @@
+Index: Sconstruct
+===================================================================
+--- Sconstruct	(revision 682)
++++ Sconstruct	(working copy)
+@@ -61,6 +61,7 @@
+                 if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
+ 		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
+ 		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
++		if str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
+ 
+ 
+ 		cppflags.append('-DFLAC_SUPPORT')
+@@ -79,7 +80,8 @@
+ 		ldflags.append('-lasound')
+ 
+ 	elif sys.platform == 'darwin':
+-		pass
++		includes.append( [ '/sw/include', '/usr/local/include' ] )
++		ldflags.append( [ '-L/sw/lib', '-F/sw/lib', '-F/sw/lib/qt4-mac/lib', '-L/usr/local/lib' ] )
+ 	elif sys.platform == "win32":
+ 		includes.append( '3rdparty\install\include' )
+ 		includes.append( 'build\pthreads\include' )
+@@ -218,6 +220,7 @@
+ 
+ 	env.Append( LIBS = lib_hydrogen )
+ 	env.Append( LIBS = ["sndfile"] )
++	env.AppendUnique( LIBS = ['z'] )
+ 	
+ 	if str(env['lrdf']) == "1": env.Append( LIBS = ["lrdf"] )
+ 	if str(env['flac']) == "1": env.Append( LIBS = ["FLAC","FLAC++"] )
+@@ -226,6 +229,10 @@
+ 	if str(env['alsa']) == "1": env.Append( LIBS = ["asound"])
+ 	if str(env['libarchive']) == "1": env.Append( LIBS = ["archive"])
+ 	else: env.Append( LIBS = ["tar"])
++	if str(env['coreaudio']) == "1":
++		env.Append( LINKFLAGS = ['-framework','ApplicationServices'])
++		env.Append( LINKFLAGS = ['-framework','AudioUnit'])
++		env.Append( LINKFLAGS = ['-framework','Coreaudio'])
+ 	if str(env['portaudio']) == "1": env.Append( LIBS = [ "portaudio" ] )
+ 	if str(env['portmidi']) == "1":
+ 		env.Append( LIBS = [ "portmidi" ] )
+@@ -275,6 +282,8 @@
+ opts.Add('DESTDIR','Default: none',"")
+ 
+ #platform dependent settings
++if sys.platform == "darwin":
++	opts.Add('coreaudio', 'Set to 1 to enable Coreaudio',1)
+ if sys.platform != "win32":
+ 	opts.Add('oss', 'Set to 1 to enable oss',1)
+ 
+@@ -329,8 +338,8 @@
+ 
+ #just download 3rd party libs if we're *not* running linux.
+ #We trust in our package managment system!
+-if platform == "darwin" or platform == "win32":
+-    download_3rdparty_libs()
++#if platform == "darwin" or platform == "win32":
++#    download_3rdparty_libs()
+ 
+ 
+ 
+@@ -422,6 +431,8 @@
+ print "libarchive: " + printStatus( env["libarchive"] ) + (' (using libtar instead)', '')[env['libarchive']]
+ print " portaudio: " + printStatus( env["portaudio"] )
+ print "  portmidi: " + printStatus( env["portmidi"] ) 
++if sys.platform == "darwin":
++	print " coreaudio: " + printStatus( env["coreaudio"] )
+ 
+ print "\n================================================================="
+ print ""
+Index: qt4.py
+===================================================================
+--- qt4.py	(revision 682)
++++ qt4.py	(working copy)
+@@ -498,15 +498,15 @@
+ #			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
+ #			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include",module)])
+ # port qt4-mac:
+-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include", "qt4")])
+-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include", "qt4", module)])
++			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
++			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include", module)])
+ 			if module in staticModules :
+ 				self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
+ 				self.AppendUnique(LIBPATH=[os.path.join("$QTDIR","lib")])
+ 			else :
+-#				self.Append(LINKFLAGS=['-framework', module])
++				self.Append(LINKFLAGS=['-framework', module])
+ # port qt4-mac:
+-				self.Append(LIBS=module)
++#				self.Append(LIBS=module)
+ 		if 'QtOpenGL' in modules:
+ 			self.AppendUnique(LINKFLAGS="-F/System/Library/Frameworks")
+ 			self.Append(LINKFLAGS=['-framework', 'AGL']) #TODO ughly kludge to avoid quotes

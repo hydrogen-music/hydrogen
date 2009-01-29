@@ -131,7 +131,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	if ( ev->x() < 10 ) {
 		return;
 	}
-	WARNINGLOG( "editor-pressed" );
+	//WARNINGLOG( "editor-pressed" );
 
 	int nRow = ev->y() / m_nGridHeight;
 	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;

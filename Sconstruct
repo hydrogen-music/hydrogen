@@ -67,14 +67,13 @@ def get_platform_flags( opts ):
                 if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
 		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
 		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
+                if str(env['flac']) == "1": cppflags.append('-DFLAC_SUPPORT')
 		
 		if sys.platform == "darwin" and str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
 
-		cppflags.append('-DFLAC_SUPPORT')
 		cppflags.append('-DLADSPA_SUPPORT')
 		
 
-		if str(env['lash']) == "1": includes.append( '/usr/lib/lash-1.0' )
 
 	if str(env['libarchive']) == "1": cppflags.append('-DLIBARCHIVE_SUPPORT')
 
@@ -170,6 +169,8 @@ def get_hydrogen_lib( opts ):
 
 	includes.append( "libs/hydrogen/include" )
 	
+	env = Environment( options = opts ) 
+	if str(env['lash']) == "1": includes.append( "/usr/include/lash-1.0")
 
 
 	#location of qt4.py
@@ -183,7 +184,6 @@ def get_hydrogen_lib( opts ):
         if str(env['jack']) == "1":
             env.ParseConfig('pkg-config --modversion jack', get_jack_api_flags)
 
-	if str(env['lash']) == "1": includes.append( "/usr/include/lash-1.0")
 
 	#env.Decider is not known in older scons version
 	try:
@@ -448,7 +448,7 @@ print "      lash: " + printStatus( env["lash"] )
 print "      oss: " + printStatus( env["oss"] )
 print "      alsa: " + printStatus( env["alsa"] )
 print "      jack: " + printStatus( env["jack"] )
-print "libarchive: " + printStatus( env["libarchive"] ) + (' (using libtar instead)', '')[env['libarchive']]
+print "libarchive: " + printStatus( env["libarchive"] ) 
 print " portaudio: " + printStatus( env["portaudio"] )
 print "  portmidi: " + printStatus( env["portmidi"] ) 
 if sys.platform == "darwin":
