@@ -819,15 +819,15 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	uint nEighth = MAX_NOTES / 8;
 	int nSelected = str.toInt();
 
+	if ( !m_pPattern ) {
+		return;
+	}
+
 	if ( m_pPattern->get_lenght() == nEighth * nSelected ) {
 		// non e' necessario aggiornare
 		return;
 	}
 
-
-	if ( !m_pPattern ) {
-		return;
-	}
 
 	if ( !m_bEnablePatternResize ) {
 		__pattern_size_combo->set_text(QString::number(m_pPattern->get_lenght() / nEighth ),false);
