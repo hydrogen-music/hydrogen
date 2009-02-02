@@ -65,6 +65,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 		}
 	}
 
+	defaultNameCheck( pattern->get_name() );
 	okBtn->setEnabled(true);
 }
 
@@ -106,6 +107,18 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	pattern->set_name(pattName);
 	pattern->set_category( pattCategory );
 	accept();
+}
+
+void PatternPropertiesDialog::defaultNameCheck( QString pattName )
+{
+
+	PatternList *patternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	
+	for (uint i = 0; i < patternList->get_size(); i++) {
+		if ( patternList->get(i)->get_name() == pattName) {
+				patternNameTxt->setText( trUtf8( "%1#2").arg(patternList->get(i)->get_name()) );
+		}
+	}
 }
 
 
