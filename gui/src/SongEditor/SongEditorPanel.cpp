@@ -338,9 +338,10 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
+	int emptyPatternNo = patternList->get_size() + 1;
 
 	Pattern *emptyPattern = Pattern::get_empty_pattern();
-	emptyPattern->set_name( trUtf8("Pattern") );
+	emptyPattern->set_name( trUtf8("Pattern %1").arg(emptyPatternNo) );
 	emptyPattern->set_category( trUtf8("not_categorized") );
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern );

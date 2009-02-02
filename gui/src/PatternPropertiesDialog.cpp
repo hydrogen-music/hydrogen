@@ -64,6 +64,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 			categoryComboBox->addItem( *cur_patternCategories );
 		}
 	}
+
+	okBtn->setEnabled(true);
 }
 
 
