@@ -74,7 +74,7 @@ public:
 	*/
 
 	static Song* get_empty_song();
-
+	static Song* get_default_song();
 
 	Song( const QString& name, const QString& author, float bpm, float volume );
 	~Song();

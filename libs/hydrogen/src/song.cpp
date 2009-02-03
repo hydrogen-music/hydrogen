@@ -127,19 +127,10 @@ bool Song::save( const QString& filename )
 }
 
 
+/// Create default song
+Song* Song::get_default_song(){
+		Song *song = new Song( "empty", "hydrogen", 120, 0.5 );
 
-/// Return an empty song
-Song* Song::get_empty_song()
-{
-	QString dataDir = DataPath::get_data_path();
-	QString filename = dataDir + "/DefaultSong.h2song";
-	Song *song = Song::load( filename );
-	
-	/* if file DefaultSong.h2song not accessible
-	 * create a simple default song.
-	 */
-	if(!song){
-		song = new Song( "empty", "hydrogen", 120, 0.5 );
 		song->set_metronome_volume( 0.5 );
 		song->set_notes( "..." );
 		song->set_license( "" );
@@ -171,6 +162,28 @@ Song* Song::get_empty_song()
 		song->set_pattern_group_vector( pPatternGroupVector );
 		song->__is_modified = false;
 		song->set_filename( "empty_song" );
+		
+		return song;
+}
+
+/// Return an empty song
+Song* Song::get_empty_song()
+{
+	QString dataDir = DataPath::get_data_path();	
+	QString filename = dataDir + "/DefaultSong.h2song";
+
+	if( ! QFile::exists( filename ) ){
+		_ERRORLOG("File " + filename + " exists not. Failed to load default song.");
+		filename = dataDir + "/DefaultSong.h2song";
+	}
+	
+	Song *song = Song::load( filename );
+	
+	/* if file DefaultSong.h2song not accessible
+	 * create a simple default song.
+	 */
+	if(!song){
+		song = Song::get_default_song();
 	}
 
 	return song;
