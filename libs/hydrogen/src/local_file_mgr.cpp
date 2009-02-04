@@ -45,6 +45,7 @@
 
 #include <QDir>
 #include <QApplication>
+#include <QVector>
 
 #include "xml/tinyxml.h"
 
@@ -773,6 +774,8 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	INFOLOG( "[saveDrumkit]" );
 	info->dump();	// debug
 
+	QVector<QString> tempVector(16);
+
 	QString sDrumkitDir = Preferences::getInstance()->getDataDirectory() + "drumkits/" + info->getName();
 
 	// check if the directory exists
@@ -831,6 +834,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 					sDestFilename = sDrumkitDir + "/" + sDestFilename;
 
 					fileCopy( sOrigFilename, sDestFilename );
+					tempVector[ nLayer ] = sDestFilename;
 				}
 			}
 		}
@@ -868,7 +872,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			sFilename = sFilename.remove( sDrumkitDir + "/" );
 
 			TiXmlElement layerNode( "layer" );
-			LocalFileMng::writeXmlString( &layerNode, "filename", sFilename );
+			LocalFileMng::writeXmlString( &layerNode, "filename", tempVector[ nLayer ] );
 			LocalFileMng::writeXmlString( &layerNode, "min", to_string( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( &layerNode, "max", to_string( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( &layerNode, "gain", to_string( pLayer->get_gain() ) );

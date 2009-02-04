@@ -127,13 +127,64 @@ bool Song::save( const QString& filename )
 }
 
 
+/// Create default song
+Song* Song::get_default_song(){
+		Song *song = new Song( "empty", "hydrogen", 120, 0.5 );
+
+		song->set_metronome_volume( 0.5 );
+		song->set_notes( "..." );
+		song->set_license( "" );
+		song->set_loop_enabled( false );
+		song->set_mode( Song::PATTERN_MODE );
+		song->set_humanize_time_value( 0.0 );
+		song->set_humanize_velocity_value( 0.0 );
+		song->set_swing_factor( 0.0 );
+
+		InstrumentList* pList = new InstrumentList();
+		Instrument *pNewInstr = new Instrument(to_string( 0 ), "New instrument", new ADSR());
+		pList->add( pNewInstr );
+		song->set_instrument_list( pList );
+		
+		#ifdef JACK_SUPPORT
+		Hydrogen::get_instance()->renameJackPorts();
+		#endif
+
+		PatternList *patternList = new PatternList();
+		Pattern *emptyPattern = Pattern::get_empty_pattern(); 
+		emptyPattern->set_name( QString("Pattern 1") ); 
+		emptyPattern->set_category( QString("not_categorized") );
+		patternList->add( emptyPattern );
+		song->set_pattern_list( patternList );
+		std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+		PatternList *patternSequence = new PatternList();
+		patternSequence->add( emptyPattern );
+		pPatternGroupVector->push_back( patternSequence );
+		song->set_pattern_group_vector( pPatternGroupVector );
+		song->__is_modified = false;
+		song->set_filename( "empty_song" );
+		
+		return song;
+}
 
 /// Return an empty song
 Song* Song::get_empty_song()
 {
-	QString dataDir = DataPath::get_data_path();
+	QString dataDir = DataPath::get_data_path();	
 	QString filename = dataDir + "/DefaultSong.h2song";
+
+	if( ! QFile::exists( filename ) ){
+		_ERRORLOG("File " + filename + " exists not. Failed to load default song.");
+		filename = dataDir + "/DefaultSong.h2song";
+	}
+	
 	Song *song = Song::load( filename );
+	
+	/* if file DefaultSong.h2song not accessible
+	 * create a simple default song.
+	 */
+	if(!song){
+		song = Song::get_default_song();
+	}
 
 	return song;
 }
