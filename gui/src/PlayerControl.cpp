@@ -581,7 +581,7 @@ void PlayerControl::updatePlayerControl()
 
 
 	//beatcounter get BC message
-	char bcstatus[3];
+	char bcstatus[4];
 	int beatstocountondisplay = 1;
 	beatstocountondisplay = m_pEngine->getBcStatus();
 
