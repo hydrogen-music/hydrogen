@@ -753,7 +753,7 @@ void PlayerControl::bcSetPlayBtnClicked( Button* )
 void PlayerControl::bcbButtonClicked( Button* bBtn)
 {
 	int tmp = m_pEngine->getbeatsToCount();
-	char tmpb[2];       // m_pBCBUpBtn
+	char tmpb[3];       // m_pBCBUpBtn
 		if ( bBtn == m_pBCBUpBtn ) {
 			tmp ++;
 			if (tmp > 16)
@@ -788,7 +788,7 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 {
 	float tmp = m_pEngine->getNoteLengh() * 4; 
 	
-	char tmpt[1];       // m_pBCBUpBtn
+	char tmpt[2];       // m_pBCBUpBtn
 	if ( tBtn == m_pBCTUpBtn) {
 			tmp = tmp / 2 ;
 			if (tmp < 1)
