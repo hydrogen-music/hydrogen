@@ -32,6 +32,7 @@
 
 #include <CoreMidi/CoreMidi.h>
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 
 namespace H2Core
 {
@@ -48,14 +49,16 @@ public:
 	virtual void close();
 	virtual std::vector<QString> getOutputPortList();
 	
-	virtual void handleQueueNote(Note* pNote) {}
-	virtual void handleQueueAllNoteOff() {}
+	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueAllNoteOff();
 
 	MIDIClientRef  h2MIDIClient;
 	ItemCount cmSources;
 	MIDIEndpointRef cmH2Src;
 
 	MIDIPortRef h2InputRef;
+	MIDIPortRef h2OutputRef;
+	MIDIEndpointRef cmH2Dst;
 
 };
 
