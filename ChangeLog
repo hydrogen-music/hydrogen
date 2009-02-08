@@ -1,4 +1,4 @@
-2008-xx-xx Alessandro Cominu <comix@users.sourceforge.net>
+2009-xx-xx Alessandro Cominu <comix@users.sourceforge.net>
 	* Release 0.9.4
 	* QT4 port
 	* Autosave
@@ -11,6 +11,10 @@
 	* Playlist editor
 	* MMC
 	* Lead / lag (pattern editor) 
+	* Audiofilebrowser
+	* midiAutosense
+	* added croation translation
+	* change post masterfader fx_return to pre masterfader fx_return
 
 2008-02-05 Alessandro Cominu <comix@users.sourceforge.net>
 	* Release 0.9.3.1

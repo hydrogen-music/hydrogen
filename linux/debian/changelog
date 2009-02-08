@@ -1,4 +1,27 @@
-hydrogen (0.9.4beta2) unstable; urgency=low
+hydrogen (0.9.4beta3) unstable; urgency=low
+
+  * Version 0.9.4 beta3
+
+  * over 39 bug fixes since beta2
+  * if file DefaultSong.h2song not accessible we create a simple default song
+  * patternpropertiesdialog improvements
+  * added portaudio v19 patch
+  * added "patches" dir
+  * added optflags option to Scons
+  * change post masterfader fx_return to pre masterfader fx_return
+  * Replace jack_client_new() with jack_client_open().
+  * added croation translation
+  * added support for coreaudio / several osx improvements
+  * keyboard now works with AZERTY and QWERTZ layouts
+  * add desktop files
+  * added new graphic: record icon for midi dialog
+  * merge the audio-file-browser branch
+  * add french translation files from Yan Morin
+  * current loaded drumkit have different background color in soundlibrary
+  * added label which displays the loaded soundlibrary
+  * added "panic" midi event / shortcut (F12)
+  * added russian translation
+
 
   * Version 0.9.4 beta2
   

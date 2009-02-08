@@ -1827,49 +1827,81 @@ void Hydrogen::addRealtimeNote( int instrument,
 		}
 	}
 
+	// Get current partern and column, compensating for "lookahead" if required
 	Pattern* currentPattern = NULL;
-	if ( m_pSong->get_mode() == Song::PATTERN_MODE ||
-	   ( !Preferences::getInstance()->__recordsong && m_audioEngineState != STATE_PLAYING )){
+	unsigned int column = 0;
+	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
+	if ( m_pSong->get_mode() == Song::SONG_MODE &&
+			Preferences::getInstance()->__recordsong &&
+			m_audioEngineState == STATE_PLAYING ) {
+
+		// Song-record mode + song playback mode + actually playing
+		PatternList *pPatternList = m_pSong->get_pattern_list();
+		int ipattern = getPatternPos(); // playlist index
+		if ( ipattern < 0 || ipattern >= (int) pPatternList->get_size() ) {
+			AudioEngine::get_instance()->unlock(); // unlock the audio engine
+			return;
+		}
+		// Locate column -- may need to jump back in the pattern list
+		column = getTickPosition();
+		while ( column < lookaheadTicks ) {
+			ipattern -= 1;
+			if ( ipattern < 0 || ipattern >= (int) pPatternList->get_size() ) {
+				AudioEngine::get_instance()->unlock(); // unlock the audio engine
+				return;
+			}
+			// Convert from playlist index to actual pattern index
+	 		std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector();
+ 			for ( int i = 0; i <= ipattern; ++i ) {
+ 				PatternList *pColumn = ( *pColumns )[i];
+ 				currentPattern = pColumn->get( 0 );
+			}
+			column = column + currentPattern->get_lenght();
+			WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
+				"," + to_string( (int) ( column - currentPattern->get_lenght() ) -
+				(int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
+				"," + to_string( (int) column - (int) lookaheadTicks ) + ")." );
+		}
+		column -= lookaheadTicks;
+		// Convert from playlist index to actual pattern index (if not already done above)
+		if ( currentPattern == NULL ) {
+			std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector();
+                        for ( int i = 0; i <= ipattern; ++i ) {
+                                PatternList *pColumn = ( *pColumns )[i];
+                                currentPattern = pColumn->get( 0 );
+                        }
+		}
+
+	} else {
+
+		// Not song-record mode
 		PatternList *pPatternList = m_pSong->get_pattern_list();
 		if ( ( m_nSelectedPatternNumber != -1 )
 		&& ( m_nSelectedPatternNumber < ( int )pPatternList->get_size() ) ) {
 			currentPattern = pPatternList->get( m_nSelectedPatternNumber );
 		}
-	}else
-	{
-		std::vector<PatternList*> *pColumns = m_pSong->get_pattern_group_vector();
-//		Pattern *pPattern = NULL;
-		int pos = getPatternPos() +1;
-		for ( int i = 0; i < pos; ++i ) {
-			PatternList *pColumn = ( *pColumns )[i];
-			currentPattern = pColumn->get( 0 );	
+		if( currentPattern == NULL ){
+			AudioEngine::get_instance()->unlock(); // unlock the audio engine
+			return;
 		}
-	}
+		// Locate column -- may need to wrap around end of pattern
+		column = getTickPosition();
+		if ( column >= lookaheadTicks ) {
+ 			column -= lookaheadTicks;
+ 		} else {
+ 			lookaheadTicks %= currentPattern->get_lenght();
+ 			column = (column + currentPattern->get_lenght() - lookaheadTicks)
+ 				% currentPattern->get_lenght();
+		}
 
-	if( currentPattern == NULL ){
-		AudioEngine::get_instance()->unlock(); // unlock the audio engine
-		return;
-	}
-
-	// Get current column and compensate for "lookahead"
-	unsigned int column = getTickPosition();
-	unsigned int lookaheadTicks = m_nLookaheadFrames
-		/ m_pAudioDriver->m_transport.m_nTickSize;
-	if ( column >= lookaheadTicks ) {
-		column -= lookaheadTicks;
-	} else {
-		lookaheadTicks %= currentPattern->get_lenght();
-		column = (column + currentPattern->get_lenght() - lookaheadTicks)
-			% currentPattern->get_lenght();
 	}
 
 	realcolumn = getRealtimeTickPosition();
 
-	// quantize it to scale
-	int qcolumn = ( int )::round( column / ( double )scalar ) * scalar;
-	if ( qcolumn == MAX_NOTES ) qcolumn = 0;
-
 	if ( pref->getQuantizeEvents() ) {
+		// quantize it to scale
+		int qcolumn = ( int )::round( column / ( double )scalar ) * scalar;
+		if ( qcolumn == MAX_NOTES ) qcolumn = 0;
 		column = qcolumn;
 	}
 
