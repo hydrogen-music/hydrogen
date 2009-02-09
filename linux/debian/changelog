@@ -21,7 +21,7 @@ hydrogen (0.9.4beta3) unstable; urgency=low
   * added label which displays the loaded soundlibrary
   * added "panic" midi event / shortcut (F12)
   * added russian translation
-
+  * added brazilian portuguese translation
 
   * Version 0.9.4 beta2
   
