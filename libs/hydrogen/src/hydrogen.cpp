@@ -1719,6 +1719,8 @@ Hydrogen::Hydrogen()
 	hydrogenInstance = this;
 // 	__instance = this;
 	audioEngine_init();
+    	// Prevent double creation caused by calls from MIDI thread
+    	__instance = this;
 	audioEngine_startAudioDrivers();
 
 }
