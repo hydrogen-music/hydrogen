@@ -88,6 +88,7 @@ class PlayerControl : public QLabel, public Object
 		void showScrollMessage( const QString& msg, int msec, bool test );
 
 	private slots:
+		void recBtnClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -123,6 +124,7 @@ class PlayerControl : public QLabel, public Object
 		QPixmap m_background;
 
 		Button *m_pRwdBtn;
+		ToggleButton *m_pRecBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;

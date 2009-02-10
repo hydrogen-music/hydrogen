@@ -140,22 +140,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//editor_top_hbox->addWidget(__resolution_combo);
 
 
-//wolke some background images hear note rec quant
-//record midi/keyboard events
-	QComboBox *recordMidi = new QComboBox( NULL );
-	recordMidi->setFixedSize( 60, 20 );
-	recordMidi->move( 2, 1 );
-	recordMidi->addItem ( QString( "off" ));
-	recordMidi->addItem ( QString( "pattern" ));
-	recordMidi->addItem ( QString( "song" ));
-	recordMidi->setToolTip( trUtf8( "Record keyboard/midi events to Pattern or to Song" ) );
-	editor_top_hbox_2->addWidget( recordMidi );
-	bool recevent = pPref->getRecordEvents();
-	if ( recevent ) recordMidi->setCurrentIndex( 1 );
-	connect( recordMidi, SIGNAL( currentIndexChanged( int ) ), this, SLOT( selectRecord( int) ) );
-
-
-
 	PixmapWidget *pRec = new PixmapWidget( NULL );
 	pRec->setFixedSize( 110, 20 );
 	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
@@ -1010,32 +994,3 @@ void PatternEditorPanel::rightclickSelect( QString text )
 	}
 
 }
-
-void PatternEditorPanel::selectRecord( int index )
-{
-	Preferences *pref = ( Preferences::getInstance() );
-	switch ( index ){
-		case 0:
-			{
-			pref->setRecordEvents( false );
-			( HydrogenApp::getInstance() )->setScrollStatusBarMessage( trUtf8( "Record keyboard/midi events = Off" ), 2000 );
-			break;
-			}
-		case 1:
-			{
-			pref->setRecordEvents( true );
-			HydrogenApp::getInstance()->setScrollStatusBarMessage( trUtf8( "Record keyboard/midi events = On, record into the selected pattern" ), 2000 );
-			pref->__recordsong = false;
-			break;
-			}
-		case 2:
-			{
-			pref->setRecordEvents( true );
-			HydrogenApp::getInstance()->setScrollStatusBarMessage( trUtf8( "Record keyboard/midi events = On, record into the whole song" ), 2000 );
-			pref->__recordsong = true;
-			break;
-			}
-	}
-
-}
-

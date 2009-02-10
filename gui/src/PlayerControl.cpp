@@ -65,7 +65,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( NULL );
-	pControlsPanel->setFixedSize( 317, 43 );
+	pControlsPanel->setFixedSize( 344, 43 );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
 	hbox->addWidget( pControlsPanel );
 
@@ -97,6 +97,19 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRwdBtn->setToolTip( trUtf8("Rewind") );
 	connect(m_pRwdBtn, SIGNAL(clicked(Button*)), this, SLOT(RewindBtnClicked(Button*)));
 
+	// Record button
+	m_pRecBtn = new ToggleButton(
+			pControlsPanel,
+			"/playerControlPanel/btn_rec_on.png",
+			"/playerControlPanel/btn_rec_off.png",
+			"/playerControlPanel/btn_rec_over.png",
+			QSize(21, 15)
+	);
+	m_pRecBtn->move(195, 17);
+	m_pRecBtn->setPressed(false);
+	m_pRecBtn->setToolTip( trUtf8("Record") );
+	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
+
 	// Play button
 	m_pPlayBtn = new ToggleButton(
 			pControlsPanel,
@@ -105,7 +118,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_play_over.png",
 			QSize(26, 17)
 	);
-	m_pPlayBtn->move(195, 17);
+	m_pPlayBtn->move(222, 17);
 	m_pPlayBtn->setPressed(false);
 	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
@@ -118,7 +131,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_stop_over.png",
 			QSize(21, 15)
 	);
-	m_pStopBtn->move(227, 17);
+	m_pStopBtn->move(254, 17);
 	m_pStopBtn->setToolTip( trUtf8("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(stopBtnClicked(Button*)));
 
@@ -130,7 +143,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_ffwd_over.png",
 			QSize(21, 15)
 	);
-	m_pFfwdBtn->move(254, 17);
+	m_pFfwdBtn->move(281, 17);
 	m_pFfwdBtn->setToolTip( trUtf8("Fast Forward") );
 	connect(m_pFfwdBtn, SIGNAL(clicked(Button*)), this, SLOT(FFWDBtnClicked(Button*)));
 
@@ -142,7 +155,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_loop_over.png",
 			QSize(21, 15)
 	);
-	m_pSongLoopBtn->move(283, 17);
+	m_pSongLoopBtn->move(310, 17);
 	m_pSongLoopBtn->setToolTip( trUtf8("Loop song") );
 	connect( m_pSongLoopBtn, SIGNAL( clicked(Button*) ), this, SLOT( songLoopBtnClicked(Button*) ) );
 //~ CONTROLS
@@ -465,6 +478,13 @@ void PlayerControl::updatePlayerControl()
 		m_pPlayBtn->setPressed(false);
 	}
 
+	if (pPref->getRecordEvents()) {
+		m_pRecBtn->setPressed(true);
+	}
+	else {
+		m_pRecBtn->setPressed(false);
+	}
+
 	Song *song = m_pEngine->getSong();
 
 	m_pSongLoopBtn->setPressed( song->is_loop_enabled() );
@@ -609,6 +629,20 @@ void PlayerControl::updatePlayerControl()
 }
 
 
+
+/// Toggle record mode
+void PlayerControl::recBtnClicked(Button* ref) {
+	if ( m_pEngine->getState() != STATE_PLAYING ) {
+		if (ref->isPressed()) {
+			Preferences::getInstance()->setRecordEvents(true);
+			(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Record midi events = On" ), 2000 );
+		}
+		else {
+			Preferences::getInstance()->setRecordEvents(false);
+			(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Record midi events = Off" ), 2000 );
+		}
+	}
+}
 
 
 /// Start audio engine

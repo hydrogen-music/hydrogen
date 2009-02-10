@@ -125,7 +125,7 @@ Preferences::Preferences()
 	__playsamplesonclicking = false; // audio file browser
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 	__rightclickedpattereditor = false; //right click into pattern editor add note-off-note or edit note-length
-	__recordsong = false;//  midi keys and keys can record m_playingpattern in songmode
+	recordEvents = false; // not recording by default
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings
@@ -238,7 +238,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bsetLash = m_bUseLash;
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
-			recordEvents = LocalFileMng::readXmlBool( rootNode, "recordEvents", recordEvents );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
 
 			TiXmlNode* pRecentUsedSongsNode = rootNode->FirstChild( "recentUsedSongs" );
@@ -570,7 +569,6 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( &rootNode, "hearNewNotes", hearNewNotes ? "true": "false" );
 
 	// key/midi event prefs
-	LocalFileMng::writeXmlString( &rootNode, "recordEvents", recordEvents ? "true": "false" );
 	LocalFileMng::writeXmlString( &rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
 
 	// Recent used songs

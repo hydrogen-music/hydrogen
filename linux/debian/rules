@@ -28,7 +28,7 @@ install: build
 	dh_installdirs
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
 
-	cd ..; scons --no-cache destdir=$(CURDIR)/debian/hydrogen/ prefix=/usr/ install
+	cd ..; scons --no-cache DESTDIR=$(CURDIR)/debian/hydrogen/ prefix=/usr/ install
 
 	find $(CURDIR)/debian/hydrogen -name '.svn' | xargs rm -rf
 docs:

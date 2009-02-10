@@ -1765,6 +1765,7 @@ void Hydrogen::sequencer_play()
 void Hydrogen::sequencer_stop()
 {
 	m_pAudioDriver->stop();
+	Preferences::getInstance()->setRecordEvents(false);
 }
 
 
@@ -1831,11 +1832,10 @@ void Hydrogen::addRealtimeNote( int instrument,
 	Pattern* currentPattern = NULL;
 	unsigned int column = 0;
 	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
-	if ( m_pSong->get_mode() == Song::SONG_MODE &&
-			Preferences::getInstance()->__recordsong &&
+	if ( m_pSong->get_mode() == Song::SONG_MODE && pref->getRecordEvents() &&
 			m_audioEngineState == STATE_PLAYING ) {
 
-		// Song-record mode + song playback mode + actually playing
+		// Recording + song playback mode + actually playing
 		PatternList *pPatternList = m_pSong->get_pattern_list();
 		int ipattern = getPatternPos(); // playlist index
 		if ( ipattern < 0 || ipattern >= (int) pPatternList->get_size() ) {
