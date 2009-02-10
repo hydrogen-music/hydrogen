@@ -1038,7 +1038,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	m_pEditBtn->setToolTip( trUtf8( "Edit FX parameters") );
 	connect( m_pEditBtn, SIGNAL( clicked(Button*) ), this, SLOT( click(Button*) ) );
 
-	// instrument name widget
+	// effect name widget
 	m_pNameLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 13 );
 	m_pNameLCD->move( 11, 9 );
 	m_pNameLCD->setText( "No name" );
