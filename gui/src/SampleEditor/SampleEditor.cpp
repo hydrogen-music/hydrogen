@@ -89,10 +89,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	intDisplays();
 	getAllFrameInfos();
 
-//	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
-//	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
-//	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
-
 }
 
 
