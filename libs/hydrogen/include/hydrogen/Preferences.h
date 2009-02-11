@@ -151,6 +151,7 @@ public:
 	bool __playselectedinstrument; // midi keys and keys play instrument or drumset
 	bool __rightclickedpattereditor; //right click into pattern editor add note-off-note or edit note-length 
 
+	int m_nRecPreDelete; //index of record note pre delete function 0 = off  
 
 	bool m_bFollowPlayhead;
 	

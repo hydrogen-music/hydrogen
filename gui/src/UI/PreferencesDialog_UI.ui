@@ -118,7 +118,7 @@
      <x>10</x>
      <y>10</y>
      <width>541</width>
-     <height>381</height>
+     <height>376</height>
     </rect>
    </property>
    <property name="sizePolicy" >
@@ -137,14 +137,6 @@
     <number>0</number>
    </property>
    <widget class="QWidget" name="tab_1" >
-    <property name="geometry" >
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>537</width>
-      <height>355</height>
-     </rect>
-    </property>
     <attribute name="title" >
      <string>&amp;General</string>
     </attribute>
@@ -247,25 +239,115 @@
       <string>Beat counter start offset in ms    </string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_2" >
+     <property name="geometry" >
+      <rect>
+       <x>100</x>
+       <y>150</y>
+       <width>186</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Record pre delete function</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="recordPreDeleteComboBox" >
+     <property name="geometry" >
+      <rect>
+       <x>11</x>
+       <y>151</y>
+       <width>76</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text" >
+       <string>off</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/64</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/32</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/16</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/8</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/64 fp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/32 fp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/16 fp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/8 fp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/4 fp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/2 fp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>1/1 fp</string>
+      </property>
+     </item>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_2" >
-    <property name="geometry" >
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>537</width>
-      <height>355</height>
-     </rect>
-    </property>
     <attribute name="title" >
      <string>Audio &amp;System</string>
     </attribute>
     <widget class="QGroupBox" name="groupBox" >
      <property name="geometry" >
       <rect>
-       <x>310</x>
+       <x>345</x>
        <y>10</y>
-       <width>221</width>
+       <width>186</width>
        <height>331</height>
       </rect>
      </property>
@@ -293,7 +375,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>298</width>
+       <width>336</width>
        <height>331</height>
       </rect>
      </property>
@@ -447,7 +529,7 @@
       <item>
        <layout class="QVBoxLayout" >
         <property name="spacing" >
-         <number>-1</number>
+         <number>6</number>
         </property>
         <item>
          <widget class="QCheckBox" name="connectDefaultsCheckBox" >
@@ -573,196 +655,190 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab_3" >
-    <property name="geometry" >
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>537</width>
-      <height>356</height>
-     </rect>
-    </property>
     <attribute name="title" >
      <string>&amp;Midi System</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget_4" >
-     <property name="geometry" >
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>521</width>
-       <height>127</height>
-      </rect>
-     </property>
-     <layout class="QGridLayout" >
-      <property name="margin" >
-       <number>0</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item row="1" column="0" >
-       <widget class="QLabel" name="textLabel1_3_2" >
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="text" >
-         <string>Input</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" >
-       <widget class="QComboBox" name="midiPortChannelComboBox" >
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <item>
-         <property name="text" >
-          <string>All</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>2</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>4</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>5</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>6</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>7</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>8</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>9</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>10</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>11</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>12</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>13</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>14</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>15</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>16</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2" >
-       <widget class="QCheckBox" name="m_pIgnoreNoteOffCheckBox" >
-        <property name="text" >
-         <string>Ignore note-off</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" >
-       <widget class="QComboBox" name="midiPortComboBox" />
-      </item>
-      <item row="0" column="1" >
-       <widget class="QComboBox" name="m_pMidiDriverComboBox" />
-      </item>
-      <item row="0" column="0" >
-       <widget class="QLabel" name="textLabel1_5" >
-        <property name="text" >
-         <string>Midi driver</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" >
-       <widget class="QLabel" name="textLabel1_3" >
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="text" >
-         <string>Channel</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
     <widget class="MidiTable" name="midiTable" >
      <property name="geometry" >
       <rect>
        <x>10</x>
-       <y>150</y>
+       <y>141</y>
        <width>521</width>
-       <height>192</height>
+       <height>201</height>
       </rect>
      </property>
     </widget>
+    <widget class="QWidget" name="layoutWidget" >
+     <property name="geometry" >
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>516</width>
+       <height>126</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2" >
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" >
+        <item>
+         <widget class="QLabel" name="textLabel1_5" >
+          <property name="text" >
+           <string>Midi driver</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="m_pMidiDriverComboBox" />
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6" >
+        <item>
+         <widget class="QLabel" name="textLabel1_3_2" >
+          <property name="minimumSize" >
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Input</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="midiPortComboBox" />
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5" >
+        <item>
+         <widget class="QLabel" name="textLabel1_3" >
+          <property name="minimumSize" >
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Channel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="midiPortChannelComboBox" >
+          <property name="minimumSize" >
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <item>
+           <property name="text" >
+            <string>All</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>2</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>3</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>4</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>5</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>7</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>8</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>9</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>10</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>11</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>12</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>13</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>14</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>15</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>16</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4" >
+        <item>
+         <widget class="QCheckBox" name="m_pIgnoreNoteOffCheckBox" >
+          <property name="text" >
+           <string>Ignore note-off</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_4" >
-    <property name="geometry" >
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>537</width>
-      <height>356</height>
-     </rect>
-    </property>
     <attribute name="title" >
      <string>&amp;Appearance</string>
     </attribute>

@@ -182,7 +182,7 @@ void	audioEngine_stop( bool bLockEngine = false );
 void	audioEngine_setSong( Song *newSong );
 void	audioEngine_removeSong();
 static void	audioEngine_noteOn( Note *note );
-static void	audioEngine_noteOff( Note *note );
+//static void	audioEngine_noteOff( Note *note );
 int	audioEngine_process( uint32_t nframes, void *arg );
 inline void audioEngine_clearNoteQueue();
 inline void audioEngine_process_checkBPMChanged();
@@ -1402,10 +1402,9 @@ void audioEngine_noteOn( Note *note )
 }
 
 
-
+/*
 void audioEngine_noteOff( Note *note )
 {
-/*
 	if ( note == NULL )	{
 		_ERRORLOG( "Error, note == NULL" );
 	}
@@ -1424,9 +1423,9 @@ void audioEngine_noteOff( Note *note )
 //	AudioEngine::get_instance()->get_sampler()->note_off( note );
 	AudioEngine::get_instance()->unlock();
 	delete note;
-*/
-}
 
+}
+*/
 
 
 // unsigned long audioEngine_getTickPosition()
@@ -1721,6 +1720,8 @@ Hydrogen::Hydrogen()
 	hydrogenInstance = this;
 // 	__instance = this;
 	audioEngine_init();
+        // Prevent double creation caused by calls from MIDI thread 
+	__instance = this; 
 	audioEngine_startAudioDrivers();
 
 }
@@ -1916,6 +1917,47 @@ void Hydrogen::addRealtimeNote( int instrument,
 	}
 
 	if ( currentPattern && ( getState() == STATE_PLAYING ) ) {
+
+		int predelete = 0;
+		int prefpredelete = pref->m_nRecPreDelete;
+		int length = currentPattern->get_lenght();
+		bool fp = false;
+		switch (prefpredelete) {
+			case 1: predelete = length / 64; break;
+			case 2: predelete = length / 32; break;
+			case 3: predelete = length / 16; break;
+			case 4: predelete = length / 8; break;
+			case 5: predelete = length / 4; break;
+			case 6: predelete = length / 2; break;
+			case 7: predelete = length / 1; break;
+			case 8: predelete = length / 64; fp = true; break;
+			case 9: predelete = length / 32; fp = true; break;
+			case 10: predelete = length / 16; fp = true; break;
+			case 11: predelete = length / 8; fp = true; break;
+			case 12: predelete = length / 4; fp = true; break;
+			case 13: predelete = length / 2; fp = true; break;
+			case 14: predelete = length / 1; fp = true; break;
+			default : predelete = 1; break;
+		}
+
+		if(pref->m_nRecPreDelete > 0){
+			std::multimap <int, Note*>::iterator pos0;
+			for ( pos0 = currentPattern->note_map.begin(); pos0 != currentPattern->note_map.end(); ++pos0 ) {
+				Note *pNote = pos0->second;
+				assert( pNote );
+
+				if ( !fp && pNote->get_instrument() != instrRef ) {
+					continue;
+				}
+
+				if( pNote->get_position() >= column && pNote->get_position() <column + predelete +1 ){
+					delete pNote;
+					currentPattern->note_map.erase( pos0 );
+				}
+			}
+		}
+
+
 		bool bNoteAlreadyExist = false;
 		for ( unsigned nNote = 0 ;
 		      nNote < currentPattern->get_lenght() ;

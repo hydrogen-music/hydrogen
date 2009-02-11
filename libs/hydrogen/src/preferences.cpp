@@ -77,6 +77,9 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
+	//init pre delete default 0 = off
+	m_nRecPreDelete = 0;
+
 	//server list
 	std::list<QString> sServerList;
 
@@ -236,6 +239,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
+
+			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
@@ -561,6 +566,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( &rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bsetLash ? "true": "false" );
+
+	LocalFileMng::writeXmlString( &rootNode, "preDelete", to_string(m_nRecPreDelete) );
 
 	//show development version warning
 	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

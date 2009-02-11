@@ -266,7 +266,8 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 			offnote->set_noteoff( true );
 			AudioEngine::get_instance()->get_sampler()->note_on( offnote );
 		}
-		AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
+		if(Preferences::getInstance()->getRecordEvents())
+			AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
 	}
 }
 
