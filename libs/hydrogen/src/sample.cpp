@@ -174,7 +174,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	SF_INFO soundInfo;
 	SNDFILE* file = sf_open( filename.toAscii(), SFM_READ, &soundInfo );
 	if ( !file ) {
-		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
+		_INFOLOG( QString( "[Sample::load] File not found or flacfile %1" ).arg( filename ) );
 	}
 
 	unsigned onesamplelength =  endframe - startframe;
@@ -188,28 +188,49 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		newlength =onesamplelength + repeatslength;
 	}
 
-	float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
+	float *origdata_l;
+	float *origdata_r;
 
-	//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-	sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-	sf_close( file );
-
-	float *origdata_l = new float[ soundInfo.frames ];
-	float *origdata_r = new float[ soundInfo.frames ];
-
-
-	if ( soundInfo.channels == 1 ) {	// MONO sample
-		for ( long int i = 0; i < soundInfo.frames; i++ ) {
-			origdata_l[i] = pTmpBuffer[i];
-			origdata_r[i] = pTmpBuffer[i];
+	bool isflac = false;
+	unsigned flac_sample_rate = 0;
+	if ( ( filename.endsWith( "flac") ) || ( filename.endsWith( "FLAC" ) ) ){		
+		Sample *tmpSample = load_flac( filename );
+		_INFOLOG( QString( "File is flac" ) );
+		unsigned nframes = tmpSample->get_n_frames();
+		origdata_l = new float[ nframes ];
+		origdata_r = new float[ nframes ];
+		for ( unsigned i = 0; i < nframes; i++ ) {
+			origdata_l[i] = tmpSample->__data_l[i];
+			origdata_r[i] = tmpSample->__data_r[i];
 		}
-	} else if ( soundInfo.channels == 2 ) { // STEREO sample
-		for ( long int i = 0; i < soundInfo.frames; i++ ) {
-			origdata_l[i] = pTmpBuffer[i * 2];
-			origdata_r[i] = pTmpBuffer[i * 2 + 1];
+		flac_sample_rate = tmpSample->__sample_rate;
+		isflac = true;
+		delete tmpSample;
+	}else{
+		float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
+	
+		//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+		sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+		sf_close( file );
+	
+		origdata_l = new float[ soundInfo.frames ];
+		origdata_r = new float[ soundInfo.frames ];
+	
+	
+		if ( soundInfo.channels == 1 ) {	// MONO sample
+			for ( long int i = 0; i < soundInfo.frames; i++ ) {
+				origdata_l[i] = pTmpBuffer[i];
+				origdata_r[i] = pTmpBuffer[i];
+			}
+		} else if ( soundInfo.channels == 2 ) { // STEREO sample
+			for ( long int i = 0; i < soundInfo.frames; i++ ) {
+				origdata_l[i] = pTmpBuffer[i * 2];
+				origdata_r[i] = pTmpBuffer[i * 2 + 1];
+			}
 		}
+		delete[] pTmpBuffer;
 	}
-	delete[] pTmpBuffer;
+
 
 	float *tempdata_l = new float[ newlength ];
 	float *tempdata_r = new float[ newlength ];
@@ -265,7 +286,6 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		}
 
 	}
-
 	
 	if ( loops == 0 && loopmode == "reverse" ){
 		reverse( tempdata_l + loppframe, tempdata_l + newlength);
@@ -373,7 +393,12 @@ Sample* Sample::load_edit_wave( const QString& filename,
 
 	pSample->__data_l = tempdata_l;
 	pSample->__data_r = tempdata_r;
-	pSample->__sample_rate = soundInfo.samplerate;
+	if(isflac){
+		pSample->__sample_rate = flac_sample_rate;
+	}else
+	{
+		pSample->__sample_rate = soundInfo.samplerate;
+	}
 	pSample->__sample_is_modified = true;
 	pSample->__sample_mode = loopmode;
 	pSample->__start_frame = startframe;
