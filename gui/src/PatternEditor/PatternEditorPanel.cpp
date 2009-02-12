@@ -174,12 +174,35 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
 
+	QComboBox *recpredelete = new QComboBox( NULL );
+	recpredelete->setFixedSize( 70, 20 );
+	recpredelete->move( 2, 1 );
+	recpredelete->addItem ( QString( "off" ));
+	recpredelete->addItem ( QString( "1/64" ));
+	recpredelete->addItem ( QString( "1/32" ));
+	recpredelete->addItem ( QString( "1/16" ));
+	recpredelete->addItem ( QString( "1/8" ));
+	recpredelete->addItem ( QString( "1/4" ));
+	recpredelete->addItem ( QString( "1/2" ));
+	recpredelete->addItem ( QString( "1/1" ));
+	recpredelete->addItem ( QString( "1/64 fp" ));
+	recpredelete->addItem ( QString( "1/32 fp" ));
+	recpredelete->addItem ( QString( "1/16 fp" ));
+	recpredelete->addItem ( QString( "1/8 fp" ));
+	recpredelete->addItem ( QString( "1/4 fp" ));
+	recpredelete->addItem ( QString( "1/2 fp" ));
+	recpredelete->addItem ( QString( "1/1 fp" ));
+	recpredelete->update();
+	recpredelete->setToolTip( trUtf8( "overwrite and delete existing notes" ) );
+	editor_top_hbox_2->addWidget( recpredelete );
+	connect( recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int) ) );
 
 	QComboBox *selInstrument = new QComboBox( NULL );
 	selInstrument->setFixedSize( 100, 20 );
 	selInstrument->move( 2, 1 );
 	selInstrument->addItem ( QString( "drumset" ));
 	selInstrument->addItem ( QString( "instrument" ));
+	selInstrument->update();
 	selInstrument->setToolTip( trUtf8( "Midi keyboard or computer keys play whole drumset or single instruments" ) );
 	editor_top_hbox_2->addWidget( selInstrument );
 	connect( selInstrument, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( playselectedinstrument(QString) ) );
@@ -189,10 +212,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	rightclickSelection->move( 2, 1 );
 	rightclickSelection->addItem ( QString( "note length" ));
 	rightclickSelection->addItem ( QString( "note off" ));
+	rightclickSelection->update();
 	rightclickSelection->setToolTip( trUtf8( "Right click into pattern editor add note-off-note or edit note-length" ) );
 	editor_top_hbox_2->addWidget( rightclickSelection );
 	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
-
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
@@ -506,6 +529,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	}
 	gridResolutionChanged(__resolution_combo->getText());
 
+	//set pre delete
+	recpredelete->setCurrentIndex(pPref->m_nRecPreDelete);
 
 
 
@@ -993,4 +1018,9 @@ void PatternEditorPanel::rightclickSelect( QString text )
 		Preferences::getInstance()->__rightclickedpattereditor = true;
 	}
 
+}
+
+void PatternEditorPanel::recPreDeleteSelect( int index )
+{
+	Preferences::getInstance()->m_nRecPreDelete = index;
 }

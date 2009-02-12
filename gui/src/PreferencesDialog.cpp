@@ -197,7 +197,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 
 	// midi tab
-	recordPreDeleteComboBox->setCurrentIndex( pPref->m_nRecPreDelete );
 	midiPortChannelComboBox->setEnabled( false );
 	midiPortComboBox->setEnabled( false );
 	// list midi output ports
@@ -342,9 +341,6 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// maxVoices
 	pPref->m_nMaxNotes = maxVoicesTxt->value();
-
-	//pre delete function
-	pPref->m_nRecPreDelete = recordPreDeleteComboBox->currentIndex();
 
 	if ( m_pMidiDriverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sMidiDriver = "ALSA";
