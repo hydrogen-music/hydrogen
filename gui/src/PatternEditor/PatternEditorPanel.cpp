@@ -1038,6 +1038,11 @@ void PatternEditorPanel::rightclickSelect( QString text )
 void PatternEditorPanel::recPreDeleteSelect( int index )
 {
 	Preferences::getInstance()->m_nRecPreDelete = index;
+	if( index>=8 && index <=14 ){
+		__recpostdelete->show();
+	}else{
+		__recpostdelete->hide();
+	}
 }
 
 
@@ -1049,8 +1054,14 @@ void PatternEditorPanel::recPostDeleteSelect( int index )
 
 void PatternEditorPanel::displayorHidePrePostCB()
 {
+	int index = __recpredelete->currentIndex();
 	if( Preferences::getInstance()->getDestructiveRecord() ){
 		__recpostdelete->show();
+		if( index>=8 && index <=14 ){
+			__recpostdelete->show();
+		}else{
+			__recpostdelete->hide();
+		}
 		__recpredelete->show();
 	}else{
 		__recpostdelete->hide();
