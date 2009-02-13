@@ -98,6 +98,7 @@ class HydrogenApp : public QObject, public Object
 		void closeSampleEditor();
 
 		void onDrumkitLoad( QString name );
+		void enableDestructiveRecMode();
 
 	public slots:
 		void onEventQueueTimer();

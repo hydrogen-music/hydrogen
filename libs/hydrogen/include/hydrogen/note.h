@@ -93,6 +93,8 @@ public:
 	float m_fLowPassFilterBuffer_R;		///< Low pass filter buffer
 	//~ filter
 
+	bool m_bJustRecorded; //< Used in record+delete
+
 	Note(
 	    Instrument *pInstrument,
 	    unsigned nPosition,

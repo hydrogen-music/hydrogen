@@ -1261,6 +1261,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				Pattern *pPattern = m_pPlayingPatterns->get( nPat );
 				assert( pPattern != NULL );
 
+				// Now play notes
 				std::multimap <int, Note*>::iterator pos;
 				for ( pos = pPattern->note_map.lower_bound( m_nPatternTickPosition ) ;
 				      pos != pPattern->note_map.upper_bound( m_nPatternTickPosition ) ;
@@ -1757,6 +1758,7 @@ Hydrogen* Hydrogen::get_instance()
 /// Start the internal sequencer
 void Hydrogen::sequencer_play()
 {
+	getSong()->get_pattern_list()->set_to_old();
 	m_pAudioDriver->play();
 }
 
@@ -1918,29 +1920,48 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 	if ( currentPattern && ( getState() == STATE_PLAYING ) ) {
 
+		int postdelete = 0;
 		int predelete = 0;
 		int prefpredelete = pref->m_nRecPreDelete;
+		int prefpostdelete = pref->m_nRecPostDelete;
 		int length = currentPattern->get_lenght();
 		bool fp = false;
+		postdelete = column;
+
 		switch (prefpredelete) {
-			case 1: predelete = length / 64; break;
-			case 2: predelete = length / 32; break;
-			case 3: predelete = length / 16; break;
-			case 4: predelete = length / 8; break;
-			case 5: predelete = length / 4; break;
-			case 6: predelete = length / 2; break;
-			case 7: predelete = length / 1; break;
-			case 8: predelete = length / 64; fp = true; break;
-			case 9: predelete = length / 32; fp = true; break;
-			case 10: predelete = length / 16; fp = true; break;
-			case 11: predelete = length / 8; fp = true; break;
-			case 12: predelete = length / 4; fp = true; break;
-			case 13: predelete = length / 2; fp = true; break;
-			case 14: predelete = length / 1; fp = true; break;
+			case 0: predelete = length ; postdelete = 0; fp = true; break;
+			case 1: predelete = length ; fp = true; break;
+			case 2: predelete = length / 2; fp = true; break;
+			case 3: predelete = length / 4; fp = true; break;
+			case 4: predelete = length / 8; fp = true; break;
+			case 5: predelete = length / 16; fp = true; break;
+			case 6: predelete = length / 32; fp = true; break;
+			case 7: predelete = length / 64; fp = true; break;			
+			case 8: predelete = length / 64; break;
+			case 9: predelete = length / 32; break;
+			case 10: predelete = length / 16; break;
+			case 11: predelete = length / 8; break;
+			case 12: predelete = length / 4; break;
+			case 13: predelete = length / 2; break;
+			case 14: predelete = length; break;
+			case 15: predelete = length; postdelete = 0; break;
 			default : predelete = 1; break;
 		}
 
-		if(pref->m_nRecPreDelete > 0){
+		if(!fp || prefpredelete == 15){
+			switch (prefpostdelete) {
+				case 0: postdelete = column; break;
+				case 1: postdelete -= length / 64; break;
+				case 2: postdelete -= length / 32; break;
+				case 3: postdelete -= length / 16; break;
+				case 4: postdelete -= length / 8; break;
+				case 5: postdelete -= length / 4; break;
+				case 6: postdelete -= length / 2; break;
+				case 7: postdelete -= length ; break;
+			}
+		}
+
+		if(pref->getRecordEvents() && pref->getDestructiveRecord() ){
 			std::multimap <int, Note*>::iterator pos0;
 			for ( pos0 = currentPattern->note_map.begin(); pos0 != currentPattern->note_map.end(); ++pos0 ) {
 				Note *pNote = pos0->second;
@@ -1950,15 +1971,36 @@ void Hydrogen::addRealtimeNote( int instrument,
 					continue;
 				}
 
-				if( pNote->get_position() >= column && pNote->get_position() <column + predelete +1 ){
+				if(prefpredelete>=1 && prefpredelete <=14 )
+					pNote->m_bJustRecorded = false;
+
+				if( pNote->m_bJustRecorded == false && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 				}
 			}
 		}
-
-
+		assert( currentPattern != NULL );
+/*
+		// Delete notes before attempting to play them
+		if ( m_audioEngineState == STATE_PLAYING
+				&& Preferences::getInstance()->getRecordEvents()
+				&& Preferences::getInstance()->getDestructiveRecord() ) {
+			std::multimap <int, Note*>::iterator pos0;
+			for ( pos0 = pPattern->note_map.lower_bound( m_nPatternTickPosition );
+					pos0 != pPattern->note_map.upper_bound( m_nPatternTickPosition );
+					++pos0 ) {
+				Note *pNote = pos0->second;
+				assert( pNote != NULL );
+				if ( pNote->m_bJustRecorded == false ) {
+					delete pNote;
+					pPattern->note_map.erase( pos0 );
+				}
+			}
+		}
+*/
 		bool bNoteAlreadyExist = false;
+		Note *pNoteOld = NULL;
 		for ( unsigned nNote = 0 ;
 		      nNote < currentPattern->get_lenght() ;
 		      nNote++ ) {
@@ -1966,9 +2008,9 @@ void Hydrogen::addRealtimeNote( int instrument,
 			for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
 			      pos != currentPattern->note_map.upper_bound( nNote ) ;
 			      ++pos ) {
-				Note *pNote = pos->second;
-				if ( pNote!=NULL ) {
-					if ( pNote->get_instrument() == instrRef
+				pNoteOld = pos->second;
+				if ( pNoteOld!=NULL ) {
+					if ( pNoteOld->get_instrument() == instrRef
 					     && nNote==column ) {
 						bNoteAlreadyExist = true;
 						break;
@@ -1983,6 +2025,10 @@ void Hydrogen::addRealtimeNote( int instrument,
 			if ( pref->getHearNewNotes()
 			     && getState() == STATE_READY ) {
 				hearnote = true;
+			}
+			// Flag as just recorded
+			if ( pref->getRecordEvents() ) {
+				pNoteOld->m_bJustRecorded = true;
 			}
 		} else if ( !pref->getRecordEvents() ) {
 			if ( pref->getHearNewNotes()
@@ -2010,6 +2056,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 					hearnote = true;
 				}
 	
+				note->m_bJustRecorded = true;
 				song->__is_modified = true;
 	
 				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
@@ -2051,7 +2098,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 					&& position <= getTickPosition() ) {
 					hearnote = true;
 				}
-	
+
+				note->m_bJustRecorded = true;
 				song->__is_modified = true;
 	
 				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );				

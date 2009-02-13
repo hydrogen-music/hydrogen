@@ -174,28 +174,45 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
 
-	QComboBox *recpredelete = new QComboBox( NULL );
-	recpredelete->setFixedSize( 70, 20 );
-	recpredelete->move( 2, 1 );
-	recpredelete->addItem ( QString( "off" ));
-	recpredelete->addItem ( QString( "1/64" ));
-	recpredelete->addItem ( QString( "1/32" ));
-	recpredelete->addItem ( QString( "1/16" ));
-	recpredelete->addItem ( QString( "1/8" ));
-	recpredelete->addItem ( QString( "1/4" ));
-	recpredelete->addItem ( QString( "1/2" ));
-	recpredelete->addItem ( QString( "1/1" ));
-	recpredelete->addItem ( QString( "1/64 fp" ));
-	recpredelete->addItem ( QString( "1/32 fp" ));
-	recpredelete->addItem ( QString( "1/16 fp" ));
-	recpredelete->addItem ( QString( "1/8 fp" ));
-	recpredelete->addItem ( QString( "1/4 fp" ));
-	recpredelete->addItem ( QString( "1/2 fp" ));
-	recpredelete->addItem ( QString( "1/1 fp" ));
-	recpredelete->update();
-	recpredelete->setToolTip( trUtf8( "overwrite and delete existing notes" ) );
-	editor_top_hbox_2->addWidget( recpredelete );
-	connect( recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int) ) );
+	__recpredelete = new QComboBox( NULL );
+	__recpredelete->setFixedSize( 80, 20 );
+	__recpredelete->move( 2, 1 );
+	__recpredelete->addItem ( QString( "once fp" ));
+	__recpredelete->addItem ( QString( "1/1 fp" ));
+	__recpredelete->addItem ( QString( "1/2 fp" ));
+	__recpredelete->addItem ( QString( "1/4 fp" ));
+	__recpredelete->addItem ( QString( "1/8 fp" ));
+	__recpredelete->addItem ( QString( "1/16 fp" ));
+	__recpredelete->addItem ( QString( "1/32 fp" ));
+	__recpredelete->addItem ( QString( "1/64 fp" ));
+	__recpredelete->addItem ( QString( "1/64" ));
+	__recpredelete->addItem ( QString( "1/32" ));
+	__recpredelete->addItem ( QString( "1/16" ));
+	__recpredelete->addItem ( QString( "1/8" ));
+	__recpredelete->addItem ( QString( "1/4" ));
+	__recpredelete->addItem ( QString( "1/2" ));
+	__recpredelete->addItem ( QString( "1/1" ));
+	__recpredelete->addItem ( QString( "once" ));
+	__recpredelete->update();
+	__recpredelete->setToolTip( trUtf8( "destructive mode pre delete settings" ) );
+	editor_top_hbox_2->addWidget( __recpredelete );
+	connect( __recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int) ) );
+
+	__recpostdelete = new QComboBox( NULL );
+	__recpostdelete->setFixedSize( 60, 20 );
+	__recpostdelete->move( 2, 1 );
+	__recpostdelete->addItem ( QString( "off" ));
+	__recpostdelete->addItem ( QString( "1/64" ));
+	__recpostdelete->addItem ( QString( "1/32" ));
+	__recpostdelete->addItem ( QString( "1/16" ));
+	__recpostdelete->addItem ( QString( "1/8" ));
+	__recpostdelete->addItem ( QString( "1/4" ));
+	__recpostdelete->addItem ( QString( "1/2" ));
+	__recpostdelete->addItem ( QString( "1/1" ));
+	__recpostdelete->update();
+	__recpostdelete->setToolTip( trUtf8( "destructive mode post delete settings" ) );
+	editor_top_hbox_2->addWidget( __recpostdelete );
+	connect( __recpostdelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPostDeleteSelect( int) ) );
 
 	QComboBox *selInstrument = new QComboBox( NULL );
 	selInstrument->setFixedSize( 100, 20 );
@@ -530,11 +547,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	gridResolutionChanged(__resolution_combo->getText());
 
 	//set pre delete
-	recpredelete->setCurrentIndex(pPref->m_nRecPreDelete);
-
-
-
-
+	__recpredelete->setCurrentIndex(pPref->m_nRecPreDelete);
+	__recpostdelete->setCurrentIndex(pPref->m_nRecPostDelete);
+	displayorHidePrePostCB();
 
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -1023,4 +1038,22 @@ void PatternEditorPanel::rightclickSelect( QString text )
 void PatternEditorPanel::recPreDeleteSelect( int index )
 {
 	Preferences::getInstance()->m_nRecPreDelete = index;
+}
+
+
+void PatternEditorPanel::recPostDeleteSelect( int index )
+{
+	Preferences::getInstance()->m_nRecPostDelete = index;
+}
+
+
+void PatternEditorPanel::displayorHidePrePostCB()
+{
+	if( Preferences::getInstance()->getDestructiveRecord() ){
+		__recpostdelete->show();
+		__recpredelete->show();
+	}else{
+		__recpostdelete->hide();
+		__recpredelete->hide();
+	}
 }

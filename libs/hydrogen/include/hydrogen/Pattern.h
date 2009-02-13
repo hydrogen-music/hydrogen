@@ -53,6 +53,8 @@ public:
 	  Check if there are any notes pertaining to I
 	*/
 	bool references_instrument( Instrument * I );
+
+	void set_to_old();
 	
 	static Pattern* get_empty_pattern();
 	Pattern* copy();
@@ -105,6 +107,8 @@ public:
 	/// Remove a pattern from the list (every instance in the list), the pattern is not deleted!!!
 	/// Returns NULL if the pattern is not in the list
 	Pattern * del( Pattern *pattern ); 
+
+	void set_to_old();
 
 	/// Remove one pattern from the list, the pattern is not deleted!!!
 	void del( unsigned index );

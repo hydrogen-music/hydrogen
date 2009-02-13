@@ -65,7 +65,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 
-		void updateSLnameLabel( );
+		void updateSLnameLabel();
+		void displayorHidePrePostCB();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
@@ -98,7 +99,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void playselectedinstrument( QString text );
 		void rightclickSelect( QString text );
 		void recPreDeleteSelect( int index );
-
+		void recPostDeleteSelect( int index );
 	private:
 		H2Core::Pattern *m_pPattern;
 		QPixmap m_backgroundPixmap;
@@ -109,6 +110,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		LCDCombo *__resolution_combo;
 		ToggleButton *__show_drum_btn;
 		ToggleButton *__show_piano_btn;
+		QComboBox *__recpredelete;
+		QComboBox *__recpostdelete;
 
 
 		// ~Editor top

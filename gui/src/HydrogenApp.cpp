@@ -398,6 +398,11 @@ void HydrogenApp::onDrumkitLoad( QString name ){
 	m_pPatternEditorPanel->updateSLnameLabel( );
 }
 
+void HydrogenApp::enableDestructiveRecMode(){
+	m_pPatternEditorPanel->displayorHidePrePostCB();
+}
+
+
 void HydrogenApp::onEventQueueTimer()
 {
 	// use the timer to do schedule instrument slaughter;

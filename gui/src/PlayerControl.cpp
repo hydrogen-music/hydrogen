@@ -107,8 +107,27 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pRecBtn->move(195, 17);
 	m_pRecBtn->setPressed(false);
+	m_pRecBtn->setHidden(false);
 	m_pRecBtn->setToolTip( trUtf8("Record") );
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
+	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
+
+	// Record+delete button
+	m_pRecDelBtn = new ToggleButton(
+			pControlsPanel,
+			"/playerControlPanel/btn_recdel_on.png",
+			"/playerControlPanel/btn_recdel_off.png",
+			"/playerControlPanel/btn_recdel_over.png",
+			QSize(21, 15)
+	);
+	m_pRecDelBtn->move(195, 17);
+	m_pRecDelBtn->setPressed(false);
+	m_pRecDelBtn->setHidden(true);
+	m_pRecDelBtn->setToolTip( trUtf8("Destructive Record") );
+	connect(m_pRecDelBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
+	connect(m_pRecDelBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
+	
+
 
 	// Play button
 	m_pPlayBtn = new ToggleButton(
@@ -480,9 +499,24 @@ void PlayerControl::updatePlayerControl()
 
 	if (pPref->getRecordEvents()) {
 		m_pRecBtn->setPressed(true);
+		m_pRecDelBtn->setPressed(true);
 	}
 	else {
 		m_pRecBtn->setPressed(false);
+		m_pRecDelBtn->setPressed(false);
+	}
+
+	if (pPref->getDestructiveRecord()) {
+		if (  m_pRecDelBtn->isHidden() ) {
+			m_pRecBtn->setHidden(true);
+			m_pRecDelBtn->setHidden(false);
+		}
+	}
+	else {
+		if (  m_pRecBtn->isHidden() ) {
+			m_pRecBtn->setHidden(false);
+			m_pRecDelBtn->setHidden(true);
+		}
 	}
 
 	Song *song = m_pEngine->getSong();
@@ -642,6 +676,21 @@ void PlayerControl::recBtnClicked(Button* ref) {
 			(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Record midi events = Off" ), 2000 );
 		}
 	}
+}
+
+
+/// Toggle destructive/nondestructive move
+void PlayerControl::recBtnRightClicked(Button* ref) {
+	UNUSED( ref );
+	if ( Preferences::getInstance()->getDestructiveRecord() ) {
+		Preferences::getInstance()->setDestructiveRecord(false);
+		(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Destructive mode = Off" ), 2000 );
+	}
+	else {
+		Preferences::getInstance()->setDestructiveRecord(true);
+		(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Destructive mode = On" ), 2000 );
+	}
+	HydrogenApp::getInstance()->enableDestructiveRecMode();
 }
 
 

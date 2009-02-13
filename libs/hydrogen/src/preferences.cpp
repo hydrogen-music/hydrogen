@@ -77,8 +77,9 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
-	//init pre delete default 0 = off
+	//init pre delete default
 	m_nRecPreDelete = 0;
+	m_nRecPostDelete = 0;
 
 	//server list
 	std::list<QString> sServerList;
@@ -129,6 +130,7 @@ Preferences::Preferences()
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 	__rightclickedpattereditor = false; //right click into pattern editor add note-off-note or edit note-length
 	recordEvents = false; // not recording by default
+ 	destructiveRecord = false; // not destructively recording by default
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings
@@ -241,6 +243,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bsetLash = m_bUseLash;
 
 			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
+			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
@@ -568,6 +571,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bsetLash ? "true": "false" );
 
 	LocalFileMng::writeXmlString( &rootNode, "preDelete", to_string(m_nRecPreDelete) );
+	LocalFileMng::writeXmlString( &rootNode, "postDelete", to_string(m_nRecPostDelete) );
 
 	//show development version warning
 	LocalFileMng::writeXmlString( &rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

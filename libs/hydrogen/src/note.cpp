@@ -50,6 +50,7 @@ Note::Note(
 		, m_fBandPassFilterBuffer_R( 0.0 )
 		, m_fLowPassFilterBuffer_L( 0.0 )
 		, m_fLowPassFilterBuffer_R( 0.0 )
+		, m_bJustRecorded( false )
 		, __position( position )
 		, __velocity( velocity )
 		, __leadlag( 0.0 )
@@ -88,6 +89,7 @@ Note::Note( const Note* pNote )
 	m_fLowPassFilterBuffer_R	=	pNote->m_fLowPassFilterBuffer_R;
 	m_nHumanizeDelay		= 	pNote->m_nHumanizeDelay;
 	m_fSamplePosition		=	pNote->m_fSamplePosition;
+	m_bJustRecorded		=		pNote->m_bJustRecorded;
 	set_instrument( pNote->__instrument );
 }
 

@@ -152,6 +152,7 @@ public:
 	bool __rightclickedpattereditor; //right click into pattern editor add note-off-note or edit note-length 
 
 	int m_nRecPreDelete; //index of record note pre delete function 0 = off  
+	int m_nRecPostDelete;
 
 	bool m_bFollowPlayhead;
 	
@@ -270,6 +271,13 @@ public:
 	}
 	bool getRecordEvents() {
 		return recordEvents;
+	}
+
+	void setDestructiveRecord ( bool value ) {
+		destructiveRecord = value;
+	}
+	bool getDestructiveRecord() {
+		return destructiveRecord;
 	}
 
 	void setQuantizeEvents( bool value ) {
@@ -469,6 +477,7 @@ private:
 	std::vector<QString> m_ladspaPathVect;
 	bool quantizeEvents;
 	bool recordEvents;
+	bool destructiveRecord;
 	QString m_sLastNews;
 
 
