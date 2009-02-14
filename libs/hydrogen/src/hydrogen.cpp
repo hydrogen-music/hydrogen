@@ -1992,6 +1992,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 					case 7: postdelete -= length ; break;
 					default : postdelete = column; break;
 				}
+				if (postdelete<0) postdelete = 0;
+				
 			}
 
 			std::multimap <int, Note*>::iterator pos0;
@@ -3238,5 +3240,6 @@ void Hydrogen::sortPanVectors()
 	//sort the pan vector to xframes a < b
 	sort(m_pan.begin(), m_pan.end(), PanComparator());
 }
+
 };
 
