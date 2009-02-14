@@ -2004,8 +2004,12 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 				if(prefpredelete>=1 && prefpredelete <=14 )
 					pNote->m_bJustRecorded = false;
+				if( ( pNote->m_bJustRecorded == false ) && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
+					delete pNote;
+					currentPattern->note_map.erase( pos0 );
+				}
 
-				if( pNote->m_bJustRecorded == false && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
+				if( (prefpredelete == 15) && (pNote->m_bJustRecorded == false)){
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 				}
