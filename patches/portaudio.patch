@@ -1,7 +1,7 @@
 diff --git a/libs/hydrogen/src/IO/PortAudioDriver.h b/libs/hydrogen/src/IO/PortAudioDriver.h
 index 5dda3f5..36c5196 100644
---- a/libs/hydrogen/src/IO/PortAudioDriver.h
-+++ b/libs/hydrogen/src/IO/PortAudioDriver.h
+--- libs/hydrogen/src/IO/PortAudioDriver.h
++++ libs/hydrogen/src/IO/PortAudioDriver.h
 @@ -28,6 +28,11 @@
  
  #ifdef PORTAUDIO_SUPPORT
@@ -16,8 +16,8 @@ index 5dda3f5..36c5196 100644
  
 diff --git a/libs/hydrogen/src/IO/portaudio_driver.cpp b/libs/hydrogen/src/IO/portaudio_driver.cpp
 index a6df93e..2b42fa1 100644
---- a/libs/hydrogen/src/IO/portaudio_driver.cpp
-+++ b/libs/hydrogen/src/IO/portaudio_driver.cpp
+--- libs/hydrogen/src/IO/portaudio_driver.cpp
++++ libs/hydrogen/src/IO/portaudio_driver.cpp
 @@ -10,10 +10,11 @@ namespace H2Core
  {
  
