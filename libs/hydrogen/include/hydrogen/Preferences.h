@@ -280,6 +280,35 @@ public:
 		return destructiveRecord;
 	}
 
+	void setPunchInPos ( unsigned pos ) {
+		punchInPos = pos;
+	}
+	int getPunchInPos() {
+		return punchInPos;
+	}
+
+	void setPunchOutPos ( unsigned pos ) {
+		punchOutPos = pos;
+	}
+	int getPunchOutPos() {
+		return punchOutPos;
+	}
+
+	bool inPunchArea (int pos) {
+		// Return true if punch area not defined
+		if ( punchInPos <= punchOutPos ) {
+			if ( pos < punchInPos || punchOutPos < pos ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void unsetPunchArea () {
+		punchInPos = 0;
+		punchOutPos = -1;
+	}
+
 	void setQuantizeEvents( bool value ) {
 		quantizeEvents = value;
 	}
@@ -478,6 +507,8 @@ private:
 	bool quantizeEvents;
 	bool recordEvents;
 	bool destructiveRecord;
+	int punchInPos;
+	int punchOutPos;
 	QString m_sLastNews;
 
 

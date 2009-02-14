@@ -131,6 +131,8 @@ Preferences::Preferences()
 	__rightclickedpattereditor = false; //right click into pattern editor add note-off-note or edit note-length
 	recordEvents = false; // not recording by default
  	destructiveRecord = false; // not destructively recording by default
+	punchInPos = 0;
+	punchOutPos = -1;
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings

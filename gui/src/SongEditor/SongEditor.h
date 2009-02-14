@@ -182,7 +182,9 @@ class SongEditorPositionRuler : public QWidget, public Object
 		QPixmap m_tickPositionPixmap;
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
+                bool m_bRightBtnPressed;
 };
 
 

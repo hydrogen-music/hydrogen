@@ -1393,6 +1393,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
  , Object( "SongEditorPositionRuler" )
+ , m_bRightBtnPressed( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -1482,31 +1483,74 @@ void SongEditorPositionRuler::createBackground()
 
 void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
-	mousePressEvent( ev );
+	if ( !m_bRightBtnPressed ) {
+		// Click+drag triggers same action as clicking at new position
+		mousePressEvent( ev );
+	}
+	else {
+		// Right-click+drag
+		int column = (ev->x() / m_nGridWidth);
+		Preferences* pPref = Preferences::getInstance();
+		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+			pPref->setPunchOutPos(-1);
+			return;
+		}
+		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+			return;
+		}
+		pPref->setPunchOutPos(column-1);
+		update();
+	}
 }
 
 
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
-	int column = (ev->x() / m_nGridWidth);
 
-	if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
-		return;
-	}
+	if (ev->button() == Qt::LeftButton ) {
+		int column = (ev->x() / m_nGridWidth);
+		m_bRightBtnPressed = false;
+
+		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+			return;
+		}
 	
-	// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
-	if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
-		return;
-	}
+		// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
+		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+			return;
+		}
 
-	int nPatternPos = Hydrogen::get_instance()->getPatternPos();
-	if ( nPatternPos != column ) {
-		Hydrogen::get_instance()->setPatternPos( column );
+		int nPatternPos = Hydrogen::get_instance()->getPatternPos();
+		if ( nPatternPos != column ) {
+			Hydrogen::get_instance()->setPatternPos( column );
+			update();
+		}
+	}
+	else if (ev->button() == Qt::RightButton ) {
+		int column = (ev->x() / m_nGridWidth);
+		Preferences* pPref = Preferences::getInstance();
+		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+			pPref->unsetPunchArea();
+			return;
+		}
+		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+			return;
+		}
+		m_bRightBtnPressed = true;
+		// Disable until mouse is moved
+		pPref->setPunchInPos(column);
+		pPref->setPunchOutPos(-1);
 		update();
 	}
 }
 
+
+void SongEditorPositionRuler::mouseReleaseEvent(QMouseEvent *ev)
+{
+	UNUSED( ev );
+	m_bRightBtnPressed = false;
+}
 
 
 void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
@@ -1518,6 +1562,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	Hydrogen *H = Hydrogen::get_instance();
 
 	float fPos = H->getPatternPos();
+	int pIPos = Preferences::getInstance()->getPunchInPos();
+	int pOPos = Preferences::getInstance()->getPunchOutPos();
 
 	if ( H->getCurrentPatternList()->get_size() != 0 ) {
 		H2Core::Pattern *pPattern = H->getCurrentPatternList()->get( 0 );
@@ -1530,6 +1576,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	if ( H->getSong()->get_mode() == Song::PATTERN_MODE ) {
 		fPos = -1;
+		pIPos = 0;
+		pOPos = -1;
 	}
 
 	QPainter painter(this);
@@ -1538,6 +1586,15 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	if (fPos != -1) {
 		uint x = (int)( 10 + fPos * m_nGridWidth - 11 / 2 );
 		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
+	}
+
+	if ( pIPos <= pOPos ) {
+		int xIn = (int)( 10 + pIPos * m_nGridWidth );
+		int xOut = (int)( 9 + (pOPos+1) * m_nGridWidth );
+		painter.fillRect( xIn, 5, xOut-xIn+1, 12, QColor(200, 100, 100, 100) );
+		QPen pen(QColor(200, 100, 100));
+		painter.setPen(pen);
+		painter.drawRect( xIn, 5, xOut-xIn+1, 12 );
 	}
 }
 

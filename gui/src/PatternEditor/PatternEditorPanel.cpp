@@ -175,24 +175,25 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
 
 	__recpredelete = new QComboBox( NULL );
-	__recpredelete->setFixedSize( 80, 20 );
+	__recpredelete->setFixedSize( 130, 20 );
 	__recpredelete->move( 2, 1 );
-	__recpredelete->addItem ( QString( "once fp" ));
-	__recpredelete->addItem ( QString( "1/1 fp" ));
-	__recpredelete->addItem ( QString( "1/2 fp" ));
-	__recpredelete->addItem ( QString( "1/4 fp" ));
-	__recpredelete->addItem ( QString( "1/8 fp" ));
-	__recpredelete->addItem ( QString( "1/16 fp" ));
-	__recpredelete->addItem ( QString( "1/32 fp" ));
-	__recpredelete->addItem ( QString( "1/64 fp" ));
-	__recpredelete->addItem ( QString( "1/64" ));
-	__recpredelete->addItem ( QString( "1/32" ));
-	__recpredelete->addItem ( QString( "1/16" ));
-	__recpredelete->addItem ( QString( "1/8" ));
-	__recpredelete->addItem ( QString( "1/4" ));
-	__recpredelete->addItem ( QString( "1/2" ));
-	__recpredelete->addItem ( QString( "1/1" ));
-	__recpredelete->addItem ( QString( "once" ));
+	__recpredelete->addItem ( QString( "On play" ));
+	__recpredelete->addItem ( QString( "On rec: once fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/1 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/2 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/4 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/8 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/16 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/32 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/64 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/64" ));
+	__recpredelete->addItem ( QString( "On rec: 1/32" ));
+	__recpredelete->addItem ( QString( "On rec: 1/16" ));
+	__recpredelete->addItem ( QString( "On rec: 1/8" ));
+	__recpredelete->addItem ( QString( "On rec: 1/4" ));
+	__recpredelete->addItem ( QString( "On rec: 1/2" ));
+	__recpredelete->addItem ( QString( "On rec: 1/1" ));
+	__recpredelete->addItem ( QString( "On rec: once" ));
 	__recpredelete->update();
 	__recpredelete->setToolTip( trUtf8( "destructive mode pre delete settings" ) );
 	editor_top_hbox_2->addWidget( __recpredelete );
@@ -1038,7 +1039,7 @@ void PatternEditorPanel::rightclickSelect( QString text )
 void PatternEditorPanel::recPreDeleteSelect( int index )
 {
 	Preferences::getInstance()->m_nRecPreDelete = index;
-	if( index>=8 && index <=14 ){
+	if( index>=9 && index <=15 ){
 		__recpostdelete->show();
 	}else{
 		__recpostdelete->hide();
