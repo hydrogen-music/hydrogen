@@ -1976,11 +1976,11 @@ void Hydrogen::addRealtimeNote( int instrument,
 				case 12: predelete = length / 4; break;
 				case 13: predelete = length / 2; break;
 				case 14: predelete = length; break;
-				case 15: predelete = length; postdelete = 0; break;
+				case 15: break;
 				default : predelete = 1; break;
 			}
 
-			if(!fp || prefpredelete == 15){
+			if(!fp ){
 				switch (prefpostdelete) {
 					case 0: postdelete = column; break;
 					case 1: postdelete -= length / 64; break;
@@ -1990,6 +1990,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 					case 5: postdelete -= length / 4; break;
 					case 6: postdelete -= length / 2; break;
 					case 7: postdelete -= length ; break;
+					default : postdelete = column; break;
 				}
 			}
 
@@ -2004,15 +2005,18 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 				if(prefpredelete>=1 && prefpredelete <=14 )
 					pNote->m_bJustRecorded = false;
+
+				if( (prefpredelete == 15) && (pNote->m_bJustRecorded == false)){
+					delete pNote;
+					currentPattern->note_map.erase( pos0 );
+					continue;
+				}
+
 				if( ( pNote->m_bJustRecorded == false ) && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 				}
 
-				if( (prefpredelete == 15) && (pNote->m_bJustRecorded == false)){
-					delete pNote;
-					currentPattern->note_map.erase( pos0 );
-				}
 			}
 		}
 		assert( currentPattern != NULL );
