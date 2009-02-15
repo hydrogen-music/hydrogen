@@ -199,6 +199,18 @@ def get_hydrogen_lib( opts ):
 	return static_lib
 
 
+def install_images( arg , dir , files):
+	#install all image files in a subdirectory
+	for file in files:
+		if file.endswith(".png"):
+			
+			if env['prefix'].endswith("/"):
+				dname = dir[2:]  
+			else:
+				dname = dir[1:]  
+
+			env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/' + dname, source= dir + "/" + file))
+
 def get_hydrogen_gui( lib_hydrogen , opts ):
 	includes, cppflags, ldflags = get_platform_flags( opts )
 
@@ -269,6 +281,11 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 
 	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/i18n"))
 	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/img"))
+
+	#add every img in ./data/img to the install list. If not, 
+	os.path.walk("./data/img/",install_images,env) 
+
+
 	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/drumkits"))
 	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/demo_songs"))
 	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/hydrogen.default.conf"))
