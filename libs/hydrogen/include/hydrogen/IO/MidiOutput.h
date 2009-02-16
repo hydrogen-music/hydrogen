@@ -43,6 +43,7 @@ public:
 	virtual ~MidiOutput();
 	
 	virtual void handleQueueNote(Note* pNote) = 0;
+	virtual void handleQueueNoteOff(Note* pNote) = 0;
 	virtual void handleQueueAllNoteOff() = 0;
 	
 //protected:

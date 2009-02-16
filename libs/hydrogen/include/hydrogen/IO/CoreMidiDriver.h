@@ -50,6 +50,7 @@ public:
 	virtual std::vector<QString> getOutputPortList();
 	
 	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueNoteOff(Note* pNote);
 	virtual void handleQueueAllNoteOff();
 
 	MIDIClientRef  h2MIDIClient;

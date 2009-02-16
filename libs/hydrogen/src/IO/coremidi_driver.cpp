@@ -240,6 +240,34 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
 }
 
+void CoreMidiDriver::handleQueueNoteOff(Note* pNote)
+{	
+	if (cmH2Dst == NULL ) {
+		ERRORLOG( "cmH2Dst = NULL " );
+		return;
+	}
+
+	int channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+		
+	int key = pNote->get_instrument()->get_midi_out_note();
+	int velocity = pNote->get_velocity() * 127;
+	
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+	
+	packetList.packet.timeStamp = 0;
+	packetList.packet.length = 3;
+	packetList.packet.data[0] = 0x80 | channel;
+	packetList.packet.data[1] = key;
+	packetList.packet.data[2] = velocity;
+	
+	
+	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+}
+
 void CoreMidiDriver::handleQueueAllNoteOff()
 {
 	if (cmH2Dst == NULL ) {

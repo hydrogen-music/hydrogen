@@ -52,6 +52,7 @@ public:
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueNoteOff(Note* pNote);
 	virtual void handleQueueAllNoteOff();
 
 private:

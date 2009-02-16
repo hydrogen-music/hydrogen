@@ -493,6 +493,8 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
 			(int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
+			
+		unsigned int noteEndInFrames = noteStartInFrames + ((int)(pNote->get_lenght() * m_pAudioDriver->m_transport.m_nTickSize));
 
 		// if there is a negative Humanize delay, take into account so
 		// we don't miss the time slice.  ignore positive delay, or we
@@ -544,7 +546,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 ///~new note off stuff
 
 			// aggiungo la nota alla lista di note da eseguire
-			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
+			AudioEngine::get_instance()->get_sampler()->note_on( pNote, noteStartInFrames, noteEndInFrames );
 			
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();

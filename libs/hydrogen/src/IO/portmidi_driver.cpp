@@ -276,6 +276,29 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 	Pm_Write(m_pMidiOut, &event, 1);
 }
 
+void PortMidiDriver::handleQueueNoteOff(Note* pNote)
+{	
+	if ( m_pMidiOut == NULL ) {
+		ERRORLOG( "m_pMidiOut = NULL " );
+		return;
+	}
+
+	int channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+		
+	int key = pNote->get_instrument()->get_midi_out_note();
+	int velocity = pNote->get_velocity() * 127;
+	
+	PmEvent event;
+	event.timestamp = 0;
+	
+	//Note off
+	event.message = Pm_Message(0x80 | channel, key, velocity);
+	Pm_Write(m_pMidiOut, &event, 1);
+}
+
 void PortMidiDriver::handleQueueAllNoteOff()
 {
 	if ( m_pMidiOut == NULL ) {

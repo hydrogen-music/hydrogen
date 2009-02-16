@@ -40,6 +40,8 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
 
+#include <iostream>
+
 namespace H2Core
 {
 
@@ -138,11 +140,18 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 			++i; // carico la prox nota
 		}
 	}
+	
+	//Queue midi note off messages for notes that have a length specified for them
+	unsigned long currentFrame = Hydrogen::get_instance()->getTimeMasterFrames();
+	while ((queuedNoteOffs.empty() == false) && (queuedNoteOffs.begin()->first <= currentFrame)) {
+		Hydrogen::get_instance()->getMidiOutput()->handleQueueNoteOff(queuedNoteOffs.begin()->second);
+		queuedNoteOffs.erase(queuedNoteOffs.begin());
+	}//while
 }
 
 
 
-void Sampler::note_on( Note *note )
+void Sampler::note_on( Note *note, unsigned long startFrame, unsigned long endFrame )
 {
 	//infoLog( "[noteOn]" );
 	assert( note );
@@ -165,6 +174,10 @@ void Sampler::note_on( Note *note )
 	__playing_notes_queue.push_back( note );
 	
 	Hydrogen::get_instance()->getMidiOutput()->handleQueueNote(note);
+	
+	if ((endFrame != std::numeric_limits<unsigned long>::max()) && (endFrame > startFrame)) {
+		queuedNoteOffs.insert(std::make_pair(endFrame, note));
+	}//if
 }
 
 

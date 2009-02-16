@@ -29,7 +29,8 @@
 
 #include <inttypes.h>
 #include <vector>
-
+#include <limits>
+#include <map>
 
 
 namespace H2Core
@@ -56,7 +57,7 @@ public:
 	void process( uint32_t nFrames, Song* pSong );
 
 	/// Start playing a note
-	void note_on( Note *note );
+	void note_on( Note *note, unsigned long startFrame = std::numeric_limits<unsigned long>::max(), unsigned long endFrame = std::numeric_limits<unsigned long>::max() );
 
 	/// Stop playing a note.
 	void note_off( Note *note );
@@ -78,6 +79,7 @@ private:
 	std::vector<Note*> __playing_notes_queue;
 	static Sampler* __instance;
 	AudioOutput* __audio_output;
+	std::multimap<unsigned long, Note*> queuedNoteOffs;
 
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;

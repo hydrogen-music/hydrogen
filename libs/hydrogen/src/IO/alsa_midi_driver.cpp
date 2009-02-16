@@ -466,6 +466,33 @@ void AlsaMidiDriver::handleQueueNote(Note* pNote)
 	snd_seq_drain_output(seq_handle);
 }
 
+void AlsaMidiDriver::handleQueueNoteOff(Note* pNote)
+{	
+	if ( seq_handle == NULL ) {
+		ERRORLOG( "seq_handle = NULL " );
+		return;
+	}
+
+	int channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+		
+	int key = pNote->get_instrument()->get_midi_out_note();
+	int velocity = pNote->get_velocity() * 127;
+
+	snd_seq_event_t ev;	
+	
+	//Note off
+	snd_seq_ev_clear(&ev);
+        snd_seq_ev_set_source(&ev, outPortId);
+        snd_seq_ev_set_subs(&ev);
+        snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_set_noteoff(&ev, channel, key, velocity);
+	snd_seq_event_output(seq_handle, &ev);
+	snd_seq_drain_output(seq_handle);
+}
+
 void AlsaMidiDriver::handleQueueAllNoteOff()
 {
 	if ( seq_handle == NULL ) {
