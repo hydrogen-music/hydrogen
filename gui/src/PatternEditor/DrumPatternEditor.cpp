@@ -38,6 +38,7 @@
 #include "../Mixer/Mixer.h"
 #include "../Skin.h"
 
+#include <math.h>
 #include <cassert>
 #include <algorithm>
 

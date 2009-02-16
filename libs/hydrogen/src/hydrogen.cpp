@@ -2001,6 +2001,25 @@ void Hydrogen::addRealtimeNote( int instrument,
 				Note *pNote = pos0->second;
 				assert( pNote );
 
+				if( pref->__playselectedinstrument ){//fix me 
+					if( song->get_instrument_list()->get( getSelectedInstrumentNumber()) == pNote->get_instrument() ){
+						if(prefpredelete>=1 && prefpredelete <=14 )
+							pNote->m_bJustRecorded = false;
+		
+						if( (prefpredelete == 15) && (pNote->m_bJustRecorded == false)){
+							delete pNote;
+							currentPattern->note_map.erase( pos0 );
+							continue;
+						}
+		
+						if( ( pNote->m_bJustRecorded == false ) && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
+							delete pNote;
+							currentPattern->note_map.erase( pos0 );
+						}
+					}
+					continue;	
+				}
+
 				if ( !fp && pNote->get_instrument() != instrRef ) {
 					continue;
 				}
@@ -2018,7 +2037,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 				}
-
+				
 			}
 		}
 		assert( currentPattern != NULL );
