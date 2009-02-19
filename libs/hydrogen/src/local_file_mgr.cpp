@@ -337,8 +337,14 @@ void LocalFileMng::fileCopy( const QString& sOrigFilename, const QString& sDestF
 std::vector<QString> LocalFileMng::getSongList()
 {
 	std::vector<QString> list;
-	QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "/songs/";
+	QString sDirectory = Preferences::getInstance()->getDataDirectory();
 
+	if( ! sDirectory.endsWith("/") ) { 
+		sDirectory += "/songs/";
+	} else {
+		sDirectory += "songs/";
+	}
+	
 	QDir dir( sDirectory );
 
 	if ( !dir.exists() ) {
