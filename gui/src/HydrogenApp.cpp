@@ -65,7 +65,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
  , m_pFirstTimeInfo( NULL )
  , m_pPlayerControl( NULL )
  , m_pPlaylistDialog( NULL )
-// , m_pAudioFileBrowser( NULL )
 
 {
 	m_pInstance = this;
@@ -100,7 +99,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	}
 	
 	 m_pPlaylistDialog = new PlaylistDialog( 0 );
-//	 m_pAudioFileBrowser = new AudioFileBrowser( 0 );
 	
 	showInfoSplash();	// First time information
 }
@@ -116,7 +114,6 @@ HydrogenApp::~HydrogenApp()
 	delete m_pAudioEngineInfoForm;
 	delete m_pMixer;
 	delete m_pPlaylistDialog;
-//	delete m_pAudioFileBrowser;
 
 	Hydrogen *engine = Hydrogen::get_instance();
 	if (engine) {
@@ -315,11 +312,6 @@ void HydrogenApp::showPlaylistDialog()
 	m_pPlaylistDialog->show();
 }
 
-//void HydrogenApp::showAudioFileBrowser()
-//{
-//	m_pAudioFileBrowser->hide();
-//	m_pAudioFileBrowser->show();
-//}
 
 void HydrogenApp::showInfoSplash()
 {
