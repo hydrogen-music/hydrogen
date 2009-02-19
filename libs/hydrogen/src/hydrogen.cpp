@@ -2660,7 +2660,7 @@ void Hydrogen::setNoteLengh( float notelengh)
 
 
 
-float Hydrogen::getNoteLengh()
+float Hydrogen::getNoteLength()
 {
 	return m_ntaktoMeterCompute;
 }
