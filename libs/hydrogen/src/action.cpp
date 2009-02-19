@@ -280,10 +280,9 @@ bool ActionManager::handleAction( Action * pAction ){
 	
 
 	if( sActionString == "MASTER_VOLUME_ABSOLUTE" ){
-		//sets the volume of a mixer strip to a given level (percentage)
+		//sets the volume of a master output to a given level (percentage)
 
 		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
 		int vol_param = pAction->getParameter2().toInt(&ok,10);
 			
 
