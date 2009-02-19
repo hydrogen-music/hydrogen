@@ -795,14 +795,14 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 				tmp = 8;
 			sprintf(tmpt, "%01f", tmp );
 			m_pBCDisplayT->setText( QString( tmpt ) );
-			m_pEngine->setNoteLengh( (tmp) / 4 );
+			m_pEngine->setNoteLength( (tmp) / 4 );
 	} else {		
 			tmp = tmp * 2;
 			if (tmp > 8 )
 				 tmp = 1;
 			sprintf(tmpt, "%01f", tmp );
 			m_pBCDisplayT->setText( QString( tmpt ) );
-			m_pEngine->setNoteLengh( (tmp) / 4 );
+			m_pEngine->setNoteLength( (tmp) / 4 );
 	}
 }
 //~ beatcounter 

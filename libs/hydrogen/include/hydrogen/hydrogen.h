@@ -183,7 +183,7 @@ public:
 	///beatconter
 	void setbeatsToCount( int beatstocount);
 	int getbeatsToCount();
-	void setNoteLengh( float notelengh);
+	void setNoteLength( float notelength);
 	float getNoteLength();
 	int getBcStatus();
 	void handleBeatCounter();

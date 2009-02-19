@@ -2653,9 +2653,9 @@ int Hydrogen::getbeatsToCount()
 }
 
 
-void Hydrogen::setNoteLengh( float notelengh)
+void Hydrogen::setNoteLength( float notelength)
 {
-	m_ntaktoMeterCompute = notelengh;
+	m_ntaktoMeterCompute = notelength;
 }
 
 
