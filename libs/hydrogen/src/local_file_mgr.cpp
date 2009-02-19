@@ -350,7 +350,7 @@ std::vector<QString> LocalFileMng::getSongList()
 	if ( !dir.exists() ) {
 		ERRORLOG( QString( "[getSongList] Directory %1 not found" ).arg( sDirectory ) );
 	} else {
-		dir.setFilter( QDir::Dirs );
+		dir.setFilter( QDir::Files );
 		QFileInfoList fileList = dir.entryInfoList();
 		
 		for ( int i = 0; i < fileList.size(); ++i ) {
