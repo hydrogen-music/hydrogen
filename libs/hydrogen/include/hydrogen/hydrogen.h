@@ -184,7 +184,7 @@ public:
 	void setbeatsToCount( int beatstocount);
 	int getbeatsToCount();
 	void setNoteLengh( float notelengh);
-	float getNoteLengh();
+	float getNoteLength();
 	int getBcStatus();
 	void handleBeatCounter();
 	void setBcOffsetAdjust();

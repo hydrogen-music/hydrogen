@@ -786,7 +786,7 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 
 void PlayerControl::bctButtonClicked( Button* tBtn)
 {
-	float tmp = m_pEngine->getNoteLengh() * 4; 
+	float tmp = m_pEngine->getNoteLength() * 4; 
 	
 	char tmpt[2];       // m_pBCBUpBtn
 	if ( tBtn == m_pBCTUpBtn) {
