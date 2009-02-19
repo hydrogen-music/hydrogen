@@ -70,6 +70,11 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
 
+	//init Displays
+	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
+	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
+	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
+
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
 	installEventFilter( this );
@@ -86,7 +91,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
 
-	intDisplays();
+	openDisplays();
 	getAllFrameInfos();
 
 }
@@ -237,7 +242,7 @@ void SampleEditor::getAllLocalFrameInfos()
 
 
 
-void SampleEditor::intDisplays()
+void SampleEditor::openDisplays()
 {
 	H2Core::Instrument *m_pInstrument = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -263,15 +268,15 @@ void SampleEditor::intDisplays()
 // wavedisplays
 //	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	m_divider = m_pSamplefromFile->get_n_frames() / 574.0F;
-	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
+//	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
-	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
+//	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
 	m_pSampleAdjustView->updateDisplay( m_samplename );
 	m_pSampleAdjustView->move( 1, 1 );
 
-	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
+//	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 //	m_pTargetSampleView->updateDisplay( pLayer );
 	m_pTargetSampleView->move( 1, 1 );
 

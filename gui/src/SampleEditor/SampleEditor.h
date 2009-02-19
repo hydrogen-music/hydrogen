@@ -91,7 +91,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	
 		double m_divider;
 
-		void intDisplays();
+		void openDisplays();
 		void getAllFrameInfos();
 		void getAllLocalFrameInfos();
 		void setAllSampleProps();
