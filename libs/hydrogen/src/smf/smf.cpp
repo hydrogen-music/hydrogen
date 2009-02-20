@@ -247,12 +247,12 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 		      nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
 			// infoLog( "      |-> pattern: " + pPattern->getName() );
-			if ( ( int )pPattern->get_lenght() > nMaxPatternLength ) {
-				nMaxPatternLength = pPattern->get_lenght();
+			if ( ( int )pPattern->get_length() > nMaxPatternLength ) {
+				nMaxPatternLength = pPattern->get_length();
 			}
 
 			for ( unsigned nNote = 0 ;
-			      nNote < pPattern->get_lenght() ;
+			      nNote < pPattern->get_length() ;
 			      nNote++ ) {
 				std::multimap <int, Note*>::iterator pos;
 				for ( pos = pPattern->note_map.lower_bound( nNote ) ;
@@ -274,8 +274,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 								)
 							);
 						int nLength = 12;
-						if ( pNote->get_lenght() != -1 ) {
-							nLength = pNote->get_lenght();
+						if ( pNote->get_length() != -1 ) {
+							nLength = pNote->get_length();
 						}
 						eventList.push_back(
 							new SMFNoteOffEvent(

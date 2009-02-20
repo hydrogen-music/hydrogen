@@ -345,8 +345,8 @@ int Sampler::__render_note_no_resample(
 	int retValue = 1; // the note is ended
 
 	int nNoteLength = -1;
-	if ( pNote->get_lenght() != -1 ) {
-		nNoteLength = ( int )( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
+	if ( pNote->get_length() != -1 ) {
+		nNoteLength = ( int )( pNote->get_length() * __audio_output->m_transport.m_nTickSize );
 	}
 
 	int nAvail_bytes = pSample->get_n_frames() - ( int )pNote->m_fSamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -495,8 +495,8 @@ int Sampler::__render_note_resample(
 )
 {
 	int nNoteLength = -1;
-	if ( pNote->get_lenght() != -1 ) {
-		nNoteLength = ( int )( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
+	if ( pNote->get_length() != -1 ) {
+		nNoteLength = ( int )( pNote->get_length() * __audio_output->m_transport.m_nTickSize );
 	}
 	float fNotePitch = pNote->get_pitch() + fLayerPitch;
 	fNotePitch += pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;

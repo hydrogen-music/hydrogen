@@ -95,8 +95,8 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
-		int nSampleLenght = pLayer->get_sample()->get_n_frames();
-		float nScaleFactor = nSampleLenght / width();
+		int nSampleLength = pLayer->get_sample()->get_n_frames();
+		float nScaleFactor = nSampleLength / width();
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
@@ -107,7 +107,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		for ( int i = 0; i < width(); ++i ){
 			nVal = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLenght ) {
+				if ( j < nSampleLength ) {
 					int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
 					if ( newVal > nVal ) {
 						nVal = newVal;

@@ -191,7 +191,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	const unsigned nPosition = 0;
 	const float fPan_L = 0.5f;
 	const float fPan_R = 0.5f;
-	const int nLenght = -1;
+	const int nLength = -1;
 	const float fPitch = 0.0f;
 
 	if ( !m_pInstrument ) {
@@ -200,7 +200,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	if ( ev->y() < 20 ) {
 		float fVelocity = (float)ev->x() / (float)width();
 
-		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
+		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		note->set_instrument( m_pInstrument );
 		AudioEngine::get_instance()->get_sampler()->note_on(note);
 
@@ -226,7 +226,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		InstrumentEditorPanel::getInstance()->selectLayer( m_nSelectedLayer );
 
 		if ( m_pInstrument->get_layer( m_nSelectedLayer ) ) {
-			Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLenght, fPitch );
+			Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
 			AudioEngine::get_instance()->get_sampler()->note_on(note);
 		}
 

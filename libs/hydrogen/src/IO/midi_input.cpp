@@ -239,9 +239,9 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	const float fVelocity = 0.0f;
 	const float fPan_L = 0.5f;
 	const float fPan_R = 0.5f;
-	const int nLenght = -1;
+	const int nLength = -1;
 	const float fPitch = 0.0f;
-	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLenght, fPitch );
+	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 
 	pEngine->midi_noteOff( pNewNote );
 }

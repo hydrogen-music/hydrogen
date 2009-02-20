@@ -30,13 +30,13 @@
 namespace H2Core
 {
 
-Pattern::Pattern( const QString& name, const QString& category, unsigned lenght )
+Pattern::Pattern( const QString& name, const QString& category, unsigned length )
 		: Object( "Pattern" )
 {
 //	INFOLOG( "INIT: " + m_sName );
 	set_name( name );
 	set_category( category );
-	set_lenght( lenght );
+	set_length( length );
 }
 
 
@@ -116,7 +116,7 @@ Pattern* Pattern::copy()
 //	ERRORLOG( "not implemented yet!!!" );
 
 	Pattern *newPat = new Pattern( __name, __category );
-	newPat->set_lenght( get_lenght() );
+	newPat->set_length( get_length() );
 
 	std::multimap <int, Note*>::iterator pos;
 	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
@@ -134,7 +134,7 @@ void Pattern::debug_dump()
 	INFOLOG( "Pattern dump" );
 	INFOLOG( "Pattern name: " + __name );
 	INFOLOG( "Pattern category: " + __category );
-	INFOLOG( "Pattern lenght: " + to_string( get_lenght() ) );
+	INFOLOG( "Pattern length: " + to_string( get_length() ) );
 }
 
 

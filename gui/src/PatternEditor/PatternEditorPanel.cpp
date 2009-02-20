@@ -604,7 +604,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
 		// update pattern size combobox
-		int nPatternSize = m_pPattern->get_lenght();
+		int nPatternSize = m_pPattern->get_length();
 		int nEighth = MAX_NOTES / 8;
 		for ( int i = 1; i <= 32; i++ ) {
 			if ( nPatternSize == nEighth * i ) {
@@ -823,21 +823,21 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 		return;
 	}
 
-	if ( m_pPattern->get_lenght() == nEighth * nSelected ) {
+	if ( m_pPattern->get_length() == nEighth * nSelected ) {
 		// non e' necessario aggiornare
 		return;
 	}
 
 
 	if ( !m_bEnablePatternResize ) {
-		__pattern_size_combo->set_text(QString::number(m_pPattern->get_lenght() / nEighth ),false);
+		__pattern_size_combo->set_text(QString::number(m_pPattern->get_length() / nEighth ),false);
 		QMessageBox::information( this, "Hydrogen", trUtf8( "Is not possible to change the pattern size when playing." ) );
 		return;
 	}
 
 
 	if ( nSelected > 0 && nSelected <= 32 ) {
-		m_pPattern->set_lenght( nEighth * nSelected );
+		m_pPattern->set_length( nEighth * nSelected );
 		//m_pPatternSizeLCD->setText( QString( "%1" ).arg( nSelected ) );
 	}
 	else {

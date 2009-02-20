@@ -320,7 +320,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
-		nNotes = m_pPattern->get_lenght();
+		nNotes = m_pPattern->get_length();
 	}
 
 
@@ -491,7 +491,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
-		nNotes = m_pPattern->get_lenght();
+		nNotes = m_pPattern->get_length();
 	}
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
 
@@ -646,7 +646,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
  
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
-		nNotes = m_pPattern->get_lenght();
+		nNotes = m_pPattern->get_length();
 	}
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
  
@@ -796,7 +796,7 @@ void NotePropertiesRuler::updateEditor()
 	// update editor width
 	int editorWidth;
 	if ( m_pPattern ) {
-		editorWidth = 20 + m_pPattern->get_lenght() * m_nGridWidth;
+		editorWidth = 20 + m_pPattern->get_length() * m_nGridWidth;
 	}
 	else {
 		editorWidth =  20 + MAX_NOTES * m_nGridWidth;

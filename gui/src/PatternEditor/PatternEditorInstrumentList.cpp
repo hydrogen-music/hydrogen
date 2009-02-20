@@ -268,7 +268,7 @@ void InstrumentLine::functionFillNotes()
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
-		int nPatternSize = pCurrentPattern->get_lenght();
+		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
 		if (nSelectedInstrument != -1) {
@@ -328,7 +328,7 @@ void InstrumentLine::functionRandomizeVelocity()
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
-		int nPatternSize = pCurrentPattern->get_lenght();
+		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
 		if (nSelectedInstrument != -1) {

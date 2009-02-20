@@ -56,7 +56,7 @@ Note::Note(
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );
-	set_lenght( nLength );
+	set_length( nLength );
 
 	set_instrument( pInstrument );
 	set_pitch( fPitch );
@@ -73,7 +73,7 @@ Note::Note( const Note* pNote )
 	set_pan_l(	pNote->get_pan_l()	);
 	set_pan_r(	pNote->get_pan_r()	);
 	set_leadlag(    pNote->get_leadlag()    );
-	set_lenght(	pNote->get_lenght()	);
+	set_length(	pNote->get_length()	);
 	set_pitch(	pNote->get_pitch()	);
 	m_noteKey	=	pNote->m_noteKey;
 	m_fCutoff	=	pNote->m_fCutoff;
@@ -236,7 +236,7 @@ Note* Note::copy()
 	    get_velocity(),
 	    get_pan_l(),
 	    get_pan_r(),
-	    get_lenght(),
+	    get_length(),
 	    get_pitch(),
 	    m_noteKey
 	);
