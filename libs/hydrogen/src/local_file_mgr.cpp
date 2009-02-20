@@ -860,7 +860,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if ( pLayer == NULL ) continue;
-			Sample *pSample = pLayer->get_sample();
+			// Sample *pSample = pLayer->get_sample();
 
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", tempVector[ nLayer ] );
