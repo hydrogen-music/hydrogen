@@ -116,8 +116,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 
 	this->setLayout( pVBox );
 
-	__expand_pattern_list = true;
-	__expand_songs_list = true;
+	__expand_pattern_list = Preferences::getInstance()->__expandPatternItem;
+	__expand_songs_list = Preferences::getInstance()->__expandSongItem;
 
 	updateDrumkitList();
 }
@@ -298,6 +298,7 @@ void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, Q
 {
 	UNUSED( current );
 	UNUSED( previous );
+	test_expandedItems();
 }
 
 
@@ -829,4 +830,7 @@ void SoundLibraryPanel::test_expandedItems()
 	assert( __sound_library_tree );
 	__expand_songs_list = __sound_library_tree->isItemExpanded( __song_item );
 	__expand_pattern_list = __sound_library_tree->isItemExpanded( __pattern_item );
+	Preferences::getInstance()->__expandSongItem = __expand_songs_list;
+	Preferences::getInstance()->__expandPatternItem = __expand_pattern_list;
+	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }
