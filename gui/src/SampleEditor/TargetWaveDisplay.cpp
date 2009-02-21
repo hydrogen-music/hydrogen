@@ -171,8 +171,8 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
 
-		int nSampleLenght = pLayer->get_sample()->get_n_frames();
-		float nScaleFactor = nSampleLenght / width();
+		int nSampleLength = pLayer->get_sample()->get_n_frames();
+		float nScaleFactor = nSampleLength / width();
 
 		float fGain = (height() - 8) / 2.0 * pLayer->get_gain();
 
@@ -185,7 +185,7 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 			nVall = 0;
 			nValr = 0;
 			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLenght ) {
+				if ( j < nSampleLength ) {
 					if ( pSampleDatal[ nSamplePos ] < 0 ){
 						int newVal = static_cast<int>( pSampleDatal[ nSamplePos ] * -fGain );
 						nVall = newVal;

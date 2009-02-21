@@ -834,13 +834,14 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			
 				if( sOrigFilename.startsWith( sDrumkitDir ) ){
 					INFOLOG("sample is already in drumkit dir");
+					tempVector[ nLayer ] = sDestFilename.remove( sDrumkitDir + "/" );
 				} else {
 					int nPos = sDestFilename.lastIndexOf( '/' );
 					sDestFilename = sDestFilename.mid( nPos + 1, sDestFilename.size() - nPos - 1 );
 					sDestFilename = sDrumkitDir + "/" + sDestFilename;
 
 					fileCopy( sOrigFilename, sDestFilename );
-					tempVector[ nLayer ] = sDestFilename;
+					tempVector[ nLayer ] = sDestFilename.remove( sDrumkitDir + "/" );
 				}
 			}
 		}
@@ -871,11 +872,6 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if ( pLayer == NULL ) continue;
-			// Sample *pSample = pLayer->get_sample();
-
-			QString sFilename = pSample->get_filename();
-
-			sFilename = sFilename.remove( sDrumkitDir + "/" );
 
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", tempVector[ nLayer ] );

@@ -53,7 +53,7 @@ class TargetWaveDisplay : public QWidget, public Object
 		QString m_sSampleName;
 		int *m_pPeakDatal;
 		int *m_pPeakDatar;
-		unsigned m_pSampleLenght;
+		unsigned m_pSampleLength;
 		bool m_pvmove;
 		QString m_info;
 		int m_x;

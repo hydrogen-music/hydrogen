@@ -94,10 +94,10 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	int VCenterl = height() / 4;
 	int VCenterr = height() / 4 + height() / 2;
 
-	if ( width() >= m_pSampleLenght  ) issmaller = true;
+	if ( width() >= m_pSampleLength  ) issmaller = true;
 
 	for ( int x = 25; x < width() -25; x++ ) {
-		if ( !issmaller || x <= m_pSampleLenght){ 
+		if ( !issmaller || x <= m_pSampleLength){ 
 			painter.drawLine( x, -m_pPeakDatal[x -25] +VCenterl, x, -m_pPeakDatal[x -24] +VCenterl  );
 			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatar[x -24] +VCenterr  );	
 		}else
@@ -154,9 +154,9 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 	
 	if ( pNewSample ) {
 
-		int nSampleLenght = pNewSample->get_n_frames();
-		m_pSampleLenght = nSampleLenght;
-		float nScaleFactor = nSampleLenght / (width() -50);
+		int nSampleLength = pNewSample->get_n_frames();
+		m_pSampleLength = nSampleLength;
+		float nScaleFactor = nSampleLength / (width() -50);
 		if ( nScaleFactor < 1 ){ 
 			nScaleFactor = 1;
 		}
@@ -173,7 +173,7 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 		int newValr = 0;
 		for ( int i = 0; i < width(); ++i ){
 			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLenght ) {
+				if ( j < nSampleLength ) {
 					if ( pSampleDatal[ nSamplePos ] && pSampleDatar[ nSamplePos ] ){
 						newVall = static_cast<int>( pSampleDatal[ nSamplePos ] * fGain );
 						newValr = static_cast<int>( pSampleDatar[ nSamplePos ] * fGain );
