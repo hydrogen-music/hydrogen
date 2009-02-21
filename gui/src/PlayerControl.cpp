@@ -869,7 +869,7 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 
 void PlayerControl::bctButtonClicked( Button* tBtn)
 {
-	float tmp = m_pEngine->getNoteLengh() * 4; 
+	float tmp = m_pEngine->getNoteLength() * 4; 
 	
 	char tmpt[2];       // m_pBCBUpBtn
 	if ( tBtn == m_pBCTUpBtn) {
@@ -878,14 +878,14 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 				tmp = 8;
 			sprintf(tmpt, "%01f", tmp );
 			m_pBCDisplayT->setText( QString( tmpt ) );
-			m_pEngine->setNoteLengh( (tmp) / 4 );
+			m_pEngine->setNoteLength( (tmp) / 4 );
 	} else {		
 			tmp = tmp * 2;
 			if (tmp > 8 )
 				 tmp = 1;
 			sprintf(tmpt, "%01f", tmp );
 			m_pBCDisplayT->setText( QString( tmpt ) );
-			m_pEngine->setNoteLengh( (tmp) / 4 );
+			m_pEngine->setNoteLength( (tmp) / 4 );
 	}
 }
 //~ beatcounter 

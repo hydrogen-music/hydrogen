@@ -116,8 +116,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 
 	this->setLayout( pVBox );
 
-	__expand_pattern_list = false;
-	__expand_songs_list = false;
+	__expand_pattern_list = true;
+	__expand_songs_list = true;
 
 	updateDrumkitList();
 }
@@ -148,62 +148,7 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	__sound_library_tree->clear();
 
-	std::vector<QString> songList = mng.getSongList();
 
-	if ( songList.size() > 0 ) {
-
-		__song_item = new QTreeWidgetItem( __sound_library_tree );
-		__song_item->setText( 0, trUtf8( "Songs" ) );
-		__song_item->setToolTip( 0, "double click to expand the list" );
-		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
-
-		for (uint i = 0; i < songList.size(); i++) {
-			QString absPath = DataPath::get_data_path() + "/songs/" + songList[i];
-			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
-			pSongItem->setText( 0 , songList[ i ] );
-			pSongItem->setToolTip( 0, songList[ i ] );
-		}
-	}
-
-	//std::vector<QString> patternListforDrumkit = mng.getPatternsForDrumkit( pInfo->getName() );
-	std::vector<QString> patternDirList = mng.getPatternDirList();
-	if ( patternDirList.size() > 0 ) {
-		
-		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
-		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
-		__pattern_item->setToolTip( 0, "double click to expand the list" );
-		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
-			
-//this is to push the mng.getPatternList in all patterns/drumkit dirs
-		for (uint i = 0; i < patternDirList.size(); ++i) {
-			QString absPath =  patternDirList[i];
-			mng.getPatternList( absPath );
-		}
-//this is the second step to push the mng.funktion 
-		std::vector<QString> allPatternDirList = mng.getallPatternList();
-		std::vector<QString> patternNameList = mng.getAllPatternName();
-		std::vector<QString> allCategoryNameList = mng.getAllCategoriesFromPattern();
-
-//now sorting via category
-		if ( allCategoryNameList.size() > 0 ){
-			for (uint i = 0; i < allCategoryNameList.size(); ++i) {
-				QString categoryName = allCategoryNameList[i];
-	
-				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
-				pCategoryItem->setText( 0, categoryName  );
-				for (uint i = 0; i < allPatternDirList.size(); ++i) {
-					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[i]);
-
-					if ( patternCategory == categoryName ){
-						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-						pPatternItem->setText( 0, mng.getPatternNameFromPatternDir( allPatternDirList[i] ));
-						pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( allPatternDirList[i] ));
-
-					}
-				}
-			}
-		}
-	}
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
 	__system_drumkits_item->setText( 0, trUtf8( "System drumkits" ) );
@@ -225,6 +170,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	__user_drumkit_info_list.clear();
 
+	//User drumkit list
 	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	for (uint i = 0; i < userList.size(); ++i) {
 		QString absPath =  userList[i];
@@ -254,6 +200,8 @@ void SoundLibraryPanel::updateDrumkitList()
 		}
 	}
 
+
+	//System drumkit list
 	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
 
 	for (uint i = 0; i < systemList.size(); i++) {
@@ -278,6 +226,70 @@ void SoundLibraryPanel::updateDrumkitList()
 			}
 		}
 	}
+
+
+	
+	//Songlist
+	std::vector<QString> songList = mng.getSongList();
+
+	if ( songList.size() > 0 ) {
+
+		__song_item = new QTreeWidgetItem( __sound_library_tree );
+		__song_item->setText( 0, trUtf8( "Songs" ) );
+		__song_item->setToolTip( 0, "double click to expand the list" );
+		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
+
+		for (uint i = 0; i < songList.size(); i++) {
+			QString absPath = DataPath::get_data_path() + "/songs/" + songList[i];
+			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
+			pSongItem->setText( 0 , songList[ i ] );
+			pSongItem->setToolTip( 0, songList[ i ] );
+		}
+	}
+
+
+	//Pattern list
+	std::vector<QString> patternDirList = mng.getPatternDirList();
+	if ( patternDirList.size() > 0 ) {
+		
+		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
+		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
+		__pattern_item->setToolTip( 0, "double click to expand the list" );
+		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
+			
+		//this is to push the mng.getPatternList in all patterns/drumkit dirs
+		for (uint i = 0; i < patternDirList.size(); ++i) {
+			QString absPath =  patternDirList[i];
+			mng.getPatternList( absPath );
+		}
+		
+		//this is the second step to push the mng.funktion 
+		std::vector<QString> allPatternDirList = mng.getallPatternList();
+		std::vector<QString> patternNameList = mng.getAllPatternName();
+		std::vector<QString> allCategoryNameList = mng.getAllCategoriesFromPattern();
+
+		//now sorting via category
+		if ( allCategoryNameList.size() > 0 ){
+			for (uint i = 0; i < allCategoryNameList.size(); ++i) {
+				QString categoryName = allCategoryNameList[i];
+	
+				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
+				pCategoryItem->setText( 0, categoryName  );
+				for (uint i = 0; i < allPatternDirList.size(); ++i) {
+					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[i]);
+
+					if ( patternCategory == categoryName ){
+						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+						pPatternItem->setText( 0, mng.getPatternNameFromPatternDir( allPatternDirList[i] ));
+						pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( allPatternDirList[i] ));
+
+					}
+				}
+			}
+		}
+	}
+
+
 }
 
 

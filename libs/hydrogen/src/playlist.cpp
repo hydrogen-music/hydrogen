@@ -215,27 +215,16 @@ void Playlist::loadSong( QString songName )
 
 void Playlist::execScript( int index)
 {
-#ifdef WIN32
-	//I know nothing about windows scripts -wolke-
-	return;
-#else
 	QString file = "";
-	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
-
 	QString script = "";
+
+	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
 	script = Hydrogen::get_instance()->m_PlayList[ index ].m_hScriptEnabled;
 
-	std::string filename = file.toStdString();
-	std::string execscript = script.toStdString();
-
-	if( filename == "no Script" || execscript == "Script not used")
+	if( file == "no Script" || script == "Script not used")
 		return;
-	
-	char *filen;
-	filen = new char[ filename.length() + 1 ];
-	strcpy( filen, filename.c_str() );
-	std::system( filen ); 
-	delete [] filen;
+
+	std::system( file.toAscii() );
+
 	return;
-#endif
 }
