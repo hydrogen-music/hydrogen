@@ -40,21 +40,21 @@ Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
 		, __adsr( adsr )
 		, __muted( false )
 		, __name( name )
+		, __pan_l( 1.0 )
+		, __pan_r( 1.0 )
+		, __gain( 1.0 )
 		, __volume( 1.0 )
 		, __filter_resonance( 0.0 )
 		, __filter_cutoff( 1.0 )
-		, __random_pitch_factor( 0.0 )
-		, __id( id )
-		, __filter_active( false )
-		, __pan_l( 1.0 )
-		, __pan_r( 1.0 )
-		, __soloed( false )
-		, __active( true )
 		, __peak_l( 0.0 )
 		, __peak_r( 0.0 )
-		, __gain( 1.0 )
+		, __random_pitch_factor( 0.0 )
+		, __id( id )
 		, __drumkit_name( "" )
+		, __filter_active( false )
 		, __mute_group( -1 )
+		, __active( true )
+		, __soloed( false )
 		, __stop_notes( false )
 {
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
@@ -76,22 +76,6 @@ Instrument::~Instrument()
 	}
 	delete __adsr;
 	__adsr = NULL;
-}
-
-
-
-inline InstrumentLayer* Instrument::get_layer( int nLayer )
-{
-	if ( nLayer < 0 ) {
-		ERRORLOG( QString( "nLayer < 0 (nLayer=%1)" ).arg( nLayer ) );
-		return NULL;
-	}
-	if ( nLayer >= MAX_LAYERS ) {
-		ERRORLOG( QString( "nLayer > MAX_LAYERS (nLayer=%1)" ).arg( nLayer ) );
-		return NULL;
-	}
-
-	return __layer_list[ nLayer ];
 }
 
 

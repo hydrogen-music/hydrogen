@@ -371,8 +371,8 @@ int Sampler::__render_note_no_resample(
 	int retValue = 1; // the note is ended
 
 	int nNoteLength = -1;
-	if ( pNote->get_lenght() != -1 ) {
-		nNoteLength = ( int )( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
+	if ( pNote->get_length() != -1 ) {
+		nNoteLength = ( int )( pNote->get_length() * __audio_output->m_transport.m_nTickSize );
 	}
 
 	int nAvail_bytes = pSample->get_n_frames() - ( int )pNote->m_fSamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -521,8 +521,8 @@ int Sampler::__render_note_resample(
 )
 {
 	int nNoteLength = -1;
-	if ( pNote->get_lenght() != -1 ) {
-		nNoteLength = ( int )( pNote->get_lenght() * __audio_output->m_transport.m_nTickSize );
+	if ( pNote->get_length() != -1 ) {
+		nNoteLength = ( int )( pNote->get_length() * __audio_output->m_transport.m_nTickSize );
 	}
 	float fNotePitch = pNote->get_pitch() + fLayerPitch;
 	fNotePitch += pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;
@@ -785,7 +785,7 @@ void Sampler::makeTrackOutputQueues( )
 
 
 
-void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
+void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
 {
 	if ( instrument ) { // stop all notes using this instrument
 		Hydrogen *pEngine = Hydrogen::get_instance();	
@@ -814,10 +814,10 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 
 		
 		if ( currentPattern ) {
-				int patternsize = currentPattern->get_lenght();
+				int patternsize = currentPattern->get_length();
 	
 				for ( unsigned nNote = 0 ;
-				nNote < currentPattern->get_lenght() ;
+				nNote < currentPattern->get_length() ;
 				nNote++ ) {
 					std::multimap <int, Note*>::iterator pos;
 					for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
@@ -828,11 +828,11 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 							if( !Preferences::getInstance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == instrument
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock("Sample::setnotelenght_event");
+									AudioEngine::get_instance()->lock("Sample::setnotelength_event");
 					
 									if ( ticks >  patternsize ) 
 										ticks = patternsize - noteOnTick;
-									pNote->set_lenght( ticks );
+									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->__is_modified = true;
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
 								}
@@ -840,10 +840,10 @@ void Sampler::setPlayingNotelenght( Instrument* instrument, unsigned long ticks,
 							{
 								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock("Sample::setnotelenght_event");
+									AudioEngine::get_instance()->lock("Sample::setnotelength_event");
 									if ( ticks >  patternsize ) 
 										ticks = patternsize - noteOnTick;
-									pNote->set_lenght( ticks );
+									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->__is_modified = true;
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine	
 								}	

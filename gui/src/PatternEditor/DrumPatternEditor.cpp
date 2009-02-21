@@ -104,7 +104,7 @@ void DrumPatternEditor::updateEditor()
 
 	uint nEditorWidth;
 	if ( m_pPattern ) {
-		nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_lenght();
+		nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_length();
 	}
 	else {
 		nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
@@ -153,7 +153,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
 	int nColumn = getColumn( ev );
 
-	if ( nColumn >= (int)m_pPattern->get_lenght() ) {
+	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
 		return;
 	}
@@ -323,7 +323,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		{
 			fStep = 1.0; 
 		}
-		m_pDraggedNote->set_lenght( nLen * fStep);
+		m_pDraggedNote->set_length( nLen * fStep);
 
 		Hydrogen::get_instance()->getSong()->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -361,7 +361,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		return;
 	}
 
-	int nNotes = m_pPattern->get_lenght();
+	int nNotes = m_pPattern->get_length();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
@@ -446,7 +446,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	p.setPen( noteColor );
 
-	if ( note->get_lenght() == -1 && note->get_noteoff() == false ) {	// trigger note
+	if ( note->get_length() == -1 && note->get_noteoff() == false ) {	// trigger note
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
 
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
@@ -467,7 +467,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
 		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);
 	}
-	else if ( note->get_lenght() == 1 && note->get_noteoff() == true ){
+	else if ( note->get_length() == 1 && note->get_noteoff() == true ){
 		p.setPen( noteoffColor );
 		uint x_pos = 20 + ( pos * m_nGridWidth );// - m_nGridWidth / 2.0;
 
@@ -496,7 +496,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 
 		uint x = 20 + (pos * m_nGridWidth);
-		int w = m_nGridWidth * note->get_lenght() / fStep;
+		int w = m_nGridWidth * note->get_length() / fStep;
 		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
@@ -538,7 +538,7 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
-		nNotes = m_pPattern->get_lenght();
+		nNotes = m_pPattern->get_length();
 	}
 	if (!m_bUseTriplets) {
 		for ( int i = 0; i < nNotes + 1; i++ ) {
@@ -625,7 +625,7 @@ void DrumPatternEditor::__create_background( QPainter& p)
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
-		nNotes = m_pPattern->get_lenght();
+		nNotes = m_pPattern->get_length();
 	}
 
 	Song *pSong = Hydrogen::get_instance()->getSong();

@@ -265,7 +265,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	TiXmlElement patternNode( "pattern" );
 	LocalFileMng::writeXmlString( &patternNode, "pattern_name", realpatternname );
 	LocalFileMng::writeXmlString( &patternNode, "category", pat->get_category() );
-	writeXmlString( &patternNode, "size", to_string( pat->get_lenght() ) );
+	writeXmlString( &patternNode, "size", to_string( pat->get_length() ) );
 
 		TiXmlElement noteListNode( "noteList" );
 		std::multimap <int, Note*>::iterator pos;
@@ -283,7 +283,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 			writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
 
-			writeXmlString( &noteNode, "length", to_string( pNote->get_lenght() ) );
+			writeXmlString( &noteNode, "length", to_string( pNote->get_length() ) );
 			writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
 
 			QString noteoff = "false"; 
@@ -871,7 +871,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if ( pLayer == NULL ) continue;
-			Sample *pSample = pLayer->get_sample();
+			// Sample *pSample = pLayer->get_sample();
 
 			QString sFilename = pSample->get_filename();
 
@@ -1259,7 +1259,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		TiXmlElement patternNode( "pattern" );
 		LocalFileMng::writeXmlString( &patternNode, "name", pat->get_name() );
 		LocalFileMng::writeXmlString( &patternNode, "category", pat->get_category() );
-		LocalFileMng::writeXmlString( &patternNode, "size", to_string( pat->get_lenght() ) );
+		LocalFileMng::writeXmlString( &patternNode, "size", to_string( pat->get_length() ) );
 
 		TiXmlElement noteListNode( "noteList" );
 		std::multimap <int, Note*>::iterator pos;
@@ -1277,7 +1277,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 			LocalFileMng::writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
 
-			LocalFileMng::writeXmlString( &noteNode, "length", to_string( pNote->get_lenght() ) );
+			LocalFileMng::writeXmlString( &noteNode, "length", to_string( pNote->get_length() ) );
 			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
 
 			QString noteoff = "false"; 

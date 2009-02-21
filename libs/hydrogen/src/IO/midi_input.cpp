@@ -228,7 +228,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	Song *pSong = pEngine->getSong();
 
 	__noteOffTick = pEngine->getTickPosition();
-	unsigned long notelenght = computeDeltaNoteOnOfftime();
+	unsigned long notelength = computeDeltaNoteOnOfftime();
 
 	int nNote = msg.m_nData1;
 	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to controll release velocity
@@ -267,15 +267,15 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 			AudioEngine::get_instance()->get_sampler()->note_on( offnote );
 		}
 		if(Preferences::getInstance()->getRecordEvents())
-			AudioEngine::get_instance()->get_sampler()->setPlayingNotelenght( pInstr, notelenght * fStep, __noteOnTick );
+			AudioEngine::get_instance()->get_sampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
 	}
 }
 
 
 unsigned long MidiInput::computeDeltaNoteOnOfftime()
 {
-	unsigned long  __notelenghtTicks = __noteOffTick - __noteOnTick;
-	return __notelenghtTicks;
+	unsigned long  __notelengthTicks = __noteOffTick - __noteOnTick;
+	return __notelengthTicks;
 	
 }
 

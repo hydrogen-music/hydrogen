@@ -187,11 +187,11 @@ public:
 		return __leadlag;
 	}
 
-	void set_lenght( int lenght ) {
-		__lenght = lenght;
+	void set_length( int length ) {
+		__length = length;
 	}
-	int get_lenght() const {
-		return __lenght;
+	int get_length() const {
+		return __length;
 	}
 
 	void set_pitch( float pitch ) {
@@ -227,7 +227,7 @@ private:
 	float __leadlag;		///< Lead or lag offset of the note
 	bool __noteoff;			///< note type
 
-	int __lenght;
+	int __length;
 	float __pitch;
 	int __midimsg1;
 

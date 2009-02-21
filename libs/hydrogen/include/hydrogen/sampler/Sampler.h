@@ -74,7 +74,7 @@ public:
 	void set_audio_output( AudioOutput* audio_output );
 	void makeTrackOutputQueues();
 
-	void setPlayingNotelenght( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
+	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
 	bool is_instrument_playing( Instrument* pInstr );
 
 private:

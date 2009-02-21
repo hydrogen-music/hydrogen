@@ -24,6 +24,7 @@
 #ifndef INSTRUMENT_H
 #define INSTRUMENT_H
 
+#include <QtCore/QString>
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 #include <cassert>
@@ -126,6 +127,7 @@ public:
 	);
 
 	/// Returns a layer in the list
+	/// See below for definition.
 	inline InstrumentLayer* get_layer( int index );
 
 	/// Sets a layer in the list
@@ -308,7 +310,19 @@ private:
 	bool __stop_notes;		///
 };
 
+inline InstrumentLayer* Instrument::get_layer( int nLayer )
+{
+	if ( nLayer < 0 ) {
+		ERRORLOG( QString( "nLayer < 0 (nLayer=%1)" ).arg( nLayer ) );
+		return NULL;
+	}
+	if ( nLayer >= MAX_LAYERS ) {
+		ERRORLOG( QString( "nLayer > MAX_LAYERS (nLayer=%1)" ).arg( nLayer ) );
+		return NULL;
+	}
 
+	return __layer_list[ nLayer ];
+}
 
 
 /**

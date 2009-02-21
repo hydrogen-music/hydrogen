@@ -90,7 +90,7 @@ float m_fMaxProcessTime = 0.0f;		///< max ms usable in process with no xrun
 //100,000 ms in 1 second.
 #define US_DIVIDER .000001
 
-float m_ntaktoMeterCompute = 1;	  	///< beatcounter note lenght
+float m_ntaktoMeterCompute = 1;	  	///< beatcounter note length
 int m_nbeatsToCount = 4;		///< beatcounter beats to count
 int eventCount = 1;			///< beatcounter event
 int tempochangecounter = 0;		///< count tempochanges for timeArray
@@ -1186,7 +1186,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 			if ( m_pPlayingPatterns->get_size() != 0 ) {
 				Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
-				nPatternSize = pFirstPattern->get_lenght();
+				nPatternSize = pFirstPattern->get_length();
 			}
 
 			if ( nPatternSize == 0 ) {
@@ -1367,7 +1367,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 		if ( pColumn->get_size() != 0 ) {
 			// tengo in considerazione solo il primo pattern. I
 			// pattern nel gruppo devono avere la stessa lunghezza.
-			nPatternSize = pColumn->get( 0 )->get_lenght();
+			nPatternSize = pColumn->get( 0 )->get_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -1392,7 +1392,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 				// tengo in considerazione solo il primo
 				// pattern. I pattern nel gruppo devono avere la
 				// stessa lunghezza.
-				nPatternSize = pColumn->get( 0 )->get_lenght();
+				nPatternSize = pColumn->get( 0 )->get_length();
 			} else {
 				nPatternSize = MAX_NOTES;
 			}
@@ -1885,9 +1885,9 @@ void Hydrogen::addRealtimeNote( int instrument,
  				PatternList *pColumn = ( *pColumns )[i];
  				currentPattern = pColumn->get( 0 );
 			}
-			column = column + currentPattern->get_lenght();
+			column = column + currentPattern->get_length();
 			WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
-				"," + to_string( (int) ( column - currentPattern->get_lenght() ) -
+				"," + to_string( (int) ( column - currentPattern->get_length() ) -
 				(int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
 				"," + to_string( (int) column - (int) lookaheadTicks ) + ")." );
 		}
@@ -1921,9 +1921,9 @@ void Hydrogen::addRealtimeNote( int instrument,
 		if ( column >= lookaheadTicks ) {
  			column -= lookaheadTicks;
  		} else {
- 			lookaheadTicks %= currentPattern->get_lenght();
- 			column = (column + currentPattern->get_lenght() - lookaheadTicks)
- 				% currentPattern->get_lenght();
+ 			lookaheadTicks %= currentPattern->get_length();
+ 			column = (column + currentPattern->get_length() - lookaheadTicks)
+ 				% currentPattern->get_length();
 		}
 
 	}
@@ -1956,7 +1956,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 			int predelete = 0;
 			int prefpredelete = pref->m_nRecPreDelete-1;
 			int prefpostdelete = pref->m_nRecPostDelete;
-			int length = currentPattern->get_lenght();
+			int length = currentPattern->get_length();
 			bool fp = false;
 			postdelete = column;
 
@@ -2045,7 +2045,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 		bool bNoteAlreadyExist = false;
 		Note *pNoteOld = NULL;
 		for ( unsigned nNote = 0 ;
-		      nNote < currentPattern->get_lenght() ;
+		      nNote < currentPattern->get_length() ;
 		      nNote++ ) {
 			std::multimap <int, Note*>::iterator pos;
 			for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
@@ -2679,7 +2679,7 @@ long Hydrogen::getTickForPosition( int pos )
 		// stessa lunghezza
 		pPattern = pColumn->get( 0 );
 		if ( pPattern ) {
-			nPatternSize = pPattern->get_lenght();
+			nPatternSize = pPattern->get_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -3120,13 +3120,13 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 
 // 	std::vector<PatternList*> *pColumns =
 //		m_pSong->get_pattern_group_vector()[ humanpos - 1 ]
-//			.get( 0 )->get_lenght();
+//			.get( 0 )->get_length();
 	
 //	ERRORLOG( "Kick me!" );
 	if ( humanpos == 0 ) return 0;
 	Pattern *pPattern = columns->at( humanpos - 1 )->get( 0 );
 	if ( pPattern ) {
-		return pPattern->get_lenght();
+		return pPattern->get_length();
 	} else {
 		return MAX_NOTES;
 	}
@@ -3139,7 +3139,7 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 		PatternList *pColumn = ( *pColumns )[ i ];
 		pPattern = pColumn->get( 0 );
 		if ( pPattern ) {
-			nPatternSize = pPattern->get_lenght();
+			nPatternSize = pPattern->get_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
