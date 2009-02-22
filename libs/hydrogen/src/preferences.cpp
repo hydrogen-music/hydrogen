@@ -133,6 +133,9 @@ Preferences::Preferences()
  	destructiveRecord = false; // not destructively recording by default
 	punchInPos = 0;
 	punchOutPos = -1;
+
+	__expandSongItem = true; //SoundLibraryPanel 
+	__expandPatternItem = true; //SoundLibraryPanel 
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings
@@ -448,6 +451,10 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_startOffset = LocalFileMng::readXmlInt( guiNode, "playoffset", 0 );
 				
 				//~ beatcounter
+
+				//SoundLibraryPanel expand items 
+				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem ); 
+				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem );
 
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 					QString sNodeName = "ladspaFX_properties" + to_string( nFX );
@@ -786,6 +793,10 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( &guiNode, "countoffset", to_string(m_countOffset) );
 		LocalFileMng::writeXmlString( &guiNode, "playoffset", to_string(m_startOffset) );
 		//~ beatcounter
+
+		//SoundLibraryPanel expand items 
+		LocalFileMng::writeXmlString( &guiNode, "expandSongItem", __expandSongItem ? "true": "false" ); 
+		LocalFileMng::writeXmlString( &guiNode, "expandPatternItem", __expandPatternItem ? "true": "false" ); 
 
 		// User interface style
 		writeUIStyle( guiNode );

@@ -160,6 +160,9 @@ public:
 	bool m_brestartLash;
 	bool m_bsetLash;
 
+	//soundlibrarypanel expand song and pattern item
+	bool __expandSongItem;
+	bool __expandPatternItem; 
 
 	//beatcounter
 	bool m_bbc;
