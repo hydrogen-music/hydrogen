@@ -354,7 +354,7 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 		__song_menu->popup( pos );
 	}
 
-	if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item ) {
+	if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item && __pattern_item != NULL ) {
 		__pattern_menu->popup( pos );
 	}
 
