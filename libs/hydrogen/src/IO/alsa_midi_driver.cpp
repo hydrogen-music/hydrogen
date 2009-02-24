@@ -31,6 +31,8 @@
 #include <hydrogen/event_queue.h>
 
 #include <pthread.h>
+#include <hydrogen/note.h>
+#include <hydrogen/instrument.h>
 
 #ifdef LASH_SUPPORT
 #include <hydrogen/LashClient.h>
@@ -50,6 +52,7 @@ int npfd;
 struct pollfd *pfd;
 int portId;
 int clientId;
+int outPortId;
 
 
 void* alsaMidiDriver_thread( void* param )
@@ -80,6 +83,18 @@ void* alsaMidiDriver_thread( void* param )
 		_ERRORLOG( "Error creating sequencer port." );
 		pthread_exit( NULL );
 	}
+	
+	if ( ( outPortId = snd_seq_create_simple_port( 	seq_handle,
+	                "Hydrogen Midi-Out",
+	                SND_SEQ_PORT_CAP_READ |
+	                SND_SEQ_PORT_CAP_SUBS_READ,
+	                SND_SEQ_PORT_TYPE_APPLICATION
+	                                          )
+	     ) < 0 ) {
+		_ERRORLOG( "Error creating sequencer port." );
+		pthread_exit( NULL );
+	}
+	
 	clientId = snd_seq_client_id( seq_handle );
 
 #ifdef LASH_SUPPORT
@@ -150,7 +165,7 @@ void* alsaMidiDriver_thread( void* param )
 
 
 AlsaMidiDriver::AlsaMidiDriver()
-		: MidiInput( "AlsaMidiDriver" )
+		: MidiInput( "AlsaMidiDriver" ), MidiOutput( "AlsaMidiDriver" ), Object( "AlsaMidiDriver" )
 {
 //	infoLog("INIT");
 }
@@ -165,9 +180,6 @@ AlsaMidiDriver::~AlsaMidiDriver()
 	}
 //	infoLog("DESTROY");
 }
-
-
-
 
 void AlsaMidiDriver::open()
 {
@@ -411,6 +423,106 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 		}
 	}
 	ERRORLOG( "Midi port " + sPortName + " not found" );
+}
+
+void AlsaMidiDriver::handleQueueNote(Note* pNote)
+{	
+	if ( seq_handle == NULL ) {
+		ERRORLOG( "seq_handle = NULL " );
+		return;
+	}
+
+	int channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+	int key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key + pNote->get_instrument()->get_midi_out_note() - 60;
+	//int key = pNote->get_instrument()->get_midi_out_note();
+	int velocity = pNote->get_velocity() * 127;
+
+	snd_seq_event_t ev;	
+	
+	//Note off
+	snd_seq_ev_clear(&ev);
+        snd_seq_ev_set_source(&ev, outPortId);
+        snd_seq_ev_set_subs(&ev);
+        snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_set_noteoff(&ev, channel, key, velocity);
+	snd_seq_event_output(seq_handle, &ev);
+	snd_seq_drain_output(seq_handle);
+	
+	//Note on
+	//snd_seq_event_input(seq_handle, &ev);
+	snd_seq_ev_clear(&ev);	
+        snd_seq_ev_set_source(&ev, outPortId);
+        snd_seq_ev_set_subs(&ev);
+        snd_seq_ev_set_direct(&ev);
+        //snd_seq_event_output_direct( seq_handle, ev );
+	
+	snd_seq_ev_set_noteon(&ev, channel, key, velocity);
+	snd_seq_event_output(seq_handle, &ev);
+
+        //snd_seq_free_event(ev);
+	snd_seq_drain_output(seq_handle);
+}
+
+void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
+{	
+	if ( seq_handle == NULL ) {
+		ERRORLOG( "seq_handle = NULL " );
+		return;
+	}
+
+//	channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+
+//	key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key;
+//	int velocity = pNote->get_velocity() * 127;
+
+	snd_seq_event_t ev;	
+	
+	//Note off
+	snd_seq_ev_clear(&ev);
+        snd_seq_ev_set_source(&ev, outPortId);
+        snd_seq_ev_set_subs(&ev);
+        snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_set_noteoff(&ev, channel, key, velocity);
+	snd_seq_event_output(seq_handle, &ev);
+	snd_seq_drain_output(seq_handle);
+}
+
+void AlsaMidiDriver::handleQueueAllNoteOff()
+{
+	if ( seq_handle == NULL ) {
+		ERRORLOG( "seq_handle = NULL " );
+		return;
+	}
+	
+	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+		
+	unsigned int numInstruments = instList->get_size();
+	for (int index = 0; index < numInstruments; ++index) {
+		Instrument *curInst = instList->get(index);
+	
+		int channel = curInst->get_midi_out_channel();
+		if (channel < 0) {
+			continue;
+		}
+		int key = curInst->get_midi_out_note();
+	
+		snd_seq_event_t ev;	
+	
+		//Note off
+		snd_seq_ev_clear(&ev);
+	        snd_seq_ev_set_source(&ev, outPortId);
+	        snd_seq_ev_set_subs(&ev);
+	        snd_seq_ev_set_direct(&ev);
+		snd_seq_ev_set_noteoff(&ev, channel, key, 0);
+		snd_seq_event_output(seq_handle, &ev);
+		snd_seq_drain_output(seq_handle);
+	}
 }
 
 };

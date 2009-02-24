@@ -298,9 +298,9 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.InsertEndChild( rootNode );
 	doc.SaveFile();
 
-	QFile anotherTestfile( sPatternXmlFilename ); 
-		if ( ! anotherTestfile.exists() ) 
-		return 1; 
+	QFile anotherTestfile( sPatternXmlFilename );
+	if ( ! anotherTestfile.exists() )
+		return 1;
 
 	return 0; // ok
 }
@@ -701,9 +701,13 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			float fSustain = LocalFileMng::readXmlFloat( instrumentNode, "Sustain", 1.0, false, false );	// Sustain
 			float fRelease = LocalFileMng::readXmlFloat( instrumentNode, "Release", 1000, false, false );	// Release
 			float fGain = readXmlFloat( instrumentNode, "gain", 1.0f, false, false );
-			QString sMuteGroup = readXmlString( instrumentNode, "muteGroup", "-1", false, false );
+			QString sMuteGroup = readXmlString( instrumentNode, "muteGroup", "-1", false, false );			
+			QString sMidiOutChannel = readXmlString( instrumentNode, "midiOutChannel", "-1", false, false );
+			QString sMidiOutNote = readXmlString( instrumentNode, "midiOutNote", "60", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
 			bool isStopNote = readXmlBool( instrumentNode, "isStopNote", false );
+			int nMidiOutChannel = sMidiOutChannel.toInt();
+			int nMidiOutNote = sMidiOutNote.toInt();
 
 			// some sanity checks
 			if ( id == "" ) {
@@ -761,6 +765,8 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 			pInstrument->set_stop_note( isStopNote );
+			pInstrument->set_midi_out_channel( nMidiOutChannel );
+			pInstrument->set_midi_out_note( nMidiOutNote );
 
 			pInstrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
 			instrumentList->add( pInstrument );
@@ -868,6 +874,9 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", to_string( instr->get_mute_group() ) );
 		LocalFileMng::writeXmlBool( &instrumentNode, "isStopNote", instr->is_stop_notes() );
+		
+		LocalFileMng::writeXmlString( &instrumentNode, "midiOutChannel", to_string( instr->get_midi_out_channel() ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "midiOutNote", to_string( instr->get_midi_out_note() ) );
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
@@ -1186,6 +1195,9 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 		LocalFileMng::writeXmlString( &instrumentNode, "muteGroup", to_string( instr->get_mute_group() ) );
 		LocalFileMng::writeXmlBool( &instrumentNode, "isStopNote", instr->is_stop_notes() );
+		
+		LocalFileMng::writeXmlString( &instrumentNode, "midiOutChannel", to_string( instr->get_midi_out_channel() ) );
+		LocalFileMng::writeXmlString( &instrumentNode, "midiOutNote", to_string( instr->get_midi_out_note() ) );
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );

@@ -31,7 +31,6 @@
 #include <vector>
 
 
-
 namespace H2Core
 {
 
@@ -81,6 +80,7 @@ private:
 	std::vector<Note*> __playing_notes_queue;
 	static Sampler* __instance;
 	AudioOutput* __audio_output;
+	std::vector<Note*> __queuedNoteOffs;
 
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;

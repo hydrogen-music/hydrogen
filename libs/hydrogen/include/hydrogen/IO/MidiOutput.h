@@ -20,43 +20,38 @@
  *
  */
 
-#ifndef PORT_MIDI_DRIVER_H
-#define PORT_MIDI_DRIVER_H
+#ifndef H2_MIDI_OUTPUT_H
+#define H2_MIDI_OUTPUT_H
 
-#ifdef PORTMIDI_SUPPORT
-
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
-#include <portmidi.h>
+#include <hydrogen/Object.h>
+#include <string>
+#include <vector>
+#include "MidiCommon.h"
 
 namespace H2Core
 {
+class Note;
 
-class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
+
+/**
+ * MIDI input base class
+ */
+class MidiOutput : public virtual Object
 {
 public:
-	PmStream *m_pMidiIn;
-	PmStream *m_pMidiOut;
-	bool m_bRunning;
-
-	PortMidiDriver();
-	virtual ~PortMidiDriver();
-
-	virtual void open();
-	virtual void close();
-	virtual std::vector<QString> getOutputPortList();
+	MidiOutput( const QString class_name );
+	virtual ~MidiOutput();
 	
-	virtual void handleQueueNote(Note* pNote);
-	virtual void handleQueueNoteOff( int channel, int key, int velocity );
-	virtual void handleQueueAllNoteOff();
-
-private:
-
+	virtual void handleQueueNote(Note* pNote) = 0;
+	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
+	virtual void handleQueueAllNoteOff() = 0;
+	
+//protected:
+//	std::vector<MidiMessage> m_pendingMessages;
+	
 };
 
 };
-
-#endif
 
 #endif
 

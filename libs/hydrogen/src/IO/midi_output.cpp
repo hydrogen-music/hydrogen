@@ -20,43 +20,45 @@
  *
  */
 
-#ifndef PORT_MIDI_DRIVER_H
-#define PORT_MIDI_DRIVER_H
-
-#ifdef PORTMIDI_SUPPORT
-
-#include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
-#include <portmidi.h>
+#include <hydrogen/event_queue.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/instrument.h>
+#include <hydrogen/note.h>
+#include <hydrogen/action.h>
+#include <hydrogen/midiMap.h>
 
 namespace H2Core
 {
 
-class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
+MidiOutput::MidiOutput( const QString class_name )
+		: Object( class_name )
 {
-public:
-	PmStream *m_pMidiIn;
-	PmStream *m_pMidiOut;
-	bool m_bRunning;
-
-	PortMidiDriver();
-	virtual ~PortMidiDriver();
-
-	virtual void open();
-	virtual void close();
-	virtual std::vector<QString> getOutputPortList();
+	//INFOLOG( "INIT" );
 	
-	virtual void handleQueueNote(Note* pNote);
-	virtual void handleQueueNoteOff( int channel, int key, int velocity );
-	virtual void handleQueueAllNoteOff();
+}
 
-private:
 
+MidiOutput::~MidiOutput()
+{
+	//INFOLOG( "DESTROY" );
+}
+
+/*
+void MidiOutput::queueMidiMessage( const MidiMessage& msg )
+{
+	m_pendingMessages.push_back(msg);
+}
+
+bool MidiOutput::hasQueuedMessages()
+{
+	return !m_pendingMessages.empty();
+}
+	
+void MidiOutput::processQueuedMessages()
+{
+	/// Do something...
+}
+*/
 };
-
-};
-
-#endif
-
-#endif
-

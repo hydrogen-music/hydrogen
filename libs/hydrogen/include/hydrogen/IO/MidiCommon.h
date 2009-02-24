@@ -20,43 +20,61 @@
  *
  */
 
-#ifndef PORT_MIDI_DRIVER_H
-#define PORT_MIDI_DRIVER_H
+#ifndef H2_MIDI_COMMON_H
+#define H2_MIDI_COMMON_H
 
-#ifdef PORTMIDI_SUPPORT
-
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
-#include <portmidi.h>
+#include <hydrogen/Object.h>
+#include <string>
+#include <vector>
 
 namespace H2Core
 {
 
-class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class MidiMessage
 {
 public:
-	PmStream *m_pMidiIn;
-	PmStream *m_pMidiOut;
-	bool m_bRunning;
+	enum MidiMessageType {
+		UNKNOWN,
+		SYSEX,
+		NOTE_ON,
+		NOTE_OFF,
+		POLYPHONIC_KEY_PRESSURE,
+		CONTROL_CHANGE,
+		PROGRAM_CHANGE,
+		CHANNEL_PRESSURE,
+		PITCH_WHEEL,
+		SYSTEM_EXCLUSIVE,
+		START,
+		CONTINUE,
+		STOP,
+		SONG_POS,
+		QUARTER_FRAME
+	};
 
-	PortMidiDriver();
-	virtual ~PortMidiDriver();
+	MidiMessageType m_type;
+	int m_nData1;
+	int m_nData2;
+	int m_nChannel;
+	std::vector<unsigned char> m_sysexData;
 
-	virtual void open();
-	virtual void close();
-	virtual std::vector<QString> getOutputPortList();
-	
-	virtual void handleQueueNote(Note* pNote);
-	virtual void handleQueueNoteOff( int channel, int key, int velocity );
-	virtual void handleQueueAllNoteOff();
-
-private:
-
+	MidiMessage()
+			: m_type( UNKNOWN )
+			, m_nData1( -1 )
+			, m_nData2( -1 )
+			, m_nChannel( -1 ) {}
 };
 
+
+class MidiPortInfo
+{
+public:
+	QString m_sName;
+	int m_nClient;
+	int m_nPort;
 };
 
-#endif
+
+};
 
 #endif
 

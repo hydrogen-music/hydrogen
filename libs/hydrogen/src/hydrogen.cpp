@@ -56,6 +56,7 @@
 #include <hydrogen/IO/JackOutput.h>
 #include <hydrogen/IO/NullDriver.h>
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 #include <hydrogen/IO/CoreMidiDriver.h>
 #include <hydrogen/IO/TransportInfo.h>
 #include <hydrogen/Preferences.h>
@@ -110,6 +111,7 @@ unsigned long m_nHumantimeFrames = 0;
 
 AudioOutput *m_pAudioDriver = NULL;	///< Audio output
 MidiInput *m_pMidiDriver = NULL;	///< MIDI input
+MidiOutput *m_pMidiDriverOut = NULL;	///< MIDI output
 
 // overload the the > operator of Note objects for priority_queue
 bool operator> (const Note& pNote1, const Note &pNote2) {
@@ -493,7 +495,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
 			(int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
-
+			
 		// if there is a negative Humanize delay, take into account so
 		// we don't miss the time slice.  ignore positive delay, or we
 		// might end the queue processing prematurely based on NoteQueue
@@ -632,7 +634,6 @@ inline void audioEngine_process_transport()
 
 
 		case TransportInfo::STOPPED:
-
 			if ( m_audioEngineState == STATE_PLAYING ) {
 				audioEngine_stop( false );	// no engine lock
 			}
@@ -1147,6 +1148,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 									&m_nPatternStartTick );
 				} else {
 					_INFOLOG( "End of Song" );
+					Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
 					return -1;
 				}
 			}
@@ -1590,7 +1592,9 @@ void audioEngine_startAudioDrivers()
 	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
 #ifdef ALSA_SUPPORT
 		// Create MIDI driver
-		m_pMidiDriver = new AlsaMidiDriver();
+		AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
+		m_pMidiDriverOut = alsaMidiDriver;
+		m_pMidiDriver = alsaMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
@@ -1792,6 +1796,7 @@ void Hydrogen::sequencer_play()
 /// Stop the internal sequencer
 void Hydrogen::sequencer_stop()
 {
+	Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
 	m_pAudioDriver->stop();
 	Preferences::getInstance()->setRecordEvents(false);
 }
@@ -2421,6 +2426,11 @@ AudioOutput* Hydrogen::getAudioOutput()
 MidiInput* Hydrogen::getMidiInput()
 {
 	return m_pMidiDriver;
+}
+
+MidiOutput* Hydrogen::getMidiOutput()
+{
+	return m_pMidiDriverOut;
 }
 
 

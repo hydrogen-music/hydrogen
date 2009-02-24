@@ -45,6 +45,8 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
 
+#include <iostream>
+
 namespace H2Core
 {
 
@@ -138,12 +140,27 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		if ( res == 1 ) {	// la nota e' finita
 			__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
 			pNote->get_instrument()->dequeue();
-			delete pNote;
-			pNote = NULL;
+			__queuedNoteOffs.push_back( pNote );
+//			delete pNote;
+//			pNote = NULL;
 		} else {
 			++i; // carico la prox nota
 		}
 	}
+	
+	//Queue midi note off messages for notes that have a length specified for them
+
+	while (!__queuedNoteOffs.empty()) {
+		pNote =  __queuedNoteOffs[0];
+		Hydrogen::get_instance()->getMidiOutput()->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(),
+									      (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key
+										+ (pNote->get_instrument()->get_midi_out_note() -60), 
+										pNote->get_velocity() * 127 );
+		__queuedNoteOffs.erase(__queuedNoteOffs.begin());
+		delete pNote;
+		pNote = NULL;
+	}//while
+
 }
 
 
@@ -185,6 +202,9 @@ void Sampler::note_on( Note *note )
 	{
 		delete note;
 	}
+	
+	Hydrogen::get_instance()->getMidiOutput()->handleQueueNote(note);
+	
 }
 
 void Sampler::midi_keyboard_note_off( int key )

@@ -151,8 +151,6 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 }
 
-
-
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 //	INFOLOG( "handleNoteOnMessage" );
@@ -187,6 +185,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	{
 		return;
 	}
+
+
+
 	
 
 	bool bPatternSelect = false;

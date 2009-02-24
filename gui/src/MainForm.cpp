@@ -570,6 +570,7 @@ void MainForm::action_file_export_pattern_as()
 		int err = fileMng.savePattern ( song , selectedpattern, patternname, realname, 2 );
 		if ( err != 0 )
 		{
+			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") );
 			_ERRORLOG ( "Error saving the pattern" );
 			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") ); 
 		}

@@ -188,7 +188,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	uint nQuarter = 48;
 
-	for ( int i = 0; i < 64; i++ ) {
+	for ( int i = 0; i < 64 ; i++ ) {
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );

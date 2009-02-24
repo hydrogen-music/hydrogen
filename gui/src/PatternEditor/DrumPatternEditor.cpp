@@ -253,7 +253,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				Note *pNote = pos->second;
 				assert( pNote );
 
-				if ( pNote->get_instrument() == pSelectedInstrument ) {
+				if ( pNote->get_instrument() == pSelectedInstrument
+				    && ( (nRealColumn <= pNote->get_position() + pNote->get_length() )
+				    && nRealColumn >= pNote->get_position() ) ){
 					m_pDraggedNote = pNote;
 					break;
 				}

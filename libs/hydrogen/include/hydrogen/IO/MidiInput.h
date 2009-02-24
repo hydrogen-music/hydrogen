@@ -26,59 +26,15 @@
 #include <hydrogen/Object.h>
 #include <string>
 #include <vector>
+#include "MidiCommon.h"
 
 namespace H2Core
 {
 
-class MidiMessage
-{
-public:
-	enum MidiMessageType {
-		UNKNOWN,
-		SYSEX,
-		NOTE_ON,
-		NOTE_OFF,
-		POLYPHONIC_KEY_PRESSURE,
-		CONTROL_CHANGE,
-		PROGRAM_CHANGE,
-		CHANNEL_PRESSURE,
-		PITCH_WHEEL,
-		SYSTEM_EXCLUSIVE,
-		START,
-		CONTINUE,
-		STOP,
-		SONG_POS,
-		QUARTER_FRAME
-	};
-
-	MidiMessageType m_type;
-	int m_nData1;
-	int m_nData2;
-	int m_nChannel;
-	std::vector<unsigned char> m_sysexData;
-
-	MidiMessage()
-			: m_type( UNKNOWN )
-			, m_nData1( -1 )
-			, m_nData2( -1 )
-			, m_nChannel( -1 ) {}
-};
-
-
-
-class MidiPortInfo
-{
-public:
-	QString m_sName;
-	int m_nClient;
-	int m_nPort;
-};
-
-
 /**
  * MIDI input base class
  */
-class MidiInput : public Object
+class MidiInput : public virtual Object
 {
 public:
 	MidiInput( const QString class_name );
