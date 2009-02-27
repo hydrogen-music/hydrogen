@@ -1378,9 +1378,8 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 		}
 	}
 
-	char tmp[200];
-	sprintf( tmp, "[findPatternInTick] tick = %d. No pattern found", nTick );
-	_ERRORLOG( tmp );
+	QString err = QString( "[findPatternInTick] tick = %1. No pattern found" ).arg( QString::number(nTick) );
+	_ERRORLOG( err );
 	return -1;
 }
 
