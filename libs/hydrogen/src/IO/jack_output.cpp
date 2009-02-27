@@ -47,8 +47,7 @@ JackOutput *jackDriverInstance = NULL;
 int jackDriverSampleRate( jack_nframes_t nframes, void *arg )
 {
 	UNUSED( arg );
-	char msg[100];
-	sprintf( msg, "Jack SampleRate changed: the sample rate is now %d/sec", ( int )nframes );
+	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
 	_INFOLOG( msg );
 	jack_server_sampleRate = nframes;
 	return 0;
