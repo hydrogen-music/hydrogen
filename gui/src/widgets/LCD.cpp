@@ -395,7 +395,7 @@ void LCDSpinBox::setValue( float nValue )
 			if ( nValue != m_fValue ) {
 				m_fValue = nValue;
 				QString floatString;
-				floatString.setNum( m_fValue , 'g' , 2 );
+ 				floatString.setNum( m_fValue , 'f' , 6 );
 				m_pDisplay->setText( floatString );
 			}
 			break;
