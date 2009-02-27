@@ -788,20 +788,18 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 {
 	float tmp = m_pEngine->getNoteLength() * 4; 
 	
-	char tmpt[2];       // m_pBCBUpBtn
 	if ( tBtn == m_pBCTUpBtn) {
 			tmp = tmp / 2 ;
 			if (tmp < 1)
 				tmp = 8;
-			sprintf(tmpt, "%01f", tmp );
-			m_pBCDisplayT->setText( QString( tmpt ) );
+
+			m_pBCDisplayT->setText( QString::number( tmp ) );
 			m_pEngine->setNoteLength( (tmp) / 4 );
 	} else {		
 			tmp = tmp * 2;
 			if (tmp > 8 )
 				 tmp = 1;
-			sprintf(tmpt, "%01f", tmp );
-			m_pBCDisplayT->setText( QString( tmpt ) );
+			m_pBCDisplayT->setText( QString::number(tmp) );
 			m_pEngine->setNoteLength( (tmp) / 4 );
 	}
 }
