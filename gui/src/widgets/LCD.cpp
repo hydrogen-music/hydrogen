@@ -394,9 +394,9 @@ void LCDSpinBox::setValue( float nValue )
 		case FLOAT:
 			if ( nValue != m_fValue ) {
 				m_fValue = nValue;
-				char tmp[20];
-				sprintf( tmp, "%#.2f", m_fValue );
-				m_pDisplay->setText( QString( "%1" ).arg( tmp ) );
+				QString floatString;
+				floatString.setNum( m_fValue , 'g' , 2 );
+				m_pDisplay->setText( floatString );
 			}
 			break;
 	}
