@@ -279,7 +279,8 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	env.Alias('programs', app)
 	env.Default('programs')
 
-	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/i18n"))
+        for N in glob.glob('./data/i18n/hydrogen.*'):
+            env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data/i18n', source=N))
 	env.Alias(target="install", source=env.Install(dir= env['DESTDIR'] + env['prefix'] + '/share/hydrogen/data', source="./data/img"))
 
 	#add every img in ./data/img to the install list. 
