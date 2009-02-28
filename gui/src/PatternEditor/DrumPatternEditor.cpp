@@ -201,7 +201,10 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		m_bRightBtnPressed = true;
 		m_pDraggedNote = NULL;
 
-		int  nRealColumn = (ev->x() - 20) /  static_cast<float>(m_nGridWidth);
+		unsigned nRealColumn = 0;
+		if( ev->x() > 20 ) {
+			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+		}
 
 		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );
 
@@ -227,7 +230,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			}
 		}
 		// potrei essere sulla coda di una nota precedente..
-		for ( int nCol = 0; nCol < nRealColumn; ++nCol ) {
+		for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
 			if ( m_pDraggedNote ) break;
 			for ( pos = m_pPattern->note_map.lower_bound( nCol ); pos != m_pPattern->note_map.upper_bound( nCol ); ++pos ) {
 				Note *pNote = pos->second;
