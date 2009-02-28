@@ -9,10 +9,20 @@
 #     $ H2_PARALLEL=4 dpkg-buildpackage -rfakeroot
 # ...or uncomment the following line:
 #H2_PARALLEL=4
+# ...or invoke dpkg-buildpackage like this:
+#     $ dpkg-buildpackage -j4 -rfakeroot
+# However, the -j4 here will run more than gcc in parallel.
 
 # Check for parallel builds.
+# NUMJOBS script goodie courtesy of http://lists.debian.org/debian-policy/2007/08/msg00005.html
+, := ,
+NUMJOBS=$(patsubst parallel=%,%,$(filter parallel=%,$(subst $(,), ,$(DEB_BUILD_OPTIONS))))
 ifneq ("$(H2_PARALLEL)","")
 	H2_PARALLEL_BUILDS=-j $(H2_PARALLEL)
+else
+	ifneq ("$(NUMJOBS)","")
+		H2_PARALLEL_BUILDS=-j $(NUMJOBS)
+	endif
 endif
 
 configure: 
