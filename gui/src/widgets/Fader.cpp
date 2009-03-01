@@ -394,15 +394,9 @@ float MasterFader::getValue()
 void MasterFader::setPeak_L( float peak )
 {
 	if ( peak < 0.01f ) {
-//		char tmp[200];
-//		sprintf( tmp, "[setPeak_L] Error: peak < 0.01 (peak = %f)", peak );
-//		ERRORLOG( tmp );
 		peak = 0.01f;
 	}
 	else if (peak > 1.0f ) {
-//		char tmp[200];
-//		sprintf( tmp, "[setPeak_L] Error: peak > 1 (peak = %f)", peak );
-//		ERRORLOG( tmp );
 		peak = 1.0f;
 	}
 
@@ -421,15 +415,9 @@ void MasterFader::setPeak_L( float peak )
 void MasterFader::setPeak_R( float peak )
 {
 	if ( peak < 0.01f ) {
-//		char tmp[200];
-//		sprintf( tmp, "[setPeak_R] Error: peak < 0.01 (peak = %f)", peak );
-//		ERRORLOG( tmp );
 		peak = 0.01f;
 	}
 	else if ( peak > 1.0f ) {
-//		char tmp[200];
-//		sprintf( tmp, "[setPeak_R] Error: peak > 1 (peak = %f)", peak );
-//		ERRORLOG( tmp );
 		peak = 1.0f;
 	}
 

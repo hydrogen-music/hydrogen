@@ -312,7 +312,8 @@ if ( Preferences::getInstance()->useLash() ){
 	string songFilename = "";
 	QString filenameSong = "";
 	Song *song = Hydrogen::get_instance()->getSong();
-	while (event = client->getNextEvent()) {
+	// Extra parentheses for -Wparentheses
+	while ( (event = client->getNextEvent()) ) {
 		
 		switch (lash_event_get_type(event)) {
 			

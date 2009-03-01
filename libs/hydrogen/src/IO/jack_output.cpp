@@ -47,8 +47,7 @@ JackOutput *jackDriverInstance = NULL;
 int jackDriverSampleRate( jack_nframes_t nframes, void *arg )
 {
 	UNUSED( arg );
-	char msg[100];
-	sprintf( msg, "Jack SampleRate changed: the sample rate is now %d/sec", ( int )nframes );
+	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
 	_INFOLOG( msg );
 	jack_server_sampleRate = nframes;
 	return 0;
@@ -234,10 +233,15 @@ void JackOutput::locateInNCycles( unsigned long frame, int cycles_to_wait )
 	locate_frame = frame;
 }
 
-/// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
+// Take beat-bar-tick info from the Jack system and translate it to a
+// new internal frame position and ticksize.
+//
+// This is primarily for when Hydrogen is a JACK Transport SLAVE.
+// When JACK is the master, we already know the BBT.
 void JackOutput::relocateBBT()
 {
-	//wolke if hydrogen is jack time master this is not relevant
+	// If Hydrogen is the JACK Timebase Master, then relocateBBT()
+	// doesn't need to do much at all.
 	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&  m_transport.m_status != TransportInfo::ROLLING) {
 		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getArdourTransportAdjustment();
 		WARNINGLOG( "Relocate: Call it off" );

@@ -42,8 +42,10 @@ hydrogen (0.9.4beta3) unstable; urgency=low
   * fix broken lead / lag
   * several fixes into soundlibrary import
   * download class now supports http redirect correctly
-  * config option 'adjust beatcounter offset' to get exact results with different hardware
-  * new statusbar message to display longer messages than 30 chars setScrollStatusBarMessage( QString message, int ms )
+  * config option 'adjust beatcounter offset' to get exact results
+    with different hardware
+  * new statusbar message to display longer messages than 30 chars
+    setScrollStatusBarMessage( QString message, int ms )
 
  -- Alessandro Cominu <comix@users.sf.net>  Mon, 15 Sep 2008 12:00:00 +0200
 
