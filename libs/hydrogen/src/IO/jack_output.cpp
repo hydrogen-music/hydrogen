@@ -233,22 +233,15 @@ void JackOutput::locateInNCycles( unsigned long frame, int cycles_to_wait )
 	locate_frame = frame;
 }
 
-// Take beat-bar-tick info from the Jack system and translate it to a
-// new internal frame position and ticksize.
-//
-// This is primarily for when Hydrogen is a JACK Transport SLAVE.
-// When JACK is the master, we already know the BBT.
+/// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
 void JackOutput::relocateBBT()
 {
-	// If Hydrogen is the JACK Timebase Master, then relocateBBT()
-	// doesn't need to do much at all.
+	//wolke if hydrogen is jack time master this is not relevant
 	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&  m_transport.m_status != TransportInfo::ROLLING) {
 		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getArdourTransportAdjustment();
 		WARNINGLOG( "Relocate: Call it off" );
 		calculateFrameOffset();
 	 	return;
-	} else if ( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		return;
 	} else {
 		if ( m_transport.m_status != TransportInfo::ROLLING || !( m_JackTransportPos.valid & JackPositionBBT ) /**the last check is *probably* redundant*/ ){
 			calculateFrameOffset();
