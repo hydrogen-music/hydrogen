@@ -238,7 +238,7 @@ void JackOutput::relocateBBT()
 {
 	//wolke if hydrogen is jack time master this is not relevant
 	if( Preferences::getInstance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&  m_transport.m_status != TransportInfo::ROLLING) {
-		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getArdourTransportAdjustment();
+		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize(); // have absolut nothing to do with the old ardour transport bug 
 		WARNINGLOG( "Relocate: Call it off" );
 		calculateFrameOffset();
 	 	return;
@@ -384,7 +384,7 @@ void JackOutput::updateTransportInfo()
 				} else {
 					///this is experimantal... but it works for the moment... fix me fix :-) wolke
 					// ... will this actually happen? keeping it for now ( jakob lund )
-					m_transport.m_nFrames = H->getHumantimeFrames() - getArdourTransportAdjustment();
+					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();// have nothing to do with the old ardour transport bug
 				}
 			}
 		}
