@@ -45,6 +45,10 @@
 using namespace H2Core;
 using namespace std;
 
+//MainSampleWaveDisplay* SampleEditor::m_pMainSampleWaveDisplay = NULL;
+//TargetWaveDisplay* SampleEditor::m_pTargetSampleView = NULL; 
+//DetailWaveDisplay* SampleEditor::m_pSampleAdjustView = NULL; 
+
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
