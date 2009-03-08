@@ -45,10 +45,6 @@
 using namespace H2Core;
 using namespace std;
 
-//MainSampleWaveDisplay* SampleEditor::m_pMainSampleWaveDisplay = NULL;
-//TargetWaveDisplay* SampleEditor::m_pTargetSampleView = NULL; 
-//DetailWaveDisplay* SampleEditor::m_pSampleAdjustView = NULL; 
-
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
@@ -104,10 +100,21 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 SampleEditor::~SampleEditor()
 {
+	m_pMainSampleWaveDisplay->close();
 	delete m_pMainSampleWaveDisplay;
+	m_pMainSampleWaveDisplay = NULL;
+
+	m_pSampleAdjustView->close();
 	delete m_pSampleAdjustView;
+	m_pSampleAdjustView = NULL;
+
+	m_pTargetSampleView->close();
 	delete m_pTargetSampleView;
+	m_pTargetSampleView = NULL;
+
 	delete m_pSamplefromFile;
+	m_pSamplefromFile = NULL;
+
 	INFOLOG ( "DESTROY" );
 }
 
@@ -118,14 +125,14 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
-			HydrogenApp::getInstance()->closeSampleEditor();;	
+			accept();	
 		}else
 		{
 			return;
 		}
 	}else
 	{
-		HydrogenApp::getInstance()->closeSampleEditor();
+		accept();
 	}
 }
 
@@ -267,24 +274,17 @@ void SampleEditor::openDisplays()
 	}
 
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 // wavedisplays
-//	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	m_divider = m_pSamplefromFile->get_n_frames() / 574.0F;
-//	m_pMainSampleWaveDisplay = new MainSampleWaveDisplay( mainSampleview );
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
-//	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
 	m_pSampleAdjustView->updateDisplay( m_samplename );
 	m_pSampleAdjustView->move( 1, 1 );
 
-//	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
-//	m_pTargetSampleView->updateDisplay( pLayer );
 	m_pTargetSampleView->move( 1, 1 );
 
-	QApplication::restoreOverrideCursor();
 
 }
 
@@ -296,15 +296,14 @@ void SampleEditor::on_ClosePushButton_clicked()
 		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
-			HydrogenApp::getInstance()->closeSampleEditor();	
+			accept();	
 		}else
 		{
 			return;
 		}
 	}else
 	{
-		HydrogenApp::getInstance()->closeSampleEditor();
-//		accept();
+		accept();
 	}
 }
 
@@ -312,10 +311,11 @@ void SampleEditor::on_ClosePushButton_clicked()
 
 void SampleEditor::on_PrevChangesPushButton_clicked()
 {
+	QApplication::setOverrideCursor(Qt::WaitCursor);	
 	getAllLocalFrameInfos();	
 	createNewLayer();
 	m_pSampleEditorStatus = true;
-	
+	QApplication::restoreOverrideCursor();	
 }
 
 
@@ -431,7 +431,6 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
 		m_start_frame = StartFrameSpinBox->value();
-//		m_pMainSampleWaveDisplay->testPositionFromSampleeditor();
 				
 	}else
 	{
@@ -636,9 +635,6 @@ void SampleEditor::createPositionsRulerPath()
 void SampleEditor::setSamplelengthFrames()
 {
 	getAllLocalFrameInfos();
-//	getAllFrameInfos();
-
-	//create new  sample length
 	unsigned onesamplelength =  m_end_frame - m_start_frame;
 	unsigned looplength =  m_end_frame - m_loop_frame ;
 	unsigned repeatslength = looplength * m_repeats;

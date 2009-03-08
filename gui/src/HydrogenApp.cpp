@@ -322,34 +322,21 @@ void HydrogenApp::showPlaylistDialog()
 
 void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 {
+
 	if ( m_pSampleEditor ){
-		//if ( m_pSampleEditor->m_pSampleEditorStatus == false ){
-		//	m_pSampleEditor->show();
-			//bool close = m_pSampleEditor->getCloseQuestion();
-			//if ( close ){
-			//	m_pSampleEditor->close();
-			//	delete m_pSampleEditor;
-			//}else
-			//{
-			//	return;
-			//}
-		//}else
-		//{
-			m_pSampleEditor->close();
-			delete m_pSampleEditor;
-			m_pSampleEditor = NULL;
-		//}
-	}	
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		m_pSampleEditor->close();
+		delete m_pSampleEditor;
+		m_pSampleEditor = NULL;
+		QApplication::restoreOverrideCursor();
+	}
+	QApplication::setOverrideCursor(Qt::WaitCursor);	
 	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name);
 	m_pSampleEditor->show();
+	QApplication::restoreOverrideCursor();
 }
 
-void HydrogenApp::closeSampleEditor()
-{
-	m_pSampleEditor->close();
-	delete m_pSampleEditor;
-	m_pSampleEditor = NULL;
-}
+
 
 void HydrogenApp::showInfoSplash()
 {
