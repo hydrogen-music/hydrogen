@@ -178,6 +178,54 @@
 			</para>
 		</sect2>
 	</sect1>
+	<sect1 id="AudioDriverPreferences">
+		<title>Audio preferences</title>
+		<para>From the "Audio System" tab (Fig. 1) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server).
+		</para>
+		<para>
+		We can set some features of Hydrogen like "Enable track outputs" useful if you want to add effects to a single instrument with jack-rack. "Connect to Default Output Pair" connects the output to the default ports: uncheck this if you want to connect JACK output to other ports without disconnecting them first
+		</para>
+		<para>
+		Keep also an eye on the value of "Polyphony": depending on your CPU you may want to change the max simultaneous notes in order to prevent hydrogen from overunning the audio driver.
+		</para>
+		
+		<mediaobject>
+		    <imageobject>
+			    <imagedata fileref="img/PreferencesAudioSystem.png" format="png">
+		    </imageobject>
+		</mediaobject>
+		
+		<para>
+		The "Midi System" tab (Fig. 2) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events.
+		</para>
+		
+		<mediaobject>
+		    <imageobject>
+			    <imagedata fileref="img/PreferencesMidiSystem.png" format="png">
+		    </imageobject>
+		</mediaobject>
+		
+		<para>
+		The "Appearance" tab (Fig. 3) let's you to modify Hydrogen and QT graphical properties.
+		</para>
+		
+		<mediaobject>
+		    <imageobject>
+			    <imagedata fileref="img/PreferencesAppearance.png" format="png">
+		    </imageobject>
+		</mediaobject>
+		
+		<para>
+		The audio engine info is a window with various stats about Hydrogen and the audio driver. In case JACK is used, buffer and sampling rate should be set before starting Hydrogen (JACK automatically starts when an application tries to connect).
+		</para>
+		
+		<mediaobject>
+		    <imageobject>
+			    <imagedata fileref="img/AudioEngineInfoDialog.png" format="png">
+		    </imageobject>
+		</mediaobject>
+		
+	</sect1>
 </chapter>
 
 <!--
