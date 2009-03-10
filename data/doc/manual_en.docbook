@@ -130,6 +130,11 @@
 	</sect1>
 -->
 
+	<!--
+	
+	mauser: In my opionon those driver informations are unnecessary here, moved to audio tab
+	
+	
 	<sect1 id="configurazioneAudioDriver">
 		<title>Audio driver configuration</title>
 		<para>
@@ -178,6 +183,9 @@
 			</para>
 		</sect2>
 	</sect1>
+	-->
+	
+	
 	<sect1 id="AudioDriverPreferences">
 		<title>Audio preferences</title>
 		<para>
@@ -213,7 +221,51 @@
 			</mediaobject>
 			
 			
+			<para>
+			    The following drivers are available:
+			</para>
 			
+			<itemizedList>
+
+			<listitem>
+			    <para>
+			    <emphasis role='bold'>jackd</emphasis>: The Jack driver is a professional audio server which permits very low lag and exchanges with other
+			    audio software. <emphasis>We strongly recommend using this driver to have the best out of Hydrogen</emphasis>.
+			    JACK server will start automatically if not already running.
+			    </para>
+			</listitem>
+		
+			<listitem>
+			    <para>
+			    <emphasis role='bold'>ALSA</emphasis>:
+			    the widely adopted Linux standard audio drivers
+			    </para>
+			</listitem>
+			
+			<listitem>
+			    <para>
+			    <emphasis role='bold'>OSS</emphasis>:
+			    The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
+			    supported by the vast majority of sound cards available for linux; this said, 
+			    the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
+			    by any other software. Use it as last resource.
+			    </para>
+			</listitem>
+		
+			<listitem>
+			    <para>
+			    <emphasis role='bold'>PortAudio</emphasis>:
+			    an open-source multiplatform audio driver
+			    </para>
+			</listitem>
+
+			<listitem>
+			    <para>
+			    <emphasis role='bold'>CoreAudio</emphasis>:
+			    a driver for Mac OS X (experimental) 
+			    </para>
+			</listitem>
+		    </itemizedList>
 		</sect2>
 		
 		<sect2 id="midiTab">
