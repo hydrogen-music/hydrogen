@@ -170,6 +170,13 @@
 			 an open-source multiplatform audio driver
 			</para>
 		</sect2>
+		
+		<sect2 id="coreaudioDriver">
+			<title>CoreAudio audio driver</title>
+			<para>
+			 a driver for Mac OS X (experimental) 
+			</para>
+		</sect2>
 	</sect1>
 </chapter>
 
