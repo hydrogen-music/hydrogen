@@ -493,7 +493,7 @@
 		<title>Song Editor</title>
 
 		<para>
-		The panel "Song Editor" (Fig. 6) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
+		The "Song Editor" (Fig. 6) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
 		</para>
 
 		<para>
@@ -575,8 +575,14 @@
 	<sect1 id="patternEditor">
 		<title>Pattern Editor</title>
 		<para>
-		The "Pattern Editor" frame (Fig. 2) let us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose a pattern to play between those created while the second represents the current grid resolution (4 through 64) and the 'three beats' bars (4T, 8T, 16T and 32T) plus a menu marked "size" which will let you visualize play only a part of the complete bar. Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame to allow tuning 'hard' or 'soft' beat. The button
+		The "Pattern Editor" frame (Fig. 7) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
+		
+		Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame. Those frame shows the so called "note properties". This are special properties which can be set for every
+		single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. 
+		</para>
 
+		<para>
+		The button
 		<inlinemediaobject>
 			<imageobject>
 				<imagedata fileref="img/btn_hear_on.png" format="png">
@@ -595,7 +601,7 @@
 	
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_quant_over.png" format="png">
+				<imagedata fileref="img/btn_quant_off.png" format="png">
 			</imageobject>
 		</inlinemediaobject>
 	
@@ -608,7 +614,7 @@
 				</imageobject>
 		<caption>
 			<para>
-			<emphasis role="bold">Fig. 2</emphasis> The Pattern Editor
+			<emphasis role="bold">Fig. 7</emphasis> The Pattern Editor
 			</para>
 		</caption>
 				
@@ -628,7 +634,7 @@
 		
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_record_off.png" format="png">
+				<imagedata fileref="img/btn_record_over.png" format="png">
 			</imageobject>
 		</inlinemediaobject>
 		
