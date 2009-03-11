@@ -331,8 +331,27 @@
 ####################
 -->
 
-<chapter id="GUI">
-	<title>GUI</title>
+<chapter id="usingHydrogen">
+	<title>Using Hydrogen</title>
+	
+	<sect1 id="usedFiles">
+	    <title>Used Filetypes</title>
+	    Before working with Hydrogen, please familiarize with these filetypes:
+	    <itemizedList>
+		    <listitem>
+			<emphasis role='bold'>*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.
+		    </listitem>
+		    <listitem>
+			<emphasis role='bold'>*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor
+		    </listitem>
+		    <listitem>
+			<emphasis role='bold'>*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.
+		    </listitem>
+		    <listitem>
+			<emphasis role='bold'>*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.
+		    </listitem>
+	    </itemizedList>
+	</sect1>
 	
 	<sect1 id="main">
 		<title>The main toolbar</title>
