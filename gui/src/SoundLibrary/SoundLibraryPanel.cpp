@@ -37,6 +37,7 @@
 #include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
+#include "../PatternEditor/DrumPatternEditor.h"
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
 
@@ -523,19 +524,10 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
 	HydrogenApp::getInstance()->onDrumkitLoad( drumkitInfo->getName() );
-
+	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	__sound_library_tree->currentItem()->setBackgroundColor ( 0, QColor( 50, 50, 50) );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
-
-	// update drumkit info in save tab
-	//saveTab_nameTxt ->setText( QString( drumkitInfo->getName().c_str() ) );
-	//saveTab_authorTxt->setText( QString( drumkitInfo->getAuthor().c_str() ) );
-	//saveTab_infoTxt->append( QString( drumkitInfo->getInfo().c_str() ) );
-
-	//HydrogenApp::getInstance()->getPatternEditorPanel()->getPatternEditor()->updateEditor( true );
-
-	//HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 }
 
 
