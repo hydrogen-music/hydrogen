@@ -169,11 +169,15 @@ void Sampler::note_on( Note *note )
 
 void Sampler::note_off( Note* note )
 {
-//this is in work. i planing a sustain-curve that users can edit
-//in moment only stop_playing_notes delete the current playing note.
-	stop_playing_notes( note->get_instrument() );
-//also the note_off msg from midi keyboard should be recorded into drum pattern note_map.
-//all this will develop into branch: new_fx_rack_and_sample_fun
+	assert(note);
+	Instrument *pInstr = note->get_instrument();
+	// find the notes using the same instrument, and release them
+	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+		Note *pNote = __playing_notes_queue[ j ];
+		if ( pNote->get_instrument() == pInstr ) {
+			pNote->m_adsr.release();
+		}
+	}
 }
 
 
