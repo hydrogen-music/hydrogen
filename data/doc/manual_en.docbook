@@ -336,75 +336,75 @@
 	
 	<sect1 id="usedFiles">
 	    <title>Used Filetypes</title>
-	    Before working with Hydrogen, please familiarize with these filetypes:
+	    <para>Before working with Hydrogen, please familiarize with these filetypes:</para>
 	    <itemizedList>
 		    <listitem>
-			<emphasis role='bold'>*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.
+			<para><emphasis role='bold'>*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.</para>
 		    </listitem>
 		    <listitem>
-			<emphasis role='bold'>*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor
+			<para><emphasis role='bold'>*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor</para>
 		    </listitem>
 		    <listitem>
-			<emphasis role='bold'>*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.
+			<para><emphasis role='bold'>*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.</para>
 		    </listitem>
 		    <listitem>
-			<emphasis role='bold'>*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.
+			<para><emphasis role='bold'>*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.</para>
 		    </listitem>
 	    </itemizedList>
 	</sect1>
 	
 	<sect1 id="mainMenu">
 	    <title>Main menu</title>
-	    <emphasis role='bold'>Projects</emphasis>: this menu offers file related functions.
+	    <para><emphasis role='bold'>Projects</emphasis>: this menu offers file related functions.</para>
 	    <itemizedList>
 
-			    <listitem><emphasis role='italic'>New</emphasis> - Create a new song</listitem>
-			    <listitem><emphasis role='italic'>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</listitem>
-			    <listitem><emphasis role='italic'>Open</emphasis> - Open a song</listitem>
-			    <listitem><emphasis role='italic'>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis role='italic'>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</listitem>
-			    <listitem><emphasis role='italic'>Open recent</emphasis> - Open a menu showing last used songs</listitem>
-			    <listitem><emphasis role='italic'>Save</emphasis> - Save changes to current song</listitem>
-			    <listitem><emphasis role='italic'>Save as</emphasis> - Save current song specifying a name (default path: <emphasis role='italic'>$HOME/.hydrogen/data/songs)</emphasis></listitem>
-			    <listitem><emphasis role='italic'>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</listitem>
-			    <listitem><emphasis role='italic'>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis role='italic'>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></listitem>
-			    <listitem><emphasis role='italic'>Export MIDI file</emphasis> - Export current song in MIDI format</emphasis></listitem>
-			    <listitem><emphasis role='italic'>Export song</emphasis> - Export current song in WAV format</emphasis></listitem>
-			    <listitem><emphasis role='italic'>Quit</emphasis> - Quit Hydrogen</listitem>
+			    <listitem><para><emphasis role='italic'>New</emphasis> - Create a new song</para></listitem>
+			    <listitem><para><emphasis role='italic'>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
+			    <listitem><para><emphasis role='italic'>Open</emphasis> - Open a song</para></listitem>
+			    <listitem><para><emphasis role='italic'>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis role='italic'>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
+			    <listitem><para><emphasis role='italic'>Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
+			    <listitem><para><emphasis role='italic'>Save</emphasis> - Save changes to current song</para></listitem>
+			    <listitem><para><emphasis role='italic'>Save as</emphasis> - Save current song specifying a name (default path: <emphasis role='italic'>$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
+			    <listitem><para><emphasis role='italic'>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
+			    <listitem><para><emphasis role='italic'>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis role='italic'>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
+			    <listitem><para><emphasis role='italic'>Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
+			    <listitem><para><emphasis role='italic'>Export song</emphasis> - Export current song in WAV format</para></listitem>
+			    <listitem><para><emphasis role='italic'>Quit</emphasis> - Quit Hydrogen</para></listitem>
 	    </itemizedList>
 	    
 	    
 	    	
-	<emphasis role='bold'>Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.
+	<para><emphasis role='bold'>Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.</para>
 	    <itemizedList>
-			<listitem><emphasis role='italic'>Add instrument</emphasis> - Add a new instrument to your current drumkit</listitem>
-			<listitem><emphasis role='italic'>Clear all</emphasis> - Delete all instruments from the current drumkit</listitem>
-			<listitem><emphasis role='italic'>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></listitem>
-			<listitem><emphasis role='italic'>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></listitem>
-			<listitem><emphasis role='italic'>Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role='bold'>NOT</emphasis> RSS compliant (see <ulink href="http://www.hydrogen-music.org/feeds/drumkit_list.php" target="new">Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink href="#rack">here</ulink>.</listitem>
-	    </itemizedList>
-	</listitem>
-	
-	    <emphasis role='bold'>Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.
-	    <itemizedList>
-		    <listitem><emphasis role='italic'>Playlist editor</emphasis> - A tool to manage playlists.</listitem>
-		    <listitem><emphasis role='italic'>Mixer</emphasis> - Open the mixer window.</listitem>
-		    <listitem><emphasis role='italic'>Instrument rack</emphasis> - Open the instrument rack panel.</listitem>
-		    <listitem><emphasis role='italic'>Preferences</emphasis> - Open the main preferences window. Read <ulink href="#prefs">here</ulink> on how to configure Hydrogen.</listitem>
+			<listitem><para><emphasis role='italic'>Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
+			<listitem><para><emphasis role='italic'>Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
+			<listitem><para><emphasis role='italic'>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis role='italic'>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis role='italic'>Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role='bold'>NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
 	    </itemizedList>
 	
 	
-	    <emphasis role='bold'>Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).
+	    <para><emphasis role='bold'>Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</para>
 	    <itemizedList>
-		    <listitem><emphasis role='italic'>Show audio engine info - </emphasis>Open a monitor with various <ulink href="#engine">stats</ulink></listitem>
-		    <listitem><emphasis role='italic'>debug action - </emphasis> Insert debug commands.</listitem>
-		    <listitem><emphasis role='italic'>Print Objects - </emphasis>Print on stdout current objects map.</listitem>
+		    <listitem><para><emphasis role='italic'>Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
+		    <listitem><para><emphasis role='italic'>Mixer</emphasis> - Open the mixer window.</para></listitem>
+		    <listitem><para><emphasis role='italic'>Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
+		    <listitem><para><emphasis role='italic'>Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
+	    </itemizedList>
+	
+	
+	    <para><emphasis role='bold'>Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
+	    <itemizedList>
+		    <listitem><para><emphasis role='italic'>Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
+		    <listitem><para><emphasis role='italic'>debug action - </emphasis> Insert debug commands.</para></listitem>
+		    <listitem><para><emphasis role='italic'>Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
 	    </itemizedList>
     
     
-	    <emphasis role='bold'>Info</emphasis>
+	    <para><emphasis role='bold'>Info</emphasis></para>
 	    <itemizedList>
-		    <listitem><emphasis role='italic'>User manual - </emphasis>Open a window with this manual :)</listitem>
-		    <listitem><emphasis role='italic'>About - </emphasis>The usual window with licence information, acknowledgements, etc.</listitem>
+		    <listitem><para><emphasis role='italic'>User manual - </emphasis>Open a window with this manual :)</para></listitem>
+		    <listitem><para><emphasis role='italic'>About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
 	    </itemizedList>
 
 	
@@ -415,41 +415,57 @@
 	
 	<sect1 id="main">
 		<title>The main toolbar</title>
-		<para>Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar:</para>
-
-	<mediaobject>
-		<imageobject>
-			<imagedata fileref="img/MainToolbar.png" format="png">
-		</imageobject>
-	</mediaobject>
-
-	<itemizedlist mark="opencircle">
-		<listitem><para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/background_Control.png" format="png">
-		</imageobject></inlinemediaobject>
-			</para><para>Main controls to start <emphasis role="bold">[Hotkey = Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a pattern.</para>
-		</listitem>
+		<para>Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar and its components:</para>
 		
-		<listitem><para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/background_Mode.png" format="png">
-		</imageobject></inlinemediaobject></para><para>Set Pattern/Song Mode.</para></listitem>
- 
-		<listitem><para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/background_BPM.png" format="png">
-		</imageobject></inlinemediaobject></para><para>Set speed of playing (range: 30-400 bpm) <emphasis role="bold">[Hotkey = mouse wheel]</emphasis> and button to enable/disable metronome</para></listitem>
+		<itemizedList>
+		    <listitem><para>Pilot the song using the start, stop, pause, etc. buttons</listitem>
+		    <listitem><para>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</listitem>
+		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.</listitem>
+		    <listitem><para>Manually set BPM</listitem>
+		    <listitem><para>Manage JACK transport</listitem>
+		    <listitem><para>Open the mixer and the instrument rack panels</listitem>
+		</itemizedList>
+	
+	
+		<mediaobject>
+			<imageobject>
+				
+				<imagedata fileref="img/MainToolbar.png" format="png">
+				
+			</imageobject>
+			<caption> 
+			    <para><emphasis role="bold">Fig. 5 </emphasis>  The main toolbar</para>
+			</caption>
+		</mediaobject>
+	
 
-		<listitem><para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/cpuload.png" format="png">
-		</imageobject></inlinemediaobject></para><para>Shows CPU load.</para></listitem>
+		<itemizedlist mark="opencircle">
+			<listitem><para><inlinemediaobject><imageobject>
+				<imagedata fileref="img/background_Control.png" format="png">
+			</imageobject></inlinemediaobject>
+				</para><para>Main controls to start <emphasis role="bold">[Hotkey = Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a pattern.</para>
+			</listitem>
+			
+			<listitem><para><inlinemediaobject><imageobject>
+				<imagedata fileref="img/background_Mode.png" format="png">
+			</imageobject></inlinemediaobject></para><para>Set Pattern/Song Mode.</para></listitem>
+	
+			<listitem><para><inlinemediaobject><imageobject>
+				<imagedata fileref="img/background_BPM.png" format="png">
+			</imageobject></inlinemediaobject></para><para>Set speed of playing (range: 30-400 bpm) <emphasis role="bold">[Hotkey = mouse wheel]</emphasis> and button to enable/disable metronome</para></listitem>
 
-		<listitem><para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/midi_in.png" format="png">
-		</imageobject></inlinemediaobject></para><para>Shows MIDI events.</para></listitem>
+			<listitem><para><inlinemediaobject><imageobject>
+				<imagedata fileref="img/cpuload.png" format="png">
+			</imageobject></inlinemediaobject></para><para>Shows CPU load.</para></listitem>
 
-		<listitem><para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/jack_transport.png" format="png">
-		</imageobject></inlinemediaobject></para><para>Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected.</para></listitem>
-	</itemizedlist>
+			<listitem><para><inlinemediaobject><imageobject>
+				<imagedata fileref="img/midi_in.png" format="png">
+			</imageobject></inlinemediaobject></para><para>Shows MIDI events.</para></listitem>
+
+			<listitem><para><inlinemediaobject><imageobject>
+				<imagedata fileref="img/jack_transport.png" format="png">
+			</imageobject></inlinemediaobject></para><para>Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected.</para></listitem>
+		</itemizedlist>
 
 	<para>Other useful keybindings (not customizable for the moment):</para>
 		
