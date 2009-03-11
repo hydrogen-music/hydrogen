@@ -493,21 +493,29 @@
 		<title>Song Editor</title>
 
 		<para>
-		The frame "Song Editor" (Fig. 1) shows the song we are creating; each blue coloured square appearing on this frame means a complete bar as shown in the Pattern Editor, which gathers the different parts of the song (e.g. intro, verse, bridge, chorus and so on). We have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
+		The panel "Song Editor" (Fig. 6) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
 		</para>
 
-<para>
-The Song Editor comes with 5 buttons:
-</para>
-<para>
-	<inlinemediaobject>
-		<imageobject>
-			<imagedata fileref="img/bg_topPanel.png" format="png">
-		</imageobject>
-	</inlinemediaobject>
-</para>
+		<para>
+		The Song Editor comes with 7 buttons:
+		</para>
+		<para>
+			<inlinemediaobject>
+				<imageobject>
+					<imagedata fileref="img/bg_topPanel.png" format="png">
+				</imageobject>
+			</inlinemediaobject>
+		</para>
 
 <itemizedlist mark='opencircle'>
+
+		<listitem>
+		<para><inlinemediaobject><imageobject>
+			<imagedata fileref="img/btn_clear_off.png" format="png">
+		</imageobject></inlinemediaobject> Completely delete all patterns (asks for confirmation!).
+		</para>
+		</listitem>
+
 		<listitem>
 		<para><inlinemediaobject><imageobject>
 			<imagedata fileref="img/btn_new_on.png" format="png">
@@ -522,24 +530,26 @@ The Song Editor comes with 5 buttons:
 		</para>
 		</listitem>
 
+
+
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_clear_off.png" format="png">
-		</imageobject></inlinemediaobject> Completely delete all patterns (asks for confirmation!).
+			<imagedata fileref="img/btn_select.png" format="png">
+		</imageobject></inlinemediaobject> Enable selecting patterns for copy & paste (Select Mode).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_select_off.png" format="png">
-		</imageobject></inlinemediaobject> Enable selecting patterns for copy & paste.
+			<imagedata fileref="img/btn_draw.png" format="png">
+		</imageobject></inlinemediaobject> Enable Draw Mode.
 		</para>
 		</listitem>
-
+		
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_select_off.png" format="png">
-		</imageobject></inlinemediaobject> Enable add/remove patterns.
+			<imagedata fileref="img/btn_pattern_mode.png" format="png">
+		</imageobject></inlinemediaobject> Switch from "Single pattern mode" to "Stacked pattern mode" and back..
 		</para>
 		</listitem>
 </itemizedlist>
@@ -555,7 +565,7 @@ The Song Editor comes with 5 buttons:
 		</imageobject>
 		<caption>
 			<para>
-			<emphasis role="bold">Fig. 1</emphasis> The Song Editor
+			<emphasis role="bold">Fig. 6</emphasis> The Song Editor
 			</para>
 		</caption>
 	</mediaobject>
