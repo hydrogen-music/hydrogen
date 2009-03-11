@@ -630,7 +630,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</para>
 	    
 		<para>
-		    The small green and red squares beside the instrument name are the <quote><emphasis>mute</emphasis></quote> and <quote><emphasis>solo</emphasis></quote> buttons.
+		    The small green and red squares beside the instrument name are the <quote><emphasis role="bold">mute</emphasis></quote> and <quote><emphasis role="bold">solo</emphasis></quote> buttons.
 		</para>
 		
 		<mediaobject>
@@ -698,12 +698,12 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 			</imageobject>
 		<caption>
 			<para>
-			<emphasis role="bold">Fig. 3</emphasis> The Mixer
+			<emphasis role="bold">Fig. 8</emphasis> The Mixer
 			</para>
 		</caption>
 		</mediaobject>
 
-<para>The Mixer frame (Fig. 3) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
+<para>The Mixer frame (Fig. 8) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
 
 	<inlinemediaobject>
 		<imageobject>
@@ -711,15 +711,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</imageobject>
 	</inlinemediaobject>	
 
-	 to disable, useful on old CPUs) and let you set the maximum peak allowed (tune with the fader knob of the instrument), lets you modify attributes like pan  
-	
-	<inlinemediaobject>
-		<imageobject>
-			<imagedata fileref="img/MixerPan.png" format="png">
-		</imageobject>
-	</inlinemediaobject>	
-			
-	, play solo 
+	 to disable, useful on old CPUs) and let you set the maximum peak allowed (tune with the fader knob of the instrument), lets you modify attributes like pan, play solo 
 	
 	<inlinemediaobject>
 		<imageobject>
@@ -746,33 +738,6 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	; selecting in the Pattern Editor an instrument causes a blue LED to light on (near the play button). Near the global volume knob, you can set 3 global effect such a swing (shifts a few notes back or forward not randomly), timing (modify timings of the notes) and humanize effect (random velocity editing).
 	</para>
 
-	<para>
-		Double clicking over the name of an instrument in the Mixer frame will bring up	a doubled face tool to modify many properties of that instrument.
-	</para>
-	
-	<para>
-	<inlinemediaobject>
-		<imageobject>
-			<imagedata fileref="img/instr_ed1.png" format="png">
-		</imageobject>
-	</inlinemediaobject>
-		
-	<inlinemediaobject>
-		<imageobject>
-			<imagedata fileref="img/instr_ed0.png" format="png">
-		</imageobject>
-	</inlinemediaobject>
-	</para>
-	
-	<para>
-		The first tab ('Instrument') lets you fine tune the instrument: you can adjust Attack, Decay, Sustain, Release, Cutoff and Resonance (both of which can be excluded) or even add a random pitch.
-	</para>
-
-	<para>
-		The second tab ('Layer') can add WAV/AU/AIFF/FLAC samples up to 16 layers to the instrument according to the level of its velocity and tune pitch and gain.
-	</para>
-		
-	
 	<para>
 		In addition to all this you can set up to 4 special LADSPA effects for each instrument switching the
 		
