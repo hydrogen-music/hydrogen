@@ -578,7 +578,7 @@
 		The "Pattern Editor" frame (Fig. 7) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
 		
 		Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame. Those frame shows the so called "note properties". This are special properties which can be set for every
-		single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. 
+		single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms at a tempo of 120bpm.
 		</para>
 
 		<para>
@@ -621,9 +621,18 @@
 			</mediaobject>
 
 		<para>
-		Each instrument has its own set of features accessible right-clicking with your mouse on it; <quote><emphasis role="bold">Mute</emphasis></quote>, <quote><emphasis role="bold">Solo</emphasis></quote> are self-explaining while <quote><emphasis role="bold">Lock</emphasis></quote> locks the instrument belonging to a drumkit on that pattern even if you change drumkit: this way you can easily mess up more drumkits together and create your own! <quote><emphasis role="bold">Fill/Clear notes</emphasis></quote> fills or deletes every note of that instrument in the current pattern (remember that filling a pattern is always relative to the grid resolution set) and finally <quote><emphasis role="bold">Randomize velocity</emphasis></quote> automatically apply a pseudo-random velocity to each note of that instrument in the pattern. The more velocity you set on the instrument, the more hydrogen will hit <quote>hard</quote> on that instrument when played.
+		Rememeber this constraint concerning the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; on the other hand if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision), notes will be placed in the previous or in the following 8th bar.
+This contraint can be removed if you disable the whole grid resolution (choose "off" from the grid resolution LCD control). Now you'll be able to place notes wherever you prefer.
 		</para>
-
+		
+		<para>
+		Each instrument has its own set of features accessible right-clicking with your mouse on it;  <quote><emphasis role="bold">Fill/Clear notes</emphasis></quote> fills or deletes every note of that instrument in the current pattern (remember that filling a pattern is always relative to the grid resolution set) and finally <quote><emphasis role="bold">Randomize velocity</emphasis></quote> automatically apply a pseudo-random velocity to each note of that instrument in the pattern. The more velocity you set on the instrument, the more hydrogen will hit <quote>hard</quote> on that instrument when played.
+		</para>
+	    
+		<para>
+		    The small green and red squares beside the instrument name are the <quote><emphasis>mute</emphasis></quote> and <quote><emphasis>solo</emphasis></quote> buttons.
+		</para>
+		
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/PatternEditorInstr.png" format="png">
