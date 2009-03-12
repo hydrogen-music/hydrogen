@@ -886,11 +886,53 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		  </menuchoice>.
                 </para>
 
-		<para>Select one of your instruments to start editing it.  This
+		<para>Select an instrument to start editing it.  This
 		is done by left-clicking on the name of the instrument in the
 		instrument list (at the left).  You will notice that the name of
 		the instrument in the Instrument Editor matches the one that you
 		clicked.</para>
+
+		<para>After you have your drum kit working the way you
+		want, select
+		  <menuchoice>
+		    <guimenuitem>Instruments</guimenuitem>
+		    <guimenuitem>Save library</guimenuitem>
+		  </menuchoice>.  It will ask you for the name of the
+		  kit to save.  If you wish
+		  to <emphasis>overwrite</emphasis> an existing kit,
+		  you will need to type in the same name as the kit
+		  that you want to replace.</para>
+
+		<para>Drumkits are automatically stored in
+		the <filename class="directory">data</filename>
+		directory
+		(i.e. <filename class="directory">$HOME/data/drumkits</filename>).</para>
+
+		<para>To export a drumkit (for sharing with others),
+		it must first be loaded into your Sound Library.
+		Then, select
+		  <menuchoice>
+		    <guimenuitem>Instruments</guimenuitem>
+		    <guimenuitem>Export library</guimenuitem>
+		  </menuchoice>
+		from the menu.  Select the drum kit that you wish to
+		export, and give it a file name to save it to.</para>
+
+	</sect2>
+	<sect2 id="instrumentediting.newinstrument">
+		<title>Creating an Instrument</title>
+
+		<para>For each instrument in a drum kit, you can load
+		several samples and set different synthesizer
+		parameters.  This section will step you through how to
+		create a new instrument and load the samples.</para>
+
+		<para>To begin creating an instrument, select
+		  <menuchoice>
+		    <guimenu>Instruments</guimenu>
+		    <guimenuitem>Add instrument</guimenuitem>
+		  </menuchoice>.  This will give you a blank
+		  instrument to start from.</para>
 
                 <para>Now, you need two samples.  Any .WAV or .FLAC file will
                 do.  Hydrogen provides several in
@@ -905,7 +947,40 @@ This contraint can be removed if you disable the whole grid resolution (choose "
                 Browser</guimenu> to your sample.  Note that the <guimenu>Audio
                 File Browser</guimenu> will allow you to preview the sample
                 before you load it.  It will also allow you to load more than
-                one sample at a time.</para>
+                one sample at a time.  But for now, only load one.</para>
+
+		<para>After you load the sample, you'll see that there
+		is now a <guilabel>1</guilabel> at the top, and the
+		topmost rectangle has turned light blue.  To load a
+		second sample, click the slot just below it, and then
+		click <guibutton>Load Layer</guibutton> to bring in
+		another sample.</para>
+
+		<para>After bringing in both samples, you'll probably
+		notice that only the <emphasis>first</emphasis> sample
+		is being played whenever you trigger the instrument.
+		This is because you need to set
+		the <emphasis>velocity</emphasis> ranges for the
+		layers.  Move your mouse to the sides of the light
+		blue rectangles and you see that you get a left-right
+		drag cursor.  Now drag the sample to the left or right
+		(like a curtain).  You will now see Layer 2
+		appear.</para>
+
+		<!-- TODO:  Check to make sure this is right -->
+		<para>The velocity setting for the layer is 0-velocity
+		on the left, and full velocity on the right.  Set up
+		Layer 1 to sound for soft notes, and Layer 2 to sound
+		for hard notes.  (I.e. Layer 1 on the left and Layer 2
+		on the right.)</para>
+
+		<para>Now, in the pattern area, set up a simple
+		pattern that plays this instrument.  Adjust the
+		velocity settings on each note so that you can get the
+		different samples to sound.  Now set the pattern to
+		loop and notice how your different samples are getting
+		triggered.  (To learn about editing a pattern,
+		see <xref linkend="patternEditor">)</para>
 
 	</sect2>
 	</sect1>
