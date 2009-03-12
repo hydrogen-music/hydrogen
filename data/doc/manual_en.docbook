@@ -940,5 +940,370 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
 		</mediaobject>
 	</sect1>
 </chapter>
+<glossary id="glossary">
+  <title>Glossary</title>
+
+  <para>This is a glossary of general terms encountered when using Hydrogen,
+  synthesizers, drums, or samplers.  The definitions in the text are simplified,
+  but the definitions here are more general and have more explanation.  For
+  example, the text of the manual would have you believe that an ADSR is the
+  only kind of envelope generator, and could only ever control the volume.
+  While it's simple for new users, it's not quite right.</para>
+
+  <!--  ...  -->
+
+  <!--   A   -->
+
+  <glossentry id="def.adsr">
+    <glossterm>ADSR</glossterm>
+    <glossdef>
+      <para>A type of envelope generator that allows you to control the
+      <link linkend="def.attack">Attack</link>,
+      <link linkend="def.decay">Decay</link>,
+      <link linkend="def.sustain">Sustain</link>, and
+      <link linkend="def.release">Release</link> parameters.
+      Generally, the
+      parameters are proportional to
+      the <link linkend="def.velocity">velocity</link>.</para>
+
+      <para>In Hydrogen, the ADSR envelope generator only controls the volume
+      (attenuation).</para>
+
+      <glossseealso otherterm="def.envelopegenerator">
+      <glossseealso otherterm="def.attack">
+      <glossseealso otherterm="def.decay">
+      <glossseealso otherterm="def.sustain">
+      <glossseealso otherterm="def.release">
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.attack">
+    <glossterm>Attack</glossterm>
+    <glossdef>
+      <para>This is the first phase of an ADSR envelope, and is the amount
+      of <emphasis role="italics">time</emphasis> to turn the parameter up from
+      0 to full velocity after triggering the note.</para>
+
+      <glossseealso otherterm="def.adsr">
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.attenuation">
+    <glossterm>Attenuation</glossterm>
+    <glossdef>
+      <para>In filters and mixers, this the amount that a signal is reduced
+      (volume).</para>
+
+      <glossseealso otherterm="def.rolloff">
+    </glossdef>
+  </glossentry>
+
+  <!--   B   -->
+
+  <glossentry id="def.bandpassfilter">
+    <glossterm>Band-Pass Filter</glossterm>
+    <glossdef>
+      <para>A filter that preserves a cetertain band of frequencies, and
+      attenuates (silences) all others.  This is often done by combining a
+      high-pass and a low-pass filter.</para>
+
+      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.highpassfilter">
+      <glossseealso otherterm="def.lowpassfilter">
+    </glossdef>
+  </glossentry>
+
+  <!--   C   -->
+
+  <glossentry id="def.cutoff">
+    <glossterm>Cutoff Frequency</glossterm>
+    <glossdef>
+      <para>On high-pass and low-pass filters, this is the frequency that
+      divides between those that pass, and those that are attenuated (silenced).
+      In a high-pass resonance filter, or a low-pass resonance filter, the
+      cutoff is also the frequency zone that gets boosted.</para>
+
+      <para>For example, if you have a low-pass filter and you set the cutoff
+      frequency high (i.e. 20kHz)... the filter will not affect the sound.  All
+      the audible frequencies will pass through undisturbed.  As you lower the
+      cutoff frequency to something like 40 Hz (the low string on a bass
+      guitar), it sounds like someone is putting a blanket over the speaker.
+      The higher frequencies are being attenuated above 30 Hz.</para>
+
+      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.highpassfilter">
+      <glossseealso otherterm="def.lowpassfilter">
+      <glossseealso otherterm="def.resonancefilter">
+    </glossdef>
+  </glossentry>
+
+  <!--   D   -->
+
+  <glossentry id="def.decay">
+    <glossterm>Decay</glossterm>
+    <glossdef>
+      <para>After reaching full velocity from the attack, this is the amount
+      of <emphasis role="italics">time</emphasis> to turn the parameter down
+      from full velocity to the sustain level.</para>
+
+      <glossseealso otherterm="def.adsr">
+    </glossdef>
+  </glossentry>
+
+  <!--   E   -->
+
+  <glossentry id="def.envelopegenerator">
+    <glossterm>Envelope Generator</glossterm>
+    <glossdef>
+      <para>A way to control (change) a parameter over time as a response to
+      triggering, holding, and releasing a note.</para>
+
+      <para>Did your eyes just glaze over? Let's try again:</para>
+
+      <para>Imagine that you're playing a note on the keyboard and you have your
+      other hand on a knob (volume, filter cutoff, etc.).  As you play the note,
+      you twist the knob (often up, then down... or down, then up).  You do the
+      same thing on each note.  That's what an envelope generator does.  See
+      also <link linkend="def.adsr">ADSR</link></para>
+    </glossdef>
+  </glossentry>
+
+  <!--   F   -->
+
+  <glossentry id="def.fader">
+    <glossterm>Fader</glossterm>
+    <glossdef>
+      <para>A slider control used to adjust the attenuation (volume) in a mixer.
+      Faders always have an "audio" taper, which means that the attenuation
+      amount changes on an exponential scale.</para>
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.filter">
+    <glossterm>Filter</glossterm>
+    <glossdef>
+      <para>A device that changes a sound by attenuating specific frequencies.
+      A tone knob is an example of a simple, low-pass filter.</para>
+
+      <glossseealso otherterm="def.bandpassfilter">
+      <glossseealso otherterm="def.highpassfilter">
+      <glossseealso otherterm="def.lowpassfilter">
+      <glossseealso otherterm="def.resonancefilter">
+    </glossdef>
+  </glossentry>
+
+  <!--   G   -->
+
+  <glossentry id="def.gain">
+    <glossterm>Gain</glossterm>
+    <glossdef>
+      <para>In an amplifier, this adjust how much (or how little) a signal is
+      amplified (volume).  A higher gain value is a louder signal.</para>
+    </glossdef>
+  </glossentry>
+
+  <!--   H   -->
+
+  <glossentry id="def.highpassfilter">
+    <glossterm>High-Pass Filter</glossterm>
+    <glossdef>
+      <para>A filter that attenuates (silences) low frequencies, but allows high
+      frequencies to pass through.</para>
+
+      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.cutoff">
+    </glossdef>
+  </glossentry>
+
+  <!--   I   -->
+
+  <glossentry id="def.instrument">
+    <glossterm>Instrument</glossterm>
+    <glossdef>
+      <para>In Hydrogen, an instrument is a single noise-maker (like a bass drum
+      kick, or a tom).</para>
+    </glossdef>
+  </glossentry>
+  <!--   J   -->
+
+  <!--   K   -->
+
+  <!--   L   -->
+
+  <glossentry id="def.layer">
+    <glossterm>Layer</glossterm>
+    <glossdef>
+      <para>In Hydrogen, a sample can actually be multiple
+      samples <emphasis role="italics">layered</emphasis> on top of each other.
+      Each sample in an instrument is called a layer.</para>
+
+      <glossseealso otherterm="def.instrument">
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.lowpassfilter">
+    <glossterm>Low-Pass Filter</glossterm>
+    <glossdef>
+      <para>A filter that attenuates (silences) high frequences, but allows low
+      frequencies to pass through.</para>
+
+      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.cutoff">
+    </glossdef>
+  </glossentry>
+
+  <!--   M   -->
+
+  <glossentry id="def.mute">
+    <glossterm>Mute</glossterm>
+    <glossdef>
+      <para>To make no noise.  A setting on an instrument that prevents any
+      audio output.</para>
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.mutegroup">
+    <glossterm>Mute Group</glossterm>
+    <glossdef>
+      <para>A group of instruments (samples) that should mute (stop playing)
+      immediately after another instrument in the group is triggered.</para>
+
+      <para>This is typically used in hi-hats, where there's a different
+      instrument (sample) for when the hi-hat is open or closed.  With a real
+      hi-hat, the sound of the open hi-hat will stop as soon as you close it.
+      However, if you use two samples &mdash; the open sound will continue even
+      after you have triggered the closed sound.  By placing both instruments in
+      the same mute group (group #1, for example)... triggering closed sound
+      will immediately stop the open sound (and vice versa).</para>
+    </glossdef>
+  </glossentry>
+
+  <!--   N   -->
+
+  <!--   O   -->
+
+  <glossentry id="def.octave">
+    <glossterm>Octave</glossterm>
+    <glossdef>
+      <para>A span of frequencies where the top-most frequency is exactly twice
+      the frequency of the bottom frequency.</para>
+
+      <para>For example, the range 20 Hz to 40 Hz is an octave.  So is 120 Hz to
+      240 Hz, and 575 Hz to 1150 Hz.  While the frequency differences are very
+      different (20 Hz, 120 Hz, and 575 Hz, respectively), to the human ear
+      they <emphasis role="italics">sound</emphasis> like the same
+      distance.</para>
+    </glossdef>
+  </glossentry>
+
+  <!--   P   -->
+
+  <!--   Q   -->
+
+  <!--   R   -->
+
+  <glossentry id="def.release">
+    <glossterm>Release</glossterm>
+    <glossdef>
+      <para>After the note is released, this is the amount
+      of <emphasis role="italics">time</emphasis> to reduce the parameter from
+      the sustain level to 0.</para>
+
+      <glossseealso otherterm="def.adsr">
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.resonance">
+    <glossterm>Resonance</glossterm>
+    <glossdef>
+      <para>When referring to a resonance filter, this is the parameter that
+      determines how much of a boost (gain) to give the frequencies at the
+      cutoff.</para>
+
+      <glossseealso otherterm="def.resonancefilter">
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.resonancefilter">
+    <glossterm>Resonance Filter</glossterm>
+    <glossdef>
+      <para>A filter that gives a large boost to a very narrow range of
+      frequencies.  Typically it will be part of a high-pass or a low-pass
+      filter, where the boosted frequencies are centered on the cut-off
+      frequency.</para>
+
+      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.cutoff">
+      <glossseealso otherterm="def.resonance">
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.rolloff">
+    <glossterm>Roll-off</glossterm>
+    <glossdef>
+      <para>This is the amount that frequencies are attenuated (suppressed) as
+      the frequency changes (typically measured in dB/octave).</para>
+
+      <para>For example, in a low-pass filter the frequences below the cutoff
+      frequency are not attenuated (they pass-through with the same volume).
+      Same with the cutoff frequency.  As you go above the cutoff frequency, the
+      frequencies that are near the cutoff frequency are not attenuated very
+      much at all.  However, the frequencies that are much higher than the
+      cutoff are attenuated (suppressed) a lot.  This is usually approximated by
+      a straight line (on a log scale) and measured in in dB of attenuation per
+      octave of frequency.</para>
+
+      <glossseealso otherterm="def.attenuation">
+      <glossseealso otherterm="def.filter">
+    </glossdef>
+  </glossentry>
+
+  <!--   S   -->
+
+  <glossentry id="def.sample">
+    <glossterm>Sample</glossterm>
+    <glossdef>
+      <para>A short recording of a sound, typically between .1 and 3.0 seconds
+      long.</para>
+    </glossdef>
+  </glossentry>
+
+  <glossentry id="def.sustain">
+    <glossterm>Sustain</glossterm>
+    <glossdef>
+      <para>The <emphasis role="italics">level</emphasis> to hold the parameter
+      after finishing the decay time.  This level will be maintained until the
+      not is released.</para>
+      <glossseealso otherterm="def.adsr">
+    </glossdef>
+  </glossentry>
+
+  <!--   T   -->
+
+  <!--   U   -->
+
+  <!--   V   -->
+
+  <glossentry id="def.velocity">
+    <glossterm>Velocity</glossterm>
+    <glossdef>
+      <para>How hard you hit a note.</para>
+
+      <para>MIDI devices are required to send this information along with the
+      note.  Synthesizers use this information to adjust several parameters on
+      the sample (typically the volume).  In Hydrogen, it is only used to adjust
+      how loud the sample is played back.</para>
+    </glossdef>
+  </glossentry>
+
+  <!--   W   -->
+
+  <!--   X   -->
+
+  <!--   Y   -->
+
+  <!--   Z   -->
+
+</glossary>
 </book>
 	
