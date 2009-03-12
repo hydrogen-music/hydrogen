@@ -759,6 +759,155 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 	</sect1>
 
+        <sect1 id="drumkit">
+          <title>The Drumkit Manager</title>
+
+          <para>
+            To be written.
+          </para>
+        </sect1>
+	<sect1 id="instrumentediting">
+		<title>Drumkits and Instrument Editing</title>
+
+		<para>Creating a new drumkit with Hydrogen is done with the
+		Instrument Editor.  Using the instrument editor you can load
+		samples, set envelope parameters, set the gain, and a few other
+		advanced features like mute groups, low-pass resonance filter,
+		and pitch randomization.</para>
+
+		<para>Instead of creating your own drumkit, you can also use or
+		download existing drumkits using
+		the <link linkend="drumkit">Drumkit Manager</link>.</para>
+
+		<!-- Need to add an explaination of what the instrument list
+                     and instrument editor are. -->
+
+	<sect2 id="instrumentediting.concepts">
+		<title>Concepts</title>
+
+		<para>
+                  The synthesizer in Hydrogen is a sample-based synthesizer.  A
+		  sample is a piece of pre-recorded audio (usually between .1
+		  sec and 3 sec).  To play a note, the sample is simply played
+		  back at the right time.  There's a few concepts and terms that
+		  you should understand when you are putting together a drumkit.
+		  (See the <link linkend="glossary">Glossary</link> for more
+		  detailed explanations.)
+                </para>
+
+                <variablelist>
+                  <title>Sampling Synthesizer Terms</title>
+                  <varlistentry>
+                    <term>Sample</term><listitem><para>A short recording of a
+                    sound, typically between .1 and 3.0 seconds
+                    long.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>Gain</term><listitem><para>Volume
+                    adjustment.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>Velocity</term><listitem><para>How hard you hit a
+                    note.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>ADSR Envelope Generator</term><listitem><para>An
+                    Attack/Decay/Sustain/Release envelope generator.  After you
+                    trigger a note, Hydrogen
+                    will <emphasis role="italics">attack</emphasis> the note by
+                    increasing its volume from 0 to the full velocity of the
+                    note.  After reaching full velocity, it
+                    will <emphasis role="italics">decay</emphasis> the note by
+                    lowering the volume until it reaches
+                    the <emphasis role="italics">sustain</emphasis> level.  When
+                    the note is <emphasis role="italics">released</emphasis>,
+                    Hydrogen reduces the volume from the sustain level back down
+                    to 0.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>Attack</term><listitem><para>The amount
+                    of <emphasis role="bold">time</emphasis> to go from 0 to
+                    full velocity.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>Decay</term><listitem><para>The amount
+                    of <emphasis role="bold">time</emphasis> to go from full
+                    velocity to the sustain volume.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>Sustain</term><listitem><para>The <emphasis role="bold">level</emphasis>
+                    (how loud) to hold the note between the sustain and the
+                    release.  It is a percentage of the velocity.  It does not
+                    depend on time.</para></listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>Release</term><listitem><para>The amount
+                    of <emphasis role="bold">time</emphasis> to go from the
+                    sustain volume back down to 0.</para></listitem>
+                  </varlistentry>
+                </variablelist>
+
+                <para>
+                  Typical samples that are used in Hydrogen are: the sound of a
+		  single drum hit, the sound of a single symbol hit, the sound
+		  of a single cow-bell hit.  Whenever you put a note in the
+		  pattern (or play a note using MIDI), Hydrogen will play
+		  whatever sound you have loaded.  So, to put together a drum
+		  kit you need to gather short recordings of the bass drum, each
+		  tom, each symbol, the high hat open, the high had closed, the
+		  snare drum (snare on), the snare drum (snare off), rim taps,
+		  etc.
+                </para>
+
+		<para>
+                  However, there are no rules about what a sample can be.  It's
+		  not uncommon to use Hydrogen to trigger non-drum sounds like:
+		  audio clips of people talking, a clip from a song, sound
+		  effects, audio clips from movies, and famous people speaking.
+		  Be creative!
+                </para>
+
+	</sect2>
+	<sect2 id="instrumentediting.newkit">
+		<title>Creating a New Drumkit</title>
+
+		<para>To start a brand new drum kit, select
+		  <menuchoice>
+		    <guimenu>Instruments</guimenu>
+		    <guimenuitem>Clear All</guimenuitem>
+		  </menuchoice>.
+		  This will give you a bank of 32 blank instruments.  To delete
+		  instruments, right-click on on each instrument and select
+		  <guimenuitem>Delete Instrument</guimenuitem>.  To add
+		  more instruments, select
+		  <menuchoice>
+		    <guimenu>Instruments</guimenu>
+		    <guimenuitem>Add instrument</guimenuitem>
+		  </menuchoice>.
+                </para>
+
+		<para>Select one of your instruments to start editing it.  This
+		is done by left-clicking on the name of the instrument in the
+		instrument list (at the left).  You will notice that the name of
+		the instrument in the Instrument Editor matches the one that you
+		clicked.</para>
+
+                <para>Now, you need a sample.  Any .WAV or .FLAC file will do.
+                Hydrogen provides several in
+                the <filename class="directory">data/drumkits</filename>
+                directory</para>
+
+                <para>In the instrument editor, click
+                on <guibutton>Layers</guibutton>.  You can layer several samples
+                on top of each other (all played at the same time, with
+                different volumes).  Click <guibutton>Load Layer</guibutton> and
+                point the <guimenu>Audio File Browser</guimenu> to your sample.
+                Note that the <guimenu>Audio File Browser</guimenu> will allow
+                you to preview the sample before you load it.</para>
+
+	</sect2>
+	</sect1>
+
 	<sect1 id="ladspa">
 		<title>LADSPA plugins</title>
 		<para>Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more of these libraries, it's as simple as a "make && make install":</para>
