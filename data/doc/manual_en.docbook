@@ -849,13 +849,13 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
                 <para>
                   Typical samples that are used in Hydrogen are: the sound of a
-		  single drum hit, the sound of a single symbol hit, the sound
-		  of a single cow-bell hit.  Whenever you put a note in the
+		  single drum hit, the sound of a single cymbal hit, the sound
+		  of a single cowbell hit.  Whenever you put a note in the
 		  pattern (or play a note using MIDI), Hydrogen will play
 		  whatever sound you have loaded.  So, to put together a drum
 		  kit you need to gather short recordings of the bass drum, each
-		  tom, each symbol, the high hat open, the high had closed, the
-		  snare drum (snare on), the snare drum (snare off), rim taps,
+		  tom, each cymbal, the high hat open, the high hat closed, the
+		  snare drum (snare on), the snare drum (snare off), rim shots,
 		  etc.
                 </para>
 
