@@ -146,6 +146,7 @@ float ADSR::release()
 	if ( __state != RELEASE ) {
 		__release_value = __value;
 		__state = RELEASE;
+		__ticks = 0;
 		return __release_value;
 	}
 

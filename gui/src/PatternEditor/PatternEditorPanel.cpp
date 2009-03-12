@@ -578,7 +578,7 @@ PatternEditorPanel::~PatternEditorPanel()
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 {
-//	INFOLOG( "[syncToExternalHorizontalScrollbar]" );
+	//INFOLOG( "[syncToExternalHorizontalScrollbar]" );
 
 	// drum Editor
 	m_pEditorScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
@@ -611,8 +611,9 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 void PatternEditorPanel::on_patternEditorScroll(int nValue)
 {
-//	INFOLOG( "[on_patternEditorScroll]" );
-	m_pPatternEditorVScrollBar->setValue( nValue );
+	//INFOLOG( "[on_patternEditorScroll] " + QString::number(nValue)  );
+	m_pPatternEditorVScrollBar->setValue( nValue );	
+	resizeEvent(NULL);
 }
 
 

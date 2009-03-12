@@ -153,9 +153,9 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	while (!__queuedNoteOffs.empty()) {
 		pNote =  __queuedNoteOffs[0];
 		Hydrogen::get_instance()->getMidiOutput()->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(),
-									      (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key
-										+ (pNote->get_instrument()->get_midi_out_note() -60), 
-										pNote->get_velocity() * 127 );
+									     ( pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key +
+									     ( pNote->get_instrument()->get_midi_out_note() -60 ), 
+									      pNote->get_velocity() * 127 );
 		__queuedNoteOffs.erase(__queuedNoteOffs.begin());
 		delete pNote;
 		pNote = NULL;
@@ -219,9 +219,22 @@ void Sampler::midi_keyboard_note_off( int key )
 }
 
 
+
 void Sampler::note_off( Note* note )
+	/*
+	* this old note_off function is only used by right click on mixer channel strip play button
+	* all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
+	*/
 {
-	stop_playing_notes( note->get_instrument() );
+
+	Instrument *pInstr = note->get_instrument();
+	// find the notes using the same instrument, and release them
+	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+ 		Note *pNote = __playing_notes_queue[ j ];
+		if ( pNote->get_instrument() == pInstr ) {
+			pNote->m_adsr.release();
+		}
+ 	}
 }
 
 

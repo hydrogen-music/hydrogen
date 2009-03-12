@@ -105,7 +105,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 	
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
-		TargetWaveDisplay *m_pTargetSampleView; ///important this lecks memory and will removed
+		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView; 
 
 		float m_pzoomfactor;
