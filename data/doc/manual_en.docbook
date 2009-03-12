@@ -892,18 +892,20 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		the instrument in the Instrument Editor matches the one that you
 		clicked.</para>
 
-                <para>Now, you need a sample.  Any .WAV or .FLAC file will do.
-                Hydrogen provides several in
+                <para>Now, you need two samples.  Any .WAV or .FLAC file will
+                do.  Hydrogen provides several in
                 the <filename class="directory">data/drumkits</filename>
-                directory</para>
+                directory.</para>
 
                 <para>In the instrument editor, click
                 on <guibutton>Layers</guibutton>.  You can layer several samples
-                on top of each other (all played at the same time, with
-                different volumes).  Click <guibutton>Load Layer</guibutton> and
-                point the <guimenu>Audio File Browser</guimenu> to your sample.
-                Note that the <guimenu>Audio File Browser</guimenu> will allow
-                you to preview the sample before you load it.</para>
+                into the instrument.  Which one is played depends on the
+                velocity of the incoming note.  Click <guibutton>Load
+                Layer</guibutton> and point the <guimenu>Audio File
+                Browser</guimenu> to your sample.  Note that the <guimenu>Audio
+                File Browser</guimenu> will allow you to preview the sample
+                before you load it.  It will also allow you to load more than
+                one sample at a time.</para>
 
 	</sect2>
 	</sect1>
@@ -1282,9 +1284,17 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
   <glossentry id="def.layer">
     <glossterm>Layer</glossterm>
     <glossdef>
-      <para>In Hydrogen, a sample can actually be multiple
-      samples <emphasis role="italics">layered</emphasis> on top of each other.
-      Each sample in an instrument is called a layer.</para>
+      <para>In an instrument you can load several different samples
+      (each one called a <emphasis role="bold">layer</emphasis>), and
+      have a different sample play depending on the velocity of the
+      note.  Only one sample at a time will play.</para>
+
+      <para>Suppose you have a sample of a floor tom being struck
+      softly.  If you simply play the sample louder &mdash; it
+      will <emphasis role="italics">not</emphasis> sound the same as a
+      real tom that has been struck very hard.  If you wish to mimic
+      this in your instrument, you can load one sample for soft
+      playing, and a different sample for loud playing.</para>
 
       <glossseealso otherterm="def.instrument">
     </glossdef>
