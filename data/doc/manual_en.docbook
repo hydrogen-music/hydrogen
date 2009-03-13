@@ -1061,7 +1061,58 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		<simplesect id="instrumentediting.envelopeparameters">
 		  <title>Envelope Parameters</title>
 
-		  <para>TODO</para>
+		  <para>When the instrument is triggered, its volume
+		  is run through an ADSR Envelope.  The parameters
+		  operate as follows:</para>
+
+		  <itemizedlist>
+		    <listitem>
+		      <para><emphasis role="bold">Attack</emphasis>
+		      &mdash; the amount of <emphasis>time</emphasis>
+		      that the volume of the sample goes from 0 to the
+		      full velocity of the note.  If the value is 0,
+		      the sample will play immediately at full
+		      velocity.  If the value is 1.0, the sample
+		      volume will use the maximum time available for
+		      the attack paramater.</para> <!-- TODO: And the max is... ??? -->
+		    </listitem>
+		    <listitem>
+		      <para><emphasis role="bold">Decay</emphasis>
+		      &mdash; the amount of <emphasis>time</emphasis>
+		      for the volume of the sample to go from full
+		      velocity down to the sustain volume.  If the
+		      value is 0, the sample will immediately skip
+		      from the attack volume to the sustain volume.
+		      If the value is 1.0, the sample volume will use
+		      the maximum time available for the decay
+		      parameter.</para> <!-- TODO:  And the max is...  ??? -->
+		    </listitem>
+		    <listitem>
+		      <para><emphasis role="bold">Sustain</emphasis>
+		      &mdash; the <emphasis>volume</emphasis> to play
+		      the note after the decay phase is over, and
+		      until the note is released.  If set to 0, the
+		      note will be silent.  If set to 1.0, the note
+		      will play at full velocity.</para>
+		    </listitem>
+		    <listitem>
+		      <para><emphasis role="bold">Release</emphasis>
+		      &mdash; the <emphasis>time</emphasis> to fade
+		      out the note from the sustain volume back down
+		      to 0 (silent).  If set to 0, the note will fade
+		      out in the minimum amount of time (about 1 to
+		      2.5 ms).  If set to 1, it will fade out for the
+		      maximum time available.</para> <!-- TODO: And the max is... ??? -->
+		    </listitem>
+		  </itemizedlist>
+
+		  <para>If the sample is shorter than the times that
+		  you specify, the sample will end, regardless of
+		  which phase of the ADSR it is in.  If the note is
+		  sustained, it does <emphasis>not</emphasis> draw out
+		  the note while you are holding it.  It only holds
+		  the gain (volume) parameter during that time.</para>
+
 		</simplesect>
 
 		<simplesect id="instrumentediting.gainandmutegroup">
@@ -1304,6 +1355,10 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
 
       <para>In Hydrogen, the ADSR envelope generator only controls the volume
       (attenuation).</para>
+
+      <para>Read more about this in the Wikipedia
+      Article <ulink url="http://en.wikipedia.org/wiki/ADSR_envelope">ADSR
+      Envelope</ulink></para>
 
       <glossseealso otherterm="def.envelopegenerator">
       <glossseealso otherterm="def.attack">
