@@ -814,13 +814,13 @@ This contraint can be removed if you disable the whole grid resolution (choose "
                     <term>ADSR Envelope Generator</term><listitem><para>An
                     Attack/Decay/Sustain/Release envelope generator.  After you
                     trigger a note, Hydrogen
-                    will <emphasis role="italics">attack</emphasis> the note by
+                    will <emphasis>attack</emphasis> the note by
                     increasing its volume from 0 to the full velocity of the
                     note.  After reaching full velocity, it
-                    will <emphasis role="italics">decay</emphasis> the note by
+                    will <emphasis>decay</emphasis> the note by
                     lowering the volume until it reaches
-                    the <emphasis role="italics">sustain</emphasis> level.  When
-                    the note is <emphasis role="italics">released</emphasis>,
+                    the <emphasis>sustain</emphasis> level.  When
+                    the note is <emphasis>released</emphasis>,
                     Hydrogen reduces the volume from the sustain level back down
                     to 0.</para></listitem>
                   </varlistentry>
@@ -1207,7 +1207,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
     <glossterm>Attack</glossterm>
     <glossdef>
       <para>This is the first phase of an ADSR envelope, and is the amount
-      of <emphasis role="italics">time</emphasis> to turn the parameter up from
+      of <emphasis>time</emphasis> to turn the parameter up from
       0 to full velocity after triggering the note.</para>
 
       <glossseealso otherterm="def.adsr">
@@ -1269,7 +1269,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
     <glossterm>Decay</glossterm>
     <glossdef>
       <para>After reaching full velocity from the attack, this is the amount
-      of <emphasis role="italics">time</emphasis> to turn the parameter down
+      of <emphasis>time</emphasis> to turn the parameter down
       from full velocity to the sustain level.</para>
 
       <glossseealso otherterm="def.adsr">
@@ -1366,7 +1366,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
 
       <para>Suppose you have a sample of a floor tom being struck
       softly.  If you simply play the sample louder &mdash; it
-      will <emphasis role="italics">not</emphasis> sound the same as a
+      will <emphasis>not</emphasis> sound the same as a
       real tom that has been struck very hard.  If you wish to mimic
       this in your instrument, you can load one sample for soft
       playing, and a different sample for loud playing.</para>
@@ -1425,7 +1425,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>For example, the range 20 Hz to 40 Hz is an octave.  So is 120 Hz to
       240 Hz, and 575 Hz to 1150 Hz.  While the frequency differences are very
       different (20 Hz, 120 Hz, and 575 Hz, respectively), to the human ear
-      they <emphasis role="italics">sound</emphasis> like the same
+      they <emphasis>sound</emphasis> like the same
       distance.</para>
     </glossdef>
   </glossentry>
@@ -1440,7 +1440,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
     <glossterm>Release</glossterm>
     <glossdef>
       <para>After the note is released, this is the amount
-      of <emphasis role="italics">time</emphasis> to reduce the parameter from
+      of <emphasis>time</emphasis> to reduce the parameter from
       the sustain level to 0.</para>
 
       <glossseealso otherterm="def.adsr">
@@ -1505,7 +1505,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
   <glossentry id="def.sustain">
     <glossterm>Sustain</glossterm>
     <glossdef>
-      <para>The <emphasis role="italics">level</emphasis> to hold the parameter
+      <para>The <emphasis>level</emphasis> to hold the parameter
       after finishing the decay time.  This level will be maintained until the
       not is released.</para>
       <glossseealso otherterm="def.adsr">
