@@ -762,9 +762,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
         <sect1 id="drumkit">
           <title>The Drumkit Manager</title>
 
-          <para>
-            To be written.
-          </para>
+          <para>TODO</para>
         </sect1>
 	<sect1 id="instrumentediting">
 		<title>Drumkits and Instrument Editing</title>
@@ -920,7 +918,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 	</sect2>
 	<sect2 id="instrumentediting.newinstrument">
-		<title>Creating an Instrument</title>
+		<title>Creating an Instrument and Layers</title>
 
 		<para>For each instrument in a drum kit, you can load
 		several samples and set different synthesizer
@@ -967,7 +965,6 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		(like a curtain).  You will now see Layer 2
 		appear.</para>
 
-		<!-- TODO:  Check to make sure this is right -->
 		<para>The velocity setting for the layer is 0-velocity
 		on the left, and full velocity on the right.  Set up
 		Layer 1 to sound for soft notes, and Layer 2 to sound
@@ -982,6 +979,108 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		triggered.  (To learn about editing a pattern,
 		see <xref linkend="patternEditor">)</para>
 
+		<para>For each layer, you can set
+		the <guibutton>Gain</guibutton> and
+		the <guibutton>Pitch</guibutton>.  The pitch also has
+		a <guibutton>Fine</guibutton> adjustment.</para>
+
+		<para>Use the <guibutton>Gain</guibutton> adjustment
+		to control how loud the sample will play.  This is
+		necessary because it's extremely difficult to get a
+		set of samples that all sound at about the same
+		volume.  By adjusting here, the samples that were
+		recorded too quietly can be turned up to match your
+		loud samples (that had to be turned down).</para>
+
+		<warning>
+		  <para>It is very easy to set
+		  the <guibutton>Gain</guibutton> too high, causing
+		  your sample to clip.  Remember to test the gain with
+		  full-velocity notes.  If you clip your signal here,
+		  it will only get worse as Hydrogen processes
+		  it.</para>
+		</warning>
+
+		<para>The pitch of the sample can be modified with the
+		pitch controls.  The <guibutton>Pitch</guibutton> knob
+		adjust the pitch in musical half-steps.  (So, -12 is
+		down 1 octave).  The pitch on the right adjusts the
+		pitch &plusmn;50 cents.  (One half-step is 100
+		cents.)</para>
+
+		<note>
+		  <para>The pitch is adjusted by playing the sample
+		  back faster or slower.  This is called the Dopplar
+		  Effect.  So, if you have a 1-second sample that you
+		  turn down -12 (1 octave), you sample will only last
+		  for .5-seconds.</para>
+		</note>
+	</sect2>
+	<sect2 id="instrumentediting.parameters">
+		<title>Instrument Parameters</title>
+
+		<para>In the instrument editor, click on
+		the <guibutton>General</guibutton> button.  Here you
+		can adjust several parameters that are for the whole
+		instrument (not for each layer).  The parameters that
+		you can adjust are:</para>
+
+		<itemizedlist>
+		  <listitem>
+		    <para><emphasis role='bold'>Envelope
+		    parameters</emphasis>: <guibutton>Attack</guibutton>, <guibutton>Decay</guibutton>,
+		    <guibutton>Sustain</guibutton>, <guibutton>Release</guibutton>.  (See
+		    <xref linkend='def.envelopegenerator'>)</para>
+		  </listitem>
+		  <listitem>
+		    <para><emphasis role='bold'><guibutton>Gain</guibutton></emphasis>:
+		    The overall volume of the instrument.</para>
+		  </listitem>
+		  <listitem>
+		    <para><emphasis role='bold'><guibutton>Mute
+		    Group</guibutton></emphasis>: Which mute group
+		    this instrument is a member of (see
+		    <xref linkend='def.mutegroup'>).</para>
+		  </listitem>
+		  <listitem>
+		    <para><emphasis role='bold'>Filter
+		    Parameters</emphasis>: <guibutton>Byp</guibutton>ass, <guibutton>Cutoff</guibutton>,
+		      <guibutton>Resonance</guibutton>.</para>
+		  </listitem>
+		  <listitem>
+		    <para><emphasis role='bold'><guibutton>Random
+		    Pitch</guibutton></emphasis></para>
+		  </listitem>
+		</itemizedlist>
+
+		<para>It's important that you
+		understand <xref linkend='instrumentediting.concepts'>
+		in order to continue on.</para>
+
+		<simplesect id="instrumentediting.envelopeparameters">
+		  <title>Envelope Parameters</title>
+
+		  <para>TODO</para>
+		</simplesect>
+
+		<simplesect id="instrumentediting.gainandmutegroup">
+		  <title>Gain and Mute Group</title>
+
+		  <para>TODO</para>
+		</simplesect>
+
+		<simplesect id="instrumentediting.filterandrandompitch">
+		  <title>Filter and Random Pitch</title>
+
+		  <para>TODO</para>
+		</simplesect>
+
+		
+	</sect2>
+	<sect2 id="instrumentediting.tips">
+		<title>Tips on Editing Instruments</title>
+
+		<para>TODO</para>
 	</sect2>
 	</sect1>
 
@@ -1240,6 +1339,21 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
   </glossentry>
 
   <!--   C   -->
+
+  <glossentry id="def.clipping">
+    <glossterm>Clipping</glossterm>
+    <glossdef>
+      <para>A phenomenon that happens to a signal when the signal is
+      too large for whatever is receiving it.  The peaks of the signal
+      (which are normally smooth curves) get cut off straight at the
+      max volume (clipped).  This distorts the sound and is usually
+      undesirable.</para>
+
+      <para>An example of clipping is when you play music louder than
+      your speaker can handle.  Parts of the music sound harsh and
+      fuzzy.</para>
+    </glossdef>
+  </glossentry>
 
   <glossentry id="def.cutoff">
     <glossterm>Cutoff Frequency</glossterm>
