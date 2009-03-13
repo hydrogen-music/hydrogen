@@ -1118,7 +1118,47 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		<simplesect id="instrumentediting.gainandmutegroup">
 		  <title>Gain and Mute Group</title>
 
-		  <para>TODO</para>
+		  <para>The gain sets the overall volume for the
+		  sample.  This gain is applied after the gain that
+		  you set for the layer, and before the gain that is
+		  set for the mixer.  If the Gain is 0, the instrument
+		  will be silent.  If the gain is 1.0 the volume of
+		  the samples will not be adjusted (i.e. 0 dB).  If
+		  the gain is set higher, the samples will be
+		  amplified.</para>
+
+		  <warning>
+		    <para>It is very easy to set
+		      the <guibutton>Gain</guibutton> too high, causing
+		      your sample to clip.  Remember to test the gain with
+		      full-velocity notes.  If you clip your signal here,
+		      it will only get worse as Hydrogen processes
+		      it.</para>
+		  </warning>
+
+		  <para>Hydrogen provides more mute groups than you
+		  know what to do with (over 256).  A mute group is a
+		  grouping of instruments that are mutually exclusive
+		  &mdash; only one instrument may be playing at any
+		  time.  If one is playing and another instrument in
+		  the group is triggered, it will immediately silence
+		  (mute) and start playing the other instrument.  This
+		  is useful, especially, for instruments like hi-hats
+		  where the open sound and the closed sound are
+		  different instruments.</para>
+
+		  <para>If the mute group is set
+		  to <guilabel>Off</guilabel>, then the instrument is
+		  not part of any mute grouping.  If the mute group is
+		  set to any number, then that is the group that the
+		  instrument is a part of.  To set other instruments
+		  into the same grouping, set their mute group
+		  parameter to the same number.  (For example, to
+		  group all the high-hat instruments, you can set all
+		  their mute group parameters to 1.  To have a snare
+		  drum mute group, set their mute group parameters to
+		  2.)</para>
+
 		</simplesect>
 
 		<simplesect id="instrumentediting.filterandrandompitch">
