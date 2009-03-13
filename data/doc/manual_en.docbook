@@ -62,7 +62,7 @@
 					<para>ALSA (>= 1.x) at <ulink url='http://www.alsa-project.com'>http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)</para>
 				</listitem>
 				<listitem>
-					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url='http://jackit.sourceforge.net'>http://jackit.sourceforge.net</ulink> (only if you wish to use Jack as audio driver)</para>
+					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url='http://jackaudio.org/'>http://jackaudio.org</ulink> (only if you wish to use Jack as audio driver)</para>
 				</listitem>
 				 <listitem>
 					<para>PortAudio at <ulink url='http://www.portaudio.com'>http://www.portaudio.com</ulink> (only if you wish to use PortAudio as audio driver)</para>
