@@ -113,10 +113,9 @@ float ADSR::get_value( float step )
 
 	case RELEASE:
 		if ( __release == 0 ) {
-			__value = 0.0;
-		} else {
-			__value = getTableValue ( linear_interpolation( __release_value, 0.0, ( __ticks * 1.0 / __release ) ), tableExponentConcave, tableExponentConcaveSize );
+			__release = 256;
 		}
+		__value = getTableValue ( linear_interpolation( __release_value, 0.0, ( __ticks * 1.0 / __release ) ), tableExponentConcave, tableExponentConcaveSize );
 
 		__ticks += step;
 		if ( __ticks > __release ) {
