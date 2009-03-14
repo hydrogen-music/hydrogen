@@ -761,9 +761,78 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	</sect1>
 
         <sect1 id="drumkit">
-          <title>The Drumkit Manager</title>
+          <title>Sound Library (Drumkit Manager)</title>
 
-          <para>TODO</para>
+          <para>The Sound Library saves you time in managing your drum kits,
+          favorite patterns, and favorite songs.  When making new songs and drum
+          kits, the Sound Library makes it easier for you to reuse and mix the
+          instruments and patterns from other kits and songs.</para>
+
+          <simplesect id="sect.systemdrumkits">
+            <title>System Drumkits</title>
+
+            <para>This lists the drumkits that were installed by your system
+            administrator.  It was determined by the compile-time prefix.  On
+            Unix-like operating systems, this is
+            usually <filename role="directory">/usr/share/hydrogen/data/drumkits</filename>,
+            or
+            possibly <filename role="directory">/usr/local/share/hydrogen/data/drumkits</filename>.
+            These kits are available to all users on the system, and users are
+            usually not able to add to them.</para>
+
+            <para>To load a drumkit from here, right-click the drumkit and
+            select <guimenuitem>Load</guimenuitem>.  This will replace your
+            current drumkit with the one that you selected.  To load a single
+            instrument from that kit, left-click the <guibutton>plus</guibutton>
+            to the left of the drumkit's name to show all the instruments.  With
+            your left mouse button, click and drag the instrument into your
+            current kit.  The instrument will be added to the drumkit that you
+            currently have loaded.</para>
+          </simplesect>
+
+          <simplesect id="sect.userdrumkits">
+            <title>User Drumkits</title>
+
+            <para>These are your own drum kits that you can manage yourself.
+            They are usually stored
+            in <filename role="directory">$HOME/.hydrogen/data/drumkits</filename>.
+            When you are creating a new drumkit, you can save it here by
+            selecting <menuchoice><guimenu>Instruments</guimenu><guimenuitem>Save
+            library</guimenuitem></menuchoice>.</para>
+
+
+            <para>Loading drumkits and instruments to use is the same as for the
+            System Drumkits (see <xref linkend="sect.systemdrumkits">).</para>
+
+          </simplesect>
+          <simplesect id="sect.sl.patterns">
+            <title>Patterns in the Sound Library</title>
+
+            <para>Before you save your favorite patterns to the sound library,
+            be sure to edit it's properties by right-clicking and
+            selecting <guimenuitem>Properties</guimenuitem>.  There, you can
+            give the pattern a title and a category.  You can use one of the
+            categories already provided, or create your own categories by simply
+            typing in a category name.  The category name is important, because
+            the patterns will be filed by category in the Sound Library.</para>
+
+            <para>You can save your favorite patterns in the sound library by
+            right clicking the title of the pattern in the song editor, and
+            selecting <guimenuitem>Save Pattern</guimenuitem>.  It will appear
+            in the Sound Library underneath <guilabel>Patterns</guilabel> and
+            the category that you assigned to the pattern.</para>
+
+          </simplesect>
+          <simplesect id="sect.sl.songs">
+            <title>Songs in the Sound Library</title>
+
+            <para>To save songs in the Sound Library, put them in your data
+            directory underneath the <filename role="directory">songs</filename>
+            folder
+            (usually <filename role="directory">$HOME/data/songs</filename>.  To
+            remove them, remove the file from that folder.</para>
+          </simplesect>
+
         </sect1>
 	<sect1 id="instrumentediting">
 		<title>Drumkits and Instrument Editing</title>
@@ -1074,7 +1143,17 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      the sample will play immediately at full
 		      velocity.  If the value is 1.0, the sample
 		      volume will use the maximum time available for
-		      the attack paramater.</para> <!-- TODO: And the max is... ??? -->
+		      the attack paramater.
+                        <footnote id="fn.adsrtimes">
+                          <para>The attack, decay, and release parameters are
+                          all set by the number of <emphasis>audio
+                          samples</emphasis>.  This means that the time changes
+                          depending on the sample rate of your sound card.  The
+                          max time for the attack and decay is 10,000 audio
+                          samples (.23 sec at 44.1 kHz).  The max time for the
+                          release is 100,000 audio samples (2.27 sec).</para>
+                        </footnote>
+                      </para>
 		    </listitem>
 		    <listitem>
 		      <para><emphasis role="bold">Decay</emphasis>
@@ -1085,7 +1164,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      from the attack volume to the sustain volume.
 		      If the value is 1.0, the sample volume will use
 		      the maximum time available for the decay
-		      parameter.</para> <!-- TODO:  And the max is...  ??? -->
+		      parameter.<footnoteref linkend="fn.adsrtimes"></para>
 		    </listitem>
 		    <listitem>
 		      <para><emphasis role="bold">Sustain</emphasis>
@@ -1096,13 +1175,13 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      will play at full velocity.</para>
 		    </listitem>
 		    <listitem>
-		      <para><emphasis role="bold">Release</emphasis>
-		      &mdash; the <emphasis>time</emphasis> to fade
-		      out the note from the sustain volume back down
-		      to 0 (silent).  If set to 0, the note will fade
-		      out in the minimum amount of time (about 1 to
-		      2.5 ms).  If set to 1, it will fade out for the
-		      maximum time available.</para> <!-- TODO: And the max is... ??? -->
+		      <para><emphasis role="bold">Release</emphasis> &mdash;
+		      the <emphasis>time</emphasis> to fade out the note from
+		      the sustain volume back down to 0 (silent).  If set to 0,
+		      the note will fade out in the minimum amount of time
+		      (about 1 to 2.5 ms).  If set to 1, it will fade out for
+		      the maximum time
+		      available.<footnoteref linkend="fn.adsrtimes"></para>
 		    </listitem>
 		  </itemizedlist>
 
@@ -1164,15 +1243,102 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		<simplesect id="instrumentediting.filterandrandompitch">
 		  <title>Filter and Random Pitch</title>
 
-		  <para>TODO</para>
-		</simplesect>
+		  <para>The filter is a low-pass resonance filter.  If you don't
+		  wish to use is, click the <guibutton>BYP</guibutton>ass button
+		  so that it's red.  If it's not red, then the filter is active.
+		  The cutoff parameter adjusts the cutoff frequency for the
+		  filter.  The resonance parameter adjusts how much to resonate
+		  the cutoff frequency.  If the resonance is set to 0, then the
+		  filter is just a simple low-pass filter.</para>
 
+                  <note>
+                    <para>The cutoff frequency of the filter varies with the
+                    sample rate of your audio card.  The range of the knob (0 to
+                    1.0) is optimized for a 48,000 kHz sample rate.</para>
+                    <!-- NOTE:  I tried to reverse engineer the LPRF in the
+                         sampler to calculate what the cutoff frequency is.
+                         I think it's *something* kind of like this:
+
+                         f = cutoff * samplerate / 2
+
+                            - OR MAYBE -
+
+                         f = sqrt(cutoff) * samplerate / 2   (or / 4)
+
+                         http://en.wikipedia.org/wiki/Low-pass_filter                         
+                         -gabriel
+                         -->
+                  </note>
+
+                  <para>The random pitch paramater allows you to randomly vary
+                  the pitch of the sample every time it is triggered.  The value
+                  is set between 0 and 1.0.  The pitch change is fairly small:
+                  &plusmn;2 half-steps &times; value.  Using this sparingly can
+                  help your sequences to sound more like a real drummer.</para>
 		
+		</simplesect>
 	</sect2>
 	<sect2 id="instrumentediting.tips">
 		<title>Tips on Editing Instruments</title>
 
-		<para>TODO</para>
+		<para>With all of the different parameters available to tweak,
+		it can be difficult to set up something that sounds nice when
+		you're done.  Here's a few tips on setting up an
+		instrument:</para>
+
+                <para><emphasis role="bold">Turn down the gain.</emphasis> Every
+                time you have a gain knob (i.e. an amplifier), this is called
+                a <emphasis>gain stage</emphasis>.  With every gain stage you
+                have, it's easy to overdrive your signal &mdash; which means the
+                signal gets distorted by clipping.  In addition, if you have two
+                samples that, by themselves, peg your meters &mdash; what do you
+                think happens when you combine them?  That's right, you
+                overdrive the signal again.</para>
+
+                <para>If things sound bad and distorted, start by turning down
+                the gain setting on the layer... especially if it's larger than
+                1.0.  Then turn down the instrument gain.  Then any gain on a
+                LADSPA effect.  Then the fader on the mixer.  Then the master
+                output fader.</para>
+
+                <para><emphasis role="bold">Test samples at full
+                velocity.</emphasis> Your sample will be played louder if the
+                velocity is higher.  So, if you set everything to sound nice and
+                full with velocity at 0.7, what will happen when you get a full
+                velocity of 1.0?  (<emphasis>Hint: clipping.</emphasis>)</para>
+
+                <para><emphasis role="bold">Try to use samples that are -6 dB
+                max.</emphasis> Visually, this means samples that peak at only
+                1/2 of full scale.  Otherwise, turn your layer gain to about
+                .5.</para>
+
+                <para><emphasis role="bold">Remove all DC offsets from the
+                sample.</emphasis> In a sample editor, there is usually a line
+                down the center of your sample's waveform.  This is the
+                zero-line.  The beginning of your sample should be on this line.
+                The end of your sample should also be on this line.  However, if
+                your signal is a little above or a little below this line, you
+                will hear a click at the beginning and the end of your sample
+                whenever it is played.  If your sample editor doesn't provide
+                any tools to fix a DC Offset problem, you can eliminate the
+                noise by putting a slight fade-in/out at the ends of your
+                sample.</para>
+
+                <para><emphasis role="bold">The ADSR will not be longer than
+                your sample.</emphasis> If you have a short sample, it doesn't
+                matter how long you set the attack and delay &mdash; the sample
+                will stop playing at the end.</para>
+
+                <para><emphasis role="bold">Things change with the sample
+                rate.</emphasis> If you have a really nice setup with all your
+                parameters painstakenly
+                tweaked... things <emphasis>will</emphasis> change if you change
+                the sample rate of your audio card.  Many of Hydrogens internal
+                settings and parameters are done based on how many samples go
+                by, and not on how many seconds go by.  The sort of things that
+                change are: anything time-base (like attack and release) and
+                anything frequency based (like the cutoff frequency).</para>
+
 	</sect2>
 	</sect1>
 
