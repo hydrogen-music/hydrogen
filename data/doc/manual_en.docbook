@@ -1149,9 +1149,8 @@ This contraint can be removed if you disable the whole grid resolution (choose "
                           all set by the number of <emphasis>audio
                           samples</emphasis>.  This means that the time changes
                           depending on the sample rate of your sound card.  The
-                          max time for the attack and decay is 10,000 audio
-                          samples (.23 sec at 44.1 kHz).  The max time for the
-                          release is 100,000 audio samples (2.27 sec).</para>
+                          max time for each of them is 100,000 audio samples
+                          (typ. 2.27 sec at 44.1 kHz).</para>
                         </footnote>
                       </para>
 		    </listitem>

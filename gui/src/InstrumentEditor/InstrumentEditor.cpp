@@ -302,10 +302,10 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pNameLbl->setText( m_pInstrument->get_name() );
 
 		// ADSR
-		m_pAttackRotary->setValue( m_pInstrument->get_adsr()->__attack / 10000.0 );
-		m_pDecayRotary->setValue( m_pInstrument->get_adsr()->__decay / 10000.0 );
+		m_pAttackRotary->setValue( sqrtf(m_pInstrument->get_adsr()->__attack / 100000.0) );
+		m_pDecayRotary->setValue( sqrtf(m_pInstrument->get_adsr()->__decay / 100000.0) );
 		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->__sustain );
-		m_pReleaseRotary->setValue( m_pInstrument->get_adsr()->__release / 10000.0 );
+		m_pReleaseRotary->setValue( sqrtf(m_pInstrument->get_adsr()->__release / 100000.0) );
 		//~ ADSR
 
 		// filter
@@ -368,16 +368,16 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pInstrument->set_filter_resonance( fVal );
 		}
 		else if ( ref == m_pAttackRotary ) {
-			m_pInstrument->get_adsr()->__attack = fVal * 10000;
+			m_pInstrument->get_adsr()->__attack = fVal * fVal * 100000;
 		}
 		else if ( ref == m_pDecayRotary ) {
-			m_pInstrument->get_adsr()->__decay = fVal * 10000;
+			m_pInstrument->get_adsr()->__decay = fVal * fVal * 100000;
 		}
 		else if ( ref == m_pSustainRotary ) {
 			m_pInstrument->get_adsr()->__sustain = fVal;
 		}
 		else if ( ref == m_pReleaseRotary ) {
-			m_pInstrument->get_adsr()->__release = fVal * 10000;
+			m_pInstrument->get_adsr()->__release = fVal * fVal * 100000;
 		}
 		else if ( ref == m_pLayerGainRotary ) {
 			fVal = fVal * 5.0;
