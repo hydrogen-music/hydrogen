@@ -462,7 +462,7 @@
         <item>
          <widget class="QCheckBox" name="trackOutsCheckBox" >
           <property name="text" >
-           <string>Track Outputs</string>
+           <string>create per-instrument outputs</string>
           </property>
           <property name="shortcut" >
            <string>Alt+D</string>
