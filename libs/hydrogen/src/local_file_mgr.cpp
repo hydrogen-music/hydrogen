@@ -1126,7 +1126,12 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	// FIXME: verificare che il file non sia gia' esistente
 	// FIXME: effettuare copia di backup per il file gia' esistente
 
-	TiXmlDocument doc( filename.toAscii() );
+
+	#ifdef WIN32
+  		TiXmlDocument doc( filename.toAscii().constData() );
+	#else
+   		TiXmlDocument doc( filename.toUtf8().constData() );
+	#endif
 
 	TiXmlElement songNode( "song" );
 
