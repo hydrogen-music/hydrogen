@@ -99,7 +99,7 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 {
 	static QString lastUsedDir = QDir::homePath();
 
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::Directory);
 	fd->setFilter( "Hydrogen drumkit (*.h2drumkit)" );
 	fd->setDirectory( lastUsedDir );
