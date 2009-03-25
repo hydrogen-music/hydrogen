@@ -1380,7 +1380,15 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</imageobject>
 	</inlinemediaobject>
 	
-	), than on <quote>Select the FX</quote>: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect. If you want to quickly enable/disable the effect click the Bypass (
+	), than on <quote>Select the FX</quote>: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect.
+	
+	<inlinemediaobject>
+		<imageobject>
+			<imagedata fileref="img/MixerFXKnob.png" format="png">
+		</imageobject>
+	</inlinemediaobject>
+	
+	If you want to quickly enable/disable the effect click the Bypass (
 	
 	<inlinemediaobject>
 			<imageobject>
