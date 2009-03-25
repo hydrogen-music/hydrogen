@@ -16,7 +16,7 @@ ALINK="#0000FF"
 ><DIV
 CLASS="BOOK"
 ><A
-NAME="Hydrogen-manual"
+NAME="HYDROGEN-MANUAL"
 ></A
 ><DIV
 CLASS="TITLEPAGE"
@@ -26,21 +26,19 @@ CLASS="TITLE"
 NAME="AEN2"
 >Hydrogen Manual</A
 ></H1
->		<H3
+><H3
 CLASS="AUTHOR"
 ><A
 NAME="AEN5"
 ></A
 >Antonio Piraino</H3
->
-		<H3
+><H3
 CLASS="AUTHOR"
 ><A
 NAME="AEN8"
 ></A
 >Alessandro Cominu</H3
->
-	<DIV
+><DIV
 ><DIV
 CLASS="ABSTRACT"
 ><P
@@ -48,13 +46,10 @@ CLASS="ABSTRACT"
 ><A
 NAME="AEN12"
 ></A
->		<P
->			Hydrogen is a software synthetizer which is able to be used either by itself,
-			emulating a drum machine based on patterns, or via an external MIDI
-			keyboard/sequencer software. Hydrogen compiles on Linux/x86 and MAC OSX, although the latter is still experimental, so ask in our devel mailing list for further details.
+><P
+>			Hydrogen is a software synthesizer which can be used alone, emulating a drum machine based on patterns, or via an external MIDI keyboard/sequencer software. Hydrogen compiles on Linux/x86 and Mac OS X, although the latter is still experimental, so ask in the developers mailing list for further details.
 		</P
->
-	<P
+><P
 ></P
 ></DIV
 ></DIV
@@ -68,42 +63,47 @@ CLASS="TOC"
 ></DT
 ><DT
 >1. <A
-HREF="#introduction"
+HREF="#INTRODUCTION"
 >Introduction</A
 ></DT
 ><DD
 ><DL
 ><DT
 >1.1. <A
-HREF="#download"
+HREF="#DOWNLOAD"
 >Download</A
 ></DT
 ><DT
 >1.2. <A
-HREF="#compilazione"
+HREF="#COMPILAZIONE"
 >Build</A
 ></DT
 ><DT
 >1.3. <A
-HREF="#configurazioneAudioDriver"
->Audio driver configuration</A
+HREF="#AUDIODRIVERPREFERENCES"
+>Audio preferences</A
 ></DT
 ><DD
 ><DL
 ><DT
 >1.3.1. <A
-HREF="#ossDriver"
->OSS audio driver</A
+HREF="#AUDIOTAB"
+>The Audio System tab</A
 ></DT
 ><DT
 >1.3.2. <A
-HREF="#jackDriver"
->Jack audio driver</A
+HREF="#MIDITAB"
+>The Midi System tab</A
 ></DT
 ><DT
 >1.3.3. <A
-HREF="#alsaDriver"
->ALSA audio driver</A
+HREF="#APPEARANCETAB"
+>The Appearance tab</A
+></DT
+><DT
+>1.3.4. <A
+HREF="#AUDIOENGINETAB"
+>The Audio Engine tab</A
 ></DT
 ></DL
 ></DD
@@ -111,384 +111,1106 @@ HREF="#alsaDriver"
 ></DD
 ><DT
 >2. <A
-HREF="#GUI"
->GUI</A
+HREF="#USINGHYDROGEN"
+>Using Hydrogen</A
 ></DT
 ><DD
 ><DL
 ><DT
 >2.1. <A
-HREF="#main"
->The main toolbar</A
+HREF="#USEDFILES"
+>Used Filetypes</A
 ></DT
 ><DT
 >2.2. <A
-HREF="#songEditor"
->Song Editor</A
+HREF="#MAINMENU"
+>Main menu</A
 ></DT
 ><DT
 >2.3. <A
-HREF="#patternEditor"
->Pattern Editor</A
+HREF="#MAIN"
+>The main toolbar</A
 ></DT
 ><DT
 >2.4. <A
-HREF="#mixer"
->Mixer</A
+HREF="#SONGEDITOR"
+>Song Editor</A
 ></DT
 ><DT
 >2.5. <A
-HREF="#ladspa"
->LADSPA plugins</A
+HREF="#PATTERNEDITOR"
+>Pattern Editor</A
 ></DT
 ><DT
 >2.6. <A
-HREF="#menu"
->Menu</A
+HREF="#MIXER"
+>Mixer</A
+></DT
+><DT
+>2.7. <A
+HREF="#DRUMKIT"
+>Sound Library (Drumkit Manager)</A
 ></DT
 ><DD
 ><DL
 ><DT
->2.6.1. <A
-HREF="#prefs"
->Preferences</A
+>2.7.1. <A
+HREF="#SECT.SYSTEMDRUMKITS"
+>System Drumkits</A
 ></DT
 ><DT
->2.6.2. <A
-HREF="#audioengine"
->Audio engine info</A
+>2.7.2. <A
+HREF="#SECT.USERDRUMKITS"
+>User Drumkits</A
 ></DT
 ><DT
->2.6.3. <A
-HREF="#drumkit"
->Drumkit manager</A
+>2.7.3. <A
+HREF="#SECT.SL.PATTERNS"
+>Patterns in the Sound Library</A
+></DT
+><DT
+>2.7.4. <A
+HREF="#SECT.SL.SONGS"
+>Songs in the Sound Library</A
 ></DT
 ></DL
 ></DD
+><DT
+>2.8. <A
+HREF="#INSTRUMENTEDITING"
+>Drumkits and Instrument Editing</A
+></DT
+><DD
+><DL
+><DT
+>2.8.1. <A
+HREF="#INSTRUMENTEDITING.CONCEPTS"
+>Concepts</A
+></DT
+><DT
+>2.8.2. <A
+HREF="#INSTRUMENTEDITING.NEWKIT"
+>Creating a New Drumkit</A
+></DT
+><DT
+>2.8.3. <A
+HREF="#INSTRUMENTEDITING.NEWINSTRUMENT"
+>Creating an Instrument and Layers</A
+></DT
+><DT
+>2.8.4. <A
+HREF="#INSTRUMENTEDITING.PARAMETERS"
+>Instrument Parameters</A
+></DT
+><DT
+>2.8.5. <A
+HREF="#INSTRUMENTEDITING.TIPS"
+>Tips on Editing Instruments</A
+></DT
+></DL
+></DD
+><DT
+>2.9. <A
+HREF="#LADSPA"
+>LADSPA plugins</A
+></DT
 ></DL
 ></DD
 ><DT
 >3. <A
-HREF="#creazioneSong"
+HREF="#CREAZIONESONG"
 >A new song</A
 ></DT
 ><DD
 ><DL
 ><DT
 >3.1. <A
-HREF="#SongVSpattern"
+HREF="#SONGVSPATTERN"
 >"Song" mode and "Pattern" mode</A
 ></DT
 ><DT
 >3.2. <A
-HREF="#creazionePattern"
+HREF="#CREAZIONEPATTERN"
 >A new pattern</A
 ></DT
 ><DT
 >3.3. <A
-HREF="#creazioneSequenza"
+HREF="#CREAZIONESEQUENZA"
 >A new sequence</A
 ></DT
 ><DT
 >3.4. <A
-HREF="#operazioniMixer"
+HREF="#OPERAZIONIMIXER"
 >Adjust from the mixer</A
 ></DT
 ></DL
 ></DD
+><DT
+><A
+HREF="#GLOSSARY"
+>Glossary</A
+></DT
 ></DL
 ></DIV
->
-
-
-
-<DIV
+><DIV
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="introduction"
+NAME="INTRODUCTION"
 ></A
 >Chapter 1. Introduction</H1
->	
-
-	<DIV
+><DIV
 CLASS="SECT1"
-><HR><H2
+><H2
 CLASS="SECT1"
 ><A
-NAME="download"
+NAME="DOWNLOAD"
 >1.1. Download</A
 ></H2
->		
-		<P
->			The latest stable version of hydrogen is available at
+><P
+>			The latest stable version of hydrogen is available as a tarball at
 			<A
-HREF="http://hydrogen.sourceforge.net"
+HREF="http://www.hydrogen-music.org/?p=download"
 TARGET="_top"
->http://hydrogen.sourceforge.net</A
-> or <A
-HREF="http://hydrogen-music.org"
-TARGET="_top"
->http://hydrogen-music.org</A
->
+>http://www.hydrogen-music.org</A
+>.
 		</P
->
-		<P
->			It is possible to download the source files directly from CVS snapshots with:
+><P
+>			It is possible to download the latest source files directly from our subversion server with:
 		
 			<PRE
 CLASS="SCREEN"
 ><SAMP
 CLASS="PROMPT"
->bash$</SAMP
+>$</SAMP
 > <B
 CLASS="COMMAND"
->cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/hydrogen co hydrogen</B
+>svn co http://svn.assembla.com/svn/hydrogen/trunk</B
 ></PRE
 >
-		                                          
+			
+			A certain release can be fetched with:
+			 <PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <B
+CLASS="COMMAND"
+>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.3</B
+></PRE
+>                                      
 		</P
->
-		
-		<P
+><P
 >			Compiling Hydrogen depends on the following libraries:
 			<P
 ></P
 ><UL
 ><LI
 STYLE="list-style-type: opencircle"
->					<P
+><P
+>qt (&#62;= 4.0) at <A
+HREF="http://www.trolltech.com"
+TARGET="_top"
+>http://www.trolltech.com</A
+></P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
 >libsndfile at <A
 HREF="http://www.mega-nerd.com/libsndfile/"
 TARGET="_top"
 >http://www.mega-nerd.com/libsndfile/</A
 ></P
->
-				</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
->					<P
->qt (&#62;= 3.2) at <A
-HREF="http://www.trolltech.com"
-TARGET="_top"
->http://www.trolltech.com</A
-></P
->
-				</LI
-><LI
-STYLE="list-style-type: opencircle"
->					<P
+><P
 >ALSA (&#62;= 1.x) at <A
 HREF="http://www.alsa-project.com"
 TARGET="_top"
 >http://www.alsa-project.com</A
 > (only if you wish to use ALSA as audio driver)</P
->
-				</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
->					<P
+><P
 >Jack Audio Connection Kit (&#62;= 0.80) at <A
-HREF="http://jackit.sourceforge.net"
+HREF="http://jackaudio.org/"
 TARGET="_top"
->http://jackit.sourceforge.net</A
+>http://jackaudio.org</A
 > (only if you wish to use Jack as audio driver)</P
->
-				</LI
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>PortAudio at <A
+HREF="http://www.portaudio.com"
+TARGET="_top"
+>http://www.portaudio.com</A
+> (only if you wish to use PortAudio as audio driver)</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>Flac at <A
+HREF="http://flac.sf.net"
+TARGET="_top"
+>http://flac.sf.net</A
+> (only if you wish to use flac samples)</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>ladspa at <A
+HREF="http://ladspa.org"
+TARGET="_top"
+>http://ladspa.org</A
+> (only if you wish to use ladspa effects)</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>liblrdf at <A
+HREF="http://liblrdf.sf.net"
+TARGET="_top"
+>http://liblrdf.sf.net</A
+> (only if you wish to use lrdf to categorise effects)</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>lash at <A
+HREF="http://lash.nongnu.org"
+TARGET="_top"
+>http://lash.nongnu.org</A
+> (only if you wish to use lash)</P
+></LI
 ></UL
 >
+			Please install them with your distribution's package manager. If you're running a debian-based system,
+			you can install the libraries with:
+			<PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <B
+CLASS="COMMAND"
+>apt-get install libqt4-dev g++ libasound2-dev \
+		libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
+		liblash-dev libportaudio-dev libportmidi-dev </B
+></PRE
+> 
 		</P
->
-	</DIV
->
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="compilazione"
+NAME="COMPILAZIONE"
 >1.2. Build</A
 ></H2
->		
-		<P
->			After having downloaded and decompressed the tar.gz file there's only to:
-		
-		<PRE
+><P
+>			    Decompress the tarball or go to the directory where the subversion copy was checked out:
+		    <PRE
 CLASS="SCREEN"
->		<SAMP
+>			<SAMP
 CLASS="PROMPT"
 >$</SAMP
 > <B
 CLASS="COMMAND"
 >cd hydrogen-*</B
 >
-		<SAMP
+			<SAMP
 CLASS="PROMPT"
 >$</SAMP
 > <B
 CLASS="COMMAND"
->./configure</B
+>scons</B
 >
-		<SAMP
+			<SAMP
 CLASS="PROMPT"
 >$</SAMP
 > <B
 CLASS="COMMAND"
->make</B
+>su -c "scons install"</B
 >
-		<SAMP
-CLASS="PROMPT"
->$</SAMP
-> <B
-CLASS="COMMAND"
->su -c "make install"</B
->
-		</PRE
+		    </PRE
 >
 		</P
->
-
-		<P
->		Before compiling, check for additional options with:
-		<PRE
+><P
+>		    Before compiling, check for additional options with:
+		    <PRE
 CLASS="SCREEN"
->		<SAMP
+>			<SAMP
 CLASS="PROMPT"
 >$</SAMP
-><B
+> <B
 CLASS="COMMAND"
->./configure --help</B
+>scons --help</B
 >
-		</PRE
+		    </PRE
 >
-		Namely, if you get some error while running Hydrogen and you want to report it remember to configure the makefile with:
-		<PRE
+		    
+		    If you want to use features which are not enabled by default (for instance PortAudio), you can enable them with:
+		    <PRE
 CLASS="SCREEN"
->		<SAMP
+>			<SAMP
 CLASS="PROMPT"
 >$</SAMP
-><B
+> <B
 CLASS="COMMAND"
->./configure --enable-debug</B
+>scons portaudio=1</B
 >
-		</PRE
+		    </PRE
 >
-		
-		Please note that at the moment no binary packaging (.rpm, .deb, ...) is available. Contributors are welcome. Also remember to compile with at least a GCC 3.x to be 100% sure to avoid any possible problem.
+		    
+		    Namely, if you get some error while running Hydrogen and you want to report it remember to configure hydrogen with:
+		    <PRE
+CLASS="SCREEN"
+>			<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <B
+CLASS="COMMAND"
+>scons debug=1</B
+>
+		    </PRE
+>
+		    
+		    To clean up compiled code:
+		    <PRE
+CLASS="SCREEN"
+>			<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <B
+CLASS="COMMAND"
+>scons -c</B
+>
+		    </PRE
+>
 		</P
->
-	</DIV
->
-
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="configurazioneAudioDriver"
->1.3. Audio driver configuration</A
+NAME="AUDIODRIVERPREFERENCES"
+>1.3. Audio preferences</A
 ></H2
->		
-		<P
->			It's very important to choose the proper audio driver for our system, since 
-			the choice may influence quite much general performances. The choice is between
-			Oss audio driver, ALSA and Jack audio driver.
+><P
+>		    First of all you should make shure that the audio engine is configured properly. 
+		    The preferences dialog can be accessed via the tools menu (tools -&#62; preferences). 
 		</P
->
-		<DIV
+><DIV
 CLASS="SECT2"
 ><HR><H3
 CLASS="SECT2"
 ><A
-NAME="ossDriver"
->1.3.1. OSS audio driver</A
+NAME="AUDIOTAB"
+>1.3.1. The Audio System tab</A
 ></H3
->			
-			<P
->			The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
-			supported by the vast majority of sound cards available for linux; this said, 
-			the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
-			by any other software. Use it as last resource.
+><P
+>From the "Audio System" tab (Fig. 1) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server).
 			</P
->
-		</DIV
->
-		<DIV
-CLASS="SECT2"
-><HR><H3
-CLASS="SECT2"
-><A
-NAME="jackDriver"
->1.3.2. Jack audio driver</A
-></H3
->			
-			<P
->			The Jack driver is a professional audio server which permits very low lag and exchanges with other
-			audio software. <SPAN
+><P
+>			We can set some features of Hydrogen like "Enable track outputs" useful if you want to add effects to a single instrument with jack-rack. "Connect to Default Output Pair" connects the output to the default ports: uncheck this if you want to connect JACK output to other ports without disconnecting them first
+			</P
+><P
+>			Keep also an eye on the value of "Polyphony": depending on your CPU you may want to change the max simultaneous notes in order to prevent hydrogen from overunning the audio driver.
+			</P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="img/PreferencesAudioSystem.png"><DIV
+CLASS="CAPTION"
+><P
+>				    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 1</B
+></SPAN
+> The Audio System tab
+				</P
+></DIV
+></P
+></DIV
+><P
+>			    The following drivers are available:
+			</P
+><P
+></P
+><UL
+><LI
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>jackd</B
+></SPAN
+>: The Jack driver is a professional audio server which permits very low lag and exchanges with other
+			    audio software. <SPAN
 CLASS="emphasis"
 ><I
 CLASS="EMPHASIS"
 >We strongly recommend using this driver to have the best out of Hydrogen</I
 ></SPAN
 >.
-			It needs its server running, so remember to launch it before Hydrogen. [TODO INSERT notes about features of jack related and possible binding with other software like ardour]
-			</P
->
-		</DIV
->
-		<DIV
+			    JACK server will start automatically if not already running.
+			    </P
+></LI
+><LI
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>ALSA</B
+></SPAN
+>:
+			    the widely adopted Linux standard audio drivers
+			    </P
+></LI
+><LI
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>OSS</B
+></SPAN
+>:
+			    The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
+			    supported by the vast majority of sound cards available for linux; this said, 
+			    the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
+			    by any other software. Use it as last resort.
+			    </P
+></LI
+><LI
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>PortAudio</B
+></SPAN
+>:
+			    an open-source multiplatform audio driver
+			    </P
+></LI
+><LI
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>CoreAudio</B
+></SPAN
+>:
+			    a driver for Mac OS X (experimental) 
+			    </P
+></LI
+></UL
+></DIV
+><DIV
 CLASS="SECT2"
 ><HR><H3
 CLASS="SECT2"
 ><A
-NAME="alsaDriver"
->1.3.3. ALSA audio driver</A
+NAME="MIDITAB"
+>1.3.2. The Midi System tab</A
 ></H3
->			
-			<P
->			NEW! Now Hydrogen works also with ALSA, the new Linux standard audio drivers.
+><P
+>			The "Midi System" tab (Fig. 2) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events.
 			</P
->
-		</DIV
->
-	</DIV
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="img/PreferencesMidiSystem.png"><DIV
+CLASS="CAPTION"
+><P
+>				<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 2</B
+></SPAN
+> The MIDI System tab
+				</P
 ></DIV
->
-
-
-<DIV
+></P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="APPEARANCETAB"
+>1.3.3. The Appearance tab</A
+></H3
+><P
+>		    The "Appearance" tab (Fig. 3) let's you to modify Hydrogen and QT graphical properties.
+		    </P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="img/PreferencesAppearance.png"><DIV
+CLASS="CAPTION"
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 3</B
+></SPAN
+> The appearance tab
+			    </P
+></DIV
+></P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AUDIOENGINETAB"
+>1.3.4. The Audio Engine tab</A
+></H3
+><P
+>		    The audio engine info is a window with various stats about Hydrogen and the audio driver. In case JACK is used, buffer and sampling rate should be set before starting Hydrogen (JACK automatically starts when an application tries to connect).
+		    </P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="img/AudioEngineInfoDialog.png"><DIV
+CLASS="CAPTION"
+><P
+>			    <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 4</B
+></SPAN
+> The Audio engine Info window
+			    </P
+></DIV
+></P
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="GUI"
+NAME="USINGHYDROGEN"
 ></A
->Chapter 2. GUI</H1
->	
-	
-	<DIV
+>Chapter 2. Using Hydrogen</H1
+><DIV
+CLASS="SECT1"
+><H2
+CLASS="SECT1"
+><A
+NAME="USEDFILES"
+>2.1. Used Filetypes</A
+></H2
+><P
+>Before working with Hydrogen, please familiarize with these filetypes:</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>*.h2pattern</B
+></SPAN
+>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>*.h2song</B
+></SPAN
+>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>*.h2playlist</B
+></SPAN
+>: XML file describing a playlist.A Playlist is a (ordered) group of songs.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>*.h2drumkit</B
+></SPAN
+>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.</P
+></LI
+></UL
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="main"
->2.1. The main toolbar</A
+NAME="MAINMENU"
+>2.2. Main menu</A
 ></H2
->		
-		<P
->Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar:</P
->
-
-	<DIV
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Projects</B
+></SPAN
+>: this menu offers file related functions.</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>New</I
+></SPAN
+> - Create a new song</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Show Info</I
+></SPAN
+> - Set general properties of the song such as name, author, license and generic notes</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Open</I
+></SPAN
+> - Open a song</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Open Demo</I
+></SPAN
+> - Open a demo song (demo songs are stored in <SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>$INSTALLPATH/share/hydrogen/data/demo_songs</I
+></SPAN
+>)</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Open recent</I
+></SPAN
+> - Open a menu showing last used songs</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Save</I
+></SPAN
+> - Save changes to current song</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Save as</I
+></SPAN
+> - Save current song specifying a name (default path: <SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>$HOME/.hydrogen/data/songs)</I
+></SPAN
+></P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Open pattern</I
+></SPAN
+> - Open a saved pattern belonging to the current drumkit</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Export pattern as</I
+></SPAN
+> - Saves a pattern. It will be stored in <SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>$HOME/.hydrogen/data/patterns/drumkit_name</I
+></SPAN
+></P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Export MIDI file</I
+></SPAN
+> - Export current song in MIDI format</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Export song</I
+></SPAN
+> - Export current song in WAV format</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Quit</I
+></SPAN
+> - Quit Hydrogen</P
+></LI
+></UL
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Instruments</B
+></SPAN
+>: this menu offers instruments and drumkit (sound libraries) functions.</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Add instrument</I
+></SPAN
+> - Add a new instrument to your current drumkit</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Clear all</I
+></SPAN
+> - Delete all instruments from the current drumkit</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Save library</I
+></SPAN
+> - Saves all instruments settings (and their sound samples) in <SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>$HOME/.hydrogen/data/library_name</I
+></SPAN
+></P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Export library</I
+></SPAN
+> - Compress all instruments samples and settings in a drumkit in <SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>$HOME/.hydrogen/data/library_name</I
+></SPAN
+></P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Import library</I
+></SPAN
+> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>NOT</B
+></SPAN
+> RSS compliant (see <A
+HREF="http://www.hydrogen-music.org/feeds/drumkit_list.php"
+TARGET="_top"
+>Hydrogen website</A
+> for an example). To load another drumkit in your current working session of Hydrogen, read <A
+HREF="#rack"
+TARGET="_top"
+>here</A
+>.</P
+></LI
+></UL
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Tools</B
+></SPAN
+>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Playlist editor</I
+></SPAN
+> - A tool to manage playlists.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Mixer</I
+></SPAN
+> - Open the mixer window.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Instrument rack</I
+></SPAN
+> - Open the instrument rack panel.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Preferences</I
+></SPAN
+> - Open the main preferences window. Read <A
+HREF="#prefs"
+TARGET="_top"
+>here</A
+> on how to configure Hydrogen.</P
+></LI
+></UL
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Debug</B
+></SPAN
+>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Show audio engine info - </I
+></SPAN
+>Open a monitor with various <A
+HREF="#engine"
+TARGET="_top"
+>stats</A
+></P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>debug action - </I
+></SPAN
+> Insert debug commands.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>Print Objects - </I
+></SPAN
+>Print on stdout current objects map.</P
+></LI
+></UL
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Info</B
+></SPAN
+></P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>User manual - </I
+></SPAN
+>Open a window with this manual :)</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="italic"
+><I
+CLASS="EMPHASIS"
+>About - </I
+></SPAN
+>The usual window with licence information, acknowledgements, etc.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="MAIN"
+>2.3. The main toolbar</A
+></H2
+><P
+>Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar and its components:</P
+><P
+></P
+><UL
+><LI
+><P
+>Pilot the song using the start, stop, pause, etc. buttons</P
+></LI
+><LI
+><P
+>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</P
+></LI
+><LI
+><P
+>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.</P
+></LI
+><LI
+><P
+>Manually set BPM</P
+></LI
+><LI
+><P
+>Manage JACK transport</P
+></LI
+><LI
+><P
+>Open the mixer and the instrument rack panels</P
+></LI
+></UL
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->			<IMG
-SRC="img/MainToolbar.png"></P
+><IMG
+SRC="img/MainToolbar.png"><DIV
+CLASS="CAPTION"
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Fig. 5 </B
+></SPAN
+>  The main toolbar</P
 ></DIV
->
-
-	<P
+></P
+></DIV
+><P
 ></P
 ><UL
 ><LI
@@ -496,10 +1218,10 @@ STYLE="list-style-type: opencircle"
 ><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/background_Control.png"></SPAN
 >
-			</P
+				</P
 ><P
 >Main controls to start <SPAN
 CLASS="bold"
@@ -508,14 +1230,13 @@ CLASS="EMPHASIS"
 >[Hotkey = Spacebar]</B
 ></SPAN
 >, stop, fast forward, rewind, loop a song or a pattern.</P
->
-		</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/background_Mode.png"></SPAN
 ></P
 ><P
@@ -526,7 +1247,7 @@ STYLE="list-style-type: opencircle"
 ><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/background_BPM.png"></SPAN
 ></P
 ><P
@@ -543,7 +1264,7 @@ STYLE="list-style-type: opencircle"
 ><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/cpuload.png"></SPAN
 ></P
 ><P
@@ -554,7 +1275,7 @@ STYLE="list-style-type: opencircle"
 ><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/midi_in.png"></SPAN
 ></P
 ><P
@@ -565,25 +1286,21 @@ STYLE="list-style-type: opencircle"
 ><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/jack_transport.png"></SPAN
 ></P
 ><P
 >Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected.</P
 ></LI
 ></UL
->
-
-	<P
+><P
 >Other useful keybindings (not customizable for the moment):</P
->
-		
-	<P
+><P
 ></P
 ><UL
 ><LI
 STYLE="list-style-type: opencircle"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -592,11 +1309,10 @@ CLASS="EMPHASIS"
 ></SPAN
 > = Open File
 			</P
->
-		</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -605,11 +1321,10 @@ CLASS="EMPHASIS"
 ></SPAN
 > = Save File
 			</P
->
-		</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -618,146 +1333,136 @@ CLASS="EMPHASIS"
 ></SPAN
 > = Restart song or pattern from the beginning
 			</P
->
-		</LI
+></LI
 ></UL
->
-
-	</DIV
->
-	
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="songEditor"
->2.2. Song Editor</A
+NAME="SONGEDITOR"
+>2.4. Song Editor</A
 ></H2
->		
-
-		<P
->		The frame "Song Editor" (Fig. 1) shows the song we are creating; each blue coloured square appearing on this frame means a complete bar as shown in the Pattern Editor, which gathers the different parts of the song (e.g. intro, verse, bridge, chorus and so on). We have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
+><P
+>		The "Song Editor" (Fig. 6) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
 		</P
->
-
-<P
->The Song Editor comes with 5 buttons:</P
->
-<P
->	<SPAN
+><P
+>		The Song Editor comes with 7 buttons:
+		</P
+><P
+>			<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/bg_topPanel.png"></SPAN
-></P
 >
-
-<P
+		</P
+><P
 ></P
 ><UL
 ><LI
 STYLE="list-style-type: opencircle"
->		<P
+><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/btn_new_on.png"></SPAN
-> Create a new pattern (and asks for a name).
-		</P
->
-		</LI
-><LI
-STYLE="list-style-type: opencircle"
->		<P
-><SPAN
-CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/btn_updown.png"></SPAN
-> Move currently selected pattern up or down.
-		</P
->
-		</LI
-><LI
-STYLE="list-style-type: opencircle"
->		<P
-><SPAN
-CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_clear_off.png"></SPAN
 > Completely delete all patterns (asks for confirmation!).
 		</P
->
-		</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
->		<P
+><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/btn_select_off.png"></SPAN
-> Enable selecting patterns for copy &#38; paste.
+><IMG
+SRC="img/btn_new_on.png"></SPAN
+> Create a new pattern (and asks for a name).
 		</P
->
-		</LI
+></LI
 ><LI
 STYLE="list-style-type: opencircle"
->		<P
+><P
 ><SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/btn_select_off.png"></SPAN
-> Enable add/remove patterns.
+><IMG
+SRC="img/btn_updown.png"></SPAN
+> Move currently selected pattern up or down.
 		</P
->
-		</LI
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+><SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/btn_select.png"></SPAN
+> Enable selecting patterns for copy &#38; paste (Select Mode).
+		</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+><SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/btn_draw.png"></SPAN
+> Enable Draw Mode.
+		</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+><SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
+SRC="img/btn_pattern_mode.png"></SPAN
+> Switch from "Single pattern mode" to "Stacked pattern mode" and back..
+		</P
+></LI
 ></UL
->
- 
-	<P
+><P
 >	Under these buttons there is a list of patterns created and when they will played (each square == 1 bar). Click
 	on an squarebox to add or cancel the pattern. Clicking on right mouse button over the name of a pattern will bring up a menu to change name of the pattern or to allow copying/deleting it. Patterns with very same name are not allowed.
 	</P
->
-
-	<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->			<IMG
+><IMG
 SRC="img/SongEditor.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
 CLASS="EMPHASIS"
->Fig. 1</B
+>Fig. 6</B
 ></SPAN
 > The Song Editor
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-
-	</DIV
->
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="patternEditor"
->2.3. Pattern Editor</A
+NAME="PATTERNEDITOR"
+>2.5. Pattern Editor</A
 ></H2
->		
-		<P
->		The "Pattern Editor" frame (Fig. 2) let us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose a pattern to play between those created while the second represents the current grid resolution (4 through 64) and the 'three beats' bars (4T, 8T, 16T and 32T) plus a menu marked "size" which will let you visualize play only a part of the complete bar. Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame to allow tuning 'hard' or 'soft' beat. The button
-
+><P
+>		The "Pattern Editor" frame (Fig. 7) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
+		
+		Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame. Those frame shows the so called "note properties". This are special properties which can be set for every
+		single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms at a tempo of 120bpm.
+		</P
+><P
+>		The button
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->				<IMG
+><IMG
 SRC="img/btn_hear_on.png"></SPAN
 >
 
@@ -765,7 +1470,7 @@ SRC="img/btn_hear_on.png"></SPAN
 		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->				<IMG
+><IMG
 SRC="img/btn_updown.png"></SPAN
 >
 
@@ -776,64 +1481,36 @@ CLASS="QUOTE"
 	
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->				<IMG
-SRC="img/btn_quant_over.png"></SPAN
+><IMG
+SRC="img/btn_quant_off.png"></SPAN
 >
 	
 	. This way the beats inserted will automatically respect the grid resolution currently applied.
 		</P
->
-
-			<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->					<IMG
+><IMG
 SRC="img/PatternEditor.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
 CLASS="EMPHASIS"
->Fig. 2</B
+>Fig. 7</B
 ></SPAN
 > The Pattern Editor
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-
-		<P
->		Each instrument has its own set of features accessible right-clicking with your mouse on it; <SPAN
-CLASS="QUOTE"
->"<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Mute</B
-></SPAN
->"</SPAN
->, <SPAN
-CLASS="QUOTE"
->"<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Solo</B
-></SPAN
->"</SPAN
-> are self-explaining while <SPAN
-CLASS="QUOTE"
->"<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Lock</B
-></SPAN
->"</SPAN
-> locks the instrument belonging to a drumkit on that pattern even if you change drumkit: this way you can easily mess up more drumkits together and create your own! <SPAN
+><P
+>		Rememeber this constraint concerning the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; on the other hand if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision), notes will be placed in the previous or in the following 8th bar.
+This contraint can be removed if you disable the whole grid resolution (choose "off" from the grid resolution LCD control). Now you'll be able to place notes wherever you prefer.
+		</P
+><P
+>		Each instrument has its own set of features accessible right-clicking with your mouse on it;  <SPAN
 CLASS="QUOTE"
 >"<SPAN
 CLASS="bold"
@@ -856,29 +1533,44 @@ CLASS="QUOTE"
 >"hard"</SPAN
 > on that instrument when played.
 		</P
->
-
-		<DIV
+><P
+>		    The small green and red squares beside the instrument name are the <SPAN
+CLASS="QUOTE"
+>"<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>mute</B
+></SPAN
+>"</SPAN
+> and <SPAN
+CLASS="QUOTE"
+>"<SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>solo</B
+></SPAN
+>"</SPAN
+> buttons.
+		</P
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/PatternEditorInstr.png"></P
 ></DIV
->
-
-		<P
+><P
 >Also, you can set new beats clicking on
 		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->				<IMG
-SRC="img/btn_record_off.png"></SPAN
+><IMG
+SRC="img/btn_record_over.png"></SPAN
 >
 		
 		which enables direct input by MIDI events or by keyboard according to the following map key=instrument:</P
->
-		
-		<P
+><P
 ><SPAN
 CLASS="emphasis"
 ><I
@@ -886,9 +1578,7 @@ CLASS="EMPHASIS"
 >Note that the name of the instrument depends on the drumkit loaded. This list refers to the GMKit loaded by default. The position of the instrument, however, is the same.</I
 ></SPAN
 ></P
->
-		
-		<P
+><P
 ></P
 ><UL
 ><LI
@@ -988,77 +1678,58 @@ CLASS="EMPHASIS"
 >7 = Instrument No. 23 (currently not assigned)</P
 ></LI
 ></UL
->
-
-	
-	<P
->Here's a quick reference of the above bindings for your convenience. See Chapter 3 for a basic walkthrough of how the pattern editor works.</P
->
-	
-	<DIV
+><P
+>Here's a quick reference of the above bindings for your convenience. See <A
+HREF="#CREAZIONESONG"
+>Chapter 3</A
+> for a basic walkthrough of how the pattern editor works.</P
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->			<IMG
+><IMG
 SRC="img/tastiera.png"></P
 ></DIV
->
-	
-	</DIV
->
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="mixer"
->2.4. Mixer</A
+NAME="MIXER"
+>2.6. Mixer</A
 ></H2
->		
-		
-		<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/Mixer.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
 CLASS="EMPHASIS"
->Fig. 3</B
+>Fig. 8</B
 ></SPAN
 > The Mixer
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-
-<P
->The Mixer frame (Fig. 3) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
+><P
+>The Mixer frame (Fig. 8) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
 
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/showPeaks_on.png"></SPAN
 >	
 
-	 to disable, useful on old CPUs) and let you set the maximum peak allowed (tune with the fader knob of the instrument), lets you modify attributes like pan  
+	 to disable, useful on old CPUs) and let you set the maximum peak allowed (tune with the fader knob of the instrument), lets you modify attributes like pan, play solo 
 	
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/MixerPan.png"></SPAN
->	
-			
-	, play solo 
-	
-	<SPAN
-CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_solo_on.png"></SPAN
 >
 	
@@ -1066,7 +1737,7 @@ SRC="img/btn_solo_on.png"></SPAN
 	
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_mute_on.png"></SPAN
 >
 	
@@ -1074,51 +1745,18 @@ SRC="img/btn_mute_on.png"></SPAN
 
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_play_on_mixer.png"></SPAN
 >
 
 	; selecting in the Pattern Editor an instrument causes a blue LED to light on (near the play button). Near the global volume knob, you can set 3 global effect such a swing (shifts a few notes back or forward not randomly), timing (modify timings of the notes) and humanize effect (random velocity editing).
 	</P
->
-
-	<P
->		Double clicking over the name of an instrument in the Mixer frame will bring up	a doubled face tool to modify many properties of that instrument.
-	</P
->
-	
-	<P
->	<SPAN
-CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/instr_ed1.png"></SPAN
->
-		
-	<SPAN
-CLASS="INLINEMEDIAOBJECT"
->			<IMG
-SRC="img/instr_ed0.png"></SPAN
->
-	</P
->
-	
-	<P
->		The first tab ('Instrument') lets you fine tune the instrument: you can adjust Attack, Decay, Sustain, Release, Cutoff and Resonance (both of which can be excluded) or even add a random pitch.
-	</P
->
-
-	<P
->		The second tab ('Layer') can add WAV/AU/AIFF/FLAC samples up to 16 layers to the instrument according to the level of its velocity and tune pitch and gain.
-	</P
->
-		
-	
-	<P
+><P
 >		In addition to all this you can set up to 4 special LADSPA effects for each instrument switching the
 		
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/showFX_on.png"></SPAN
 >
 	
@@ -1127,27 +1765,1165 @@ SRC="img/showFX_on.png"></SPAN
 		<DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/MixerFX.png"></P
 ></DIV
 >	
 	
 	</P
->
-
-	</DIV
->
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="ladspa"
->2.5. LADSPA plugins</A
+NAME="DRUMKIT"
+>2.7. Sound Library (Drumkit Manager)</A
 ></H2
->		
-		<P
+><P
+>The Sound Library saves you time in managing your drum kits,
+          favorite patterns, and favorite songs.  When making new songs and drum
+          kits, the Sound Library makes it easier for you to reuse and mix the
+          instruments and patterns from other kits and songs.</P
+><DIV
+CLASS="SIMPLESECT"
+><HR><H3
+CLASS="SIMPLESECT"
+><A
+NAME="SECT.SYSTEMDRUMKITS"
+>2.7.1. System Drumkits</A
+></H3
+><P
+>This lists the drumkits that were installed by your system
+            administrator.  It was determined by the compile-time prefix.  On
+            Unix-like operating systems, this is
+            usually <TT
+CLASS="FILENAME"
+>/usr/share/hydrogen/data/drumkits</TT
+>,
+            or
+            possibly <TT
+CLASS="FILENAME"
+>/usr/local/share/hydrogen/data/drumkits</TT
+>.
+            These kits are available to all users on the system, and users are
+            usually not able to add to them.</P
+><P
+>To load a drumkit from here, right-click the drumkit and
+            select <SPAN
+CLASS="GUIMENUITEM"
+>Load</SPAN
+>.  This will replace your
+            current drumkit with the one that you selected.  To load a single
+            instrument from that kit, left-click the <SPAN
+CLASS="GUIBUTTON"
+>plus</SPAN
+>
+            to the left of the drumkit's name to show all the instruments.  With
+            your left mouse button, click and drag the instrument into your
+            current kit.  The instrument will be added to the drumkit that you
+            currently have loaded.</P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><HR><H3
+CLASS="SIMPLESECT"
+><A
+NAME="SECT.USERDRUMKITS"
+>2.7.2. User Drumkits</A
+></H3
+><P
+>These are your own drum kits that you can manage yourself.
+            They are usually stored
+            in <TT
+CLASS="FILENAME"
+>$HOME/.hydrogen/data/drumkits</TT
+>.
+            When you are creating a new drumkit, you can save it here by
+            selecting <SPAN
+CLASS="GUIMENU"
+>Instruments</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Save
+            library</SPAN
+>.</P
+><P
+>Loading drumkits and instruments to use is the same as for the
+            System Drumkits (see <A
+HREF="#SECT.SYSTEMDRUMKITS"
+>Section 2.7.1</A
+>).</P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><HR><H3
+CLASS="SIMPLESECT"
+><A
+NAME="SECT.SL.PATTERNS"
+>2.7.3. Patterns in the Sound Library</A
+></H3
+><P
+>Before you save your favorite patterns to the sound library,
+            be sure to edit it's properties by right-clicking and
+            selecting <SPAN
+CLASS="GUIMENUITEM"
+>Properties</SPAN
+>.  There, you can
+            give the pattern a title and a category.  You can use one of the
+            categories already provided, or create your own categories by simply
+            typing in a category name.  The category name is important, because
+            the patterns will be filed by category in the Sound Library.</P
+><P
+>You can save your favorite patterns in the sound library by
+            right clicking the title of the pattern in the song editor, and
+            selecting <SPAN
+CLASS="GUIMENUITEM"
+>Save Pattern</SPAN
+>.  It will appear
+            in the Sound Library underneath <SPAN
+CLASS="GUILABEL"
+>Patterns</SPAN
+> and
+            the category that you assigned to the pattern.</P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><HR><H3
+CLASS="SIMPLESECT"
+><A
+NAME="SECT.SL.SONGS"
+>2.7.4. Songs in the Sound Library</A
+></H3
+><P
+>To save songs in the Sound Library, put them in your data
+            directory underneath the <TT
+CLASS="FILENAME"
+>songs</TT
+>
+            folder
+            (usually <TT
+CLASS="FILENAME"
+>$HOME/data/songs</TT
+>.  To
+            remove them, remove the file from that folder.</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="INSTRUMENTEDITING"
+>2.8. Drumkits and Instrument Editing</A
+></H2
+><P
+>Creating a new drumkit with Hydrogen is done with the
+		Instrument Editor.  Using the instrument editor you can load
+		samples, set envelope parameters, set the gain, and a few other
+		advanced features like mute groups, low-pass resonance filter,
+		and pitch randomization.</P
+><P
+>Instead of creating your own drumkit, you can also use or
+		download existing drumkits using
+		the <A
+HREF="#DRUMKIT"
+>Drumkit Manager</A
+>.</P
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="INSTRUMENTEDITING.CONCEPTS"
+>2.8.1. Concepts</A
+></H3
+><P
+>                  The synthesizer in Hydrogen is a sample-based synthesizer.  A
+		  sample is a piece of pre-recorded audio (usually between .1
+		  sec and 3 sec).  To play a note, the sample is simply played
+		  back at the right time.  There's a few concepts and terms that
+		  you should understand when you are putting together a drumkit.
+		  (See the <A
+HREF="#GLOSSARY"
+>Glossary</A
+> for more
+		  detailed explanations.)
+                </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><P
+><B
+>Sampling Synthesizer Terms</B
+></P
+><DL
+><DT
+>Sample</DT
+><DD
+><P
+>A short recording of a
+                    sound, typically between .1 and 3.0 seconds
+                    long.</P
+></DD
+><DT
+>Gain</DT
+><DD
+><P
+>Volume
+                    adjustment.</P
+></DD
+><DT
+>Velocity</DT
+><DD
+><P
+>How hard you hit a
+                    note.</P
+></DD
+><DT
+>ADSR Envelope Generator</DT
+><DD
+><P
+>An
+                    Attack/Decay/Sustain/Release envelope generator.  After you
+                    trigger a note, Hydrogen
+                    will <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>attack</I
+></SPAN
+> the note by
+                    increasing its volume from 0 to the full velocity of the
+                    note.  After reaching full velocity, it
+                    will <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>decay</I
+></SPAN
+> the note by
+                    lowering the volume until it reaches
+                    the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>sustain</I
+></SPAN
+> level.  When
+                    the note is <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>released</I
+></SPAN
+>,
+                    Hydrogen reduces the volume from the sustain level back down
+                    to 0.</P
+></DD
+><DT
+>Attack</DT
+><DD
+><P
+>The amount
+                    of <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>time</B
+></SPAN
+> to go from 0 to
+                    full velocity.</P
+></DD
+><DT
+>Decay</DT
+><DD
+><P
+>The amount
+                    of <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>time</B
+></SPAN
+> to go from full
+                    velocity to the sustain volume.</P
+></DD
+><DT
+>Sustain</DT
+><DD
+><P
+>The <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>level</B
+></SPAN
+>
+                    (how loud) to hold the note between the sustain and the
+                    release.  It is a percentage of the velocity.  It does not
+                    depend on time.</P
+></DD
+><DT
+>Release</DT
+><DD
+><P
+>The amount
+                    of <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>time</B
+></SPAN
+> to go from the
+                    sustain volume back down to 0.</P
+></DD
+></DL
+></DIV
+><P
+>                  Typical samples that are used in Hydrogen are: the sound of a
+		  single drum hit, the sound of a single cymbal hit, the sound
+		  of a single cowbell hit.  Whenever you put a note in the
+		  pattern (or play a note using MIDI), Hydrogen will play
+		  whatever sound you have loaded.  So, to put together a drum
+		  kit you need to gather short recordings of the bass drum, each
+		  tom, each cymbal, the high hat open, the high hat closed, the
+		  snare drum (snare on), the snare drum (snare off), rim shots,
+		  etc.
+                </P
+><P
+>                  However, there are no rules about what a sample can be.  It's
+		  not uncommon to use Hydrogen to trigger non-drum sounds like:
+		  audio clips of people talking, a clip from a song, sound
+		  effects, audio clips from movies, and famous people speaking.
+		  Be creative!
+                </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="INSTRUMENTEDITING.NEWKIT"
+>2.8.2. Creating a New Drumkit</A
+></H3
+><P
+>To start a brand new drum kit, select
+		  <SPAN
+CLASS="GUIMENU"
+>Instruments</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Clear All</SPAN
+>.
+		  This will give you a bank of 32 blank instruments.  To delete
+		  instruments, right-click on on each instrument and select
+		  <SPAN
+CLASS="GUIMENUITEM"
+>Delete Instrument</SPAN
+>.  To add
+		  more instruments, select
+		  <SPAN
+CLASS="GUIMENU"
+>Instruments</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Add instrument</SPAN
+>.
+                </P
+><P
+>Select an instrument to start editing it.  This
+		is done by left-clicking on the name of the instrument in the
+		instrument list (at the left).  You will notice that the name of
+		the instrument in the Instrument Editor matches the one that you
+		clicked.</P
+><P
+>After you have your drum kit working the way you
+		want, select
+		  <SPAN
+CLASS="GUIMENUITEM"
+>Instruments</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Save library</SPAN
+>.  It will ask you for the name of the
+		  kit to save.  If you wish
+		  to <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>overwrite</I
+></SPAN
+> an existing kit,
+		  you will need to type in the same name as the kit
+		  that you want to replace.</P
+><P
+>Drumkits are automatically stored in
+		the <TT
+CLASS="FILENAME"
+>data</TT
+>
+		directory
+		(i.e. <TT
+CLASS="FILENAME"
+>$HOME/data/drumkits</TT
+>).</P
+><P
+>To export a drumkit (for sharing with others),
+		it must first be loaded into your Sound Library.
+		Then, select
+		  <SPAN
+CLASS="GUIMENUITEM"
+>Instruments</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Export library</SPAN
+>
+		from the menu.  Select the drum kit that you wish to
+		export, and give it a file name to save it to.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="INSTRUMENTEDITING.NEWINSTRUMENT"
+>2.8.3. Creating an Instrument and Layers</A
+></H3
+><P
+>For each instrument in a drum kit, you can load
+		several samples and set different synthesizer
+		parameters.  This section will step you through how to
+		create a new instrument and load the samples.</P
+><P
+>To begin creating an instrument, select
+		  <SPAN
+CLASS="GUIMENU"
+>Instruments</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Add instrument</SPAN
+>.  This will give you a blank
+		  instrument to start from.</P
+><P
+>Now, you need two samples.  Any .WAV or .FLAC file will
+                do.  Hydrogen provides several in
+                the <TT
+CLASS="FILENAME"
+>data/drumkits</TT
+>
+                directory.</P
+><P
+>In the instrument editor, click
+                on <SPAN
+CLASS="GUIBUTTON"
+>Layers</SPAN
+>.  You can layer several samples
+                into the instrument.  Which one is played depends on the
+                velocity of the incoming note.  Click <SPAN
+CLASS="GUIBUTTON"
+>Load
+                Layer</SPAN
+> and point the <SPAN
+CLASS="GUIMENU"
+>Audio File
+                Browser</SPAN
+> to your sample.  Note that the <SPAN
+CLASS="GUIMENU"
+>Audio
+                File Browser</SPAN
+> will allow you to preview the sample
+                before you load it.  It will also allow you to load more than
+                one sample at a time.  But for now, only load one.</P
+><P
+>After you load the sample, you'll see that there
+		is now a <SPAN
+CLASS="GUILABEL"
+>1</SPAN
+> at the top, and the
+		topmost rectangle has turned light blue.  To load a
+		second sample, click the slot just below it, and then
+		click <SPAN
+CLASS="GUIBUTTON"
+>Load Layer</SPAN
+> to bring in
+		another sample.</P
+><P
+>After bringing in both samples, you'll probably
+		notice that only the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>first</I
+></SPAN
+> sample
+		is being played whenever you trigger the instrument.
+		This is because you need to set
+		the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>velocity</I
+></SPAN
+> ranges for the
+		layers.  Move your mouse to the sides of the light
+		blue rectangles and you see that you get a left-right
+		drag cursor.  Now drag the sample to the left or right
+		(like a curtain).  You will now see Layer 2
+		appear.</P
+><P
+>The velocity setting for the layer is 0-velocity
+		on the left, and full velocity on the right.  Set up
+		Layer 1 to sound for soft notes, and Layer 2 to sound
+		for hard notes.  (I.e. Layer 1 on the left and Layer 2
+		on the right.)</P
+><P
+>Now, in the pattern area, set up a simple
+		pattern that plays this instrument.  Adjust the
+		velocity settings on each note so that you can get the
+		different samples to sound.  Now set the pattern to
+		loop and notice how your different samples are getting
+		triggered.  (To learn about editing a pattern,
+		see <A
+HREF="#PATTERNEDITOR"
+>Section 2.5</A
+>)</P
+><P
+>For each layer, you can set
+		the <SPAN
+CLASS="GUIBUTTON"
+>Gain</SPAN
+> and
+		the <SPAN
+CLASS="GUIBUTTON"
+>Pitch</SPAN
+>.  The pitch also has
+		a <SPAN
+CLASS="GUIBUTTON"
+>Fine</SPAN
+> adjustment.</P
+><P
+>Use the <SPAN
+CLASS="GUIBUTTON"
+>Gain</SPAN
+> adjustment
+		to control how loud the sample will play.  This is
+		necessary because it's extremely difficult to get a
+		set of samples that all sound at about the same
+		volume.  By adjusting here, the samples that were
+		recorded too quietly can be turned up to match your
+		loud samples (that had to be turned down).</P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="../images/warning.gif"
+HSPACE="5"
+ALT="Warning"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>It is very easy to set
+		  the <SPAN
+CLASS="GUIBUTTON"
+>Gain</SPAN
+> too high, causing
+		  your sample to clip.  Remember to test the gain with
+		  full-velocity notes.  If you clip your signal here,
+		  it will only get worse as Hydrogen processes
+		  it.</P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>The pitch of the sample can be modified with the
+		pitch controls.  The <SPAN
+CLASS="GUIBUTTON"
+>Pitch</SPAN
+> knob
+		adjust the pitch in musical half-steps.  (So, -12 is
+		down 1 octave).  The pitch on the right adjusts the
+		pitch &plusmn;50 cents.  (One half-step is 100
+		cents.)</P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="../images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>The pitch is adjusted by playing the sample
+		  back faster or slower.  This is called the Dopplar
+		  Effect.  So, if you have a 1-second sample that you
+		  turn down -12 (1 octave), you sample will only last
+		  for .5-seconds.</P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="INSTRUMENTEDITING.PARAMETERS"
+>2.8.4. Instrument Parameters</A
+></H3
+><P
+>In the instrument editor, click on
+		the <SPAN
+CLASS="GUIBUTTON"
+>General</SPAN
+> button.  Here you
+		can adjust several parameters that are for the whole
+		instrument (not for each layer).  The parameters that
+		you can adjust are:</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Envelope
+		    parameters</B
+></SPAN
+>: <SPAN
+CLASS="GUIBUTTON"
+>Attack</SPAN
+>, <SPAN
+CLASS="GUIBUTTON"
+>Decay</SPAN
+>,
+		    <SPAN
+CLASS="GUIBUTTON"
+>Sustain</SPAN
+>, <SPAN
+CLASS="GUIBUTTON"
+>Release</SPAN
+>.  (See
+		    <A
+HREF="#DEF.ENVELOPEGENERATOR"
+><I
+CLASS="GLOSSTERM"
+>Envelope Generator</I
+></A
+>)</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+><SPAN
+CLASS="GUIBUTTON"
+>Gain</SPAN
+></B
+></SPAN
+>:
+		    The overall volume of the instrument.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+><SPAN
+CLASS="GUIBUTTON"
+>Mute
+		    Group</SPAN
+></B
+></SPAN
+>: Which mute group
+		    this instrument is a member of (see
+		    <A
+HREF="#DEF.MUTEGROUP"
+><I
+CLASS="GLOSSTERM"
+>Mute Group</I
+></A
+>).</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Filter
+		    Parameters</B
+></SPAN
+>: <SPAN
+CLASS="GUIBUTTON"
+>Byp</SPAN
+>ass, <SPAN
+CLASS="GUIBUTTON"
+>Cutoff</SPAN
+>,
+		      <SPAN
+CLASS="GUIBUTTON"
+>Resonance</SPAN
+>.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+><SPAN
+CLASS="GUIBUTTON"
+>Random
+		    Pitch</SPAN
+></B
+></SPAN
+></P
+></LI
+></UL
+><P
+>It's important that you
+		understand <A
+HREF="#INSTRUMENTEDITING.CONCEPTS"
+>Section 2.8.1</A
+>
+		in order to continue on.</P
+><DIV
+CLASS="SIMPLESECT"
+><HR><H4
+CLASS="SIMPLESECT"
+><A
+NAME="INSTRUMENTEDITING.ENVELOPEPARAMETERS"
+>2.8.4.1. Envelope Parameters</A
+></H4
+><P
+>When the instrument is triggered, its volume
+		  is run through an ADSR Envelope.  The parameters
+		  operate as follows:</P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Attack</B
+></SPAN
+>
+		      &mdash; the amount of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>time</I
+></SPAN
+>
+		      that the volume of the sample goes from 0 to the
+		      full velocity of the note.  If the value is 0,
+		      the sample will play immediately at full
+		      velocity.  If the value is 1.0, the sample
+		      volume will use the maximum time available for
+		      the attack paramater.
+                        <A
+NAME="FN.ADSRTIMES"
+HREF="#FTN.FN.ADSRTIMES"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+>
+                      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Decay</B
+></SPAN
+>
+		      &mdash; the amount of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>time</I
+></SPAN
+>
+		      for the volume of the sample to go from full
+		      velocity down to the sustain volume.  If the
+		      value is 0, the sample will immediately skip
+		      from the attack volume to the sustain volume.
+		      If the value is 1.0, the sample volume will use
+		      the maximum time available for the decay
+		      parameter.<A
+HREF="#FTN.FN.ADSRTIMES"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Sustain</B
+></SPAN
+>
+		      &mdash; the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>volume</I
+></SPAN
+> to play
+		      the note after the decay phase is over, and
+		      until the note is released.  If set to 0, the
+		      note will be silent.  If set to 1.0, the note
+		      will play at full velocity.</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Release</B
+></SPAN
+> &mdash;
+		      the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>time</I
+></SPAN
+> to fade out the note from
+		      the sustain volume back down to 0 (silent).  If set to 0,
+		      the note will fade out in the minimum amount of time
+		      (about 5 ms).  If set to 1, it will fade out for
+		      the maximum time
+		      available.<A
+HREF="#FTN.FN.ADSRTIMES"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></P
+></LI
+></UL
+><P
+>If the sample is shorter than the times that
+		  you specify, the sample will end, regardless of
+		  which phase of the ADSR it is in.  If the note is
+		  sustained, it does <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> draw out
+		  the note while you are holding it.  It only holds
+		  the gain (volume) parameter during that time.</P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><HR><H4
+CLASS="SIMPLESECT"
+><A
+NAME="INSTRUMENTEDITING.GAINANDMUTEGROUP"
+>2.8.4.2. Gain and Mute Group</A
+></H4
+><P
+>The gain sets the overall volume for the
+		  sample.  This gain is applied after the gain that
+		  you set for the layer, and before the gain that is
+		  set for the mixer.  If the Gain is 0, the instrument
+		  will be silent.  If the gain is 1.0 the volume of
+		  the samples will not be adjusted (i.e. 0 dB).  If
+		  the gain is set higher, the samples will be
+		  amplified.</P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="../images/warning.gif"
+HSPACE="5"
+ALT="Warning"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>It is very easy to set
+		      the <SPAN
+CLASS="GUIBUTTON"
+>Gain</SPAN
+> too high, causing
+		      your sample to clip.  Remember to test the gain with
+		      full-velocity notes.  If you clip your signal here,
+		      it will only get worse as Hydrogen processes
+		      it.</P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>Hydrogen provides more mute groups than you
+		  know what to do with (over 256).  A mute group is a
+		  grouping of instruments that are mutually exclusive
+		  &mdash; only one instrument may be playing at any
+		  time.  If one is playing and another instrument in
+		  the group is triggered, it will immediately silence
+		  (mute) and start playing the other instrument.  This
+		  is useful, especially, for instruments like hi-hats
+		  where the open sound and the closed sound are
+		  different instruments.</P
+><P
+>If the mute group is set
+		  to <SPAN
+CLASS="GUILABEL"
+>Off</SPAN
+>, then the instrument is
+		  not part of any mute grouping.  If the mute group is
+		  set to any number, then that is the group that the
+		  instrument is a part of.  To set other instruments
+		  into the same grouping, set their mute group
+		  parameter to the same number.  (For example, to
+		  group all the high-hat instruments, you can set all
+		  their mute group parameters to 1.  To have a snare
+		  drum mute group, set their mute group parameters to
+		  2.)</P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><HR><H4
+CLASS="SIMPLESECT"
+><A
+NAME="INSTRUMENTEDITING.FILTERANDRANDOMPITCH"
+>2.8.4.3. Filter and Random Pitch</A
+></H4
+><P
+>The filter is a low-pass resonance filter.  If you don't
+		  wish to use is, click the <SPAN
+CLASS="GUIBUTTON"
+>BYP</SPAN
+>ass button
+		  so that it's red.  If it's not red, then the filter is active.
+		  The cutoff parameter adjusts the cutoff frequency for the
+		  filter.  The resonance parameter adjusts how much to resonate
+		  the cutoff frequency.  If the resonance is set to 0, then the
+		  filter is just a simple low-pass filter.</P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="../images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>The cutoff frequency of the filter varies with the
+                    sample rate of your audio card.  The range of the knob (0 to
+                    1.0) is optimized for a 48,000 kHz sample rate.</P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>The random pitch paramater allows you to randomly vary
+                  the pitch of the sample every time it is triggered.  The value
+                  is set between 0 and 1.0.  The pitch change is fairly small:
+                  &plusmn;2 half-steps &times; value.  Using this sparingly can
+                  help your sequences to sound more like a real drummer.</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="INSTRUMENTEDITING.TIPS"
+>2.8.5. Tips on Editing Instruments</A
+></H3
+><P
+>With all of the different parameters available to tweak,
+		it can be difficult to set up something that sounds nice when
+		you're done.  Here's a few tips on setting up an
+		instrument:</P
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Turn down the gain.</B
+></SPAN
+> Every
+                time you have a gain knob (i.e. an amplifier), this is called
+                a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>gain stage</I
+></SPAN
+>.  With every gain stage you
+                have, it's easy to overdrive your signal &mdash; which means the
+                signal gets distorted by clipping.  In addition, if you have two
+                samples that, by themselves, peg your meters &mdash; what do you
+                think happens when you combine them?  That's right, you
+                overdrive the signal again.</P
+><P
+>If things sound bad and distorted, start by turning down
+                the gain setting on the layer... especially if it's larger than
+                1.0.  Then turn down the instrument gain.  Then any gain on a
+                LADSPA effect.  Then the fader on the mixer.  Then the master
+                output fader.</P
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Test samples at full
+                velocity.</B
+></SPAN
+> Your sample will be played louder if the
+                velocity is higher.  So, if you set everything to sound nice and
+                full with velocity at 0.7, what will happen when you get a full
+                velocity of 1.0?  (<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Hint: clipping.</I
+></SPAN
+>)</P
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Try to use samples that are -6 dB
+                max.</B
+></SPAN
+> Visually, this means samples that peak at only
+                1/2 of full scale.  Otherwise, turn your layer gain to about
+                .5.</P
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Remove all DC offsets from the
+                sample.</B
+></SPAN
+> In a sample editor, there is usually a line
+                down the center of your sample's waveform.  This is the
+                zero-line.  The beginning of your sample should be on this line.
+                The end of your sample should also be on this line.  However, if
+                your signal is a little above or a little below this line, you
+                will hear a click at the beginning and the end of your sample
+                whenever it is played.  If your sample editor doesn't provide
+                any tools to fix a DC Offset problem, you can eliminate the
+                noise by putting a slight fade-in/out at the ends of your
+                sample.</P
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>The ADSR will not be longer than
+                your sample.</B
+></SPAN
+> If you have a short sample, it doesn't
+                matter how long you set the attack and delay &mdash; the sample
+                will stop playing at the end.</P
+><P
+><SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>Things change with the sample
+                rate.</B
+></SPAN
+> If you have a really nice setup with all your
+                parameters painstakenly
+                tweaked... things <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>will</I
+></SPAN
+> change if you change
+                the sample rate of your audio card.  Many of Hydrogens internal
+                settings and parameters are done based on how many samples go
+                by, and not on how many seconds go by.  The sort of things that
+                change are: anything time-base (like attack and release) and
+                anything frequency based (like the cutoff frequency).</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="LADSPA"
+>2.9. LADSPA plugins</A
+></H2
+><P
 >Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <A
 HREF="http://www.ladspa.org"
 TARGET="_top"
@@ -1155,10 +2931,11 @@ TARGET="_top"
 CLASS="CITETITLE"
 >http://www.ladspa.org</I
 ></A
->) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more of these libraries, it's as simple as a "make &#38;&#38; make install":</P
->
-
-	<P
+>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more plugin libraries, it's as simple as a <B
+CLASS="COMMAND"
+>scons &amp;&amp; scons install</B
+>.  Here are a few places to download plugin libraries:</P
+><P
 ></P
 ><UL
 ><LI
@@ -1202,14 +2979,53 @@ CLASS="CITETITLE"
 >.</P
 ></LI
 ></UL
->
-	
-	<P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="../images/warning.gif"
+HSPACE="5"
+ALT="Warning"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="MIDDLE"
+><B
+>Plugins Kill</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>A LADSPA plugin is compiled, executable code.  It is
+	  capable of hanging, crashing, freezing, screaching,
+	  overflowing buffers, and even phoning home.  If you start
+	  having issues with Hydrogen, disable your plugins and see if
+	  things improve.  Some plugins are not designed for real-time
+	  use, and some are just plain better than others.</P
+></TD
+></TR
+></TABLE
+></DIV
+><P
 >Once you have installed a few plugins open a song you'd like add an effect to and select an instrument that has a few beats in the pattern. In the Mixer click on 
 	
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/showFX_on.png"></SPAN
 >
 	
@@ -1217,33 +3033,38 @@ SRC="img/showFX_on.png"></SPAN
 	
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/edit_off.png"></SPAN
 >
 	
 	), than on <SPAN
 CLASS="QUOTE"
 >"Select the FX"</SPAN
->: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect. If you want to quickly enable/disable the effect click the Bypass (
+>: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect.
 	
 	<SPAN
 CLASS="INLINEMEDIAOBJECT"
->				<IMG
+><IMG
+SRC="img/MixerFXKnob.png"></SPAN
+>
+	
+	If you want to quickly enable/disable the effect click the Bypass (
+	
+	<SPAN
+CLASS="INLINEMEDIAOBJECT"
+><IMG
 SRC="img/bypass_over.png"></SPAN
 >) 
 		
 		
 		button.</P
->
-
-
-		<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/MixerFXSelect.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -1252,309 +3073,45 @@ CLASS="EMPHASIS"
 ></SPAN
 > Select an effect.
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-	
-	</DIV
->
-
-	<DIV
-CLASS="SECT1"
-><HR><H2
-CLASS="SECT1"
-><A
-NAME="menu"
->2.6. Menu</A
-></H2
->		
-	<P
->	From the pull-down menus it's worth noticing: File--&#62;'Save as' to save the current song in .h2song format, File--&#62;Export to export it in WAV/MID format, File--&#62;
-
-
-		Preferences, Window--&#62;
-		
-		Audio Engine Info and Window--&#62;
-
-		Drumkit manager.
-
-	</P
->
-
-	<DIV
-CLASS="SECT2"
-><HR><H3
-CLASS="SECT2"
-><A
-NAME="prefs"
->2.6.1. Preferences</A
-></H3
->		
-		<P
->		From the "Audio System" tab (Fig. 4) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate. We can also set some features of Hydrogen like <SPAN
-CLASS="QUOTE"
->"Enable track outputs"</SPAN
-> useful if you want to add effects to a single instrument with jack-rack; <SPAN
-CLASS="QUOTE"
->"Connect to Default Output Pair"</SPAN
-> simply connects ALSA output to the default ports: uncheck this if you want to connect jack output to other ports without disconnecting them first. Keep an eye also on the value of "Polyphony": depending on your CPU you may want to change the max simultaneous notes in order to prevent hydrogen from xrun. Clicking on the "Midi System" tab (Fig. 5) will select a menu to enable a MIDI device, a specific channel or all of them, while clicking on "Appearance" tab (Fig. 6) let's you to modify font size, type of frame (Child or Top Level) and speed of mixer's peaks falloff and QT style of the windows.
-		</P
->
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/PreferencesAudioSystem.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 4</B
-></SPAN
-> The Audio System tab
-			</P
->
-		</DIV
-></P
 ></DIV
->
-
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/PreferencesMidiSystem.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 5</B
-></SPAN
-> The MIDI System tab
-			</P
->
-		</DIV
-></P
 ></DIV
->
-
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/PreferencesAppearance.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 6</B
-></SPAN
-> The Appeareance tab
-			</P
->
-		</DIV
-></P
-></DIV
->
-		
-	</DIV
->
-
-	<DIV
-CLASS="SECT2"
-><HR><H3
-CLASS="SECT2"
-><A
-NAME="audioengine"
->2.6.2. Audio engine info</A
-></H3
->		
-		<P
->		This tab (Fig. 7) will bring up a window with general infos about Hydrogen and audio driver. Buffer and sampling rate of Jack audio driver are customizable when the server is started from the shell.
-		</P
->
-			
-		<DIV
-CLASS="MEDIAOBJECT"
-><P
->				<IMG
-SRC="img/AudioEngineInfoDialog.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 7</B
-></SPAN
-> The Audio Engine Info window. Better check that cpu-meter on old systems and crowded /proc dir ;)
-			</P
->
-		</DIV
-></P
-></DIV
->
-	</DIV
->
-	
-	
-	<DIV
-CLASS="SECT2"
-><HR><H3
-CLASS="SECT2"
-><A
-NAME="drumkit"
->2.6.3. Drumkit manager</A
-></H3
->		
-	<P
->		
-		The drumkit manager shows all the options concerning drumkits, i.e. groups of sounds (WAV or FLAC) to be binded with every track available so to obtain a proper "groove" according to the situation (disco music, rock, hip hop, etc.). To let you have a rough idea of a good example of use of these drumkits, it is advisable to play the associated .h2song sample song.
-	</P
->
-
-	<P
->	From the first screen (Fig. 8) we can load/delete the drumkit, with a short description. Here (Fig. 9) we can save some infos about the current drumkit and from here (Fig. 10) we can import a drumkit (.h2drumkit) (Fig. 11) or export it (Fig. 12).
-	</P
->
-		
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/DrumkitLoad.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 8</B
-></SPAN
-> Load drumkit. Choose from those installed.
-			</P
->
-		</DIV
-></P
-></DIV
->
-
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/DrumkitSave.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 9</B
-></SPAN
-> Save drumkit.
-			</P
->
-		</DIV
-></P
-></DIV
->
-
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/DrumkitImport.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 10</B
-></SPAN
-> Import drumkit.
-			</P
->
-		</DIV
-></P
-></DIV
->
-
-			<DIV
-CLASS="MEDIAOBJECT"
-><P
->					<IMG
-SRC="img/DrumkitExport.png"><DIV
-CLASS="CAPTION"
->			<P
->			<SPAN
-CLASS="bold"
-><B
-CLASS="EMPHASIS"
->Fig. 11</B
-></SPAN
-> Export drumkit.
-			</P
->
-		</DIV
-></P
-></DIV
->
-
-	</DIV
-></DIV
->&#13;</DIV
->
-
-
-<DIV
+><DIV
 CLASS="CHAPTER"
 ><HR><H1
 ><A
-NAME="creazioneSong"
+NAME="CREAZIONESONG"
 ></A
 >Chapter 3. A new song</H1
->	
-	<DIV
+><DIV
 CLASS="SECT1"
-><HR><H2
+><H2
 CLASS="SECT1"
 ><A
-NAME="SongVSpattern"
+NAME="SONGVSPATTERN"
 >3.1. "Song" mode and "Pattern" mode</A
 ></H2
->		
-		<P
+><P
 >			This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the tutorial for a more detailed overview.
 		</P
->
-		
-		<P
->			Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to this section for the buttons to activate). When "Pattern" mode is activated the current pattern is continously repeated, so to help changing it until we don't like it, while "Song" mode repeats only the current pattern: this is useful when putting together the patterns, to create the whole structure for the song.
+><P
+>			Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to <A
+HREF="#MAIN"
+>this section</A
+> for the buttons to activate). When "Pattern" mode is activated the current pattern is continously repeated, so to help changing it until we don't like it, while "Song" mode repeats only the current pattern: this is useful when putting together the patterns, to create the whole structure for the song.
 		</P
->
-	</DIV
->
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="creazionePattern"
+NAME="CREAZIONEPATTERN"
 >3.2. A new pattern</A
 ></H2
->		
-		<P
+><P
 >		We'll start from an empty song with an empty pattern, as created by default: "pattern" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <SPAN
 CLASS="QUOTE"
 >"Play"</SPAN
@@ -1569,15 +3126,13 @@ CLASS="EMPHASIS"
 ></SPAN
 >
 		</P
->
-
-		<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/PatternEditor.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -1586,35 +3141,28 @@ CLASS="EMPHASIS"
 ></SPAN
 > The Pattern Editor
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-	</DIV
->
-
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="creazioneSequenza"
+NAME="CREAZIONESEQUENZA"
 >3.3. A new sequence</A
 ></H2
->		
-		<P
+><P
 >		Once patterns are created (Fig. 13), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy).
 		</P
->
-
-		<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/SongEditor.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -1623,48 +3171,40 @@ CLASS="EMPHASIS"
 ></SPAN
 > Inserting notes in a pattern
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-
-	</DIV
->
-	
-	<DIV
+></DIV
+><DIV
 CLASS="SECT1"
 ><HR><H2
 CLASS="SECT1"
 ><A
-NAME="operazioniMixer"
+NAME="OPERAZIONIMIXER"
 >3.4. Adjust from the mixer</A
 ></H2
->		
-		<P
+><P
 >		Of course we can always use the mixer window, either when creating or playing patterns.
 		</P
->
-		
-		<P
+><P
 >		The Mixer frame (Fig. 14) is made of 32 independent tracks, each of these is binded to an
 instrument, plus a "Master Output" line to adjust general output volume and a "FX" button to set effects. Every line features 3 buttons (
 	
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_play_on_mixer.png"></SPAN
 >
  		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_solo_on.png"></SPAN
 >
 		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_mute_on.png"></SPAN
 >
 		
@@ -1672,7 +3212,7 @@ SRC="img/btn_mute_on.png"></SPAN
 		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/MixerPan.png"></SPAN
 >
 		
@@ -1680,7 +3220,7 @@ SRC="img/MixerPan.png"></SPAN
 		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_solo_on.png"></SPAN
 >
 		
@@ -1689,7 +3229,7 @@ button
 		
 		<SPAN
 CLASS="INLINEMEDIAOBJECT"
->			<IMG
+><IMG
 SRC="img/btn_mute_on.png"></SPAN
 >
 
@@ -1702,15 +3242,13 @@ CLASS="EMPHASIS"
 > instrument. The maximun peak indicates the maximun volume reached
 from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter.
 		</P
->
-		
-		<DIV
+><DIV
 CLASS="MEDIAOBJECT"
 ><P
->				<IMG
+><IMG
 SRC="img/Mixer.png"><DIV
 CLASS="CAPTION"
->			<P
+><P
 >			<SPAN
 CLASS="bold"
 ><B
@@ -1719,14 +3257,705 @@ CLASS="EMPHASIS"
 ></SPAN
 > The mixer
 			</P
->
-		</DIV
+></DIV
 ></P
 ></DIV
->
-	</DIV
 ></DIV
 ></DIV
+><DIV
+CLASS="GLOSSARY"
+><H1
+><A
+NAME="GLOSSARY"
+></A
+>Glossary</H1
+><P
+>This is a glossary of general terms encountered when using Hydrogen,
+  synthesizers, drums, or samplers.  The definitions in the text are simplified,
+  but the definitions here are more general and have more explanation.  For
+  example, the text of the manual would have you believe that an ADSR is the
+  only kind of envelope generator, and could only ever control the volume.
+  While it's simple for new users, it's not quite right.</P
+><DL
+><DT
+><A
+NAME="DEF.ADSR"
+></A
+><B
+>ADSR</B
+></DT
+><DD
+><P
+>A type of envelope generator that allows you to control the
+      <A
+HREF="#DEF.ATTACK"
+>Attack</A
+>,
+      <A
+HREF="#DEF.DECAY"
+>Decay</A
+>,
+      <A
+HREF="#DEF.SUSTAIN"
+>Sustain</A
+>, and
+      <A
+HREF="#DEF.RELEASE"
+>Release</A
+> parameters.
+      Generally, the
+      parameters are proportional to
+      the <A
+HREF="#DEF.VELOCITY"
+>velocity</A
+>.</P
+><P
+>In Hydrogen, the ADSR envelope generator only controls the volume
+      (attenuation).</P
+><P
+>Read more about this in the Wikipedia
+      Article <A
+HREF="http://en.wikipedia.org/wiki/ADSR_envelope"
+TARGET="_top"
+>ADSR
+      Envelope</A
+></P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ENVELOPEGENERATOR"
+>Envelope Generator</A
+><EM
+>, </EM
+><A
+HREF="#DEF.ATTACK"
+>Attack</A
+><EM
+>, </EM
+><A
+HREF="#DEF.DECAY"
+>Decay</A
+><EM
+>, </EM
+><A
+HREF="#DEF.SUSTAIN"
+>Sustain</A
+><EM
+>, </EM
+><A
+HREF="#DEF.RELEASE"
+>Release</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.ATTACK"
+></A
+><B
+>Attack</B
+></DT
+><DD
+><P
+>This is the first phase of an ADSR envelope, and is the amount
+      of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>time</I
+></SPAN
+> to turn the parameter up from
+      0 to full velocity after triggering the note.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ADSR"
+>ADSR</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.ATTENUATION"
+></A
+><B
+>Attenuation</B
+></DT
+><DD
+><P
+>In filters and mixers, this the amount that a signal is reduced
+      (volume).</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ROLLOFF"
+>Roll-off</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.BANDPASSFILTER"
+></A
+><B
+>Band-Pass Filter</B
+></DT
+><DD
+><P
+>A filter that preserves a cetertain band of frequencies, and
+      attenuates (silences) all others.  This is often done by combining a
+      high-pass and a low-pass filter.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.FILTER"
+>Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.HIGHPASSFILTER"
+>High-Pass Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.LOWPASSFILTER"
+>Low-Pass Filter</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.CLIPPING"
+></A
+><B
+>Clipping</B
+></DT
+><DD
+><P
+>A phenomenon that happens to a signal when the signal is
+      too large for whatever is receiving it.  The peaks of the signal
+      (which are normally smooth curves) get cut off straight at the
+      max volume (clipped).  This distorts the sound and is usually
+      undesirable.</P
+><P
+>An example of clipping is when you play music louder than
+      your speaker can handle.  Parts of the music sound harsh and
+      fuzzy.</P
+></DD
+><DT
+><A
+NAME="DEF.CUTOFF"
+></A
+><B
+>Cutoff Frequency</B
+></DT
+><DD
+><P
+>On high-pass and low-pass filters, this is the frequency that
+      divides between those that pass, and those that are attenuated (silenced).
+      In a high-pass resonance filter, or a low-pass resonance filter, the
+      cutoff is also the frequency zone that gets boosted.</P
+><P
+>For example, if you have a low-pass filter and you set the cutoff
+      frequency high (i.e. 20kHz)... the filter will not affect the sound.  All
+      the audible frequencies will pass through undisturbed.  As you lower the
+      cutoff frequency to something like 40 Hz (the low string on a bass
+      guitar), it sounds like someone is putting a blanket over the speaker.
+      The higher frequencies are being attenuated above 30 Hz.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.FILTER"
+>Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.HIGHPASSFILTER"
+>High-Pass Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.LOWPASSFILTER"
+>Low-Pass Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.RESONANCEFILTER"
+>Resonance Filter</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.DECAY"
+></A
+><B
+>Decay</B
+></DT
+><DD
+><P
+>After reaching full velocity from the attack, this is the amount
+      of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>time</I
+></SPAN
+> to turn the parameter down
+      from full velocity to the sustain level.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ADSR"
+>ADSR</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.ENVELOPEGENERATOR"
+></A
+><B
+>Envelope Generator</B
+></DT
+><DD
+><P
+>A way to control (change) a parameter over time as a response to
+      triggering, holding, and releasing a note.</P
+><P
+>Did your eyes just glaze over? Let's try again:</P
+><P
+>Imagine that you're playing a note on the keyboard and you have your
+      other hand on a knob (volume, filter cutoff, etc.).  As you play the note,
+      you twist the knob (often up, then down... or down, then up).  You do the
+      same thing on each note.  That's what an envelope generator does.  See
+      also <A
+HREF="#DEF.ADSR"
+>ADSR</A
+></P
+></DD
+><DT
+><A
+NAME="DEF.FADER"
+></A
+><B
+>Fader</B
+></DT
+><DD
+><P
+>A slider control used to adjust the attenuation (volume) in a mixer.
+      Faders always have an "audio" taper, which means that the attenuation
+      amount changes on an exponential scale.</P
+></DD
+><DT
+><A
+NAME="DEF.FILTER"
+></A
+><B
+>Filter</B
+></DT
+><DD
+><P
+>A device that changes a sound by attenuating specific frequencies.
+      A tone knob is an example of a simple, low-pass filter.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.BANDPASSFILTER"
+>Band-Pass Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.HIGHPASSFILTER"
+>High-Pass Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.LOWPASSFILTER"
+>Low-Pass Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.RESONANCEFILTER"
+>Resonance Filter</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.GAIN"
+></A
+><B
+>Gain</B
+></DT
+><DD
+><P
+>In an amplifier, this adjust how much (or how little) a signal is
+      amplified (volume).  A higher gain value is a louder signal.</P
+></DD
+><DT
+><A
+NAME="DEF.HIGHPASSFILTER"
+></A
+><B
+>High-Pass Filter</B
+></DT
+><DD
+><P
+>A filter that attenuates (silences) low frequencies, but allows high
+      frequencies to pass through.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.FILTER"
+>Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.CUTOFF"
+>Cutoff Frequency</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.INSTRUMENT"
+></A
+><B
+>Instrument</B
+></DT
+><DD
+><P
+>In Hydrogen, an instrument is a single noise-maker (like a bass drum
+      kick, or a tom).</P
+></DD
+><DT
+><A
+NAME="DEF.LAYER"
+></A
+><B
+>Layer</B
+></DT
+><DD
+><P
+>In an instrument you can load several different samples
+      (each one called a <SPAN
+CLASS="bold"
+><B
+CLASS="EMPHASIS"
+>layer</B
+></SPAN
+>), and
+      have a different sample play depending on the velocity of the
+      note.  Only one sample at a time will play.</P
+><P
+>Suppose you have a sample of a floor tom being struck
+      softly.  If you simply play the sample louder &mdash; it
+      will <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> sound the same as a
+      real tom that has been struck very hard.  If you wish to mimic
+      this in your instrument, you can load one sample for soft
+      playing, and a different sample for loud playing.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.INSTRUMENT"
+>Instrument</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.LOWPASSFILTER"
+></A
+><B
+>Low-Pass Filter</B
+></DT
+><DD
+><P
+>A filter that attenuates (silences) high frequences, but allows low
+      frequencies to pass through.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.FILTER"
+>Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.CUTOFF"
+>Cutoff Frequency</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.MUTE"
+></A
+><B
+>Mute</B
+></DT
+><DD
+><P
+>To make no noise.  A setting on an instrument that prevents any
+      audio output.</P
+></DD
+><DT
+><A
+NAME="DEF.MUTEGROUP"
+></A
+><B
+>Mute Group</B
+></DT
+><DD
+><P
+>A group of instruments (samples) that should mute (stop playing)
+      immediately after another instrument in the group is triggered.</P
+><P
+>This is typically used in hi-hats, where there's a different
+      instrument (sample) for when the hi-hat is open or closed.  With a real
+      hi-hat, the sound of the open hi-hat will stop as soon as you close it.
+      However, if you use two samples &mdash; the open sound will continue even
+      after you have triggered the closed sound.  By placing both instruments in
+      the same mute group (group #1, for example)... triggering closed sound
+      will immediately stop the open sound (and vice versa).</P
+></DD
+><DT
+><A
+NAME="DEF.OCTAVE"
+></A
+><B
+>Octave</B
+></DT
+><DD
+><P
+>A span of frequencies where the top-most frequency is exactly twice
+      the frequency of the bottom frequency.</P
+><P
+>For example, the range 20 Hz to 40 Hz is an octave.  So is 120 Hz to
+      240 Hz, and 575 Hz to 1150 Hz.  While the frequency differences are very
+      different (20 Hz, 120 Hz, and 575 Hz, respectively), to the human ear
+      they <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>sound</I
+></SPAN
+> like the same
+      distance.</P
+></DD
+><DT
+><A
+NAME="DEF.RELEASE"
+></A
+><B
+>Release</B
+></DT
+><DD
+><P
+>After the note is released, this is the amount
+      of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>time</I
+></SPAN
+> to reduce the parameter from
+      the sustain level to 0.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ADSR"
+>ADSR</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.RESONANCE"
+></A
+><B
+>Resonance</B
+></DT
+><DD
+><P
+>When referring to a resonance filter, this is the parameter that
+      determines how much of a boost (gain) to give the frequencies at the
+      cutoff.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.RESONANCEFILTER"
+>Resonance Filter</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.RESONANCEFILTER"
+></A
+><B
+>Resonance Filter</B
+></DT
+><DD
+><P
+>A filter that gives a large boost to a very narrow range of
+      frequencies.  Typically it will be part of a high-pass or a low-pass
+      filter, where the boosted frequencies are centered on the cut-off
+      frequency.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.FILTER"
+>Filter</A
+><EM
+>, </EM
+><A
+HREF="#DEF.CUTOFF"
+>Cutoff Frequency</A
+><EM
+>, </EM
+><A
+HREF="#DEF.RESONANCE"
+>Resonance</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.ROLLOFF"
+></A
+><B
+>Roll-off</B
+></DT
+><DD
+><P
+>This is the amount that frequencies are attenuated (suppressed) as
+      the frequency changes (typically measured in dB/octave).</P
+><P
+>For example, in a low-pass filter the frequences below the cutoff
+      frequency are not attenuated (they pass-through with the same volume).
+      Same with the cutoff frequency.  As you go above the cutoff frequency, the
+      frequencies that are near the cutoff frequency are not attenuated very
+      much at all.  However, the frequencies that are much higher than the
+      cutoff are attenuated (suppressed) a lot.  This is usually approximated by
+      a straight line (on a log scale) and measured in in dB of attenuation per
+      octave of frequency.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ATTENUATION"
+>Attenuation</A
+><EM
+>, </EM
+><A
+HREF="#DEF.FILTER"
+>Filter</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.SAMPLE"
+></A
+><B
+>Sample</B
+></DT
+><DD
+><P
+>A short recording of a sound, typically between .1 and 3.0 seconds
+      long.</P
+></DD
+><DT
+><A
+NAME="DEF.SUSTAIN"
+></A
+><B
+>Sustain</B
+></DT
+><DD
+><P
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>level</I
+></SPAN
+> to hold the parameter
+      after finishing the decay time.  This level will be maintained until the
+      not is released.</P
+><P
+><EM
+>See Also: </EM
+><A
+HREF="#DEF.ADSR"
+>ADSR</A
+>.</P
+></DD
+><DT
+><A
+NAME="DEF.VELOCITY"
+></A
+><B
+>Velocity</B
+></DT
+><DD
+><P
+>How hard you hit a note.</P
+><P
+>MIDI devices are required to send this information along with the
+      note.  Synthesizers use this information to adjust several parameters on
+      the sample (typically the volume).  In Hydrogen, it is only used to adjust
+      how loud the sample is played back.</P
+></DD
+></DL
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.FN.ADSRTIMES"
+HREF="#FN.ADSRTIMES"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>The attack, decay, and release parameters are
+                          all set by the number of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>audio
+                          samples</I
+></SPAN
+>.  This means that the time changes
+                          depending on the sample rate of your sound card.  The
+                          max time for each of them is 100,000 audio samples
+                          (typ. 2.27 sec at 44.1 kHz).</P
+></TD
+></TR
+></TABLE
 ></BODY
 ></HTML
 >
