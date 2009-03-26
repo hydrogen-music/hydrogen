@@ -34,6 +34,7 @@
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/data_path.h>
 
+#include <memory>
 #include <QtGui>
 
 using namespace H2Core;
