@@ -64,6 +64,7 @@ using namespace H2Core;
 #include <hydrogen/LashClient.h>
 #endif
 
+#include <memory>
 #include <cassert>
 
 using namespace std;
@@ -539,7 +540,7 @@ void MainForm::action_file_export_pattern_as()
 	QDir dir ( sDataDir + "patterns" );
 
 
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
@@ -597,7 +598,7 @@ void MainForm::action_file_open() {
 
 	static QString lastUsedDir = Preferences::getInstance()->getDataDirectory() + "/songs";
 	
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
 	fd->setDirectory( lastUsedDir );
@@ -637,7 +638,7 @@ void MainForm::action_file_openPattern()
 	assert ( instr );
 
 	QDir dirPattern( Preferences::getInstance()->getDataDirectory() + "/patterns" );
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd->setDirectory ( dirPattern );
@@ -683,7 +684,7 @@ void MainForm::action_file_openDemo()
 		return;
 	}
 
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
 
@@ -1379,7 +1380,7 @@ void MainForm::action_file_export_midi()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::AnyFile);
 	fd->setFilter( trUtf8("Midi file (*.mid)") );
 	fd->setDirectory( QDir::homePath() );

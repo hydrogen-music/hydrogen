@@ -32,6 +32,8 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/IO/AudioOutput.h>
 
+#include <memory>
+
 using namespace H2Core;
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
@@ -65,7 +67,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 //	static QString lastUsedDir = "";
 	static QString lastUsedDir = QDir::homePath();
 
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::AnyFile);
 	fd->setFilter( trUtf8("Wave file (*.wav)") );
 	fd->setDirectory( lastUsedDir );

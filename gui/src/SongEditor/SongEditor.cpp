@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <algorithm>
+#include <memory>
 
 #include <hydrogen/Song.h>
 #include <hydrogen/hydrogen.h>
@@ -935,7 +936,7 @@ void SongEditorPatternList::patternPopup_load()
 	assert( instr );
 	
 	QDir dirPattern( Preferences::getInstance()->getDataDirectory() + "/patterns" );
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( trUtf8("Hydrogen Pattern (*.h2pattern)") );
 	fd->setDirectory(dirPattern );

@@ -43,6 +43,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 using namespace H2Core;
 using namespace std;
@@ -194,7 +195,7 @@ void PlaylistDialog::on_addSongBTN_clicked()
 {
 	static QString songDir = Preferences::getInstance()->getDataDirectory()  + "/songs";;
 
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setFilter ( "Hydrogen song (*.h2song)" );
 	fd->setDirectory ( songDir );
@@ -297,7 +298,7 @@ void PlaylistDialog::on_loadListBTN_clicked()
 
 	static QString sDirectory =  Preferences::getInstance()->getDataDirectory()  + "playlists/" ;
 
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setDirectory ( sDirectory );
 
@@ -354,7 +355,7 @@ void PlaylistDialog::on_newScriptBTN_clicked()
 	Preferences *pPref = Preferences::getInstance();
 
 	QString sDirectory = ( Preferences::getInstance()->getDataDirectory()  + "scripts/");
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Scripts (*.sh)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
@@ -395,7 +396,7 @@ void PlaylistDialog::on_newScriptBTN_clicked()
 
 		static QString lastUsedDir = "/usr/bin/";
 	
-		QFileDialog *fd = new QFileDialog ( this );
+		std::auto_ptr<QFileDialog> fd( new QFileDialog );
 		fd->setFileMode ( QFileDialog::ExistingFile );
 		fd->setDirectory ( lastUsedDir );
 	
@@ -426,7 +427,7 @@ void PlaylistDialog::on_saveListBTN_clicked()
 {
 
 	QString sDirectory =  Preferences::getInstance()->getDataDirectory()  + "playlists/";
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
@@ -466,7 +467,7 @@ void PlaylistDialog::on_loadScriptBTN_clicked()
 
 	static QString lastUsedDir =  Preferences::getInstance()->getDataDirectory()  + "scripts/";
 
-	QFileDialog *fd = new QFileDialog ( this );
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setDirectory ( lastUsedDir );
 	fd->setFilter ( trUtf8 ( "Hydrogen Playlist (*.sh)" ) );
@@ -525,7 +526,7 @@ void PlaylistDialog::on_editScriptBTN_clicked()
 
 		static QString lastUsedDir = "/usr/bin/";
 	
-		QFileDialog *fd = new QFileDialog ( this );
+		std::auto_ptr<QFileDialog> fd( new QFileDialog );
 		fd->setFileMode ( QFileDialog::ExistingFile );
 		fd->setDirectory ( lastUsedDir );
 	

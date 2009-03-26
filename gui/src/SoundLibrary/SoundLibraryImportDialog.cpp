@@ -41,7 +41,7 @@
 #include <QHeaderView>
 #include <QFileDialog>
 
-
+#include <memory>
 
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
  : QDialog( pParent )
@@ -408,7 +408,7 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 {
 	static QString lastUsedDir = QDir::homePath();
 
-	QFileDialog *fd = new QFileDialog(this);
+	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( "Hydrogen drumkit (*.h2drumkit)" );
 	fd->setDirectory( lastUsedDir );
