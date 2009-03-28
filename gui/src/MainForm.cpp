@@ -414,7 +414,7 @@ void MainForm::action_file_save_as()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	QFileDialog *fd = new QFileDialog(this);
+        std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode( QFileDialog::AnyFile );
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
 	fd->setAcceptMode( QFileDialog::AcceptSave );
