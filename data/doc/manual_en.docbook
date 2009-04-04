@@ -421,7 +421,7 @@
 		<itemizedList>
 		    <listitem><para>Pilot the song using the start, stop, pause, etc. buttons</listitem>
 		    <listitem><para>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</listitem>
-		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.</listitem>
+		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.  (see <xref linkend="taptempo">)</listitem>
 		    <listitem><para>Manually set BPM</listitem>
 		    <listitem><para>Manage JACK transport</listitem>
 		    <listitem><para>Open the mixer and the instrument rack panels</listitem>
@@ -487,6 +487,123 @@
 			</para>
 		</listitem>
 		</itemizedlist>
+		<sect2 id="taptempo">
+			<title>Tap Tempo and BeatCounter</title>
+
+			<para>It is possible to change tempo at any time using
+			the tap-tempo and BeatCounter features of Hydrogen.  You
+			can change these while playing or while the song is
+			stopped.  To change the tempo, hit
+			the <keycap>,</keycap> (comma) key in tempo for the
+			number of beats in the measure.  After the correct
+			number of beats are met, the tempo will change to the
+			average tempo that you tapped in.  If you continue to
+			tap, these new taps will become a part of a rolling
+			average.  If you tap accidentally, or if you wait too
+			long between taps, the tap tempo counter will start
+			over.</para>
+
+			<para>The Tap Tempo is a part of the BeatCounter, which
+			is essentially a Tap Tempo on steroids.  By default the
+			BeatCounter display is not visible.  To see the
+			BeatCounter widget click the upright button
+			(<guilabel>BC</guilabel>) between Song/Pattern mode
+			selector and the BPM-widget.  Or, it can be shown by
+			pressing the comma key (<keycap>,</keycap>).</para>
+
+			<para>The tempo that you tap will be considered even
+			beats of the beat type.  The beat type can be set to 1/8
+			(for eight-note beats), 1/4 (for quarter-note beats),
+			1/2 (for half-note beats), and 1/1 (for whole-note
+			beats).  To change the beat type use the left arrow
+			buttons.  To change the number of beats that are
+			counted, use the right arrow button.  You can set from 2
+			to 16 beats.  (I.e. if you set the beat to 6, you will
+			have to tap 6 times before the new tempo is computed and
+			set.)  When the display shows an <guilabel>R</guilabel>,
+			it means that the BeatCounter is ready to start from 0.
+			Every time you tap with the comma key, it will show the
+			number of taps that you have entered (1, 2,
+			3...).</para>
+
+			<para>The button in the bottom right-hand controls the
+			auto-start feature, and it toggles
+			between <guilabel>S</guilabel>
+			and <guilabel>P</guilabel>.  When it
+			shows <guilabel>P</guilabel> for
+			(<emphasis>Play</emphasis>), the song will set the new
+			tempo and automatically start to play after you tap the
+			right number of beats (if it's not already playing, of
+			course).  This way, if you have the BeatCounter set up
+			for 4/4, you can tap 1-2-3-4, and start playing on the
+			next beat.  When it shows <guilabel>S</guilabel>
+			(for <emphasis>Set BPM</emphasis>), the auto-start is
+			disabled.</para>
+
+			<para>For example: Suppose you have a live band,
+			Hydrogen, and a softsynth that is controlled by
+			Seq24)... and you want them all to start at the same
+			time.  Set the beat type to 1/4 and the number of beats
+			to 4.  Enable auto-start (button
+			shows <guilabel>P</guilabel>).  Count off the band
+			1-2-3-4 (while tapping the comma key) &mdash; and
+			everyone starts on 1.</para>
+
+			<para>Another example: Same situation, but the song
+			doesn't require Hydrogen or synths until some point
+			later.  During that time, a human (e.g. guitar player)
+			will be setting the tempo.  On the measure before
+			Hydrogen is supposed to play, tap the comma key 1-2-3-4
+			with the beat... and you're in on the next beat (at the
+			right tempo).</para>
+
+			<para>If you are using the JACK Transport, the
+			BeatCounter continues to work.  If another program is
+			the JACK Transport Master, Hydrogen will respond to
+			tempo change events from that application.  Note that in
+			this situation, Hydrogen is supposed to be
+			a <emphasis>slave</emphasis>, so some of the BeatCounter
+			features will be disabled or will not work properly.  If
+			Hydrogen is the JACK Transport Master, tempo changes
+			from Hydrogen will be reflected in those programs (if
+			they support it).</para>
+
+			<para>Some of the settings to adjust the BeatCounter's
+			latency compensation, and they are located on the
+			<guilabel>General</guilabel> tab of the Preferences
+			Dialog (
+
+			<menuchoice>
+				<guimenu>Tools</guimenu>
+				<guimenuitem>Preferences</guimenuitem>
+			</menuchoice>
+
+			). Here there are two spinboxes:</para>
+
+			<itemizedlist>
+				<listitem><para><emphasis role="bold"><guilabel>Beat
+				counter drift compensation in
+				1/10ms</guilabel></emphasis> &mdash; adjust to
+				compensate for latency between the keyboard and
+				the program.</para></listitem>
+
+				<listitem><para><emphasis role="bold"><guilabel>Beat
+				counter start offset in ms</guilabel></emphasis>
+				&mdash; adjust the time between the
+				BeatCounter's last input stroke and when the
+				song starts playing (if auto-start is
+				activated).</para></listitem>
+			</itemizedlist>
+
+			<para>Note that these can be set to positive (+) or
+			negative (-) values.  In order to find useful values for
+			these, you will need to take some time to play with it.
+			Also, you may want different values depending on the
+			speed of your hardware, audio devices, drivers, etc.
+			Using the BeatCounter effectively requires
+			practice.</para>
+
+		</sect2>
 
 	</sect1>
 	
