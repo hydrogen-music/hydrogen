@@ -2986,7 +2986,7 @@ void Hydrogen::handleBeatCounter()
 	beatDiff = beatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
 		
 	//if differences are to big reset the beatconter
-		if( beatDiff > 3.001){
+		if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ){
 			eventCount = 1;
 			beatCount = 1;
 			return;
