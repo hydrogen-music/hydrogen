@@ -615,9 +615,14 @@ void SampleEditor::createPositionsRulerPath()
 	
 	for ( int i = 0; i< m_repeats ;i++){			
 		unsigned tempdataend = onesamplelength + ( looplength * i );
-		copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
+		if ( m_start_frame == m_loop_frame ){
+			copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
+		}
 		if ( loopmode == "pingpong" && m_repeats > 1){
 			reverse(loopframes, loopframes + looplength);
+		}
+		if ( m_start_frame != m_loop_frame ){		
+			copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
 		}
 
 	}
@@ -625,7 +630,7 @@ void SampleEditor::createPositionsRulerPath()
 	
 	if ( m_repeats == 0 && loopmode == "reverse" ){
 		reverse( tempframes + m_loop_frame, tempframes + newlength);		
-		}
+	}
 
 	m_pPositionsRulerPath = tempframes;
 }
