@@ -88,7 +88,9 @@ installed on your system, and the development header files:
 	* scons (>=0.98, 1.0 preferred, <0.98 might work)
 	* libsndfile >=1.0.17
 	* zlib and libtar -OR- libarchive
+	  OS X: You will probably need to build libarchive from source.
 	* At least 1 audio and 1 midi driver
+	* OS X: Xcode
 
 	DRIVERS AVAILABLE
 	* JACK Audio Connection Kit (>=0.103.0)
