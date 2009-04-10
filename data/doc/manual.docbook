@@ -360,53 +360,53 @@
 	    <para><emphasis role="bold">Projects</emphasis>: this menu offers file related functions.</para>
 	    <itemizedlist>
 
-			    <listitem><para><emphasis role="italic">New</emphasis> - Create a new song</para></listitem>
-			    <listitem><para><emphasis role="italic">Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
-			    <listitem><para><emphasis role="italic">Open</emphasis> - Open a song</para></listitem>
-			    <listitem><para><emphasis role="italic">Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis role="italic">$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
-			    <listitem><para><emphasis role="italic">Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
-			    <listitem><para><emphasis role="italic">Save</emphasis> - Save changes to current song</para></listitem>
-			    <listitem><para><emphasis role="italic">Save as</emphasis> - Save current song specifying a name (default path: <emphasis role="italic">$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
-			    <listitem><para><emphasis role="italic">Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
-			    <listitem><para><emphasis role="italic">Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis role="italic">$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
-			    <listitem><para><emphasis role="italic">Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
-			    <listitem><para><emphasis role="italic">Export song</emphasis> - Export current song in WAV format</para></listitem>
-			    <listitem><para><emphasis role="italic">Quit</emphasis> - Quit Hydrogen</para></listitem>
+			    <listitem><para><emphasis>New</emphasis> - Create a new song</para></listitem>
+			    <listitem><para><emphasis>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
+			    <listitem><para><emphasis>Open</emphasis> - Open a song</para></listitem>
+			    <listitem><para><emphasis>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
+			    <listitem><para><emphasis>Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
+			    <listitem><para><emphasis>Save</emphasis> - Save changes to current song</para></listitem>
+			    <listitem><para><emphasis>Save as</emphasis> - Save current song specifying a name (default path: <emphasis>$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
+			    <listitem><para><emphasis>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
+			    <listitem><para><emphasis>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
+			    <listitem><para><emphasis>Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
+			    <listitem><para><emphasis>Export song</emphasis> - Export current song in WAV format</para></listitem>
+			    <listitem><para><emphasis>Quit</emphasis> - Quit Hydrogen</para></listitem>
 	    </itemizedlist>
 	    
 	    
 	    	
 	<para><emphasis role="bold">Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.</para>
 	    <itemizedlist>
-			<listitem><para><emphasis role="italic">Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
-			<listitem><para><emphasis role="italic">Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
-			<listitem><para><emphasis role="italic">Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis role="italic">$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis role="italic">Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis role="italic">$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis role="italic">Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role="bold">NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
+			<listitem><para><emphasis>Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
+			<listitem><para><emphasis>Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
+			<listitem><para><emphasis>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis>Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role="bold">NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
 	    </itemizedlist>
 	
 	
 	    <para><emphasis role="bold">Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</para>
 	    <itemizedlist>
-		    <listitem><para><emphasis role="italic">Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
-		    <listitem><para><emphasis role="italic">Mixer</emphasis> - Open the mixer window.</para></listitem>
-		    <listitem><para><emphasis role="italic">Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
-		    <listitem><para><emphasis role="italic">Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
+		    <listitem><para><emphasis>Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
+		    <listitem><para><emphasis>Mixer</emphasis> - Open the mixer window.</para></listitem>
+		    <listitem><para><emphasis>Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
+		    <listitem><para><emphasis>Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
 	    </itemizedlist>
 	
 	
 	    <para><emphasis role="bold">Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
 	    <itemizedlist>
-		    <listitem><para><emphasis role="italic">Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
-		    <listitem><para><emphasis role="italic">debug action - </emphasis> Insert debug commands.</para></listitem>
-		    <listitem><para><emphasis role="italic">Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
+		    <listitem><para><emphasis>Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
+		    <listitem><para><emphasis>debug action - </emphasis> Insert debug commands.</para></listitem>
+		    <listitem><para><emphasis>Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
 	    </itemizedlist>
     
     
 	    <para><emphasis role="bold">Info</emphasis></para>
 	    <itemizedlist>
-		    <listitem><para><emphasis role="italic">User manual - </emphasis>Open a window with this manual :)</para></listitem>
-		    <listitem><para><emphasis role="italic">About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
+		    <listitem><para><emphasis>User manual - </emphasis>Open a window with this manual :)</para></listitem>
+		    <listitem><para><emphasis>About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
 	    </itemizedlist>
 
 	
