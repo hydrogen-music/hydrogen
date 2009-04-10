@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2009-04-09 22:24-0500\n"
+"POT-Creation-Date: 2009-04-10 00:50-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -305,58 +305,53 @@ msgid ""
 msgstr ""
 
 #: manual.docbook:56(para)
-msgid ""
-"qt (&gt;= 4.0) at <ulink url=\"http://www.trolltech.com\">http://www."
-"trolltech.com</ulink>"
+msgid "qt (&gt;= 4.0) at <ulink url=\"http://www.trolltech.com\"/>"
 msgstr ""
 
 #: manual.docbook:59(para)
-msgid ""
-"libsndfile at <ulink url=\"http://www.mega-nerd.com/libsndfile/\">http://www."
-"mega-nerd.com/libsndfile/</ulink>"
+msgid "libsndfile at <ulink url=\"http://www.mega-nerd.com/libsndfile/\"/>"
 msgstr ""
 
 #: manual.docbook:63(para)
 msgid ""
-"ALSA (&gt;= 1.x) at <ulink url=\"http://www.alsa-project.com\">http://www."
-"alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)"
+"ALSA (&gt;= 1.x) at <ulink url=\"http://www.alsa-project.com\"/> (only if "
+"you wish to use ALSA as audio driver)"
 msgstr ""
 
 #: manual.docbook:66(para)
 msgid ""
 "Jack Audio Connection Kit (&gt;= 0.80) at <ulink url=\"http://jackaudio.org/"
-"\">http://jackaudio.org</ulink> (only if you wish to use Jack as audio "
-"driver)"
+"\"/> (only if you wish to use Jack as audio driver)"
 msgstr ""
 
 #: manual.docbook:69(para)
 msgid ""
-"PortAudio at <ulink url=\"http://www.portaudio.com\">http://www.portaudio."
-"com</ulink> (only if you wish to use PortAudio as audio driver)"
+"PortAudio at <ulink url=\"http://www.portaudio.com\"/> (only if you wish to "
+"use PortAudio as audio driver)"
 msgstr ""
 
 #: manual.docbook:72(para)
 msgid ""
-"Flac at <ulink url=\"http://flac.sf.net\">http://flac.sf.net</ulink> (only "
-"if you wish to use flac samples)"
+"Flac at <ulink url=\"http://flac.sf.net\"/> (only if you wish to use flac "
+"samples)"
 msgstr ""
 
 #: manual.docbook:75(para)
 msgid ""
-"ladspa at <ulink url=\"http://ladspa.org\">http://ladspa.org</ulink> (only "
-"if you wish to use ladspa effects)"
+"ladspa at <ulink url=\"http://ladspa.org\"/> (only if you wish to use ladspa "
+"effects)"
 msgstr ""
 
 #: manual.docbook:78(para)
 msgid ""
-"liblrdf at <ulink url=\"http://liblrdf.sf.net\">http://liblrdf.sf.net</"
-"ulink> (only if you wish to use lrdf to categorise effects)"
+"liblrdf at <ulink url=\"http://liblrdf.sf.net\"/> (only if you wish to use "
+"lrdf to categorise effects)"
 msgstr ""
 
 #: manual.docbook:81(para)
 msgid ""
-"lash at <ulink url=\"http://lash.nongnu.org\">http://lash.nongnu.org</ulink> "
-"(only if you wish to use lash)"
+"lash at <ulink url=\"http://lash.nongnu.org\"/> (only if you wish to use "
+"lash)"
 msgstr ""
 
 #: manual.docbook:52(para)
@@ -575,71 +570,62 @@ msgid ""
 msgstr ""
 
 #: manual.docbook:363(para)
-msgid "<emphasis role=\"italic\">New</emphasis> - Create a new song"
+msgid "<emphasis>New</emphasis> - Create a new song"
 msgstr ""
 
 #: manual.docbook:364(para)
 msgid ""
-"<emphasis role=\"italic\">Show Info</emphasis> - Set general properties of "
-"the song such as name, author, license and generic notes"
+"<emphasis>Show Info</emphasis> - Set general properties of the song such as "
+"name, author, license and generic notes"
 msgstr ""
 
 #: manual.docbook:365(para)
-msgid "<emphasis role=\"italic\">Open</emphasis> - Open a song"
+msgid "<emphasis>Open</emphasis> - Open a song"
 msgstr ""
 
 #: manual.docbook:366(para)
 msgid ""
-"<emphasis role=\"italic\">Open Demo</emphasis> - Open a demo song (demo "
-"songs are stored in <emphasis role=\"italic\">$INSTALLPATH/share/hydrogen/"
-"data/demo_songs</emphasis>)"
+"<emphasis>Open Demo</emphasis> - Open a demo song (demo songs are stored in "
+"<emphasis>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)"
 msgstr ""
 
 #: manual.docbook:367(para)
-msgid ""
-"<emphasis role=\"italic\">Open recent</emphasis> - Open a menu showing last "
-"used songs"
+msgid "<emphasis>Open recent</emphasis> - Open a menu showing last used songs"
 msgstr ""
 
 #: manual.docbook:368(para)
-msgid ""
-"<emphasis role=\"italic\">Save</emphasis> - Save changes to current song"
+msgid "<emphasis>Save</emphasis> - Save changes to current song"
 msgstr ""
 
 #: manual.docbook:369(para)
 msgid ""
-"<emphasis role=\"italic\">Save as</emphasis> - Save current song specifying "
-"a name (default path: <emphasis role=\"italic\">$HOME/.hydrogen/data/songs)</"
-"emphasis>"
+"<emphasis>Save as</emphasis> - Save current song specifying a name (default "
+"path: <emphasis>$HOME/.hydrogen/data/songs)</emphasis>"
 msgstr ""
 
 #: manual.docbook:370(para)
 msgid ""
-"<emphasis role=\"italic\">Open pattern</emphasis> - Open a saved pattern "
-"belonging to the current drumkit"
+"<emphasis>Open pattern</emphasis> - Open a saved pattern belonging to the "
+"current drumkit"
 msgstr ""
 
 #: manual.docbook:371(para)
 msgid ""
-"<emphasis role=\"italic\">Export pattern as</emphasis> - Saves a pattern. It "
-"will be stored in <emphasis role=\"italic\">$HOME/.hydrogen/data/patterns/"
-"drumkit_name</emphasis>"
+"<emphasis>Export pattern as</emphasis> - Saves a pattern. It will be stored "
+"in <emphasis>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis>"
 msgstr ""
 
 #: manual.docbook:372(para)
 msgid ""
-"<emphasis role=\"italic\">Export MIDI file</emphasis> - Export current song "
-"in MIDI format"
+"<emphasis>Export MIDI file</emphasis> - Export current song in MIDI format"
 msgstr ""
 
 #: manual.docbook:373(para)
-msgid ""
-"<emphasis role=\"italic\">Export song</emphasis> - Export current song in "
-"WAV format"
+msgid "<emphasis>Export song</emphasis> - Export current song in WAV format"
 msgstr ""
 
 #: manual.docbook:374(para)
-msgid "<emphasis role=\"italic\">Quit</emphasis> - Quit Hydrogen"
+msgid "<emphasis>Quit</emphasis> - Quit Hydrogen"
 msgstr ""
 
 #: manual.docbook:379(para)
@@ -650,39 +636,39 @@ msgstr ""
 
 #: manual.docbook:381(para)
 msgid ""
-"<emphasis role=\"italic\">Add instrument</emphasis> - Add a new instrument "
-"to your current drumkit"
+"<emphasis>Add instrument</emphasis> - Add a new instrument to your current "
+"drumkit"
 msgstr ""
 
 #: manual.docbook:382(para)
 msgid ""
-"<emphasis role=\"italic\">Clear all</emphasis> - Delete all instruments from "
-"the current drumkit"
+"<emphasis>Clear all</emphasis> - Delete all instruments from the current "
+"drumkit"
 msgstr ""
 
 #: manual.docbook:383(para)
 msgid ""
-"<emphasis role=\"italic\">Save library</emphasis> - Saves all instruments "
-"settings (and their sound samples) in <emphasis role=\"italic\">$HOME/."
-"hydrogen/data/library_name</emphasis>"
+"<emphasis>Save library</emphasis> - Saves all instruments settings (and "
+"their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</"
+"emphasis>"
 msgstr ""
 
 #: manual.docbook:384(para)
 msgid ""
-"<emphasis role=\"italic\">Export library</emphasis> - Compress all "
-"instruments samples and settings in a drumkit in <emphasis role=\"italic\">"
-"$HOME/.hydrogen/data/library_name</emphasis>"
+"<emphasis>Export library</emphasis> - Compress all instruments samples and "
+"settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</"
+"emphasis>"
 msgstr ""
 
 #: manual.docbook:385(para)
 msgid ""
-"<emphasis role=\"italic\">Import library</emphasis> - Imports another "
-"drumkit from the local filesystem of download it from a remote location "
-"through an XML feed. The XML file that should be provided is <emphasis role="
-"\"bold\">NOT</emphasis> RSS compliant (see <ulink url=\"http://www.hydrogen-"
-"music.org/feeds/drumkit_list.php\">Hydrogen website</ulink> for an example). "
-"To load another drumkit in your current working session of Hydrogen, read "
-"<ulink url=\"#rack\">here</ulink>."
+"<emphasis>Import library</emphasis> - Imports another drumkit from the local "
+"filesystem or download it from a remote location through an XML feed. The "
+"XML file that should be provided is <emphasis role=\"bold\">NOT</emphasis> "
+"RSS compliant (see <ulink url=\"http://www.hydrogen-music.org/feeds/"
+"drumkit_list.php\">Hydrogen website</ulink> for an example). To load another "
+"drumkit in your current working session of Hydrogen, read <xref linkend="
+"\"drumkit\"/>."
 msgstr ""
 
 #: manual.docbook:389(para)
@@ -692,25 +678,21 @@ msgid ""
 msgstr ""
 
 #: manual.docbook:391(para)
-msgid ""
-"<emphasis role=\"italic\">Playlist editor</emphasis> - A tool to manage "
-"playlists."
+msgid "<emphasis>Playlist editor</emphasis> - A tool to manage playlists."
 msgstr ""
 
 #: manual.docbook:392(para)
-msgid "<emphasis role=\"italic\">Mixer</emphasis> - Open the mixer window."
+msgid "<emphasis>Mixer</emphasis> - Open the mixer window."
 msgstr ""
 
 #: manual.docbook:393(para)
-msgid ""
-"<emphasis role=\"italic\">Instrument rack</emphasis> - Open the instrument "
-"rack panel."
+msgid "<emphasis>Instrument rack</emphasis> - Open the instrument rack panel."
 msgstr ""
 
 #: manual.docbook:394(para)
 msgid ""
-"<emphasis role=\"italic\">Preferences</emphasis> - Open the main preferences "
-"window. Read <ulink url=\"#prefs\">here</ulink> on how to configure Hydrogen."
+"<emphasis>Preferences</emphasis> - Open the main preferences window. Read "
+"<xref linkend=\"AudioDriverPreferences\"/> on how to configure Hydrogen."
 msgstr ""
 
 #: manual.docbook:398(para)
@@ -721,19 +703,17 @@ msgstr ""
 
 #: manual.docbook:400(para)
 msgid ""
-"<emphasis role=\"italic\">Show audio engine info - </emphasis>Open a monitor "
-"with various <ulink url=\"#engine\">stats</ulink>"
+"<emphasis>Show audio engine info - </emphasis>Open a monitor with various "
+"<link linkend=\"audioengineTab\">stats</link>"
 msgstr ""
 
 #: manual.docbook:401(para)
-msgid ""
-"<emphasis role=\"italic\">debug action - </emphasis> Insert debug commands."
+msgid "<emphasis>debug action - </emphasis> Insert debug commands."
 msgstr ""
 
 #: manual.docbook:402(para)
 msgid ""
-"<emphasis role=\"italic\">Print Objects - </emphasis>Print on stdout current "
-"objects map."
+"<emphasis>Print Objects - </emphasis>Print on stdout current objects map."
 msgstr ""
 
 #: manual.docbook:406(emphasis)
@@ -741,15 +721,13 @@ msgid "Info"
 msgstr ""
 
 #: manual.docbook:408(para)
-msgid ""
-"<emphasis role=\"italic\">User manual - </emphasis>Open a window with this "
-"manual :)"
+msgid "<emphasis>User manual - </emphasis>Open a window with this manual :)"
 msgstr ""
 
 #: manual.docbook:409(para)
 msgid ""
-"<emphasis role=\"italic\">About - </emphasis>The usual window with licence "
-"information, acknowledgements, etc."
+"<emphasis>About - </emphasis>The usual window with licence information, "
+"acknowledgements, etc."
 msgstr ""
 
 #: manual.docbook:419(title)
@@ -1871,31 +1849,25 @@ msgstr ""
 msgid ""
 "Hydrogen can also add effects to sounds using any LADSPA plugin library. You "
 "need to have installed the LADSPA sources (available from <ulink url="
-"\"http://www.ladspa.org\"><citetitle>http://www.ladspa.org</citetitle></"
-"ulink>) and while this will give a rough idea of how it works you should "
-"really have a taste of the real thing installing one or more plugin "
-"libraries, it's as simple as a <command>scons &amp;&amp; scons install</"
-"command>. Here are a few places to download plugin libraries:"
+"\"http://www.ladspa.org\"/>) and while this will give a rough idea of how it "
+"works you should really have a taste of the real thing installing one or "
+"more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons "
+"install</command>. Here are a few places to download plugin libraries:"
 msgstr ""
 
 #: manual.docbook:1468(para)
 msgid ""
-"SWH-Plugins available at <ulink url=\"http://plugin.org.uk"
-"\"><citetitle>http://plugin.org.uk</citetitle></ulink>. Note that before "
-"compiling these plugins you need the FFTW tarball from <ulink url=\"http://"
-"www.fftw.org\"><citetitle>http://www.fftw.org</citetitle></ulink>."
+"SWH-Plugins available at <ulink url=\"http://plugin.org.uk\"/>. Note that "
+"before compiling these plugins you need the FFTW tarball from <ulink url="
+"\"http://www.fftw.org\"/>."
 msgstr ""
 
 #: manual.docbook:1470(para)
-msgid ""
-"CMT available at <ulink url=\"http://www.ladspa.org\"><citetitle>http://www."
-"ladspa.org</citetitle></ulink>."
+msgid "CMT available at <ulink url=\"http://www.ladspa.org\"/>."
 msgstr ""
 
 #: manual.docbook:1472(para)
-msgid ""
-"TAP available at <ulink url=\"http://tap-plugins.sf.net\"><citetitle>http://"
-"tap-plugins.sf.net</citetitle></ulink>."
+msgid "TAP available at <ulink url=\"http://tap-plugins.sf.net\"/>."
 msgstr ""
 
 #: manual.docbook:1477(title)
