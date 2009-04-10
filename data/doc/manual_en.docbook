@@ -1,5 +1,6 @@
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC '-//OASIS//DTD DocBook V4.0//EN'
+               'http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd'>
 <book id="Hydrogen-manual" lang="en">
 
 <bookinfo>
@@ -50,34 +51,34 @@
 		
 		<para>
 			Compiling Hydrogen depends on the following libraries:
-			<itemizedlist mark='opencircle'>
+			<itemizedlist mark="opencircle">
 				<listitem>
-					<para>qt (>= 4.0) at <ulink url='http://www.trolltech.com'>http://www.trolltech.com</ulink></para>
+					<para>qt (>= 4.0) at <ulink url="http://www.trolltech.com">http://www.trolltech.com</ulink></para>
 				</listitem>
 				<listitem>
-					<para>libsndfile at <ulink url='http://www.mega-nerd.com/libsndfile/'>http://www.mega-nerd.com/libsndfile/</ulink></para>
+					<para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/">http://www.mega-nerd.com/libsndfile/</ulink></para>
 				</listitem>
 
 				<listitem>
-					<para>ALSA (>= 1.x) at <ulink url='http://www.alsa-project.com'>http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)</para>
+					<para>ALSA (>= 1.x) at <ulink url="http://www.alsa-project.com">http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)</para>
 				</listitem>
 				<listitem>
-					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url='http://jackaudio.org/'>http://jackaudio.org</ulink> (only if you wish to use Jack as audio driver)</para>
+					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url="http://jackaudio.org/">http://jackaudio.org</ulink> (only if you wish to use Jack as audio driver)</para>
 				</listitem>
 				 <listitem>
-					<para>PortAudio at <ulink url='http://www.portaudio.com'>http://www.portaudio.com</ulink> (only if you wish to use PortAudio as audio driver)</para>
+					<para>PortAudio at <ulink url="http://www.portaudio.com">http://www.portaudio.com</ulink> (only if you wish to use PortAudio as audio driver)</para>
 				</listitem>
 				 <listitem>
-					<para>Flac at <ulink url='http://flac.sf.net'>http://flac.sf.net</ulink> (only if you wish to use flac samples)</para>
+					<para>Flac at <ulink url="http://flac.sf.net">http://flac.sf.net</ulink> (only if you wish to use flac samples)</para>
 				</listitem>
 				 <listitem>
-					<para>ladspa at <ulink url='http://ladspa.org'>http://ladspa.org</ulink> (only if you wish to use ladspa effects)</para>
+					<para>ladspa at <ulink url="http://ladspa.org">http://ladspa.org</ulink> (only if you wish to use ladspa effects)</para>
 				</listitem>
 				 <listitem>
-					<para>liblrdf at <ulink url='http://liblrdf.sf.net'>http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)</para>
+					<para>liblrdf at <ulink url="http://liblrdf.sf.net">http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)</para>
 				</listitem>
 				 <listitem>
-					<para>lash at <ulink url='http://lash.nongnu.org'>http://lash.nongnu.org</ulink> (only if you wish to use lash)</para>
+					<para>lash at <ulink url="http://lash.nongnu.org">http://lash.nongnu.org</ulink> (only if you wish to use lash)</para>
 				</listitem>
 			</itemizedlist>
 			Please install them with your distribution's package manager. If you're running a debian-based system,
@@ -123,7 +124,7 @@
 	</sect1>
 
 <!-- prokoudine ?
-	<sect1 id='basics'>
+	<sect1 id="basics">
 		<title>[TODO] BASICS</title>
 		<para>
 		explain and develop basics about the technology behind software of this kind
@@ -212,7 +213,7 @@
 			
 			<mediaobject>
 			    <imageobject>
-				    <imagedata fileref="img/PreferencesAudioSystem.png" format="png">
+				    <imagedata fileref="img/PreferencesAudioSystem.png" format="PNG"/>
 			    </imageobject>
 			    <caption>
 				<para>
@@ -226,11 +227,11 @@
 			    The following drivers are available:
 			</para>
 			
-			<itemizedList>
+			<itemizedlist>
 
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>jackd</emphasis>: The Jack driver is a professional audio server which permits very low lag and exchanges with other
+			    <emphasis role="bold">jackd</emphasis>: The Jack driver is a professional audio server which permits very low lag and exchanges with other
 			    audio software. <emphasis>We strongly recommend using this driver to have the best out of Hydrogen</emphasis>.
 			    JACK server will start automatically if not already running.
 			    </para>
@@ -238,14 +239,14 @@
 		
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>ALSA</emphasis>:
+			    <emphasis role="bold">ALSA</emphasis>:
 			    the widely adopted Linux standard audio drivers
 			    </para>
 			</listitem>
 			
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>OSS</emphasis>:
+			    <emphasis role="bold">OSS</emphasis>:
 			    The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
 			    supported by the vast majority of sound cards available for linux; this said, 
 			    the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
@@ -255,18 +256,18 @@
 		
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>PortAudio</emphasis>:
+			    <emphasis role="bold">PortAudio</emphasis>:
 			    an open-source multiplatform audio driver
 			    </para>
 			</listitem>
 
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>CoreAudio</emphasis>:
+			    <emphasis role="bold">CoreAudio</emphasis>:
 			    a driver for Mac OS X (experimental) 
 			    </para>
 			</listitem>
-		    </itemizedList>
+		    </itemizedlist>
 		</sect2>
 		
 		<sect2 id="midiTab">
@@ -277,7 +278,7 @@
 			
 			<mediaobject>
 			    <imageobject>
-				    <imagedata fileref="img/PreferencesMidiSystem.png" format="png">
+				    <imagedata fileref="img/PreferencesMidiSystem.png" format="PNG"/>
 			    </imageobject>
 			    <caption>
 				<para>
@@ -295,7 +296,7 @@
 		    
 		    <mediaobject>
 			<imageobject>
-				<imagedata fileref="img/PreferencesAppearance.png" format="png">
+				<imagedata fileref="img/PreferencesAppearance.png" format="PNG"/>
 			</imageobject>
 			<caption>
 			    <para>
@@ -314,7 +315,7 @@
 		    
 		    <mediaobject>
 			<imageobject>
-				<imagedata fileref="img/AudioEngineInfoDialog.png" format="png">
+				<imagedata fileref="img/AudioEngineInfoDialog.png" format="PNG"/>
 			</imageobject>
 			<caption>
 			    <para>
@@ -338,100 +339,100 @@
 	<sect1 id="usedFiles">
 	    <title>Used Filetypes</title>
 	    <para>Before working with Hydrogen, please familiarize with these filetypes:</para>
-	    <itemizedList>
+	    <itemizedlist>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.</para>
+			<para><emphasis role="bold">*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.</para>
 		    </listitem>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor</para>
+			<para><emphasis role="bold">*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor</para>
 		    </listitem>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.</para>
+			<para><emphasis role="bold">*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.</para>
 		    </listitem>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.</para>
+			<para><emphasis role="bold">*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.</para>
 		    </listitem>
-	    </itemizedList>
+	    </itemizedlist>
 	</sect1>
 	
 	<sect1 id="mainMenu">
 	    <title>Main menu</title>
-	    <para><emphasis role='bold'>Projects</emphasis>: this menu offers file related functions.</para>
-	    <itemizedList>
+	    <para><emphasis role="bold">Projects</emphasis>: this menu offers file related functions.</para>
+	    <itemizedlist>
 
-			    <listitem><para><emphasis role='italic'>New</emphasis> - Create a new song</para></listitem>
-			    <listitem><para><emphasis role='italic'>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
-			    <listitem><para><emphasis role='italic'>Open</emphasis> - Open a song</para></listitem>
-			    <listitem><para><emphasis role='italic'>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis role='italic'>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
-			    <listitem><para><emphasis role='italic'>Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
-			    <listitem><para><emphasis role='italic'>Save</emphasis> - Save changes to current song</para></listitem>
-			    <listitem><para><emphasis role='italic'>Save as</emphasis> - Save current song specifying a name (default path: <emphasis role='italic'>$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
-			    <listitem><para><emphasis role='italic'>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
-			    <listitem><para><emphasis role='italic'>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis role='italic'>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
-			    <listitem><para><emphasis role='italic'>Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
-			    <listitem><para><emphasis role='italic'>Export song</emphasis> - Export current song in WAV format</para></listitem>
-			    <listitem><para><emphasis role='italic'>Quit</emphasis> - Quit Hydrogen</para></listitem>
-	    </itemizedList>
+			    <listitem><para><emphasis role="italic">New</emphasis> - Create a new song</para></listitem>
+			    <listitem><para><emphasis role="italic">Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
+			    <listitem><para><emphasis role="italic">Open</emphasis> - Open a song</para></listitem>
+			    <listitem><para><emphasis role="italic">Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis role="italic">$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
+			    <listitem><para><emphasis role="italic">Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
+			    <listitem><para><emphasis role="italic">Save</emphasis> - Save changes to current song</para></listitem>
+			    <listitem><para><emphasis role="italic">Save as</emphasis> - Save current song specifying a name (default path: <emphasis role="italic">$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
+			    <listitem><para><emphasis role="italic">Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
+			    <listitem><para><emphasis role="italic">Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis role="italic">$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
+			    <listitem><para><emphasis role="italic">Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
+			    <listitem><para><emphasis role="italic">Export song</emphasis> - Export current song in WAV format</para></listitem>
+			    <listitem><para><emphasis role="italic">Quit</emphasis> - Quit Hydrogen</para></listitem>
+	    </itemizedlist>
 	    
 	    
 	    	
-	<para><emphasis role='bold'>Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.</para>
-	    <itemizedList>
-			<listitem><para><emphasis role='italic'>Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
-			<listitem><para><emphasis role='italic'>Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
-			<listitem><para><emphasis role='italic'>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis role='italic'>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis role='italic'>Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role='bold'>NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
-	    </itemizedList>
+	<para><emphasis role="bold">Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.</para>
+	    <itemizedlist>
+			<listitem><para><emphasis role="italic">Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
+			<listitem><para><emphasis role="italic">Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
+			<listitem><para><emphasis role="italic">Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis role="italic">$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis role="italic">Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis role="italic">$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis role="italic">Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role="bold">NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
+	    </itemizedlist>
 	
 	
-	    <para><emphasis role='bold'>Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</para>
-	    <itemizedList>
-		    <listitem><para><emphasis role='italic'>Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Mixer</emphasis> - Open the mixer window.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
-	    </itemizedList>
+	    <para><emphasis role="bold">Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</para>
+	    <itemizedlist>
+		    <listitem><para><emphasis role="italic">Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
+		    <listitem><para><emphasis role="italic">Mixer</emphasis> - Open the mixer window.</para></listitem>
+		    <listitem><para><emphasis role="italic">Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
+		    <listitem><para><emphasis role="italic">Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
+	    </itemizedlist>
 	
 	
-	    <para><emphasis role='bold'>Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
-	    <itemizedList>
-		    <listitem><para><emphasis role='italic'>Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
-		    <listitem><para><emphasis role='italic'>debug action - </emphasis> Insert debug commands.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
-	    </itemizedList>
+	    <para><emphasis role="bold">Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
+	    <itemizedlist>
+		    <listitem><para><emphasis role="italic">Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
+		    <listitem><para><emphasis role="italic">debug action - </emphasis> Insert debug commands.</para></listitem>
+		    <listitem><para><emphasis role="italic">Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
+	    </itemizedlist>
     
     
-	    <para><emphasis role='bold'>Info</emphasis></para>
-	    <itemizedList>
-		    <listitem><para><emphasis role='italic'>User manual - </emphasis>Open a window with this manual :)</para></listitem>
-		    <listitem><para><emphasis role='italic'>About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
-	    </itemizedList>
+	    <para><emphasis role="bold">Info</emphasis></para>
+	    <itemizedlist>
+		    <listitem><para><emphasis role="italic">User manual - </emphasis>Open a window with this manual :)</para></listitem>
+		    <listitem><para><emphasis role="italic">About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
+	    </itemizedlist>
 
 	
 	
 	
 	
-	
+	</sect1>
 	
 	<sect1 id="main">
 		<title>The main toolbar</title>
 		<para>Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar and its components:</para>
 		
-		<itemizedList>
-		    <listitem><para>Pilot the song using the start, stop, pause, etc. buttons</listitem>
-		    <listitem><para>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</listitem>
-		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.  (see <xref linkend="taptempo">)</listitem>
-		    <listitem><para>Manually set BPM</listitem>
-		    <listitem><para>Manage JACK transport</listitem>
-		    <listitem><para>Open the mixer and the instrument rack panels</listitem>
-		</itemizedList>
+		<itemizedlist>
+		    <listitem><para>Pilot the song using the start, stop, pause, etc. buttons</para></listitem>
+		    <listitem><para>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</para></listitem>
+		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.  (see <xref linkend="taptempo"/>)</para></listitem>
+		    <listitem><para>Manually set BPM</para></listitem>
+		    <listitem><para>Manage JACK transport</para></listitem>
+		    <listitem><para>Open the mixer and the instrument rack panels</para></listitem>
+		</itemizedlist>
 	
 	
 		<mediaobject>
 			<imageobject>
 				
-				<imagedata fileref="img/MainToolbar.png" format="png">
+				<imagedata fileref="img/MainToolbar.png" format="PNG"/>
 				
 			</imageobject>
 			<caption> 
@@ -442,35 +443,35 @@
 
 		<itemizedlist mark="opencircle">
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/background_Control.png" format="png">
+				<imagedata fileref="img/background_Control.png" format="PNG"/>
 			</imageobject></inlinemediaobject>
 				</para><para>Main controls to start <emphasis role="bold">[Hotkey = Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a pattern.</para>
 			</listitem>
 			
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/background_Mode.png" format="png">
+				<imagedata fileref="img/background_Mode.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Set Pattern/Song Mode.</para></listitem>
 	
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/background_BPM.png" format="png">
+				<imagedata fileref="img/background_BPM.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Set speed of playing (range: 30-400 bpm) <emphasis role="bold">[Hotkey = mouse wheel]</emphasis> and button to enable/disable metronome</para></listitem>
 
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/cpuload.png" format="png">
+				<imagedata fileref="img/cpuload.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Shows CPU load.</para></listitem>
 
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/midi_in.png" format="png">
+				<imagedata fileref="img/midi_in.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Shows MIDI events.</para></listitem>
 
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/jack_transport.png" format="png">
+				<imagedata fileref="img/jack_transport.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected.</para></listitem>
 		</itemizedlist>
 
 	<para>Other useful keybindings (not customizable for the moment):</para>
 		
-	<itemizedlist mark='opencircle'>
+	<itemizedlist mark="opencircle">
 		<listitem>
 			<para>
 			<emphasis role="bold">[CTRL + O]</emphasis> = Open File
@@ -487,6 +488,7 @@
 			</para>
 		</listitem>
 		</itemizedlist>
+
 		<sect2 id="taptempo">
 			<title>Tap Tempo and BeatCounter</title>
 
@@ -620,30 +622,30 @@
 		<para>
 			<inlinemediaobject>
 				<imageobject>
-					<imagedata fileref="img/bg_topPanel.png" format="png">
+					<imagedata fileref="img/bg_topPanel.png" format="PNG"/>
 				</imageobject>
 			</inlinemediaobject>
 		</para>
 
-<itemizedlist mark='opencircle'>
+<itemizedlist mark="opencircle">
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_clear_off.png" format="png">
+			<imagedata fileref="img/btn_clear_off.png" format="PNG"/>
 		</imageobject></inlinemediaobject> Completely delete all patterns (asks for confirmation!).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_new_on.png" format="png">
+			<imagedata fileref="img/btn_new_on.png" format="PNG" />
 		</imageobject></inlinemediaobject> Create a new pattern (and asks for a name).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_updown.png" format="png">
+			<imagedata fileref="img/btn_updown.png" format="PNG" />
 		</imageobject></inlinemediaobject> Move currently selected pattern up or down.
 		</para>
 		</listitem>
@@ -652,21 +654,21 @@
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_select.png" format="png">
-		</imageobject></inlinemediaobject> Enable selecting patterns for copy & paste (Select Mode).
+			<imagedata fileref="img/btn_select.png" format="PNG"/>
+		</imageobject></inlinemediaobject> Enable selecting patterns for copy &amp; paste (Select Mode).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_draw.png" format="png">
+			<imagedata fileref="img/btn_draw.png" format="PNG"/>
 		</imageobject></inlinemediaobject> Enable Draw Mode.
 		</para>
 		</listitem>
 		
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_pattern_mode.png" format="png">
+			<imagedata fileref="img/btn_pattern_mode.png" format="PNG"/>
 		</imageobject></inlinemediaobject> Switch from "Single pattern mode" to "Stacked pattern mode" and back..
 		</para>
 		</listitem>
@@ -679,7 +681,7 @@
 
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img/SongEditor.png" format="png">
+			<imagedata fileref="img/SongEditor.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -703,7 +705,7 @@
 		The button
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_hear_on.png" format="png">
+				<imagedata fileref="img/btn_hear_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 
@@ -711,7 +713,7 @@
 		
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_updown.png" format="png">
+				<imagedata fileref="img/btn_updown.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 
@@ -719,7 +721,7 @@
 	
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_quant_off.png" format="png">
+				<imagedata fileref="img/btn_quant_off.png" format="PNG"/>
 			</imageobject>
 		</inlinemediaobject>
 	
@@ -728,7 +730,7 @@
 
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="img/PatternEditor.png" format="png">
+					<imagedata fileref="img/PatternEditor.png" format="PNG" />
 				</imageobject>
 		<caption>
 			<para>
@@ -753,7 +755,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/PatternEditorInstr.png" format="png">
+				<imagedata fileref="img/PatternEditorInstr.png" format="PNG" />
 			</imageobject>
 		</mediaobject>
 
@@ -761,7 +763,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_record_over.png" format="png">
+				<imagedata fileref="img/btn_record_over.png" format="PNG"/>
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -797,11 +799,11 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</itemizedlist>
 
 	
-	<para>Here's a quick reference of the above bindings for your convenience. See <link linkend='creazioneSong'>Chapter 3</link> for a basic walkthrough of how the pattern editor works.</para>
+	<para>Here's a quick reference of the above bindings for your convenience. See <link linkend="creazioneSong">Chapter 3</link> for a basic walkthrough of how the pattern editor works.</para>
 	
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img/tastiera.png" format="png">
+			<imagedata fileref="img/tastiera.png" format="PNG" />
 		</imageobject>
 	</mediaobject>
 	
@@ -812,7 +814,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/Mixer.png" format="png">
+				<imagedata fileref="img/Mixer.png" format="PNG" />
 			</imageobject>
 		<caption>
 			<para>
@@ -825,7 +827,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/showPeaks_on.png" format="png">
+			<imagedata fileref="img/showPeaks_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>	
 
@@ -833,7 +835,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/btn_solo_on.png" format="png">
+			<imagedata fileref="img/btn_solo_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -841,7 +843,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/btn_mute_on.png" format="png">
+			<imagedata fileref="img/btn_mute_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -849,7 +851,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/btn_play_on_mixer.png" format="png">
+			<imagedata fileref="img/btn_play_on_mixer.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 
@@ -861,7 +863,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/showFX_on.png" format="png">
+			<imagedata fileref="img/showFX_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -869,7 +871,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/MixerFX.png" format="png">
+				<imagedata fileref="img/MixerFX.png" format="PNG" />
 			</imageobject>
 		</mediaobject>	
 	
@@ -919,7 +921,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 
             <para>Loading drumkits and instruments to use is the same as for the
-            System Drumkits (see <xref linkend="sect.systemdrumkits">).</para>
+            System Drumkits (see <xref linkend="sect.systemdrumkits"/>).</para>
 
           </simplesect>
           <simplesect id="sect.sl.patterns">
@@ -1164,7 +1166,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		different samples to sound.  Now set the pattern to
 		loop and notice how your different samples are getting
 		triggered.  (To learn about editing a pattern,
-		see <xref linkend="patternEditor">)</para>
+		see <xref linkend="patternEditor"/>)</para>
 
 		<para>For each layer, you can set
 		the <guibutton>Gain</guibutton> and
@@ -1214,34 +1216,34 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 		<itemizedlist>
 		  <listitem>
-		    <para><emphasis role='bold'>Envelope
+		    <para><emphasis role="bold">Envelope
 		    parameters</emphasis>: <guibutton>Attack</guibutton>, <guibutton>Decay</guibutton>,
 		    <guibutton>Sustain</guibutton>, <guibutton>Release</guibutton>.  (See
-		    <xref linkend='def.envelopegenerator'>)</para>
+		    <xref linkend="def.envelopegenerator"/>)</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'><guibutton>Gain</guibutton></emphasis>:
+		    <para><emphasis role="bold"><guibutton>Gain</guibutton></emphasis>:
 		    The overall volume of the instrument.</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'><guibutton>Mute
+		    <para><emphasis role="bold"><guibutton>Mute
 		    Group</guibutton></emphasis>: Which mute group
 		    this instrument is a member of (see
-		    <xref linkend='def.mutegroup'>).</para>
+		    <xref linkend="def.mutegroup"/>).</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'>Filter
+		    <para><emphasis role="bold">Filter
 		    Parameters</emphasis>: <guibutton>Byp</guibutton>ass, <guibutton>Cutoff</guibutton>,
 		      <guibutton>Resonance</guibutton>.</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'><guibutton>Random
+		    <para><emphasis role="bold"><guibutton>Random
 		    Pitch</guibutton></emphasis></para>
 		  </listitem>
 		</itemizedlist>
 
 		<para>It's important that you
-		understand <xref linkend='instrumentediting.concepts'>
+		understand <xref linkend="instrumentediting.concepts"/>
 		in order to continue on.</para>
 
 		<simplesect id="instrumentediting.envelopeparameters">
@@ -1280,7 +1282,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      from the attack volume to the sustain volume.
 		      If the value is 1.0, the sample volume will use
 		      the maximum time available for the decay
-		      parameter.<footnoteref linkend="fn.adsrtimes"></para>
+		      parameter.<footnoteref linkend="fn.adsrtimes"/></para>
 		    </listitem>
 		    <listitem>
 		      <para><emphasis role="bold">Sustain</emphasis>
@@ -1297,7 +1299,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      the note will fade out in the minimum amount of time
 		      (about 5 ms).  If set to 1, it will fade out for
 		      the maximum time
-		      available.<footnoteref linkend="fn.adsrtimes"></para>
+		      available.<footnoteref linkend="fn.adsrtimes"/></para>
 		    </listitem>
 		  </itemizedlist>
 
@@ -1485,7 +1487,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/showFX_on.png" format="png">
+			<imagedata fileref="img/showFX_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -1493,7 +1495,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/edit_off.png" format="png">
+			<imagedata fileref="img/edit_off.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -1501,7 +1503,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/MixerFXKnob.png" format="png">
+			<imagedata fileref="img/MixerFXKnob.png" format="PNG"/>
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -1509,7 +1511,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/bypass_over.png" format="png">
+				<imagedata fileref="img/bypass_over.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>) 
 		
@@ -1519,7 +1521,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/MixerFXSelect.png" format="png">
+				<imagedata fileref="img/MixerFXSelect.png" format="PNG" />
 			</imageobject>
 		<caption>
 			<para>
@@ -1559,7 +1561,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/PatternEditor.png" format="png">
+				<imagedata fileref="img/PatternEditor.png" format="PNG" />
 			</imageobject>
 		<caption>
 			<para>
@@ -1577,7 +1579,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/SongEditor.png" format="png">
+				<imagedata fileref="img/SongEditor.png" format="PNG" />
 			</imageobject>
 		<caption>
 			<para>
@@ -1600,19 +1602,19 @@ instrument, plus a "Master Output" line to adjust general output volume and a "F
 	
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_play_on_mixer.png" format="png">
+			<imagedata fileref="img/btn_play_on_mixer.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
  		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_solo_on.png" format="png">
+			<imagedata fileref="img/btn_solo_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_mute_on.png" format="png">
+			<imagedata fileref="img/btn_mute_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -1620,7 +1622,7 @@ instrument, plus a "Master Output" line to adjust general output volume and a "F
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/MixerPan.png" format="png">
+			<imagedata fileref="img/MixerPan.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -1628,7 +1630,7 @@ instrument, plus a "Master Output" line to adjust general output volume and a "F
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_solo_on.png" format="png">
+			<imagedata fileref="img/btn_solo_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -1637,7 +1639,7 @@ button
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_mute_on.png" format="png">
+			<imagedata fileref="img/btn_mute_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 
@@ -1647,7 +1649,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
 		
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/Mixer.png" format="png">
+				<imagedata fileref="img/Mixer.png" format="PNG" />
 			</imageobject>
 		<caption>
 			<para>
@@ -1690,11 +1692,11 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       Article <ulink url="http://en.wikipedia.org/wiki/ADSR_envelope">ADSR
       Envelope</ulink></para>
 
-      <glossseealso otherterm="def.envelopegenerator">
-      <glossseealso otherterm="def.attack">
-      <glossseealso otherterm="def.decay">
-      <glossseealso otherterm="def.sustain">
-      <glossseealso otherterm="def.release">
+      <glossseealso otherterm="def.envelopegenerator"/>
+      <glossseealso otherterm="def.attack"/>
+      <glossseealso otherterm="def.decay"/>
+      <glossseealso otherterm="def.sustain"/>
+      <glossseealso otherterm="def.release"/>
     </glossdef>
   </glossentry>
 
@@ -1705,7 +1707,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       of <emphasis>time</emphasis> to turn the parameter up from
       0 to full velocity after triggering the note.</para>
 
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
@@ -1715,7 +1717,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>In filters and mixers, this the amount that a signal is reduced
       (volume).</para>
 
-      <glossseealso otherterm="def.rolloff">
+      <glossseealso otherterm="def.rolloff"/>
     </glossdef>
   </glossentry>
 
@@ -1728,9 +1730,9 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       attenuates (silences) all others.  This is often done by combining a
       high-pass and a low-pass filter.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.highpassfilter">
-      <glossseealso otherterm="def.lowpassfilter">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.highpassfilter"/>
+      <glossseealso otherterm="def.lowpassfilter"/>
     </glossdef>
   </glossentry>
 
@@ -1766,10 +1768,10 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       guitar), it sounds like someone is putting a blanket over the speaker.
       The higher frequencies are being attenuated above 30 Hz.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.highpassfilter">
-      <glossseealso otherterm="def.lowpassfilter">
-      <glossseealso otherterm="def.resonancefilter">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.highpassfilter"/>
+      <glossseealso otherterm="def.lowpassfilter"/>
+      <glossseealso otherterm="def.resonancefilter"/>
     </glossdef>
   </glossentry>
 
@@ -1782,7 +1784,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       of <emphasis>time</emphasis> to turn the parameter down
       from full velocity to the sustain level.</para>
 
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
@@ -1821,10 +1823,10 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A device that changes a sound by attenuating specific frequencies.
       A tone knob is an example of a simple, low-pass filter.</para>
 
-      <glossseealso otherterm="def.bandpassfilter">
-      <glossseealso otherterm="def.highpassfilter">
-      <glossseealso otherterm="def.lowpassfilter">
-      <glossseealso otherterm="def.resonancefilter">
+      <glossseealso otherterm="def.bandpassfilter"/>
+      <glossseealso otherterm="def.highpassfilter"/>
+      <glossseealso otherterm="def.lowpassfilter"/>
+      <glossseealso otherterm="def.resonancefilter"/>
     </glossdef>
   </glossentry>
 
@@ -1846,8 +1848,8 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A filter that attenuates (silences) low frequencies, but allows high
       frequencies to pass through.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.cutoff">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.cutoff"/>
     </glossdef>
   </glossentry>
 
@@ -1881,7 +1883,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       this in your instrument, you can load one sample for soft
       playing, and a different sample for loud playing.</para>
 
-      <glossseealso otherterm="def.instrument">
+      <glossseealso otherterm="def.instrument"/>
     </glossdef>
   </glossentry>
 
@@ -1891,8 +1893,8 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A filter that attenuates (silences) high frequences, but allows low
       frequencies to pass through.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.cutoff">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.cutoff"/>
     </glossdef>
   </glossentry>
 
@@ -1953,7 +1955,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       of <emphasis>time</emphasis> to reduce the parameter from
       the sustain level to 0.</para>
 
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
@@ -1964,7 +1966,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       determines how much of a boost (gain) to give the frequencies at the
       cutoff.</para>
 
-      <glossseealso otherterm="def.resonancefilter">
+      <glossseealso otherterm="def.resonancefilter"/>
     </glossdef>
   </glossentry>
 
@@ -1976,9 +1978,9 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       filter, where the boosted frequencies are centered on the cut-off
       frequency.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.cutoff">
-      <glossseealso otherterm="def.resonance">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.cutoff"/>
+      <glossseealso otherterm="def.resonance"/>
     </glossdef>
   </glossentry>
 
@@ -1997,8 +1999,8 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       a straight line (on a log scale) and measured in in dB of attenuation per
       octave of frequency.</para>
 
-      <glossseealso otherterm="def.attenuation">
-      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.attenuation"/>
+      <glossseealso otherterm="def.filter"/>
     </glossdef>
   </glossentry>
 
@@ -2018,7 +2020,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>The <emphasis>level</emphasis> to hold the parameter
       after finishing the decay time.  This level will be maintained until the
       not is released.</para>
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
