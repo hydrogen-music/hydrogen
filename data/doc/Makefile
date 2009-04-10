@@ -4,6 +4,7 @@
 ### xml2po  (Debian package: poxml)
 ### po2xml  (Debian package: poxml)
 ### xmlto   (Debian package: xmlto)
+### xmllint (Debian package: libxml2-utils)
 ###
 
 MANUAL_MASTER = manual.docbook
