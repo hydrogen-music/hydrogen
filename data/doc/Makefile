@@ -6,7 +6,12 @@
 ### xmlto   (Debian package: xmlto)
 ###
 
-ALL_MANUALS= manual_en.html \
+MANUAL_MASTER = manual.docbook
+TUTORIAL_MASTER = tutorial.docbook
+
+ALL_MASTERS = $(MANUAL_MASTER) $(TUTORIAL_MASTER)
+
+ALL_MANUALS = manual_en.html \
 	manual_es.html \
 	manual_fr.html \
 	manual_it.html \
@@ -25,9 +30,9 @@ all_manuals: $(ALL_MANUALS)
 all_tutorials: $(ALL_TUTORIALS)
 
 ## Explicit build to avoid circular dependency
-all_pot_files: $(ALL_POT_FILES)
-	xml2po -u manual_en.pot manual_en.docbook
-	xml2po -u tutorial_en.pot tutorial_en.docbook
+all_pot_files: $(ALL_MASTERS)
+	xml2po -u manual.pot manual.docbook
+	xml2po -u tutorial.pot tutorial.docbook
 
 clean:
 	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS)
@@ -35,12 +40,19 @@ clean:
 %.html: %.docbook
 	xmlto html-nochunks $^
 
-%.docbook: %.po
-	po2xml manual_en.docbook $^ > $@
+## Special rule for master manual and tutorial
+%_en.docbook: %.docbook
+	cp -f $^ $@
 
-manual_%.po: manual_en.docbook
+manual_%.docbook: manual_%.po $(MANUAL_MASTER)
+	po2xml $(MANUAL_MASTER) $< > $@
+
+manual_%.po: $(MANUAL_MASTER)
 	xml2po -u $@ $^
 
-tutorial_%.po: tutorial_en.docbook
+tutorial_%.docbook: tutorial_%.po $(TUTORIAL_MASTER)
+	po2xml $(TUTORIAL_MASTER) $< > $@
+
+tutorial_%.po: $(TUTORIAL_MASTER)
 	xml2po -u $@ $^
 
