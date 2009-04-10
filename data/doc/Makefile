@@ -35,10 +35,14 @@ all_pot_files: $(ALL_MASTERS)
 	xml2po -u tutorial.pot tutorial.docbook
 
 clean:
-	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS)
+	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS) *_{en,es,it,fr,nl}.docbook *.docbook_validated
 
-%.html: %.docbook
-	xmlto html-nochunks $^
+%.html: %.docbook %.docbook_validated
+	xmlto html-nochunks $<
+
+%.docbook_validated: %.docbook
+	xmllint --noout --valid $^
+	touch $@
 
 ## Special rule for master manual and tutorial
 %_en.docbook: %.docbook
