@@ -53,32 +53,32 @@
 			Compiling Hydrogen depends on the following libraries:
 			<itemizedlist mark="opencircle">
 				<listitem>
-					<para>qt (>= 4.0) at <ulink url="http://www.trolltech.com">http://www.trolltech.com</ulink></para>
+					<para>qt (>= 4.0) at <ulink url="http://www.trolltech.com"/></para>
 				</listitem>
 				<listitem>
-					<para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/">http://www.mega-nerd.com/libsndfile/</ulink></para>
+					<para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/"/></para>
 				</listitem>
 
 				<listitem>
-					<para>ALSA (>= 1.x) at <ulink url="http://www.alsa-project.com">http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)</para>
+					<para>ALSA (>= 1.x) at <ulink url="http://www.alsa-project.com"/> (only if you wish to use ALSA as audio driver)</para>
 				</listitem>
 				<listitem>
-					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url="http://jackaudio.org/">http://jackaudio.org</ulink> (only if you wish to use Jack as audio driver)</para>
+					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url="http://jackaudio.org/"/> (only if you wish to use Jack as audio driver)</para>
 				</listitem>
 				 <listitem>
-					<para>PortAudio at <ulink url="http://www.portaudio.com">http://www.portaudio.com</ulink> (only if you wish to use PortAudio as audio driver)</para>
+					<para>PortAudio at <ulink url="http://www.portaudio.com"/> (only if you wish to use PortAudio as audio driver)</para>
 				</listitem>
 				 <listitem>
-					<para>Flac at <ulink url="http://flac.sf.net">http://flac.sf.net</ulink> (only if you wish to use flac samples)</para>
+					<para>Flac at <ulink url="http://flac.sf.net"/> (only if you wish to use flac samples)</para>
 				</listitem>
 				 <listitem>
-					<para>ladspa at <ulink url="http://ladspa.org">http://ladspa.org</ulink> (only if you wish to use ladspa effects)</para>
+					<para>ladspa at <ulink url="http://ladspa.org"/> (only if you wish to use ladspa effects)</para>
 				</listitem>
 				 <listitem>
-					<para>liblrdf at <ulink url="http://liblrdf.sf.net">http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)</para>
+					<para>liblrdf at <ulink url="http://liblrdf.sf.net"/> (only if you wish to use lrdf to categorise effects)</para>
 				</listitem>
 				 <listitem>
-					<para>lash at <ulink url="http://lash.nongnu.org">http://lash.nongnu.org</ulink> (only if you wish to use lash)</para>
+					<para>lash at <ulink url="http://lash.nongnu.org"/> (only if you wish to use lash)</para>
 				</listitem>
 			</itemizedlist>
 			Please install them with your distribution's package manager. If you're running a debian-based system,
@@ -382,7 +382,7 @@
 			<listitem><para><emphasis>Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
 			<listitem><para><emphasis>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
 			<listitem><para><emphasis>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis>Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role="bold">NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
+			<listitem><para><emphasis>Import library</emphasis> - Imports another drumkit from the local filesystem or download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role="bold">NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <xref linkend="drumkit"/>.</para></listitem>
 	    </itemizedlist>
 	
 	
@@ -391,13 +391,13 @@
 		    <listitem><para><emphasis>Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
 		    <listitem><para><emphasis>Mixer</emphasis> - Open the mixer window.</para></listitem>
 		    <listitem><para><emphasis>Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
-		    <listitem><para><emphasis>Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
+		    <listitem><para><emphasis>Preferences</emphasis> - Open the main preferences window. Read <xref linkend="AudioDriverPreferences"/> on how to configure Hydrogen.</para></listitem>
 	    </itemizedlist>
 	
 	
 	    <para><emphasis role="bold">Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
 	    <itemizedlist>
-		    <listitem><para><emphasis>Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
+		    <listitem><para><emphasis>Show audio engine info - </emphasis>Open a monitor with various <link linkend="audioengineTab">stats</link></para></listitem>
 		    <listitem><para><emphasis>debug action - </emphasis> Insert debug commands.</para></listitem>
 		    <listitem><para><emphasis>Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
 	    </itemizedlist>
@@ -1462,14 +1462,14 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 	<sect1 id="ladspa">
 		<title>LADSPA plugins</title>
-		<para>Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons install</command>.  Here are a few places to download plugin libraries:</para>
+		<para>Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url="http://www.ladspa.org"/>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons install</command>.  Here are a few places to download plugin libraries:</para>
 
 	<itemizedlist>
-	<listitem><para>SWH-Plugins available at <ulink url="http://plugin.org.uk"><citetitle>http://plugin.org.uk</citetitle></ulink>. Note that before compiling these plugins you need the FFTW tarball from <ulink url="http://www.fftw.org"><citetitle>http://www.fftw.org</citetitle></ulink>.</para></listitem>
+	<listitem><para>SWH-Plugins available at <ulink url="http://plugin.org.uk"/>. Note that before compiling these plugins you need the FFTW tarball from <ulink url="http://www.fftw.org"/>.</para></listitem>
 	
-	<listitem><para>CMT available at <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>.</para></listitem>
+	<listitem><para>CMT available at <ulink url="http://www.ladspa.org"/>.</para></listitem>
 	
-	<listitem><para>TAP available at <ulink url="http://tap-plugins.sf.net"><citetitle>http://tap-plugins.sf.net</citetitle></ulink>.</para></listitem>
+	<listitem><para>TAP available at <ulink url="http://tap-plugins.sf.net"/>.</para></listitem>
 	
 	</itemizedlist>
 
