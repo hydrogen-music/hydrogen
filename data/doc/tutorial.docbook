@@ -1,7 +1,7 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
                "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
-<book id="Hydrogen-tutorial" lang="it">
+<book id="Hydrogen-tutorial" lang="en">
 
 <bookinfo>
         <title>Hydrogen Tutorial</title>
@@ -32,20 +32,20 @@
 		<para>The song we will work on has the following structure:</para>
 		
 		<itemizedlist>
-		<listitem><para><emphasis role='bold'>Intro:</emphasis> 4 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Bridge:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Bridge:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Riff:</emphasis> 4 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse (with guitar):</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse (with voice):</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Bridge:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Final Riff:</emphasis> 4 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Intro:</emphasis> 4 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Bridge:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Bridge:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Riff:</emphasis> 4 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse (with guitar):</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse (with voice):</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Bridge:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Final Riff:</emphasis> 4 bars</para></listitem>
 		</itemizedlist>
 		
 		<para>Looking at this scheme we can see that some pattern repeats, so we'll use this symbols in Hydrogen's Song Editor:</para>
