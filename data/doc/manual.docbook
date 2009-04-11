@@ -200,7 +200,7 @@
 		<section id="sect.preferences.audio_tab">
 			<title>The Audio System tab</title>
 			
-			<para>From the "Audio System" tab (Fig. 1) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server).
+			<para>From the "Audio System" tab (<xref linkend="fig.preferences.audio_tab"/>) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server).
 			</para>
 			<para>
 			We can set some features of Hydrogen like "Enable track outputs" useful if you want to add effects to a single instrument with jack-rack. "Connect to Default Output Pair" connects the output to the default ports: uncheck this if you want to connect JACK output to other ports without disconnecting them first
@@ -211,17 +211,14 @@
 		
 		
 			
+			<figure id="fig.preferences.audio_tab">
+			<title>The Audio System Tab</title>
 			<mediaobject>
 			    <imageobject>
 				    <imagedata fileref="img/PreferencesAudioSystem.png" format="PNG"/>
 			    </imageobject>
-			    <caption>
-				<para>
-				    <emphasis role="bold">Fig. 1</emphasis> The Audio System tab
-				</para>
-			    </caption>
 			</mediaobject>
-			
+			</figure>
 			
 			<para>
 			    The following drivers are available:
@@ -273,37 +270,33 @@
 		<section id="sect.preferences.midi_tab">
 			<title>The Midi System tab</title>
 			<para>
-			The "Midi System" tab (Fig. 2) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events.
+			The "Midi System" tab (<xref linkend="fig.preferences.midi_tab"/>) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events.
 			</para>
 			
+			<figure id="fig.preferences.midi_tab">
+			<title>The MIDI System Tab</title>
 			<mediaobject>
 			    <imageobject>
 				    <imagedata fileref="img/PreferencesMidiSystem.png" format="PNG"/>
 			    </imageobject>
-			    <caption>
-				<para>
-				<emphasis role="bold">Fig. 2</emphasis> The MIDI System tab
-				</para>
-			    </caption>
 			</mediaobject>
+			</figure>
 		</section>
 		
 		<section id="sect.preferences.appearance_tab">
 		    <title>The Appearance tab</title>
 		    <para>
-		    The "Appearance" tab (Fig. 3) let's you to modify Hydrogen and QT graphical properties.
+		    The "Appearance" tab (<xref linkend="fig.preferences.appearance_tab"/>) let's you to modify Hydrogen and QT graphical properties.
 		    </para>
 		    
+		    <figure id="fig.preferences.appearance_tab">
+		    <title>The Appearance Tab</title>
 		    <mediaobject>
 			<imageobject>
 				<imagedata fileref="img/PreferencesAppearance.png" format="PNG"/>
 			</imageobject>
-			<caption>
-			    <para>
-			    <emphasis role="bold">Fig. 3</emphasis> The appearance tab
-			    </para>
-			</caption>
 		    </mediaobject>
+		    </figure>
 		</section>
 		
 		
@@ -313,16 +306,14 @@
 		    The audio engine info is a window with various stats about Hydrogen and the audio driver. In case JACK is used, buffer and sampling rate should be set before starting Hydrogen (JACK automatically starts when an application tries to connect).
 		    </para>
 		    
+		    <figure id="fig.preferences.audio_engine_tab">
+		    <title>The Audio Engine Info Window</title>
 		    <mediaobject>
 			<imageobject>
 				<imagedata fileref="img/AudioEngineInfoDialog.png" format="PNG"/>
 			</imageobject>
-			<caption>
-			    <para>
-			    <emphasis role="bold">Fig. 4</emphasis> The Audio engine Info window
-			    </para>
-			</caption>
 		    </mediaobject>
+		    </figure>
 		</section>
 	</section>
 </chapter>
@@ -429,17 +420,16 @@
 		</itemizedlist>
 	
 	
+		<figure id="fig.main_toolbar">
+		<title>The Main Toolbar</title>
 		<mediaobject>
 			<imageobject>
 				
 				<imagedata fileref="img/MainToolbar.png" format="PNG"/>
 				
 			</imageobject>
-			<caption> 
-			    <para><emphasis role="bold">Fig. 5 </emphasis>  The main toolbar</para>
-			</caption>
 		</mediaobject>
-	
+		</figure>
 
 		<itemizedlist mark="opencircle">
 			<listitem><para><inlinemediaobject><imageobject>
@@ -613,7 +603,7 @@
 		<title>Song Editor</title>
 
 		<para>
-		The "Song Editor" (Fig. 6) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
+		The "Song Editor" (<xref linkend="fig.song_editor"/>) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
 		</para>
 
 		<para>
@@ -679,23 +669,21 @@
 	on an squarebox to add or cancel the pattern. Clicking on right mouse button over the name of a pattern will bring up a menu to change name of the pattern or to allow copying/deleting it. Patterns with very same name are not allowed.
 	</para>
 
+	<figure id="fig.song_editor">
+	<title>The Song Editor</title>
 	<mediaobject>
 		<imageobject>
 			<imagedata fileref="img/SongEditor.png" format="PNG" />
 		</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 6</emphasis> The Song Editor
-			</para>
-		</caption>
 	</mediaobject>
+	</figure>
 
 	</section>
 
 	<section id="sect.pattern_editor">
 		<title>Pattern Editor</title>
 		<para>
-		The "Pattern Editor" frame (Fig. 7) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
+		The "Pattern Editor" frame (<xref linkend="fig.pattern_editor"/>) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
 		
 		Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame. Those frame shows the so called "note properties". This are special properties which can be set for every
 		single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms at a tempo of 120bpm.
@@ -728,17 +716,14 @@
 	. This way the beats inserted will automatically respect the grid resolution currently applied.
 		</para>
 
+		<figure id="fig.pattern_editor">
+		  <title>The Pattern Editor</title>
 			<mediaobject>
 				<imageobject>
 					<imagedata fileref="img/PatternEditor.png" format="PNG" />
 				</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 7</emphasis> The Pattern Editor
-			</para>
-		</caption>
-				
 			</mediaobject>
+		</figure>
 
 		<para>
 		Rememeber this constraint concerning the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; on the other hand if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision), notes will be placed in the previous or in the following 8th bar.
@@ -753,11 +738,13 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		    The small green and red squares beside the instrument name are the <quote><emphasis role="bold">mute</emphasis></quote> and <quote><emphasis role="bold">solo</emphasis></quote> buttons.
 		</para>
 		
+		<informalfigure id="ifig.pattern_editor_instrument">
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/PatternEditorInstr.png" format="PNG" />
 			</imageobject>
 		</mediaobject>
+		</informalfigure>
 
 		<para>Also, you can set new beats clicking on
 		
@@ -801,29 +788,29 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<para>Here's a quick reference of the above bindings for your convenience. See <xref linkend="chap.create_song"/> for a basic walkthrough of how the pattern editor works.</para>
 	
+	<informalfigure id="ifig.letters_keyboard">
 	<mediaobject>
 		<imageobject>
 			<imagedata fileref="img/tastiera.png" format="PNG" />
 		</imageobject>
 	</mediaobject>
+	</informalfigure>
 	
 	</section>
 
 	<section id="sect.mixer">
 		<title>Mixer</title>
 		
+		<figure id="fig.mixer">
+		<title>The Mixer</title>
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/Mixer.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 8</emphasis> The Mixer
-			</para>
-		</caption>
 		</mediaobject>
+		</figure>
 
-<para>The Mixer frame (Fig. 8) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
+<para>The Mixer frame (<xref linkend="fig.mixer"/>) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
 
 	<inlinemediaobject>
 		<imageobject>
@@ -869,12 +856,14 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	button. See next section for a detailed overview.
 	
+	<informalfigure id='ifig.mixer_fx'>
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/MixerFX.png" format="PNG" />
 			</imageobject>
 		</mediaobject>	
-	
+	</informalfigure>
+
 	</para>
 
 	</section>
@@ -1499,7 +1488,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</imageobject>
 	</inlinemediaobject>
 	
-	), than on <quote>Select the FX</quote>: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect.
+	), than on <quote>Select the FX</quote>: this will bring up another window (<xref linkend="fig.select_effect"/>) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect.
 	
 	<inlinemediaobject>
 		<imageobject>
@@ -1519,16 +1508,14 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		button.</para>
 
 
+		<figure id="fig.select_effect">
+		<title>Select an Effect</title>
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/MixerFXSelect.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 3</emphasis> Select an effect.
-			</para>
-		</caption>
 		</mediaobject>
+		</figure>
 	
 	</section>
 
@@ -1556,37 +1543,33 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	<section id="sect.create_pattern">
 		<title>A new pattern</title>
 		<para>
-		We'll start from an empty song with an empty pattern, as created by default: "pattern" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <quote>Play</quote> button and while the pattern is playing let's add notes in the grid of the Song Editor (Fig. 12) simply left_mouse_clicking on it: adjust grid resolution and BPM speed if needed. Rememeber some constraints of the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; same thing happens if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision): they will be placed on the previous or on the following 8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, in this case you're free to place notes wherever you prefer). <emphasis role="bold">Be sure to select the correct pattern in the Song Editor before adding notes in the Pattern Editor!</emphasis>
+		We'll start from an empty song with an empty pattern, as created by default: "pattern" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <quote>Play</quote> button and while the pattern is playing let's add notes in the grid of the Song Editor (<xref linkend="fig.pattern_editor.2"/>) simply left_mouse_clicking on it: adjust grid resolution and BPM speed if needed. Rememeber some constraints of the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; same thing happens if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision): they will be placed on the previous or on the following 8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, in this case you're free to place notes wherever you prefer). <emphasis role="bold">Be sure to select the correct pattern in the Song Editor before adding notes in the Pattern Editor!</emphasis>
 		</para>
 
+		<figure id="fig.pattern_editor.2">
+		<title>The Pattern Editor</title>
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/PatternEditor.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 12</emphasis> The Pattern Editor
-			</para>
-		</caption>
 		</mediaobject>
+		</figure>
 	</section>
 
 	<section id="sect.create_sequence">
 		<title>A new sequence</title>
 		<para>
-		Once patterns are created (Fig. 13), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy).
+		Once patterns are created (<xref linkend="fig.insert_notes"/>), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy).
 		</para>
 
+		<figure id="fig.insert_notes">
+		<title>Inserting Notes in a Pattern</title>
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/SongEditor.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 13</emphasis> Inserting notes in a pattern
-			</para>
-		</caption>
 				</mediaobject>
+		</figure>
 
 	</section>
 	
@@ -1597,7 +1580,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</para>
 		
 		<para>
-		The Mixer frame (Fig. 14) is made of 32 independent tracks, each of these is binded to an
+		The Mixer frame (<xref linkend="fig.mixer.2"/>) is made of 32 independent tracks, each of these is binded to an
 instrument, plus a "Master Output" line to adjust general output volume and a "FX" button to set effects. Every line features 3 buttons (
 	
 		<inlinemediaobject>
@@ -1644,19 +1627,17 @@ button
 		</inlinemediaobject>
 
 		, simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates the maximun volume reached
-from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter.
+from the instrument; the peak must be in a range of 0.0 and 1.0 (in <xref linkend="fig.mixer.2"/> you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter.
 		</para>
 		
+		<figure id="fig.mixer.2">
+		<title>The Mixer</title>
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/Mixer.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 14</emphasis> The mixer
-			</para>
-		</caption>
 		</mediaobject>
+		</figure>
 	</section>
 </chapter>
 <glossary id="glossary">
