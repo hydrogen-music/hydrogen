@@ -857,7 +857,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	button. See next section for a detailed overview.
 	
-	<informalfigure id='ifig.mixer_fx'>
+	<informalfigure id="ifig.mixer_fx">
 		<mediaobject>
 			<imageobject>
 				<imagedata fileref="img/MixerFX.png" format="PNG" />
