@@ -1,14 +1,14 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2009-04-10 00:49-0500\n"
+"POT-Creation-Date: 2009-04-11 12:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:216(None)
+#: manual.docbook:219(None)
 msgid ""
 "@@image: 'img/PreferencesAudioSystem.png'; "
 "md5=2cbcf26e128bec63fae694af120c51d6"
@@ -24,7 +24,7 @@ msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:299(None)
+#: manual.docbook:297(None)
 msgid ""
 "@@image: 'img/PreferencesAppearance.png'; "
 "md5=0e8d04f6fc536d2f56233783730ba852"
@@ -32,7 +32,7 @@ msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:318(None)
+#: manual.docbook:314(None)
 msgid ""
 "@@image: 'img/AudioEngineInfoDialog.png'; "
 "md5=2409544da903ec8b9f08edb34bcb54ae"
@@ -40,207 +40,207 @@ msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:435(None)
+#: manual.docbook:429(None)
 msgid "@@image: 'img/MainToolbar.png'; md5=4f5dddc0a6fc51b5b98bbfd5dd1ebfd0"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:446(None)
+#: manual.docbook:437(None)
 msgid ""
 "@@image: 'img/background_Control.png'; md5=0405af224f62d2e360cb2656379cbd66"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:452(None)
+#: manual.docbook:443(None)
 msgid ""
 "@@image: 'img/background_Mode.png'; md5=b2ca832b899e6ec073f6d700c9c8e178"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:456(None)
+#: manual.docbook:447(None)
 msgid "@@image: 'img/background_BPM.png'; md5=0729e6f172d37cde37dc6dd69d7df9e9"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:460(None)
+#: manual.docbook:451(None)
 msgid "@@image: 'img/cpuload.png'; md5=bfceb68aa39947b9d8fce81d70350d56"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:464(None)
+#: manual.docbook:455(None)
 msgid "@@image: 'img/midi_in.png'; md5=302ded0d23140e8bf169a137ea7695b5"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:468(None)
+#: manual.docbook:459(None)
 msgid "@@image: 'img/jack_transport.png'; md5=a3510cfd235f685a5a5f4788ba4aa6a3"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:625(None)
+#: manual.docbook:616(None)
 msgid "@@image: 'img/bg_topPanel.png'; md5=ac7d11337eca92242e28918f8acf4281"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:634(None)
+#: manual.docbook:625(None)
 msgid "@@image: 'img/btn_clear_off.png'; md5=506e17500965351186046e8d4675e298"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:641(None)
+#: manual.docbook:632(None)
 msgid "@@image: 'img/btn_new_on.png'; md5=5cff0140de1a7304dd60b3cacea9e71d"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:648(None) manual.docbook:716(None)
+#: manual.docbook:639(None) manual.docbook:705(None)
 msgid "@@image: 'img/btn_updown.png'; md5=4e40841f9213616bceba8538be720204"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:657(None)
+#: manual.docbook:648(None)
 msgid "@@image: 'img/btn_select.png'; md5=0d4dd148b47cfbb6054cc598a901e511"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:664(None)
+#: manual.docbook:655(None)
 msgid "@@image: 'img/btn_draw.png'; md5=834dbbf9b0b8f3d1343851d1529bffde"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:671(None)
+#: manual.docbook:662(None)
 msgid ""
 "@@image: 'img/btn_pattern_mode.png'; md5=cfda76720e17b1b73a391b03d30a1f01"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:684(None) manual.docbook:1582(None)
+#: manual.docbook:677(None) manual.docbook:1570(None)
 msgid "@@image: 'img/SongEditor.png'; md5=8580fa158929130b0af2f7aa08abf489"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:708(None)
+#: manual.docbook:697(None)
 msgid "@@image: 'img/btn_hear_on.png'; md5=dc908c7a82db7350c7c7b6e79bb4e8ba"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:724(None)
+#: manual.docbook:713(None)
 msgid "@@image: 'img/btn_quant_off.png'; md5=d52c33c75ff5b690ea357fe170060d36"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:733(None) manual.docbook:1564(None)
+#: manual.docbook:724(None) manual.docbook:1554(None)
 msgid "@@image: 'img/PatternEditor.png'; md5=967f9e6860c1b53170ca33f13a4afbd5"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:758(None)
+#: manual.docbook:745(None)
 msgid ""
 "@@image: 'img/PatternEditorInstr.png'; md5=aa7b047b212826d380d6afa3d54f40a2"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:766(None)
+#: manual.docbook:754(None)
 msgid ""
 "@@image: 'img/btn_record_over.png'; md5=88def8ff2487f8cb71501d67a74d89d1"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:806(None)
+#: manual.docbook:795(None)
 msgid "@@image: 'img/tastiera.png'; md5=344cc621fc42d367ff50ec3b01017b04"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:817(None) manual.docbook:1652(None)
+#: manual.docbook:809(None) manual.docbook:1638(None)
 msgid "@@image: 'img/Mixer.png'; md5=150e569dd12b279484bd2066c08dbd85"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:830(None)
+#: manual.docbook:818(None)
 msgid "@@image: 'img/showPeaks_on.png'; md5=4475949f7c1f11157b8cfb623022e27b"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:838(None) manual.docbook:1611(None)
-#: manual.docbook:1633(None)
+#: manual.docbook:826(None) manual.docbook:1595(None)
+#: manual.docbook:1617(None)
 msgid "@@image: 'img/btn_solo_on.png'; md5=275a1dd4a4cd6b5b93a0cc6d0d2ca497"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:846(None) manual.docbook:1617(None)
-#: manual.docbook:1642(None)
+#: manual.docbook:834(None) manual.docbook:1601(None)
+#: manual.docbook:1626(None)
 msgid "@@image: 'img/btn_mute_on.png'; md5=2313bb2e4cf132f8fbfbe46e6505f5c6"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:854(None) manual.docbook:1605(None)
+#: manual.docbook:842(None) manual.docbook:1589(None)
 msgid ""
 "@@image: 'img/btn_play_on_mixer.png'; md5=2eb3b919753b61020e06fe2dda6529ad"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:866(None) manual.docbook:1490(None)
+#: manual.docbook:854(None) manual.docbook:1480(None)
 msgid "@@image: 'img/showFX_on.png'; md5=faaad6e9491dac7d3478b96e87b1ecc5"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:874(None)
+#: manual.docbook:863(None)
 msgid "@@image: 'img/MixerFX.png'; md5=af1f625d71ffb19d140a2a6e15e64102"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1498(None)
+#: manual.docbook:1488(None)
 msgid "@@image: 'img/edit_off.png'; md5=125b96a529eb2984de90da816a21f2ef"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1506(None)
+#: manual.docbook:1496(None)
 msgid "@@image: 'img/MixerFXKnob.png'; md5=687a99626a7e1aecdb9b45506380ec5b"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1514(None)
+#: manual.docbook:1504(None)
 msgid "@@image: 'img/bypass_over.png'; md5=de70b2610957f2c6d494b5951193eb8f"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1524(None)
+#: manual.docbook:1516(None)
 msgid "@@image: 'img/MixerFXSelect.png'; md5=d21233583479b7309fc704f9693d97b7"
 msgstr ""
 
 #. When image changes, this message will be marked fuzzy or untranslated for you.
 #. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1625(None)
+#: manual.docbook:1609(None)
 msgid "@@image: 'img/MixerPan.png'; md5=5a331fe0240cfd3cabcf48c68fb11f11"
 msgstr ""
 
@@ -395,25 +395,25 @@ msgstr ""
 msgid ""
 "Compiling Hydrogen depends on the following libraries: <placeholder-1/> "
 "Please install them with your distribution's package manager. If you're "
-"running a debian-based system, you can install the libraries with: "
-"<screen><prompt>$</prompt> <command>apt-get install libqt4-dev g++ "
-"libasound2-dev \\\n"
-"\t\tlibjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \\\n"
-"\t\tliblash-dev libportaudio-dev libportmidi-dev </command></screen>"
+"running a debian-based system, you can install the libraries with: <screen>\n"
+"\t<prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev "
+"\\\n"
+"\tlibjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \\\n"
+"\tliblash-dev libportaudio-dev libportmidi-dev </command></screen>"
 msgstr ""
 
-#: manual.docbook:93(title)
+#: manual.docbook:94(title)
 msgid "Build"
 msgstr "Compileren"
 
-#: manual.docbook:94(para)
+#: manual.docbook:95(para)
 #, fuzzy
 msgid ""
 "Decompress the tarball or go to the directory where the subversion copy was "
 "checked out: <screen>\n"
-"\t\t\t<prompt>$</prompt> <command>cd hydrogen-*</command>\n"
-"\t\t\t<prompt>$</prompt> <command>scons</command>\n"
-"\t\t\t<prompt>$</prompt> <command>su -c \"scons install\"</command>\n"
+"\t<prompt>$</prompt> <command>cd hydrogen-*</command>\n"
+"\t<prompt>$</prompt> <command>scons</command>\n"
+"\t<prompt>$</prompt> <command>su -c \"scons install\"</command>\n"
 "\t\t    </screen>"
 msgstr ""
 "<prompt>$</prompt> <command>cd hydrogen-*</command>\n"
@@ -421,46 +421,47 @@ msgstr ""
 "                <prompt>$</prompt> <command>make</command>\n"
 "                <prompt>$</prompt> <command>su -c \"make install\"</command>"
 
-#: manual.docbook:103(para)
+#: manual.docbook:104(para)
 msgid ""
 "Before compiling, check for additional options with: <screen>\n"
-"\t\t\t<prompt>$</prompt> <command>scons --help</command>\n"
+"\t<prompt>$</prompt> <command>scons --help</command>\n"
 "\t\t    </screen> If you want to use features which are not enabled by "
 "default (for instance PortAudio), you can enable them with: <screen>\n"
-"\t\t\t<prompt>$</prompt> <command>scons portaudio=1</command>\n"
+"\t<prompt>$</prompt> <command>scons portaudio=1</command>\n"
 "\t\t    </screen> Namely, if you get some error while running Hydrogen and "
 "you want to report it remember to configure hydrogen with: <screen>\n"
-"\t\t\t<prompt>$</prompt> <command>scons debug=1</command>\n"
+"\t<prompt>$</prompt> <command>scons debug=1</command>\n"
 "\t\t    </screen> To clean up compiled code: <screen>\n"
-"\t\t\t<prompt>$</prompt> <command>scons -c</command>\n"
+"\t<prompt>$</prompt> <command>scons -c</command>\n"
 "\t\t    </screen>"
 msgstr ""
 
-#: manual.docbook:192(title)
+#: manual.docbook:193(title)
 #, fuzzy
 msgid "Audio preferences"
 msgstr "Instellingen"
 
-#: manual.docbook:193(para)
+#: manual.docbook:194(para)
 msgid ""
 "First of all you should make shure that the audio engine is configured "
 "properly. The preferences dialog can be accessed via the tools menu (tools -"
 "&gt; preferences)."
 msgstr ""
 
-#: manual.docbook:201(title)
+#: manual.docbook:202(title)
 msgid "The Audio System tab"
 msgstr ""
 
-#: manual.docbook:203(para)
+#: manual.docbook:204(para)
 msgid ""
-"From the \"Audio System\" tab (Fig. 1) it is possible to modify the audio "
-"driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling "
-"rate (unless using JACK, in this case the audio driver configuration should "
-"happen before starting the JACK server)."
+"From the \"Audio System\" tab (<xref linkend=\"fig.preferences.audio_tab\"/"
+">) it is possible to modify the audio driver being used (OSS, Jack, ALSA, "
+"PortAudio) with its buffer and sampling rate (unless using JACK, in this "
+"case the audio driver configuration should happen before starting the JACK "
+"server)."
 msgstr ""
 
-#: manual.docbook:205(para)
+#: manual.docbook:206(para)
 msgid ""
 "We can set some features of Hydrogen like \"Enable track outputs\" useful if "
 "you want to add effects to a single instrument with jack-rack. \"Connect to "
@@ -469,25 +470,23 @@ msgid ""
 "first"
 msgstr ""
 
-#: manual.docbook:208(para)
+#: manual.docbook:209(para)
 msgid ""
 "Keep also an eye on the value of \"Polyphony\": depending on your CPU you "
 "may want to change the max simultaneous notes in order to prevent hydrogen "
 "from overunning the audio driver."
 msgstr ""
 
-#: manual.docbook:219(para)
+#: manual.docbook:216(title)
 #, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 1</emphasis> The Audio System tab"
-msgstr ""
-"<emphasis role=\"bold\">Fig. 13</emphasis> De <quote>Audio Systeem</quote> "
-"tab"
+msgid "The Audio System Tab"
+msgstr "XXX"
 
-#: manual.docbook:226(para)
+#: manual.docbook:224(para)
 msgid "The following drivers are available:"
 msgstr ""
 
-#: manual.docbook:233(para)
+#: manual.docbook:231(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\">jackd</emphasis>: The Jack driver is a professional "
@@ -502,14 +501,14 @@ msgstr ""
 "mogelijk maakt met andere audio software.<emphasis>We raden Jack sterk aan "
 "om zo het beste uit Hydrogen te halen</emphasis>."
 
-#: manual.docbook:241(para)
+#: manual.docbook:239(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\">ALSA</emphasis>: the widely adopted Linux standard "
 "audio drivers"
 msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> XXX"
 
-#: manual.docbook:248(para)
+#: manual.docbook:246(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\">OSS</emphasis>: The Oss audio driver uses /dev/dsp "
@@ -523,14 +522,14 @@ msgstr ""
 "zijn voor linux; zoals gezegd blokeerd Hydrogen het gebruik van /dev/dsp tot "
 "Hydrogen gesloten is /dev/dsp is dus onbruikbaar voor andere software."
 
-#: manual.docbook:258(para)
+#: manual.docbook:256(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\">PortAudio</emphasis>: an open-source multiplatform "
 "audio driver"
 msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> XXX"
 
-#: manual.docbook:265(para)
+#: manual.docbook:263(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\">CoreAudio</emphasis>: a driver for Mac OS X "
@@ -539,44 +538,41 @@ msgstr ""
 "<emphasis role=\"bold\">Fig. 13</emphasis> De <quote>Audio Systeem</quote> "
 "tab"
 
-#: manual.docbook:274(title)
+#: manual.docbook:272(title)
 msgid "The Midi System tab"
 msgstr ""
 
-#: manual.docbook:275(para)
+#: manual.docbook:273(para)
 msgid ""
-"The \"Midi System\" tab (Fig. 2) concerns the MIDI input. You can choose the "
-"MIDI driver and input, setup channels, binding actions to MIDI events."
+"The \"Midi System\" tab (<xref linkend=\"fig.preferences.midi_tab\"/>) "
+"concerns the MIDI input. You can choose the MIDI driver and input, setup "
+"channels, binding actions to MIDI events."
 msgstr ""
 
-#: manual.docbook:284(para)
-#, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 2</emphasis> The MIDI System tab"
+#: manual.docbook:278(title)
+msgid "The MIDI System Tab"
 msgstr ""
-"<emphasis role=\"bold\">Fig. 14</emphasis> De <quote>Midi Systeem</quote> tab"
 
-#: manual.docbook:292(title)
+#: manual.docbook:288(title)
 msgid "The Appearance tab"
 msgstr ""
 
-#: manual.docbook:293(para)
+#: manual.docbook:289(para)
 msgid ""
-"The \"Appearance\" tab (Fig. 3) let's you to modify Hydrogen and QT "
-"graphical properties."
+"The \"Appearance\" tab (<xref linkend=\"fig.preferences.appearance_tab\"/>) "
+"let's you to modify Hydrogen and QT graphical properties."
 msgstr ""
 
-#: manual.docbook:302(para)
-#, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 3</emphasis> The appearance tab"
+#: manual.docbook:294(title)
+msgid "The Appearance Tab"
 msgstr ""
-"<emphasis role=\"bold\">Fig. 15</emphasis> De <quote>Voorkomen</quote> tab"
 
-#: manual.docbook:311(title)
+#: manual.docbook:305(title)
 #, fuzzy
 msgid "The Audio Engine tab"
 msgstr "XXX"
 
-#: manual.docbook:312(para)
+#: manual.docbook:306(para)
 msgid ""
 "The audio engine info is a window with various stats about Hydrogen and the "
 "audio driver. In case JACK is used, buffer and sampling rate should be set "
@@ -584,57 +580,55 @@ msgid ""
 "tries to connect)."
 msgstr ""
 
-#: manual.docbook:321(para)
+#: manual.docbook:311(title)
 #, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 4</emphasis> The Audio engine Info window"
-msgstr ""
-"<emphasis role=\"bold\">Fig. 13</emphasis> De <quote>Audio Systeem</quote> "
-"tab"
+msgid "The Audio Engine Info Window"
+msgstr "XXX"
 
-#: manual.docbook:337(title)
+#: manual.docbook:329(title)
 msgid "Using Hydrogen"
 msgstr ""
 
-#: manual.docbook:340(title)
+#: manual.docbook:332(title)
 msgid "Used Filetypes"
 msgstr ""
 
-#: manual.docbook:341(para)
+#: manual.docbook:333(para)
 msgid "Before working with Hydrogen, please familiarize with these filetypes:"
 msgstr ""
 
-#: manual.docbook:344(para)
+#: manual.docbook:336(para)
 msgid ""
 "<emphasis role=\"bold\">*.h2pattern</emphasis>: XML file describing a single "
 "pattern. Patterns are group of beats and are managed in the pattern editor."
 msgstr ""
 
-#: manual.docbook:347(para)
+#: manual.docbook:339(para)
 msgid ""
 "<emphasis role=\"bold\">*.h2song</emphasis>: XML file describing the whole "
 "song (or sequence). Songs are group of patterns with their properties and "
 "are manager using the song editor"
 msgstr ""
 
-#: manual.docbook:350(para)
+#: manual.docbook:342(para)
 msgid ""
 "<emphasis role=\"bold\">*.h2playlist</emphasis>: XML file describing a "
 "playlist.A Playlist is a (ordered) group of songs."
 msgstr ""
 
-#: manual.docbook:353(para)
+#: manual.docbook:345(para)
 msgid ""
 "<emphasis role=\"bold\">*.h2drumkit</emphasis>: a compressed and archived "
 "folder containing all sound samples composing a drumkit and a description "
 "XML file. Drumkits are basically group of sound samples."
 msgstr ""
 
-#: manual.docbook:359(title)
+#: manual.docbook:351(title)
 #, fuzzy
 msgid "Main menu"
 msgstr "Menu"
 
-#: manual.docbook:360(para)
+#: manual.docbook:352(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\">Projects</emphasis>: this menu offers file related "
@@ -642,46 +636,46 @@ msgid ""
 msgstr ""
 "<emphasis role=\"bold\">Fig. 14</emphasis> Beats toevoegen in een patroon"
 
-#: manual.docbook:363(para)
+#: manual.docbook:355(para)
 #, fuzzy
 msgid "<emphasis>New</emphasis> - Create a new song"
 msgstr ""
 "<emphasis role=\"bold\">Fig. 15</emphasis> De <quote>Voorkomen</quote> tab"
 
-#: manual.docbook:364(para)
+#: manual.docbook:356(para)
 msgid ""
 "<emphasis>Show Info</emphasis> - Set general properties of the song such as "
 "name, author, license and generic notes"
 msgstr ""
 
-#: manual.docbook:365(para)
+#: manual.docbook:357(para)
 #, fuzzy
 msgid "<emphasis>Open</emphasis> - Open a song"
 msgstr "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Opname openen"
 
-#: manual.docbook:366(para)
+#: manual.docbook:358(para)
 msgid ""
 "<emphasis>Open Demo</emphasis> - Open a demo song (demo songs are stored in "
 "<emphasis>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)"
 msgstr ""
 
-#: manual.docbook:367(para)
+#: manual.docbook:359(para)
 #, fuzzy
 msgid "<emphasis>Open recent</emphasis> - Open a menu showing last used songs"
 msgstr "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Opname openen"
 
-#: manual.docbook:368(para)
+#: manual.docbook:360(para)
 #, fuzzy
 msgid "<emphasis>Save</emphasis> - Save changes to current song"
 msgstr "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Opname opslaan"
 
-#: manual.docbook:369(para)
+#: manual.docbook:361(para)
 msgid ""
 "<emphasis>Save as</emphasis> - Save current song specifying a name (default "
 "path: <emphasis>$HOME/.hydrogen/data/songs)</emphasis>"
 msgstr ""
 
-#: manual.docbook:370(para)
+#: manual.docbook:362(para)
 #, fuzzy
 msgid ""
 "<emphasis>Open pattern</emphasis> - Open a saved pattern belonging to the "
@@ -690,35 +684,35 @@ msgstr ""
 "<emphasis role=\"bold\">[Backspace]</emphasis> = Liedje of patroon "
 "herstarten vanaf het begin."
 
-#: manual.docbook:371(para)
+#: manual.docbook:363(para)
 msgid ""
 "<emphasis>Export pattern as</emphasis> - Saves a pattern. It will be stored "
 "in <emphasis>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis>"
 msgstr ""
 
-#: manual.docbook:372(para)
+#: manual.docbook:364(para)
 #, fuzzy
 msgid ""
 "<emphasis>Export MIDI file</emphasis> - Export current song in MIDI format"
 msgstr "<emphasis role=\"bold\">Fig. 19</emphasis> Een drumkit exporteren."
 
-#: manual.docbook:373(para)
+#: manual.docbook:365(para)
 #, fuzzy
 msgid "<emphasis>Export song</emphasis> - Export current song in WAV format"
 msgstr "<emphasis role=\"bold\">Fig. 19</emphasis> Een drumkit exporteren."
 
-#: manual.docbook:374(para)
+#: manual.docbook:366(para)
 #, fuzzy
 msgid "<emphasis>Quit</emphasis> - Quit Hydrogen"
 msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> The Mixer"
 
-#: manual.docbook:379(para)
+#: manual.docbook:371(para)
 msgid ""
 "<emphasis role=\"bold\">Instruments</emphasis>: this menu offers instruments "
 "and drumkit (sound libraries) functions."
 msgstr ""
 
-#: manual.docbook:381(para)
+#: manual.docbook:373(para)
 #, fuzzy
 msgid ""
 "<emphasis>Add instrument</emphasis> - Add a new instrument to your current "
@@ -727,7 +721,7 @@ msgstr ""
 "<emphasis role=\"bold\">[Backspace]</emphasis> = Liedje of patroon "
 "herstarten vanaf het begin."
 
-#: manual.docbook:382(para)
+#: manual.docbook:374(para)
 #, fuzzy
 msgid ""
 "<emphasis>Clear all</emphasis> - Delete all instruments from the current "
@@ -736,21 +730,21 @@ msgstr ""
 "<emphasis role=\"bold\">[Backspace]</emphasis> = Liedje of patroon "
 "herstarten vanaf het begin."
 
-#: manual.docbook:383(para)
+#: manual.docbook:375(para)
 msgid ""
 "<emphasis>Save library</emphasis> - Saves all instruments settings (and "
 "their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</"
 "emphasis>"
 msgstr ""
 
-#: manual.docbook:384(para)
+#: manual.docbook:376(para)
 msgid ""
 "<emphasis>Export library</emphasis> - Compress all instruments samples and "
 "settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</"
 "emphasis>"
 msgstr ""
 
-#: manual.docbook:385(para)
+#: manual.docbook:377(para)
 msgid ""
 "<emphasis>Import library</emphasis> - Imports another drumkit from the local "
 "filesystem or download it from a remote location through an XML feed. The "
@@ -758,77 +752,77 @@ msgid ""
 "RSS compliant (see <ulink url=\"http://www.hydrogen-music.org/feeds/"
 "drumkit_list.php\">Hydrogen website</ulink> for an example). To load another "
 "drumkit in your current working session of Hydrogen, read <xref linkend="
-"\"drumkit\"/>."
+"\"sect.sound_library\"/>."
 msgstr ""
 
-#: manual.docbook:389(para)
+#: manual.docbook:381(para)
 msgid ""
 "<emphasis role=\"bold\">Tools</emphasis>: opens the mixer, the playlist "
 "editor, the instrument rack and the general preferences window."
 msgstr ""
 
-#: manual.docbook:391(para)
+#: manual.docbook:383(para)
 msgid "<emphasis>Playlist editor</emphasis> - A tool to manage playlists."
 msgstr ""
 
-#: manual.docbook:392(para)
+#: manual.docbook:384(para)
 #, fuzzy
 msgid "<emphasis>Mixer</emphasis> - Open the mixer window."
 msgstr "<emphasis role=\"bold\">Fig. 15</emphasis> Detail van de Mixer"
 
-#: manual.docbook:393(para)
+#: manual.docbook:385(para)
 #, fuzzy
 msgid "<emphasis>Instrument rack</emphasis> - Open the instrument rack panel."
 msgstr ""
 "<emphasis role=\"bold\">Fig. 14</emphasis> Beats toevoegen in een patroon"
 
-#: manual.docbook:394(para)
+#: manual.docbook:386(para)
 msgid ""
 "<emphasis>Preferences</emphasis> - Open the main preferences window. Read "
-"<xref linkend=\"AudioDriverPreferences\"/> on how to configure Hydrogen."
+"<xref linkend=\"sect.preferences\"/> on how to configure Hydrogen."
 msgstr ""
 
-#: manual.docbook:398(para)
+#: manual.docbook:390(para)
 msgid ""
 "<emphasis role=\"bold\">Debug</emphasis>: tools mainly for debugging and "
 "monitoring Hydrogen (only available when compiled with debug support)."
 msgstr ""
 
-#: manual.docbook:400(para)
+#: manual.docbook:392(para)
 msgid ""
 "<emphasis>Show audio engine info - </emphasis>Open a monitor with various "
-"<link linkend=\"audioengineTab\">stats</link>"
+"<link linkend=\"sect.preferences.audio_engine_tab\">stats</link>"
 msgstr ""
 
-#: manual.docbook:401(para)
+#: manual.docbook:393(para)
 #, fuzzy
 msgid "<emphasis>debug action - </emphasis> Insert debug commands."
 msgstr "<emphasis role=\"bold\">Fig. 18</emphasis> Een drumkit importeren."
 
-#: manual.docbook:402(para)
+#: manual.docbook:394(para)
 msgid ""
 "<emphasis>Print Objects - </emphasis>Print on stdout current objects map."
 msgstr ""
 
-#: manual.docbook:406(emphasis)
+#: manual.docbook:398(emphasis)
 msgid "Info"
 msgstr ""
 
-#: manual.docbook:408(para)
+#: manual.docbook:400(para)
 msgid "<emphasis>User manual - </emphasis>Open a window with this manual :)"
 msgstr ""
 
-#: manual.docbook:409(para)
+#: manual.docbook:401(para)
 msgid ""
 "<emphasis>About - </emphasis>The usual window with licence information, "
 "acknowledgements, etc."
 msgstr ""
 
-#: manual.docbook:419(title)
+#: manual.docbook:411(title)
 msgid "The main toolbar"
 msgstr "De hoofd werkbalk"
 
-#: manual.docbook:420(para)
+#: manual.docbook:412(para)
 #, fuzzy
 msgid ""
 "Before analyzing the two main frames of Hydrogen, let's take a quick look at "
@@ -837,43 +831,43 @@ msgstr ""
 "Voor we de belangrijkste vensters overlopen gaan we snel eens kijken naar de "
 "werkbalk:"
 
-#: manual.docbook:423(para)
+#: manual.docbook:415(para)
 msgid "Pilot the song using the start, stop, pause, etc. buttons"
 msgstr ""
 
-#: manual.docbook:424(para)
+#: manual.docbook:416(para)
 msgid ""
 "Choose between \"pattern\" or \"song\" mode: in \"pattern\" mode only the "
 "currently selected pattern will play, while in \"song\" mode all patterns "
 "inserted will be played."
 msgstr ""
 
-#: manual.docbook:425(para)
+#: manual.docbook:417(para)
 msgid ""
 "An advanced tap tempo function: choose note length and how many notes to "
 "wait before recalculating BPM, then click the comma key repeatedly until the "
 "'R' letter will appear and the BPM will be updated. (see <xref linkend="
-"\"taptempo\"/>)"
+"\"sect.tap_tempo\"/>)"
 msgstr ""
 
-#: manual.docbook:426(para)
+#: manual.docbook:418(para)
 msgid "Manually set BPM"
 msgstr ""
 
-#: manual.docbook:427(para)
+#: manual.docbook:419(para)
 msgid "Manage JACK transport"
 msgstr ""
 
-#: manual.docbook:428(para)
+#: manual.docbook:420(para)
 msgid "Open the mixer and the instrument rack panels"
 msgstr ""
 
-#: manual.docbook:439(para)
+#: manual.docbook:425(title)
 #, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 5 </emphasis> The main toolbar"
-msgstr "<emphasis role=\"bold\">Fig. 15</emphasis> Detail van de Mixer"
+msgid "The Main Toolbar"
+msgstr "De hoofd werkbalk"
 
-#: manual.docbook:448(para)
+#: manual.docbook:439(para)
 msgid ""
 "Main controls to start <emphasis role=\"bold\">[Hotkey = Spacebar]</"
 "emphasis>, stop, fast forward, rewind, loop a song or a pattern."
@@ -882,11 +876,11 @@ msgstr ""
 "patroon of de opname te herhalen. Je kunt ook de spatiebalk gebruiken om te "
 "starten en te stoppen."
 
-#: manual.docbook:453(para)
+#: manual.docbook:444(para)
 msgid "Set Pattern/Song Mode."
 msgstr "Hier kun je schakelen tussen de patroon en opname mode."
 
-#: manual.docbook:457(para)
+#: manual.docbook:448(para)
 msgid ""
 "Set speed of playing (range: 30-400 bpm) <emphasis role=\"bold\">[Hotkey = "
 "mouse wheel]</emphasis> and button to enable/disable metronome"
@@ -894,34 +888,34 @@ msgstr ""
 "Als je het tempo van een nummer wil aanpassen klik je op de + of - knop. Om "
 "de metronoom aan of uit te schakelen kan je het onderste knopje gebruiken."
 
-#: manual.docbook:461(para)
+#: manual.docbook:452(para)
 msgid "Shows CPU load."
 msgstr "XXX"
 
-#: manual.docbook:465(para)
+#: manual.docbook:456(para)
 msgid "Shows MIDI events."
 msgstr "XXX"
 
-#: manual.docbook:469(para)
+#: manual.docbook:460(para)
 msgid ""
 "Click to enable Jack transport: Hydrogen will work as 'slave' with another "
 "'master' program (e.g. Ardour). This applet is only available if Jack Audio "
 "Driver is selected."
 msgstr "XXX"
 
-#: manual.docbook:472(para)
+#: manual.docbook:463(para)
 msgid "Other useful keybindings (not customizable for the moment):"
 msgstr "Andere handige sneltoetsen:"
 
-#: manual.docbook:476(para)
+#: manual.docbook:467(para)
 msgid "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Open File"
 msgstr "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Opname openen"
 
-#: manual.docbook:481(para)
+#: manual.docbook:472(para)
 msgid "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Save File"
 msgstr "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Opname opslaan"
 
-#: manual.docbook:486(para)
+#: manual.docbook:477(para)
 msgid ""
 "<emphasis role=\"bold\">[Backspace]</emphasis> = Restart song or pattern "
 "from the beginning"
@@ -929,11 +923,11 @@ msgstr ""
 "<emphasis role=\"bold\">[Backspace]</emphasis> = Liedje of patroon "
 "herstarten vanaf het begin."
 
-#: manual.docbook:493(title)
+#: manual.docbook:484(title)
 msgid "Tap Tempo and BeatCounter"
 msgstr ""
 
-#: manual.docbook:495(para)
+#: manual.docbook:486(para)
 msgid ""
 "It is possible to change tempo at any time using the tap-tempo and "
 "BeatCounter features of Hydrogen. You can change these while playing or "
@@ -945,7 +939,7 @@ msgid ""
 "between taps, the tap tempo counter will start over."
 msgstr ""
 
-#: manual.docbook:508(para)
+#: manual.docbook:499(para)
 msgid ""
 "The Tap Tempo is a part of the BeatCounter, which is essentially a Tap Tempo "
 "on steroids. By default the BeatCounter display is not visible. To see the "
@@ -954,7 +948,7 @@ msgid ""
 "by pressing the comma key (<keycap>,</keycap>)."
 msgstr ""
 
-#: manual.docbook:516(para)
+#: manual.docbook:507(para)
 msgid ""
 "The tempo that you tap will be considered even beats of the beat type. The "
 "beat type can be set to 1/8 (for eight-note beats), 1/4 (for quarter-note "
@@ -968,7 +962,7 @@ msgid ""
 "have entered (1, 2, 3...)."
 msgstr ""
 
-#: manual.docbook:531(para)
+#: manual.docbook:522(para)
 msgid ""
 "The button in the bottom right-hand controls the auto-start feature, and it "
 "toggles between <guilabel>S</guilabel> and <guilabel>P</guilabel>. When it "
@@ -980,7 +974,7 @@ msgid ""
 "BPM</emphasis>), the auto-start is disabled."
 msgstr ""
 
-#: manual.docbook:545(para)
+#: manual.docbook:536(para)
 msgid ""
 "For example: Suppose you have a live band, Hydrogen, and a softsynth that is "
 "controlled by Seq24)... and you want them all to start at the same time. Set "
@@ -989,7 +983,7 @@ msgid ""
 "comma key) &mdash; and everyone starts on 1."
 msgstr ""
 
-#: manual.docbook:554(para)
+#: manual.docbook:545(para)
 msgid ""
 "Another example: Same situation, but the song doesn't require Hydrogen or "
 "synths until some point later. During that time, a human (e.g. guitar "
@@ -998,7 +992,7 @@ msgid ""
 "on the next beat (at the right tempo)."
 msgstr ""
 
-#: manual.docbook:562(para)
+#: manual.docbook:553(para)
 msgid ""
 "If you are using the JACK Transport, the BeatCounter continues to work. If "
 "another program is the JACK Transport Master, Hydrogen will respond to tempo "
@@ -1009,7 +1003,7 @@ msgid ""
 "programs (if they support it)."
 msgstr ""
 
-#: manual.docbook:573(para)
+#: manual.docbook:564(para)
 msgid ""
 "Some of the settings to adjust the BeatCounter's latency compensation, and "
 "they are located on the <guilabel>General</guilabel> tab of the Preferences "
@@ -1017,21 +1011,21 @@ msgid ""
 "guimenuitem></menuchoice> ). Here there are two spinboxes:"
 msgstr ""
 
-#: manual.docbook:586(para)
+#: manual.docbook:577(para)
 msgid ""
 "<emphasis role=\"bold\"><guilabel>Beat counter drift compensation in 1/10ms</"
 "guilabel></emphasis>&mdash; adjust to compensate for latency between the "
 "keyboard and the program."
 msgstr ""
 
-#: manual.docbook:592(para)
+#: manual.docbook:583(para)
 msgid ""
 "<emphasis role=\"bold\"><guilabel>Beat counter start offset in ms</"
 "guilabel></emphasis>&mdash; adjust the time between the BeatCounter's last "
 "input stroke and when the song starts playing (if auto-start is activated)."
 msgstr ""
 
-#: manual.docbook:600(para)
+#: manual.docbook:591(para)
 msgid ""
 "Note that these can be set to positive (+) or negative (-) values. In order "
 "to find useful values for these, you will need to take some time to play "
@@ -1040,20 +1034,20 @@ msgid ""
 "requires practice."
 msgstr ""
 
-#: manual.docbook:613(title)
+#: manual.docbook:604(title)
 msgid "Song Editor"
 msgstr "De Opname editor"
 
-#: manual.docbook:615(para)
+#: manual.docbook:606(para)
 #, fuzzy
 msgid ""
-"The \"Song Editor\" (Fig. 6) gives an overview of the whole timeline of the "
-"song (e.g. intro, verse, bridge, chorus and so on); each blue coloured "
-"square on this panel is a complete bar as shown in the underlying \"Pattern "
-"Editor\" panel. Here we have complete freedom to add, remove or move "
-"patterns in any order we prefer. We can also copy and paste patterns: use "
-"left mouse button to highlight an area and drag it around. Dragging with "
-"CTRL key pressed copies the patterns."
+"The \"Song Editor\" (<xref linkend=\"fig.song_editor\"/>) gives an overview "
+"of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so "
+"on); each blue coloured square on this panel is a complete bar as shown in "
+"the underlying \"Pattern Editor\" panel. Here we have complete freedom to "
+"add, remove or move patterns in any order we prefer. We can also copy and "
+"paste patterns: use left mouse button to highlight an area and drag it "
+"around. Dragging with CTRL key pressed copies the patterns."
 msgstr ""
 "De Opname Editor (Fig. 1) toont het liedje dat we aan het maken zijn. Je "
 "ziet de verschillende lagen. Elk gekleurd vierkantje dat in het venster "
@@ -1062,46 +1056,46 @@ msgstr ""
 "verschillende delen van de opname bevatten (vb intro, refrein, strofe "
 "enz...)."
 
-#: manual.docbook:619(para)
+#: manual.docbook:610(para)
 #, fuzzy
 msgid "The Song Editor comes with 7 buttons:"
 msgstr "De Opname Editor heeft 6 knoppen:"
 
-#: manual.docbook:633(para)
+#: manual.docbook:624(para)
 #, fuzzy
 msgid ""
 "<placeholder-1/> Completely delete all patterns (asks for confirmation!)."
 msgstr "XXX"
 
-#: manual.docbook:640(para)
+#: manual.docbook:631(para)
 #, fuzzy
 msgid "<placeholder-1/> Create a new pattern (and asks for a name)."
 msgstr "XXX"
 
-#: manual.docbook:647(para)
+#: manual.docbook:638(para)
 #, fuzzy
 msgid "<placeholder-1/> Move currently selected pattern up or down."
 msgstr "XXX"
 
-#: manual.docbook:656(para)
+#: manual.docbook:647(para)
 #, fuzzy
 msgid ""
 "<placeholder-1/> Enable selecting patterns for copy &amp; paste (Select "
 "Mode)."
 msgstr "XXX"
 
-#: manual.docbook:663(para)
+#: manual.docbook:654(para)
 #, fuzzy
 msgid "<placeholder-1/> Enable Draw Mode."
 msgstr "XXX"
 
-#: manual.docbook:670(para)
+#: manual.docbook:661(para)
 msgid ""
 "<placeholder-1/> Switch from \"Single pattern mode\" to \"Stacked pattern "
 "mode\" and back.."
 msgstr ""
 
-#: manual.docbook:677(para)
+#: manual.docbook:668(para)
 msgid ""
 "Under these buttons there is a list of patterns created and when they will "
 "played (each square == 1 bar). Click on an squarebox to add or cancel the "
@@ -1110,29 +1104,30 @@ msgid ""
 "it. Patterns with very same name are not allowed."
 msgstr "XXX"
 
-#: manual.docbook:687(para)
+#: manual.docbook:674(title)
 #, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 6</emphasis> The Song Editor"
-msgstr "<emphasis role=\"bold\">Fig. 1</emphasis>XXX"
+msgid "The Song Editor"
+msgstr "De Opname editor"
 
-#: manual.docbook:696(title)
+#: manual.docbook:685(title)
 msgid "Pattern Editor"
 msgstr "De Patroon Editor"
 
-#: manual.docbook:697(para)
+#: manual.docbook:686(para)
 #, fuzzy
 msgid ""
-"The \"Pattern Editor\" frame (Fig. 7) lets us create or modify the pattern "
-"(bar) which is being played, or add/remove notes and tune intensity as well. "
-"On the higher-left side you find a pair of LCD screens: the first one lets "
-"you choose the size of a pattern while the second represents the current "
-"grid resolution (4 through 64). Selecting an instrument which has at least "
-"one note in the pattern will show a few vertical bars (one per note) on the "
-"lowest part of this frame. Those frame shows the so called \"note properties"
-"\". This are special properties which can be set for every single note. "
-"Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. Lead and Lag "
-"allows a slight note lead or lag in respect of the actual beat. The range is "
-"ca. 5 ticks which equals around ca. 10 ms at a tempo of 120bpm."
+"The \"Pattern Editor\" frame (<xref linkend=\"fig.pattern_editor\"/>) lets "
+"us create or modify the pattern (bar) which is being played, or add/remove "
+"notes and tune intensity as well. On the higher-left side you find a pair of "
+"LCD screens: the first one lets you choose the size of a pattern while the "
+"second represents the current grid resolution (4 through 64). Selecting an "
+"instrument which has at least one note in the pattern will show a few "
+"vertical bars (one per note) on the lowest part of this frame. Those frame "
+"shows the so called \"note properties\". This are special properties which "
+"can be set for every single note. Hydrogen knows of 3 Properties: Velocity, "
+"Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect "
+"of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms "
+"at a tempo of 120bpm."
 msgstr ""
 "XXX <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_hear_on."
 "png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> XXX "
@@ -1141,7 +1136,7 @@ msgstr ""
 "<imageobject> <imagedata fileref=\"img/btn_quant_over.png\" format=\"PNG\"/> "
 "</imageobject> </inlinemediaobject> XXX"
 
-#: manual.docbook:704(para)
+#: manual.docbook:693(para)
 msgid ""
 "The button <placeholder-1/> (hear new notes) will play the sample as it's "
 "been added to the pattern. Finally you can move an instrument up and down in "
@@ -1150,12 +1145,12 @@ msgid ""
 "inserted will automatically respect the grid resolution currently applied."
 msgstr ""
 
-#: manual.docbook:736(para)
+#: manual.docbook:721(title) manual.docbook:1551(title)
 #, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 7</emphasis> The Pattern Editor"
-msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> XXX"
+msgid "The Pattern Editor"
+msgstr "De Patroon Editor"
 
-#: manual.docbook:743(para)
+#: manual.docbook:729(para)
 msgid ""
 "Rememeber this constraint concerning the grid: if you are working with a "
 "resolution of 16 you can't go back to 8 and remove a 16th note; on the other "
@@ -1167,7 +1162,7 @@ msgid ""
 "prefer."
 msgstr ""
 
-#: manual.docbook:748(para)
+#: manual.docbook:734(para)
 #, fuzzy
 msgid ""
 "Each instrument has its own set of features accessible right-clicking with "
@@ -1181,14 +1176,14 @@ msgid ""
 "instrument when played."
 msgstr "XXX"
 
-#: manual.docbook:752(para)
+#: manual.docbook:738(para)
 msgid ""
 "The small green and red squares beside the instrument name are the "
 "<quote><emphasis role=\"bold\">mute</emphasis></quote> and <quote><emphasis "
 "role=\"bold\">solo</emphasis></quote> buttons."
 msgstr ""
 
-#: manual.docbook:762(para)
+#: manual.docbook:750(para)
 #, fuzzy
 msgid ""
 "Also, you can set new beats clicking on <placeholder-1/> which enables "
@@ -1198,7 +1193,7 @@ msgstr ""
 "XXX <inlinemediaobject> <imageobject> <imagedata fileref=\"img/"
 "btn_record_off.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> XXX"
 
-#: manual.docbook:772(emphasis)
+#: manual.docbook:760(emphasis)
 msgid ""
 "Note that the name of the instrument depends on the drumkit loaded. This "
 "list refers to the GMKit loaded by default. The position of the instrument, "
@@ -1208,131 +1203,133 @@ msgstr ""
 "geselecteerd drumkit. Deze lijst is gebaseerd op de GMKit, dit is de "
 "standaard kit."
 
-#: manual.docbook:775(para)
+#: manual.docbook:763(para)
 msgid "Z = Kick"
 msgstr "Z = Kick"
 
-#: manual.docbook:776(para)
+#: manual.docbook:764(para)
 msgid "X = Snare Jazz"
 msgstr "X = Snaar Jazz"
 
-#: manual.docbook:777(para)
+#: manual.docbook:765(para)
 msgid "C = Snare Rock"
 msgstr "C = Snaar Rock"
 
-#: manual.docbook:778(para)
+#: manual.docbook:766(para)
 msgid "V = Tom Low"
 msgstr "V = Lage Tom"
 
-#: manual.docbook:779(para)
+#: manual.docbook:767(para)
 msgid "B = Tom Mid"
 msgstr "B = Mid Tom"
 
-#: manual.docbook:780(para)
+#: manual.docbook:768(para)
 msgid "N = Tom Hi"
 msgstr "N = Hoge Tom"
 
-#: manual.docbook:781(para)
+#: manual.docbook:769(para)
 msgid "M = Cowbell"
 msgstr "M = Koe bel"
 
-#: manual.docbook:782(para)
+#: manual.docbook:770(para)
 msgid "Q = Ride Jazz"
 msgstr "Q = Ride Jazz"
 
-#: manual.docbook:783(para)
+#: manual.docbook:771(para)
 msgid "W = Ride Rock"
 msgstr "W = Ride Rock"
 
-#: manual.docbook:784(para)
+#: manual.docbook:772(para)
 msgid "E = Instrument No. 17 (currently not assigned)"
 msgstr "E = Instrument Nr. 17 (momenteel niet in gebruik)"
 
-#: manual.docbook:785(para)
+#: manual.docbook:773(para)
 msgid "R = Instrument No. 18 (currently not assigned)"
 msgstr "R = Instrument Nr. 18 (momenteel niet in gebruik)"
 
-#: manual.docbook:786(para)
+#: manual.docbook:774(para)
 msgid "T = Instrument No. 20 (currently not assigned)"
 msgstr "T = Instrument Nr. 20 (momenteel niet in gebruik)"
 
-#: manual.docbook:787(para)
+#: manual.docbook:775(para)
 msgid "Y = Instrument No. 22 (currently not assigned)"
 msgstr "Y = Instrument Nr. 22 (momenteel niet in gebruik)"
 
-#: manual.docbook:788(para)
+#: manual.docbook:776(para)
 msgid "U = Instrument No. 24 (currently not assigned)"
 msgstr "U = Instrument Nr. 24 (momenteel niet in gebruik)"
 
-#: manual.docbook:789(para)
+#: manual.docbook:777(para)
 msgid "S = Stick"
 msgstr "S = Stok"
 
-#: manual.docbook:790(para)
+#: manual.docbook:778(para)
 msgid "D = Hand Clap"
 msgstr "D = Handen klap"
 
-#: manual.docbook:791(para)
+#: manual.docbook:779(para)
 msgid "G = Closed HH"
 msgstr "G = Gesloten HH"
 
-#: manual.docbook:792(para)
+#: manual.docbook:780(para)
 msgid "H = Pedal HH"
 msgstr "H = Pedaal HH"
 
-#: manual.docbook:793(para)
+#: manual.docbook:781(para)
 msgid "J = Open HH"
 msgstr "J = Open HH"
 
-#: manual.docbook:794(para)
+#: manual.docbook:782(para)
 msgid "2 = Crash"
 msgstr "2 = Crash"
 
-#: manual.docbook:795(para)
+#: manual.docbook:783(para)
 msgid "3 = Crash Jazz"
 msgstr "3 = Crash Jazz"
 
-#: manual.docbook:796(para)
+#: manual.docbook:784(para)
 msgid "5 = Instrument No. 19 (currently not assigned)"
 msgstr "5 = Instrument Nr. 19 (momenteel niet in gebruik)"
 
-#: manual.docbook:797(para)
+#: manual.docbook:785(para)
 msgid "6 = Instrument No. 21 (currently not assigned)"
 msgstr "6 = Instrument Nr. 21 (momenteel niet in gebruik)"
 
-#: manual.docbook:798(para)
+#: manual.docbook:786(para)
 msgid "7 = Instrument No. 23 (currently not assigned)"
 msgstr "7 = Instrument Nr. 23 (momenteel niet in gebruik)"
 
-#: manual.docbook:802(para)
+#: manual.docbook:790(para)
+#, fuzzy
 msgid ""
 "Here's a quick reference of the above bindings for your convenience. See "
-"<link linkend=\"creazioneSong\">Chapter 3</link> for a basic walkthrough of "
-"how the pattern editor works."
+"<xref linkend=\"chap.create_song\"/> for a basic walkthrough of how the "
+"pattern editor works."
 msgstr "Hier is een kleine voorstelling van wat toetsen voor het gemak."
 
-#: manual.docbook:813(title)
+#: manual.docbook:803(title)
 msgid "Mixer"
 msgstr "Mixer"
 
-#: manual.docbook:820(para)
+#: manual.docbook:806(title) manual.docbook:1635(title)
 #, fuzzy
-msgid "<emphasis role=\"bold\">Fig. 8</emphasis> The Mixer"
-msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> The Mixer"
+msgid "The Mixer"
+msgstr "Mixer"
 
-#: manual.docbook:826(para)
+#: manual.docbook:814(para)
 #, fuzzy
 msgid ""
-"The Mixer frame (Fig. 8) is useful for tuning a global or single volume of "
-"the current drumkit. It shows the current peak (click on <placeholder-1/> to "
-"disable, useful on old CPUs) and let you set the maximum peak allowed (tune "
-"with the fader knob of the instrument), lets you modify attributes like pan, "
-"play solo <placeholder-2/> , mute <placeholder-3/> or test play only that "
-"instrument <placeholder-4/> ; selecting in the Pattern Editor an instrument "
-"causes a blue LED to light on (near the play button). Near the global volume "
-"knob, you can set 3 global effect such a swing (shifts a few notes back or "
-"forward not randomly), timing (modify timings of the notes) and humanize "
-"effect (random velocity editing)."
+"The Mixer frame (<xref linkend=\"fig.mixer\"/>) is useful for tuning a "
+"global or single volume of the current drumkit. It shows the current peak "
+"(click on <placeholder-1/> to disable, useful on old CPUs) and let you set "
+"the maximum peak allowed (tune with the fader knob of the instrument), lets "
+"you modify attributes like pan, play solo <placeholder-2/> , mute "
+"<placeholder-3/> or test play only that instrument <placeholder-4/> ; "
+"selecting in the Pattern Editor an instrument causes a blue LED to light on "
+"(near the play button). Near the global volume knob, you can set 3 global "
+"effect such a swing (shifts a few notes back or forward not randomly), "
+"timing (modify timings of the notes) and humanize effect (random velocity "
+"editing)."
 msgstr ""
 "Het Mixer venster (Fig. 6) is handig om het master volume of het instrument "
 "volume in te stellen. Je kunt het huidig volume weergeven of verbergen door "
@@ -1349,7 +1346,7 @@ msgstr ""
 "\"/> </imageobject> </inlinemediaobject> om enkel dit instrument eens af te "
 "spelen."
 
-#: manual.docbook:861(para)
+#: manual.docbook:849(para)
 #, fuzzy
 msgid ""
 "In addition to all this you can set up to 4 special LADSPA effects for each "
@@ -1363,12 +1360,12 @@ msgstr ""
 "regelen voor een instrument. In het hoofdstuk over de LADSPA plugins kom je "
 "meer te weten over deze knoppen."
 
-#: manual.docbook:883(title)
+#: manual.docbook:873(title)
 #, fuzzy
 msgid "Sound Library (Drumkit Manager)"
 msgstr "Drumkit manager"
 
-#: manual.docbook:885(para)
+#: manual.docbook:875(para)
 msgid ""
 "The Sound Library saves you time in managing your drum kits, favorite "
 "patterns, and favorite songs. When making new songs and drum kits, the Sound "
@@ -1376,11 +1373,11 @@ msgid ""
 "patterns from other kits and songs."
 msgstr ""
 
-#: manual.docbook:891(title)
+#: manual.docbook:881(title)
 msgid "System Drumkits"
 msgstr ""
 
-#: manual.docbook:893(para)
+#: manual.docbook:883(para)
 msgid ""
 "This lists the drumkits that were installed by your system administrator. It "
 "was determined by the compile-time prefix. On Unix-like operating systems, "
@@ -1390,7 +1387,7 @@ msgid ""
 "users on the system, and users are usually not able to add to them."
 msgstr ""
 
-#: manual.docbook:902(para)
+#: manual.docbook:892(para)
 msgid ""
 "To load a drumkit from here, right-click the drumkit and select "
 "<guimenuitem>Load</guimenuitem>. This will replace your current drumkit with "
@@ -1401,11 +1398,11 @@ msgid ""
 "drumkit that you currently have loaded."
 msgstr ""
 
-#: manual.docbook:913(title)
+#: manual.docbook:903(title)
 msgid "User Drumkits"
 msgstr ""
 
-#: manual.docbook:915(para)
+#: manual.docbook:905(para)
 msgid ""
 "These are your own drum kits that you can manage yourself. They are usually "
 "stored in <filename role=\"directory\">$HOME/.hydrogen/data/drumkits</"
@@ -1414,17 +1411,17 @@ msgid ""
 "library</guimenuitem></menuchoice>."
 msgstr ""
 
-#: manual.docbook:923(para)
+#: manual.docbook:913(para)
 msgid ""
 "Loading drumkits and instruments to use is the same as for the System "
 "Drumkits (see <xref linkend=\"sect.systemdrumkits\"/>)."
 msgstr ""
 
-#: manual.docbook:928(title)
+#: manual.docbook:918(title)
 msgid "Patterns in the Sound Library"
 msgstr ""
 
-#: manual.docbook:930(para)
+#: manual.docbook:920(para)
 msgid ""
 "Before you save your favorite patterns to the sound library, be sure to edit "
 "it's properties by right-clicking and selecting <guimenuitem>Properties</"
@@ -1435,7 +1432,7 @@ msgid ""
 "Library."
 msgstr ""
 
-#: manual.docbook:938(para)
+#: manual.docbook:928(para)
 msgid ""
 "You can save your favorite patterns in the sound library by right clicking "
 "the title of the pattern in the song editor, and selecting <guimenuitem>Save "
@@ -1444,11 +1441,11 @@ msgid ""
 "pattern."
 msgstr ""
 
-#: manual.docbook:946(title)
+#: manual.docbook:936(title)
 msgid "Songs in the Sound Library"
 msgstr ""
 
-#: manual.docbook:948(para)
+#: manual.docbook:938(para)
 msgid ""
 "To save songs in the Sound Library, put them in your data directory "
 "underneath the <filename role=\"directory\">songs</filename> folder (usually "
@@ -1456,11 +1453,11 @@ msgid ""
 "remove the file from that folder."
 msgstr ""
 
-#: manual.docbook:957(title)
+#: manual.docbook:947(title)
 msgid "Drumkits and Instrument Editing"
 msgstr ""
 
-#: manual.docbook:959(para)
+#: manual.docbook:949(para)
 msgid ""
 "Creating a new drumkit with Hydrogen is done with the Instrument Editor. "
 "Using the instrument editor you can load samples, set envelope parameters, "
@@ -1468,60 +1465,59 @@ msgid ""
 "resonance filter, and pitch randomization."
 msgstr ""
 
-#: manual.docbook:965(para)
+#: manual.docbook:955(para)
 msgid ""
 "Instead of creating your own drumkit, you can also use or download existing "
-"drumkits using the <link linkend=\"drumkit\">Drumkit Manager</link>."
+"drumkits using the <xref linkend=\"sect.sound_library\"/>."
 msgstr ""
 
-#: manual.docbook:973(title)
+#: manual.docbook:963(title)
 msgid "Concepts"
 msgstr ""
 
-#: manual.docbook:975(para)
+#: manual.docbook:965(para)
 msgid ""
 "The synthesizer in Hydrogen is a sample-based synthesizer. A sample is a "
 "piece of pre-recorded audio (usually between .1 sec and 3 sec). To play a "
 "note, the sample is simply played back at the right time. There's a few "
 "concepts and terms that you should understand when you are putting together "
-"a drumkit. (See the <link linkend=\"glossary\">Glossary</link> for more "
-"detailed explanations.)"
+"a drumkit. (See <xref linkend=\"glossary\"/> for more detailed explanations.)"
 msgstr ""
 
-#: manual.docbook:986(title)
+#: manual.docbook:976(title)
 msgid "Sampling Synthesizer Terms"
 msgstr ""
 
-#: manual.docbook:988(term) manual.docbook:2010(glossterm)
+#: manual.docbook:978(term) manual.docbook:1992(glossterm)
 msgid "Sample"
 msgstr ""
 
-#: manual.docbook:988(para) manual.docbook:2012(para)
+#: manual.docbook:978(para) manual.docbook:1994(para)
 msgid ""
 "A short recording of a sound, typically between .1 and 3.0 seconds long."
 msgstr ""
 
-#: manual.docbook:993(term) manual.docbook:1836(glossterm)
+#: manual.docbook:983(term) manual.docbook:1818(glossterm)
 msgid "Gain"
 msgstr ""
 
-#: manual.docbook:993(para)
+#: manual.docbook:983(para)
 msgid "Volume adjustment."
 msgstr ""
 
-#: manual.docbook:997(term) manual.docbook:2034(glossterm)
+#: manual.docbook:987(term) manual.docbook:2016(glossterm)
 msgid "Velocity"
 msgstr ""
 
-#: manual.docbook:997(para) manual.docbook:2036(para)
+#: manual.docbook:987(para) manual.docbook:2018(para)
 msgid "How hard you hit a note."
 msgstr ""
 
-#: manual.docbook:1001(term)
+#: manual.docbook:991(term)
 msgid "ADSR Envelope Generator"
 msgstr ""
 
-#: manual.docbook:1001(para)
+#: manual.docbook:991(para)
 msgid ""
 "An Attack/Decay/Sustain/Release envelope generator. After you trigger a "
 "note, Hydrogen will <emphasis>attack</emphasis> the note by increasing its "
@@ -1532,43 +1528,43 @@ msgid ""
 "level back down to 0."
 msgstr ""
 
-#: manual.docbook:1015(term) manual.docbook:1704(glossterm)
+#: manual.docbook:1005(term) manual.docbook:1686(glossterm)
 msgid "Attack"
 msgstr ""
 
-#: manual.docbook:1015(para)
+#: manual.docbook:1005(para)
 #, fuzzy
 msgid ""
 "The amount of <emphasis role=\"bold\">time</emphasis> to go from 0 to full "
 "velocity."
 msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> XXX"
 
-#: manual.docbook:1020(term) manual.docbook:1781(glossterm)
+#: manual.docbook:1010(term) manual.docbook:1763(glossterm)
 msgid "Decay"
 msgstr ""
 
-#: manual.docbook:1020(para)
+#: manual.docbook:1010(para)
 msgid ""
 "The amount of <emphasis role=\"bold\">time</emphasis> to go from full "
 "velocity to the sustain volume."
 msgstr ""
 
-#: manual.docbook:1025(term) manual.docbook:2018(glossterm)
+#: manual.docbook:1015(term) manual.docbook:2000(glossterm)
 msgid "Sustain"
 msgstr ""
 
-#: manual.docbook:1025(para)
+#: manual.docbook:1015(para)
 msgid ""
 "The <emphasis role=\"bold\">level</emphasis> (how loud) to hold the note "
 "between the sustain and the release. It is a percentage of the velocity. It "
 "does not depend on time."
 msgstr ""
 
-#: manual.docbook:1031(term) manual.docbook:1952(glossterm)
+#: manual.docbook:1021(term) manual.docbook:1934(glossterm)
 msgid "Release"
 msgstr ""
 
-#: manual.docbook:1031(para)
+#: manual.docbook:1021(para)
 #, fuzzy
 msgid ""
 "The amount of <emphasis role=\"bold\">time</emphasis> to go from the sustain "
@@ -1577,7 +1573,7 @@ msgstr ""
 "<emphasis role=\"bold\">Fig. 16</emphasis> Drumkit laden. Kies een drumkit "
 "uit de lijst."
 
-#: manual.docbook:1037(para)
+#: manual.docbook:1027(para)
 msgid ""
 "Typical samples that are used in Hydrogen are: the sound of a single drum "
 "hit, the sound of a single cymbal hit, the sound of a single cowbell hit. "
@@ -1588,7 +1584,7 @@ msgid ""
 "drum (snare off), rim shots, etc."
 msgstr ""
 
-#: manual.docbook:1049(para)
+#: manual.docbook:1039(para)
 msgid ""
 "However, there are no rules about what a sample can be. It's not uncommon to "
 "use Hydrogen to trigger non-drum sounds like: audio clips of people talking, "
@@ -1596,11 +1592,11 @@ msgid ""
 "people speaking. Be creative!"
 msgstr ""
 
-#: manual.docbook:1059(title)
+#: manual.docbook:1049(title)
 msgid "Creating a New Drumkit"
 msgstr ""
 
-#: manual.docbook:1061(para)
+#: manual.docbook:1051(para)
 msgid ""
 "To start a brand new drum kit, select <menuchoice><guimenu>Instruments</"
 "guimenu><guimenuitem>Clear All</guimenuitem></menuchoice>. This will give "
@@ -1610,7 +1606,7 @@ msgid ""
 "guimenu><guimenuitem>Add instrument</guimenuitem></menuchoice>."
 msgstr ""
 
-#: manual.docbook:1076(para)
+#: manual.docbook:1066(para)
 msgid ""
 "Select an instrument to start editing it. This is done by left-clicking on "
 "the name of the instrument in the instrument list (at the left). You will "
@@ -1618,7 +1614,7 @@ msgid ""
 "one that you clicked."
 msgstr ""
 
-#: manual.docbook:1082(para)
+#: manual.docbook:1072(para)
 msgid ""
 "After you have your drum kit working the way you want, select "
 "<menuchoice><guimenuitem>Instruments</guimenuitem><guimenuitem>Save library</"
@@ -1627,14 +1623,14 @@ msgid ""
 "to type in the same name as the kit that you want to replace."
 msgstr ""
 
-#: manual.docbook:1093(para)
+#: manual.docbook:1083(para)
 msgid ""
 "Drumkits are automatically stored in the <filename class=\"directory\">data</"
 "filename> directory (i.e. <filename class=\"directory\">$HOME/data/drumkits</"
 "filename>)."
 msgstr ""
 
-#: manual.docbook:1098(para)
+#: manual.docbook:1088(para)
 msgid ""
 "To export a drumkit (for sharing with others), it must first be loaded into "
 "your Sound Library. Then, select <menuchoice><guimenuitem>Instruments</"
@@ -1643,32 +1639,32 @@ msgid ""
 "to save it to."
 msgstr ""
 
-#: manual.docbook:1110(title)
+#: manual.docbook:1100(title)
 msgid "Creating an Instrument and Layers"
 msgstr ""
 
-#: manual.docbook:1112(para)
+#: manual.docbook:1102(para)
 msgid ""
 "For each instrument in a drum kit, you can load several samples and set "
 "different synthesizer parameters. This section will step you through how to "
 "create a new instrument and load the samples."
 msgstr ""
 
-#: manual.docbook:1117(para)
+#: manual.docbook:1107(para)
 msgid ""
 "To begin creating an instrument, select <menuchoice><guimenu>Instruments</"
 "guimenu><guimenuitem>Add instrument</guimenuitem></menuchoice>. This will "
 "give you a blank instrument to start from."
 msgstr ""
 
-#: manual.docbook:1124(para)
+#: manual.docbook:1114(para)
 msgid ""
 "Now, you need two samples. Any .WAV or .FLAC file will do. Hydrogen provides "
 "several in the <filename class=\"directory\">data/drumkits</filename> "
 "directory."
 msgstr ""
 
-#: manual.docbook:1129(para)
+#: manual.docbook:1119(para)
 msgid ""
 "In the instrument editor, click on <guibutton>Layers</guibutton>. You can "
 "layer several samples into the instrument. Which one is played depends on "
@@ -1679,7 +1675,7 @@ msgid ""
 "sample at a time. But for now, only load one."
 msgstr ""
 
-#: manual.docbook:1139(para)
+#: manual.docbook:1129(para)
 msgid ""
 "After you load the sample, you'll see that there is now a <guilabel>1</"
 "guilabel> at the top, and the topmost rectangle has turned light blue. To "
@@ -1687,7 +1683,7 @@ msgid ""
 "<guibutton>Load Layer</guibutton> to bring in another sample."
 msgstr ""
 
-#: manual.docbook:1146(para)
+#: manual.docbook:1136(para)
 msgid ""
 "After bringing in both samples, you'll probably notice that only the "
 "<emphasis>first</emphasis> sample is being played whenever you trigger the "
@@ -1698,30 +1694,30 @@ msgid ""
 "appear."
 msgstr ""
 
-#: manual.docbook:1157(para)
+#: manual.docbook:1147(para)
 msgid ""
 "The velocity setting for the layer is 0-velocity on the left, and full "
 "velocity on the right. Set up Layer 1 to sound for soft notes, and Layer 2 "
 "to sound for hard notes. (I.e. Layer 1 on the left and Layer 2 on the right.)"
 msgstr ""
 
-#: manual.docbook:1163(para)
+#: manual.docbook:1153(para)
 msgid ""
 "Now, in the pattern area, set up a simple pattern that plays this "
 "instrument. Adjust the velocity settings on each note so that you can get "
 "the different samples to sound. Now set the pattern to loop and notice how "
 "your different samples are getting triggered. (To learn about editing a "
-"pattern, see <xref linkend=\"patternEditor\"/>)"
+"pattern, see <xref linkend=\"sect.pattern_editor\"/>)"
 msgstr ""
 
-#: manual.docbook:1171(para)
+#: manual.docbook:1161(para)
 msgid ""
 "For each layer, you can set the <guibutton>Gain</guibutton> and the "
 "<guibutton>Pitch</guibutton>. The pitch also has a <guibutton>Fine</"
 "guibutton> adjustment."
 msgstr ""
 
-#: manual.docbook:1176(para)
+#: manual.docbook:1166(para)
 msgid ""
 "Use the <guibutton>Gain</guibutton> adjustment to control how loud the "
 "sample will play. This is necessary because it's extremely difficult to get "
@@ -1730,14 +1726,14 @@ msgid ""
 "loud samples (that had to be turned down)."
 msgstr ""
 
-#: manual.docbook:1185(para) manual.docbook:1328(para)
+#: manual.docbook:1175(para) manual.docbook:1318(para)
 msgid ""
 "It is very easy to set the <guibutton>Gain</guibutton> too high, causing "
 "your sample to clip. Remember to test the gain with full-velocity notes. If "
 "you clip your signal here, it will only get worse as Hydrogen processes it."
 msgstr ""
 
-#: manual.docbook:1193(para)
+#: manual.docbook:1183(para)
 msgid ""
 "The pitch of the sample can be modified with the pitch controls. The "
 "<guibutton>Pitch</guibutton> knob adjust the pitch in musical half-steps. "
@@ -1745,25 +1741,25 @@ msgid ""
 "&plusmn;50 cents. (One half-step is 100 cents.)"
 msgstr ""
 
-#: manual.docbook:1201(para)
+#: manual.docbook:1191(para)
 msgid ""
 "The pitch is adjusted by playing the sample back faster or slower. This is "
 "called the Dopplar Effect. So, if you have a 1-second sample that you turn "
 "down -12 (1 octave), you sample will only last for .5-seconds."
 msgstr ""
 
-#: manual.docbook:1209(title)
+#: manual.docbook:1199(title)
 msgid "Instrument Parameters"
 msgstr ""
 
-#: manual.docbook:1211(para)
+#: manual.docbook:1201(para)
 msgid ""
 "In the instrument editor, click on the <guibutton>General</guibutton> "
 "button. Here you can adjust several parameters that are for the whole "
 "instrument (not for each layer). The parameters that you can adjust are:"
 msgstr ""
 
-#: manual.docbook:1219(para)
+#: manual.docbook:1209(para)
 msgid ""
 "<emphasis role=\"bold\">Envelope parameters</emphasis>: <guibutton>Attack</"
 "guibutton>, <guibutton>Decay</guibutton>, <guibutton>Sustain</guibutton>, "
@@ -1771,7 +1767,7 @@ msgid ""
 ">)"
 msgstr ""
 
-#: manual.docbook:1225(para)
+#: manual.docbook:1215(para)
 #, fuzzy
 msgid ""
 "<emphasis role=\"bold\"><guibutton>Gain</guibutton></emphasis>: The overall "
@@ -1780,41 +1776,41 @@ msgstr ""
 "<emphasis role=\"bold\">Fig. 16</emphasis> Drumkit laden. Kies een drumkit "
 "uit de lijst."
 
-#: manual.docbook:1229(para)
+#: manual.docbook:1219(para)
 msgid ""
 "<emphasis role=\"bold\"><guibutton>Mute Group</guibutton></emphasis>: Which "
 "mute group this instrument is a member of (see <xref linkend=\"def.mutegroup"
 "\"/>)."
 msgstr ""
 
-#: manual.docbook:1235(para)
+#: manual.docbook:1225(para)
 msgid ""
 "<emphasis role=\"bold\">Filter Parameters</emphasis>: <guibutton>Byp</"
 "guibutton>ass, <guibutton>Cutoff</guibutton>, <guibutton>Resonance</"
 "guibutton>."
 msgstr ""
 
-#: manual.docbook:1240(guibutton)
+#: manual.docbook:1230(guibutton)
 msgid "Random Pitch"
 msgstr ""
 
-#: manual.docbook:1245(para)
+#: manual.docbook:1235(para)
 msgid ""
-"It's important that you understand <xref linkend=\"instrumentediting.concepts"
-"\"/> in order to continue on."
+"It's important that you understand <xref linkend=\"sect.instrument_editing."
+"concepts\"/> in order to continue on."
 msgstr ""
 
-#: manual.docbook:1250(title)
+#: manual.docbook:1240(title)
 msgid "Envelope Parameters"
 msgstr ""
 
-#: manual.docbook:1252(para)
+#: manual.docbook:1242(para)
 msgid ""
 "When the instrument is triggered, its volume is run through an ADSR "
 "Envelope. The parameters operate as follows:"
 msgstr ""
 
-#: manual.docbook:1267(para)
+#: manual.docbook:1257(para)
 msgid ""
 "The attack, decay, and release parameters are all set by the number of "
 "<emphasis>audio samples</emphasis>. This means that the time changes "
@@ -1822,7 +1818,7 @@ msgid ""
 "them is 100,000 audio samples (typ. 2.27 sec at 44.1 kHz)."
 msgstr ""
 
-#: manual.docbook:1258(para)
+#: manual.docbook:1248(para)
 msgid ""
 "<emphasis role=\"bold\">Attack</emphasis>&mdash; the amount of "
 "<emphasis>time</emphasis> that the volume of the sample goes from 0 to the "
@@ -1831,7 +1827,7 @@ msgid ""
 "use the maximum time available for the attack paramater. <placeholder-1/>"
 msgstr ""
 
-#: manual.docbook:1277(para)
+#: manual.docbook:1267(para)
 msgid ""
 "<emphasis role=\"bold\">Decay</emphasis>&mdash; the amount of "
 "<emphasis>time</emphasis> for the volume of the sample to go from full "
@@ -1841,7 +1837,7 @@ msgid ""
 "parameter.<footnoteref linkend=\"fn.adsrtimes\"/>"
 msgstr ""
 
-#: manual.docbook:1288(para)
+#: manual.docbook:1278(para)
 msgid ""
 "<emphasis role=\"bold\">Sustain</emphasis>&mdash; the <emphasis>volume</"
 "emphasis> to play the note after the decay phase is over, and until the note "
@@ -1849,7 +1845,7 @@ msgid ""
 "will play at full velocity."
 msgstr ""
 
-#: manual.docbook:1296(para)
+#: manual.docbook:1286(para)
 msgid ""
 "<emphasis role=\"bold\">Release</emphasis>&mdash; the <emphasis>time</"
 "emphasis> to fade out the note from the sustain volume back down to 0 "
@@ -1858,7 +1854,7 @@ msgid ""
 "<footnoteref linkend=\"fn.adsrtimes\"/>"
 msgstr ""
 
-#: manual.docbook:1306(para)
+#: manual.docbook:1296(para)
 msgid ""
 "If the sample is shorter than the times that you specify, the sample will "
 "end, regardless of which phase of the ADSR it is in. If the note is "
@@ -1866,11 +1862,11 @@ msgid ""
 "holding it. It only holds the gain (volume) parameter during that time."
 msgstr ""
 
-#: manual.docbook:1316(title)
+#: manual.docbook:1306(title)
 msgid "Gain and Mute Group"
 msgstr ""
 
-#: manual.docbook:1318(para)
+#: manual.docbook:1308(para)
 msgid ""
 "The gain sets the overall volume for the sample. This gain is applied after "
 "the gain that you set for the layer, and before the gain that is set for the "
@@ -1879,7 +1875,7 @@ msgid ""
 "set higher, the samples will be amplified."
 msgstr ""
 
-#: manual.docbook:1336(para)
+#: manual.docbook:1326(para)
 msgid ""
 "Hydrogen provides more mute groups than you know what to do with (over 256). "
 "A mute group is a grouping of instruments that are mutually exclusive "
@@ -1890,7 +1886,7 @@ msgid ""
 "sound are different instruments."
 msgstr ""
 
-#: manual.docbook:1347(para)
+#: manual.docbook:1337(para)
 msgid ""
 "If the mute group is set to <guilabel>Off</guilabel>, then the instrument is "
 "not part of any mute grouping. If the mute group is set to any number, then "
@@ -1901,11 +1897,11 @@ msgid ""
 "group parameters to 2.)"
 msgstr ""
 
-#: manual.docbook:1362(title)
+#: manual.docbook:1352(title)
 msgid "Filter and Random Pitch"
 msgstr ""
 
-#: manual.docbook:1364(para)
+#: manual.docbook:1354(para)
 msgid ""
 "The filter is a low-pass resonance filter. If you don't wish to use is, "
 "click the <guibutton>BYP</guibutton>ass button so that it's red. If it's not "
@@ -1915,14 +1911,14 @@ msgid ""
 "is just a simple low-pass filter."
 msgstr ""
 
-#: manual.docbook:1373(para)
+#: manual.docbook:1363(para)
 msgid ""
 "The cutoff frequency of the filter varies with the sample rate of your audio "
 "card. The range of the knob (0 to 1.0) is optimized for a 48,000 kHz sample "
 "rate."
 msgstr ""
 
-#: manual.docbook:1391(para)
+#: manual.docbook:1381(para)
 msgid ""
 "The random pitch paramater allows you to randomly vary the pitch of the "
 "sample every time it is triggered. The value is set between 0 and 1.0. The "
@@ -1930,18 +1926,18 @@ msgid ""
 "sparingly can help your sequences to sound more like a real drummer."
 msgstr ""
 
-#: manual.docbook:1400(title)
+#: manual.docbook:1390(title)
 msgid "Tips on Editing Instruments"
 msgstr ""
 
-#: manual.docbook:1402(para)
+#: manual.docbook:1392(para)
 msgid ""
 "With all of the different parameters available to tweak, it can be difficult "
 "to set up something that sounds nice when you're done. Here's a few tips on "
 "setting up an instrument:"
 msgstr ""
 
-#: manual.docbook:1407(para)
+#: manual.docbook:1397(para)
 msgid ""
 "<emphasis role=\"bold\">Turn down the gain.</emphasis> Every time you have a "
 "gain knob (i.e. an amplifier), this is called a <emphasis>gain stage</"
@@ -1952,7 +1948,7 @@ msgid ""
 "overdrive the signal again."
 msgstr ""
 
-#: manual.docbook:1416(para)
+#: manual.docbook:1406(para)
 msgid ""
 "If things sound bad and distorted, start by turning down the gain setting on "
 "the layer... especially if it's larger than 1.0. Then turn down the "
@@ -1960,7 +1956,7 @@ msgid ""
 "mixer. Then the master output fader."
 msgstr ""
 
-#: manual.docbook:1422(para)
+#: manual.docbook:1412(para)
 msgid ""
 "<emphasis role=\"bold\">Test samples at full velocity.</emphasis> Your "
 "sample will be played louder if the velocity is higher. So, if you set "
@@ -1968,14 +1964,14 @@ msgid ""
 "when you get a full velocity of 1.0? (<emphasis>Hint: clipping.</emphasis>)"
 msgstr ""
 
-#: manual.docbook:1428(para)
+#: manual.docbook:1418(para)
 msgid ""
 "<emphasis role=\"bold\">Try to use samples that are -6 dB max.</emphasis> "
 "Visually, this means samples that peak at only 1/2 of full scale. Otherwise, "
 "turn your layer gain to about .5."
 msgstr ""
 
-#: manual.docbook:1433(para)
+#: manual.docbook:1423(para)
 msgid ""
 "<emphasis role=\"bold\">Remove all DC offsets from the sample.</emphasis> In "
 "a sample editor, there is usually a line down the center of your sample's "
@@ -1988,14 +1984,14 @@ msgid ""
 "sample."
 msgstr ""
 
-#: manual.docbook:1445(para)
+#: manual.docbook:1435(para)
 msgid ""
 "<emphasis role=\"bold\">The ADSR will not be longer than your sample.</"
 "emphasis> If you have a short sample, it doesn't matter how long you set the "
 "attack and delay &mdash; the sample will stop playing at the end."
 msgstr ""
 
-#: manual.docbook:1450(para)
+#: manual.docbook:1440(para)
 msgid ""
 "<emphasis role=\"bold\">Things change with the sample rate.</emphasis> If "
 "you have a really nice setup with all your parameters painstakenly "
@@ -2006,11 +2002,11 @@ msgid ""
 "release) and anything frequency based (like the cutoff frequency)."
 msgstr ""
 
-#: manual.docbook:1464(title)
+#: manual.docbook:1454(title)
 msgid "LADSPA plugins"
 msgstr "LADSPA plugins"
 
-#: manual.docbook:1465(para)
+#: manual.docbook:1455(para)
 #, fuzzy
 msgid ""
 "Hydrogen can also add effects to sounds using any LADSPA plugin library. You "
@@ -2027,7 +2023,7 @@ msgstr ""
 "leuk als je meer van deze paketten gaat installeren, het enige wat je moet "
 "uitvoeren is \"make &amp;&amp; make install\""
 
-#: manual.docbook:1468(para)
+#: manual.docbook:1458(para)
 #, fuzzy
 msgid ""
 "SWH-Plugins available at <ulink url=\"http://plugin.org.uk\"/>. Note that "
@@ -2039,25 +2035,25 @@ msgstr ""
 "het installeren eerst FFTW (<ulink url=\"http://www.fftw.org"
 "\"><citetitle>http://www.fftw.org</citetitle></ulink>) installeert."
 
-#: manual.docbook:1470(para)
+#: manual.docbook:1460(para)
 #, fuzzy
 msgid "CMT available at <ulink url=\"http://www.ladspa.org\"/>."
 msgstr ""
 "CMT beschikbaar op <ulink url=\"http://www.ladspa.org\"><citetitle>http://"
 "www.ladspa.org</citetitle></ulink>."
 
-#: manual.docbook:1472(para)
+#: manual.docbook:1462(para)
 #, fuzzy
 msgid "TAP available at <ulink url=\"http://tap-plugins.sf.net\"/>."
 msgstr ""
 "TAP beschikbaar op <ulink url=\"http://tap-plugins.sf.net"
 "\"><citetitle>http://tap-plugins.sf.net</citetitle></ulink>."
 
-#: manual.docbook:1477(title)
+#: manual.docbook:1467(title)
 msgid "Plugins Kill"
 msgstr ""
 
-#: manual.docbook:1478(para)
+#: manual.docbook:1468(para)
 msgid ""
 "A LADSPA plugin is compiled, executable code. It is capable of hanging, "
 "crashing, freezing, screaching, overflowing buffers, and even phoning home. "
@@ -2066,19 +2062,19 @@ msgid ""
 "are just plain better than others."
 msgstr ""
 
-#: manual.docbook:1486(para)
+#: manual.docbook:1476(para)
 #, fuzzy
 msgid ""
 "Once you have installed a few plugins open a song you'd like add an effect "
 "to and select an instrument that has a few beats in the pattern. In the "
 "Mixer click on <placeholder-1/> and select one of the four available effect "
 "line Click on the Edit button ( <placeholder-2/> ), than on <quote>Select "
-"the FX</quote>: this will bring up another window (Fig. 3) that lets you "
-"choose an effect amongst those installed, they are alphabetically sorted and "
-"categorized. Once you're done, adjust the level from the mixer and start "
-"playing. Each round knob in the FX part controls the level of its effect. "
-"<placeholder-3/> If you want to quickly enable/disable the effect click the "
-"Bypass ( <placeholder-4/>) button."
+"the FX</quote>: this will bring up another window (<xref linkend=\"fig."
+"select_effect\"/>) that lets you choose an effect amongst those installed, "
+"they are alphabetically sorted and categorized. Once you're done, adjust the "
+"level from the mixer and start playing. Each round knob in the FX part "
+"controls the level of its effect. <placeholder-3/> If you want to quickly "
+"enable/disable the effect click the Bypass ( <placeholder-4/>) button."
 msgstr ""
 "Als ze geïnstalleerd zijn open dan een liedje waar je enkele effecten wil "
 "aan toevoegen. Open de Mixer en klik op <inlinemediaobject> <imageobject> "
@@ -2088,32 +2084,33 @@ msgstr ""
 "XXX <inlinemediaobject> <imageobject> <imagedata fileref=\"img/bypass_over."
 "png\" format=\"PNG\"/> </imageobject> </inlinemediaobject>) XXX"
 
-#: manual.docbook:1527(para)
-msgid "<emphasis role=\"bold\">Fig. 3</emphasis> Select an effect."
-msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> XXX"
+#: manual.docbook:1513(title)
+msgid "Select an Effect"
+msgstr ""
 
-#: manual.docbook:1544(title)
+#: manual.docbook:1532(title)
 msgid "A new song"
 msgstr "Een nieuw liedje"
 
-#: manual.docbook:1546(title)
+#: manual.docbook:1534(title)
 msgid "\"Song\" mode and \"Pattern\" mode"
 msgstr "\"Song\" mode en \"Pattern\" mode"
 
-#: manual.docbook:1547(para)
+#: manual.docbook:1535(para)
 msgid ""
 "This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the "
 "tutorial for a more detailed overview."
 msgstr "XXX"
 
-#: manual.docbook:1551(para)
+#: manual.docbook:1539(para)
+#, fuzzy
 msgid ""
 "Hydrogen has 2 main modes: \"Pattern\" mode and \"Song\" mode (refer to "
-"<link linkend=\"main\">this section</link> for the buttons to activate). "
-"When \"Pattern\" mode is activated the current pattern is continously "
-"repeated, so to help changing it until we don't like it, while \"Song\" mode "
-"repeats only the current pattern: this is useful when putting together the "
-"patterns, to create the whole structure for the song."
+"<xref linkend=\"sect.main_toolbar\"/> for the buttons to activate). When "
+"\"Pattern\" mode is activated the current pattern is continously repeated, "
+"so to help changing it until we don't like it, while \"Song\" mode repeats "
+"only the current pattern: this is useful when putting together the patterns, "
+"to create the whole structure for the song."
 msgstr ""
 "Hydrogen heeft 2 hoofd modes: \"Pattern\" mode en \"Song\" mode (XXX <link "
 "linkend=\"main\">XXX</link>). Als \"Pattern\" mode geactiveerd is bij het "
@@ -2122,44 +2119,43 @@ msgstr ""
 "leidje afgespeeld en wordt het niet meer herhaald. De \"Song\" mode is "
 "handig voor het samenbrengen van de patronen."
 
-#: manual.docbook:1557(title)
+#: manual.docbook:1545(title)
 msgid "A new pattern"
 msgstr "Een nieuw patroon"
 
-#: manual.docbook:1558(para)
+#: manual.docbook:1546(para)
+#, fuzzy
 msgid ""
 "We'll start from an empty song with an empty pattern, as created by default: "
 "\"pattern\" mode should be selected now. It is also possible to change name "
 "of the pattern. Now let's click on the <quote>Play</quote> button and while "
-"the pattern is playing let's add notes in the grid of the Song Editor (Fig. "
-"12) simply left_mouse_clicking on it: adjust grid resolution and BPM speed "
-"if needed. Rememeber some constraints of the grid: if you are working with a "
-"resolution of 16 you can't go back to 8 and remove a 16th note; same thing "
-"happens if you are working with a resolution of 8 and you try to insert a "
-"note in the middle of two bars (looking for a 16 bars precision): they will "
-"be placed on the previous or on the following 8th bar (unless you choose "
-"<quote>off</quote> from the Grid Resolution LCD, in this case you're free to "
-"place notes wherever you prefer). <emphasis role=\"bold\">Be sure to select "
-"the correct pattern in the Song Editor before adding notes in the Pattern "
-"Editor!</emphasis>"
+"the pattern is playing let's add notes in the grid of the Song Editor (<xref "
+"linkend=\"fig.pattern_editor.2\"/>) simply left_mouse_clicking on it: adjust "
+"grid resolution and BPM speed if needed. Rememeber some constraints of the "
+"grid: if you are working with a resolution of 16 you can't go back to 8 and "
+"remove a 16th note; same thing happens if you are working with a resolution "
+"of 8 and you try to insert a note in the middle of two bars (looking for a "
+"16 bars precision): they will be placed on the previous or on the following "
+"8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, "
+"in this case you're free to place notes wherever you prefer). <emphasis role="
+"\"bold\">Be sure to select the correct pattern in the Song Editor before "
+"adding notes in the Pattern Editor!</emphasis>"
 msgstr ""
 "We starten met een leeg liedje en een leeg patroon (Fig. 12). \"Pattern\" "
 "mode zou nu moeten geselecteerd zijn. Het is ook mogelijk om de naar van het "
 "patroon te veranderen."
 
-#: manual.docbook:1567(para)
-msgid "<emphasis role=\"bold\">Fig. 12</emphasis> The Pattern Editor"
-msgstr "<emphasis role=\"bold\">Fig. 12</emphasis> de Pattern Editor"
-
-#: manual.docbook:1575(title)
+#: manual.docbook:1561(title)
 msgid "A new sequence"
 msgstr "Een nieuw spoor"
 
-#: manual.docbook:1576(para)
+#: manual.docbook:1562(para)
+#, fuzzy
 msgid ""
-"Once patterns are created (Fig. 13), we can copy/paste/delete them simply "
-"dragging with the mouse (activate the select mode for the Song Editor and "
-"keep pressed left mouse button to select those you want to move or copy)."
+"Once patterns are created (<xref linkend=\"fig.insert_notes\"/>), we can "
+"copy/paste/delete them simply dragging with the mouse (activate the select "
+"mode for the Song Editor and keep pressed left mouse button to select those "
+"you want to move or copy)."
 msgstr ""
 "Eenmaal de patronen gemaakt zijn kunnen we ze juist plaatsen (Fig. 14) we "
 "kunnen de knoppen <inlinemediaobject> <imageobject> <imagedata fileref=\"img/"
@@ -2169,16 +2165,15 @@ msgstr ""
 "\"Song Editor\" gebruiken en het copy en delete commando dat verschijnt bij "
 "het rechts klikken op een patroon."
 
-#: manual.docbook:1585(para)
-msgid "<emphasis role=\"bold\">Fig. 13</emphasis> Inserting notes in a pattern"
+#: manual.docbook:1567(title)
+msgid "Inserting Notes in a Pattern"
 msgstr ""
-"<emphasis role=\"bold\">Fig. 14</emphasis> Beats toevoegen in een patroon"
 
-#: manual.docbook:1594(title)
+#: manual.docbook:1578(title)
 msgid "Adjust from the mixer"
 msgstr "Aanpassen via de mixer"
 
-#: manual.docbook:1595(para)
+#: manual.docbook:1579(para)
 msgid ""
 "Of course we can always use the mixer window, either when creating or "
 "playing patterns."
@@ -2186,21 +2181,22 @@ msgstr ""
 "Natuurlijk kunnen we ook het Mixer venster gebruiken tijdens het maken of "
 "afspelen van patronen"
 
-#: manual.docbook:1599(para)
+#: manual.docbook:1583(para)
 #, fuzzy
 msgid ""
-"The Mixer frame (Fig. 14) is made of 32 independent tracks, each of these is "
-"binded to an instrument, plus a \"Master Output\" line to adjust general "
-"output volume and a \"FX\" button to set effects. Every line features 3 "
-"buttons ( <placeholder-1/><placeholder-2/><placeholder-3/> ), pan adjust "
-"( <placeholder-4/> ), current maximum peak, volume fader and name of the "
-"track. Clicking on <placeholder-5/> will play the selected instrument, "
-"cutting the others. The \"Mute\" button <placeholder-6/> , simply mute "
-"<emphasis>that</emphasis> instrument. The maximun peak indicates the maximun "
-"volume reached from the instrument; the peak must be in a range of 0.0 and "
-"1.0 (in Fig. 14 you can see a few volumes too loud), otherwise it will get "
-"distorted producing a weird sound (especially with OSS audio driver), in "
-"this case it's better to set volume down; keep an eye on each vu-meter."
+"The Mixer frame (<xref linkend=\"fig.mixer.2\"/>) is made of 32 independent "
+"tracks, each of these is binded to an instrument, plus a \"Master Output\" "
+"line to adjust general output volume and a \"FX\" button to set effects. "
+"Every line features 3 buttons ( <placeholder-1/><placeholder-2/><placeholder-"
+"3/> ), pan adjust ( <placeholder-4/> ), current maximum peak, volume fader "
+"and name of the track. Clicking on <placeholder-5/> will play the selected "
+"instrument, cutting the others. The \"Mute\" button <placeholder-6/> , "
+"simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates "
+"the maximun volume reached from the instrument; the peak must be in a range "
+"of 0.0 and 1.0 (in <xref linkend=\"fig.mixer.2\"/> you can see a few volumes "
+"too loud), otherwise it will get distorted producing a weird sound "
+"(especially with OSS audio driver), in this case it's better to set volume "
+"down; keep an eye on each vu-meter."
 msgstr ""
 "Het Mixer venster (Fig. 15) is gemaakt van 32 onafhankelijke sporen. Elk van "
 "die sporen is verbonden met een instrument. Rechts zie je nog een \"Master "
@@ -2226,15 +2222,11 @@ msgstr ""
 "afspelen veel ruis hoort is het misschien beter om het instrument wat "
 "stiller te zetten."
 
-#: manual.docbook:1655(para)
-msgid "<emphasis role=\"bold\">Fig. 14</emphasis> The mixer"
-msgstr "<emphasis role=\"bold\">Fig. 15</emphasis> Detail van de Mixer"
-
-#: manual.docbook:1663(title)
+#: manual.docbook:1645(title)
 msgid "Glossary"
 msgstr ""
 
-#: manual.docbook:1665(para)
+#: manual.docbook:1647(para)
 msgid ""
 "This is a glossary of general terms encountered when using Hydrogen, "
 "synthesizers, drums, or samplers. The definitions in the text are "
@@ -2244,11 +2236,11 @@ msgid ""
 "the volume. While it's simple for new users, it's not quite right."
 msgstr ""
 
-#: manual.docbook:1677(glossterm)
+#: manual.docbook:1659(glossterm)
 msgid "ADSR"
 msgstr ""
 
-#: manual.docbook:1679(para)
+#: manual.docbook:1661(para)
 msgid ""
 "A type of envelope generator that allows you to control the <link linkend="
 "\"def.attack\">Attack</link>, <link linkend=\"def.decay\">Decay</link>, "
@@ -2257,50 +2249,50 @@ msgid ""
 "the <link linkend=\"def.velocity\">velocity</link>."
 msgstr ""
 
-#: manual.docbook:1688(para)
+#: manual.docbook:1670(para)
 msgid ""
 "In Hydrogen, the ADSR envelope generator only controls the volume "
 "(attenuation)."
 msgstr ""
 
-#: manual.docbook:1691(para)
+#: manual.docbook:1673(para)
 msgid ""
 "Read more about this in the Wikipedia Article <ulink url=\"http://en."
 "wikipedia.org/wiki/ADSR_envelope\">ADSR Envelope</ulink>"
 msgstr ""
 
-#: manual.docbook:1706(para)
+#: manual.docbook:1688(para)
 msgid ""
 "This is the first phase of an ADSR envelope, and is the amount of "
 "<emphasis>time</emphasis> to turn the parameter up from 0 to full velocity "
 "after triggering the note."
 msgstr ""
 
-#: manual.docbook:1715(glossterm)
+#: manual.docbook:1697(glossterm)
 msgid "Attenuation"
 msgstr ""
 
-#: manual.docbook:1717(para)
+#: manual.docbook:1699(para)
 msgid ""
 "In filters and mixers, this the amount that a signal is reduced (volume)."
 msgstr ""
 
-#: manual.docbook:1727(glossterm)
+#: manual.docbook:1709(glossterm)
 msgid "Band-Pass Filter"
 msgstr ""
 
-#: manual.docbook:1729(para)
+#: manual.docbook:1711(para)
 msgid ""
 "A filter that preserves a cetertain band of frequencies, and attenuates "
 "(silences) all others. This is often done by combining a high-pass and a low-"
 "pass filter."
 msgstr ""
 
-#: manual.docbook:1742(glossterm)
+#: manual.docbook:1724(glossterm)
 msgid "Clipping"
 msgstr ""
 
-#: manual.docbook:1744(para)
+#: manual.docbook:1726(para)
 msgid ""
 "A phenomenon that happens to a signal when the signal is too large for "
 "whatever is receiving it. The peaks of the signal (which are normally smooth "
@@ -2308,17 +2300,17 @@ msgid ""
 "sound and is usually undesirable."
 msgstr ""
 
-#: manual.docbook:1750(para)
+#: manual.docbook:1732(para)
 msgid ""
 "An example of clipping is when you play music louder than your speaker can "
 "handle. Parts of the music sound harsh and fuzzy."
 msgstr ""
 
-#: manual.docbook:1757(glossterm)
+#: manual.docbook:1739(glossterm)
 msgid "Cutoff Frequency"
 msgstr ""
 
-#: manual.docbook:1759(para)
+#: manual.docbook:1741(para)
 msgid ""
 "On high-pass and low-pass filters, this is the frequency that divides "
 "between those that pass, and those that are attenuated (silenced). In a high-"
@@ -2326,7 +2318,7 @@ msgid ""
 "the frequency zone that gets boosted."
 msgstr ""
 
-#: manual.docbook:1764(para)
+#: manual.docbook:1746(para)
 msgid ""
 "For example, if you have a low-pass filter and you set the cutoff frequency "
 "high (i.e. 20kHz)... the filter will not affect the sound. All the audible "
@@ -2336,28 +2328,28 @@ msgid ""
 "being attenuated above 30 Hz."
 msgstr ""
 
-#: manual.docbook:1783(para)
+#: manual.docbook:1765(para)
 msgid ""
 "After reaching full velocity from the attack, this is the amount of "
 "<emphasis>time</emphasis> to turn the parameter down from full velocity to "
 "the sustain level."
 msgstr ""
 
-#: manual.docbook:1794(glossterm)
+#: manual.docbook:1776(glossterm)
 msgid "Envelope Generator"
 msgstr ""
 
-#: manual.docbook:1796(para)
+#: manual.docbook:1778(para)
 msgid ""
 "A way to control (change) a parameter over time as a response to triggering, "
 "holding, and releasing a note."
 msgstr ""
 
-#: manual.docbook:1799(para)
+#: manual.docbook:1781(para)
 msgid "Did your eyes just glaze over? Let's try again:"
 msgstr ""
 
-#: manual.docbook:1801(para)
+#: manual.docbook:1783(para)
 msgid ""
 "Imagine that you're playing a note on the keyboard and you have your other "
 "hand on a knob (volume, filter cutoff, etc.). As you play the note, you "
@@ -2366,65 +2358,65 @@ msgid ""
 "linkend=\"def.adsr\">ADSR</link>"
 msgstr ""
 
-#: manual.docbook:1812(glossterm)
+#: manual.docbook:1794(glossterm)
 msgid "Fader"
 msgstr ""
 
-#: manual.docbook:1814(para)
+#: manual.docbook:1796(para)
 msgid ""
 "A slider control used to adjust the attenuation (volume) in a mixer. Faders "
 "always have an \"audio\" taper, which means that the attenuation amount "
 "changes on an exponential scale."
 msgstr ""
 
-#: manual.docbook:1821(glossterm)
+#: manual.docbook:1803(glossterm)
 msgid "Filter"
 msgstr ""
 
-#: manual.docbook:1823(para)
+#: manual.docbook:1805(para)
 msgid ""
 "A device that changes a sound by attenuating specific frequencies. A tone "
 "knob is an example of a simple, low-pass filter."
 msgstr ""
 
-#: manual.docbook:1838(para)
+#: manual.docbook:1820(para)
 msgid ""
 "In an amplifier, this adjust how much (or how little) a signal is amplified "
 "(volume). A higher gain value is a louder signal."
 msgstr ""
 
-#: manual.docbook:1846(glossterm)
+#: manual.docbook:1828(glossterm)
 msgid "High-Pass Filter"
 msgstr ""
 
-#: manual.docbook:1848(para)
+#: manual.docbook:1830(para)
 msgid ""
 "A filter that attenuates (silences) low frequencies, but allows high "
 "frequencies to pass through."
 msgstr ""
 
-#: manual.docbook:1859(glossterm)
+#: manual.docbook:1841(glossterm)
 msgid "Instrument"
 msgstr ""
 
-#: manual.docbook:1861(para)
+#: manual.docbook:1843(para)
 msgid ""
 "In Hydrogen, an instrument is a single noise-maker (like a bass drum kick, "
 "or a tom)."
 msgstr ""
 
-#: manual.docbook:1872(glossterm)
+#: manual.docbook:1854(glossterm)
 msgid "Layer"
 msgstr ""
 
-#: manual.docbook:1874(para)
+#: manual.docbook:1856(para)
 msgid ""
 "In an instrument you can load several different samples (each one called a "
 "<emphasis role=\"bold\">layer</emphasis>), and have a different sample play "
 "depending on the velocity of the note. Only one sample at a time will play."
 msgstr ""
 
-#: manual.docbook:1879(para)
+#: manual.docbook:1861(para)
 msgid ""
 "Suppose you have a sample of a floor tom being struck softly. If you simply "
 "play the sample louder &mdash; it will <emphasis>not</emphasis> sound the "
@@ -2433,36 +2425,36 @@ msgid ""
 "different sample for loud playing."
 msgstr ""
 
-#: manual.docbook:1891(glossterm)
+#: manual.docbook:1873(glossterm)
 msgid "Low-Pass Filter"
 msgstr ""
 
-#: manual.docbook:1893(para)
+#: manual.docbook:1875(para)
 msgid ""
 "A filter that attenuates (silences) high frequences, but allows low "
 "frequencies to pass through."
 msgstr ""
 
-#: manual.docbook:1904(glossterm)
+#: manual.docbook:1886(glossterm)
 msgid "Mute"
 msgstr ""
 
-#: manual.docbook:1906(para)
+#: manual.docbook:1888(para)
 msgid ""
 "To make no noise. A setting on an instrument that prevents any audio output."
 msgstr ""
 
-#: manual.docbook:1912(glossterm)
+#: manual.docbook:1894(glossterm)
 msgid "Mute Group"
 msgstr ""
 
-#: manual.docbook:1914(para)
+#: manual.docbook:1896(para)
 msgid ""
 "A group of instruments (samples) that should mute (stop playing) immediately "
 "after another instrument in the group is triggered."
 msgstr ""
 
-#: manual.docbook:1917(para)
+#: manual.docbook:1899(para)
 msgid ""
 "This is typically used in hi-hats, where there's a different instrument "
 "(sample) for when the hi-hat is open or closed. With a real hi-hat, the "
@@ -2473,17 +2465,17 @@ msgid ""
 "stop the open sound (and vice versa)."
 msgstr ""
 
-#: manual.docbook:1932(glossterm)
+#: manual.docbook:1914(glossterm)
 msgid "Octave"
 msgstr ""
 
-#: manual.docbook:1934(para)
+#: manual.docbook:1916(para)
 msgid ""
 "A span of frequencies where the top-most frequency is exactly twice the "
 "frequency of the bottom frequency."
 msgstr ""
 
-#: manual.docbook:1937(para)
+#: manual.docbook:1919(para)
 msgid ""
 "For example, the range 20 Hz to 40 Hz is an octave. So is 120 Hz to 240 Hz, "
 "and 575 Hz to 1150 Hz. While the frequency differences are very different "
@@ -2491,44 +2483,44 @@ msgid ""
 "<emphasis>sound</emphasis> like the same distance."
 msgstr ""
 
-#: manual.docbook:1954(para)
+#: manual.docbook:1936(para)
 msgid ""
 "After the note is released, this is the amount of <emphasis>time</emphasis> "
 "to reduce the parameter from the sustain level to 0."
 msgstr ""
 
-#: manual.docbook:1963(glossterm)
+#: manual.docbook:1945(glossterm)
 msgid "Resonance"
 msgstr ""
 
-#: manual.docbook:1965(para)
+#: manual.docbook:1947(para)
 msgid ""
 "When referring to a resonance filter, this is the parameter that determines "
 "how much of a boost (gain) to give the frequencies at the cutoff."
 msgstr ""
 
-#: manual.docbook:1974(glossterm)
+#: manual.docbook:1956(glossterm)
 msgid "Resonance Filter"
 msgstr ""
 
-#: manual.docbook:1976(para)
+#: manual.docbook:1958(para)
 msgid ""
 "A filter that gives a large boost to a very narrow range of frequencies. "
 "Typically it will be part of a high-pass or a low-pass filter, where the "
 "boosted frequencies are centered on the cut-off frequency."
 msgstr ""
 
-#: manual.docbook:1988(glossterm)
+#: manual.docbook:1970(glossterm)
 msgid "Roll-off"
 msgstr ""
 
-#: manual.docbook:1990(para)
+#: manual.docbook:1972(para)
 msgid ""
 "This is the amount that frequencies are attenuated (suppressed) as the "
 "frequency changes (typically measured in dB/octave)."
 msgstr ""
 
-#: manual.docbook:1993(para)
+#: manual.docbook:1975(para)
 msgid ""
 "For example, in a low-pass filter the frequences below the cutoff frequency "
 "are not attenuated (they pass-through with the same volume). Same with the "
@@ -2539,13 +2531,13 @@ msgid ""
 "log scale) and measured in in dB of attenuation per octave of frequency."
 msgstr ""
 
-#: manual.docbook:2020(para)
+#: manual.docbook:2002(para)
 msgid ""
 "The <emphasis>level</emphasis> to hold the parameter after finishing the "
 "decay time. This level will be maintained until the not is released."
 msgstr ""
 
-#: manual.docbook:2038(para)
+#: manual.docbook:2020(para)
 msgid ""
 "MIDI devices are required to send this information along with the note. "
 "Synthesizers use this information to adjust several parameters on the sample "
@@ -2557,6 +2549,60 @@ msgstr ""
 #: manual.docbook:0(None)
 msgid "translator-credits"
 msgstr ""
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 1</emphasis> The Audio System tab"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 13</emphasis> De <quote>Audio Systeem</"
+#~ "quote> tab"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 2</emphasis> The MIDI System tab"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 14</emphasis> De <quote>Midi Systeem</quote> "
+#~ "tab"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 3</emphasis> The appearance tab"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 15</emphasis> De <quote>Voorkomen</quote> tab"
+
+#, fuzzy
+#~ msgid ""
+#~ "<emphasis role=\"bold\">Fig. 4</emphasis> The Audio engine Info window"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 13</emphasis> De <quote>Audio Systeem</"
+#~ "quote> tab"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 5 </emphasis> The main toolbar"
+#~ msgstr "<emphasis role=\"bold\">Fig. 15</emphasis> Detail van de Mixer"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 6</emphasis> The Song Editor"
+#~ msgstr "<emphasis role=\"bold\">Fig. 1</emphasis>XXX"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 7</emphasis> The Pattern Editor"
+#~ msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> XXX"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 8</emphasis> The Mixer"
+#~ msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> The Mixer"
+
+#~ msgid "<emphasis role=\"bold\">Fig. 3</emphasis> Select an effect."
+#~ msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> XXX"
+
+#~ msgid "<emphasis role=\"bold\">Fig. 12</emphasis> The Pattern Editor"
+#~ msgstr "<emphasis role=\"bold\">Fig. 12</emphasis> de Pattern Editor"
+
+#~ msgid ""
+#~ "<emphasis role=\"bold\">Fig. 13</emphasis> Inserting notes in a pattern"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 14</emphasis> Beats toevoegen in een patroon"
+
+#~ msgid "<emphasis role=\"bold\">Fig. 14</emphasis> The mixer"
+#~ msgstr "<emphasis role=\"bold\">Fig. 15</emphasis> Detail van de Mixer"
 
 #, fuzzy
 #~ msgid ""
