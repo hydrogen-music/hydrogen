@@ -24,7 +24,9 @@ ALL_TUTORIALS = tutorial_en.html \
 
 ALL_POT_FILES = manual_en.pot tutorial_en.pot
 
-XMLTO_OPTS = --stringparam section.autolabel=1 --stringparam toc.max.depth=2 --stringparam xref.with.number.and.title=0
+XMLTO_OPTS = --stringparam section.autolabel=1 \
+	--stringparam toc.max.depth=2 \
+	--stringparam xref.with.number.and.title=0
 
 all: all_manuals all_tutorials all_pot_files
 
