@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2009-04-11 12:57-0500\n"
+"POT-Creation-Date: 2009-04-11 14:45-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1337,16 +1337,16 @@ msgstr ""
 msgid "Sampling Synthesizer Terms"
 msgstr ""
 
-#: manual.docbook:978(term) manual.docbook:1992(glossterm)
+#: manual.docbook:978(term) manual.docbook:1995(glossterm)
 msgid "Sample"
 msgstr ""
 
-#: manual.docbook:978(para) manual.docbook:1994(para)
+#: manual.docbook:978(para) manual.docbook:1997(para)
 msgid ""
 "A short recording of a sound, typically between .1 and 3.0 seconds long."
 msgstr ""
 
-#: manual.docbook:983(term) manual.docbook:1818(glossterm)
+#: manual.docbook:983(term) manual.docbook:1821(glossterm)
 msgid "Gain"
 msgstr ""
 
@@ -1354,11 +1354,11 @@ msgstr ""
 msgid "Volume adjustment."
 msgstr ""
 
-#: manual.docbook:987(term) manual.docbook:2016(glossterm)
+#: manual.docbook:987(term) manual.docbook:2019(glossterm)
 msgid "Velocity"
 msgstr ""
 
-#: manual.docbook:987(para) manual.docbook:2018(para)
+#: manual.docbook:987(para) manual.docbook:2021(para)
 msgid "How hard you hit a note."
 msgstr ""
 
@@ -1397,7 +1397,7 @@ msgid ""
 "velocity to the sustain volume."
 msgstr ""
 
-#: manual.docbook:1015(term) manual.docbook:2000(glossterm)
+#: manual.docbook:1015(term) manual.docbook:2003(glossterm)
 msgid "Sustain"
 msgstr ""
 
@@ -1408,7 +1408,7 @@ msgid ""
 "does not depend on time."
 msgstr ""
 
-#: manual.docbook:1021(term) manual.docbook:1934(glossterm)
+#: manual.docbook:1021(term) manual.docbook:1937(glossterm)
 msgid "Release"
 msgstr ""
 
@@ -2116,11 +2116,14 @@ msgid ""
 "holding, and releasing a note."
 msgstr ""
 
-#: manual.docbook:1781(para)
+#. TRANSLATORS: This is a witty English expression that means, "Did I
+#. 	   just say something really complicated, and you quit paying attention?
+#. 	   I'll try it again a little more informally."
+#: manual.docbook:1784(para)
 msgid "Did your eyes just glaze over? Let's try again:"
 msgstr ""
 
-#: manual.docbook:1783(para)
+#: manual.docbook:1786(para)
 msgid ""
 "Imagine that you're playing a note on the keyboard and you have your other "
 "hand on a knob (volume, filter cutoff, etc.). As you play the note, you "
@@ -2129,65 +2132,65 @@ msgid ""
 "linkend=\"def.adsr\">ADSR</link>"
 msgstr ""
 
-#: manual.docbook:1794(glossterm)
+#: manual.docbook:1797(glossterm)
 msgid "Fader"
 msgstr ""
 
-#: manual.docbook:1796(para)
+#: manual.docbook:1799(para)
 msgid ""
 "A slider control used to adjust the attenuation (volume) in a mixer. Faders "
 "always have an \"audio\" taper, which means that the attenuation amount "
 "changes on an exponential scale."
 msgstr ""
 
-#: manual.docbook:1803(glossterm)
+#: manual.docbook:1806(glossterm)
 msgid "Filter"
 msgstr ""
 
-#: manual.docbook:1805(para)
+#: manual.docbook:1808(para)
 msgid ""
 "A device that changes a sound by attenuating specific frequencies. A tone "
 "knob is an example of a simple, low-pass filter."
 msgstr ""
 
-#: manual.docbook:1820(para)
+#: manual.docbook:1823(para)
 msgid ""
 "In an amplifier, this adjust how much (or how little) a signal is amplified "
 "(volume). A higher gain value is a louder signal."
 msgstr ""
 
-#: manual.docbook:1828(glossterm)
+#: manual.docbook:1831(glossterm)
 msgid "High-Pass Filter"
 msgstr ""
 
-#: manual.docbook:1830(para)
+#: manual.docbook:1833(para)
 msgid ""
 "A filter that attenuates (silences) low frequencies, but allows high "
 "frequencies to pass through."
 msgstr ""
 
-#: manual.docbook:1841(glossterm)
+#: manual.docbook:1844(glossterm)
 msgid "Instrument"
 msgstr ""
 
-#: manual.docbook:1843(para)
+#: manual.docbook:1846(para)
 msgid ""
 "In Hydrogen, an instrument is a single noise-maker (like a bass drum kick, "
 "or a tom)."
 msgstr ""
 
-#: manual.docbook:1854(glossterm)
+#: manual.docbook:1857(glossterm)
 msgid "Layer"
 msgstr ""
 
-#: manual.docbook:1856(para)
+#: manual.docbook:1859(para)
 msgid ""
 "In an instrument you can load several different samples (each one called a "
 "<emphasis role=\"bold\">layer</emphasis>), and have a different sample play "
 "depending on the velocity of the note. Only one sample at a time will play."
 msgstr ""
 
-#: manual.docbook:1861(para)
+#: manual.docbook:1864(para)
 msgid ""
 "Suppose you have a sample of a floor tom being struck softly. If you simply "
 "play the sample louder &mdash; it will <emphasis>not</emphasis> sound the "
@@ -2196,36 +2199,36 @@ msgid ""
 "different sample for loud playing."
 msgstr ""
 
-#: manual.docbook:1873(glossterm)
+#: manual.docbook:1876(glossterm)
 msgid "Low-Pass Filter"
 msgstr ""
 
-#: manual.docbook:1875(para)
+#: manual.docbook:1878(para)
 msgid ""
 "A filter that attenuates (silences) high frequences, but allows low "
 "frequencies to pass through."
 msgstr ""
 
-#: manual.docbook:1886(glossterm)
+#: manual.docbook:1889(glossterm)
 msgid "Mute"
 msgstr ""
 
-#: manual.docbook:1888(para)
+#: manual.docbook:1891(para)
 msgid ""
 "To make no noise. A setting on an instrument that prevents any audio output."
 msgstr ""
 
-#: manual.docbook:1894(glossterm)
+#: manual.docbook:1897(glossterm)
 msgid "Mute Group"
 msgstr ""
 
-#: manual.docbook:1896(para)
+#: manual.docbook:1899(para)
 msgid ""
 "A group of instruments (samples) that should mute (stop playing) immediately "
 "after another instrument in the group is triggered."
 msgstr ""
 
-#: manual.docbook:1899(para)
+#: manual.docbook:1902(para)
 msgid ""
 "This is typically used in hi-hats, where there's a different instrument "
 "(sample) for when the hi-hat is open or closed. With a real hi-hat, the "
@@ -2236,17 +2239,17 @@ msgid ""
 "stop the open sound (and vice versa)."
 msgstr ""
 
-#: manual.docbook:1914(glossterm)
+#: manual.docbook:1917(glossterm)
 msgid "Octave"
 msgstr ""
 
-#: manual.docbook:1916(para)
+#: manual.docbook:1919(para)
 msgid ""
 "A span of frequencies where the top-most frequency is exactly twice the "
 "frequency of the bottom frequency."
 msgstr ""
 
-#: manual.docbook:1919(para)
+#: manual.docbook:1922(para)
 msgid ""
 "For example, the range 20 Hz to 40 Hz is an octave. So is 120 Hz to 240 Hz, "
 "and 575 Hz to 1150 Hz. While the frequency differences are very different "
@@ -2254,44 +2257,44 @@ msgid ""
 "<emphasis>sound</emphasis> like the same distance."
 msgstr ""
 
-#: manual.docbook:1936(para)
+#: manual.docbook:1939(para)
 msgid ""
 "After the note is released, this is the amount of <emphasis>time</emphasis> "
 "to reduce the parameter from the sustain level to 0."
 msgstr ""
 
-#: manual.docbook:1945(glossterm)
+#: manual.docbook:1948(glossterm)
 msgid "Resonance"
 msgstr ""
 
-#: manual.docbook:1947(para)
+#: manual.docbook:1950(para)
 msgid ""
 "When referring to a resonance filter, this is the parameter that determines "
 "how much of a boost (gain) to give the frequencies at the cutoff."
 msgstr ""
 
-#: manual.docbook:1956(glossterm)
+#: manual.docbook:1959(glossterm)
 msgid "Resonance Filter"
 msgstr ""
 
-#: manual.docbook:1958(para)
+#: manual.docbook:1961(para)
 msgid ""
 "A filter that gives a large boost to a very narrow range of frequencies. "
 "Typically it will be part of a high-pass or a low-pass filter, where the "
 "boosted frequencies are centered on the cut-off frequency."
 msgstr ""
 
-#: manual.docbook:1970(glossterm)
+#: manual.docbook:1973(glossterm)
 msgid "Roll-off"
 msgstr ""
 
-#: manual.docbook:1972(para)
+#: manual.docbook:1975(para)
 msgid ""
 "This is the amount that frequencies are attenuated (suppressed) as the "
 "frequency changes (typically measured in dB/octave)."
 msgstr ""
 
-#: manual.docbook:1975(para)
+#: manual.docbook:1978(para)
 msgid ""
 "For example, in a low-pass filter the frequences below the cutoff frequency "
 "are not attenuated (they pass-through with the same volume). Same with the "
@@ -2302,13 +2305,13 @@ msgid ""
 "log scale) and measured in in dB of attenuation per octave of frequency."
 msgstr ""
 
-#: manual.docbook:2002(para)
+#: manual.docbook:2005(para)
 msgid ""
 "The <emphasis>level</emphasis> to hold the parameter after finishing the "
 "decay time. This level will be maintained until the not is released."
 msgstr ""
 
-#: manual.docbook:2020(para)
+#: manual.docbook:2023(para)
 msgid ""
 "MIDI devices are required to send this information along with the note. "
 "Synthesizers use this information to adjust several parameters on the sample "

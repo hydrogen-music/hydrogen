@@ -1778,6 +1778,9 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in <xref linken
       <para>A way to control (change) a parameter over time as a response to
       triggering, holding, and releasing a note.</para>
 
+      <!-- TRANSLATORS: This is a witty English expression that means, "Did I
+	   just say something really complicated, and you quit paying attention?
+	   I'll try it again a little more informally." -->
       <para>Did your eyes just glaze over? Let's try again:</para>
 
       <para>Imagine that you're playing a note on the keyboard and you have your

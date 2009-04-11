@@ -127,7 +127,12 @@ RULES AND GUIDELINES FOR TRANSLATING:
       reading interesting.  When this happens, the language and idioms
       being used are very cultural.  Please do *NOT* translate the
       words literally.  Instead, please translate the ideas to your
-      culture as you see fit.
+      culture as you see fit.  We've asked the Documentors to mark
+      when this is happening so that you don't miss the joke.  This
+      should show up in the PO file.
+
+    * If your culture doesn't like American-style informal writing,
+      please feel free to make a humor-less translation.
 
     * Submit translations to the Hydrogen Developers list
       (hydrogen-devel@lists.sourceforge.net)
@@ -149,6 +154,21 @@ work on the documentation, you will need:
     * An XML validator (e.g. xmllint, xsltproc, Xalan)
 
     * A way to create PNG images.  (e.g. GIMP, PhotoShop)
+
+What you write is pretty much your own style.  Please *do* keep the
+text interesting to read by using wit and a more familiar
+conversational style.  If you are using an English pun or expression
+that is intended to convey humor, please mark it so that the
+translator gets the joke:
+
+    <!-- TRANSLATORS: "Have your squash and eat it, too." This
+    combines a well-known cliche ("Have your cake and eat it, too.")
+    and a pun on the word "squash."  In English, "squash" is a
+    vegetable (and not a very popular one) and "squash" is also a verb
+    meaning "to flatten in a destructive way."  For example: "I
+    squashed the bug to kill it." -->
+
+(Ahem, don't ask me how I came up with that one.....)
 
 Before submitting (or committing) your changes, please make sure that
 your documents validate (see Section 6 below).  Some guidelines:
