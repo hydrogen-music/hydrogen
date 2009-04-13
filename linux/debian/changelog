@@ -1,4 +1,17 @@
-hydrogen (0.9.4beta3) unstable; urgency=low
+hydrogen (0.9.4rc1) unstable; urgency=low
+
+
+
+  * Version 0.9.4 rc1
+  
+  * fixed various buffer overflows
+  * fixed segfault with jackdmp 
+  * fixed saving of layer filenames
+  * fixed resizing of note durations
+  * fixed several smaller gui annoyments
+  * changed sort order in soundlibrary browser
+  * added default pattern category
+  * new manual / changed translation method for the new manual
 
   * Version 0.9.4 beta3
 
