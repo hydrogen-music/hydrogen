@@ -63,7 +63,7 @@ Hydrogen, and the generated HTML output will become a part of the
 distribution.
 
 [1] xml2po and po2xml are part of poxml, which is in the KDE SDK.
-    http://www.kde.org/
+    http://www.kde.org/.  The Makefile is set up for the KDE3 version.
 [2] xmlto is a convenient front-end to an XSLT processor.
     http://cyberelk.net/tim/software/xmlto/
 [3] xmllint is part of libxml http://xmlsoft.org/
@@ -214,11 +214,22 @@ your documents validate (see Section 6 below).  Some guidelines:
 5. Developers
 -------------
 
+Since we don't want to add xmlto, poxml, xmllint, and the DocBook
+DTD's to our normal build requirements: All HTML files need to be
+generated and committed before releasing.  After the release, the
+generated HTML files can (and should) be deleted.  Do not commit the
+generated DocBook documents.
+
 If you are preparing a Hydrogen release, you must have all the tools
-listed above so that you can process the documents.  It's OK to commit
-the docs to SVN, but they should be deleted after the release.  You
-may also need to understand DocBook enough to help a translator with
-validation issues.  (See Section 6 below.)
+listed above so that you can process the documents.  You may also need
+to understand DocBook enough to help a translator with validation
+issues.  (See Section 6 below.)
+
+The reason for doing it this way is that (as of this writing) xmlto,
+poxml, xmllint, and DocBook are not very portable across Linux, Mac,
+and Windows.  Nor or they even very portable across different Linux
+distributions.  However, the tools are fairly stable on Debian/Ubuntu
+-- which most of the current developers are using.
 
 6. XML and Validation
 ---------------------
