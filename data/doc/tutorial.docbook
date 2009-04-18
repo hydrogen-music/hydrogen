@@ -1,6 +1,7 @@
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
-
-<book id="Hydrogen-tutorial" lang="it">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
+               "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
+<book id="Hydrogen-tutorial" lang="en">
 
 <bookinfo>
         <title>Hydrogen Tutorial</title>
@@ -31,20 +32,20 @@
 		<para>The song we will work on has the following structure:</para>
 		
 		<itemizedlist>
-		<listitem><para><emphasis role='bold'>Intro:</emphasis> 4 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Bridge:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Bridge:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Riff:</emphasis> 4 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse (with guitar):</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Verse (with voice):</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Bridge:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Chorus:</emphasis> 8 bars</para></listitem>
-		<listitem><para><emphasis role='bold'>Final Riff:</emphasis> 4 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Intro:</emphasis> 4 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Bridge:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Bridge:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Riff:</emphasis> 4 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse (with guitar):</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Verse (with voice):</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Bridge:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Chorus:</emphasis> 8 bars</para></listitem>
+		<listitem><para><emphasis role="bold">Final Riff:</emphasis> 4 bars</para></listitem>
 		</itemizedlist>
 		
 		<para>Looking at this scheme we can see that some pattern repeats, so we'll use this symbols in Hydrogen's Song Editor:</para>
@@ -69,7 +70,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/PatternBase1.png" format="png">
+			<imagedata fileref="img_tutorial/PatternBase1.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -82,7 +83,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/PatternBase2.png" format="png">
+			<imagedata fileref="img_tutorial/PatternBase2.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -114,7 +115,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Intro4th.png" format="png">
+			<imagedata fileref="img_tutorial/Intro4th.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -135,7 +136,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Verse8th.png" format="png">
+			<imagedata fileref="img_tutorial/Verse8th.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -150,7 +151,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/VerseAll.png" format="png">
+			<imagedata fileref="img_tutorial/VerseAll.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -173,7 +174,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Bridge1_4th.png" format="png">
+			<imagedata fileref="img_tutorial/Bridge1_4th.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -186,7 +187,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/VerseBridge.png" format="png">
+			<imagedata fileref="img_tutorial/VerseBridge.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -209,7 +210,7 @@
 <screenshot>		
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Riff1b.png" format="png">
+			<imagedata fileref="img_tutorial/Riff1b.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -221,7 +222,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Riff1c.png" format="png">
+			<imagedata fileref="img_tutorial/Riff1c.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -243,7 +244,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/VerseBridge_hh.png" format="png">
+			<imagedata fileref="img_tutorial/VerseBridge_hh.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -256,7 +257,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Bridge3_3a_hh.png" format="png">
+			<imagedata fileref="img_tutorial/Bridge3_3a_hh.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
@@ -266,16 +267,16 @@
 	</mediaobject>
 </screenshot>
 
-	<para>After the third bridge we repeat the chorus: the first time the <quote>Stick</quote> is used instead of the <quote>Snare Jazz</quote> and we don't play the <quote>Kick</quote> (even if it may sound the opposite since the bass guitar does play here, so we have put the same the kick beats softly at [0.50]), while the second and third time the chorus goes on there are a few bars different, as shown from patterns <quote>C3_*</quote>. In Fig. 12 the pattern <quote>C3_6+7 & C4_3</quote> (slightly different ...) which criptycally identify the sixth and seventh bar of the third chorus AND the third bar of the fourth chorus: if you think this is confusing, you may find out your own method :-)</para>
+	<para>After the third bridge we repeat the chorus: the first time the <quote>Stick</quote> is used instead of the <quote>Snare Jazz</quote> and we don't play the <quote>Kick</quote> (even if it may sound the opposite since the bass guitar does play here, so we have put the same the kick beats softly at [0.50]), while the second and third time the chorus goes on there are a few bars different, as shown from patterns <quote>C3_*</quote>. In Fig. 12 the pattern <quote>C3_6+7 &amp; C4_3</quote> (slightly different ...) which criptycally identify the sixth and seventh bar of the third chorus AND the third bar of the fourth chorus: if you think this is confusing, you may find out your own method :-)</para>
 
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/C3_6+7.png" format="png">
+			<imagedata fileref="img_tutorial/C3_6+7.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>
-			<emphasis role="bold">Fig. 12</emphasis> Pattern <quote>C3_6+7 & C4_3</quote>.
+			<emphasis role="bold">Fig. 12</emphasis> Pattern <quote>C3_6+7 &amp; C4_3</quote>.
 			</para>
 		</caption>
 	</mediaobject>
@@ -290,7 +291,7 @@
 <screenshot>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img_tutorial/Riff1d.png" format="png">
+			<imagedata fileref="img_tutorial/Riff1d.png" format="PNG" />
 		</imageobject>
 		<caption>
 			<para>

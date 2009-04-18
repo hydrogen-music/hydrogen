@@ -27,6 +27,8 @@ __Other__
 	* Export song to wav file.
 	* Export song to midi file.
 
+Installation:
+	See the INSTALL.txt file.
 
 HomePage
 	http://www.hydrogen-music.org

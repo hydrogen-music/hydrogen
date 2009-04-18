@@ -1,0 +1,2871 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2009-04-11 12:57-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:219(None)
+msgid ""
+"@@image: 'img/PreferencesAudioSystem.png'; "
+"md5=2cbcf26e128bec63fae694af120c51d6"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:281(None)
+msgid ""
+"@@image: 'img/PreferencesMidiSystem.png'; "
+"md5=a0f8cb05143d95b13b6aed599fbe4430"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:297(None)
+msgid ""
+"@@image: 'img/PreferencesAppearance.png'; "
+"md5=0e8d04f6fc536d2f56233783730ba852"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:314(None)
+msgid ""
+"@@image: 'img/AudioEngineInfoDialog.png'; "
+"md5=2409544da903ec8b9f08edb34bcb54ae"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:429(None)
+msgid "@@image: 'img/MainToolbar.png'; md5=4f5dddc0a6fc51b5b98bbfd5dd1ebfd0"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:437(None)
+msgid ""
+"@@image: 'img/background_Control.png'; md5=0405af224f62d2e360cb2656379cbd66"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:443(None)
+msgid ""
+"@@image: 'img/background_Mode.png'; md5=b2ca832b899e6ec073f6d700c9c8e178"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:447(None)
+msgid "@@image: 'img/background_BPM.png'; md5=0729e6f172d37cde37dc6dd69d7df9e9"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:451(None)
+msgid "@@image: 'img/cpuload.png'; md5=bfceb68aa39947b9d8fce81d70350d56"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:455(None)
+msgid "@@image: 'img/midi_in.png'; md5=302ded0d23140e8bf169a137ea7695b5"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:459(None)
+msgid "@@image: 'img/jack_transport.png'; md5=a3510cfd235f685a5a5f4788ba4aa6a3"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:616(None)
+msgid "@@image: 'img/bg_topPanel.png'; md5=ac7d11337eca92242e28918f8acf4281"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:625(None)
+msgid "@@image: 'img/btn_clear_off.png'; md5=506e17500965351186046e8d4675e298"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:632(None)
+msgid "@@image: 'img/btn_new_on.png'; md5=5cff0140de1a7304dd60b3cacea9e71d"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:639(None) manual.docbook:705(None)
+msgid "@@image: 'img/btn_updown.png'; md5=4e40841f9213616bceba8538be720204"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:648(None)
+msgid "@@image: 'img/btn_select.png'; md5=0d4dd148b47cfbb6054cc598a901e511"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:655(None)
+msgid "@@image: 'img/btn_draw.png'; md5=834dbbf9b0b8f3d1343851d1529bffde"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:662(None)
+msgid ""
+"@@image: 'img/btn_pattern_mode.png'; md5=cfda76720e17b1b73a391b03d30a1f01"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:677(None) manual.docbook:1570(None)
+msgid "@@image: 'img/SongEditor.png'; md5=8580fa158929130b0af2f7aa08abf489"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:697(None)
+msgid "@@image: 'img/btn_hear_on.png'; md5=dc908c7a82db7350c7c7b6e79bb4e8ba"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:713(None)
+msgid "@@image: 'img/btn_quant_off.png'; md5=d52c33c75ff5b690ea357fe170060d36"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:724(None) manual.docbook:1554(None)
+msgid "@@image: 'img/PatternEditor.png'; md5=967f9e6860c1b53170ca33f13a4afbd5"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:745(None)
+msgid ""
+"@@image: 'img/PatternEditorInstr.png'; md5=aa7b047b212826d380d6afa3d54f40a2"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:754(None)
+msgid ""
+"@@image: 'img/btn_record_over.png'; md5=88def8ff2487f8cb71501d67a74d89d1"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:795(None)
+msgid "@@image: 'img/tastiera.png'; md5=344cc621fc42d367ff50ec3b01017b04"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:809(None) manual.docbook:1638(None)
+msgid "@@image: 'img/Mixer.png'; md5=150e569dd12b279484bd2066c08dbd85"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:818(None)
+msgid "@@image: 'img/showPeaks_on.png'; md5=4475949f7c1f11157b8cfb623022e27b"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:826(None) manual.docbook:1595(None)
+#: manual.docbook:1617(None)
+msgid "@@image: 'img/btn_solo_on.png'; md5=275a1dd4a4cd6b5b93a0cc6d0d2ca497"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:834(None) manual.docbook:1601(None)
+#: manual.docbook:1626(None)
+msgid "@@image: 'img/btn_mute_on.png'; md5=2313bb2e4cf132f8fbfbe46e6505f5c6"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:842(None) manual.docbook:1589(None)
+msgid ""
+"@@image: 'img/btn_play_on_mixer.png'; md5=2eb3b919753b61020e06fe2dda6529ad"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:854(None) manual.docbook:1480(None)
+msgid "@@image: 'img/showFX_on.png'; md5=faaad6e9491dac7d3478b96e87b1ecc5"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:863(None)
+msgid "@@image: 'img/MixerFX.png'; md5=af1f625d71ffb19d140a2a6e15e64102"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:1488(None)
+msgid "@@image: 'img/edit_off.png'; md5=125b96a529eb2984de90da816a21f2ef"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:1496(None)
+msgid "@@image: 'img/MixerFXKnob.png'; md5=687a99626a7e1aecdb9b45506380ec5b"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:1504(None)
+msgid "@@image: 'img/bypass_over.png'; md5=de70b2610957f2c6d494b5951193eb8f"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:1516(None)
+msgid "@@image: 'img/MixerFXSelect.png'; md5=d21233583479b7309fc704f9693d97b7"
+msgstr ""
+
+#. When image changes, this message will be marked fuzzy or untranslated for you.
+#. It doesn't matter what you translate it to: it's not used at all.
+#: manual.docbook:1609(None)
+msgid "@@image: 'img/MixerPan.png'; md5=5a331fe0240cfd3cabcf48c68fb11f11"
+msgstr ""
+
+#: manual.docbook:7(title)
+msgid "Hydrogen Manual"
+msgstr "Hydrogen Manual"
+
+#: manual.docbook:10(firstname)
+msgid "Antonio"
+msgstr ""
+
+#: manual.docbook:11(surname)
+msgid "Piraino"
+msgstr ""
+
+#: manual.docbook:14(firstname)
+msgid "Alessandro"
+msgstr ""
+
+#: manual.docbook:15(surname)
+msgid "Cominu"
+msgstr ""
+
+#: manual.docbook:19(date)
+msgid "22/may/2005"
+msgstr ""
+
+#: manual.docbook:22(para)
+#, fuzzy
+msgid ""
+"Hydrogen is a software synthesizer which can be used alone, emulating a drum "
+"machine based on patterns, or via an external MIDI keyboard/sequencer "
+"software. Hydrogen compiles on Linux/x86 and Mac OS X, although the latter "
+"is still experimental, so ask in the developers mailing list for further "
+"details."
+msgstr ""
+"Hydrogen e' un sintetizzatore software in grado di essere utilizzato sia "
+"singolarmente, emulando una drum machine basata su pattern, sia come synth "
+"comandato via midi da una tastiera esterna o da un sequencer software."
+
+#: manual.docbook:35(title)
+msgid "Introduction"
+msgstr "Introduzione"
+
+#: manual.docbook:38(title)
+msgid "Download"
+msgstr "Download"
+
+#: manual.docbook:39(para)
+#, fuzzy
+msgid ""
+"The latest stable version of hydrogen is available as a tarball at <ulink "
+"url=\"http://www.hydrogen-music.org/?p=download\">http://www.hydrogen-music."
+"org</ulink>."
+msgstr ""
+"L'ultima versione stabile di Hydrogen e' disponibile all'indirizzo <ulink "
+"url=\"http://hydrogen.sourceforge.net\">http://hydrogen.sourceforge.net</"
+"ulink> oppure <ulink url=\"http://hydrogen-music.org\">http://hydrogen-music."
+"org</ulink>"
+
+#: manual.docbook:43(para)
+#, fuzzy
+msgid ""
+"It is possible to download the latest source files directly from our "
+"subversion server with: <screen><prompt>$</prompt> <command>svn co http://"
+"svn.assembla.com/svn/hydrogen/trunk</command></screen> A certain release can "
+"be fetched with: <screen><prompt>$</prompt> <command>svn co http://svn."
+"assembla.com/svn/hydrogen/tags/0.9.3</command></screen>"
+msgstr ""
+"<prompt>bash$</prompt> <command>cvs -z3 -d:pserver:anonymous@cvs.hydrogen."
+"sourceforge.net:/cvsroot/hydrogen co hydrogen</command>"
+
+#: manual.docbook:56(para)
+#, fuzzy
+msgid "qt (&gt;= 4.0) at <ulink url=\"http://www.trolltech.com\"/>"
+msgstr ""
+"qt (>= 3.2) reperibili presso <ulink url=\"http://www.trolltech.com\">http://"
+"www.trolltech.com</ulink>"
+
+#: manual.docbook:59(para)
+#, fuzzy
+msgid "libsndfile at <ulink url=\"http://www.mega-nerd.com/libsndfile/\"/>"
+msgstr ""
+"libsndfile reperibili presso <ulink url=\"http://www.mega-nerd.com/"
+"libsndfile/\">http://www.mega-nerd.com/libsndfile/</ulink>"
+
+#: manual.docbook:63(para)
+#, fuzzy
+msgid ""
+"ALSA (&gt;= 1.x) at <ulink url=\"http://www.alsa-project.com\"/> (only if "
+"you wish to use ALSA as audio driver)"
+msgstr ""
+"ALSA (>= 1.x) reperibili presso <ulink url=\"http://www.alsa-project.com"
+"\">http://www.alsa-project.com</ulink> (se si vuole usare i driver ALSA pert "
+"l'output audio)"
+
+#: manual.docbook:66(para)
+#, fuzzy
+msgid ""
+"Jack Audio Connection Kit (&gt;= 0.80) at <ulink url=\"http://jackaudio.org/"
+"\"/> (only if you wish to use Jack as audio driver)"
+msgstr ""
+"Jack Audio Connection Kit (>= 0.80) reperibili presso <ulink url=\"http://"
+"jackit.sourceforge.net\">http://jackit.sourceforge.net</ulink> (se si vuole "
+"usare i driver JACK pert l'output audio)"
+
+#: manual.docbook:69(para)
+#, fuzzy
+msgid ""
+"PortAudio at <ulink url=\"http://www.portaudio.com\"/> (only if you wish to "
+"use PortAudio as audio driver)"
+msgstr ""
+"ALSA (>= 1.x) reperibili presso <ulink url=\"http://www.alsa-project.com"
+"\">http://www.alsa-project.com</ulink> (se si vuole usare i driver ALSA pert "
+"l'output audio)"
+
+#: manual.docbook:72(para)
+#, fuzzy
+msgid ""
+"Flac at <ulink url=\"http://flac.sf.net\"/> (only if you wish to use flac "
+"samples)"
+msgstr ""
+"Jack Audio Connection Kit (>= 0.80) reperibili presso <ulink url=\"http://"
+"jackit.sourceforge.net\">http://jackit.sourceforge.net</ulink> (se si vuole "
+"usare i driver JACK pert l'output audio)"
+
+#: manual.docbook:75(para)
+#, fuzzy
+msgid ""
+"ladspa at <ulink url=\"http://ladspa.org\"/> (only if you wish to use ladspa "
+"effects)"
+msgstr ""
+"ALSA (>= 1.x) reperibili presso <ulink url=\"http://www.alsa-project.com"
+"\">http://www.alsa-project.com</ulink> (se si vuole usare i driver ALSA pert "
+"l'output audio)"
+
+#: manual.docbook:78(para)
+#, fuzzy
+msgid ""
+"liblrdf at <ulink url=\"http://liblrdf.sf.net\"/> (only if you wish to use "
+"lrdf to categorise effects)"
+msgstr ""
+"Jack Audio Connection Kit (>= 0.80) reperibili presso <ulink url=\"http://"
+"jackit.sourceforge.net\">http://jackit.sourceforge.net</ulink> (se si vuole "
+"usare i driver JACK pert l'output audio)"
+
+#: manual.docbook:81(para)
+#, fuzzy
+msgid ""
+"lash at <ulink url=\"http://lash.nongnu.org\"/> (only if you wish to use "
+"lash)"
+msgstr ""
+"ALSA (>= 1.x) reperibili presso <ulink url=\"http://www.alsa-project.com"
+"\">http://www.alsa-project.com</ulink> (se si vuole usare i driver ALSA pert "
+"l'output audio)"
+
+#: manual.docbook:52(para)
+msgid ""
+"Compiling Hydrogen depends on the following libraries: <placeholder-1/> "
+"Please install them with your distribution's package manager. If you're "
+"running a debian-based system, you can install the libraries with: <screen>\n"
+"\t<prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev "
+"\\\n"
+"\tlibjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \\\n"
+"\tliblash-dev libportaudio-dev libportmidi-dev </command></screen>"
+msgstr ""
+
+#: manual.docbook:94(title)
+msgid "Build"
+msgstr "Compilazione"
+
+#: manual.docbook:95(para)
+#, fuzzy
+msgid ""
+"Decompress the tarball or go to the directory where the subversion copy was "
+"checked out: <screen>\n"
+"\t<prompt>$</prompt> <command>cd hydrogen-*</command>\n"
+"\t<prompt>$</prompt> <command>scons</command>\n"
+"\t<prompt>$</prompt> <command>su -c \"scons install\"</command>\n"
+"\t\t    </screen>"
+msgstr ""
+"<prompt>bash$</prompt> <command>cd hydrogen-*</command>\n"
+"<prompt>bash$</prompt> <command>./configure</command>\n"
+"<prompt>bash$</prompt> <command>make</command>\n"
+"<prompt>bash$</prompt> <command>su -c \"make install\"</command>"
+
+#: manual.docbook:104(para)
+msgid ""
+"Before compiling, check for additional options with: <screen>\n"
+"\t<prompt>$</prompt> <command>scons --help</command>\n"
+"\t\t    </screen> If you want to use features which are not enabled by "
+"default (for instance PortAudio), you can enable them with: <screen>\n"
+"\t<prompt>$</prompt> <command>scons portaudio=1</command>\n"
+"\t\t    </screen> Namely, if you get some error while running Hydrogen and "
+"you want to report it remember to configure hydrogen with: <screen>\n"
+"\t<prompt>$</prompt> <command>scons debug=1</command>\n"
+"\t\t    </screen> To clean up compiled code: <screen>\n"
+"\t<prompt>$</prompt> <command>scons -c</command>\n"
+"\t\t    </screen>"
+msgstr ""
+
+#: manual.docbook:193(title)
+#, fuzzy
+msgid "Audio preferences"
+msgstr "Preferences dialog"
+
+#: manual.docbook:194(para)
+msgid ""
+"First of all you should make shure that the audio engine is configured "
+"properly. The preferences dialog can be accessed via the tools menu (tools -"
+"&gt; preferences)."
+msgstr ""
+
+#: manual.docbook:202(title)
+msgid "The Audio System tab"
+msgstr ""
+
+#: manual.docbook:204(para)
+msgid ""
+"From the \"Audio System\" tab (<xref linkend=\"fig.preferences.audio_tab\"/"
+">) it is possible to modify the audio driver being used (OSS, Jack, ALSA, "
+"PortAudio) with its buffer and sampling rate (unless using JACK, in this "
+"case the audio driver configuration should happen before starting the JACK "
+"server)."
+msgstr ""
+
+#: manual.docbook:206(para)
+msgid ""
+"We can set some features of Hydrogen like \"Enable track outputs\" useful if "
+"you want to add effects to a single instrument with jack-rack. \"Connect to "
+"Default Output Pair\" connects the output to the default ports: uncheck this "
+"if you want to connect JACK output to other ports without disconnecting them "
+"first"
+msgstr ""
+
+#: manual.docbook:209(para)
+msgid ""
+"Keep also an eye on the value of \"Polyphony\": depending on your CPU you "
+"may want to change the max simultaneous notes in order to prevent hydrogen "
+"from overunning the audio driver."
+msgstr ""
+
+#: manual.docbook:216(title)
+#, fuzzy
+msgid "The Audio System Tab"
+msgstr "Audio engine info"
+
+#: manual.docbook:224(para)
+msgid "The following drivers are available:"
+msgstr ""
+
+#: manual.docbook:231(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\">jackd</emphasis>: The Jack driver is a professional "
+"audio server which permits very low lag and exchanges with other audio "
+"software. <emphasis>We strongly recommend using this driver to have the best "
+"out of Hydrogen</emphasis>. JACK server will start automatically if not "
+"already running."
+msgstr ""
+"Il driver Jack necessita del server audio Jack (<ulink url=\"http://jackit."
+"sourceforge.net\">Jack Audio Connection Kit</ulink>), un server audio "
+"professionale col quale e' possibile raggiungere bassissime latenze e "
+"l'interoperabilta' con altri software audio. <emphasis>Raccomandiamo "
+"fortemente di usare questo driver per ottenere il meglio da Hydrogen.</"
+"emphasis>"
+
+#: manual.docbook:239(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\">ALSA</emphasis>: the widely adopted Linux standard "
+"audio drivers"
+msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> Il Pattern Editor"
+
+#: manual.docbook:246(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\">OSS</emphasis>: The Oss audio driver uses /dev/dsp "
+"and it's based on the OSS interface which is supported by the vast majority "
+"of sound cards available for linux; this said, the use of this audio driver "
+"blocks /dev/dsp until Hydrogen is closed i.e. unusable by any other "
+"software. Use it as last resort."
+msgstr ""
+"Il driver Oss utilizza il device /dev/dsp ed e' basato sull'interfaccia OSS "
+"che e' supportata dalla maggior parte delle schede audio disponibili per "
+"linux. Purtroppo l'uso di questo driver blocca il device /dev/dsp fino alla "
+"chiusura del programma stesso, rendendo impossibile l'utilizzo del device ad "
+"altri programmi audio."
+
+#: manual.docbook:256(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\">PortAudio</emphasis>: an open-source multiplatform "
+"audio driver"
+msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> Il Pattern Editor"
+
+#: manual.docbook:263(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\">CoreAudio</emphasis>: a driver for Mac OS X "
+"(experimental)"
+msgstr "<emphasis role=\"bold\">Fig. 4</emphasis> La linguetta Audio System."
+
+#: manual.docbook:272(title)
+msgid "The Midi System tab"
+msgstr ""
+
+#: manual.docbook:273(para)
+msgid ""
+"The \"Midi System\" tab (<xref linkend=\"fig.preferences.midi_tab\"/>) "
+"concerns the MIDI input. You can choose the MIDI driver and input, setup "
+"channels, binding actions to MIDI events."
+msgstr ""
+
+#: manual.docbook:278(title)
+msgid "The MIDI System Tab"
+msgstr ""
+
+#: manual.docbook:288(title)
+msgid "The Appearance tab"
+msgstr ""
+
+#: manual.docbook:289(para)
+msgid ""
+"The \"Appearance\" tab (<xref linkend=\"fig.preferences.appearance_tab\"/>) "
+"let's you to modify Hydrogen and QT graphical properties."
+msgstr ""
+
+#: manual.docbook:294(title)
+msgid "The Appearance Tab"
+msgstr ""
+
+#: manual.docbook:305(title)
+#, fuzzy
+msgid "The Audio Engine tab"
+msgstr "Audio engine info"
+
+#: manual.docbook:306(para)
+msgid ""
+"The audio engine info is a window with various stats about Hydrogen and the "
+"audio driver. In case JACK is used, buffer and sampling rate should be set "
+"before starting Hydrogen (JACK automatically starts when an application "
+"tries to connect)."
+msgstr ""
+
+#: manual.docbook:311(title)
+#, fuzzy
+msgid "The Audio Engine Info Window"
+msgstr "Audio engine info"
+
+#: manual.docbook:329(title)
+msgid "Using Hydrogen"
+msgstr ""
+
+#: manual.docbook:332(title)
+msgid "Used Filetypes"
+msgstr ""
+
+#: manual.docbook:333(para)
+msgid "Before working with Hydrogen, please familiarize with these filetypes:"
+msgstr ""
+
+#: manual.docbook:336(para)
+msgid ""
+"<emphasis role=\"bold\">*.h2pattern</emphasis>: XML file describing a single "
+"pattern. Patterns are group of beats and are managed in the pattern editor."
+msgstr ""
+
+#: manual.docbook:339(para)
+msgid ""
+"<emphasis role=\"bold\">*.h2song</emphasis>: XML file describing the whole "
+"song (or sequence). Songs are group of patterns with their properties and "
+"are manager using the song editor"
+msgstr ""
+
+#: manual.docbook:342(para)
+msgid ""
+"<emphasis role=\"bold\">*.h2playlist</emphasis>: XML file describing a "
+"playlist.A Playlist is a (ordered) group of songs."
+msgstr ""
+
+#: manual.docbook:345(para)
+msgid ""
+"<emphasis role=\"bold\">*.h2drumkit</emphasis>: a compressed and archived "
+"folder containing all sound samples composing a drumkit and a description "
+"XML file. Drumkits are basically group of sound samples."
+msgstr ""
+
+#: manual.docbook:351(title)
+#, fuzzy
+msgid "Main menu"
+msgstr "Menu"
+
+#: manual.docbook:352(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\">Projects</emphasis>: this menu offers file related "
+"functions."
+msgstr ""
+"<emphasis role=\"bold\">Fig. 13</emphasis> Stiamo inserendo note nel pattern"
+
+#: manual.docbook:355(para)
+#, fuzzy
+msgid "<emphasis>New</emphasis> - Create a new song"
+msgstr "<emphasis role=\"bold\">Fig. 6</emphasis> La linguetta Appereance"
+
+#: manual.docbook:356(para)
+msgid ""
+"<emphasis>Show Info</emphasis> - Set general properties of the song such as "
+"name, author, license and generic notes"
+msgstr ""
+
+#: manual.docbook:357(para)
+#, fuzzy
+msgid "<emphasis>Open</emphasis> - Open a song"
+msgstr "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Apre file."
+
+#: manual.docbook:358(para)
+msgid ""
+"<emphasis>Open Demo</emphasis> - Open a demo song (demo songs are stored in "
+"<emphasis>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)"
+msgstr ""
+
+#: manual.docbook:359(para)
+#, fuzzy
+msgid "<emphasis>Open recent</emphasis> - Open a menu showing last used songs"
+msgstr "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Apre file."
+
+#: manual.docbook:360(para)
+#, fuzzy
+msgid "<emphasis>Save</emphasis> - Save changes to current song"
+msgstr "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Salva file."
+
+#: manual.docbook:361(para)
+msgid ""
+"<emphasis>Save as</emphasis> - Save current song specifying a name (default "
+"path: <emphasis>$HOME/.hydrogen/data/songs)</emphasis>"
+msgstr ""
+
+#: manual.docbook:362(para)
+#, fuzzy
+msgid ""
+"<emphasis>Open pattern</emphasis> - Open a saved pattern belonging to the "
+"current drumkit"
+msgstr ""
+"<emphasis role=\"bold\">[Backspace]</emphasis> = Ricomincia la canzone o il "
+"pattern da capo."
+
+#: manual.docbook:363(para)
+msgid ""
+"<emphasis>Export pattern as</emphasis> - Saves a pattern. It will be stored "
+"in <emphasis>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis>"
+msgstr ""
+
+#: manual.docbook:364(para)
+#, fuzzy
+msgid ""
+"<emphasis>Export MIDI file</emphasis> - Export current song in MIDI format"
+msgstr "<emphasis role=\"bold\">Fig. 11</emphasis> Esporta un drumkit."
+
+#: manual.docbook:365(para)
+#, fuzzy
+msgid "<emphasis>Export song</emphasis> - Export current song in WAV format"
+msgstr "<emphasis role=\"bold\">Fig. 11</emphasis> Esporta un drumkit."
+
+#: manual.docbook:366(para)
+#, fuzzy
+msgid "<emphasis>Quit</emphasis> - Quit Hydrogen"
+msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> Il mixer"
+
+#: manual.docbook:371(para)
+msgid ""
+"<emphasis role=\"bold\">Instruments</emphasis>: this menu offers instruments "
+"and drumkit (sound libraries) functions."
+msgstr ""
+
+#: manual.docbook:373(para)
+#, fuzzy
+msgid ""
+"<emphasis>Add instrument</emphasis> - Add a new instrument to your current "
+"drumkit"
+msgstr ""
+"<emphasis role=\"bold\">[Backspace]</emphasis> = Ricomincia la canzone o il "
+"pattern da capo."
+
+#: manual.docbook:374(para)
+#, fuzzy
+msgid ""
+"<emphasis>Clear all</emphasis> - Delete all instruments from the current "
+"drumkit"
+msgstr ""
+"<emphasis role=\"bold\">[Backspace]</emphasis> = Ricomincia la canzone o il "
+"pattern da capo."
+
+#: manual.docbook:375(para)
+msgid ""
+"<emphasis>Save library</emphasis> - Saves all instruments settings (and "
+"their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</"
+"emphasis>"
+msgstr ""
+
+#: manual.docbook:376(para)
+msgid ""
+"<emphasis>Export library</emphasis> - Compress all instruments samples and "
+"settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</"
+"emphasis>"
+msgstr ""
+
+#: manual.docbook:377(para)
+msgid ""
+"<emphasis>Import library</emphasis> - Imports another drumkit from the local "
+"filesystem or download it from a remote location through an XML feed. The "
+"XML file that should be provided is <emphasis role=\"bold\">NOT</emphasis> "
+"RSS compliant (see <ulink url=\"http://www.hydrogen-music.org/feeds/"
+"drumkit_list.php\">Hydrogen website</ulink> for an example). To load another "
+"drumkit in your current working session of Hydrogen, read <xref linkend="
+"\"sect.sound_library\"/>."
+msgstr ""
+
+#: manual.docbook:381(para)
+msgid ""
+"<emphasis role=\"bold\">Tools</emphasis>: opens the mixer, the playlist "
+"editor, the instrument rack and the general preferences window."
+msgstr ""
+
+#: manual.docbook:383(para)
+msgid "<emphasis>Playlist editor</emphasis> - A tool to manage playlists."
+msgstr ""
+
+#: manual.docbook:384(para)
+#, fuzzy
+msgid "<emphasis>Mixer</emphasis> - Open the mixer window."
+msgstr "<emphasis role=\"bold\">Fig. 14</emphasis> Dettaglio del Mixer"
+
+#: manual.docbook:385(para)
+#, fuzzy
+msgid "<emphasis>Instrument rack</emphasis> - Open the instrument rack panel."
+msgstr ""
+"<emphasis role=\"bold\">Fig. 13</emphasis> Stiamo inserendo note nel pattern"
+
+#: manual.docbook:386(para)
+msgid ""
+"<emphasis>Preferences</emphasis> - Open the main preferences window. Read "
+"<xref linkend=\"sect.preferences\"/> on how to configure Hydrogen."
+msgstr ""
+
+#: manual.docbook:390(para)
+msgid ""
+"<emphasis role=\"bold\">Debug</emphasis>: tools mainly for debugging and "
+"monitoring Hydrogen (only available when compiled with debug support)."
+msgstr ""
+
+#: manual.docbook:392(para)
+msgid ""
+"<emphasis>Show audio engine info - </emphasis>Open a monitor with various "
+"<link linkend=\"sect.preferences.audio_engine_tab\">stats</link>"
+msgstr ""
+
+#: manual.docbook:393(para)
+#, fuzzy
+msgid "<emphasis>debug action - </emphasis> Insert debug commands."
+msgstr "<emphasis role=\"bold\">Fig. 10</emphasis> Importa un drumkit."
+
+#: manual.docbook:394(para)
+msgid ""
+"<emphasis>Print Objects - </emphasis>Print on stdout current objects map."
+msgstr ""
+
+#: manual.docbook:398(emphasis)
+msgid "Info"
+msgstr ""
+
+#: manual.docbook:400(para)
+msgid "<emphasis>User manual - </emphasis>Open a window with this manual :)"
+msgstr ""
+
+#: manual.docbook:401(para)
+msgid ""
+"<emphasis>About - </emphasis>The usual window with licence information, "
+"acknowledgements, etc."
+msgstr ""
+
+#: manual.docbook:411(title)
+msgid "The main toolbar"
+msgstr "La toolbar principale"
+
+#: manual.docbook:412(para)
+#, fuzzy
+msgid ""
+"Before analyzing the two main frames of Hydrogen, let's take a quick look at "
+"the main toolbar and its components:"
+msgstr ""
+"Prima di analizzare i due frame di Hydrogen, soffermiamoci brevemente sulla "
+"barra degli strumenti principale:"
+
+#: manual.docbook:415(para)
+msgid "Pilot the song using the start, stop, pause, etc. buttons"
+msgstr ""
+
+#: manual.docbook:416(para)
+msgid ""
+"Choose between \"pattern\" or \"song\" mode: in \"pattern\" mode only the "
+"currently selected pattern will play, while in \"song\" mode all patterns "
+"inserted will be played."
+msgstr ""
+
+#: manual.docbook:417(para)
+msgid ""
+"An advanced tap tempo function: choose note length and how many notes to "
+"wait before recalculating BPM, then click the comma key repeatedly until the "
+"'R' letter will appear and the BPM will be updated. (see <xref linkend="
+"\"sect.tap_tempo\"/>)"
+msgstr ""
+
+#: manual.docbook:418(para)
+msgid "Manually set BPM"
+msgstr ""
+
+#: manual.docbook:419(para)
+msgid "Manage JACK transport"
+msgstr ""
+
+#: manual.docbook:420(para)
+msgid "Open the mixer and the instrument rack panels"
+msgstr ""
+
+#: manual.docbook:425(title)
+#, fuzzy
+msgid "The Main Toolbar"
+msgstr "La toolbar principale"
+
+#: manual.docbook:439(para)
+msgid ""
+"Main controls to start <emphasis role=\"bold\">[Hotkey = Spacebar]</"
+"emphasis>, stop, fast forward, rewind, loop a song or a pattern."
+msgstr ""
+"Controlli principali per far partire <emphasis role=\"bold\">[Hotkey = barra "
+"spaziatrice]</emphasis>, fermare, scorrere avanti e indietro oppure eseguire "
+"continuamente un pattern o una canzione."
+
+#: manual.docbook:444(para)
+msgid "Set Pattern/Song Mode."
+msgstr "Impostatzione modalita' Pattern/Song."
+
+#: manual.docbook:448(para)
+msgid ""
+"Set speed of playing (range: 30-400 bpm) <emphasis role=\"bold\">[Hotkey = "
+"mouse wheel]</emphasis> and button to enable/disable metronome"
+msgstr ""
+"Imposta la velocita' di esecuzione (range: 30-400 bpm) <emphasis role=\"bold"
+"\">[Hotkey = rotella del mouse]</emphasis> e bottone per attivare/"
+"disattivare il metronomo"
+
+#: manual.docbook:452(para)
+msgid "Shows CPU load."
+msgstr "Mostra il carico sulla CPU."
+
+#: manual.docbook:456(para)
+msgid "Shows MIDI events."
+msgstr "Mostra l'input MIDI."
+
+#: manual.docbook:460(para)
+msgid ""
+"Click to enable Jack transport: Hydrogen will work as 'slave' with another "
+"'master' program (e.g. Ardour). This applet is only available if Jack Audio "
+"Driver is selected."
+msgstr ""
+"Cliccare per selezionare la funzione di Jack Transport: Hydrogen funzionera' "
+"come 'slave' con un altro programma 'master' (es. Ardour). Questa applet "
+"appare solo se il driver audio Jack e' selezionato."
+
+#: manual.docbook:463(para)
+msgid "Other useful keybindings (not customizable for the moment):"
+msgstr "Altre utili scorciatoie da tastiera (non modificabili al momento):"
+
+#: manual.docbook:467(para)
+msgid "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Open File"
+msgstr "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Apre file."
+
+#: manual.docbook:472(para)
+msgid "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Save File"
+msgstr "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Salva file."
+
+#: manual.docbook:477(para)
+msgid ""
+"<emphasis role=\"bold\">[Backspace]</emphasis> = Restart song or pattern "
+"from the beginning"
+msgstr ""
+"<emphasis role=\"bold\">[Backspace]</emphasis> = Ricomincia la canzone o il "
+"pattern da capo."
+
+#: manual.docbook:484(title)
+msgid "Tap Tempo and BeatCounter"
+msgstr ""
+
+#: manual.docbook:486(para)
+msgid ""
+"It is possible to change tempo at any time using the tap-tempo and "
+"BeatCounter features of Hydrogen. You can change these while playing or "
+"while the song is stopped. To change the tempo, hit the <keycap>,</keycap> "
+"(comma) key in tempo for the number of beats in the measure. After the "
+"correct number of beats are met, the tempo will change to the average tempo "
+"that you tapped in. If you continue to tap, these new taps will become a "
+"part of a rolling average. If you tap accidentally, or if you wait too long "
+"between taps, the tap tempo counter will start over."
+msgstr ""
+
+#: manual.docbook:499(para)
+msgid ""
+"The Tap Tempo is a part of the BeatCounter, which is essentially a Tap Tempo "
+"on steroids. By default the BeatCounter display is not visible. To see the "
+"BeatCounter widget click the upright button (<guilabel>BC</guilabel>) "
+"between Song/Pattern mode selector and the BPM-widget. Or, it can be shown "
+"by pressing the comma key (<keycap>,</keycap>)."
+msgstr ""
+
+#: manual.docbook:507(para)
+msgid ""
+"The tempo that you tap will be considered even beats of the beat type. The "
+"beat type can be set to 1/8 (for eight-note beats), 1/4 (for quarter-note "
+"beats), 1/2 (for half-note beats), and 1/1 (for whole-note beats). To change "
+"the beat type use the left arrow buttons. To change the number of beats that "
+"are counted, use the right arrow button. You can set from 2 to 16 beats. (I."
+"e. if you set the beat to 6, you will have to tap 6 times before the new "
+"tempo is computed and set.) When the display shows an <guilabel>R</"
+"guilabel>, it means that the BeatCounter is ready to start from 0. Every "
+"time you tap with the comma key, it will show the number of taps that you "
+"have entered (1, 2, 3...)."
+msgstr ""
+
+#: manual.docbook:522(para)
+msgid ""
+"The button in the bottom right-hand controls the auto-start feature, and it "
+"toggles between <guilabel>S</guilabel> and <guilabel>P</guilabel>. When it "
+"shows <guilabel>P</guilabel> for (<emphasis>Play</emphasis>), the song will "
+"set the new tempo and automatically start to play after you tap the right "
+"number of beats (if it's not already playing, of course). This way, if you "
+"have the BeatCounter set up for 4/4, you can tap 1-2-3-4, and start playing "
+"on the next beat. When it shows <guilabel>S</guilabel> (for <emphasis>Set "
+"BPM</emphasis>), the auto-start is disabled."
+msgstr ""
+
+#: manual.docbook:536(para)
+msgid ""
+"For example: Suppose you have a live band, Hydrogen, and a softsynth that is "
+"controlled by Seq24)... and you want them all to start at the same time. Set "
+"the beat type to 1/4 and the number of beats to 4. Enable auto-start (button "
+"shows <guilabel>P</guilabel>). Count off the band 1-2-3-4 (while tapping the "
+"comma key) &mdash; and everyone starts on 1."
+msgstr ""
+
+#: manual.docbook:545(para)
+msgid ""
+"Another example: Same situation, but the song doesn't require Hydrogen or "
+"synths until some point later. During that time, a human (e.g. guitar "
+"player) will be setting the tempo. On the measure before Hydrogen is "
+"supposed to play, tap the comma key 1-2-3-4 with the beat... and you're in "
+"on the next beat (at the right tempo)."
+msgstr ""
+
+#: manual.docbook:553(para)
+msgid ""
+"If you are using the JACK Transport, the BeatCounter continues to work. If "
+"another program is the JACK Transport Master, Hydrogen will respond to tempo "
+"change events from that application. Note that in this situation, Hydrogen "
+"is supposed to be a <emphasis>slave</emphasis>, so some of the BeatCounter "
+"features will be disabled or will not work properly. If Hydrogen is the JACK "
+"Transport Master, tempo changes from Hydrogen will be reflected in those "
+"programs (if they support it)."
+msgstr ""
+
+#: manual.docbook:564(para)
+msgid ""
+"Some of the settings to adjust the BeatCounter's latency compensation, and "
+"they are located on the <guilabel>General</guilabel> tab of the Preferences "
+"Dialog ( <menuchoice><guimenu>Tools</guimenu><guimenuitem>Preferences</"
+"guimenuitem></menuchoice> ). Here there are two spinboxes:"
+msgstr ""
+
+#: manual.docbook:577(para)
+msgid ""
+"<emphasis role=\"bold\"><guilabel>Beat counter drift compensation in 1/10ms</"
+"guilabel></emphasis>&mdash; adjust to compensate for latency between the "
+"keyboard and the program."
+msgstr ""
+
+#: manual.docbook:583(para)
+msgid ""
+"<emphasis role=\"bold\"><guilabel>Beat counter start offset in ms</"
+"guilabel></emphasis>&mdash; adjust the time between the BeatCounter's last "
+"input stroke and when the song starts playing (if auto-start is activated)."
+msgstr ""
+
+#: manual.docbook:591(para)
+msgid ""
+"Note that these can be set to positive (+) or negative (-) values. In order "
+"to find useful values for these, you will need to take some time to play "
+"with it. Also, you may want different values depending on the speed of your "
+"hardware, audio devices, drivers, etc. Using the BeatCounter effectively "
+"requires practice."
+msgstr ""
+
+#: manual.docbook:604(title)
+msgid "Song Editor"
+msgstr "Song Editor"
+
+#: manual.docbook:606(para)
+#, fuzzy
+msgid ""
+"The \"Song Editor\" (<xref linkend=\"fig.song_editor\"/>) gives an overview "
+"of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so "
+"on); each blue coloured square on this panel is a complete bar as shown in "
+"the underlying \"Pattern Editor\" panel. Here we have complete freedom to "
+"add, remove or move patterns in any order we prefer. We can also copy and "
+"paste patterns: use left mouse button to highlight an area and drag it "
+"around. Dragging with CTRL key pressed copies the patterns."
+msgstr ""
+"Il frame \"Song Editor\" (Fig. 1) mostra la canzone che stiamo creando; "
+"ciascuna casella blu rappresenta una battuta completa come visualizzata "
+"nella finestra del Pattern Editor, mentre le righe indicano le varie parti "
+"della canzone (esempio: intro, strofa, bridge, ritornello, ecc..). Abbiamo "
+"piena liberta' di aggiungere, rimuovere o spostare le singole battute in "
+"qualunque ordine si preferisca. Poassiamo anche copiare e incollare gruppi "
+"di battute attivando l'apposita modalita' e selezionando l'area con i "
+"pattern interessati tenendo premuto il tasto sinistro del mouse. Tenendo "
+"premuto il tasto Control i pattern verranno copiati anziche' essere spostati."
+
+#: manual.docbook:610(para)
+#, fuzzy
+msgid "The Song Editor comes with 7 buttons:"
+msgstr "XXX"
+
+#: manual.docbook:624(para)
+#, fuzzy
+msgid ""
+"<placeholder-1/> Completely delete all patterns (asks for confirmation!)."
+msgstr "Completely delete all patterns (asks for confirmation!)."
+
+#: manual.docbook:631(para)
+#, fuzzy
+msgid "<placeholder-1/> Create a new pattern (and asks for a name)."
+msgstr "Create a new pattern (and asks for a name)."
+
+#: manual.docbook:638(para)
+#, fuzzy
+msgid "<placeholder-1/> Move currently selected pattern up or down."
+msgstr "Move currently selected pattern up or down."
+
+#: manual.docbook:647(para)
+#, fuzzy
+msgid ""
+"<placeholder-1/> Enable selecting patterns for copy &amp; paste (Select "
+"Mode)."
+msgstr "Enable selecting patterns for copy &amp; paste."
+
+#: manual.docbook:654(para)
+#, fuzzy
+msgid "<placeholder-1/> Enable Draw Mode."
+msgstr "Enable add/remove patterns."
+
+#: manual.docbook:661(para)
+msgid ""
+"<placeholder-1/> Switch from \"Single pattern mode\" to \"Stacked pattern "
+"mode\" and back.."
+msgstr ""
+
+#: manual.docbook:668(para)
+msgid ""
+"Under these buttons there is a list of patterns created and when they will "
+"played (each square == 1 bar). Click on an squarebox to add or cancel the "
+"pattern. Clicking on right mouse button over the name of a pattern will "
+"bring up a menu to change name of the pattern or to allow copying/deleting "
+"it. Patterns with very same name are not allowed."
+msgstr ""
+"Sotto i bottoni c'e' la lista dei pattern creati posizionati nel punto della "
+"canzone in cui verranno eseguiti (una casella == una battuta). Cliccare su "
+"una casella per aggiungere il pattern o eliminarlo. Cliccare col tasto "
+"destro del mouse sul nome del pattern fara' apparire un menu a tendina da "
+"cui si puo' modificarne il nome oppure eliminare. Non sono ammessi pattern "
+"con nomi identici."
+
+#: manual.docbook:674(title)
+#, fuzzy
+msgid "The Song Editor"
+msgstr "Song Editor"
+
+#: manual.docbook:685(title)
+msgid "Pattern Editor"
+msgstr "Pattern Editor"
+
+#: manual.docbook:686(para)
+#, fuzzy
+msgid ""
+"The \"Pattern Editor\" frame (<xref linkend=\"fig.pattern_editor\"/>) lets "
+"us create or modify the pattern (bar) which is being played, or add/remove "
+"notes and tune intensity as well. On the higher-left side you find a pair of "
+"LCD screens: the first one lets you choose the size of a pattern while the "
+"second represents the current grid resolution (4 through 64). Selecting an "
+"instrument which has at least one note in the pattern will show a few "
+"vertical bars (one per note) on the lowest part of this frame. Those frame "
+"shows the so called \"note properties\". This are special properties which "
+"can be set for every single note. Hydrogen knows of 3 Properties: Velocity, "
+"Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect "
+"of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms "
+"at a tempo of 120bpm."
+msgstr ""
+"La finestra \"Pattern Editor\" (Fig. 2) ci permette di creare o modificare "
+"il pattern in esecuzione, aggiungere o togliere note e regolarne "
+"l'intensita'. In altro a sinistra troviamo una coppia di display LCD; il "
+"primo permette di selezionare il pattern da visualizzare nel Song Editor "
+"(scegliendo fra quelli gia' creati) mentre il secondo permette di modificare "
+"la risoluzione agevolando l'immissione di nuove note: e' possibile settare "
+"la griglia per 4, 8, 16, 32 o 64 colpi per battuta e i rispettivi ritmi "
+"terzinati indicati con 4T, 8T, 16T e 32T. Si puo' anche selezionare il "
+"numero di battute effettivamente suonate tramite l'apposito menu (da 1 a 8). "
+"Selezionando uno strumento che abbia almeno una nota sullo schermo fara' "
+"apparire in basso delle barre verticali da cui regolare quanto 'piano' o "
+"'forte' battere quel colpo. Il pulsante <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/btn_hear_on.png\" format=\"PNG\"/> </imageobject> </"
+"inlinemediaobject> (hear new notes) serve per ascoltare i suoni man mano che "
+"vengono immessi. Infine si possono spostare gli strumenti nella sequenza "
+"tramite gli appositi pulsanti <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_updown.png\" format=\"PNG\"/> </imageobject> </"
+"inlinemediaobject> . E' disponbibile un'utile funzione di \"Quantize\" "
+"contrassegnata dal pulsante <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_quant_over.png\" format=\"PNG\"/> </imageobject> </"
+"inlinemediaobject> che permette alle note inserite di posizionarsi "
+"automaticamente secondo la griglia impostata."
+
+#: manual.docbook:693(para)
+msgid ""
+"The button <placeholder-1/> (hear new notes) will play the sample as it's "
+"been added to the pattern. Finally you can move an instrument up and down in "
+"the sequence with the buttons <placeholder-2/> . A useful <quote>Quantize</"
+"quote> feature is available activating <placeholder-3/> . This way the beats "
+"inserted will automatically respect the grid resolution currently applied."
+msgstr ""
+
+#: manual.docbook:721(title) manual.docbook:1551(title)
+#, fuzzy
+msgid "The Pattern Editor"
+msgstr "Pattern Editor"
+
+#: manual.docbook:729(para)
+msgid ""
+"Rememeber this constraint concerning the grid: if you are working with a "
+"resolution of 16 you can't go back to 8 and remove a 16th note; on the other "
+"hand if you are working with a resolution of 8 and you try to insert a note "
+"in the middle of two bars (looking for a 16 bars precision), notes will be "
+"placed in the previous or in the following 8th bar. This contraint can be "
+"removed if you disable the whole grid resolution (choose \"off\" from the "
+"grid resolution LCD control). Now you'll be able to place notes wherever you "
+"prefer."
+msgstr ""
+
+#: manual.docbook:734(para)
+#, fuzzy
+msgid ""
+"Each instrument has its own set of features accessible right-clicking with "
+"your mouse on it; <quote><emphasis role=\"bold\">Fill/Clear notes</"
+"emphasis></quote> fills or deletes every note of that instrument in the "
+"current pattern (remember that filling a pattern is always relative to the "
+"grid resolution set) and finally <quote><emphasis role=\"bold\">Randomize "
+"velocity</emphasis></quote> automatically apply a pseudo-random velocity to "
+"each note of that instrument in the pattern. The more velocity you set on "
+"the instrument, the more hydrogen will hit <quote>hard</quote> on that "
+"instrument when played."
+msgstr "XXX"
+
+#: manual.docbook:738(para)
+msgid ""
+"The small green and red squares beside the instrument name are the "
+"<quote><emphasis role=\"bold\">mute</emphasis></quote> and <quote><emphasis "
+"role=\"bold\">solo</emphasis></quote> buttons."
+msgstr ""
+
+#: manual.docbook:750(para)
+#, fuzzy
+msgid ""
+"Also, you can set new beats clicking on <placeholder-1/> which enables "
+"direct input by MIDI events or by keyboard according to the following map "
+"key=instrument:"
+msgstr ""
+"Si possono anche aggiungere nuovi colpi cliccando su <inlinemediaobject> "
+"<imageobject> <imagedata fileref=\"img/btn_record_off.png\" format=\"PNG\"/> "
+"</imageobject> </inlinemediaobject> che attiva l'inserimento diretto tramite "
+"MIDI o tastiera secondo il seguente schema tasto=strumento:"
+
+#: manual.docbook:760(emphasis)
+msgid ""
+"Note that the name of the instrument depends on the drumkit loaded. This "
+"list refers to the GMKit loaded by default. The position of the instrument, "
+"however, is the same."
+msgstr ""
+"Notare che il nome dello strumento dipende dal drumkit caricato. Questa "
+"lista riferisce al GMkit caricato di default. La posizione dello strumento, "
+"tuttavia, e' sempre la stessa."
+
+#: manual.docbook:763(para)
+msgid "Z = Kick"
+msgstr "Z = Kick"
+
+#: manual.docbook:764(para)
+msgid "X = Snare Jazz"
+msgstr "X = Snare Jazz"
+
+#: manual.docbook:765(para)
+msgid "C = Snare Rock"
+msgstr "C = Snare Rock"
+
+#: manual.docbook:766(para)
+msgid "V = Tom Low"
+msgstr "V = Tom Low"
+
+#: manual.docbook:767(para)
+msgid "B = Tom Mid"
+msgstr "B = Tom Mid"
+
+#: manual.docbook:768(para)
+msgid "N = Tom Hi"
+msgstr "N = Tom Hi"
+
+#: manual.docbook:769(para)
+msgid "M = Cowbell"
+msgstr "M = Cowbell"
+
+#: manual.docbook:770(para)
+msgid "Q = Ride Jazz"
+msgstr "Q = Ride Jazz"
+
+#: manual.docbook:771(para)
+msgid "W = Ride Rock"
+msgstr "W = Ride Rock"
+
+#: manual.docbook:772(para)
+msgid "E = Instrument No. 17 (currently not assigned)"
+msgstr "E = Strumento No. 17 (non assegnato)"
+
+#: manual.docbook:773(para)
+msgid "R = Instrument No. 18 (currently not assigned)"
+msgstr "R = Strumento No. 18 (non assegnato)"
+
+#: manual.docbook:774(para)
+msgid "T = Instrument No. 20 (currently not assigned)"
+msgstr "T = Strumento No. 20 (non assegnato)"
+
+#: manual.docbook:775(para)
+msgid "Y = Instrument No. 22 (currently not assigned)"
+msgstr "Y = Strumento No. 22 (non assegnato)"
+
+#: manual.docbook:776(para)
+msgid "U = Instrument No. 24 (currently not assigned)"
+msgstr "U = Strumento No. 24 (non assegnato)"
+
+#: manual.docbook:777(para)
+msgid "S = Stick"
+msgstr "S = Stick"
+
+#: manual.docbook:778(para)
+msgid "D = Hand Clap"
+msgstr "D = Hand Clap"
+
+#: manual.docbook:779(para)
+msgid "G = Closed HH"
+msgstr "G = Closed HH"
+
+#: manual.docbook:780(para)
+msgid "H = Pedal HH"
+msgstr "H = Pedal HH"
+
+#: manual.docbook:781(para)
+msgid "J = Open HH"
+msgstr "J = Open HH"
+
+#: manual.docbook:782(para)
+msgid "2 = Crash"
+msgstr "2 = Crash"
+
+#: manual.docbook:783(para)
+msgid "3 = Crash Jazz"
+msgstr "3 = Crash Jazz"
+
+#: manual.docbook:784(para)
+msgid "5 = Instrument No. 19 (currently not assigned)"
+msgstr "5 = Strumento No. 19 (non assegnato)"
+
+#: manual.docbook:785(para)
+msgid "6 = Instrument No. 21 (currently not assigned)"
+msgstr "6 = Strumento No. 21 (non assegnato)"
+
+#: manual.docbook:786(para)
+msgid "7 = Instrument No. 23 (currently not assigned)"
+msgstr "7 = Strumento No. 23 (non assegnato)"
+
+#: manual.docbook:790(para)
+#, fuzzy
+msgid ""
+"Here's a quick reference of the above bindings for your convenience. See "
+"<xref linkend=\"chap.create_song\"/> for a basic walkthrough of how the "
+"pattern editor works."
+msgstr "Ecco un veloce riepilogo dei tasti menzionati."
+
+#: manual.docbook:803(title)
+msgid "Mixer"
+msgstr "Mixer"
+
+#: manual.docbook:806(title) manual.docbook:1635(title)
+#, fuzzy
+msgid "The Mixer"
+msgstr "Mixer"
+
+#: manual.docbook:814(para)
+#, fuzzy
+msgid ""
+"The Mixer frame (<xref linkend=\"fig.mixer\"/>) is useful for tuning a "
+"global or single volume of the current drumkit. It shows the current peak "
+"(click on <placeholder-1/> to disable, useful on old CPUs) and let you set "
+"the maximum peak allowed (tune with the fader knob of the instrument), lets "
+"you modify attributes like pan, play solo <placeholder-2/> , mute "
+"<placeholder-3/> or test play only that instrument <placeholder-4/> ; "
+"selecting in the Pattern Editor an instrument causes a blue LED to light on "
+"(near the play button). Near the global volume knob, you can set 3 global "
+"effect such a swing (shifts a few notes back or forward not randomly), "
+"timing (modify timings of the notes) and humanize effect (random velocity "
+"editing)."
+msgstr ""
+"La finestra del mixer (Fig. 3) torna utile per settare un volume singolo o "
+"globale del drumkit corrente. Mostra il picco corrente dello strumento "
+"(cliccare su <inlinemediaobject> <imageobject> <imagedata fileref=\"img/"
+"showPeaks_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> per "
+"disabilitarlo, risparmia qualcosa sulle vecchie CPU), permette di impostare "
+"il picco massimo (con l'apposita manetta a scorrimento verticale di ciascun "
+"strumento) e attributi come il \"pan\" (posizionamento stereo) "
+"<inlinemediaobject> <imageobject> <imagedata fileref=\"img/MixerPan.png\" "
+"format=\"PNG\"/> </imageobject> </inlinemediaobject> , suonare singolarmente "
+"uno strumento <inlinemediaobject> <imageobject> <imagedata fileref=\"img/"
+"btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> , "
+"ammutolire un singolo strumento <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> </"
+"inlinemediaobject> o suonare per test quello strumento <inlinemediaobject> "
+"<imageobject> <imagedata fileref=\"img/btn_play_on_mixer.png\" format=\"PNG"
+"\"/> </imageobject> </inlinemediaobject> ; selezionare nel Pattern Editor "
+"uno strumento causera l'accensione di un piccolo LED blu nella sezione "
+"assegnata al mixer per quello strumento. Accanto alla regolazione del volume "
+"principale, infine, troviamo tre differenti effetti: swing (spoasta "
+"lievemente e in maniera non casuale le note), timing (anticipa o ritarda) "
+"and humanize effect (modifica la velocity, l'intensita' di come vengono "
+"suonati gli strumenti). Facendo doppio click sul nome dello strumento appare "
+"una finestra con due schede per modificarne le proprieta'."
+
+#: manual.docbook:849(para)
+#, fuzzy
+msgid ""
+"In addition to all this you can set up to 4 special LADSPA effects for each "
+"instrument switching the <placeholder-1/> button. See next section for a "
+"detailed overview. <placeholder-2/>"
+msgstr ""
+"In piu' a tutto questo si possono impostare 4 effetti LADSPA per ciascun "
+"strumento cliccando su <inlinemediaobject> <imageobject> <imagedata fileref="
+"\"img/showFX_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> . "
+"Nella prossima sezione una panoramica piu' ampia."
+
+#: manual.docbook:873(title)
+#, fuzzy
+msgid "Sound Library (Drumkit Manager)"
+msgstr "Drumkit manager"
+
+#: manual.docbook:875(para)
+msgid ""
+"The Sound Library saves you time in managing your drum kits, favorite "
+"patterns, and favorite songs. When making new songs and drum kits, the Sound "
+"Library makes it easier for you to reuse and mix the instruments and "
+"patterns from other kits and songs."
+msgstr ""
+
+#: manual.docbook:881(title)
+msgid "System Drumkits"
+msgstr ""
+
+#: manual.docbook:883(para)
+msgid ""
+"This lists the drumkits that were installed by your system administrator. It "
+"was determined by the compile-time prefix. On Unix-like operating systems, "
+"this is usually <filename role=\"directory\">/usr/share/hydrogen/data/"
+"drumkits</filename>, or possibly <filename role=\"directory\">/usr/local/"
+"share/hydrogen/data/drumkits</filename>. These kits are available to all "
+"users on the system, and users are usually not able to add to them."
+msgstr ""
+
+#: manual.docbook:892(para)
+msgid ""
+"To load a drumkit from here, right-click the drumkit and select "
+"<guimenuitem>Load</guimenuitem>. This will replace your current drumkit with "
+"the one that you selected. To load a single instrument from that kit, left-"
+"click the <guibutton>plus</guibutton> to the left of the drumkit's name to "
+"show all the instruments. With your left mouse button, click and drag the "
+"instrument into your current kit. The instrument will be added to the "
+"drumkit that you currently have loaded."
+msgstr ""
+
+#: manual.docbook:903(title)
+msgid "User Drumkits"
+msgstr ""
+
+#: manual.docbook:905(para)
+msgid ""
+"These are your own drum kits that you can manage yourself. They are usually "
+"stored in <filename role=\"directory\">$HOME/.hydrogen/data/drumkits</"
+"filename>. When you are creating a new drumkit, you can save it here by "
+"selecting <menuchoice><guimenu>Instruments</guimenu><guimenuitem>Save "
+"library</guimenuitem></menuchoice>."
+msgstr ""
+
+#: manual.docbook:913(para)
+msgid ""
+"Loading drumkits and instruments to use is the same as for the System "
+"Drumkits (see <xref linkend=\"sect.systemdrumkits\"/>)."
+msgstr ""
+
+#: manual.docbook:918(title)
+msgid "Patterns in the Sound Library"
+msgstr ""
+
+#: manual.docbook:920(para)
+msgid ""
+"Before you save your favorite patterns to the sound library, be sure to edit "
+"it's properties by right-clicking and selecting <guimenuitem>Properties</"
+"guimenuitem>. There, you can give the pattern a title and a category. You "
+"can use one of the categories already provided, or create your own "
+"categories by simply typing in a category name. The category name is "
+"important, because the patterns will be filed by category in the Sound "
+"Library."
+msgstr ""
+
+#: manual.docbook:928(para)
+msgid ""
+"You can save your favorite patterns in the sound library by right clicking "
+"the title of the pattern in the song editor, and selecting <guimenuitem>Save "
+"Pattern</guimenuitem>. It will appear in the Sound Library underneath "
+"<guilabel>Patterns</guilabel> and the category that you assigned to the "
+"pattern."
+msgstr ""
+
+#: manual.docbook:936(title)
+msgid "Songs in the Sound Library"
+msgstr ""
+
+#: manual.docbook:938(para)
+msgid ""
+"To save songs in the Sound Library, put them in your data directory "
+"underneath the <filename role=\"directory\">songs</filename> folder (usually "
+"<filename role=\"directory\">$HOME/data/songs</filename>. To remove them, "
+"remove the file from that folder."
+msgstr ""
+
+#: manual.docbook:947(title)
+msgid "Drumkits and Instrument Editing"
+msgstr ""
+
+#: manual.docbook:949(para)
+msgid ""
+"Creating a new drumkit with Hydrogen is done with the Instrument Editor. "
+"Using the instrument editor you can load samples, set envelope parameters, "
+"set the gain, and a few other advanced features like mute groups, low-pass "
+"resonance filter, and pitch randomization."
+msgstr ""
+
+#: manual.docbook:955(para)
+msgid ""
+"Instead of creating your own drumkit, you can also use or download existing "
+"drumkits using the <xref linkend=\"sect.sound_library\"/>."
+msgstr ""
+
+#: manual.docbook:963(title)
+msgid "Concepts"
+msgstr ""
+
+#: manual.docbook:965(para)
+msgid ""
+"The synthesizer in Hydrogen is a sample-based synthesizer. A sample is a "
+"piece of pre-recorded audio (usually between .1 sec and 3 sec). To play a "
+"note, the sample is simply played back at the right time. There's a few "
+"concepts and terms that you should understand when you are putting together "
+"a drumkit. (See <xref linkend=\"glossary\"/> for more detailed explanations.)"
+msgstr ""
+
+#: manual.docbook:976(title)
+msgid "Sampling Synthesizer Terms"
+msgstr ""
+
+#: manual.docbook:978(term) manual.docbook:1992(glossterm)
+msgid "Sample"
+msgstr ""
+
+#: manual.docbook:978(para) manual.docbook:1994(para)
+msgid ""
+"A short recording of a sound, typically between .1 and 3.0 seconds long."
+msgstr ""
+
+#: manual.docbook:983(term) manual.docbook:1818(glossterm)
+msgid "Gain"
+msgstr ""
+
+#: manual.docbook:983(para)
+msgid "Volume adjustment."
+msgstr ""
+
+#: manual.docbook:987(term) manual.docbook:2016(glossterm)
+msgid "Velocity"
+msgstr ""
+
+#: manual.docbook:987(para) manual.docbook:2018(para)
+msgid "How hard you hit a note."
+msgstr ""
+
+#: manual.docbook:991(term)
+msgid "ADSR Envelope Generator"
+msgstr ""
+
+#: manual.docbook:991(para)
+msgid ""
+"An Attack/Decay/Sustain/Release envelope generator. After you trigger a "
+"note, Hydrogen will <emphasis>attack</emphasis> the note by increasing its "
+"volume from 0 to the full velocity of the note. After reaching full "
+"velocity, it will <emphasis>decay</emphasis> the note by lowering the volume "
+"until it reaches the <emphasis>sustain</emphasis> level. When the note is "
+"<emphasis>released</emphasis>, Hydrogen reduces the volume from the sustain "
+"level back down to 0."
+msgstr ""
+
+#: manual.docbook:1005(term) manual.docbook:1686(glossterm)
+msgid "Attack"
+msgstr ""
+
+#: manual.docbook:1005(para)
+#, fuzzy
+msgid ""
+"The amount of <emphasis role=\"bold\">time</emphasis> to go from 0 to full "
+"velocity."
+msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> Selezionate un effetto."
+
+#: manual.docbook:1010(term) manual.docbook:1763(glossterm)
+msgid "Decay"
+msgstr ""
+
+#: manual.docbook:1010(para)
+msgid ""
+"The amount of <emphasis role=\"bold\">time</emphasis> to go from full "
+"velocity to the sustain volume."
+msgstr ""
+
+#: manual.docbook:1015(term) manual.docbook:2000(glossterm)
+msgid "Sustain"
+msgstr ""
+
+#: manual.docbook:1015(para)
+msgid ""
+"The <emphasis role=\"bold\">level</emphasis> (how loud) to hold the note "
+"between the sustain and the release. It is a percentage of the velocity. It "
+"does not depend on time."
+msgstr ""
+
+#: manual.docbook:1021(term) manual.docbook:1934(glossterm)
+msgid "Release"
+msgstr ""
+
+#: manual.docbook:1021(para)
+#, fuzzy
+msgid ""
+"The amount of <emphasis role=\"bold\">time</emphasis> to go from the sustain "
+"volume back down to 0."
+msgstr ""
+"<emphasis role=\"bold\">Fig. 8</emphasis> Carica un drumkit. Scegliere fra "
+"quelli installati."
+
+#: manual.docbook:1027(para)
+msgid ""
+"Typical samples that are used in Hydrogen are: the sound of a single drum "
+"hit, the sound of a single cymbal hit, the sound of a single cowbell hit. "
+"Whenever you put a note in the pattern (or play a note using MIDI), Hydrogen "
+"will play whatever sound you have loaded. So, to put together a drum kit you "
+"need to gather short recordings of the bass drum, each tom, each cymbal, the "
+"high hat open, the high hat closed, the snare drum (snare on), the snare "
+"drum (snare off), rim shots, etc."
+msgstr ""
+
+#: manual.docbook:1039(para)
+msgid ""
+"However, there are no rules about what a sample can be. It's not uncommon to "
+"use Hydrogen to trigger non-drum sounds like: audio clips of people talking, "
+"a clip from a song, sound effects, audio clips from movies, and famous "
+"people speaking. Be creative!"
+msgstr ""
+
+#: manual.docbook:1049(title)
+msgid "Creating a New Drumkit"
+msgstr ""
+
+#: manual.docbook:1051(para)
+msgid ""
+"To start a brand new drum kit, select <menuchoice><guimenu>Instruments</"
+"guimenu><guimenuitem>Clear All</guimenuitem></menuchoice>. This will give "
+"you a bank of 32 blank instruments. To delete instruments, right-click on on "
+"each instrument and select <guimenuitem>Delete Instrument</guimenuitem>. To "
+"add more instruments, select <menuchoice><guimenu>Instruments</"
+"guimenu><guimenuitem>Add instrument</guimenuitem></menuchoice>."
+msgstr ""
+
+#: manual.docbook:1066(para)
+msgid ""
+"Select an instrument to start editing it. This is done by left-clicking on "
+"the name of the instrument in the instrument list (at the left). You will "
+"notice that the name of the instrument in the Instrument Editor matches the "
+"one that you clicked."
+msgstr ""
+
+#: manual.docbook:1072(para)
+msgid ""
+"After you have your drum kit working the way you want, select "
+"<menuchoice><guimenuitem>Instruments</guimenuitem><guimenuitem>Save library</"
+"guimenuitem></menuchoice>. It will ask you for the name of the kit to save. "
+"If you wish to <emphasis>overwrite</emphasis> an existing kit, you will need "
+"to type in the same name as the kit that you want to replace."
+msgstr ""
+
+#: manual.docbook:1083(para)
+msgid ""
+"Drumkits are automatically stored in the <filename class=\"directory\">data</"
+"filename> directory (i.e. <filename class=\"directory\">$HOME/data/drumkits</"
+"filename>)."
+msgstr ""
+
+#: manual.docbook:1088(para)
+msgid ""
+"To export a drumkit (for sharing with others), it must first be loaded into "
+"your Sound Library. Then, select <menuchoice><guimenuitem>Instruments</"
+"guimenuitem><guimenuitem>Export library</guimenuitem></menuchoice> from the "
+"menu. Select the drum kit that you wish to export, and give it a file name "
+"to save it to."
+msgstr ""
+
+#: manual.docbook:1100(title)
+msgid "Creating an Instrument and Layers"
+msgstr ""
+
+#: manual.docbook:1102(para)
+msgid ""
+"For each instrument in a drum kit, you can load several samples and set "
+"different synthesizer parameters. This section will step you through how to "
+"create a new instrument and load the samples."
+msgstr ""
+
+#: manual.docbook:1107(para)
+msgid ""
+"To begin creating an instrument, select <menuchoice><guimenu>Instruments</"
+"guimenu><guimenuitem>Add instrument</guimenuitem></menuchoice>. This will "
+"give you a blank instrument to start from."
+msgstr ""
+
+#: manual.docbook:1114(para)
+msgid ""
+"Now, you need two samples. Any .WAV or .FLAC file will do. Hydrogen provides "
+"several in the <filename class=\"directory\">data/drumkits</filename> "
+"directory."
+msgstr ""
+
+#: manual.docbook:1119(para)
+msgid ""
+"In the instrument editor, click on <guibutton>Layers</guibutton>. You can "
+"layer several samples into the instrument. Which one is played depends on "
+"the velocity of the incoming note. Click <guibutton>Load Layer</guibutton> "
+"and point the <guimenu>Audio File Browser</guimenu> to your sample. Note "
+"that the <guimenu>Audio File Browser</guimenu> will allow you to preview the "
+"sample before you load it. It will also allow you to load more than one "
+"sample at a time. But for now, only load one."
+msgstr ""
+
+#: manual.docbook:1129(para)
+msgid ""
+"After you load the sample, you'll see that there is now a <guilabel>1</"
+"guilabel> at the top, and the topmost rectangle has turned light blue. To "
+"load a second sample, click the slot just below it, and then click "
+"<guibutton>Load Layer</guibutton> to bring in another sample."
+msgstr ""
+
+#: manual.docbook:1136(para)
+msgid ""
+"After bringing in both samples, you'll probably notice that only the "
+"<emphasis>first</emphasis> sample is being played whenever you trigger the "
+"instrument. This is because you need to set the <emphasis>velocity</"
+"emphasis> ranges for the layers. Move your mouse to the sides of the light "
+"blue rectangles and you see that you get a left-right drag cursor. Now drag "
+"the sample to the left or right (like a curtain). You will now see Layer 2 "
+"appear."
+msgstr ""
+
+#: manual.docbook:1147(para)
+msgid ""
+"The velocity setting for the layer is 0-velocity on the left, and full "
+"velocity on the right. Set up Layer 1 to sound for soft notes, and Layer 2 "
+"to sound for hard notes. (I.e. Layer 1 on the left and Layer 2 on the right.)"
+msgstr ""
+
+#: manual.docbook:1153(para)
+msgid ""
+"Now, in the pattern area, set up a simple pattern that plays this "
+"instrument. Adjust the velocity settings on each note so that you can get "
+"the different samples to sound. Now set the pattern to loop and notice how "
+"your different samples are getting triggered. (To learn about editing a "
+"pattern, see <xref linkend=\"sect.pattern_editor\"/>)"
+msgstr ""
+
+#: manual.docbook:1161(para)
+msgid ""
+"For each layer, you can set the <guibutton>Gain</guibutton> and the "
+"<guibutton>Pitch</guibutton>. The pitch also has a <guibutton>Fine</"
+"guibutton> adjustment."
+msgstr ""
+
+#: manual.docbook:1166(para)
+msgid ""
+"Use the <guibutton>Gain</guibutton> adjustment to control how loud the "
+"sample will play. This is necessary because it's extremely difficult to get "
+"a set of samples that all sound at about the same volume. By adjusting here, "
+"the samples that were recorded too quietly can be turned up to match your "
+"loud samples (that had to be turned down)."
+msgstr ""
+
+#: manual.docbook:1175(para) manual.docbook:1318(para)
+msgid ""
+"It is very easy to set the <guibutton>Gain</guibutton> too high, causing "
+"your sample to clip. Remember to test the gain with full-velocity notes. If "
+"you clip your signal here, it will only get worse as Hydrogen processes it."
+msgstr ""
+
+#: manual.docbook:1183(para)
+msgid ""
+"The pitch of the sample can be modified with the pitch controls. The "
+"<guibutton>Pitch</guibutton> knob adjust the pitch in musical half-steps. "
+"(So, -12 is down 1 octave). The pitch on the right adjusts the pitch "
+"&plusmn;50 cents. (One half-step is 100 cents.)"
+msgstr ""
+
+#: manual.docbook:1191(para)
+msgid ""
+"The pitch is adjusted by playing the sample back faster or slower. This is "
+"called the Dopplar Effect. So, if you have a 1-second sample that you turn "
+"down -12 (1 octave), you sample will only last for .5-seconds."
+msgstr ""
+
+#: manual.docbook:1199(title)
+msgid "Instrument Parameters"
+msgstr ""
+
+#: manual.docbook:1201(para)
+msgid ""
+"In the instrument editor, click on the <guibutton>General</guibutton> "
+"button. Here you can adjust several parameters that are for the whole "
+"instrument (not for each layer). The parameters that you can adjust are:"
+msgstr ""
+
+#: manual.docbook:1209(para)
+msgid ""
+"<emphasis role=\"bold\">Envelope parameters</emphasis>: <guibutton>Attack</"
+"guibutton>, <guibutton>Decay</guibutton>, <guibutton>Sustain</guibutton>, "
+"<guibutton>Release</guibutton>. (See <xref linkend=\"def.envelopegenerator\"/"
+">)"
+msgstr ""
+
+#: manual.docbook:1215(para)
+#, fuzzy
+msgid ""
+"<emphasis role=\"bold\"><guibutton>Gain</guibutton></emphasis>: The overall "
+"volume of the instrument."
+msgstr ""
+"<emphasis role=\"bold\">Fig. 8</emphasis> Carica un drumkit. Scegliere fra "
+"quelli installati."
+
+#: manual.docbook:1219(para)
+msgid ""
+"<emphasis role=\"bold\"><guibutton>Mute Group</guibutton></emphasis>: Which "
+"mute group this instrument is a member of (see <xref linkend=\"def.mutegroup"
+"\"/>)."
+msgstr ""
+
+#: manual.docbook:1225(para)
+msgid ""
+"<emphasis role=\"bold\">Filter Parameters</emphasis>: <guibutton>Byp</"
+"guibutton>ass, <guibutton>Cutoff</guibutton>, <guibutton>Resonance</"
+"guibutton>."
+msgstr ""
+
+#: manual.docbook:1230(guibutton)
+msgid "Random Pitch"
+msgstr ""
+
+#: manual.docbook:1235(para)
+msgid ""
+"It's important that you understand <xref linkend=\"sect.instrument_editing."
+"concepts\"/> in order to continue on."
+msgstr ""
+
+#: manual.docbook:1240(title)
+msgid "Envelope Parameters"
+msgstr ""
+
+#: manual.docbook:1242(para)
+msgid ""
+"When the instrument is triggered, its volume is run through an ADSR "
+"Envelope. The parameters operate as follows:"
+msgstr ""
+
+#: manual.docbook:1257(para)
+msgid ""
+"The attack, decay, and release parameters are all set by the number of "
+"<emphasis>audio samples</emphasis>. This means that the time changes "
+"depending on the sample rate of your sound card. The max time for each of "
+"them is 100,000 audio samples (typ. 2.27 sec at 44.1 kHz)."
+msgstr ""
+
+#: manual.docbook:1248(para)
+msgid ""
+"<emphasis role=\"bold\">Attack</emphasis>&mdash; the amount of "
+"<emphasis>time</emphasis> that the volume of the sample goes from 0 to the "
+"full velocity of the note. If the value is 0, the sample will play "
+"immediately at full velocity. If the value is 1.0, the sample volume will "
+"use the maximum time available for the attack paramater. <placeholder-1/>"
+msgstr ""
+
+#: manual.docbook:1267(para)
+msgid ""
+"<emphasis role=\"bold\">Decay</emphasis>&mdash; the amount of "
+"<emphasis>time</emphasis> for the volume of the sample to go from full "
+"velocity down to the sustain volume. If the value is 0, the sample will "
+"immediately skip from the attack volume to the sustain volume. If the value "
+"is 1.0, the sample volume will use the maximum time available for the decay "
+"parameter.<footnoteref linkend=\"fn.adsrtimes\"/>"
+msgstr ""
+
+#: manual.docbook:1278(para)
+msgid ""
+"<emphasis role=\"bold\">Sustain</emphasis>&mdash; the <emphasis>volume</"
+"emphasis> to play the note after the decay phase is over, and until the note "
+"is released. If set to 0, the note will be silent. If set to 1.0, the note "
+"will play at full velocity."
+msgstr ""
+
+#: manual.docbook:1286(para)
+msgid ""
+"<emphasis role=\"bold\">Release</emphasis>&mdash; the <emphasis>time</"
+"emphasis> to fade out the note from the sustain volume back down to 0 "
+"(silent). If set to 0, the note will fade out in the minimum amount of time "
+"(about 5 ms). If set to 1, it will fade out for the maximum time available."
+"<footnoteref linkend=\"fn.adsrtimes\"/>"
+msgstr ""
+
+#: manual.docbook:1296(para)
+msgid ""
+"If the sample is shorter than the times that you specify, the sample will "
+"end, regardless of which phase of the ADSR it is in. If the note is "
+"sustained, it does <emphasis>not</emphasis> draw out the note while you are "
+"holding it. It only holds the gain (volume) parameter during that time."
+msgstr ""
+
+#: manual.docbook:1306(title)
+msgid "Gain and Mute Group"
+msgstr ""
+
+#: manual.docbook:1308(para)
+msgid ""
+"The gain sets the overall volume for the sample. This gain is applied after "
+"the gain that you set for the layer, and before the gain that is set for the "
+"mixer. If the Gain is 0, the instrument will be silent. If the gain is 1.0 "
+"the volume of the samples will not be adjusted (i.e. 0 dB). If the gain is "
+"set higher, the samples will be amplified."
+msgstr ""
+
+#: manual.docbook:1326(para)
+msgid ""
+"Hydrogen provides more mute groups than you know what to do with (over 256). "
+"A mute group is a grouping of instruments that are mutually exclusive "
+"&mdash; only one instrument may be playing at any time. If one is playing "
+"and another instrument in the group is triggered, it will immediately "
+"silence (mute) and start playing the other instrument. This is useful, "
+"especially, for instruments like hi-hats where the open sound and the closed "
+"sound are different instruments."
+msgstr ""
+
+#: manual.docbook:1337(para)
+msgid ""
+"If the mute group is set to <guilabel>Off</guilabel>, then the instrument is "
+"not part of any mute grouping. If the mute group is set to any number, then "
+"that is the group that the instrument is a part of. To set other instruments "
+"into the same grouping, set their mute group parameter to the same number. "
+"(For example, to group all the high-hat instruments, you can set all their "
+"mute group parameters to 1. To have a snare drum mute group, set their mute "
+"group parameters to 2.)"
+msgstr ""
+
+#: manual.docbook:1352(title)
+msgid "Filter and Random Pitch"
+msgstr ""
+
+#: manual.docbook:1354(para)
+msgid ""
+"The filter is a low-pass resonance filter. If you don't wish to use is, "
+"click the <guibutton>BYP</guibutton>ass button so that it's red. If it's not "
+"red, then the filter is active. The cutoff parameter adjusts the cutoff "
+"frequency for the filter. The resonance parameter adjusts how much to "
+"resonate the cutoff frequency. If the resonance is set to 0, then the filter "
+"is just a simple low-pass filter."
+msgstr ""
+
+#: manual.docbook:1363(para)
+msgid ""
+"The cutoff frequency of the filter varies with the sample rate of your audio "
+"card. The range of the knob (0 to 1.0) is optimized for a 48,000 kHz sample "
+"rate."
+msgstr ""
+
+#: manual.docbook:1381(para)
+msgid ""
+"The random pitch paramater allows you to randomly vary the pitch of the "
+"sample every time it is triggered. The value is set between 0 and 1.0. The "
+"pitch change is fairly small: &plusmn;2 half-steps &times; value. Using this "
+"sparingly can help your sequences to sound more like a real drummer."
+msgstr ""
+
+#: manual.docbook:1390(title)
+msgid "Tips on Editing Instruments"
+msgstr ""
+
+#: manual.docbook:1392(para)
+msgid ""
+"With all of the different parameters available to tweak, it can be difficult "
+"to set up something that sounds nice when you're done. Here's a few tips on "
+"setting up an instrument:"
+msgstr ""
+
+#: manual.docbook:1397(para)
+msgid ""
+"<emphasis role=\"bold\">Turn down the gain.</emphasis> Every time you have a "
+"gain knob (i.e. an amplifier), this is called a <emphasis>gain stage</"
+"emphasis>. With every gain stage you have, it's easy to overdrive your "
+"signal &mdash; which means the signal gets distorted by clipping. In "
+"addition, if you have two samples that, by themselves, peg your meters "
+"&mdash; what do you think happens when you combine them? That's right, you "
+"overdrive the signal again."
+msgstr ""
+
+#: manual.docbook:1406(para)
+msgid ""
+"If things sound bad and distorted, start by turning down the gain setting on "
+"the layer... especially if it's larger than 1.0. Then turn down the "
+"instrument gain. Then any gain on a LADSPA effect. Then the fader on the "
+"mixer. Then the master output fader."
+msgstr ""
+
+#: manual.docbook:1412(para)
+msgid ""
+"<emphasis role=\"bold\">Test samples at full velocity.</emphasis> Your "
+"sample will be played louder if the velocity is higher. So, if you set "
+"everything to sound nice and full with velocity at 0.7, what will happen "
+"when you get a full velocity of 1.0? (<emphasis>Hint: clipping.</emphasis>)"
+msgstr ""
+
+#: manual.docbook:1418(para)
+msgid ""
+"<emphasis role=\"bold\">Try to use samples that are -6 dB max.</emphasis> "
+"Visually, this means samples that peak at only 1/2 of full scale. Otherwise, "
+"turn your layer gain to about .5."
+msgstr ""
+
+#: manual.docbook:1423(para)
+msgid ""
+"<emphasis role=\"bold\">Remove all DC offsets from the sample.</emphasis> In "
+"a sample editor, there is usually a line down the center of your sample's "
+"waveform. This is the zero-line. The beginning of your sample should be on "
+"this line. The end of your sample should also be on this line. However, if "
+"your signal is a little above or a little below this line, you will hear a "
+"click at the beginning and the end of your sample whenever it is played. If "
+"your sample editor doesn't provide any tools to fix a DC Offset problem, you "
+"can eliminate the noise by putting a slight fade-in/out at the ends of your "
+"sample."
+msgstr ""
+
+#: manual.docbook:1435(para)
+msgid ""
+"<emphasis role=\"bold\">The ADSR will not be longer than your sample.</"
+"emphasis> If you have a short sample, it doesn't matter how long you set the "
+"attack and delay &mdash; the sample will stop playing at the end."
+msgstr ""
+
+#: manual.docbook:1440(para)
+msgid ""
+"<emphasis role=\"bold\">Things change with the sample rate.</emphasis> If "
+"you have a really nice setup with all your parameters painstakenly "
+"tweaked... things <emphasis>will</emphasis> change if you change the sample "
+"rate of your audio card. Many of Hydrogens internal settings and parameters "
+"are done based on how many samples go by, and not on how many seconds go by. "
+"The sort of things that change are: anything time-base (like attack and "
+"release) and anything frequency based (like the cutoff frequency)."
+msgstr ""
+
+#: manual.docbook:1454(title)
+msgid "LADSPA plugins"
+msgstr "LADSPA plugins"
+
+#: manual.docbook:1455(para)
+#, fuzzy
+msgid ""
+"Hydrogen can also add effects to sounds using any LADSPA plugin library. You "
+"need to have installed the LADSPA sources (available from <ulink url="
+"\"http://www.ladspa.org\"/>) and while this will give a rough idea of how it "
+"works you should really have a taste of the real thing installing one or "
+"more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons "
+"install</command>. Here are a few places to download plugin libraries:"
+msgstr ""
+"Hydrogen puo' anche aggiungere ai suoni degli effetti usando qualunque "
+"libreria LADSPA. Si devono installare i sorgenti LADSPA (disponibili su "
+"<ulink url=\"http://www.ladspa.org\"><citetitle>http://www.ladspa.org</"
+"citetitle></ulink>) e se questo puo' bastare per dare un'idea di base, "
+"sarebbe meglio installare una o piu' di queste librerie per poter apprezzare "
+"meglio il risultato, basta compilare gli effetti con un \"make &amp;&amp; "
+"make install\""
+
+#: manual.docbook:1458(para)
+#, fuzzy
+msgid ""
+"SWH-Plugins available at <ulink url=\"http://plugin.org.uk\"/>. Note that "
+"before compiling these plugins you need the FFTW tarball from <ulink url="
+"\"http://www.fftw.org\"/>."
+msgstr ""
+"SWH-Plugins disponibili presso <ulink url=\"http://plugin.org.uk"
+"\"><citetitle>http://plugin.org.uk</citetitle></ulink>. N.B. prima di "
+"installare questi effetti c'e' da compilare il pacchetto FFTW da <ulink url="
+"\"http://www.fftw.org\"><citetitle>http://www.fftw.org</citetitle></ulink>."
+
+#: manual.docbook:1460(para)
+#, fuzzy
+msgid "CMT available at <ulink url=\"http://www.ladspa.org\"/>."
+msgstr ""
+"CMT disponibile presso <ulink url=\"http://www.ladspa.org"
+"\"><citetitle>http://www.ladspa.org</citetitle></ulink>."
+
+#: manual.docbook:1462(para)
+#, fuzzy
+msgid "TAP available at <ulink url=\"http://tap-plugins.sf.net\"/>."
+msgstr ""
+"TAP disponibile presso <ulink url=\"http://tap-plugins.sf.net"
+"\"><citetitle>http://tap-plugins.sf.net</citetitle></ulink>."
+
+#: manual.docbook:1467(title)
+msgid "Plugins Kill"
+msgstr ""
+
+#: manual.docbook:1468(para)
+msgid ""
+"A LADSPA plugin is compiled, executable code. It is capable of hanging, "
+"crashing, freezing, screaching, overflowing buffers, and even phoning home. "
+"If you start having issues with Hydrogen, disable your plugins and see if "
+"things improve. Some plugins are not designed for real-time use, and some "
+"are just plain better than others."
+msgstr ""
+
+#: manual.docbook:1476(para)
+#, fuzzy
+msgid ""
+"Once you have installed a few plugins open a song you'd like add an effect "
+"to and select an instrument that has a few beats in the pattern. In the "
+"Mixer click on <placeholder-1/> and select one of the four available effect "
+"line Click on the Edit button ( <placeholder-2/> ), than on <quote>Select "
+"the FX</quote>: this will bring up another window (<xref linkend=\"fig."
+"select_effect\"/>) that lets you choose an effect amongst those installed, "
+"they are alphabetically sorted and categorized. Once you're done, adjust the "
+"level from the mixer and start playing. Each round knob in the FX part "
+"controls the level of its effect. <placeholder-3/> If you want to quickly "
+"enable/disable the effect click the Bypass ( <placeholder-4/>) button."
+msgstr ""
+"Una volta installato qualche plugin aprite File -> Preferences -> General e "
+"controllate se il percorso e' corretto (per esempio un'installazione di "
+"default dei plugin li mette in /usr/local/lib/ladspa), quindi aprite una "
+"canzone a cui volete applicare gli effetti e selzionate uno strumento che "
+"abbia nel pattern qualche colpo. Nel Mixer cliccare su <inlinemediaobject> "
+"<imageobject> <imagedata fileref=\"img/showFX_on.png\" format=\"PNG\"/> </"
+"imageobject> </inlinemediaobject> e selezionare uno delle quattro linee di "
+"effetti disponibili. Cliccare su Edit ( <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/edit_off.png\" format=\"PNG\"/> </imageobject> </"
+"inlinemediaobject> ) e poi su <quote>Select the FX</quote>: questo aprira' "
+"un'altra finestra (Fig. 3) the permette di scegliere un effetto fra quelli "
+"installati; appaiono in ordine alfabetico e suddivisi per lettera. Una volta "
+"fatto ricordatevi di attivare l'effetto cliccando su <quote>Activate</"
+"quote>, aggiustate il livello se volete e infine tornate al Mixer: "
+"cominciate a suonare e buon divertimento! Ciascun piccolo comando rotondo di "
+"ogni linea del Mixer, dall'alto in basso, comanda un effetto: il primo in "
+"alto e' il numero 0, poi il numero 1 e cosi' via. Se volete disabilitare "
+"velocemente un effetto LADSPA cliccate su <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/bypass_over.png\" format=\"PNG\"/> </imageobject> </"
+"inlinemediaobject> ."
+
+#: manual.docbook:1513(title)
+msgid "Select an Effect"
+msgstr ""
+
+#: manual.docbook:1532(title)
+msgid "A new song"
+msgstr "Creazione di una canzone"
+
+#: manual.docbook:1534(title)
+msgid "\"Song\" mode and \"Pattern\" mode"
+msgstr "Modalita' song e modalita' pattern"
+
+#: manual.docbook:1535(para)
+msgid ""
+"This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the "
+"tutorial for a more detailed overview."
+msgstr ""
+"Questa sezione dara' alcune indicazioni di massima sull'uso di Hydrogen. "
+"Riferirsi al tutorial per una guida piu' approfondita."
+
+#: manual.docbook:1539(para)
+#, fuzzy
+msgid ""
+"Hydrogen has 2 main modes: \"Pattern\" mode and \"Song\" mode (refer to "
+"<xref linkend=\"sect.main_toolbar\"/> for the buttons to activate). When "
+"\"Pattern\" mode is activated the current pattern is continously repeated, "
+"so to help changing it until we don't like it, while \"Song\" mode repeats "
+"only the current pattern: this is useful when putting together the patterns, "
+"to create the whole structure for the song."
+msgstr ""
+"Hydrogen ha 2 modalita' principali di funzionamento: la modalita' \"Pattern"
+"\" e la modalita' \"Song\" (riferirsi a <link linkend=\"main\">questa "
+"sezione</link> per i pulsanti da utilizzare). Quando la modalita' Pattern e' "
+"impostata abbiamo la possibilita' di creare e modificare un pattern finche' "
+"non soddisfi le nostre esigenze; il pattern viene eseguito ininterrottamente "
+"finche' non si preme stop oppure si seleziona un altro pattern. La modalita' "
+"\"Song\" e' dedicata invece alla messa in sequenza dei vari pattern, in modo "
+"da creare una struttura per la canzone."
+
+#: manual.docbook:1545(title)
+msgid "A new pattern"
+msgstr "Creazione pattern"
+
+#: manual.docbook:1546(para)
+#, fuzzy
+msgid ""
+"We'll start from an empty song with an empty pattern, as created by default: "
+"\"pattern\" mode should be selected now. It is also possible to change name "
+"of the pattern. Now let's click on the <quote>Play</quote> button and while "
+"the pattern is playing let's add notes in the grid of the Song Editor (<xref "
+"linkend=\"fig.pattern_editor.2\"/>) simply left_mouse_clicking on it: adjust "
+"grid resolution and BPM speed if needed. Rememeber some constraints of the "
+"grid: if you are working with a resolution of 16 you can't go back to 8 and "
+"remove a 16th note; same thing happens if you are working with a resolution "
+"of 8 and you try to insert a note in the middle of two bars (looking for a "
+"16 bars precision): they will be placed on the previous or on the following "
+"8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, "
+"in this case you're free to place notes wherever you prefer). <emphasis role="
+"\"bold\">Be sure to select the correct pattern in the Song Editor before "
+"adding notes in the Pattern Editor!</emphasis>"
+msgstr ""
+"Partiremo da una canzone vuota con un pattern vuoto creato di default dal "
+"programma (Fig. 12); assicuriamoci che la modalita' di esecuzione sia "
+"impostata su \"pattern\". E' possibile modificare il nome del pattern. "
+"Adesso clicchiamo sul pulsante di \"Play\" e e mentre il nuovo pattern sara' "
+"in esecuzione aggiungiamo le note nella griglia del Song Editor (Fig. 13). "
+"Le note vengono inserite e cancellate dalla griglia semplicemente cliccando "
+"col tasto sinistro del mouse sulla nota interessata. <emphasis role=\"bold"
+"\">Assicuriamoci di selezionare il pattern giusto nel Song Editor prima di "
+"inserire le note nel Pattern Editor!</emphasis> Notare anche che se per "
+"esempio si riempie un pattern di sedicesimi e poi si imposta una risoluzione "
+"minore, le note \"fuori scala\" non possono essere cancellate."
+
+#: manual.docbook:1561(title)
+msgid "A new sequence"
+msgstr "Creazione sequenza"
+
+#: manual.docbook:1562(para)
+#, fuzzy
+msgid ""
+"Once patterns are created (<xref linkend=\"fig.insert_notes\"/>), we can "
+"copy/paste/delete them simply dragging with the mouse (activate the select "
+"mode for the Song Editor and keep pressed left mouse button to select those "
+"you want to move or copy)."
+msgstr ""
+"Una volta creati i pattern, per copiarli/cancellarli e posizionarli "
+"correttamente nella struttura della canzone (Fig. 13) e' sufficiente "
+"utilizzare la funzione di trascinamento del mouse attivabile nel Song Editor "
+"(tenere premuto il tasto sinistro per selezionare i pattern)"
+
+#: manual.docbook:1567(title)
+msgid "Inserting Notes in a Pattern"
+msgstr ""
+
+#: manual.docbook:1578(title)
+msgid "Adjust from the mixer"
+msgstr "Operazioni sul mixer"
+
+#: manual.docbook:1579(para)
+msgid ""
+"Of course we can always use the mixer window, either when creating or "
+"playing patterns."
+msgstr ""
+"Ovviamente in qualsiasi momento e' possibile aprire ed utilizzare la "
+"finestra del mixer (Fig. 14), sia durante la fase di creazione dei pattern, "
+"sia durante l'esecuzione delle sequenze."
+
+#: manual.docbook:1583(para)
+#, fuzzy
+msgid ""
+"The Mixer frame (<xref linkend=\"fig.mixer.2\"/>) is made of 32 independent "
+"tracks, each of these is binded to an instrument, plus a \"Master Output\" "
+"line to adjust general output volume and a \"FX\" button to set effects. "
+"Every line features 3 buttons ( <placeholder-1/><placeholder-2/><placeholder-"
+"3/> ), pan adjust ( <placeholder-4/> ), current maximum peak, volume fader "
+"and name of the track. Clicking on <placeholder-5/> will play the selected "
+"instrument, cutting the others. The \"Mute\" button <placeholder-6/> , "
+"simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates "
+"the maximun volume reached from the instrument; the peak must be in a range "
+"of 0.0 and 1.0 (in <xref linkend=\"fig.mixer.2\"/> you can see a few volumes "
+"too loud), otherwise it will get distorted producing a weird sound "
+"(especially with OSS audio driver), in this case it's better to set volume "
+"down; keep an eye on each vu-meter."
+msgstr ""
+"Il Mixer e' composto da 16 linee indipendenti, ognuna corrispondente ad un "
+"diverso strumento, piu' la linea del \"Master Output\" che serve a regolare "
+"il volume dell'uscita principale. Ogni linea contiene 3 pulsanti "
+"( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/"
+"btn_play_on_mixer.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> "
+"<inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_solo_on.png\" "
+"format=\"PNG\"/> </imageobject> </inlinemediaobject> <inlinemediaobject> "
+"<imageobject> <imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </"
+"imageobject> </inlinemediaobject> ), regolazione del pan "
+"( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/MixerPan.png\" "
+"format=\"PNG\"/> </imageobject> </inlinemediaobject> ), un indicatore del "
+"picco massimo raggiunto, il fader del volume e il nome della traccia. "
+"Premendo il pulsante <inlinemediaobject> <imageobject> <imagedata fileref="
+"\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> "
+"e' possibile ascoltare esclusivamente lo strumento selezionato poiche' gli "
+"altri vengono automaticamente esclusi dalla riproduzione. Il pulsante \"Mute"
+"\" <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png"
+"\" format=\"PNG\"/> </imageobject> </inlinemediaobject> , semplicemente "
+"rende \"muto\" lo strumento selezionato eliminandolo quindi dal mix finale. "
+"L'indicatore del picco massimo visualizza il massimo volume raggiunto dallo "
+"strumento; il picco deve essere all'interno dell'intervallo tra 0.0 e 1.0, "
+"superare il valore di 1.0 significa che lo strumento andra' in \"distorsione"
+"\" (specialmente usando i driver OSS) generando un rumore simile a una "
+"\"pernacchia\": meglio abbassare il volume in questi casi! ;) Infine e' "
+"presente il fader del volume, con il quale regoliamo il volume del singolo "
+"strumento e vediamo graficamente il picco raggiunto grazie al vu-meter posto "
+"dietro alla manopola."
+
+#: manual.docbook:1645(title)
+msgid "Glossary"
+msgstr ""
+
+#: manual.docbook:1647(para)
+msgid ""
+"This is a glossary of general terms encountered when using Hydrogen, "
+"synthesizers, drums, or samplers. The definitions in the text are "
+"simplified, but the definitions here are more general and have more "
+"explanation. For example, the text of the manual would have you believe that "
+"an ADSR is the only kind of envelope generator, and could only ever control "
+"the volume. While it's simple for new users, it's not quite right."
+msgstr ""
+
+#: manual.docbook:1659(glossterm)
+msgid "ADSR"
+msgstr ""
+
+#: manual.docbook:1661(para)
+msgid ""
+"A type of envelope generator that allows you to control the <link linkend="
+"\"def.attack\">Attack</link>, <link linkend=\"def.decay\">Decay</link>, "
+"<link linkend=\"def.sustain\">Sustain</link>, and <link linkend=\"def.release"
+"\">Release</link> parameters. Generally, the parameters are proportional to "
+"the <link linkend=\"def.velocity\">velocity</link>."
+msgstr ""
+
+#: manual.docbook:1670(para)
+msgid ""
+"In Hydrogen, the ADSR envelope generator only controls the volume "
+"(attenuation)."
+msgstr ""
+
+#: manual.docbook:1673(para)
+msgid ""
+"Read more about this in the Wikipedia Article <ulink url=\"http://en."
+"wikipedia.org/wiki/ADSR_envelope\">ADSR Envelope</ulink>"
+msgstr ""
+
+#: manual.docbook:1688(para)
+msgid ""
+"This is the first phase of an ADSR envelope, and is the amount of "
+"<emphasis>time</emphasis> to turn the parameter up from 0 to full velocity "
+"after triggering the note."
+msgstr ""
+
+#: manual.docbook:1697(glossterm)
+msgid "Attenuation"
+msgstr ""
+
+#: manual.docbook:1699(para)
+msgid ""
+"In filters and mixers, this the amount that a signal is reduced (volume)."
+msgstr ""
+
+#: manual.docbook:1709(glossterm)
+msgid "Band-Pass Filter"
+msgstr ""
+
+#: manual.docbook:1711(para)
+msgid ""
+"A filter that preserves a cetertain band of frequencies, and attenuates "
+"(silences) all others. This is often done by combining a high-pass and a low-"
+"pass filter."
+msgstr ""
+
+#: manual.docbook:1724(glossterm)
+msgid "Clipping"
+msgstr ""
+
+#: manual.docbook:1726(para)
+msgid ""
+"A phenomenon that happens to a signal when the signal is too large for "
+"whatever is receiving it. The peaks of the signal (which are normally smooth "
+"curves) get cut off straight at the max volume (clipped). This distorts the "
+"sound and is usually undesirable."
+msgstr ""
+
+#: manual.docbook:1732(para)
+msgid ""
+"An example of clipping is when you play music louder than your speaker can "
+"handle. Parts of the music sound harsh and fuzzy."
+msgstr ""
+
+#: manual.docbook:1739(glossterm)
+msgid "Cutoff Frequency"
+msgstr ""
+
+#: manual.docbook:1741(para)
+msgid ""
+"On high-pass and low-pass filters, this is the frequency that divides "
+"between those that pass, and those that are attenuated (silenced). In a high-"
+"pass resonance filter, or a low-pass resonance filter, the cutoff is also "
+"the frequency zone that gets boosted."
+msgstr ""
+
+#: manual.docbook:1746(para)
+msgid ""
+"For example, if you have a low-pass filter and you set the cutoff frequency "
+"high (i.e. 20kHz)... the filter will not affect the sound. All the audible "
+"frequencies will pass through undisturbed. As you lower the cutoff frequency "
+"to something like 40 Hz (the low string on a bass guitar), it sounds like "
+"someone is putting a blanket over the speaker. The higher frequencies are "
+"being attenuated above 30 Hz."
+msgstr ""
+
+#: manual.docbook:1765(para)
+msgid ""
+"After reaching full velocity from the attack, this is the amount of "
+"<emphasis>time</emphasis> to turn the parameter down from full velocity to "
+"the sustain level."
+msgstr ""
+
+#: manual.docbook:1776(glossterm)
+msgid "Envelope Generator"
+msgstr ""
+
+#: manual.docbook:1778(para)
+msgid ""
+"A way to control (change) a parameter over time as a response to triggering, "
+"holding, and releasing a note."
+msgstr ""
+
+#: manual.docbook:1781(para)
+msgid "Did your eyes just glaze over? Let's try again:"
+msgstr ""
+
+#: manual.docbook:1783(para)
+msgid ""
+"Imagine that you're playing a note on the keyboard and you have your other "
+"hand on a knob (volume, filter cutoff, etc.). As you play the note, you "
+"twist the knob (often up, then down... or down, then up). You do the same "
+"thing on each note. That's what an envelope generator does. See also <link "
+"linkend=\"def.adsr\">ADSR</link>"
+msgstr ""
+
+#: manual.docbook:1794(glossterm)
+msgid "Fader"
+msgstr ""
+
+#: manual.docbook:1796(para)
+msgid ""
+"A slider control used to adjust the attenuation (volume) in a mixer. Faders "
+"always have an \"audio\" taper, which means that the attenuation amount "
+"changes on an exponential scale."
+msgstr ""
+
+#: manual.docbook:1803(glossterm)
+msgid "Filter"
+msgstr ""
+
+#: manual.docbook:1805(para)
+msgid ""
+"A device that changes a sound by attenuating specific frequencies. A tone "
+"knob is an example of a simple, low-pass filter."
+msgstr ""
+
+#: manual.docbook:1820(para)
+msgid ""
+"In an amplifier, this adjust how much (or how little) a signal is amplified "
+"(volume). A higher gain value is a louder signal."
+msgstr ""
+
+#: manual.docbook:1828(glossterm)
+msgid "High-Pass Filter"
+msgstr ""
+
+#: manual.docbook:1830(para)
+msgid ""
+"A filter that attenuates (silences) low frequencies, but allows high "
+"frequencies to pass through."
+msgstr ""
+
+#: manual.docbook:1841(glossterm)
+msgid "Instrument"
+msgstr ""
+
+#: manual.docbook:1843(para)
+msgid ""
+"In Hydrogen, an instrument is a single noise-maker (like a bass drum kick, "
+"or a tom)."
+msgstr ""
+
+#: manual.docbook:1854(glossterm)
+msgid "Layer"
+msgstr ""
+
+#: manual.docbook:1856(para)
+msgid ""
+"In an instrument you can load several different samples (each one called a "
+"<emphasis role=\"bold\">layer</emphasis>), and have a different sample play "
+"depending on the velocity of the note. Only one sample at a time will play."
+msgstr ""
+
+#: manual.docbook:1861(para)
+msgid ""
+"Suppose you have a sample of a floor tom being struck softly. If you simply "
+"play the sample louder &mdash; it will <emphasis>not</emphasis> sound the "
+"same as a real tom that has been struck very hard. If you wish to mimic this "
+"in your instrument, you can load one sample for soft playing, and a "
+"different sample for loud playing."
+msgstr ""
+
+#: manual.docbook:1873(glossterm)
+msgid "Low-Pass Filter"
+msgstr ""
+
+#: manual.docbook:1875(para)
+msgid ""
+"A filter that attenuates (silences) high frequences, but allows low "
+"frequencies to pass through."
+msgstr ""
+
+#: manual.docbook:1886(glossterm)
+msgid "Mute"
+msgstr ""
+
+#: manual.docbook:1888(para)
+msgid ""
+"To make no noise. A setting on an instrument that prevents any audio output."
+msgstr ""
+
+#: manual.docbook:1894(glossterm)
+msgid "Mute Group"
+msgstr ""
+
+#: manual.docbook:1896(para)
+msgid ""
+"A group of instruments (samples) that should mute (stop playing) immediately "
+"after another instrument in the group is triggered."
+msgstr ""
+
+#: manual.docbook:1899(para)
+msgid ""
+"This is typically used in hi-hats, where there's a different instrument "
+"(sample) for when the hi-hat is open or closed. With a real hi-hat, the "
+"sound of the open hi-hat will stop as soon as you close it. However, if you "
+"use two samples &mdash; the open sound will continue even after you have "
+"triggered the closed sound. By placing both instruments in the same mute "
+"group (group #1, for example)... triggering closed sound will immediately "
+"stop the open sound (and vice versa)."
+msgstr ""
+
+#: manual.docbook:1914(glossterm)
+msgid "Octave"
+msgstr ""
+
+#: manual.docbook:1916(para)
+msgid ""
+"A span of frequencies where the top-most frequency is exactly twice the "
+"frequency of the bottom frequency."
+msgstr ""
+
+#: manual.docbook:1919(para)
+msgid ""
+"For example, the range 20 Hz to 40 Hz is an octave. So is 120 Hz to 240 Hz, "
+"and 575 Hz to 1150 Hz. While the frequency differences are very different "
+"(20 Hz, 120 Hz, and 575 Hz, respectively), to the human ear they "
+"<emphasis>sound</emphasis> like the same distance."
+msgstr ""
+
+#: manual.docbook:1936(para)
+msgid ""
+"After the note is released, this is the amount of <emphasis>time</emphasis> "
+"to reduce the parameter from the sustain level to 0."
+msgstr ""
+
+#: manual.docbook:1945(glossterm)
+msgid "Resonance"
+msgstr ""
+
+#: manual.docbook:1947(para)
+msgid ""
+"When referring to a resonance filter, this is the parameter that determines "
+"how much of a boost (gain) to give the frequencies at the cutoff."
+msgstr ""
+
+#: manual.docbook:1956(glossterm)
+msgid "Resonance Filter"
+msgstr ""
+
+#: manual.docbook:1958(para)
+msgid ""
+"A filter that gives a large boost to a very narrow range of frequencies. "
+"Typically it will be part of a high-pass or a low-pass filter, where the "
+"boosted frequencies are centered on the cut-off frequency."
+msgstr ""
+
+#: manual.docbook:1970(glossterm)
+msgid "Roll-off"
+msgstr ""
+
+#: manual.docbook:1972(para)
+msgid ""
+"This is the amount that frequencies are attenuated (suppressed) as the "
+"frequency changes (typically measured in dB/octave)."
+msgstr ""
+
+#: manual.docbook:1975(para)
+msgid ""
+"For example, in a low-pass filter the frequences below the cutoff frequency "
+"are not attenuated (they pass-through with the same volume). Same with the "
+"cutoff frequency. As you go above the cutoff frequency, the frequencies that "
+"are near the cutoff frequency are not attenuated very much at all. However, "
+"the frequencies that are much higher than the cutoff are attenuated "
+"(suppressed) a lot. This is usually approximated by a straight line (on a "
+"log scale) and measured in in dB of attenuation per octave of frequency."
+msgstr ""
+
+#: manual.docbook:2002(para)
+msgid ""
+"The <emphasis>level</emphasis> to hold the parameter after finishing the "
+"decay time. This level will be maintained until the not is released."
+msgstr ""
+
+#: manual.docbook:2020(para)
+msgid ""
+"MIDI devices are required to send this information along with the note. "
+"Synthesizers use this information to adjust several parameters on the sample "
+"(typically the volume). In Hydrogen, it is only used to adjust how loud the "
+"sample is played back."
+msgstr ""
+
+#. Put one translator per line, in the form of NAME <EMAIL>, YEAR1, YEAR2.
+#: manual.docbook:0(None)
+msgid "translator-credits"
+msgstr ""
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 1</emphasis> The Audio System tab"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 4</emphasis> La linguetta Audio System."
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 2</emphasis> The MIDI System tab"
+#~ msgstr "<emphasis role=\"bold\">Fig. 5</emphasis> La linguetta MIDI System."
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 3</emphasis> The appearance tab"
+#~ msgstr "<emphasis role=\"bold\">Fig. 6</emphasis> La linguetta Appereance"
+
+#, fuzzy
+#~ msgid ""
+#~ "<emphasis role=\"bold\">Fig. 4</emphasis> The Audio engine Info window"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 4</emphasis> La linguetta Audio System."
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 5 </emphasis> The main toolbar"
+#~ msgstr "<emphasis role=\"bold\">Fig. 14</emphasis> Dettaglio del Mixer"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 6</emphasis> The Song Editor"
+#~ msgstr "<emphasis role=\"bold\">Fig. 1</emphasis> The Song Editor"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 7</emphasis> The Pattern Editor"
+#~ msgstr "<emphasis role=\"bold\">Fig. 2</emphasis> Il Pattern Editor"
+
+#, fuzzy
+#~ msgid "<emphasis role=\"bold\">Fig. 8</emphasis> The Mixer"
+#~ msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> Il mixer"
+
+#~ msgid "<emphasis role=\"bold\">Fig. 3</emphasis> Select an effect."
+#~ msgstr "<emphasis role=\"bold\">Fig. 3</emphasis> Selezionate un effetto."
+
+#~ msgid "<emphasis role=\"bold\">Fig. 12</emphasis> The Pattern Editor"
+#~ msgstr "<emphasis role=\"bold\">Fig. 12</emphasis> Il Pattern Editor"
+
+#~ msgid ""
+#~ "<emphasis role=\"bold\">Fig. 13</emphasis> Inserting notes in a pattern"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 13</emphasis> Stiamo inserendo note nel "
+#~ "pattern"
+
+#~ msgid "<emphasis role=\"bold\">Fig. 14</emphasis> The mixer"
+#~ msgstr "<emphasis role=\"bold\">Fig. 14</emphasis> Dettaglio del Mixer"
+
+#, fuzzy
+#~ msgid ""
+#~ "Compiling Hydrogen depends on the following libraries: <placeholder-1/>"
+#~ msgstr "La compilazione di hydrogen dipende dalle seguenti librerie:"
+
+#, fuzzy
+#~ msgid ""
+#~ "Before compiling, check for additional options with: <screen>\n"
+#~ "\t\t<prompt>$</prompt><command>./configure --help</command>\n"
+#~ "\t\t</screen> Namely, if you get some error while running Hydrogen and "
+#~ "you want to report it remember to configure the makefile with: <screen>\n"
+#~ "\t\t<prompt>$</prompt><command>./configure --enable-debug</command>\n"
+#~ "\t\t</screen> Please note that at the moment no binary packaging (.rpm, ."
+#~ "deb, ...) is available. Contributors are welcome. Also remember to "
+#~ "compile with at least a GCC 3.x to be 100% sure to avoid any possible "
+#~ "problem."
+#~ msgstr ""
+#~ "Prima di procedere alla compilazione, controllare eventuali opzioni "
+#~ "aggiuntive con: <screen>\n"
+#~ "<prompt>bash$</prompt> <command>./configure --help</command>\n"
+#~ "</screen> XXX <screen>\n"
+#~ "                <prompt>$</prompt><command>./configure --enable-debug</"
+#~ "command>\n"
+#~ "                </screen> XXX"
+
+#~ msgid "Audio driver configuration"
+#~ msgstr "Configurazione audio driver"
+
+#~ msgid ""
+#~ "It's very important to choose the proper audio driver for our system, "
+#~ "since the choice may influence quite much general performances. The "
+#~ "choice is between Oss audio driver, ALSA and Jack audio driver."
+#~ msgstr ""
+#~ "E' molto importante scegliere il driver audio giusto per il nostro "
+#~ "sistema, in base al driver scelto le prestazioni e le possibilita' di "
+#~ "Hydrogen possono cambiare drasticamente. Sono disponibili 2 driver audio: "
+#~ "Oss Audio Driver e Jack Audio Driver."
+
+#~ msgid "OSS audio driver"
+#~ msgstr "OSS audio driver"
+
+#~ msgid "Jack audio driver"
+#~ msgstr "Jack audio driver"
+
+#~ msgid "ALSA audio driver"
+#~ msgstr "ALSA audio driver"
+
+#~ msgid ""
+#~ "NEW! Now Hydrogen works also with ALSA, the new Linux standard audio "
+#~ "drivers."
+#~ msgstr ""
+#~ "NUOVO! Aggiunto ad Hydrogen l'ouput sui driver ALSA, il nuovo standard "
+#~ "audio per Linux."
+
+#~ msgid "GUI"
+#~ msgstr "Interfaccia grafica"
+
+#~ msgid ""
+#~ "Double clicking over the name of an instrument in the Mixer frame will "
+#~ "bring up a doubled face tool to modify many properties of that instrument."
+#~ msgstr "XXX"
+
+#~ msgid ""
+#~ "The first tab ('Instrument') lets you fine tune the instrument: you can "
+#~ "adjust Attack, Decay, Sustain, Release, Cutoff and Resonance (both of "
+#~ "which can be excluded) or even add a random pitch."
+#~ msgstr ""
+#~ "La prima scheda ('Instrument') permette di modificare effetti come "
+#~ "Attack, Decay, Sustain, Release, Cutoff and Resonance (entrambi "
+#~ "escludibili) o aggiungere un pitch."
+
+#~ msgid ""
+#~ "The second tab ('Layer') can add WAV/AU/AIFF/FLAC samples up to 16 layers "
+#~ "to the instrument according to the level of its velocity and tune pitch "
+#~ "and gain."
+#~ msgstr ""
+#~ "La seconda scheda ('Layer') permette di aggiungere campioni WAV/AU/AIFF/"
+#~ "FLAC fino a 16 layer diversi a seconda del livello di "
+#~ "intensita' (velocity) che impostiamo per quello strumento oppure di "
+#~ "modificare pitch e il guadagno."
+
+#, fuzzy
+#~ msgid ""
+#~ "From the pull-down menus it's worth noticing: File--&gt;'Save as' to save "
+#~ "the current song in .h2song format, File--&gt;Export to export it in WAV/"
+#~ "MID format, File--&gt; <link linkend=\"prefs\">Preferences</link>, "
+#~ "Window--&gt; <link linkend=\"audioengine\">Audio Engine Info</link> and "
+#~ "Window--&gt; <link linkend=\"drumkit\">Drumkit manager</link>."
+#~ msgstr ""
+#~ "Dai menu si segnala: File-->'Save as' per salvare la canzone "
+#~ "correntemente aperta in formato .h2song, File-->Export per esportarla in "
+#~ "WAV, File--> <link linkend=\"prefs\">Preferences</link>, Window--> <link "
+#~ "linkend=\"audioengine\">Audio Engine Info</link>, Window--> <link linkend="
+#~ "\"drumkit\">Drumkit manager</link>."
+
+#~ msgid ""
+#~ "From the \"Audio System\" tab (Fig. 4) it is possible to modify the audio "
+#~ "driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and "
+#~ "sampling rate. We can also set some features of Hydrogen like "
+#~ "<quote>Enable track outputs</quote> useful if you want to add effects to "
+#~ "a single instrument with jack-rack; <quote>Connect to Default Output "
+#~ "Pair</quote> simply connects ALSA output to the default ports: uncheck "
+#~ "this if you want to connect jack output to other ports without "
+#~ "disconnecting them first. Keep an eye also on the value of \"Polyphony\": "
+#~ "depending on your CPU you may want to change the max simultaneous notes "
+#~ "in order to prevent hydrogen from xrun. Clicking on the \"Midi System\" "
+#~ "tab (Fig. 5) will select a menu to enable a MIDI device, a specific "
+#~ "channel or all of them, while clicking on \"Appearance\" tab (Fig. 6) "
+#~ "let's you to modify font size, type of frame (Child or Top Level) and "
+#~ "speed of mixer's peaks falloff and QT style of the windows."
+#~ msgstr ""
+#~ "Dalla linguetta \"Audio System\" (Fig. 4), si puo' modificare il driver "
+#~ "audio (OSS, Jack ALSA o PortAudio) con relativo buffer e sampling e altre "
+#~ "particolari caratteristiche di Hydrogen come la funzione \"Enable Track "
+#~ "Outputs\", utile se si vuole aggiungere effetti a un singolo strumento "
+#~ "con jack-rack, per esempio. <quote>Connect to Default Output Pair</quote> "
+#~ "connette semplicemente l'output ALSA alle porte standard: deselezionare "
+#~ "se si vuole agganciare il driver Jack su altre porte senza prima dover "
+#~ "disconnettere quelle standard. Tenere d'occhio anche il valore di "
+#~ "<quote>Polyphony</quote> poiche' a seconda della CPU di cui si dispone ci "
+#~ "potrebbe essere bisogno di cambiare il valore per evitare che Hydrogen "
+#~ "vada in xrun. Cliccando sulla linguetta Midi System (Fig. 5) si accede al "
+#~ "menu per attivare un determinato device MIDI con uno specifico canale "
+#~ "oppure tutti, mentre cliccando sulla linguetta <quote>Appearance</quote> "
+#~ "(Fig. 6) si puo' regolare la dimensione del font, la tipologia dei frame "
+#~ "(Child frame o Top Level) e la velocita' di caduta dei picchi (peak "
+#~ "falloff) nel Mixer e lo stile QT delle finestre."
+
+#~ msgid ""
+#~ "This tab (Fig. 7) will bring up a window with general infos about "
+#~ "Hydrogen and audio driver. Buffer and sampling rate of Jack audio driver "
+#~ "are customizable when the server is started from the shell."
+#~ msgstr ""
+#~ "Questo tab (Fig. 7) permette di visualizzare informazioni sullo stato del "
+#~ "programma, del driver audio e driver midi. Il buffer e il sampling del "
+#~ "driver audio Jack sono modificabili con gli appositi parametri al momento "
+#~ "di lanciare il server da shell."
+
+#~ msgid ""
+#~ "<emphasis role=\"bold\">Fig. 7</emphasis> The Audio Engine Info window. "
+#~ "Better check that cpu-meter on old systems and crowded /proc dir ;)"
+#~ msgstr ""
+#~ "<emphasis role=\"bold\">Fig. 7</emphasis> La finestra Audio Engine Info. "
+#~ "Meglio tenere d'occhio il controllo sulla CPU in sistemi anziani o con /"
+#~ "proc affollata ;)"
+
+#~ msgid ""
+#~ "The drumkit manager shows all the options concerning drumkits, i.e. "
+#~ "groups of sounds (WAV or FLAC) to be binded with every track available so "
+#~ "to obtain a proper \"groove\" according to the situation (disco music, "
+#~ "rock, hip hop, etc.). To let you have a rough idea of a good example of "
+#~ "use of these drumkits, it is advisable to play the associated .h2song "
+#~ "sample song."
+#~ msgstr ""
+#~ "Da qui invece si accede alle opzioni che riguardano i drumkit, cioe' "
+#~ "gruppi di suoni (WAV o FLAC) da associare a ciascuna traccia disponibile "
+#~ "per ottenere un \"groove\" piu' omogeneo a seconda della circostanza "
+#~ "(disco music, rock, ecc. ecc.). Per avere un'idea della resa ottimale dei "
+#~ "drumkit si consiglia di caricarli e poi suonare il file .h2song "
+#~ "generalmente abbinato."
+
+#~ msgid ""
+#~ "From the first screen (Fig. 8) we can load/delete the drumkit, with a "
+#~ "short description. Here (Fig. 9) we can save some infos about the current "
+#~ "drumkit and from here (Fig. 10) we can import a drumkit (.h2drumkit) "
+#~ "(Fig. 11) or export it (Fig. 12)."
+#~ msgstr ""
+#~ "La prima schermata (Fig. 8) permette di caricare/cancellare il drumkit "
+#~ "selezionato, seguito da una breve descrizione. La seconda schermata "
+#~ "consente di salvare una descrizione per il drumkit corrente e da qui "
+#~ "(Fig.9) invece di puo' importare un drumkit (con estensione .h2drumkit) "
+#~ "(Fig. 10) o di esportarlo (Fig. 11)."
+
+#~ msgid "<emphasis role=\"bold\">Fig. 9</emphasis> Save drumkit."
+#~ msgstr "<emphasis role=\"bold\">Fig. 9</emphasis> Salva drumkit."
+
+#~ msgid "<firstname>Antonio</firstname> <surname>Piraino</surname>"
+#~ msgstr "<firstname>Antonio</firstname> <surname>Piraino</surname>"
+
+#~ msgid "<firstname>Alessandro</firstname> <surname>Cominu</surname>"
+#~ msgstr "<firstname>Alessandro</firstname> <surname>Cominu</surname>"
+
+#~ msgid ""
+#~ "It is possible to download the source files directly from CVS snapshots "
+#~ "with:"
+#~ msgstr "E' possibile scaricare i sorgenti direttamente da CVS con:"
+
+#~ msgid ""
+#~ "After having downloaded and decompressed the tar.gz file there's only to:"
+#~ msgstr ""
+#~ "Dopo aver scaricato e decompresso gli archivi tar.gz e' semplicemente "
+#~ "necessario eseguire:"
+
+#~ msgid "ROLES_OF_TRANSLATORS"
+#~ msgstr "<!--TRANS:ROLES_OF_TRANSLATORS-->"
+
+#~ msgid "CREDIT_FOR_TRANSLATORS"
+#~ msgstr "<!--TRANS:CREDIT_FOR_TRANSLATORS-->"

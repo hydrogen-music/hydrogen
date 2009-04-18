@@ -1,5 +1,6 @@
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC '-//OASIS//DTD DocBook V4.0//EN'
+               'http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd'>
 <book id="Hydrogen-manual" lang="en">
 
 <bookinfo>
@@ -30,10 +31,10 @@
 ###################
 -->
 
-<chapter id="introduction">
+<chapter id="chap.introduction">
 	<title>Introduction</title>
 
-	<sect1 id="download">
+	<section id="sect.download">
 		<title>Download</title>
 		<para>
 			The latest stable version of hydrogen is available as a tarball at
@@ -50,85 +51,86 @@
 		
 		<para>
 			Compiling Hydrogen depends on the following libraries:
-			<itemizedlist mark='opencircle'>
+			<itemizedlist mark="opencircle">
 				<listitem>
-					<para>qt (>= 4.0) at <ulink url='http://www.trolltech.com'>http://www.trolltech.com</ulink></para>
+					<para>qt (>= 4.0) at <ulink url="http://www.trolltech.com"/></para>
 				</listitem>
 				<listitem>
-					<para>libsndfile at <ulink url='http://www.mega-nerd.com/libsndfile/'>http://www.mega-nerd.com/libsndfile/</ulink></para>
+					<para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/"/></para>
 				</listitem>
 
 				<listitem>
-					<para>ALSA (>= 1.x) at <ulink url='http://www.alsa-project.com'>http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)</para>
+					<para>ALSA (>= 1.x) at <ulink url="http://www.alsa-project.com"/> (only if you wish to use ALSA as audio driver)</para>
 				</listitem>
 				<listitem>
-					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url='http://jackaudio.org/'>http://jackaudio.org</ulink> (only if you wish to use Jack as audio driver)</para>
+					<para>Jack Audio Connection Kit (>= 0.80) at <ulink url="http://jackaudio.org/"/> (only if you wish to use Jack as audio driver)</para>
 				</listitem>
 				 <listitem>
-					<para>PortAudio at <ulink url='http://www.portaudio.com'>http://www.portaudio.com</ulink> (only if you wish to use PortAudio as audio driver)</para>
+					<para>PortAudio at <ulink url="http://www.portaudio.com"/> (only if you wish to use PortAudio as audio driver)</para>
 				</listitem>
 				 <listitem>
-					<para>Flac at <ulink url='http://flac.sf.net'>http://flac.sf.net</ulink> (only if you wish to use flac samples)</para>
+					<para>Flac at <ulink url="http://flac.sf.net"/> (only if you wish to use flac samples)</para>
 				</listitem>
 				 <listitem>
-					<para>ladspa at <ulink url='http://ladspa.org'>http://ladspa.org</ulink> (only if you wish to use ladspa effects)</para>
+					<para>ladspa at <ulink url="http://ladspa.org"/> (only if you wish to use ladspa effects)</para>
 				</listitem>
 				 <listitem>
-					<para>liblrdf at <ulink url='http://liblrdf.sf.net'>http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)</para>
+					<para>liblrdf at <ulink url="http://liblrdf.sf.net"/> (only if you wish to use lrdf to categorise effects)</para>
 				</listitem>
 				 <listitem>
-					<para>lash at <ulink url='http://lash.nongnu.org'>http://lash.nongnu.org</ulink> (only if you wish to use lash)</para>
+					<para>lash at <ulink url="http://lash.nongnu.org"/> (only if you wish to use lash)</para>
 				</listitem>
 			</itemizedlist>
 			Please install them with your distribution's package manager. If you're running a debian-based system,
 			you can install the libraries with:
-			<screen><prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \
-		libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
-		liblash-dev libportaudio-dev libportmidi-dev </command></screen> 
-		</para>
-	</sect1>
+			<screen>
+	<prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \
+	libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
+	liblash-dev libportaudio-dev libportmidi-dev </command></screen> 
+	</para>
+	</section>
 
-	<sect1 id="compilazione">
+	<section id="sect.compilation">
 		<title>Build</title>
 		<para>
 			    Decompress the tarball or go to the directory where the subversion copy was checked out:
 		    <screen>
-			<prompt>$</prompt> <command>cd hydrogen-*</command>
-			<prompt>$</prompt> <command>scons</command>
-			<prompt>$</prompt> <command>su -c "scons install"</command>
+	<prompt>$</prompt> <command>cd hydrogen-*</command>
+	<prompt>$</prompt> <command>scons</command>
+	<prompt>$</prompt> <command>su -c "scons install"</command>
 		    </screen>
 		</para>
 
 		<para>
 		    Before compiling, check for additional options with:
 		    <screen>
-			<prompt>$</prompt> <command>scons --help</command>
+	<prompt>$</prompt> <command>scons --help</command>
 		    </screen>
 		    
 		    If you want to use features which are not enabled by default (for instance PortAudio), you can enable them with:
 		    <screen>
-			<prompt>$</prompt> <command>scons portaudio=1</command>
+	<prompt>$</prompt> <command>scons portaudio=1</command>
 		    </screen>
 		    
 		    Namely, if you get some error while running Hydrogen and you want to report it remember to configure hydrogen with:
 		    <screen>
-			<prompt>$</prompt> <command>scons debug=1</command>
+	<prompt>$</prompt> <command>scons debug=1</command>
 		    </screen>
 		    
 		    To clean up compiled code:
 		    <screen>
-			<prompt>$</prompt> <command>scons -c</command>
+	<prompt>$</prompt> <command>scons -c</command>
 		    </screen>
 		</para>
-	</sect1>
+	</section>
 
 <!-- prokoudine ?
-	<sect1 id='basics'>
+	<section id="sect.basics">
 		<title>[TODO] BASICS</title>
 		<para>
 		explain and develop basics about the technology behind software of this kind
 		</para>
-	</sect1>
+	</section>
 -->
 
 	<!--
@@ -136,7 +138,7 @@
 	mauser: In my opionon those driver informations are unnecessary here, moved to audio tab
 	
 	
-	<sect1 id="configurazioneAudioDriver">
+	<section id="sect.config_audio_driver">
 		<title>Audio driver configuration</title>
 		<para>
 			It's very important to choose the proper audio driver for our system, since 
@@ -144,23 +146,23 @@
 			Oss audio driver, ALSA, PortAudio, CoreAudio and Jack audio driver.
 		</para>
 		
-		<sect2 id="jackDriver">
+		<section id="sect.driver.jack">
 			<title>Jack audio driver</title>
 			<para>
 			The Jack driver is a professional audio server which permits very low lag and exchanges with other
 			audio software. <emphasis>We strongly recommend using this driver to have the best out of Hydrogen</emphasis>.
 			JACK server will start automatically if not already running.
 			</para>
-		</sect2>
+		</section>
 		
-		<sect2 id="alsaDriver">
+		<section id="sect.driver.alsa">
 			<title>ALSA audio driver</title>
 			<para>
 			the widely adopted Linux standard audio drivers
 			</para>
-		</sect2>
+		</section>
 		
-		<sect2 id="ossDriver">
+		<section id="sect.driver.oss">
 			<title>OSS audio driver</title>
 			<para>
 			The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
@@ -168,26 +170,26 @@
 			the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
 			by any other software. Use it as last resource.
 			</para>
-		</sect2>
+		</section>
 		
-		<sect2 id="portaudioDriver">
+		<section id="sect.driver.portaudio">
 			<title>PortAudio audio driver</title>
 			<para>
 			 an open-source multiplatform audio driver
 			</para>
-		</sect2>
+		</section>
 		
-		<sect2 id="coreaudioDriver">
+		<section id="sect.driver.coreaudio">
 			<title>CoreAudio audio driver</title>
 			<para>
 			 a driver for Mac OS X (experimental) 
 			</para>
-		</sect2>
-	</sect1>
+		</section>
+	</section>
 	-->
 	
 	
-	<sect1 id="AudioDriverPreferences">
+	<section id="sect.preferences">
 		<title>Audio preferences</title>
 		<para>
 		    First of all you should make shure that the audio engine is configured properly. 
@@ -196,10 +198,10 @@
 		
 
 		
-		<sect2 id="audioTab">
+		<section id="sect.preferences.audio_tab">
 			<title>The Audio System tab</title>
 			
-			<para>From the "Audio System" tab (Fig. 1) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server).
+			<para>From the "Audio System" tab (<xref linkend="fig.preferences.audio_tab"/>) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server).
 			</para>
 			<para>
 			We can set some features of Hydrogen like "Enable track outputs" useful if you want to add effects to a single instrument with jack-rack. "Connect to Default Output Pair" connects the output to the default ports: uncheck this if you want to connect JACK output to other ports without disconnecting them first
@@ -210,27 +212,24 @@
 		
 		
 			
+			<figure id="fig.preferences.audio_tab">
+			<title>The Audio System Tab</title>
 			<mediaobject>
 			    <imageobject>
-				    <imagedata fileref="img/PreferencesAudioSystem.png" format="png">
+				    <imagedata fileref="img/PreferencesAudioSystem.png" format="PNG"/>
 			    </imageobject>
-			    <caption>
-				<para>
-				    <emphasis role="bold">Fig. 1</emphasis> The Audio System tab
-				</para>
-			    </caption>
 			</mediaobject>
-			
+			</figure>
 			
 			<para>
 			    The following drivers are available:
 			</para>
 			
-			<itemizedList>
+			<itemizedlist>
 
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>jackd</emphasis>: The Jack driver is a professional audio server which permits very low lag and exchanges with other
+			    <emphasis role="bold">jackd</emphasis>: The Jack driver is a professional audio server which permits very low lag and exchanges with other
 			    audio software. <emphasis>We strongly recommend using this driver to have the best out of Hydrogen</emphasis>.
 			    JACK server will start automatically if not already running.
 			    </para>
@@ -238,14 +237,14 @@
 		
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>ALSA</emphasis>:
+			    <emphasis role="bold">ALSA</emphasis>:
 			    the widely adopted Linux standard audio drivers
 			    </para>
 			</listitem>
 			
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>OSS</emphasis>:
+			    <emphasis role="bold">OSS</emphasis>:
 			    The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is
 			    supported by the vast majority of sound cards available for linux; this said, 
 			    the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable 
@@ -255,75 +254,69 @@
 		
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>PortAudio</emphasis>:
+			    <emphasis role="bold">PortAudio</emphasis>:
 			    an open-source multiplatform audio driver
 			    </para>
 			</listitem>
 
 			<listitem>
 			    <para>
-			    <emphasis role='bold'>CoreAudio</emphasis>:
+			    <emphasis role="bold">CoreAudio</emphasis>:
 			    a driver for Mac OS X (experimental) 
 			    </para>
 			</listitem>
-		    </itemizedList>
-		</sect2>
+		    </itemizedlist>
+		</section>
 		
-		<sect2 id="midiTab">
+		<section id="sect.preferences.midi_tab">
 			<title>The Midi System tab</title>
 			<para>
-			The "Midi System" tab (Fig. 2) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events.
+			The "Midi System" tab (<xref linkend="fig.preferences.midi_tab"/>) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events.
 			</para>
 			
+			<figure id="fig.preferences.midi_tab">
+			<title>The MIDI System Tab</title>
 			<mediaobject>
 			    <imageobject>
-				    <imagedata fileref="img/PreferencesMidiSystem.png" format="png">
+				    <imagedata fileref="img/PreferencesMidiSystem.png" format="PNG"/>
 			    </imageobject>
-			    <caption>
-				<para>
-				<emphasis role="bold">Fig. 2</emphasis> The MIDI System tab
-				</para>
-			    </caption>
 			</mediaobject>
-		</sect2>
+			</figure>
+		</section>
 		
-		<sect2 id="appearanceTab">
+		<section id="sect.preferences.appearance_tab">
 		    <title>The Appearance tab</title>
 		    <para>
-		    The "Appearance" tab (Fig. 3) let's you to modify Hydrogen and QT graphical properties.
+		    The "Appearance" tab (<xref linkend="fig.preferences.appearance_tab"/>) let's you to modify Hydrogen and QT graphical properties.
 		    </para>
 		    
+		    <figure id="fig.preferences.appearance_tab">
+		    <title>The Appearance Tab</title>
 		    <mediaobject>
 			<imageobject>
-				<imagedata fileref="img/PreferencesAppearance.png" format="png">
+				<imagedata fileref="img/PreferencesAppearance.png" format="PNG"/>
 			</imageobject>
-			<caption>
-			    <para>
-			    <emphasis role="bold">Fig. 3</emphasis> The appearance tab
-			    </para>
-			</caption>
 		    </mediaobject>
-		</sect2>
+		    </figure>
+		</section>
 		
 		
-		<sect2 id="audioengineTab">
+		<section id="sect.preferences.audio_engine_tab">
 		    <title>The Audio Engine tab</title>
 		    <para>
 		    The audio engine info is a window with various stats about Hydrogen and the audio driver. In case JACK is used, buffer and sampling rate should be set before starting Hydrogen (JACK automatically starts when an application tries to connect).
 		    </para>
 		    
+		    <figure id="fig.preferences.audio_engine_tab">
+		    <title>The Audio Engine Info Window</title>
 		    <mediaobject>
 			<imageobject>
-				<imagedata fileref="img/AudioEngineInfoDialog.png" format="png">
+				<imagedata fileref="img/AudioEngineInfoDialog.png" format="PNG"/>
 			</imageobject>
-			<caption>
-			    <para>
-			    <emphasis role="bold">Fig. 4</emphasis> The Audio engine Info window
-			    </para>
-			</caption>
 		    </mediaobject>
-		</sect2>
-	</sect1>
+		    </figure>
+		</section>
+	</section>
 </chapter>
 
 <!--
@@ -332,145 +325,144 @@
 ####################
 -->
 
-<chapter id="usingHydrogen">
+<chapter id="chap.using_hydrogen">
 	<title>Using Hydrogen</title>
 	
-	<sect1 id="usedFiles">
+	<section id="sect.file_types">
 	    <title>Used Filetypes</title>
 	    <para>Before working with Hydrogen, please familiarize with these filetypes:</para>
-	    <itemizedList>
+	    <itemizedlist>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.</para>
+			<para><emphasis role="bold">*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor.</para>
 		    </listitem>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor</para>
+			<para><emphasis role="bold">*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor</para>
 		    </listitem>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.</para>
+			<para><emphasis role="bold">*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs.</para>
 		    </listitem>
 		    <listitem>
-			<para><emphasis role='bold'>*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.</para>
+			<para><emphasis role="bold">*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples.</para>
 		    </listitem>
-	    </itemizedList>
-	</sect1>
+	    </itemizedlist>
+	</section>
 	
-	<sect1 id="mainMenu">
+	<section id="sect.main_menu">
 	    <title>Main menu</title>
-	    <para><emphasis role='bold'>Projects</emphasis>: this menu offers file related functions.</para>
-	    <itemizedList>
+	    <para><emphasis role="bold">Projects</emphasis>: this menu offers file related functions.</para>
+	    <itemizedlist>
 
-			    <listitem><para><emphasis role='italic'>New</emphasis> - Create a new song</para></listitem>
-			    <listitem><para><emphasis role='italic'>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
-			    <listitem><para><emphasis role='italic'>Open</emphasis> - Open a song</para></listitem>
-			    <listitem><para><emphasis role='italic'>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis role='italic'>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
-			    <listitem><para><emphasis role='italic'>Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
-			    <listitem><para><emphasis role='italic'>Save</emphasis> - Save changes to current song</para></listitem>
-			    <listitem><para><emphasis role='italic'>Save as</emphasis> - Save current song specifying a name (default path: <emphasis role='italic'>$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
-			    <listitem><para><emphasis role='italic'>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
-			    <listitem><para><emphasis role='italic'>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis role='italic'>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
-			    <listitem><para><emphasis role='italic'>Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
-			    <listitem><para><emphasis role='italic'>Export song</emphasis> - Export current song in WAV format</para></listitem>
-			    <listitem><para><emphasis role='italic'>Quit</emphasis> - Quit Hydrogen</para></listitem>
-	    </itemizedList>
+			    <listitem><para><emphasis>New</emphasis> - Create a new song</para></listitem>
+			    <listitem><para><emphasis>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes</para></listitem>
+			    <listitem><para><emphasis>Open</emphasis> - Open a song</para></listitem>
+			    <listitem><para><emphasis>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)</para></listitem>
+			    <listitem><para><emphasis>Open recent</emphasis> - Open a menu showing last used songs</para></listitem>
+			    <listitem><para><emphasis>Save</emphasis> - Save changes to current song</para></listitem>
+			    <listitem><para><emphasis>Save as</emphasis> - Save current song specifying a name (default path: <emphasis>$HOME/.hydrogen/data/songs)</emphasis></para></listitem>
+			    <listitem><para><emphasis>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit</para></listitem>
+			    <listitem><para><emphasis>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis></para></listitem>
+			    <listitem><para><emphasis>Export MIDI file</emphasis> - Export current song in MIDI format</para></listitem>
+			    <listitem><para><emphasis>Export song</emphasis> - Export current song in WAV format</para></listitem>
+			    <listitem><para><emphasis>Quit</emphasis> - Quit Hydrogen</para></listitem>
+	    </itemizedlist>
 	    
 	    
 	    	
-	<para><emphasis role='bold'>Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.</para>
-	    <itemizedList>
-			<listitem><para><emphasis role='italic'>Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
-			<listitem><para><emphasis role='italic'>Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
-			<listitem><para><emphasis role='italic'>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis role='italic'>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis role='italic'>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
-			<listitem><para><emphasis role='italic'>Import library</emphasis> - Imports another drumkit from the local filesystem of download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role='bold'>NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <ulink url="#rack">here</ulink>.</para></listitem>
-	    </itemizedList>
+	<para><emphasis role="bold">Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions.</para>
+	    <itemizedlist>
+			<listitem><para><emphasis>Add instrument</emphasis> - Add a new instrument to your current drumkit</para></listitem>
+			<listitem><para><emphasis>Clear all</emphasis> - Delete all instruments from the current drumkit</para></listitem>
+			<listitem><para><emphasis>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</emphasis></para></listitem>
+			<listitem><para><emphasis>Import library</emphasis> - Imports another drumkit from the local filesystem or download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role="bold">NOT</emphasis> RSS compliant (see <ulink url="http://www.hydrogen-music.org/feeds/drumkit_list.php" >Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <xref linkend="sect.sound_library"/>.</para></listitem>
+	    </itemizedlist>
 	
 	
-	    <para><emphasis role='bold'>Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</para>
-	    <itemizedList>
-		    <listitem><para><emphasis role='italic'>Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Mixer</emphasis> - Open the mixer window.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Preferences</emphasis> - Open the main preferences window. Read <ulink url="#prefs">here</ulink> on how to configure Hydrogen.</para></listitem>
-	    </itemizedList>
+	    <para><emphasis role="bold">Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window.</para>
+	    <itemizedlist>
+		    <listitem><para><emphasis>Playlist editor</emphasis> - A tool to manage playlists.</para></listitem>
+		    <listitem><para><emphasis>Mixer</emphasis> - Open the mixer window.</para></listitem>
+		    <listitem><para><emphasis>Instrument rack</emphasis> - Open the instrument rack panel.</para></listitem>
+		    <listitem><para><emphasis>Preferences</emphasis> - Open the main preferences window. Read <xref linkend="sect.preferences"/> on how to configure Hydrogen.</para></listitem>
+	    </itemizedlist>
 	
 	
-	    <para><emphasis role='bold'>Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
-	    <itemizedList>
-		    <listitem><para><emphasis role='italic'>Show audio engine info - </emphasis>Open a monitor with various <ulink url="#engine">stats</ulink></para></listitem>
-		    <listitem><para><emphasis role='italic'>debug action - </emphasis> Insert debug commands.</para></listitem>
-		    <listitem><para><emphasis role='italic'>Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
-	    </itemizedList>
+	    <para><emphasis role="bold">Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support).</para>
+	    <itemizedlist>
+		    <listitem><para><emphasis>Show audio engine info - </emphasis>Open a monitor with various <link linkend="sect.preferences.audio_engine_tab">stats</link></para></listitem>
+		    <listitem><para><emphasis>debug action - </emphasis> Insert debug commands.</para></listitem>
+		    <listitem><para><emphasis>Print Objects - </emphasis>Print on stdout current objects map.</para></listitem>
+	    </itemizedlist>
     
     
-	    <para><emphasis role='bold'>Info</emphasis></para>
-	    <itemizedList>
-		    <listitem><para><emphasis role='italic'>User manual - </emphasis>Open a window with this manual :)</para></listitem>
-		    <listitem><para><emphasis role='italic'>About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
-	    </itemizedList>
+	    <para><emphasis role="bold">Info</emphasis></para>
+	    <itemizedlist>
+		    <listitem><para><emphasis>User manual - </emphasis>Open a window with this manual :)</para></listitem>
+		    <listitem><para><emphasis>About - </emphasis>The usual window with licence information, acknowledgements, etc.</para></listitem>
+	    </itemizedlist>
 
 	
 	
 	
 	
+	</section>
 	
-	
-	<sect1 id="main">
+	<section id="sect.main_toolbar">
 		<title>The main toolbar</title>
 		<para>Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar and its components:</para>
 		
-		<itemizedList>
-		    <listitem><para>Pilot the song using the start, stop, pause, etc. buttons</listitem>
-		    <listitem><para>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</listitem>
-		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.  (see <xref linkend="taptempo">)</listitem>
-		    <listitem><para>Manually set BPM</listitem>
-		    <listitem><para>Manage JACK transport</listitem>
-		    <listitem><para>Open the mixer and the instrument rack panels</listitem>
-		</itemizedList>
+		<itemizedlist>
+		    <listitem><para>Pilot the song using the start, stop, pause, etc. buttons</para></listitem>
+		    <listitem><para>Choose between "pattern" or "song" mode: in "pattern" mode only the currently selected pattern will play, while in "song" mode all patterns inserted will be played.</para></listitem>
+		    <listitem><para>An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated.  (see <xref linkend="sect.tap_tempo"/>)</para></listitem>
+		    <listitem><para>Manually set BPM</para></listitem>
+		    <listitem><para>Manage JACK transport</para></listitem>
+		    <listitem><para>Open the mixer and the instrument rack panels</para></listitem>
+		</itemizedlist>
 	
 	
+		<figure id="fig.main_toolbar">
+		<title>The Main Toolbar</title>
 		<mediaobject>
 			<imageobject>
 				
-				<imagedata fileref="img/MainToolbar.png" format="png">
+				<imagedata fileref="img/MainToolbar.png" format="PNG"/>
 				
 			</imageobject>
-			<caption> 
-			    <para><emphasis role="bold">Fig. 5 </emphasis>  The main toolbar</para>
-			</caption>
 		</mediaobject>
-	
+		</figure>
 
 		<itemizedlist mark="opencircle">
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/background_Control.png" format="png">
+				<imagedata fileref="img/background_Control.png" format="PNG"/>
 			</imageobject></inlinemediaobject>
 				</para><para>Main controls to start <emphasis role="bold">[Hotkey = Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a pattern.</para>
 			</listitem>
 			
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/background_Mode.png" format="png">
+				<imagedata fileref="img/background_Mode.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Set Pattern/Song Mode.</para></listitem>
 	
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/background_BPM.png" format="png">
+				<imagedata fileref="img/background_BPM.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Set speed of playing (range: 30-400 bpm) <emphasis role="bold">[Hotkey = mouse wheel]</emphasis> and button to enable/disable metronome</para></listitem>
 
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/cpuload.png" format="png">
+				<imagedata fileref="img/cpuload.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Shows CPU load.</para></listitem>
 
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/midi_in.png" format="png">
+				<imagedata fileref="img/midi_in.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Shows MIDI events.</para></listitem>
 
 			<listitem><para><inlinemediaobject><imageobject>
-				<imagedata fileref="img/jack_transport.png" format="png">
+				<imagedata fileref="img/jack_transport.png" format="PNG"/>
 			</imageobject></inlinemediaobject></para><para>Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected.</para></listitem>
 		</itemizedlist>
 
 	<para>Other useful keybindings (not customizable for the moment):</para>
 		
-	<itemizedlist mark='opencircle'>
+	<itemizedlist mark="opencircle">
 		<listitem>
 			<para>
 			<emphasis role="bold">[CTRL + O]</emphasis> = Open File
@@ -487,7 +479,8 @@
 			</para>
 		</listitem>
 		</itemizedlist>
-		<sect2 id="taptempo">
+
+		<section id="sect.tap_tempo">
 			<title>Tap Tempo and BeatCounter</title>
 
 			<para>It is possible to change tempo at any time using
@@ -603,15 +596,15 @@
 			Using the BeatCounter effectively requires
 			practice.</para>
 
-		</sect2>
+		</section>
 
-	</sect1>
+	</section>
 	
-	<sect1 id="songEditor">
+	<section id="sect.song_editor">
 		<title>Song Editor</title>
 
 		<para>
-		The "Song Editor" (Fig. 6) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
+		The "Song Editor" (<xref linkend="fig.song_editor"/>) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying "Pattern Editor" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns.
 		</para>
 
 		<para>
@@ -620,30 +613,30 @@
 		<para>
 			<inlinemediaobject>
 				<imageobject>
-					<imagedata fileref="img/bg_topPanel.png" format="png">
+					<imagedata fileref="img/bg_topPanel.png" format="PNG"/>
 				</imageobject>
 			</inlinemediaobject>
 		</para>
 
-<itemizedlist mark='opencircle'>
+<itemizedlist mark="opencircle">
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_clear_off.png" format="png">
+			<imagedata fileref="img/btn_clear_off.png" format="PNG"/>
 		</imageobject></inlinemediaobject> Completely delete all patterns (asks for confirmation!).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_new_on.png" format="png">
+			<imagedata fileref="img/btn_new_on.png" format="PNG" />
 		</imageobject></inlinemediaobject> Create a new pattern (and asks for a name).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_updown.png" format="png">
+			<imagedata fileref="img/btn_updown.png" format="PNG" />
 		</imageobject></inlinemediaobject> Move currently selected pattern up or down.
 		</para>
 		</listitem>
@@ -652,21 +645,21 @@
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_select.png" format="png">
-		</imageobject></inlinemediaobject> Enable selecting patterns for copy & paste (Select Mode).
+			<imagedata fileref="img/btn_select.png" format="PNG"/>
+		</imageobject></inlinemediaobject> Enable selecting patterns for copy &amp; paste (Select Mode).
 		</para>
 		</listitem>
 
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_draw.png" format="png">
+			<imagedata fileref="img/btn_draw.png" format="PNG"/>
 		</imageobject></inlinemediaobject> Enable Draw Mode.
 		</para>
 		</listitem>
 		
 		<listitem>
 		<para><inlinemediaobject><imageobject>
-			<imagedata fileref="img/btn_pattern_mode.png" format="png">
+			<imagedata fileref="img/btn_pattern_mode.png" format="PNG"/>
 		</imageobject></inlinemediaobject> Switch from "Single pattern mode" to "Stacked pattern mode" and back..
 		</para>
 		</listitem>
@@ -677,23 +670,21 @@
 	on an squarebox to add or cancel the pattern. Clicking on right mouse button over the name of a pattern will bring up a menu to change name of the pattern or to allow copying/deleting it. Patterns with very same name are not allowed.
 	</para>
 
+	<figure id="fig.song_editor">
+	<title>The Song Editor</title>
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img/SongEditor.png" format="png">
+			<imagedata fileref="img/SongEditor.png" format="PNG" />
 		</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 6</emphasis> The Song Editor
-			</para>
-		</caption>
 	</mediaobject>
+	</figure>
 
-	</sect1>
+	</section>
 
-	<sect1 id="patternEditor">
+	<section id="sect.pattern_editor">
 		<title>Pattern Editor</title>
 		<para>
-		The "Pattern Editor" frame (Fig. 7) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
+		The "Pattern Editor" frame (<xref linkend="fig.pattern_editor"/>) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). 
 		
 		Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame. Those frame shows the so called "note properties". This are special properties which can be set for every
 		single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms at a tempo of 120bpm.
@@ -703,7 +694,7 @@
 		The button
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_hear_on.png" format="png">
+				<imagedata fileref="img/btn_hear_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 
@@ -711,7 +702,7 @@
 		
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_updown.png" format="png">
+				<imagedata fileref="img/btn_updown.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 
@@ -719,24 +710,21 @@
 	
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_quant_off.png" format="png">
+				<imagedata fileref="img/btn_quant_off.png" format="PNG"/>
 			</imageobject>
 		</inlinemediaobject>
 	
 	. This way the beats inserted will automatically respect the grid resolution currently applied.
 		</para>
 
+		<figure id="fig.pattern_editor">
+		  <title>The Pattern Editor</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="img/PatternEditor.png" format="png">
+					<imagedata fileref="img/PatternEditor.png" format="PNG" />
 				</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 7</emphasis> The Pattern Editor
-			</para>
-		</caption>
-				
 			</mediaobject>
+		</figure>
 
 		<para>
 		Rememeber this constraint concerning the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; on the other hand if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision), notes will be placed in the previous or in the following 8th bar.
@@ -751,17 +739,19 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		    The small green and red squares beside the instrument name are the <quote><emphasis role="bold">mute</emphasis></quote> and <quote><emphasis role="bold">solo</emphasis></quote> buttons.
 		</para>
 		
+		<informalfigure id="ifig.pattern_editor_instrument">
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/PatternEditorInstr.png" format="png">
+				<imagedata fileref="img/PatternEditorInstr.png" format="PNG" />
 			</imageobject>
 		</mediaobject>
+		</informalfigure>
 
 		<para>Also, you can set new beats clicking on
 		
 		<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/btn_record_over.png" format="png">
+				<imagedata fileref="img/btn_record_over.png" format="PNG"/>
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -797,35 +787,35 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		</itemizedlist>
 
 	
-	<para>Here's a quick reference of the above bindings for your convenience. See <link linkend='creazioneSong'>Chapter 3</link> for a basic walkthrough of how the pattern editor works.</para>
+	<para>Here's a quick reference of the above bindings for your convenience. See <xref linkend="chap.create_song"/> for a basic walkthrough of how the pattern editor works.</para>
 	
+	<informalfigure id="ifig.letters_keyboard">
 	<mediaobject>
 		<imageobject>
-			<imagedata fileref="img/tastiera.png" format="png">
+			<imagedata fileref="img/tastiera.png" format="PNG" />
 		</imageobject>
 	</mediaobject>
+	</informalfigure>
 	
-	</sect1>
+	</section>
 
-	<sect1 id="mixer">
+	<section id="sect.mixer">
 		<title>Mixer</title>
 		
+		<figure id="fig.mixer">
+		<title>The Mixer</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/Mixer.png" format="png">
+				<imagedata fileref="img/Mixer.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 8</emphasis> The Mixer
-			</para>
-		</caption>
 		</mediaobject>
+		</figure>
 
-<para>The Mixer frame (Fig. 8) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
+<para>The Mixer frame (<xref linkend="fig.mixer"/>) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on 
 
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/showPeaks_on.png" format="png">
+			<imagedata fileref="img/showPeaks_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>	
 
@@ -833,7 +823,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/btn_solo_on.png" format="png">
+			<imagedata fileref="img/btn_solo_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -841,7 +831,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/btn_mute_on.png" format="png">
+			<imagedata fileref="img/btn_mute_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -849,7 +839,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/btn_play_on_mixer.png" format="png">
+			<imagedata fileref="img/btn_play_on_mixer.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 
@@ -861,23 +851,25 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/showFX_on.png" format="png">
+			<imagedata fileref="img/showFX_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
 	button. See next section for a detailed overview.
 	
+	<informalfigure id="ifig.mixer_fx">
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/MixerFX.png" format="png">
+				<imagedata fileref="img/MixerFX.png" format="PNG" />
 			</imageobject>
 		</mediaobject>	
-	
+	</informalfigure>
+
 	</para>
 
-	</sect1>
+	</section>
 
-        <sect1 id="drumkit">
+        <section id="sect.sound_library">
           <title>Sound Library (Drumkit Manager)</title>
 
           <para>The Sound Library saves you time in managing your drum kits,
@@ -885,7 +877,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
           kits, the Sound Library makes it easier for you to reuse and mix the
           instruments and patterns from other kits and songs.</para>
 
-          <simplesect id="sect.systemdrumkits">
+          <section id="sect.systemdrumkits">
             <title>System Drumkits</title>
 
             <para>This lists the drumkits that were installed by your system
@@ -905,9 +897,9 @@ This contraint can be removed if you disable the whole grid resolution (choose "
             your left mouse button, click and drag the instrument into your
             current kit.  The instrument will be added to the drumkit that you
             currently have loaded.</para>
-          </simplesect>
+          </section>
 
-          <simplesect id="sect.userdrumkits">
+          <section id="sect.userdrumkits">
             <title>User Drumkits</title>
 
             <para>These are your own drum kits that you can manage yourself.
@@ -919,10 +911,10 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 
             <para>Loading drumkits and instruments to use is the same as for the
-            System Drumkits (see <xref linkend="sect.systemdrumkits">).</para>
+            System Drumkits (see <xref linkend="sect.systemdrumkits"/>).</para>
 
-          </simplesect>
-          <simplesect id="sect.sl.patterns">
+          </section>
+          <section id="sect.sl.patterns">
             <title>Patterns in the Sound Library</title>
 
             <para>Before you save your favorite patterns to the sound library,
@@ -939,8 +931,8 @@ This contraint can be removed if you disable the whole grid resolution (choose "
             in the Sound Library underneath <guilabel>Patterns</guilabel> and
             the category that you assigned to the pattern.</para>
 
-          </simplesect>
-          <simplesect id="sect.sl.songs">
+          </section>
+          <section id="sect.sl.songs">
             <title>Songs in the Sound Library</title>
 
             <para>To save songs in the Sound Library, put them in your data
@@ -948,10 +940,10 @@ This contraint can be removed if you disable the whole grid resolution (choose "
             folder
             (usually <filename role="directory">$HOME/data/songs</filename>.  To
             remove them, remove the file from that folder.</para>
-          </simplesect>
+          </section>
 
-        </sect1>
-	<sect1 id="instrumentediting">
+        </section>
+	<section id="sect.instrument_editing">
 		<title>Drumkits and Instrument Editing</title>
 
 		<para>Creating a new drumkit with Hydrogen is done with the
@@ -962,12 +954,12 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 		<para>Instead of creating your own drumkit, you can also use or
 		download existing drumkits using
-		the <link linkend="drumkit">Drumkit Manager</link>.</para>
+		the <xref linkend="sect.sound_library"/>.</para>
 
 		<!-- Need to add an explaination of what the instrument list
                      and instrument editor are. -->
 
-	<sect2 id="instrumentediting.concepts">
+	<section id="sect.instrument_editing.concepts">
 		<title>Concepts</title>
 
 		<para>
@@ -976,7 +968,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		  sec and 3 sec).  To play a note, the sample is simply played
 		  back at the right time.  There's a few concepts and terms that
 		  you should understand when you are putting together a drumkit.
-		  (See the <link linkend="glossary">Glossary</link> for more
+		  (See <xref linkend="glossary"/> for more
 		  detailed explanations.)
                 </para>
 
@@ -1052,8 +1044,8 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		  Be creative!
                 </para>
 
-	</sect2>
-	<sect2 id="instrumentediting.newkit">
+	</section>
+	<section id="sect.instrument_editing.new_kit">
 		<title>Creating a New Drumkit</title>
 
 		<para>To start a brand new drum kit, select
@@ -1103,8 +1095,8 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		from the menu.  Select the drum kit that you wish to
 		export, and give it a file name to save it to.</para>
 
-	</sect2>
-	<sect2 id="instrumentediting.newinstrument">
+	</section>
+	<section id="sect.instrument_editing.new_instrument">
 		<title>Creating an Instrument and Layers</title>
 
 		<para>For each instrument in a drum kit, you can load
@@ -1164,7 +1156,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		different samples to sound.  Now set the pattern to
 		loop and notice how your different samples are getting
 		triggered.  (To learn about editing a pattern,
-		see <xref linkend="patternEditor">)</para>
+		see <xref linkend="sect.pattern_editor"/>)</para>
 
 		<para>For each layer, you can set
 		the <guibutton>Gain</guibutton> and
@@ -1202,8 +1194,8 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		  turn down -12 (1 octave), you sample will only last
 		  for .5-seconds.</para>
 		</note>
-	</sect2>
-	<sect2 id="instrumentediting.parameters">
+	</section>
+	<section id="sect.instrument_editing.parameters">
 		<title>Instrument Parameters</title>
 
 		<para>In the instrument editor, click on
@@ -1214,37 +1206,37 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 
 		<itemizedlist>
 		  <listitem>
-		    <para><emphasis role='bold'>Envelope
+		    <para><emphasis role="bold">Envelope
 		    parameters</emphasis>: <guibutton>Attack</guibutton>, <guibutton>Decay</guibutton>,
 		    <guibutton>Sustain</guibutton>, <guibutton>Release</guibutton>.  (See
-		    <xref linkend='def.envelopegenerator'>)</para>
+		    <xref linkend="def.envelopegenerator"/>)</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'><guibutton>Gain</guibutton></emphasis>:
+		    <para><emphasis role="bold"><guibutton>Gain</guibutton></emphasis>:
 		    The overall volume of the instrument.</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'><guibutton>Mute
+		    <para><emphasis role="bold"><guibutton>Mute
 		    Group</guibutton></emphasis>: Which mute group
 		    this instrument is a member of (see
-		    <xref linkend='def.mutegroup'>).</para>
+		    <xref linkend="def.mutegroup"/>).</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'>Filter
+		    <para><emphasis role="bold">Filter
 		    Parameters</emphasis>: <guibutton>Byp</guibutton>ass, <guibutton>Cutoff</guibutton>,
 		      <guibutton>Resonance</guibutton>.</para>
 		  </listitem>
 		  <listitem>
-		    <para><emphasis role='bold'><guibutton>Random
+		    <para><emphasis role="bold"><guibutton>Random
 		    Pitch</guibutton></emphasis></para>
 		  </listitem>
 		</itemizedlist>
 
 		<para>It's important that you
-		understand <xref linkend='instrumentediting.concepts'>
+		understand <xref linkend="sect.instrument_editing.concepts"/>
 		in order to continue on.</para>
 
-		<simplesect id="instrumentediting.envelopeparameters">
+		<section id="sect.instrument_editing.envelope_parameters">
 		  <title>Envelope Parameters</title>
 
 		  <para>When the instrument is triggered, its volume
@@ -1280,7 +1272,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      from the attack volume to the sustain volume.
 		      If the value is 1.0, the sample volume will use
 		      the maximum time available for the decay
-		      parameter.<footnoteref linkend="fn.adsrtimes"></para>
+		      parameter.<footnoteref linkend="fn.adsrtimes"/></para>
 		    </listitem>
 		    <listitem>
 		      <para><emphasis role="bold">Sustain</emphasis>
@@ -1297,7 +1289,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		      the note will fade out in the minimum amount of time
 		      (about 5 ms).  If set to 1, it will fade out for
 		      the maximum time
-		      available.<footnoteref linkend="fn.adsrtimes"></para>
+		      available.<footnoteref linkend="fn.adsrtimes"/></para>
 		    </listitem>
 		  </itemizedlist>
 
@@ -1308,9 +1300,9 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		  the note while you are holding it.  It only holds
 		  the gain (volume) parameter during that time.</para>
 
-		</simplesect>
+		</section>
 
-		<simplesect id="instrumentediting.gainandmutegroup">
+		<section id="sect.instrument_editing.gain_and_mute_group">
 		  <title>Gain and Mute Group</title>
 
 		  <para>The gain sets the overall volume for the
@@ -1354,9 +1346,9 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		  drum mute group, set their mute group parameters to
 		  2.)</para>
 
-		</simplesect>
+		</section>
 
-		<simplesect id="instrumentediting.filterandrandompitch">
+		<section id="sect.instrument_editing.filter_and_random_pitch">
 		  <title>Filter and Random Pitch</title>
 
 		  <para>The filter is a low-pass resonance filter.  If you don't
@@ -1392,9 +1384,9 @@ This contraint can be removed if you disable the whole grid resolution (choose "
                   &plusmn;2 half-steps &times; value.  Using this sparingly can
                   help your sequences to sound more like a real drummer.</para>
 		
-		</simplesect>
-	</sect2>
-	<sect2 id="instrumentediting.tips">
+		</section>
+	</section>
+	<section id="sect.instrument_editing.tips">
 		<title>Tips on Editing Instruments</title>
 
 		<para>With all of the different parameters available to tweak,
@@ -1455,19 +1447,19 @@ This contraint can be removed if you disable the whole grid resolution (choose "
                 change are: anything time-base (like attack and release) and
                 anything frequency based (like the cutoff frequency).</para>
 
-	</sect2>
-	</sect1>
+	</section>
+	</section>
 
-	<sect1 id="ladspa">
+	<section id="sect.ladspa">
 		<title>LADSPA plugins</title>
-		<para>Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons install</command>.  Here are a few places to download plugin libraries:</para>
+		<para>Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url="http://www.ladspa.org"/>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons install</command>.  Here are a few places to download plugin libraries:</para>
 
 	<itemizedlist>
-	<listitem><para>SWH-Plugins available at <ulink url="http://plugin.org.uk"><citetitle>http://plugin.org.uk</citetitle></ulink>. Note that before compiling these plugins you need the FFTW tarball from <ulink url="http://www.fftw.org"><citetitle>http://www.fftw.org</citetitle></ulink>.</para></listitem>
+	<listitem><para>SWH-Plugins available at <ulink url="http://plugin.org.uk"/>. Note that before compiling these plugins you need the FFTW tarball from <ulink url="http://www.fftw.org"/>.</para></listitem>
 	
-	<listitem><para>CMT available at <ulink url="http://www.ladspa.org"><citetitle>http://www.ladspa.org</citetitle></ulink>.</para></listitem>
+	<listitem><para>CMT available at <ulink url="http://www.ladspa.org"/>.</para></listitem>
 	
-	<listitem><para>TAP available at <ulink url="http://tap-plugins.sf.net"><citetitle>http://tap-plugins.sf.net</citetitle></ulink>.</para></listitem>
+	<listitem><para>TAP available at <ulink url="http://tap-plugins.sf.net"/>.</para></listitem>
 	
 	</itemizedlist>
 
@@ -1485,7 +1477,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/showFX_on.png" format="png">
+			<imagedata fileref="img/showFX_on.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -1493,15 +1485,15 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/edit_off.png" format="png">
+			<imagedata fileref="img/edit_off.png" format="PNG" />
 		</imageobject>
 	</inlinemediaobject>
 	
-	), than on <quote>Select the FX</quote>: this will bring up another window (Fig. 3) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect.
+	), than on <quote>Select the FX</quote>: this will bring up another window (<xref linkend="fig.select_effect"/>) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect.
 	
 	<inlinemediaobject>
 		<imageobject>
-			<imagedata fileref="img/MixerFXKnob.png" format="png">
+			<imagedata fileref="img/MixerFXKnob.png" format="PNG"/>
 		</imageobject>
 	</inlinemediaobject>
 	
@@ -1509,7 +1501,7 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 	
 	<inlinemediaobject>
 			<imageobject>
-				<imagedata fileref="img/bypass_over.png" format="png">
+				<imagedata fileref="img/bypass_over.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>) 
 		
@@ -1517,18 +1509,16 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 		button.</para>
 
 
+		<figure id="fig.select_effect">
+		<title>Select an Effect</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/MixerFXSelect.png" format="png">
+				<imagedata fileref="img/MixerFXSelect.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 3</emphasis> Select an effect.
-			</para>
-		</caption>
 		</mediaobject>
+		</figure>
 	
-	</sect1>
+	</section>
 
 </chapter>
 
@@ -1538,81 +1528,77 @@ This contraint can be removed if you disable the whole grid resolution (choose "
 #################
 -->
 
-<chapter id="creazioneSong">
+<chapter id="chap.create_song">
 	<title>A new song</title>
-	<sect1 id="SongVSpattern">
+	<section id="sect.song_vs_pattern">
 		<title>"Song" mode and "Pattern" mode</title>
 		<para>
 			This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the tutorial for a more detailed overview.
 		</para>
 		
 		<para>
-			Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to <link linkend="main">this section</link> for the buttons to activate). When "Pattern" mode is activated the current pattern is continously repeated, so to help changing it until we don't like it, while "Song" mode repeats only the current pattern: this is useful when putting together the patterns, to create the whole structure for the song.
+			Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to <xref linkend="sect.main_toolbar"/> for the buttons to activate). When "Pattern" mode is activated the current pattern is continously repeated, so to help changing it until we don't like it, while "Song" mode repeats only the current pattern: this is useful when putting together the patterns, to create the whole structure for the song.
 		</para>
-	</sect1>
+	</section>
 
-	<sect1 id="creazionePattern">
+	<section id="sect.create_pattern">
 		<title>A new pattern</title>
 		<para>
-		We'll start from an empty song with an empty pattern, as created by default: "pattern" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <quote>Play</quote> button and while the pattern is playing let's add notes in the grid of the Song Editor (Fig. 12) simply left_mouse_clicking on it: adjust grid resolution and BPM speed if needed. Rememeber some constraints of the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; same thing happens if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision): they will be placed on the previous or on the following 8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, in this case you're free to place notes wherever you prefer). <emphasis role="bold">Be sure to select the correct pattern in the Song Editor before adding notes in the Pattern Editor!</emphasis>
+		We'll start from an empty song with an empty pattern, as created by default: "pattern" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <quote>Play</quote> button and while the pattern is playing let's add notes in the grid of the Song Editor (<xref linkend="fig.pattern_editor.2"/>) simply left_mouse_clicking on it: adjust grid resolution and BPM speed if needed. Rememeber some constraints of the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; same thing happens if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision): they will be placed on the previous or on the following 8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, in this case you're free to place notes wherever you prefer). <emphasis role="bold">Be sure to select the correct pattern in the Song Editor before adding notes in the Pattern Editor!</emphasis>
 		</para>
 
+		<figure id="fig.pattern_editor.2">
+		<title>The Pattern Editor</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/PatternEditor.png" format="png">
+				<imagedata fileref="img/PatternEditor.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 12</emphasis> The Pattern Editor
-			</para>
-		</caption>
 		</mediaobject>
-	</sect1>
+		</figure>
+	</section>
 
-	<sect1 id="creazioneSequenza">
+	<section id="sect.create_sequence">
 		<title>A new sequence</title>
 		<para>
-		Once patterns are created (Fig. 13), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy).
+		Once patterns are created (<xref linkend="fig.insert_notes"/>), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy).
 		</para>
 
+		<figure id="fig.insert_notes">
+		<title>Inserting Notes in a Pattern</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/SongEditor.png" format="png">
+				<imagedata fileref="img/SongEditor.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 13</emphasis> Inserting notes in a pattern
-			</para>
-		</caption>
 				</mediaobject>
+		</figure>
 
-	</sect1>
+	</section>
 	
-	<sect1 id="operazioniMixer">
+	<section id="sect.create_song.adjust_mixer">
 		<title>Adjust from the mixer</title>
 		<para>
 		Of course we can always use the mixer window, either when creating or playing patterns.
 		</para>
 		
 		<para>
-		The Mixer frame (Fig. 14) is made of 32 independent tracks, each of these is binded to an
+		The Mixer frame (<xref linkend="fig.mixer.2"/>) is made of 32 independent tracks, each of these is binded to an
 instrument, plus a "Master Output" line to adjust general output volume and a "FX" button to set effects. Every line features 3 buttons (
 	
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_play_on_mixer.png" format="png">
+			<imagedata fileref="img/btn_play_on_mixer.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
  		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_solo_on.png" format="png">
+			<imagedata fileref="img/btn_solo_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_mute_on.png" format="png">
+			<imagedata fileref="img/btn_mute_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -1620,7 +1606,7 @@ instrument, plus a "Master Output" line to adjust general output volume and a "F
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/MixerPan.png" format="png">
+			<imagedata fileref="img/MixerPan.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -1628,7 +1614,7 @@ instrument, plus a "Master Output" line to adjust general output volume and a "F
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_solo_on.png" format="png">
+			<imagedata fileref="img/btn_solo_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 		
@@ -1637,25 +1623,23 @@ button
 		
 		<inlinemediaobject>
 			<imageobject>
-			<imagedata fileref="img/btn_mute_on.png" format="png">
+			<imagedata fileref="img/btn_mute_on.png" format="PNG" />
 			</imageobject>
 		</inlinemediaobject>
 
 		, simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates the maximun volume reached
-from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter.
+from the instrument; the peak must be in a range of 0.0 and 1.0 (in <xref linkend="fig.mixer.2"/> you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter.
 		</para>
 		
+		<figure id="fig.mixer.2">
+		<title>The Mixer</title>
 		<mediaobject>
 			<imageobject>
-				<imagedata fileref="img/Mixer.png" format="png">
+				<imagedata fileref="img/Mixer.png" format="PNG" />
 			</imageobject>
-		<caption>
-			<para>
-			<emphasis role="bold">Fig. 14</emphasis> The mixer
-			</para>
-		</caption>
 		</mediaobject>
-	</sect1>
+		</figure>
+	</section>
 </chapter>
 <glossary id="glossary">
   <title>Glossary</title>
@@ -1690,11 +1674,11 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       Article <ulink url="http://en.wikipedia.org/wiki/ADSR_envelope">ADSR
       Envelope</ulink></para>
 
-      <glossseealso otherterm="def.envelopegenerator">
-      <glossseealso otherterm="def.attack">
-      <glossseealso otherterm="def.decay">
-      <glossseealso otherterm="def.sustain">
-      <glossseealso otherterm="def.release">
+      <glossseealso otherterm="def.envelopegenerator"/>
+      <glossseealso otherterm="def.attack"/>
+      <glossseealso otherterm="def.decay"/>
+      <glossseealso otherterm="def.sustain"/>
+      <glossseealso otherterm="def.release"/>
     </glossdef>
   </glossentry>
 
@@ -1705,7 +1689,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       of <emphasis>time</emphasis> to turn the parameter up from
       0 to full velocity after triggering the note.</para>
 
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
@@ -1715,7 +1699,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>In filters and mixers, this the amount that a signal is reduced
       (volume).</para>
 
-      <glossseealso otherterm="def.rolloff">
+      <glossseealso otherterm="def.rolloff"/>
     </glossdef>
   </glossentry>
 
@@ -1728,9 +1712,9 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       attenuates (silences) all others.  This is often done by combining a
       high-pass and a low-pass filter.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.highpassfilter">
-      <glossseealso otherterm="def.lowpassfilter">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.highpassfilter"/>
+      <glossseealso otherterm="def.lowpassfilter"/>
     </glossdef>
   </glossentry>
 
@@ -1766,10 +1750,10 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       guitar), it sounds like someone is putting a blanket over the speaker.
       The higher frequencies are being attenuated above 30 Hz.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.highpassfilter">
-      <glossseealso otherterm="def.lowpassfilter">
-      <glossseealso otherterm="def.resonancefilter">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.highpassfilter"/>
+      <glossseealso otherterm="def.lowpassfilter"/>
+      <glossseealso otherterm="def.resonancefilter"/>
     </glossdef>
   </glossentry>
 
@@ -1782,7 +1766,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       of <emphasis>time</emphasis> to turn the parameter down
       from full velocity to the sustain level.</para>
 
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
@@ -1794,6 +1778,9 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A way to control (change) a parameter over time as a response to
       triggering, holding, and releasing a note.</para>
 
+      <!-- TRANSLATORS: This is a witty English expression that means, "Did I
+	   just say something really complicated, and you quit paying attention?
+	   I'll try it again a little more informally." -->
       <para>Did your eyes just glaze over? Let's try again:</para>
 
       <para>Imagine that you're playing a note on the keyboard and you have your
@@ -1821,10 +1808,10 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A device that changes a sound by attenuating specific frequencies.
       A tone knob is an example of a simple, low-pass filter.</para>
 
-      <glossseealso otherterm="def.bandpassfilter">
-      <glossseealso otherterm="def.highpassfilter">
-      <glossseealso otherterm="def.lowpassfilter">
-      <glossseealso otherterm="def.resonancefilter">
+      <glossseealso otherterm="def.bandpassfilter"/>
+      <glossseealso otherterm="def.highpassfilter"/>
+      <glossseealso otherterm="def.lowpassfilter"/>
+      <glossseealso otherterm="def.resonancefilter"/>
     </glossdef>
   </glossentry>
 
@@ -1846,8 +1833,8 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A filter that attenuates (silences) low frequencies, but allows high
       frequencies to pass through.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.cutoff">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.cutoff"/>
     </glossdef>
   </glossentry>
 
@@ -1881,7 +1868,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       this in your instrument, you can load one sample for soft
       playing, and a different sample for loud playing.</para>
 
-      <glossseealso otherterm="def.instrument">
+      <glossseealso otherterm="def.instrument"/>
     </glossdef>
   </glossentry>
 
@@ -1891,8 +1878,8 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>A filter that attenuates (silences) high frequences, but allows low
       frequencies to pass through.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.cutoff">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.cutoff"/>
     </glossdef>
   </glossentry>
 
@@ -1953,7 +1940,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       of <emphasis>time</emphasis> to reduce the parameter from
       the sustain level to 0.</para>
 
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 
@@ -1964,7 +1951,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       determines how much of a boost (gain) to give the frequencies at the
       cutoff.</para>
 
-      <glossseealso otherterm="def.resonancefilter">
+      <glossseealso otherterm="def.resonancefilter"/>
     </glossdef>
   </glossentry>
 
@@ -1976,9 +1963,9 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       filter, where the boosted frequencies are centered on the cut-off
       frequency.</para>
 
-      <glossseealso otherterm="def.filter">
-      <glossseealso otherterm="def.cutoff">
-      <glossseealso otherterm="def.resonance">
+      <glossseealso otherterm="def.filter"/>
+      <glossseealso otherterm="def.cutoff"/>
+      <glossseealso otherterm="def.resonance"/>
     </glossdef>
   </glossentry>
 
@@ -1997,8 +1984,8 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       a straight line (on a log scale) and measured in in dB of attenuation per
       octave of frequency.</para>
 
-      <glossseealso otherterm="def.attenuation">
-      <glossseealso otherterm="def.filter">
+      <glossseealso otherterm="def.attenuation"/>
+      <glossseealso otherterm="def.filter"/>
     </glossdef>
   </glossentry>
 
@@ -2018,7 +2005,7 @@ from the instrument; the peak must be in a range of 0.0 and 1.0 (in Fig. 14 you 
       <para>The <emphasis>level</emphasis> to hold the parameter
       after finishing the decay time.  This level will be maintained until the
       not is released.</para>
-      <glossseealso otherterm="def.adsr">
+      <glossseealso otherterm="def.adsr"/>
     </glossdef>
   </glossentry>
 

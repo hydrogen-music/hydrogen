@@ -13,8 +13,12 @@
 	* Lead / lag (pattern editor) 
 	* Audiofilebrowser
 	* midiAutosense
-	* added croation translation
 	* change post masterfader fx_return to pre masterfader fx_return
+	* several new translations
+	* new manual
+	* switched buildsystem from autotools to scons	
+	* tons of bugfixes
+	* soundlibrary browser
 
 2008-02-05 Alessandro Cominu <comix@users.sourceforge.net>
 	* Release 0.9.3.1
