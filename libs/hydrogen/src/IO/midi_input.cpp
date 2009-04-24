@@ -186,10 +186,6 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		return;
 	}
 
-
-
-	
-
 	bool bPatternSelect = false;
 
 	if ( bIsChannelValid ) {
@@ -257,6 +253,8 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 			AudioEngine::get_instance()->get_sampler()->midi_keyboard_note_off( msg.m_nData1 );
 		}else
 		{
+			if ( pSong->get_instrument_list()->get_size() < nInstrument +1 )
+				return;
 			Note *offnote = new Note( pInstr,
 						0.0,
 						0.0,
