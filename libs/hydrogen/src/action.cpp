@@ -79,7 +79,8 @@ ActionManager::ActionManager() : Object( "ActionManager" ) {
 	<< "PAN_RELATIVE"
 	<< "PAN_ABSOULTE"
 	<< "BEATCOUNTER"
-	<< "TAP_TEMPO";
+	<< "TAP_TEMPO"
+	<< "SELECT_INSTRUMENT";
 
 	eventList << ""
 	<< "MMC_PLAY"
@@ -213,6 +214,15 @@ bool ActionManager::handleAction( Action * pAction ){
 
 	if( sActionString == "TAP_TEMPO" ){
 		pEngine->onTapTempoAccelEvent();
+		return true;
+	}
+
+	if( sActionString == "SELECT_INSTRUMENT" ){
+		bool ok;
+		int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
+		if ( pEngine->getSong()->get_instrument_list()->get_size() < instrument_number ) 
+			instrument_number = pEngine->getSong()->get_instrument_list()->get_size() -1;	
+		pEngine->setSelectedInstrumentNumber( instrument_number );
 		return true;
 	}
 
