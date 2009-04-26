@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SampleEditor_UI</class>
- <widget class="QDialog" name="SampleEditor_UI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SampleEditor_UI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,30 +10,30 @@
     <height>483</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QFrame" name="targetSampleView" >
-   <property name="geometry" >
+  <widget class="QFrame" name="targetSampleView">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>385</y>
      <width>841</width>
-     <height>91</height>
+     <height>94</height>
     </rect>
    </property>
-   <property name="cursor" >
+   <property name="cursor">
     <cursorShape>CrossCursor</cursorShape>
    </property>
-   <property name="frameShape" >
+   <property name="frameShape">
     <enum>QFrame::Box</enum>
    </property>
-   <property name="frameShadow" >
+   <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
   </widget>
-  <widget class="QPushButton" name="PlayOrigPushButton" >
-   <property name="geometry" >
+  <widget class="QPushButton" name="PlayOrigPushButton">
+   <property name="geometry">
     <rect>
      <x>230</x>
      <y>350</y>
@@ -40,12 +41,12 @@
      <height>26</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>P&amp;lay original sample</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="PrevChangesPushButton" >
-   <property name="geometry" >
+  <widget class="QPushButton" name="PrevChangesPushButton">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>350</y>
@@ -53,12 +54,12 @@
      <height>26</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Apply Changes</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="ClosePushButton" >
-   <property name="geometry" >
+  <widget class="QPushButton" name="ClosePushButton">
+   <property name="geometry">
     <rect>
      <x>775</x>
      <y>295</y>
@@ -66,12 +67,12 @@
      <height>26</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Close</string>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
     <rect>
      <x>5</x>
      <y>295</y>
@@ -79,106 +80,106 @@
      <height>30</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" >
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QSpinBox" name="StartFrameSpinBox" >
-      <property name="minimumSize" >
+     <widget class="QSpinBox" name="StartFrameSpinBox">
+      <property name="minimumSize">
        <size>
         <width>140</width>
         <height>0</height>
        </size>
       </property>
-      <property name="toolTip" >
+      <property name="toolTip">
        <string>Adjust sample start frame</string>
       </property>
-      <property name="maximum" >
+      <property name="maximum">
        <number>1000000000</number>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QSpinBox" name="LoopFrameSpinBox" >
-      <property name="minimumSize" >
+     <widget class="QSpinBox" name="LoopFrameSpinBox">
+      <property name="minimumSize">
        <size>
         <width>140</width>
         <height>0</height>
        </size>
       </property>
-      <property name="toolTip" >
+      <property name="toolTip">
        <string>Adjust sample loop begin frame</string>
       </property>
-      <property name="maximum" >
+      <property name="maximum">
        <number>1000000000</number>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="ProcessingTypeComboBox" >
-      <property name="minimumSize" >
+     <widget class="QComboBox" name="ProcessingTypeComboBox">
+      <property name="minimumSize">
        <size>
         <width>82</width>
         <height>0</height>
        </size>
       </property>
-      <property name="toolTip" >
+      <property name="toolTip">
        <string>set processing</string>
       </property>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>forward</string>
        </property>
       </item>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>reverse</string>
        </property>
       </item>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>pingpong</string>
        </property>
       </item>
      </widget>
     </item>
     <item>
-     <widget class="QSpinBox" name="LoopCountSpinBox" >
-      <property name="minimumSize" >
+     <widget class="QSpinBox" name="LoopCountSpinBox">
+      <property name="minimumSize">
        <size>
         <width>60</width>
         <height>0</height>
        </size>
       </property>
-      <property name="toolTip" >
+      <property name="toolTip">
        <string>loops</string>
       </property>
-      <property name="minimum" >
+      <property name="minimum">
        <number>0</number>
       </property>
-      <property name="maximum" >
+      <property name="maximum">
        <number>10000</number>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QSpinBox" name="EndFrameSpinBox" >
-      <property name="minimumSize" >
+     <widget class="QSpinBox" name="EndFrameSpinBox">
+      <property name="minimumSize">
        <size>
         <width>140</width>
         <height>0</height>
        </size>
       </property>
-      <property name="toolTip" >
+      <property name="toolTip">
        <string>Adjust sample end &amp; loop end frame</string>
       </property>
-      <property name="maximum" >
+      <property name="maximum">
        <number>1000000000</number>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="layoutWidget" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
     <rect>
      <x>5</x>
      <y>10</y>
@@ -186,68 +187,68 @@
      <height>276</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2" >
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <widget class="QFrame" name="mainSampleview" >
-      <property name="minimumSize" >
+     <widget class="QFrame" name="mainSampleview">
+      <property name="minimumSize">
        <size>
         <width>624</width>
         <height>265</height>
        </size>
       </property>
-      <property name="maximumSize" >
+      <property name="maximumSize">
        <size>
         <width>624</width>
         <height>265</height>
        </size>
       </property>
-      <property name="cursor" >
+      <property name="cursor">
        <cursorShape>SplitHCursor</cursorShape>
       </property>
-      <property name="frameShape" >
+      <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow" >
+      <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="mainSampleAdjustView" >
-      <property name="minimumSize" >
+     <widget class="QFrame" name="mainSampleAdjustView">
+      <property name="minimumSize">
        <size>
         <width>180</width>
         <height>265</height>
        </size>
       </property>
-      <property name="maximumSize" >
+      <property name="maximumSize">
        <size>
         <width>180</width>
         <height>265</height>
        </size>
       </property>
-      <property name="frameShape" >
+      <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow" >
+      <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QSlider" name="verticalzoomSlider" >
-      <property name="value" >
+     <widget class="QSlider" name="verticalzoomSlider">
+      <property name="value">
        <number>1</number>
       </property>
-      <property name="orientation" >
+      <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="PlayPushButton" >
-   <property name="geometry" >
+  <widget class="QPushButton" name="PlayPushButton">
+   <property name="geometry">
     <rect>
      <x>140</x>
      <y>350</y>
@@ -255,12 +256,12 @@
      <height>26</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Play</string>
    </property>
   </widget>
-  <widget class="QLabel" name="newlengthLabel" >
-   <property name="geometry" >
+  <widget class="QLabel" name="newlengthLabel">
+   <property name="geometry">
     <rect>
      <x>400</x>
      <y>350</y>
@@ -268,12 +269,12 @@
      <height>21</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>new sample length:</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="EditTypeComboBox" >
-   <property name="geometry" >
+  <widget class="QComboBox" name="EditTypeComboBox">
+   <property name="geometry">
     <rect>
      <x>722</x>
      <y>351</y>
@@ -281,22 +282,22 @@
      <height>28</height>
     </rect>
    </property>
-   <property name="minimumSize" >
+   <property name="minimumSize">
     <size>
      <width>60</width>
      <height>0</height>
     </size>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>fade-out type</string>
    </property>
    <item>
-    <property name="text" >
+    <property name="text">
      <string>volume</string>
     </property>
    </item>
    <item>
-    <property name="text" >
+    <property name="text">
      <string>panorama</string>
     </property>
    </item>

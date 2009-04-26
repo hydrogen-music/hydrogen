@@ -36,7 +36,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , Object( "MainSampleWaveDisplay" )
 {
-	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
 	int w = 624;

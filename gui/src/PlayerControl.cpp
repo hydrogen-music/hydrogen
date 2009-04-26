@@ -262,7 +262,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 2 );
 	m_pBCDisplayB->move( 39, 26 );
-	m_pBCDisplayB->setText( "4" );
+// set display from 4 to 04. fix against qt4 transparent problem 
+//	m_pBCDisplayB->setText( "4" );
+	m_pBCDisplayB->setText( "04" );
 
 	m_pBCTUpBtn = new Button(
 			m_pControlsBCPanel,
@@ -841,12 +843,14 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 			tmp ++;
 			if (tmp > 16)
 				tmp = 2;
-			if (tmp < 10 ){
-				sprintf(tmpb, "%01d", tmp );
-			}else
-			{
+//small fix against qt4 png transparent problem
+//think this will be solved in next time
+//			if (tmp < 10 ){
+//				sprintf(tmpb, "%01d", tmp );
+//			}else
+//			{
 				sprintf(tmpb, "%02d", tmp );
-			}
+//			}
 			m_pBCDisplayB->setText( QString( tmpb ) );
 			m_pEngine->setbeatsToCount( tmp );
 	}
@@ -854,12 +858,14 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 			tmp --;
 			if (tmp < 2 )
 				 tmp = 16;
-			if (tmp < 10 ){
-				sprintf(tmpb, "%01d", tmp );
-			}else
-			{
+//small fix against qt4 png transparent problem
+//think this will be solved in next time
+//			if (tmp < 10 ){
+//				sprintf(tmpb, "%01d", tmp );
+//			}else
+//			{
 				sprintf(tmpb, "%02d", tmp );
-			}
+//			}
 			m_pBCDisplayB->setText( QString( tmpb ) );
 			m_pEngine->setbeatsToCount( tmp );
 	}

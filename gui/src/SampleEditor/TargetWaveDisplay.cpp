@@ -42,7 +42,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
  , Object( "TargetWaveDisplay" )
  , m_sSampleName( "" )
 {
-	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
 	int w = 841;
