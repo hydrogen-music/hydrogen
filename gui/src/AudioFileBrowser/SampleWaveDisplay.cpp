@@ -38,8 +38,8 @@ SampleWaveDisplay::SampleWaveDisplay(QWidget* pParent)
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 448;
-	int h = 89;
+	int w = 445;
+	int h = 85;
 	resize( w, h );
 
 	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
