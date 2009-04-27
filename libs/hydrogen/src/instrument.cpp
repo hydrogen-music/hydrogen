@@ -198,7 +198,10 @@ void Instrument::load_from_name(
 	QString sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
 
 	// find the drumkit
-	Drumkit *pDrumkitInfo = mgr.loadDrumkit( mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name );
+	QString drdir = mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name;
+	if ( !QDir( drdir ).exists() )
+		return;
+	Drumkit *pDrumkitInfo = mgr.loadDrumkit( drdir );
 	assert( pDrumkitInfo );
 
 	// find the instrument
