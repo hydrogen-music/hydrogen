@@ -378,7 +378,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pAttackRotary->setValue( sqrtf(m_pInstrument->get_adsr()->__attack / 100000.0) );
 		m_pDecayRotary->setValue( sqrtf(m_pInstrument->get_adsr()->__decay / 100000.0) );
 		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->__sustain );
-		m_pReleaseRotary->setValue( sqrtf(m_pInstrument->get_adsr()->__release / 100000.0) );
+		float fTmp = m_pInstrument->get_adsr()->__release - 256.0;
+		if( fTmp < 0.0 ) {
+			fTmp = 0.0;
+		}
+		m_pReleaseRotary->setValue( sqrtf(fTmp / 100000.0) );
 		//~ ADSR
 
 		// filter
@@ -469,7 +473,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pInstrument->get_adsr()->__sustain = fVal;
 		}
 		else if ( ref == m_pReleaseRotary ) {
-			m_pInstrument->get_adsr()->__release = fVal * fVal * 100000;
+			m_pInstrument->get_adsr()->__release = 256.0 + fVal * fVal * 100000;
 		}
 		else if ( ref == m_pLayerGainRotary ) {
 			fVal = fVal * 5.0;
