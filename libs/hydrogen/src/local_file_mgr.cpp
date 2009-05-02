@@ -705,7 +705,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			QString sMidiOutChannel = readXmlString( instrumentNode, "midiOutChannel", "-1", false, false );
 			QString sMidiOutNote = readXmlString( instrumentNode, "midiOutNote", "60", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
-			bool isStopNote = readXmlBool( instrumentNode, "isStopNote", false );
+			bool isStopNote = readXmlBool( instrumentNode, "isStopNote", false ,false );
 			int nMidiOutChannel = sMidiOutChannel.toInt();
 			int nMidiOutNote = sMidiOutNote.toInt();
 
