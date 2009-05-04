@@ -30,7 +30,7 @@
 using namespace std;
 using namespace H2Core;
 
-PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern)
+PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern, bool savepattern)
  : QDialog(parent)
 {
 	setupUi( this );
@@ -65,7 +65,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 		}
 	}
 
-	defaultNameCheck( pattern->get_name() );
+	defaultNameCheck( pattern->get_name(), savepattern );
 	okBtn->setEnabled(true);
 }
 
@@ -109,14 +109,20 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	accept();
 }
 
-void PatternPropertiesDialog::defaultNameCheck( QString pattName )
+void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepattern )
 {
 
 	PatternList *patternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 	
 	for (uint i = 0; i < patternList->get_size(); i++) {
 		if ( patternList->get(i)->get_name() == pattName) {
+			if (savepattern){
 				patternNameTxt->setText( trUtf8( "%1#2").arg(patternList->get(i)->get_name()) );
+			}
+			else
+			{
+				patternNameTxt->setText( trUtf8( "%1").arg(patternList->get(i)->get_name()) );
+			}
 		}
 	}
 }
