@@ -2805,12 +2805,16 @@ void Hydrogen::setHumantimeFrames(unsigned long hframes)
 #ifdef JACK_SUPPORT
 void Hydrogen::offJackMaster()
 {
-	static_cast< JackOutput* >( m_pAudioDriver )->com_release();
+	if ( m_pAudioDriver->get_class_name() == "JackOutput" ) {
+		static_cast< JackOutput* >( m_pAudioDriver )->com_release();
+	}
 }
 
 void Hydrogen::onJackMaster()
 {
-	static_cast< JackOutput* >( m_pAudioDriver )->initTimeMaster();
+	if ( m_pAudioDriver->get_class_name() == "JackOutput" ) {
+		static_cast< JackOutput* >( m_pAudioDriver )->initTimeMaster();
+	}
 }
 
 unsigned long Hydrogen::getTimeMasterFrames()
