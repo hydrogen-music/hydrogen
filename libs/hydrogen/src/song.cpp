@@ -661,7 +661,7 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 				Note* pNote = NULL;
 
 				unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
-				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 );
+				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
 				float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 				float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
 				float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
