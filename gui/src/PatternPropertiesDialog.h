@@ -40,13 +40,13 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 {
 	Q_OBJECT
 	public:
-		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern );
+		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern, bool save );
 
 		~PatternPropertiesDialog();
 
 		/// Does some name check
 		static bool nameCheck( QString );
-		void defaultNameCheck( QString );
+		void defaultNameCheck( QString , bool);
 
 	private slots:
 		void on_cancelBtn_clicked();

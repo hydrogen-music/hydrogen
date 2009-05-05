@@ -1032,7 +1032,7 @@ void SongEditorPatternList::patternPopup_properties()
 	int nSelectedPattern = engine->getSelectedPatternNumber();
 	H2Core::Pattern *pattern = patternList->get( nSelectedPattern );
 
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern);
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, false);
 	if (dialog->exec() == QDialog::Accepted) {
 // 		Hydrogen *engine = Hydrogen::get_instance();
 // 		Song *song = engine->getSong();
@@ -1152,7 +1152,7 @@ void SongEditorPatternList::patternPopup_copy()
 	pPatternList->add( pNewPattern );
 
 	// rename the copied pattern
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern );
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, true );
 	if ( dialog->exec() == QDialog::Accepted ) {
 		pSong->__is_modified = true;
 		pEngine->setSelectedPatternNumber(pPatternList->get_size() - 1);	// select the last pattern (the copied one)
