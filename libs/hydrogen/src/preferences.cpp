@@ -120,7 +120,8 @@ Preferences::Preferences()
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
 #endif
-	
+
+	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
 	__playsamplesonclicking = false; // audio file browser
 
