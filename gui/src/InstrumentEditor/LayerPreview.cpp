@@ -51,6 +51,8 @@ LayerPreview::LayerPreview( QWidget* pParent )
 
 //
 	int w = 276;
+	if( MAX_LAYERS > 16)
+		w = 261;
 	int h = 20 + m_nLayerHeight * MAX_LAYERS;
 	resize( w, h );
 

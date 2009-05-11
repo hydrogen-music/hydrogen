@@ -255,7 +255,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerScrollArea = new QScrollArea( m_pLayerProp);
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->move( 6, 4 );
-	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	if ( MAX_LAYERS > 16)
+		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pLayerScrollArea->setMaximumHeight( 182 );
 	m_pLayerScrollArea->setWidget( m_pLayerPreview  );
