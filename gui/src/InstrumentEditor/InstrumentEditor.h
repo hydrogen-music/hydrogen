@@ -105,6 +105,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 
 		// Layer properties
 		LayerPreview *m_pLayerPreview;
+		QScrollArea *m_pLayerScrollArea;
 
 		PixmapWidget *m_pLayerProp;
 		Rotary *m_pLayerGainRotary;

@@ -190,9 +190,17 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 	// Layer preview
-	m_pLayerPreview = new LayerPreview( m_pLayerProp );
-	m_pLayerPreview->move( 6, 4 );
+	m_pLayerPreview = new LayerPreview( NULL );
 
+	m_pLayerScrollArea = new QScrollArea( m_pLayerProp);
+	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
+	m_pLayerScrollArea->move( 6, 4 );
+	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff ); 
+	if ( MAX_LAYERS > 16) 
+		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pLayerScrollArea->setMaximumHeight( 182 );
+	m_pLayerScrollArea->setWidget( m_pLayerPreview  );
 
 	// Waveform display
 	m_pWaveDisplay = new WaveDisplay( m_pLayerProp );
