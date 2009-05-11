@@ -49,6 +49,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
 
 	setMouseTracking( true );
 
+//
 	int w = 276;
 	int h = 20 + m_nLayerHeight * MAX_LAYERS;
 	resize( w, h );

@@ -534,10 +534,7 @@ void MainForm::action_file_export_pattern_as()
 	Instrument *instr = song->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	QString sDataDir = Preferences::getInstance()->getDataDirectory();
-
-
-	QDir dir ( sDataDir + "patterns" );
+	QDir dir  = Preferences::getInstance()->__lastspatternDirectory;
 
 
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -558,15 +555,26 @@ void MainForm::action_file_export_pattern_as()
 	if ( fd->exec() == QDialog::Accepted )
 	{
 		filename = fd->selectedFiles().first();
+		QString tmpfilename = filename;
+		QString toremove = tmpfilename.section( '/', -1 ); 
+		QString newdatapath =  tmpfilename.replace( toremove, "" );
+		Preferences::getInstance()->__lastspatternDirectory = newdatapath;
 	}
 
 	if ( filename != "" )
 	{
 		QString sNewFilename = filename;
-		sNewFilename += ".h2pattern";
+		if(sNewFilename.endsWith( ".h2pattern" ) ){
+			sNewFilename += "";
+		}
+		else{
+			sNewFilename += ".h2pattern";
+		}
 		QString patternname = sNewFilename;
 		QString realpatternname = filename;
 		QString realname = realpatternname.mid( realpatternname.lastIndexOf( "/" ) + 1 );
+		if ( realname.endsWith( ".h2pattern" ) )
+			realname.replace( ".h2pattern", "" );
 		pat->set_name(realname);
 		HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
 		int err = fileMng.savePattern ( song , selectedpattern, patternname, realname, 2 );
