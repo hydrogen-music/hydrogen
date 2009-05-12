@@ -236,38 +236,21 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
 
 //---------------------------experimental pianoroll--------------------------------------
-	// show drum editor btn
+// show drum editor btn
 	__show_drum_btn = new ToggleButton(
 			NULL,
 			"/skin_btn_on.png",
 			"/skin_btn_off.png",
 			"/skin_btn_over.png",
-			QSize(40, 17),
+			QSize(50, 17),
 			true
 	);
-	__show_drum_btn->setText( trUtf8("Drum") );
-	__show_drum_btn->setPressed( true );
-	__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
+	__show_drum_btn->setText( trUtf8("Piano") );
+	__show_drum_btn->setPressed( false );
+	__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
 	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 	editor_top_hbox_2->addWidget(__show_drum_btn);
-//	__show_drum_btn->hide();
 
-
-	// show piano roll btn
-	__show_piano_btn = new ToggleButton(
-			NULL,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize(40, 17),
-			true
-	);
-	__show_piano_btn->setText( trUtf8("Piano") );
-	__show_piano_btn->setPressed( false );
-	__show_piano_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
-	connect(__show_piano_btn, SIGNAL(clicked(Button*)), this, SLOT( showPianoEditorBtnClick(Button*)));
-	editor_top_hbox_2->addWidget(__show_piano_btn);
-//	__show_piano_btn->hide();
 //---------------------------------------------------------------------------------------
 
 	// zoom-in btn
@@ -327,7 +310,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
 
-
 	// Editor
 	m_pDrumPatternEditor = new DrumPatternEditor( m_pEditorScrollView->viewport(), this );
 
@@ -336,8 +318,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
 
 
-
-
+//PianoRollEditor
 	m_pPianoRollScrollView = new QScrollArea( NULL );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -817,44 +798,35 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 }
 
 
-
 void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 {
 	UNUSED( ref );
-	__show_drum_btn->setPressed( true );
-	__show_piano_btn->setPressed( false );
-
-
-	m_pPianoRollScrollView->hide();
-	m_pEditorScrollView->show();
-	m_pInstrListScrollView->show();
-
-	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
-
-	// force a re-sync of extern scrollbars
-	resizeEvent( NULL );
+	if ( !__show_drum_btn->isPressed() ){
+		__show_drum_btn->setText( trUtf8("Piano") );
+		__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+		m_pPianoRollScrollView->hide();
+		m_pEditorScrollView->show();
+		m_pInstrListScrollView->show();
+	
+		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+	
+		// force a re-sync of extern scrollbars
+		resizeEvent( NULL );
+	}
+	else
+	{
+		__show_drum_btn->setText( trUtf8("Drum") );	
+		__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
+		m_pPianoRollScrollView->show();
+		m_pEditorScrollView->show();
+		m_pInstrListScrollView->show();
+	
+		m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
+	
+		// force a re-sync of extern scrollbars
+		resizeEvent( NULL );	
+	}
 }
-
-
-
-void PatternEditorPanel::showPianoEditorBtnClick(Button *ref)
-{
-	UNUSED( ref );
-	__show_piano_btn->setPressed( true );
-	__show_drum_btn->setPressed( false );
-
-
-	m_pPianoRollScrollView->show();
-	m_pEditorScrollView->show();
-	m_pInstrListScrollView->show();
-
-	m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
-
-	// force a re-sync of extern scrollbars
-	resizeEvent( NULL );
-}
-
-
 
 
 void PatternEditorPanel::zoomInBtnClicked(Button *ref)

@@ -84,7 +84,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void quantizeEventsBtnClick(Button *ref);
 
 		void showDrumEditorBtnClick(Button *ref);
-		void showPianoEditorBtnClick(Button *ref);
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
