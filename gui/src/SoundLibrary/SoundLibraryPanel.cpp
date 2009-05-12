@@ -525,6 +525,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
 	HydrogenApp::getInstance()->onDrumkitLoad( drumkitInfo->getName() );
 	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+	HydrogenApp::getInstance()->getPatternEditorPanel()->updatePianorollEditor();
 	__sound_library_tree->currentItem()->setBackgroundColor ( 0, QColor( 50, 50, 50) );
 
 	setCursor( QCursor( Qt::ArrowCursor ) );

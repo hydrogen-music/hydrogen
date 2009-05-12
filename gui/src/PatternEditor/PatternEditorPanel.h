@@ -28,8 +28,8 @@
 
 #include <hydrogen/Object.h>
 
+//#include "PianoRollEditor.h"
 #include "../EventListener.h"
-
 
 class Button;
 class ToggleButton;
@@ -39,7 +39,7 @@ class PatternEditorInstrumentList;
 class NotePropertiesRuler;
 class LCDCombo;
 class DrumPatternEditor;
-//class PianoRollEditor;
+class PianoRollEditor;
 
 
 namespace H2Core
@@ -67,6 +67,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 
 		void updateSLnameLabel();
 		void displayorHidePrePostCB();
+		void updatePianorollEditor();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
@@ -100,6 +101,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void rightclickSelect( QString text );
 		void recPreDeleteSelect( int index );
 		void recPostDeleteSelect( int index );
+
 	private:
 		H2Core::Pattern *m_pPattern;
 		QPixmap m_backgroundPixmap;
@@ -122,8 +124,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		DrumPatternEditor *m_pDrumPatternEditor;
 
 		// piano roll editor
-//		QScrollArea* m_pPianoRollScrollView;
-//		PianoRollEditor *m_pPianoRollEditor;
+		QScrollArea* m_pPianoRollScrollView;
+		PianoRollEditor *m_pPianoRollEditor;
 
 		// ruler
 		QScrollArea* m_pRulerScrollView;

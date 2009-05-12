@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-/*
+
 #ifndef PIANO_ROLL_EDITOR_H
 #define PIANO_ROLL_EDITOR_H
 
@@ -69,4 +69,4 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 };
 
 #endif
-*/
+

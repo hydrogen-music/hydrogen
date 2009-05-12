@@ -20,7 +20,7 @@
  *
  */
 
-/*
+
 #include "PianoRollEditor.h"
 
 #include <cassert>
@@ -74,6 +74,7 @@ PianoRollEditor::~PianoRollEditor()
 void PianoRollEditor::selectedInstrumentChangedEvent()
 {
 	drawPattern();
+	update( 0, 0, width(), height() );
 }
 
 
@@ -220,5 +221,3 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent*)
 {
 	INFOLOG("Mouse release event" );
 }
-
-*/

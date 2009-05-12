@@ -235,6 +235,41 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget( rightclickSelection );
 	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
 
+//---------------------------experimental pianoroll--------------------------------------
+	// show drum editor btn
+	__show_drum_btn = new ToggleButton(
+			NULL,
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize(40, 17),
+			true
+	);
+	__show_drum_btn->setText( trUtf8("Drum") );
+	__show_drum_btn->setPressed( true );
+	__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
+	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
+	editor_top_hbox_2->addWidget(__show_drum_btn);
+//	__show_drum_btn->hide();
+
+
+	// show piano roll btn
+	__show_piano_btn = new ToggleButton(
+			NULL,
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize(40, 17),
+			true
+	);
+	__show_piano_btn->setText( trUtf8("Piano") );
+	__show_piano_btn->setPressed( false );
+	__show_piano_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+	connect(__show_piano_btn, SIGNAL(clicked(Button*)), this, SLOT( showPianoEditorBtnClick(Button*)));
+	editor_top_hbox_2->addWidget(__show_piano_btn);
+//	__show_piano_btn->hide();
+//---------------------------------------------------------------------------------------
+
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
 			NULL,
@@ -302,7 +337,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 
-/*
+
 	m_pPianoRollScrollView = new QScrollArea( NULL );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -315,7 +350,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	m_pPianoRollScrollView->hide();
-*/
+
 //~ EDITOR
 
 
@@ -465,7 +500,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
 
 	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
-//	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
+	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
 
 	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
 	pGrid->addWidget( pPatternEditorHScrollBarContainer, 10, 1 );
@@ -585,8 +620,8 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 	m_pEditorScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 	// piano roll Editor
-//	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
-//	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
+	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 
 	// Ruler
@@ -732,14 +767,14 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	UNUSED( ev );
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
-/*
+
 	if ( m_pPianoRollScrollView->isVisible() ) {
 		pScrollArea = m_pPianoRollScrollView;
 	}
 	else {
 		pScrollArea = m_pEditorScrollView;
 	}
-*/
+
 
 	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
 	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
@@ -790,7 +825,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 	__show_piano_btn->setPressed( false );
 
 
-//	m_pPianoRollScrollView->hide();
+	m_pPianoRollScrollView->hide();
 	m_pEditorScrollView->show();
 	m_pInstrListScrollView->show();
 
@@ -809,11 +844,11 @@ void PatternEditorPanel::showPianoEditorBtnClick(Button *ref)
 	__show_drum_btn->setPressed( false );
 
 
-//	m_pPianoRollScrollView->show();
-	m_pEditorScrollView->hide();
-	m_pInstrListScrollView->hide();
+	m_pPianoRollScrollView->show();
+	m_pEditorScrollView->show();
+	m_pInstrListScrollView->show();
 
-//	m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
+	m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
 
 	// force a re-sync of extern scrollbars
 	resizeEvent( NULL );
@@ -1069,4 +1104,9 @@ void PatternEditorPanel::displayorHidePrePostCB()
 		__recpostdelete->hide();
 		__recpredelete->hide();
 	}
+}
+
+void PatternEditorPanel::updatePianorollEditor()
+{
+	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
 }
