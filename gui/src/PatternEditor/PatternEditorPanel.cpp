@@ -251,6 +251,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 	editor_top_hbox_2->addWidget(__show_drum_btn);
 
+// hide the butten during develop on piano roll editor
+__show_drum_btn->hide();
+
 //---------------------------------------------------------------------------------------
 
 	// zoom-in btn
