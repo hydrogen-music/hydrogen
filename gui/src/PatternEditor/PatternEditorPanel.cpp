@@ -252,7 +252,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget(__show_drum_btn);
 
 // hide the butten during develop on piano roll editor
-__show_drum_btn->hide();
+//__show_drum_btn->hide();
 
 //---------------------------------------------------------------------------------------
 
@@ -324,13 +324,13 @@ __show_drum_btn->hide();
 //PianoRollEditor
 	m_pPianoRollScrollView = new QScrollArea( NULL );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
-	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport() );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 
-	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
+//	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
 
 
 	m_pPianoRollScrollView->hide();
@@ -605,7 +605,7 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 	// piano roll Editor
 	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
-	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
+//	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 
 	// Ruler
@@ -658,6 +658,7 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 
 	//INFOLOG( to_string( nResolution ) );
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
+	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 
 	Preferences::getInstance()->setPatternEditorGridResolution( nResolution );
 	Preferences::getInstance()->setPatternEditorUsingTriplets( bUseTriplets );
@@ -752,13 +753,12 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
 
-	if ( m_pPianoRollScrollView->isVisible() ) {
-		pScrollArea = m_pPianoRollScrollView;
-	}
-	else {
+//	if ( m_pPianoRollScrollView->isVisible() ) {
+//		pScrollArea = m_pPianoRollScrollView;
+//	}
+//	else {
 		pScrollArea = m_pEditorScrollView;
-	}
-
+//	}
 
 	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
 	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
@@ -844,6 +844,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pNoteLeadLagEditor->zoomIn();
 	m_pNoteNoteKeyEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
+	m_pPianoRollEditor->zoom_in();		
 
 	resizeEvent( NULL );
 }
@@ -859,6 +860,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pNoteLeadLagEditor->zoomOut();
 	m_pNoteNoteKeyEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
+	m_pPianoRollEditor->zoom_out();	
 
 	resizeEvent( NULL );
 }
@@ -902,6 +904,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	m_pNotePanEditor->updateEditor();
 	m_pNoteLeadLagEditor->updateEditor();
 	m_pNoteNoteKeyEditor->updateEditor();
+	m_pPianoRollEditor->updateEditor();
 
 	resizeEvent( NULL );
 
@@ -1083,5 +1086,5 @@ void PatternEditorPanel::displayorHidePrePostCB()
 
 void PatternEditorPanel::updatePianorollEditor()
 {
-	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+	m_pDrumPatternEditor->updateEditor(); // force an update
 }

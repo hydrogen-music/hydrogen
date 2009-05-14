@@ -123,6 +123,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		DrumPatternEditor *m_pDrumPatternEditor;
 
 		// piano roll editor
+		QScrollArea* m_pPianoRollInternScrollView;
 		QScrollArea* m_pPianoRollScrollView;
 		PianoRollEditor *m_pPianoRollEditor;
 

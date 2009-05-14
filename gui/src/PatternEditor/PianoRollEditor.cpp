@@ -37,26 +37,27 @@ using namespace H2Core;
 PianoRollEditor::PianoRollEditor( QWidget *pParent )
  : QWidget( pParent )
  , Object( "PianoRollEditor" )
+ , m_nResolution( 8 )
+ , m_bUseTriplets( false )
  , m_pPattern( NULL )
 {
 	INFOLOG( "INIT" );
 
 	m_nRowHeight = 10;
-	m_nOctaves = 8;
+	m_nOctaves = 7;
 
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy(Qt::ClickFocus);
+	m_nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
 
-	unsigned nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
+	m_nEditorWidth = 20 + m_nGridWidth *  (MAX_NOTES * 4);
+	m_nEditorHeight = m_nOctaves * 12 * m_nRowHeight;
 
-	unsigned nEditorWidth = 20 + nGridWidth * ( MAX_NOTES * 4 );
-	unsigned nEditorHeight = m_nOctaves * 12 * m_nRowHeight;
+	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
+	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
-	m_pBackground = new QPixmap( nEditorWidth, nEditorHeight );
-	m_pTemp = new QPixmap( nEditorWidth, nEditorHeight );
-
-	resize( nEditorWidth, nEditorHeight );
-
+	resize( m_nEditorWidth, m_nEditorHeight );
+	
 	createBackground();
 
 	HydrogenApp::getInstance()->addEventListener( this );
@@ -70,11 +71,37 @@ PianoRollEditor::~PianoRollEditor()
 }
 
 
+void PianoRollEditor::setResolution(uint res, bool bUseTriplets)
+{
+	this->m_nResolution = res;
+	this->m_bUseTriplets = bUseTriplets;
+	updateEditor();
+}
+
+
+void PianoRollEditor::updateEditor()
+{
+	uint nEditorWidth;
+	if ( m_pPattern ) {
+		m_nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_length();
+	}
+	else {
+		m_nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
+	}
+	resize( m_nEditorWidth, height() );
+
+	// redraw all
+	update( 0, 0, width(), height() );
+
+	createBackground();
+	drawPattern();
+//	ERRORLOG(QString("update editor %1").arg(m_nEditorWidth));
+}
+
 
 void PianoRollEditor::selectedInstrumentChangedEvent()
 {
-	drawPattern();
-	update( 0, 0, width(), height() );
+	updateEditor();
 }
 
 
@@ -82,7 +109,6 @@ void PianoRollEditor::selectedInstrumentChangedEvent()
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-
 	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
 }
 
@@ -97,9 +123,11 @@ void PianoRollEditor::createBackground()
 
 
 	QColor octaveColor( 230, 230, 230 );
-	QColor octaveAlternateColor( 210, 210, 210 );
+	QColor octaveAlternateColor( 200, 200, 200 );
+	QColor baseOctaveColor( 245, 245, 245 );
+	QColor baseNoteColor( 255, 255, 255 );	
 
-	unsigned start_x = 20;
+	unsigned start_x = 0;
 	unsigned end_x = width();
 
 	QPainter p( m_pBackground );
@@ -108,22 +136,119 @@ void PianoRollEditor::createBackground()
 		unsigned start_y = octave * 12 * m_nRowHeight;
 
 		if ( octave % 2 ) {
-			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveColor );
+			if ( octave == 3 ){
+				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, baseOctaveColor );
+			}
+			else
+			{
+				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveColor );
+			}
 		}
 		else {
 			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveAlternateColor );
+			
 		}
 	}
+		p.fillRect( start_x, ( 3 * 12 + 11 )* m_nRowHeight, end_x - start_x, m_nRowHeight,baseNoteColor  );	
 
 
 	// horiz lines
 	for ( uint row = 0; row < ( 12 * m_nOctaves ); ++row ) {
 		unsigned y = row * m_nRowHeight;
-		p.drawLine( start_x, y, end_x, y );
+		p.drawLine( start_x, y,end_x , y );
 	}
 
+	draw_grid( p );
 }
 
+
+
+
+void PianoRollEditor::draw_grid( QPainter& p )
+{
+	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	static const QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
+	static const QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
+	static const QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
+	static const QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
+	static const QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
+
+	// vertical lines
+
+	int nBase;
+	if (m_bUseTriplets) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+
+	int n4th = 4 * MAX_NOTES / (nBase * 4);
+	int n8th = 4 * MAX_NOTES / (nBase * 8);
+	int n16th = 4 * MAX_NOTES / (nBase * 16);
+	int n32th = 4 * MAX_NOTES / (nBase * 32);
+	int n64th = 4 * MAX_NOTES / (nBase * 64);
+
+	int nNotes = MAX_NOTES;
+	if ( m_pPattern ) {
+		nNotes = m_pPattern->get_length();
+	}
+	if (!m_bUseTriplets) {
+		for ( int i = 0; i < nNotes + 1; i++ ) {
+			uint x = 20 + i * m_nGridWidth;
+
+			if ( (i % n4th) == 0 ) {
+				if (m_nResolution >= 4) {
+					p.setPen( QPen( res_1, 1, Qt::DotLine ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				}
+			}
+			else if ( (i % n8th) == 0 ) {
+				if (m_nResolution >= 8) {
+					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				}
+			}
+			else if ( (i % n16th) == 0 ) {
+				if (m_nResolution >= 16) {
+					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				}
+			}
+			else if ( (i % n32th) == 0 ) {
+				if (m_nResolution >= 32) {
+					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				}
+			}
+			else if ( (i % n64th) == 0 ) {
+				if (m_nResolution >= 64) {
+					p.setPen( QPen( res_5, 0, Qt::DotLine  ) );
+					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				}
+			}
+		}
+	}
+	else {	// Triplets
+		uint nCounter = 0;
+		int nSize = 4 * MAX_NOTES / (nBase * m_nResolution);
+
+		for ( int i = 0; i < nNotes + 1; i++ ) {
+			uint x = 20 + i * m_nGridWidth;
+
+			if ( (i % nSize) == 0) {
+				if ((nCounter % 3) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine  ) );
+				}
+				else {
+					p.setPen( QPen( res_3, 0, Qt::DotLine  ) );
+				}
+				p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				nCounter++;
+			}
+		}
+	}
+}
 
 
 
@@ -140,6 +265,7 @@ void PianoRollEditor::selectedPatternChangedEvent()
 	else {
 		m_pPattern = NULL;
 	}
+	updateEditor();
 }
 
 
@@ -171,7 +297,6 @@ void PianoRollEditor::drawPattern()
 }
 
 
-
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 {
 	int nInstrument = -1;
@@ -192,20 +317,18 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		return;
 	}
 
-
-	int nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
-
-	uint start_x = 20 + pNote->get_position() * nGridWidth;
-	uint start_y = height() - m_nRowHeight - ( m_nRowHeight * pNote->m_noteKey.m_key + ( 12 * pNote->m_noteKey.m_nOctave ) * m_nRowHeight ) + 1;
-	uint w = 20;
-	uint h = m_nRowHeight - 1;
+	uint start_x = 20 + pNote->get_position() * m_nGridWidth;
+	uint start_y = height() - m_nRowHeight - ( m_nRowHeight * pNote->m_noteKey.m_key + ( 12 * (pNote->m_noteKey.m_nOctave +3) ) * m_nRowHeight ) + 1;
+	uint w = 8;
+	uint h = m_nRowHeight - 2;
 
 
 	// external rect
-	pPainter->fillRect( start_x, start_y, w, h, QColor( 0, 0, 0 ) );
+	pPainter->setBrush(QColor( 100, 160, 233 ));
+	pPainter->drawEllipse( start_x -4 , start_y, w, h );
 
 	// internal rect
-	pPainter->fillRect( start_x + 1, start_y + 1, w - 2, h - 2, QColor( 100, 100, 255 ) );
+//	pPainter->fillRect( start_x + 1, start_y + 1, w - 2, h - 2, QColor( 100, 100, 255 ) );
 }
 
 
@@ -220,4 +343,31 @@ void PianoRollEditor::mousePressEvent(QMouseEvent*)
 void PianoRollEditor::mouseReleaseEvent(QMouseEvent*)
 {
 	INFOLOG("Mouse release event" );
+}
+
+
+void PianoRollEditor::zoom_in()
+{
+	if (m_nGridWidth >= 3){
+		m_nGridWidth *= 2;
+	}else
+	{
+		m_nGridWidth *= 1.5;
+	}
+	updateEditor();
+}
+
+
+
+void PianoRollEditor::zoom_out()
+{
+	if ( m_nGridWidth > 1.5 ) {
+		if (m_nGridWidth > 3){
+			m_nGridWidth /= 2;
+		}else
+		{
+			m_nGridWidth /= 1.5;
+		}
+		updateEditor();
+	}
 }

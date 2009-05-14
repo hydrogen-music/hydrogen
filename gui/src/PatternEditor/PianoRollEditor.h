@@ -45,9 +45,13 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
+		void setResolution(uint res, bool bUseTriplets);
 
+		void zoom_in();
+		void zoom_out();
 
-
+	public slots:
+		void updateEditor();
 
 	private:
 		H2Core::Pattern *m_pPattern;
@@ -55,11 +59,17 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		unsigned m_nRowHeight;
 		unsigned m_nOctaves;
 
+		uint m_nResolution;
+		bool m_bUseTriplets;
+		float m_nGridWidth;
+		uint m_nEditorWidth;
+		uint m_nEditorHeight;
 		QPixmap *m_pBackground;
 		QPixmap *m_pTemp;
 
 		void createBackground();
 		void drawPattern();
+		void draw_grid(QPainter& p );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 
 		virtual void paintEvent(QPaintEvent *ev);
