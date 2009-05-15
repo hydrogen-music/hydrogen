@@ -757,6 +757,3 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 	//cout << "selected pattern changed EVENT" << endl;
 	updateEditor();
 }
-
-
-

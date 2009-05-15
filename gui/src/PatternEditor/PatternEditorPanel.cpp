@@ -326,7 +326,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport() );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 
@@ -821,10 +820,11 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		__show_drum_btn->setText( trUtf8("Drum") );	
 		__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
 		m_pPianoRollScrollView->show();
+		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
 		m_pEditorScrollView->show();
 		m_pInstrListScrollView->show();
 	
-		m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
+		m_pPianoRollEditor->updateEditor(); // force an update
 	
 		// force a re-sync of extern scrollbars
 		resizeEvent( NULL );	
