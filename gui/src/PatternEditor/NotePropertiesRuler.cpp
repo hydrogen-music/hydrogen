@@ -34,7 +34,7 @@ using namespace H2Core;
 #include "NotePropertiesRuler.h"
 #include "PatternEditorPanel.h"
 #include "DrumPatternEditor.h"
-
+#include "PianoRollEditor.h"
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
  : QWidget( parent )
@@ -242,6 +242,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 		updateEditor();
 		break;
 	}
+		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 }
 
 void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)

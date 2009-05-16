@@ -34,10 +34,12 @@ namespace H2Core
 	class Note;
 }
 
+class PatternEditorPanel;
+
 class PianoRollEditor: public QWidget, public EventListener, public Object
 {
 	public:
-		PianoRollEditor( QWidget *pParent );
+		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel );
 		~PianoRollEditor();
 
 
@@ -61,12 +63,14 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 
 		uint m_nResolution;
 		bool m_bUseTriplets;
+		bool m_bRightBtnPressed;
 		float m_nGridWidth;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;
 		QPixmap *m_pBackground;
 		QPixmap *m_pTemp;
 
+		PatternEditorPanel *m_pPatternEditorPanel;
 		void createBackground();
 		void drawPattern();
 		void draw_grid(QPainter& p );
@@ -76,6 +80,7 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
+		int getColumn(QMouseEvent *ev);
 };
 
 #endif

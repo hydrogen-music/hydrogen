@@ -28,7 +28,7 @@
 
 #include <hydrogen/Object.h>
 
-//#include "PianoRollEditor.h"
+#include "PianoRollEditor.h"
 #include "../EventListener.h"
 
 class Button;
@@ -64,6 +64,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
 		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
+		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
 
 		void updateSLnameLabel();
 		void displayorHidePrePostCB();
