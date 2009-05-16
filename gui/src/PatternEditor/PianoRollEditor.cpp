@@ -405,7 +405,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
-	ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
+	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
 
 	int pressedoctave = 3 - (pressedline / 12 );
 	int pressednotekey = 0;
