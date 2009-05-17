@@ -326,6 +326,10 @@ void PianoRollEditor::drawPattern()
 
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 {
+	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
+	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
+
 	int nInstrument = -1;
 	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
@@ -349,13 +353,25 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	uint w = 8;
 	uint h = m_nRowHeight - 2;
 
+	if ( pNote->get_length() == -1 && pNote->get_noteoff() == false ) {
+		pPainter->setBrush(QColor( noteColor ));
+		pPainter->drawEllipse( start_x -4 , start_y, w, h );
+	}
+	else if ( pNote->get_length() == 1 && pNote->get_noteoff() == true ){
+		pPainter->setBrush(QColor( noteoffColor ));
+		pPainter->drawEllipse( start_x -4 , start_y, w, h );
+	}
+	else {
+		float fNotePitch = pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;
+		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 
-	// external rect
-	pPainter->setBrush(QColor( 100, 160, 233 ));
-	pPainter->drawEllipse( start_x -4 , start_y, w, h );
+		int nend = m_nGridWidth * pNote->get_length() / fStep;
+		nend = nend - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-	// internal rect
-//	pPainter->fillRect( start_x + 1, start_y + 1, w - 2, h - 2, QColor( 100, 100, 255 ) );
+		pPainter->setBrush(QColor( noteoffColor ));
+		pPainter->fillRect( start_x, start_y, nend, h, QColor( noteoffColor ) );
+		pPainter->drawRect( start_x, start_y, nend, h );
+	}
 }
 
 
