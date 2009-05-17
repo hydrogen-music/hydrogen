@@ -404,6 +404,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 	Instrument *pSelectedInstrument = NULL;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
+	assert(pSelectedInstrument);
 
 	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
 
@@ -429,7 +430,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-			if ( pNote->m_noteKey.m_nOctave ==  pressedoctave && pNote->m_noteKey.m_key  ==  pressednotekey) {
+			if ( pNote->m_noteKey.m_nOctave ==  pressedoctave && pNote->m_noteKey.m_key  ==  pressednotekey && pNote->get_instrument() == pSelectedInstrument) {
 				// the note exists...remove it!
 				bNoteAlreadyExist = true;
 				delete pNote;
