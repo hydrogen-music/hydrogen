@@ -147,7 +147,9 @@ void PianoRollEditor::createBackground()
 	QColor octaveColor( 230, 230, 230 );
 	QColor octaveAlternateColor( 200, 200, 200 );
 	QColor baseOctaveColor( 245, 245, 245 );
-	QColor baseNoteColor( 255, 255, 255 );	
+	QColor baseNoteColor( 255, 255, 255 );
+
+	QColor fbk( 160, 160, 160 );
 
 	unsigned start_x = 0;
 	unsigned end_x = width();
@@ -158,20 +160,59 @@ void PianoRollEditor::createBackground()
 		unsigned start_y = octave * 12 * m_nRowHeight;
 
 		if ( octave % 2 ) {
+
+		
 			if ( octave == 3 ){
-				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, baseOctaveColor );
+		
+//				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 1 * m_nRowHeight, end_x - start_x, start_y + 2 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 2 * m_nRowHeight, end_x - start_x, start_y + 3 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 3 * m_nRowHeight, end_x - start_x, start_y + 4 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 4 * m_nRowHeight, end_x - start_x, start_y + 5 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 5 * m_nRowHeight, end_x - start_x, start_y + 6 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 6 * m_nRowHeight, end_x - start_x, start_y + 7 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 7 * m_nRowHeight, end_x - start_x, start_y + 8 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 8 * m_nRowHeight, end_x - start_x, start_y + 9 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 9 * m_nRowHeight, end_x - start_x, start_y + 10 * m_nRowHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 10 * m_nRowHeight, end_x - start_x, start_y + 11 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 11 * m_nRowHeight, end_x - start_x, start_y + 12 * m_nRowHeight, baseNoteColor );
 			}
 			else
 			{
-				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveColor );
+			//	p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y + 1 * m_nRowHeight, end_x - start_x, start_y + 2 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 2 * m_nRowHeight, end_x - start_x, start_y + 3 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y + 3 * m_nRowHeight, end_x - start_x, start_y + 4 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 4 * m_nRowHeight, end_x - start_x, start_y + 5 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y + 5 * m_nRowHeight, end_x - start_x, start_y + 6 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 6 * m_nRowHeight, end_x - start_x, start_y + 7 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y + 7 * m_nRowHeight, end_x - start_x, start_y + 8 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y + 8 * m_nRowHeight, end_x - start_x, start_y + 9 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 9 * m_nRowHeight, end_x - start_x, start_y + 10 * m_nRowHeight, octaveColor );
+				p.fillRect( start_x, start_y + 10 * m_nRowHeight, end_x - start_x, start_y + 11 * m_nRowHeight, fbk );
+				p.fillRect( start_x, start_y + 11 * m_nRowHeight, end_x - start_x, start_y + 12 * m_nRowHeight, octaveColor );
+
 			}
 		}
 		else {
-			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveAlternateColor );
+//			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 1 * m_nRowHeight, end_x - start_x, start_y + 2 * m_nRowHeight, fbk );
+			p.fillRect( start_x, start_y + 2 * m_nRowHeight, end_x - start_x, start_y + 3 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 3 * m_nRowHeight, end_x - start_x, start_y + 4 * m_nRowHeight, fbk );
+			p.fillRect( start_x, start_y + 4 * m_nRowHeight, end_x - start_x, start_y + 5 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 5 * m_nRowHeight, end_x - start_x, start_y + 6 * m_nRowHeight, fbk );
+			p.fillRect( start_x, start_y + 6 * m_nRowHeight, end_x - start_x, start_y + 7 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 7 * m_nRowHeight, end_x - start_x, start_y + 8 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 8 * m_nRowHeight, end_x - start_x, start_y + 9 * m_nRowHeight, fbk );
+			p.fillRect( start_x, start_y + 9 * m_nRowHeight, end_x - start_x, start_y + 10 * m_nRowHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 10 * m_nRowHeight, end_x - start_x, start_y + 11 * m_nRowHeight, fbk );
+			p.fillRect( start_x, start_y + 11 * m_nRowHeight, end_x - start_x, start_y + 12 * m_nRowHeight, octaveAlternateColor );
 			
-		}
+		}		
 	}
-		p.fillRect( start_x, ( 3 * 12 + 11 )* m_nRowHeight, end_x - start_x, m_nRowHeight,baseNoteColor  );	
 
 
 	// horiz lines
@@ -246,31 +287,31 @@ void PianoRollEditor::draw_grid( QPainter& p )
 
 			if ( (i % n4th) == 0 ) {
 				if (m_nResolution >= 4) {
-					p.setPen( QPen( res_1, 1, Qt::DotLine ) );
+					p.setPen( QPen( res_1, 1, Qt::DashLine) );
 					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n8th) == 0 ) {
 				if (m_nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_2, 0, Qt::DashLine ) );
 					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n16th) == 0 ) {
 				if (m_nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_3, 0, Qt::DashLine ) );
 					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n32th) == 0 ) {
 				if (m_nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_4, 0, Qt::DashLine ) );
 					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
 			else if ( (i % n64th) == 0 ) {
 				if (m_nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine  ) );
+					p.setPen( QPen( res_5, 0, Qt::DashLine  ) );
 					p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				}
 			}
@@ -285,10 +326,10 @@ void PianoRollEditor::draw_grid( QPainter& p )
 
 			if ( (i % nSize) == 0) {
 				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine  ) );
+					p.setPen( QPen( res_1, 0, Qt::DashLine ) );
 				}
 				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine  ) );
+					p.setPen( QPen( res_3, 0, Qt::DashLine ) );
 				}
 				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
