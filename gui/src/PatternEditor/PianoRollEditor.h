@@ -57,6 +57,7 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 
 	private:
 		H2Core::Pattern *m_pPattern;
+		H2Core::Note *m_pDraggedNote;
 
 		unsigned m_nRowHeight;
 		unsigned m_nOctaves;
@@ -78,6 +79,7 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
 		int getColumn(QMouseEvent *ev);
