@@ -46,6 +46,7 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
+		virtual void patternModifiedEvent();
 		//~ Implements EventListener interface
 		void setResolution(uint res, bool bUseTriplets);
 

@@ -37,6 +37,7 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Pattern.h>
+#include <hydrogen/event_queue.h>
 
 #include "gui/src/HydrogenApp.h"
 #include "gui/src/PatternEditor/PatternEditorPanel.h"
@@ -886,8 +887,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 				}
 			}	
 		}
-
-	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 
 bool Sampler::is_instrument_playing( Instrument* instrument )

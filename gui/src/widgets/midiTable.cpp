@@ -119,6 +119,7 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 	
 	QSpinBox *eventParameterSpinner = new QSpinBox();
 	setCellWidget( oldRowCount , 2, eventParameterSpinner );
+	eventParameterSpinner->setMaximum( 999 );
 	eventParameterSpinner->setValue( eventParameter );
 
 
@@ -133,6 +134,7 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 	
 	setCellWidget( oldRowCount , 4, actionParameterSpinner );
 	actionParameterSpinner->setValue( actionParameter);
+	actionParameterSpinner->setMaximum( 999 );
 
 
 }

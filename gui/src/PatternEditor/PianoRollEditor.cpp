@@ -104,6 +104,15 @@ void PianoRollEditor::updateEditor()
 }
 
 
+
+//eventlistener
+void PianoRollEditor::patternModifiedEvent() 
+{
+	updateEditor();
+}
+
+
+
 void PianoRollEditor::selectedInstrumentChangedEvent()
 {
 	updateEditor();
