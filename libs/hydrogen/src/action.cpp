@@ -49,7 +49,7 @@ Action::Action( QString s ) : Object( "Action" ) {
 /* Class ActionManager */
 
 ActionManager::ActionManager() : Object( "ActionManager" ) {
-	INFOLOG( "ActionManager Init" );
+	//INFOLOG( "ActionManager Init" );
 	
 	actionList <<""
 	<< "PLAY" 
@@ -97,7 +97,7 @@ ActionManager::ActionManager() : Object( "ActionManager" ) {
 
 
 ActionManager::~ActionManager(){
-	INFOLOG( "ActionManager delete" );
+	//INFOLOG( "ActionManager delete" );
 	instance = NULL;
 }
 
