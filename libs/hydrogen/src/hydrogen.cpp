@@ -703,25 +703,9 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 /// Main audio processing function. Called by audio drivers.
 int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
-
-	// Bail out quick if we're not able to process Audio.
-        if( ( m_audioEngineState != STATE_READY ) && ( m_audioEngineState != STATE_PLAYING ) ) {
-                return 0;
-        }
-
-	// Bail out quick if someone else has the lock. 
-	static QString reason("audioEngine_process");
-	if ( AudioEngine::get_instance()->try_lock( reason ) == false ) {
+	if ( AudioEngine::get_instance()->try_lock( "audioEngine_process" ) == false ) {
 		return 0;
 	}
-
- 	// Now that we have the mutex locked, do the same check
-        // as above and bail out if the state changed.
-        if( ( m_audioEngineState != STATE_READY ) && ( m_audioEngineState != STATE_PLAYING ) ) {
-		AudioEngine::get_instance()->unlock();
-		return 0;
-        }
-
 
 	timeval startTimeval = currentTime2();
 
