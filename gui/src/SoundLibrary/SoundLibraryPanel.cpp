@@ -519,15 +519,15 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	}
 	assert( drumkitInfo );
 
-	setCursor( QCursor( Qt::WaitCursor ) );
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
 	HydrogenApp::getInstance()->onDrumkitLoad( drumkitInfo->getName() );
 	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	__sound_library_tree->currentItem()->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+	QApplication::restoreOverrideCursor();
 
-	setCursor( QCursor( Qt::ArrowCursor ) );
 }
 
 
@@ -617,9 +617,12 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 	Drumkit::removeDrumkit( sSoundLibrary );
 	test_expandedItems();
 	updateDrumkitList();
+	QApplication::restoreOverrideCursor();
+
 }
 
 
