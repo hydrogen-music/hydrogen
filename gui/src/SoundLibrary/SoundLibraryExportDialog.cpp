@@ -68,7 +68,7 @@ SoundLibraryExportDialog::~SoundLibraryExportDialog()
 
 void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
-	setCursor( QCursor( Qt::WaitCursor ) );
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	QString drumkitName = drumkitList->currentText();
 
@@ -81,7 +81,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	INFOLOG( "cmd: " + cmd );
 	system( cmd.toAscii() );
 
-	setCursor( QCursor( Qt::ArrowCursor ) );
+	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
 }
 

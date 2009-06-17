@@ -631,7 +631,6 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 void PatternEditorInstrumentList::mousePressEvent(QMouseEvent *event)
 {
-	INFOLOG("mouse press event");
 	if (event->button() == Qt::LeftButton) {
 		__drag_start_position = event->pos();
 	}
