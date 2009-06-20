@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_PROPERTIES_DIALOG_H
-#define SOUND_LIBRARY_PROPERTIES_DIALOG_H
+#ifndef SONG_EDITOR_PANEL_BPM_WIDGET_H
+#define SONG_EDITOR_PANEL_BPM_WIDGET_H
 
 #include "config.h"
 #include "ui_SongEditorPanelBpmWidget_UI.h"
