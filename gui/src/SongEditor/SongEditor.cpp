@@ -1485,7 +1485,6 @@ void SongEditorPositionRuler::createBackground()
 			p.setPen( textColor );
 			p.drawLine( x, 2, x, 5 );
 			p.drawLine( x, 19, x, 20 );
-//ERRORLOG( QString("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh: %1 : %2").arg(i).arg((int)Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebeat));
 			for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
 				if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == i ) {
 					sprintf( tempo, "%d",  ((int)Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm) );

@@ -41,6 +41,24 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	setWindowTitle( trUtf8( "TimeLine Edit" ) );	
 	setFixedSize( width(), height() );
 	lineEditBEAT->setText(QString("%1").arg(m_stimelineposition + 1));
+
+	//restore the bpm value
+	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+//			ERRORLOG(QString("%1 %2").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat).arg(m_stimelineposition));
+			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == m_stimelineposition ) {
+				lineEditBPM->setText(QString("%1").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm));
+				return;
+			}
+			else
+			{
+				lineEditBPM->setText(QString("%1").arg(Hydrogen::get_instance()->getNewBpmJTM()));
+			}
+		}
+	}else
+	{
+		lineEditBPM->setText(QString("%1").arg(Hydrogen::get_instance()->getNewBpmJTM()));	
+	}
 }
 
 
