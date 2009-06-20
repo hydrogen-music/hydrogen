@@ -1763,18 +1763,6 @@ Hydrogen::Hydrogen()
 	__instance = this; 
 	audioEngine_startAudioDrivers();
 
-
-/// test the timeline
-
-		Hydrogen::HTimelineVector tlvector;
-		for (int i = 0; i < 20;){
-			tlvector.m_htimelinebeat = i;
-			tlvector.m_htimelinebpm = 120.44 + 3*i;
-//			tlvector.m_htimelineslide = false;
-			m_timelinevector.push_back( tlvector );
-			i++;
-			i++;
-		}
 }
 
 

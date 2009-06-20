@@ -73,6 +73,7 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 
 		void pointerActionBtnPressed( Button* pBtn );
 		void drawActionBtnPressed( Button* pBtn );
+		void timeLineBtnPressed( Button* pBtn );
 		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed( Button* pBtn );
@@ -104,6 +105,7 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		ToggleButton *m_pPointerActionBtn;
 		ToggleButton *m_pModeActionBtn;
 		ToggleButton *m_pDrawActionBtn;
+		ToggleButton *m_pTimeLineToggleBtn;
 
 		QTimer* m_pTimer;
 
