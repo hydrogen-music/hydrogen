@@ -1570,7 +1570,9 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 	else if( ev->button() == Qt::LeftButton && ev->y() <= 25 && Preferences::getInstance()->__usetimeline ){
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelBpmWidget dialog( this , column );
-		dialog.exec();
+		if (dialog.exec() == QDialog::Accepted) {
+			createBackground();
+		}
 	}
 
 }

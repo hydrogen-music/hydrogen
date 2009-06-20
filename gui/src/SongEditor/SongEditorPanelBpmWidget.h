@@ -35,14 +35,21 @@ namespace H2Core
 
 class SongEditorPanelBpmWidget : public QDialog, public Ui_SongEditorPanelBpmWidget_UI, public Object
 {
+
+//lineEditBEAT
+//lineEditBPM
+//deleteBtn
+
 	Q_OBJECT
 	public:
 		SongEditorPanelBpmWidget( QWidget* pParent, int beat );
 		~SongEditorPanelBpmWidget();
 
 	private slots:
-//			void on_saveBtn_clicked();
 
+		void on_CancelBtn_clicked();
+		void on_okBtn_clicked();
+		void on_deleteBtn_clicked();
 	private:
 		int m_stimelineposition;
 };

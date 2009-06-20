@@ -209,6 +209,7 @@ public:
 
 	void sortVolVectors();
 	void sortPanVectors();
+	void sortTimelineVector();
 
 	struct HVeloVector
 	{
@@ -255,6 +256,13 @@ public:
 	};
 	std::vector<HTimelineVector> m_timelinevector;
 
+	struct TimelineComparator
+	{
+		bool operator()( HTimelineVector const& lhs, HTimelineVector const& rhs)
+		{
+			return lhs.m_htimelinebeat < rhs.m_htimelinebeat;
+		}
+	};
 
 private:
 	static Hydrogen* __instance;

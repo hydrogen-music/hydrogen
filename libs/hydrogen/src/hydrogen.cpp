@@ -1763,18 +1763,6 @@ Hydrogen::Hydrogen()
 	__instance = this; 
 	audioEngine_startAudioDrivers();
 
-
-/// test the timeline
-/*
-		Hydrogen::HTimelineVector tlvector;
-		for (int i = 0; i < 20;){
-			tlvector.m_htimelinebeat = i;
-			tlvector.m_htimelinebpm = 120.44 + 3*i;
-			m_timelinevector.push_back( tlvector );
-			i++;
-			i++;
-		}
-*/
 }
 
 
@@ -3293,6 +3281,12 @@ void Hydrogen::sortPanVectors()
 {
 	//sort the pan vector to xframes a < b
 	sort(m_pan.begin(), m_pan.end(), PanComparator());
+}
+
+void Hydrogen::sortTimelineVector()
+{
+	//sort the timeline vector to beats a < b
+	sort(m_timelinevector.begin(), m_timelinevector.end(), TimelineComparator());
 }
 
 };
