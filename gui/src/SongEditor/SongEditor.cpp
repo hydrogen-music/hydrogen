@@ -36,6 +36,7 @@ using namespace H2Core;
 
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
+#include "SongEditorPanelBpmWidget.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
@@ -1532,7 +1533,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
 
-	if (ev->button() == Qt::LeftButton ) {
+	if (ev->button() == Qt::LeftButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		m_bRightBtnPressed = false;
 
@@ -1551,7 +1552,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			update();
 		}
 	}
-	else if (ev->button() == Qt::RightButton ) {
+	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::getInstance();
 		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
@@ -1567,7 +1568,15 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchOutPos(-1);
 		update();
 	}
+	else if( ev->button() == Qt::LeftButton && ev->y() <= 25 && Preferences::getInstance()->__usetimeline ){
+		int column = (ev->x() / m_nGridWidth);
+		SongEditorPanelBpmWidget dialog( this , column );
+		dialog.exec();
+	}
+
 }
+
+
 
 
 void SongEditorPositionRuler::mouseReleaseEvent(QMouseEvent *ev)
