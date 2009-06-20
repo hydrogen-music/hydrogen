@@ -137,6 +137,7 @@ Preferences::Preferences()
 
 	__expandSongItem = true; //SoundLibraryPanel 
 	__expandPatternItem = true; //SoundLibraryPanel 
+	__usetimeline = false;		// use timeline
  
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings
@@ -244,6 +245,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
+			__usetimeline = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __usetimeline );
 			
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -579,6 +581,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( &rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( &rootNode, "useLash", m_bsetLash ? "true": "false" );
+	LocalFileMng::writeXmlString( &rootNode, "useTimeLine", __usetimeline ? "true": "false" ); 
 
 	LocalFileMng::writeXmlString( &rootNode, "preDelete", to_string(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( &rootNode, "postDelete", to_string(m_nRecPostDelete) );

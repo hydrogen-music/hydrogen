@@ -1465,17 +1465,40 @@ void SongEditorPositionRuler::createBackground()
 		if ( (i % 4) == 0 ) {
 			p.setPen( textColor );
 			sprintf( tmp, "%d", i + 1 );
-			p.drawText( x - m_nGridWidth, 0, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
+			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
+
 		}
 		else {
 			p.setPen( textColor );
-			p.drawLine( x, 10, x, m_nHeight - 10 );
+			p.drawLine( x, 32, x, 40 );
+		}
+
+	}
+
+
+//draw tempo content
+	if(pref->__usetimeline){
+		char tempo[10];	
+		for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
+			uint x = 10 + i * m_nGridWidth;
+			p.setPen( textColor );
+			p.drawLine( x, 2, x, 5 );
+			p.drawLine( x, 19, x, 20 );
+//ERRORLOG( QString("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh: %1 : %2").arg(i).arg((int)Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebeat));
+			for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+				if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == i ) {
+					sprintf( tempo, "%d",  ((int)Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm) );
+					p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
+				}
+			}
 		}
 	}
+ 
 
 	p.setPen( QColor(35, 39, 51) );
 	p.drawLine( 0, 0, width(), 0 );
 
+	p.fillRect ( 0, height() - 27, width(), 1, QColor(35, 39, 51) );
 	p.fillRect ( 0, height() - 3, width(), 2, alternateRowColor );
 
 }
@@ -1587,16 +1610,19 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	if (fPos != -1) {
 		uint x = (int)( 10 + fPos * m_nGridWidth - 11 / 2 );
 		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
+		painter.setPen( QColor(35, 39, 51) );
+		painter.drawLine( x + 5 , 8, x +5 , 24 );
 	}
 
 	if ( pIPos <= pOPos ) {
 		int xIn = (int)( 10 + pIPos * m_nGridWidth );
 		int xOut = (int)( 9 + (pOPos+1) * m_nGridWidth );
-		painter.fillRect( xIn, 5, xOut-xIn+1, 12, QColor(200, 100, 100, 100) );
+		painter.fillRect( xIn, 30, xOut-xIn+1, 12, QColor(200, 100, 100, 100) );
 		QPen pen(QColor(200, 100, 100));
 		painter.setPen(pen);
-		painter.drawRect( xIn, 5, xOut-xIn+1, 12 );
+		painter.drawRect( xIn, 30, xOut-xIn+1, 12 );
 	}
+
 }
 
 

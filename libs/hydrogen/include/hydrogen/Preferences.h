@@ -156,6 +156,8 @@ public:
 	int m_nRecPostDelete;
 
 	bool m_bFollowPlayhead;
+
+	bool __usetimeline;
 	
 	// switch to enable / disable lash, only on h2 startup
 	bool m_brestartLash;

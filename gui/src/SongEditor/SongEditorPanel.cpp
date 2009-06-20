@@ -49,7 +49,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// background
 	PixmapWidget *pBackPanel = new PixmapWidget( NULL );
-	pBackPanel->setFixedSize( 196, 24 );
+	pBackPanel->setFixedSize( 196, 49 );
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
 	// clear sequence button
@@ -60,7 +60,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_clear_over.png",
 			QSize(53,13)
 	);
-	m_pClearPatternSeqBtn->move( 6, 5 );
+	m_pClearPatternSeqBtn->move( 6, 5 + 25 );
 	m_pClearPatternSeqBtn->setToolTip( trUtf8("Clear pattern sequence") );
 	connect( m_pClearPatternSeqBtn, SIGNAL( clicked( Button* ) ), this, SLOT( clearSequence(Button*) ) );
 
@@ -72,7 +72,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_new_over.png",
 			QSize(19, 13)
 	);
-	newPatBtn->move( 65, 5 );
+	newPatBtn->move( 64, 5 + 25);
 	newPatBtn->setToolTip( trUtf8("Create new pattern") );
 	connect( newPatBtn, SIGNAL( clicked( Button* ) ), this, SLOT( newPatBtnClicked( Button* ) ) );
 
@@ -84,7 +84,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_down_over.png",
 			QSize(18,13)
 	);
-	m_pDownBtn->move( 90, 5 );
+	m_pDownBtn->move( 89, 5 + 25);
 	m_pDownBtn->setToolTip( trUtf8("Move the selected pattern down") );
 	connect( m_pDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT( downBtnClicked( Button* ) ) );
 
@@ -96,7 +96,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_up_over.png",
 			QSize(18,13)
 	);
-	m_pUpBtn->move( 107, 5 );
+	m_pUpBtn->move( 106, 5 + 25 );
 	m_pUpBtn->setToolTip( trUtf8("Move the selected pattern up") );
 	connect( m_pUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT( upBtnClicked( Button* ) ) );
 
@@ -108,7 +108,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_select_over.png",
 			QSize( 18, 13 )
 	);
-	m_pPointerActionBtn->move( 129, 5 );
+	m_pPointerActionBtn->move( 128, 5 + 25 );
 	m_pPointerActionBtn->setToolTip( trUtf8( "Select mode" ) );
 	connect( m_pPointerActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( pointerActionBtnPressed(Button*) ) );
 
@@ -120,7 +120,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_draw_over.png",
 			QSize( 18, 13 )
 	);
-	m_pDrawActionBtn->move( 148, 5 );
+	m_pDrawActionBtn->move( 147, 5 + 25 );
 	m_pDrawActionBtn->setToolTip( trUtf8( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
 	m_pDrawActionBtn->setPressed( true );
@@ -132,7 +132,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_mode_over.png",
 			QSize( 18, 13 )
 	);
-	m_pModeActionBtn->move( 170, 5 );
+	m_pModeActionBtn->move( 169, 5 + 25 );
 	m_pModeActionBtn->setToolTip( trUtf8( "stacked mode") );
 	m_pModeActionBtn->setPressed(  Preferences::getInstance()->patternModePlaysSelected() );
 	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
@@ -206,7 +206,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
-	m_pPositionRulerScrollView->setFixedHeight( 25 );
+	m_pPositionRulerScrollView->setFixedHeight( 50 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );

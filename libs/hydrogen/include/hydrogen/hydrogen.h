@@ -242,6 +242,19 @@ public:
 		}
 	};
 
+/// timeline vector
+	struct HTimelineVector
+	{
+		int m_htimelinebeat;		//beat position in timeline 
+//		int m_htimelinebar;		//bar position from current beat
+		float m_htimelinebpm;		//BPM 
+//		bool m_htimelineslide;		//true if slide into new tempo
+//		int m_htimelineslidebeatbegin;	//position of slide begin (only beats, no bars)
+//		int m_htimelineslideend;	//position of slide end (only beats, no bars)
+//		int m_htimelineslidetype;	// 0 = slide up, 1 = slide down
+	};
+	std::vector<HTimelineVector> m_timelinevector;
+
 
 private:
 	static Hydrogen* __instance;

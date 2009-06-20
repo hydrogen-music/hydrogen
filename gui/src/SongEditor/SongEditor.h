@@ -176,7 +176,7 @@ class SongEditorPositionRuler : public QWidget, public Object
 		uint m_nGridWidth;
 		static const uint m_nMaxPatternSequence = 400;
 		static const uint m_nInitialWidth = m_nMaxPatternSequence * 16;
-		static const uint m_nHeight = 25;
+		static const uint m_nHeight = 50;
 
 		QPixmap *m_pBackgroundPixmap;
 		QPixmap m_tickPositionPixmap;

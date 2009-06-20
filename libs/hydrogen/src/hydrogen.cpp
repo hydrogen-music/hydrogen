@@ -1136,6 +1136,16 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 			if ( m_nPatternTickPosition == 0 ) {
 				bSendPatternChange = true;
+
+				///here we inject the bpm value of timelinevector
+				if ( Preferences::getInstance()->__usetimeline ){
+//					_ERRORLOG(QString("patternposition: %1").arg(Hydrogen::get_instance()->getPatternPos()));
+					for ( int i = 0; i < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); i++){
+						if ( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebeat == Hydrogen::get_instance()->getPatternPos() ){
+							Hydrogen::get_instance()->setBPM( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm );	
+						}
+					}
+				}
 			}
 
 //			PatternList *pPatternList =
@@ -1753,6 +1763,18 @@ Hydrogen::Hydrogen()
 	__instance = this; 
 	audioEngine_startAudioDrivers();
 
+
+/// test the timeline
+
+		Hydrogen::HTimelineVector tlvector;
+		for (int i = 0; i < 20;){
+			tlvector.m_htimelinebeat = i;
+			tlvector.m_htimelinebpm = 120.44 + 3*i;
+//			tlvector.m_htimelineslide = false;
+			m_timelinevector.push_back( tlvector );
+			i++;
+			i++;
+		}
 }
 
 
