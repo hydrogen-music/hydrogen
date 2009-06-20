@@ -1367,6 +1367,18 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	songNode.InsertEndChild( ladspaFxNode );
 
 
+//bpm time line
+	TiXmlElement bpmTimeLine( "BPMTimeLine" );
+	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+			TiXmlElement newBPMNode( "newBPM" );
+			LocalFileMng::writeXmlString( &newBPMNode, "BAR",to_string( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat ));
+			LocalFileMng::writeXmlString( &newBPMNode, "BPM", to_string( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm  ) );
+			bpmTimeLine.InsertEndChild( newBPMNode );	
+		}
+	}
+
+	songNode.InsertEndChild( bpmTimeLine );
 
 
 	doc.InsertEndChild( songNode );

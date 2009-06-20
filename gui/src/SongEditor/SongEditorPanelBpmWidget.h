@@ -50,6 +50,7 @@ class SongEditorPanelBpmWidget : public QDialog, public Ui_SongEditorPanelBpmWid
 		void on_CancelBtn_clicked();
 		void on_okBtn_clicked();
 		void on_deleteBtn_clicked();
+
 	private:
 		int m_stimelineposition;
 };
