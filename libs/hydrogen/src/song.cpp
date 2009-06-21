@@ -632,6 +632,24 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 
+	Hydrogen::HTimelineVector tlvector;
+	TiXmlNode* bpmTimeLine = songNode->FirstChild( "BPMTimeLine" );
+	if ( bpmTimeLine ) {
+		TiXmlNode* newBPMNode;
+		int nChange = 0;
+		for ( newBPMNode = bpmTimeLine->FirstChild( "newBPM" );newBPMNode ; newBPMNode = newBPMNode->NextSibling( "newBPM" ) ){
+			tlvector.m_htimelinebeat = LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 );
+			tlvector.m_htimelinebpm = LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 );	
+			Hydrogen::get_instance()->m_timelinevector.push_back( tlvector );
+			Hydrogen::get_instance()->sortTimelineVector();
+			nChange++;	
+		}
+	}
+	else {
+		WARNINGLOG( "bpmTimeLine node not found" );
+	}
+
+
 	song->__is_modified = false;
 	song->set_filename( filename );
 
