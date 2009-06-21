@@ -632,6 +632,7 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 
+	Hydrogen::get_instance()->m_timelinevector.clear();
 	Hydrogen::HTimelineVector tlvector;
 	TiXmlNode* bpmTimeLine = songNode->FirstChild( "BPMTimeLine" );
 	if ( bpmTimeLine ) {

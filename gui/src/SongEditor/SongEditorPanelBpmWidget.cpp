@@ -38,7 +38,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "TimeLine Edit" ) );	
+	setWindowTitle( trUtf8( "BPM" ) );	
 	setFixedSize( width(), height() );
 
 	lineEditBEAT->setText(QString("%1").arg(m_stimelineposition + 1));

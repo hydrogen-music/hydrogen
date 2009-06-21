@@ -342,6 +342,10 @@ void SongEditorPanel::updateAll()
 }
 
 
+void SongEditorPanel::updatePositionRuler()
+{
+	m_pPositionRuler->createBackground();
+}
 
 ///
 /// Create a new pattern

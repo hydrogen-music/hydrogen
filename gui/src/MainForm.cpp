@@ -399,11 +399,13 @@ void MainForm::action_file_new()
 		return;
 	}
 
+	Hydrogen::get_instance()->m_timelinevector.clear();
 	Song * song = Song::get_empty_song();
 	song->set_filename( "" );
 	h2app->setSong(song);
  	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
 	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	HydrogenApp::getInstance()->getSongEditorPanel()->updatePositionRuler();
 }
 
 
@@ -1093,6 +1095,7 @@ void MainForm::openSongFile( const QString& sFilename )
 		return;
 	}
 
+
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::getInstance();
 	vector<QString> recentFiles = pPref->getRecentFiles();
@@ -1103,6 +1106,7 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
+	HydrogenApp::getInstance()->getSongEditorPanel()->updatePositionRuler();
 }
 
 
