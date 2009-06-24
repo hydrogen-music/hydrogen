@@ -1134,8 +1134,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( m_nPatternTickPosition == 0 ) {
-
-
 				///here we inject the bpm value of timelinevector
 				if ( Preferences::getInstance()->__usetimeline ){
 					for ( int i = 0; i < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); i++){

@@ -1,38 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-<class>SongEditorPanelBpmWidget_UI</class>
- <widget class="QWidget" name="TimeLineBpmEditor">
+ <class>SongEditorPanelBpmWidget_UI</class>
+ <widget class="QWidget" name="SongEditorPanelBpmWidget_UI">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>174</width>
-    <height>141</height>
+    <width>172</width>
+    <height>150</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>15</y>
+     <y>10</y>
      <width>148</width>
-     <height>116</height>
+     <height>135</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="lineEditBPM">
+        <property name="toolTip">
+         <string>Edit the bpm value for current beat</string>
+        </property>
         <property name="text">
-         <string>Beat</string>
+         <string>500,55</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="2" column="2">
        <widget class="QLineEdit" name="lineEditBEAT">
         <property name="toolTip">
          <string>Edit beat in timeline</string>
@@ -42,20 +45,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="2" column="1">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>BPM</string>
+         <string>Beat</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEditBPM">
-        <property name="toolTip">
-         <string>Edit the bpm value for current beat</string>
-        </property>
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>500,55</string>
+         <string>BPM</string>
         </property>
        </widget>
       </item>
@@ -95,6 +95,13 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lineEditBPM</tabstop>
+  <tabstop>lineEditBEAT</tabstop>
+  <tabstop>deleteBtn</tabstop>
+  <tabstop>CancelBtn</tabstop>
+  <tabstop>okBtn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
