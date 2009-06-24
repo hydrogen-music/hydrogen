@@ -1567,7 +1567,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchOutPos(-1);
 		update();
 	}
-	else if( ev->button() == Qt::LeftButton && ev->y() <= 25 && Preferences::getInstance()->__usetimeline ){
+	else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::getInstance()->__usetimeline ){
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelBpmWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
