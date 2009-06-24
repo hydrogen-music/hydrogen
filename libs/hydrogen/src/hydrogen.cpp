@@ -509,7 +509,6 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 				     && ( noteStartInFrames < ( framepos + nframes ) ) );
 		bool isOldNote = noteStartInFrames < framepos;
 		if ( isNoteStart || isOldNote ) {
-
 			// Humanize - Velocity parameter
 			if ( m_pSong->get_humanize_velocity_value() != 0 ) {
 				float random = m_pSong->get_humanize_velocity_value()
@@ -1135,17 +1134,24 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( m_nPatternTickPosition == 0 ) {
-				bSendPatternChange = true;
+
 
 				///here we inject the bpm value of timelinevector
 				if ( Preferences::getInstance()->__usetimeline ){
-//					_ERRORLOG(QString("patternposition: %1").arg(Hydrogen::get_instance()->getPatternPos()));
 					for ( int i = 0; i < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); i++){
-						if ( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebeat == Hydrogen::get_instance()->getPatternPos() ){
-							Hydrogen::get_instance()->setBPM( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm );	
+						if ( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebeat 
+						     == Hydrogen::get_instance()->getPatternPos() 
+						     && m_nNewBpmJTM != Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm ){
+							float testbpm = m_nNewBpmJTM;
+							Hydrogen::get_instance()->setBPM( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm );
+							audioEngine_process_checkBPMChanged();
+							if(testbpm > Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm ){
+								return 2;
+							}
 						}
 					}
 				}
+				bSendPatternChange = true;
 			}
 
 //			PatternList *pPatternList =
