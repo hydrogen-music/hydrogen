@@ -1052,6 +1052,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	// lookahead. lookahead should be equal or greater than the
 	// nLeadLagFactor + nMaxTimeHumanize.
 	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
+	if ( Preferences::getInstance()->__usetimeline )
+		lookahead = m_nBufferSize;
 	m_nLookaheadFrames = lookahead;
 	if ( framepos == 0
 	     || ( m_audioEngineState == STATE_PLAYING
