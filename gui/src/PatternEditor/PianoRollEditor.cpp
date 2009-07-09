@@ -240,19 +240,36 @@ void PianoRollEditor::createBackground()
 	int offset = 0;
 	int insertx = 3;
 	for ( int oct = 0; oct < m_nOctaves; oct++ ){
-		p.drawText( insertx, m_nRowHeight  + offset, "b" );
-		p.drawText( insertx, 10 + m_nRowHeight  + offset, "a#" );
-		p.drawText( insertx, 20 + m_nRowHeight  + offset, "a" );
-		p.drawText( insertx, 30 + m_nRowHeight  + offset, "g#" );
-		p.drawText( insertx, 40 + m_nRowHeight  + offset, "g" );
-		p.drawText( insertx, 50 + m_nRowHeight  + offset, "f#" );
-		p.drawText( insertx, 60 + m_nRowHeight  + offset, "f" );
-		p.drawText( insertx, 70 + m_nRowHeight  + offset, "e" );
-		p.drawText( insertx, 80 + m_nRowHeight  + offset, "d#" );
-		p.drawText( insertx, 90 + m_nRowHeight  + offset, "d" );
-		p.drawText( insertx, 100 + m_nRowHeight  + offset, "c#" );
-		p.drawText( insertx, 110 + m_nRowHeight  + offset, "c" );
-		offset += 12 * m_nRowHeight;
+		if( oct > 3 ){
+			p.drawText( insertx, m_nRowHeight  + offset, "B" );
+			p.drawText( insertx, 10 + m_nRowHeight  + offset, "A#" );
+			p.drawText( insertx, 20 + m_nRowHeight  + offset, "A" );
+			p.drawText( insertx, 30 + m_nRowHeight  + offset, "G#" );
+			p.drawText( insertx, 40 + m_nRowHeight  + offset, "G" );
+			p.drawText( insertx, 50 + m_nRowHeight  + offset, "F#" );
+			p.drawText( insertx, 60 + m_nRowHeight  + offset, "F" );
+			p.drawText( insertx, 70 + m_nRowHeight  + offset, "E" );
+			p.drawText( insertx, 80 + m_nRowHeight  + offset, "D#" );
+			p.drawText( insertx, 90 + m_nRowHeight  + offset, "D" );
+			p.drawText( insertx, 100 + m_nRowHeight  + offset, "C#" );
+			p.drawText( insertx, 110 + m_nRowHeight  + offset, "C" );
+			offset += 12 * m_nRowHeight;	
+		}else
+		{
+			p.drawText( insertx, m_nRowHeight  + offset, "b" );
+			p.drawText( insertx, 10 + m_nRowHeight  + offset, "a#" );
+			p.drawText( insertx, 20 + m_nRowHeight  + offset, "a" );
+			p.drawText( insertx, 30 + m_nRowHeight  + offset, "g#" );
+			p.drawText( insertx, 40 + m_nRowHeight  + offset, "g" );
+			p.drawText( insertx, 50 + m_nRowHeight  + offset, "f#" );
+			p.drawText( insertx, 60 + m_nRowHeight  + offset, "f" );
+			p.drawText( insertx, 70 + m_nRowHeight  + offset, "e" );
+			p.drawText( insertx, 80 + m_nRowHeight  + offset, "d#" );
+			p.drawText( insertx, 90 + m_nRowHeight  + offset, "d" );
+			p.drawText( insertx, 100 + m_nRowHeight  + offset, "c#" );
+			p.drawText( insertx, 110 + m_nRowHeight  + offset, "c" );
+			offset += 12 * m_nRowHeight;
+		}
 	}		
 		
 	draw_grid( p );

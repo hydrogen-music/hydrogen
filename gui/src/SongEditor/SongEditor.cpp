@@ -1460,6 +1460,7 @@ void SongEditorPositionRuler::createBackground()
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
 
+	p.fillRect( 0, 0, width(), 24, QColor( 67, 72, 83, 105) );
 	char tmp[10];
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = 10 + i * m_nGridWidth;
