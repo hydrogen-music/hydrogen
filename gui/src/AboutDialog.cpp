@@ -45,6 +45,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	QString about;
 	about += QString("<center><b>Hydrogen Drum Machine %1 [%2] </b><br>").arg( get_version().c_str() ).arg( __DATE__ );
+	about += "Fx and sample fun branch<br><br>";
 	about += tr( "<b>Website</b><br>" );
 	about += "http://www.hydrogen-music.org<br><br>";
 	about += tr( "<b>Project page</b><br>");
