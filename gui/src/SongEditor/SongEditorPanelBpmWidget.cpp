@@ -87,39 +87,45 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
+	Hydrogen* engine = Hydrogen::get_instance();
+	
 	//erase the value to set the new value
-	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
-			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == (QString(lineEditBEAT->text()).toInt()) -1 ) {
-				Hydrogen::get_instance()->m_timelinevector.erase( Hydrogen::get_instance()->m_timelinevector.begin() +  t);
+	if( engine->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBEAT->text() ).toInt() ) -1 ) {
+				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
 			}
 		}
 	}
 
 	Hydrogen::HTimelineVector tlvector;
 
-	tlvector.m_htimelinebeat = (QString(lineEditBEAT->text()).toInt()) -1 ;
+	tlvector.m_htimelinebeat = ( QString( lineEditBEAT->text() ).toInt() ) -1 ;
 	float bpm;
-	bpm = QString(lineEditBPM->text()).toFloat();
+	bpm = QString( lineEditBPM->text() ).toFloat();
 	if( bpm < 30.0 ) bpm = 30.0;
 	if( bpm > 500.0 ) bpm = 500.0;	
 	tlvector.m_htimelinebpm = bpm;
-	Hydrogen::get_instance()->m_timelinevector.push_back( tlvector );
-	Hydrogen::get_instance()->sortTimelineVector();
+	engine->m_timelinevector.push_back( tlvector );
+	engine->sortTimelineVector();
 	accept();
 }
 
 
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
-
-	if( Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>( Hydrogen::get_instance()->m_timelinevector.size() ); t++){
-			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == m_stimelineposition ) {
-				Hydrogen::get_instance()->m_timelinevector.erase( Hydrogen::get_instance()->m_timelinevector.begin() +  t);
+	Hydrogen* engine = Hydrogen::get_instance();
+	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
+	
+	if( timelineVector.size() > 0 ){
+		for ( int t = 0; t < timelineVector.size(); t++){
+			if ( timelineVector[t].m_htimelinebeat == m_stimelineposition ) {
+				timelineVector.erase( timelineVector.begin() +  t);
 			}
 		}
 	}
+	
+	engine->m_timelinevector = timelineVector;
 	accept();
 }
 
