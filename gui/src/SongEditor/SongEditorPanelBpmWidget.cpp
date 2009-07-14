@@ -22,6 +22,7 @@
 
 #include <QtGui>
 
+
 #include "../HydrogenApp.h"
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanel.h"
@@ -41,27 +42,29 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	setWindowTitle( trUtf8( "BPM" ) );	
 	setFixedSize( width(), height() );
 
-	lineEditBEAT->setText(QString("%1").arg(m_stimelineposition + 1));
+	lineEditBEAT->setText(QString("%1").arg( m_stimelineposition + 1) );
 	deleteBtn->setEnabled ( false );
-//	okBtn->setEnabled ( false );
+
+	Hydrogen* engine = Hydrogen::get_instance();
+	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
 
 	//restore the bpm value
-	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+	if( timelineVector.size() > 0 ){
+		for ( int t = 0; t < timelineVector.size(); t++ ){
 //			ERRORLOG(QString("%1 %2").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat).arg(m_stimelineposition));
-			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == m_stimelineposition ) {
-				lineEditBPM->setText(QString("%1").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm));
+			if ( timelineVector[t].m_htimelinebeat == m_stimelineposition ) {
+				lineEditBPM->setText( QString("%1").arg( timelineVector[t].m_htimelinebpm ) );
 				deleteBtn->setEnabled ( true );
 				return;
 			}
 			else
 			{
-				lineEditBPM->setText(QString("%1").arg(Hydrogen::get_instance()->getNewBpmJTM()));
+				lineEditBPM->setText( QString("%1").arg( engine->getNewBpmJTM()) );
 			}
 		}
 	}else
 	{
-		lineEditBPM->setText(QString("%1").arg(Hydrogen::get_instance()->getNewBpmJTM()));	
+		lineEditBPM->setText( QString("%1").arg( engine->getNewBpmJTM() ) );
 	}
 }
 
@@ -110,8 +113,8 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 
-	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+	if( Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>( Hydrogen::get_instance()->m_timelinevector.size() ); t++){
 			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == m_stimelineposition ) {
 				Hydrogen::get_instance()->m_timelinevector.erase( Hydrogen::get_instance()->m_timelinevector.begin() +  t);
 			}
