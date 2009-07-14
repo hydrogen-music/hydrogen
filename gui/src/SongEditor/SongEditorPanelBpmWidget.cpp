@@ -42,7 +42,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	setWindowTitle( trUtf8( "BPM" ) );	
 	setFixedSize( width(), height() );
 
-	lineEditBEAT->setText(QString("%1").arg( m_stimelineposition + 1) );
+	lineEditBeat->setText(QString("%1").arg( m_stimelineposition + 1) );
 	deleteBtn->setEnabled ( false );
 
 	Hydrogen* engine = Hydrogen::get_instance();
@@ -53,18 +53,18 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 		for ( int t = 0; t < timelineVector.size(); t++ ){
 //			ERRORLOG(QString("%1 %2").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat).arg(m_stimelineposition));
 			if ( timelineVector[t].m_htimelinebeat == m_stimelineposition ) {
-				lineEditBPM->setText( QString("%1").arg( timelineVector[t].m_htimelinebpm ) );
+				lineEditBpm->setText( QString("%1").arg( timelineVector[t].m_htimelinebpm ) );
 				deleteBtn->setEnabled ( true );
 				return;
 			}
 			else
 			{
-				lineEditBPM->setText( QString("%1").arg( engine->getNewBpmJTM()) );
+				lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM()) );
 			}
 		}
 	}else
 	{
-		lineEditBPM->setText( QString("%1").arg( engine->getNewBpmJTM() ) );
+		lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM() ) );
 	}
 }
 
@@ -92,7 +92,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 	//erase the value to set the new value
 	if( engine->m_timelinevector.size() >= 1 ){
 		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBEAT->text() ).toInt() ) -1 ) {
+			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
 				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
 			}
 		}
@@ -100,9 +100,9 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 
 	Hydrogen::HTimelineVector tlvector;
 
-	tlvector.m_htimelinebeat = ( QString( lineEditBEAT->text() ).toInt() ) -1 ;
+	tlvector.m_htimelinebeat = ( QString( lineEditBeat->text() ).toInt() ) -1 ;
 	float bpm;
-	bpm = QString( lineEditBPM->text() ).toFloat();
+	bpm = QString( lineEditBpm->text() ).toFloat();
 	if( bpm < 30.0 ) bpm = 30.0;
 	if( bpm > 500.0 ) bpm = 500.0;	
 	tlvector.m_htimelinebpm = bpm;

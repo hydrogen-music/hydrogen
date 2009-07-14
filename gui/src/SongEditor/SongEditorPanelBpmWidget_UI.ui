@@ -26,7 +26,7 @@
     <item>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="2">
-       <widget class="QLineEdit" name="lineEditBPM">
+       <widget class="QLineEdit" name="lineEditBpm">
         <property name="toolTip">
          <string>Edit the bpm value for current beat</string>
         </property>
@@ -36,7 +36,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QLineEdit" name="lineEditBEAT">
+       <widget class="QLineEdit" name="lineEditBeat">
         <property name="toolTip">
          <string>Edit beat in timeline</string>
         </property>
@@ -99,8 +99,8 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>lineEditBPM</tabstop>
-  <tabstop>lineEditBEAT</tabstop>
+  <tabstop>lineEditBpm</tabstop>
+  <tabstop>lineEditBeat</tabstop>
   <tabstop>deleteBtn</tabstop>
   <tabstop>CancelBtn</tabstop>
   <tabstop>okBtn</tabstop>
