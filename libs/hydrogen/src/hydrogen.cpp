@@ -117,16 +117,18 @@ QMutex mutex_OutputPointer;     ///< Mutex for audio output pointer, allows mult
 MidiInput *m_pMidiDriver = NULL;	///< MIDI input
 
 // overload the the > operator of Note objects for priority_queue
-bool operator> (const Note& pNote1, const Note &pNote2) {
-	return (pNote1.m_nHumanizeDelay
-		+ pNote1.get_position() * m_pAudioDriver->m_transport.m_nTickSize)
+struct compare_pNotes {
+bool operator() (Note* pNote1, Note* pNote2) {
+	return (pNote1->m_nHumanizeDelay
+		+ pNote1->get_position() * m_pAudioDriver->m_transport.m_nTickSize)
 		>
-		(pNote2.m_nHumanizeDelay
-		 + pNote2.get_position() * m_pAudioDriver->m_transport.m_nTickSize);
+		(pNote2->m_nHumanizeDelay
+		 + pNote2->get_position() * m_pAudioDriver->m_transport.m_nTickSize);
 }
+};
 
                                                                /// Song Note FIFO
-std::priority_queue<Note*, std::deque<Note*>, std::greater<Note> > m_songNoteQueue;
+std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
 std::deque<Note*> m_midiNoteQueue;	///< Midi Note FIFO
 
 Song *m_pSong;				///< Current song
