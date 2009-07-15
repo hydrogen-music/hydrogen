@@ -170,7 +170,6 @@ def get_hydrogen_lib( opts ):
 	includes.append( "libs/hydrogen/include" )
 	
 	env = Environment( options = opts ) 
-	if str(env['lash']) == "1": includes.append( "/usr/include/lash-1.0")
 
 
 	#location of qt4.py
@@ -183,6 +182,8 @@ def get_hydrogen_lib( opts ):
 
         if str(env['jack']) == "1":
             env.ParseConfig('pkg-config --modversion jack', get_jack_api_flags)
+        if str(env['lash']) == "1":
+            env.ParseConfig('pkg-config --cflags --libs lash-1.0')
 
 
 	#env.Decider is not known in older scons version
@@ -216,7 +217,6 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 
 	includes.append( "libs/hydrogen/include" )
 	includes.append( "gui/src/UI" )
-	includes.append( "/usr/include/lash-1.0")
 
 	#location of qt4.py
 	qt4ToolLocation="."
@@ -253,7 +253,6 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	
 	if str(env['lrdf']) == "1": env.Append( LIBS = ["lrdf"] )
 	if str(env['flac']) == "1": env.Append( LIBS = ["FLAC","FLAC++"] )
-	if str(env['lash']) == "1": env.Append( LIBS = ["lash"])
 	if str(env['jack']) == "1": env.Append( LIBS = ["jack"])
 	if str(env['alsa']) == "1": env.Append( LIBS = ["asound"])
 	if str(env['libarchive']) == "1": env.Append( LIBS = ["archive"])
@@ -262,6 +261,8 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	if str(env['portmidi']) == "1":
 		env.Append( LIBS = [ "portmidi" ] )
 		env.Append( LIBS = [ "porttime" ] )
+	if str(env['lash']) == "1":
+	        env.ParseConfig('pkg-config --cflags --libs lash-1.0')
 
 	if sys.platform == "darwin":
 		env.Append( LIBS = ["z"] )
@@ -384,7 +385,13 @@ if platform == "darwin" or platform == "win32":
 
 
 #Check if all required libraries are installed
-conf = Configure(env)
+def CheckPKG(context, name):
+    context.Message( 'Checking for %s... ' % name )
+    ret = context.TryAction('pkg-config --exists \'%s\'' % name)[0]
+    context.Result( ret )
+    return ret
+
+conf = Configure(env, custom_tests = { 'CheckPKG' : CheckPKG })
 if not conf.CheckCHeader('sndfile.h'):
     print 'libsndfile must be installed!'
     Exit(1)
@@ -419,7 +426,7 @@ if str(env['jack']) == "1" and not conf.CheckCHeader('jack/jack.h'):
     Exit(1)
 
 #lash: (default: disabled)
-if str(env['lash']) == "1" and not os.path.isdir("/usr/include/lash-1.0"):
+if str(env['lash']) == "1" and not conf.CheckPKG('lash-1.0 >= 0.5.0'):
     print 'liblash must be installed!'
     Exit(1)
 
