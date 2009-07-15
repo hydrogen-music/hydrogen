@@ -658,10 +658,10 @@ void InstrumentEditor::selectLayer( int nLayer )
 		float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
 		//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
 		m_pLayerPitchCoarseRotary->setValue( nCoarsePitch );
-		m_pLayerPitchFineRotary->setValue( fFinePitch );
+		m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 		m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( nCoarsePitch ) );
-		m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch ) );
+		m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100) );
 	}
 	else {
 		// Layer GAIN
