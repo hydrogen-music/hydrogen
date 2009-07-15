@@ -661,7 +661,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 		m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 		m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( nCoarsePitch ) );
-		m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100) );
+		m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
 	}
 	else {
 		// Layer GAIN
