@@ -53,7 +53,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel )
 
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy(Qt::ClickFocus);
-	m_nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
+	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
 	m_nEditorWidth = 20 + m_nGridWidth *  (MAX_NOTES * 4);
 	m_nEditorHeight = m_nOctaves * 12 * m_nRowHeight;
@@ -65,7 +65,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel )
 	
 	createBackground();
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 
@@ -280,7 +280,7 @@ void PianoRollEditor::createBackground()
 
 void PianoRollEditor::draw_grid( QPainter& p )
 {
-	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	static const QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
 	static const QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
 	static const QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
@@ -394,7 +394,7 @@ void PianoRollEditor::drawPattern()
 
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 {
-	static const UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
 	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
 
@@ -507,7 +507,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
 	if (ev->button() == Qt::LeftButton ) {
 		m_bRightBtnPressed = false;
-		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );	// lock the audio engine
+		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 		bool bNoteAlreadyExist = false;
 		std::multimap <int, Note*>::iterator pos;
@@ -563,7 +563,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 			m_pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
 
 			// hear note
-			Preferences *pref = Preferences::getInstance();
+			Preferences *pref = Preferences::get_instance();
 			if ( pref->getHearNewNotes() ) {
 				Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 				if ( pressednotekey == 0 )//note c
@@ -608,7 +608,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
 		}
 
-		AudioEngine::get_instance()->lock( "DrumPatternEditor::mousePressEvent" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
@@ -631,7 +631,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 				}
 			}	
 ///
-			if ( Preferences::getInstance()->__rightclickedpattereditor ){
+			if ( Preferences::get_instance()->__rightclickedpattereditor ){
 				// create the new note
 				const unsigned nPosition = nColumn;
 				const float fVelocity = 0.0f;
@@ -714,14 +714,14 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if ( Preferences::getInstance()->__rightclickedpattereditor )
+	if ( Preferences::get_instance()->__rightclickedpattereditor )
 		return;
 
 	if (m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_noteoff() ) return;
 		int nTickColumn = getColumn( ev );
 
-		AudioEngine::get_instance()->lock("DrumPatternEditor::mouseMoveEvent");	// lock the audio engine
+		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 		int nLen = nTickColumn - (int)m_pDraggedNote->get_position();
 
 		if (nLen <= 0) {

@@ -30,6 +30,7 @@
 #include <hydrogen/fx/LadspaFX.h>
 
 #include <vector>
+#include <cassert>
 
 namespace H2Core
 {
@@ -40,7 +41,8 @@ namespace H2Core
 class Effects : public Object
 {
 public:
-	static Effects* getInstance();
+	static void create_instance();
+	static Effects* get_instance() { assert(m_pInstance); return m_pInstance; }
 	~Effects();
 
 	LadspaFX* getLadspaFX( int nFX );

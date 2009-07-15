@@ -29,7 +29,11 @@
 
 #include <pthread.h>
 #include <string>
+#include <cassert>
 
+#ifndef RIGHT_HERE
+#define RIGHT_HERE __FILE__, __LINE__, __PRETTY_FUNCTION__
+#endif
 
 namespace H2Core
 {
@@ -40,13 +44,32 @@ namespace H2Core
 class AudioEngine : public Object
 {
 public:
-	static AudioEngine* get_instance();
+	static void create_instance();
+	static AudioEngine* get_instance() { assert(__instance); return __instance; }
 	~AudioEngine();
 
-	void lock( const QString& locker );
-
-	/// Try to lock the mutex. Return true on success.
-	bool try_lock( const QString& locker );
+	/* Mutex locking and unlocking
+	 *
+	 * Easy usage:  Use the RIGHT_HERE macro like this...
+	 *     AudioEngine::get_instance()->lock( RIGHT_HERE );
+	 *
+	 * More complex usage:  The parameters file and function
+	 * need to be pointers to null-terminated strings that are
+	 * persistent for the entire session.  This does *not*
+	 * include the return value of std::string::c_str(), or
+	 * QString::toLocal8Bit().data().
+	 *
+	 * Tracing the locks:  Enable the Logger::AELockTracing
+	 * logging level.  When you do, there will be a performance
+	 * penalty because the strings will be converted to a
+	 * QString.  At the moment, you'll have to do that with
+	 * your debugger.
+	 *
+	 * Notes: The order of the parameters match GCC's
+	 * implementation of the assert() macros.
+	 */
+	void lock( const char* file, unsigned int line, const char* function );
+	bool try_lock( const char* file, unsigned int line, const char* function ); /// Return true on success (locked).
 	void unlock();
 
 	Sampler* get_sampler();
@@ -60,8 +83,13 @@ private:
 
 	/// Mutex for syncronized access to the Song object and the AudioEngine.
 	pthread_mutex_t __engine_mutex;
-	QString __locker;
 
+	struct _locker_struct {
+		const char* file;
+		unsigned int line;
+		const char* function;
+	} __locker;
+			
 	AudioEngine();
 };
 

@@ -69,7 +69,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 {
 	setAcceptDrops(true);
 
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 	
 
 // Editor TOP
@@ -530,7 +530,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				break;
 
 			default:
-				ERRORLOG( "Wrong grid resolution: " + to_string( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
 				__resolution_combo->set_text( "4" );
 				nIndex = 0;
 		}
@@ -558,7 +558,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				break;
 
 			default:
-				ERRORLOG( "Wrong grid resolution: " + to_string( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
 				__resolution_combo->set_text( "4T" );
 				nIndex = 5;
 		}
@@ -578,7 +578,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	pVBox->addWidget( pMainPanel );
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 
 	selectedPatternChangedEvent(); // force an update
 
@@ -659,8 +659,8 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 
-	Preferences::getInstance()->setPatternEditorGridResolution( nResolution );
-	Preferences::getInstance()->setPatternEditorUsingTriplets( bUseTriplets );
+	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
+	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
 }
 
 
@@ -703,14 +703,14 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 void PatternEditorPanel::hearNotesBtnClick(Button *ref)
 {
-	Preferences *pref = ( Preferences::getInstance() );
+	Preferences *pref = ( Preferences::get_instance() );
 	pref->setHearNewNotes( ref->isPressed() );
 
 	if (ref->isPressed() ) {
-		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Hear new notes = On" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Hear new notes = On" ), 2000 );
 	}
 	else {
-		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Hear new notes = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Hear new notes = Off" ), 2000 );
 	}
 
 }
@@ -720,14 +720,14 @@ void PatternEditorPanel::hearNotesBtnClick(Button *ref)
 
 void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
 {
-	Preferences *pref = ( Preferences::getInstance() );
+	Preferences *pref = ( Preferences::get_instance() );
 	pref->setQuantizeEvents( ref->isPressed() );
 
 	if (ref->isPressed() ) {
-		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Quantize incoming keyboard/midi events = On" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Quantize incoming keyboard/midi events = On" ), 2000 );
 	}
 	else {
-		( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Quantize incoming keyboard/midi events = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Quantize incoming keyboard/midi events = Off" ), 2000 );
 	}
 }
 
@@ -896,7 +896,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 		//m_pPatternSizeLCD->setText( QString( "%1" ).arg( nSelected ) );
 	}
 	else {
-		ERRORLOG( "[patternSizeChanged] Unhandled case " + to_string( nSelected ) );
+		ERRORLOG( QString("[patternSizeChanged] Unhandled case %1").arg( nSelected ) );
 	}
 
 	m_pPatternEditorRuler->updateEditor( true );	// redraw all
@@ -918,7 +918,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 	Hydrogen *engine = Hydrogen::get_instance();
 	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
 
-	AudioEngine::get_instance()->lock( "PatternEditorPanel::moveUpBtnClicked" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -945,7 +945,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	Hydrogen *engine = Hydrogen::get_instance();
 	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
 
-	AudioEngine::get_instance()->lock( "PatternEditorPanel::moveDownBtnClicked" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -1031,10 +1031,10 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 void PatternEditorPanel::playselectedinstrument( QString text )
 {
 	if ( text == "drumset" ){
-		Preferences::getInstance()->__playselectedinstrument = false;
+		Preferences::get_instance()->__playselectedinstrument = false;
 	}else
 	{
-		Preferences::getInstance()->__playselectedinstrument = true;
+		Preferences::get_instance()->__playselectedinstrument = true;
 	}
 }
 
@@ -1042,17 +1042,17 @@ void PatternEditorPanel::playselectedinstrument( QString text )
 void PatternEditorPanel::rightclickSelect( QString text )
 {
 	if ( text == "note length" ){
-		Preferences::getInstance()->__rightclickedpattereditor = false;
+		Preferences::get_instance()->__rightclickedpattereditor = false;
 	}else
 	{
-		Preferences::getInstance()->__rightclickedpattereditor = true;
+		Preferences::get_instance()->__rightclickedpattereditor = true;
 	}
 
 }
 
 void PatternEditorPanel::recPreDeleteSelect( int index )
 {
-	Preferences::getInstance()->m_nRecPreDelete = index;
+	Preferences::get_instance()->m_nRecPreDelete = index;
 	if( index>=9 && index <=15 ){
 		__recpostdelete->show();
 	}else{
@@ -1063,14 +1063,14 @@ void PatternEditorPanel::recPreDeleteSelect( int index )
 
 void PatternEditorPanel::recPostDeleteSelect( int index )
 {
-	Preferences::getInstance()->m_nRecPostDelete = index;
+	Preferences::get_instance()->m_nRecPostDelete = index;
 }
 
 
 void PatternEditorPanel::displayorHidePrePostCB()
 {
 	int index = __recpredelete->currentIndex();
-	if( Preferences::getInstance()->getDestructiveRecord() ){
+	if( Preferences::get_instance()->getDestructiveRecord() ){
 		__recpostdelete->show();
 		if( index>=8 && index <=14 ){
 			__recpostdelete->show();

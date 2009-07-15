@@ -63,7 +63,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-	m_pTimeLineToggleBtn->setPressed( Preferences::getInstance()->__usetimeline );
+	m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->__usetimeline );
 
 
 	// clear sequence button
@@ -148,7 +148,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pModeActionBtn->move( 169, 5 + 25 );
 	m_pModeActionBtn->setToolTip( trUtf8( "stacked mode") );
-	m_pModeActionBtn->setPressed(  Preferences::getInstance()->patternModePlaysSelected() );
+	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
 	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
 // ZOOM
@@ -252,7 +252,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	updateAll();
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlayHeadPosition() ) );
@@ -272,7 +272,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	if ( Preferences::getInstance()->m_bFollowPlayhead && pSong->get_mode() == Song::SONG_MODE) {
+	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->get_mode() == Song::SONG_MODE) {
 		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
 			return;
 		}
@@ -388,7 +388,7 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
-	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pUpBtnClicked" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = pEngine->getSong();
 	PatternList *pList = pSong->get_pattern_list();
 
@@ -418,7 +418,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
-	AudioEngine::get_instance()->lock( "SongEditorPanel::m_pDownBtnClicked" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = pEngine->getSong();
 	PatternList *pList = pSong->get_pattern_list();
 
@@ -452,7 +452,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 
 	Hydrogen *engine = Hydrogen::get_instance();
 
-	AudioEngine::get_instance()->lock( "SongEditorPanel::clearSequence" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *song = engine->getSong();
 	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
@@ -515,11 +515,11 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
 	if( m_pTimeLineToggleBtn->isPressed() ){
-		Preferences::getInstance()->__usetimeline = true;
+		Preferences::get_instance()->__usetimeline = true;
 	}
 	else
 	{
-		Preferences::getInstance()->__usetimeline = false;
+		Preferences::get_instance()->__usetimeline = false;
 	}
 	m_pPositionRuler->createBackground();
 }

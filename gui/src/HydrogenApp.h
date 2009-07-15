@@ -62,7 +62,7 @@ class HydrogenApp : public QObject, public Object
 		HydrogenApp( MainForm* pMainForm, H2Core::Song *pFirstSong );
 
 		/// Returns the instance of HydrogenApp class
-		static HydrogenApp* getInstance();
+		static HydrogenApp* get_instance();
 
 		virtual ~HydrogenApp();
 

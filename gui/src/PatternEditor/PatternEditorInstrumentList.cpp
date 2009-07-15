@@ -51,7 +51,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
   : PixmapWidget(pParent, "InstrumentLine")
   , m_bIsSelected(false)
 {
-	int h = Preferences::getInstance()->getPatternEditorGridHeight();
+	int h = Preferences::get_instance()->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
 	m_pNameLbl = new QLabel(this);
@@ -159,7 +159,7 @@ void InstrumentLine::muteClicked()
 
 void InstrumentLine::soloClicked()
 {
-	HydrogenApp::getInstance()->getMixer()->soloClicked( m_nInstrumentNumber );
+	HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrumentNumber );
 }
 
 
@@ -167,7 +167,7 @@ void InstrumentLine::soloClicked()
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( m_nInstrumentNumber );
-	HydrogenApp::getInstance()->getPatternEditorPanel()->updatePianorollEditor();
+	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
 		const float velocity = 0.8f;
@@ -211,7 +211,7 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 
 void InstrumentLine::functionClearNotes()
 {
-// 	AudioEngine::get_instance()->lock("InstrumentLine::functionClearNotes");	// lock the audio engine
+// 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 	Hydrogen * H = Hydrogen::get_instance();
 	Pattern *pCurrentPattern = getCurrentPattern();
@@ -250,7 +250,7 @@ void InstrumentLine::functionFillNotes()
 	const float fPitch = 0.0f;
 	const int nLength = -1;
 
-	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::getInstance()->getPatternEditorPanel();
+	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 	int nBase;
 	if ( pPatternEditor->isUsingTriplets() ) {
@@ -262,7 +262,7 @@ void InstrumentLine::functionFillNotes()
 	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
 
 
-	AudioEngine::get_instance()->lock("PatternEditorInstrumentList::functionFillNotes");	// lock the audio engine
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 
 	Song *pSong = pEngine->getSong();
@@ -311,10 +311,10 @@ void InstrumentLine::functionRandomizeVelocity()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::getInstance()->getPatternEditorPanel();
+	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 
-	AudioEngine::get_instance()->lock("PatternEditorInstrumentList::functionRandomizeVelocity");	// lock the audio engine
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 	int nBase;
 	if ( pPatternEditor->isUsingTriplets() ) {
@@ -370,7 +370,7 @@ void InstrumentLine::functionDeleteInstrument()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->removeInstrument( m_nInstrumentNumber, false );
 	
-	AudioEngine::get_instance()->lock("InstrumentLine::functionDeleteInstrument");
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 #ifdef JACK_SUPPORT
 	pEngine->renameJackPorts();
 #endif
@@ -393,7 +393,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	m_pPattern = NULL;
  	m_pPatternEditorPanel = pPatternEditorPanel;
 
-	m_nGridHeight = Preferences::getInstance()->getPatternEditorGridHeight();
+	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
 	m_nEditorWidth = 181;
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
@@ -440,7 +440,7 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 void PatternEditorInstrumentList::moveInstrumentLine( int nSourceInstrument , int nTargetInstrument )
 {
 		Hydrogen *engine = Hydrogen::get_instance();
-		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::moveInstrumentLine" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		Song *pSong = engine->getSong();
 		InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -489,7 +489,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
-	Mixer * mixer = HydrogenApp::getInstance()->getMixer();
+	Mixer * mixer = HydrogenApp::get_instance()->getMixer();
 
 	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
@@ -594,9 +594,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		}
 		++nID;
 
-		pNewInstrument->set_id( to_string( nID ) );
+		pNewInstrument->set_id( QString("%1").arg( nID ) );
 
-		AudioEngine::get_instance()->lock( "PatternEditorInstrumentList::dropEvent" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
 
 		#ifdef JACK_SUPPORT

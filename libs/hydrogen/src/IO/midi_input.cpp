@@ -135,8 +135,8 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	ActionManager * aH = ActionManager::getInstance();
-	MidiMap * mM = MidiMap::getInstance();
+	ActionManager * aH = ActionManager::get_instance();
+	MidiMap * mM = MidiMap::get_instance();
 
 	Action * pAction; 
 
@@ -156,7 +156,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 //	INFOLOG( "handleNoteOnMessage" );
 
 
-	int nMidiChannelFilter = Preferences::getInstance()->m_nMidiChannelFilter;
+	int nMidiChannelFilter = Preferences::get_instance()->m_nMidiChannelFilter;
 	int nChannel = msg.m_nChannel;
 	int nNote = msg.m_nData1;
 	float fVelocity = msg.m_nData2 / 127.0;
@@ -172,8 +172,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		bIsChannelValid = ( nChannel == nMidiChannelFilter );
 	}
 
-	ActionManager * aH = ActionManager::getInstance();
-	MidiMap * mM = MidiMap::getInstance();
+	ActionManager * aH = ActionManager::get_instance();
+	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	pEngine->lastMidiEvent = "NOTE";
@@ -181,7 +181,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	
 	bool action = aH->handleAction( mM->getNoteAction( msg.m_nData1 ) );
 	
-	if ( action && Preferences::getInstance()->m_bMidiDiscardNoteAfterAction)
+	if ( action && Preferences::get_instance()->m_bMidiDiscardNoteAfterAction)
 	{
 		return;
 	}
@@ -217,7 +217,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 {
 //	INFOLOG( "handleNoteOffMessage" );
-	if ( Preferences::getInstance()->m_bMidiNoteOffIgnore ) {
+	if ( Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
 
@@ -239,17 +239,17 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
 
 	float fStep = pow( 1.0594630943593, (nNote -36) );
-	if ( !Preferences::getInstance()->__playselectedinstrument ) 
+	if ( !Preferences::get_instance()->__playselectedinstrument ) 
 		fStep = 1;
 
-	if ( Preferences::getInstance()->__playselectedinstrument ){
+	if ( Preferences::get_instance()->__playselectedinstrument ){
 		nInstrument = pEngine->getSelectedInstrumentNumber();
 		pInstr= pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
 	}
 
 	bool use_note_off = AudioEngine::get_instance()->get_sampler()->is_instrument_playing( pInstr );
 	if(use_note_off){
-		if ( Preferences::getInstance()->__playselectedinstrument ){
+		if ( Preferences::get_instance()->__playselectedinstrument ){
 			AudioEngine::get_instance()->get_sampler()->midi_keyboard_note_off( msg.m_nData1 );
 		}else
 		{
@@ -265,7 +265,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 			offnote->set_noteoff( true );
 			AudioEngine::get_instance()->get_sampler()->note_on( offnote );
 		}
-		if(Preferences::getInstance()->getRecordEvents())
+		if(Preferences::get_instance()->getRecordEvents())
 			AudioEngine::get_instance()->get_sampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
 	}
 }
@@ -303,8 +303,8 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	*/
 	
 	
-	ActionManager * aH = ActionManager::getInstance();
-	MidiMap * mM = MidiMap::getInstance();
+	ActionManager * aH = ActionManager::get_instance();
+	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	pEngine->lastMidiEventParameter = msg.m_nData1;

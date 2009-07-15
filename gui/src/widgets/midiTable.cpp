@@ -86,7 +86,7 @@ void MidiTable::updateTable()
 
 void MidiTable::insertNewRow(QString actionString , QString eventString, int eventParameter , int actionParameter)
 {
-	ActionManager *aH = ActionManager::getInstance();
+	ActionManager *aH = ActionManager::get_instance();
 
 	insertRow( __row_count );
 	
@@ -141,7 +141,7 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 
 void MidiTable::setupMidiTable()
 {
-	MidiMap *mM = MidiMap::getInstance();
+	MidiMap *mM = MidiMap::get_instance();
 
 	QStringList items;
 	items << "" << trUtf8("Event")  <<  trUtf8("Param.")  <<  trUtf8("Action") <<  trUtf8("Param.") ;
@@ -212,8 +212,7 @@ void MidiTable::setupMidiTable()
 
 void MidiTable::saveMidiTable()
 {
-	delete MidiMap::getInstance();
-	MidiMap *mM = MidiMap::getInstance();
+	MidiMap *mM = MidiMap::get_instance();
 	
 	for ( int row = 0; row < __row_count; row++ ) {
 

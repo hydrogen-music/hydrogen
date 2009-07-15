@@ -340,7 +340,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	selectLayer( m_nSelectedLayer );
 
-	HydrogenApp::getInstance()->addEventListener(this);
+	HydrogenApp::get_instance()->addEventListener(this);
 
 	selectedInstrumentChangedEvent(); 	// force an update
 }
@@ -356,7 +356,7 @@ InstrumentEditor::~InstrumentEditor()
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	AudioEngine::get_instance()->lock( "InstrumentEditor::selectedInstrumentChanged" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
@@ -413,14 +413,14 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
 		// instr mute group
-		QString sMuteGroup = to_string( m_pInstrument->get_mute_group());
+		QString sMuteGroup = QString("%1").arg( m_pInstrument->get_mute_group() );
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
                 m_pMuteGroupLCD->setText( sMuteGroup );		
 		
 		// midi out
-		QString sMidiOutChannel = to_string( m_pInstrument->get_midi_out_channel()+1);
+		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1);
 		if (m_pInstrument->get_midi_out_channel() == -1 ) {
 			sMidiOutChannel = "Off";
 		}
@@ -504,7 +504,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 				pLayer->set_pitch( nCoarse + fFine );
-				INFOLOG( "pitch: " + to_string( pLayer->get_pitch() ) );
+				INFOLOG( QString("pitch: %1").arg( pLayer->get_pitch() ) );
 			}
 		}
 		else if ( ref == m_pLayerPitchFineRotary ) {
@@ -514,7 +514,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 				pLayer->set_pitch( nCoarse + fFine );
-				INFOLOG( "pitch: " + to_string( pLayer->get_pitch()) );
+				INFOLOG( QString("pitch: %1").arg( pLayer->get_pitch()) );
 			}
 
 		}
@@ -567,7 +567,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 	}
 	else if ( pButton == m_pRemoveLayerBtn ) {
 		//Hydrogen *pEngine = Hydrogen::get_instance();
-		AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::deleteBtnClicked" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		if ( m_pInstrument ) {
 			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
@@ -586,7 +586,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 			if ( pLayer ) {
 				Sample* pSample = pLayer->get_sample();
 				QString name = pSample->get_filename();
-				HydrogenApp::getInstance()->showSampleEditor( name, m_nSelectedLayer );
+				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
 			}
 		}
 		
@@ -638,7 +638,7 @@ void InstrumentEditor::loadLayer()
 	
 			H2Core::Instrument *pInstr = NULL;
 	
-			AudioEngine::get_instance()->lock( "InstrumentPropertiesDialog::browseBtnClicked" );
+			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			Song *song = engine->getSong();
 			InstrumentList *instrList = song->get_instrument_list();
 			pInstr = instrList->get( engine->getSelectedInstrumentNumber() );

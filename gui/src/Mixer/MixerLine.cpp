@@ -132,7 +132,7 @@ MixerLine::MixerLine(QWidget* parent)
 		connect( m_pKnob[i], SIGNAL( valueChanged(Knob*) ), this, SLOT( knobChanged(Knob*) ) );
 	}
 
-	Preferences *pref = Preferences::getInstance();
+	Preferences *pref = Preferences::get_instance();
 
 	QString family = pref->getMixerFontFamily();
 	int size = pref->getMixerFontPointSize();
@@ -242,7 +242,7 @@ void MixerLine::faderChanged(Fader *ref)
 	char m_pFaderPos[100];
 	float value = ref->getValue();
 	sprintf( m_pFaderPos, "%#.2f",  value);
-	( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( m_pFaderPos ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( m_pFaderPos ), 2000 );
 }
 
 
@@ -379,7 +379,7 @@ void MixerLine::panChanged(Rotary *ref)
 
 	char m_pFaderPos[100];
 	sprintf( m_pFaderPos, "%#.2fL, %#.2fR",  pan_L, pan_R);
-	HydrogenApp::getInstance()->setStatusBarMessage( trUtf8( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
+	HydrogenApp::get_instance()->setStatusBarMessage( trUtf8( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
 
 	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
 }
@@ -432,7 +432,7 @@ void MixerLine::knobChanged(Knob* pRef)
 void MixerLine::setFXLevel( uint nFX, float fValue )
 {
 	if (nFX > MAX_FX) {
-		ERRORLOG( "[setFXLevel] nFX > MAX_FX (nFX=" + to_string(nFX) + ")" );
+		ERRORLOG( QString("[setFXLevel] nFX > MAX_FX (nFX=%1)").arg(nFX) );
 	}
 	m_pKnob[nFX]->setValue( fValue );
 }
@@ -440,7 +440,7 @@ void MixerLine::setFXLevel( uint nFX, float fValue )
 float MixerLine::getFXLevel(uint nFX)
 {
 	if (nFX > MAX_FX) {
-		ERRORLOG( "[setFXLevel] nFX > MAX_FX (nFX=" + to_string(nFX) + ")" );
+		ERRORLOG( QString("[setFXLevel] nFX > MAX_FX (nFX=%1)").arg(nFX) );
 	}
 	return m_pKnob[nFX]->getValue();
 }
@@ -486,7 +486,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	// Background image
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
-	Preferences *pref = Preferences::getInstance();
+	Preferences *pref = Preferences::get_instance();
 	int size = pref->getMixerFontPointSize();
 	QString family = pref->getMixerFontFamily();
 	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
@@ -563,7 +563,7 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 	char m_pMasterFaderPos[100];
 	float value = ref->getValue();
 	sprintf( m_pMasterFaderPos, "%#.2f",  value);
-	( HydrogenApp::getInstance() )->setStatusBarMessage( trUtf8( "Set master volume [%1]" ).arg( m_pMasterFaderPos ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set master volume [%1]" ).arg( m_pMasterFaderPos ), 2000 );
 }
 
 
@@ -688,7 +688,7 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	sprintf( sVal, "%#.2f", fVal);
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock("MasterMixerLine::knobChanged");
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->set_humanize_time_value( fVal );
@@ -708,7 +708,7 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 
 	AudioEngine::get_instance()->unlock();
 
-	( HydrogenApp::getInstance() )->setStatusBarMessage( sMsg, 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
 }
 
 
@@ -760,7 +760,7 @@ FxMixerLine::FxMixerLine(QWidget* parent)
 	activeBtn->setToolTip( trUtf8( "FX on/off") );
 	connect( activeBtn, SIGNAL( clicked(Button*) ), this, SLOT( click(Button*) ) );
 
-	Preferences *pref = Preferences::getInstance();
+	Preferences *pref = Preferences::get_instance();
 
 	// m_pFader
 	m_pFader = new Fader( this, false, false );
@@ -930,7 +930,7 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	m_nWidgetWidth = 17;
 	m_nWidgetHeight = 116;
 
-	Preferences *pref = Preferences::getInstance();
+	Preferences *pref = Preferences::get_instance();
 	QString family = pref->getMixerFontFamily();
 	int size = pref->getMixerFontPointSize();
 	m_mixerFont.setFamily( family );

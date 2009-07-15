@@ -266,7 +266,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
 	update();
-	HydrogenApp::getInstance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
 }
 
 

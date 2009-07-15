@@ -119,7 +119,7 @@ int OssDriver::connect()
 {
 	INFOLOG( "connect" );
 
-	Preferences *preferencesMng = Preferences::getInstance();
+	Preferences *preferencesMng = Preferences::get_instance();
 
 	// initialize OSS
 	int bits = 16;
@@ -276,7 +276,7 @@ unsigned OssDriver::getBufferSize()
 
 unsigned OssDriver::getSampleRate()
 {
-	Preferences *preferencesMng = Preferences::getInstance();
+	Preferences *preferencesMng = Preferences::get_instance();
 	return preferencesMng->m_nSampleRate;
 }
 

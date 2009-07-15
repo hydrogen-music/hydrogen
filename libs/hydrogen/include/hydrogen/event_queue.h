@@ -24,6 +24,7 @@
 #define EVENT_QUEUE_H
 
 #include <hydrogen/Object.h>
+#include <cassert>
 
 #define MAX_EVENTS 1024
 
@@ -59,7 +60,8 @@ public:
 class EventQueue : public Object
 {
 public:
-	static EventQueue* get_instance();
+	static void create_instance();
+	static EventQueue* get_instance() { assert(__instance); return __instance; }
 	~EventQueue();
 
 	void push_event( EventType type, int nValue );

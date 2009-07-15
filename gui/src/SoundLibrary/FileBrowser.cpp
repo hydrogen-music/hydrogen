@@ -186,7 +186,12 @@ void FileBrowser::updateFileInfo( QString sFilename, unsigned nSampleRate, unsig
 	//Sample* mySample = Sample::load(sFilename.toStdString());
 	//int nSamplerate = mySample->m_nSampleRate;
 
-	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) ).arg( sFilename, to_string( nSampleRate ), to_string( sFileSize ), sFileSizeUnit ) );
+	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) )
+			      .arg( sFilename )
+			      .arg( nSampleRate )
+			      .arg( sFileSize )
+			      .arg( sFileSizeUnit )
+	    );
 
 }
 

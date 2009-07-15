@@ -116,8 +116,8 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 {
 	INFOLOG( "INIT" );
-	m_nSampleRate = Preferences::getInstance()->m_nSampleRate;
-	m_sAlsaAudioDevice = Preferences::getInstance()->m_sAlsaAudioDevice;
+	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
+	m_sAlsaAudioDevice = Preferences::get_instance()->m_sAlsaAudioDevice;
 }
 
 AlsaAudioDriver::~AlsaAudioDriver()

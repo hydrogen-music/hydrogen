@@ -41,19 +41,19 @@ using namespace H2Core;
 int selectedSongNumber = -1;
 int activeSongNumber = -1;
 
-Playlist* Playlist::instance = NULL;	
+Playlist* Playlist::__instance = NULL;	
 
 
 Playlist::Playlist()
 		: Object( "Playlist" )
 {
-	if ( instance ) {class HydrogenApp;
+	if ( __instance ) {class HydrogenApp;
 
 		_ERRORLOG( "Playlist in use" );
 	}class HydrogenApp;
 
 	//_INFOLOG( "[Playlist]" );
-	instance = this;
+	__instance = this;
 
 }
 
@@ -62,17 +62,16 @@ Playlist::Playlist()
 Playlist::~Playlist()
 {
 	//_INFOLOG( "[~Playlist]" );
-	instance = NULL;
+	__instance = NULL;
 }
 
 
 
-Playlist* Playlist::get_instance()
+void Playlist::create_instance()
 {
-	if ( instance == NULL ) {
-		instance = new Playlist();
+	if ( __instance == 0 ) {
+		__instance = new Playlist;
 	}
-	return instance;
 }
 
 
@@ -94,7 +93,7 @@ void Playlist::setNextSongByNumber(int SongNumber)
 	loadSong( selected );
 	execScript( realNumber );
 
-	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 
@@ -125,7 +124,7 @@ void Playlist::setNextSongPlaylist()
 	loadSong( selected );
 	execScript( index );
 
-	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 
@@ -157,7 +156,7 @@ void Playlist::setPrevSongPlaylist()
 	loadSong( selected );
 	execScript( index );
 
-	HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 
@@ -193,7 +192,7 @@ int Playlist::getActiveSongNumber()
 void Playlist::loadSong( QString songName )
 {
 
-	HydrogenApp *pH2App = HydrogenApp::getInstance();
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	Hydrogen *engine = Hydrogen::get_instance();
 	
 

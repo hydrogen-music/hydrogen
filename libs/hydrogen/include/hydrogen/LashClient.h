@@ -34,9 +34,6 @@
 class LashClient
 {
 public:
-	/// Return the LashClient instance
-	static LashClient* getInstance();
-	
 	LashClient(const char* lashClass, const char* viewName, int* argc, char ***argv);
 	~LashClient();
 
@@ -60,7 +57,6 @@ private:
 	lash_client_t* lashClient;
 	std::string jackClientName;
 	unsigned char alsaClientId;
-	static LashClient* instance;
 };
 
 #endif // LASH_CLIENT

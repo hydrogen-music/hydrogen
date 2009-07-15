@@ -59,7 +59,7 @@ int main( int argc, char* argv[] )
 
 				delete H2Core::AudioEngine::get_instance();
 				delete H2Core::EventQueue::get_instance();
-				delete H2Core::Preferences::getInstance();
+				delete H2Core::Preferences::get_instance();
 				delete Logger::get_instance();
 
 				std::cout << std::endl << std::endl << Object::get_objects_number() << " alive objects" << std::endl << std::endl;

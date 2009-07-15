@@ -343,7 +343,7 @@ void SampleEditor::createNewLayer()
 							    m_repeats,
 							    m_sample_mode);
 
-		AudioEngine::get_instance()->lock( "SampeEditor::insert new sample" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		H2Core::Instrument *m_pInstrument = NULL;
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -492,7 +492,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 void SampleEditor::on_PlayPushButton_clicked()
 {
 
-	const int selectedlayer = InstrumentEditorPanel::getInstance()->getselectedLayer();
+	const int selectedlayer = InstrumentEditorPanel::get_instance()->getselectedLayer();
 	const float pan_L = 0.5f;
 	const float pan_R = 0.5f;
 	const int nLength = -1;

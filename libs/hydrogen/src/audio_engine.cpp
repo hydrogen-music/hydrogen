@@ -23,10 +23,10 @@
 #include <hydrogen/audio_engine.h>
 
 #include <hydrogen/fx/Effects.h>
-#include <hydrogen/sequencer/Sequencer.h>
 #include <hydrogen/sampler/Sampler.h>
 
 #include <hydrogen/hydrogen.h>	// TODO: remove this line as soon as possible
+#include <cassert>
 
 namespace H2Core
 {
@@ -35,32 +35,30 @@ namespace H2Core
 AudioEngine* AudioEngine::__instance = NULL;
 
 
-
-AudioEngine* AudioEngine::get_instance()
+void AudioEngine::create_instance()
 {
-	if ( __instance == NULL ) {
-		__instance = new AudioEngine();
+	if( __instance == 0 ) {
+		__instance = new AudioEngine;
 	}
-	return __instance;
 }
-
-
 
 AudioEngine::AudioEngine()
 		: Object( "AudioEngine" )
 		, __sampler( NULL )
 		, __synth( NULL )
-		, __locker( "" )
 {
 	INFOLOG( "INIT" );
 
 	pthread_mutex_init( &__engine_mutex, NULL );
 
+	__sampler = new Sampler;
+	__synth = new Synth;
+
 #ifdef LADSPA_SUPPORT
-	Effects::getInstance();
+	Effects::get_instance();
 #endif
 
-//	Sequencer::getInstance();
+//	Sequencer::get_instance();
 }
 
 
@@ -69,10 +67,10 @@ AudioEngine::~AudioEngine()
 {
 	INFOLOG( "DESTROY" );
 #ifdef LADSPA_SUPPORT
-	delete Effects::getInstance();
+	delete Effects::get_instance();
 #endif
 
-//	delete Sequencer::getInstance();
+//	delete Sequencer::get_instance();
 	delete __sampler;
 	delete __synth;
 }
@@ -81,10 +79,7 @@ AudioEngine::~AudioEngine()
 
 Sampler* AudioEngine::get_sampler()
 {
-	if ( !__sampler ) {
-		__sampler = new Sampler();
-	}
-
+	assert(__sampler);
 	return __sampler;
 }
 
@@ -93,38 +88,30 @@ Sampler* AudioEngine::get_sampler()
 
 Synth* AudioEngine::get_synth()
 {
-	if ( !__synth ) {
-		__synth = new Synth();
-	}
-
+	assert(__synth);
 	return __synth;
 }
 
-
-
-
-void AudioEngine::lock( const QString& locker )
+void AudioEngine::lock( const char* file, unsigned int line, const char* function )
 {
-	int res = pthread_mutex_trylock( &__engine_mutex );
-	if ( res != 0 ) {
-		WARNINGLOG( QString( "trylock != 0. Lock in %1. I'll wait for the mutex." ).arg( __locker ) );
-		pthread_mutex_lock( &__engine_mutex );
-	}
-
-	__locker = locker;
+	pthread_mutex_lock( &__engine_mutex );
+	__locker.file = file;
+	__locker.line = line;
+	__locker.function = function;
 }
 
 
 
-bool AudioEngine::try_lock( const QString& locker )
+bool AudioEngine::try_lock( const char* file, unsigned int line, const char* function )
 {
 	int res = pthread_mutex_trylock( &__engine_mutex );
 	if ( res != 0 ) {
-		WARNINGLOG( "trylock != 0. Lock in " + __locker );
+		// Lock not obtained
 		return false;
 	}
-	__locker = locker;
-
+	__locker.file = file;
+	__locker.line = line;
+	__locker.function = function;
 	return true;
 }
 
@@ -132,6 +119,7 @@ bool AudioEngine::try_lock( const QString& locker )
 
 void AudioEngine::unlock()
 {
+	// Leave "__locker" dirty.
 	pthread_mutex_unlock( &__engine_mutex );
 }
 

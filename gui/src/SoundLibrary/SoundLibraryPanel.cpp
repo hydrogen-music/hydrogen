@@ -117,8 +117,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 
 	this->setLayout( pVBox );
 
-	__expand_pattern_list = Preferences::getInstance()->__expandPatternItem;
-	__expand_songs_list = Preferences::getInstance()->__expandSongItem;
+	__expand_pattern_list = Preferences::get_instance()->__expandPatternItem;
+	__expand_songs_list = Preferences::get_instance()->__expandSongItem;
 
 	updateDrumkitList();
 }
@@ -523,9 +523,9 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
-	HydrogenApp::getInstance()->onDrumkitLoad( drumkitInfo->getName() );
-	HydrogenApp::getInstance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
-	HydrogenApp::getInstance()->getPatternEditorPanel()->updatePianorollEditor();
+	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->getName() );
+	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 	__sound_library_tree->currentItem()->setBackgroundColor ( 0, QColor( 50, 50, 50) );
 	QApplication::restoreOverrideCursor();
 
@@ -703,7 +703,7 @@ void SoundLibraryPanel::on_instrumentDeleteAction()
 void SoundLibraryPanel::on_songLoadAction()
 {
 	QString songName = __sound_library_tree->currentItem()->text( 0 );
-	QString sDirectory = Preferences::getInstance()->getDataDirectory()  + "songs";
+	QString sDirectory = Preferences::get_instance()->getDataDirectory()  + "songs";
 
 	QString sFilename = sDirectory + "/" + songName + ".h2song";
 	
@@ -721,13 +721,13 @@ void SoundLibraryPanel::on_songLoadAction()
 	}
 
 	// add the new loaded song in the "last used song" vector
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	std::vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
-	HydrogenApp* h2app = HydrogenApp::getInstance();
+	HydrogenApp* h2app = HydrogenApp::get_instance();
 
 	h2app->setSong( pSong );
 
@@ -776,7 +776,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 		song->__is_modified = true;
 	}
 
-	HydrogenApp::getInstance()->getSongEditorPanel()->updateAll();
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
 
@@ -826,7 +826,7 @@ void SoundLibraryPanel::test_expandedItems()
 	assert( __sound_library_tree );
 	__expand_songs_list = __sound_library_tree->isItemExpanded( __song_item );
 	__expand_pattern_list = __sound_library_tree->isItemExpanded( __pattern_item );
-	Preferences::getInstance()->__expandSongItem = __expand_songs_list;
-	Preferences::getInstance()->__expandPatternItem = __expand_pattern_list;
+	Preferences::get_instance()->__expandSongItem = __expand_songs_list;
+	Preferences::get_instance()->__expandPatternItem = __expand_pattern_list;
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }

@@ -58,7 +58,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
 
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 
@@ -141,7 +141,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
-	AudioEngine::get_instance()->lock( "LayerPreview::selectedInstrumentChangedEvent" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
@@ -214,7 +214,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 					if ( i != m_nSelectedLayer ) {
 						m_nSelectedLayer = i;
 						update();
-						InstrumentEditorPanel::getInstance()->selectLayer( m_nSelectedLayer );
+						InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
 					}
 					break;
 				}
@@ -226,7 +226,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 
 		update();
-		InstrumentEditorPanel::getInstance()->selectLayer( m_nSelectedLayer );
+		InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
 
 		if ( m_pInstrument->get_layer( m_nSelectedLayer ) ) {
 			Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );

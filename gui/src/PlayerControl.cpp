@@ -486,8 +486,8 @@ PlayerControl::~PlayerControl() {
 
 void PlayerControl::updatePlayerControl()
 {
-	Preferences *pPref = Preferences::getInstance();
-	HydrogenApp *pH2App = HydrogenApp::getInstance();
+	Preferences *pPref = Preferences::get_instance();
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
 
@@ -608,7 +608,7 @@ void PlayerControl::updatePlayerControl()
 
 	// time
 	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
-	if ( Preferences::getInstance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
+	if ( Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
 		fFrames =  m_pEngine->getHumantimeFrames();
 	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
 	if ( fSampleRate != 0 ) {
@@ -644,7 +644,7 @@ void PlayerControl::updatePlayerControl()
 	switch (beatstocountondisplay){
 		case 1 :
 			if (bcDisplaystatus == 1){
-				Preferences::getInstance()->m_bbc = Preferences::BC_OFF;
+				Preferences::get_instance()->m_bbc = Preferences::BC_OFF;
 				bcDisplaystatus = 0;
 			}
 			sprintf(bcstatus, "R");
@@ -652,8 +652,8 @@ void PlayerControl::updatePlayerControl()
 				
 			break;
 		default:
-			if (Preferences::getInstance()->m_bbc == Preferences::BC_OFF){
-				Preferences::getInstance()->m_bbc = Preferences::BC_ON;
+			if (Preferences::get_instance()->m_bbc == Preferences::BC_OFF){
+				Preferences::get_instance()->m_bbc = Preferences::BC_ON;
 				bcDisplaystatus = 1;
 			}
 			sprintf(bcstatus, "%02d ", beatstocountondisplay -1);
@@ -670,12 +670,12 @@ void PlayerControl::updatePlayerControl()
 void PlayerControl::recBtnClicked(Button* ref) {
 	if ( m_pEngine->getState() != STATE_PLAYING ) {
 		if (ref->isPressed()) {
-			Preferences::getInstance()->setRecordEvents(true);
-			(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Record midi events = On" ), 2000 );
+			Preferences::get_instance()->setRecordEvents(true);
+			(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Record midi events = On" ), 2000 );
 		}
 		else {
-			Preferences::getInstance()->setRecordEvents(false);
-			(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Record midi events = Off" ), 2000 );
+			Preferences::get_instance()->setRecordEvents(false);
+			(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Record midi events = Off" ), 2000 );
 		}
 	}
 }
@@ -684,15 +684,15 @@ void PlayerControl::recBtnClicked(Button* ref) {
 /// Toggle destructive/nondestructive move
 void PlayerControl::recBtnRightClicked(Button* ref) {
 	UNUSED( ref );
-	if ( Preferences::getInstance()->getDestructiveRecord() ) {
-		Preferences::getInstance()->setDestructiveRecord(false);
-		(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Destructive mode = Off" ), 2000 );
+	if ( Preferences::get_instance()->getDestructiveRecord() ) {
+		Preferences::get_instance()->setDestructiveRecord(false);
+		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Destructive mode = Off" ), 2000 );
 	}
 	else {
-		Preferences::getInstance()->setDestructiveRecord(true);
-		(HydrogenApp::getInstance())->setScrollStatusBarMessage(trUtf8("Destructive mode = On" ), 2000 );
+		Preferences::get_instance()->setDestructiveRecord(true);
+		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Destructive mode = On" ), 2000 );
 	}
-	HydrogenApp::getInstance()->enableDestructiveRecMode();
+	HydrogenApp::get_instance()->enableDestructiveRecMode();
 }
 
 
@@ -700,12 +700,12 @@ void PlayerControl::recBtnRightClicked(Button* ref) {
 void PlayerControl::playBtnClicked(Button* ref) {
 	if (ref->isPressed()) {
 		m_pEngine->sequencer_play();
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Playing."), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Playing."), 5000);
 	}
 	else {
 //		m_pPlayBtn->setPressed(true);
 		m_pEngine->sequencer_stop();
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Pause."), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Pause."), 5000);
 	}
 }
 
@@ -719,7 +719,7 @@ void PlayerControl::stopBtnClicked(Button* ref)
 	m_pPlayBtn->setPressed(false);
 	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );
-	(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Stopped."), 5000);
+	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Stopped."), 5000);
 }
 
 
@@ -738,13 +738,13 @@ void PlayerControl::switchModeBtnClicked(Button* ref)
 		m_pEngine->getSong()->set_mode( Song::SONG_MODE );
 		m_pSongModeBtn->setPressed(true);
 		m_pLiveModeBtn->setPressed(false);
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
 	}
 	else {
 		m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
 		m_pSongModeBtn->setPressed(false);
 		m_pLiveModeBtn->setPressed(true);
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
 	}
 }
 
@@ -761,7 +761,7 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 	m_pEngine->getSong()->set_mode( Song::SONG_MODE );
 	m_pSongModeBtn->setPressed(true);
 	m_pLiveModeBtn->setPressed(false);
-	(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
+	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
 }
 
 
@@ -777,7 +777,7 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 	//m_pEngine->sequencer_setNextPattern( m_pEngine->getSelectedPatternNumber() );	// imposto il pattern correntemente selezionato come il prossimo da suonare
 	m_pSongModeBtn->setPressed(false);
 	m_pLiveModeBtn->setPressed(true);
-	(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
+	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
 }
 
 
@@ -793,7 +793,7 @@ void PlayerControl::bpmChanged() {
 
 	m_pEngine->getSong()->__is_modified = true;
 
-	AudioEngine::get_instance()->lock("PlayerControl::bpmChanged");
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	m_pEngine->setBPM( fNewBpmValue );
 	AudioEngine::get_instance()->unlock();
 }
@@ -803,16 +803,16 @@ void PlayerControl::bpmChanged() {
 //beatcounter
 void PlayerControl::bconoffBtnClicked( Button* )
 {
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 	if (m_pBConoffBtn->isPressed()) {
 		pPref->m_bbc = Preferences::BC_ON;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" BC Panel on"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" BC Panel on"), 5000);
 		m_pControlsBCPanel->show();
 		
 	}
 	else {
 		pPref->m_bbc = Preferences::BC_OFF;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" BC Panel off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" BC Panel off"), 5000);
 		m_pControlsBCPanel->hide();
 	}
 	
@@ -820,15 +820,15 @@ void PlayerControl::bconoffBtnClicked( Button* )
 
 void PlayerControl::bcSetPlayBtnClicked( Button* )
 {
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 	if (m_pBCSetPlayBtn->isPressed()) {
 		pPref->m_mmcsetplay = Preferences::SET_PLAY_ON;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Count BPM and start PLAY"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" Count BPM and start PLAY"), 5000);
 		
 	}
 	else {
 		pPref->m_mmcsetplay = Preferences::SET_PLAY_OFF;
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Count and set BPM"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" Count and set BPM"), 5000);
 	}
 		
 }
@@ -898,19 +898,19 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 
 void PlayerControl::jackTransportBtnClicked( Button* )
 {
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	if (m_pJackTransportBtn->isPressed()) {
-		AudioEngine::get_instance()->lock( "PlayerControl::jackTransportBtnClicked" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Jack-transport mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Jack-transport mode = On"), 5000);
 	}
 	else {
-		AudioEngine::get_instance()->lock( "PlayerControl::jackTransportBtnClicked" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8("Jack-transport mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Jack-transport mode = Off"), 5000);
 	}
 
 	if (pPref->m_sAudioDriver != "Jack") {
@@ -923,21 +923,21 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 void PlayerControl::jackMasterBtnClicked( Button* )
 {	
 #ifdef JACK_SUPPORT
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	if (m_pJackMasterBtn->isPressed()) {
-		AudioEngine::get_instance()->lock( "PlayerControl::jackMasterBtnClicked" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = On"), 5000);
 		Hydrogen::get_instance()->onJackMaster();
 		
 	}
 	else {
-		AudioEngine::get_instance()->lock( "PlayerControl::jackMasterBtnClicked" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::getInstance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = Off"), 5000);
 		//m_pControlsBBTPanel->hide();
 		Hydrogen::get_instance()->offJackMaster();
 	}
@@ -960,7 +960,7 @@ void PlayerControl::bpmClicked()
 
 		m_pEngine->getSong()->__is_modified  = true;
 
-		AudioEngine::get_instance()->lock( "PlayerControl::bpmChanged");
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		m_pEngine->setBPM( fNewVal );
 		AudioEngine::get_instance()->unlock();
 	}
@@ -1025,16 +1025,16 @@ void PlayerControl::songLoopBtnClicked( Button* )
 	song->__is_modified = true;
 
 	if ( song->is_loop_enabled() ) {
-		HydrogenApp::getInstance()->setStatusBarMessage(trUtf8("Loop song = On"), 5000);
+		HydrogenApp::get_instance()->setStatusBarMessage(trUtf8("Loop song = On"), 5000);
 	}
 	else {
-		HydrogenApp::getInstance()->setStatusBarMessage(trUtf8("Loop song = Off"), 5000);
+		HydrogenApp::get_instance()->setStatusBarMessage(trUtf8("Loop song = Off"), 5000);
 	}
 }
 
 void PlayerControl::metronomeButtonClicked(Button* ref)
 {
-	Preferences::getInstance()->m_bUseMetronome = ref->isPressed();
+	Preferences::get_instance()->m_bUseMetronome = ref->isPressed();
 }
 
 
@@ -1042,7 +1042,7 @@ void PlayerControl::metronomeButtonClicked(Button* ref)
 void PlayerControl::showButtonClicked( Button* pRef )
 {
 	//INFOLOG( "[showButtonClicked]" );
-	HydrogenApp *pH2App = HydrogenApp::getInstance();
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
 
 	if ( pRef == m_pShowMixerBtn ) {
 		bool isVisible = pH2App->getMixer()->isVisible();
@@ -1121,7 +1121,7 @@ MetronomeWidget::MetronomeWidget(QWidget *pParent)
  , m_state( METRO_OFF )
 {
 //	INFOLOG( "INIT" );
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_metro_off.load( Skin::getImagePath() + "/playerControlPanel/metronome_off.png" );
 	m_metro_on_firstbeat.load( Skin::getImagePath() + "/playerControlPanel/metronome_up.png" );

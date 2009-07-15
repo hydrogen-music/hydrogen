@@ -67,7 +67,7 @@ CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
 	connect( timer, SIGNAL( timeout() ), this, SLOT( updateCpuLoadWidget() ) );
 	timer->start(200);	// update player control at 5 fps
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 

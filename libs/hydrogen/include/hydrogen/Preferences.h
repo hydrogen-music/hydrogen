@@ -26,6 +26,7 @@
 #include <list>
 //#include <string>
 #include <vector>
+#include <cassert>
 
 #include <hydrogen/action.h>
 #include <hydrogen/globals.h>
@@ -215,7 +216,8 @@ public:
 	QString m_sDefaultEditor;
 
 	/// Returns an instance of PreferencesMng class
-	static Preferences* getInstance();
+	static void create_instance();
+	static Preferences* get_instance() { assert(__instance); return __instance; }
 
 	~Preferences();
 
@@ -492,7 +494,7 @@ public:
 	}
 
 private:
-	static Preferences *instance;
+	static Preferences *__instance;
 
 	QString m_sDataDirectory;
 

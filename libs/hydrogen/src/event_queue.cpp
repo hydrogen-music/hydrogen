@@ -27,12 +27,11 @@ namespace H2Core
 
 EventQueue* EventQueue::__instance = NULL;
 
-EventQueue* EventQueue::get_instance()
+void EventQueue::create_instance()
 {
-	if ( !__instance ) {
-		__instance = new EventQueue();
+	if ( __instance == 0 ) {
+		__instance = new EventQueue;
 	}
-	return __instance;
 }
 
 

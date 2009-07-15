@@ -133,7 +133,14 @@ void Note::set_instrument( Instrument* instrument )
 
 void Note::dumpInfo()
 {
-	INFOLOG( "pos: " + to_string( get_position() ) + "\t humanize offset" + to_string(m_nHumanizeDelay) + "\t instr: " + __instrument->get_name()+ "\t key: " + keyToString( m_noteKey ) + "\t pitch: " + to_string( get_pitch() ) + "\t noteoff: " + to_string( get_noteoff() ) );
+    INFOLOG( QString("pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5")
+	     .arg( get_position() )
+	     .arg( m_nHumanizeDelay )
+	     .arg( __instrument->get_name() )
+	     .arg( keyToString( m_noteKey ) )
+	     .arg( get_pitch() )
+	     .arg( get_noteoff() )
+	);
 }
 
 
@@ -234,7 +241,7 @@ QString Note::keyToString( NoteKey key )
 
 	}
 
-	sKey += to_string( key.m_nOctave );
+	sKey += QString( key.m_nOctave );
 
 	return sKey;
 }

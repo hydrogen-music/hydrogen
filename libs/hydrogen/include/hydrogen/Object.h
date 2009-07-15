@@ -33,19 +33,7 @@
 #include <vector>
 #include <sstream>
 #include <pthread.h>
-
-
-// LOG MACROS
-
-#define _INFOLOG(x) Logger::get_instance()->info_log( __PRETTY_FUNCTION__, "", x );
-#define _WARNINGLOG(x) Logger::get_instance()->warning_log( __PRETTY_FUNCTION__, "", x );
-#define _ERRORLOG(x) Logger::get_instance()->error_log( __PRETTY_FUNCTION__, "", x );
-
-#define INFOLOG(x) Logger::get_instance()->info_log( __FUNCTION__, get_class_name(), x );
-#define WARNINGLOG(x) Logger::get_instance()->warning_log( __FUNCTION__, get_class_name(), x );
-#define ERRORLOG(x) Logger::get_instance()->error_log( __FUNCTION__, get_class_name(), x );
-
-
+#include <cassert>
 
 class Object;
 
@@ -55,26 +43,71 @@ class Object;
 class Logger
 {
 public:
+	/* The log level setting is internally a bit-masked integer.
+	 * These are the bits.  It is valid for the log level to *not*
+	 * be one of these explicitly... however, you won't get proper
+	 * syntax highlighting.  E.g. ~0 will log, but won't get any
+	 * syntax highlighting.  Same with Error|Warning.
+	 *
+	 * This also allows for (future) debugging profiles.  For
+	 * example, if you only want to turn on log messages in a
+	 * specific section of code, you might do Logger::log( 0x80,
+	 * ... ), and set the logging level to 0x80 or 0x81 (to
+	 * include Error logs) with your debugger.
+	 */
+	typedef enum _log_level {
+		None = 0,
+		Error = 1,
+		Warning = 2,
+		Info = 4,
+		Debug = 8,
+                AELockTracing = 0x10
+	} log_level_t;
+	typedef std::list<QString> queue_t;
+
 	bool __use_file;
 	bool __running;
-	std::vector<QString> __msg_queue;
-	pthread_mutex_t __logger_mutex;
 
-	static Logger* get_instance();
+	static void create_instance();
+	static Logger* get_instance() { assert(__instance); return __instance; }
 
 	/** Destructor */
 	~Logger();
 
-	void info_log( const char* funcname, const QString& class_name, const QString& msg );
-	void warning_log( const char* funcname, const QString& class_name, const QString& msg );
-	void error_log( const char* funcname, const QString& class_name, const QString& msg );
+	static void set_log_level(unsigned lev) { __log_level = lev; }
+	static unsigned get_log_level() { return __log_level; }
+
+	void log( unsigned lev, const char* funcname, const QString& class_name, const QString& msg );
+
+	friend void* loggerThread_func(void* param);  // object.cpp
 
 private:
 	static Logger *__instance;
 
+	/* __msg_queue needs to be a list type (e.g. std::list<>)
+	 * because of the following properties:
+	 *
+	 * - Constant time insertion/removal of elements
+	 * - Changing the list does not invalidate its iterators.
+	 *
+	 * However, the __mutex class member is here for safe access
+	 * to __msg_queue.  It should only be locked when you are
+	 * adding or removing elements to the END of the list.  This
+	 * works because:
+	 *
+	 * - Only one thread is referencing and removing elements
+	 *   from the beginning (the Logger thread).
+	 *
+	 * - While many threads are adding elements, they are only
+	 *   adding elements to the END of the list.
+	 *
+	 */
+	pthread_mutex_t __mutex;  // Lock for adding or removing elements only
+	queue_t __msg_queue;
+	static unsigned __log_level; // A bitmask of log_level_t
+
 	/** Constructor */
 	Logger();
-
 
 };
 
@@ -100,7 +133,7 @@ public:
 
 	static int get_objects_number();
 	static void print_object_map();
-	static void use_verbose_log( bool verbose );
+	static void set_logging_level( const char* level ); // May be None, Error, Warning, Info, or Debug
 	static bool is_using_verbose_log();
 
 private:
@@ -110,31 +143,32 @@ private:
 	QString __class_name;
 };
 
+// LOG MACROS
 
-// some useful functions..
+/* __LOG_WRAPPER enables us to filter out log messages _BEFORE_ the
+ * function call.  This is good, because it avoids QString
+ * constructors for temporaries.
+ */
+#define __LOG_WRAPPER(lev, funct, class_n, msg) {			\
+		if( Logger::get_log_level() & (lev) ){			\
+			Logger::get_instance()->log(			\
+				(lev),					\
+				(funct),				\
+				(class_n),				\
+				(msg)					\
+				);					\
+		}							\
+	}
 
-template <class T>
-inline QString to_string( const T& t )
-{
-	std::ostringstream osstream;
-	osstream << t;
+#define _INFOLOG(x) __LOG_WRAPPER( Logger::Info, __PRETTY_FUNCTION__, "", (x) );
+#define _WARNINGLOG(x) __LOG_WRAPPER( Logger::Warning, __PRETTY_FUNCTION__, "", (x) );
+#define _ERRORLOG(x) __LOG_WRAPPER( Logger::Error, __PRETTY_FUNCTION__, "", (x) );
 
-	return QString( osstream.str().c_str() );
-}
+#define INFOLOG(x) __LOG_WRAPPER( Logger::Info, __FUNCTION__, get_class_name(), (x) );
+#define WARNINGLOG(x) __LOG_WRAPPER( Logger::Warning, __FUNCTION__, get_class_name(), (x) );
+#define ERRORLOG(x) __LOG_WRAPPER( Logger::Error, __FUNCTION__, get_class_name(), (x) );
 
-inline int string_to_int( const QString& str )
-{
-	std::istringstream isstream( str.toStdString() );
-	int t;
-	isstream >> t;
-	return t;
-}
-inline float string_to_float( const QString& str )
-{
-	std::istringstream isstream( str.toStdString() );
-	float t;
-	isstream >> t;
-	return t;
-}
 
-#endif
+
+
+#endif // H2_OBJECT_H

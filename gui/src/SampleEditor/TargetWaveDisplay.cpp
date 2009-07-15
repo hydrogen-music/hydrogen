@@ -219,7 +219,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	int snapradius = 10;
-	QString editType = HydrogenApp::getInstance()->getSampleEditor()->EditTypeComboBox->currentText();
+	QString editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentText();
 
 
 
@@ -308,7 +308,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	update();
-	HydrogenApp::getInstance()->getSampleEditor()->setTrue();
+	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
 }
 
 
@@ -320,7 +320,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	bool newpoint = true;
 
 	// add new point
-	QString editType = HydrogenApp::getInstance()->getSampleEditor()->EditTypeComboBox->currentText();
+	QString editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentText();
 
 
 	///edit volume points
@@ -415,7 +415,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	}
 
 	update();
-	HydrogenApp::getInstance()->getSampleEditor()->setTrue();
+	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
 }
 
 
@@ -425,5 +425,5 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
 	update();
-	HydrogenApp::getInstance()->getSampleEditor()->returnAllTargetDisplayValues();
+	HydrogenApp::get_instance()->getSampleEditor()->returnAllTargetDisplayValues();
 }

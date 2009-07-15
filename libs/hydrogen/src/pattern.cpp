@@ -66,7 +66,7 @@ void Pattern::purge_instrument( Instrument * I )
 		
 		if ( pNote->get_instrument() == I ) {
 			if ( !locked ) {
-				H2Core::AudioEngine::get_instance()->lock("Pattern::purge_instrument");
+				H2Core::AudioEngine::get_instance()->lock( RIGHT_HERE );
 				locked = true;
 			}
 			slate.push_back( pNote );
@@ -144,7 +144,7 @@ void Pattern::debug_dump()
 	INFOLOG( "Pattern dump" );
 	INFOLOG( "Pattern name: " + __name );
 	INFOLOG( "Pattern category: " + __category );
-	INFOLOG( "Pattern length: " + to_string( get_length() ) );
+	INFOLOG( QString("Pattern length: %1").arg( get_length() ) );
 }
 
 
@@ -205,7 +205,10 @@ void PatternList::add( Pattern* newPattern )
 Pattern* PatternList::get( int nPos )
 {
 	if ( nPos >= ( int )list.size() ) {
-		ERRORLOG( "Pattern index out of bounds. nPos > list.size() - " + to_string( nPos ) + " > " + to_string( list.size() ) );
+		ERRORLOG( QString("Pattern index out of bounds. nPos > list.size() - %1 > %2")
+			  .arg( nPos )
+			  .arg( list.size() )
+			);
 		return NULL;
 	}
 //	assert( nPos < (int)list.size() );
@@ -232,7 +235,10 @@ void PatternList::clear()
 void PatternList::replace( Pattern* newPattern, unsigned int pos )
 {
 	if ( pos >= ( unsigned )list.size() ) {
-		ERRORLOG( "Pattern index out of bounds in PatternList::replace. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
+		ERRORLOG( QString("Pattern index out of bounds in PatternList::replace. pos >= list.size() - %1 > %2")
+			  .arg( pos )
+			  .arg( list.size() )
+			);
 		return;
 	}
 	list.insert( list.begin() + pos, newPattern );	// insert the new pattern
@@ -291,7 +297,10 @@ void PatternList::set_to_old()
 void PatternList::del( unsigned pos )
 {
 	if ( pos >= ( unsigned )list.size() ) {
-		ERRORLOG( "Pattern index out of bounds in PatternList::del. pos >= list.size() - " + to_string( pos ) + " > " + to_string( list.size() ) );
+		ERRORLOG( QString("Pattern index out of bounds in PatternList::del. pos >= list.size() - %1 > %2")
+			  .arg( pos )
+			  .arg( list.size() )
+			);
 		return;
 	}
 	list.erase( list.begin()+pos );
