@@ -1910,12 +1910,11 @@ void Hydrogen::addRealtimeNote( int instrument,
 	
 
 	// quantize it to scale
-	int qcolumn = ( int )::round( column / ( double )scalar ) * scalar;
+	unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
 	
 	//we have to make sure that no beat is added on the last displayed note in a bar
 	//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
 	if ( qcolumn == currentPattern->get_length() ) qcolumn = 0;
-
 
 	if ( pref->getQuantizeEvents() ) {
 		column = qcolumn;
