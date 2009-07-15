@@ -34,7 +34,7 @@
 #include <hydrogen/action.h>
 #include <map>
 
-ActionManager* ActionManager::instance = NULL;
+ActionManager* ActionManager::__instance = NULL;
 
 using namespace H2Core;
 
@@ -98,16 +98,14 @@ ActionManager::ActionManager() : Object( "ActionManager" ) {
 
 ActionManager::~ActionManager(){
 	//INFOLOG( "ActionManager delete" );
-	instance = NULL;
+	__instance = NULL;
 }
 
-ActionManager* ActionManager::getInstance()
+void ActionManager::create_instance()
 {
-	if ( instance == NULL ) {
-		instance = new ActionManager();
+	if ( __instance == 0 ) {
+		__instance = new ActionManager;
 	}
-			
-	return instance;
 }
 
 
@@ -494,7 +492,7 @@ bool ActionManager::handleAction( Action * pAction ){
 		 * this is useful if the bpm is set by a rotary control knob
 		*/
 
-		AudioEngine::get_instance()->lock( "Action::BPM_CC_RELATIVE" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		int mult = 1;	
 
@@ -531,7 +529,7 @@ bool ActionManager::handleAction( Action * pAction ){
 
 
 	if( sActionString == "BPM_INCR" ){
-		AudioEngine::get_instance()->lock( "Action::BPM_INCR" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		int mult = 1;	
 
@@ -551,7 +549,7 @@ bool ActionManager::handleAction( Action * pAction ){
 
 
 	if( sActionString == "BPM_DECR" ){
-		AudioEngine::get_instance()->lock( "Action::BPM_DECR" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		int mult = 1;	
 

@@ -132,8 +132,8 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//reload if necessary
 	if ( reload == true ){
-		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-		HydrogenApp::getInstance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 	}
 
 	accept();

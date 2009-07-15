@@ -48,7 +48,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	}
 	categoryComboBox->addItem( category );
 
-	Preferences *pPref = H2Core::Preferences::getInstance();
+	Preferences *pPref = H2Core::Preferences::get_instance();
 
 	std::list<QString>::const_iterator cur_patternCategories;
 	
@@ -89,7 +89,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	QString pattName = patternNameTxt->text();
 	QString pattCategory = categoryComboBox->currentText();
 
-	Preferences *pPref = H2Core::Preferences::getInstance();
+	Preferences *pPref = H2Core::Preferences::get_instance();
 	std::list<QString>::const_iterator cur_testpatternCategories;
 
 	bool test = true;

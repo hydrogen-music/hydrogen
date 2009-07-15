@@ -47,7 +47,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent )
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy(Qt::ClickFocus);
 
-	unsigned nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
+	unsigned nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
 	unsigned nEditorWidth = 20 + nGridWidth * ( MAX_NOTES * 4 );
 	unsigned nEditorHeight = m_nOctaves * 12 * m_nRowHeight;
@@ -59,7 +59,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent )
 
 	createBackground();
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 
@@ -192,7 +192,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	}
 
 
-	int nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
+	int nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
 	uint start_x = 20 + pNote->get_position() * nGridWidth;
 	uint start_y = height() - m_nRowHeight - ( m_nRowHeight * pNote->m_noteKey.m_key + ( 12 * pNote->m_noteKey.m_nOctave ) * m_nRowHeight ) + 1;

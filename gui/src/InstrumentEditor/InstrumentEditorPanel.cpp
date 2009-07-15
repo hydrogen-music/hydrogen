@@ -31,7 +31,7 @@
 
 InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = NULL;
 
-InstrumentEditorPanel* InstrumentEditorPanel::getInstance()
+InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 {
 	if ( m_pInstance == NULL  ) {
 		m_pInstance = new InstrumentEditorPanel( NULL );

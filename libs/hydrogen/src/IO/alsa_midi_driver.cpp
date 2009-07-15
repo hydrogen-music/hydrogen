@@ -83,8 +83,8 @@ void* alsaMidiDriver_thread( void* param )
 	clientId = snd_seq_client_id( seq_handle );
 
 #ifdef LASH_SUPPORT
-	if ( Preferences::getInstance()->useLash() ){
-		LashClient* lashClient = LashClient::getInstance();
+	if ( Preferences::get_instance()->useLash() ){
+		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient && lashClient->isConnected())
 		{
 			lashClient->setAlsaClientId((unsigned char) clientId);
@@ -96,7 +96,7 @@ void* alsaMidiDriver_thread( void* param )
 	int m_local_addr_port = portId;
 	int m_local_addr_client = clientId;
 
-	QString sPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sPortName = Preferences::get_instance()->m_sMidiPortName;
 	int m_dest_addr_port = -1;
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );

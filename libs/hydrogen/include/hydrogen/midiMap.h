@@ -24,22 +24,29 @@
 
 
 #include <map>
+#include <cassert>
+#include <QtCore/QMutex>
 
 class Action;
 
 class MidiMap : public Object
 {
 	public:
+		typedef std::map< QString, Action* > map_t;
 		static MidiMap* __instance;
 		~MidiMap();
 
-		static MidiMap* getInstance();
+		static void create_instance();
+		static void reset_instance();  // convenience accessor to reset()
+		static MidiMap* get_instance() { assert(__instance); return __instance; }
+
+		void reset();  // Reinitializes the object.
 
 		void registerMMCEvent( QString, Action* );
 		void registerNoteEvent( int , Action* );
 		void registerCCEvent( int , Action * );
 
-		std::map< QString, Action* > getMMCMap();
+		map_t getMMCMap();
 
 		Action* getMMCAction( QString );
 		Action* getNoteAction( int note );
@@ -53,6 +60,7 @@ class MidiMap : public Object
 		Action* __note_array[ 128 ];
 		Action* __cc_array[ 128 ];
 
-		std::map< QString, Action* > mmcMap;
+		map_t mmcMap;
+		QMutex __mutex;
 };
 #endif

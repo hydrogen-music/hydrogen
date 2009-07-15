@@ -75,9 +75,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 
 	// Create the audio engine :)
-	Hydrogen::get_instance();
+	Hydrogen::create_instance();
 	Hydrogen::get_instance()->setSong( pFirstSong );
-	Preferences::getInstance()->setLastSongFilename( pFirstSong->get_filename() );
+	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 
 	// set initial title
 	QString qsSongName( pFirstSong->__name );
@@ -87,7 +87,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	}
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + qsSongName ) );
 
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	setupSinglePanedInterface();
 
@@ -137,9 +137,9 @@ HydrogenApp::~HydrogenApp()
 
 
 /// Return an HydrogenApp m_pInstance
-HydrogenApp* HydrogenApp::getInstance() {
+HydrogenApp* HydrogenApp::get_instance() {
 	if (m_pInstance == NULL) {
-		std::cerr << "Error! HydrogenApp::getInstance (m_pInstance = NULL)" << std::endl;
+		std::cerr << "Error! HydrogenApp::get_instance (m_pInstance = NULL)" << std::endl;
 	}
 	return m_pInstance;
 }
@@ -149,7 +149,7 @@ HydrogenApp* HydrogenApp::getInstance() {
 
 void HydrogenApp::setupSinglePanedInterface()
 {
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -262,7 +262,7 @@ void HydrogenApp::setSong(Song* song)
 	}
 
 	Hydrogen::get_instance()->setSong( song );
-	Preferences::getInstance()->setLastSongFilename( song->get_filename() );
+	Preferences::get_instance()->setLastSongFilename( song->get_filename() );
 
 	m_pSongEditorPanel->updateAll();
 	m_pPatternEditorPanel->updateSLnameLabel();
@@ -352,13 +352,13 @@ void HydrogenApp::showInfoSplash()
 	}
 	INFOLOG( "[showInfoSplash] Selected news: " + sFilename );
 
-	QString sLastRead = Preferences::getInstance()->getLastNews();
+	QString sLastRead = Preferences::get_instance()->getLastNews();
 	if ( sLastRead != sFilename && sFilename != "" ) {
 		QString sDocURI = sDocPath;
 		sDocURI.append( "/" ).append( sFilename );
 		SimpleHTMLBrowser *m_pFirstTimeInfo = new SimpleHTMLBrowser( m_pMainForm, sDocPath, sDocURI, SimpleHTMLBrowser::WELCOME );
 		if ( m_pFirstTimeInfo->exec() == QDialog::Accepted ) {
-			Preferences::getInstance()->setLastNews( sFilename );
+			Preferences::get_instance()->setLastNews( sFilename );
 		}
 	}
 }
@@ -424,7 +424,7 @@ void HydrogenApp::onEventQueueTimer()
 					break;
 
 				default:
-					ERRORLOG( "[onEventQueueTimer] Unhandled event: " + to_string( event.type ) );
+					ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
 
 		}

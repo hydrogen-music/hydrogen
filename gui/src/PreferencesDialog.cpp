@@ -54,7 +54,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setMinimumSize( width(), height() );
 	setMaximumSize( width(), height() );
 
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences
 
 	driverComboBox->clear();
@@ -148,7 +148,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			sampleRateComboBox->setCurrentIndex( 3 );
 			break;
 		default:
-			ERRORLOG( "Wrong samplerate: " + to_string( pPref->m_nSampleRate ) );
+			ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
 	}
 
 
@@ -178,7 +178,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		mixerFalloffComboBox->setCurrentIndex(2);
 	}
 	else {
-		ERRORLOG( "PreferencesDialog: wrong mixerFalloff value = " + to_string(falloffSpeed) );
+		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg(falloffSpeed) );
 	}
 
 	// Style
@@ -258,7 +258,7 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::on_cancelBtn_clicked()
 {
-	Preferences *preferencesMng = Preferences::getInstance();
+	Preferences *preferencesMng = Preferences::get_instance();
 	preferencesMng->loadPreferences( false );	// reload old user's preferences
 
 	//restore the right m_bsetlash value
@@ -278,7 +278,7 @@ void PreferencesDialog::on_okBtn_clicked()
 {
 	m_bNeedDriverRestart = true;
 
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	midiTable->saveMidiTable();
 
@@ -419,7 +419,7 @@ void PreferencesDialog::on_driverComboBox_activated( int index )
 
 void PreferencesDialog::updateDriverInfo()
 {
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 	QString info = "";
 
 	bool bJack_support = false;
@@ -543,7 +543,7 @@ void PreferencesDialog::updateDriverInfo()
 
 void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 {
-	Preferences *preferencesMng = Preferences::getInstance();
+	Preferences *preferencesMng = Preferences::get_instance();
 
 	QString family = preferencesMng->getApplicationFontFamily();
 	int pointSize = preferencesMng->getApplicationFontPointSize();
@@ -596,7 +596,7 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 
 void PreferencesDialog::on_selectMixerFontBtn_clicked()
 {
-	Preferences *preferencesMng = Preferences::getInstance();
+	Preferences *preferencesMng = Preferences::get_instance();
 
 	QString family = preferencesMng->getMixerFontFamily();
 	int pointSize = preferencesMng->getMixerFontPointSize();
@@ -629,11 +629,11 @@ void PreferencesDialog::on_midiPortComboBox_activated( int index )
 void PreferencesDialog::on_styleComboBox_activated( int index )
 {
 	UNUSED( index );
-	QApplication *pQApp = (HydrogenApp::getInstance())->getMainForm()->m_pQApp;
+	QApplication *pQApp = (HydrogenApp::get_instance())->getMainForm()->m_pQApp;
 	QString sStyle = styleComboBox->currentText();
 	pQApp->setStyle( sStyle );
 
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 	pPref->setQTStyle( sStyle );
 }
 
@@ -642,11 +642,11 @@ void PreferencesDialog::on_styleComboBox_activated( int index )
 void PreferencesDialog::on_useLashCheckbox_clicked()
 {
 	if ( useLashCheckbox->isChecked() ){
-		Preferences::getInstance()->m_brestartLash = true;
+		Preferences::get_instance()->m_brestartLash = true;
 	}
 	else
 	{
-		 Preferences::getInstance()->m_bsetLash = false ;
+		 Preferences::get_instance()->m_bsetLash = false ;
 	}
 	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
@@ -654,6 +654,6 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 // See JackOutput::getArdourTransportAdjustment()
 void PreferencesDialog::on_ardourTransportWorkaround_stateChanged( int state )
 {
-	Preferences::getInstance()->m_nJackArdourTransportWorkaround
+	Preferences::get_instance()->m_nJackArdourTransportWorkaround
 		= (state == Qt::Checked) ? true : false;
 }

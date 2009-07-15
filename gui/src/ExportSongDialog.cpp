@@ -46,7 +46,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	setWindowTitle( trUtf8( "Export song" ) );
 //	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() ) );
 	m_pProgressBar->setValue( 0 );
@@ -56,7 +56,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 ExportSongDialog::~ExportSongDialog()
 {
-	HydrogenApp::getInstance()->removeEventListener( this );
+	HydrogenApp::get_instance()->removeEventListener( this );
 }
 
 

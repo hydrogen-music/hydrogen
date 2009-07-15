@@ -63,9 +63,9 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	tree->resize( 799, 310 );
 	tree->header()->resizeSection( 0, 405 );
 	tree->setAlternatingRowColors( true );
-	tree->setRootIndex( model->index( Preferences::getInstance()->__lastsampleDirectory ) );
+	tree->setRootIndex( model->index( Preferences::get_instance()->__lastsampleDirectory ) );
 	
-	pathLineEdit->setText( Preferences::getInstance()->__lastsampleDirectory );
+	pathLineEdit->setText( Preferences::get_instance()->__lastsampleDirectory );
 	m_psamplefilename = "";	
 	m_pselectedFile << "false" << "false";
 
@@ -75,7 +75,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
 	m_pSampleWaveDisplay->move( 3, 3 );
 
-	playSamplescheckBox->setChecked( Preferences::getInstance()->__playsamplesonclicking );
+	playSamplescheckBox->setChecked( Preferences::get_instance()->__playsamplesonclicking );
 
 	connect( tree, SIGNAL( clicked( const QModelIndex&) ), SLOT( clicked( const QModelIndex& ) ) );
 	connect( pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() ) );	
@@ -242,7 +242,7 @@ void AudioFileBrowser::on_m_pStopBtn_clicked()
 
 void AudioFileBrowser::on_cancelBTN_clicked()
 {
-	Preferences::getInstance()->__lastsampleDirectory = pathLineEdit->text();
+	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
 	m_pselectedFile << "false" << "false" << "";
 	reject();
 }
@@ -276,7 +276,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 			++i;++i;++i;
 		}
 	}
-	Preferences::getInstance()->__lastsampleDirectory = pathLineEdit->text();
+	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
 	accept();
 }
 
@@ -284,7 +284,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 
 void AudioFileBrowser::on_playSamplescheckBox_clicked()
 {
-	Preferences::getInstance()->__playsamplesonclicking = playSamplescheckBox->isChecked();
+	Preferences::get_instance()->__playsamplesonclicking = playSamplescheckBox->isChecked();
 }
 
 

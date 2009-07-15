@@ -60,7 +60,7 @@ MidiActivityWidget::MidiActivityWidget( QWidget * parent )
 	connect( timer, SIGNAL( timeout() ), this, SLOT( updateMidiActivityWidget() ) );
 	timer->start(200);	// update at 5 fps
 
-	HydrogenApp::getInstance()->addEventListener(this);
+	HydrogenApp::get_instance()->addEventListener(this);
 }
 
 

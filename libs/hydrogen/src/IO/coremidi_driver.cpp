@@ -99,7 +99,7 @@ CoreMidiDriver::CoreMidiDriver()
 	INFOLOG( "INIT" );
 	OSStatus err = noErr;
 
-	QString sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
 	err = MIDIInputPortCreate ( h2MIDIClient, CFSTR( "h2InputPort" ), midiProc, this, &h2InputRef );
 }
@@ -123,7 +123,7 @@ void CoreMidiDriver::open()
 
 	OSStatus err = noErr;
 
-	QString sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 
 	cmSources = MIDIGetNumberOfSources();
 	unsigned i;

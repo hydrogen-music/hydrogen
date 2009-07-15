@@ -62,12 +62,11 @@ Effects::Effects()
 
 
 
-Effects* Effects::getInstance()
+void Effects::create_instance()
 {
-	if ( m_pInstance == NULL ) {
-		m_pInstance = new Effects();
+	if ( m_pInstance == 0 ) {
+		m_pInstance = new Effects;
 	}
-	return m_pInstance;
 }
 
 
@@ -104,7 +103,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	assert( nFX < MAX_FX );
 	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + to_string( nFX ) );
 
-	AudioEngine::get_instance()->lock( "Effects::setLadspaFX" );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 
 	if ( m_FXList[ nFX ] ) {
@@ -115,7 +114,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	m_FXList[ nFX ] = pFX;
 	
 	if ( pFX != NULL ) {
-		Preferences::getInstance()->setMostRecentFX( pFX->getPluginName() );
+		Preferences::get_instance()->setMostRecentFX( pFX->getPluginName() );
 		updateRecentGroup();
 	}
 
@@ -134,7 +133,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 		return m_pluginList;
 	}
 
-	vector<QString> ladspaPathVect = Preferences::getInstance()->getLadspaPath();
+	vector<QString> ladspaPathVect = Preferences::get_instance()->getLadspaPath();
 	INFOLOG( QString( "PATHS: %1" ).arg( ladspaPathVect.size() ) );
 	for ( vector<QString>::iterator i = ladspaPathVect.begin(); i != ladspaPathVect.end(); i++ ) {
 		QString sPluginDir = *i;
@@ -278,7 +277,7 @@ void Effects::updateRecentGroup()
 	
 
 	QString sRecent; // The recent fx names sit in the preferences object
-	foreach ( sRecent, Preferences::getInstance()->getRecentFX() ) {
+	foreach ( sRecent, Preferences::get_instance()->getRecentFX() ) {
 		for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
 			if ( sRecent == (*i)->m_sName ) {
 				m_pRecentGroup->addLadspaInfo( *i );

@@ -42,7 +42,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	//infoLog( "INIT" );
 
-	Preferences *pPref = Preferences::getInstance();
+	Preferences *pPref = Preferences::get_instance();
 
 	//QColor backgroundColor(230, 230, 230);
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
@@ -50,7 +50,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 
 	m_pPattern = NULL;
-	m_nGridWidth = Preferences::getInstance()->getPatternEditorGridWidth();
+	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
 	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
@@ -69,7 +69,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 
@@ -177,7 +177,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor textColor( 100, 100, 100 );
 	QColor lineColor( 170, 170, 170 );
 
-	Preferences *pref = Preferences::getInstance();
+	Preferences *pref = Preferences::get_instance();
 	QString family = pref->getApplicationFontFamily();
 	int size = pref->getApplicationFontPointSize();
 	QFont font( family, size );
@@ -191,7 +191,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
-			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, to_string( i / 4 + 1 ) );
+			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString("%1").arg(i / 4 + 1) );
 //			ERRORLOG(QString("nText_x: %1, true, value: %2").arg(nText_x).arg(i / 4 + 1));
 		}
 		else {
@@ -222,7 +222,7 @@ void PatternEditorRuler::zoomIn()
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	m_pBackground->fill( backgroundColor );
 	update();
@@ -242,7 +242,7 @@ void PatternEditorRuler::zoomOut()
 	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	m_pBackground->fill( backgroundColor );
 	update();

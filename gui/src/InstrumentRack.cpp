@@ -80,7 +80,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 //~ TAB buttons
 
 
-	InstrumentEditorPanel::getInstance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	m_pSoundLibraryPanel = new SoundLibraryPanel( NULL );
 
@@ -90,7 +90,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pGrid->setMargin( 0 );
 
 	pGrid->addWidget( pTabButtonsPanel, 0, 0, 1, 3 );
-	pGrid->addWidget( InstrumentEditorPanel::getInstance(), 2, 1 );
+	pGrid->addWidget( InstrumentEditorPanel::get_instance(), 2, 1 );
 	pGrid->addWidget( m_pSoundLibraryPanel, 2, 1 );
 
 	this->setLayout( pGrid );
@@ -113,7 +113,7 @@ void InstrumentRack::on_showSoundLibraryBtnClicked()
 	m_pShowInstrumentEditorBtn->setPressed( false );
 
 	m_pSoundLibraryPanel->show();
-	InstrumentEditorPanel::getInstance()->hide();
+	InstrumentEditorPanel::get_instance()->hide();
 }
 
 
@@ -123,7 +123,7 @@ void InstrumentRack::on_showInstrumentEditorBtnClicked()
 	m_pShowInstrumentEditorBtn->setPressed( true );
 	m_pShowSoundLibraryBtn->setPressed( false );
 
-	InstrumentEditorPanel::getInstance()->show();
+	InstrumentEditorPanel::get_instance()->show();
 	m_pSoundLibraryPanel->hide();
 }
 

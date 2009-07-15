@@ -43,7 +43,6 @@
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 
-
 #include <iostream>
 using namespace std;
 
@@ -53,13 +52,13 @@ void showUsage();
 
 #define HAS_ARG 1
 static struct option long_opts[] = {
-        {"driver", HAS_ARG, NULL, 'd'},
-        {"song", HAS_ARG, NULL, 's'},
-        {"version", 0, NULL, 'v'},
-        {"nosplash", 0, NULL, 'n'},
-	{"verbose", 0, NULL, 'V'},
+	{"driver", required_argument, NULL, 'd'},
+	{"song", required_argument, NULL, 's'},
+	{"version", 0, NULL, 'v'},
+	{"nosplash", 0, NULL, 'n'},
+	{"verbose", optional_argument, NULL, 'V'},
 	{"help", 0, NULL, 'h'},
-        {0, 0, 0, 0},
+	{0, 0, 0, 0},
 };
 
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
@@ -126,21 +125,10 @@ void setPalette( QApplication *pQApp )
 int main(int argc, char *argv[])
 {
 	try {
-
-		QString songFilename = "";
-		bool bNoSplash = false;
-		QString sSelectedDriver = "";
-
-#ifdef CONFIG_DEBUG
-		Object::use_verbose_log( true );
-#endif
-
-
-
 		// Options...
 		char *cp;
 		struct option *op;
-		char opts[NELEM(long_opts) * 2 + 1];
+		char opts[NELEM(long_opts) * 3 + 1];
 
 		// Build up the short option QString
 		cp = opts;
@@ -148,11 +136,20 @@ int main(int argc, char *argv[])
 			*cp++ = op->val;
 			if (op->has_arg)
 				*cp++ = ':';
+			if (op->has_arg == optional_argument )
+				*cp++ = ':';  // gets another one
 		}
 
 		QApplication* pQApp = new QApplication(argc, argv);
 
 		// Deal with the options
+		QString songFilename;
+		bool bNoSplash = false;
+		QString sSelectedDriver;
+		bool showVersionOpt = false;
+		const char* logLevelOpt = "Error";
+		bool showHelpOpt = false;
+
 		int c;
 		for (;;) {
 			c = getopt_long(argc, argv, opts, long_opts, NULL);
@@ -169,33 +166,49 @@ int main(int argc, char *argv[])
 					break;
 
 				case 'v':
-					std::cout << get_version() << std::endl;
-					exit(0);
+					showVersionOpt = true;
 					break;
 
 				case 'V':
-					Object::use_verbose_log( true );
+					if( optarg ) {
+						logLevelOpt = optarg;
+					} else {
+						logLevelOpt = "Warning";
+					}
 					break;
-
 				case 'n':
 					bNoSplash = true;
 					break;
 
 				case 'h':
 				case '?':
-					showInfo();
-					showUsage();
-					exit(0);
+					showHelpOpt = true;
 					break;
 			}
 		}
 
+		if( showVersionOpt ) {
+			std::cout << get_version() << std::endl;
+			exit(0);
+		}
 		showInfo();
+		if( showHelpOpt ) {
+			showUsage();
+			exit(0);
+		}
+
+		// Man your battle stations... this is not a drill.
+		Logger::create_instance();
+		MidiMap::create_instance();
+		H2Core::Preferences::create_instance();
+		Object::set_logging_level( logLevelOpt );
+		// See below for H2Core::Hydrogen.
+
 
 		_INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		_INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
 
-		H2Core::Preferences *pPref = H2Core::Preferences::getInstance();
+		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 
 #ifdef LASH_SUPPORT
 
@@ -271,7 +284,7 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef LASH_SUPPORT
-	if ( H2Core::Preferences::getInstance()->useLash() ){	
+	if ( H2Core::Preferences::get_instance()->useLash() ){	
 		if (lashClient->isConnected())
 		{
 			lash_event_t* lash_event = lashClient->getNextEvent();
@@ -284,20 +297,21 @@ int main(int argc, char *argv[])
 				songFilename.append(lash_event_get_string(lash_event));
 				songFilename.append("/hydrogen.h2song"); 
 				
-//				Logger::getInstance()->log("[LASH] Restore file: " + songFilename);
+//				Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
 	
 				lash_event_destroy(lash_event);
 			}
 			else if (lash_event)
 			{
-//				Logger::getInstance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+//				Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
 				lash_event_destroy(lash_event);
 			}
 		}
 	}	
 #endif
 
-		
+		// Hydrogen here to honor all preferences.
+		H2Core::Hydrogen::create_instance();
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );
@@ -311,8 +325,8 @@ int main(int argc, char *argv[])
 		delete H2Core::EventQueue::get_instance();
 		delete H2Core::AudioEngine::get_instance();
 
-		delete MidiMap::getInstance();
-		delete ActionManager::getInstance();
+		delete MidiMap::get_instance();
+		delete ActionManager::get_instance();
 
 		_INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;
@@ -320,7 +334,7 @@ int main(int argc, char *argv[])
 
 		int nObj = Object::get_objects_number();
 		if (nObj != 0) {
-			std::cerr << "\n\n\n " << to_string( nObj ).toStdString() << " alive objects\n\n" << std::endl << std::endl;
+			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
 			Object::print_object_map();
 		}
 
@@ -374,7 +388,8 @@ void showUsage()
 		  << "                          from a crash." << std::endl;
 #endif
 	std::cout << "   -n, --nosplash - Hide splash screen" << std::endl;
-	std::cout << "   -V, --verbose - Print a lot of debugging info" << std::endl;
+	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
+	std::cout << "                 Level, if present, may be None, Error, Warning, Info, or 0xHHHH" << std::endl;
 	std::cout << "   -v, --version - Show version info" << std::endl;
 	std::cout << "   -h, --help - Show this help message" << std::endl;
 }

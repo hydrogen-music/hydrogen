@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 
 	QString filename = argv[1];
 
-	H2Core::Preferences *preferences = H2Core::Preferences::getInstance();
+	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 	H2Core::AudioEngine::get_instance();
 
 	H2Core::Song *pSong = H2Core::Song::load( filename );

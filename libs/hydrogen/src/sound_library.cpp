@@ -118,7 +118,11 @@ void Drumkit::dump()
 	INFOLOG( "\t|- Instrument list" );
 	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->get_size(); ++nInstrument ) {
 		Instrument *pInstr = m_pInstrumentList->get( nInstrument );
-		INFOLOG( "\t\t|- (" + to_string( nInstrument ) + " of " + to_string( m_pInstrumentList->get_size() ) + ") Name = " + pInstr->get_name() );
+		INFOLOG( QString("\t\t|- (%1 of %2) Name = %3")
+			 .arg( nInstrument )
+			 .arg( m_pInstrumentList->get_size() )
+			 .arg( pInstr->get_name() )
+			);
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 			InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
 			if ( pLayer ) {
@@ -141,7 +145,7 @@ void Drumkit::dump()
 void Drumkit::install( const QString& filename )
 {
 	_INFOLOG( "[Drumkit::install] drumkit = " + filename );
-	QString dataDir = Preferences::getInstance()->getDataDirectory() + "drumkits/";
+	QString dataDir = Preferences::get_instance()->getDataDirectory() + "drumkits/";
 
 	int r;
 	struct archive *drumkitFile;
@@ -189,7 +193,7 @@ void Drumkit::install( const QString& filename )
 void Drumkit::install( const QString& filename )
 {
         _INFOLOG( "[Drumkit::install] drumkit = " + filename );
-        QString dataDir = Preferences::getInstance()->getDataDirectory() + "drumkits/";
+        QString dataDir = Preferences::get_instance()->getDataDirectory() + "drumkits/";
 
         // GUNZIP !!!
         QString gunzippedName = filename.left( filename.indexOf( "." ) );
@@ -306,7 +310,7 @@ void Drumkit::removeDrumkit( const QString& sDrumkitName )
 {
 	_INFOLOG( "Removing drumkit: " + sDrumkitName );
 
-	QString dataDir = Preferences::getInstance()->getDataDirectory() + "drumkits/";
+	QString dataDir = Preferences::get_instance()->getDataDirectory() + "drumkits/";
 	dataDir += sDrumkitName;
 	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
 	_INFOLOG( cmd );

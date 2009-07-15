@@ -70,14 +70,11 @@ public:
 	void preview_sample( Sample* sample, int length );
 	void preview_instrument( Instrument* instr );
 
-	void set_audio_output( AudioOutput* audio_output );
 	void makeTrackOutputQueues();
 
 
 private:
 	std::vector<Note*> __playing_notes_queue;
-	static Sampler* __instance;
-	AudioOutput* __audio_output;
 
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;

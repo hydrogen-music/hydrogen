@@ -62,7 +62,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 #ifdef LADSPA_SUPPORT
 	//Song *pSong = Hydrogen::get_instance()->getSong();
-	LadspaFX *pFX = Effects::getInstance()->getLadspaFX(nLadspaFX);
+	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();
 	}
@@ -102,7 +102,7 @@ void LadspaFXSelector::buildLadspaGroups()
 // 	m_pGroupsListView->addTopLevelItem( pRootItem );
 // 	m_pGroupsListView->setItemExpanded( pRootItem, true );
 	
-	H2Core::LadspaFXGroup* pFXGroup = Effects::getInstance()->getLadspaFXGroup();
+	H2Core::LadspaFXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
 	for (uint i = 0; i < pFXGroup->getChildList().size(); i++) {
 		H2Core::LadspaFXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
 		addGroup( m_pGroupsListView, pNewGroup );
@@ -179,7 +179,7 @@ void LadspaFXSelector::pluginSelected()
 	m_sSelectedPluginName = sSelected;
 
 
-	std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::getInstance()->getPluginList();
+	std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
 	for (uint i = 0; i < pluginList.size(); i++) {
 		H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 		if (pFXInfo->m_sName == m_sSelectedPluginName ) {
@@ -242,7 +242,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 // 		m_pPluginsListBox->takeItem( 0 );    // This way of clearing the list causes multiple signal emissions,
 // 	}                                            // each time calling pluginSelected().  Jakob.
 
-	H2Core::LadspaFXGroup* pFXGroup = Effects::getInstance()->getLadspaFXGroup();
+	H2Core::LadspaFXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
 
 	std::vector<H2Core::LadspaFXInfo*> pluginList = findPluginsInGroup( itemText, pFXGroup );
 	

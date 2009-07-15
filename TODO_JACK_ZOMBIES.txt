@@ -1,0 +1,72 @@
+TODO FOR JACK ZOMBIES BRANCH
+============================
+
+Created:  2009-06-13
+
+ABSTRACT
+--------
+
+This branch addresses issues from tickets 37, 85, and 101.[1] As it
+happens, Hydrogen is doing several things inside of
+audioEngine_process() that are not appropriate for real-time
+programming.  Hydrogen is using dynamic memory allocation (malloc/new)
+and waiting on I/O (locking a mutex in the Logger).  This branch aims
+to fix these issues.
+
+TODO LIST
+---------
+
+(X) Remove the 'new' from the *::get_instance() methods.
+
+(X) Change the logger so that it does not block while doing I/O.
+
+(X) Change the logger so that error message inclusion/exclusion can be
+    changed at run-time.  When log messages are not used, it should be
+    very low overhead.
+
+(X) Inspect the audio engine state (e.g. STATE_READY) inside
+    audioEngine_process() and provide a very fast "short circuit"
+    whenever we are less than ready.  While doing this, review the
+    lock and what it means.  The try_lock() _seems_ to make
+    sense... but if it's _ever_ locked, then we will skip a process()
+    cycle.  This can't be allowed -- but in practice does not seem to
+    happen.  (Strike that... it *does* happen in practice.)
+
+(X) 'hydrogen --help' should _not_ create an instance of everything.
+    Anything, really.
+
+(X) Should H2Core::logLevel be a member of class Logger?
+
+(X) hydrogen.cpp reports an unused parameter because I moved a section
+    of code around.  The result is that the error code is not being
+    check like it probably should be.  Need to fix that part.
+
+(X) I switched to the Alsa driver... which didn't work because JACK
+    was running.  When I switched back to the JACK driver, it crashed
+    with a segfault.  (Turns out, this was caused by that unused
+    parameter.)
+
+( ) A few parts of the program are using std::vector for queues, which
+    is not appropriate because std::vector::push_back() could require
+    a total re-allocation of the vector's memory.  For most of these
+    queues, look in to using std::list or std::slist.
+
+(X) Provide some documentation for class Logger's mutex.  It only
+    needs to be locked when manipulating the _end_ of the list
+    (e.g. std::list::push_back()).  The rest does not need to be
+    locked because it is _only_ referenced by and removed by the
+    logger thread.
+
+( ) Perform a static code analysis on everything called by
+    audioEngine_process()... looking for real-time programming
+    violations.  Take corrective measures.
+
+(X) Not a "zombies" issue... but when I start H2 with the
+    `--driver=foo' or `--driver foo' parameter, it gets ignored.
+
+FOOTNOTES
+---------
+
+[1] http://trac.assembla.com/hydrogen/ticket/37
+    http://trac.assembla.com/hydrogen/ticket/85
+    http://trac.assembla.com/hydrogen/ticket/101

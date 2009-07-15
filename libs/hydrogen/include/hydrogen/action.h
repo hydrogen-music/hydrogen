@@ -24,6 +24,7 @@
 #include <hydrogen/Object.h>
 #include <map>
 #include <string>
+#include <cassert>
 
 using namespace std;
 
@@ -67,14 +68,15 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
 class ActionManager : public Object
 {
 	private:
-		static ActionManager *instance;
+		static ActionManager *__instance;
 		QStringList actionList;
 		QStringList eventList;
 
 	public:
 		bool handleAction( Action * );
 		
-		static ActionManager* getInstance();
+		static void create_instance();
+		static ActionManager* get_instance() { assert(__instance); return __instance; }
 		
 		QStringList getActionList(){
 			return actionList;

@@ -112,7 +112,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 			if ( pSample == NULL ) {
 				_ERRORLOG( "Error loading sample. Creating a new empty layer." );
 				if ( is_live )
-					AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+					AudioEngine::get_instance()->lock( RIGHT_HERE );
 				
 				this->set_layer( NULL, nLayer );
 				
@@ -128,7 +128,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 			 pLayer->set_pitch(pNewLayer->get_pitch()); 
 
 			if ( is_live )
-				AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+				AudioEngine::get_instance()->lock( RIGHT_HERE );
 			
 			this->set_layer( pLayer, nLayer );	// set the new layer
 			
@@ -139,7 +139,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 		} else {
 			InstrumentLayer *pOldLayer = this->get_layer( nLayer );
 			if ( is_live )
-				AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+				AudioEngine::get_instance()->lock( RIGHT_HERE );
 			
 			this->set_layer( NULL, nLayer );
 			
@@ -150,7 +150,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 
 	}
 	if ( is_live )
-		AudioEngine::get_instance()->lock( "Hydrogen::loadDrumkit" );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 	
 	// update instrument properties
 	this->set_id( placeholder->get_id() );

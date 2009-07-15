@@ -46,7 +46,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	//infoLog("INIT");
 	//setAttribute(Qt::WA_NoBackground);
 
-	m_nGridWidth = (Preferences::getInstance())->getPatternEditorGridWidth();
+	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 
 	if (m_mode == VELOCITY ) {
@@ -67,7 +67,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	updateEditor();
 	show();
 
-	HydrogenApp::getInstance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 
@@ -125,7 +125,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::getInstance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
 		else if ( m_mode == PAN ){
 			float pan_L, pan_R;
@@ -152,12 +152,12 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 				char valueChar[100];
 				if (pNote->get_leadlag() < 0.0) {
 					sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::getInstance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
 				} else if (pNote->get_leadlag() > 0.0) {
 					sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::getInstance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
 				} else {
-					HydrogenApp::getInstance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 				}
 
 			}
@@ -223,7 +223,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
-			( HydrogenApp::getInstance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
 		else if ( m_mode == PAN ){
 			float pan_L, pan_R;
@@ -259,12 +259,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
 			char valueChar[100];
 			if (pNote->get_leadlag() < 0.0) {
 				sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-				HydrogenApp::getInstance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+				HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
 			} else if (pNote->get_leadlag() > 0.0) {
 				sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-				HydrogenApp::getInstance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+				HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
 			} else {
-				HydrogenApp::getInstance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+				HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 			}
 		}
 
@@ -297,7 +297,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		return;
 	}
 
-	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	H2RGBColor valueColor(
 			(int)( pStyle->m_patternEditor_backgroundColor.getRed() * ( 1 - 0.3 ) ),
@@ -462,7 +462,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	}
 
 
-	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 
@@ -619,7 +619,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	}
  
  
-	UIStyle *pStyle = Preferences::getInstance()->getDefaultUIStyle();
+	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	QColor blackKeysColor( 240, 240, 240 );

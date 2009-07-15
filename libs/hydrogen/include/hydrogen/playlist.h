@@ -30,7 +30,7 @@
 #include <hydrogen/hydrogen.h>
 #include "gui/src/HydrogenApp.h"
 #include <vector>
-
+#include <cassert>
 
 
 
@@ -43,7 +43,8 @@ class Playlist :  public Object
 {
 	
 	public:
-		static Playlist* get_instance();
+		static void create_instance();
+		static Playlist* get_instance() { assert(__instance); return __instance; }
 		
 		~Playlist();
 
@@ -63,7 +64,7 @@ class Playlist :  public Object
 
 	private:
 
-		static Playlist* instance;
+		static Playlist* __instance;
 
 		/// Constructor
 		Playlist();

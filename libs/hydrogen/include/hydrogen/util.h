@@ -19,54 +19,28 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-/*
-#include <hydrogen/sequencer/Sequencer.h>
+
+#ifndef H2CORE_UTIL_H
+#define H2CORE_UTIL_H
 
 namespace H2Core
 {
 
+    /** Converts a hex string to an integer.
+     *
+     * 'str' may optionally begin with "0x".  If 0x is
+     * given, it must be included in the 'len' parameter.
+     *
+     * If len = -1, then 'str' will be considered null-terminated.
+     *
+     * 'str' may be in upper or lower case.
+     *
+     * If there's an error, empty string, leading space, etc.,
+     * it will return 0.
+     */
+    int hextoi(const char* str, long len);
 
-Sequencer* Sequencer::m_pInstance = NULL;
-
-
-
-Sequencer* Sequencer::getInstance()
-{
-	if ( !m_pInstance ) {
-		m_pInstance = new Sequencer();
-	}
-	return m_pInstance;
-}
-
-
-
-Sequencer::Sequencer()
-		: Object( "Sequencer" )
-{
-	INFOLOG( "INIT" );
-}
+}; // namepace H2Core
 
 
-
-Sequencer::~Sequencer()
-{
-	INFOLOG( "DESTROY" );
-}
-
-
-
-void Sequencer::start()
-{
-	ERRORLOG( "not implemented yet" );
-}
-
-
-
-void Sequencer::stop()
-{
-	ERRORLOG( "not implemented yet" );
-}
-
-
-}
-*/
+#endif // H2CORE_UTIL_H
