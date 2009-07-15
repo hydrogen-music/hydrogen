@@ -654,7 +654,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 		// Layer PITCH
 		//int nCoarsePitch = pLayer->m_fPitch / 24 + 0.5;
-		int nCoarsePitch = (int)pLayer->get_pitch();
+		int nCoarsePitch = (int) ::round(pLayer->get_pitch());
 		float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
 		//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
 		m_pLayerPitchCoarseRotary->setValue( nCoarsePitch );
