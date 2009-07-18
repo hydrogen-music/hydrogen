@@ -27,7 +27,7 @@
 namespace H2Core
 {
 
-inline static float linear_interpolation( float fVal_A, float fVal_B, float fVal )
+inline static float linear_interpolation( float fVal_A, float fVal_B, double fVal )
 {
 	return fVal_A * ( 1 - fVal ) + fVal_B * fVal;
 //	return fVal_A + fVal * ( fVal_B - fVal_A );

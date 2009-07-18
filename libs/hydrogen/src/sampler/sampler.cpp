@@ -526,7 +526,7 @@ int Sampler::__render_note_resample(
 
 	int nInitialBufferPos = nInitialSilence;
 	float fInitialSamplePos = pNote->m_fSamplePosition;
-	float fSamplePos = pNote->m_fSamplePosition;
+	double fSamplePos = pNote->m_fSamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 	int nInstrument = pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
 
@@ -564,7 +564,7 @@ int Sampler::__render_note_resample(
 		}
 
 		int nSamplePos = ( int )fSamplePos;
-		float fDiff = fSamplePos - nSamplePos;
+		double fDiff = fSamplePos - nSamplePos;
 		if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 			fVal_L = linear_interpolation( pSample_data_L[ nSampleFrames ], 0, fDiff );
 			fVal_R = linear_interpolation( pSample_data_R[ nSampleFrames ], 0, fDiff );
@@ -643,7 +643,7 @@ int Sampler::__render_note_resample(
 			float fSamplePos = fInitialSamplePos;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
 				int nSamplePos = ( int )fSamplePos;
-				float fDiff = fSamplePos - nSamplePos;
+				double fDiff = fSamplePos - nSamplePos;
 
 				if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 					fVal_L = linear_interpolation( pSample_data_L[nSamplePos], 0, fDiff );
