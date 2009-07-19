@@ -282,7 +282,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 			writeXmlString( &noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
 			writeXmlString( &noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
 
-			writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
+			writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );//Note::keyToString returns a valid QString
 
 			writeXmlString( &noteNode, "length", QString("%1").arg( pNote->get_length() ) );
 			writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
@@ -1295,7 +1295,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( &noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
 			LocalFileMng::writeXmlString( &noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
 
-			LocalFileMng::writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
+			LocalFileMng::writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );//Note::keyToString returns a valid QString
 
 			LocalFileMng::writeXmlString( &noteNode, "length", QString("%1").arg( pNote->get_length() ) );
 			LocalFileMng::writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
