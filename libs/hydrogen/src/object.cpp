@@ -286,6 +286,7 @@ Logger::Logger()
 		: __use_file( false )
 		, __running( true )
 {
+	__instance = this;
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, NULL );

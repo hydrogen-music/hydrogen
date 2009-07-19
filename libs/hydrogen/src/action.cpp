@@ -48,8 +48,9 @@ Action::Action( QString s ) : Object( "Action" ) {
 
 /* Class ActionManager */
 
-ActionManager::ActionManager() : Object( "ActionManager" ) {
-	//INFOLOG( "ActionManager Init" );
+ActionManager::ActionManager() : Object( "ActionManager" )
+{
+	__instance = this;
 	
 	actionList <<""
 	<< "PLAY" 

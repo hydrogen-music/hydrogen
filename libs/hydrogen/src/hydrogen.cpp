@@ -1764,15 +1764,14 @@ Hydrogen::Hydrogen()
 		_ERRORLOG( "Hydrogen audio engine is already running" );
 		throw H2Exception( "Hydrogen audio engine is already running" );
 	}
+	__instance = this;
+	hydrogenInstance = this;
 
 	_INFOLOG( "[Hydrogen]" );
 
-	hydrogenInstance = this;
 	audioEngine_init();
 	// Prevent double creation caused by calls from MIDI thread 
-	__instance = this;
 	audioEngine_startAudioDrivers();
-
 }
 
 
