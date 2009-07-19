@@ -212,7 +212,8 @@ int main(int argc, char *argv[])
 
 #ifdef LASH_SUPPORT
 
-	LashClient *lashClient = new LashClient("hydrogen", "Hydrogen", &argc, &argv);
+		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
+		LashClient* lashClient = LashClient::get_instance();
 
 #endif
 		if (sSelectedDriver == "auto") {
