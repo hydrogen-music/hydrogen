@@ -102,24 +102,8 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
 
-#ifdef JACK_SUPPORT
-	JackOutput* jao;
-	jao = dynamic_cast<JackOutput*>(audio_output);
-	if (jao) {
-		int numtracks = jao->getNumTracks();
-
-		if ( jao->has_track_outs() ) {
-			for(int nTrack = 0; nTrack < numtracks; nTrack++) {
-				memset( __track_out_L[nTrack],
-					0,
-					jao->getBufferSize( ) * sizeof( float ) );
-				memset( __track_out_R[nTrack],
-					0,
-					jao->getBufferSize( ) * sizeof( float ) );
-			}
-		}
-	}
-#endif // JACK_SUPPORT
+	// Track output queues are zeroed by 
+ 	// audioEngine_process_clearAudioBuffers() 
 
 	// Max notes limit
 	int m_nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
@@ -450,6 +434,17 @@ int Sampler::__render_note_no_resample(
 	if( nInstrument < 0 ) {
 		nInstrument = 0;
 	}
+
+#ifdef JACK_SUPPORT 
+	JackOutput* jao = 0; 
+	float *track_out_L = 0; 
+	float *track_out_R = 0; 
+	if( audio_output->has_track_outs() 
+	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
+		track_out_L = jao->getTrackOut_L( nInstrument ); 
+		track_out_R = jao->getTrackOut_R( nInstrument ); 
+	} 
+#endif 
 	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
@@ -474,13 +469,12 @@ int Sampler::__render_note_no_resample(
 		}
 
 #ifdef JACK_SUPPORT
-		if ( audio_output->has_track_outs()
-		     && dynamic_cast<JackOutput*>(audio_output) ) {
-                        assert( __track_out_L[ nInstrument ] );
-                        assert( __track_out_R[ nInstrument ] );
-			__track_out_L[ nInstrument ][nBufferPos] += fVal_L * cost_track_L;
-			__track_out_R[ nInstrument ][nBufferPos] += fVal_R * cost_track_R;
-		}
+	if( track_out_L ) { 
+		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
+	} 
+	if( track_out_R ) { 
+		track_out_R[nBufferPos] += fVal_R * cost_track_R; 
+	}
 #endif
 
                 fVal_L = fVal_L * cost_L;
@@ -610,6 +604,17 @@ int Sampler::__render_note_resample(
 		nInstrument = 0;
 	}
 
+#ifdef JACK_SUPPORT 
+	JackOutput* jao = 0; 
+	float *track_out_L = 0; 
+	float *track_out_R = 0; 
+	if( audio_output->has_track_outs() 
+	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
+		track_out_L = jao->getTrackOut_L( nInstrument ); 
+		track_out_R = jao->getTrackOut_R( nInstrument ); 
+	} 
+#endif
+
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
 			if ( pNote->m_adsr.release() == 0 ) {
@@ -643,14 +648,14 @@ int Sampler::__render_note_resample(
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
 
+
 #ifdef JACK_SUPPORT
-		if ( audio_output->has_track_outs()
-			&& dynamic_cast<JackOutput*>(audio_output) ) {
-			assert( __track_out_L[ nInstrument ] );
-                        assert( __track_out_R[ nInstrument ] );
-			__track_out_L[ nInstrument ][nBufferPos] += (fVal_L * cost_track_L);
-			__track_out_R[ nInstrument ][nBufferPos] += (fVal_R * cost_track_R);
-		}
+	if( track_out_L ) { 
+		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
+	} 
+	if( track_out_R ) { 
+		track_out_R[nBufferPos] += fVal_R * cost_track_R; 
+	}
 #endif
 
 		fVal_L = fVal_L * cost_L;
@@ -789,29 +794,6 @@ void Sampler::preview_instrument( Instrument* instr )
 	note_on( previewNote );	// exclusive note
 	AudioEngine::get_instance()->unlock();
 	delete old_preview;
-}
-
-
-void Sampler::makeTrackOutputQueues( )
-{
-	INFOLOG( "Making Output Queues" );
-
-#ifdef JACK_SUPPORT
-	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
-	JackOutput* jao = 0;
-	if (audio_output && audio_output->has_track_outs() ) {
-		jao = dynamic_cast<JackOutput*>(audio_output);
-	}
-	if ( jao ) {
-		for (int nTrack = 0; nTrack < jao->getNumTracks( ); nTrack++) {
-			__track_out_L[nTrack] = jao->getTrackOut_L( nTrack );
-			assert( __track_out_L[ nTrack ] );
-			__track_out_R[nTrack] = jao->getTrackOut_R( nTrack );
-			assert( __track_out_R[ nTrack ] );
-		}
-	}
-#endif // JACK_SUPPORT
-
 }
 
 

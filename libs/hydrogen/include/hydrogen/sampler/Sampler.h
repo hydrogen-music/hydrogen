@@ -70,8 +70,6 @@ public:
 	void preview_sample( Sample* sample, int length );
 	void preview_instrument( Instrument* instr );
 
-	void makeTrackOutputQueues();
-
 	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
 	bool is_instrument_playing( Instrument* pInstr );
 
@@ -81,11 +79,6 @@ private:
 
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;
-
-#ifdef JACK_SUPPORT
-	float* __track_out_L[ MAX_INSTRUMENTS ];
-	float* __track_out_R[ MAX_INSTRUMENTS ];
-#endif
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
