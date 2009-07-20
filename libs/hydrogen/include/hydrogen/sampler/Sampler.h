@@ -87,7 +87,6 @@ private:
 	float* __track_out_R[ MAX_INSTRUMENTS ];
 #endif
 
-
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
 	int __render_note_no_resample(

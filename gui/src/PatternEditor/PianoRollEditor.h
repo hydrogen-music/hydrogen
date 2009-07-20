@@ -57,15 +57,16 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		void updateEditor();
 
 	private:
-		H2Core::Pattern *m_pPattern;
-		H2Core::Note *m_pDraggedNote;
 
 		unsigned m_nRowHeight;
 		unsigned m_nOctaves;
 
 		uint m_nResolution;
-		bool m_bUseTriplets;
 		bool m_bRightBtnPressed;
+		bool m_bUseTriplets;
+
+		H2Core::Pattern *m_pPattern;
+
 		float m_nGridWidth;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;
@@ -73,6 +74,8 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		QPixmap *m_pTemp;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
+		H2Core::Note *m_pDraggedNote;
+
 		void createBackground();
 		void drawPattern();
 		void draw_grid(QPainter& p );

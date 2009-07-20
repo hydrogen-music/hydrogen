@@ -102,7 +102,6 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
 
-
 #ifdef JACK_SUPPORT
 	JackOutput* jao;
 	jao = dynamic_cast<JackOutput*>(audio_output);

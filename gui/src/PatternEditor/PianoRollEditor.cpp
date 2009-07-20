@@ -86,7 +86,7 @@ void PianoRollEditor::setResolution(uint res, bool bUseTriplets)
 
 void PianoRollEditor::updateEditor()
 {
-	uint nEditorWidth;
+//	uint nEditorWidth;
 	if ( m_pPattern ) {
 		m_nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_length();
 	}
@@ -239,7 +239,7 @@ void PianoRollEditor::createBackground()
 
 	int offset = 0;
 	int insertx = 3;
-	for ( int oct = 0; oct < m_nOctaves; oct++ ){
+	for ( int oct = 0; oct < (int)m_nOctaves; oct++ ){
 		if( oct > 3 ){
 			p.drawText( insertx, m_nRowHeight  + offset, "B" );
 			p.drawText( insertx, 10 + m_nRowHeight  + offset, "A#" );
@@ -472,7 +472,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	int row = ((int) ev->y()) / ((int) m_nEditorHeight);
-	if (row >= m_nOctaves * 12 ) {
+	if (row >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
@@ -710,7 +710,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	int row = ((int) ev->y()) / ((int) m_nEditorHeight);
-	if (row >= m_nOctaves * 12 ) {
+	if (row >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
