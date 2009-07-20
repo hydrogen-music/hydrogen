@@ -42,7 +42,7 @@ namespace H2Core
 {
 
 // static data
-Effects* Effects::m_pInstance = NULL;
+Effects* Effects::__instance = NULL;
 
 
 
@@ -51,7 +51,7 @@ Effects::Effects()
 		, m_pRootGroup( NULL )
 		, m_pRecentGroup( NULL )
 {
-	//INFOLOG( "INIT" );
+	__instance = this;
 
 	for ( int nFX = 0; nFX < MAX_FX; ++nFX ) {
 		m_FXList[ nFX ] = NULL;
@@ -64,8 +64,8 @@ Effects::Effects()
 
 void Effects::create_instance()
 {
-	if ( m_pInstance == 0 ) {
-		m_pInstance = new Effects;
+	if ( __instance == 0 ) {
+		__instance = new Effects;
 	}
 }
 

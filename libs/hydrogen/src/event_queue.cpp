@@ -40,7 +40,7 @@ EventQueue::EventQueue()
 		, __read_index( 0 )
 		, __write_index( 0 )
 {
-//	infoLog( "INIT" );
+	__instance = this;
 
 	for ( int i = 0; i < MAX_EVENTS; ++i ) {
 		__events_buffer[ i ].type = EVENT_NONE;

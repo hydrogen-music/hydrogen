@@ -30,6 +30,7 @@ MidiMap * MidiMap::__instance = 0;
 MidiMap::MidiMap()
  : Object( "midiMap" )
 {
+	__instance = this;
 	QMutexLocker mx(&__mutex);
 
 	//constructor

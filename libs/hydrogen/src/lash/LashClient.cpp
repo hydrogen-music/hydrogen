@@ -37,10 +37,20 @@
 
 using namespace H2Core;
 
-LashClient* LashClient::instance = NULL; /// static reference of LashClient class (Singleton)
+LashClient* LashClient::__instance = NULL; /// static reference of LashClient class (Singleton)
+
+void LashClient::create_instance( const char *lashClass,
+				  const char *viewName,
+				  int *argc,
+				  char ***argv )
+{
+	__instance = new LashClient(lashClass, viewName, argc, argv);
+}
 
 LashClient::LashClient(const char* lashClass, const char* viewName, int* argc, char*** argv)
 {
+	__instance = this;
+
 	if ( H2Core::Preferences::get_instance()->useLash() ){
 		newProject = true;
 		lash_args_t *lash_args = lash_extract_args(argc, argv);
@@ -52,7 +62,6 @@ LashClient::LashClient(const char* lashClass, const char* viewName, int* argc, c
 		}
 	}	
 
-	instance = this;
 }
 
 LashClient::~LashClient()

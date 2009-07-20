@@ -42,7 +42,7 @@ class Effects : public Object
 {
 public:
 	static void create_instance();
-	static Effects* get_instance() { assert(m_pInstance); return m_pInstance; }
+	static Effects* get_instance() { assert(__instance); return __instance; }
 	~Effects();
 
 	LadspaFX* getLadspaFX( int nFX );
@@ -53,7 +53,7 @@ public:
 
 
 private:
-	static Effects* m_pInstance;
+	static Effects* __instance;
 	std::vector<LadspaFXInfo*> m_pluginList;
 	LadspaFXGroup* m_pRootGroup;
 	LadspaFXGroup* m_pRecentGroup;

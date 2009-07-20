@@ -64,6 +64,7 @@ Preferences::Preferences()
 		, demoPath( QString( DataPath::get_data_path() ) + "/demo_songs/" )
 		, m_sLastNews( "" )
 {
+	__instance = this;
 	INFOLOG( "INIT" );
 	
 	//Default jack track-outputs are post fader
