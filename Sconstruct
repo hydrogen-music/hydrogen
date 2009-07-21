@@ -248,7 +248,12 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	src = scanFiles( directory, ['*.cpp', '*.cc', '*.c' ], [ 'moc_'] )
 
 	env.Append( LIBS = lib_hydrogen )
-	env.Append( LIBS = ["sndfile"] )
+	
+	if sys.platform != "win32":
+		env.Append( LIBS = ["sndfile"] )
+	else:
+		env.Append( LIBS = ["sndfile-1"] )
+
 	if sys.platform == "win32":
 		env.Append( LIBS = [ "pthread" ] )
 	
