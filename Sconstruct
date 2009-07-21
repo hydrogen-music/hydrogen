@@ -93,6 +93,7 @@ def get_platform_flags( opts ):
 		includes.append( 'build\pthreads\include' )
 		includes.append( '3rdparty\libarchive\include' )
 		includes.append( 'windows\timeFix' )
+		includes.append( 'C:\Program Files\GnuWin32\include' )
 	else:
 		raise Exception( "Platform '%s' not supported" % sys.platform )
 
