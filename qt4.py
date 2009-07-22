@@ -474,7 +474,7 @@ def enable_modules(self, modules, debug=False, crosscompiling=False) :
 			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","QtAssistant")])
 			modules.remove("QtAssistant")
 			modules.append("QtAssistantClient")
-		self.AppendUnique(LIBS=[lib+'4'+debugSuffix for lib in modules if lib not in staticModules])
+		self.AppendUnique(LIBS=[lib+debugSuffix+'4' for lib in modules if lib not in staticModules])
 		self.PrependUnique(LIBS=[lib+debugSuffix for lib in modules if lib in staticModules])
 		if 'QtOpenGL' in modules:
 			self.AppendUnique(LIBS=['opengl32'])
