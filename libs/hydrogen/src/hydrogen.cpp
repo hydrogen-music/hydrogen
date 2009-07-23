@@ -2269,6 +2269,11 @@ float Hydrogen::getMaxProcessTime()
 
 int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 {
+	int old_ae_state = m_audioEngineState;
+	if( m_audioEngineState >= STATE_READY ) {
+		m_audioEngineState = STATE_PREPARED;
+	}
+
 	INFOLOG( drumkitInfo->getName() );
 	m_currentDrumkit = drumkitInfo->getName();
 	LocalFileMng fileMng;
@@ -2349,6 +2354,8 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		renameJackPorts();
 	AudioEngine::get_instance()->unlock();
 	#endif
+
+	m_audioEngineState = old_ae_state;
 
 	return 0;	//ok
 }
