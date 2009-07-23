@@ -419,7 +419,7 @@ float* JackOutput::getOut_R()
 
 float* JackOutput::getTrackOut_L( unsigned nTrack )
 {
-	if(nTrack > track_port_count ) return 0;
+	if(nTrack > (unsigned)track_port_count ) return 0;
 	jack_port_t *p = track_output_ports_L[nTrack];
 	jack_default_audio_sample_t* out = 0;
 	if( p ) {
@@ -430,7 +430,7 @@ float* JackOutput::getTrackOut_L( unsigned nTrack )
 
 float* JackOutput::getTrackOut_R( unsigned nTrack )
 {
-	if(nTrack > track_port_count ) return 0;
+	if(nTrack > (unsigned)track_port_count ) return 0;
 	jack_port_t *p = track_output_ports_R[nTrack];
 	jack_default_audio_sample_t* out = 0;
 	if( p ) {
