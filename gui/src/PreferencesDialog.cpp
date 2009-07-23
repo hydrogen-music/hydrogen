@@ -126,9 +126,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
 	trackOutputComboBox->setCurrentIndex( pPref->m_nJackTrackOutputMode );
-	ardourTransportWorkaround->setCheckState(
-	    (pPref->m_nJackArdourTransportWorkaround) ? Qt::Checked : Qt::Unchecked
-	    );
 	//~ JACK
 
 
@@ -457,7 +454,6 @@ void PreferencesDialog::updateDriverInfo()
 		sampleRateComboBox->setEnabled( false );
 		trackOutputComboBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled( false );
-		ardourTransportWorkaround->setEnabled( false );
 	}
 	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
 		info += trUtf8("<b>Open Sound System</b><br>Simple audio driver [/dev/dsp]");
@@ -471,7 +467,6 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
-		ardourTransportWorkaround->setEnabled( false );
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
 		info += trUtf8("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
@@ -485,7 +480,6 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( true );
 		connectDefaultsCheckBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( true );
-		ardourTransportWorkaround->setEnabled( true );
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info += trUtf8("<b>ALSA Driver</b><br>");
@@ -499,7 +493,6 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
-		ardourTransportWorkaround->setEnabled( false );
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info += trUtf8( "<b>PortAudio Driver</b><br>" );
@@ -512,7 +505,6 @@ void PreferencesDialog::updateDriverInfo()
 		sampleRateComboBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
-		ardourTransportWorkaround->setEnabled( false );
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info += trUtf8( "<b>CoreAudio Driver</b><br>" );
@@ -526,7 +518,6 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
-		ardourTransportWorkaround->setEnabled( false );
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -651,9 +642,3 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
-// See JackOutput::getArdourTransportAdjustment()
-void PreferencesDialog::on_ardourTransportWorkaround_stateChanged( int state )
-{
-	Preferences::get_instance()->m_nJackArdourTransportWorkaround
-		= (state == Qt::Checked) ? true : false;
-}

@@ -58,8 +58,6 @@ public:
 	int connect();
 	void disconnect();
 	void deactivate();
-	// Workaround for Ardour transport bug.  See jack_client.cpp
-	unsigned getArdourTransportAdjustment();
 	unsigned getBufferSize();
 	unsigned getSampleRate();
 	int getNumTracks();
