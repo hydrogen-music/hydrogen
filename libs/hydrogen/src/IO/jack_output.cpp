@@ -54,7 +54,13 @@ int jackDriverSampleRate( jack_nframes_t nframes, void *arg )
 }
 
 
-
+int jackDriverBufferSize( jack_nframes_t nframes, void * /*arg*/ )
+{
+	/* This function does _NOT_ have to be realtime safe.
+	 */
+	jack_server_bufferSize = nframes;
+	return 0;
+}
 
 void jackDriverShutdown( void *arg )
 {
@@ -558,6 +564,10 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	*/
 	jack_set_sample_rate_callback ( client, jackDriverSampleRate, 0 );
 
+	/* tell JACK server to update us if the buffer size
+	   (frames per process cycle) changes.
+	*/
+	jack_set_buffer_size_callback ( client, jackDriverBufferSize, 0 );
 
 	/* tell the JACK server to call `jack_shutdown()' if
 	   it ever shuts down, either entirely, or if it
