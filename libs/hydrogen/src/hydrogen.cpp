@@ -713,11 +713,13 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 		int k;
 		for( k=0 ; k<jo->getNumTracks() ; ++k ) {
 			buf = jo->getTrackOut_L(k);
-			assert(buf);
-			memset( buf, 0, nFrames * sizeof( float ) );
+			if( buf ) {
+				memset( buf, 0, nFrames * sizeof( float ) );
+			}
 			buf = jo->getTrackOut_R(k);
-			assert(buf);
-			memset( buf, 0, nFrames * sizeof( float ) );
+			if( buf ) {
+				memset( buf, 0, nFrames * sizeof( float ) );
+			}
 		}
 	}
 #endif
