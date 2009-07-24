@@ -1032,7 +1032,6 @@ int LocalFileMng::readXmlInt( TiXmlNode* parent, const QString& nodeName, int de
 		if ( node->FirstChild() ) {
 			QString val( node->FirstChild()->Value() );
 			return c_locale.toInt( val );
-			return atoi( node->FirstChild()->Value() );
 		} else {
 			if ( !bCanBeEmpty ) {
 				_WARNINGLOG( "Using default value in " + nodeName );

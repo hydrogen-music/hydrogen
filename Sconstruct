@@ -93,6 +93,7 @@ def get_platform_flags( opts ):
 		includes.append( 'build\pthreads\include' )
 		includes.append( '3rdparty\libarchive\include' )
 		includes.append( 'windows\timeFix' )
+		includes.append( 'C:\Program Files\GnuWin32\include' )
 	else:
 		raise Exception( "Platform '%s' not supported" % sys.platform )
 
@@ -247,7 +248,12 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	src = scanFiles( directory, ['*.cpp', '*.cc', '*.c' ], [ 'moc_'] )
 
 	env.Append( LIBS = lib_hydrogen )
-	env.Append( LIBS = ["sndfile"] )
+	
+	if sys.platform != "win32":
+		env.Append( LIBS = ["sndfile"] )
+	else:
+		env.Append( LIBS = ["sndfile-1"] )
+
 	if sys.platform == "win32":
 		env.Append( LIBS = [ "pthread" ] )
 	
@@ -275,7 +281,7 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 
 
 	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
-	env.Append( LIBPATH = 'build\pthreads\lib' )
+	env.Append( LIBPATH = 'C:\Program Files\GnuWin32\lib' )
 
 	app = env.Program(target = 'hydrogen', source = src )
 

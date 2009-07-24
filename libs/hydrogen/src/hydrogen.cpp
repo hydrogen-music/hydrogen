@@ -715,11 +715,13 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 		int k;
 		for( k=0 ; k<jo->getNumTracks() ; ++k ) {
 			buf = jo->getTrackOut_L(k);
-			assert(buf);
-			memset( buf, 0, nFrames * sizeof( float ) );
+			if( buf ) {
+				memset( buf, 0, nFrames * sizeof( float ) );
+			}
 			buf = jo->getTrackOut_R(k);
-			assert(buf);
-			memset( buf, 0, nFrames * sizeof( float ) );
+			if( buf ) {
+				memset( buf, 0, nFrames * sizeof( float ) );
+			}
 		}
 	}
 #endif
@@ -2557,6 +2559,11 @@ float Hydrogen::getMaxProcessTime()
 
 int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 {
+	int old_ae_state = m_audioEngineState;
+	if( m_audioEngineState >= STATE_READY ) {
+		m_audioEngineState = STATE_PREPARED;
+	}
+
 	INFOLOG( drumkitInfo->getName() );
 	m_currentDrumkit = drumkitInfo->getName();
 	LocalFileMng fileMng;
@@ -2637,6 +2644,8 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		renameJackPorts();
 	AudioEngine::get_instance()->unlock();
 	#endif
+
+	m_audioEngineState = old_ae_state;
 
 	return 0;	//ok
 }

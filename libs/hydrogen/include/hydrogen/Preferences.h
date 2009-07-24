@@ -206,8 +206,6 @@ public:
 	bool m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
 	bool m_bJackTrackOuts;
-	// See JackOutput::getArdourTransportAdjustment() for this:
-	bool m_nJackArdourTransportWorkaround;
 	int m_nJackTrackOutputMode;
 	//jack time master
 	bool m_bJackMasterMode ;

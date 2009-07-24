@@ -353,7 +353,6 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bJackConnectDefaults = LocalFileMng::readXmlBool( jackDriverNode, "jack_connect_defaults", m_bJackConnectDefaults );
 
 					m_nJackTrackOutputMode = LocalFileMng::readXmlInt( jackDriverNode, "jack_track_output_mode", m_nJackTrackOutputMode );
-					m_nJackArdourTransportWorkaround = LocalFileMng::readXmlBool( jackDriverNode, "jack_ardour_transport_workaround", m_nJackArdourTransportWorkaround );
 				}
 
 
@@ -698,9 +697,6 @@ void Preferences::savePreferences()
 				jackTrackOutsString = "true";
 			}
 			LocalFileMng::writeXmlString( &jackDriverNode, "jack_track_outs", jackTrackOutsString );
-			QString jackArdourTransportWorkaroundString = 
-			    (m_nJackArdourTransportWorkaround) ? "true" : "false";
-			LocalFileMng::writeXmlString( &jackDriverNode, "jack_ardour_transport_workaround", jackArdourTransportWorkaroundString );
 		}
 		audioEngineNode.InsertEndChild( jackDriverNode );
 
