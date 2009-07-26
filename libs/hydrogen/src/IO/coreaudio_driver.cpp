@@ -104,7 +104,7 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 	if ( err != noErr ) {
 		ERRORLOG( "get BufferSize error" );
 	}
-	INFOLOG( "Buffersize: " + to_string( m_nBufferSize ) );
+	INFOLOG( QString( "Buffersize: %1" ).arg( m_nBufferSize ) );
 
 
 	// print some info
@@ -115,12 +115,12 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 		printf( "AudioDeviceGetProperty: returned %d when getting kAudioDevicePropertyStreamFormat", err );
 	}
 
-	INFOLOG( "SampleRate: " + to_string( outputStreamBasicDescription.mSampleRate ) );
-	INFOLOG( "BytesPerPacket: " + to_string( outputStreamBasicDescription.mBytesPerPacket ) );
-	INFOLOG( "FramesPerPacket: " + to_string( outputStreamBasicDescription.mFramesPerPacket ) );
-	INFOLOG( "BytesPerFrame: " + to_string( outputStreamBasicDescription.mBytesPerFrame ) );
-	INFOLOG( "ChannelsPerFrame: " + to_string( outputStreamBasicDescription.mChannelsPerFrame ) );
-	INFOLOG( "BitsPerChannel: " + to_string( outputStreamBasicDescription.mBitsPerChannel ) );
+	INFOLOG( QString("SampleRate: %1").arg( outputStreamBasicDescription.mSampleRate ) );
+	INFOLOG( QString("BytesPerPacket: %1").arg( outputStreamBasicDescription.mBytesPerPacket ) );
+	INFOLOG( QString("FramesPerPacket: %1").arg( outputStreamBasicDescription.mFramesPerPacket ) );
+	INFOLOG( QString("BytesPerFrame: %1").arg( outputStreamBasicDescription.mBytesPerFrame ) );
+	INFOLOG( QString("ChannelsPerFrame: %1").arg( outputStreamBasicDescription.mChannelsPerFrame ) );
+	INFOLOG( QString("BitsPerChannel: %1").arg( outputStreamBasicDescription.mBitsPerChannel ) );
 }
 
 
