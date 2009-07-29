@@ -228,7 +228,7 @@ QString Note::keyToString( NoteKey key )
 
 	}
 
-	sKey += QString( key.m_nOctave );
+	sKey = sKey + QString("%1").arg( key.m_nOctave );
 
 	return sKey;
 }
