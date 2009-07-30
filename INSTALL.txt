@@ -114,6 +114,14 @@ On a single, 500MHz processor Hydrogen takes about 1.5 hours to build.
 If you wish to build a package for your operating system, skip down to
 the end of this section.
 
+This instructions are thought for building hydrogen on linux.
+We're providing a set of qmake project files for windows and
+mac osx builds. 
+Please read the relevant wiki pages for more informations:
+
+http://trac.assembla.com/hydrogen/wiki/development%3AcompileOSX
+http://trac.assembla.com/hydrogen/wiki/coding%3Apackagingwin
+
 After you have all the prerequisites, building and installing will
 look like this:
 
