@@ -57,6 +57,7 @@ DEPENDPATH += . \
               src\PlaylistEditor \
               src\SongEditor \
               src\SoundLibrary \
+              src\SampleEditor \
               src\UI \
               src\widgets
 INCLUDEPATH += .
@@ -107,8 +108,13 @@ HEADERS += src/AboutDialog.h \
            src/PatternEditor/PatternEditorRuler.h \
            src/PatternEditor/PianoRollEditor.h \
            src/PlaylistEditor/PlaylistDialog.h \
+	   src/SampleEditor/DetailWaveDisplay.h \
+	   src/SampleEditor/MainSampleWaveDisplay.h \
+	   src/SampleEditor/TargetWaveDisplay.h \
+	   src/SampleEditor/SampleEditor.h \
            src/SongEditor/SongEditor.h \
            src/SongEditor/SongEditorPanel.h \
+           src/SongEditor/SongEditorPanelBpmWidget.h \
            src/SoundLibrary/FileBrowser.h \
            src/SoundLibrary/SoundLibraryExportDialog.h \
            src/SoundLibrary/SoundLibraryImportDialog.h \
@@ -131,11 +137,13 @@ HEADERS += src/AboutDialog.h \
            src/widgets/Rotary.h
 FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/PlaylistEditor/PlaylistDialog_UI.ui \
+	 src/SampleEditor/SampleEditor_Ui.ui \
          src/SoundLibrary/SoundLibraryExportDialog_UI.ui \
          src/SoundLibrary/SoundLibraryImportDialog_UI.ui \
          src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui \
          src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui \
          src/SoundLibrary/SoundLibrarySaveDialog_UI.ui \
+         src/SongEditor/SongEditorPanelBpmWidget_UI.ui \
          src/UI/about_dialog.ui \
          src/UI/AudioEngineInfoForm_UI.ui \
          src/UI/DrumkitManager_UI.ui \
@@ -177,8 +185,13 @@ SOURCES += src/AboutDialog.cpp \
            src/PatternEditor/PatternEditorRuler.cpp \
            src/PatternEditor/PianoRollEditor.cpp \
            src/PlaylistEditor/PlaylistDialog.cpp \
+	   src/SampleEditor/DetailWaveDisplay.cpp \
+	   src/SampleEditor/MainSampleWaveDisplay.cpp \
+	   src/SampleEditor/TargetWaveDisplay.cpp \
+	   src/SampleEditor/SampleEditor.cpp \
            src/SongEditor/SongEditor.cpp \
            src/SongEditor/SongEditorPanel.cpp \
+           src/SongEditor/SongEditorPanelBpmWidget.cpp \
            src/SoundLibrary/FileBrowser.cpp \
            src/SoundLibrary/SoundLibraryExportDialog.cpp \
            src/SoundLibrary/SoundLibraryImportDialog.cpp \
