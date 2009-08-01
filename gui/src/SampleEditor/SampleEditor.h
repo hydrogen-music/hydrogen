@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include "ui_SampleEditor_UI.h"
-#include "InstrumentEditor/InstrumentEditor.h"
+#include "../InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
 #include <hydrogen/Object.h>

@@ -22,8 +22,8 @@
 
 #include "SampleEditor.h"
 #include "../HydrogenApp.h"
-#include "InstrumentEditor/InstrumentEditor.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
+#include "../InstrumentEditor/InstrumentEditor.h"
+#include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../widgets/Button.h"
 
 #include "MainSampleWaveDisplay.h"
