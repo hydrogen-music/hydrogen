@@ -84,10 +84,6 @@ def get_platform_flags( opts ):
 	if sys.platform == 'linux2':
 		ldflags.append('-lasound')
 
-	elif sys.platform == 'darwin':
-		includes.append( [ '/sw/include', '/usr/local/include' ] )
-		ldflags.append( [ '-L/sw/lib', '-F/sw/lib', '-F/sw/lib/qt4-mac/lib', '-L/usr/local/lib' ] )
-
 	elif sys.platform == "win32":
 		includes.append( '3rdparty\libsndfile-1_0_17' )
 		includes.append( 'build\pthreads\include' )
@@ -385,7 +381,7 @@ platform = sys.platform
 
 #just download 3rd party libs if we're *not* running linux.
 #We trust in our package managment system!
-if platform == "darwin" or platform == "win32":
+if platform == "win32":
     download_3rdparty_libs()
 
 
