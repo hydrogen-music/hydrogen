@@ -81,6 +81,9 @@ def get_platform_flags( opts ):
 	includes.append( 'gui/src/' )
 	includes.append( '3rdparty/install/include' )
 
+	if sys.platform == "darwin":
+		ldflags.append( '-L/opt/local/lib' )
+
 	if sys.platform == 'linux2':
 		ldflags.append('-lasound')
 
