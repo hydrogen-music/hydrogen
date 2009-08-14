@@ -64,6 +64,7 @@ HEADERS += src/flac_file.h \
            include/hydrogen/Song.h \
            include/hydrogen/SoundLibrary.h \
            include/hydrogen/timehelper.h \
+	   include/hydrogen/util.h \
            src/IO/AlsaAudioDriver.h \
            src/IO/AlsaMidiDriver.h \
            src/IO/CoreAudioDriver.h \
@@ -109,6 +110,7 @@ SOURCES += src/action.cpp \
            src/song.cpp \
            src/sound_library.cpp \
            src/timehelper.cpp \
+	   src/util.cpp \
            src/fx/effects.cpp \
            src/fx/ladspa_fx.cpp \
            src/IO/alsa_audio_driver.cpp \

@@ -1,7 +1,15 @@
-hydrogen (0.9.4rc1) unstable; urgency=low
+hydrogen (0.9.4rc2) unstable; urgency=low
 
 
+  * Version 0.9.4 rc2
 
+  * fixed "fifth beat bug"
+  * fixed jack zombifications on startup / drumkit loading
+  * fixed segmentation fault after starting with alsa and a blocked audio device
+  * fixed several smaller issues
+  * added qmake files for building on windows / osx
+  * improved scons for building on osx
+  
   * Version 0.9.4 rc1
   
   * fixed various buffer overflows
