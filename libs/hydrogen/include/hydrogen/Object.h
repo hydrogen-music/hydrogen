@@ -30,6 +30,7 @@
 
 #include <QtGui>
 #include <map>
+#include <set>
 #include <vector>
 #include <sstream>
 #include <pthread.h>

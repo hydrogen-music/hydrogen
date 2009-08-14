@@ -40,6 +40,46 @@
 #include <hydrogen/note.h>
 #include <hydrogen/hydrogen.h>
 
+namespace
+{
+    
+void addEdges(std::set<H2Core::Pattern*> &patternSet)
+{
+    std::set<H2Core::Pattern*> curPatternSet = patternSet;
+    
+    for (std::set<H2Core::Pattern*>::const_iterator setIter = curPatternSet.begin(); setIter != curPatternSet.end(); ++setIter) {
+	 for (std::set<H2Core::Pattern*>::const_iterator innerSetIter = (*setIter)->virtual_pattern_set.begin(); innerSetIter != (*setIter)->virtual_pattern_set.end(); ++innerSetIter) {
+	     patternSet.insert(*innerSetIter);
+	 }//for
+    }//for
+    
+    if (patternSet.size() != curPatternSet.size()) {
+	addEdges(patternSet);
+    }//if
+}//addEdges
+
+void computeVirtualPatternTransitiveClosure(H2Core::PatternList *pPatternList)
+{
+    //std::map<Pattern*, SimplePatternNode*> patternNodeGraph;
+    
+    int listsize = pPatternList->get_size();    
+    for (unsigned int index = 0; index < listsize; ++index) {
+	H2Core::Pattern *curPattern = pPatternList->get(index);
+	//SimplePatternNode *newNode = new SimplePatternNode();
+	//newNode->curPattern = curPattern;
+	//newNode->colour = 0;
+	//newNode->edges = curPattern->virtual_pattern_set;
+	
+	curPattern->virtual_pattern_transitive_closure_set = curPattern->virtual_pattern_set;
+	
+	addEdges(curPattern->virtual_pattern_transitive_closure_set);
+	
+	//patternNodeGraph[curPattern] = newNode;
+    }//for
+}//computeVirtualPatternTransitiveClosure
+    
+}//anonymous namespace
+
 namespace H2Core
 {
 
@@ -520,7 +560,53 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "0 patterns?" );
 	}
 	song->set_pattern_list( patternList );
-
+	
+	 // Virtual Patterns
+	TiXmlNode* virtualPatternListNode = songNode->FirstChild( "virtualPatternList" );
+	if (virtualPatternListNode != NULL) {
+	    for (patternNode = virtualPatternListNode->FirstChild("pattern"); patternNode != NULL; patternNode = patternNode->NextSibling("pattern")) {
+		QString sName = "";
+		sName = LocalFileMng::readXmlString(patternNode, "name", sName);
+		
+		Pattern *curPattern = NULL;
+		unsigned nPatterns = patternList->get_size();
+		for ( unsigned i = 0; i < nPatterns; i++ ) {
+		    Pattern *pat = patternList->get( i );
+		    
+		    if (pat->get_name() == sName) {
+			curPattern = pat;
+			break;
+		    }//if
+		}//for
+		
+		if (curPattern != NULL) {
+		    TiXmlNode *virtualNode;
+		    for (virtualNode = patternNode->FirstChild("virtual"); virtualNode != NULL; virtualNode = virtualNode->NextSibling("virtual")) {
+			QString virtName = virtualNode->FirstChild()->Value();
+			
+			Pattern *virtPattern = NULL;
+			for ( unsigned i = 0; i < nPatterns; i++ ) {
+			    Pattern *pat = patternList->get( i );
+		    
+			    if (pat->get_name() == virtName) {
+				virtPattern = pat;
+				break;
+			    }//if
+			}//for
+			
+			if (virtPattern != NULL) {
+			    curPattern->virtual_pattern_set.insert(virtPattern);
+			} else {
+			    ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
+			}//if
+		    }//for
+		} else {
+		    ERRORLOG( "Song had invalid virtual pattern list data (name)" );
+		}//if
+	    }//for
+	    
+	    computeVirtualPatternTransitiveClosure(patternList);
+	}//if
 
 	// Pattern sequence
 	TiXmlNode* patternSequenceNode = songNode->FirstChild( "patternSequence" );

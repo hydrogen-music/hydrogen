@@ -39,6 +39,8 @@ class Pattern : public Object
 {
 public:
 	std::multimap <int, Note*> note_map;
+    std::set<Pattern*> virtual_pattern_set;
+    std::set<Pattern*> virtual_pattern_transitive_closure_set;
 
 	Pattern( const QString& name, const QString& category, unsigned length = MAX_NOTES );
 	~Pattern();

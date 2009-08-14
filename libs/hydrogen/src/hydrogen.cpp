@@ -1082,9 +1082,16 @@ inline void audioEngine_timeLineCheck( unsigned nFrames)
 {
 
 	int nMaxTimeHumanize = 2000;
-	int nLeadLagFactor = m_pAudioDriver->m_transport.m_nTickSize * 5;  // 5 ticks
 
 	unsigned int framepos;
+
+	if (  m_audioEngineState == STATE_PLAYING ) {
+		framepos = m_pAudioDriver->m_transport.m_nFrames;
+	} else {
+		// use this to support realtime events when not playing
+		framepos = m_nRealtimeFrames;
+	}
+	
 	if ( m_pSong->get_mode() == Song::SONG_MODE ) {
 		if ( m_pSong->get_pattern_group_vector()->size() == 0 ) {
 			// there's no song!!
@@ -1110,15 +1117,19 @@ inline void audioEngine_timeLineCheck( unsigned nFrames)
 	}
 
 	int tick = tickNumber_start;
-
+	
+//	_ERRORLOG(QString("tick: %1").arg(tick));	
+//	_ERRORLOG(QString("m_nSongSizeInTicks: %1").arg(m_nSongSizeInTicks));
+//	_ERRORLOG(QString("m_nPatternStartTick: %1").arg(m_nPatternStartTick));
+	
 	int testTickPosition = -1;	
 		if ( m_nSongSizeInTicks != 0 ) {
-			testTickPosition = ( tick - m_nPatternStartTick )
-							% m_nSongSizeInTicks;
+			testTickPosition = ( tick - m_nPatternStartTick ) % m_nSongSizeInTicks;
 		} else {
 			testTickPosition = tick - m_nPatternStartTick;
 		}
 	
+//	_ERRORLOG(QString("testTickPosition: %1").arg(testTickPosition));
 	
 		if ( testTickPosition == 0 ) {
 			///here we inject the bpm value of timelinevector
@@ -1264,13 +1275,29 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 			PatternList *pPatternList =
 				( *( m_pSong->get_pattern_group_vector() ) )[m_nSongPos];
+				
+			std::set<Pattern*> patternsToPlay;
+			for ( unsigned i = 0; i < pPatternList->get_size(); ++i ) {
+			    Pattern *curPattern = pPatternList->get(i);
+			    patternsToPlay.insert(curPattern);
+			    
+			    for (std::set<Pattern*>::const_iterator virtualIter = curPattern->virtual_pattern_transitive_closure_set.begin(); virtualIter != curPattern->virtual_pattern_transitive_closure_set.end(); ++virtualIter) {
+				patternsToPlay.insert(*virtualIter);
+			    }//for
+			}//for
+				
 			// copio tutti i pattern
 			m_pPlayingPatterns->clear();
-			if ( pPatternList ) {
-				for ( unsigned i = 0; i < pPatternList->get_size(); ++i ) {
-					m_pPlayingPatterns->add( pPatternList->get( i ) );
-				}
-			}
+			for (std::set<Pattern*>::const_iterator virtualIter = patternsToPlay.begin(); virtualIter != patternsToPlay.end(); ++virtualIter) {
+			    m_pPlayingPatterns->add(*virtualIter);
+			}//for
+			
+			//if ( pPatternList ) {
+				//for ( unsigned i = 0; i < pPatternList->get_size(); ++i ) {
+				//	m_pPlayingPatterns->add( pPatternList->get( i ) );
+				//}
+				
+			//}
 
 			// Set destructive record depending on punch area
 			doErase = doErase && Preferences::get_instance()->inPunchArea(m_nSongPos);
@@ -1292,7 +1319,18 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				Pattern * pSelectedPattern =
 					m_pSong->get_pattern_list()
 					       ->get(m_nSelectedPatternNumber);
-				m_pPlayingPatterns->add( pSelectedPattern );
+				
+				std::set<Pattern*> patternsToPlay;
+				patternsToPlay.insert(pSelectedPattern);
+				for (std::set<Pattern*>::const_iterator virtualIter = pSelectedPattern->virtual_pattern_transitive_closure_set.begin(); virtualIter != pSelectedPattern->virtual_pattern_transitive_closure_set.end(); ++virtualIter) {
+				    patternsToPlay.insert(*virtualIter);
+				}//for
+				
+				for (std::set<Pattern*>::const_iterator virtualIter = patternsToPlay.begin(); virtualIter != patternsToPlay.end(); ++virtualIter) {
+				   m_pPlayingPatterns->add(*virtualIter);
+				}//for
+				
+				//m_pPlayingPatterns->add( pSelectedPattern );
 			}
 
 

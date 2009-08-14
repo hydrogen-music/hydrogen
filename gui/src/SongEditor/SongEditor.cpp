@@ -46,6 +46,7 @@ using namespace H2Core;
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"
+#include "../VirtualPatternDialog.h"
 #include <hydrogen/LocalFileMng.h>
 
 
@@ -554,23 +555,47 @@ void SongEditor::drawSequence()
 	uint listLength = patList->get_size();
 	for (uint i = 0; i < pColumns->size(); i++) {
 		PatternList* pColumn = (*pColumns)[ i ];
+		
+		std::set<Pattern*> drawnAsVirtual;
 
 		for (uint nPat = 0; nPat < pColumn->get_size(); ++nPat) {
 			H2Core::Pattern *pat = pColumn->get( nPat );
 
-			int position = -1;
-			// find the position in pattern list
-			for (uint j = 0; j < listLength; j++) {
-				H2Core::Pattern *pat2 = patList->get( j );
-				if (pat == pat2) {
-					position = j;
-					break;
+			if (drawnAsVirtual.find(pat) == drawnAsVirtual.end()) {
+			    int position = -1;
+			    // find the position in pattern list
+			    for (uint j = 0; j < listLength; j++) {
+				    H2Core::Pattern *pat2 = patList->get( j );
+				    if (pat == pat2) {
+					    position = j;
+					    break;
+				    }
+			    }
+			    if (position == -1) {
+				    WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
+			    }
+			    drawPattern( i, position, false );
+			}//if
+			
+			for (std::set<Pattern*>::const_iterator virtualIter = pat->virtual_pattern_transitive_closure_set.begin(); virtualIter != pat->virtual_pattern_transitive_closure_set.end(); ++virtualIter) {
+			    if (drawnAsVirtual.find(*virtualIter) == drawnAsVirtual.end()) {
+				int position = -1;
+				// find the position in pattern list
+				for (uint j = 0; j < listLength; j++) {
+				    H2Core::Pattern *pat2 = patList->get( j );
+				    if (*virtualIter == pat2) {
+					    position = j;
+					    break;
+				    }//if
+				}//for
+				if (position == -1) {
+				    WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 				}
-			}
-			if (position == -1) {
-				WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
-			}
-			drawPattern( i, position );
+				drawPattern( i, position, true );
+				
+				drawnAsVirtual.insert(*virtualIter);
+			    }//if
+			}//for
 		}
 	}
 
@@ -596,12 +621,16 @@ void SongEditor::drawSequence()
 
 
 
-void SongEditor::drawPattern( int pos, int number )
+void SongEditor::drawPattern( int pos, int number, bool invertColour )
 {
 	Preferences *pref = Preferences::get_instance();
 	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QPainter p( m_pSequencePixmap );
 	QColor patternColor( pStyle->m_songEditor_pattern1Color.getRed(), pStyle->m_songEditor_pattern1Color.getGreen(), pStyle->m_songEditor_pattern1Color.getBlue() );
+	
+	if (true == invertColour) {
+	    patternColor = patternColor.darker(200);
+	}//if
 
 	bool bIsSelected = false;
 	for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
@@ -669,6 +698,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( trUtf8("Load Pattern"),  this, SLOT( patternPopup_load() ) );
 	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( trUtf8("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -924,7 +954,59 @@ void SongEditorPatternList::createBackground()
 
 }
 
+void SongEditorPatternList::patternPopup_virtualPattern()
+{
+    Hydrogen *pEngine = Hydrogen::get_instance();
+    int nSelectedPattern = pEngine->getSelectedPatternNumber();
+    VirtualPatternDialog *dialog = new VirtualPatternDialog( this );
+    SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+    int tmpselectedpatternpos = pEngine->getSelectedPatternNumber();    
 
+    dialog->patternList->setSortingEnabled(1);
+    
+    Song *song = pEngine->getSong();
+    PatternList *pPatternList = song->get_pattern_list();
+    H2Core::Pattern *selectedPattern = pPatternList->get(tmpselectedpatternpos);
+    
+    std::map<QString, Pattern*> patternNameMap;
+    
+    int listsize = pPatternList->get_size();    
+    for (unsigned int index = 0; index < listsize; ++index) {
+	H2Core::Pattern *curPattern = pPatternList->get( index );
+	QString patternName = curPattern->get_name();
+	
+	if (patternName == selectedPattern->get_name()) {
+	    continue;
+	}//if
+	
+	patternNameMap[patternName] = curPattern;
+	
+	QListWidgetItem *newItem = new QListWidgetItem(patternName, dialog->patternList);
+	dialog->patternList->insertItem(0, newItem );
+	
+	if (selectedPattern->virtual_pattern_set.find(curPattern) != selectedPattern->virtual_pattern_set.end()) {
+	    dialog->patternList->setItemSelected(newItem, true);
+	}//if
+    }//for
+    
+    if ( dialog->exec() == QDialog::Accepted ) {
+	selectedPattern->virtual_pattern_set.clear();
+	for (unsigned int index = 0; index < listsize-1; ++index) {
+	    QListWidgetItem *listItem = dialog->patternList->item(index);
+	    if (dialog->patternList->isItemSelected(listItem) == true) {
+		if (patternNameMap.find(listItem->text()) != patternNameMap.end()) {
+		    selectedPattern->virtual_pattern_set.insert(patternNameMap[listItem->text()]);
+		}//if
+	    }//if
+	}//for
+	
+	pSEPanel->updateAll();
+    }//if
+    
+    dialog->computeVirtualPatternTransitiveClosure(pPatternList);
+
+    delete dialog;
+}//patternPopup_virtualPattern
 
 void SongEditorPatternList::patternPopup_load()
 {
@@ -1128,6 +1210,17 @@ void SongEditorPatternList::patternPopup_delete()
 		pEngine->setSelectedPatternNumber( -1 );
 		pEngine->setSelectedPatternNumber( 0 );
 	}
+	
+	for (unsigned int index = 0; index < pSongPatternList->get_size(); ++index) {
+	    H2Core::Pattern *curPattern = pSongPatternList->get(index);
+	    
+	    std::set<Pattern*>::iterator virtIter = curPattern->virtual_pattern_set.find(pattern);
+	    if (virtIter != curPattern->virtual_pattern_set.end()) {
+		curPattern->virtual_pattern_set.erase(virtIter);
+	    }//if
+	}//for
+
+	VirtualPatternDialog::computeVirtualPatternTransitiveClosure(pSongPatternList);
 
 	delete pattern;
 

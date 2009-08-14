@@ -83,7 +83,7 @@ class SongEditor : public QWidget, public Object
 		virtual void paintEvent(QPaintEvent *ev);
 
 		void drawSequence();
-		void drawPattern( int pos, int number );
+		void drawPattern( int pos, int number, bool invertColour );
 };
 
 
@@ -111,6 +111,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void patternPopup_delete();
 		void patternPopup_copy();
 		void patternPopup_fill();
+		void patternPopup_virtualPattern();
 		void inlineEditingFinished();
 		void inlineEditingEntered();
 		virtual void dragEnterEvent(QDragEnterEvent *event);

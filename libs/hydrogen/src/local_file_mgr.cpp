@@ -1309,7 +1309,24 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		patternListNode.InsertEndChild( patternNode );
 	}
 	songNode.InsertEndChild( patternListNode );
+	
+	TiXmlElement virtualPatternListNode( "virtualPatternList" );
+	for ( unsigned i = 0; i < nPatterns; i++ ) {
+		Pattern *pat = song->get_pattern_list()->get( i );
 
+		// pattern
+		if (pat->virtual_pattern_set.empty() == false) {
+		    TiXmlElement patternNode( "pattern" );
+		    LocalFileMng::writeXmlString( &patternNode, "name", pat->get_name() );
+		
+		    for (std::set<Pattern*>::const_iterator virtIter = pat->virtual_pattern_set.begin(); virtIter != pat->virtual_pattern_set.end(); ++virtIter) {
+			LocalFileMng::writeXmlString( &patternNode, "virtual", (*virtIter)->get_name() );
+		    }//for
+		
+		    virtualPatternListNode.InsertEndChild( patternNode );
+		}//if
+	}//for
+	songNode.InsertEndChild(virtualPatternListNode);
 
 	// pattern sequence
 	TiXmlElement patternSequenceNode( "patternSequence" );
