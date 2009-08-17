@@ -20,59 +20,45 @@
  *
  */
 
-#ifndef PLAYLIST_H
-#define PLAYLIST_H
+#ifndef VIRTUAL_PATTERN_DIALOG_H
+#define VIRTUAL_PATTERN_DIALOG_H
 
-#include <QDialog>
+#include "config.h"
+
+#include <QtGui>
+#include "ui_VirtualPatternDialog_UI.h"
+
 #include <hydrogen/Object.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include "gui/src/HydrogenApp.h"
-#include <vector>
-#include <cassert>
 
-
-
-///
-/// handle playlist  
-///
-
-class Playlist :  public Object
-
+namespace H2Core
 {
-	
+	class Pattern;
+	class PatternList;
+}
+
+
+///
+/// Virtual Pattern Dialog
+///
+class VirtualPatternDialog : public QDialog, public Ui_VirtualPatternDialog_UI, public Object
+{
+	Q_OBJECT
 	public:
-		static void create_instance();
-		static Playlist* get_instance() { assert(__instance); return __instance; }
-		
-		~Playlist();
+		VirtualPatternDialog( QWidget* parent );
+		~VirtualPatternDialog();
+		static void computeVirtualPatternTransitiveClosure(H2Core::PatternList *pPatternList);
 
-//		std::vector<HPlayListNode> m_PlayList;
-		void setNextSongByNumber(int SongNumber);	
-		void setNextSongPlaylist();
-		void setPrevSongPlaylist();
-		void setSelectedSongNr( int songNumber);
-
-		int selectedSongNumber;
-		
-		int getSelectedSongNr();
-		void setActiveSongNumber( int ActiveSongNumber);
-		int getActiveSongNumber();
-
-		QString __playlistName;
-
+	private slots:
+		void on_cancelBtn_clicked();
+		void on_okBtn_clicked();
 
 	private:
 
-		static Playlist* __instance;
 
-		/// Constructor
-		Playlist();
 
-		void loadSong( QString songName );
-		void execScript( int index);
 };
 
 
 #endif
+
+

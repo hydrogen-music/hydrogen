@@ -55,7 +55,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	setupUi ( this );
 	INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "Play List Browser" ) );
+	setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" ") + QString("- ") + QString( Playlist::get_instance()->__playlistName  ) );
 	setFixedSize ( width(), height() );
 	installEventFilter(this);
 
@@ -72,6 +72,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	removeFromListBTN->setEnabled ( false );
 	removeFromListBTN->setEnabled ( false );
 	saveListBTN->setEnabled ( false );
+	saveListAsBTN->setEnabled ( false );
 	nodePlayBTN->setEnabled ( false );
 	loadScriptBTN->hide();
 	removeScriptBTN->hide();
@@ -98,6 +99,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	removeFromListBTN->setEnabled ( false );
 	removeFromListBTN->setEnabled ( false );
 	saveListBTN->setEnabled ( false );
+	saveListAsBTN->setEnabled ( false );
 	nodePlayBTN->setEnabled ( false );
 	loadScriptBTN->setEnabled ( false );
 	removeScriptBTN->setEnabled ( false );
@@ -153,6 +155,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		removeFromListBTN->setEnabled ( true );
 		removeFromListBTN->setEnabled ( true );
 		saveListBTN->setEnabled ( true );
+		saveListAsBTN->setEnabled ( true );
 		nodePlayBTN->setEnabled ( true );
 		loadScriptBTN->setEnabled ( true );
 		removeScriptBTN->setEnabled ( true );
@@ -211,6 +214,21 @@ void PlaylistDialog::on_addSongBTN_clicked()
 
 }
 
+void PlaylistDialog::on_addCurrentSongBTN_clicked()
+{
+	Song *song = Hydrogen::get_instance()->getSong();
+	QString filename = song->get_filename();
+	
+
+	if (filename == "") {
+		// just in case!
+		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Pleas save your song first" ));
+		return;
+	}
+	filename += ".h2song";
+	updatePlayListNode ( filename );
+}
+
 
 void PlaylistDialog::on_removeFromListBTN_clicked()
 {
@@ -235,8 +253,11 @@ void PlaylistDialog::on_removeFromListBTN_clicked()
 			nodePlayBTN->setEnabled ( false );
 			removeFromListBTN->setEnabled ( false );
 			saveListBTN->setEnabled ( false );
+			saveListAsBTN->setEnabled ( false );
 			loadScriptBTN->setEnabled ( false );
 			clearPlBTN->setEnabled ( false );
+			Playlist::get_instance()->__playlistName = "";
+			setWindowTitle ( trUtf8 ( "Play List Browser" ) );
 			return;
 		}else
 		{	
@@ -266,8 +287,11 @@ void PlaylistDialog::on_clearPlBTN_clicked()
 	nodePlayBTN->setEnabled ( false );
 	removeFromListBTN->setEnabled ( false );
 	saveListBTN->setEnabled ( false );
+	saveListAsBTN->setEnabled ( false );
 	loadScriptBTN->setEnabled ( false );
 	clearPlBTN->setEnabled ( false );
+	Playlist::get_instance()->__playlistName = "";
+	setWindowTitle ( trUtf8 ( "Play List Browser" ) );
 	return;	
 }
 
@@ -285,6 +309,7 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 	nodePlayBTN->setEnabled ( true );
 	removeFromListBTN->setEnabled ( true );
 	saveListBTN->setEnabled ( true );
+	saveListAsBTN->setEnabled ( true );
 	clearPlBTN->setEnabled ( true );
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -333,6 +358,7 @@ void PlaylistDialog::on_loadListBTN_clicked()
 			removeFromListBTN->setEnabled ( true );
 			removeFromListBTN->setEnabled ( true );
 			saveListBTN->setEnabled ( true );
+			saveListAsBTN->setEnabled ( true );
 			nodePlayBTN->setEnabled ( true );
 			loadScriptBTN->setEnabled ( true );
 			removeScriptBTN->setEnabled ( true );
@@ -343,6 +369,8 @@ void PlaylistDialog::on_loadListBTN_clicked()
 			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( 0 );
 			m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 			Playlist::get_instance()->setSelectedSongNr( 0 );
+			Playlist::get_instance()->__playlistName = filename;
+			setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" ") +  QString("- ") + QString( Playlist::get_instance()->__playlistName  ) );
 		}
 
 	}
@@ -423,7 +451,7 @@ void PlaylistDialog::on_newScriptBTN_clicked()
 }
 
 
-void PlaylistDialog::on_saveListBTN_clicked()
+void PlaylistDialog::on_saveListAsBTN_clicked()
 {
 
 	QString sDirectory =  Preferences::get_instance()->getDataDirectory()  + "playlists/";
@@ -452,7 +480,28 @@ void PlaylistDialog::on_saveListBTN_clicked()
 	int err = fileMng.savePlayList( filename.toStdString() );
 	if ( err != 0 ) {
 		_ERRORLOG( "Error saving the playlist" );
+	}else
+	{
+		Playlist::get_instance()->__playlistName = filename;
+		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" ") +  QString("- ") + QString( Playlist::get_instance()->__playlistName  ) );
 	}
+}
+
+
+void PlaylistDialog::on_saveListBTN_clicked()
+{
+
+	if ( Playlist::get_instance()->__playlistName == "") {
+		// just in case!
+		return on_saveListAsBTN_clicked();
+	}
+
+	LocalFileMng fileMng;
+	int err = fileMng.savePlayList( Playlist::get_instance()->__playlistName.toStdString() );
+	if ( err != 0 ) {
+		_ERRORLOG( "Error saving the playlist" );
+	}
+
 }
 
 

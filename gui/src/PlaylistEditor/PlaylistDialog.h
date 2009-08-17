@@ -51,10 +51,12 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 
 	private slots:
 		void on_addSongBTN_clicked();
+		void on_addCurrentSongBTN_clicked();
 		void on_removeFromListBTN_clicked();
 		void on_removeScriptBTN_clicked();
 		void on_clearPlBTN_clicked();
 		void on_loadListBTN_clicked();
+		void on_saveListAsBTN_clicked();
 		void on_saveListBTN_clicked();
 		void on_loadScriptBTN_clicked();
 		void on_nodePlayBTN_clicked();
