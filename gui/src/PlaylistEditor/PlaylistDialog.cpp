@@ -68,11 +68,11 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	// Playlist menu
 	QMenu *m_pPlaylistMenu = m_pMenubar->addMenu( trUtf8( "&Playlist" ) );
 
-	m_pPlaylistMenu->addAction( trUtf8( "&Add Song to Playlist" ), this, SLOT( addSong() ), QKeySequence( "" ) );
-	m_pPlaylistMenu->addAction( trUtf8( "Add &current Song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "" ) );
+	m_pPlaylistMenu->addAction( trUtf8( "Add song to Play&list" ), this, SLOT( addSong() ), QKeySequence( "" ) );
+	m_pPlaylistMenu->addAction( trUtf8( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();				// -----
-	m_pPlaylistMenu->addAction( trUtf8( "&Remove selected Song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence( "" ) );
-	m_pPlaylistMenu->addAction( trUtf8( "Remove all Songs from &Playlistist " ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
+	m_pPlaylistMenu->addAction( trUtf8( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence( "" ) );
+	m_pPlaylistMenu->addAction( trUtf8( "Remove all songs from &Playlistist " ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
 	m_pPlaylistMenu->addAction( trUtf8( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
@@ -85,7 +85,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	// Script menu
 	QMenu *m_pScriptMenu = m_pMenubar->addMenu( trUtf8( "&Scripts" ) );
 
-	m_pScriptMenu->addAction( trUtf8( "&Add Script to selected Song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
+	m_pScriptMenu->addAction( trUtf8( "&Add Script to selected song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
 	m_pScriptMenu->addAction( trUtf8( "&Edit selected Script" ), this, SLOT( editScript() ), QKeySequence( "" ) );
 	m_pScriptMenu->addSeparator();
 	m_pScriptMenu->addAction( trUtf8( "&Remove selected Script" ), this, SLOT( removeScript() ), QKeySequence( "" ) );
@@ -125,7 +125,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	);
 	m_pPlayBtn->move(33, 6);
 	m_pPlayBtn->setPressed(false);
-	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
+	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause/ Load selected song") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(nodePlayBTN(Button*)));
 
 	// Stop button
@@ -778,6 +778,10 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			m_pPlayBtn->setPressed(false);
 			return;
 		}
+
+		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
+		int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
+		Playlist::get_instance()->setActiveSongNumber( index );
 	
 		pH2App->setSong ( pSong );
 		engine->setSelectedPatternNumber ( 0 );
