@@ -34,6 +34,8 @@
 
 
 class Button;
+class ToggleButton;
+class PixmapWidget;
 
 ///
 /// This dialog is used to use the H2PlayList
@@ -50,19 +52,21 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 
 
 	private slots:
-		void on_addSongBTN_clicked();
-		void on_addCurrentSongBTN_clicked();
-		void on_removeFromListBTN_clicked();
-		void on_removeScriptBTN_clicked();
-		void on_clearPlBTN_clicked();
-		void on_loadListBTN_clicked();
-		void on_saveListAsBTN_clicked();
-		void on_saveListBTN_clicked();
-		void on_loadScriptBTN_clicked();
-		void on_nodePlayBTN_clicked();
-		void on_nodeStopBTN_clicked();
-		void on_editScriptBTN_clicked();
-		void on_newScriptBTN_clicked();
+		void addSong();
+		void addCurrentSong();
+		void removeFromList();
+		void removeScript();
+		void clearPlaylist();
+		void loadList();
+		void saveListAs();
+		void saveList();
+		void loadScript();
+		void ffWDBtnClicked(Button* ref);
+		void nodePlayBTN( Button* ref );
+		void nodeStopBTN( Button* ref );
+		void rewindBtnClicked(Button *ref);
+		void editScript();
+		void newScript();
 		void on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column );
 		void o_upBClicked();
 		void o_downBClicked();
@@ -78,6 +82,11 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 		void setFirstItemCurrent();
 		Button *zoom_in_btn;
 		QTimer *timer;
+
+		Button *m_pRwdBtn;
+		ToggleButton *m_pPlayBtn;
+		Button *m_pStopBtn;
+		Button *m_pFfwdBtn;
 };
 
 
