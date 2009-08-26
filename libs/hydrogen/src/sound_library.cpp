@@ -254,6 +254,7 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 	for ( uint nInstrument = 0; nInstrument < pSongInstrList->get_size(); nInstrument++ ) {
 		Instrument *pOldInstr = pSongInstrList->get( nInstrument );
 		Instrument *pNewInstr = new Instrument( pOldInstr->get_id(), pOldInstr->get_name(), new ADSR( *( pOldInstr->get_adsr() ) ) );
+		pNewInstr->set_gain( pOldInstr->get_gain() );
 		pNewInstr->set_volume( pOldInstr->get_volume() );
 		pNewInstr->set_pan_l( pOldInstr->get_pan_l() );
 		pNewInstr->set_pan_r( pOldInstr->get_pan_r() );
