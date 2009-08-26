@@ -37,6 +37,7 @@ class InstrumentEditorPanel : public QWidget, private Object
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
 
+		void updateInstrumentEditor();
 		void selectLayer( int nLayer );
 	private:
 		static InstrumentEditorPanel* m_pInstance;
