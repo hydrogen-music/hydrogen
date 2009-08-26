@@ -70,6 +70,10 @@ InstrumentEditorPanel::~InstrumentEditorPanel()
 }
 
 
+void InstrumentEditorPanel::updateInstrumentEditor()
+{
+	m_pInstrumentEditor->selectedInstrumentChangedEvent();
+}
 
 void InstrumentEditorPanel::selectLayer( int nLayer )
 {

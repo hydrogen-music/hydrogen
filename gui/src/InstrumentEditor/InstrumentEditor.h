@@ -57,6 +57,10 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		void selectLayer( int nLayer );
 		void setFileforLayer(QString filename );
 
+		// implements EventListener interface
+		virtual void selectedInstrumentChangedEvent();
+		//~ implements EventListener interface
+
 	private slots:
 		void rotaryChanged(Rotary *ref);
 		void filterActiveBtnClicked(Button *ref);
@@ -139,9 +143,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 		//~ Layer properties
 
 
-		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent();
-		//~ implements EventListener interface
+
 
 		void loadLayer();
 		void setAutoVelocity();

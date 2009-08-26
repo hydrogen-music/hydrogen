@@ -155,6 +155,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 	
 	// update instrument properties
+	this->set_gain( placeholder->get_gain() );
 	this->set_id( placeholder->get_id() );
 	this->set_name( placeholder->get_name() );
 	this->set_pan_l( placeholder->get_pan_l() );

@@ -136,6 +136,118 @@ Preferences::Preferences()
 	__expandPatternItem = true; //SoundLibraryPanel 
 	__usetimeline = false;		// use timeline
  
+
+	/////////////////////////////////////////////////////////////////////////
+	/////////////////// DEFAULT SETTINGS ////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+	m_bFollowPlayhead = true;
+	// SEE ABOVE: m_brestartLash
+	// SEE ABOVE: m_bsetLash
+
+	m_bbc = false;
+	m_mmcsetplay = false;
+	
+	m_countOffset = 0;  // beatcounter
+	m_startOffset = 0;  // beatcounter
+
+	sServerList.push_back( QString("http://www.hydrogen-music.org/feeds/drumkit_list.php") );
+	m_patternCategories.push_back( QString("not_categorized") );
+
+	//___ audio engine properties ___
+	m_sAudioDriver = QString("Auto");
+	m_bUseMetronome = false;
+	m_fMetronomeVolume = 0.5;
+	m_nMaxNotes = 256;
+	m_nBufferSize = 1024;
+	m_nSampleRate = 44100;
+
+	//___ oss driver properties ___
+	m_sOSSDevice = QString("/dev/dsp");
+
+	//___ MIDI Driver properties
+	m_sMidiDriver = QString("ALSA");
+	m_sMidiPortName = QString("None");
+	m_nMidiChannelFilter = -1;
+	m_bMidiNoteOffIgnore = false;
+	m_bMidiDiscardNoteAfterAction = false;
+
+	//___  alsa audio driver properties ___
+	m_sAlsaAudioDevice = QString("hw:0");
+
+	//___  jack driver properties ___
+	m_sJackPortName1 = QString("alsa_pcm:playback_1");
+	m_sJackPortName2 = QString("alsa_pcm:playback_2");
+	m_bJackTransportMode = true;
+	m_bJackConnectDefaults = true;
+	m_bJackTrackOuts = false;
+	m_nJackTrackOutputMode = 0;
+	m_bJackMasterMode = false ;
+
+	// None: m_sDefaultEditor;
+	// SEE ABOVE: m_sDataDirectory
+	// SEE ABOVE: demoPath
+
+	//___ General properties ___
+	m_bPatternModePlaysSelected = true;
+	restoreLastSong = true;
+	m_bUseLash = false;
+	m_bShowDevelWarning = false;
+	// NONE: lastSongFilename;
+	hearNewNotes = true;
+	// NONE: m_recentFiles;
+	// NONE: m_recentFX;
+	// NONE: m_ladspaPathVect;
+	quantizeEvents = true;
+	recordEvents = false;
+	m_sLastNews = QString("-");
+
+	//___ GUI properties ___
+	m_sQTStyle = "Plastique";
+	applicationFontFamily = "Lucida Grande";
+	applicationFontPointSize = 10;
+	mixerFontFamily = "Lucida Grande";
+	mixerFontPointSize = 11;
+	mixerFalloffSpeed = 1.1;
+	m_nPatternEditorGridResolution = 8;
+	m_bPatternEditorUsingTriplets = false;
+	m_bShowInstrumentPeaks = true;
+	m_bIsFXTabVisible = true;
+	m_nPatternEditorGridHeight = 21;
+	m_nPatternEditorGridWidth = 3;
+	mainFormProperties.set(0, 0, 1000, 700, true);
+	mixerProperties.set(10, 350, 829, 276, true);
+	patternEditorProperties.set(280, 100, 706, 439, true);
+	songEditorProperties.set(10, 10, 600, 250, true);
+	drumkitManagerProperties.set(500, 20, 526, 437, true);
+	audioEngineInfoProperties.set(720, 120, 0, 0, false);
+	m_ladspaProperties[0].set(2, 20, 0, 0, false);
+	m_ladspaProperties[1].set(2, 20, 0, 0, false);
+	m_ladspaProperties[2].set(2, 20, 0, 0, false);
+	m_ladspaProperties[3].set(2, 20, 0, 0, false);
+
+	UIStyle* uis = m_pDefaultUIStyle;
+	uis->m_songEditor_backgroundColor = H2RGBColor(95, 101, 117);
+	uis->m_songEditor_alternateRowColor = H2RGBColor(128, 134, 152);
+	uis->m_songEditor_selectedRowColor = H2RGBColor(128, 134, 152);
+	uis->m_songEditor_lineColor = H2RGBColor(72, 76, 88);
+	uis->m_songEditor_textColor = H2RGBColor(196, 201, 214);
+	uis->m_songEditor_pattern1Color = H2RGBColor(97, 167, 251);
+	uis->m_patternEditor_backgroundColor = H2RGBColor(167, 168, 163);
+	uis->m_patternEditor_alternateRowColor = H2RGBColor(167, 168, 163);
+	uis->m_patternEditor_selectedRowColor = H2RGBColor(207, 208, 200);
+	uis->m_patternEditor_textColor = H2RGBColor(40, 40, 40);
+	uis->m_patternEditor_noteColor = H2RGBColor(40, 40, 40);
+	uis->m_patternEditor_lineColor = H2RGBColor(65, 65, 65);
+	uis->m_patternEditor_line1Color = H2RGBColor(75, 75, 75);
+	uis->m_patternEditor_line2Color = H2RGBColor(95, 95, 95);
+	uis->m_patternEditor_line3Color = H2RGBColor(115, 115, 115);
+	uis->m_patternEditor_line4Color = H2RGBColor(125, 125, 125);
+	uis->m_patternEditor_line5Color = H2RGBColor(135, 135, 135);
+	
+	/////////////////////////////////////////////////////////////////////////
+	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+
 	loadPreferences( true );	// Global settings
 	loadPreferences( false );	// User settings
 }
@@ -1120,6 +1232,9 @@ H2RGBColor::H2RGBColor( int r, int g, int b )
 		, m_blue( b )
 {
 //	infoLog( "INIT" );
+	m_red %= 256;
+	m_green %= 256;
+	m_blue %= 256;
 }
 
 
@@ -1141,6 +1256,10 @@ H2RGBColor::H2RGBColor( const QString& sColor )
 	m_red = list[0].toInt();
 	m_green = list[1].toInt();
 	m_blue = list[2].toInt();
+
+	m_red %= 256;
+	m_green %= 256;
+	m_blue %= 256;
 
 /*
 	int nPos = temp.indexOf( ',' );
