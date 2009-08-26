@@ -452,20 +452,22 @@ void PlaylistDialog::newScript()
 	{
 		return;
 	}
+
+	if( filename.contains(" ", Qt::CaseInsensitive)){
+		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
+		return;
+	}
 	
-	std::string name = filename.toStdString();
-
-	char *file;
-	file = new char[name.length() + 1];
-	strcpy(file, name.c_str());
-
-	ofstream newfile;
-	newfile.open ( file );
-	newfile << "#!/bin/sh\n\n#have phun";
-	newfile.close();
-	delete [] file;
 
 	QFile chngPerm ( filename );
+	if (!chngPerm.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+
+	QTextStream out(&chngPerm);
+	out <<  "#!/bin/sh\n\n#have phun";
+	chngPerm.close();
+
+
 	if (chngPerm.exists() ) {
 		chngPerm.setPermissions( QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner );
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "WARNING, the new file is executable by the owner of the file!" ) );
@@ -490,11 +492,11 @@ void PlaylistDialog::newScript()
 		}		
 	}
 
-	std::string  openfile = pPref->getDefaultEditor().toStdString() + " " + filename.toStdString() + "&";
+	QString  openfile = pPref->getDefaultEditor() + " " + filename + "&";
 
 	char *ofile;
 	ofile = new char[openfile.length() + 1];
-	strcpy(ofile, openfile.c_str());
+	strcpy(ofile, openfile.toAscii());
 	std::system( ofile ); 
 	delete [] ofile;
 	return;
@@ -580,10 +582,9 @@ void PlaylistDialog::loadScript()
 	QString filename = "";
 	if ( fd->exec() == QDialog::Accepted ){
 		filename = fd->selectedFiles().first();
+//		filename = filename.simplified();
 
-		std::string filetest = filename.toStdString();
-		int error = filetest.rfind(" ");
-		if(error >= 0){
+		if( filename.contains(" ", Qt::CaseInsensitive)){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
 			return;
 		}
@@ -651,7 +652,7 @@ void PlaylistDialog::editScript()
 	QString selected = "";
 	selected = m_pPlaylistItem->text ( 1 );
 
-	std::string filename = pPref->getDefaultEditor().toStdString() + " " + selected.toStdString() + "&";
+	QString filename = pPref->getDefaultEditor() + " " + selected + "&";
 
 	if( selected == "no Script"){
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script selected!" ));
@@ -660,10 +661,11 @@ void PlaylistDialog::editScript()
 
 	char *file;
 	file = new char[ filename.length() + 1 ];
-	strcpy( file , filename.c_str() );
+	strcpy( file , filename.toAscii() );
 	std::system( file ); 
 	delete [] file;
 	return;
+
 }
 
 
@@ -874,7 +876,6 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	QString execscript = "";
 	selected = m_pPlaylistItem->text ( 1 );
 	bool execcheckbox = m_pPlaylistItem->checkState ( 2 );
-	std::string filename = selected.toStdString();
 
 	if( execcheckbox == false){
 		//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script selected!" ));
@@ -887,8 +888,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	}
 
 	char *file;
-	file = new char[ filename.length() + 1 ];
-	strcpy( file , filename.c_str() );
+	file = new char[ selected.length() + 1 ];
+	strcpy( file , selected.toAscii() );
 	std::system( file ); 
 	delete [] file;
 	return;
