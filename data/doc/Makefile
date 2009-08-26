@@ -16,6 +16,7 @@ ALL_MANUALS = manual_en.html \
 	manual_es.html \
 	manual_fr.html \
 	manual_it.html \
+	manual_ca.html \
 	manual_nl.html
 
 ALL_TUTORIALS = tutorial_en.html \
