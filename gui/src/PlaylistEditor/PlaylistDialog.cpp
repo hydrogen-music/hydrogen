@@ -465,6 +465,11 @@ void PlaylistDialog::newScript()
 	newfile.close();
 	delete [] file;
 
+	QFile chngPerm ( filename );
+	if (chngPerm.exists() ) {
+		chngPerm.setPermissions( QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner );
+		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "WARNING, the new file is executable by the owner of the file!" ) );
+	}
 	
 	if( pPref->getDefaultEditor() == ""){
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Default Editor Set. Please set your Default Editor\nDo not use a console based Editor\nSorry, but this will not work for the moment." ) );
