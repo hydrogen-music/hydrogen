@@ -1,0 +1,75 @@
+DEVELOPER INFO
+==============
+
+MAKING A RELEASE
+----------------
+
+Transitioning the code to remove some of the development hooks in
+order to make a release has several, easy-to-forget steps.  They are:
+
+  1. Remove the developer hook for 'version':
+
+     a. Near the end of SConstruct, where it has 'extra_version',
+        remove that.
+
+     b. If you are bumping the revision, also do that in SConstruct.
+
+     c. Update linux/debian/changelog
+
+  2. Remove the 'developer warning': in data/hydrogen.default.conf
+     change hydrogen_preferences/showDevelWarning to "false".
+
+  3. Commit your changes to trunk.
+
+  4. Make a tarball of the release (gzipped).  Use gzip instead of
+     bzip2 for the folks on Windows.  Tarballs should be named:
+                   
+                   +--- Relese version
+                   |
+                   |    +--- Extra release version info
+                 __|__ _|_
+        hydrogen-0.9.4-rc2.tar.gz
+
+  5. If this is an RC release, the following steps are optional.
+
+  6. In a clean directory, test build the tarball in as many ways as
+     you can.  Call your friends.  Have a party.  Be sure to build
+     packages on as many systems as possible.  Be sure to install
+     and uninstall them, too.
+
+  7. Go ahead and build binary packages.  Follow the naming convention
+     for the platform that you're building for.
+
+       Linux:    hydrogen_0.9.4rc2_distro_arch.pkg
+                 distro:  the GNU/Linux distro (e.g. 'lenny' for Debian)
+                 arch:    the processor it's built for (e.g. i686)
+                 pkg:     the package management system (deb, rpm)
+       OS X:     hydrogen_0.9.4rc2_arch.dmg
+                 (arch is optional if the binary will work on both.)
+       Windows:  hydrogen_0.9.4rc2.exe
+
+  8. If the release passes these "internal" tests, tag the
+     release.  Remember, after tagging the release you may not
+     commit changes to the tag.
+
+        svn cp http://svn.assembla.com/svn/hydrogen/trunk \
+               http://svn.assembla.com/svn/hydrogen/tags/0.9.4
+
+  9. If this is a major release (e.g. 0.9.4), then make a branch for
+     maintenance patches for your release.  If this is a maintenance
+     release (e.g. 0.9.4.1) then skip this step.
+
+        svn cp http://svn.assembla.com/svn/hydrogen/trunk \
+               http://svn.assembla.com/svn/hydrogen/branches/0.9.4
+
+  10. Make announcements.
+
+CODING CONVENTIONS
+------------------
+
+Use the 'linux' indention.  (i.e. Tabs) Allow extra space within
+parentheses, like this:
+
+     while( !done ) {
+             foo();
+     }
