@@ -58,6 +58,13 @@ public:
 
 	WindowProperties();
 	~WindowProperties();
+
+	void set(int _x, int _y, int _width, int _height, bool _visible) {
+		x = _x; y = _y;
+		width = _width; height = _height;
+		visible = _visible;
+	}
+		
 };
 
 
