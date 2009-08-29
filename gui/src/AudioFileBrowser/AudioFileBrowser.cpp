@@ -383,7 +383,6 @@ void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 		tree->setRootIndex( model->index( updir ) );
 		tree->collapse( model->index( updir  ) );
 		tree->setExpanded( model->index(updir), false  );
-		ERRORLOG("ups");
 		path = pathLineEdit->text();
 	}
 
