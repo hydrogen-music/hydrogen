@@ -368,24 +368,22 @@ QStringList AudioFileBrowser::selectedFile()
 
 void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 {
-	QString toremove = "";
+
 	QString path = pathLineEdit->text();
+	QStringList pathlist = path.split("/");
 
 	while( path != QDir::rootPath() ){
 
-		if ( path.endsWith( '/') ) {
-			toremove = path.section( '/', -2 );
-		}else
-		{
-			toremove = path.section( '/', -1 );
-		}
-		
-		QString updir =  path.replace( toremove, "" );
+		if( pathlist.isEmpty () )
+			break;
+		pathlist.removeLast();
+		QString updir = pathlist.join("/");
+
 		pathLineEdit->setText( updir );
 		tree->setRootIndex( model->index( updir ) );
 		tree->collapse( model->index( updir  ) );
 		tree->setExpanded( model->index(updir), false  );
-
+		ERRORLOG("ups");
 		path = pathLineEdit->text();
 	}
 
@@ -400,22 +398,24 @@ void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 
 void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 {
-	QString toremove = "";
 	QString path = pathLineEdit->text();
+	QStringList pathlist = path.split("/");
 
-	if ( path.length() <=1 ) 
+	if( pathlist.isEmpty () ){
 		return;
+	}
 
-	if ( path.endsWith( '/') ) {
-		toremove = path.section( '/', -2 );
+	pathlist.removeLast();
+	QString updir = pathlist.join("/");
+	if ( updir == "" ){
+		pathLineEdit->setText( QString("/") );	
+		filelineedit->setText( QString("/") );
 	}else
 	{
-		toremove = path.section( '/', -1 );
+		pathLineEdit->setText( updir );
+		filelineedit->setText( updir );
 	}
-	
-	QString updir =  path.replace( toremove, "" );
-	pathLineEdit->setText( updir );
-	filelineedit->setText( updir );
+
 	tree->setRootIndex( model->index( updir ) );
 	tree->collapse( model->index( updir  ) );
 	tree->setExpanded( model->index(updir), false  );
