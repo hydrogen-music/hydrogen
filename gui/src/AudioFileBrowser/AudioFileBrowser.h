@@ -55,6 +55,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public O
 		void on_cancelBTN_clicked();
 		void on_openBTN_clicked();
 		void clicked( const QModelIndex& index );
+		void doubleClicked( const QModelIndex& index );
 		void on_m_pPlayBtn_clicked();
 		void on_m_pStopBtn_clicked();
 		void updateModelIndex();
@@ -71,7 +72,11 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public O
 		InstrumentEditor* m_pInstrumentEditor;
 		QString m_psamplefilename;
 		QStringList m_pselectedFile;
+
+		void browseTree( const QModelIndex& index );
 		
+		void getEnvironment();
+		bool singleClick;
 		QDirModel *model;
 		QTreeView *tree;
 		QModelIndex __index;
