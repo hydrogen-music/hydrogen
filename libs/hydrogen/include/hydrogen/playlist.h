@@ -56,10 +56,11 @@ class Playlist :  public Object
 
 		int selectedSongNumber;
 		
-
 		int getSelectedSongNr();
 		void setActiveSongNumber( int ActiveSongNumber);
 		int getActiveSongNumber();
+
+		QString __playlistName;
 
 
 	private:
