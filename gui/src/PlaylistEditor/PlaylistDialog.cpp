@@ -56,7 +56,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	setupUi ( this );
 	INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" ") + QString("- ") + QString( Playlist::get_instance()->__playlistName  ) );
+	setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	setFixedSize ( width(), height() );
 	installEventFilter(this);
 
@@ -151,10 +151,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pFfwdBtn->move(92, 6);
 	m_pFfwdBtn->setToolTip( trUtf8("Fast Forward") );
 	connect(m_pFfwdBtn, SIGNAL(clicked(Button*)), this, SLOT(ffWDBtnClicked(Button*)));
-
-
-
-
 
 
 #ifdef WIN32
@@ -291,6 +287,7 @@ void PlaylistDialog::addSong()
 
 }
 
+
 void PlaylistDialog::addCurrentSong()
 {
 	Song *song = Hydrogen::get_instance()->getSong();
@@ -299,7 +296,7 @@ void PlaylistDialog::addCurrentSong()
 
 	if (filename == "") {
 		// just in case!
-		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Pleas save your song first" ));
+		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please save your song first" ));
 		return;
 	}
 //	filename += ".h2song";
@@ -417,7 +414,7 @@ void PlaylistDialog::loadList()
 			m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 			Playlist::get_instance()->setSelectedSongNr( 0 );
 			Playlist::get_instance()->__playlistName = filename;
-			setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" ") +  QString("- ") + QString( Playlist::get_instance()->__playlistName  ) );
+			setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 		}
 
 	}
@@ -540,7 +537,7 @@ void PlaylistDialog::saveListAs()
 	}else
 	{
 		Playlist::get_instance()->__playlistName = filename;
-		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" ") +  QString("- ") + QString( Playlist::get_instance()->__playlistName  ) );
+		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	}
 }
 
@@ -825,6 +822,7 @@ void PlaylistDialog::rewindBtnClicked( Button* ref )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
 }
+
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 {

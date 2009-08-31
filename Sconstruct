@@ -252,8 +252,8 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 		env.Append( LIBS = ["sndfile"] )
 	else:
 		env.Append( LIBS = ["sndfile-1"] )
-
-	if sys.platform == "win32":
+		env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
+		env.Append( LIBPATH = 'C:\Program Files\GnuWin32\lib' )
 		env.Append( LIBS = [ "pthread" ] )
 	
 	if str(env['lrdf']) == "1": env.Append( LIBS = ["lrdf"] )
@@ -278,9 +278,6 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 		env.Append( LINKFLAGS = ['-framework','Coreaudio'])
 
 
-
-	env.Append( LIBPATH = '3rdparty\libsndfile-1_0_17' )
-	env.Append( LIBPATH = 'C:\Program Files\GnuWin32\lib' )
 
 	app = env.Program(target = 'hydrogen', source = src )
 

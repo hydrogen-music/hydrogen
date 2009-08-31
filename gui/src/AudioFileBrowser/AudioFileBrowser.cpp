@@ -197,13 +197,13 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 	QString path = model->filePath( index );
 	pathLineEdit->setText( path );
-	filelineedit->setText( path );
 	m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
 
 	updateModelIndex(); //with this you have a navigation like konqueror 
 
 	if ( model->isDir( index ) ){
 		m_pPlayBtn->setEnabled( false );
+		openBTN->setEnabled( false );
 		return;
 	}
 
@@ -218,8 +218,10 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 	name = name.left( '.' );
 
 	QString message = "Name: " + name;
-	filelineedit->setText( path2 );
 	pathLineEdit->setText( onlypath );
+
+	QStringList path2List = path2.split("/");
+	QString fleTxt = path2List.last();
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -233,7 +235,8 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		( path2.endsWith( ".flac" ) ) ||
 		( path2.endsWith( ".FLAC" ) )
 		) {
-
+	
+			filelineedit->setText( fleTxt );
 			Sample *pNewSample = Sample::load( path2 );
 
 			if ( pNewSample ) {
@@ -315,6 +318,7 @@ void AudioFileBrowser::on_cancelBTN_clicked()
 
 void AudioFileBrowser::on_openBTN_clicked()
 {
+
 	if( tree->selectionModel()->selectedIndexes().size() / 4 > 0){
 
 		QList<QModelIndex>::iterator i;
@@ -387,7 +391,6 @@ void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 	}
 
 	pathLineEdit->setText( QDir::homePath() );
-	filelineedit->setText( QDir::homePath() );
 	tree->setRootIndex( model->index( QDir::homePath() ) );
 
 	tree->collapse( model->index( QDir::homePath())  );
@@ -404,15 +407,22 @@ void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 		return;
 	}
 
+	if( path.endsWith( "/" ) ){
+		pathlist.removeLast();
+		QString tmpupdir = pathlist.join("/");
+		tree->setRootIndex( model->index( tmpupdir ) );
+		tree->collapse( model->index( tmpupdir  ) );
+		tree->setExpanded( model->index( tmpupdir ), false  );
+	}
+
 	pathlist.removeLast();
+
 	QString updir = pathlist.join("/");
 	if ( updir == "" ){
 		pathLineEdit->setText( QString("/") );	
-		filelineedit->setText( QString("/") );
 	}else
 	{
 		pathLineEdit->setText( updir );
-		filelineedit->setText( updir );
 	}
 
 	tree->setRootIndex( model->index( updir ) );
