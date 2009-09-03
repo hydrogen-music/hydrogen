@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> <!-- -*- mode:nxml; indent-tabs-mode:nil; fill-column:80; -*- -->
-<!DOCTYPE book PUBLIC '-//OASIS//DTD DocBook V4.0//EN'
-                      'http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd'>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
+                      "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
 <book id="Hydrogen-manual" lang="en">
 
   <bookinfo>
@@ -56,89 +56,94 @@
         <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.3</command></screen>
       </para>
 
-      <para>
-        Compiling Hydrogen depends on the following libraries:
-        <itemizedlist mark="opencircle">
-          <listitem>
-            <para>qt (>= 4.0) at <ulink url="http://www.trolltech.com"/></para>
-          </listitem>
-          <listitem>
-            <para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/"/></para>
-          </listitem>
-          <listitem>
-            <para>ALSA (>= 1.x) at <ulink url="http://www.alsa-project.com"/> (only if you wish to use ALSA as audio driver)</para>
-          </listitem>
-          <listitem>
-            <para>Jack Audio Connection Kit (>= 0.80) at <ulink url="http://jackaudio.org/"/> (only if you wish to use Jack as audio driver)</para>
-          </listitem>
-          <listitem>
-            <para>PortAudio at <ulink url="http://www.portaudio.com"/> (only if you wish to use PortAudio as audio driver)</para>
-          </listitem>
-          <listitem>
-            <para>Flac at <ulink url="http://flac.sf.net"/> (only if you wish to use flac samples)</para>
-          </listitem>
-          <listitem>
-            <para>ladspa at <ulink url="http://ladspa.org"/> (only if you wish to use ladspa effects)</para>
-          </listitem>
-          <listitem>
-            <para>liblrdf at <ulink url="http://liblrdf.sf.net"/> (only if you wish to use lrdf to categorise effects)</para>
-          </listitem>
-          <listitem>
-            <para>lash at <ulink url="http://lash.nongnu.org"/> (only if you wish to use lash)</para>
-          </listitem>
-        </itemizedlist>
+      <para>Compiling Hydrogen depends on the following libraries:</para>
 
-        Please install them with your distribution's package manager. If you're
-        running a debian-based system, you can install the libraries with:
+      <itemizedlist mark="opencircle">
+        <listitem>
+          <para>qt (&gt;= 4.0) at <ulink url="http://www.trolltech.com">http://www.trolltech.com</ulink></para>
+        </listitem>
+        <listitem>
+          <para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/">http://www.mega-nerd.com/libsndfile/</ulink></para>
+        </listitem>
+        <listitem>
+          <para>ALSA (&gt;= 1.x) at <ulink url="http://www.alsa-project.com">http://www.alsa-project.com</ulink>
+          (only if you wish to use ALSA as audio driver)</para>
+        </listitem>
+        <listitem>
+          <para>Jack Audio Connection Kit (&gt;= 0.80) at 
+          <ulink url="http://jackaudio.org/">http://jackaudio.org/</ulink>
+          (only if you wish to use Jack as audio driver)</para>
+        </listitem>
+        <listitem>
+          <para>PortAudio at <ulink url="http://www.portaudio.com">http://www.portaudio.com</ulink>
+          (only if you wish to use PortAudio as audio driver)</para>
+        </listitem>
+        <listitem>
+          <para>Flac at <ulink url="http://flac.sf.net">http://flac.sf.net</ulink> (only if you
+          wish to use flac samples)</para>
+        </listitem>
+        <listitem>
+          <para>ladspa at <ulink url="http://ladspa.org">http://ladspa.org</ulink> (only if you wish
+          to use ladspa effects)</para>
+        </listitem>
+        <listitem>
+          <para>liblrdf at <ulink url="http://liblrdf.sf.net">http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)</para>
+        </listitem>
+        <listitem>
+          <para>lash at <ulink url="http://lash.nongnu.org">http://lash.nongnu.org</ulink> (only if
+          you wish to use lash)</para>
+        </listitem>
+      </itemizedlist>
 
-        <screen>
-          <prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \
-          libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
-          liblash-dev libportaudio-dev libportmidi-dev </command></screen>
-      </para>
+      <para>Please install them with your distribution's package manager. If
+      you're running a debian-based system, you can install the libraries
+      with:</para>
+
+      <screen>
+        <prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \
+        libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
+        liblash-dev libportaudio-dev libportmidi-dev </command>
+      </screen>
+
     </section>
 
     <section id="sect.compilation">
       <title>Build</title>
 
-      <para>
-        Decompress the tarball or go to the directory where the subversion copy
-        was checked out:
+      <para>Decompress the tarball or go to the directory where the subversion copy
+      was checked out:</para>
 
-        <screen>
-          <prompt>$</prompt> <command>cd hydrogen-*</command>
-          <prompt>$</prompt> <command>scons</command>
-          <prompt>$</prompt> <command>su -c "scons install"</command>
-        </screen>
-      </para>
+      <screen>
+        <prompt>$</prompt> <command>cd hydrogen-*</command>
+        <prompt>$</prompt> <command>scons</command>
+        <prompt>$</prompt> <command>su -c "scons install"</command>
+      </screen>
 
-      <para>
-        Before compiling, check for additional options with:
+      <para>Before compiling, check for additional options with:</para>
 
-        <screen>
-          <prompt>$</prompt> <command>scons --help</command>
-        </screen>
+      <screen>
+        <prompt>$</prompt> <command>scons --help</command>
+      </screen>
 
-        If you want to use features which are not enabled by default (for
-        instance PortAudio), you can enable them with:
+      <para>If you want to use features which are not enabled by default (for
+      instance PortAudio), you can enable them with:</para>
 
-        <screen>
-          <prompt>$</prompt> <command>scons portaudio=1</command>
-        </screen>
+      <screen>
+        <prompt>$</prompt> <command>scons portaudio=1</command>
+      </screen>
 
-        Namely, if you get some error while running Hydrogen and you want to
-        report it remember to configure hydrogen with:
+      <para>Namely, if you get some error while running Hydrogen and you want
+      to report it remember to configure hydrogen with:</para>
 
-        <screen>
-          <prompt>$</prompt> <command>scons debug=1</command>
-        </screen>
+      <screen>
+        <prompt>$</prompt> <command>scons debug=1</command>
+      </screen>
 
-        To clean up compiled code:
+      <para>To clean up compiled code:</para>
 
-        <screen>
-          <prompt>$</prompt> <command>scons -c</command>
-        </screen>
-      </para>
+      <screen>
+        <prompt>$</prompt> <command>scons -c</command>
+      </screen>
     </section>
 
     <section id="sect.preferences">
@@ -146,7 +151,7 @@
 
       <para>First of all you should make shure that the audio engine is
       configured properly.  The preferences dialog can be accessed via the tools
-      menu (tools -> preferences).</para>
+      menu (tools -&gt; preferences).</para>
 
       <section id="sect.preferences.audio_tab">
         <title>The Audio System tab</title>
@@ -1525,26 +1530,26 @@
 
       <para>Hydrogen can also add effects to sounds using any LADSPA plugin
       library. You need to have installed the LADSPA sources (available from
-      <ulink url="http://www.ladspa.org"/>) and while this will give a rough
-      idea of how it works you should really have a taste of the real thing
-      installing one or more plugin libraries, it's as simple as a
-      <command>scons &amp;&amp; scons install</command>.  Here are a few places
-      to download plugin libraries:</para>
+      <ulink url="http://www.ladspa.org">http://www.ladspa.org</ulink>) and
+      while this will give a rough idea of how it works you should really have a
+      taste of the real thing installing one or more plugin libraries, it's as
+      simple as a <command>scons &amp;&amp; scons install</command>.  Here are a
+      few places to download plugin libraries:</para>
 
       <itemizedlist>
         <listitem>
           <para>SWH-Plugins available at <ulink
-          url="http://plugin.org.uk"/>. Note that before compiling these plugins
+          url="http://plugin.org.uk">http://plugin.org.uk</ulink>. Note that before compiling these plugins
           you need the FFTW tarball from <ulink
-          url="http://www.fftw.org"/>.</para>
+          url="http://www.fftw.org">http://www.fftw.org</ulink>.</para>
         </listitem>
 
         <listitem>
-          <para>CMT available at <ulink url="http://www.ladspa.org"/>.</para>
+          <para>CMT available at <ulink url="http://www.ladspa.org">http://www.ladspa.org</ulink>.</para>
         </listitem>
 
         <listitem>
-          <para>TAP available at <ulink url="http://tap-plugins.sf.net"/>.</para>
+          <para>TAP available at <ulink url="http://tap-plugins.sf.net">http://tap-plugins.sf.net</ulink>.</para>
         </listitem>
 
       </itemizedlist>
