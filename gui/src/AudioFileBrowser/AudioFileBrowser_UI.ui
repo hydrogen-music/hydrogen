@@ -1,19 +1,20 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>AudioFileBrowser_UI</class>
- <widget class="QDialog" name="AudioFileBrowser_UI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="AudioFileBrowser_UI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>821</width>
-    <height>562</height>
+    <height>564</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QFrame" name="waveformview" >
-   <property name="geometry" >
+  <widget class="QFrame" name="waveformview">
+   <property name="geometry">
     <rect>
      <x>360</x>
      <y>390</y>
@@ -21,15 +22,15 @@
      <height>91</height>
     </rect>
    </property>
-   <property name="frameShape" >
+   <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>
    </property>
-   <property name="frameShadow" >
+   <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
   </widget>
-  <widget class="QFrame" name="infoframe" >
-   <property name="geometry" >
+  <widget class="QFrame" name="infoframe">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>390</y>
@@ -37,14 +38,14 @@
      <height>131</height>
     </rect>
    </property>
-   <property name="frameShape" >
+   <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>
    </property>
-   <property name="frameShadow" >
+   <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QWidget" name="layoutWidget" >
-    <property name="geometry" >
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
@@ -52,31 +53,31 @@
       <height>111</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3" >
+    <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QLabel" name="m_pNameLabel" >
-       <property name="text" >
+      <widget class="QLabel" name="m_pNameLabel">
+       <property name="text">
         <string>Name:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="m_pSamplerateLable" >
-       <property name="text" >
+      <widget class="QLabel" name="m_pSamplerateLable">
+       <property name="text">
         <string>Samplerate:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="m_pNBytesLable" >
-       <property name="text" >
+      <widget class="QLabel" name="m_pNBytesLable">
+       <property name="text">
         <string>Size:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="m_pLengthLable" >
-       <property name="text" >
+      <widget class="QLabel" name="m_pLengthLable">
+       <property name="text">
         <string>Length:</string>
        </property>
       </widget>
@@ -84,8 +85,8 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QCheckBox" name="playSamplescheckBox" >
-   <property name="geometry" >
+  <widget class="QCheckBox" name="playSamplescheckBox">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>530</y>
@@ -93,12 +94,12 @@
      <height>21</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Pla&amp;y samples by clicking</string>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget2" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget2">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
@@ -106,51 +107,57 @@
      <height>28</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" >
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QLineEdit" name="pathLineEdit" />
+     <widget class="QLineEdit" name="pathLineEdit"/>
     </item>
     <item>
-     <widget class="QRadioButton" name="hiddenCB" >
-      <property name="toolTip" >
+     <widget class="QRadioButton" name="hiddenCB">
+      <property name="toolTip">
        <string>View hidden folders</string>
       </property>
-      <property name="text" >
+      <property name="text">
        <string/>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QToolButton" name="m_pPathUptoolButton" >
-      <property name="text" >
+     <widget class="QToolButton" name="m_pPathUptoolButton">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="text">
        <string>&amp;Up</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QToolButton" name="m_pPathHometoolButton" >
-      <property name="text" >
+     <widget class="QToolButton" name="m_pPathHometoolButton">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="text">
        <string>&amp;Home</string>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="m_pPlayBtn" >
-   <property name="geometry" >
+  <widget class="QToolButton" name="m_pPlayBtn">
+   <property name="geometry">
     <rect>
      <x>360</x>
      <y>490</y>
-     <width>91</width>
+     <width>71</width>
      <height>26</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Play Sample</string>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget3" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget3">
+   <property name="geometry">
     <rect>
      <x>11</x>
      <y>41</y>
@@ -158,48 +165,48 @@
      <height>341</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" >
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTreeView" name="treeView" />
+     <widget class="QTreeView" name="treeView"/>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" >
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLineEdit" name="filelineedit" />
+       <widget class="QLineEdit" name="filelineedit"/>
       </item>
      </layout>
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="layoutWidget4" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget4">
+   <property name="geometry">
     <rect>
      <x>550</x>
      <y>490</y>
      <width>261</width>
-     <height>61</height>
+     <height>56</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QCheckBox" name="useNameCheckBox" >
-      <property name="text" >
+     <widget class="QCheckBox" name="useNameCheckBox">
+      <property name="text">
        <string>&amp;Filename to instrument name</string>
       </property>
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3" >
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QPushButton" name="openBTN" >
-        <property name="text" >
+       <widget class="QPushButton" name="openBTN">
+        <property name="text">
          <string>Open</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cancelBTN" >
-        <property name="text" >
+       <widget class="QPushButton" name="cancelBTN">
+        <property name="text">
          <string>Cancel</string>
         </property>
        </widget>
@@ -208,21 +215,21 @@
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="m_pStopBtn" >
-   <property name="geometry" >
+  <widget class="QToolButton" name="m_pStopBtn">
+   <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>440</x>
      <y>490</y>
-     <width>75</width>
+     <width>51</width>
      <height>26</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Stop</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="autoVelCheckBox" >
-   <property name="geometry" >
+  <widget class="QCheckBox" name="autoVelCheckBox">
+   <property name="geometry">
     <rect>
      <x>360</x>
      <y>530</y>
@@ -230,10 +237,10 @@
      <height>21</height>
     </rect>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Be careful, this change all Layer velocity settings </string>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Set automatic velocity</string>
    </property>
   </widget>

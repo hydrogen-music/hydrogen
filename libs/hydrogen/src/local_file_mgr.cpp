@@ -238,6 +238,9 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 		case 2: //save as
 			sPatternXmlFilename = patternname;
 			break;
+		case 3: //"save" but overwrite a existing pattern. mode 3 disable the last file exist check
+			sPatternXmlFilename = sPatternDir + "/" + QString( patternname + QString( ".h2pattern" ));
+			break;
 		default:
 			WARNINGLOG( "Pattern Save unknown status");
 			break;
@@ -291,7 +294,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.SaveFile();
 
 	QFile anotherTestfile( sPatternXmlFilename );
-	if ( ! anotherTestfile.exists() )
+	if ( !anotherTestfile.exists() )
 		return 1;
 
 	return 0; // ok
@@ -1192,13 +1195,13 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			if ( pSample == NULL ) continue;
 
 			QString sFilename = pSample->get_filename();
-
+//ERRORLOG(sFilename);
 			if ( instr->get_drumkit_name() != "" ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
 				int nPos = sFilename.lastIndexOf( "/" );
 				sFilename = sFilename.mid( nPos + 1, sFilename.length() );
 			}
-
+//ERRORLOG(sFilename);
 			TiXmlElement layerNode( "layer" );
 			LocalFileMng::writeXmlString( &layerNode, "filename", sFilename );
 			LocalFileMng::writeXmlString( &layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
