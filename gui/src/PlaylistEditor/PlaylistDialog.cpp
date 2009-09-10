@@ -98,7 +98,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	PixmapWidget *pControlsPanel = new PixmapWidget( NULL );
 	pControlsPanel->setFixedSize( 119, 32 );
 	pControlsPanel->setPixmap( "/playerControlPanel/playlist_background_Control.png" );
-	playerControl->addWidget( pControlsPanel );
+	vboxLayout->addWidget( pControlsPanel );
 	
 
 
