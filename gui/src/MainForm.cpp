@@ -274,8 +274,8 @@ void MainForm::createMenuBar()
 
 	//~ Tools menu
 
-
-	if ( Object::is_using_verbose_log() ) {
+        Logger *l = Logger::get_instance();
+        if ( l->get_log_level() == 15 ) {
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
