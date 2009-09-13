@@ -243,6 +243,9 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 		case 2: //save as
 			sPatternXmlFilename = patternname;
 			break;
+		case 3: //"save" but overwrite a existing pattern. mode 3 disable the last file exist check
+			sPatternXmlFilename = sPatternDir + "/" + QString( patternname + QString( ".h2pattern" ));
+			break;
 		default:
 			WARNINGLOG( "Pattern Save unknown status");
 			break;
@@ -282,14 +285,10 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 			writeXmlString( &noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
 			writeXmlString( &noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
 
-			writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );//Note::keyToString returns a valid QString
+			writeXmlString( &noteNode, "key", Note::keyToString( pNote->m_noteKey ) );
 
 			writeXmlString( &noteNode, "length", QString("%1").arg( pNote->get_length() ) );
 			writeXmlString( &noteNode, "instrument", pNote->get_instrument()->get_id() );
-
-			QString noteoff = "false"; 
-			if ( pNote->get_noteoff() ) noteoff = "true";			
-			writeXmlString( &noteNode, "note_off", noteoff );
 			noteListNode.InsertEndChild( noteNode );
 		}
 		patternNode.InsertEndChild( noteListNode );
@@ -300,7 +299,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	doc.SaveFile();
 
 	QFile anotherTestfile( sPatternXmlFilename );
-	if ( ! anotherTestfile.exists() )
+	if ( !anotherTestfile.exists() )
 		return 1;
 
 	return 0; // ok

@@ -1071,21 +1071,22 @@ void SongEditorPatternList::patternPopup_save()
 	Pattern *pat = song->get_pattern_list()->get( nSelectedPattern );
 
 	QString patternname = pat->get_name();
-	QString realpatternname = patternname;
 
 	LocalFileMng fileMng;
-	int err = fileMng.savePattern( song , nSelectedPattern, patternname, realpatternname, 1 );
-	if ( err != 0 ) {
-		switch ( err ){
-			case 1: //file exists 
-				QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Error saving pattern!\nThe pattern-file exists." ));
-				return; //exit patternPopup_save without update the drumkitlist	
-			default: //anything else
+	int err = fileMng.savePattern( song , nSelectedPattern, patternname, patternname, 1 );
+	if ( err == 1 ) {
+		int res = QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		if ( res == 0 ) {
+			int err2 = fileMng.savePattern( song , nSelectedPattern, patternname, patternname, 3 );
+			if( err2 == 1){
 				_ERRORLOG( "Error saving the pattern" );
-				break;
-
-	}
-	}
+				return;
+			} //if err2
+		}else{ // res cancel 
+			return;
+		} //if res	
+	} //if err
+	
 
 #ifdef WIN32
 	Sleep ( 10 );

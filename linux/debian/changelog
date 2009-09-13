@@ -1,5 +1,12 @@
-hydrogen (0.9.4rc2) unstable; urgency=low
+hydrogen (0.9.4) unstable; urgency=low
 
+
+  * Version 0.9.4
+
+  * added Catalonian translation
+  * cleaned up the PlaylistBrowser and AudioFileBrowser UI's
+  * fixed various issues with the AudioFileBrowser
+  * fixed reading/saving instrument gain settings
 
   * Version 0.9.4 rc2
 

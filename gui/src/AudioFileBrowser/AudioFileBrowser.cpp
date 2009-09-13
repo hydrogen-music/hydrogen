@@ -25,6 +25,7 @@
 #include "InstrumentEditor/InstrumentEditor.h"
 #include "SampleWaveDisplay.h"
 #include "../widgets/Button.h"
+#include "../Skin.h"
 
 #include <hydrogen/data_path.h>
 #include <hydrogen/Preferences.h>
@@ -71,12 +72,21 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 
 	sEmptySampleFilename = DataPath::get_data_path() + "/emptySample.wav";
 
+	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
+	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));
+	m_pPathHometoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-home.png"));
+	m_pPathHometoolButton->setToolTip( QString("Home"));
+
+	m_pPlayBtn->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/player_play.png"));
+	m_pPlayBtn->setToolTip( QString("Play selected"));
+	m_pStopBtn->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/player_stop.png"));
+	m_pStopBtn->setToolTip( QString("Stop"));
+
 	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
 	m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
 	m_pSampleWaveDisplay->move( 3, 3 );
 
 	playSamplescheckBox->setChecked( Preferences::get_instance()->__playsamplesonclicking );
-
 	//get the kde or gnome environment variable for mouse double or single clicking
 	singleClick = false;
 	getEnvironment();

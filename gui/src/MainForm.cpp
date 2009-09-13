@@ -274,8 +274,8 @@ void MainForm::createMenuBar()
 
 	//~ Tools menu
 
-
-	if ( Object::is_using_verbose_log() ) {
+        Logger *l = Logger::get_instance();
+        if ( l->get_log_level() == 15 ) {
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
@@ -1567,26 +1567,25 @@ void MainForm::latestVersionDone(bool bError)
 		QString sLatest = QString(sLatest_major) + "." +  QString(sLatest_minor) + "." + QString(sLatest_micro);
 		WARNINGLOG( "\n\n*** A newer version (v" + sLatest + ") of Hydrogen is available at http://www.hydrogen-music.org\n" );
 	}
-
-	if ( bUsingDevelVersion ) {
-		Preferences *pref = Preferences::get_instance();
-		bool isDevelWarningEnabled = pref->getShowDevelWarning();
-		if(isDevelWarningEnabled) {
-
-			QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
-			QMessageBox develMessageBox( this );
-			develMessageBox.setText( msg );
-			develMessageBox.addButton( QMessageBox::Ok );
-			develMessageBox.addButton( trUtf8( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
-
-			if( develMessageBox.exec() == 0 ){
-				//don't show warning again
-				pref->setShowDevelWarning( false );
-			}
-	  }
-
-
-	}
+//	if ( bUsingDevelVersion ) {
+//		Preferences *pref = Preferences::get_instance();
+//		bool isDevelWarningEnabled = pref->getShowDevelWarning();
+//		if(isDevelWarningEnabled) {
+//
+//			QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
+//			QMessageBox develMessageBox( this );
+//			develMessageBox.setText( msg );
+//			develMessageBox.addButton( QMessageBox::Ok );
+//			develMessageBox.addButton( trUtf8( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
+//
+//			if( develMessageBox.exec() == 0 ){
+//				//don't show warning again
+//				pref->setShowDevelWarning( false );
+//			}
+//	  }
+//
+//
+//	}
 }
 
 

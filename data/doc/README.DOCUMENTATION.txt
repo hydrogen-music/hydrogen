@@ -13,7 +13,8 @@ Contents:
 4. Documentors
 5. Developers
 6. XML and Validation
-7. INSTALL.txt Changelog
+7. Additional DocBook Authoring Restrictions
+8. README.DOCUMENTATION.txt Changelog
 
 1. Overview
 -----------
@@ -307,8 +308,72 @@ structure of DocBook, and are able to generate output based on that.
 However, if we feed them an invalid document, the tools may process
 the data -- but they probably won't process it *right*.
 
-7. README.DOCUMENTATION.txt Changelog
+7. Additional DocBook Authoring Restrictions
 -------------------------------------
+
+It has been found that poxml is assuming some things about the
+document structure that are not specified in any DTD.  (This is at
+least true for the KDE3 version of poxml.)  Thus, in order to get our
+files to work with poxml, we have to add the following restrictions:
+
+  * <para> may not contain an <itemizedlist>
+
+  * The 'msgid' string inside the .po file may not contain an empty
+    element.  So, if you have some text that includes
+    '<ulink url="http://www.foo.bar"/>', you will need to convert
+    it to '<ulink url="http://www.foo.bar">http://www.foo.bar</ulink>'
+
+  * You must use double quotes (") for attributes, not single ('),
+    even though BOTH are OK in XML.
+
+  * The manual may not have '>', it must always be '&gt;'.
+
+  * Avoid embedding a lot of structured markup inside a paragraph.
+    For example:
+
+       <para>Install hydrogen like this:
+         <screen>
+           <prompt>$</prompt> <command>apt-get hydrogen</command>
+         </screen>
+       </para>
+
+    This makes things a little funky in the PO files.  Also, it
+    doesn't really make sense to embed a <screen> (like HTML <pre>)
+    inside of a <para>.  Instead, do it like this:
+
+       <para>Install hydrogen like this:</para>
+
+       <screen>
+         <prompt>$</prompt> <command>apt-get hydrogen</command>
+       </screen>
+
+    However, if you *really* need to, go ahead and try it.  Just
+    be sure to test that it will match the strings for translation.
+
+  * If you change indention... in tags... be careful how that
+    affects the .po files.  For example, if you had:
+
+        <foo><bar>bat</bar><baz>zap</baz></foo>
+
+    But change it to:
+
+        <foo>
+          <bar>bat</bar>
+          <baz>zap</baz>
+        </foo>
+
+    You will need to add spaces in the .po files like this:
+
+    Before: "<foo><bar>bat</bar><baz>zap</baz></foo>"
+    After:  "<foo> <bar>bat</bar> <baz>zap</baz> </foo>"
+
+
+8. README.DOCUMENTATION.txt Changelog
+-------------------------------------
+
+2009-09-02 Gabriel M. Beddingfield <gabriel@teuton.org>
+	* Add section 7 Additional DocBook Authoring Restrictions.
+	* Fixed a typo in TOC for Changelog.
 
 2009-04-09 Gabriel M. Beddingfield <gabriel@teuton.org>
 	* Create README.DOCUMENTATION.txt
