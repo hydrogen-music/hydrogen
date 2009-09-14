@@ -30,6 +30,8 @@
 
 #include <hydrogen/Object.h>
 
+#include <QDomDocument>
+
 class TiXmlNode;
 
 namespace H2Core
@@ -75,8 +77,8 @@ public:
 	Drumkit* loadDrumkit( const QString& directory );
 	int saveDrumkit( Drumkit *pDrumkit );
 
-	static void writeXmlString( ::TiXmlNode *parent, const QString& name, const QString& text );
-	static void writeXmlBool( ::TiXmlNode *parent, const QString& name, bool value );
+	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
+	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 
 	Pattern* loadPattern( const QString& directory );
 	int savePattern( Song *song , int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
@@ -84,11 +86,13 @@ public:
 	int savePlayList( const std::string& patternname );
 	int loadPlayList( const std::string& patternname);
 
-	static QString readXmlString( ::TiXmlNode* parent, const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-	static int readXmlInt( ::TiXmlNode* parent, const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-	static float readXmlFloat( ::TiXmlNode* parent, const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true );
-	static bool readXmlBool(  ::TiXmlNode* parent, const QString& nodeName, bool defaultValue, bool bShouldExists = true );
-
+	static QString readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static float readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static int readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static bool readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );
+	static void convertFromTinyXMLString( QByteArray* str );
+	static bool checkTinyXMLCompatMode( const QString& filename );
+	static QDomDocument openXmlDocument( const QString& filename );
 
 private:
 	void fileCopy( const QString& sOrigFilename, const QString& sDestFilename );

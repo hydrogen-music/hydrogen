@@ -44,7 +44,9 @@
       <filetype>CMakeLists.txt</filetype>
     </filetypes>
     <blacklist>
-      <path>config.h</path>
+      <path>data</path>
+      <path>data/doc</path>
+      <path>data/doc/Makefile</path>
       <path>docs</path>
       <path>docs/docs.h</path>
       <path>extra</path>
@@ -52,141 +54,6 @@
       <path>extra/hydrogenPlayer/HydrogenPlayer.cpp</path>
       <path>extra/hydrogenSynth</path>
       <path>extra/hydrogenSynth/HydrogenSynth.cpp</path>
-      <path>gui/objs</path>
-      <path>gui/objs/moc_AboutDialog.cpp</path>
-      <path>gui/objs/moc_AudioEngineInfoForm.cpp</path>
-      <path>gui/objs/moc_Button.cpp</path>
-      <path>gui/objs/moc_ClickableLabel.cpp</path>
-      <path>gui/objs/moc_CpuLoadWidget.cpp</path>
-      <path>gui/objs/moc_DownloadWidget.cpp</path>
-      <path>gui/objs/moc_DrumkitManager.cpp</path>
-      <path>gui/objs/moc_DrumPatternEditor.cpp</path>
-      <path>gui/objs/moc_ExportSongDialog.cpp</path>
-      <path>gui/objs/moc_Fader.cpp</path>
-      <path>gui/objs/moc_FileBrowser.cpp</path>
-      <path>gui/objs/moc_HelpBrowser.cpp</path>
-      <path>gui/objs/moc_HydrogenApp.cpp</path>
-      <path>gui/objs/moc_InstrumentEditor.cpp</path>
-      <path>gui/objs/moc_InstrumentEditorPanel.cpp</path>
-      <path>gui/objs/moc_InstrumentRack.cpp</path>
-      <path>gui/objs/moc_LadspaFXProperties.cpp</path>
-      <path>gui/objs/moc_LadspaFXSelector.cpp</path>
-      <path>gui/objs/moc_LayerPreview.cpp</path>
-      <path>gui/objs/moc_LCDCombo.cpp</path>
-      <path>gui/objs/moc_LCD.cpp</path>
-      <path>gui/objs/moc_MainForm.cpp</path>
-      <path>gui/objs/moc_MidiActivityWidget.cpp</path>
-      <path>gui/objs/moc_midiTable.cpp</path>
-      <path>gui/objs/moc_Mixer.cpp</path>
-      <path>gui/objs/moc_MixerLine.cpp</path>
-      <path>gui/objs/moc_NotePropertiesRuler.cpp</path>
-      <path>gui/objs/moc_PatternEditorInstrumentList.cpp</path>
-      <path>gui/objs/moc_PatternEditorPanel.cpp</path>
-      <path>gui/objs/moc_PatternEditorRuler.cpp</path>
-      <path>gui/objs/moc_PatternFillDialog.cpp</path>
-      <path>gui/objs/moc_PatternPropertiesDialog.cpp</path>
-      <path>gui/objs/moc_PlayerControl.cpp</path>
-      <path>gui/objs/moc_PlaylistDialog.cpp</path>
-      <path>gui/objs/moc_PreferencesDialog.cpp</path>
-      <path>gui/objs/moc_Rotary.cpp</path>
-      <path>gui/objs/moc_SongEditor.cpp</path>
-      <path>gui/objs/moc_SongEditorPanel.cpp</path>
-      <path>gui/objs/moc_SongPropertiesDialog.cpp</path>
-      <path>gui/objs/moc_SoundLibraryExportDialog.cpp</path>
-      <path>gui/objs/moc_SoundLibraryImportDialog.cpp</path>
-      <path>gui/objs/moc_SoundLibraryPanel.cpp</path>
-      <path>gui/objs/moc_SoundLibraryRepositoryDialog.cpp</path>
-      <path>gui/objs/moc_SoundLibrarySaveDialog.cpp</path>
-      <path>gui/objs/moc_SoundLibraryTree.cpp</path>
-      <path>gui/objs/moc_SplashScreen.cpp</path>
-      <path>gui/objs/moc_WaveDisplay.cpp</path>
-      <path>gui/objs/ui_about_dialog.h</path>
-      <path>gui/objs/ui_AudioEngineInfoForm_UI.h</path>
-      <path>gui/objs/ui_DrumkitManager_UI.h</path>
-      <path>gui/objs/ui_ExportSongDialog_UI.h</path>
-      <path>gui/objs/ui_LadspaFXSelector_UI.h</path>
-      <path>gui/objs/ui_PatternFillDialog_UI.h</path>
-      <path>gui/objs/ui_PatternPropertiesDialog_UI.h</path>
-      <path>gui/objs/ui_PlaylistDialog_UI.h</path>
-      <path>gui/objs/ui_PreferencesDialog_UI.h</path>
-      <path>gui/objs/ui_SongPropertiesDialog_UI.h</path>
-      <path>gui/objs/ui_SoundLibraryExportDialog_UI.h</path>
-      <path>gui/objs/ui_SoundLibraryImportDialog_UI.h</path>
-      <path>gui/objs/ui_SoundLibraryRepositoryDialog_UI.h</path>
-      <path>gui/objs/ui_SoundLibrarySaveDialog_UI.h</path>
-      <path>gui/src/InstrumentEditor/moc_InstrumentEditor.cc</path>
-      <path>gui/src/InstrumentEditor/moc_InstrumentEditorPanel.cc</path>
-      <path>gui/src/InstrumentEditor/moc_LayerPreview.cc</path>
-      <path>gui/src/InstrumentEditor/moc_WaveDisplay.cc</path>
-      <path>gui/src/Mixer/moc_Mixer.cc</path>
-      <path>gui/src/Mixer/moc_MixerLine.cc</path>
-      <path>gui/src/moc_AboutDialog.cc</path>
-      <path>gui/src/moc_AudioEngineInfoForm.cc</path>
-      <path>gui/src/moc_DrumkitManager.cc</path>
-      <path>gui/src/moc_ExportSongDialog.cc</path>
-      <path>gui/src/moc_FilePreview.cc</path>
-      <path>gui/src/moc_HelpBrowser.cc</path>
-      <path>gui/src/moc_HydrogenApp.cc</path>
-      <path>gui/src/moc_InstrumentRack.cc</path>
-      <path>gui/src/moc_LadspaFXProperties.cc</path>
-      <path>gui/src/moc_LadspaFXSelector.cc</path>
-      <path>gui/src/moc_MainForm.cc</path>
-      <path>gui/src/moc_PatternFillDialog.cc</path>
-      <path>gui/src/moc_PatternPropertiesDialog.cc</path>
-      <path>gui/src/moc_PlayerControl.cc</path>
-      <path>gui/src/moc_PreferencesDialog.cc</path>
-      <path>gui/src/moc_SongPropertiesDialog.cc</path>
-      <path>gui/src/moc_SplashScreen.cc</path>
-      <path>gui/src/PatternEditor/moc_DrumPatternEditor.cc</path>
-      <path>gui/src/PatternEditor/moc_NotePropertiesRuler.cc</path>
-      <path>gui/src/PatternEditor/moc_PatternEditorInstrumentList.cc</path>
-      <path>gui/src/PatternEditor/moc_PatternEditorPanel.cc</path>
-      <path>gui/src/PatternEditor/moc_PatternEditorRuler.cc</path>
-      <path>gui/src/PlaylistEditor/moc_PlaylistDialog.cc</path>
-      <path>gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h</path>
-      <path>gui/src/precompiled.h</path>
-      <path>gui/src/SongEditor/moc_SongEditor.cc</path>
-      <path>gui/src/SongEditor/moc_SongEditorPanel.cc</path>
-      <path>gui/src/SoundLibrary/moc_FileBrowser.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibraryExportDialog.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibraryImportDialog.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibraryPanel.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibraryPropertiesDialog.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibraryRepositoryDialog.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibrarySaveDialog.cc</path>
-      <path>gui/src/SoundLibrary/moc_SoundLibraryTree.cc</path>
-      <path>gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h</path>
-      <path>gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h</path>
-      <path>gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h</path>
-      <path>gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h</path>
-      <path>gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h</path>
-      <path>gui/src/UI</path>
-      <path>gui/src/UI/ui_about_dialog.h</path>
-      <path>gui/src/UI/ui_AudioEngineInfoForm_UI.h</path>
-      <path>gui/src/UI/ui_DrumkitManager_UI.h</path>
-      <path>gui/src/UI/ui_ExportSongDialog_UI.h</path>
-      <path>gui/src/UI/ui_LadspaFXSelector_UI.h</path>
-      <path>gui/src/UI/ui_PatternFillDialog_UI.h</path>
-      <path>gui/src/UI/ui_PatternPropertiesDialog_UI.h</path>
-      <path>gui/src/UI/ui_PreferencesDialog_UI.h</path>
-      <path>gui/src/UI/ui_SongPropertiesDialog_UI.h</path>
-      <path>gui/src/widgets/moc_Button.cc</path>
-      <path>gui/src/widgets/moc_ClickableLabel.cc</path>
-      <path>gui/src/widgets/moc_CpuLoadWidget.cc</path>
-      <path>gui/src/widgets/moc_DownloadWidget.cc</path>
-      <path>gui/src/widgets/moc_Fader.cc</path>
-      <path>gui/src/widgets/moc_LCD.cc</path>
-      <path>gui/src/widgets/moc_LCDCombo.cc</path>
-      <path>gui/src/widgets/moc_MidiActivityWidget.cc</path>
-      <path>gui/src/widgets/moc_midiTable.cc</path>
-      <path>gui/src/widgets/moc_Rotary.cc</path>
-      <path>libs/hydrogen/src/xml</path>
-      <path>libs/hydrogen/src/xml/tinystr.cpp</path>
-      <path>libs/hydrogen/src/xml/tinystr.h</path>
-      <path>libs/hydrogen/src/xml/tinyxml.cpp</path>
-      <path>libs/hydrogen/src/xml/tinyxmlerror.cpp</path>
-      <path>libs/hydrogen/src/xml/tinyxml.h</path>
-      <path>libs/hydrogen/src/xml/tinyxmlparser.cpp</path>
       <path>plugins</path>
       <path>plugins/wasp</path>
       <path>plugins/wasp/include</path>
@@ -201,7 +68,6 @@
       <path>plugins/wasp/wasp_xshaper</path>
       <path>plugins/wasp/wasp_xshaper/xshaper.c</path>
       <path>version.h</path>
-      <path>version.cpp</path>
     </blacklist>
     <build>
       <buildtool>other</buildtool>
@@ -308,7 +174,7 @@
       <used>false</used>
       <version>3</version>
       <includestyle>3</includestyle>
-      <root></root>
+      <root>/usr/share/qt3</root>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
       <qmake>/usr/bin/qmake</qmake>
       <designer>/usr/bin/designer</designer>
@@ -350,12 +216,7 @@
       <synchronize>true</synchronize>
       <orientation>Vertical</orientation>
     </splitheadersource>
-    <references>
-      <pcs>automatic_%2Fhome%2Fcomix%2Fhydrogen_svn%2Ftrunk_qstring_ovunque</pcs>
-      <pcs>automatic_%2Finv%2FTOOLS</pcs>
-      <pcs>automatic_%2Fhome%2Fcomix%2Fprogetti%2Fhydrogen_svn%2Ftrunk</pcs>
-      <pcs>Qt4</pcs>
-    </references>
+    <references/>
     <designerintegration>
       <qtdesigner>
         <implementation class="MidiTable" path="gui/src/UI/PreferencesDialog_UI.ui" implementationpath="gui/src/widgets/midiTable.h" />

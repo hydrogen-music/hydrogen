@@ -53,7 +53,7 @@ void* diskWriterDriver_thread( void* param )
 		return 0;
 	}
 
-	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toAscii(), SFM_WRITE, &soundInfo );
+	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
 
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 

@@ -207,8 +207,8 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 	}
 	if ( desc_func ) {
 		for ( unsigned i = 0; ( pFX->m_d = desc_func( i ) ) != NULL; i++ ) {
-			QString sName = pFX->m_d->Name;
-			QString sLabel = pFX->m_d->Label;
+			QString sName = QString::fromLocal8Bit(pFX->m_d->Name);
+			QString sLabel = QString::fromLocal8Bit(pFX->m_d->Label);
 
 			if ( sLabel != sPluginLabel ) {
 				continue;
@@ -254,7 +254,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 		LADSPA_PortDescriptor pd = pFX->m_d->PortDescriptors[ nPort ];
 
 		if ( LADSPA_IS_CONTROL_INPUT( pd ) ) {
-			QString sName = pFX->m_d->PortNames[ nPort ];
+			QString sName = QString::fromLocal8Bit(pFX->m_d->PortNames[ nPort ]);
 			float fMin = 0.0;
 			float fMax = 0.0;
 			float fDefault = 0.0;
@@ -330,7 +330,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 			pFX->inputControlPorts.push_back( pControl );
 			pFX->m_d->connect_port( pFX->m_handle, nPort, &( pControl->fControlValue ) );
 		} else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
-			QString sName = pFX->m_d->PortNames[ nPort ];
+			QString sName = QString::fromLocal8Bit(pFX->m_d->PortNames[ nPort ]);
 			float fMin = 0.0;
 			float fMax = 0.0;
 			float fDefault = 0.0;

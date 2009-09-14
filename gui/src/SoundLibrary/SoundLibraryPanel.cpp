@@ -444,7 +444,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 			QString patternName = __sound_library_tree->currentItem()->text( 0 ) + ".h2pattern";
 			QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
 			
-			QString sDirectory = "";
+			QString sDirectory;
 		
 			std::vector<QString> patternDirList = mng.getPatternDirList();
 		
@@ -750,7 +750,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	Song *song = engine->getSong();
 	PatternList *pPatternList = song->get_pattern_list();
 	
-	QString sDirectory = "";
+	QString sDirectory;
 
 	std::vector<QString> patternDirList = mng.getPatternDirList();
 

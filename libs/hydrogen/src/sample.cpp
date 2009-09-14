@@ -92,7 +92,7 @@ Sample* Sample::load_wave( const QString& filename )
 
 
 	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( filename.toAscii(), SFM_READ, &soundInfo );
+	SNDFILE* file = sf_open( filename.toLocal8Bit(), SFM_READ, &soundInfo );
 	if ( !file ) {
 		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
 	}

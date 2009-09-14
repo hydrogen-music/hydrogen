@@ -417,7 +417,7 @@ void PreferencesDialog::on_driverComboBox_activated( int index )
 void PreferencesDialog::updateDriverInfo()
 {
 	Preferences *pPref = Preferences::get_instance();
-	QString info = "";
+	QString info;
 
 	bool bJack_support = false;
 	#ifdef JACK_SUPPORT

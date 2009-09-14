@@ -358,7 +358,7 @@ if ( msg.m_sysexData.size() == 6 ) {
 
 	} else {
 		// sysex dump
-		QString sDump = "";
+		QString sDump;
 		char tmpChar[64];
 		for ( int i = 0; i < ( int )msg.m_sysexData.size(); ++i ) {
 			sprintf( tmpChar, "%X ", ( int )msg.m_sysexData[ i ] );

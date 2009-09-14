@@ -144,7 +144,7 @@ void PortMidiDriver::open()
 		}
 
 		if ( info->input == TRUE ) {
-			if ( info->name == sMidiPortName.toStdString() ) {
+			if ( info->name == sMidiPortName.toLocal8Bit().constData() ) {
 				nDeviceId = i;
 			}
 		}

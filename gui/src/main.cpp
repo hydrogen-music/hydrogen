@@ -158,11 +158,11 @@ int main(int argc, char *argv[])
 
 			switch(c) {
 				case 'd':
-					sSelectedDriver = optarg;
+					sSelectedDriver = QString::fromLocal8Bit(optarg);
 					break;
 
 				case 's':
-					songFilename = optarg;
+					songFilename = QString::fromLocal8Bit(optarg);
 					break;
 
 				case 'v':
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 		pQApp->installTranslator( &tor );
 
 		QString sStyle = pPref->getQTStyle();
-		if (sStyle != "" ) {
+		if ( !sStyle.isEmpty() ) {
 			pQApp->setStyle( sStyle );
 		}
 
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 				lashClient->setNewProject(false);
 				
 				songFilename = "";
-				songFilename.append(lash_event_get_string(lash_event));
+				songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
 				songFilename.append("/hydrogen.h2song"); 
 				
 //				Logger::get_instance()->log("[LASH] Restore file: " + songFilename);

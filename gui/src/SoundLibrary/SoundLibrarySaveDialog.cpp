@@ -49,7 +49,7 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
 	INFOLOG( "!!!" );
 
-	if(nameTxt->text() == ""){
+	if( nameTxt->text().isEmpty() ){
 			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
 			return;
 	}

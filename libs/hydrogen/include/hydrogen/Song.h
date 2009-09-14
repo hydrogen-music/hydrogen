@@ -25,6 +25,7 @@
 
 
 #include <QString>
+#include <QDomNode>
 #include <vector>
 #include <map>
 
@@ -211,7 +212,7 @@ private:
 	QString m_sSongVersion;
 
 	/// Dato un XmlNode restituisce un oggetto Pattern
-	Pattern* getPattern( ::TiXmlNode* pattern, InstrumentList* instrList );
+	Pattern* getPattern( QDomNode pattern, InstrumentList* instrList );
 };
 
 

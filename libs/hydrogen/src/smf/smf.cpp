@@ -322,7 +322,7 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	}
 
 	// save the midi file
-	m_file = fopen( sFilename.toAscii(), "wb" );
+	m_file = fopen( sFilename.toLocal8Bit(), "wb" );
 	
 	if( m_file == NULL ) 
 		return;

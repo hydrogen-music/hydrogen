@@ -215,7 +215,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 {
 	UNUSED( previous );
 #ifdef LADSPA_SUPPORT
-	//INFOLOG( "new selection: " + currentItem->text(0).toStdString() );
+	//INFOLOG( "new selection: " + currentItem->text(0).toLocal8Bit().constData() );
 
 	m_pOkBtn->setEnabled(false);
 	m_nameLbl->setText( QString("") );

@@ -79,7 +79,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
 
 	INFOLOG( "cmd: " + cmd );
-	system( cmd.toAscii() );
+	system( cmd.toLocal8Bit() );
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
@@ -88,7 +88,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
 {
 	QString path = drumkitPathTxt->text();
-	if (path == "") {
+	if (path.isEmpty()) {
 		exportBtn->setEnabled( false );
 	}
 	else {
@@ -107,12 +107,12 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 	fd->setAcceptMode( QFileDialog::AcceptSave );
 	fd->setWindowTitle( trUtf8( "Export drumkit" ) );
 
-	QString filename = "";
+	QString filename;
 	if (fd->exec() == QDialog::Accepted) {
 		filename = fd->selectedFiles().first();
 	}
 
-	if (filename != "") {
+	if ( !filename.isEmpty() ) {
 		drumkitPathTxt->setText( filename );
 		lastUsedDir = fd->directory().absolutePath();
 	}

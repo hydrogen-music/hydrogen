@@ -343,7 +343,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 	LadspaFXSelector fxSelector(m_nLadspaFX);
 	if (fxSelector.exec() == QDialog::Accepted) {
 		QString sSelectedFX = fxSelector.getSelectedFX();
-		if (sSelectedFX != "") {
+		if ( !sSelectedFX.isEmpty() ) {
 			LadspaFX *pFX = NULL;
 
 			vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();

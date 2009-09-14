@@ -40,7 +40,7 @@ using namespace std;
 namespace H2Core
 {
 
-QString DataPath::__data_path = "";
+QString DataPath::__data_path;
 
 QString DataPath::get_data_path()
 {
@@ -54,7 +54,7 @@ QString DataPath::get_data_path()
 	return qStringPath;
 
 #else
-	if ( __data_path == "" ) {
+	if ( __data_path.isEmpty() ) {
 		QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
 		__data_path = qStringPath;
 

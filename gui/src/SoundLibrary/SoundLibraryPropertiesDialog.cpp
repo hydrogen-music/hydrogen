@@ -35,7 +35,7 @@ namespace H2Core
 //globals
 Drumkit *drumkitinfo = NULL ;
 Drumkit *predrumkit = NULL;
-QString oldName = "";
+QString oldName;
 
 SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *drumkitInfo, Drumkit *preDrumKit )
  : QDialog( pParent )
@@ -114,7 +114,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	);
 	
 	//check the name and set the drumkitinfo to current drumkit
-	if ( drumkitinfo != NULL && nameTxt->text() != "" ){
+	if ( drumkitinfo != NULL && !nameTxt->text().isEmpty() ){
 		drumkitinfo->setName( nameTxt->text() );
 		drumkitinfo->setAuthor( authorTxt->text() );
 		drumkitinfo->setInfo( infoTxt->toHtml() );

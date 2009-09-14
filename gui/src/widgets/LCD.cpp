@@ -264,7 +264,7 @@ void LCDDisplay::setText( const QString& sMsg )
 	if ( m_bLeftAlign ) {
 		for ( int i = 0; i < (int)m_pDisplay.size(); ++i ) {
 			if ( i < nLen ) {
-				m_pDisplay[ i ]->set( sMsg.at( i ).toAscii() );
+                            m_pDisplay[ i ]->set( sMsg.toLocal8Bit().at(i) );
 			}
 			else {
 				m_pDisplay[ i ]->set( ' ' );
@@ -286,7 +286,7 @@ void LCDDisplay::setText( const QString& sMsg )
 		}
 
 		for ( int i = 0; i < nLen; i++ ) {
-			m_pDisplay[ i + nPadding ]->set( sMsg.at( i ).toAscii() );
+			m_pDisplay[ i + nPadding ]->set( sMsg.toLocal8Bit().at(i) );
 		}
 	}
 }

@@ -82,7 +82,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 
 //	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	QFile file( m_sFilename.toAscii() ); // Read the text from a file
+	QFile file( m_sFilename.toLocal8Bit() ); // Read the text from a file
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		m_pBrowser->setHtml( stream.readAll() );

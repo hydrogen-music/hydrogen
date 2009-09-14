@@ -35,7 +35,7 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		, __remote_url( download_url )
 		, __local_file( local_file )
 {
-	if ( __local_file != "" ) {
+	if ( !__local_file.isEmpty() ) {
 		INFOLOG( QString( "Downloading '%1' in '%2'" ).arg( __remote_url ).arg( __local_file ) );
 
 	} else {
@@ -78,14 +78,14 @@ void Download::__fetch_done( bool bError )
 		return;
 	}
 
-	if ( __redirect_url != "" ) {
+	if ( !__redirect_url.isEmpty() ) {
 		reject();
 		return;
 	}
 
 	INFOLOG( "Download completed. " );
 
-	if ( __local_file == "" ) {
+	if ( !__local_file.isEmpty() ) {
 		// store the text received only when not using the file.
 		__feed_xml_string = __http_client.readAll();
 	} else {

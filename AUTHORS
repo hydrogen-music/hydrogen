@@ -4,8 +4,3 @@ Main coder and maintainer:
 
 Thanks to:
 	See complete list at http://trac.assembla.com/hydrogen/wiki/people
-
-Hydrogen includes code derived from the TinyXML Library by Lee
-Thomason (http://www.grinninglizard.com).  TinyXML is distributed
-under the ZLib license.  For details, see
-libs/hydrogen/src/xml/tinyxml.h.

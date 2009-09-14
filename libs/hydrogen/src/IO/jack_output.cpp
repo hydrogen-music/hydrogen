@@ -140,8 +140,8 @@ int JackOutput::connect()
 	if ( connect_output_ports ) {
 //	if ( connect_out_flag ) {
 		// connect the ports
-		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toAscii() ) == 0 &&
-		        jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toAscii() ) == 0 ) {
+		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
+		        jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
 			return 0;
 		}
 
@@ -468,7 +468,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	while ( tries > 0 ) {
 		--tries;
 		client = jack_client_open(
-			sClientName.toAscii(),
+			sClientName.toLocal8Bit(),
 			JackNullOption,
 			&status);
 		switch(status) {
@@ -576,7 +576,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient->isConnected())
 		{
-			lashClient->setJackClientName(sClientName.toStdString());
+		    lashClient->setJackClientName(sClientName.toLocal8Bit().constData());
 		}
 	}
 #endif
@@ -633,8 +633,8 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 	if ( track_port_count <= n ) { // need to create more ports
 		for ( int m = track_port_count; m <= n; m++ ) {
 			chName = QString( "Track_%1_" ).arg( m + 1 );
-			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toAscii(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toAscii(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toLocal8Bit(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toLocal8Bit(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 			if ( track_output_ports_R[m] == NULL || track_output_ports_L[m] == NULL ) {
 				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 			}
@@ -644,8 +644,8 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 	// Now we're sure there is an n'th port, rename it.
 	chName = QString( "Track_%1_%2_" ).arg( n + 1 ).arg( instr->get_name() );
 
-	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toAscii() );
-	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toAscii() );
+	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
+	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
 }
 
 void JackOutput::play()
@@ -707,7 +707,7 @@ void JackOutput::setPortName( int nPort, bool bLeftChannel, const QString& sName
 		pPort = track_output_ports_R[ nPort ];
 	}
 
-	int err = jack_port_set_name( pPort, sName.toAscii() );
+	int err = jack_port_set_name( pPort, sName.toLocal8Bit() );
 	if ( err != 0 ) {
 		ERRORLOG( " Error in jack_port_set_name!" );
 	}

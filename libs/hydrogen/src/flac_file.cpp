@@ -169,12 +169,12 @@ void FLACFile_real::load( const QString& sFilename )
 	set_metadata_ignore_all();
 
 #ifdef LEGACY_FLAC
-	set_filename( sFilename.toAscii() );
+	set_filename( sFilename.toLocal8Bit() );
 
 	State s=init();
 	if ( s != FLAC__FILE_DECODER_OK ) {
 #else
-	FLAC__StreamDecoderInitStatus s = init( sFilename.toAscii() );
+	FLAC__StreamDecoderInitStatus s = init( sFilename.toLocal8Bit() );
 	if ( s!=FLAC__STREAM_DECODER_INIT_STATUS_OK ) {
 #endif
 		ERRORLOG( "Error in init()" );

@@ -179,12 +179,12 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 			const LADSPA_Descriptor * d;
 			if ( desc_func ) {
 				for ( unsigned i = 0; ( d = desc_func ( i ) ) != NULL; i++ ) {
-					LadspaFXInfo* pFX = new LadspaFXInfo( d->Name );
+					LadspaFXInfo* pFX = new LadspaFXInfo( QString::fromLocal8Bit(d->Name) );
 					pFX->m_sFilename = sAbsPath;
-					pFX->m_sLabel = d->Label;
+					pFX->m_sLabel = QString::fromLocal8Bit(d->Label);
 					pFX->m_sID = QString::number(d->UniqueID);
-					pFX->m_sMaker = d->Maker;
-					pFX->m_sCopyright = d->Copyright;
+					pFX->m_sMaker = QString::fromLocal8Bit(d->Maker);
+					pFX->m_sCopyright = QString::fromLocal8Bit(d->Copyright);
 
 					//INFOLOG( "Loading: " + pFX->m_sLabel );
 
@@ -200,7 +200,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 							pFX->m_nOAPorts++;
 						} else {
 //							string sPortName = d->PortNames[ j ];
-							QString sPortName = "";
+							QString sPortName;
 							ERRORLOG( QString( "%1::%2 unknown port type" ).arg( pFX->m_sLabel ).arg( sPortName ) );
 						}
 					}
@@ -249,7 +249,7 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	char C = 0;
 	LadspaFXGroup* pGroup;
 	for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
-		char ch = (*i)->m_sName[0].toAscii();
+                char ch = (*i)->m_sName.toLocal8Bit().at(0);
 		if ( ch != C ) {
 			C = ch;
 			pGroup = new LadspaFXGroup( QString( C ) );
@@ -312,7 +312,7 @@ void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
 
 		QString sRDFFile = QString( "file://%1/%2" ).arg( sDir ).arg( sFilename );
 
-		int err = lrdf_read_file( sRDFFile.toAscii() );
+		int err = lrdf_read_file( sRDFFile.toLocal8Bit() );
 		if ( err ) {
 			ERRORLOG( "Error parsing rdf file " + sFilename );
 		}
@@ -327,12 +327,12 @@ void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
 // funzione ricorsiva
 void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
 {
-	//cout << "LadspaFX::RDFDescend " << sBase.toStdString() << endl;
+	//cout << "LadspaFX::RDFDescend " << sBase.toLocal8Bit().constData() << endl;
 
-	lrdf_uris* uris = lrdf_get_subclasses( sBase.toAscii() );
+	lrdf_uris* uris = lrdf_get_subclasses( sBase.toLocal8Bit() );
 	if ( uris ) {
 		for ( int i = 0; i < ( int )uris->count; i++ ) {
-			QString sGroup = lrdf_get_label( uris->items[ i ] );
+			QString sGroup = QString::fromLocal8Bit(lrdf_get_label( uris->items[ i ] ));
 
 			LadspaFXGroup *pNewGroup = NULL;
 			// verifico se esiste gia una categoria con lo stesso nome
@@ -348,12 +348,12 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 				pNewGroup = new LadspaFXGroup( sGroup );
 				pGroup->addChild( pNewGroup );
 			}
-			RDFDescend( uris->items[i], pNewGroup, pluginList );
+			RDFDescend( QString::fromLocal8Bit(uris->items[i]), pNewGroup, pluginList );
 		}
 		lrdf_free_uris ( uris );
 	}
 
-	uris = lrdf_get_instances( sBase.toAscii() );
+	uris = lrdf_get_instances( sBase.toLocal8Bit() );
 	if ( uris ) {
 		for ( int i = 0; i < ( int )uris->count; i++ ) {
 			int uid = lrdf_get_uid ( uris->items[i] );
