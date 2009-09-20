@@ -85,7 +85,7 @@ void Download::__fetch_done( bool bError )
 
 	INFOLOG( "Download completed. " );
 
-	if ( !__local_file.isEmpty() ) {
+	if ( __local_file.isEmpty() ) {
 		// store the text received only when not using the file.
 		__feed_xml_string = __http_client.readAll();
 	} else {
