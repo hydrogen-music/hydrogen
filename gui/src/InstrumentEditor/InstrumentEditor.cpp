@@ -614,7 +614,7 @@ void InstrumentEditor::loadLayer()
 
 	delete fb;
 
-	if ( filename[2] == "") return;
+	if ( filename[2].isEmpty() ) return;
 
 	bool fnc = false;	
 	if ( filename[0] ==  "true" ){

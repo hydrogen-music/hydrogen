@@ -55,7 +55,7 @@ MidiSenseWidget::~MidiSenseWidget(){
 
 void MidiSenseWidget::updateMidi(){
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	if(	pEngine->lastMidiEvent != ""){
+	if(	!pEngine->lastMidiEvent.isEmpty() ){
 		lastMidiEvent = pEngine->lastMidiEvent;
 		lastMidiEventParameter = pEngine->lastMidiEventParameter;
 		close();

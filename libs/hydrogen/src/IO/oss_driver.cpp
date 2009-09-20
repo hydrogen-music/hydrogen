@@ -135,7 +135,7 @@ int OssDriver::connect()
 #endif
 
 	// Non blocking OSS open code stolen from GLAME
-	fd = open( audioDevice.toAscii(), O_WRONLY | O_NONBLOCK );	// test with non blocking open
+	fd = open( audioDevice.toLocal8Bit(), O_WRONLY | O_NONBLOCK );	// test with non blocking open
 	int arg = fcntl( fd, F_GETFL, 0 );
 	if ( arg != -1 ) {	// back to blocking mode...
 		fcntl( fd, F_SETFL, arg & ~O_NONBLOCK );

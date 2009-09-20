@@ -86,7 +86,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 		filename = fd->selectedFiles().first();
 	}
 
-	if (filename != "") {
+	if ( ! filename.isEmpty() ) {
 		lastUsedDir = fd->directory().absolutePath();
 		QString sNewFilename = filename;
 		if ( sNewFilename.endsWith( ".wav" ) == false ) {
@@ -124,7 +124,7 @@ void ExportSongDialog::on_closeBtn_clicked()
 void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 {
 	QString filename = exportNameTxt->text();
-	if (filename != "") {
+	if ( ! filename.isEmpty() ) {
 		okBtn->setEnabled(true);
 	}
 	else {

@@ -25,8 +25,6 @@
 
 #include <cassert>
 
-#include "xml/tinyxml.h"
-
 #include <hydrogen/adsr.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
@@ -40,9 +38,11 @@
 #include <hydrogen/note.h>
 #include <hydrogen/hydrogen.h>
 
+#include <QDomDocument>
+
 namespace
 {
-    
+
 void addEdges(std::set<H2Core::Pattern*> &patternSet)
 {
     std::set<H2Core::Pattern*> curPatternSet = patternSet;
@@ -79,7 +79,6 @@ void computeVirtualPatternTransitiveClosure(H2Core::PatternList *pPatternList)
 }//computeVirtualPatternTransitiveClosure
     
 }//anonymous namespace
-
 namespace H2Core
 {
 
@@ -287,29 +286,28 @@ Song* SongReader::readSong( const QString& filename )
 		return NULL;
 	}
 
+	QDomDocument doc = LocalFileMng::openXmlDocument( filename );
+	QDomNodeList nodeList = doc.elementsByTagName( "song" );
+	
 
-	#ifdef WIN32
-  		TiXmlDocument doc( filename.toAscii().constData() );
-	#else
-   		TiXmlDocument doc( filename.toUtf8().constData() );
-	#endif
-
-
-	doc.LoadFile();
-
-	TiXmlNode* songNode;	// root element
-	if ( !( songNode = doc.FirstChild( "song" ) ) ) {
+	if( nodeList.isEmpty() ){
 		ERRORLOG( "Error reading song: song node not found" );
 		return NULL;
 	}
 
+	QDomNode songNode = nodeList.at(0);
 
-	m_sSongVersion = LocalFileMng::readXmlString( songNode, "version", "Unknown version" );
+	m_sSongVersion = LocalFileMng::readXmlString( songNode , "version", "Unknown version" );
+
+	
 	if ( m_sSongVersion != QString( get_version().c_str() ) ) {
 		WARNINGLOG( "Trying to load a song created with a different version of hydrogen." );
 		WARNINGLOG( "Song [" + filename + "] saved with version " + m_sSongVersion );
 	}
 
+	
+	
+		
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
 	Hydrogen::get_instance()->setNewBpmJTM( fBpm ); 
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
@@ -339,6 +337,8 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_humanize_time_value( fHumanizeTimeValue );
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
 	song->set_swing_factor( fSwingFactor );
+	
+	
 
 	/*
 	song->m_bDelayFXEnabled = LocalFileMng::readXmlBool( songNode, "delayFXEnabled", false, false );
@@ -349,15 +349,17 @@ Song* SongReader::readSong( const QString& filename )
 
 
 	//  Instrument List
+	
 	LocalFileMng localFileMng;
 	InstrumentList *instrumentList = new InstrumentList();
 
-	TiXmlNode* instrumentListNode;
-	if ( ( instrumentListNode = songNode->FirstChild( "instrumentList" ) ) ) {
+	QDomNode instrumentListNode = songNode.firstChildElement( "instrumentList" );
+	if ( ( ! instrumentListNode.isNull()  ) ) {
 		// INSTRUMENT NODE
 		int instrumentList_count = 0;
-		TiXmlNode* instrumentNode = 0;
-		for ( instrumentNode = instrumentListNode->FirstChild( "instrument" ); instrumentNode; instrumentNode = instrumentNode->NextSibling( "instrument" ) ) {
+		QDomNode instrumentNode;
+		instrumentNode = instrumentListNode.firstChildElement( "instrument" );
+		while ( ! instrumentNode.isNull()  ) {
 			instrumentList_count++;
 
 			QString sId = LocalFileMng::readXmlString( instrumentNode, "id", "" );			// instrument id
@@ -392,7 +394,7 @@ Song* SongReader::readSong( const QString& filename )
 			int nMidiOutChannel = sMidiOutChannel.toInt();
 			int nMidiOutNote = sMidiOutNote.toInt();
 
-			if ( sId == "" ) {
+			if ( sId.isEmpty() ) {
 				ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
 				continue;
 			}
@@ -419,19 +421,22 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
-			QString drumkitPath = "";
-			if ( ( sDrumkit != "" ) && ( sDrumkit != "-" ) ) {
+			QString drumkitPath;
+			if ( ( !sDrumkit.isEmpty() ) && ( sDrumkit != "-" ) ) {
 //				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit + "/";
 				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit;
 			}
-
+			
+			
+			QDomNode filenameNode = instrumentNode.firstChildElement( "filename" );
+			
+			
 			// back compatibility code ( song version <= 0.9.0 )
-			TiXmlNode* filenameNode = instrumentNode->FirstChild( "filename" );
-			if ( filenameNode ) {
+			if ( ! filenameNode.isNull() ) {
 				WARNINGLOG( "Using back compatibility code. filename node found" );
 				QString sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
 
-				if ( drumkitPath != "" ) {
+				if ( !drumkitPath.isEmpty() ) {
 					sFilename = drumkitPath + "/" + sFilename;
 				}
 				Sample *pSample = Sample::load( sFilename );
@@ -453,7 +458,8 @@ Song* SongReader::readSong( const QString& filename )
 			//~ back compatibility code
 			else {
 				unsigned nLayer = 0;
-				for ( TiXmlNode* layerNode = instrumentNode->FirstChild( "layer" ); layerNode; layerNode = layerNode->NextSibling( "layer" ) ) {
+				QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
+				while (  ! layerNode.isNull()  ) {
 					if ( nLayer >= MAX_LAYERS ) {
 						ERRORLOG( "nLayer > MAX_LAYERS" );
 						continue;
@@ -472,7 +478,7 @@ Song* SongReader::readSong( const QString& filename )
 					float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
 					float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
 
-					if ( drumkitPath != "" ) {
+					if ( !drumkitPath.isEmpty() ) {
 						sFilename = drumkitPath + "/" + sFilename;
 					}
 
@@ -483,19 +489,23 @@ Song* SongReader::readSong( const QString& filename )
 					{
 						pEngine->m_volumen.clear();
 						Hydrogen::HVeloVector velovector;
-						for ( TiXmlNode* volumeNode = layerNode->FirstChild( "volume" ); volumeNode; volumeNode = volumeNode->NextSibling( "volume" ) )  {
+						 QDomNode volumeNode = layerNode.firstChildElement( "volume" );
+						 while (  ! volumeNode.isNull()  ) {
 							velovector.m_hxframe = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0);
 							velovector.m_hyvalue = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0);
 							pEngine->m_volumen.push_back( velovector );
+							volumeNode = volumeNode.nextSiblingElement( "volume" );
 							//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 						}
 
 						pEngine->m_pan.clear();
 						Hydrogen::HPanVector panvector;
-						for ( TiXmlNode* panNode = layerNode->FirstChild( "pan" ); panNode; panNode = panNode->NextSibling( "pan" ) ) {
+						QDomNode  panNode = layerNode.firstChildElement( "pan" ); 
+						while (  ! panNode.isNull()  ) {
 							panvector.m_hxframe = LocalFileMng::readXmlInt( panNode, "pan-position", 0);
 							panvector.m_hyvalue = LocalFileMng::readXmlInt( panNode, "pan-value", 0);
 							pEngine->m_pan.push_back( panvector );
+							panNode = panNode.nextSiblingElement( "pan" );
 						}
 					
 						pSample = Sample::load_edit_wave( sFilename,
@@ -516,12 +526,15 @@ Song* SongReader::readSong( const QString& filename )
 					pLayer->set_pitch( fPitch );
 					pInstrument->set_layer( pLayer, nLayer );
 					nLayer++;
+
+					layerNode = ( QDomNode ) layerNode.nextSiblingElement( "layer" );
 				}
 			pEngine->m_volumen.clear();
 			pEngine->m_pan.clear();
 			}
 
 			instrumentList->add( pInstrument );
+			instrumentNode = (QDomNode) instrumentNode.nextSiblingElement( "instrument" );
 		}
 		if ( instrumentList_count == 0 ) {
 			WARNINGLOG( "0 instruments?" );
@@ -535,16 +548,15 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 
-
-
-
+	
 	// Pattern list
-	TiXmlNode* patterns = songNode->FirstChild( "patternList" );
+	QDomNode patterns = songNode.firstChildElement( "patternList" );
 
 	PatternList *patternList = new PatternList();
 	int pattern_count = 0;
-	TiXmlNode* patternNode = 0;
-	for ( patternNode = patterns->FirstChild( "pattern" ); patternNode; patternNode = patternNode->NextSibling( "pattern" ) ) {
+
+	QDomNode patternNode =  patterns.firstChildElement( "pattern" );
+	while (  !patternNode.isNull()  ) {
 		pattern_count++;
 		Pattern *pat = getPattern( patternNode, instrumentList );
 		if ( pat ) {
@@ -555,6 +567,7 @@ Song* SongReader::readSong( const QString& filename )
 			delete song;
 			return NULL;
 		}
+		patternNode = ( QDomNode ) patternNode.nextSiblingElement( "pattern" );
 	}
 	if ( pattern_count == 0 ) {
 		WARNINGLOG( "0 patterns?" );
@@ -562,11 +575,13 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_pattern_list( patternList );
 	
 	 // Virtual Patterns
-	TiXmlNode* virtualPatternListNode = songNode->FirstChild( "virtualPatternList" );
-	if (virtualPatternListNode != NULL) {
-	    for (patternNode = virtualPatternListNode->FirstChild("pattern"); patternNode != NULL; patternNode = patternNode->NextSibling("pattern")) {
+	QDomNode  virtualPatternListNode = songNode.firstChildElement( "virtualPatternList" ); 
+	QDomNode virtualPatternNode = virtualPatternListNode.firstChildElement( "pattern" );
+	if ( !virtualPatternNode.isNull() ) {
+
+	    	while (  ! virtualPatternNode.isNull()  ) {
 		QString sName = "";
-		sName = LocalFileMng::readXmlString(patternNode, "name", sName);
+		sName = LocalFileMng::readXmlString(virtualPatternNode, "name", sName);
 		
 		Pattern *curPattern = NULL;
 		unsigned nPatterns = patternList->get_size();
@@ -580,9 +595,9 @@ Song* SongReader::readSong( const QString& filename )
 		}//for
 		
 		if (curPattern != NULL) {
-		    TiXmlNode *virtualNode;
-		    for (virtualNode = patternNode->FirstChild("virtual"); virtualNode != NULL; virtualNode = virtualNode->NextSibling("virtual")) {
-			QString virtName = virtualNode->FirstChild()->Value();
+		    QDomNode  virtualNode = virtualPatternNode.firstChildElement( "virtual" );
+		    while (  !virtualNode.isNull()  ) {
+			QString virtName = virtualNode.firstChild().nodeValue();
 			
 			Pattern *virtPattern = NULL;
 			for ( unsigned i = 0; i < nPatterns; i++ ) {
@@ -599,25 +614,29 @@ Song* SongReader::readSong( const QString& filename )
 			} else {
 			    ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
 			}//if
-		    }//for
+			virtualNode = ( QDomNode ) virtualNode.nextSiblingElement( "virtual" );
+		    }//while
 		} else {
 		    ERRORLOG( "Song had invalid virtual pattern list data (name)" );
 		}//if
-	    }//for
-	    
-	    computeVirtualPatternTransitiveClosure(patternList);
+		virtualPatternNode = ( QDomNode ) virtualPatternNode.nextSiblingElement( "pattern" );
+	    }//while
 	}//if
+	    
+	computeVirtualPatternTransitiveClosure(patternList);
 
 	// Pattern sequence
-	TiXmlNode* patternSequenceNode = songNode->FirstChild( "patternSequence" );
+	QDomNode patternSequenceNode = songNode.firstChildElement( "patternSequence" );
 
 	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
-
+	
 	// back-compatibility code..
-	for ( TiXmlNode* pPatternIDNode = patternSequenceNode->FirstChild( "patternID" ); pPatternIDNode; pPatternIDNode = pPatternIDNode->NextSibling( "patternID" ) ) {
+	QDomNode pPatternIDNode = patternSequenceNode.firstChildElement( "patternID" );
+	while ( ! pPatternIDNode.isNull()  ) {
 		WARNINGLOG( "Using old patternSequence code for back compatibility" );
 		PatternList *patternSequence = new PatternList();
-		QString patId = pPatternIDNode->FirstChild()->Value();
+		QString patId = pPatternIDNode.firstChildElement().text();
+		ERRORLOG(patId);
 
 		Pattern *pat = NULL;
 		for ( unsigned i = 0; i < patternList->get_size(); i++ ) {
@@ -631,17 +650,22 @@ Song* SongReader::readSong( const QString& filename )
 		}
 		if ( pat == NULL ) {
 			WARNINGLOG( "patternid not found in patternSequence" );
+			pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
 			continue;
 		}
 		patternSequence->add( pat );
 
 		pPatternGroupVector->push_back( patternSequence );
+
+		pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
 	}
 
-	for ( TiXmlNode* groupNode = patternSequenceNode->FirstChild( "group" ); groupNode; groupNode = groupNode->NextSibling( "group" ) ) {
+	QDomNode groupNode = patternSequenceNode.firstChildElement( "group" );
+	while (  !groupNode.isNull()  ) {
 		PatternList *patternSequence = new PatternList();
-		for ( TiXmlNode* patternId = groupNode->FirstChild( "patternID" ); patternId; patternId = patternId->NextSibling( "patternID" ) ) {
-			QString patId = patternId->FirstChild()->Value();
+		QDomNode patternId = groupNode.firstChildElement( "patternID" );
+		while (  !patternId.isNull()  ) {
+			QString patId = patternId.firstChild().nodeValue();
 
 			Pattern *pat = NULL;
 			for ( unsigned i = 0; i < patternList->get_size(); i++ ) {
@@ -655,15 +679,19 @@ Song* SongReader::readSong( const QString& filename )
 			}
 			if ( pat == NULL ) {
 				WARNINGLOG( "patternid not found in patternSequence" );
+				patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
 				continue;
 			}
 			patternSequence->add( pat );
+			patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
 		}
 		pPatternGroupVector->push_back( patternSequence );
+
+		groupNode = groupNode.nextSiblingElement( "group" );
 	}
 
 	song->set_pattern_group_vector( pPatternGroupVector );
-
+	
 #ifdef LADSPA_SUPPORT
 	// reset FX
 	for ( int fx = 0; fx < MAX_FX; ++fx ) {
@@ -672,13 +700,13 @@ Song* SongReader::readSong( const QString& filename )
 		Effects::get_instance()->setLadspaFX( NULL, fx );
 	}
 #endif
-
+	
 	// LADSPA FX
-	TiXmlNode* ladspaNode = songNode->FirstChild( "ladspa" );
-	if ( ladspaNode ) {
+	QDomNode ladspaNode = songNode.firstChildElement( "ladspa" );
+	if ( !ladspaNode.isNull() ) {
 		int nFX = 0;
-		TiXmlNode* fxNode;
-		for ( fxNode = ladspaNode->FirstChild( "fx" ); fxNode; fxNode = fxNode->NextSibling( "fx" ) ) {
+		QDomNode fxNode = ladspaNode.firstChildElement( "fx" );
+		while (  !fxNode.isNull()  ) {
 			QString sName = LocalFileMng::readXmlString( fxNode, "name", "" );
 			QString sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
 			bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
@@ -692,8 +720,8 @@ Song* SongReader::readSong( const QString& filename )
 				if ( pFX ) {
 					pFX->setEnabled( bEnabled );
 					pFX->setVolume( fVolume );
-					TiXmlNode* inputControlNode;
-					for ( inputControlNode = fxNode->FirstChild( "inputControlPort" ); inputControlNode; inputControlNode = inputControlNode->NextSibling( "inputControlPort" ) ) {
+					QDomNode inputControlNode = fxNode.firstChildElement( "inputControlPort" );
+					while ( !inputControlNode.isNull() ) {
 						QString sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
 						float fValue = LocalFileMng::readXmlFloat( inputControlNode, "value", 0.0 );
 
@@ -703,33 +731,35 @@ Song* SongReader::readSong( const QString& filename )
 								port->fControlValue = fValue;
 							}
 						}
+						 inputControlNode = ( QDomNode ) inputControlNode.nextSiblingElement( "inputControlPort" );
 					}
 
+					/*
 					TiXmlNode* outputControlNode;
 					for ( outputControlNode = fxNode->FirstChild( "outputControlPort" ); outputControlNode; outputControlNode = outputControlNode->NextSibling( "outputControlPort" ) ) {
-					}
+					}*/
 				}
 #endif
 			}
 			nFX++;
+			fxNode = ( QDomNode ) fxNode.nextSiblingElement( "fx" );
 		}
 	} else {
 		WARNINGLOG( "ladspa node not found" );
 	}
 
-
+	
 	Hydrogen::get_instance()->m_timelinevector.clear();
 	Hydrogen::HTimelineVector tlvector;
-	TiXmlNode* bpmTimeLine = songNode->FirstChild( "BPMTimeLine" );
-	if ( bpmTimeLine ) {
-		TiXmlNode* newBPMNode;
-		int nChange = 0;
-		for ( newBPMNode = bpmTimeLine->FirstChild( "newBPM" );newBPMNode ; newBPMNode = newBPMNode->NextSibling( "newBPM" ) ){
+	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
+	if ( !bpmTimeLine.isNull() ) {
+		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
+		while( !newBPMNode.isNull() ) {
 			tlvector.m_htimelinebeat = LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 );
 			tlvector.m_htimelinebpm = LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 );	
 			Hydrogen::get_instance()->m_timelinevector.push_back( tlvector );
 			Hydrogen::get_instance()->sortTimelineVector();
-			nChange++;	
+			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
 		}
 	}
 	else {
@@ -739,17 +769,19 @@ Song* SongReader::readSong( const QString& filename )
 
 	song->__is_modified = false;
 	song->set_filename( filename );
+	
 
 	return song;
+	
 }
 
 
 
-Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
+Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 {
 	Pattern *pPattern = NULL;
 
-	QString sName = "";	// name
+	QString sName;	// name
 	sName = LocalFileMng::readXmlString( pattern, "name", sName );
 
 	QString sCategory = ""; // category
@@ -761,15 +793,16 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 
 
 
-	TiXmlNode* pNoteListNode = pattern->FirstChild( "noteList" );
-	if ( pNoteListNode ) {
+	QDomNode pNoteListNode = pattern.firstChildElement( "noteList" );
+	if ( ! pNoteListNode.isNull() ) {
 		// new code :)
-		for ( TiXmlNode* noteNode = pNoteListNode->FirstChild( "note" ); noteNode; noteNode = noteNode->NextSibling( "note" ) ) {
+		QDomNode noteNode = pNoteListNode.firstChildElement( "note" );
+		while ( ! noteNode.isNull()  ) {
 
 			Note* pNote = NULL;
 
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
-			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 );
+			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
@@ -802,18 +835,21 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 			pNote->set_leadlag(fLeadLag);
 			pNote->set_noteoff( noteoff );
 			pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );
+			
+			noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
 		}
 	} else {
 		// Back compatibility code. Version < 0.9.4
-		TiXmlNode* sequenceListNode = pattern->FirstChild( "sequenceList" );
+		QDomNode sequenceListNode = pattern.firstChildElement( "sequenceList" );
 
 		int sequence_count = 0;
-		TiXmlNode* sequenceNode = 0;
-		for ( sequenceNode = sequenceListNode->FirstChild( "sequence" ); sequenceNode; sequenceNode = sequenceNode->NextSibling( "sequence" ) ) {
+		QDomNode sequenceNode = sequenceListNode.firstChildElement( "sequence" );
+		while ( ! sequenceNode.isNull()  ) {
 			sequence_count++;
 
-			TiXmlNode* noteListNode = sequenceNode->FirstChild( "noteList" );
-			for ( TiXmlNode* noteNode = noteListNode->FirstChild( "note" ); noteNode; noteNode = noteNode->NextSibling( "note" ) ) {
+			QDomNode noteListNode = sequenceNode.firstChildElement( "noteList" );
+			QDomNode noteNode = noteListNode.firstChildElement( "note" );
+			while (  !noteNode.isNull() ) {
 
 				Note* pNote = NULL;
 
@@ -843,7 +879,12 @@ Pattern* SongReader::getPattern( TiXmlNode* pattern, InstrumentList* instrList )
 
 				//infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );
 				pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );
+			
+				noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
+
+				
 			}
+			sequenceNode = ( QDomNode ) sequenceNode.nextSiblingElement( "sequence" );
 		}
 	}
 

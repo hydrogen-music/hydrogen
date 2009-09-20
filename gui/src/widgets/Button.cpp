@@ -87,7 +87,7 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 		}
 		QSvgRenderer doc( sFilename );
 		if ( doc.isValid() == false ) {
-			ERRORLOG( "error loading SVG image: '" + sFilename.toStdString() + "'" );
+			ERRORLOG( "error loading SVG image: '" + sFilename.toLocal8Bit().constData() + "'" );
 			return false;
 		}
 
@@ -103,7 +103,7 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 #endif
 	// load an image
 	if ( pixmap.load( Skin::getImagePath() + sFilename ) == false ) {
-		if ( sFilename != "" ) {
+		if ( !sFilename.isEmpty() ) {
 			ERRORLOG( QString( "Error loading image: '%1'" ).arg( sFilename ) );
 		}
 		return false;
@@ -233,7 +233,7 @@ void Button::paintEvent( QPaintEvent* ev)
 	}
 
 
-	if ( m_sText != "" ) {
+	if ( !m_sText.isEmpty() ) {
 		painter.setFont( m_textFont );
 
 		QColor shadow(150, 150, 150, 100);

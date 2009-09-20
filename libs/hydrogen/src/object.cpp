@@ -178,7 +178,7 @@ void Object::print_object_map()
 		int nInstances = ( *iter ).second;
 		QString sObject = ( *iter ).first;
 		if ( nInstances != 0 ) {
-			std::cout << nInstances << "\t" << sObject.toStdString() << std::endl;
+			std::cout << nInstances << "\t" << sObject.toLocal8Bit().constData() << std::endl;
 		}
 		nTotal += nInstances;
 		iter++;
@@ -219,7 +219,7 @@ void* loggerThread_func( void* param )
 		QString sLogFilename = QDir::homePath().append( "/.hydrogen/hydrogen.log" );
 #endif
 
-		pLogFile = fopen( sLogFilename.toAscii(), "w" );
+		pLogFile = fopen( sLogFilename.toLocal8Bit(), "w" );
 		if ( pLogFile == NULL ) {
 			std::cerr << "Error: can't open log file for writing..." << std::endl;
 		} else {

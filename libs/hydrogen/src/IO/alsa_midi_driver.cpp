@@ -67,7 +67,7 @@ void* alsaMidiDriver_thread( void* param )
 
 	int err;
 	if ( ( err = snd_seq_open( &seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0 ) ) < 0 ) {
-		_ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( snd_strerror( err ) ) );
+		_ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		pthread_exit( NULL );
 	}
 

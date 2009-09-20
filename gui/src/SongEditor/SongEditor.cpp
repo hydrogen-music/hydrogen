@@ -1026,7 +1026,7 @@ void SongEditorPatternList::patternPopup_load()
 
 	fd->setWindowTitle( trUtf8( "Open Pattern" ) );
 
-	QString filename = "";
+	QString filename;
 	if (fd->exec() == QDialog::Accepted) {
 		filename = fd->selectedFiles().first();
 	}

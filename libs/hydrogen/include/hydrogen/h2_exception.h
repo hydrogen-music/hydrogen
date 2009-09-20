@@ -34,7 +34,7 @@ class H2Exception : public std::runtime_error
 {
 public:
 
-	H2Exception( const QString& msg ) : std::runtime_error( msg.toStdString() ) {
+	H2Exception( const QString& msg ) : std::runtime_error( msg.toLocal8Bit().constData() ) {
 	}
 
 };

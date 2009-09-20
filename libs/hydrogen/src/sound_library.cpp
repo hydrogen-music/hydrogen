@@ -155,7 +155,7 @@ void Drumkit::install( const QString& filename )
 	drumkitFile = archive_read_new();
 	archive_read_support_compression_all(drumkitFile);
 	archive_read_support_format_all(drumkitFile);
-	if (( r = archive_read_open_file(drumkitFile, filename.toAscii(), 10240) )) {
+	if (( r = archive_read_open_file(drumkitFile, filename.toLocal8Bit(), 10240) )) {
 		_ERRORLOG( QString( "Error: %2, Could not open drumkit: %1" )
 			.arg( archive_errno(drumkitFile))
 			.arg( archive_error_string(drumkitFile)) );
@@ -172,7 +172,7 @@ void Drumkit::install( const QString& filename )
 
 		// insert data directory prefix
 		QString np = dataDir + archive_entry_pathname(entry);
-		strcpy( newpath, np.toAscii() );
+		strcpy( newpath, np.toLocal8Bit() );
 		archive_entry_set_pathname(entry, newpath);
 
 		// extract tarball
@@ -198,8 +198,8 @@ void Drumkit::install( const QString& filename )
         // GUNZIP !!!
         QString gunzippedName = filename.left( filename.indexOf( "." ) );
         gunzippedName += ".tar";
-        FILE *pGunzippedFile = fopen( gunzippedName.toAscii(), "wb" );
-        gzFile gzipFile = gzopen( filename.toAscii(), "rb" );
+        FILE *pGunzippedFile = fopen( gunzippedName.toLocal8Bit(), "wb" );
+        gzFile gzipFile = gzopen( filename.toLocal8Bit(), "rb" );
 	if ( !gzipFile ) {	
 		throw H2Exception( "Error opening gzip file" );
 	}
@@ -216,21 +216,21 @@ void Drumkit::install( const QString& filename )
         TAR *tarFile;
 
         char tarfilename[1024];
-        strcpy( tarfilename, gunzippedName.toAscii() );
+        strcpy( tarfilename, gunzippedName.toLocal8Bit() );
 
         if ( tar_open( &tarFile, tarfilename, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) { 
-                _ERRORLOG( QString( "[Drumkit::install] tar_open(): %1" ).arg( strerror( errno ) ) );
+		_ERRORLOG( QString( "[Drumkit::install] tar_open(): %1" ).arg( QString::fromLocal8Bit(strerror(errno)) ) );
 		return;
         }
 
         char destDir[1024];
-        strcpy( destDir, dataDir.toAscii() );
+        strcpy( destDir, dataDir.toLocal8Bit() );
         if ( tar_extract_all( tarFile, destDir ) != 0 ) {
-                _ERRORLOG( QString( "[Drumkit::install] tar_extract_all(): %1" ).arg( strerror( errno ) ) );
+                _ERRORLOG( QString( "[Drumkit::install] tar_extract_all(): %1" ).arg( QString::fromLocal8Bit(strerror(errno)) ) );
         }
 
         if ( tar_close( tarFile ) != 0 ) {
-                _ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( strerror( errno ) ) );
+                _ERRORLOG( QString( "[Drumkit::install] tar_close(): %1" ).arg( QString::fromLocal8Bit(strerror(errno)) ) );
         }
 }
 #endif
@@ -315,7 +315,7 @@ void Drumkit::removeDrumkit( const QString& sDrumkitName )
 	dataDir += sDrumkitName;
 	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
 	_INFOLOG( cmd );
-	if ( system( cmd.toAscii() ) != 0 ) {
+	if ( system( cmd.toLocal8Bit() ) != 0 ) {
 		_ERRORLOG( "Error executing '" + cmd + "'" );
 		throw H2Exception( QString( "Error executing '%1'" ).arg( cmd ) );
 	}

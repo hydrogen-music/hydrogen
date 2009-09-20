@@ -176,7 +176,7 @@ def get_hydrogen_lib( opts ):
 	qt4ToolLocation="."
 
 	env = Environment(options = opts , tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
-	env.EnableQt4Modules( ['QtCore', 'QtGui'], debug=False)
+	env.EnableQt4Modules( ['QtCore', 'QtGui','QtXml'], debug=False)
 	env.CacheDir( "scons_cache" )
 	
 
