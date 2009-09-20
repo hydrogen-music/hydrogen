@@ -450,9 +450,6 @@ void MainForm::action_file_save_as()
 		action_file_save();
 	}
 	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
-	//update SoundlibraryPanel
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
 
@@ -491,9 +488,6 @@ void MainForm::action_file_save()
 
 		h2app->setScrollStatusBarMessage( trUtf8("Song saved.") + QString(" Into: ") + filename, 2000 );
 	}
-	//update SoundlibraryPanel
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
 
