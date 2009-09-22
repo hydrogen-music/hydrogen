@@ -84,7 +84,7 @@ def get_platform_flags( opts ):
 	if sys.platform == "darwin":
 		ldflags.append( '-L/opt/local/lib' )
 
-	if sys.platform == 'linux2':
+	elif sys.platform == 'linux2':
 		ldflags.append('-lasound')
 
 	elif sys.platform == "win32":
