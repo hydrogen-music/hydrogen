@@ -46,7 +46,7 @@ static void midiProc ( const MIDIPacketList * pktlist,
 
 	MIDIPacket* packet = ( MIDIPacket * )pktlist->packet;
 
-	_ERRORLOG( QString( "MIDIPROC packets # %1" ).arg( pktlist->numPackets ) );
+        //_ERRORLOG( QString( "MIDIPROC packets # %1" ).arg( pktlist->numPackets ) );
 
 	CoreMidiDriver *instance = ( CoreMidiDriver * )readProcRefCon;
 	MidiMessage msg;
