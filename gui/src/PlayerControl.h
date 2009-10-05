@@ -44,7 +44,7 @@ class PixmapWidget;
 ///
 ///
 ///
-class MetronomeWidget : public QWidget, public Object, public EventListener
+class MetronomeWidget : public QWidget,public EventListener, public Object
 {
 	Q_OBJECT
 	public:
@@ -54,8 +54,10 @@ class MetronomeWidget : public QWidget, public Object, public EventListener
 		virtual void metronomeEvent( int nValue );
 		virtual void paintEvent( QPaintEvent*);
 
+
 	public slots:
 		void updateWidget();
+
 
 	private:
 		enum m_state {

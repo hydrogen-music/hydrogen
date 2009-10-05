@@ -24,7 +24,7 @@
 #include "Skin.h"
 #include "PlayerControl.h"
 #include "InstrumentRack.h"
-#include "HydrogenApp.h"
+	#include "HydrogenApp.h"
 
 #include "widgets/LCD.h"
 #include "widgets/Button.h"
@@ -1038,7 +1038,6 @@ void PlayerControl::metronomeButtonClicked(Button* ref)
 }
 
 
-
 void PlayerControl::showButtonClicked( Button* pRef )
 {
 	//INFOLOG( "[showButtonClicked]" );
@@ -1141,6 +1140,9 @@ MetronomeWidget::~MetronomeWidget()
 
 void MetronomeWidget::metronomeEvent( int nValue )
 {
+	if (nValue == 2) // 2 = set pattern position is not needed here
+		return;
+	
 	if (nValue == 1) {
 		m_state = METRO_FIRST;
 		m_nValue = 5;

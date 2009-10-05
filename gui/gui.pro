@@ -22,17 +22,17 @@ UI_HEADERS_DIR = objs
 UI_SOURCES_DIR = objs
 MOC_DIR = objs
 win32 {
-	INCLUDEPATH += ../3rdparty/install/include
-	#INCLUDEPATH += ../3rdparty/install/libs/libpthread
-	#INCLUDEPATH += ../3rdparty/install/libs/libsndfile
-	#INCLUDEPATH += ../3rdparty/install/libs/flac
-	#INCLUDEPATH += ../3rdparty/install/libs/portaudio
-	#INCLUDEPATH += ../3rdparty/install/libs/portmidi
-	INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
-	
-	LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
-	LIBS += "C:\Qt\2009.03\mingw\lib\libpthread.a"
-	LIBS += "C:\Documents and Settings\sebastian\Desktop\hydrogen\3rdparty\libsndfile-1_0_17\libsndfile-1.dll"
+    INCLUDEPATH += ../3rdparty/install/include
+    #INCLUDEPATH += ../3rdparty/install/libs/libpthread
+    #INCLUDEPATH += ../3rdparty/install/libs/libsndfile
+    #INCLUDEPATH += ../3rdparty/install/libs/flac
+    #INCLUDEPATH += ../3rdparty/install/libs/portaudio
+    #INCLUDEPATH += ../3rdparty/install/libs/portmidi
+    INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
+
+    LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
+    LIBS += "C:\Qt\2009.03\mingw\lib\libpthread.a"
+    LIBS += "C:\Documents and Settings\sebastian\Desktop\hydrogen\3rdparty\libsndfile-1_0_17\libsndfile-1.dll"
 }
 
 #old windows libs..
@@ -134,7 +134,8 @@ HEADERS += src/AboutDialog.h \
            src/widgets/MidiSenseWidget.h \
            src/widgets/midiTable.h \
            src/widgets/PixmapWidget.h \
-           src/widgets/Rotary.h
+           src/widgets/Rotary.h \
+ src/MetroBlinker.h
 FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/PlaylistEditor/PlaylistDialog_UI.ui \
 	 src/SampleEditor/SampleEditor_Ui.ui \
@@ -152,7 +153,8 @@ FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/UI/PatternFillDialog_UI.ui \
          src/UI/PatternPropertiesDialog_UI.ui \
          src/UI/PreferencesDialog_UI.ui \
-         src/UI/SongPropertiesDialog_UI.ui
+         src/UI/SongPropertiesDialog_UI.ui \
+ src/MetroBlinker_UI.ui
 SOURCES += src/AboutDialog.cpp \
 	  ../version.cpp \
            src/AudioEngineInfoForm.cpp \
@@ -212,3 +214,5 @@ SOURCES += src/AboutDialog.cpp \
            src/widgets/midiTable.cpp \
            src/widgets/PixmapWidget.cpp \
            src/widgets/Rotary.cpp \
+ \
+ src/MetroBlinker.cpp

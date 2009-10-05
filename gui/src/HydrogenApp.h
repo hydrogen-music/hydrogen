@@ -54,6 +54,7 @@ class LadspaFXGroup;
 class InstrumentRack;
 class PlaylistDialog;
 class SampleEditor;
+class MetroBlinker;
 
 class HydrogenApp : public QObject, public Object
 {
@@ -72,6 +73,7 @@ class HydrogenApp : public QObject, public Object
 		void showMixer(bool bShow);
 		void showAudioEngineInfoForm();
 		void showPlaylistDialog();
+		void showMetroBlinker();
 		void showSampleEditor( QString name, int mSelectedLayer );
 
 		Mixer* getMixer() {	return m_pMixer;	}
@@ -79,6 +81,7 @@ class HydrogenApp : public QObject, public Object
 		SongEditorPanel* getSongEditorPanel() {	return m_pSongEditorPanel;	}
 		AudioEngineInfoForm* getAudioEngineInfoForm() {	return m_pAudioEngineInfoForm;	}
 		PlaylistDialog* getPlayListDialog() {	return m_pPlaylistDialog;	}
+		MetroBlinker* getMetroBlinker() { return m_pMetroBlinker; }
 		SampleEditor* getSampleEditor() {  return m_pSampleEditor;	}
 		SimpleHTMLBrowser* getHelpBrowser() {	return m_pHelpBrowser;	}
 		PatternEditorPanel* getPatternEditorPanel() {	return m_pPatternEditorPanel;	}
@@ -119,7 +122,7 @@ class HydrogenApp : public QObject, public Object
 		PlayerControl *m_pPlayerControl;
 		PlaylistDialog *m_pPlaylistDialog;
 		SampleEditor *m_pSampleEditor;
-
+		MetroBlinker *m_pMetroBlinker;
 		QTimer *m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;
 
