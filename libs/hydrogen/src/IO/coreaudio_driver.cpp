@@ -28,6 +28,7 @@
  */
 
 #include "CoreAudioDriver.h"
+#include "CoreServices/CoreServices.h"
 
 #ifdef Q_OS_MACX
 
@@ -144,8 +145,8 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	memset ( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
 
 // Get Component
-	Component compOutput;
-	ComponentDescription descAUHAL;
+        Component compOutput;
+        ComponentDescription descAUHAL;
 
 	descAUHAL.componentType = kAudioUnitType_Output;
 	descAUHAL.componentSubType = kAudioUnitSubType_HALOutput;
