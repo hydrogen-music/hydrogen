@@ -21,13 +21,41 @@
  */
 
 
+ /**
+ **
+ ** this dialog is used to use show a director.
+ ** for example to play live without a click in your ears.
+ ** here you get a: 
+ ** 	- visual metronome 
+ ** 	- bar position info
+ ** 	- beat position info
+ **	- bar position tags *
+ ** *this will implemented at timeline. rightclick on timeline open a dioalog to add position tags. this director displayed this tags.
+ ** *first row will display the current tag, second row display next bar tag.
+ **
+ **	-------------------------------------------
+ **	|                     |                     |
+ **	|        Bar          |       Beat          |	
+ **	|                     |                     |	
+ **	-------------------------------------------
+ **	|                                           |
+ **	|            current bar tag                |
+ **	|                                           |	
+ **	-------------------------------------------
+ **	|                                           |
+ **	|              next bar tag                 |
+ **	|                                           |
+ **	-------------------------------------------
+ **/
+
+
 #include "MetroBlinker.h"
 #include "HydrogenApp.h"
 #include "widgets/PixmapWidget.h"
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-
+#include <QRect>
 
 
 using namespace H2Core;
@@ -49,11 +77,9 @@ MetroBlinker::MetroBlinker ( QWidget* pParent )
 	p_bar = 1;	// default bar
 	p_wechselblink = 0;
 
-	beatblinkerLabel->setText(QString("1"));
-	contentblinkerLabel->setText(QString("infos"));
 	p_bpm = Hydrogen::get_instance()->getSong()->__bpm;
 	timer = new QTimer( this );
-	connect(timer, SIGNAL(timeout() ), this, SLOT( updateMetronomBackground() ) );
+	connect( timer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
 }
 
 
@@ -73,17 +99,17 @@ void MetroBlinker::metronomeEvent( int nValue )
 	timer->start( static_cast<int>( 1000 / ( p_bpm / 60 )) / 2 );
 	p_wechselblink = 0;
 	p_fadealpha = 255;
-	if (nValue == 2){
+	if ( nValue == 2 ){
 		p_fadealpha = 0;
 		return;
 	}
-	if (nValue == 1) {	//foregroundcolor "rect" for first blink
+	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
 		p_color = QColor( 255, 50, 1 ,255 );
 		p_counter = 1;		
 	}
 	else {	//foregroundcolor "rect" for all other blinks
 		p_counter++;
-		if(p_counter %2 == 0) 
+		if( p_counter %2 == 0 ) 
 			p_wechselblink = width() / 2;
 
 		p_color = QColor( 24, 250, 31, 255 );
@@ -101,13 +127,29 @@ void MetroBlinker::updateMetronomBackground()
 }
 
 
-void MetroBlinker::paintEvent( QPaintEvent* ev)
+void MetroBlinker::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
-	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
+	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
 	painter.setBrush( p_color );
 	painter.drawRect ( 20.0 + p_wechselblink, 20.0, width() -40.0 - (width() / 2), height() - 40.0 );
-	beatblinkerLabel->setText(QString("%1").arg(p_counter));
-	barblinkerLabel->setText(QString("%1").arg(p_bar));
+
+	//draw bars
+	painter.setPen(Qt::white);
+	painter.setFont(QFont("Arial", height() / 4 ));
+	QRect r1(QPoint( width() * 3 / 16 , height() / 3 / 4 ), QSize( width() / 8, height() / 3));
+	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( p_bar) );
+
+	//draw beats
+	painter.setFont(QFont("Arial", height() / 4 ));
+	QRect r2(QPoint( width() * 11 / 16 , height() / 3 / 4 ), QSize( width() / 8, height() / 3));
+	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
+
+	//draw current bar tag
+	painter.setFont(QFont("Arial", height() / 15 ));
+	QRect r3(QPoint(30, height() / 3), QSize( width() -30, height() / 3));
+	painter.drawText( r3, Qt::AlignCenter, QString("width: %1, height: %2hjjjjjj").arg(width()).arg(height()));
+
+
 
 }

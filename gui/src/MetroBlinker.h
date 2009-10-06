@@ -20,34 +20,6 @@
  *
  */
 
- /**
- **
- ** this dialog is used to use show a director.
- ** for example to play live without a click in your ears.
- ** here you get a: 
- ** 	- visual metronome 
- ** 	- bar position info
- ** 	- beat position info
- **	- bar position tags *
- ** *this will implementet at timeline. rightclick on timeline open a dioalog to add position tags. this director displayed this tags.
- ** *first row will display the current tag, second row display next bar tag.
- **
- **	-------------------------------------------
- **	|                     |                     |
- **	|        Bar          |       Beat          |	
- **	|                     |                     |	
- **	-------------------------------------------
- **	|                                           |
- **	|            current bar tag                |
- **	|                                           |	
- **	-------------------------------------------
- **	|                                           |
- **	|              next bar tag                 |
- **	|                                           |
- **	-------------------------------------------
- **/
-
-
 #ifndef METRO_BLINKER_H
 #define METRO_BLINKER_H
 
