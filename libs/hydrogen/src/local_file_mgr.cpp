@@ -1562,6 +1562,18 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	}
 	songNode.appendChild( bpmTimeLine );
 
+//time line tag
+	QDomNode timeLineTag = doc.createElement( "timeLineTag" );
+	if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
+			QDomNode newTAGNode = doc.createElement( "newTAG" );
+			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat ));
+			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag  ) );
+			timeLineTag.appendChild( newTAGNode );	
+		}
+	}
+	songNode.appendChild( timeLineTag );
+
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
 

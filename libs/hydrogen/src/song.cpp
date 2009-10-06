@@ -766,6 +766,24 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
 
+	
+	Hydrogen::get_instance()->m_timelinetagvector.clear();
+	Hydrogen::HTimelineTagVector tltagvector;
+	QDomNode timeLineTag = songNode.firstChildElement( "timeLineTag" );
+	if ( !timeLineTag.isNull() ) {
+		QDomNode newTAGNode = timeLineTag.firstChildElement( "newTAG" );
+		while( !newTAGNode.isNull() ) {
+			tltagvector.m_htimelinetagbeat = LocalFileMng::readXmlInt( newTAGNode, "BAR", 0 );
+			tltagvector.m_htimelinetag = LocalFileMng::readXmlString( newTAGNode, "TAG", "" );	
+			Hydrogen::get_instance()->m_timelinetagvector.push_back( tltagvector );
+			Hydrogen::get_instance()->sortTimelineTagVector();
+			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
+		}
+	}
+	else {
+		WARNINGLOG( "TagTimeLine node not found" );
+	}
+
 
 	song->__is_modified = false;
 	song->set_filename( filename );
