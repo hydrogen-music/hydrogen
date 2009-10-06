@@ -3446,5 +3446,11 @@ void Hydrogen::sortTimelineVector()
 	sort(m_timelinevector.begin(), m_timelinevector.end(), TimelineComparator());
 }
 
+void Hydrogen::sortTimelineTagVector()
+{
+	//sort the timeline vector to beats a < b
+	sort(m_timelinetagvector.begin(), m_timelinetagvector.end(), TimelineTagComparator());
+}
+
 };
 

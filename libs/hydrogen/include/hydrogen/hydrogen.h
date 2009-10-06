@@ -211,6 +211,7 @@ public:
 	void sortVolVectors();
 	void sortPanVectors();
 	void sortTimelineVector();
+	void sortTimelineTagVector();
 
 	struct HVeloVector
 	{
@@ -262,6 +263,22 @@ public:
 		bool operator()( HTimelineVector const& lhs, HTimelineVector const& rhs)
 		{
 			return lhs.m_htimelinebeat < rhs.m_htimelinebeat;
+		}
+	};
+/// timeline tag vector
+	struct HTimelineTagVector
+	{
+		int m_htimelinetagbeat;		//beat position in timeline 
+//		int m_htimelinevelo;	
+		QString m_htimelinetag;
+	};
+	std::vector<HTimelineTagVector> m_timelinetagvector;
+
+	struct TimelineTagComparator
+	{
+		bool operator()( HTimelineTagVector const& lhs, HTimelineTagVector const& rhs)
+		{
+			return lhs.m_htimelinetagbeat < rhs.m_htimelinetagbeat;
 		}
 	};
 

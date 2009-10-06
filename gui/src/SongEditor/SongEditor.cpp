@@ -37,6 +37,7 @@ using namespace H2Core;
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 #include "SongEditorPanelBpmWidget.h"
+#include "SongEditorPanelTagWidget.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
@@ -1557,11 +1558,19 @@ void SongEditorPositionRuler::createBackground()
 	p.fillRect( 0, 0, width(), 24, QColor( 67, 72, 83, 105) );
 	char tmp[10];
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = 10 + i * m_nGridWidth;
+		uint x = 10 + i * m_nGridWidth;	
+		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
+			if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == i ) {
+				p.setPen( Qt::cyan );
+				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
+			}
+		}
+
 		if ( (i % 4) == 0 ) {
 			p.setPen( textColor );
 			sprintf( tmp, "%d", i + 1 );
 			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
+
 
 		}
 		else {
@@ -1644,6 +1653,13 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		if ( nPatternPos != column ) {
 			Hydrogen::get_instance()->setPatternPos( column );
 			update();
+		}
+	}
+	else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
+		int column = (ev->x() / m_nGridWidth);
+		SongEditorPanelTagWidget dialog( this , column );
+		if (dialog.exec() == QDialog::Accepted) {
+			createBackground();
 		}
 	}
 	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
