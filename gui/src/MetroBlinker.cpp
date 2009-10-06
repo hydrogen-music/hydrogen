@@ -160,7 +160,8 @@ void MetroBlinker::paintEvent( QPaintEvent* ev )
 	QRect r2(QPoint( width() * 11 / 16 , height() * 1 / 16 ), QSize( width() / 8, height() / 3));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
 
-	if( TAG == TAG2 ) TAG2 = "";
+	if( TAG == TAG2 )
+		 TAG2 = "";
 	//draw current bar tag
 	painter.setPen(Qt::cyan);
 	painter.setFont(QFont("Arial", height() / 15 ));
