@@ -121,7 +121,6 @@ void MetroBlinker::metronomeEvent( int nValue )
 	if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
 			if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == p_bar ){
-				ERRORLOG ("TAG2");
 				TAG2 =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
 			}
 			else if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == p_bar - 1){
@@ -153,11 +152,11 @@ void MetroBlinker::paintEvent( QPaintEvent* ev )
 	//draw bars
 	painter.setPen(Qt::white);
 	painter.setFont(QFont("Arial", height() / 4 ));
-	QRect r1(QPoint( width() * 3 / 16 , height() * 1 / 16 ), QSize( width() / 8, height() / 3));
+	QRect r1(QPoint( width() * 1 / 16 , height() * 1 / 16 ), QSize( width() / 3, height() / 3));
 	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( p_bar) );
 
 	//draw beats
-	QRect r2(QPoint( width() * 11 / 16 , height() * 1 / 16 ), QSize( width() / 8, height() / 3));
+	QRect r2(QPoint( width() * 9 / 16 , height() * 1 / 16 ), QSize( width() / 3, height() / 3));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
 
 	if( TAG == TAG2 )
