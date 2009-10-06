@@ -62,6 +62,9 @@ class MetroBlinker : public QDialog, public Ui_MetroBlinker_UI, public Object, p
 		float p_bpm;
 		int p_bar;
 		int p_wechselblink;
+		QString TAG;
+		QString TAG2;
+		int tagbeat;
 
 
 };

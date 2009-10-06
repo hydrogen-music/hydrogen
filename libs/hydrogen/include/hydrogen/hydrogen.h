@@ -269,8 +269,8 @@ public:
 	struct HTimelineTagVector
 	{
 		int m_htimelinetagbeat;		//beat position in timeline 
-//		int m_htimelinevelo;	
-		QString m_htimelinetag;
+//		int m_htimelineintensity;		//intensity
+		QString m_htimelinetag;		// tag
 	};
 	std::vector<HTimelineTagVector> m_timelinetagvector;
 

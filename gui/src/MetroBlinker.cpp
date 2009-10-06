@@ -115,6 +115,21 @@ void MetroBlinker::metronomeEvent( int nValue )
 		p_color = QColor( 24, 250, 31, 255 );
 
 	}
+
+	//get tags
+
+	if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
+			if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == p_bar ){
+				ERRORLOG ("TAG2");
+				TAG2 =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
+			}
+			else if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == p_bar - 1){
+				TAG =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
+			}
+		}
+	}
+
 	update();
 }
 
@@ -145,14 +160,15 @@ void MetroBlinker::paintEvent( QPaintEvent* ev )
 	QRect r2(QPoint( width() * 11 / 16 , height() * 1 / 16 ), QSize( width() / 8, height() / 3));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
 
+	if( TAG == TAG2 ) TAG2 = "";
 	//draw current bar tag
 	painter.setPen(Qt::cyan);
 	painter.setFont(QFont("Arial", height() / 15 ));
 	QRect r3(QPoint ( width() * 1 / 50 , height() * 6 / 16 ), QSize( width() - width() / 25, height() / 3));
-	painter.drawText( r3, Qt::AlignCenter, QString("width: %1, height: %2").arg(width()).arg(height()));
+	painter.drawText( r3, Qt::AlignCenter, QString( (TAG) ) );
 
 	//draw next bar tag
 	painter.setPen(Qt::yellow);
 	QRect r4(QPoint ( width() * 1 / 50 , height() * 10 / 16 ), QSize( width() - width() / 25, height() / 3));
-	painter.drawText( r4, Qt::AlignCenter, "next Bar Tag TagTAgTAGtagTAG");
+	painter.drawText( r4, Qt::AlignCenter, QString( TAG2 ) );
 }
