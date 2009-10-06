@@ -129,27 +129,30 @@ void MetroBlinker::updateMetronomBackground()
 
 void MetroBlinker::paintEvent( QPaintEvent* ev )
 {
+	//draw the metronome
 	QPainter painter(this);
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
 	painter.setBrush( p_color );
-	painter.drawRect ( 20.0 + p_wechselblink, 20.0, width() -40.0 - (width() / 2), height() - 40.0 );
+	painter.drawRect (  width() / 50 + p_wechselblink, height() /50 , width() -  width() / 25 -  width() / 2, height() -  height() / 25 );
 
 	//draw bars
 	painter.setPen(Qt::white);
 	painter.setFont(QFont("Arial", height() / 4 ));
-	QRect r1(QPoint( width() * 3 / 16 , height() / 3 / 4 ), QSize( width() / 8, height() / 3));
+	QRect r1(QPoint( width() * 3 / 16 , height() * 1 / 16 ), QSize( width() / 8, height() / 3));
 	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( p_bar) );
 
 	//draw beats
-	painter.setFont(QFont("Arial", height() / 4 ));
-	QRect r2(QPoint( width() * 11 / 16 , height() / 3 / 4 ), QSize( width() / 8, height() / 3));
+	QRect r2(QPoint( width() * 11 / 16 , height() * 1 / 16 ), QSize( width() / 8, height() / 3));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
 
 	//draw current bar tag
+	painter.setPen(Qt::cyan);
 	painter.setFont(QFont("Arial", height() / 15 ));
-	QRect r3(QPoint(30, height() / 3), QSize( width() -30, height() / 3));
-	painter.drawText( r3, Qt::AlignCenter, QString("width: %1, height: %2hjjjjjj").arg(width()).arg(height()));
+	QRect r3(QPoint ( width() * 1 / 50 , height() * 6 / 16 ), QSize( width() - width() / 25, height() / 3));
+	painter.drawText( r3, Qt::AlignCenter, QString("width: %1, height: %2").arg(width()).arg(height()));
 
-
-
+	//draw next bar tag
+	painter.setPen(Qt::yellow);
+	QRect r4(QPoint ( width() * 1 / 50 , height() * 10 / 16 ), QSize( width() - width() / 25, height() / 3));
+	painter.drawText( r4, Qt::AlignCenter, "next Bar Tag TagTAgTAGtagTAG");
 }
