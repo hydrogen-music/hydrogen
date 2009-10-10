@@ -68,37 +68,26 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 
 	
 	if( timelineTagVector.size() > 0 ){
-		for ( int t = 0; t < timelineTagVector.size(); t++ ){
+		for ( unsigned int t = 0; t < timelineTagVector.size(); t++ ){
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
 			newTagItem->setText( QString( "%1" ).arg( timelineTagVector[t].m_htimelinetag ) );
 			tagTableWidget->setItem( timelineTagVector[t].m_htimelinetagbeat, 0, newTagItem );
 			
-			if ( timelineTagVector[t].m_htimelinetagbeat == m_stimelineposition ) {
-				newTagItem->setText( QString( "%1" ).arg( timelineTagVector[t].m_htimelinetag ) );
-				tagTableWidget->setItem( timelineTagVector[t].m_htimelinetagbeat, 0, newTagItem );
+
+			if ( static_cast<int>( timelineTagVector[t].m_htimelinetagbeat ) == m_stimelineposition ) {
+				//ERRORLOG(QString("vector %1 ,posi %2, t %3 ").arg(timelineTagVector[t].m_htimelinetag).arg(m_stimelineposition).arg(t));
 				tagTableWidget->setCurrentItem( newTagItem );
 				tagTableWidget->openPersistentEditor( newTagItem );
-			}else
-			{
-				QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
-				newTagItem2->setText( QString( "New Tag" ) );
-				tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
-				tagTableWidget->setCurrentItem( newTagItem2 );
-				tagTableWidget->openPersistentEditor( newTagItem2 );
 			}
 		}
-	}else
-	{
-		if ( m_stimelineposition < patterngroupvectorsize ){
-			QTableWidgetItem *newTagItem = new QTableWidgetItem();
-			newTagItem->setText( QString( "New Tag" ) );
-			tagTableWidget->setItem( m_stimelineposition , 0, newTagItem );
-			tagTableWidget->setCurrentItem( newTagItem );
-			tagTableWidget->openPersistentEditor( newTagItem );
-		}else
-		{
-			reject();
-		}	
+	}
+
+	if ( m_stimelineposition >= timelineTagVector.size() ){
+		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
+		newTagItem2->setText( QString( "" ) );
+		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
+		tagTableWidget->setCurrentItem( newTagItem2 );
+		tagTableWidget->openPersistentEditor( newTagItem2 );
 	}
 }
 
