@@ -49,10 +49,11 @@ class SongEditorPanelTagWidget : public QDialog, public Ui_SongEditorPanelTagWid
 
 		void on_CancelBtn_clicked();
 		void on_okBtn_clicked();
-		void on_deleteTagBtn_clicked();
+		void on_tagTableWidget_currentItemChanged( QTableWidgetItem * current, QTableWidgetItem * previous );
 
 	private:
 		int m_stimelineposition;
+		void createTheTagTableWidget();
 };
 
 }
