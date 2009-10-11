@@ -410,6 +410,8 @@ void MainForm::action_file_new()
  	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
+	Hydrogen::get_instance()->m_timelinetagvector.clear();
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
 }
 
 
@@ -1109,6 +1111,8 @@ void MainForm::openSongFile( const QString& sFilename )
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
+	Hydrogen::get_instance()->m_timelinetagvector.clear();
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
 }
 
 

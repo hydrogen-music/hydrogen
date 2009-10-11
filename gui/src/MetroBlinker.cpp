@@ -101,6 +101,7 @@ void MetroBlinker::metronomeEvent( int nValue )
 	p_fadealpha = 255;
 	if ( nValue == 2 ){
 		p_fadealpha = 0;
+		update();
 		return;
 	}
 	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
@@ -127,6 +128,10 @@ void MetroBlinker::metronomeEvent( int nValue )
 				TAG =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
 			}
 		}
+	}else
+	{
+		TAG="";
+		TAG2="";
 	}
 
 	update();

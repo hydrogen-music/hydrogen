@@ -72,22 +72,22 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
 			newTagItem->setText( QString( "%1" ).arg( timelineTagVector[t].m_htimelinetag ) );
 			tagTableWidget->setItem( timelineTagVector[t].m_htimelinetagbeat, 0, newTagItem );
-			
 
 			if ( static_cast<int>( timelineTagVector[t].m_htimelinetagbeat ) == m_stimelineposition ) {
-				//ERRORLOG(QString("vector %1 ,posi %2, t %3 ").arg(timelineTagVector[t].m_htimelinetag).arg(m_stimelineposition).arg(t));
 				tagTableWidget->setCurrentItem( newTagItem );
 				tagTableWidget->openPersistentEditor( newTagItem );
 			}
 		}
 	}
 
-	if ( m_stimelineposition >= timelineTagVector.size() ){
+	if( timelineTagVector.size() > 0 ){
+	if ( m_stimelineposition >= timelineTagVector[ timelineTagVector.size() -1 ].m_htimelinetagbeat ){
 		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
-		newTagItem2->setText( QString( "" ) );
+//		newTagItem2->setText( QString( "" ) );
 		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
 		tagTableWidget->setCurrentItem( newTagItem2 );
 		tagTableWidget->openPersistentEditor( newTagItem2 );
+	}
 	}
 }
 
