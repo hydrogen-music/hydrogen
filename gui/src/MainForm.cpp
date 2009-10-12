@@ -1091,6 +1091,8 @@ void MainForm::openSongFile( const QString& sFilename )
                 engine->sequencer_stop();
 	}
 
+	engine->m_timelinetagvector.clear();
+
 	h2app->closeFXProperties();
 	LocalFileMng mng;
 	Song *pSong = Song::load( sFilename );
@@ -1111,7 +1113,6 @@ void MainForm::openSongFile( const QString& sFilename )
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	Hydrogen::get_instance()->m_timelinetagvector.clear();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
 }
 
