@@ -66,7 +66,6 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 
 	std::vector<Hydrogen::HTimelineTagVector> timelineTagVector = engine->m_timelinetagvector;
 
-	
 	if( timelineTagVector.size() > 0 ){
 		for ( unsigned int t = 0; t < timelineTagVector.size(); t++ ){
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
@@ -81,13 +80,19 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 	}
 
 	if( timelineTagVector.size() > 0 ){
-	if ( m_stimelineposition >= timelineTagVector[ timelineTagVector.size() -1 ].m_htimelinetagbeat ){
+		if ( m_stimelineposition >= timelineTagVector[ timelineTagVector.size() -1 ].m_htimelinetagbeat || m_stimelineposition < timelineTagVector[0].m_htimelinetagbeat  ){
+			QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
+			tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
+			tagTableWidget->setCurrentItem( newTagItem2 );
+			tagTableWidget->openPersistentEditor( newTagItem2 );
+		}
+	}
+
+	if( timelineTagVector.size() == 0 ){
 		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
-//		newTagItem2->setText( QString( "" ) );
 		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
 		tagTableWidget->setCurrentItem( newTagItem2 );
-		tagTableWidget->openPersistentEditor( newTagItem2 );
-	}
+		tagTableWidget->openPersistentEditor( newTagItem2 );		
 	}
 }
 
