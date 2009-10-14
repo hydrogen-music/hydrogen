@@ -39,8 +39,8 @@ The following tools are used to maintain and process the
 documentation.  Depending on what you're working on, you may not need
 all (or any) of these.
 
-    xml2po - Creates and updates the translation templates (*.pot) and
-    translation files (*.po) based on the original DocBook source.[1]
+    xml2pot - Creates the translation templates (*.pot) based on the
+    original DocBook source.[1]
 
     po2xml - Merges the master DocBook source with a translation file
     (*.po) to create a translated DocBook file.[1]
@@ -53,21 +53,27 @@ all (or any) of these.
 
     make - GNU's make utility.
 
-As it happens, these tools are all very easy to install on Linux,
-being a part of the core toolchains for KDE, Gnome, Debian, etc.
-However, these tools are not as easy to set up on non-Linux platforms.
-Furthermore, it is undesireable to add these to the list of build
-dependencies for Hydrogen.
+With the exception of xml2pot and po2xml, these tools are all very
+easy to install on Linux, being a part of the core toolchains for KDE,
+Gnome, Debian, etc.  However, these tools are not as easy to set up on
+non-Linux platforms.  Furthermore, it is undesireable to add these to
+the list of build dependencies for Hydrogen.
+
+The po2xml and xml2pot tools are part of the 'poxml' package.  This is
+a part of the KDE SDK.  However, the KDE3 version of poxml does not
+work with our docbook sources.  The reason is a faulty implementation
+of poxml.  The KDE4 version of poxml corrects these issues, and is the
+only version known to work.
 
 Therefore, these files will be processed before making a release of
 Hydrogen, and the generated HTML output will become a part of the
 distribution.
 
 [1] xml2po and po2xml are part of poxml, which is in the KDE SDK.
-    http://www.kde.org/.  The Makefile is set up for the KDE3 version.
+    http://www.kde.org/.  You must use the KDE4 version.
 [2] xmlto is a convenient front-end to an XSLT processor.
     http://cyberelk.net/tim/software/xmlto/
-[3] xmllint is part of libxml http://xmlsoft.org/
+[3] xmllint is part of libxml2 http://xmlsoft.org/
 
 3. Translators
 --------------
@@ -370,6 +376,9 @@ files to work with poxml, we have to add the following restrictions:
 
 8. README.DOCUMENTATION.txt Changelog
 -------------------------------------
+
+2009-10-13 Gabriel M. Beddingfield <gabriel@teuton.org>
+	* Update poxml dependency to KDE4
 
 2009-09-02 Gabriel M. Beddingfield <gabriel@teuton.org>
 	* Add section 7 Additional DocBook Authoring Restrictions.
