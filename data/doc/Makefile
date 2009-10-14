@@ -46,10 +46,13 @@ all_pot_files: $(ALL_MASTERS)
 	$(XML2POT) tutorial.docbook > tutorial.pot
 
 clean:
-	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS) *_{en,es,it,fr,nl}.docbook *.docbook_validated
+	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS) *_{en,es,it,fr,nl,ca}.docbook *.docbook_validated
 
 %.html: %.docbook %.docbook_validated
-	$(XMLTO) html-nochunks $(XMLTO_OPTS) $<
+	LL=$$(echo -n $< | sed 's/.*_\(..\)\.docbook/\1/') ; \
+	$(XMLTO) html-nochunks $(XMLTO_OPTS) \
+		--stringparam l10n.gentext.language=$$LL \
+		$<
 
 %.docbook_validated: %.docbook
 	$(XMLLINT) --noout --valid $^
