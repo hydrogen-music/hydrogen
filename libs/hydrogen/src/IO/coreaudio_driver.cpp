@@ -28,10 +28,10 @@
  */
 
 #include "CoreAudioDriver.h"
-#include "CoreServices/CoreServices.h"
 
 #ifdef Q_OS_MACX
 
+#include "CoreServices/CoreServices.h"
 ///
 /// The Render Callback
 ///
