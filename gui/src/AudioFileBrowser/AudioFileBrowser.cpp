@@ -47,7 +47,6 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	INFOLOG ( "INIT" );
 	setWindowTitle ( trUtf8 ( "Audio File Browser" ) );
 	setFixedSize ( width(), height() );
-	installEventFilter( this );
 
         model = new QDirModel();
 	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );

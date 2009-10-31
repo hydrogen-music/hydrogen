@@ -58,8 +58,8 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	INFOLOG ( "INIT" );
 	setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	setFixedSize ( width(), height() );
-	installEventFilter(this);
 
+	installEventFilter( this );
 
 	// menubar
 	QMenuBar *m_pMenubar = new QMenuBar( this );

@@ -66,7 +66,6 @@ MetroBlinker::MetroBlinker ( QWidget* pParent )
 		, Object ( "MetroBlinker" )
 {
 
-	installEventFilter(this);
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
 	INFOLOG ( "INIT" );

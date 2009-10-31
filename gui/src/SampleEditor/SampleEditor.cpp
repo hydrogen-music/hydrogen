@@ -77,7 +77,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
-	installEventFilter( this );
 
 //this new sample give us the not changed real samplelength 
 	m_pSamplefromFile = Sample::load( mSamplefilename );

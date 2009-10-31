@@ -710,11 +710,17 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
 
-		if ( ev->key() ==  Qt::Key_W) {
-			// special tab handling here
+      if (ev->matches(QKeySequence::Copy))ERRORLOG("Key_c");
+
 			ERRORLOG("dfdf");
-			return;
-       	 	}
+
+		switch (ev->key()) {
+
+			case  Qt::Key_0 :
+				ERRORLOG("Key_0");
+				break;
+		}
+ 
 
 
 }
