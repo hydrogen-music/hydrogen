@@ -43,6 +43,7 @@ using namespace H2Core;
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 
+#include "MetroBlinker.h"
 #include "Mixer/Mixer.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -122,13 +123,13 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	// for all the window modes
 	h2app->getMixer()->installEventFilter (this);
 	h2app->getPatternEditorPanel()->installEventFilter (this);
+	h2app->getPatternEditorPanel()->getPianoRollEditor()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getPlayerControl()->installEventFilter(this);
 	InstrumentEditorPanel::get_instance()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
-//	h2app->getMetroBlinker()->installEventFilter(this);
+	h2app->getMetroBlinker()->installEventFilter(this);
 //	h2app->getPlayListDialog()->installEventFilter(this);
-
 	installEventFilter( this );
 
 	connect(&m_http, SIGNAL(done(bool)), this, SLOT(latestVersionDone(bool)));
