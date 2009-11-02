@@ -849,13 +849,13 @@
       <quote><emphasis role="bold">mute</emphasis></quote> and <quote><emphasis
       role="bold">solo</emphasis></quote> buttons.</para>
 
-      <informalfigure id="ifig.pattern_editor_instrument">
-        <mediaobject>
+      <para>
+      <inlinemediaobject id="ifig.pattern_editor_instrument">
           <imageobject>
             <imagedata fileref="img/PatternEditorInstr.png" format="PNG" />
           </imageobject>
-        </mediaobject>
-      </informalfigure>
+      </inlinemediaobject>
+      </para>
 
       <para>Also, you can set new beats clicking on
 

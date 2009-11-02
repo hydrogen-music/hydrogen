@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2009-09-03 07:28-0500\n"
+"POT-Creation-Date: 2009-09-04 07:27-0500\n"
 "PO-Revision-Date: 2009-07-26 18:58+0100\n"
 "Last-Translator: carles <pedroarnaldo@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9,266 +9,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:179(None)
-msgid ""
-"@@image: 'img/PreferencesAudioSystem.png'; "
-"md5=2cbcf26e128bec63fae694af120c51d6"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:235(None)
-msgid ""
-"@@image: 'img/PreferencesMidiSystem.png'; "
-"md5=a0f8cb05143d95b13b6aed599fbe4430"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:252(None)
-msgid ""
-"@@image: 'img/PreferencesAppearance.png'; "
-"md5=0e8d04f6fc536d2f56233783730ba852"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:271(None)
-msgid ""
-"@@image: 'img/AudioEngineInfoDialog.png'; "
-"md5=2409544da903ec8b9f08edb34bcb54ae"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:502(None)
-msgid "@@image: 'img/MainToolbar.png'; md5=4f5dddc0a6fc51b5b98bbfd5dd1ebfd0"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:510(None)
-msgid ""
-"@@image: 'img/background_Control.png'; md5=0405af224f62d2e360cb2656379cbd66"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:520(None)
-msgid ""
-"@@image: 'img/background_Mode.png'; md5=b2ca832b899e6ec073f6d700c9c8e178"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:528(None)
-msgid "@@image: 'img/background_BPM.png'; md5=0729e6f172d37cde37dc6dd69d7df9e9"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:538(None)
-msgid "@@image: 'img/cpuload.png'; md5=bfceb68aa39947b9d8fce81d70350d56"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:546(None)
-msgid "@@image: 'img/midi_in.png'; md5=302ded0d23140e8bf169a137ea7695b5"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:554(None)
-msgid "@@image: 'img/jack_transport.png'; md5=a3510cfd235f685a5a5f4788ba4aa6a3"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:699(None)
-msgid "@@image: 'img/bg_topPanel.png'; md5=ac7d11337eca92242e28918f8acf4281"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:708(None)
-msgid "@@image: 'img/btn_clear_off.png'; md5=506e17500965351186046e8d4675e298"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:716(None)
-msgid "@@image: 'img/btn_new_on.png'; md5=5cff0140de1a7304dd60b3cacea9e71d"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:724(None) manual.docbook:803(None)
-msgid "@@image: 'img/btn_updown.png'; md5=4e40841f9213616bceba8538be720204"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:734(None)
-msgid "@@image: 'img/btn_select.png'; md5=0d4dd148b47cfbb6054cc598a901e511"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:742(None)
-msgid "@@image: 'img/btn_draw.png'; md5=834dbbf9b0b8f3d1343851d1529bffde"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:749(None)
-msgid ""
-"@@image: 'img/btn_pattern_mode.png'; md5=cfda76720e17b1b73a391b03d30a1f01"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:766(None) manual.docbook:1685(None)
-msgid "@@image: 'img/SongEditor.png'; md5=8580fa158929130b0af2f7aa08abf489"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:793(None)
-msgid "@@image: 'img/btn_hear_on.png'; md5=dc908c7a82db7350c7c7b6e79bb4e8ba"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:811(None)
-msgid "@@image: 'img/btn_quant_off.png'; md5=d52c33c75ff5b690ea357fe170060d36"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:823(None) manual.docbook:1667(None)
-msgid "@@image: 'img/PatternEditor.png'; md5=967f9e6860c1b53170ca33f13a4afbd5"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:855(None)
-msgid ""
-"@@image: 'img/PatternEditorInstr.png'; md5=aa7b047b212826d380d6afa3d54f40a2"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:864(None)
-msgid ""
-"@@image: 'img/btn_record_over.png'; md5=88def8ff2487f8cb71501d67a74d89d1"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:910(None)
-msgid "@@image: 'img/tastiera.png'; md5=344cc621fc42d367ff50ec3b01017b04"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:924(None) manual.docbook:1758(None)
-msgid "@@image: 'img/Mixer.png'; md5=150e569dd12b279484bd2066c08dbd85"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:935(None)
-msgid "@@image: 'img/showPeaks_on.png'; md5=4475949f7c1f11157b8cfb623022e27b"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:945(None) manual.docbook:1711(None)
-#: manual.docbook:1733(None)
-msgid "@@image: 'img/btn_solo_on.png'; md5=275a1dd4a4cd6b5b93a0cc6d0d2ca497"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:953(None) manual.docbook:1717(None)
-#: manual.docbook:1742(None)
-msgid "@@image: 'img/btn_mute_on.png'; md5=2313bb2e4cf132f8fbfbe46e6505f5c6"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:961(None) manual.docbook:1705(None)
-msgid ""
-"@@image: 'img/btn_play_on_mixer.png'; md5=2eb3b919753b61020e06fe2dda6529ad"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:978(None) manual.docbook:1572(None)
-msgid "@@image: 'img/showFX_on.png'; md5=faaad6e9491dac7d3478b96e87b1ecc5"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:987(None)
-msgid "@@image: 'img/MixerFX.png'; md5=af1f625d71ffb19d140a2a6e15e64102"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1581(None)
-msgid "@@image: 'img/edit_off.png'; md5=125b96a529eb2984de90da816a21f2ef"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1593(None)
-msgid "@@image: 'img/MixerFXKnob.png'; md5=687a99626a7e1aecdb9b45506380ec5b"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1601(None)
-msgid "@@image: 'img/bypass_over.png'; md5=de70b2610957f2c6d494b5951193eb8f"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1613(None)
-msgid "@@image: 'img/MixerFXSelect.png'; md5=d21233583479b7309fc704f9693d97b7"
-msgstr ""
-
-#. When image changes, this message will be marked fuzzy or untranslated for you.
-#. It doesn't matter what you translate it to: it's not used at all.
-#: manual.docbook:1725(None)
-msgid "@@image: 'img/MixerPan.png'; md5=5a331fe0240cfd3cabcf48c68fb11f11"
-msgstr ""
-
 #: manual.docbook:7(title)
 msgid "Hydrogen Manual"
 msgstr "Manual d'Hydrogen"
 
-#: manual.docbook:10(firstname)
-msgid "Antonio"
+#. Tag: author
+#: manual.docbook:9
+#, no-c-format
+msgid "<firstname>Antonio</firstname> <surname>Piraino</surname>"
 msgstr ""
 
-#: manual.docbook:11(surname)
-msgid "Piraino"
-msgstr ""
-
-#: manual.docbook:14(firstname)
-msgid "Alessandro"
-msgstr ""
-
-#: manual.docbook:15(surname)
-msgid "Cominu"
-msgstr ""
-
-#: manual.docbook:19(date)
-msgid "22/may/2005"
+#. Tag: author
+#: manual.docbook:13
+#, no-c-format
+msgid "<firstname>Alessandro</firstname> <surname>Cominu</surname>"
 msgstr ""
 
 #: manual.docbook:22(para)
@@ -303,19 +57,23 @@ msgstr ""
 "url=\"http://www.hydrogen-music.org/?p=download\">http://www.hydrogen-music."
 "org</ulink>."
 
-#: manual.docbook:48(para)
-msgid ""
-"It is possible to download the latest source files directly from our "
-"subversion server with: <screen><prompt>$</prompt> <command>svn co http://"
-"svn.assembla.com/svn/hydrogen/trunk</command></screen> A certain release can "
-"be fetched with: <screen><prompt>$</prompt> <command>svn co http://svn."
-"assembla.com/svn/hydrogen/tags/0.9.3</command></screen>"
+#. Tag: para
+#: manual.docbook:48
+#, no-c-format
+msgid "It is possible to download the latest source files directly from our subversion server with: <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/trunk</command></screen> A certain release can be fetched with:"
 msgstr ""
 "És possible descarregar la última versió dels fitxers font directament del "
 "nostre servidor subversion a: <screen><prompt>$</prompt> <command>svn co "
 "http://svn.assembla.com/svn/hydrogen/trunk</command></screen> Una deteminada "
-"versió pot ser recuperada amb: <screen><prompt>$</prompt> <command>svn co "
-"http://svn.assembla.com/svn/hydrogen/tags/0.9.3</command></screen>"
+"versió pot ser recuperada amb:"
+
+#. Tag: screen
+#: manual.docbook:56
+#, no-c-format
+msgid "<prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.3</command>"
+msgstr ""
+"<prompt>$</prompt> <command>svn co "
+"http://svn.assembla.com/svn/hydrogen/tags/0.9.3</command>"
 
 #: manual.docbook:59(para)
 msgid "Compiling Hydrogen depends on the following libraries:"
@@ -1189,15 +947,15 @@ msgstr ""
 msgid ""
 "Some of the settings to adjust the BeatCounter's latency compensation, and "
 "they are located on the <guilabel>General</guilabel> tab of the Preferences "
-"Dialog ( <menuchoice> <guimenu>Tools</guimenu> <guimenuitem>Preferences</"
-"guimenuitem> </menuchoice> ). Here there are two spinboxes:"
+"Dialog ( <menuchoice><guimenu>Tools</guimenu><guimenuitem>Preferences</"
+"guimenuitem></menuchoice> ). Here there are two spinboxes:"
 msgstr ""
 "Alguns dels paràmetres per ajustar la latència del ComptadorDePolsacions"
 
 #: manual.docbook:660(para)
 msgid ""
 "<emphasis role=\"bold\"><guilabel>Beat counter drift compensation in 1/10ms</"
-"guilabel></emphasis> &mdash; adjust to compensate for latency between the "
+"guilabel></emphasis>&mdash; adjust to compensate for latency between the "
 "keyboard and the program."
 msgstr ""
 "<emphasis role=\"bold\"><guilabel>Compensació de deriva del comptador de "
@@ -1207,7 +965,7 @@ msgstr ""
 #: manual.docbook:665(para)
 msgid ""
 "<emphasis role=\"bold\"><guilabel>Beat counter start offset in ms</"
-"guilabel></emphasis> &mdash; adjust the time between the BeatCounter's last "
+"guilabel></emphasis>&mdash; adjust the time between the BeatCounter's last "
 "input stroke and when the song starts playing (if auto-start is activated)."
 msgstr ""
 "<emphasis role=\"bold\"><guilabel>Comença la compensació del comptador de "
@@ -1257,37 +1015,37 @@ msgstr "L'editor de Cançons té 7 botons:"
 
 #: manual.docbook:707(para)
 msgid ""
-"<placeholder-1/> Completely delete all patterns (asks for confirmation!)."
+"Completely delete all patterns (asks for confirmation!)."
 msgstr ""
-"<placeholder-1/> Esborrar completament tots els patrons (demana "
+"Esborrar completament tots els patrons (demana "
 "confirmació!)."
 
 #: manual.docbook:715(para)
-msgid "<placeholder-1/> Create a new pattern (and asks for a name)."
-msgstr "<placeholder-1/> Crear un nou patró (i demana pel seu nom)."
+msgid "Create a new pattern (and asks for a name)."
+msgstr "Crear un nou patró (i demana pel seu nom)."
 
 #: manual.docbook:723(para)
-msgid "<placeholder-1/> Move currently selected pattern up or down."
-msgstr "<placeholder-1/> Moure el patró seleccionat amunt o avall."
+msgid "Move currently selected pattern up or down."
+msgstr "Moure el patró seleccionat amunt o avall."
 
 #: manual.docbook:733(para)
 msgid ""
-"<placeholder-1/> Enable selecting patterns for copy &amp; paste (Select "
+"Enable selecting patterns for copy &amp; paste (Select "
 "Mode)."
 msgstr ""
-"<placeholder-1/> Habilitar seleccionar patrons per copiar i enganxar (Mode "
+"Habilitar seleccionar patrons per copiar i enganxar (Mode "
 "selecció)."
 
 #: manual.docbook:741(para)
-msgid "<placeholder-1/> Enable Draw Mode."
-msgstr "<placeholder-1/> Habilitar Mode Dibuix."
+msgid "Enable Draw Mode."
+msgstr "Habilitar Mode Dibuix."
 
 #: manual.docbook:748(para)
 msgid ""
-"<placeholder-1/> Switch from \"Single pattern mode\" to \"Stacked pattern "
+"Switch from \"Single pattern mode\" to \"Stacked pattern "
 "mode\" and back.."
 msgstr ""
-"<placeholder-1/> Cambiar del mode \"Només un patró\" al mode \"Pila de "
+"Cambiar del mode \"Només un patró\" al mode \"Pila de "
 "patrons\" i enrere..."
 
 #: manual.docbook:756(para)
@@ -1342,16 +1100,28 @@ msgstr ""
 
 #: manual.docbook:789(para)
 msgid ""
-"The button <placeholder-1/> (hear new notes) will play the sample as it's "
+"The button <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_hear_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> (hear new notes) will play the sample as it's "
 "been added to the pattern. Finally you can move an instrument up and down in "
-"the sequence with the buttons <placeholder-2/> . A useful <quote>Quantize</"
-"quote> feature is available activating <placeholder-3/> . This way the beats "
+"the sequence with the buttons <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_updown.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> . A useful <quote>Quantize</"
+"quote> feature is available activating <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/btn_quant_off.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> . This way the beats "
 "inserted will automatically respect the grid resolution currently applied."
 msgstr ""
-"El botó <placeholder-1/> (escoltar noves notes) reprodueix la mostra com "
+"El botó <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_hear_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> (escoltar noves notes) reprodueix la mostra com "
 "s'ha afegit al patró. Finalment pots moure un instument amunt i avall amb "
-"els botons <placeholder-2/>. La útil funció <quote>Quantitzar</quote> està "
-"disponible activant <placeholder-3/>. D'aquesta manera les polsacions "
+"els botons <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_updown.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject>. La útil funció <quote>Quantitzar</quote> està "
+"disponible activant <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_quant_off.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject>. D'aquesta manera les polsacions "
 "insertada respectaràn automàticament respectant la resolució de la parrilla."
 
 #: manual.docbook:820(title) manual.docbook:1664(title)
@@ -1410,13 +1180,14 @@ msgstr ""
 "<quote><emphasis role=\"bold\">silenciar</emphasis></quote> i reproduïr "
 "<quote><emphasis role=\"bold\">en solitari</emphasis></quote>."
 
-#: manual.docbook:860(para)
-msgid ""
-"Also, you can set new beats clicking on <placeholder-1/> which enables "
-"direct input by MIDI events or by keyboard according to the following map "
-"key=instrument:"
+#. Tag: para
+#: manual.docbook:844
+#, no-c-format
+msgid "Also, you can set new beats clicking on <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_record_over.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> which enables direct input by MIDI events or by keyboard according to the following map key=instrument:"
 msgstr ""
-"Amés, pots posar noves polsacions clicant a <placeholder-1/>, el que "
+"Amés, pots posar noves polsacions clicant a <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/btn_record_over.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject>, el que "
 "habilita entrada directe a partir d'events MIDI o teclat segóns el mapa "
 "tecla=instrument:"
 
@@ -1548,10 +1319,18 @@ msgstr "El Mesclador"
 msgid ""
 "The Mixer frame (<xref linkend=\"fig.mixer\"/>) is useful for tuning a "
 "global or single volume of the current drumkit. It shows the current peak "
-"(click on <placeholder-1/> to disable, useful on old CPUs) and let you set "
+"(click on <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/showPeaks_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> to disable, useful on old CPUs) and let you set "
 "the maximum peak allowed (tune with the fader knob of the instrument), lets "
-"you modify attributes like pan, play solo <placeholder-2/> , mute "
-"<placeholder-3/> or test play only that instrument <placeholder-4/> ; "
+"you modify attributes like pan, play solo <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> , mute "
+"<inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png\" "
+"format=\"PNG\"/> </imageobject> </inlinemediaobject> or test play only that "
+"instrument <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_play_on_mixer.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> ; "
 "selecting in the Pattern Editor an instrument causes a blue LED to light on "
 "(near the play button). Near the global volume knob, you can set 3 global "
 "effect such a swing (shifts a few notes back or forward not randomly), "
@@ -1560,11 +1339,19 @@ msgid ""
 msgstr ""
 "L'àrea del mesclador (<xref linkend=\"fig.mixer\"/>) és útil per afinar el "
 "volum global o de cada una de les mostres de l'actual kit de bateria. Mostra "
-"el pic actual (clic a <placeholder-1/>  per deshabilitar, útil per a velles "
+"el pic actual (clic a <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/showPeaks_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> per deshabilitar, útil per a velles "
 "CPU) i et permet habilitar el valor màxim de pic permès (afina-ho amb el "
 "botó atenuador de l'instrument), et permet modificar atributs com ara "
-"balanç, tocar en solitari <placeholder-2/> , silenciar <placeholder-3/> o "
-"provar tocar només aquest instrument <placeholder-4/>; seleccionant a "
+"balanç, tocar en solitari <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> , silenciar <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> o "
+"provar tocar només aquest instrument <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/btn_play_on_mixer.png\" format=\"PNG\"/> "
+"</imageobject> </inlinemediaobject>; seleccionant a "
 "l'Editor de Patrons un instrument té l'efecte que un LED blau s'encen (aprop "
 "del botó d'inici de reproducció). Aprop del botó de volum global, pots "
 "habilitar 3 efectes globals com ara swing (canvia unes poques notes enrere o "
@@ -1574,12 +1361,20 @@ msgstr ""
 #: manual.docbook:972(para)
 msgid ""
 "In addition to all this you can set up to 4 special LADSPA effects for each "
-"instrument switching the <placeholder-1/> button. See next section for a "
-"detailed overview. <placeholder-2/>"
+"instrument switching the <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/showFX_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> button. See next section for a "
+"detailed overview. <informalfigure id=\"ifig.mixer_fx\"> <mediaobject> "
+"<imageobject> <imagedata fileref=\"img/MixerFX.png\" format=\"PNG\"/> "
+"</imageobject> </mediaobject> </informalfigure>"
 msgstr ""
 "Amés és possible configurar 4 efectes LADSPA per a cada instrument activant "
-"el <placeholder-1/> botó. Veure la pròxima secció per a més detall. "
-"<placeholder-2/>"
+"el <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/showFX_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> botó. Veure la pròxima secció per a més detall. "
+"<informalfigure id=\"ifig.mixer_fx\"> <mediaobject> <imageobject> "
+"<imagedata fileref=\"img/MixerFX.png\" format=\"PNG\"/> </imageobject> "
+"</mediaobject> </informalfigure>"
 
 #: manual.docbook:997(title)
 msgid "Sound Library (Drumkit Manager)"
@@ -1892,17 +1687,17 @@ msgstr "Creant un nou Kit de Bateria"
 
 #: manual.docbook:1165(para)
 msgid ""
-"To start a brand new drum kit, select <menuchoice> <guimenu>Instruments</"
-"guimenu> <guimenuitem>Clear All</guimenuitem> </menuchoice> . This will give "
+"To start a brand new drum kit, select <menuchoice><guimenu>Instruments</"
+"guimenu><guimenuitem>Clear All</guimenuitem></menuchoice> . This will give "
 "you a bank of 32 blank instruments. To delete instruments, right-click on on "
 "each instrument and select <guimenuitem>Delete Instrument</guimenuitem>. To "
-"add more instruments, select <menuchoice> <guimenu>Instruments</"
-"guimenu> <guimenuitem>Add instrument</guimenuitem> </menuchoice> ."
+"add more instruments, select <menuchoice><guimenu>Instruments</"
+"guimenu><guimenuitem>Add instrument</guimenuitem></menuchoice> ."
 msgstr ""
-"Per crear un kit de bateria nou de trinca, selecciona "
-"<menuchoice> <guimenu>Instruments</guimenu> <guimenuitem>Netejar Tot</"
-"guimenuitem> </menuchoice> . Això et donarà un banc de 32 instruments. Per "
-"esborrar instruments, clica amb el botó dret a cada instrument i selecciona "
+"Per crear un kit de bateria nou de trinca, selecciona <menuchoice> "
+"<guimenu>Instruments</guimenu> <guimenuitem>Netejar Tot</guimenuitem> </"
+"menuchoice> . Això et donarà un banc de 32 instruments. Per esborrar "
+"instruments, clica amb el botó dret a cada instrument i selecciona "
 "<guimenuitem>Esborra Instrument</guimenuitem>. Per afegir instruments, "
 "selecciona <menuchoice> <guimenu>Instruments</guimenu> <guimenuitem>Afegeix "
 "instrument</guimenuitem> </menuchoice>."
@@ -1922,8 +1717,8 @@ msgstr ""
 #: manual.docbook:1189(para)
 msgid ""
 "After you have your drum kit working the way you want, select "
-"<menuchoice> <guimenuitem>Instruments</guimenuitem> <guimenuitem>Save library</"
-"guimenuitem> </menuchoice> . It will ask you for the name of the kit to save. "
+"<menuchoice><guimenuitem>Instruments</guimenuitem><guimenuitem>Save library</"
+"guimenuitem></menuchoice> . It will ask you for the name of the kit to save. "
 "If you wish to <emphasis>overwrite</emphasis> an existing kit, you will need "
 "to type in the same name as the kit that you want to replace."
 msgstr ""
@@ -2219,14 +2014,13 @@ msgid ""
 "<emphasis>time</emphasis> that the volume of the sample goes from 0 to the "
 "full velocity of the note. If the value is 0, the sample will play "
 "immediately at full velocity. If the value is 1.0, the sample volume will "
-"use the maximum time available for the attack paramater. <placeholder-1/>"
+"use the maximum time available for the attack paramater."
 msgstr ""
 "<emphasis role=\"bold\">Atac</emphasis>&mdash; la quantitat de "
 "<emphasis>temps</emphasis> que el volum de la mostra triga a anar de 0 al "
 "volum de velocitat màxima. Si el valor es 0, la mostra es reproduirà "
 "inmediatament a velocitat màxima. Si el valor és 1.0, el volum de la mostra "
-"farà servir el temps màxim disponible per al paràmetre d'atac. <placeholder-"
-"1/>"
+"farà servir el temps màxim disponible per al paràmetre d'atac."
 
 #: manual.docbook:1362(para)
 msgid ""
@@ -2524,23 +2318,26 @@ msgid ""
 "org.uk</ulink>. Note that before compiling these plugins you need the FFTW "
 "tarball from <ulink url=\"http://www.fftw.org\">http://www.fftw.org</ulink>."
 msgstr ""
-"SWH-Plugins disponibles a <ulink url=\"http://plugin.org.uk\">http://plugin.org.uk</ulink>. Fixa't que "
-"abans de compilar aquests plugins necessites el fitxer tar amb el FFTW de "
-"<ulink url=\"http://www.fftw.org\">http://www.fftw.org</ulink>."
+"SWH-Plugins disponibles a <ulink url=\"http://plugin.org.uk\">http://plugin."
+"org.uk</ulink>. Fixa't que abans de compilar aquests plugins necessites el "
+"fitxer tar amb el FFTW de <ulink url=\"http://www.fftw.org\">http://www.fftw."
+"org</ulink>."
 
 #: manual.docbook:1548(para)
 msgid ""
 "CMT available at <ulink url=\"http://www.ladspa.org\">http://www.ladspa.org</"
 "ulink>."
-msgstr "CMT disponible a <ulink url=\"http://www.ladspa.org\">http://www.ladsp"
-"a.org</ulink>."
+msgstr ""
+"CMT disponible a <ulink url=\"http://www.ladspa.org\">http://www.ladspa.org</"
+"ulink>."
 
 #: manual.docbook:1552(para)
 msgid ""
 "TAP available at <ulink url=\"http://tap-plugins.sf.net\">http://tap-plugins."
 "sf.net</ulink>."
-msgstr "TAP disponible a <ulink url=\"http://tap-plugins.sf.net\">http://tap-"
-"plugins.sf.net</ulink>."
+msgstr ""
+"TAP disponible a <ulink url=\"http://tap-plugins.sf.net\">http://tap-plugins."
+"sf.net</ulink>."
 
 #: manual.docbook:1558(title)
 msgid "Plugins Kill"
@@ -2564,25 +2361,41 @@ msgstr ""
 msgid ""
 "Once you have installed a few plugins open a song you'd like add an effect "
 "to and select an instrument that has a few beats in the pattern. In the "
-"Mixer click on <placeholder-1/> and select one of the four available effect "
-"line Click on the Edit button ( <placeholder-2/> ), than on <quote>Select "
+"Mixer click on <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/showFX_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> and select one of the four available effect "
+"line Click on the Edit button ( <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/edit_off.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> ), than on <quote>Select "
 "the FX</quote>: this will bring up another window (<xref linkend=\"fig."
 "select_effect\"/>) that lets you choose an effect amongst those installed, "
 "they are alphabetically sorted and categorized. Once you're done, adjust the "
 "level from the mixer and start playing. Each round knob in the FX part "
-"controls the level of its effect. <placeholder-3/> If you want to quickly "
-"enable/disable the effect click the Bypass ( <placeholder-4/>) button."
+"controls the level of its effect. <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/MixerFXKnob.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> If you want to quickly "
+"enable/disable the effect click the Bypass ( <inlinemediaobject> "
+"<imageobject> <imagedata fileref=\"img/bypass_over.png\" format=\"PNG\"/> "
+"</imageobject> </inlinemediaobject>) button."
 msgstr ""
 "Un cop hagis instalat uns quants plugins, obre una canç'a la que t'agradaria "
 "afegir-li un efecte i selecciona un instrument que estigui en algun paró. "
-"Clica a  <placeholder-1/> en el mesclador, selecciona una de les quatre "
-"linies d'efectes i clicaal botó Editar  ( <placeholder-2/> ), a "
+"Clica a  <inlinemediaobject> <imageobject> <imagedata fileref=\"img/showFX_on.png\" "
+"format=\"PNG\"/> </imageobject> </inlinemediaobject> en el mesclador, selecciona "
+"una de les quatre "
+"linies d'efectes i clicaal botó Editar  ( <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/edit_off.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> ), a "
 "<quote>Seleccionar l'efecte</quote>: això obrirà una nova finestra (<xref "
 "linkend=\"fig.select_effect\"/>) que permet escollir un efecte entre els "
 "instalats, estan ordenats alfabèticament i categoritzats. Una vegada fet, "
 "ajusta el nivell del mesclador i dona-li a tocar. Cada selector de la part "
-"de l'efecte controla el nivell pel seu efecte. <placeholder-3/> Si vols "
-"habilitar/deshabilitar ràpidament, clica a Bypass  ( <placeholder-4/>)."
+"de l'efecte controla el nivell pel seu efecte. <inlinemediaobject> <imageobject> "
+"<imagedata fileref=\"img/MixerFXKnob.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> Si vols "
+"habilitar/deshabilitar ràpidament, clica a Bypass  ( <inlinemediaobject> "
+"<imageobject> <imagedata fileref=\"img/bypass_over.png\" format=\"PNG\"/> "
+"</imageobject> </inlinemediaobject>)."
 
 #: manual.docbook:1610(title)
 msgid "Select an Effect"
@@ -2688,28 +2501,28 @@ msgstr ""
 
 #: manual.docbook:1698(para)
 msgid ""
-"The Mixer frame (<xref linkend=\"fig.mixer.2\"/>) is made of 32 independent "
-"tracks, each of these is binded to an instrument, plus a \"Master Output\" "
-"line to adjust general output volume and a \"FX\" button to set effects. "
-"Every line features 3 buttons ( <placeholder-1/><placeholder-2/><placeholder-"
-"3/> ), pan adjust ( <placeholder-4/> ), current maximum peak, volume fader "
-"and name of the track. Clicking on <placeholder-5/> will play the selected "
-"instrument, cutting the others. The \"Mute\" button <placeholder-6/> , "
-"simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates "
-"the maximun volume reached from the instrument; the peak must be in a range "
-"of 0.0 and 1.0 (in <xref linkend=\"fig.mixer.2\"/> you can see a few volumes "
-"too loud), otherwise it will get distorted producing a weird sound "
-"(especially with OSS audio driver), in this case it's better to set volume "
-"down; keep an eye on each vu-meter."
+"The Mixer frame (<xref linkend=\"fig.mixer.2\"/>) is made of 32 independent tracks, each of these is binded to an instrument, plus a \"Master Output\" line to adjust general output volume and a \"FX\" button to set effects. Every line features 3 buttons ( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_play_on_mixer.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> ), pan adjust ( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/MixerPan.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> ), current maximum peak, volume fader and name of the track. Clicking on <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> will play the selected instrument, cutting the others. The \"Mute\" button <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> , simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates the maximun volume reached from the instrument; the peak must be in a range of 0.0 and 1.0 (in <xref linkend=\"fig.mixer.2\"/> you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter."
 msgstr ""
 "L'àrea del mesclador (<xref linkend=\"fig.mixer.2\"/>) es compòn de 32 "
 "pistes independents, cada una assignada a un instument, amés d'una \"Sortida "
 "General\" per a ajustar el nivel general de volum de sortida i un botó "
-"d'\"Efectes\" per configurar efectes. Cada línea té 3 botóns  ( <placeholder-"
-"1/><placeholder-2/><placeholder-3/> ), ajust de balanç ( <placeholder-4/"
-"> ),  el pic màxim actual, l'atenuador de volum i el nom de la pista. "
-"Clicant a <placeholder-5/> reproduirà l'instrument, tallant als altres. El "
-"botó d'\"Enmudir\" <placeholder-6/> silencia <emphasis>aquest</emphasis> "
+"d'\"Efectes\" per configurar efectes. Cada línea té 3 botóns  ( "
+"<inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_play_on_mixer.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject>"
+" ), ajust de balanç ( <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/MixerPan.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject>"
+" ),  el pic màxim actual, l'atenuador de volum i el nom de la pista. "
+"Clicant a <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> reproduirà l'instrument, tallant als altres. El "
+"botó d'\"Enmudir\" <inlinemediaobject> <imageobject> <imagedata "
+"fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> "
+"</inlinemediaobject> silencia <emphasis>aquest</emphasis> "
 "instrument. El nivell màxim de pic indica el volum màxim al que ha arribat "
 "l'instrument; el pic ha d'estar entre 0.0 i 1.0 (a <xref linkend=\"fig."
 "mixer.2\"/> pots veure uns quants volums massa alts), si no es distorsionarà "

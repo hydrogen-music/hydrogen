@@ -54,7 +54,7 @@ SplashScreen::SplashScreen()
 	p.setFont( font );
 	p.setPen( QColor( 20, 20, 20 ) );
 
-	QString version = QString( "Fx and sample fun branch\nv%1 (%2)" ).arg( get_version().c_str() ).arg( __DATE__ );
+	QString version = QString( "v%1 (%2)" ).arg( get_version().c_str() ).arg( __DATE__ );
 	p.drawText( 5, 5, width - 10, 40, Qt::AlignRight | Qt::AlignTop, version );
 
 //	p.drawText( 5, height - 45, width - 10, 40, Qt::AlignHCenter | Qt::AlignBottom, QString( trUtf8( "Modules: %1" ) ).arg( COMPILED_FEATURES ) );
