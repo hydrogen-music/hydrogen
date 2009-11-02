@@ -711,7 +711,6 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
 
 		switch (ev->key()) {
-
 			case  Qt::Key_0 :
 				INFOLOG("Key_0");
 				break;

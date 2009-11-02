@@ -179,7 +179,7 @@ MainForm::~MainForm()
 {
 	// remove the autosave file
 	QFile file( getAutoSaveFilename() );
-	file.remove();
+        file.remove();
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
@@ -426,8 +426,8 @@ void MainForm::action_file_save_as()
         std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode( QFileDialog::AnyFile );
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
-	fd->setAcceptMode( QFileDialog::AcceptSave );
-	fd->setWindowTitle( trUtf8( "Save song" ) );
+        fd->setAcceptMode( QFileDialog::AcceptSave );
+        fd->setWindowTitle( trUtf8( "Save song" ) );
 
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString defaultFilename;
@@ -458,6 +458,7 @@ void MainForm::action_file_save_as()
 		action_file_save();
 	}
 	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
+        h2app->setWindowTitle( filename );
 }
 
 
@@ -544,7 +545,7 @@ void MainForm::action_file_export_pattern_as()
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
-	fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
+        fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
 	fd->setDirectory ( dir );
 
 
@@ -614,7 +615,7 @@ void MainForm::action_file_open() {
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
 	fd->setDirectory( lastUsedDir );
 
-	fd->setWindowTitle( trUtf8( "Open song" ) );
+        fd->setWindowTitle( trUtf8( "Open song" ) );
 
 	/// \todo impostare il preview
 	/*

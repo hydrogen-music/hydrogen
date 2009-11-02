@@ -88,7 +88,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 		qsSongName = pFirstSong->get_filename();
 		qsSongName = qsSongName.section( '/', -1 );
 	}
-	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + qsSongName ) );
+
+        setWindowTitle( qsSongName  );
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -282,7 +283,7 @@ void HydrogenApp::setSong(Song* song)
 		songName = song->get_filename();
 		songName = songName.section( '/', -1 );
 	}
-	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString(get_version().c_str()) + QString( " - " ) + songName ) );
+        setWindowTitle( songName  );
 
 	m_pMainForm->updateRecentUsedSongList();
 }
@@ -310,6 +311,9 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 	getPlayerControl()->showMessage( msg, msec );
 }
 
+void HydrogenApp::setWindowTitle( const QString& title){
+    m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
+}
 
 void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
 {

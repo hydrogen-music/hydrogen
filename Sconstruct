@@ -70,6 +70,7 @@ def get_platform_flags( opts ):
                 if str(env['flac']) == "1": cppflags.append('-DFLAC_SUPPORT')
 		
 		if sys.platform == "darwin" and str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
+		if sys.platform == "darwin" and str(env['coremidi']) == "1": cppflags.append('-DCOREMIDI_SUPPORT')
 
 		cppflags.append('-DLADSPA_SUPPORT')
 		
@@ -83,8 +84,9 @@ def get_platform_flags( opts ):
 
 	if sys.platform == "darwin":
 		ldflags.append( '-L/opt/local/lib' )
+		includes.append( '/opt/local/include' )
 
-	if sys.platform == 'linux2':
+	elif sys.platform == 'linux2':
 		ldflags.append('-lasound')
 
 	elif sys.platform == "win32":
@@ -275,8 +277,10 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	if sys.platform == "darwin" and str(env['coreaudio']) == "1":
 		env.Append( LINKFLAGS = ['-framework','ApplicationServices'])
 		env.Append( LINKFLAGS = ['-framework','AudioUnit'])
-		env.Append( LINKFLAGS = ['-framework','Coreaudio'])
+		env.Append( LINKFLAGS = ['-framework','CoreAudio'])
 
+	if sys.platform == "darwin" and str(env['coremidi']) == "1":
+		env.Append( LINKFLAGS = ['-framework','CoreMIDI'])
 
 
 	app = env.Program(target = 'hydrogen', source = src )
@@ -318,7 +322,7 @@ def get_jack_api_flags(xenv, pkg_ver):
         rv = "-DJACK_NO_BBT_OFFSET"
     xenv.MergeFlags(rv)
 
-opts = Options('scache.conf')
+opts = Variables('scache.conf')
 
 #platform independent settings
 opts.Add('debug', 'Set to 1 to build with debug informations', 0)
@@ -329,9 +333,18 @@ opts.Add('optflags','Default: none',"")
 
 #platform dependent settings
 if sys.platform == "darwin":
-	opts.Add('coreaudio', 'Set to 1 to enable Coreaudio',1)
+	opts.Add('coreaudio', 'Set to 1 to enable CoreAudio',1)
+	opts.Add('coremidi', 'Set to 1 to enable CoreMIDI',0)
+	opts.Add('portmidi', 'Set to 1 to enable portmidi',0)
+	opts.Add('portaudio', 'Set to 1 to enable portaudio',0)
+	opts.Add('oss', 'Set to 1 to enable oss',0)
+	opts.Add('alsa', 'Set to 1 to enable alsa',0)
+	opts.Add('jack', 'Set to 1 to enable jack',0)
+	opts.Add('flac', 'Set to 1 to enable flac',1)
+	opts.Add('lash', 'Set to 1 to enable lash',0)
+	opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
 
-if sys.platform != "win32":
+elif sys.platform != "win32":
 	opts.Add('oss', 'Set to 1 to enable oss',1)
 
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',0)
@@ -482,6 +495,7 @@ print " portaudio: " + printStatus( env["portaudio"] )
 print "  portmidi: " + printStatus( env["portmidi"] ) 
 if sys.platform == "darwin":
 	print " coreaudio: " + printStatus( env["coreaudio"] )
+	print " coremidi: " + printStatus( env["coremidi"] )
 
 print "\n================================================================="
 print ""
