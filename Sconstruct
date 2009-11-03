@@ -68,8 +68,12 @@ def get_platform_flags( opts ):
 		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
                 if str(env['flac']) == "1": cppflags.append('-DFLAC_SUPPORT')
 		
-		if sys.platform == "darwin" and str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
-		if sys.platform == "darwin" and str(env['coremidi']) == "1": cppflags.append('-DCOREMIDI_SUPPORT')
+                #OSX related stuff..
+
+		if sys.platform == "darwin":
+		    if str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
+		    if str(env['coremidi']) == "1": cppflags.append('-DCOREMIDI_SUPPORT')
+		    if str(env['bundle']) == "1": cppflags.append('-DBUNDLE_SUPPORT')
 
 		cppflags.append('-DLADSPA_SUPPORT')
 		
@@ -337,6 +341,7 @@ opts.Add('optflags','Default: none',"")
 if sys.platform == "darwin":
 	opts.Add('coreaudio', 'Set to 1 to enable CoreAudio',1)
 	opts.Add('coremidi', 'Set to 1 to enable CoreMIDI',0)
+	opts.Add('bundle', 'Set to 1 to use app-bundle pathnames',0)
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',0)
 	opts.Add('portaudio', 'Set to 1 to enable portaudio',0)
 	opts.Add('oss', 'Set to 1 to enable oss',0)
