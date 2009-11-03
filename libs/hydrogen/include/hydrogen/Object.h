@@ -27,8 +27,8 @@
 #undef check
 #endif
 
+#include <QtCore>
 
-#include <QtGui>
 #include <map>
 #include <set>
 #include <vector>

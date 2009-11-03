@@ -32,6 +32,7 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
+#include <QStringList>
 #include <QDomDocument>
 
 // forward declaration

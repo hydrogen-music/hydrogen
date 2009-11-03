@@ -25,6 +25,8 @@
 
 #include <map>
 #include <cassert>
+#include <hydrogen/Object.h>
+
 #include <QtCore/QMutex>
 
 class Action;
