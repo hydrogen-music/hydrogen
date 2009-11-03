@@ -134,13 +134,17 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	
 	//Queue midi note off messages for notes that have a length specified for them
 
-	while (!__queuedNoteOffs.empty()) {
+	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
-		Hydrogen::get_instance()->getMidiOutput()->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(),
+		MidiOutput* midiOut = Hydrogen::get_instance()->getMidiOutput();
+		if( midiOut != NULL ){ 
+		midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(),
 									     ( pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key +
 									     ( pNote->get_instrument()->get_midi_out_note() -60 ), 
 									      pNote->get_velocity() * 127 );
+		
 		__queuedNoteOffs.erase(__queuedNoteOffs.begin());
+		}
 		delete pNote;
 		pNote = NULL;
 	}//while
@@ -187,7 +191,8 @@ void Sampler::note_on( Note *note )
 		delete note;
 	}
 	
-	Hydrogen::get_instance()->getMidiOutput()->handleQueueNote(note);
+	if( Hydrogen::get_instance()->getMidiOutput() != NULL )
+		Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( note );
 	
 }
 

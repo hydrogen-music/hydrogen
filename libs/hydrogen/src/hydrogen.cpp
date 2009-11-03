@@ -1955,7 +1955,8 @@ void Hydrogen::sequencer_play()
 /// Stop the internal sequencer
 void Hydrogen::sequencer_stop()
 {
-	Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
+	if( Hydrogen::get_instance()->getMidiOutput() != NULL )
+		Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
 	m_pAudioDriver->stop();
 	Preferences::get_instance()->setRecordEvents(false);
 }
