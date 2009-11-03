@@ -245,12 +245,12 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	def takebasename(file):
 		return os.path.splitext(os.path.basename(file))[0]
 
-
-	directory = "gui"
-
-	resources = [ env.Qrc( qrc, QT4_QRCFLAGS = '-name ' + takebasename( qrc ) ) for qrc in scanFiles(directory, ['*.qrc'] ) ]
-	interfaces = [ env.Uic4( uic ) for uic in scanFiles(directory, ['*.ui'] ) ]
-
+	if str(env['gui']) == "1":
+	    directory = "gui"
+	    resources = [ env.Qrc( qrc, QT4_QRCFLAGS = '-name ' + takebasename( qrc ) ) for qrc in scanFiles(directory, ['*.qrc'] ) ]
+	    interfaces = [ env.Uic4( uic ) for uic in scanFiles(directory, ['*.ui'] ) ]
+	else:
+	    directory = "no_gui"
 
 	src = scanFiles( directory, ['*.cpp', '*.cc', '*.c' ], [ 'moc_'] )
 
@@ -316,6 +316,8 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 
 	return app
 
+
+
 def get_jack_api_flags(xenv, pkg_ver):
     (major, minor, patch) = pkg_ver.rstrip().split('.')
     major = int(major)
@@ -336,6 +338,7 @@ opts.Add('libarchive', 'Set to 1 to enable libarchive instead of libtar', 0)
 opts.Add('prefix','Default: /usr/local',"/usr/local")
 opts.Add('DESTDIR','Default: none',"")
 opts.Add('optflags','Default: none',"")
+opts.Add('gui','Set to 0 to disable the Gui',1)
 
 #platform dependent settings
 if sys.platform == "darwin":
@@ -353,36 +356,22 @@ if sys.platform == "darwin":
 
 elif sys.platform != "win32":
 	opts.Add('oss', 'Set to 1 to enable oss',1)
-
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',0)
-	
 	opts.Add('portaudio', 'Set to 1 to enable portaudio',0)
-	
 	opts.Add('lash', 'Set to 1 to enable lash',0)
-	
 	opts.Add('alsa', 'Set to 1 to enable alsa',1)
-	
 	opts.Add('jack', 'Set to 1 to enable jack',1)	
-	
 	opts.Add('lrdf', 'Set to 1 to enable lrdf',1)
-	
 	opts.Add('flac', 'Set to 1 to enable flac',1)
 else:
 	#alsa, lash,oss and jack are not available on windows
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',1)
-	
 	opts.Add('portaudio', 'Set to 1 to enable portaudio',1)
-	
 	opts.Add('oss', 'Set to 1 to enable oss',0)
-
 	opts.Add('lash', 'Set to 1 to enable lash',0)
-	
 	opts.Add('alsa', 'Set to 1 to enable alsa',0)
-	
 	opts.Add('jack', 'Set to 1 to enable jack',0)
-	
 	opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
-	
 	opts.Add('flac', 'Set to 1 to enable flac',0)
 
 
