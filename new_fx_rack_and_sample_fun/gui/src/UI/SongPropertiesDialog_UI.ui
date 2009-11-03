@@ -1,0 +1,170 @@
+<ui version="4.0" >
+ <class>SongPropertiesDialog_UI</class>
+ <widget class="QDialog" name="SongPropertiesDialog_UI" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>290</width>
+    <height>378</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <widget class="QLineEdit" name="songNameTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>36</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="TextLabel1_2" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>72</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text" >
+    <string>Author</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="authorTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>96</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="TextLabel2" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text" >
+    <string>Notes</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="TextLabel1" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>12</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text" >
+    <string>Song name</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="okBtn" >
+   <property name="geometry" >
+    <rect>
+     <x>150</x>
+     <y>330</y>
+     <width>90</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string> &amp;OK</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+O</string>
+   </property>
+   <property name="default" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="cancelBtn" >
+   <property name="geometry" >
+    <rect>
+     <x>50</x>
+     <y>330</y>
+     <width>90</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>&amp;Cancel</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+C</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="notesTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>220</y>
+     <width>271</width>
+     <height>101</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="licenseTxt" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>154</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="TextLabel1_3" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>268</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text" >
+    <string>License</string>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources/>
+ <connections/>
+</ui>

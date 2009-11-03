@@ -1,0 +1,13 @@
+Index: libs/hydrogen/src/IO/portmidi_driver.cpp
+===================================================================
+--- libs/hydrogen/src/IO/portmidi_driver.cpp	(Revision 750)
++++ libs/hydrogen/src/IO/portmidi_driver.cpp	(Arbeitskopie)
+@@ -47,7 +47,7 @@
+ 	_INFOLOG( "PortMidiDriver_thread starting" );
+ 
+ 	PmError status;
+-	PmError length;
++	int length;
+ 	PmEvent buffer[1];
+ 	while ( instance->m_bRunning ) {
+ 		status = Pm_Poll( instance->m_pMidiIn );

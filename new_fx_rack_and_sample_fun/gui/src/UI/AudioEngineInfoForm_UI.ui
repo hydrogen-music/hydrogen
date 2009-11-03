@@ -1,0 +1,503 @@
+<ui version="4.0" >
+ <class>AudioEngineInfoForm_UI</class>
+ <widget class="QWidget" name="AudioEngineInfoForm_UI" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>590</width>
+    <height>376</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox_2" >
+   <property name="geometry" >
+    <rect>
+     <x>300</x>
+     <y>80</y>
+     <width>281</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Synth</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget_1" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>261</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" >
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
+      <number>6</number>
+     </property>
+     <item row="0" column="1" >
+      <widget class="QLabel" name="synth_playingNotesLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="TextLabel5_3" >
+       <property name="text" >
+        <string>Playing notes</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_6" >
+   <property name="geometry" >
+    <rect>
+     <x>300</x>
+     <y>10</y>
+     <width>281</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Sampler</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget_2" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>261</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" >
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
+      <number>6</number>
+     </property>
+     <item row="0" column="1" >
+      <widget class="QLabel" name="sampler_playingNotesLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="TextLabel5_2" >
+       <property name="text" >
+        <string>Playing notes</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_3" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>281</width>
+     <height>65</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <property name="horizontalSpacing" >
+     <number>6</number>
+    </property>
+    <property name="verticalSpacing" >
+     <number>6</number>
+    </property>
+    <item row="2" column="0" >
+     <widget class="QLabel" name="ticktextLabel1_3_2_2_2" >
+      <property name="text" >
+       <string>Selected instrument</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" >
+     <widget class="QLabel" name="TextLabel1" >
+      <property name="text" >
+       <string>Audio engine state</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" >
+     <widget class="QLabel" name="processTimeLbl" >
+      <property name="text" >
+       <string>###</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1" >
+     <widget class="QLabel" name="m_pSelectedInstrLbl" >
+      <property name="text" >
+       <string>###</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" >
+     <widget class="QLabel" name="engineStateLbl" >
+      <property name="text" >
+       <string>###</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" >
+     <widget class="QLabel" name="TextLabel7" >
+      <property name="text" >
+       <string>Process time</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>281</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Sequencer</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget_4" >
+    <property name="geometry" >
+     <rect>
+      <x>11</x>
+      <y>31</y>
+      <width>261</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" >
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
+      <number>6</number>
+     </property>
+     <item row="2" column="1" >
+      <widget class="QLabel" name="songStateLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" >
+      <widget class="QLabel" name="selectedPatLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" >
+      <widget class="QLabel" name="textLabel1_3" >
+       <property name="text" >
+        <string>Song state</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" >
+      <widget class="QLabel" name="ticktextLabel1_3_2_2" >
+       <property name="text" >
+        <string>Selected pattern</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="TextLabel1_2_2" >
+       <property name="text" >
+        <string>Song position</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="TextLabel1_2" >
+       <property name="text" >
+        <string>Patterns</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QLabel" name="m_pSongPositionLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" >
+      <widget class="QLabel" name="nTicksLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QLabel" name="currentPatternLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" >
+      <widget class="QLabel" name="ticktextLabel1_3_2" >
+       <property name="text" >
+        <string>Ticks</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_5" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>250</y>
+     <width>281</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>MIDI input</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget_5" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>261</width>
+      <height>42</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" >
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
+      <number>6</number>
+     </property>
+     <item row="0" column="1" >
+      <widget class="QLabel" name="midiDriverName" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QLabel" name="m_pMidiDeviceName" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="textLabel1_5" >
+       <property name="text" >
+        <string>Connected to</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="TextLabel3" >
+       <property name="text" >
+        <string>Name</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4" >
+   <property name="geometry" >
+    <rect>
+     <x>300</x>
+     <y>150</y>
+     <width>281</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Audio output</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget_6" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>261</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" >
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
+      <number>6</number>
+     </property>
+     <item row="2" column="1" >
+      <widget class="QLabel" name="sampleRateLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" >
+      <widget class="QLabel" name="textLabel1_3_3" >
+       <property name="text" >
+        <string>Realtime frames</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="textLabel1_2" >
+       <property name="text" >
+        <string>Buffer size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QLabel" name="bufferSizeLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" >
+      <widget class="QLabel" name="nRealtimeFramesLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" >
+      <widget class="QLabel" name="nFramesLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" >
+      <widget class="QLabel" name="textLabel1_4" >
+       <property name="text" >
+        <string>Sample rate</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="textLabel1" >
+       <property name="text" >
+        <string>Name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QLabel" name="driverLbl" >
+       <property name="text" >
+        <string>###</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" >
+      <widget class="QLabel" name="textLabel1_3_2" >
+       <property name="text" >
+        <string>Frames</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <includes/>
+ <resources/>
+ <connections/>
+</ui>

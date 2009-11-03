@@ -1,0 +1,65 @@
+diff --git a/libs/hydrogen/src/IO/PortAudioDriver.h b/libs/hydrogen/src/IO/PortAudioDriver.h
+index 5dda3f5..36c5196 100644
+--- libs/hydrogen/src/IO/PortAudioDriver.h
++++ libs/hydrogen/src/IO/PortAudioDriver.h
+@@ -28,6 +28,11 @@
+ 
+ #ifdef PORTAUDIO_SUPPORT
+ 
++
++
++#define PortAudioStream PaStream
++#define PaTimestamp PaTime
++
+ #include <inttypes.h>
+ #include <portaudio.h>
+ 
+diff --git a/libs/hydrogen/src/IO/portaudio_driver.cpp b/libs/hydrogen/src/IO/portaudio_driver.cpp
+index a6df93e..2b42fa1 100644
+--- libs/hydrogen/src/IO/portaudio_driver.cpp
++++ libs/hydrogen/src/IO/portaudio_driver.cpp
+@@ -10,10 +10,11 @@ namespace H2Core
+ {
+ 
+ int portAudioCallback(
+-    void *inputBuffer,
++    const void *inputBuffer,
+     void *outputBuffer,
+     unsigned long framesPerBuffer,
+-    PaTimestamp outTime,
++    const PaStreamCallbackTimeInfo* timeInfo,
++    PaStreamCallbackFlags statusFlags,
+     void *userData
+ )
+ {
+@@ -66,9 +67,16 @@ int PortAudioDriver::connect()
+ 	m_pOut_L = new float[ m_nBufferSize ];
+ 	m_pOut_R = new float[ m_nBufferSize ];
+ 
+-	int err = Pa_Initialize();
+-	
++	PaError err = Pa_Initialize();
+ 	
++	typedef struct
++	{
++    		float left_phase;
++    		float right_phase;
++	} paTestData;
++
++
++
+ 	if ( err != paNoError ) {
+ 		ERRORLOG( "Portaudio error in Pa_Initialize: " + QString( Pa_GetErrorText( err ) ) );
+ 		return 1;
+@@ -81,9 +89,9 @@ int PortAudioDriver::connect()
+ 	          paFloat32,      /* 32 bit floating point output */
+ 	          m_nSampleRate,          // sample rate
+ 	          m_nBufferSize,            // frames per buffer
+-	          0,              // number of buffers, if zero then use default minimum
++	          //0,              // number of buffers, if zero then use default minimum
+ 	          portAudioCallback, /* specify our custom callback */
+-	          this );        /* pass our data through to callback */
++	          (void*)this );        /* pass our data through to callback */
+ 	
+ 	
+ 	if ( err != paNoError ) {

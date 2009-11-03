@@ -1,0 +1,2134 @@
+# SOME DESCRIPTIVE TITLE.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: http://bugs.kde.org\n"
+"POT-Creation-Date: 2009-10-13 11:59+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <kde-i18n-doc@kde.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: application/x-xml2pot; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Tag: title
+#: manual.docbook:7
+#, no-c-format
+msgid "Hydrogen Manual"
+msgstr ""
+
+#. Tag: author
+#: manual.docbook:9
+#, no-c-format
+msgid "<firstname>Antonio</firstname> <surname>Piraino</surname>"
+msgstr ""
+
+#. Tag: author
+#: manual.docbook:13
+#, no-c-format
+msgid "<firstname>Alessandro</firstname> <surname>Cominu</surname>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:22
+#, no-c-format
+msgid "Hydrogen is a software synthesizer which can be used alone, emulating a drum machine based on patterns, or via an external MIDI keyboard/sequencer software. Hydrogen compiles on Linux/x86 and Mac OS X, although the latter is still experimental, so ask in the developers mailing list for further details."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:37
+#, no-c-format
+msgid "Introduction"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:40
+#, no-c-format
+msgid "Download"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:42
+#, no-c-format
+msgid "The latest stable version of hydrogen is available as a tarball at <ulink url=\"http://www.hydrogen-music.org/?p=download\">http://www.hydrogen-music.org</ulink>."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:48
+#, no-c-format
+msgid "It is possible to download the latest source files directly from our subversion server with: <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/trunk</command></screen> A certain release can be fetched with:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:56
+#, no-c-format
+msgid "<prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.3</command>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:59
+#, no-c-format
+msgid "Compiling Hydrogen depends on the following libraries:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:63
+#, no-c-format
+msgid "qt (&gt;= 4.0) at <ulink url=\"http://www.trolltech.com\">http://www.trolltech.com</ulink>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:66
+#, no-c-format
+msgid "libsndfile at <ulink url=\"http://www.mega-nerd.com/libsndfile/\">http://www.mega-nerd.com/libsndfile/</ulink>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:69
+#, no-c-format
+msgid "ALSA (&gt;= 1.x) at <ulink url=\"http://www.alsa-project.com\">http://www.alsa-project.com</ulink> (only if you wish to use ALSA as audio driver)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:73
+#, no-c-format
+msgid "Jack Audio Connection Kit (&gt;= 0.80) at <ulink url=\"http://jackaudio.org/\">http://jackaudio.org/</ulink> (only if you wish to use Jack as audio driver)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:78
+#, no-c-format
+msgid "PortAudio at <ulink url=\"http://www.portaudio.com\">http://www.portaudio.com</ulink> (only if you wish to use PortAudio as audio driver)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:82
+#, no-c-format
+msgid "Flac at <ulink url=\"http://flac.sf.net\">http://flac.sf.net</ulink> (only if you wish to use flac samples)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:86
+#, no-c-format
+msgid "ladspa at <ulink url=\"http://ladspa.org\">http://ladspa.org</ulink> (only if you wish to use ladspa effects)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:90
+#, no-c-format
+msgid "liblrdf at <ulink url=\"http://liblrdf.sf.net\">http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:93
+#, no-c-format
+msgid "lash at <ulink url=\"http://lash.nongnu.org\">http://lash.nongnu.org</ulink> (only if you wish to use lash)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:98
+#, no-c-format
+msgid "Please install them with your distribution's package manager. If you're running a debian-based system, you can install the libraries with:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:102
+#, no-c-format
+msgid ""
+      "<prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \\\n"
+      "        libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \\\n"
+      "        liblash-dev libportaudio-dev libportmidi-dev </command>"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:107
+#, no-c-format
+msgid "Build"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:109
+#, no-c-format
+msgid "Decompress the tarball or go to the directory where the subversion copy was checked out:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:112
+#, no-c-format
+msgid ""
+      "<prompt>$</prompt> <command>cd hydrogen-*</command>\n"
+      "        <prompt>$</prompt> <command>scons</command>\n"
+      "        <prompt>$</prompt> <command>su -c \"scons install\"</command>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:114
+#, no-c-format
+msgid "Before compiling, check for additional options with:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:116
+#, no-c-format
+msgid "<prompt>$</prompt> <command>scons --help</command>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:118
+#, no-c-format
+msgid "If you want to use features which are not enabled by default (for instance PortAudio), you can enable them with:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:121
+#, no-c-format
+msgid "<prompt>$</prompt> <command>scons portaudio=1</command>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:123
+#, no-c-format
+msgid "Namely, if you get some error while running Hydrogen and you want to report it remember to configure hydrogen with:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:126
+#, no-c-format
+msgid "<prompt>$</prompt> <command>scons debug=1</command>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:128
+#, no-c-format
+msgid "To clean up compiled code:"
+msgstr ""
+
+#. Tag: screen
+#: manual.docbook:130
+#, no-c-format
+msgid "<prompt>$</prompt> <command>scons -c</command>"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:134
+#, no-c-format
+msgid "Audio preferences"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:136
+#, no-c-format
+msgid "First of all you should make shure that the audio engine is configured properly. The preferences dialog can be accessed via the tools menu (tools -&gt; preferences)."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:141
+#, no-c-format
+msgid "The Audio System tab"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:143
+#, no-c-format
+msgid "From the \"Audio System\" tab (<xref linkend=\"fig.preferences.audio_tab\"/>) it is possible to modify the audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and sampling rate (unless using JACK, in this case the audio driver configuration should happen before starting the JACK server)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:149
+#, no-c-format
+msgid "We can set some features of Hydrogen like \"Enable track outputs\" useful if you want to add effects to a single instrument with jack-rack. \"Connect to Default Output Pair\" connects the output to the default ports: uncheck this if you want to connect JACK output to other ports without disconnecting them first"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:155
+#, no-c-format
+msgid "Keep also an eye on the value of \"Polyphony\": depending on your CPU you may want to change the max simultaneous notes in order to prevent hydrogen from overunning the audio driver."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:160
+#, no-c-format
+msgid "The Audio System Tab"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:168
+#, no-c-format
+msgid "The following drivers are available:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:175
+#, no-c-format
+msgid "<emphasis role=\"bold\">jackd</emphasis>: The Jack driver is a professional audio server which permits very low lag and exchanges with other audio software. <emphasis>We strongly recommend using this driver to have the best out of Hydrogen</emphasis>. JACK server will start automatically if not already running."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:183
+#, no-c-format
+msgid "<emphasis role=\"bold\">ALSA</emphasis>: the widely adopted Linux standard audio drivers"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:188
+#, no-c-format
+msgid "<emphasis role=\"bold\">OSS</emphasis>: The Oss audio driver uses /dev/dsp and it's based on the OSS interface which is supported by the vast majority of sound cards available for linux; this said, the use of this audio driver blocks /dev/dsp until Hydrogen is closed i.e. unusable by any other software. Use it as last resort."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:197
+#, no-c-format
+msgid "<emphasis role=\"bold\">PortAudio</emphasis>: an open-source multiplatform audio driver"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:202
+#, no-c-format
+msgid "<emphasis role=\"bold\">CoreAudio</emphasis>: a driver for Mac OS X (experimental)"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:209
+#, no-c-format
+msgid "The Midi System tab"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:211
+#, no-c-format
+msgid "The \"Midi System\" tab (<xref linkend=\"fig.preferences.midi_tab\"/>) concerns the MIDI input. You can choose the MIDI driver and input, setup channels, binding actions to MIDI events."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:216
+#, no-c-format
+msgid "The MIDI System Tab"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:226
+#, no-c-format
+msgid "The Appearance tab"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:228
+#, no-c-format
+msgid "The \"Appearance\" tab (<xref linkend=\"fig.preferences.appearance_tab\"/>) let's you to modify Hydrogen and QT graphical properties."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:233
+#, no-c-format
+msgid "The Appearance Tab"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:244
+#, no-c-format
+msgid "The Audio Engine tab"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:246
+#, no-c-format
+msgid "The audio engine info is a window with various stats about Hydrogen and the audio driver. In case JACK is used, buffer and sampling rate should be set before starting Hydrogen (JACK automatically starts when an application tries to connect)."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:252
+#, no-c-format
+msgid "The Audio Engine Info Window"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:270
+#, no-c-format
+msgid "Using Hydrogen"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:273
+#, no-c-format
+msgid "Used Filetypes"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:275
+#, no-c-format
+msgid "Before working with Hydrogen, please familiarize with these filetypes:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:280
+#, no-c-format
+msgid "<emphasis role=\"bold\">*.h2pattern</emphasis>: XML file describing a single pattern. Patterns are group of beats and are managed in the pattern editor."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:285
+#, no-c-format
+msgid "<emphasis role=\"bold\">*.h2song</emphasis>: XML file describing the whole song (or sequence). Songs are group of patterns with their properties and are manager using the song editor"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:290
+#, no-c-format
+msgid "<emphasis role=\"bold\">*.h2playlist</emphasis>: XML file describing a playlist.A Playlist is a (ordered) group of songs."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:294
+#, no-c-format
+msgid "<emphasis role=\"bold\">*.h2drumkit</emphasis>: a compressed and archived folder containing all sound samples composing a drumkit and a description XML file. Drumkits are basically group of sound samples."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:303
+#, no-c-format
+msgid "Main menu"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:305
+#, no-c-format
+msgid "<emphasis role=\"bold\">Projects</emphasis>: this menu offers file related functions."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:310
+#, no-c-format
+msgid "<emphasis>New</emphasis> - Create a new song"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:313
+#, no-c-format
+msgid "<emphasis>Show Info</emphasis> - Set general properties of the song such as name, author, license and generic notes"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:317
+#, no-c-format
+msgid "<emphasis>Open</emphasis> - Open a song"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:320
+#, no-c-format
+msgid "<emphasis>Open Demo</emphasis> - Open a demo song (demo songs are stored in <emphasis>$INSTALLPATH/share/hydrogen/data/demo_songs</emphasis>)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:325
+#, no-c-format
+msgid "<emphasis>Open recent</emphasis> - Open a menu showing last used songs"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:329
+#, no-c-format
+msgid "<emphasis>Save</emphasis> - Save changes to current song"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:332
+#, no-c-format
+msgid "<emphasis>Save as</emphasis> - Save current song specifying a name (default path: <emphasis>$HOME/.hydrogen/data/songs)</emphasis>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:337
+#, no-c-format
+msgid "<emphasis>Open pattern</emphasis> - Open a saved pattern belonging to the current drumkit"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:341
+#, no-c-format
+msgid "<emphasis>Export pattern as</emphasis> - Saves a pattern. It will be stored in <emphasis>$HOME/.hydrogen/data/patterns/drumkit_name</emphasis>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:346
+#, no-c-format
+msgid "<emphasis>Export MIDI file</emphasis> - Export current song in MIDI format"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:350
+#, no-c-format
+msgid "<emphasis>Export song</emphasis> - Export current song in WAV format"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:354
+#, no-c-format
+msgid "<emphasis>Quit</emphasis> - Quit Hydrogen"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:358
+#, no-c-format
+msgid "<emphasis role=\"bold\">Instruments</emphasis>: this menu offers instruments and drumkit (sound libraries) functions."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:363
+#, no-c-format
+msgid "<emphasis>Add instrument</emphasis> - Add a new instrument to your current drumkit"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:367
+#, no-c-format
+msgid "<emphasis>Clear all</emphasis> - Delete all instruments from the current drumkit"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:371
+#, no-c-format
+msgid "<emphasis>Save library</emphasis> - Saves all instruments settings (and their sound samples) in <emphasis>$HOME/.hydrogen/data/library_name</emphasis>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:376
+#, no-c-format
+msgid "<emphasis>Export library</emphasis> - Compress all instruments samples and settings in a drumkit in <emphasis>$HOME/.hydrogen/data/library_name</emphasis>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:381
+#, no-c-format
+msgid "<emphasis>Import library</emphasis> - Imports another drumkit from the local filesystem or download it from a remote location through an XML feed. The XML file that should be provided is <emphasis role=\"bold\">NOT</emphasis> RSS compliant (see <ulink url=\"http://www.hydrogen-music.org/feeds/drumkit_list.php\">Hydrogen website</ulink> for an example). To load another drumkit in your current working session of Hydrogen, read <xref linkend=\"sect.sound_library\"/>."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:392
+#, no-c-format
+msgid "<emphasis role=\"bold\">Tools</emphasis>: opens the mixer, the playlist editor, the instrument rack and the general preferences window."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:398
+#, no-c-format
+msgid "<emphasis>Playlist editor</emphasis> - A tool to manage playlists."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:402
+#, no-c-format
+msgid "<emphasis>Mixer</emphasis> - Open the mixer window."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:405
+#, no-c-format
+msgid "<emphasis>Instrument rack</emphasis> - Open the instrument rack panel."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:409
+#, no-c-format
+msgid "<emphasis>Preferences</emphasis> - Open the main preferences window. Read <xref linkend=\"sect.preferences\"/> on how to configure Hydrogen."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:415
+#, no-c-format
+msgid "<emphasis role=\"bold\">Debug</emphasis>: tools mainly for debugging and monitoring Hydrogen (only available when compiled with debug support)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:421
+#, no-c-format
+msgid "<emphasis>Show audio engine info - </emphasis>Open a monitor with various <link linkend=\"sect.preferences.audio_engine_tab\">stats</link>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:426
+#, no-c-format
+msgid "<emphasis>debug action - </emphasis> Insert debug commands."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:430
+#, no-c-format
+msgid "<emphasis>Print Objects - </emphasis>Print on stdout current objects map."
+msgstr ""
+
+#. Tag: emphasis
+#: manual.docbook:435
+#, no-c-format
+msgid "Info"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:439
+#, no-c-format
+msgid "<emphasis>User manual - </emphasis>Open a window with this manual :)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:443
+#, no-c-format
+msgid "<emphasis>About - </emphasis>The usual window with licence information, acknowledgements, etc."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:450
+#, no-c-format
+msgid "The main toolbar"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:452
+#, no-c-format
+msgid "Before analyzing the two main frames of Hydrogen, let's take a quick look at the main toolbar and its components:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:457
+#, no-c-format
+msgid "Pilot the song using the start, stop, pause, etc. buttons"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:460
+#, no-c-format
+msgid "Choose between \"pattern\" or \"song\" mode: in \"pattern\" mode only the currently selected pattern will play, while in \"song\" mode all patterns inserted will be played."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:465
+#, no-c-format
+msgid "An advanced tap tempo function: choose note length and how many notes to wait before recalculating BPM, then click the comma key repeatedly until the 'R' letter will appear and the BPM will be updated. (see <xref linkend=\"sect.tap_tempo\"/>)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:471
+#, no-c-format
+msgid "Manually set BPM"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:474
+#, no-c-format
+msgid "Manage JACK transport"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:477
+#, no-c-format
+msgid "Open the mixer and the instrument rack panels"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:482
+#, no-c-format
+msgid "The Main Toolbar"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:497
+#, no-c-format
+msgid "Main controls to start <emphasis role=\"bold\">[Hotkey = Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a pattern."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:507
+#, no-c-format
+msgid "Set Pattern/Song Mode."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:515
+#, no-c-format
+msgid "Set speed of playing (range: 30-400 bpm) <emphasis role=\"bold\">[Hotkey = mouse wheel]</emphasis> and button to enable/disable metronome"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:525
+#, no-c-format
+msgid "Shows CPU load."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:533
+#, no-c-format
+msgid "Shows MIDI events."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:541
+#, no-c-format
+msgid "Click to enable Jack transport: Hydrogen will work as 'slave' with another 'master' program (e.g. Ardour). This applet is only available if Jack Audio Driver is selected."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:547
+#, no-c-format
+msgid "Other useful keybindings (not customizable for the moment):"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:552
+#, no-c-format
+msgid "<emphasis role=\"bold\">[CTRL + O]</emphasis> = Open File"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:557
+#, no-c-format
+msgid "<emphasis role=\"bold\">[CTRL + S]</emphasis> = Save File"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:562
+#, no-c-format
+msgid "<emphasis role=\"bold\">[Backspace]</emphasis> = Restart song or pattern from the beginning"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:570
+#, no-c-format
+msgid "Tap Tempo and BeatCounter"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:572
+#, no-c-format
+msgid "It is possible to change tempo at any time using the tap-tempo and BeatCounter features of Hydrogen. You can change these while playing or while the song is stopped. To change the tempo, hit the <keycap>,</keycap> (comma) key in tempo for the number of beats in the measure. After the correct number of beats are met, the tempo will change to the average tempo that you tapped in. If you continue to tap, these new taps will become a part of a rolling average. If you tap accidentally, or if you wait too long between taps, the tap tempo counter will start over."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:582
+#, no-c-format
+msgid "The Tap Tempo is a part of the BeatCounter, which is essentially a Tap Tempo on steroids. By default the BeatCounter display is not visible. To see the BeatCounter widget click the upright button (<guilabel>BC</guilabel>) between Song/Pattern mode selector and the BPM-widget. Or, it can be shown by pressing the comma key (<keycap>,</keycap>)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:589
+#, no-c-format
+msgid "The tempo that you tap will be considered even beats of the beat type. The beat type can be set to 1/8 (for eight-note beats), 1/4 (for quarter-note beats), 1/2 (for half-note beats), and 1/1 (for whole-note beats). To change the beat type use the left arrow buttons. To change the number of beats that are counted, use the right arrow button. You can set from 2 to 16 beats. (I.e. if you set the beat to 6, you will have to tap 6 times before the new tempo is computed and set.) When the display shows an <guilabel>R</guilabel>, it means that the BeatCounter is ready to start from 0. Every time you tap with the comma key, it will show the number of taps that you have entered (1, 2, 3...)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:600
+#, no-c-format
+msgid "The button in the bottom right-hand controls the auto-start feature, and it toggles between <guilabel>S</guilabel> and <guilabel>P</guilabel>. When it shows <guilabel>P</guilabel> for (<emphasis>Play</emphasis>), the song will set the new tempo and automatically start to play after you tap the right number of beats (if it's not already playing, of course). This way, if you have the BeatCounter set up for 4/4, you can tap 1-2-3-4, and start playing on the next beat. When it shows <guilabel>S</guilabel> (for <emphasis>Set BPM</emphasis>), the auto-start is disabled."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:610
+#, no-c-format
+msgid "For example: Suppose you have a live band, Hydrogen, and a softsynth that is controlled by Seq24)... and you want them all to start at the same time. Set the beat type to 1/4 and the number of beats to 4. Enable auto-start (button shows <guilabel>P</guilabel>). Count off the band 1-2-3-4 (while tapping the comma key) &mdash; and everyone starts on 1."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:617
+#, no-c-format
+msgid "Another example: Same situation, but the song doesn't require Hydrogen or synths until some point later. During that time, a human (e.g. guitar player) will be setting the tempo. On the measure before Hydrogen is supposed to play, tap the comma key 1-2-3-4 with the beat... and you're in on the next beat (at the right tempo)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:623
+#, no-c-format
+msgid "If you are using the JACK Transport, the BeatCounter continues to work. If another program is the JACK Transport Master, Hydrogen will respond to tempo change events from that application. Note that in this situation, Hydrogen is supposed to be a <emphasis>slave</emphasis>, so some of the BeatCounter features will be disabled or will not work properly. If Hydrogen is the JACK Transport Master, tempo changes from Hydrogen will be reflected in those programs (if they support it)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:632
+#, no-c-format
+msgid "Some of the settings to adjust the BeatCounter's latency compensation, and they are located on the <guilabel>General</guilabel> tab of the Preferences Dialog ( <menuchoice> <guimenu>Tools</guimenu> <guimenuitem>Preferences</guimenuitem> </menuchoice> ). Here there are two spinboxes:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:644
+#, no-c-format
+msgid "<emphasis role=\"bold\"><guilabel>Beat counter drift compensation in 1/10ms</guilabel></emphasis> &mdash; adjust to compensate for latency between the keyboard and the program."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:649
+#, no-c-format
+msgid "<emphasis role=\"bold\"><guilabel>Beat counter start offset in ms</guilabel></emphasis> &mdash; adjust the time between the BeatCounter's last input stroke and when the song starts playing (if auto-start is activated)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:655
+#, no-c-format
+msgid "Note that these can be set to positive (+) or negative (-) values. In order to find useful values for these, you will need to take some time to play with it. Also, you may want different values depending on the speed of your hardware, audio devices, drivers, etc. Using the BeatCounter effectively requires practice."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:666
+#, no-c-format
+msgid "Song Editor"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:668
+#, no-c-format
+msgid "The \"Song Editor\" (<xref linkend=\"fig.song_editor\"/>) gives an overview of the whole timeline of the song (e.g. intro, verse, bridge, chorus and so on); each blue coloured square on this panel is a complete bar as shown in the underlying \"Pattern Editor\" panel. Here we have complete freedom to add, remove or move patterns in any order we prefer. We can also copy and paste patterns: use left mouse button to highlight an area and drag it around. Dragging with CTRL key pressed copies the patterns."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:677
+#, no-c-format
+msgid "The Song Editor comes with 7 buttons:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:693
+#, no-c-format
+msgid "Completely delete all patterns (asks for confirmation!)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:701
+#, no-c-format
+msgid "Create a new pattern (and asks for a name)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:709
+#, no-c-format
+msgid "Move currently selected pattern up or down."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:719
+#, no-c-format
+msgid "Enable selecting patterns for copy &amp; paste (Select Mode)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:727
+#, no-c-format
+msgid "Enable Draw Mode."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:734
+#, no-c-format
+msgid "Switch from \"Single pattern mode\" to \"Stacked pattern mode\" and back.."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:740
+#, no-c-format
+msgid "Under these buttons there is a list of patterns created and when they will played (each square == 1 bar). Click on an squarebox to add or cancel the pattern. Clicking on right mouse button over the name of a pattern will bring up a menu to change name of the pattern or to allow copying/deleting it. Patterns with very same name are not allowed."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:747
+#, no-c-format
+msgid "The Song Editor"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:758
+#, no-c-format
+msgid "Pattern Editor"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:760
+#, no-c-format
+msgid "The \"Pattern Editor\" frame (<xref linkend=\"fig.pattern_editor\"/>) lets us create or modify the pattern (bar) which is being played, or add/remove notes and tune intensity as well. On the higher-left side you find a pair of LCD screens: the first one lets you choose the size of a pattern while the second represents the current grid resolution (4 through 64). Selecting an instrument which has at least one note in the pattern will show a few vertical bars (one per note) on the lowest part of this frame. Those frame shows the so called \"note properties\". This are special properties which can be set for every single note. Hydrogen knows of 3 Properties: Velocity, Pan and Lead/Lag. Lead and Lag allows a slight note lead or lag in respect of the actual beat. The range is ca. 5 ticks which equals around ca. 10 ms at a tempo of 120bpm."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:773
+#, no-c-format
+msgid "The button <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_hear_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> (hear new notes) will play the sample as it's been added to the pattern. Finally you can move an instrument up and down in the sequence with the buttons <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_updown.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> . A useful <quote>Quantize</quote> feature is available activating <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_quant_off.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> . This way the beats inserted will automatically respect the grid resolution currently applied."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:804 manual.docbook:1648
+#, no-c-format
+msgid "The Pattern Editor"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:812
+#, no-c-format
+msgid "Rememeber this constraint concerning the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; on the other hand if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision), notes will be placed in the previous or in the following 8th bar. This contraint can be removed if you disable the whole grid resolution (choose \"off\" from the grid resolution LCD control). Now you'll be able to place notes wherever you prefer."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:821
+#, no-c-format
+msgid "Each instrument has its own set of features accessible right-clicking with your mouse on it; <quote><emphasis role=\"bold\">Fill/Clear notes</emphasis></quote> fills or deletes every note of that instrument in the current pattern (remember that filling a pattern is always relative to the grid resolution set) and finally <quote><emphasis role=\"bold\">Randomize velocity</emphasis></quote> automatically apply a pseudo-random velocity to each note of that instrument in the pattern. The more velocity you set on the instrument, the more hydrogen will hit <quote>hard</quote> on that instrument when played."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:832
+#, no-c-format
+msgid "The small green and red squares beside the instrument name are the <quote><emphasis role=\"bold\">mute</emphasis></quote> and <quote><emphasis role=\"bold\">solo</emphasis></quote> buttons."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:844
+#, no-c-format
+msgid "Also, you can set new beats clicking on <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_record_over.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> which enables direct input by MIDI events or by keyboard according to the following map key=instrument:"
+msgstr ""
+
+#. Tag: emphasis
+#: manual.docbook:855
+#, no-c-format
+msgid "Note that the name of the instrument depends on the drumkit loaded. This list refers to the GMKit loaded by default. The position of the instrument, however, is the same."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:860
+#, no-c-format
+msgid "Z = Kick"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:861
+#, no-c-format
+msgid "X = Snare Jazz"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:862
+#, no-c-format
+msgid "C = Snare Rock"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:863
+#, no-c-format
+msgid "V = Tom Low"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:864
+#, no-c-format
+msgid "B = Tom Mid"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:865
+#, no-c-format
+msgid "N = Tom Hi"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:866
+#, no-c-format
+msgid "M = Cowbell"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:867
+#, no-c-format
+msgid "Q = Ride Jazz"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:868
+#, no-c-format
+msgid "W = Ride Rock"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:869
+#, no-c-format
+msgid "E = Instrument No. 17 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:870
+#, no-c-format
+msgid "R = Instrument No. 18 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:871
+#, no-c-format
+msgid "T = Instrument No. 20 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:872
+#, no-c-format
+msgid "Y = Instrument No. 22 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:873
+#, no-c-format
+msgid "U = Instrument No. 24 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:874
+#, no-c-format
+msgid "S = Stick"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:875
+#, no-c-format
+msgid "D = Hand Clap"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:876
+#, no-c-format
+msgid "G = Closed HH"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:877
+#, no-c-format
+msgid "H = Pedal HH"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:878
+#, no-c-format
+msgid "J = Open HH"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:879
+#, no-c-format
+msgid "2 = Crash"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:880
+#, no-c-format
+msgid "3 = Crash Jazz"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:881
+#, no-c-format
+msgid "5 = Instrument No. 19 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:882
+#, no-c-format
+msgid "6 = Instrument No. 21 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:883
+#, no-c-format
+msgid "7 = Instrument No. 23 (currently not assigned)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:887
+#, no-c-format
+msgid "Here's a quick reference of the above bindings for your convenience. See <xref linkend=\"chap.create_song\"/> for a basic walkthrough of how the pattern editor works."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:902
+#, no-c-format
+msgid "Mixer"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:905 manual.docbook:1739
+#, no-c-format
+msgid "The Mixer"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:913
+#, no-c-format
+msgid "The Mixer frame (<xref linkend=\"fig.mixer\"/>) is useful for tuning a global or single volume of the current drumkit. It shows the current peak (click on <inlinemediaobject> <imageobject> <imagedata fileref=\"img/showPeaks_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> to disable, useful on old CPUs) and let you set the maximum peak allowed (tune with the fader knob of the instrument), lets you modify attributes like pan, play solo <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> , mute <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> or test play only that instrument <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_play_on_mixer.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> ; selecting in the Pattern Editor an instrument causes a blue LED to light on (near the play button). Near the global volume knob, you can set 3 global effect such a swing (shifts a few notes back or forward not randomly), timing (modify timings of the notes) and humanize effect (random velocity editing)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:956
+#, no-c-format
+msgid "In addition to all this you can set up to 4 special LADSPA effects for each instrument switching the <inlinemediaobject> <imageobject> <imagedata fileref=\"img/showFX_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> button. See next section for a detailed overview. <informalfigure id=\"ifig.mixer_fx\"> <mediaobject> <imageobject> <imagedata fileref=\"img/MixerFX.png\" format=\"PNG\"/> </imageobject> </mediaobject> </informalfigure>"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:981
+#, no-c-format
+msgid "Sound Library (Drumkit Manager)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:983
+#, no-c-format
+msgid "The Sound Library saves you time in managing your drum kits, favorite patterns, and favorite songs. When making new songs and drum kits, the Sound Library makes it easier for you to reuse and mix the instruments and patterns from other kits and songs."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:989
+#, no-c-format
+msgid "System Drumkits"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:991
+#, no-c-format
+msgid "This lists the drumkits that were installed by your system administrator. It was determined by the compile-time prefix. On Unix-like operating systems, this is usually <filename role=\"directory\">/usr/share/hydrogen/data/drumkits</filename>, or possibly <filename role=\"directory\">/usr/local/share/hydrogen/data/drumkits</filename>. These kits are available to all users on the system, and users are usually not able to add to them."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1000
+#, no-c-format
+msgid "To load a drumkit from here, right-click the drumkit and select <guimenuitem>Load</guimenuitem>. This will replace your current drumkit with the one that you selected. To load a single instrument from that kit, left-click the <guibutton>plus</guibutton> to the left of the drumkit's name to show all the instruments. With your left mouse button, click and drag the instrument into your current kit. The instrument will be added to the drumkit that you currently have loaded."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1011
+#, no-c-format
+msgid "User Drumkits"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1013
+#, no-c-format
+msgid "These are your own drum kits that you can manage yourself. They are usually stored in <filename role=\"directory\">$HOME/.hydrogen/data/drumkits</filename>. When you are creating a new drumkit, you can save it here by selecting <menuchoice><guimenu>Instruments</guimenu><guimenuitem>Save library</guimenuitem></menuchoice>."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1021
+#, no-c-format
+msgid "Loading drumkits and instruments to use is the same as for the System Drumkits (see <xref linkend=\"sect.systemdrumkits\"/>)."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1026
+#, no-c-format
+msgid "Patterns in the Sound Library"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1028
+#, no-c-format
+msgid "Before you save your favorite patterns to the sound library, be sure to edit it's properties by right-clicking and selecting <guimenuitem>Properties</guimenuitem>. There, you can give the pattern a title and a category. You can use one of the categories already provided, or create your own categories by simply typing in a category name. The category name is important, because the patterns will be filed by category in the Sound Library."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1036
+#, no-c-format
+msgid "You can save your favorite patterns in the sound library by right clicking the title of the pattern in the song editor, and selecting <guimenuitem>Save Pattern</guimenuitem>. It will appear in the Sound Library underneath <guilabel>Patterns</guilabel> and the category that you assigned to the pattern."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1044
+#, no-c-format
+msgid "Songs in the Sound Library"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1046
+#, no-c-format
+msgid "To save songs in the Sound Library, put them in your data directory underneath the <filename role=\"directory\">songs</filename> folder (usually <filename role=\"directory\">$HOME/data/songs</filename>. To remove them, remove the file from that folder."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1054
+#, no-c-format
+msgid "Drumkits and Instrument Editing"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1056
+#, no-c-format
+msgid "Creating a new drumkit with Hydrogen is done with the Instrument Editor. Using the instrument editor you can load samples, set envelope parameters, set the gain, and a few other advanced features like mute groups, low-pass resonance filter, and pitch randomization."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1061
+#, no-c-format
+msgid "Instead of creating your own drumkit, you can also use or download existing drumkits using the <xref linkend=\"sect.sound_library\"/>."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1068
+#, no-c-format
+msgid "Concepts"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1070
+#, no-c-format
+msgid "The synthesizer in Hydrogen is a sample-based synthesizer. A sample is a piece of pre-recorded audio (usually between .1 sec and 3 sec). To play a note, the sample is simply played back at the right time. There's a few concepts and terms that you should understand when you are putting together a drumkit. (See <xref linkend=\"glossary\"/> for more detailed explanations.)"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1080
+#, no-c-format
+msgid "Sampling Synthesizer Terms"
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1082
+#, no-c-format
+msgid "<term>Sample</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1082 manual.docbook:2100
+#, no-c-format
+msgid "A short recording of a sound, typically between .1 and 3.0 seconds long."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1086
+#, no-c-format
+msgid "<term>Gain</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1086
+#, no-c-format
+msgid "Volume adjustment."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1090
+#, no-c-format
+msgid "<term>Velocity</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1090 manual.docbook:2124
+#, no-c-format
+msgid "How hard you hit a note."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1094
+#, no-c-format
+msgid "ADSR Envelope Generator"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1094
+#, no-c-format
+msgid "An Attack/Decay/Sustain/Release envelope generator. After you trigger a note, Hydrogen will <emphasis>attack</emphasis> the note by increasing its volume from 0 to the full velocity of the note. After reaching full velocity, it will <emphasis>decay</emphasis> the note by lowering the volume until it reaches the <emphasis>sustain</emphasis> level. When the note is <emphasis>released</emphasis>, Hydrogen reduces the volume from the sustain level back down to 0."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1105
+#, no-c-format
+msgid "<term>Attack</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1105
+#, no-c-format
+msgid "The amount of <emphasis role=\"bold\">time</emphasis> to go from 0 to full velocity."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1110
+#, no-c-format
+msgid "<term>Decay</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1110
+#, no-c-format
+msgid "The amount of <emphasis role=\"bold\">time</emphasis> to go from full velocity to the sustain volume."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1115
+#, no-c-format
+msgid "<term>Sustain</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1115
+#, no-c-format
+msgid "The <emphasis role=\"bold\">level</emphasis> (how loud) to hold the note between the sustain and the release. It is a percentage of the velocity. It does not depend on time."
+msgstr ""
+
+#. Tag: term
+#: manual.docbook:1121
+#, no-c-format
+msgid "<term>Release</term>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1121
+#, no-c-format
+msgid "The amount of <emphasis role=\"bold\">time</emphasis> to go from the sustain volume back down to 0."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1127
+#, no-c-format
+msgid "Typical samples that are used in Hydrogen are: the sound of a single drum hit, the sound of a single cymbal hit, the sound of a single cowbell hit. Whenever you put a note in the pattern (or play a note using MIDI), Hydrogen will play whatever sound you have loaded. So, to put together a drum kit you need to gather short recordings of the bass drum, each tom, each cymbal, the high hat open, the high hat closed, the snare drum (snare on), the snare drum (snare off), rim shots, etc."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1138
+#, no-c-format
+msgid "However, there are no rules about what a sample can be. It's not uncommon to use Hydrogen to trigger non-drum sounds like: audio clips of people talking, a clip from a song, sound effects, audio clips from movies, and famous people speaking. Be creative!"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1147
+#, no-c-format
+msgid "Creating a New Drumkit"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1149
+#, no-c-format
+msgid "To start a brand new drum kit, select <menuchoice> <guimenu>Instruments</guimenu> <guimenuitem>Clear All</guimenuitem> </menuchoice> . This will give you a bank of 32 blank instruments. To delete instruments, right-click on on each instrument and select <guimenuitem>Delete Instrument</guimenuitem>. To add more instruments, select <menuchoice> <guimenu>Instruments</guimenu> <guimenuitem>Add instrument</guimenuitem> </menuchoice> ."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1168
+#, no-c-format
+msgid "Select an instrument to start editing it. This is done by left-clicking on the name of the instrument in the instrument list (at the left). You will notice that the name of the instrument in the Instrument Editor matches the one that you clicked."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1173
+#, no-c-format
+msgid "After you have your drum kit working the way you want, select <menuchoice> <guimenuitem>Instruments</guimenuitem> <guimenuitem>Save library</guimenuitem> </menuchoice> . It will ask you for the name of the kit to save. If you wish to <emphasis>overwrite</emphasis> an existing kit, you will need to type in the same name as the kit that you want to replace."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1184
+#, no-c-format
+msgid "Drumkits are automatically stored in the <filename class=\"directory\">data</filename> directory (i.e. <filename class=\"directory\">$HOME/data/drumkits</filename>)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1188
+#, no-c-format
+msgid "To export a drumkit (for sharing with others), it must first be loaded into your Sound Library. Then, select <menuchoice> <guimenuitem>Instruments</guimenuitem> <guimenuitem>Export library</guimenuitem> </menuchoice> from the menu. Select the drum kit that you wish to export, and give it a file name to save it to."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1201
+#, no-c-format
+msgid "Creating an Instrument and Layers"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1203
+#, no-c-format
+msgid "For each instrument in a drum kit, you can load several samples and set different synthesizer parameters. This section will step you through how to create a new instrument and load the samples."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1207
+#, no-c-format
+msgid "To begin creating an instrument, select <menuchoice> <guimenu>Instruments</guimenu> <guimenuitem>Add instrument</guimenuitem> </menuchoice>. This will give you a blank instrument to start from."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1214
+#, no-c-format
+msgid "Now, you need two samples. Any .WAV or .FLAC file will do. Hydrogen provides several in the <filename class=\"directory\">data/drumkits</filename> directory."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1218
+#, no-c-format
+msgid "In the instrument editor, click on <guibutton>Layers</guibutton>. You can layer several samples into the instrument. Which one is played depends on the velocity of the incoming note. Click <guibutton>Load Layer</guibutton> and point the <guimenu>Audio File Browser</guimenu> to your sample. Note that the <guimenu>Audio File Browser</guimenu> will allow you to preview the sample before you load it. It will also allow you to load more than one sample at a time. But for now, only load one."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1227
+#, no-c-format
+msgid "After you load the sample, you'll see that there is now a <guilabel>1</guilabel> at the top, and the topmost rectangle has turned light blue. To load a second sample, click the slot just below it, and then click <guibutton>Load Layer</guibutton> to bring in another sample."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1233
+#, no-c-format
+msgid "After bringing in both samples, you'll probably notice that only the <emphasis>first</emphasis> sample is being played whenever you trigger the instrument. This is because you need to set the <emphasis>velocity</emphasis> ranges for the layers. Move your mouse to the sides of the light blue rectangles and you see that you get a left-right drag cursor. Now drag the sample to the left or right (like a curtain). You will now see Layer 2 appear."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1241
+#, no-c-format
+msgid "The velocity setting for the layer is 0-velocity on the left, and full velocity on the right. Set up Layer 1 to sound for soft notes, and Layer 2 to sound for hard notes. (I.e. Layer 1 on the left and Layer 2 on the right.)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1246
+#, no-c-format
+msgid "Now, in the pattern area, set up a simple pattern that plays this instrument. Adjust the velocity settings on each note so that you can get the different samples to sound. Now set the pattern to loop and notice how your different samples are getting triggered. (To learn about editing a pattern, see <xref linkend=\"sect.pattern_editor\"/>)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1253
+#, no-c-format
+msgid "For each layer, you can set the <guibutton>Gain</guibutton> and the <guibutton>Pitch</guibutton>. The pitch also has a <guibutton>Fine</guibutton> adjustment."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1257
+#, no-c-format
+msgid "Use the <guibutton>Gain</guibutton> adjustment to control how loud the sample will play. This is necessary because it's extremely difficult to get a set of samples that all sound at about the same volume. By adjusting here, the samples that were recorded too quietly can be turned up to match your loud samples (that had to be turned down)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1265 manual.docbook:1390
+#, no-c-format
+msgid "It is very easy to set the <guibutton>Gain</guibutton> too high, causing your sample to clip. Remember to test the gain with full-velocity notes. If you clip your signal here, it will only get worse as Hydrogen processes it."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1271
+#, no-c-format
+msgid "The pitch of the sample can be modified with the pitch controls. The <guibutton>Pitch</guibutton> knob adjust the pitch in musical half-steps. (So, -12 is down 1 octave). The pitch on the right adjusts the pitch &plusmn;50 cents. (One half-step is 100 cents.)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1277
+#, no-c-format
+msgid "The pitch is adjusted by playing the sample back faster or slower. This is called the Dopplar Effect. So, if you have a 1-second sample that you turn down -12 (1 octave), you sample will only last for .5-seconds."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1284
+#, no-c-format
+msgid "Instrument Parameters"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1286
+#, no-c-format
+msgid "In the instrument editor, click on the <guibutton>General</guibutton> button. Here you can adjust several parameters that are for the whole instrument (not for each layer). The parameters that you can adjust are:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1293
+#, no-c-format
+msgid "<emphasis role=\"bold\">Envelope parameters</emphasis>: <guibutton>Attack</guibutton>, <guibutton>Decay</guibutton>, <guibutton>Sustain</guibutton>, <guibutton>Release</guibutton>. (See <xref linkend=\"def.envelopegenerator\"/>)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1299
+#, no-c-format
+msgid "<emphasis role=\"bold\"><guibutton>Gain</guibutton></emphasis>: The overall volume of the instrument."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1303
+#, no-c-format
+msgid "<emphasis role=\"bold\"><guibutton>Mute Group</guibutton></emphasis>: Which mute group this instrument is a member of (see <xref linkend=\"def.mutegroup\"/>)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1308
+#, no-c-format
+msgid "<emphasis role=\"bold\">Filter Parameters</emphasis>: <guibutton>Byp</guibutton>ass, <guibutton>Cutoff</guibutton>, <guibutton>Resonance</guibutton>."
+msgstr ""
+
+#. Tag: guibutton
+#: manual.docbook:1313
+#, no-c-format
+msgid "Random Pitch"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1318
+#, no-c-format
+msgid "It's important that you understand <xref linkend=\"sect.instrument_editing.concepts\"/> in order to continue on."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1323
+#, no-c-format
+msgid "Envelope Parameters"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1325
+#, no-c-format
+msgid "When the instrument is triggered, its volume is run through an ADSR Envelope. The parameters operate as follows:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1330
+#, no-c-format
+msgid "<emphasis role=\"bold\">Attack</emphasis> &mdash; the amount of <emphasis>time</emphasis> that the volume of the sample goes from 0 to the full velocity of the note. If the value is 0, the sample will play immediately at full velocity. If the value is 1.0, the sample volume will use the maximum time available for the attack paramater."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1337
+#, no-c-format
+msgid "The attack, decay, and release parameters are all set by the number of <emphasis>audio samples</emphasis>. This means that the time changes depending on the sample rate of your sound card. The max time for each of them is 100,000 audio samples (typ. 2.27 sec at 44.1 kHz)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1346
+#, no-c-format
+msgid "<emphasis role=\"bold\">Decay</emphasis> &mdash; the amount of <emphasis>time</emphasis> for the volume of the sample to go from full velocity down to the sustain volume. If the value is 0, the sample will immediately skip from the attack volume to the sustain volume. If the value is 1.0, the sample volume will use the maximum time available for the decay parameter."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1355
+#, no-c-format
+msgid "<emphasis role=\"bold\">Sustain</emphasis> &mdash; the <emphasis>volume</emphasis> to play the note after the decay phase is over, and until the note is released. If set to 0, the note will be silent. If set to 1.0, the note will play at full velocity."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1362
+#, no-c-format
+msgid "<emphasis role=\"bold\">Release</emphasis> &mdash; the <emphasis>time</emphasis> to fade out the note from the sustain volume back down to 0 (silent). If set to 0, the note will fade out in the minimum amount of time (about 5 ms). If set to 1, it will fade out for the maximum time available."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1371
+#, no-c-format
+msgid "If the sample is shorter than the times that you specify, the sample will end, regardless of which phase of the ADSR it is in. If the note is sustained, it does <emphasis>not</emphasis> draw out the note while you are holding it. It only holds the gain (volume) parameter during that time."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1380
+#, no-c-format
+msgid "Gain and Mute Group"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1382
+#, no-c-format
+msgid "The gain sets the overall volume for the sample. This gain is applied after the gain that you set for the layer, and before the gain that is set for the mixer. If the Gain is 0, the instrument will be silent. If the gain is 1.0 the volume of the samples will not be adjusted (i.e. 0 dB). If the gain is set higher, the samples will be amplified."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1396
+#, no-c-format
+msgid "Hydrogen provides more mute groups than you know what to do with (over 256). A mute group is a grouping of instruments that are mutually exclusive &mdash; only one instrument may be playing at any time. If one is playing and another instrument in the group is triggered, it will immediately silence (mute) and start playing the other instrument. This is useful, especially, for instruments like hi-hats where the open sound and the closed sound are different instruments."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1405
+#, no-c-format
+msgid "If the mute group is set to <guilabel>Off</guilabel>, then the instrument is not part of any mute grouping. If the mute group is set to any number, then that is the group that the instrument is a part of. To set other instruments into the same grouping, set their mute group parameter to the same number. (For example, to group all the high-hat instruments, you can set all their mute group parameters to 1. To have a snare drum mute group, set their mute group parameters to 2.)"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1417
+#, no-c-format
+msgid "Filter and Random Pitch"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1419
+#, no-c-format
+msgid "The filter is a low-pass resonance filter. If you don't wish to use is, click the <guibutton>BYP</guibutton>ass button so that it's red. If it's not red, then the filter is active. The cutoff parameter adjusts the cutoff frequency for the filter. The resonance parameter adjusts how much to resonate the cutoff frequency. If the resonance is set to 0, then the filter is just a simple low-pass filter."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1428
+#, no-c-format
+msgid "The cutoff frequency of the filter varies with the sample rate of your audio card. The range of the knob (0 to 1.0) is optimized for a 48,000 kHz sample rate."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1446
+#, no-c-format
+msgid "The random pitch paramater allows you to randomly vary the pitch of the sample every time it is triggered. The value is set between 0 and 1.0. The pitch change is fairly small: &plusmn;2 half-steps &times; value. Using this sparingly can help your sequences to sound more like a real drummer."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1455
+#, no-c-format
+msgid "Tips on Editing Instruments"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1457
+#, no-c-format
+msgid "With all of the different parameters available to tweak, it can be difficult to set up something that sounds nice when you're done. Here's a few tips on setting up an instrument:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1461
+#, no-c-format
+msgid "<emphasis role=\"bold\">Turn down the gain.</emphasis> Every time you have a gain knob (i.e. an amplifier), this is called a <emphasis>gain stage</emphasis>. With every gain stage you have, it's easy to overdrive your signal &mdash; which means the signal gets distorted by clipping. In addition, if you have two samples that, by themselves, peg your meters &mdash; what do you think happens when you combine them? That's right, you overdrive the signal again."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1469
+#, no-c-format
+msgid "If things sound bad and distorted, start by turning down the gain setting on the layer... especially if it's larger than 1.0. Then turn down the instrument gain. Then any gain on a LADSPA effect. Then the fader on the mixer. Then the master output fader."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1474
+#, no-c-format
+msgid "<emphasis role=\"bold\">Test samples at full velocity.</emphasis> Your sample will be played louder if the velocity is higher. So, if you set everything to sound nice and full with velocity at 0.7, what will happen when you get a full velocity of 1.0? (<emphasis>Hint: clipping.</emphasis>)"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1480
+#, no-c-format
+msgid "<emphasis role=\"bold\">Try to use samples that are -6 dB max.</emphasis> Visually, this means samples that peak at only 1/2 of full scale. Otherwise, turn your layer gain to about .5."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1485
+#, no-c-format
+msgid "<emphasis role=\"bold\">Remove all DC offsets from the sample.</emphasis> In a sample editor, there is usually a line down the center of your sample's waveform. This is the zero-line. The beginning of your sample should be on this line. The end of your sample should also be on this line. However, if your signal is a little above or a little below this line, you will hear a click at the beginning and the end of your sample whenever it is played. If your sample editor doesn't provide any tools to fix a DC Offset problem, you can eliminate the noise by putting a slight fade-in/out at the ends of your sample."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1495
+#, no-c-format
+msgid "<emphasis role=\"bold\">The ADSR will not be longer than your sample.</emphasis> If you have a short sample, it doesn't matter how long you set the attack and delay &mdash; the sample will stop playing at the end."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1500
+#, no-c-format
+msgid "<emphasis role=\"bold\">Things change with the sample rate.</emphasis> If you have a really nice setup with all your parameters painstakenly tweaked... things <emphasis>will</emphasis> change if you change the sample rate of your audio card. Many of Hydrogens internal settings and parameters are done based on how many samples go by, and not on how many seconds go by. The sort of things that change are: anything time-base (like attack and release) and anything frequency based (like the cutoff frequency)."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1513
+#, no-c-format
+msgid "LADSPA plugins"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1515
+#, no-c-format
+msgid "Hydrogen can also add effects to sounds using any LADSPA plugin library. You need to have installed the LADSPA sources (available from <ulink url=\"http://www.ladspa.org\">http://www.ladspa.org</ulink>) and while this will give a rough idea of how it works you should really have a taste of the real thing installing one or more plugin libraries, it's as simple as a <command>scons &amp;&amp; scons install</command>. Here are a few places to download plugin libraries:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1525
+#, no-c-format
+msgid "SWH-Plugins available at <ulink url=\"http://plugin.org.uk\">http://plugin.org.uk</ulink>. Note that before compiling these plugins you need the FFTW tarball from <ulink url=\"http://www.fftw.org\">http://www.fftw.org</ulink>."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1532
+#, no-c-format
+msgid "CMT available at <ulink url=\"http://www.ladspa.org\">http://www.ladspa.org</ulink>."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1536
+#, no-c-format
+msgid "TAP available at <ulink url=\"http://tap-plugins.sf.net\">http://tap-plugins.sf.net</ulink>."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1542
+#, no-c-format
+msgid "Plugins Kill"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1543
+#, no-c-format
+msgid "A LADSPA plugin is compiled, executable code. It is capable of hanging, crashing, freezing, screaching, overflowing buffers, and even phoning home. If you start having issues with Hydrogen, disable your plugins and see if things improve. Some plugins are not designed for real-time use, and some are just plain better than others."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1550
+#, no-c-format
+msgid "Once you have installed a few plugins open a song you'd like add an effect to and select an instrument that has a few beats in the pattern. In the Mixer click on <inlinemediaobject> <imageobject> <imagedata fileref=\"img/showFX_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> and select one of the four available effect line Click on the Edit button ( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/edit_off.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> ), than on <quote>Select the FX</quote>: this will bring up another window (<xref linkend=\"fig.select_effect\"/>) that lets you choose an effect amongst those installed, they are alphabetically sorted and categorized. Once you're done, adjust the level from the mixer and start playing. Each round knob in the FX part controls the level of its effect. <inlinemediaobject> <imageobject> <imagedata fileref=\"img/MixerFXKnob.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> If you want to quickly enable/disable the effect click the Bypass ( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/bypass_over.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject>) button."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1594
+#, no-c-format
+msgid "Select an Effect"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1613
+#, no-c-format
+msgid "A new song"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1615
+#, no-c-format
+msgid "\"Song\" mode and \"Pattern\" mode"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1617
+#, no-c-format
+msgid "This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the tutorial for a more detailed overview."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1620
+#, no-c-format
+msgid "Hydrogen has 2 main modes: \"Pattern\" mode and \"Song\" mode (refer to <xref linkend=\"sect.main_toolbar\"/> for the buttons to activate). When \"Pattern\" mode is activated the current pattern is continously repeated, so to help changing it until we don't like it, while \"Song\" mode repeats only the current pattern: this is useful when putting together the patterns, to create the whole structure for the song."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1629
+#, no-c-format
+msgid "A new pattern"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1631
+#, no-c-format
+msgid "We'll start from an empty song with an empty pattern, as created by default: \"pattern\" mode should be selected now. It is also possible to change name of the pattern. Now let's click on the <quote>Play</quote> button and while the pattern is playing let's add notes in the grid of the Song Editor (<xref linkend=\"fig.pattern_editor.2\"/>) simply left_mouse_clicking on it: adjust grid resolution and BPM speed if needed. Rememeber some constraints of the grid: if you are working with a resolution of 16 you can't go back to 8 and remove a 16th note; same thing happens if you are working with a resolution of 8 and you try to insert a note in the middle of two bars (looking for a 16 bars precision): they will be placed on the previous or on the following 8th bar (unless you choose <quote>off</quote> from the Grid Resolution LCD, in this case you're free to place notes wherever you prefer). <emphasis role=\"bold\">Be sure to select the correct pattern in the Song Editor before adding notes in the Pattern Editor!</emphasis>"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1658
+#, no-c-format
+msgid "A new sequence"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1660
+#, no-c-format
+msgid "Once patterns are created (<xref linkend=\"fig.insert_notes\"/>), we can copy/paste/delete them simply dragging with the mouse (activate the select mode for the Song Editor and keep pressed left mouse button to select those you want to move or copy)."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1666
+#, no-c-format
+msgid "Inserting Notes in a Pattern"
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1677
+#, no-c-format
+msgid "Adjust from the mixer"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1679
+#, no-c-format
+msgid "Of course we can always use the mixer window, either when creating or playing patterns."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1682
+#, no-c-format
+msgid "The Mixer frame (<xref linkend=\"fig.mixer.2\"/>) is made of 32 independent tracks, each of these is binded to an instrument, plus a \"Master Output\" line to adjust general output volume and a \"FX\" button to set effects. Every line features 3 buttons ( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_play_on_mixer.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> ), pan adjust ( <inlinemediaobject> <imageobject> <imagedata fileref=\"img/MixerPan.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> ), current maximum peak, volume fader and name of the track. Clicking on <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_solo_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> will play the selected instrument, cutting the others. The \"Mute\" button <inlinemediaobject> <imageobject> <imagedata fileref=\"img/btn_mute_on.png\" format=\"PNG\"/> </imageobject> </inlinemediaobject> , simply mute <emphasis>that</emphasis> instrument. The maximun peak indicates the maximun volume reached from the instrument; the peak must be in a range of 0.0 and 1.0 (in <xref linkend=\"fig.mixer.2\"/> you can see a few volumes too loud), otherwise it will get distorted producing a weird sound (especially with OSS audio driver), in this case it's better to set volume down; keep an eye on each vu-meter."
+msgstr ""
+
+#. Tag: title
+#: manual.docbook:1749
+#, no-c-format
+msgid "Glossary"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1751
+#, no-c-format
+msgid "This is a glossary of general terms encountered when using Hydrogen, synthesizers, drums, or samplers. The definitions in the text are simplified, but the definitions here are more general and have more explanation. For example, the text of the manual would have you believe that an ADSR is the only kind of envelope generator, and could only ever control the volume. While it's simple for new users, it's not quite right."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1764
+#, no-c-format
+msgid "ADSR"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1766
+#, no-c-format
+msgid "A type of envelope generator that allows you to control the <link linkend=\"def.attack\">Attack</link>, <link linkend=\"def.decay\">Decay</link>, <link linkend=\"def.sustain\">Sustain</link>, and <link linkend=\"def.release\">Release</link> parameters. Generally, the parameters are proportional to the <link linkend=\"def.velocity\">velocity</link>."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1775
+#, no-c-format
+msgid "In Hydrogen, the ADSR envelope generator only controls the volume (attenuation)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1778
+#, no-c-format
+msgid "Read more about this in the Wikipedia Article <ulink url=\"http://en.wikipedia.org/wiki/ADSR_envelope\">ADSR Envelope</ulink>"
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:1780
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.envelopegenerator\"></glossseealso> <glossseealso otherterm=\"def.attack\"></glossseealso> <glossseealso otherterm=\"def.decay\"></glossseealso> <glossseealso otherterm=\"def.sustain\"></glossseealso> <glossseealso otherterm=\"def.release\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1791
+#, no-c-format
+msgid "<glossterm>Attack</glossterm>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1793
+#, no-c-format
+msgid "This is the first phase of an ADSR envelope, and is the amount of <emphasis>time</emphasis> to turn the parameter up from 0 to full velocity after triggering the note."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1802
+#, no-c-format
+msgid "Attenuation"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1804
+#, no-c-format
+msgid "In filters and mixers, this the amount that a signal is reduced (volume)."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1814
+#, no-c-format
+msgid "Band-Pass Filter"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1816
+#, no-c-format
+msgid "A filter that preserves a cetertain band of frequencies, and attenuates (silences) all others. This is often done by combining a high-pass and a low-pass filter."
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:1818
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.filter\"></glossseealso> <glossseealso otherterm=\"def.highpassfilter\"></glossseealso> <glossseealso otherterm=\"def.lowpassfilter\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1829
+#, no-c-format
+msgid "Clipping"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1831
+#, no-c-format
+msgid "A phenomenon that happens to a signal when the signal is too large for whatever is receiving it. The peaks of the signal (which are normally smooth curves) get cut off straight at the max volume (clipped). This distorts the sound and is usually undesirable."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1836
+#, no-c-format
+msgid "An example of clipping is when you play music louder than your speaker can handle. Parts of the music sound harsh and fuzzy."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1842
+#, no-c-format
+msgid "Cutoff Frequency"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1844
+#, no-c-format
+msgid "On high-pass and low-pass filters, this is the frequency that divides between those that pass, and those that are attenuated (silenced). In a high-pass resonance filter, or a low-pass resonance filter, the cutoff is also the frequency zone that gets boosted."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1849
+#, no-c-format
+msgid "For example, if you have a low-pass filter and you set the cutoff frequency high (i.e. 20kHz)... the filter will not affect the sound. All the audible frequencies will pass through undisturbed. As you lower the cutoff frequency to something like 40 Hz (the low string on a bass guitar), it sounds like someone is putting a blanket over the speaker. The higher frequencies are being attenuated above 30 Hz."
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:1854
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.filter\"></glossseealso> <glossseealso otherterm=\"def.highpassfilter\"></glossseealso> <glossseealso otherterm=\"def.lowpassfilter\"></glossseealso> <glossseealso otherterm=\"def.resonancefilter\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1866
+#, no-c-format
+msgid "<glossterm>Decay</glossterm>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1868
+#, no-c-format
+msgid "After reaching full velocity from the attack, this is the amount of <emphasis>time</emphasis> to turn the parameter down from full velocity to the sustain level."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1879
+#, no-c-format
+msgid "Envelope Generator"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1881
+#, no-c-format
+msgid "A way to control (change) a parameter over time as a response to triggering, holding, and releasing a note."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1887
+#, no-c-format
+msgid "Did your eyes just glaze over? Let's try again:"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1889
+#, no-c-format
+msgid "Imagine that you're playing a note on the keyboard and you have your other hand on a knob (volume, filter cutoff, etc.). As you play the note, you twist the knob (often up, then down... or down, then up). You do the same thing on each note. That's what an envelope generator does. See also <link linkend=\"def.adsr\">ADSR</link>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1900
+#, no-c-format
+msgid "Fader"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1902
+#, no-c-format
+msgid "A slider control used to adjust the attenuation (volume) in a mixer. Faders always have an \"audio\" taper, which means that the attenuation amount changes on an exponential scale."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1909
+#, no-c-format
+msgid "Filter"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1911
+#, no-c-format
+msgid "A device that changes a sound by attenuating specific frequencies. A tone knob is an example of a simple, low-pass filter."
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:1912
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.bandpassfilter\"></glossseealso> <glossseealso otherterm=\"def.highpassfilter\"></glossseealso> <glossseealso otherterm=\"def.lowpassfilter\"></glossseealso> <glossseealso otherterm=\"def.resonancefilter\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1924
+#, no-c-format
+msgid "<glossterm>Gain</glossterm>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1926
+#, no-c-format
+msgid "In an amplifier, this adjust how much (or how little) a signal is amplified (volume). A higher gain value is a louder signal."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1934
+#, no-c-format
+msgid "High-Pass Filter"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1936
+#, no-c-format
+msgid "A filter that attenuates (silences) low frequencies, but allows high frequencies to pass through."
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:1937 manual.docbook:1982
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.filter\"></glossseealso> <glossseealso otherterm=\"def.cutoff\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1947
+#, no-c-format
+msgid "Instrument"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1949
+#, no-c-format
+msgid "In Hydrogen, an instrument is a single noise-maker (like a bass drum kick, or a tom)."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1960
+#, no-c-format
+msgid "Layer"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1962
+#, no-c-format
+msgid "In an instrument you can load several different samples (each one called a <emphasis role=\"bold\">layer</emphasis>), and have a different sample play depending on the velocity of the note. Only one sample at a time will play."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1967
+#, no-c-format
+msgid "Suppose you have a sample of a floor tom being struck softly. If you simply play the sample louder &mdash; it will <emphasis>not</emphasis> sound the same as a real tom that has been struck very hard. If you wish to mimic this in your instrument, you can load one sample for soft playing, and a different sample for loud playing."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1979
+#, no-c-format
+msgid "Low-Pass Filter"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1981
+#, no-c-format
+msgid "A filter that attenuates (silences) high frequences, but allows low frequencies to pass through."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:1992
+#, no-c-format
+msgid "Mute"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:1994
+#, no-c-format
+msgid "To make no noise. A setting on an instrument that prevents any audio output."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2000
+#, no-c-format
+msgid "Mute Group"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2002
+#, no-c-format
+msgid "A group of instruments (samples) that should mute (stop playing) immediately after another instrument in the group is triggered."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2005
+#, no-c-format
+msgid "This is typically used in hi-hats, where there's a different instrument (sample) for when the hi-hat is open or closed. With a real hi-hat, the sound of the open hi-hat will stop as soon as you close it. However, if you use two samples &mdash; the open sound will continue even after you have triggered the closed sound. By placing both instruments in the same mute group (group #1, for example)... triggering closed sound will immediately stop the open sound (and vice versa)."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2021
+#, no-c-format
+msgid "Octave"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2023
+#, no-c-format
+msgid "A span of frequencies where the top-most frequency is exactly twice the frequency of the bottom frequency."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2026
+#, no-c-format
+msgid "For example, the range 20 Hz to 40 Hz is an octave. So is 120 Hz to 240 Hz, and 575 Hz to 1150 Hz. While the frequency differences are very different (20 Hz, 120 Hz, and 575 Hz, respectively), to the human ear they <emphasis>sound</emphasis> like the same distance."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2040
+#, no-c-format
+msgid "<glossterm>Release</glossterm>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2042
+#, no-c-format
+msgid "After the note is released, this is the amount of <emphasis>time</emphasis> to reduce the parameter from the sustain level to 0."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2051
+#, no-c-format
+msgid "Resonance"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2053
+#, no-c-format
+msgid "When referring to a resonance filter, this is the parameter that determines how much of a boost (gain) to give the frequencies at the cutoff."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2062
+#, no-c-format
+msgid "Resonance Filter"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2064
+#, no-c-format
+msgid "A filter that gives a large boost to a very narrow range of frequencies. Typically it will be part of a high-pass or a low-pass filter, where the boosted frequencies are centered on the cut-off frequency."
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:2067
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.filter\"></glossseealso> <glossseealso otherterm=\"def.cutoff\"></glossseealso> <glossseealso otherterm=\"def.resonance\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2076
+#, no-c-format
+msgid "Roll-off"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2078
+#, no-c-format
+msgid "This is the amount that frequencies are attenuated (suppressed) as the frequency changes (typically measured in dB/octave)."
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2081
+#, no-c-format
+msgid "For example, in a low-pass filter the frequences below the cutoff frequency are not attenuated (they pass-through with the same volume). Same with the cutoff frequency. As you go above the cutoff frequency, the frequencies that are near the cutoff frequency are not attenuated very much at all. However, the frequencies that are much higher than the cutoff are attenuated (suppressed) a lot. This is usually approximated by a straight line (on a log scale) and measured in in dB of attenuation per octave of frequency."
+msgstr ""
+
+#. Tag: glossdef
+#: manual.docbook:2088
+#, no-c-format
+msgid "<glossseealso otherterm=\"def.attenuation\"></glossseealso> <glossseealso otherterm=\"def.filter\"></glossseealso>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2098
+#, no-c-format
+msgid "<glossterm>Sample</glossterm>"
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2106
+#, no-c-format
+msgid "<glossterm>Sustain</glossterm>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2108
+#, no-c-format
+msgid "The <emphasis>level</emphasis> to hold the parameter after finishing the decay time. This level will be maintained until the not is released."
+msgstr ""
+
+#. Tag: glossterm
+#: manual.docbook:2122
+#, no-c-format
+msgid "<glossterm>Velocity</glossterm>"
+msgstr ""
+
+#. Tag: para
+#: manual.docbook:2126
+#, no-c-format
+msgid "MIDI devices are required to send this information along with the note. Synthesizers use this information to adjust several parameters on the sample (typically the volume). In Hydrogen, it is only used to adjust how loud the sample is played back."
+msgstr ""
+
