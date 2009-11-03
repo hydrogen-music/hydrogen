@@ -32,6 +32,9 @@
 
 #include <hydrogen/IO/CoreMidiDriver.h>
 
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/note.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Preferences.h>
 
 namespace H2Core
@@ -93,7 +96,7 @@ static void midiProc ( const MIDIPacketList * pktlist,
 
 
 CoreMidiDriver::CoreMidiDriver()
-		: MidiInput( "CoreMidiDriver" )
+		: MidiInput( "CoreMidiDriver" ) ,MidiOutput("CoremidiDriver"), Object( "CoreMidiDriver" )
 		, m_bRunning( false )
 {
 	INFOLOG( "INIT" );
@@ -102,7 +105,7 @@ CoreMidiDriver::CoreMidiDriver()
 	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
 	err = MIDIInputPortCreate ( h2MIDIClient, CFSTR( "h2InputPort" ), midiProc, this, &h2InputRef );
-	err = MIDIOutputPortCreate ( h2MIDIClient, CFSTR( "h2OutputPort" ), midiProc, this, &h2OutputRef );
+	err = MIDIOutputPortCreate ( h2MIDIClient, CFSTR( "h2OutputPort" ), &h2OutputRef );
 }
 
 
@@ -154,8 +157,9 @@ void CoreMidiDriver::open()
 		CFStringRef H2MidiNames;
 		
 		MIDIObjectGetStringProperty(cmH2Dst, kMIDIPropertyName, &H2MidiNames);
-		CFStringGetCString(pname, name, sizeof(name), 0);
+		//CFStringGetCString(pname, name, sizeof(name), 0);
 		//MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
+		MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
 		CFRelease( H2MidiNames );
 	}
 }
@@ -168,7 +172,7 @@ void CoreMidiDriver::close()
 	err = MIDIPortDisconnectSource( h2InputRef, cmH2Src );
 	err = MIDIPortDispose( h2InputRef );
 	//err = MIDIPortDisconnectSource( h2OutputRef, cmH2Dst );
-	err = MIDIPortDispose( h2OutputRef );
+	//err = MIDIPortDispose( h2OutputRef );
 	err = MIDIClientDispose( h2MIDIClient );
 }
 
@@ -224,18 +228,18 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
 	
-	packetList.packet.timeStamp = 0;
-	packetList.packet.length = 3;
-	packetList.packet.data[0] = 0x80 | channel;
-	packetList.packet.data[1] = key;
-	packetList.packet.data[2] = velocity;
+	packetList.packet->timeStamp = 0;
+	packetList.packet->length = 3;
+	packetList.packet->data[0] = 0x80 | channel;
+	packetList.packet->data[1] = key;
+	packetList.packet->data[2] = velocity;
 	
 	
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
 	
-	packetList.packet.data[0] = 0x90 | channel;
-	packetList.packet.data[1] = key;
-	packetList.packet.data[2] = velocity;
+	packetList.packet->data[0] = 0x90 | channel;
+	packetList.packet->data[1] = key;
+	packetList.packet->data[2] = velocity;
 	
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
 }
@@ -258,11 +262,11 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
 	
-	packetList.packet.timeStamp = 0;
-	packetList.packet.length = 3;
-	packetList.packet.data[0] = 0x80 | channel;
-	packetList.packet.data[1] = key;
-	packetList.packet.data[2] = velocity;
+	packetList.packet->timeStamp = 0;
+	packetList.packet->length = 3;
+	packetList.packet->data[0] = 0x80 | channel;
+	packetList.packet->data[1] = key;
+	packetList.packet->data[2] = velocity;
 	
 	
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
@@ -290,11 +294,11 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		MIDIPacketList packetList;
 		packetList.numPackets = 1;
 	
-		packetList.packet.timeStamp = 0;
-		packetList.packet.length = 3;
-		packetList.packet.data[0] = 0x80 | channel;
-		packetList.packet.data[1] = key;
-		packetList.packet.data[2] = 0;	
+		packetList.packet->timeStamp = 0;
+		packetList.packet->length = 3;
+		packetList.packet->data[0] = 0x80 | channel;
+		packetList.packet->data[1] = key;
+		packetList.packet->data[2] = 0;
 	
 		MIDISend(h2OutputRef, cmH2Dst, &packetList);
 	
