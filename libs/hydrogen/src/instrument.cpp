@@ -55,6 +55,8 @@ Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
 		, __mute_group( -1 )
 		, __active( true )
 		, __soloed( false )
+		, __midi_out_channel( -1 )
+		, __midi_out_note( 60 )
 		, __stop_notes( false )
 {
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
@@ -199,10 +201,10 @@ void Instrument::load_from_name(
 	QString sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
 
 	// find the drumkit
-	QString drdir = mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name;
-	if ( !QDir( drdir ).exists() )
+	QString dir = mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name;
+	if ( QDir( dir ).exists() == false )
 		return;
-	Drumkit *pDrumkitInfo = mgr.loadDrumkit( drdir );
+	Drumkit *pDrumkitInfo = mgr.loadDrumkit( dir );
 	assert( pDrumkitInfo );
 
 	// find the instrument

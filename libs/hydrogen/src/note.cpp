@@ -50,9 +50,12 @@ Note::Note(
 		, m_fBandPassFilterBuffer_R( 0.0 )
 		, m_fLowPassFilterBuffer_L( 0.0 )
 		, m_fLowPassFilterBuffer_R( 0.0 )
+		, m_bJustRecorded( false )
 		, __position( position )
 		, __velocity( velocity )
 		, __leadlag( 0.0 )
+		, __noteoff( false)
+		, __midimsg1(-1)
 {
 	set_pan_l( fPan_L );
 	set_pan_r( fPan_R );
@@ -75,6 +78,8 @@ Note::Note( const Note* pNote )
 	set_leadlag(    pNote->get_leadlag()    );
 	set_length(	pNote->get_length()	);
 	set_pitch(	pNote->get_pitch()	);
+	set_noteoff(	pNote->get_noteoff()	);
+	set_midimsg1(	pNote->get_midimsg1()	);
 	m_noteKey	=	pNote->m_noteKey;
 	m_fCutoff	=	pNote->m_fCutoff;
 	m_fResonance	=	pNote->m_fResonance;
@@ -84,6 +89,7 @@ Note::Note( const Note* pNote )
 	m_fLowPassFilterBuffer_R	=	pNote->m_fLowPassFilterBuffer_R;
 	m_nHumanizeDelay		= 	pNote->m_nHumanizeDelay;
 	m_fSamplePosition		=	pNote->m_fSamplePosition;
+	m_bJustRecorded		=		pNote->m_bJustRecorded;
 	set_instrument( pNote->__instrument );
 }
 
@@ -133,6 +139,7 @@ void Note::dumpInfo()
 	     .arg( __instrument->get_name() )
 	     .arg( keyToString( m_noteKey ) )
 	     .arg( get_pitch() )
+	     .arg( get_noteoff() )
 	);
 }
 
@@ -142,8 +149,14 @@ NoteKey Note::stringToKey( const QString& str )
 {
 	NoteKey key;
 
+
 	QString sKey = str.left( str.length() - 1 );
 	QString sOct = str.mid( str.length() - 1, str.length() );
+
+	if ( sKey.endsWith( "-" ) ){
+		sKey.replace("-", "");
+		sOct.insert( 0, "-");
+	}
 	int nOctave = sOct.toInt();
 
 //	_INFOLOG( "skey: " + sKey );

@@ -37,7 +37,8 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
-//#include "AudioFileBrowser/AudioFileBrowser.h"
+#include "SampleEditor/SampleEditor.h"
+#include "MetroBlinker.h"
 
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -46,7 +47,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Song.h>
+//#include <hydrogen/sample.h>
 
 #include <QtGui>
 
@@ -65,6 +66,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
  , m_pFirstTimeInfo( NULL )
  , m_pPlayerControl( NULL )
  , m_pPlaylistDialog( NULL )
+ , m_pSampleEditor( NULL )
+ , m_pMetroBlinker( NULL )
 
 {
 	m_pInstance = this;
@@ -103,7 +106,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 		m_pAudioEngineInfoForm->hide();
 	}
 	
-	 m_pPlaylistDialog = new PlaylistDialog( 0 );
+	m_pPlaylistDialog = new PlaylistDialog( 0 );
+	m_pMetroBlinker = new MetroBlinker( 0 );
+//	m_pSampleEditor = new SampleEditor( 0 );
 	
 	showInfoSplash();	// First time information
 }
@@ -119,6 +124,8 @@ HydrogenApp::~HydrogenApp()
 	delete m_pAudioEngineInfoForm;
 	delete m_pMixer;
 	delete m_pPlaylistDialog;
+	delete m_pMetroBlinker;
+	delete m_pSampleEditor;
 
 	Hydrogen *engine = Hydrogen::get_instance();
 	if (engine) {
@@ -133,6 +140,7 @@ HydrogenApp::~HydrogenApp()
 		delete m_pLadspaFXProperties[nFX];
 	}
 	#endif
+	
 }
 
 
@@ -251,6 +259,8 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
+
+
 void HydrogenApp::setSong(Song* song)
 {
 
@@ -325,6 +335,31 @@ void HydrogenApp::showPlaylistDialog()
 }
 
 
+void HydrogenApp::showMetroBlinker()
+{
+	m_pMetroBlinker->hide();
+	m_pMetroBlinker->show();
+}
+
+
+void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
+{
+
+	if ( m_pSampleEditor ){
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		m_pSampleEditor->close();
+		delete m_pSampleEditor;
+		m_pSampleEditor = NULL;
+		QApplication::restoreOverrideCursor();
+	}
+	QApplication::setOverrideCursor(Qt::WaitCursor);	
+	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name);
+	m_pSampleEditor->show();
+	QApplication::restoreOverrideCursor();
+}
+
+
+
 void HydrogenApp::showInfoSplash()
 {
 	QString sDocPath( DataPath::get_data_path().append( "/doc/infoSplash" ) );
@@ -371,6 +406,11 @@ void HydrogenApp::onDrumkitLoad( QString name ){
 	setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
 	m_pPatternEditorPanel->updateSLnameLabel( );
 }
+
+void HydrogenApp::enableDestructiveRecMode(){
+	m_pPatternEditorPanel->displayorHidePrePostCB();
+}
+
 
 void HydrogenApp::onEventQueueTimer()
 {

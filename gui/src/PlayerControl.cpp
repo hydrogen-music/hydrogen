@@ -24,7 +24,7 @@
 #include "Skin.h"
 #include "PlayerControl.h"
 #include "InstrumentRack.h"
-#include "HydrogenApp.h"
+	#include "HydrogenApp.h"
 
 #include "widgets/LCD.h"
 #include "widgets/Button.h"
@@ -65,7 +65,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( NULL );
-	pControlsPanel->setFixedSize( 317, 43 );
+	pControlsPanel->setFixedSize( 344, 43 );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
 	hbox->addWidget( pControlsPanel );
 
@@ -97,6 +97,38 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRwdBtn->setToolTip( trUtf8("Rewind") );
 	connect(m_pRwdBtn, SIGNAL(clicked(Button*)), this, SLOT(RewindBtnClicked(Button*)));
 
+	// Record button
+	m_pRecBtn = new ToggleButton(
+			pControlsPanel,
+			"/playerControlPanel/btn_rec_on.png",
+			"/playerControlPanel/btn_rec_off.png",
+			"/playerControlPanel/btn_rec_over.png",
+			QSize(21, 15)
+	);
+	m_pRecBtn->move(195, 17);
+	m_pRecBtn->setPressed(false);
+	m_pRecBtn->setHidden(false);
+	m_pRecBtn->setToolTip( trUtf8("Record") );
+	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
+	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
+
+	// Record+delete button
+	m_pRecDelBtn = new ToggleButton(
+			pControlsPanel,
+			"/playerControlPanel/btn_recdel_on.png",
+			"/playerControlPanel/btn_recdel_off.png",
+			"/playerControlPanel/btn_recdel_over.png",
+			QSize(21, 15)
+	);
+	m_pRecDelBtn->move(195, 17);
+	m_pRecDelBtn->setPressed(false);
+	m_pRecDelBtn->setHidden(true);
+	m_pRecDelBtn->setToolTip( trUtf8("Destructive Record") );
+	connect(m_pRecDelBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
+	connect(m_pRecDelBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
+	
+
+
 	// Play button
 	m_pPlayBtn = new ToggleButton(
 			pControlsPanel,
@@ -105,7 +137,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_play_over.png",
 			QSize(26, 17)
 	);
-	m_pPlayBtn->move(195, 17);
+	m_pPlayBtn->move(222, 17);
 	m_pPlayBtn->setPressed(false);
 	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
@@ -118,7 +150,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_stop_over.png",
 			QSize(21, 15)
 	);
-	m_pStopBtn->move(227, 17);
+	m_pStopBtn->move(254, 17);
 	m_pStopBtn->setToolTip( trUtf8("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(stopBtnClicked(Button*)));
 
@@ -130,7 +162,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_ffwd_over.png",
 			QSize(21, 15)
 	);
-	m_pFfwdBtn->move(254, 17);
+	m_pFfwdBtn->move(281, 17);
 	m_pFfwdBtn->setToolTip( trUtf8("Fast Forward") );
 	connect(m_pFfwdBtn, SIGNAL(clicked(Button*)), this, SLOT(FFWDBtnClicked(Button*)));
 
@@ -142,7 +174,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/btn_loop_over.png",
 			QSize(21, 15)
 	);
-	m_pSongLoopBtn->move(283, 17);
+	m_pSongLoopBtn->move(310, 17);
 	m_pSongLoopBtn->setToolTip( trUtf8("Loop song") );
 	connect( m_pSongLoopBtn, SIGNAL( clicked(Button*) ), this, SLOT( songLoopBtnClicked(Button*) ) );
 //~ CONTROLS
@@ -230,7 +262,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 2 );
 	m_pBCDisplayB->move( 39, 26 );
-//small fix against qt4 png transparent problem
+// set display from 4 to 04. fix against qt4 transparent problem 
 //	m_pBCDisplayB->setText( "4" );
 	m_pBCDisplayB->setText( "04" );
 
@@ -467,6 +499,28 @@ void PlayerControl::updatePlayerControl()
 		m_pPlayBtn->setPressed(false);
 	}
 
+	if (pPref->getRecordEvents()) {
+		m_pRecBtn->setPressed(true);
+		m_pRecDelBtn->setPressed(true);
+	}
+	else {
+		m_pRecBtn->setPressed(false);
+		m_pRecDelBtn->setPressed(false);
+	}
+
+	if (pPref->getDestructiveRecord()) {
+		if (  m_pRecDelBtn->isHidden() ) {
+			m_pRecBtn->setHidden(true);
+			m_pRecDelBtn->setHidden(false);
+		}
+	}
+	else {
+		if (  m_pRecBtn->isHidden() ) {
+			m_pRecBtn->setHidden(false);
+			m_pRecDelBtn->setHidden(true);
+		}
+	}
+
 	Song *song = m_pEngine->getSong();
 
 	m_pSongLoopBtn->setPressed( song->is_loop_enabled() );
@@ -612,6 +666,35 @@ void PlayerControl::updatePlayerControl()
 
 
 
+/// Toggle record mode
+void PlayerControl::recBtnClicked(Button* ref) {
+	if ( m_pEngine->getState() != STATE_PLAYING ) {
+		if (ref->isPressed()) {
+			Preferences::get_instance()->setRecordEvents(true);
+			(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Record midi events = On" ), 2000 );
+		}
+		else {
+			Preferences::get_instance()->setRecordEvents(false);
+			(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Record midi events = Off" ), 2000 );
+		}
+	}
+}
+
+
+/// Toggle destructive/nondestructive move
+void PlayerControl::recBtnRightClicked(Button* ref) {
+	UNUSED( ref );
+	if ( Preferences::get_instance()->getDestructiveRecord() ) {
+		Preferences::get_instance()->setDestructiveRecord(false);
+		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Destructive mode = Off" ), 2000 );
+	}
+	else {
+		Preferences::get_instance()->setDestructiveRecord(true);
+		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Destructive mode = On" ), 2000 );
+	}
+	HydrogenApp::get_instance()->enableDestructiveRecMode();
+}
+
 
 /// Start audio engine
 void PlayerControl::playBtnClicked(Button* ref) {
@@ -751,6 +834,7 @@ void PlayerControl::bcSetPlayBtnClicked( Button* )
 }
 
 
+
 void PlayerControl::bcbButtonClicked( Button* bBtn)
 {
 	int tmp = m_pEngine->getbeatsToCount();
@@ -786,6 +870,7 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 			m_pEngine->setbeatsToCount( tmp );
 	}
 }
+
 
 
 void PlayerControl::bctButtonClicked( Button* tBtn)
@@ -953,7 +1038,6 @@ void PlayerControl::metronomeButtonClicked(Button* ref)
 }
 
 
-
 void PlayerControl::showButtonClicked( Button* pRef )
 {
 	//INFOLOG( "[showButtonClicked]" );
@@ -1056,6 +1140,9 @@ MetronomeWidget::~MetronomeWidget()
 
 void MetronomeWidget::metronomeEvent( int nValue )
 {
+	if (nValue == 2) // 2 = set pattern position is not needed here
+		return;
+	
 	if (nValue == 1) {
 		m_state = METRO_FIRST;
 		m_nValue = 5;

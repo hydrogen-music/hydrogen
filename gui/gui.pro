@@ -22,17 +22,17 @@ UI_HEADERS_DIR = objs
 UI_SOURCES_DIR = objs
 MOC_DIR = objs
 win32 {
-	INCLUDEPATH += ../3rdparty/install/include
-	#INCLUDEPATH += ../3rdparty/install/libs/libpthread
-	#INCLUDEPATH += ../3rdparty/install/libs/libsndfile
-	#INCLUDEPATH += ../3rdparty/install/libs/flac
-	#INCLUDEPATH += ../3rdparty/install/libs/portaudio
-	#INCLUDEPATH += ../3rdparty/install/libs/portmidi
-	INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
-	
-	LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
-	LIBS += "C:\Qt\2009.03\mingw\lib\libpthread.a"
-	LIBS += "C:\Documents and Settings\sebastian\Desktop\hydrogen\3rdparty\libsndfile-1_0_17\libsndfile-1.dll"
+    INCLUDEPATH += ../3rdparty/install/include
+    #INCLUDEPATH += ../3rdparty/install/libs/libpthread
+    #INCLUDEPATH += ../3rdparty/install/libs/libsndfile
+    #INCLUDEPATH += ../3rdparty/install/libs/flac
+    #INCLUDEPATH += ../3rdparty/install/libs/portaudio
+    #INCLUDEPATH += ../3rdparty/install/libs/portmidi
+    INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
+
+    LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
+    LIBS += "C:\Qt\2009.03\mingw\lib\libpthread.a"
+    LIBS += "C:\Documents and Settings\sebastian\Desktop\hydrogen\3rdparty\libsndfile-1_0_17\libsndfile-1.dll"
 }
 
 #old windows libs..
@@ -57,6 +57,7 @@ DEPENDPATH += . \
               src\PlaylistEditor \
               src\SongEditor \
               src\SoundLibrary \
+              src\SampleEditor \
               src\UI \
               src\widgets
 INCLUDEPATH += .
@@ -107,8 +108,13 @@ HEADERS += src/AboutDialog.h \
            src/PatternEditor/PatternEditorRuler.h \
            src/PatternEditor/PianoRollEditor.h \
            src/PlaylistEditor/PlaylistDialog.h \
+	   src/SampleEditor/DetailWaveDisplay.h \
+	   src/SampleEditor/MainSampleWaveDisplay.h \
+	   src/SampleEditor/TargetWaveDisplay.h \
+	   src/SampleEditor/SampleEditor.h \
            src/SongEditor/SongEditor.h \
            src/SongEditor/SongEditorPanel.h \
+           src/SongEditor/SongEditorPanelBpmWidget.h \
            src/SoundLibrary/FileBrowser.h \
            src/SoundLibrary/SoundLibraryExportDialog.h \
            src/SoundLibrary/SoundLibraryImportDialog.h \
@@ -128,14 +134,17 @@ HEADERS += src/AboutDialog.h \
            src/widgets/MidiSenseWidget.h \
            src/widgets/midiTable.h \
            src/widgets/PixmapWidget.h \
-           src/widgets/Rotary.h
+           src/widgets/Rotary.h \
+ src/MetroBlinker.h
 FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/PlaylistEditor/PlaylistDialog_UI.ui \
+	 src/SampleEditor/SampleEditor_Ui.ui \
          src/SoundLibrary/SoundLibraryExportDialog_UI.ui \
          src/SoundLibrary/SoundLibraryImportDialog_UI.ui \
          src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui \
          src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui \
          src/SoundLibrary/SoundLibrarySaveDialog_UI.ui \
+         src/SongEditor/SongEditorPanelBpmWidget_UI.ui \
          src/UI/about_dialog.ui \
          src/UI/AudioEngineInfoForm_UI.ui \
          src/UI/DrumkitManager_UI.ui \
@@ -144,7 +153,8 @@ FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/UI/PatternFillDialog_UI.ui \
          src/UI/PatternPropertiesDialog_UI.ui \
          src/UI/PreferencesDialog_UI.ui \
-         src/UI/SongPropertiesDialog_UI.ui
+         src/UI/SongPropertiesDialog_UI.ui \
+ src/MetroBlinker_UI.ui
 SOURCES += src/AboutDialog.cpp \
 	  ../version.cpp \
            src/AudioEngineInfoForm.cpp \
@@ -177,8 +187,13 @@ SOURCES += src/AboutDialog.cpp \
            src/PatternEditor/PatternEditorRuler.cpp \
            src/PatternEditor/PianoRollEditor.cpp \
            src/PlaylistEditor/PlaylistDialog.cpp \
+	   src/SampleEditor/DetailWaveDisplay.cpp \
+	   src/SampleEditor/MainSampleWaveDisplay.cpp \
+	   src/SampleEditor/TargetWaveDisplay.cpp \
+	   src/SampleEditor/SampleEditor.cpp \
            src/SongEditor/SongEditor.cpp \
            src/SongEditor/SongEditorPanel.cpp \
+           src/SongEditor/SongEditorPanelBpmWidget.cpp \
            src/SoundLibrary/FileBrowser.cpp \
            src/SoundLibrary/SoundLibraryExportDialog.cpp \
            src/SoundLibrary/SoundLibraryImportDialog.cpp \
@@ -199,3 +214,5 @@ SOURCES += src/AboutDialog.cpp \
            src/widgets/midiTable.cpp \
            src/widgets/PixmapWidget.cpp \
            src/widgets/Rotary.cpp \
+ \
+ src/MetroBlinker.cpp

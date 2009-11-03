@@ -53,7 +53,8 @@ class LadspaFXInfo;
 class LadspaFXGroup;
 class InstrumentRack;
 class PlaylistDialog;
-//class AudioFileBrowser;
+class SampleEditor;
+class MetroBlinker;
 
 class HydrogenApp : public QObject, public Object
 {
@@ -72,14 +73,16 @@ class HydrogenApp : public QObject, public Object
 		void showMixer(bool bShow);
 		void showAudioEngineInfoForm();
 		void showPlaylistDialog();
-//		void showAudioFileBrowser();
+		void showMetroBlinker();
+		void showSampleEditor( QString name, int mSelectedLayer );
 
 		Mixer* getMixer() {	return m_pMixer;	}
 		MainForm* getMainForm() {	return m_pMainForm;	}
 		SongEditorPanel* getSongEditorPanel() {	return m_pSongEditorPanel;	}
 		AudioEngineInfoForm* getAudioEngineInfoForm() {	return m_pAudioEngineInfoForm;	}
 		PlaylistDialog* getPlayListDialog() {	return m_pPlaylistDialog;	}
-//		AudioFileBrowser* getAudioFileBrowser() {  return m_pAudioFileBrowser;	}
+		MetroBlinker* getMetroBlinker() { return m_pMetroBlinker; }
+		SampleEditor* getSampleEditor() {  return m_pSampleEditor;	}
 		SimpleHTMLBrowser* getHelpBrowser() {	return m_pHelpBrowser;	}
 		PatternEditorPanel* getPatternEditorPanel() {	return m_pPatternEditorPanel;	}
 		PlayerControl* getPlayerControl() {	return m_pPlayerControl;	}
@@ -98,6 +101,7 @@ class HydrogenApp : public QObject, public Object
 		void closeFXProperties();
 
 		void onDrumkitLoad( QString name );
+		void enableDestructiveRecMode();
 
 	public slots:
 		void onEventQueueTimer();
@@ -108,7 +112,6 @@ class HydrogenApp : public QObject, public Object
 #ifdef LADSPA_SUPPORT
 		LadspaFXProperties *m_pLadspaFXProperties[MAX_FX];
 #endif
-
 		MainForm *m_pMainForm;
 		Mixer *m_pMixer;
 		PatternEditorPanel* m_pPatternEditorPanel;
@@ -119,8 +122,8 @@ class HydrogenApp : public QObject, public Object
 		InstrumentRack* m_pInstrumentRack;
 		PlayerControl *m_pPlayerControl;
 		PlaylistDialog *m_pPlaylistDialog;
-//		AudioFileBrowser *m_pAudioFileBrowser;
-
+		SampleEditor *m_pSampleEditor;
+		MetroBlinker *m_pMetroBlinker;
 		QTimer *m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;
 

@@ -167,6 +167,7 @@ void InstrumentLine::soloClicked()
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( m_nInstrumentNumber );
+	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
 		const float velocity = 0.8f;

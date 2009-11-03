@@ -70,6 +70,7 @@ HEADERS += src/flac_file.h \
            src/IO/CoreAudioDriver.h \
            src/IO/DiskWriterDriver.h \
            src/IO/FakeDriver.h \
+           src/IO/MidiOutput.h \
            src/IO/OssDriver.h \
            src/IO/PortAudioDriver.h \
            src/IO/PortMidiDriver.h \
@@ -124,6 +125,7 @@ SOURCES += src/action.cpp \
            src/IO/oss_driver.cpp \
            src/IO/portaudio_driver.cpp \
            src/IO/portmidi_driver.cpp \
+           src/IO/MidiOutput.cpp \
            src/IO/transport_info.cpp \
            src/lash/LashClient.cpp \
            src/sampler/sampler.cpp \

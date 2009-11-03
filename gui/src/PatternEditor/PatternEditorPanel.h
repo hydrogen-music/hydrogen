@@ -28,8 +28,8 @@
 
 #include <hydrogen/Object.h>
 
+#include "PianoRollEditor.h"
 #include "../EventListener.h"
-
 
 class Button;
 class ToggleButton;
@@ -39,7 +39,7 @@ class PatternEditorInstrumentList;
 class NotePropertiesRuler;
 class LCDCombo;
 class DrumPatternEditor;
-//class PianoRollEditor;
+class PianoRollEditor;
 
 
 namespace H2Core
@@ -62,9 +62,13 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		NotePropertiesRuler* getVelocityEditor() {	return m_pNoteVelocityEditor;	}
 		NotePropertiesRuler* getPanEditor() {	return m_pNotePanEditor;	}
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
+		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
+		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
 
-		void updateSLnameLabel( );
+		void updateSLnameLabel();
+		void displayorHidePrePostCB();
+		void updatePianorollEditor();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
@@ -78,11 +82,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void patternSizeChanged( QString text );
 
 		void hearNotesBtnClick(Button *ref);
-		void recordEventsBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
 
 		void showDrumEditorBtnClick(Button *ref);
-		void showPianoEditorBtnClick(Button *ref);
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
@@ -95,6 +97,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
+		void playselectedinstrument( QString text );
+		void rightclickSelect( QString text );
+		void recPreDeleteSelect( int index );
+		void recPostDeleteSelect( int index );
+
 	private:
 		H2Core::Pattern *m_pPattern;
 		QPixmap m_backgroundPixmap;
@@ -105,6 +112,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		LCDCombo *__resolution_combo;
 		ToggleButton *__show_drum_btn;
 		ToggleButton *__show_piano_btn;
+		QComboBox *__recpredelete;
+		QComboBox *__recpostdelete;
 
 
 		// ~Editor top
@@ -115,8 +124,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		DrumPatternEditor *m_pDrumPatternEditor;
 
 		// piano roll editor
-//		QScrollArea* m_pPianoRollScrollView;
-//		PianoRollEditor *m_pPianoRollEditor;
+		QScrollArea* m_pPianoRollInternScrollView;
+		QScrollArea* m_pPianoRollScrollView;
+		PianoRollEditor *m_pPianoRollEditor;
 
 		// ruler
 		QScrollArea* m_pRulerScrollView;
@@ -137,6 +147,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		// note leadlag editor
 		QScrollArea* m_pNoteLeadLagScrollView;
 		NotePropertiesRuler *m_pNoteLeadLagEditor;
+
+		// note notekey editor
+		QScrollArea* m_pNoteNoteKeyScrollView;
+		NotePropertiesRuler *m_pNoteNoteKeyEditor;
+		
 
 
 		QScrollBar *m_pPatternEditorHScrollBar;

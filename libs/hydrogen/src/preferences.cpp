@@ -73,6 +73,10 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
+	//init pre delete default
+	m_nRecPreDelete = 0;
+	m_nRecPostDelete = 0;
+
 	//server list
 	std::list<QString> sServerList;
 
@@ -120,9 +124,16 @@ Preferences::Preferences()
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
 	__playsamplesonclicking = false; // audio file browser
+	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
+	__rightclickedpattereditor = false; //right click into pattern editor add note-off-note or edit note-length
+	recordEvents = false; // not recording by default
+ 	destructiveRecord = false; // not destructively recording by default
+	punchInPos = 0;
+	punchOutPos = -1;
 
-	__expandSongItem = true; //SoundLibraryPanel
-	__expandPatternItem = true; //SoundLibraryPanel
+	__expandSongItem = true; //SoundLibraryPanel 
+	__expandPatternItem = true; //SoundLibraryPanel 
+	__usetimeline = false;		// use timeline
  
 
 	/////////////////////////////////////////////////////////////////////////
@@ -342,12 +353,15 @@ void Preferences::loadPreferences( bool bGlobal )
 			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
+			__usetimeline = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __usetimeline );
 			
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
 
+			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
+			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
+
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
-			recordEvents = LocalFileMng::readXmlBool( rootNode, "recordEvents", recordEvents );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
 
 			QDomNode pRecentUsedSongsNode = rootNode.firstChildElement( "recentUsedSongs" );
@@ -548,10 +562,10 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_startOffset = LocalFileMng::readXmlInt( guiNode, "playoffset", 0 );
 				
 				//~ beatcounter
-				
-				//SoundLibraryPanel expand items
-				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem );
-				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem ); 
+
+				//SoundLibraryPanel expand items 
+				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem ); 
+				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem );
 
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 					QString sNodeName = QString("ladspaFX_properties%1").arg( nFX );
@@ -677,6 +691,10 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
+	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __usetimeline ? "true": "false" ); 
+
+	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
+	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
@@ -685,7 +703,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "hearNewNotes", hearNewNotes ? "true": "false" );
 
 	// key/midi event prefs
-	LocalFileMng::writeXmlString( rootNode, "recordEvents", recordEvents ? "true": "false" );
+	//LocalFileMng::writeXmlString( rootNode, "recordEvents", recordEvents ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
 
 	// Recent used songs
@@ -887,6 +905,7 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( guiNode, "countoffset", QString("%1").arg(m_countOffset) );
 			LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
 		//~ beatcounter
+
 
 		//SoundLibraryPanel expand items
 		LocalFileMng::writeXmlString( guiNode, "expandSongItem", __expandSongItem ? "true": "false" );
@@ -1126,6 +1145,12 @@ void Preferences::writeUIStyle( QDomNode parent )
 	LocalFileMng::writeXmlString( patternEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_patternEditor_selectedRowColor.toStringFmt() );
 	LocalFileMng::writeXmlString( patternEditorNode, "textColor", m_pDefaultUIStyle->m_patternEditor_textColor.toStringFmt() );
 	LocalFileMng::writeXmlString( patternEditorNode, "noteColor", m_pDefaultUIStyle->m_patternEditor_noteColor.toStringFmt() );
+
+	if (m_pDefaultUIStyle->m_patternEditor_noteoffColor.toStringFmt() == "-1,-1,-1" ){
+		m_pDefaultUIStyle->m_patternEditor_noteoffColor = H2RGBColor( "100, 100, 200" );
+	}
+	LocalFileMng::writeXmlString( patternEditorNode, "noteoffColor", m_pDefaultUIStyle->m_patternEditor_noteoffColor.toStringFmt() );
+
 	LocalFileMng::writeXmlString( patternEditorNode, "lineColor", m_pDefaultUIStyle->m_patternEditor_lineColor.toStringFmt() );
 	LocalFileMng::writeXmlString( patternEditorNode, "line1Color", m_pDefaultUIStyle->m_patternEditor_line1Color.toStringFmt() );
 	LocalFileMng::writeXmlString( patternEditorNode, "line2Color", m_pDefaultUIStyle->m_patternEditor_line2Color.toStringFmt() );
@@ -1162,6 +1187,7 @@ void Preferences::readUIStyle( QDomNode parent )
 		m_pDefaultUIStyle->m_patternEditor_selectedRowColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_patternEditor_selectedRowColor.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_textColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "textColor", m_pDefaultUIStyle->m_patternEditor_textColor.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_noteColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "noteColor", m_pDefaultUIStyle->m_patternEditor_noteColor.toStringFmt() ) );
+		m_pDefaultUIStyle->m_patternEditor_noteoffColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "noteoffColor", m_pDefaultUIStyle->m_patternEditor_noteoffColor.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_lineColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "lineColor", m_pDefaultUIStyle->m_patternEditor_lineColor.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_line1Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line1Color", m_pDefaultUIStyle->m_patternEditor_line1Color.toStringFmt() ) );
 		m_pDefaultUIStyle->m_patternEditor_line2Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line2Color", m_pDefaultUIStyle->m_patternEditor_line2Color.toStringFmt() ) );

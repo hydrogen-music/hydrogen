@@ -163,6 +163,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	QPainter painter(this);
 
+
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 
 	// gray background for unusable section of pattern
@@ -192,11 +193,12 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
 			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString("%1").arg(i / 4 + 1) );
-//			ERRORLOG(QString("nText_x: %1, true, value: %2").arg(nText_x).arg(i / 4 + 1));
+			//ERRORLOG(QString("nText_x: %1, true, : %2").arg(nText_x).arg(m_nRulerWidth));
 		}
 		else {
-			painter.setPen( lineColor );
-			painter.drawLine( nText_x, ( m_nRulerHeight - 5 ) / 2, nText_x, m_nRulerHeight - ( (m_nRulerHeight - 5 ) / 2 ) );
+			painter.setPen( QPen( QColor( lineColor ), 1, Qt::SolidLine ) );
+			painter.drawLine( nText_x, ( m_nRulerHeight - 5 ) / 2, nText_x, m_nRulerHeight - ( (m_nRulerHeight - 5 ) / 2 ));
+			//ERRORLOG("PAINT LINE");
 		}
 	}
 

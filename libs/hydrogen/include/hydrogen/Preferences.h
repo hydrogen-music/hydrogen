@@ -120,6 +120,7 @@ public:
 	H2RGBColor m_patternEditor_selectedRowColor;
 	H2RGBColor m_patternEditor_textColor;
 	H2RGBColor m_patternEditor_noteColor;
+	H2RGBColor m_patternEditor_noteoffColor;
 	H2RGBColor m_patternEditor_lineColor;
 	H2RGBColor m_patternEditor_line1Color;
 	H2RGBColor m_patternEditor_line2Color;
@@ -158,7 +159,15 @@ public:
 	QString __lastsampleDirectory; // audio file browser
 	bool __playsamplesonclicking; // audio file browser
 
+	bool __playselectedinstrument; // midi keys and keys play instrument or drumset
+	bool __rightclickedpattereditor; //right click into pattern editor add note-off-note or edit note-length 
+
+	int m_nRecPreDelete; //index of record note pre delete function 0 = off  
+	int m_nRecPostDelete;
+
 	bool m_bFollowPlayhead;
+
+	bool __usetimeline;
 	
 	// switch to enable / disable lash, only on h2 startup
 	bool m_brestartLash;
@@ -277,6 +286,42 @@ public:
 	}
 	bool getRecordEvents() {
 		return recordEvents;
+	}
+
+	void setDestructiveRecord ( bool value ) {
+		destructiveRecord = value;
+	}
+	bool getDestructiveRecord() {
+		return destructiveRecord;
+	}
+
+	void setPunchInPos ( unsigned pos ) {
+		punchInPos = pos;
+	}
+	int getPunchInPos() {
+		return punchInPos;
+	}
+
+	void setPunchOutPos ( unsigned pos ) {
+		punchOutPos = pos;
+	}
+	int getPunchOutPos() {
+		return punchOutPos;
+	}
+
+	bool inPunchArea (int pos) {
+		// Return true if punch area not defined
+		if ( punchInPos <= punchOutPos ) {
+			if ( pos < punchInPos || punchOutPos < pos ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void unsetPunchArea () {
+		punchInPos = 0;
+		punchOutPos = -1;
 	}
 
 	void setQuantizeEvents( bool value ) {
@@ -476,6 +521,9 @@ private:
 	std::vector<QString> m_ladspaPathVect;
 	bool quantizeEvents;
 	bool recordEvents;
+	bool destructiveRecord;
+	int punchInPos;
+	int punchOutPos;
 	QString m_sLastNews;
 
 

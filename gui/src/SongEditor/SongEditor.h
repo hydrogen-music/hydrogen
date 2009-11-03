@@ -83,7 +83,7 @@ class SongEditor : public QWidget, public Object
 		virtual void paintEvent(QPaintEvent *ev);
 
 		void drawSequence();
-		void drawPattern( int pos, int number );
+		void drawPattern( int pos, int number, bool invertColour );
 };
 
 
@@ -111,6 +111,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void patternPopup_delete();
 		void patternPopup_copy();
 		void patternPopup_fill();
+		void patternPopup_virtualPattern();
 		void inlineEditingFinished();
 		void inlineEditingEntered();
 		virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -176,13 +177,15 @@ class SongEditorPositionRuler : public QWidget, public Object
 		uint m_nGridWidth;
 		static const uint m_nMaxPatternSequence = 400;
 		static const uint m_nInitialWidth = m_nMaxPatternSequence * 16;
-		static const uint m_nHeight = 25;
+		static const uint m_nHeight = 50;
 
 		QPixmap *m_pBackgroundPixmap;
 		QPixmap m_tickPositionPixmap;
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
+                bool m_bRightBtnPressed;
 };
 
 

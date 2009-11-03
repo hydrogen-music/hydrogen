@@ -34,10 +34,62 @@ namespace H2Core
 /**
 \ingroup H2CORE
 */
+
+class SampleVeloPan
+{
+public:
+	struct SampleVeloVector
+	{
+		int m_SampleVeloframe;
+		int m_SampleVelovalue;
+	};
+
+	std::vector<SampleVeloVector> m_Samplevolumen;
+
+	struct SamplePanVector
+	{
+		int m_SamplePanframe;
+		int m_SamplePanvalue;
+	};
+
+	std::vector<SamplePanVector> m_SamplePan;
+
+	SampleVeloPan() {
+		SampleVeloVector velovector;
+		velovector.m_SampleVeloframe = -1;
+		velovector.m_SampleVelovalue = -1;
+		m_Samplevolumen.push_back( velovector );
+		SamplePanVector panvector;
+		panvector.m_SamplePanframe = -1;	
+		panvector.m_SamplePanvalue = -1;
+		m_SamplePan.push_back( panvector );
+	}
+
+	SampleVeloPan( const SampleVeloPan& velopan ) {
+		m_Samplevolumen = velopan.m_Samplevolumen;
+		m_SamplePan = velopan.m_SamplePan;
+	}
+
+
+};
+
+
 class Sample : public Object
 {
 public:
-	Sample( unsigned frames, const QString& filename, float* data_L = NULL, float* data_R = NULL );
+	Sample( unsigned frames,
+		const QString& filename, 
+		float* data_L = NULL,
+		float* data_R = NULL,
+		bool sample_is_modified = false,
+		const QString& sample_mode = "forward",
+		unsigned start_frame = 0,
+		unsigned loop_frame = 0,
+		int repeats = 0,
+		unsigned end_frame = 0,
+		SampleVeloPan velopan = SampleVeloPan());
+		
+
 	~Sample();
 
 	float* get_data_l() {
@@ -64,17 +116,84 @@ public:
 	/// Loads a sample from disk
 	static Sample* load( const QString& filename );
 
+	/// Loads an modified sample
+	static Sample* load_edit_wave( const QString& filename,
+				const unsigned startframe,
+				const unsigned loppframe,
+				const unsigned endframe,
+				const int loops,
+				const QString loopmode);
+
+
 	unsigned get_n_frames() {
 		return __n_frames;
 	}
 
+	///beginn of sample edit 
+
+	void set_sample_is_modified( bool is_modified ) {
+		__sample_is_modified = is_modified;
+	}
+	bool get_sample_is_modified() const {
+		return __sample_is_modified;
+	}
+
+	void set_sample_mode( QString sample_mode ) {
+		__sample_mode = sample_mode;
+	}
+	QString get_sample_mode() const {
+		return __sample_mode;
+	}
+
+	void set_start_frame( unsigned start_frame ) {
+		__start_frame = start_frame;
+	}
+	unsigned get_start_frame() const {
+		return __start_frame;
+	}
+
+	void set_loop_frame( unsigned loop_frame ) {
+		 __loop_frame = loop_frame;
+	}
+	unsigned get_loop_frame() const {
+		return __loop_frame;
+	}
+
+	void set_repeats( int repeats ) {
+		__repeats = repeats;
+	}
+	int get_repeats() const {
+		return __repeats;
+	}
+
+	void set_end_frame( unsigned end_frame ) {
+		__end_frame = end_frame;
+	}
+	unsigned get_end_frame() const {
+		return __end_frame;
+	}
+
+
+	void sampleEditProzess( Sample* Sample );
+	void setmod();
+
+	SampleVeloPan __velo_pan;	///< volume and pan vector
+
 private:
+
 	float *__data_l;	///< Left channel data
 	float *__data_r;	///< Right channel data
-
 	unsigned __sample_rate;		///< samplerate for this sample
 	QString __filename;		///< filename associated with this sample
 	unsigned __n_frames;		///< Total number of frames in this sample.
+	bool __sample_is_modified;	///< true if sample is modified
+	QString __sample_mode;		///< loop mode
+	unsigned __start_frame;		///< start frame
+	unsigned __loop_frame;		///< beginn of the loop section
+	int __repeats;			///< repeats from the loop section
+	unsigned __end_frame; 		///< sample end frame
+
+
 
 	//static int __total_used_bytes;
 
@@ -83,6 +202,7 @@ private:
 
 	/// loads a FLAC file
 	static Sample* load_flac( const QString& filename );
+	Sample *tempsample;
 };
 
 };

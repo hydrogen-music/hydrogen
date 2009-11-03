@@ -35,7 +35,7 @@ SampleWaveDisplay::SampleWaveDisplay(QWidget* pParent)
  , Object( "SampleWaveDisplay" )
  , m_sSampleName( "" )
 {
-	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
 	int w = 445;

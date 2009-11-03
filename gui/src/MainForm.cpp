@@ -43,6 +43,7 @@ using namespace H2Core;
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 
+#include "MetroBlinker.h"
 #include "Mixer/Mixer.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -122,11 +123,13 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	// for all the window modes
 	h2app->getMixer()->installEventFilter (this);
 	h2app->getPatternEditorPanel()->installEventFilter (this);
+	h2app->getPatternEditorPanel()->getPianoRollEditor()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getPlayerControl()->installEventFilter(this);
 	InstrumentEditorPanel::get_instance()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
-
+	h2app->getMetroBlinker()->installEventFilter(this);
+//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
 	connect(&m_http, SIGNAL(done(bool)), this, SLOT(latestVersionDone(bool)));
@@ -266,6 +269,7 @@ void MainForm::createMenuBar()
 //		m_pWindowMenu->addAction( trUtf8("Show song editor"), this, SLOT( action_window_showSongEditor() ), QKeySequence( "" ) );
 //	}
 	m_pToolsMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pToolsMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_MetronWidget() ), QKeySequence( "Alt+B" ) );
 
 	m_pToolsMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 
@@ -400,11 +404,15 @@ void MainForm::action_file_new()
 		return;
 	}
 
+	Hydrogen::get_instance()->m_timelinevector.clear();
 	Song * song = Song::get_empty_song();
 	song->set_filename( "" );
 	h2app->setSong(song);
  	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
+	Hydrogen::get_instance()->m_timelinetagvector.clear();
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
 }
 
 
@@ -578,6 +586,7 @@ void MainForm::action_file_export_pattern_as()
 		{
 			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") );
 			_ERRORLOG ( "Error saving the pattern" );
+			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") ); 
 		}
 	}
 	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
@@ -733,7 +742,11 @@ void MainForm::action_window_showPlaylistDialog()
 	h2app->showPlaylistDialog();	
 }
 
+void MainForm::action_window_show_MetronWidget()
+{
 
+	h2app->showMetroBlinker();
+}
 
 void MainForm::action_window_showMixer()
 {
@@ -1080,6 +1093,8 @@ void MainForm::openSongFile( const QString& sFilename )
                 engine->sequencer_stop();
 	}
 
+	engine->m_timelinetagvector.clear();
+
 	h2app->closeFXProperties();
 	LocalFileMng mng;
 	Song *pSong = Song::load( sFilename );
@@ -1087,6 +1102,7 @@ void MainForm::openSongFile( const QString& sFilename )
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
 		return;
 	}
+
 
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::get_instance();
@@ -1098,6 +1114,8 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
+	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
 }
 
 
@@ -1348,7 +1366,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			float pan_L = 1.0;
 			float pan_R = 1.0;
 
-			engine->addRealtimeNote (row, velocity, pan_L, pan_R);
+			engine->addRealtimeNote (row, velocity, pan_L, pan_R, NULL, NULL, NULL , row + 36);
 
 			return TRUE; // eat event
 		}

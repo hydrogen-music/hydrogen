@@ -28,6 +28,7 @@
 #include <hydrogen/Object.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 #include <hydrogen/SoundLibrary.h>
 #include <cassert>
 
@@ -63,7 +64,6 @@ public:
 	void sequencer_stop();
 
 	void midi_noteOn( Note *note );
-	void midi_noteOff( Note *note );
 
 	///Last received midi message
 	QString lastMidiEvent;
@@ -81,7 +81,7 @@ public:
 	Song* getSong();
 	void removeSong();
 
-	void addRealtimeNote ( int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool forcePlay=false );
+	void addRealtimeNote ( int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool noteoff=false, bool forcePlay=false, int msg1=0 );
 
 	float getMasterPeak_L();
 	void setMasterPeak_L( float value );
@@ -118,6 +118,7 @@ public:
 
 	AudioOutput* getAudioOutput();
 	MidiInput* getMidiInput();
+	MidiOutput* getMidiOutput();
 
 	int getState();
 
@@ -202,7 +203,84 @@ public:
 	void ComputeHumantimeFrames(uint32_t nFrames);
 
 	void __panic();
-	
+	int __get_selected_PatterNumber();
+	unsigned int __getMidiRealtimeNoteTickPosition();
+
+	///sample editor vectors
+
+	void sortVolVectors();
+	void sortPanVectors();
+	void sortTimelineVector();
+	void sortTimelineTagVector();
+
+	struct HVeloVector
+	{
+		int m_hxframe;
+		int m_hyvalue;
+	};
+
+	std::vector<HVeloVector> m_volumen;
+
+	struct VolComparator
+	{
+		bool operator()( HVeloVector const& lhs, HVeloVector const& rhs)
+		{
+			return lhs.m_hxframe < rhs.m_hxframe;
+		}
+	};
+
+	struct HPanVector
+	{
+		int m_hxframe;
+		int m_hyvalue;
+	};
+
+	std::vector<HPanVector> m_pan;
+
+	struct PanComparator
+	{
+		bool operator()( HPanVector const& lhs, HPanVector const& rhs)
+		{
+			return lhs.m_hxframe < rhs.m_hxframe;
+		}
+	};
+
+/// timeline vector
+	struct HTimelineVector
+	{
+		int m_htimelinebeat;		//beat position in timeline 
+//		int m_htimelinebar;		//bar position from current beat
+		float m_htimelinebpm;		//BPM 
+//		bool m_htimelineslide;		//true if slide into new tempo
+//		int m_htimelineslidebeatbegin;	//position of slide begin (only beats, no bars)
+//		int m_htimelineslideend;	//position of slide end (only beats, no bars)
+//		int m_htimelineslidetype;	// 0 = slide up, 1 = slide down
+	};
+	std::vector<HTimelineVector> m_timelinevector;
+
+	struct TimelineComparator
+	{
+		bool operator()( HTimelineVector const& lhs, HTimelineVector const& rhs)
+		{
+			return lhs.m_htimelinebeat < rhs.m_htimelinebeat;
+		}
+	};
+/// timeline tag vector
+	struct HTimelineTagVector
+	{
+		int m_htimelinetagbeat;		//beat position in timeline 
+//		int m_htimelineintensity;		//intensity
+		QString m_htimelinetag;		// tag
+	};
+	std::vector<HTimelineTagVector> m_timelinetagvector;
+
+	struct TimelineTagComparator
+	{
+		bool operator()( HTimelineTagVector const& lhs, HTimelineTagVector const& rhs)
+		{
+			return lhs.m_htimelinetagbeat < rhs.m_htimelinetagbeat;
+		}
+	};
 
 private:
 	static Hydrogen* __instance;

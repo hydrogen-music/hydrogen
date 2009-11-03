@@ -140,10 +140,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//editor_top_hbox->addWidget(__resolution_combo);
 
 
-//wolke some background images hear note rec quant
-
 	PixmapWidget *pRec = new PixmapWidget( NULL );
-	pRec->setFixedSize( 150, 20 );
+	pRec->setFixedSize( 110, 20 );
 	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
 	pRec->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pRec );
@@ -160,24 +158,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	hearNotesBtn->move( 34, 3 );
 	hearNotesBtn->setToolTip( trUtf8( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL(clicked(Button*)), this, SLOT( hearNotesBtnClick(Button*)));
-	//editor_top_hbox->addWidget(hearNotesBtn);
-	// restore hear new notes button state
 	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
-
-
-	// Record events btn
-	ToggleButton* recordEventsBtn = new ToggleButton(
-			pRec,
-			"/patternEditor/btn_record_on.png",
-			"/patternEditor/btn_record_off.png",
-			"/patternEditor/btn_record_off.png",
-			QSize(15, 13)
-	);
-	recordEventsBtn->move( 74, 3 );
-	recordEventsBtn->setPressed( pPref->getRecordEvents());
-	recordEventsBtn->setToolTip( trUtf8( "Record keyboard/midi events" ) );
-	connect( recordEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( recordEventsBtnClick(Button*)));
-	//editor_top_hbox->addWidget(recordEventsBtn);
 
 
 	// quantize
@@ -188,18 +169,92 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/patternEditor/btn_quant_off.png",
 			QSize(15, 13)
 	);
-	quantizeEventsBtn->move( 130, 3 );
+	quantizeEventsBtn->move( 90, 3 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
-	//editor_top_hbox->addWidget(quantizeEventsBtn);
 
+	__recpredelete = new QComboBox( NULL );
+	__recpredelete->setFixedSize( 130, 20 );
+	__recpredelete->move( 2, 1 );
+	__recpredelete->addItem ( QString( "On play" ));
+	__recpredelete->addItem ( QString( "On rec: once fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/1 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/2 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/4 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/8 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/16 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/32 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/64 fp" ));
+	__recpredelete->addItem ( QString( "On rec: 1/64" ));
+	__recpredelete->addItem ( QString( "On rec: 1/32" ));
+	__recpredelete->addItem ( QString( "On rec: 1/16" ));
+	__recpredelete->addItem ( QString( "On rec: 1/8" ));
+	__recpredelete->addItem ( QString( "On rec: 1/4" ));
+	__recpredelete->addItem ( QString( "On rec: 1/2" ));
+	__recpredelete->addItem ( QString( "On rec: 1/1" ));
+	__recpredelete->addItem ( QString( "On rec: once" ));
+	__recpredelete->update();
+	__recpredelete->setToolTip( trUtf8( "destructive mode pre delete settings" ) );
+	editor_top_hbox_2->addWidget( __recpredelete );
+	connect( __recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int) ) );
 
-// 	PixmapWidget *pZoom = new PixmapWidget( NULL );
-// 	pZoom->setFixedSize( 73, 20 );
-// 	pZoom->setPixmap( "/patternEditor/background_zoom-new.png" );
-// 	pZoom->move( 0, 3 );
-// 	editor_top_hbox_2->addWidget( pZoom );
+	__recpostdelete = new QComboBox( NULL );
+	__recpostdelete->setFixedSize( 60, 20 );
+	__recpostdelete->move( 2, 1 );
+	__recpostdelete->addItem ( QString( "off" ));
+	__recpostdelete->addItem ( QString( "1/64" ));
+	__recpostdelete->addItem ( QString( "1/32" ));
+	__recpostdelete->addItem ( QString( "1/16" ));
+	__recpostdelete->addItem ( QString( "1/8" ));
+	__recpostdelete->addItem ( QString( "1/4" ));
+	__recpostdelete->addItem ( QString( "1/2" ));
+	__recpostdelete->addItem ( QString( "1/1" ));
+	__recpostdelete->update();
+	__recpostdelete->setToolTip( trUtf8( "destructive mode post delete settings" ) );
+	editor_top_hbox_2->addWidget( __recpostdelete );
+	connect( __recpostdelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPostDeleteSelect( int) ) );
+
+	QComboBox *selInstrument = new QComboBox( NULL );
+	selInstrument->setFixedSize( 100, 20 );
+	selInstrument->move( 2, 1 );
+	selInstrument->addItem ( QString( "drumset" ));
+	selInstrument->addItem ( QString( "instrument" ));
+	selInstrument->update();
+	selInstrument->setToolTip( trUtf8( "Midi keyboard or computer keys play whole drumset or single instruments" ) );
+	editor_top_hbox_2->addWidget( selInstrument );
+	connect( selInstrument, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( playselectedinstrument(QString) ) );
+
+	QComboBox *rightclickSelection = new QComboBox( NULL );
+	rightclickSelection->setFixedSize( 100, 20 );
+	rightclickSelection->move( 2, 1 );
+	rightclickSelection->addItem ( QString( "note length" ));
+	rightclickSelection->addItem ( QString( "note off" ));
+	rightclickSelection->update();
+	rightclickSelection->setToolTip( trUtf8( "Right click into pattern editor add note-off-note or edit note-length" ) );
+	editor_top_hbox_2->addWidget( rightclickSelection );
+	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
+
+//---------------------------experimental pianoroll--------------------------------------
+// show drum editor btn
+	__show_drum_btn = new ToggleButton(
+			NULL,
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize(50, 17),
+			true
+	);
+	__show_drum_btn->setText( trUtf8("Piano") );
+	__show_drum_btn->setPressed( false );
+	__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
+	editor_top_hbox_2->addWidget(__show_drum_btn);
+
+// hide the butten during develop on piano roll editor
+//__show_drum_btn->hide();
+
+//---------------------------------------------------------------------------------------
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
@@ -258,7 +313,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
 
-
 	// Editor
 	m_pDrumPatternEditor = new DrumPatternEditor( m_pEditorScrollView->viewport(), this );
 
@@ -267,21 +321,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
 
 
-
-/*
+//PianoRollEditor
 	m_pPianoRollScrollView = new QScrollArea( NULL );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
-	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-
-	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport() );
+	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 
-	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
+//	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
 
 
 	m_pPianoRollScrollView->hide();
-*/
+
 //~ EDITOR
 
 
@@ -339,6 +391,22 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 //~ NOTE_LEADLAG EDITOR
 
+
+// NOTE_NOTEKEY EDITOR
+
+
+	m_pNoteNoteKeyScrollView = new QScrollArea( NULL );
+	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this, NotePropertiesRuler::NOTEKEY );
+	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
+	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
+
+
+//~ NOTE_NOTEKEY EDITOR
+
+
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , NULL  );
 	connect( m_pPatternEditorHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
@@ -390,6 +458,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesCombo->addItem( trUtf8("Velocity") );
 	pPropertiesCombo->addItem( trUtf8("Pan") );
 	pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
+	pPropertiesCombo->addItem( trUtf8("NoteKey") );
 	pPropertiesCombo->update();
 	connect( pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
 
@@ -414,13 +483,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
 
 	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
-//	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
+	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
 
 	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
 	pGrid->addWidget( pPatternEditorHScrollBarContainer, 10, 1 );
 	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
 	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
 
 	pGrid->addWidget( pPropertiesPanel, 4, 0 );
 	pGrid->setRowStretch( 2, 100 );
@@ -460,7 +530,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				break;
 
 			default:
-			    ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
 				__resolution_combo->set_text( "4" );
 				nIndex = 0;
 		}
@@ -495,10 +565,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	}
 	gridResolutionChanged(__resolution_combo->getText());
 
-
-
-
-
+	//set pre delete
+	__recpredelete->setCurrentIndex(pPref->m_nRecPreDelete);
+	__recpostdelete->setCurrentIndex(pPref->m_nRecPostDelete);
+	displayorHidePrePostCB();
 
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -533,7 +603,7 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 	m_pEditorScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 	// piano roll Editor
-//	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 //	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 
@@ -551,6 +621,9 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 	// leadlag ruler
 	m_pNoteLeadLagScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+
+	// notekey ruler
+	m_pNoteNoteKeyScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 }
 
 
@@ -584,6 +657,7 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 
 	//INFOLOG( to_string( nResolution ) );
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
+	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
 	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
@@ -643,21 +717,6 @@ void PatternEditorPanel::hearNotesBtnClick(Button *ref)
 
 
 
-void PatternEditorPanel::recordEventsBtnClick(Button *ref)
-{
-	Preferences *pref = ( Preferences::get_instance() );
-	pref->setRecordEvents( ref->isPressed() );
-
-	if (ref->isPressed() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Record keyboard/midi events = On" ), 2000 );
-	}
-	else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Record keyboard/midi events = Off" ), 2000 );
-	}
-
-
-}
-
 
 void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
 {
@@ -692,14 +751,13 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	UNUSED( ev );
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
-/*
-	if ( m_pPianoRollScrollView->isVisible() ) {
-		pScrollArea = m_pPianoRollScrollView;
-	}
-	else {
+
+//	if ( m_pPianoRollScrollView->isVisible() ) {
+//		pScrollArea = m_pPianoRollScrollView;
+//	}
+//	else {
 		pScrollArea = m_pEditorScrollView;
-	}
-*/
+//	}
 
 	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
 	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
@@ -742,44 +800,36 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 }
 
 
-
 void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 {
 	UNUSED( ref );
-	__show_drum_btn->setPressed( true );
-	__show_piano_btn->setPressed( false );
-
-
-//	m_pPianoRollScrollView->hide();
-	m_pEditorScrollView->show();
-	m_pInstrListScrollView->show();
-
-	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
-
-	// force a re-sync of extern scrollbars
-	resizeEvent( NULL );
+	if ( !__show_drum_btn->isPressed() ){
+		__show_drum_btn->setText( trUtf8("Piano") );
+		__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+		m_pPianoRollScrollView->hide();
+		m_pEditorScrollView->show();
+		m_pInstrListScrollView->show();
+	
+		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+	
+		// force a re-sync of extern scrollbars
+		resizeEvent( NULL );
+	}
+	else
+	{
+		__show_drum_btn->setText( trUtf8("Drum") );	
+		__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
+		m_pPianoRollScrollView->show();
+		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
+		m_pEditorScrollView->show();
+		m_pInstrListScrollView->show();
+	
+		m_pPianoRollEditor->updateEditor(); // force an update
+	
+		// force a re-sync of extern scrollbars
+		resizeEvent( NULL );	
+	}
 }
-
-
-
-void PatternEditorPanel::showPianoEditorBtnClick(Button *ref)
-{
-	UNUSED( ref );
-	__show_piano_btn->setPressed( true );
-	__show_drum_btn->setPressed( false );
-
-
-//	m_pPianoRollScrollView->show();
-	m_pEditorScrollView->hide();
-	m_pInstrListScrollView->hide();
-
-//	m_pPianoRollEditor->selectedInstrumentChangedEvent(); // force an update
-
-	// force a re-sync of extern scrollbars
-	resizeEvent( NULL );
-}
-
-
 
 
 void PatternEditorPanel::zoomInBtnClicked(Button *ref)
@@ -792,7 +842,9 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pDrumPatternEditor->zoom_in();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
+	m_pNoteNoteKeyEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
+	m_pPianoRollEditor->zoom_in();		
 
 	resizeEvent( NULL );
 }
@@ -806,7 +858,9 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pDrumPatternEditor->zoom_out();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
+	m_pNoteNoteKeyEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
+	m_pPianoRollEditor->zoom_out();	
 
 	resizeEvent( NULL );
 }
@@ -849,6 +903,8 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	m_pNoteVelocityEditor->updateEditor();
 	m_pNotePanEditor->updateEditor();
 	m_pNoteLeadLagEditor->updateEditor();
+	m_pNoteNoteKeyEditor->updateEditor();
+	m_pPianoRollEditor->updateEditor();
 
 	resizeEvent( NULL );
 
@@ -872,20 +928,6 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument - 1 );
 		pInstrumentList->replace( pTemp, nSelectedInstrument );
 
-/*
-		// devo spostare tutte le note...
-		PatternList *pPatternList = pSong->getPatternList();
-		for ( int nPattern = 0; nPattern < pPatternList->getSize(); nPattern++ ) {
-			Pattern *pPattern = pPatternList->get( nPattern );
-			Sequence *pSeq1 = pPattern->m_pSequenceList->get( nSelectedInstrument );
-			Sequence *pSeq2 = pPattern->m_pSequenceList->get( nSelectedInstrument - 1 );
-
-			// swap notelist..
-			map <int, Note*> noteList = pSeq1->m_noteList;
-			pSeq1->m_noteList = pSeq2->m_noteList;
-			pSeq2->m_noteList = noteList;
-		}
-*/
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
@@ -913,20 +955,6 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument + 1 );
 		pInstrumentList->replace( pTemp, nSelectedInstrument );
 
-/*
-		// devo spostare tutte le note...
-		PatternList *pPatternList = pSong->getPatternList();
-		for ( int nPattern = 0; nPattern < pPatternList->getSize(); nPattern++ ) {
-			Pattern *pPattern = pPatternList->get( nPattern );
-			Sequence *pSeq1 = pPattern->m_pSequenceList->get( nSelectedInstrument );
-			Sequence *pSeq2 = pPattern->m_pSequenceList->get( nSelectedInstrument + 1 );
-
-			// swap notelist..
-			map <int, Note*> noteList = pSeq1->m_noteList;
-			pSeq1->m_noteList = pSeq2->m_noteList;
-			pSeq2->m_noteList = noteList;
-		}
-*/
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
@@ -960,6 +988,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	if ( text == trUtf8( "Velocity" ) ) {
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteVelocityScrollView->show();
 
 		m_pNoteVelocityEditor->updateEditor();
@@ -967,6 +996,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	else if ( text == trUtf8( "Pan" ) ) {
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
 		m_pNotePanScrollView->show();
 
 		m_pNotePanEditor->updateEditor();
@@ -974,9 +1004,18 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	else if ( text == trUtf8( "Lead and Lag" ) ) {
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
  
 		m_pNoteLeadLagEditor->updateEditor();
+	}
+	else if ( text == trUtf8( "NoteKey" ) ) {
+		m_pNoteVelocityScrollView->hide();
+		m_pNotePanScrollView->hide();
+		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->show();
+ 
+		m_pNoteNoteKeyEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Cutoff" ) ) {
 	}
@@ -985,4 +1024,67 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	else {
 		ERRORLOG( "Unknown text: " + text );
 	}
+}
+
+
+
+void PatternEditorPanel::playselectedinstrument( QString text )
+{
+	if ( text == "drumset" ){
+		Preferences::get_instance()->__playselectedinstrument = false;
+	}else
+	{
+		Preferences::get_instance()->__playselectedinstrument = true;
+	}
+}
+
+
+void PatternEditorPanel::rightclickSelect( QString text )
+{
+	if ( text == "note length" ){
+		Preferences::get_instance()->__rightclickedpattereditor = false;
+	}else
+	{
+		Preferences::get_instance()->__rightclickedpattereditor = true;
+	}
+
+}
+
+void PatternEditorPanel::recPreDeleteSelect( int index )
+{
+	Preferences::get_instance()->m_nRecPreDelete = index;
+	if( index>=9 && index <=15 ){
+		__recpostdelete->show();
+	}else{
+		__recpostdelete->hide();
+	}
+}
+
+
+void PatternEditorPanel::recPostDeleteSelect( int index )
+{
+	Preferences::get_instance()->m_nRecPostDelete = index;
+}
+
+
+void PatternEditorPanel::displayorHidePrePostCB()
+{
+	int index = __recpredelete->currentIndex();
+	if( Preferences::get_instance()->getDestructiveRecord() ){
+		__recpostdelete->show();
+		if( index>=8 && index <=14 ){
+			__recpostdelete->show();
+		}else{
+			__recpostdelete->hide();
+		}
+		__recpredelete->show();
+	}else{
+		__recpostdelete->hide();
+		__recpredelete->hide();
+	}
+}
+
+void PatternEditorPanel::updatePianorollEditor()
+{
+	m_pDrumPatternEditor->updateEditor(); // force an update
 }

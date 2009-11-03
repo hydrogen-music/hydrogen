@@ -93,6 +93,8 @@ public:
 	float m_fLowPassFilterBuffer_R;		///< Low pass filter buffer
 	//~ filter
 
+	bool m_bJustRecorded; //< Used in record+delete
+
 	Note(
 	    Instrument *pInstrument,
 	    unsigned nPosition,
@@ -152,7 +154,7 @@ public:
 	}
 	void set_pan_l( float pan ) {
 		if ( pan > 0.5 ) {
-			INFOLOG( "Pan R > 0.5" );
+//			INFOLOG( "Pan R > 0.5" );
 			pan = 0.5;
 		}
 		__pan_l = pan;
@@ -163,7 +165,7 @@ public:
 	}
 	void set_pan_r( float pan ) {
 		if ( pan > 0.5 ) {
-			INFOLOG( "Pan R > 0.5" );
+//			INFOLOG( "Pan R > 0.5" );
 			pan = 0.5;
 		}
 		__pan_r = pan;
@@ -199,6 +201,22 @@ public:
 		return __pitch;
 	}
 
+	void set_noteoff( bool noteOff ) {
+		__noteoff = noteOff;
+	}
+	bool get_noteoff() const {
+		return __noteoff;
+	}
+
+	void set_midimsg1( int midimsg ) {
+		__midimsg1 = midimsg;
+	}
+	int get_midimsg1() const {
+		return __midimsg1;
+	}
+
+	
+
 
 private:
 	Instrument* __instrument;
@@ -207,9 +225,11 @@ private:
 	float __pan_l;			///< Pan of the note (left volume) [0..1]
 	float __pan_r;			///< Pan of the note (right volume) [0..1]
 	float __leadlag;		///< Lead or lag offset of the note
+	bool __noteoff;			///< note type
 
 	int __length;
 	float __pitch;
+	int __midimsg1;
 
 };
 

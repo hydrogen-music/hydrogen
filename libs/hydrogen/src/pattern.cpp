@@ -101,6 +101,16 @@ bool Pattern::references_instrument( Instrument * I )
 }
 
 
+void Pattern::set_to_old()
+{
+ 	std::multimap <int, Note*>::const_iterator pos;
+	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
+		Note *pNote = pos->second;
+		assert( pNote );
+		pNote->m_bJustRecorded = false ;
+	}
+}
+
 
 /// Returns an empty Pattern
 Pattern* Pattern::get_empty_pattern()
@@ -276,6 +286,12 @@ Pattern * PatternList::del( Pattern * p )
 }
 
 
+void PatternList::set_to_old()
+{
+	for ( int nPattern = 0 ; nPattern < (int) get_size() ; ++nPattern ) {
+		get( nPattern )->set_to_old();
+	}
+}
 
 
 void PatternList::del( unsigned pos )

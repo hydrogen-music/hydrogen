@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-/*
+
 #ifndef PIANO_ROLL_EDITOR_H
 #define PIANO_ROLL_EDITOR_H
 
@@ -34,39 +34,60 @@ namespace H2Core
 	class Note;
 }
 
+class PatternEditorPanel;
+
 class PianoRollEditor: public QWidget, public EventListener, public Object
 {
 	public:
-		PianoRollEditor( QWidget *pParent );
+		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel );
 		~PianoRollEditor();
 
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
+		virtual void patternModifiedEvent();
 		//~ Implements EventListener interface
+		void setResolution(uint res, bool bUseTriplets);
 
+		void zoom_in();
+		void zoom_out();
 
-
+	public slots:
+		void updateEditor();
 
 	private:
-		H2Core::Pattern *m_pPattern;
 
 		unsigned m_nRowHeight;
 		unsigned m_nOctaves;
 
+		uint m_nResolution;
+		bool m_bRightBtnPressed;
+		bool m_bUseTriplets;
+
+		H2Core::Pattern *m_pPattern;
+
+		float m_nGridWidth;
+		uint m_nEditorWidth;
+		uint m_nEditorHeight;
 		QPixmap *m_pBackground;
 		QPixmap *m_pTemp;
 
+		PatternEditorPanel *m_pPatternEditorPanel;
+		H2Core::Note *m_pDraggedNote;
+
 		void createBackground();
 		void drawPattern();
+		void draw_grid(QPainter& p );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-
+		virtual void keyPressEvent ( QKeyEvent * ev );
+		int getColumn(QMouseEvent *ev);
 };
 
 #endif
-*/
+

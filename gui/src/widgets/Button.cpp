@@ -282,16 +282,21 @@ ToggleButton::~ToggleButton() {
 
 
 
-void ToggleButton::mousePressEvent(QMouseEvent*) {
-	if (m_bPressed) {
-		m_bPressed = false;
-	}
+void ToggleButton::mousePressEvent(QMouseEvent *ev) {
+	if (ev->button() == Qt::RightButton) {
+                emit rightClicked(this);
+        }
 	else {
-		m_bPressed = true;
-	}
-	update();
+		if (m_bPressed) {
+			m_bPressed = false;
+		}
+		else {
+			m_bPressed = true;
+		}
+		update();
 
-	emit clicked(this);
+		emit clicked(this);
+	}
 }
 
 

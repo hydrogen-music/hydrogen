@@ -36,9 +36,17 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
+#include <hydrogen/Pattern.h>
+#include <hydrogen/event_queue.h>
+
+#include "gui/src/HydrogenApp.h"
+#include "gui/src/PatternEditor/PatternEditorPanel.h"
+#include "gui/src/PatternEditor/DrumPatternEditor.h"
 
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
+
+#include <iostream>
 
 namespace H2Core
 {
@@ -68,6 +76,7 @@ Sampler::Sampler()
 	__preview_instrument = new Instrument( sEmptySampleFilename, "preview", new ADSR() );
 	__preview_instrument->set_volume( 0.8 );
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
+
 }
 
 
@@ -93,8 +102,8 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
 
-	// Track output queues are zeroed by
-	// audioEngine_process_clearAudioBuffers()
+	// Track output queues are zeroed by 
+ 	// audioEngine_process_clearAudioBuffers() 
 
 	// Max notes limit
 	int m_nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
@@ -115,12 +124,27 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		if ( res == 1 ) {	// la nota e' finita
 			__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
 			pNote->get_instrument()->dequeue();
-			delete pNote;
-			pNote = NULL;
+			__queuedNoteOffs.push_back( pNote );
+//			delete pNote;
+//			pNote = NULL;
 		} else {
 			++i; // carico la prox nota
 		}
 	}
+	
+	//Queue midi note off messages for notes that have a length specified for them
+
+	while (!__queuedNoteOffs.empty()) {
+		pNote =  __queuedNoteOffs[0];
+		Hydrogen::get_instance()->getMidiOutput()->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(),
+									     ( pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key +
+									     ( pNote->get_instrument()->get_midi_out_note() -60 ), 
+									      pNote->get_velocity() * 127 );
+		__queuedNoteOffs.erase(__queuedNoteOffs.begin());
+		delete pNote;
+		pNote = NULL;
+	}//while
+
 }
 
 
@@ -130,39 +154,72 @@ void Sampler::note_on( Note *note )
 	//infoLog( "[noteOn]" );
 	assert( note );
 
-	// mute groups
 	Instrument *pInstr = note->get_instrument();
+
+	// mute groups	
 	if ( pInstr->get_mute_group() != -1 ) {
 		// remove all notes using the same mute group
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
 			Note *pNote = __playing_notes_queue[ j ];
-
 			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == pInstr->get_mute_group() ) ) {
-				//warningLog("release");
 				pNote->m_adsr.release();
 			}
 		}
 	}
+
+	//note off notes	
+	if( note->get_noteoff() ){
+		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+			Note *pNote = __playing_notes_queue[ j ];
+
+			if ( ( pNote->get_instrument() == pInstr ) ) {
+				//ERRORLOG("note_off");
+				pNote->m_adsr.release();
+			}	
+		}
+	}
 	
 	pInstr->enqueue();
-	__playing_notes_queue.push_back( note );
+	if( !note->get_noteoff() ){
+		__playing_notes_queue.push_back( note );
+	}else
+	{
+		delete note;
+	}
+	
+	Hydrogen::get_instance()->getMidiOutput()->handleQueueNote(note);
+	
+}
+
+void Sampler::midi_keyboard_note_off( int key )
+{
+	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+		Note *pNote = __playing_notes_queue[ j ];
+
+		if ( ( pNote->get_midimsg1() == key) ) {
+			pNote->m_adsr.release();
+		}	
+	}
 }
 
 
 
 void Sampler::note_off( Note* note )
+	/*
+	* this old note_off function is only used by right click on mixer channel strip play button
+	* all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
+	*/
 {
-	assert(note);
+
 	Instrument *pInstr = note->get_instrument();
 	// find the notes using the same instrument, and release them
 	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
-		Note *pNote = __playing_notes_queue[ j ];
+ 		Note *pNote = __playing_notes_queue[ j ];
 		if ( pNote->get_instrument() == pInstr ) {
 			pNote->m_adsr.release();
 		}
-	}
+ 	}
 }
-
 
 
 /// Render a note
@@ -182,7 +239,6 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		// use this to support realtime events when not playing
 		nFramepos = pEngine->getRealtimeFrames();
 	}
-
 
 	Instrument *pInstr = pNote->get_instrument();
 	if ( !pInstr ) {
@@ -346,6 +402,7 @@ int Sampler::__render_note_no_resample(
 		retValue = 0; // the note is not ended yet
 	}
 
+
 	//ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
@@ -378,16 +435,17 @@ int Sampler::__render_note_no_resample(
 		nInstrument = 0;
 	}
 
-#ifdef JACK_SUPPORT
-	JackOutput* jao = 0;
-	float *track_out_L = 0;
-	float *track_out_R = 0;
-	if( audio_output->has_track_outs()
-	    && (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
-		track_out_L = jao->getTrackOut_L( nInstrument );
-		track_out_R = jao->getTrackOut_R( nInstrument );
-	}
-#endif
+#ifdef JACK_SUPPORT 
+	JackOutput* jao = 0; 
+	float *track_out_L = 0; 
+	float *track_out_R = 0; 
+	if( audio_output->has_track_outs() 
+	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
+		track_out_L = jao->getTrackOut_L( nInstrument ); 
+		track_out_R = jao->getTrackOut_R( nInstrument ); 
+	} 
+#endif 
+	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
 			if ( pNote->m_adsr.release() == 0 ) {
@@ -411,12 +469,12 @@ int Sampler::__render_note_no_resample(
 		}
 
 #ifdef JACK_SUPPORT
-		if( track_out_L ) {
-			track_out_L[nBufferPos] += fVal_L * cost_track_L;
-		}
-		if( track_out_R ) {
-			track_out_R[nBufferPos] += fVal_R * cost_track_R;
-		}
+	if( track_out_L ) { 
+		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
+	} 
+	if( track_out_R ) { 
+		track_out_R[nBufferPos] += fVal_R * cost_track_R; 
+	}
 #endif
 
                 fVal_L = fVal_L * cost_L;
@@ -546,17 +604,17 @@ int Sampler::__render_note_resample(
 		nInstrument = 0;
 	}
 
-
-#ifdef JACK_SUPPORT
-	JackOutput* jao = 0;
-	float *track_out_L = 0;
-	float *track_out_R = 0;
-	if( audio_output->has_track_outs()
-	    && (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
-		track_out_L = jao->getTrackOut_L( nInstrument );
-		track_out_R = jao->getTrackOut_R( nInstrument );
-	}
+#ifdef JACK_SUPPORT 
+	JackOutput* jao = 0; 
+	float *track_out_L = 0; 
+	float *track_out_R = 0; 
+	if( audio_output->has_track_outs() 
+	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
+		track_out_L = jao->getTrackOut_L( nInstrument ); 
+		track_out_R = jao->getTrackOut_R( nInstrument ); 
+	} 
 #endif
+
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->m_fSamplePosition )  ) {
 			if ( pNote->m_adsr.release() == 0 ) {
@@ -592,12 +650,12 @@ int Sampler::__render_note_resample(
 
 
 #ifdef JACK_SUPPORT
-		if( track_out_L ) {
-			track_out_L[nBufferPos] += (fVal_L * cost_track_L);
-		}
-		if( track_out_R ) {
-			track_out_R[nBufferPos] += (fVal_R * cost_track_R);
-		}
+	if( track_out_L ) { 
+		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
+	} 
+	if( track_out_R ) { 
+		track_out_R[nBufferPos] += fVal_R * cost_track_R; 
+	}
 #endif
 
 		fVal_L = fVal_L * cost_L;
@@ -738,6 +796,91 @@ void Sampler::preview_instrument( Instrument* instr )
 	delete old_preview;
 }
 
+
+
+void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
+{
+	if ( instrument ) { // stop all notes using this instrument
+		Hydrogen *pEngine = Hydrogen::get_instance();	
+		Song* mSong = pEngine->getSong();
+		int selectedpattern = pEngine->__get_selected_PatterNumber();
+		Pattern* currentPattern = NULL;
+
+
+		if ( mSong->get_mode() == Song::PATTERN_MODE ||
+		( pEngine->getState() != STATE_PLAYING )){
+			PatternList *pPatternList = mSong->get_pattern_list();
+			if ( ( selectedpattern != -1 )
+			&& ( selectedpattern < ( int )pPatternList->get_size() ) ) {
+				currentPattern = pPatternList->get( selectedpattern );
+			}
+		}else
+		{
+			std::vector<PatternList*> *pColumns = mSong->get_pattern_group_vector();
+//			Pattern *pPattern = NULL;
+			int pos = pEngine->getPatternPos() +1;
+			for ( int i = 0; i < pos; ++i ) {
+				PatternList *pColumn = ( *pColumns )[i];
+				currentPattern = pColumn->get( 0 );	
+			}
+		}
+
+		
+		if ( currentPattern ) {
+				int patternsize = currentPattern->get_length();
+	
+				for ( unsigned nNote = 0 ;
+				nNote < currentPattern->get_length() ;
+				nNote++ ) {
+					std::multimap <int, Note*>::iterator pos;
+					for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
+					pos != currentPattern->note_map.upper_bound( nNote ) ;
+					++pos ) {
+						Note *pNote = pos->second;
+						if ( pNote!=NULL ) {
+							if( !Preferences::get_instance()->__playselectedinstrument ){
+								if ( pNote->get_instrument() == instrument
+								&& pNote->get_position() == noteOnTick ) {
+									AudioEngine::get_instance()->lock( RIGHT_HERE );
+					
+									if ( ticks >  patternsize ) 
+										ticks = patternsize - noteOnTick;
+									pNote->set_length( ticks );
+									Hydrogen::get_instance()->getSong()->__is_modified = true;
+									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+								}
+							}else
+							{
+								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
+								&& pNote->get_position() == noteOnTick ) {
+									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									if ( ticks >  patternsize ) 
+										ticks = patternsize - noteOnTick;
+									pNote->set_length( ticks );
+									Hydrogen::get_instance()->getSong()->__is_modified = true;
+									AudioEngine::get_instance()->unlock(); // unlock the audio engine	
+								}	
+							}
+						}
+					}
+				}
+			}	
+		}
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+}
+
+bool Sampler::is_instrument_playing( Instrument* instrument )
+{
+
+	if ( instrument ) { // stop all notes using this instrument
+		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
+			if ( instrument->get_name() == __playing_notes_queue[ j ]->get_instrument()->get_name()){
+				return true;
+			}
+		}
+		
+	}
+}
 
 };
 

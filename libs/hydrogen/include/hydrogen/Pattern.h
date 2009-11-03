@@ -39,6 +39,8 @@ class Pattern : public Object
 {
 public:
 	std::multimap <int, Note*> note_map;
+    std::set<Pattern*> virtual_pattern_set;
+    std::set<Pattern*> virtual_pattern_transitive_closure_set;
 
 	Pattern( const QString& name, const QString& category, unsigned length = MAX_NOTES );
 	~Pattern();
@@ -53,6 +55,8 @@ public:
 	  Check if there are any notes pertaining to I
 	*/
 	bool references_instrument( Instrument * I );
+
+	void set_to_old();
 	
 	static Pattern* get_empty_pattern();
 	Pattern* copy();
@@ -105,6 +109,8 @@ public:
 	/// Remove a pattern from the list (every instance in the list), the pattern is not deleted!!!
 	/// Returns NULL if the pattern is not in the list
 	Pattern * del( Pattern *pattern ); 
+
+	void set_to_old();
 
 	/// Remove one pattern from the list, the pattern is not deleted!!!
 	void del( unsigned index );

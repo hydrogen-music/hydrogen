@@ -32,11 +32,12 @@
 
 #include <CoreMidi/CoreMidi.h>
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 
 namespace H2Core
 {
 
-class CoreMidiDriver : public MidiInput
+class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
 public:
 	CoreMidiDriver();
@@ -47,12 +48,18 @@ public:
 	virtual void open();
 	virtual void close();
 	virtual std::vector<QString> getOutputPortList();
+	
+	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueNoteOff( int channel, int key, int velocity );
+	virtual void handleQueueAllNoteOff();
 
 	MIDIClientRef  h2MIDIClient;
 	ItemCount cmSources;
 	MIDIEndpointRef cmH2Src;
 
 	MIDIPortRef h2InputRef;
+	MIDIPortRef h2OutputRef;
+	MIDIEndpointRef cmH2Dst;
 
 };
 

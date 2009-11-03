@@ -222,6 +222,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
+	
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
@@ -337,8 +338,6 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// maxVoices
 	pPref->m_nMaxNotes = maxVoicesTxt->value();
-
-
 
 	if ( m_pMidiDriverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sMidiDriver = "ALSA";
@@ -564,7 +563,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
 	UNUSED( i );
-	m_bNeedDriverRestart = true;
+	m_bNeedDriverRestart = false;
 }
 
 

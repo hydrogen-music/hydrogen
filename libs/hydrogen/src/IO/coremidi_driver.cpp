@@ -102,6 +102,7 @@ CoreMidiDriver::CoreMidiDriver()
 	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
 	err = MIDIInputPortCreate ( h2MIDIClient, CFSTR( "h2InputPort" ), midiProc, this, &h2InputRef );
+	err = MIDIOutputPortCreate ( h2MIDIClient, CFSTR( "h2OutputPort" ), midiProc, this, &h2OutputRef );
 }
 
 
@@ -143,6 +144,20 @@ void CoreMidiDriver::open()
 		}
 		CFRelease ( H2MidiNames );
 	}
+	
+	int n = MIDIGetNumberOfDestinations();
+	if (n > 0) {
+		cmH2Dst = MIDIGetDestination(0);
+	}
+
+	if (cmH2Dst != NULL) {
+		CFStringRef H2MidiNames;
+		
+		MIDIObjectGetStringProperty(cmH2Dst, kMIDIPropertyName, &H2MidiNames);
+		CFStringGetCString(pname, name, sizeof(name), 0);
+		//MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
+		CFRelease( H2MidiNames );
+	}
 }
 
 
@@ -152,6 +167,8 @@ void CoreMidiDriver::close()
 	OSStatus err = noErr;
 	err = MIDIPortDisconnectSource( h2InputRef, cmH2Src );
 	err = MIDIPortDispose( h2InputRef );
+	//err = MIDIPortDisconnectSource( h2OutputRef, cmH2Dst );
+	err = MIDIPortDispose( h2OutputRef );
 	err = MIDIClientDispose( h2MIDIClient );
 }
 
@@ -185,7 +202,103 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 		}
 		CFRelease( H2MidiNames );
 	}
+		
 	return cmPortList;
+}
+
+void CoreMidiDriver::handleQueueNote(Note* pNote)
+{	
+	if (cmH2Dst == NULL ) {
+		ERRORLOG( "cmH2Dst = NULL " );
+		return;
+	}
+
+	int channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+
+	int key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key + pNote->get_instrument()->get_midi_out_note() -60;
+	int velocity = pNote->get_velocity() * 127;
+	
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+	
+	packetList.packet.timeStamp = 0;
+	packetList.packet.length = 3;
+	packetList.packet.data[0] = 0x80 | channel;
+	packetList.packet.data[1] = key;
+	packetList.packet.data[2] = velocity;
+	
+	
+	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+	
+	packetList.packet.data[0] = 0x90 | channel;
+	packetList.packet.data[1] = key;
+	packetList.packet.data[2] = velocity;
+	
+	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+}
+
+void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
+{	
+	if (cmH2Dst == NULL ) {
+		ERRORLOG( "cmH2Dst = NULL " );
+		return;
+	}
+
+//	int channel = pNote->get_instrument()->get_midi_out_channel();
+	if (channel < 0) {
+		return;
+	}
+		
+//	int key = pNote->get_instrument()->get_midi_out_note();
+//	int velocity = pNote->get_velocity() * 127;
+	
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+	
+	packetList.packet.timeStamp = 0;
+	packetList.packet.length = 3;
+	packetList.packet.data[0] = 0x80 | channel;
+	packetList.packet.data[1] = key;
+	packetList.packet.data[2] = velocity;
+	
+	
+	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+}
+
+void CoreMidiDriver::handleQueueAllNoteOff()
+{
+	if (cmH2Dst == NULL ) {
+		ERRORLOG( "cmH2Dst = NULL " );
+		return;
+	}
+	
+	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+		
+	unsigned int numInstruments = instList->get_size();
+	for (int index = 0; index < numInstruments; ++index) {
+		Instrument *curInst = instList->get(index);
+	
+		int channel = curInst->get_midi_out_channel();
+		if (channel < 0) {
+			continue;
+		}
+		int key = curInst->get_midi_out_note();
+	
+		MIDIPacketList packetList;
+		packetList.numPackets = 1;
+	
+		packetList.packet.timeStamp = 0;
+		packetList.packet.length = 3;
+		packetList.packet.data[0] = 0x80 | channel;
+		packetList.packet.data[1] = key;
+		packetList.packet.data[2] = 0;	
+	
+		MIDISend(h2OutputRef, cmH2Dst, &packetList);
+	
+	}
 }
 
 } // namespace H2CORE

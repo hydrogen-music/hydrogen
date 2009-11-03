@@ -32,6 +32,7 @@
 namespace H2Core
 {
 	class Pattern;
+	class NoteKey;
 }
 
 class PatternEditorPanel;
@@ -43,7 +44,8 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 		enum NotePropertiesMode {
 			VELOCITY,
 			PAN,
-			LEADLAG
+			LEADLAG,
+			NOTEKEY
 		};
 
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
@@ -72,6 +74,7 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 		void createVelocityBackground(QPixmap *pixmap);
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);
+		void createNoteKeyBackground(QPixmap *pixmap);
 		void paintEvent(QPaintEvent *ev);
 		void mousePressEvent(QMouseEvent *ev);
 		void mouseMoveEvent(QMouseEvent *ev);

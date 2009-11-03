@@ -40,7 +40,7 @@
 #include "../PatternEditor/DrumPatternEditor.h"
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h"
+#include "../InstrumentEditor/InstrumentEditorPanel.h" 
 
 #include <hydrogen/adsr.h>
 #include <hydrogen/audio_engine.h>
@@ -526,6 +526,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	Hydrogen::get_instance()->getSong()->__is_modified = true;
 	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->getName() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
 	InstrumentEditorPanel::get_instance()->updateInstrumentEditor();
 

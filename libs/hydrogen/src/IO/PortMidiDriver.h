@@ -26,15 +26,17 @@
 #ifdef PORTMIDI_SUPPORT
 
 #include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
 #include <portmidi.h>
 
 namespace H2Core
 {
 
-class PortMidiDriver : public MidiInput
+class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
 public:
 	PmStream *m_pMidiIn;
+	PmStream *m_pMidiOut;
 	bool m_bRunning;
 
 	PortMidiDriver();
@@ -43,6 +45,10 @@ public:
 	virtual void open();
 	virtual void close();
 	virtual std::vector<QString> getOutputPortList();
+	
+	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueNoteOff( int channel, int key, int velocity );
+	virtual void handleQueueAllNoteOff();
 
 private:
 

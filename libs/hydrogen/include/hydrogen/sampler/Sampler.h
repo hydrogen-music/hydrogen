@@ -31,7 +31,6 @@
 #include <vector>
 
 
-
 namespace H2Core
 {
 
@@ -60,6 +59,7 @@ public:
 
 	/// Stop playing a note.
 	void note_off( Note *note );
+	void midi_keyboard_note_off( int key );
 
 	void stop_playing_notes( Instrument *instr = NULL );
 
@@ -70,8 +70,12 @@ public:
 	void preview_sample( Sample* sample, int length );
 	void preview_instrument( Instrument* instr );
 
+	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
+	bool is_instrument_playing( Instrument* pInstr );
+
 private:
 	std::vector<Note*> __playing_notes_queue;
+	std::vector<Note*> __queuedNoteOffs;
 
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;

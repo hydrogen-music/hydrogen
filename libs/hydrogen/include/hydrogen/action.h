@@ -54,7 +54,6 @@ class Action : public Object {
 		}
 		
 
-
 	private:
 		QString type;
 		QString parameter1;

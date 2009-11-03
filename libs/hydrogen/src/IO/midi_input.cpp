@@ -27,6 +27,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/note.h>
 #include <hydrogen/action.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/midiMap.h>
 
 namespace H2Core
@@ -152,7 +153,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
-	INFOLOG( "handleNoteOnMessage" );
+//	INFOLOG( "handleNoteOnMessage" );
 
 
 	int nMidiChannelFilter = Preferences::get_instance()->m_nMidiChannelFilter;
@@ -185,16 +186,12 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		return;
 	}
 
-
-
-	
-
 	bool bPatternSelect = false;
 
 	if ( bIsChannelValid ) {
 		if ( bPatternSelect ) {
 			int patternNumber = nNote - 36;
-			INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
+			//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
 
 			pEngine->sequencer_setNextPattern( patternNumber, false, false );
 		} else {
@@ -209,16 +206,17 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				nInstrument = MAX_INSTRUMENTS - 1;
 			}
 
-			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, true );
+			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
 		}
 	}
+	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
 }
 
 
 
 void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 {
-	INFOLOG( "handleNoteOffMessage" );
+//	INFOLOG( "handleNoteOffMessage" );
 	if ( Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
@@ -226,7 +224,11 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 
+	__noteOffTick = pEngine->getTickPosition();
+	unsigned long notelength = computeDeltaNoteOnOfftime();
+
 	int nNote = msg.m_nData1;
+	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to controll release velocity
 	int nInstrument = nNote - 36;
 	if ( nInstrument < 0 ) {
 		nInstrument = 0;
@@ -235,18 +237,46 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 		nInstrument = MAX_INSTRUMENTS - 1;
 	}
 	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
-	const unsigned nPosition = 0;
-	const float fVelocity = 0.0f;
-	const float fPan_L = 0.5f;
-	const float fPan_R = 0.5f;
-	const int nLength = -1;
-	const float fPitch = 0.0f;
-	Note *pNewNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 
-	pEngine->midi_noteOff( pNewNote );
+	float fStep = pow( 1.0594630943593, (nNote -36) );
+	if ( !Preferences::get_instance()->__playselectedinstrument ) 
+		fStep = 1;
+
+	if ( Preferences::get_instance()->__playselectedinstrument ){
+		nInstrument = pEngine->getSelectedInstrumentNumber();
+		pInstr= pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
+	}
+
+	bool use_note_off = AudioEngine::get_instance()->get_sampler()->is_instrument_playing( pInstr );
+	if(use_note_off){
+		if ( Preferences::get_instance()->__playselectedinstrument ){
+			AudioEngine::get_instance()->get_sampler()->midi_keyboard_note_off( msg.m_nData1 );
+		}else
+		{
+			if ( pSong->get_instrument_list()->get_size() < nInstrument +1 )
+				return;
+			Note *offnote = new Note( pInstr,
+						0.0,
+						0.0,
+						0.0,
+						0.0,
+						-1,
+						0 );
+			offnote->set_noteoff( true );
+			AudioEngine::get_instance()->get_sampler()->note_on( offnote );
+		}
+		if(Preferences::get_instance()->getRecordEvents())
+			AudioEngine::get_instance()->get_sampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
+	}
 }
 
 
+unsigned long MidiInput::computeDeltaNoteOnOfftime()
+{
+	unsigned long  __notelengthTicks = __noteOffTick - __noteOnTick;
+	return __notelengthTicks;
+	
+}
 
 void MidiInput::handleSysexMessage( const MidiMessage& msg )
 {

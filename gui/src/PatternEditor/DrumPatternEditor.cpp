@@ -38,6 +38,7 @@
 #include "../Mixer/Mixer.h"
 #include "../Skin.h"
 
+#include <math.h>
 #include <cassert>
 #include <algorithm>
 
@@ -184,7 +185,8 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			const float fPan_R = 0.5f;
 			const int nLength = -1;
 			const float fPitch = 0.0f;
-			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+			pNote->set_noteoff( false );
 			m_pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
 
 			// hear note
@@ -227,7 +229,25 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 					m_pDraggedNote = pNote;
 					break;
 				}
+			}	
+///
+			if ( Preferences::get_instance()->__rightclickedpattereditor ){
+				// create the new note
+				const unsigned nPosition = nColumn;
+				const float fVelocity = 0.0f;
+				const float fPan_L = 0.5f;
+				const float fPan_R = 0.5f;
+				const int nLength = 1;
+				const float fPitch = 0.0f;
+				Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+				poffNote->set_noteoff( true );
+	
+				
+				m_pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
+	
+				pSong->__is_modified = true;
 			}
+///
 		}
 		// potrei essere sulla coda di una nota precedente..
 		for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
@@ -257,6 +277,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	}
 }
 
@@ -285,7 +306,11 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		return;
 	}
 
+	if ( Preferences::get_instance()->__rightclickedpattereditor )
+		return;
+
 	if (m_bRightBtnPressed && m_pDraggedNote ) {
+		if ( m_pDraggedNote->get_noteoff() ) return;
 		int nTickColumn = getColumn( ev );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -294,7 +319,16 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		if (nLen <= 0) {
 			nLen = -1;
 		}
-		m_pDraggedNote->set_length( nLen );
+
+		float fNotePitch = m_pDraggedNote->m_noteKey.m_nOctave * 12 + m_pDraggedNote->m_noteKey.m_key;
+		float fStep = 0;
+		if(nLen > -1){
+			fStep = pow( 1.0594630943593, ( double )fNotePitch );
+		}else
+		{
+			fStep = 1.0; 
+		}
+		m_pDraggedNote->set_length( nLen * fStep);
 
 		Hydrogen::get_instance()->getSong()->__is_modified = true;
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -304,6 +338,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	}
 
 }
@@ -338,7 +373,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 
 	
-
 	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->get_size() ) ) {
 		// the number of instruments is changed...recreate all
 		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();
@@ -348,7 +382,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 		uint y = m_nGridHeight * nInstr;
 		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
-			painter.fillRect( 0, y + 1, (20 + nNotes * m_nGridWidth), m_nGridHeight - 1, selectedRowColor );
+			painter.fillRect( 0, y + 1, ( 20 + nNotes * m_nGridWidth ), m_nGridHeight - 1, selectedRowColor );
 		}
 	}
 
@@ -395,6 +429,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
+	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -416,7 +451,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	p.setPen( noteColor );
 
-	if ( note->get_length() == -1 ) {	// trigger note
+	if ( note->get_length() == -1 && note->get_noteoff() == false ) {	// trigger note
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
 
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
@@ -437,9 +472,36 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
 		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);
 	}
+	else if ( note->get_length() == 1 && note->get_noteoff() == true ){
+		p.setPen( noteoffColor );
+		uint x_pos = 20 + ( pos * m_nGridWidth );// - m_nGridWidth / 2.0;
+
+		uint y_pos = ( nInstrument * m_nGridHeight ) + (m_nGridHeight / 2) - 3;
+	
+		// draw the "dot"
+		p.drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
+		p.drawLine(x_pos, y_pos, x_pos - 3, y_pos + 3);		// B
+		p.drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 3);	// C
+		p.drawLine(x_pos - 3, y_pos + 3, x_pos, y_pos + 6);	// D
+
+		p.drawLine(x_pos, y_pos + 1, x_pos + 2, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 1, x_pos - 2, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 5, x_pos + 2, y_pos + 3);
+		p.drawLine(x_pos - 2, y_pos + 3, x_pos, y_pos + 5);
+
+		p.drawLine(x_pos, y_pos + 2, x_pos + 1, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 2, x_pos - 1, y_pos + 3);
+		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
+		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);	
+
+
+	}		
 	else {
+		float fNotePitch = note->m_noteKey.m_nOctave * 12 + note->m_noteKey.m_key;
+		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+
 		uint x = 20 + (pos * m_nGridWidth);
-		int w = m_nGridWidth * note->get_length();
+		int w = m_nGridWidth * note->get_length() / fStep;
 		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
@@ -639,8 +701,10 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	/// \todo [DrumPatternEditor::setResolution] aggiornare la risoluzione del Ruler in alto."
 }
+
 
 
 void DrumPatternEditor::zoom_in()
@@ -669,7 +733,6 @@ void DrumPatternEditor::zoom_out()
 	}
 }
 
-
 void DrumPatternEditor::selectedInstrumentChangedEvent()
 {
 	update( 0, 0, width(), height() );
@@ -688,11 +751,9 @@ void DrumPatternEditor::patternChangedEvent()
 	updateEditor();
 }
 
+
 void DrumPatternEditor::selectedPatternChangedEvent()
 {
 	//cout << "selected pattern changed EVENT" << endl;
 	updateEditor();
 }
-
-
-

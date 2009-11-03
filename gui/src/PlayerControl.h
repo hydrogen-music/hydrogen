@@ -44,7 +44,7 @@ class PixmapWidget;
 ///
 ///
 ///
-class MetronomeWidget : public QWidget, public Object, public EventListener
+class MetronomeWidget : public QWidget,public EventListener, public Object
 {
 	Q_OBJECT
 	public:
@@ -54,8 +54,10 @@ class MetronomeWidget : public QWidget, public Object, public EventListener
 		virtual void metronomeEvent( int nValue );
 		virtual void paintEvent( QPaintEvent*);
 
+
 	public slots:
 		void updateWidget();
+
 
 	private:
 		enum m_state {
@@ -88,6 +90,8 @@ class PlayerControl : public QLabel, public Object
 		void showScrollMessage( const QString& msg, int msec, bool test );
 
 	private slots:
+		void recBtnClicked(Button* ref);
+		void recBtnRightClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -123,6 +127,8 @@ class PlayerControl : public QLabel, public Object
 		QPixmap m_background;
 
 		Button *m_pRwdBtn;
+		ToggleButton *m_pRecBtn;
+		ToggleButton *m_pRecDelBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;

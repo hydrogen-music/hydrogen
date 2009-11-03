@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SampleEditor_UI</class>
+ <widget class="QDialog" name="SampleEditor_UI">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>861</width>
+    <height>483</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QFrame" name="targetSampleView">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>385</y>
+     <width>841</width>
+     <height>94</height>
+    </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>CrossCursor</cursorShape>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="PlayOrigPushButton">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>350</y>
+     <width>151</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>P&amp;lay original sample</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="PrevChangesPushButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>350</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&amp;Apply Changes</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="ClosePushButton">
+   <property name="geometry">
+    <rect>
+     <x>775</x>
+     <y>295</y>
+     <width>81</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&amp;Close</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>295</y>
+     <width>621</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QSpinBox" name="StartFrameSpinBox">
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Adjust sample start frame</string>
+      </property>
+      <property name="maximum">
+       <number>1000000000</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSpinBox" name="LoopFrameSpinBox">
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Adjust sample loop begin frame</string>
+      </property>
+      <property name="maximum">
+       <number>1000000000</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="ProcessingTypeComboBox">
+      <property name="minimumSize">
+       <size>
+        <width>82</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>set processing</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>forward</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>reverse</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>pingpong</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSpinBox" name="LoopCountSpinBox">
+      <property name="minimumSize">
+       <size>
+        <width>60</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>loops</string>
+      </property>
+      <property name="minimum">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <number>10000</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSpinBox" name="EndFrameSpinBox">
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Adjust sample end &amp; loop end frame</string>
+      </property>
+      <property name="maximum">
+       <number>1000000000</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>10</y>
+     <width>843</width>
+     <height>276</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QFrame" name="mainSampleview">
+      <property name="minimumSize">
+       <size>
+        <width>624</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>624</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="cursor">
+       <cursorShape>SplitHCursor</cursorShape>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="mainSampleAdjustView">
+      <property name="minimumSize">
+       <size>
+        <width>180</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>180</width>
+        <height>265</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSlider" name="verticalzoomSlider">
+      <property name="value">
+       <number>1</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="PlayPushButton">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>350</y>
+     <width>76</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&amp;Play</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="newlengthLabel">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>350</y>
+     <width>236</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>new sample length:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="EditTypeComboBox">
+   <property name="geometry">
+    <rect>
+     <x>722</x>
+     <y>351</y>
+     <width>126</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>60</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="toolTip">
+    <string>fade-out type</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>volume</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>panorama</string>
+    </property>
+   </item>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>StartFrameSpinBox</tabstop>
+  <tabstop>LoopFrameSpinBox</tabstop>
+  <tabstop>ProcessingTypeComboBox</tabstop>
+  <tabstop>LoopCountSpinBox</tabstop>
+  <tabstop>EndFrameSpinBox</tabstop>
+  <tabstop>PrevChangesPushButton</tabstop>
+  <tabstop>PlayOrigPushButton</tabstop>
+  <tabstop>ClosePushButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

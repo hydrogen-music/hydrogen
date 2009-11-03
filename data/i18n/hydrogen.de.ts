@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.0" language="de_DE">
 <defaultcodec></defaultcodec>
 <context>
     <name>AboutDialog</name>
@@ -64,15 +66,15 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;This program is distributed under the terms of the GPL v2.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>       Version 2, June 1991&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		       Version 2, June 1991&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; Copyright (C) 1989, 1991 Free Software Foundation, Inc.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;                          675 Mass Ave, Cambridge, MA 02139, USA&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; Everyone is permitted to copy and distribute verbatim copies&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; of this license document, but changing it is not allowed.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/><byte value="x9"/>    Preamble&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;			    Preamble&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  The licenses for most software are designed to take away your&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;freedom to share and change it.  By contrast, the GNU General Public&lt;/p&gt;
@@ -122,7 +124,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  The precise terms and conditions for copying, distribution and&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;modification follow.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  0. This License applies to any program or other work which contains&lt;/p&gt;
@@ -321,7 +323,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;of preserving the free status of all derivatives of our free software and&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;of promoting the sharing and reuse of software generally.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/><byte value="x9"/>    NO WARRANTY&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;			    NO WARRANTY&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN&lt;/p&gt;
@@ -343,9 +345,9 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;POSSIBILITY OF SUCH DAMAGES.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>     END OF TERMS AND CONDITIONS&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		     END OF TERMS AND CONDITIONS&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/>    How to Apply These Terms to Your New Programs&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;	    How to Apply These Terms to Your New Programs&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  If you develop a new program, and you want it to be of the greatest&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;possible use to the public, the best way to achieve this is to make it&lt;/p&gt;
@@ -602,6 +604,18 @@ p, li { white-space: pre-wrap; }
         <source>&amp;Stop</source>
         <translation type="unfinished">S&amp;topp</translation>
     </message>
+    <message>
+        <source>View hidden folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Be careful, this change all Layer velocity settings </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set automatic velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DownloadWidget</name>
@@ -705,6 +719,10 @@ http://www.hydrogen-music.org
         <source>Sample rate: %1</source>
         <translation>Samplerate: %1</translation>
     </message>
+    <message>
+        <source>Export failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
@@ -761,6 +779,13 @@ http://www.hydrogen-music.org
     <message>
         <source>Master output</source>
         <translation>Master-Ausgang</translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SongEditorPanelBpmWidget</name>
+    <message>
+        <source>BPM</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -861,6 +886,11 @@ Sind sie sicher?
     <message>
         <source>Layers</source>
         <translation>Layer</translation>
+    </message>
+    <message>
+        <source>Stop the current playing instrument-note before trigger the next note sample.
+ This will save dsp-load and sounds better for cymbals.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1115,15 +1145,6 @@ p, li { white-space: pre-wrap; }
         <translation>Hydrogen ist bereit.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation>
-Das Dokument wurde geändert
-Änderungen vor Beenden speichern?</translation>
-    </message>
-    <message>
         <source>Hydrogen Song (*.h2song)</source>
         <translation>Hydrogen-Song (*.h2song)</translation>
     </message>
@@ -1248,16 +1269,6 @@ Das Dokument wurde geändert
         <translation>&amp;Info</translation>
     </message>
     <message>
-        <source>
-The song has unsaved changes
- Do you want to save the changes before exiting?
-</source>
-        <translation>
-Diese Komposition hat ungesicherte Änderungen.
-Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
-</translation>
-    </message>
-    <message>
         <source>Song saved.</source>
         <translation>Komposition gespeichert.</translation>
     </message>
@@ -1352,7 +1363,7 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source></source>
         <comment>Info|About</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Song saved as.</source>
@@ -1360,6 +1371,17 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The document contains unsaved changes.
+Do you want to save the changes?
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1407,6 +1429,10 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source>Action</source>
         <translation>Aktion</translation>
+    </message>
+    <message>
+        <source>press button to record midi event</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1490,20 +1516,8 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <translation>Patterneditor - %1</translation>
     </message>
     <message>
-        <source>Record keyboard/midi events</source>
-        <translation>Tastatur/Midi aufnehmen</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Tastatur/Midi ins Raster quantisieren</translation>
-    </message>
-    <message>
-        <source>Record keyboard/midi events = On</source>
-        <translation>&apos;Tastatur/Midi aufnehmen&apos; ist aktiviert</translation>
-    </message>
-    <message>
-        <source>Record keyboard/midi events = Off</source>
-        <translation>&apos;Tastatur/Midi aufnehmen&apos; ist deaktiviert</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
@@ -1563,6 +1577,42 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
+        <translation type="unfinished">Geladene Klangbibliothek</translation>
+    </message>
+    <message>
+        <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
+        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge spielen die geladene Klangbibliothek im Grund-Ton oder das ausgewählte Instrument mit Tonhöhen-Veränderung</translation>
+    </message>
+    <message>
+        <source>Right click into pattern editor add note-off-note or edit note-length</source>
+        <translation type="unfinished">Rechtsklick im  Pattern-Editor erzeugt eine Aus-Note oder editiert die Noten länge </translation>
+    </message>
+    <message>
+        <source>NoteKey</source>
+        <translation type="unfinished">Note</translation>
+    </message>
+    <message>
+        <source>destructive mode pre delete settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>destructive mode post delete settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Piano</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show piano roll editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show drum editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1617,6 +1667,14 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
     <message>
         <source>Pattern properties</source>
         <translation>Patterneigenschaften</translation>
+    </message>
+    <message>
+        <source>%1#2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1785,6 +1843,30 @@ Möchten sie die Änderungen speichern bevor sie das Programm verlassen?
         <source> Jack-Time-Master mode = Off</source>
         <translation>Jack Time Master Betrieb = aus</translation>
     </message>
+    <message>
+        <source>Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive mode = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive mode = On</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog</name>
@@ -1885,20 +1967,16 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Playlist: Set song No. %1</source>
         <translation>Wiedergabeliste: Song %1</translation>
     </message>
+    <message>
+        <source>Pleas save your song first</source>
+        <translation type="unfinished">Bitte den Song erst speichern</translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Wiedergabeliste </translation>
-    </message>
-    <message>
-        <source>Add song to playlist</source>
-        <translation>Titel hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove song from playlist</source>
-        <translation>Titel aus Liste entfernen</translation>
     </message>
     <message>
         <source>Load script</source>
@@ -1939,6 +2017,22 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>New Script</source>
         <translation>Neues Skript</translation>
+    </message>
+    <message>
+        <source>Add current song</source>
+        <translation type="unfinished">Aktuellen Song hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add song</source>
+        <translation type="unfinished">Song hinzufügen</translation>
+    </message>
+    <message>
+        <source>Remove song</source>
+        <translation type="unfinished">Entferne Song</translation>
+    </message>
+    <message>
+        <source>Save list as</source>
+        <translation type="unfinished">Speichere Liste als</translation>
     </message>
 </context>
 <context>
@@ -2227,10 +2321,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Spur Ausgang</translation>
     </message>
     <message>
-        <source>Track Outputs</source>
-        <translation type="unfinished">Spur Ausgänge</translation>
-    </message>
-    <message>
         <source>Use lash</source>
         <translation>Lash benutzen</translation>
     </message>
@@ -2251,8 +2341,102 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished">Takt-Zähler-Startverzögerung in ms           </translation>
     </message>
     <message>
-        <source>Enable timing offset (workaround for Ardour bug)</source>
-        <translation type="unfinished">Aktiviere Zeitverzögerung (behebt den Jack-Transport-Bug von Ardour)</translation>
+        <source>create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SampleEditor</name>
+    <message>
+        <source>Unsaved changes left. This changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished">Es sind noch nicht gespeicherte änderungen vorhanden. Diese Änderungen werden verloren gehen.
+Sind sie sicher? </translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished">&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Abbrechen</translation>
+    </message>
+    <message>
+        <source>Close dialog! maybe there is some unsaved work on sample.
+Are you sure?</source>
+        <translation type="unfinished">Schließe Fenster. Möglicherweise sind noch ungespeicherte änderungen an diesen Sampel.
+Sind sie sicher?</translation>
+    </message>
+</context>
+<context>
+    <name>SampleEditor_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>P&amp;lay original sample</source>
+        <translation type="unfinished">Spie&amp;le Original</translation>
+    </message>
+    <message>
+        <source>&amp;Apply Changes</source>
+        <translation type="unfinished">&amp;Anwenden</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Schließen</translation>
+    </message>
+    <message>
+        <source>Adjust sample start frame</source>
+        <translation type="unfinished">Justiere Sampel-Start</translation>
+    </message>
+    <message>
+        <source>Adjust sample loop begin frame</source>
+        <translation type="unfinished">Justieren den Sampel Loop-Anfang</translation>
+    </message>
+    <message>
+        <source>set processing</source>
+        <translation type="unfinished">Sampleverarbeitung einstellen</translation>
+    </message>
+    <message>
+        <source>forward</source>
+        <translation type="unfinished">vörwärts</translation>
+    </message>
+    <message>
+        <source>reverse</source>
+        <translation type="unfinished">rückwärts</translation>
+    </message>
+    <message>
+        <source>pingpong</source>
+        <translation type="unfinished">hin und her</translation>
+    </message>
+    <message>
+        <source>loops</source>
+        <translation type="unfinished">Wiederholungen</translation>
+    </message>
+    <message>
+        <source>Adjust sample end &amp; loop end frame</source>
+        <translation type="unfinished">Justiere Sampel ende &amp; Wiederholungs-Ende</translation>
+    </message>
+    <message>
+        <source>&amp;Play</source>
+        <translation type="unfinished">S&amp;piele</translation>
+    </message>
+    <message>
+        <source>new sample length:</source>
+        <translation type="unfinished">Neue Sempellänge:</translation>
+    </message>
+    <message>
+        <source>fade-out type</source>
+        <translation type="unfinished">Art der Ausblendung</translation>
+    </message>
+    <message>
+        <source>volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>panorama</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2323,10 +2507,6 @@ Fortsetzen?</translation>
         <translation>&amp;Abbrechen</translation>
     </message>
     <message>
-        <source>Pattern</source>
-        <translation>Pattern</translation>
-    </message>
-    <message>
         <source>stacked mode</source>
         <translation type="unfinished">
 </translation>
@@ -2342,6 +2522,61 @@ Fortsetzen?</translation>
     <message>
         <source>not_categorized</source>
         <translation>nicht_kategorisiert</translation>
+    </message>
+    <message>
+        <source>Enable time line edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SongEditorPanelBpmWidget_UI</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit the bpm value for current beat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>500,55</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit beat in timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete this BPM Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete BPM Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
     </message>
 </context>
 <context>
@@ -2386,6 +2621,18 @@ Fortsetzen?</translation>
         <source>Error saving pattern!
 The pattern-file exists.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virtual Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation type="unfinished">nicht_kategorisiert</translation>
     </message>
 </context>
 <context>
@@ -2710,6 +2957,10 @@ Are you sure?</source>
         <source>Save Sound Library</source>
         <translation>Soundbibliothek speichern</translation>
     </message>
+    <message>
+        <source>Please supply at least a valid name</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
@@ -2747,6 +2998,28 @@ Are you sure?</source>
     <message>
         <source>Sound library</source>
         <translation>Soundbibliothek</translation>
+    </message>
+</context>
+<context>
+    <name>VirtualPatternDialog</name>
+    <message>
+        <source>Select virtual pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VirtualPatternDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
     </message>
 </context>
 </TS>

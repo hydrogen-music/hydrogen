@@ -59,6 +59,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	vbox->addWidget( m_pInstrumentEditor, 0, 0 );
 
 	this->setLayout( vbox );
+	m_player = 0;
 }
 
 
@@ -77,6 +78,9 @@ void InstrumentEditorPanel::updateInstrumentEditor()
 void InstrumentEditorPanel::selectLayer( int nLayer )
 {
 	m_pInstrumentEditor->selectLayer( nLayer );
+	m_player = nLayer;
 }
+
+
 
 

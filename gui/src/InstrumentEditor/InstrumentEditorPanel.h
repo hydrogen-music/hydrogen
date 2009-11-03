@@ -39,11 +39,18 @@ class InstrumentEditorPanel : public QWidget, private Object
 
 		void updateInstrumentEditor();
 		void selectLayer( int nLayer );
+		
+		int getselectedLayer() {
+			return m_player;
+		}
+
 	private:
 		static InstrumentEditorPanel* m_pInstance;
 		InstrumentEditor* m_pInstrumentEditor;
 
 		InstrumentEditorPanel( QWidget *pParent );
+		int m_player;
+		
 };
 
 #endif

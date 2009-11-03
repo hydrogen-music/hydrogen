@@ -137,7 +137,9 @@ Action* MidiMap::getNoteAction( int note )
 	return __note_array[ note ];
 }
 
-Action * MidiMap::getCCAction( int parameter ){
+Action * MidiMap::getCCAction( int parameter )
+{
 	QMutexLocker mx(&__mutex);
 	return __cc_array[ parameter ];
 }
+
