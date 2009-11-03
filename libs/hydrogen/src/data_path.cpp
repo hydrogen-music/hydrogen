@@ -60,7 +60,7 @@ QString DataPath::get_data_path()
 
 #else
 	if ( __data_path.isEmpty() ) {
-		QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
+                QString qStringPath = QString ( "./data" ) ;
 		__data_path = qStringPath;
 
 		QFile file( __data_path );
