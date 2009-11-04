@@ -58,7 +58,7 @@ def get_platform_flags( opts ):
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
 			for flag in env["optflags"].split(" "):
 				cppflags.append(flag)
-
+		
 		if str(env['oss']) == "1": cppflags.append('-DOSS_SUPPORT')
 		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
 		if str(env['jack']) == "1": cppflags.append('-DJACK_SUPPORT')
@@ -78,7 +78,7 @@ def get_platform_flags( opts ):
 		cppflags.append('-DLADSPA_SUPPORT')
 		
 
-
+	if str(env['gui']) == "0": cppflags.append('-DNO_GUI_SUPPORT')
 	if str(env['libarchive']) == "1": cppflags.append('-DLIBARCHIVE_SUPPORT')
 
 	includes.append( './' )
@@ -231,8 +231,11 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 
 	env = Environment(options = opts , tools=['default','qt4'], toolpath=[qt4ToolLocation], ENV=os.environ, CPPPATH = includes, CPPFLAGS = cppflags, CCFLAGS = "", LINKFLAGS=ldflags )
 	
-	env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
-	#
+	if str(env['gui']) == "1":
+	    env.EnableQt4Modules( ['QtCore', 'QtGui','QtNetwork','QtXml'], debug=False)
+	else:
+	    env.EnableQt4Modules( ['QtCore','QtNetwork','QtXml'], debug=False)
+
 	env.CacheDir( "scons_cache" )
 	
 	#env.Decider is not known in older scons version
