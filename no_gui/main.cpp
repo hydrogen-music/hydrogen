@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
                                 *cp++ = ':';  // gets another one
                 }
 
-                //QApplication* pQApp = new QApplication(argc, argv);
 
                 // Deal with the options
                 QString songFilename;
@@ -200,8 +199,6 @@ int main(int argc, char *argv[])
                 }
         }
 #endif
-
-                // Hydrogen here to honor all preferences.
                 H2Core::Hydrogen::create_instance();
 
 
@@ -210,7 +207,6 @@ int main(int argc, char *argv[])
                 if ( !songFilename.isEmpty() ) {
                         song = H2Core::Song::load( songFilename );
                         if (song == NULL) {
-                                //QMessageBox::warning( this, "Hydrogen", trUtf8("Error loading song.") );
                                 song = H2Core::Song::get_empty_song();
                                 song->set_filename( "" );
                         }
@@ -237,14 +233,11 @@ int main(int argc, char *argv[])
                 H2Core::Hydrogen::get_instance()->setSong( song );
                 H2Core::Preferences::get_instance()->setLastSongFilename(  songFilename);
 
-
-                //pQApp->exec();
                 while( true ){
 
                 }
 
 
-               // delete pQApp;
                 delete pPref;
                 delete H2Core::EventQueue::get_instance();
                 delete H2Core::AudioEngine::get_instance();
@@ -262,7 +255,6 @@ int main(int argc, char *argv[])
                         Object::print_object_map();
                 }
 
-                //	pQApp->dumpObjectTree();
 
         }
         catch ( const H2Core::H2Exception& ex ) {
