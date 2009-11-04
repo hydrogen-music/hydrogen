@@ -94,7 +94,9 @@ void Playlist::setNextSongByNumber(int SongNumber)
 	loadSong( selected );
 	execScript( realNumber );
 
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	#ifndef NO_GUI_SUPPORT
+        	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	#endif
 }
 
 
@@ -124,8 +126,10 @@ void Playlist::setNextSongPlaylist()
 
 	loadSong( selected );
 	execScript( index );
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	
+	#ifndef NO_GUI_SUPPORT
+        	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	#endif
 }
 
 
@@ -157,7 +161,9 @@ void Playlist::setPrevSongPlaylist()
 	loadSong( selected );
 	execScript( index );
 
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	#ifndef NO_GUI_SUPPORT
+        	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	#endif
 }
 
 
@@ -192,8 +198,8 @@ int Playlist::getActiveSongNumber()
 
 void Playlist::loadSong( QString songName )
 {
-
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	#ifndef NO_GUI_SUPPORT
+        HydrogenApp *pH2App = HydrogenApp::get_instance();
 	Hydrogen *engine = Hydrogen::get_instance();
 	
 
@@ -208,7 +214,8 @@ void Playlist::loadSong( QString songName )
 	}
 
 	pH2App->setSong ( pSong );
-	engine->setSelectedPatternNumber ( 0 );
+        engine->setSelectedPatternNumber ( 0 );
+	#endif
 }
 
 
