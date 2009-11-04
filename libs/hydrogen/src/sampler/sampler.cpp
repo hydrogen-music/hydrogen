@@ -186,13 +186,13 @@ void Sampler::note_on( Note *note )
 	pInstr->enqueue();
 	if( !note->get_noteoff() ){
 		__playing_notes_queue.push_back( note );
-	}else
-	{
+	} else {
 		delete note;
 	}
 	
-	if( Hydrogen::get_instance()->getMidiOutput() != NULL )
+	if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
 		Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( note );
+	}
 	
 }
 
