@@ -118,6 +118,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 
 		// ~Editor top
 
+		//
+		LCDCombo * __pPropertiesCombo;
 
 		// drum editor
 		QScrollArea* m_pEditorScrollView;
@@ -170,8 +172,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public Object
 		Button *resDropdownBtn;
 
 
-
-
+		QComboBox* __rightclickSelection;
+ 
 		bool m_bEnablePatternResize;
 
 

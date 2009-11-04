@@ -474,6 +474,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 	if ( m_pPattern == NULL ) {
 		return;
 	}
+
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	int row = ((int) ev->y()) / ((int) m_nEditorHeight);
@@ -607,6 +608,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 	else if (ev->button() == Qt::RightButton ) {
 		m_bRightBtnPressed = true;
 		m_pDraggedNote = NULL;
+		m_pOldPoint = ev->y();
 
 		unsigned nRealColumn = 0;
 		if( ev->x() > 20 ) {
@@ -636,7 +638,14 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 				}
 			}	
 ///
-			if ( Preferences::get_instance()->__rightclickedpattereditor ){
+		//	__rightclickedpattereditor
+		//	0 = note length
+		//	1 = note off"
+		//	2 = edit velocity
+		//	3 = edit pan
+		//	4 = edit lead lag
+
+			if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
 				// create the new note
 				const unsigned nPosition = nColumn;
 				const float fVelocity = 0.0f;
@@ -707,20 +716,6 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 }
 
 
-void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
-{
-
-		switch (ev->key()) {
-			case  Qt::Key_0 :
-				INFOLOG("Key_0");
-				break;
-		}
- 
-
-
-}
-
-
 void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 {
 	if (m_pPattern == NULL) {
@@ -732,10 +727,14 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if ( Preferences::get_instance()->__rightclickedpattereditor )
-		return;
+	//	__rightclickedpattereditor
+	//	0 = note length
+	//	1 = note off"
+	//	2 = edit velocity
+	//	3 = edit pan
+	//	4 = edit lead lag
 
-	if (m_bRightBtnPressed && m_pDraggedNote ) {
+	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
 		if ( m_pDraggedNote->get_noteoff() ) return;
 		int nTickColumn = getColumn( ev );
 
@@ -765,6 +764,119 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	}
+
+	//edit velocity
+	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 2 ) ) {
+		if ( m_pDraggedNote->get_noteoff() ) return;
+
+		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+		float val = m_pDraggedNote->get_velocity();
+
+		
+		float ymove = m_pOldPoint - ev->y();
+		val = val  +  (ymove / 100);
+		if (val > 1) {
+			val = 1;
+		}
+		else if (val < 0.0) {
+			val = 0.0;
+		}
+
+		m_pDraggedNote->set_velocity( val );
+
+		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		AudioEngine::get_instance()->unlock(); // unlock the audio engine
+
+		//__draw_pattern();
+		updateEditor();
+		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+		m_pPatternEditorPanel->getPanEditor()->updateEditor();
+		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pOldPoint = ev->y();
+	}
+
+	//edit pan
+	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 3 ) ) {
+		if ( m_pDraggedNote->get_noteoff() ) return;
+
+		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+		float pan_L, pan_R;
+		
+		float val = (m_pDraggedNote->get_pan_r() - m_pDraggedNote->get_pan_l() + 0.5);
+	
+		float ymove = m_pOldPoint - ev->y();
+		val = val  +  (ymove / 100);
+
+
+		if ( val > 0.5 ) {
+			pan_L = 1.0 - val;
+			pan_R = 0.5;
+		}
+		else {
+			pan_L = 0.5;
+			pan_R = val;
+		}
+
+		m_pDraggedNote->set_pan_l( pan_L );
+		m_pDraggedNote->set_pan_r( pan_R );
+
+		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		AudioEngine::get_instance()->unlock(); // unlock the audio engine
+
+		//__draw_pattern();
+		updateEditor();
+		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+		m_pPatternEditorPanel->getPanEditor()->updateEditor();
+		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pOldPoint = ev->y();
+	}
+
+	//edit lead lag
+	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 4 ) ) {
+		if ( m_pDraggedNote->get_noteoff() ) return;
+
+		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+		
+		float val = ( m_pDraggedNote->get_leadlag() - 1.0 ) / -2.0 ;
+	
+		float ymove = m_pOldPoint - ev->y();
+		val = val  +  (ymove / 100);
+
+		if (val > 1.0) {
+			val = 1.0;
+		}
+		else if (val < 0.0) {
+			val = 0.0;
+		}
+
+		m_pDraggedNote->set_leadlag((val * -2.0) + 1.0);
+		char valueChar[100];
+		if ( m_pDraggedNote->get_leadlag() < 0.0 ) {
+			sprintf( valueChar, "%.2f",  ( m_pDraggedNote->get_leadlag() * -5 ) ); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+			HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+		} else if ( m_pDraggedNote->get_leadlag() > 0.0 ) {
+			sprintf( valueChar, "%.2f",  ( m_pDraggedNote->get_leadlag() * 5 ) ); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+			HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+		} else {
+			HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+		}
+
+		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		AudioEngine::get_instance()->unlock(); // unlock the audio engine
+
+		//__draw_pattern();
+		updateEditor();
+		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+		m_pPatternEditorPanel->getPanEditor()->updateEditor();
+		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pOldPoint = ev->y();
 	}
 
 }

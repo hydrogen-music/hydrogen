@@ -229,9 +229,17 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 					m_pDraggedNote = pNote;
 					break;
 				}
-			}	
+			}
+
 ///
-			if ( Preferences::get_instance()->__rightclickedpattereditor ){
+		//	__rightclickedpattereditor
+		//	0 = note length
+		//	1 = note off"
+		//	2 = edit velocity
+		//	3 = edit pan
+		//	4 = edit lead lag
+
+			if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
 				// create the new note
 				const unsigned nPosition = nColumn;
 				const float fVelocity = 0.0f;
@@ -306,10 +314,14 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if ( Preferences::get_instance()->__rightclickedpattereditor )
-		return;
+	//	__rightclickedpattereditor
+	//	0 = note length
+	//	1 = note off"
+	//	2 = edit velocity
+	//	3 = edit pan
+	//	4 = edit lead lag
 
-	if (m_bRightBtnPressed && m_pDraggedNote ) {
+	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
 		if ( m_pDraggedNote->get_noteoff() ) return;
 		int nTickColumn = getColumn( ev );
 
@@ -451,48 +463,31 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	p.setPen( noteColor );
 
+	int red = (int) (note->get_velocity() * 255);
+	int green;
+	int blue;
+	blue = (255 - (int) red)* .33;
+	green =  (255 - (int) red);
+
+	uint w = 8;
+	uint h =  m_nGridHeight / 3;
+
 	if ( note->get_length() == -1 && note->get_noteoff() == false ) {	// trigger note
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
-
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+		p.setBrush(QColor( red,green,blue ));
+		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
-		// draw the "dot"
-		p.drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
-		p.drawLine(x_pos, y_pos, x_pos - 3, y_pos + 3);		// B
-		p.drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 3);	// C
-		p.drawLine(x_pos - 3, y_pos + 3, x_pos, y_pos + 6);	// D
 
-		p.drawLine(x_pos, y_pos + 1, x_pos + 2, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 1, x_pos - 2, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 5, x_pos + 2, y_pos + 3);
-		p.drawLine(x_pos - 2, y_pos + 3, x_pos, y_pos + 5);
-
-		p.drawLine(x_pos, y_pos + 2, x_pos + 1, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 2, x_pos - 1, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
-		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);
 	}
 	else if ( note->get_length() == 1 && note->get_noteoff() == true ){
 		p.setPen( noteoffColor );
 		uint x_pos = 20 + ( pos * m_nGridWidth );// - m_nGridWidth / 2.0;
 
 		uint y_pos = ( nInstrument * m_nGridHeight ) + (m_nGridHeight / 2) - 3;
-	
-		// draw the "dot"
-		p.drawLine(x_pos, y_pos, x_pos + 3, y_pos + 3);		// A
-		p.drawLine(x_pos, y_pos, x_pos - 3, y_pos + 3);		// B
-		p.drawLine(x_pos, y_pos + 6, x_pos + 3, y_pos + 3);	// C
-		p.drawLine(x_pos - 3, y_pos + 3, x_pos, y_pos + 6);	// D
+		p.setBrush(QColor( noteoffColor));
+		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
-		p.drawLine(x_pos, y_pos + 1, x_pos + 2, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 1, x_pos - 2, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 5, x_pos + 2, y_pos + 3);
-		p.drawLine(x_pos - 2, y_pos + 3, x_pos, y_pos + 5);
-
-		p.drawLine(x_pos, y_pos + 2, x_pos + 1, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 2, x_pos - 1, y_pos + 3);
-		p.drawLine(x_pos, y_pos + 4, x_pos + 1, y_pos + 3);
-		p.drawLine(x_pos - 1, y_pos + 3, x_pos, y_pos + 4);	
 
 
 	}		
@@ -506,8 +501,8 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
 		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
-
-		p.fillRect( x, y + 1, w, h + 1, QColor(100, 100, 200) );	/// \todo: definire questo colore nelle preferenze
+		p.setBrush(QColor( red,green,blue ));
+		p.fillRect( x, y + 1, w, h + 1, QColor( red,green,blue ) );	/// \todo: definire questo colore nelle preferenze
 		p.drawRect( x, y + 1, w, h + 1 );
 	}
 }

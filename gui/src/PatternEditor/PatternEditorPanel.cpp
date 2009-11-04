@@ -225,15 +225,15 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget( selInstrument );
 	connect( selInstrument, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( playselectedinstrument(QString) ) );
 
-	QComboBox *rightclickSelection = new QComboBox( NULL );
-	rightclickSelection->setFixedSize( 100, 20 );
-	rightclickSelection->move( 2, 1 );
-	rightclickSelection->addItem ( QString( "note length" ));
-	rightclickSelection->addItem ( QString( "note off" ));
-	rightclickSelection->update();
-	rightclickSelection->setToolTip( trUtf8( "Right click into pattern editor add note-off-note or edit note-length" ) );
-	editor_top_hbox_2->addWidget( rightclickSelection );
-	connect( rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
+	__rightclickSelection = new QComboBox( NULL );
+	__rightclickSelection->setFixedSize( 100, 20 );
+	__rightclickSelection->move( 2, 1 );
+	__rightclickSelection->addItem ( QString( "note length" ));
+	__rightclickSelection->addItem ( QString( "note off" ));
+	__rightclickSelection->update();
+	__rightclickSelection->setToolTip( trUtf8( "Right click into pattern editor add note-off-note or edit note-length, velocity or pan" ) );
+	editor_top_hbox_2->addWidget( __rightclickSelection );
+	connect( __rightclickSelection, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( rightclickSelect(QString) ) );
 
 //---------------------------experimental pianoroll--------------------------------------
 // show drum editor btn
@@ -453,17 +453,16 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	LCDCombo* pPropertiesCombo = new LCDCombo( NULL, 20);
-	pPropertiesCombo->setToolTip(trUtf8("Select note properties"));
-	pPropertiesCombo->addItem( trUtf8("Velocity") );
-	pPropertiesCombo->addItem( trUtf8("Pan") );
-	pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
-	pPropertiesCombo->addItem( trUtf8("NoteKey") );
-	pPropertiesCombo->update();
-	connect( pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
+	__pPropertiesCombo = new LCDCombo( NULL, 20);
+	__pPropertiesCombo->setToolTip(trUtf8("Select note properties"));
+	__pPropertiesCombo->addItem( trUtf8("Velocity") );
+	__pPropertiesCombo->addItem( trUtf8("Pan") );
+	__pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
+	__pPropertiesCombo->addItem( trUtf8("NoteKey") );
+	__pPropertiesCombo->update();
+	connect( __pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
 
-	pPropertiesVBox->addWidget( pPropertiesCombo );
-
+	pPropertiesVBox->addWidget( __pPropertiesCombo );
 
 //~ NOTE_PROPERTIES BUTTONS
 
@@ -582,7 +581,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	selectedPatternChangedEvent(); // force an update
 
-	pPropertiesCombo->set_text( trUtf8("Velocity"));
+	__pPropertiesCombo->set_text( trUtf8("Velocity"));
 }
 
 
@@ -814,6 +813,10 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 	
 		// force a re-sync of extern scrollbars
 		resizeEvent( NULL );
+		//
+		__rightclickSelection->clear();
+		__rightclickSelection->addItem ( QString( "note length" ));
+		__rightclickSelection->addItem ( QString( "note off" ));
 	}
 	else
 	{
@@ -824,10 +827,16 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pEditorScrollView->show();
 		m_pInstrListScrollView->show();
 	
-		m_pPianoRollEditor->updateEditor(); // force an update
-	
+		m_pPianoRollEditor->updateEditor(); // force an update	
 		// force a re-sync of extern scrollbars
-		resizeEvent( NULL );	
+		resizeEvent( NULL );
+
+		__rightclickSelection->clear();
+		__rightclickSelection->addItem ( QString( "note length" ));
+		__rightclickSelection->addItem ( QString( "note off" ));
+		__rightclickSelection->addItem ( QString( "edit velocity" ));
+		__rightclickSelection->addItem ( QString( "edit pan" ));
+		__rightclickSelection->addItem ( QString( "edit lead lag" ));
 	}
 }
 
@@ -1041,11 +1050,33 @@ void PatternEditorPanel::playselectedinstrument( QString text )
 
 void PatternEditorPanel::rightclickSelect( QString text )
 {
+//	__rightclickedpattereditor
+//	0 = note length
+//	1 = note off"
+//	2 = edit velocity
+//	3 = edit pan
+//	4 = edit lead lag
+
 	if ( text == "note length" ){
-		Preferences::get_instance()->__rightclickedpattereditor = false;
-	}else
-	{
-		Preferences::get_instance()->__rightclickedpattereditor = true;
+		Preferences::get_instance()->__rightclickedpattereditor = 0;
+	}
+	else if ( text == "note off" ) {
+		Preferences::get_instance()->__rightclickedpattereditor = 1;
+	}
+	else if ( text == "edit velocity" ) {
+		Preferences::get_instance()->__rightclickedpattereditor = 2;
+//		propertiesComboChanged( "Velocity" );
+		__pPropertiesCombo->set_text("Velocity");
+	}
+	else if ( text == "edit pan" ) {
+		Preferences::get_instance()->__rightclickedpattereditor = 3;
+//		propertiesComboChanged( "Pan" );
+		__pPropertiesCombo->set_text("Pan");
+	}
+	else if ( text == "edit lead lag" ) {
+		Preferences::get_instance()->__rightclickedpattereditor = 4;
+//		propertiesComboChanged( "Lead and Lag" );
+		__pPropertiesCombo->set_text( "Lead and Lag" );
 	}
 
 }

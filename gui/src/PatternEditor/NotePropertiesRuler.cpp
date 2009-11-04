@@ -83,7 +83,6 @@ NotePropertiesRuler::~NotePropertiesRuler()
 }
 
 
-
 void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 {
 //	infoLog( "mousePressEvent()" );
@@ -243,6 +242,7 @@ void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 		break;
 	}
 		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+		pPatternEditor->updateEditor();
 }
 
 void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
@@ -492,37 +492,41 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 	if (m_pPattern != NULL) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
+
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
-			assert( pNote );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-				continue;
+			Note *pposNote = pos->second;
+			assert( pposNote );
+			uint pos = pposNote->get_position();
+
+			std::multimap <int, Note*>::iterator copos;
+			int xoffset = 0;
+			for ( copos = m_pPattern->note_map.lower_bound( pos ); copos != m_pPattern->note_map.upper_bound( pos ); ++copos ) {
+				Note *pNote = copos->second;
+				assert( pNote );
+				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+					continue;
+				}
+
+				uint x_pos = 20 + pos * m_nGridWidth;
+	
+				uint line_end = height();
+	
+				uint velocity = (uint)(pNote->get_velocity() * height());
+				uint line_start = line_end - velocity;
+			
+				int red = (int) (pNote->get_velocity() * 255);
+				int green;
+				int blue;
+				blue = (255 - (int) red)* .33;
+				green =  (255 - (int) red);
+	
+				QColor centerColor( red , green , blue );
+	
+				int nLineWidth = 3;
+				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
+				xoffset++;
 			}
-
-			uint pos = pNote->get_position();
-			uint x_pos = 20 + pos * m_nGridWidth;
-
-			uint line_end = height();
-
-			uint velocity = (uint)(pNote->get_velocity() * height());
-			uint line_start = line_end - velocity;
-
-			QColor sideColor(
-				(int)( valueColor.getRed() * ( 1 - pNote->get_velocity() ) ),
-				(int)( valueColor.getGreen() * ( 1 - pNote->get_velocity() ) ),
-				(int)( valueColor.getBlue() * ( 1 - pNote->get_velocity() ) )
-			);
-			p.fillRect( (int)( x_pos - m_nGridWidth / 2.0 ) + 1, line_start, m_nGridWidth, line_end - line_start, sideColor );
-
-			QColor centerColor(
-				(int)( valueColor.getRed() * ( 1 - pNote->get_velocity() ) ),
-				(int)( valueColor.getGreen() * ( 1 - pNote->get_velocity() ) ),
-				(int)( valueColor.getBlue() * ( 1 - pNote->get_velocity() ) )
-			);
-			int nLineWidth = (int)( m_nGridWidth / 2.0 );
-			int nSpace = (int)( ( m_nGridWidth -nLineWidth ) / 2.0 );
-			p.fillRect( (int)( x_pos - nSpace ) + 1, line_start, nLineWidth, line_end - line_start, centerColor );
 		}
 	}
 	p.setPen(res_1);
@@ -660,26 +664,44 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
-			assert( pNote );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-				continue;
-			}
-			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+			Note *pposNote = pos->second;
+			assert( pposNote );
+			uint pos = pposNote->get_position();
 
-			if (pNote->get_pan_r() == pNote->get_pan_l()) {
-				// pan value is centered - draw circle
-				int y_pos = (int)( height() * 0.5 );
-				p.setBrush(QColor( 0, 0, 0 ));
-				p.drawEllipse( x_pos-4, y_pos-4, 8, 8);
-			} else {
-				int y_start = (int)( pNote->get_pan_l() * height() );
-				int y_end = (int)( height() - pNote->get_pan_r() * height() );
+			std::multimap <int, Note*>::iterator copos;
+			int xoffset = 0;
+			for ( copos = m_pPattern->note_map.lower_bound( pos ); copos != m_pPattern->note_map.upper_bound( pos ); ++copos ) {
+				Note *pNote = copos->second;
+				assert( pNote );
+				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+					continue;
+				}
 
-				int nLineWidth = 3;
-				p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( 0, 0 ,0 ) );
+				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 
-				p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( 0, 0 ,0 ) );
+				int red = (int) (pNote->get_velocity() * 255);
+				int green;
+				int blue;
+				blue = (255 - (int) red)* .33;
+				green =  (255 - (int) red);
+	
+				QColor centerColor( red , green , blue );
+	
+				if (pNote->get_pan_r() == pNote->get_pan_l()) {
+					// pan value is centered - draw circle
+					int y_pos = (int)( height() * 0.5 );
+					p.setBrush(QColor( centerColor ));
+					p.drawEllipse( x_pos-4 + xoffset, y_pos-4, 8, 8);
+				} else {
+					int y_start = (int)( pNote->get_pan_l() * height() );
+					int y_end = (int)( height() - pNote->get_pan_r() * height() );
+	
+					int nLineWidth = 3;
+					p.fillRect( x_pos - 1 + xoffset, y_start, nLineWidth, y_end - y_start, QColor(  centerColor) );
+	
+					p.fillRect( x_pos - 1 + xoffset, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor(  centerColor ) );
+				}
+				xoffset++;
 			}
 		}
 	}
@@ -815,39 +837,56 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
  
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
-			assert( pNote );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-				continue;
-			}
-			uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 
-			if (pNote->get_leadlag() == 0) {
-				// leadlag value is centered - draw circle
-				int y_pos = (int)( height() * 0.5 );
-				p.setBrush(QColor( 0, 0, 0 ));
-				p.drawEllipse( x_pos-4, y_pos-4, 8, 8);
-			} else {
-				int y_start = (int)( height() * 0.5 );
-				int y_end = y_start + ((pNote->get_leadlag()/2) * height());
-	 
-				int nLineWidth = 3;
-				int red;
-				int green;
-				int blue = (int) (pNote->get_leadlag() * 255);
-				if (blue < 0)  {
-					red = blue *-1;
-					blue = (int) red * .33;
-					green = (int) red * .33;
-				} else {
-					red = (int) blue * .33;
-					green = (int) blue * .33;
+			Note *pposNote = pos->second;
+			assert( pposNote );
+			uint pos = pposNote->get_position();
+
+			std::multimap <int, Note*>::iterator copos;
+			int xoffset = 0;
+			for ( copos = m_pPattern->note_map.lower_bound( pos ); copos != m_pPattern->note_map.upper_bound( pos ); ++copos ) {
+				Note *pNote = copos->second;
+				assert( pNote );
+				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+					continue;
 				}
-				p.fillRect( x_pos - 1, y_start, nLineWidth, y_end - y_start, QColor( red, green ,blue ) );
-	 
-				p.fillRect( x_pos - 1, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( red, green ,blue ) );
-			}
- 
+
+				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+
+				int red1 = (int) (pNote->get_velocity() * 255);
+				int green1;
+				int blue1;
+				blue1 = ( 255 - (int) red1 )* .33;
+				green1 =  ( 255 - (int) red1 );
+	
+				if (pNote->get_leadlag() == 0) {
+				
+					// leadlag value is centered - draw circle
+					int y_pos = (int)( height() * 0.5 );
+					p.setBrush(QColor( 0 , 0 , 0 ));
+					p.drawEllipse( x_pos-4 + xoffset, y_pos-4, 8, 8);
+				} else {
+					int y_start = (int)( height() * 0.5 );
+					int y_end = y_start + ((pNote->get_leadlag()/2) * height());
+		
+					int nLineWidth = 3;
+					int red;
+					int green;
+					int blue = (int) (pNote->get_leadlag() * 255);
+					if (blue < 0)  {
+						red = blue *-1;
+						blue = (int) red * .33;
+						green = (int) red * .33;
+					} else {
+						red = (int) blue * .33;
+						green = (int) blue * .33;
+					}
+					p.fillRect( x_pos - 1 + xoffset, y_start, nLineWidth, y_end - y_start, QColor( red, green ,blue ) );
+		
+					p.fillRect( x_pos - 1 + xoffset, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( red1, green1 ,blue1 ) );
+				}
+			xoffset++;
+ 			}
 		}
 	}
  

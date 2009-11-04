@@ -161,7 +161,14 @@ public:
 	bool __playsamplesonclicking; // audio file browser
 
 	bool __playselectedinstrument; // midi keys and keys play instrument or drumset
-	bool __rightclickedpattereditor; //right click into pattern editor add note-off-note or edit note-length 
+
+	//	__rightclickedpattereditor
+	//	0 = note length
+	//	1 = note off"
+	//	2 = edit velocity
+	//	3 = edit pan
+	//	4 = edit lead lag
+	int __rightclickedpattereditor; //right click into pattern editor add note-off-note or edit note-length 
 
 	int m_nRecPreDelete; //index of record note pre delete function 0 = off  
 	int m_nRecPostDelete;
