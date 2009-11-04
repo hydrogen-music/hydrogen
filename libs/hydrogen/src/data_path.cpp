@@ -48,8 +48,10 @@ QString DataPath::get_data_path()
     //Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
     #ifdef BUNDLE_SUPPORT
 	QString qStringPath = qApp->applicationDirPath() + QString ( "/../Resources/data" ) ;
+    #elif NO_GUI_SUPPORT
+	QString qStringPath = QString ( "./data" ) ;
     #else
-        QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
+	QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
     #endif
 
 	return qStringPath;
@@ -60,7 +62,11 @@ QString DataPath::get_data_path()
 
 #else
 	if ( __data_path.isEmpty() ) {
-                QString qStringPath = QString ( "./data" ) ;
+		#ifdef NO_GUI_SUPPORT
+		    QString qStringPath = QString ( "./data" ) ;
+		#else
+		    QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
+		#endif
 		__data_path = qStringPath;
 
 		QFile file( __data_path );
