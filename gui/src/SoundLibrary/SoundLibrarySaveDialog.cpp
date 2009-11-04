@@ -24,6 +24,8 @@
 
 #include <hydrogen/SoundLibrary.h>
 
+#include <QMessageBox>
+
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )
  , Object( "SoundLibrarySaveDialog" )
