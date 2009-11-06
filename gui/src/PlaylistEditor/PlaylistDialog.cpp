@@ -940,14 +940,16 @@ void PlaylistDialog::updateActiveSongNumber()
 	}
 		
 	int selected = Playlist::get_instance()->getActiveSongNumber();
-	if ( selected == -1 ) 
+	if ( selected == -1 )
 		return;
 	
-	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );	
-	//m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
-	m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
-	m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
-	m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
+	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );
+	if ( m_pPlaylistItem != NULL ){
+	    //m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+	    m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+	    m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
+	    m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
+	}
 }
 
 
