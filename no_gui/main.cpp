@@ -58,6 +58,7 @@ static struct option long_opts[] = {
         {"verbose", optional_argument, NULL, 'V'},
         {"help", 0, NULL, 'h'},
 	{"install", required_argument, NULL, 'i'},
+	{"drumkit", required_argument, NULL, 'k'},
         {0, 0, 0, 0},
 };
 
@@ -246,6 +247,9 @@ int main(int argc, char *argv[])
 
                 H2Core::Hydrogen::get_instance()->setSong( song );
                 H2Core::Preferences::get_instance()->setLastSongFilename(  songFilename);
+
+
+
 
                 while( true ){
 
