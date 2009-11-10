@@ -40,6 +40,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
+#include <hydrogen/SoundLibrary.h>
 
 #include <iostream>
 using namespace std;
@@ -56,6 +57,7 @@ static struct option long_opts[] = {
         {"nosplash", 0, NULL, 'n'},
         {"verbose", optional_argument, NULL, 'V'},
         {"help", 0, NULL, 'h'},
+	{"install", required_argument, NULL, 'i'},
         {0, 0, 0, 0},
 };
 
@@ -90,6 +92,7 @@ int main(int argc, char *argv[])
                 bool showVersionOpt = false;
                 const char* logLevelOpt = "Error";
                 bool showHelpOpt = false;
+		QString drumkitName;
 
                 int c;
                 for (;;) {
@@ -105,6 +108,11 @@ int main(int argc, char *argv[])
                                 case 's':
                                         songFilename = QString::fromLocal8Bit(optarg);
                                         break;
+
+				case 'i':
+					//install h2drumkit
+					drumkitName = QString::fromLocal8Bit(optarg);
+					break;
 
                                 case 'v':
                                         showVersionOpt = true;
@@ -157,6 +165,11 @@ int main(int argc, char *argv[])
                 LashClient* lashClient = LashClient::get_instance();
 
 #endif
+		if( ! drumkitName.isEmpty() ){
+		    H2Core::Drumkit::install( drumkitName );
+		    exit(0);
+		}
+
                 if (sSelectedDriver == "auto") {
                         pPref->m_sAudioDriver = "Auto";
                 }
@@ -200,6 +213,7 @@ int main(int argc, char *argv[])
         }
 #endif
                 H2Core::Hydrogen::create_instance();
+
 
 
                 // Load default song
@@ -297,6 +311,8 @@ void showUsage()
         std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
         std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
         std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
+	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
+	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
 #ifdef LASH_SUPPORT
         std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
                   << "                            it (LASH 0.5.3 and later)." << std::endl;
