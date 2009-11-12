@@ -41,6 +41,7 @@
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/SoundLibrary.h>
+#include <hydrogen/LocalFileMng.h>
 
 #include <iostream>
 using namespace std;
@@ -94,6 +95,7 @@ int main(int argc, char *argv[])
                 const char* logLevelOpt = "Error";
                 bool showHelpOpt = false;
 		QString drumkitName;
+		QString drumkitToLoad;
 
                 int c;
                 for (;;) {
@@ -113,6 +115,11 @@ int main(int argc, char *argv[])
 				case 'i':
 					//install h2drumkit
 					drumkitName = QString::fromLocal8Bit(optarg);
+					break;
+
+				case 'k':
+					//load Drumkit
+					drumkitToLoad = QString::fromLocal8Bit(optarg);
 					break;
 
                                 case 'v':
@@ -183,6 +190,9 @@ int main(int argc, char *argv[])
                 else if ( sSelectedDriver == "alsa" ) {
                         pPref->m_sAudioDriver = "Alsa";
                 }
+		if (sSelectedDriver == "CoreAudio") {
+			pPref->m_sAudioDriver = "CoreAudio";
+		}
 
 
 
@@ -249,7 +259,12 @@ int main(int argc, char *argv[])
                 H2Core::Preferences::get_instance()->setLastSongFilename(  songFilename);
 
 
+		if( ! drumkitToLoad.isEmpty() ){
+		    H2Core::LocalFileMng* mng;
 
+		    QString dir = mng->getDrumkitDirectory( drumkitToLoad );
+		    H2Core::Drumkit* drumkitInfo = mng->loadDrumkit( dir );
+		}
 
                 while( true ){
 
