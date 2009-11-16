@@ -57,6 +57,10 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_pmove = false;
 	m_plocator = -1;
 	m_pupdateposi = false;
+
+	__startsliderismoved = false;
+	__loopsliderismoved = false;
+	__endsliderismoved = false;
 }
 
 
@@ -227,10 +231,14 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 //startframepointer
 	if  (ev->y()>=200 ) {
 		m_pStartFramePosition = ev->x() ;
-		if ( m_pStartFramePosition > m_pLoopFramePosition ) 
+		__startsliderismoved = true;
+		if ( m_pStartFramePosition > m_pLoopFramePosition ){ 
 			m_pLoopFramePosition = m_pStartFramePosition;
+			__loopsliderismoved = true;
+		}
 		if ( m_pStartFramePosition > m_pEndFramePosition ){
 			m_pEndFramePosition = m_pStartFramePosition;
+			__endsliderismoved = true;
 		}
 //		update();
 	}
@@ -238,18 +246,28 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 //loopframeposition
 	else if  (ev->y()<=65 ) {
 		m_pLoopFramePosition = ev->x() ;
-		if ( m_pLoopFramePosition < m_pStartFramePosition ) 
+		__loopsliderismoved = true;		
+		if ( m_pLoopFramePosition < m_pStartFramePosition ){
 			m_pStartFramePosition = m_pLoopFramePosition;
+			__startsliderismoved = true;
+		}
+		if ( m_pLoopFramePosition > m_pEndFramePosition ){
+			m_pEndFramePosition = m_pLoopFramePosition;
+			__endsliderismoved = true;
+		}
 //		update();
 	}
 //endframeposition
 	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
 		m_pEndFramePosition = ev->x() ;
+		__endsliderismoved = true;
 		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
 			m_pLoopFramePosition = m_pEndFramePosition;
+			__loopsliderismoved = true;
 		}
 		if ( m_pEndFramePosition <  m_pStartFramePosition ){
 			m_pStartFramePosition = m_pEndFramePosition;
+			__startsliderismoved = true;
 		}
 //		update();
 	}
@@ -266,7 +284,13 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	bool test = HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+
+	if (test){
+		__startsliderismoved = false;
+		__loopsliderismoved = false;
+		__endsliderismoved = false;
+	}
 }
 
 

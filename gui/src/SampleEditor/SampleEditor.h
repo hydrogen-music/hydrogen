@@ -55,7 +55,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void setSampleName( QString name);
 		bool getCloseQuestion();
 		bool m_pSampleEditorStatus;
-		void returnAllMainWaveDisplayValues();
+		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
 		void setTrue();
 

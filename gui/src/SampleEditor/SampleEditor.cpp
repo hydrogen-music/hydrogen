@@ -168,7 +168,7 @@ void SampleEditor::getAllFrameInfos()
 	m_start_frame = pSample->get_start_frame();
 	m_loop_frame = pSample->get_loop_frame();
 	m_repeats = pSample->get_repeats();
-	m_end_frame = m_pSamplefromFile->get_end_frame();
+	m_end_frame = pSample->get_n_frames();
 
 	Hydrogen::HVeloVector velovector;
 	//velovector
@@ -211,7 +211,6 @@ void SampleEditor::getAllFrameInfos()
 
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
-
 		if ( m_sample_mode == "forward" ) 
 			ProcessingTypeComboBox->setCurrentIndex ( 0 );
 		if ( m_sample_mode == "reverse" ) 
@@ -385,15 +384,14 @@ void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 
 
 
-void SampleEditor::returnAllMainWaveDisplayValues()
+bool SampleEditor::returnAllMainWaveDisplayValues()
 {
 	testpTimer();
 //	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_n_frames()));
 	m_sample_is_modified = true;
-	m_start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
-	m_loop_frame = m_pMainSampleWaveDisplay->m_pLoopFramePosition  * m_divider - 25 * m_divider;
-	m_end_frame = m_pMainSampleWaveDisplay->m_pEndFramePosition  * m_divider - 25 * m_divider ;
-
+	if( m_pMainSampleWaveDisplay->__startsliderismoved ) m_start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
+	if( m_pMainSampleWaveDisplay->__loopsliderismoved ) m_loop_frame = m_pMainSampleWaveDisplay->m_pLoopFramePosition  * m_divider - 25 * m_divider;
+	if( m_pMainSampleWaveDisplay->__endsliderismoved ) m_end_frame = m_pMainSampleWaveDisplay->m_pEndFramePosition  * m_divider - 25 * m_divider ;
 	StartFrameSpinBox->setValue( m_start_frame );
 	LoopFrameSpinBox->setValue( m_loop_frame );
 	EndFrameSpinBox->setValue( m_end_frame );
@@ -401,6 +399,8 @@ void SampleEditor::returnAllMainWaveDisplayValues()
 	m_ponewayLoop = true;
 	m_ponewayEnd = true;
 	setSamplelengthFrames();
+
+	return true;
 }
 
 

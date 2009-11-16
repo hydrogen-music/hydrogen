@@ -46,6 +46,10 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		int m_pEndFramePosition;
 		bool m_pmove;
 		void testPositionFromSampleeditor();
+		bool __startsliderismoved;
+		bool __loopsliderismoved;
+		bool __endsliderismoved;
+
 
 	private:
 		QPixmap m_background;
@@ -58,6 +62,7 @@ class MainSampleWaveDisplay : public QWidget, public Object
 		int m_pSampleLength;
 		int m_plocator;
 		bool m_pupdateposi;
+
 };
 
 
