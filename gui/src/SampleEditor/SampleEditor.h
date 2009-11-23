@@ -71,6 +71,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
 		void valueChangedProcessingTypeComboBox( const QString );
+		void valueChangedrubberComboBox( const QString  );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();
 		void valueChangedStartFrameSpinBox( int );
@@ -119,6 +120,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		QTimer *m_pTimer;
 		unsigned *m_pPositionsRulerPath;
 		bool m_pPlayButton;
+		bool m_pUseRubber;
+		float m_pRubberDivider;
 
 		
 };

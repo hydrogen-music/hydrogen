@@ -1378,6 +1378,8 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			unsigned sLoopFrame =  pSample->get_loop_frame();
 			int sLoops = pSample->get_repeats();
 			unsigned sEndframe =  pSample->get_end_frame();
+			bool sUseRubber = pSample->get_use_rubber();
+			float sRubberDivider = pSample->get_rubber_divider();
 
 
 			if ( !instr->get_drumkit_name().isEmpty() ) {
@@ -1394,6 +1396,8 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( layerNode, "loopframe", QString("%1").arg( sLoopFrame ) );
 			LocalFileMng::writeXmlString( layerNode, "loops", QString("%1").arg( sLoops ) );
 			LocalFileMng::writeXmlString( layerNode, "endframe", QString("%1").arg( sEndframe ) );
+			LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( sUseRubber ) );
+			LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( sRubberDivider ) );
 			LocalFileMng::writeXmlString( layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "max", QString("%1").arg( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "gain", QString("%1").arg( pLayer->get_gain() ) );

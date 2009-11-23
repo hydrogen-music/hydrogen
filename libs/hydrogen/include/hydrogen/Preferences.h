@@ -230,6 +230,8 @@ public:
 	///Default text editor (used by Playlisteditor)
 	QString m_sDefaultEditor;
 
+	///Rubberband CLI
+	QString m_rubberBandCLIexecutable;
 	/// Returns an instance of PreferencesMng class
 	static void create_instance();
 	static Preferences* get_instance() { assert(__instance); return __instance; }
@@ -530,6 +532,7 @@ private:
 	bool quantizeEvents;
 	bool recordEvents;
 	bool destructiveRecord;
+	bool readPrefFileforotherplaces;
 	int punchInPos;
 	int punchOutPos;
 	QString m_sLastNews;

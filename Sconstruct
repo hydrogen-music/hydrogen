@@ -94,6 +94,7 @@ def get_platform_flags( opts ):
 
 	elif sys.platform == 'linux2':
 		ldflags.append('-lasound')
+	#	ldflags.append('-lrubberband')
 
 	elif sys.platform == "win32":
 		includes.append( '3rdparty\libsndfile-1_0_17' )

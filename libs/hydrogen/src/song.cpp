@@ -472,6 +472,8 @@ Song* SongReader::readSong( const QString& filename )
 					unsigned sLoopFrame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0);
 					int sLoops = LocalFileMng::readXmlInt( layerNode, "loops", 0);
 					unsigned sEndframe = LocalFileMng::readXmlInt( layerNode, "endframe", 0);
+					bool sUseRubber = LocalFileMng::readXmlInt( layerNode, "userubber", 0, false);
+					float sRubberDivider = LocalFileMng::readXmlFloat( layerNode, "rubberdivider", 0.0 );
 
 					float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
 					float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
@@ -513,7 +515,9 @@ Song* SongReader::readSong( const QString& filename )
 										  sLoopFrame,
 										  sEndframe,
 										  sLoops,
-										  sMode);
+										  sMode,
+										  sUseRubber,
+										  sRubberDivider);
 					}
 					if ( pSample == NULL ) {
 						ERRORLOG( "Error loading sample: " + sFilename + " not found" );

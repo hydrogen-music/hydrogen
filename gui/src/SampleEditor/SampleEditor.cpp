@@ -48,25 +48,26 @@ using namespace std;
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( "SampleEditor" )
-		, m_pSampleEditorStatus( true )
-		, m_pSamplefromFile ( NULL )
-		, m_pSelectedLayer ( nSelectedLayer )
-		, m_samplename ( mSamplefilename )
-		, m_pzoomfactor ( 1 )
-		, m_pdetailframe ( 0 )
-		, m_plineColor ( "default" )
-		, m_ponewayStart ( false )
-		, m_ponewayLoop ( false )
-		, m_ponewayEnd ( false )
-		, m_pslframes ( 0 )
-		, m_pPositionsRulerPath ( NULL )
-		, m_pPlayButton ( false )
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePostionRuler()));
+
+	m_pSampleEditorStatus = true;
+	m_pSamplefromFile = NULL;
+	m_pSelectedLayer = nSelectedLayer;
+	m_samplename = mSamplefilename;
+	m_pzoomfactor = 1;
+	m_pdetailframe = 0;
+	m_plineColor = "default";
+	m_ponewayStart = false;
+	m_ponewayLoop = false;
+	m_ponewayEnd = false;
+	m_pslframes = 0;
+	m_pPositionsRulerPath = NULL;
+	m_pPlayButton = false;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
 
@@ -90,8 +91,17 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
 
+	m_pUseRubber = false;
+	m_pRubberDivider = 0.0;
 	openDisplays();
 	getAllFrameInfos();
+
+	if ( QFile( Preferences::get_instance()->m_rubberBandCLIexecutable ).exists() == false ){
+		rubberComboBox->hide();
+		rubberbandLabel->hide();
+		m_pUseRubber = false;
+		m_pSampleEditorStatus = true;
+	}
 
 }
 
@@ -169,6 +179,8 @@ void SampleEditor::getAllFrameInfos()
 	m_loop_frame = pSample->get_loop_frame();
 	m_repeats = pSample->get_repeats();
 	m_end_frame = pSample->get_n_frames();
+	m_pUseRubber = pSample->get_use_rubber();
+	m_pRubberDivider = pSample->get_rubber_divider();
 
 	Hydrogen::HVeloVector velovector;
 	//velovector
@@ -230,6 +242,16 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->m_pEndFramePosition =  m_end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
+		if( !m_pUseRubber )rubberComboBox->setCurrentIndex( 0 );
+
+		if( m_pRubberDivider == 1.0/64.0) rubberComboBox->setCurrentIndex( 1 );
+		else if( m_pRubberDivider == 1.0/32.0) rubberComboBox->setCurrentIndex( 2 );
+		else if( m_pRubberDivider == 1.0/16.0) rubberComboBox->setCurrentIndex( 3 );
+		else if( m_pRubberDivider == 1.0/8.0) rubberComboBox->setCurrentIndex( 4 );
+		else if( m_pRubberDivider == 1.0/4.0) rubberComboBox->setCurrentIndex( 5 );
+		else if( m_pRubberDivider == 1.0/2.0) rubberComboBox->setCurrentIndex( 6 );
+		else if( m_pRubberDivider >= 1.0) rubberComboBox->setCurrentIndex(  (int)(m_pRubberDivider + 6) );
+
 	}
 	m_pTargetSampleView->updateDisplay( pLayer );
 
@@ -238,6 +260,7 @@ void SampleEditor::getAllFrameInfos()
 	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
 	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
 	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
+	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
 }
 
 
@@ -339,7 +362,13 @@ void SampleEditor::createNewLayer()
 							    m_loop_frame,
 							    m_end_frame,
 							    m_repeats,
-							    m_sample_mode);
+							    m_sample_mode,
+							    m_pUseRubber,
+							    m_pRubberDivider);
+
+		if( editSample == NULL ){
+			return;
+		}
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -357,7 +386,6 @@ void SampleEditor::createNewLayer()
 			}
 			else {
 				m_pInstrument = pInstrList->get( nInstr );
-				//INFOLOG( "new instr: " + m_pInstrument->m_sName );
 			}
 		}
 	
@@ -674,6 +702,51 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 }
 
 
+
+void SampleEditor::valueChangedrubberComboBox( const QString  )
+{
+
+	if( rubberComboBox->currentText() != "off" ){
+		m_pUseRubber = true;
+	}else
+	{
+		m_pUseRubber = false;
+		m_pRubberDivider = 0.0;
+	}
+
+
+	switch ( rubberComboBox->currentIndex() ){
+	case 0 :// 
+		m_pRubberDivider = 4.0;
+		break;
+	case 1 :// 
+		m_pRubberDivider = 1.0/64.0;
+		break;
+	case 2 :// 
+		m_pRubberDivider = 1.0/32.0;
+		break;
+	case 3 :// 
+		m_pRubberDivider = 1.0/16.0;
+		break;
+	case 4 :// 
+		m_pRubberDivider = 1.0/8.0;
+		break;
+	case 5 :// 
+		m_pRubberDivider = 1.0/4.0;
+		break;
+	case 6 :// 
+		m_pRubberDivider = 1.0/2.0;
+		break;
+	case 7 :// 
+		m_pRubberDivider = 1.0;
+		break;
+	default:
+		m_pRubberDivider = (float)rubberComboBox->currentIndex() - 6.0;
+	}
+//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "divider %1" ).arg( m_pRubberDivider ));
+//	float m_pRubberDivider;
+	m_pSampleEditorStatus = false;
+}
 
 void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 {

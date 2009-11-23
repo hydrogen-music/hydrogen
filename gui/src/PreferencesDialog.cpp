@@ -241,6 +241,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	sBcountOffset->setValue( pPref->m_countOffset );
 	sBstartOffset->setValue( pPref->m_startOffset );
 
+	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+
+
+	rubberbandLineEdit->setText( pathtoRubberband );
+
 	m_bNeedDriverRestart = false;
 }
 
@@ -383,6 +388,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref. 
 
+	//path to rubberband
+	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+
 	//check preferences 
 	if ( pPref->m_brestartLash == true ){ 
 		pPref->m_bsetLash = true ; 
@@ -390,6 +398,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->m_countOffset = sBcountOffset->value();
 	pPref->m_startOffset = sBstartOffset->value();
+
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 	pPref->savePreferences();

@@ -83,6 +83,24 @@ Preferences::Preferences()
 //	//musicCategories
 //	std::list<QString> m_musicCategories;
 
+
+	QString rubberBandCLIPath = getenv( "PATH" );
+	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
+
+	//find the Rubberband-CLI in system env
+	//if this fails a second test will check individual user settings 
+	for(int i = 0; i < rubberBandCLIPathList.size(); ++i){
+		m_rubberBandCLIexecutable = rubberBandCLIPathList[i] + "/rubberband";
+		if ( QFile( m_rubberBandCLIexecutable ).exists() == true ){
+			readPrefFileforotherplaces = false;
+			break;
+		}else
+		{
+			m_rubberBandCLIexecutable = "Path to Rubberband-CLI";	
+			readPrefFileforotherplaces = true;
+		}
+	}
+
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH enviroment variable" );
@@ -371,6 +389,18 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
+			
+			//rubberband
+			if( readPrefFileforotherplaces ){
+				//this scond test will check individual user settings 
+				QString test = LocalFileMng::readXmlString( rootNode, "path_to_rubberband", "");
+				if ( QFile( test ).exists() == true ){
+					m_rubberBandCLIexecutable = test;
+				}else
+				{
+					m_rubberBandCLIexecutable = "Path to Rubberband-CLI";	
+				}
+			}
 
 			QDomNode pRecentUsedSongsNode = rootNode.firstChildElement( "recentUsedSongs" );
 			if ( !pRecentUsedSongsNode.isNull() ) {
@@ -713,6 +743,12 @@ void Preferences::savePreferences()
 	// key/midi event prefs
 	//LocalFileMng::writeXmlString( rootNode, "recordEvents", recordEvents ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
+
+	//extern executables
+	if ( QFile( m_rubberBandCLIexecutable ).exists() == false ) {
+		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
+	}
+	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
 
 	// Recent used songs
 	QDomNode recentUsedSongsNode = doc.createElement( "recentUsedSongs" );

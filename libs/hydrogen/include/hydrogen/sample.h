@@ -24,7 +24,6 @@
 #define SAMPLE_BUFFER_H
 
 #include <string>
-
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
 
@@ -87,7 +86,9 @@ public:
 		unsigned loop_frame = 0,
 		int repeats = 0,
 		unsigned end_frame = 0,
-		SampleVeloPan velopan = SampleVeloPan());
+		SampleVeloPan velopan = SampleVeloPan(),
+		bool use_rubber = false,
+		float use_rubber_divider = 0.0);
 		
 
 	~Sample();
@@ -122,8 +123,14 @@ public:
 				const unsigned loppframe,
 				const unsigned endframe,
 				const int loops,
-				const QString loopmode);
+				const QString loopmode,
+				const bool use_rubberband,
+				const float rubber_divider);
 
+
+	void set_new_sample_length_frames( unsigned new_sample_length) {
+		__n_frames = new_sample_length;
+	}
 
 	unsigned get_n_frames() {
 		return __n_frames;
@@ -173,6 +180,19 @@ public:
 		return __end_frame;
 	}
 
+	void set_use_rubber( bool use_rubber ) {
+		__use_rubber = use_rubber;
+	}
+	bool get_use_rubber() const {
+		return __use_rubber;
+	}
+
+	void set_rubber_divider( float use_rubber_divider ) {
+		__rubber_divider = use_rubber_divider;
+	}
+	float get_rubber_divider() const {
+		return __rubber_divider;
+	}
 
 	void sampleEditProzess( Sample* Sample );
 	void setmod();
@@ -192,7 +212,8 @@ private:
 	unsigned __loop_frame;		///< beginn of the loop section
 	int __repeats;			///< repeats from the loop section
 	unsigned __end_frame; 		///< sample end frame
-
+	bool __use_rubber;		///< use the rubberband bin
+	float __rubber_divider;		///< the divider to calculate the ratio
 
 
 	//static int __total_used_bytes;
@@ -203,6 +224,7 @@ private:
 	/// loads a FLAC file
 	static Sample* load_flac( const QString& filename );
 	Sample *tempsample;
+
 };
 
 };
