@@ -95,6 +95,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
 	rubberbandCsettingscomboBox->setCurrentIndex( 4 );
+	rubberComboBox->setCurrentIndex( 0 );
 
 	m_pUseRubber = false;
 	m_pRubberDivider = 1.0;
@@ -231,7 +232,6 @@ void SampleEditor::getAllFrameInfos()
 		}
 	}
 
-
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
 		if ( m_sample_mode == "forward" ) 
@@ -254,7 +254,6 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
 		if( !m_pUseRubber )rubberComboBox->setCurrentIndex( 0 );
-
 		rubberbandCsettingscomboBox->setCurrentIndex( m_pRubberbandCsettings );
 		if( !m_pUseRubber )rubberbandCsettingscomboBox->setCurrentIndex( 4 );
 
@@ -264,8 +263,7 @@ void SampleEditor::getAllFrameInfos()
 		else if( m_pRubberDivider == 1.0/8.0) rubberComboBox->setCurrentIndex( 4 );
 		else if( m_pRubberDivider == 1.0/4.0) rubberComboBox->setCurrentIndex( 5 );
 		else if( m_pRubberDivider == 1.0/2.0) rubberComboBox->setCurrentIndex( 6 );
-		else if( m_pRubberDivider >= 1.0) rubberComboBox->setCurrentIndex(  (int)(m_pRubberDivider + 6) );
-
+		else if( m_pUseRubber && ( m_pRubberDivider >= 1.0 ) ) rubberComboBox->setCurrentIndex(  (int)(m_pRubberDivider + 6) );
 		setSamplelengthFrames();
 		checkRatioSettings();
 
