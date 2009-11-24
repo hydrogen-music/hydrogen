@@ -1380,6 +1380,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			unsigned sEndframe =  pSample->get_end_frame();
 			bool sUseRubber = pSample->get_use_rubber();
 			float sRubberDivider = pSample->get_rubber_divider();
+			int sRubberbandCsettings = pSample->get_rubber_C_settings();
 
 
 			if ( !instr->get_drumkit_name().isEmpty() ) {
@@ -1398,6 +1399,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( layerNode, "endframe", QString("%1").arg( sEndframe ) );
 			LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( sUseRubber ) );
 			LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( sRubberDivider ) );
+			LocalFileMng::writeXmlString( layerNode, "rubberCsettings", QString("%1").arg( sRubberbandCsettings ) );
 			LocalFileMng::writeXmlString( layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "max", QString("%1").arg( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "gain", QString("%1").arg( pLayer->get_gain() ) );

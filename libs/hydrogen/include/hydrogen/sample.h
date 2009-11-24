@@ -88,7 +88,8 @@ public:
 		unsigned end_frame = 0,
 		SampleVeloPan velopan = SampleVeloPan(),
 		bool use_rubber = false,
-		float use_rubber_divider = 1.0);
+		float use_rubber_divider = 1.0,
+		int use_rubber_c_settings = 4 );
 		
 
 	~Sample();
@@ -125,7 +126,8 @@ public:
 				const int loops,
 				const QString loopmode,
 				const bool use_rubberband,
-				const float rubber_divider);
+				const float rubber_divider,
+				const int rubber_c_settings);
 
 
 	void set_new_sample_length_frames( unsigned new_sample_length) {
@@ -194,6 +196,13 @@ public:
 		return __rubber_divider;
 	}
 
+	void set_rubber_C_settings( int use_rubber_c_settings) {
+		__rubber_C_settings = use_rubber_c_settings;
+	}
+	float get_rubber_C_settings() const {
+		return __rubber_C_settings;
+	}
+
 	void sampleEditProzess( Sample* Sample );
 	void setmod();
 
@@ -214,6 +223,7 @@ private:
 	unsigned __end_frame; 		///< sample end frame
 	bool __use_rubber;		///< use the rubberband bin
 	float __rubber_divider;		///< the divider to calculate the ratio
+	int __rubber_C_settings;	///< the rubberband "crispness" levels
 
 
 	//static int __total_used_bytes;

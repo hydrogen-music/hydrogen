@@ -71,6 +71,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pPositionsRulerPath = NULL;
 	m_pPlayButton = false;
 	m_pratio = 1.0;
+	m_pRubberbandCsettings = 4;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
 
@@ -93,6 +94,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	LoopFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setRange(0, slframes );
 	EndFrameSpinBox->setValue( slframes );
+	rubberbandCsettingscomboBox->setCurrentIndex( 4 );
 
 	m_pUseRubber = false;
 	m_pRubberDivider = 1.0;
@@ -102,6 +104,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	if ( QFile( Preferences::get_instance()->m_rubberBandCLIexecutable ).exists() == false ){
 		rubberComboBox->hide();
 		rubberbandLabel->hide();
+		rubberbandCsettingscomboBox->hide();
+		ratiolabel->hide();
+		r_c_label->hide();
 		m_pUseRubber = false;
 		m_pSampleEditorStatus = true;
 	}
@@ -185,6 +190,7 @@ void SampleEditor::getAllFrameInfos()
 	m_pUseRubber = pSample->get_use_rubber();
 	m_pRubberDivider = pSample->get_rubber_divider();
 	m_pSamplerate = pSample->get_sample_rate();
+	m_pRubberbandCsettings = pSample->get_rubber_C_settings();
 
 	Hydrogen::HVeloVector velovector;
 	//velovector
@@ -225,6 +231,7 @@ void SampleEditor::getAllFrameInfos()
 		}
 	}
 
+
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
 		if ( m_sample_mode == "forward" ) 
@@ -248,6 +255,9 @@ void SampleEditor::getAllFrameInfos()
 
 		if( !m_pUseRubber )rubberComboBox->setCurrentIndex( 0 );
 
+		rubberbandCsettingscomboBox->setCurrentIndex( m_pRubberbandCsettings );
+		if( !m_pUseRubber )rubberbandCsettingscomboBox->setCurrentIndex( 4 );
+
 		if( m_pRubberDivider == 1.0/64.0) rubberComboBox->setCurrentIndex( 1 );
 		else if( m_pRubberDivider == 1.0/32.0) rubberComboBox->setCurrentIndex( 2 );
 		else if( m_pRubberDivider == 1.0/16.0) rubberComboBox->setCurrentIndex( 3 );
@@ -255,6 +265,9 @@ void SampleEditor::getAllFrameInfos()
 		else if( m_pRubberDivider == 1.0/4.0) rubberComboBox->setCurrentIndex( 5 );
 		else if( m_pRubberDivider == 1.0/2.0) rubberComboBox->setCurrentIndex( 6 );
 		else if( m_pRubberDivider >= 1.0) rubberComboBox->setCurrentIndex(  (int)(m_pRubberDivider + 6) );
+
+		setSamplelengthFrames();
+		checkRatioSettings();
 
 	}
 	m_pTargetSampleView->updateDisplay( pLayer );
@@ -265,8 +278,9 @@ void SampleEditor::getAllFrameInfos()
 	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
 	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
 	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
-}
+	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString ) ) );
 
+}
 
 void SampleEditor::getAllLocalFrameInfos()
 {
@@ -368,7 +382,8 @@ void SampleEditor::createNewLayer()
 							    m_repeats,
 							    m_sample_mode,
 							    m_pUseRubber,
-							    m_pRubberDivider);
+							    m_pRubberDivider,
+							    m_pRubberbandCsettings);
 
 		if( editSample == NULL ){
 			return;
@@ -745,6 +760,14 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);	
 	}
 	
+}
+
+
+
+void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
+{
+	m_pRubberbandCsettings = rubberbandCsettingscomboBox->currentIndex();
+	m_pSampleEditorStatus = false;
 }
 
 

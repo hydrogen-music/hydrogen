@@ -52,7 +52,8 @@ Sample::Sample( unsigned frames,
 		unsigned end_frame,
 		SampleVeloPan velopan,
 		bool use_rubber_band,
-		float rubberband_divider)
+		float rubberband_divider,
+		int rubberband_C_settings)
 
 
 		: Object( "Sample" )
@@ -70,6 +71,7 @@ Sample::Sample( unsigned frames,
 		, __velo_pan( velopan )
 		, __use_rubber( use_rubber_band )
 		, __rubber_divider( rubberband_divider )
+		, __rubber_C_settings( rubberband_C_settings )
 {
 		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
 }
@@ -166,7 +168,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
 				const int loops,
 				const QString loopmode,
 				bool use_rubberband,
-				float rubber_divider)
+				float rubber_divider,
+				int rubberbandCsettings)
 {
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
@@ -413,16 +416,15 @@ Sample* Sample::load_edit_wave( const QString& filename,
 ///rubberband
 	if( use_rubberband ){
 
-///dont forget to create a quality information!! 
-	unsigned rubberoutframes = 0;
-	double ratio = 1.0;
-	double durationtime = 60.0 / pEngine->getNewBpmJTM() * rubber_divider/*beats*/;	
-	double induration = (double) newlength / (double) samplerate;
-	if (induration != 0.0) ratio = durationtime / induration;
-	rubberoutframes = int(newlength * ratio + 0.1);
-//	_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( newlength ));
-
-	//create new sample
+		unsigned rubberoutframes = 0;
+		double ratio = 1.0;
+		double durationtime = 60.0 / pEngine->getNewBpmJTM() * rubber_divider/*beats*/;	
+		double induration = (double) newlength / (double) samplerate;
+		if (induration != 0.0) ratio = durationtime / induration;
+		rubberoutframes = int(newlength * ratio + 0.1);
+//		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( newlength ));
+	
+		//create new sample
 
 		SF_INFO rubbersoundInfo;
 		rubbersoundInfo.samplerate = samplerate;
@@ -459,10 +461,11 @@ Sample* Sample::load_edit_wave( const QString& filename,
 
 		QStringList arguments;
 
+		QString rCs = QString(" %1").arg(rubberbandCsettings);
 		QString rubberResultPath = Preferences::get_instance()->getDataDirectory() + "/tmp_rb_result_file.wav";
 		arguments << "-D" << QString(" %1").arg( durationtime )
 			  << "-P"
-			  << "-c" << " 5"
+			  << "-c" << rCs
 			  << outfilePath 
 			  << rubberResultPath;
 
@@ -521,6 +524,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		pSample->__repeats = loops;
 		pSample->__use_rubber = true;
 		pSample->__rubber_divider = rubber_divider;
+		pSample->__rubber_C_settings = rubberbandCsettings;
 
 		//delete the tmp files
 		if( QFile( outfilePath ).remove() ) 
