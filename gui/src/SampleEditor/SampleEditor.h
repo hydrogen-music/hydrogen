@@ -103,6 +103,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void createPositionsRulerPath();
 		void testpTimer();
 		void closeEvent(QCloseEvent *event);
+		void checkRatioSettings();
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 	

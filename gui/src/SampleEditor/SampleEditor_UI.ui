@@ -305,9 +305,9 @@
   <widget class="QWidget" name="layoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>480</x>
+     <x>470</x>
      <y>330</y>
-     <width>371</width>
+     <width>381</width>
      <height>27</height>
     </rect>
    </property>
@@ -519,6 +519,22 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="ratiolabel">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>287</x>
+     <y>330</y>
+     <width>171</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
   </widget>
  </widget>
  <tabstops>
