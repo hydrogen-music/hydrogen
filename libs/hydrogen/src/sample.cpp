@@ -413,6 +413,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 ///rubberband
 	if( use_rubberband ){
 
+///dont forget to create a quality information!! 
 	unsigned rubberoutframes = 0;
 	double ratio = 1.0;
 	double durationtime = 60.0 / pEngine->getNewBpmJTM() * rubber_divider/*beats*/;	

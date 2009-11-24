@@ -54,6 +54,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePostionRuler()));
+	m_pTargetDisplayTimer = new QTimer(this);
+	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePostionRuler()));
 
 	m_pSampleEditorStatus = true;
 	m_pSamplefromFile = NULL;
@@ -68,6 +70,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pslframes = 0;
 	m_pPositionsRulerPath = NULL;
 	m_pPlayButton = false;
+	m_pratio = 1.0;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
 
@@ -92,7 +95,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	EndFrameSpinBox->setValue( slframes );
 
 	m_pUseRubber = false;
-	m_pRubberDivider = 0.0;
+	m_pRubberDivider = 1.0;
 	openDisplays();
 	getAllFrameInfos();
 
@@ -181,6 +184,7 @@ void SampleEditor::getAllFrameInfos()
 	m_end_frame = pSample->get_n_frames();
 	m_pUseRubber = pSample->get_use_rubber();
 	m_pRubberDivider = pSample->get_rubber_divider();
+	m_pSamplerate = pSample->get_sample_rate();
 
 	Hydrogen::HVeloVector velovector;
 	//velovector
@@ -536,8 +540,26 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_pPlayButton = true;
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
-	m_pTimer->start(40);	// update ruler at 25 fps	
+
+	if( m_pUseRubber == false ){
+		m_pTimer->start(40);	// update ruler at 25 fps
+	}
+
+
 	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
+
+	//calculate the new rubberband sample length
+	
+	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * m_pRubberDivider;
+	double induration = (double) m_pslframes / (double) m_pSamplerate;
+	if (induration != 0.0) m_pratio = durationtime / induration;
+	if( m_pUseRubber ){
+		m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
+	}else
+	{
+		m_prealtimeframeendfortarget = m_prealtimeframeend;
+	}
+	m_pTargetDisplayTimer->start(40);	// update ruler at 25 fps
 	
 }
 
@@ -578,6 +600,29 @@ void SampleEditor::updateMainsamplePostionRuler()
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_pPlayButton = false;
+	}
+}
+
+
+void SampleEditor::updateTargetsamplePostionRuler()
+{
+	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
+	unsigned targetsamplelength;
+	if( m_pUseRubber ){
+		targetsamplelength =  m_pslframes * m_pratio + 0.1;
+	}else
+	{
+		targetsamplelength =  m_pslframes;
+	}
+	if ( realpos < m_prealtimeframeendfortarget ){
+		unsigned pos = targetsamplelength - ( m_prealtimeframeendfortarget - realpos );
+		m_pTargetSampleView->paintLocatorEventTargetDisplay( (841 * pos /targetsamplelength), true);
+//		ERRORLOG( QString("sampleval: %1").arg(frame) );
+	}else
+	{
+		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1 , false);
+		m_pTargetDisplayTimer->stop();
+//		m_pPlayButton = false;
 	}
 }
 
@@ -711,7 +756,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 	}else
 	{
 		m_pUseRubber = false;
-		m_pRubberDivider = 0.0;
+		m_pRubberDivider = 1.0;
 	}
 
 

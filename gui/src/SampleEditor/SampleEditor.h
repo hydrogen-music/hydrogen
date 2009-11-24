@@ -81,6 +81,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void on_PlayOrigPushButton_clicked();
 		void on_verticalzoomSlider_valueChanged ( int value );
 		void updateMainsamplePostionRuler();
+		void updateTargetsamplePostionRuler();
 
 
 
@@ -116,12 +117,16 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		bool m_ponewayLoop;
 		bool m_ponewayEnd;
 		unsigned long m_prealtimeframeend;
+		unsigned long m_prealtimeframeendfortarget;
 		unsigned m_pslframes;
+		unsigned m_pSamplerate;
 		QTimer *m_pTimer;
+		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
 		bool m_pPlayButton;
 		bool m_pUseRubber;
 		float m_pRubberDivider;
+		float m_pratio;
 
 		
 };

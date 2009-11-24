@@ -60,6 +60,8 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	m_info = "";
 	m_x = -10;
 	m_y = -10;
+	m_plocator = -1;
+	m_pupdateposi = false;
 }
 
 
@@ -119,6 +121,11 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 		painter.drawEllipse ( pEngine->m_pan[i].m_hxframe - 6/2, pEngine->m_pan[i].m_hyvalue  - 6/2, 6, 6 );
 	}
 
+
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
+	painter.drawLine( m_plocator, 4, m_plocator, height() -4);
+
 	//volume line
 	//first rect 
 	painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
@@ -164,6 +171,18 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 
 void TargetWaveDisplay::updateDisplayPointer()
 {
+	update();
+}
+
+void TargetWaveDisplay::paintLocatorEventTargetDisplay( int pos, bool updateposi)
+{
+	m_pupdateposi = updateposi;
+	if ( !updateposi ){
+		m_plocator = -1;
+	}else
+	{
+		m_plocator = pos;
+	}
 	update();
 }
 

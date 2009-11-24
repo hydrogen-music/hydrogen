@@ -44,7 +44,7 @@ class TargetWaveDisplay : public QWidget, public Object
 
 		void updateDisplay( H2Core::InstrumentLayer *pLayer );
 		void updateDisplayPointer();
-
+		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
 //		int m_pFadeOutFramePosition;
 
@@ -58,6 +58,8 @@ class TargetWaveDisplay : public QWidget, public Object
 		QString m_info;
 		int m_x;
 		int m_y;
+		int m_plocator;
+		bool m_pupdateposi;
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);

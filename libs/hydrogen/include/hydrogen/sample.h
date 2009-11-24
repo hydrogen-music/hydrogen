@@ -88,7 +88,7 @@ public:
 		unsigned end_frame = 0,
 		SampleVeloPan velopan = SampleVeloPan(),
 		bool use_rubber = false,
-		float use_rubber_divider = 0.0);
+		float use_rubber_divider = 1.0);
 		
 
 	~Sample();
