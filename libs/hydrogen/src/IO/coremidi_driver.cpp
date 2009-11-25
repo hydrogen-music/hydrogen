@@ -160,7 +160,9 @@ void CoreMidiDriver::open()
 		//CFStringGetCString(pname, name, sizeof(name), 0);
 		//MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
 		MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
-		CFRelease( H2MidiNames );
+		if( H2MidiNames != NULL){
+		    CFRelease( H2MidiNames );
+		}
 	}
 }
 
