@@ -261,9 +261,10 @@ int main(int argc, char *argv[])
 
 		if( ! drumkitToLoad.isEmpty() ){
 		    H2Core::LocalFileMng* mng;
-
+		    _INFOLOG("loading drumkit");
 		    QString dir = mng->getDrumkitDirectory( drumkitToLoad );
-		    H2Core::Drumkit* drumkitInfo = mng->loadDrumkit( dir );
+		    //std::cout<< drumkitInfoFile.toStdString() << std::endl;
+		    H2Core::Drumkit* drumkitInfo = mng->loadDrumkit( "./data/drumkits/TR808EmulationKit" );
 		}
 
                 while( true ){
