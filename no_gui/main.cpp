@@ -259,12 +259,11 @@ int main(int argc, char *argv[])
                 H2Core::Preferences::get_instance()->setLastSongFilename(  songFilename);
 
 
+
 		if( ! drumkitToLoad.isEmpty() ){
-		    H2Core::LocalFileMng* mng;
-		    _INFOLOG("loading drumkit");
-		    QString dir = mng->getDrumkitDirectory( drumkitToLoad );
-		    //std::cout<< drumkitInfoFile.toStdString() << std::endl;
-		    H2Core::Drumkit* drumkitInfo = mng->loadDrumkit( "./data/drumkits/TR808EmulationKit" );
+                    H2Core::LocalFileMng* mng;
+                    H2Core::Drumkit* drumkitInfo = mng->loadDrumkit( drumkitToLoad );
+                    H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 		}
 
                 while( true ){
