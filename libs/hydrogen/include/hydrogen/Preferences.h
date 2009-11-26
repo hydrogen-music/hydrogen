@@ -232,6 +232,8 @@ public:
 
 	///Rubberband CLI
 	QString m_rubberBandCLIexecutable;
+	///rubberband bpm change queue
+	bool m_useTheRubberbandBpmChangeEvent;
 	/// Returns an instance of PreferencesMng class
 	static void create_instance();
 	static Preferences* get_instance() { assert(__instance); return __instance; }

@@ -28,6 +28,7 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
+#include <hydrogen/Preferences.h>
 
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/globals.h>
@@ -483,6 +484,12 @@ Song* SongReader::readSong( const QString& filename )
 
 					if ( !drumkitPath.isEmpty() ) {
 						sFilename = drumkitPath + "/" + sFilename;
+					}
+
+					QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+					//test the path. if test fails, disable rubberband
+					if ( QFile( program ).exists() == false) {
+						sUseRubber = false;
 					}
 
 					Sample *pSample = NULL;

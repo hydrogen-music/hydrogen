@@ -59,6 +59,7 @@ class InstrumentEditor : public QWidget, public Object, public EventListener
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent();
+		virtual void bpmchangeEvent();
 		//~ implements EventListener interface
 
 	private slots:

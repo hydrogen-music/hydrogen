@@ -37,6 +37,7 @@ class EventListener
 		virtual void XRunEvent() {}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
+		virtual void bpmchangeEvent() {}
 		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
 
 		virtual ~EventListener() {}

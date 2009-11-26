@@ -831,3 +831,66 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 }
 
 
+ void InstrumentEditor::bpmchangeEvent()
+{
+	if(!Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent){
+		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
+		return;
+	}
+	INFOLOG( "Tempo change: Recomputing rubberband samples." );
+	Song *song = Hydrogen::get_instance()->getSong();
+	assert(song);
+	if(song){
+		InstrumentList *songInstrList = song->get_instrument_list();
+		assert(songInstrList);
+		for ( unsigned nInstr = 0; nInstr < songInstrList->get_size(); ++nInstr ) {
+			Instrument *pInstr = songInstrList->get( nInstr );
+			assert( pInstr );
+			if ( pInstr ){
+				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+					InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
+					if ( pLayer ) {
+						Sample *pSample = pLayer->get_sample();
+						if ( pSample ) {
+							if(pSample->get_use_rubber()){
+								INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
+	
+								QString filename = pSample->get_filename();
+								unsigned startframe = pSample->get_start_frame();
+								unsigned loopframe = pSample->get_loop_frame();
+								unsigned endframe = pSample->get_end_frame();
+								int loops = pSample->get_repeats();
+								QString	mode = pSample->get_sample_mode();
+								bool userubber = pSample->get_use_rubber();
+								float rd = pSample->get_rubber_divider();
+								int csettings = pSample->get_rubber_C_settings();
+			
+								Sample *newSample = Sample::load_edit_wave( filename,
+													startframe,
+													loopframe,
+													endframe,
+													loops,
+													mode,
+													userubber,
+													rd,
+													csettings);
+	
+								if( newSample  ){
+									ERRORLOG("gut");
+								}
+								AudioEngine::get_instance()->lock( RIGHT_HERE );	
+								delete pSample;
+								// insert new sample from newInstrument
+								pLayer->set_sample( newSample );
+								AudioEngine::get_instance()->unlock();
+	
+							}
+						}
+					}
+					
+				}
+			}
+		}
+	}
+
+}

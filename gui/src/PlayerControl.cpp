@@ -41,6 +41,7 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/IO/JackOutput.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/event_queue.h>
 using namespace H2Core;
 
 
@@ -353,6 +354,23 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBPMDownBtn->move( 12, 14 );
 	connect( m_pBPMDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
 	connect( m_pBPMDownBtn, SIGNAL( mousePress( Button* ) ), this, SLOT(bpmButtonPressed( Button* ) ) );
+
+	m_pRubberBPMChange = new ToggleButton(
+			pBPMPanel,
+			"/playerControlPanel/rubber_on.png",
+			"/playerControlPanel/rubber_off.png",
+			"/playerControlPanel/rubber_off.png",
+			QSize(9, 37)
+	);
+	m_pRubberBPMChange->move( 133, 3 );
+	m_pRubberBPMChange->setToolTip( trUtf8("Recalculate Rubberband modified samples if bpm will change") );
+	m_pRubberBPMChange->setPressed(false);
+	connect( m_pRubberBPMChange, SIGNAL( clicked( Button* ) ), this, SLOT(rubberbandButtonToggle( Button* ) ) );
+	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+	//test the path. if test fails, no button
+	if ( QFile( program ).exists() == false) {
+		m_pRubberBPMChange->hide();
+	}
 
 
 	m_pMetronomeWidget = new MetronomeWidget( pBPMPanel );
@@ -833,6 +851,21 @@ void PlayerControl::bcSetPlayBtnClicked( Button* )
 		
 }
 
+
+void PlayerControl::rubberbandButtonToggle(Button* )
+{
+	Preferences *pPref = Preferences::get_instance();
+	if (m_pRubberBPMChange->isPressed()) {
+		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+		pPref->m_useTheRubberbandBpmChangeEvent = true;
+		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Recalculate all samples using Rubberband ON"), 2000);
+		
+	}
+	else {
+		pPref->m_useTheRubberbandBpmChangeEvent = false;
+		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Recalculate all samples using Rubberband OFF"), 2000);
+	}
+}
 
 
 void PlayerControl::bcbButtonClicked( Button* bBtn)

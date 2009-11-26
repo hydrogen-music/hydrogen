@@ -121,6 +121,9 @@ class PlayerControl : public QLabel, public Object
 		void bcbButtonClicked(Button* bBtn);
 		void bctButtonClicked(Button* tBtn);
 		//~ beatcounter
+		
+		//rubberband
+		void rubberbandButtonToggle(Button* ref);
 
 	private:
 		H2Core::Hydrogen *m_pEngine;
@@ -148,6 +151,9 @@ class PlayerControl : public QLabel, public Object
 		Button *m_pBCBUpBtn;
 		Button *m_pBCBDownBtn;
 		//~ beatcounter
+
+		//rubberbandBPMChange
+		ToggleButton *m_pRubberBPMChange;
 
 		ToggleButton *m_pJackTransportBtn;
 		//jack time master

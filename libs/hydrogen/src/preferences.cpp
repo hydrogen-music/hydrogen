@@ -83,6 +83,8 @@ Preferences::Preferences()
 //	//musicCategories
 //	std::list<QString> m_musicCategories;
 
+	//rubberband bpm change queue
+	m_useTheRubberbandBpmChangeEvent = false;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
