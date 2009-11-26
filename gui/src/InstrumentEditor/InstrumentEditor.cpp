@@ -875,8 +875,8 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 													rd,
 													csettings);
 	
-								if( newSample  ){
-									ERRORLOG("gut");
+								if( !newSample  ){
+									continue;
 								}
 								AudioEngine::get_instance()->lock( RIGHT_HERE );	
 								delete pSample;
