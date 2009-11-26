@@ -464,7 +464,7 @@ void HydrogenApp::onEventQueueTimer()
 					break;
 
 				case EVENT_RECALCULATERUBBERBAND:
-					pListener->bpmchangeEvent();
+					pListener->rubberbandbpmchangeEvent();
 					break;
 
 				case EVENT_PROGRESS:

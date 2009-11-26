@@ -715,8 +715,19 @@ SongEditorPatternList::~SongEditorPatternList()
 
 
 void SongEditorPatternList::patternChangedEvent() {
+
 	createBackground();
 	update();
+	///here we check the timeline  && m_pSong->get_mode() == Song::SONG_MODE
+	Hydrogen *engine = Hydrogen::get_instance();
+	if ( ( Preferences::get_instance()->__usetimeline ) && ( engine->getSong()->get_mode() == Song::SONG_MODE ) ){
+		for ( int i = 0; i < static_cast<int>(engine->m_timelinevector.size()); i++){
+			if ( ( engine->m_timelinevector[i].m_htimelinebeat == engine->getPatternPos() )
+				&& ( engine->getNewBpmJTM() != engine->m_timelinevector[i].m_htimelinebpm ) ){
+				engine->setBPM( engine->m_timelinevector[i].m_htimelinebpm );
+			}//if
+		}//for
+	}//if
 }
 
 

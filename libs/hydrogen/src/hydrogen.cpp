@@ -200,7 +200,6 @@ inline void audioEngine_process_playNotes( unsigned long nframes );
 inline void audioEngine_process_transport();
 
 inline unsigned audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
-inline void audioEngine_timeLineCheck( unsigned nFrames);
 inline int audioEngine_updateNoteQueue( unsigned nFrames );
 inline void audioEngine_prepNoteQueue();
 
@@ -782,9 +781,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	bool sendPatternChange = false;
 	// always update note queue.. could come from pattern or realtime input
 	// (midi, keyboard)
-	if ( Preferences::get_instance()->__usetimeline ){
-		audioEngine_timeLineCheck( nframes );
-	}
 	int res2 = audioEngine_updateNoteQueue( nframes );
 	if ( res2 == -1 ) {	// end of song
 		_INFOLOG( "End of song received, calling engine_stop()" );
@@ -1077,76 +1073,6 @@ void audioEngine_removeSong()
 	AudioEngine::get_instance()->unlock();
 
 	EventQueue::get_instance()->push_event( EVENT_STATE, STATE_PREPARED );
-}
-
-
-inline void audioEngine_timeLineCheck( unsigned nFrames)
-{
-
-	int nMaxTimeHumanize = 2000;
-
-	unsigned int framepos;
-
-	if (  m_audioEngineState == STATE_PLAYING ) {
-		framepos = m_pAudioDriver->m_transport.m_nFrames;
-	} else {
-		// use this to support realtime events when not playing
-		framepos = m_nRealtimeFrames;
-	}
-	
-	if ( m_pSong->get_mode() == Song::SONG_MODE ) {
-		if ( m_pSong->get_pattern_group_vector()->size() == 0 ) {
-			// there's no song!!
-			_ERRORLOG( "no patterns in song." );
-			m_pAudioDriver->stop();
-			return ;
-		}
-
-	int tickNumber_start = 0;
-
-	int lookahead = lookahead = m_nBufferSize;
-	m_nLookaheadFrames = lookahead;
-	if ( framepos == 0
-	     || ( m_audioEngineState == STATE_PLAYING
-		  && m_pSong->get_mode() == Song::SONG_MODE
-		  && m_nSongPos == -1 ) ) {
-		tickNumber_start = (int)( framepos
-					  / m_pAudioDriver->m_transport.m_nTickSize );
-	}
-	else {
-		tickNumber_start = (int)( (framepos + lookahead)
-					  / m_pAudioDriver->m_transport.m_nTickSize );
-	}
-
-	int tick = tickNumber_start;
-	
-//	_ERRORLOG(QString("tick: %1").arg(tick));	
-//	_ERRORLOG(QString("m_nSongSizeInTicks: %1").arg(m_nSongSizeInTicks));
-//	_ERRORLOG(QString("m_nPatternStartTick: %1").arg(m_nPatternStartTick));
-	
-	int testTickPosition = -1;	
-		if ( m_nSongSizeInTicks != 0 ) {
-			testTickPosition = ( tick - m_nPatternStartTick ) % m_nSongSizeInTicks;
-		} else {
-			testTickPosition = tick - m_nPatternStartTick;
-		}
-	
-//	_ERRORLOG(QString("testTickPosition: %1").arg(testTickPosition));
-	
-		if ( testTickPosition == 0 ) {
-			///here we inject the bpm value of timelinevector
-			for ( int i = 0; i < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); i++){
-				if ( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebeat 
-					== Hydrogen::get_instance()->getPatternPos() 
-					&& m_nNewBpmJTM != Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm ){
-					//_ERRORLOG(QString("pre-frames: %1").arg(framepos));
-					Hydrogen::get_instance()->setBPM( Hydrogen::get_instance()->m_timelinevector[i].m_htimelinebpm );
-					audioEngine_process_checkBPMChanged();
-					//_ERRORLOG(QString("post-frames: %1").arg(framepos));
-				}//if
-			}//for
-		}
-	}
 }
 
 

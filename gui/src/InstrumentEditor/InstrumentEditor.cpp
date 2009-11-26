@@ -831,7 +831,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 }
 
 
- void InstrumentEditor::bpmchangeEvent()
+ void InstrumentEditor::rubberbandbpmchangeEvent()
 {
 	if(!Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent){
 		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
