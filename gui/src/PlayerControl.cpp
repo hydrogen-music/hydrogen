@@ -680,6 +680,11 @@ void PlayerControl::updatePlayerControl()
 	}
 	//~ beatcounter
 
+	//timeline check
+//	if( Preferences::get_instance()->__usetimeline ){
+//		m_pRubberBPMChange->setPressed( false );
+//		Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent = false;
+//	}
 }
 
 

@@ -833,12 +833,14 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 
  void InstrumentEditor::rubberbandbpmchangeEvent()
 {
-	if(!Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent){
+	if( !Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent /*&& Preferences::get_instance()->__usetimeline */){
+		//we return also if time-line is activated. this wont work.
 		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
 		return;
 	}
 	INFOLOG( "Tempo change: Recomputing rubberband samples." );
-	Song *song = Hydrogen::get_instance()->getSong();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *song = pEngine->getSong();
 	assert(song);
 	if(song){
 		InstrumentList *songInstrList = song->get_instrument_list();
@@ -864,6 +866,22 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 								bool userubber = pSample->get_use_rubber();
 								float rd = pSample->get_rubber_divider();
 								int csettings = pSample->get_rubber_C_settings();
+
+								Hydrogen::HVeloVector velovector;
+								pEngine->m_volumen.clear();
+								for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_Samplevolumen.size()); i++){
+									velovector.m_hxframe = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVeloframe;
+									velovector.m_hyvalue = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVelovalue;
+									pEngine->m_volumen.push_back( velovector );	
+								}
+
+								Hydrogen::HPanVector panvector;
+								pEngine->m_pan.clear();
+								for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_SamplePan.size()); i++){
+									panvector.m_hxframe = pSample->__velo_pan.m_SamplePan[i].m_SamplePanframe;
+									panvector.m_hyvalue = pSample->__velo_pan.m_SamplePan[i].m_SamplePanvalue;
+									pEngine->m_pan.push_back( panvector );
+								}
 			
 								Sample *newSample = Sample::load_edit_wave( filename,
 													startframe,
