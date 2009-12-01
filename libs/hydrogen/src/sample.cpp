@@ -464,6 +464,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		QString rCs = QString(" %1").arg(rubberbandCsettings);
 		QString rubberResultPath = Preferences::get_instance()->getDataDirectory() + "/tmp_rb_result_file.wav";
 		arguments << "-D" << QString(" %1").arg( durationtime )
+			  << "--threads"
 			  << "-P"
 			  << "-c" << rCs
 			  << outfilePath 
