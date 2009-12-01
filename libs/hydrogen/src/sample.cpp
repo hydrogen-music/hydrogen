@@ -463,12 +463,12 @@ Sample* Sample::load_edit_wave( const QString& filename,
 
 		QString rCs = QString(" %1").arg(rubberbandCsettings);
 		QString rubberResultPath = Preferences::get_instance()->getDataDirectory() + "/tmp_rb_result_file.wav";
-		arguments << "-D" << QString(" %1").arg( durationtime )
-			  << "--threads"
-			  << "-P"
-			  << "-c" << rCs
-			  << outfilePath 
-			  << rubberResultPath;
+		arguments << "-D" << QString(" %1").arg( durationtime ) 	//stretch or squash to make output file X seconds long
+			  << "--threads"					//assume multi-CPU even if only one CPU is identified
+			  << "-P"						//aim for minimal time distortion
+			  << "-c" << rCs					//"crispness" levels
+			  << outfilePath 					//infile
+			  << rubberResultPath;					//outfile
 
 		rubberband->start(program, arguments);
 
