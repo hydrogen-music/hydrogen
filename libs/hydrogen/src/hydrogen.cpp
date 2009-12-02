@@ -1780,6 +1780,7 @@ void audioEngine_stopAudioDrivers()
 		m_pMidiDriver->close();
 		delete m_pMidiDriver;
 		m_pMidiDriver = NULL;
+		m_pMidiDriverOut = NULL;
 	}
 
 	// delete audio driver
@@ -2427,6 +2428,7 @@ void Hydrogen::startExportSong( const QString& filename )
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
 	}
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	Preferences *pPref = Preferences::get_instance();
 
 	m_oldEngineMode = m_pSong->get_mode();
@@ -2446,8 +2448,7 @@ void Hydrogen::startExportSong( const QString& filename )
 
 	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename );
 
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
-
+	
 	// reset
 	m_pAudioDriver->m_transport.m_nFrames = 0;	// reset total frames
 	m_pAudioDriver->setBpm( m_pSong->__bpm );
