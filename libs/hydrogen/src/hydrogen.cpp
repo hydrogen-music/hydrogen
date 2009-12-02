@@ -1196,8 +1196,13 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 									true,
 									&m_nPatternStartTick );
 				} else {
+
 					_INFOLOG( "End of Song" );
-					Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
+
+					if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
+					    Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
+					}
+
 					return -1;
 				}
 			}
