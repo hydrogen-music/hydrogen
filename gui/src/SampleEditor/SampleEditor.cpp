@@ -158,7 +158,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 void SampleEditor::getAllFrameInfos()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	H2Core::Instrument *m_pInstrument = NULL;
+	H2Core::Instrument *pInstrument = NULL;
 	Sample* pSample = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
@@ -169,14 +169,14 @@ void SampleEditor::getAllFrameInfos()
 		}
 
 		if (nInstr == -1) {
-			m_pInstrument = NULL;
+			pInstrument = NULL;
 		}
 		else {
-			m_pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
+			pInstrument = pInstrList->get( nInstr );
+			//INFOLOG( "new instr: " + pInstrument->m_sName );
 		}
 	}
-	H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_pSelectedLayer );
+	H2Core::InstrumentLayer *pLayer = pInstrument->get_layer( m_pSelectedLayer );
 	if ( pLayer ) {
 		pSample = pLayer->get_sample();
 	}
@@ -292,7 +292,7 @@ void SampleEditor::getAllLocalFrameInfos()
 
 void SampleEditor::openDisplays()
 {
-	H2Core::Instrument *m_pInstrument = NULL;
+	H2Core::Instrument *pInstrument = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
@@ -302,11 +302,11 @@ void SampleEditor::openDisplays()
 		}
 
 		if (nInstr == -1) {
-			m_pInstrument = NULL;
+			pInstrument = NULL;
 		}
 		else {
-			m_pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
+			pInstrument = pInstrList->get( nInstr );
+			//INFOLOG( "new instr: " + pInstrument->m_sName );
 		}
 	}
 
@@ -389,7 +389,7 @@ void SampleEditor::createNewLayer()
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		H2Core::Instrument *m_pInstrument = NULL;
+		H2Core::Instrument *pInstrument = NULL;
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		if (pSong != NULL) {
 			InstrumentList *pInstrList = pSong->get_instrument_list();
@@ -399,14 +399,14 @@ void SampleEditor::createNewLayer()
 			}
 	
 			if (nInstr == -1) {
-				m_pInstrument = NULL;
+				pInstrument = NULL;
 			}
 			else {
-				m_pInstrument = pInstrList->get( nInstr );
+				pInstrument = pInstrList->get( nInstr );
 			}
 		}
 	
-		H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_pSelectedLayer );
+		H2Core::InstrumentLayer *pLayer = pInstrument->get_layer( m_pSelectedLayer );
 
 		Sample *oldSample = pLayer->get_sample();
 		delete oldSample;
@@ -535,7 +535,10 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 
 void SampleEditor::on_PlayPushButton_clicked()
 {
-
+	if (PlayPushButton->text() == "Stop" ){
+		testpTimer();
+		return;
+	}
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getselectedLayer();
 	const float pan_L = 0.5f;
 	const float pan_R = 0.5f;
@@ -573,6 +576,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		m_prealtimeframeendfortarget = m_prealtimeframeend;
 	}
 	m_pTargetDisplayTimer->start(40);	// update ruler at 25 fps
+	PlayPushButton->setText( QString( "Stop") ); 
 	
 }
 
@@ -580,6 +584,10 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 void SampleEditor::on_PlayOrigPushButton_clicked()
 {
+	if (PlayOrigPushButton->text() == "Stop" ){
+		testpTimer();
+		return;
+	}
 	Sample *pNewSample = Sample::load( m_samplename );
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_n_frames() / pNewSample->get_sample_rate() + 1) * 100 );
@@ -591,6 +599,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
 	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
+	PlayOrigPushButton->setText( QString( "Stop") ); 
 }
 
 
@@ -612,6 +621,8 @@ void SampleEditor::updateMainsamplePostionRuler()
 	{
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
+		PlayPushButton->setText( QString("&Play") );
+		PlayOrigPushButton->setText( QString( "P&lay original sample") ); 
 		m_pPlayButton = false;
 	}
 }
@@ -635,7 +646,9 @@ void SampleEditor::updateTargetsamplePostionRuler()
 	{
 		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1 , false);
 		m_pTargetDisplayTimer->stop();
-//		m_pPlayButton = false;
+		PlayPushButton->setText(QString( "&Play") );
+		PlayOrigPushButton->setText( QString( "P&lay original sample") ); 
+		m_pPlayButton = false;
 	}
 }
 
@@ -900,9 +913,12 @@ void SampleEditor::testPositionsSpinBoxes()
 
 void SampleEditor::testpTimer()
 {
-	if ( m_pTimer->isActive() ){
+	if ( m_pTimer->isActive() || m_pTargetDisplayTimer->isActive() ){
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
+		m_pTargetDisplayTimer->stop();
+		PlayPushButton->setText( QString( "&Play" ) );
+		PlayOrigPushButton->setText( QString( "P&lay original sample") ); 
 		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 		m_pPlayButton = false;
 	}
