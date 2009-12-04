@@ -2423,7 +2423,7 @@ void Hydrogen::restartDrivers()
 
 
 /// Export a song to a wav file, returns the elapsed time in mSec
-void Hydrogen::startExportSong( const QString& filename )
+void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 {
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
@@ -2436,8 +2436,8 @@ void Hydrogen::startExportSong( const QString& filename )
 
 	m_pSong->set_mode( Song::SONG_MODE );
 	m_pSong->set_loop_enabled( false );
-	unsigned nSamplerate = m_pAudioDriver->getSampleRate();
-
+//	unsigned nSamplerate = m_pAudioDriver->getSampleRate();
+	unsigned nSamplerate = (unsigned)rate;
 	// stop all audio drivers
 	audioEngine_stopAudioDrivers();
 
@@ -2446,7 +2446,7 @@ void Hydrogen::startExportSong( const QString& filename )
 	*/
 
 
-	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename );
+	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename, depth);
 
 	
 	// reset

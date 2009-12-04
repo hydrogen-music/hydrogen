@@ -41,17 +41,69 @@ void* diskWriterDriver_thread( void* param )
 	// always rolling, no user interaction
 	pDriver->m_transport.m_status = TransportInfo::ROLLING;
 
-
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
 //	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
 	soundInfo.channels = 2;
-	soundInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+	//default format
+	int sfformat = 0x010000;
+	int bits = 0x0002;
+	//sf_format switch
+	if( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) 
+		sfformat =  0x020000;
+	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ) 
+		sfformat =  0x170000;
+
+	if( pDriver->m_nSampleDepth == 8 ) 
+		bits = 0x0001;
+	if( pDriver->m_nSampleDepth == 16 ) 
+		bits = 0x0002;
+	if( pDriver->m_nSampleDepth == 24 ) 
+		bits = 0x0003;
+	if( pDriver->m_nSampleDepth == 32 ) 
+		bits = 0x0004;
+
+	soundInfo.format =  sfformat|bits;
+
+	//ogg vorbis option
+	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) )
+		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+///format
+//          SF_FORMAT_WAV          = 0x010000,     /* Microsoft WAV format (little endian). */
+//          SF_FORMAT_AIFF         = 0x020000,     /* Apple/SGI AIFF format (big endian). */
+//          SF_FORMAT_AU           = 0x030000,     /* Sun/NeXT AU format (big endian). */
+//          SF_FORMAT_RAW          = 0x040000,     /* RAW PCM data. */
+//          SF_FORMAT_PAF          = 0x050000,     /* Ensoniq PARIS file format. */
+//          SF_FORMAT_SVX          = 0x060000,     /* Amiga IFF / SVX8 / SV16 format. */
+//          SF_FORMAT_NIST         = 0x070000,     /* Sphere NIST format. */
+//          SF_FORMAT_VOC          = 0x080000,     /* VOC files. */
+//          SF_FORMAT_IRCAM        = 0x0A0000,     /* Berkeley/IRCAM/CARL */
+//          SF_FORMAT_W64          = 0x0B0000,     /* Sonic Foundry's 64 bit RIFF/WAV */
+//          SF_FORMAT_MAT4         = 0x0C0000,     /* Matlab (tm) V4.2 / GNU Octave 2.0 */
+//          SF_FORMAT_MAT5         = 0x0D0000,     /* Matlab (tm) V5.0 / GNU Octave 2.1 */
+//          SF_FORMAT_PVF          = 0x0E0000,     /* Portable Voice Format */
+//          SF_FORMAT_XI           = 0x0F0000,     /* Fasttracker 2 Extended Instrument */
+//          SF_FORMAT_HTK          = 0x100000,     /* HMM Tool Kit format */
+//          SF_FORMAT_SDS          = 0x110000,     /* Midi Sample Dump Standard */
+//          SF_FORMAT_AVR          = 0x120000,     /* Audio Visual Research */
+//          SF_FORMAT_WAVEX        = 0x130000,     /* MS WAVE with WAVEFORMATEX */
+//          SF_FORMAT_SD2          = 0x160000,     /* Sound Designer 2 */
+//          SF_FORMAT_FLAC         = 0x170000,     /* FLAC lossless file format */
+//          SF_FORMAT_CAF          = 0x180000,     /* Core Audio File format */
+//	    SF_FORMAT_OGG
+///bits
+//          SF_FORMAT_PCM_S8       = 0x0001,       /* Signed 8 bit data */
+//          SF_FORMAT_PCM_16       = 0x0002,       /* Signed 16 bit data */
+//          SF_FORMAT_PCM_24       = 0x0003,       /* Signed 24 bit data */
+//          SF_FORMAT_PCM_32       = 0x0004,       /* Signed 32 bit data */
+///used for ogg
+//          SF_FORMAT_VORBIS
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		_ERRORLOG( "Error in soundInfo" );
 		return 0;
 	}
+
 
 	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
 
@@ -114,10 +166,11 @@ void* diskWriterDriver_thread( void* param )
 
 
 
-DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename )
+DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename, int nSampleDepth )
 		: AudioOutput( "DiskWriterDriver" )
 		, m_nSampleRate( nSamplerate )
 		, m_sFilename( sFilename )
+		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
 {
 	INFOLOG( "INIT" );

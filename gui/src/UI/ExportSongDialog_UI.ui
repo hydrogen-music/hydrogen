@@ -1,51 +1,43 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ExportSongDialog_UI</class>
- <widget class="QDialog" name="ExportSongDialog_UI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ExportSongDialog_UI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>462</width>
-    <height>198</height>
+    <height>244</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Export Whole Song to WAV</string>
   </property>
-  <widget class="QWidget" name="layout2" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layout2">
+   <property name="geometry">
     <rect>
      <x>10</x>
-     <y>160</y>
+     <y>200</y>
      <width>445</width>
      <height>28</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" >
-    <property name="spacing" >
+   <layout class="QHBoxLayout">
+    <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin" >
-     <number>0</number>
-    </property>
-    <property name="topMargin" >
-     <number>0</number>
-    </property>
-    <property name="rightMargin" >
-     <number>0</number>
-    </property>
-    <property name="bottomMargin" >
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
      <spacer>
-      <property name="orientation" >
+      <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <property name="sizeType" >
+      <property name="sizeType">
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0">
        <size>
         <width>126</width>
         <height>16</height>
@@ -54,36 +46,36 @@
      </spacer>
     </item>
     <item>
-     <widget class="QPushButton" name="closeBtn" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+     <widget class="QPushButton" name="closeBtn">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="minimumSize" >
+      <property name="minimumSize">
        <size>
         <width>0</width>
         <height>26</height>
        </size>
       </property>
-      <property name="text" >
+      <property name="text">
        <string>&amp;Close</string>
       </property>
-      <property name="shortcut" >
+      <property name="shortcut">
        <string>Alt+C</string>
       </property>
      </widget>
     </item>
     <item>
      <spacer>
-      <property name="orientation" >
+      <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <property name="sizeType" >
+      <property name="sizeType">
        <enum>QSizePolicy::Expanding</enum>
       </property>
-      <property name="sizeHint" >
+      <property name="sizeHint" stdset="0">
        <size>
         <width>126</width>
         <height>16</height>
@@ -93,23 +85,23 @@
     </item>
    </layout>
   </widget>
-  <widget class="QGroupBox" name="groupBox" >
-   <property name="geometry" >
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>110</y>
      <width>441</width>
      <height>81</height>
     </rect>
    </property>
-   <property name="title" >
+   <property name="title">
     <string/>
    </property>
-   <widget class="QPushButton" name="okBtn" >
-    <property name="enabled" >
+   <widget class="QPushButton" name="okBtn">
+    <property name="enabled">
      <bool>false</bool>
     </property>
-    <property name="geometry" >
+    <property name="geometry">
      <rect>
       <x>10</x>
       <y>40</y>
@@ -117,21 +109,21 @@
       <height>25</height>
      </rect>
     </property>
-    <property name="minimumSize" >
+    <property name="minimumSize">
      <size>
       <width>0</width>
       <height>25</height>
      </size>
     </property>
-    <property name="text" >
+    <property name="text">
      <string>&amp;Export</string>
     </property>
-    <property name="shortcut" >
+    <property name="shortcut">
      <string>Alt+E</string>
     </property>
    </widget>
-   <widget class="QProgressBar" name="m_pProgressBar" >
-    <property name="geometry" >
+   <widget class="QProgressBar" name="m_pProgressBar">
+    <property name="geometry">
      <rect>
       <x>90</x>
       <y>40</y>
@@ -139,12 +131,12 @@
       <height>23</height>
      </rect>
     </property>
-    <property name="value" >
+    <property name="value">
      <number>24</number>
     </property>
    </widget>
-   <widget class="QLabel" name="m_pSamplerateLbl" >
-    <property name="geometry" >
+   <widget class="QLabel" name="m_pSamplerateLbl">
+    <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
@@ -152,13 +144,13 @@
       <height>25</height>
      </rect>
     </property>
-    <property name="text" >
+    <property name="text">
      <string>textLabel1</string>
     </property>
    </widget>
   </widget>
-  <widget class="QLabel" name="TextLabel1" >
-   <property name="geometry" >
+  <widget class="QLabel" name="TextLabel1">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
@@ -166,12 +158,12 @@
      <height>24</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Export filename</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="exportNameTxt" >
-   <property name="geometry" >
+  <widget class="QLineEdit" name="exportNameTxt">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>40</y>
@@ -179,12 +171,12 @@
      <height>24</height>
     </rect>
    </property>
-   <property name="readOnly" >
+   <property name="readOnly">
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="browseBtn" >
-   <property name="geometry" >
+  <widget class="QPushButton" name="browseBtn">
+   <property name="geometry">
     <rect>
      <x>360</x>
      <y>40</y>
@@ -192,16 +184,114 @@
      <height>24</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Browse...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Alt+B</string>
    </property>
   </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>421</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Samplerate in Hz:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="srComboBox">
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>25</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>22050</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>44100</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>48000</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>96000</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>192000</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>SampleDepth in Bit:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="sdComboBox">
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>25</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>24</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>32</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
  </widget>
- <layoutdefault spacing="0" margin="0" />
- <includes/>
+ <layoutdefault spacing="0" margin="0"/>
  <resources/>
  <connections/>
 </ui>

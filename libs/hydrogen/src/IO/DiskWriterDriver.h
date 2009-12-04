@@ -40,43 +40,45 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 class DiskWriterDriver : public AudioOutput
 {
-public:
-	unsigned m_nSampleRate;
-	QString m_sFilename;
-	unsigned m_nBufferSize;
-	audioProcessCallback m_processCallback;
-	float* m_pOut_L;
-	float* m_pOut_R;
+	public:
 
-	DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename );
-	~DiskWriterDriver();
-
-	int init( unsigned nBufferSize );
-
-	int connect();
-	void disconnect();
-
-	void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
-
-	unsigned getBufferSize() {
-		return m_nBufferSize;
-	}
-
-	unsigned getSampleRate();
-	float* getOut_L() {
-		return m_pOut_L;
-	}
-	float* getOut_R() {
-		return m_pOut_R;
-	}
-
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
-
-private:
+		unsigned m_nSampleRate;
+		QString m_sFilename;
+		unsigned m_nBufferSize;
+		int m_nSampleDepth;
+		audioProcessCallback m_processCallback;
+		float* m_pOut_L;
+		float* m_pOut_R;
+	
+		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename, int nSampleDepth );
+		~DiskWriterDriver();
+	
+		int init( unsigned nBufferSize );
+	
+		int connect();
+		void disconnect();
+	
+		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
+	
+		unsigned getBufferSize() {
+			return m_nBufferSize;
+		}
+	
+		unsigned getSampleRate();
+		float* getOut_L() {
+			return m_pOut_L;
+		}
+		float* getOut_R() {
+			return m_pOut_R;
+		}
+	
+		virtual void play();
+		virtual void stop();
+		virtual void locate( unsigned long nFrame );
+		virtual void updateTransportInfo();
+		virtual void setBpm( float fBPM );
+	
+	private:
 
 };
 

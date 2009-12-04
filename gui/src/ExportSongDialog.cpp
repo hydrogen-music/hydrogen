@@ -50,6 +50,8 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() ) );
 	m_pProgressBar->setValue( 0 );
+	srComboBox->setCurrentIndex(1);
+	sdComboBox->setCurrentIndex(1);
 }
 
 
@@ -67,9 +69,16 @@ void ExportSongDialog::on_browseBtn_clicked()
 //	static QString lastUsedDir = "";
 	static QString lastUsedDir = QDir::homePath();
 
+
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::AnyFile);
-	fd->setFilter( trUtf8("Wave file (*.wav)") );
+	//fd->setFilter( trUtf8("Wave file (*.wav)") );
+	fd->setNameFilters( QStringList() << "Microsoft WAV (*.wav *.WAv)"
+         				  << "Apple AIFF (*.aiff *.AIFF)"
+         				  << "Lossless  Flac (*.flac *.FLAC)"
+					  << "Compressed Ogg (*.ogg *.OGG)" );
+         				 // << "Any files (*)");
+
 	fd->setDirectory( lastUsedDir );
 	fd->setAcceptMode( QFileDialog::AcceptSave );
 	fd->setWindowTitle( trUtf8( "Export song" ) );
@@ -89,12 +98,20 @@ void ExportSongDialog::on_browseBtn_clicked()
 	if ( ! filename.isEmpty() ) {
 		lastUsedDir = fd->directory().absolutePath();
 		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith( ".wav" ) == false ) {
-			filename += ".wav";
-		}
+//		if ( sNewFilename.endsWith( ".wav" ) == false ) {
+//			filename += ".wav";
+//		}
 
 		exportNameTxt->setText(filename);
 	}
+
+	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
+		srComboBox->hide();
+		sdComboBox->hide();
+		label->hide();
+		label_2->hide();
+	}
+		
 }
 
 
@@ -107,7 +124,8 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	QString filename = exportNameTxt->text();
 	m_bExporting = true;
-	Hydrogen::get_instance()->startExportSong( filename );
+	
+	Hydrogen::get_instance()->startExportSong( filename, srComboBox->currentText().toInt(), sdComboBox->currentText().toInt() );
 }
 
 
@@ -129,6 +147,17 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	}
 	else {
 		okBtn->setEnabled(false);
+	}
+
+	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
+		srComboBox->hide();
+		sdComboBox->hide();		
+	}else
+	{
+		srComboBox->show();
+		sdComboBox->show();
+		label->show();
+		label_2->show();
 	}
 }
 
