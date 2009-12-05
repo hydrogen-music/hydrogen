@@ -24,6 +24,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/Pattern.h>
 
 #include <pthread.h>
 #include <cassert>
@@ -112,9 +113,41 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
 
-	while ( pDriver->m_processCallback( pDriver->m_nBufferSize, NULL ) == 0 ) {
-		// process...
-		for ( unsigned i = 0; i < pDriver->m_nBufferSize; i++ ) {
+
+	//calculate exaxt song frames.
+	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	int nColumns = pPatternColumns->size();
+
+	int nPatternSize;
+	int nSongSize = 0;
+	for ( int i = 0; i < nColumns; ++i ) {
+		PatternList *pColumn = ( *pPatternColumns )[ i ];
+		if ( pColumn->get_size() != 0 ) {
+			nPatternSize = pColumn->get( 0 )->get_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+		nSongSize += nPatternSize;
+	}
+
+	float ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / 192 *4;
+	unsigned songLengthinFrames = ticksize * nSongSize; 
+
+	unsigned frameNuber = 0;
+	int lastrun = 0;
+	while ( frameNuber < songLengthinFrames ) {
+
+		int usedbuffer = pDriver->m_nBufferSize;
+
+		if( songLengthinFrames - frameNuber <  pDriver->m_nBufferSize){
+			lastrun = songLengthinFrames - frameNuber;
+			usedbuffer = lastrun;
+			_ERRORLOG(QString("framenuber %1 lastrun: %2").arg(frameNuber).arg(lastrun));
+		};
+		frameNuber += usedbuffer;
+		int ret = pDriver->m_processCallback( usedbuffer, NULL );
+
+		for ( unsigned i = 0; i < usedbuffer; i++ ) {
 			if(pData_L[i] > 1){
 				pData[i * 2] = 1;
 			}
@@ -135,23 +168,17 @@ void* diskWriterDriver_thread( void* param )
 				pData[i * 2 + 1] = pData_R[i];
 			}
 		}
-		int res = sf_writef_float( m_file, pData, pDriver->m_nBufferSize );
-		if ( res != ( int )pDriver->m_nBufferSize ) {
+		int res = sf_writef_float( m_file, pData, usedbuffer );
+		if ( res != ( int )usedbuffer ) {
 			_ERRORLOG( "Error during sf_write_float" );
 		}
 
-		if ( ( pDriver->m_transport.m_nFrames % 65536 ) == 0 ) {
-			int nPatterns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size();
-			int nCurrentPatternPos = Hydrogen::get_instance()->getPatternPos();
-			assert( nCurrentPatternPos != -1 );
-
-			float fPercent = ( float ) nCurrentPatternPos / ( float )nPatterns * 100.0;
-			EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
-			_INFOLOG( QString( "DiskWriterDriver: %1%, transport frames:%2" ).arg( fPercent ).arg( pDriver->m_transport.m_nFrames ) );
-		}
+		float fPercent = ( float ) frameNuber / ( float )songLengthinFrames * 100.0;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
+//		frameNuber += lastrun;
 	}
-	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 
+//	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	delete[] pData;
 	pData = NULL;
 
@@ -160,6 +187,8 @@ void* diskWriterDriver_thread( void* param )
 	_INFOLOG( "DiskWriterDriver thread end" );
 
 	pthread_exit( NULL );
+
+	Hydrogen::get_instance()->stopExportSong();
 	return NULL;
 }
 

@@ -168,7 +168,7 @@ void ExportSongDialog::progressEvent( int nValue )
 	if ( nValue == 100 ) {
 	  	//INFOLOG("SONO A 100");
 		
-		Hydrogen::get_instance()->stopExportSong();
+//		Hydrogen::get_instance()->stopExportSong();
 		m_bExporting = false;
 		QFile check( exportNameTxt->text() );
 		if ( ! check.exists() ) {

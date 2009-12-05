@@ -2435,7 +2435,7 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 	m_bOldLoopEnabled = m_pSong->is_loop_enabled();
 
 	m_pSong->set_mode( Song::SONG_MODE );
-	m_pSong->set_loop_enabled( false );
+	m_pSong->set_loop_enabled( true );
 //	unsigned nSamplerate = m_pAudioDriver->getSampleRate();
 	unsigned nSamplerate = (unsigned)rate;
 	// stop all audio drivers
