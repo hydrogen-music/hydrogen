@@ -44,6 +44,8 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 
 		virtual void progressEvent( int nValue );
 
+		bool b_QfileDialog;
+
 	private slots:
 		void on_browseBtn_clicked();
 		void on_closeBtn_clicked();

@@ -48,10 +48,20 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
-	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() ) );
 	m_pProgressBar->setValue( 0 );
 	srComboBox->setCurrentIndex(1);
 	sdComboBox->setCurrentIndex(1);
+	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( sdComboBox->currentText() ) );
+
+	QString defaultFilename( Hydrogen::get_instance()->getSong()->get_filename() );
+	if( Hydrogen::get_instance()->getSong()->get_filename().isEmpty() )
+		defaultFilename = Hydrogen::get_instance()->getSong()->__name;
+	defaultFilename.replace( '*', "_" );
+	defaultFilename.replace( ".h2song", "" );	
+	defaultFilename += ".wav";
+	exportNameTxt->setText(defaultFilename);
+	b_QfileDialog = false;
+
 }
 
 
@@ -84,15 +94,14 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd->setWindowTitle( trUtf8( "Export song" ) );
 //	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	QString defaultFilename( Hydrogen::get_instance()->getSong()->__name );
-	defaultFilename.replace( '*', "_" );
-	defaultFilename += ".wav";
+	QString defaultFilename = exportNameTxt->text();
 
 	fd->selectFile(defaultFilename);
 
 	QString filename = "";
 	if (fd->exec()) {
 		filename = fd->selectedFiles().first();
+		b_QfileDialog = true;
 	}
 
 	if ( ! filename.isEmpty() ) {
@@ -123,6 +132,10 @@ void ExportSongDialog::on_okBtn_clicked()
 	}
 
 	QString filename = exportNameTxt->text();
+	if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
+		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		if (res == 1 ) return;
+	}
 	m_bExporting = true;
 	
 	Hydrogen::get_instance()->startExportSong( filename, srComboBox->currentText().toInt(), sdComboBox->currentText().toInt() );
