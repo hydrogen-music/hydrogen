@@ -133,21 +133,21 @@ void* diskWriterDriver_thread( void* param )
 	float ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / 192 *4;
 	unsigned songLengthinFrames = ticksize * nSongSize; 
 
-	unsigned frameNuber = 0;
-	int lastrun = 0;
-	while ( frameNuber < songLengthinFrames ) {
+	unsigned frameNumber = 0;
+	int lastRun = 0;
+	while ( frameNumber < songLengthinFrames ) {
 
-		int usedbuffer = pDriver->m_nBufferSize;
+		int usedBuffer = pDriver->m_nBufferSize;
 
-		if( songLengthinFrames - frameNuber <  pDriver->m_nBufferSize){
-			lastrun = songLengthinFrames - frameNuber;
-			usedbuffer = lastrun;
-			_ERRORLOG(QString("framenuber %1 lastrun: %2").arg(frameNuber).arg(lastrun));
+		if( songLengthinFrames - frameNumber <  pDriver->m_nBufferSize ){
+			lastRun = songLengthinFrames - frameNumber;
+			usedBuffer = lastRun;
 		};
-		frameNuber += usedbuffer;
-		int ret = pDriver->m_processCallback( usedbuffer, NULL );
 
-		for ( unsigned i = 0; i < usedbuffer; i++ ) {
+		frameNumber += usedBuffer;
+		int ret = pDriver->m_processCallback( usedBuffer, NULL );
+
+		for ( unsigned i = 0; i < usedBuffer; i++ ) {
 			if(pData_L[i] > 1){
 				pData[i * 2] = 1;
 			}
@@ -168,17 +168,16 @@ void* diskWriterDriver_thread( void* param )
 				pData[i * 2 + 1] = pData_R[i];
 			}
 		}
-		int res = sf_writef_float( m_file, pData, usedbuffer );
-		if ( res != ( int )usedbuffer ) {
+		int res = sf_writef_float( m_file, pData, usedBuffer );
+		if ( res != ( int )usedBuffer ) {
 			_ERRORLOG( "Error during sf_write_float" );
 		}
 
-		float fPercent = ( float ) frameNuber / ( float )songLengthinFrames * 100.0;
+		float fPercent = ( float ) frameNumber / ( float )songLengthinFrames * 100.0;
 		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
 //		frameNuber += lastrun;
 	}
 
-//	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	delete[] pData;
 	pData = NULL;
 
