@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>462</width>
-    <height>244</height>
+    <height>296</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>200</y>
+     <y>250</y>
      <width>445</width>
      <height>28</height>
     </rect>
@@ -89,7 +89,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
+     <y>160</y>
      <width>441</width>
      <height>81</height>
     </rect>
@@ -195,7 +195,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>70</y>
+     <y>120</y>
      <width>421</width>
      <height>29</height>
     </rect>
@@ -287,6 +287,79 @@
        </widget>
       </item>
      </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>80</y>
+     <width>441</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <item>
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Templates: </string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="taplatescomboBox">
+      <item>
+       <property name="text">
+        <string>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>WAV LOFI &quot;22.05kHz, 8 bit PCM </string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>FLAC lossless compressor in good quality &quot;48 kHz&quot;</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</string>
+       </property>
+      </item>
+     </widget>
     </item>
    </layout>
   </widget>

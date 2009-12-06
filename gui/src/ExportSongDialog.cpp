@@ -152,6 +152,163 @@ void ExportSongDialog::on_closeBtn_clicked()
 }
 
 
+void ExportSongDialog::on_taplatescomboBox_currentIndexChanged(int index )
+{
+	/**index
+	 * 0 = wav 44100 | 16
+	 * 1 = wav 48000 | 16
+	 * 2 = wav 48000 | 24
+	 * 3 = wav 22050 | 8
+	 * 4 = wav 96000 | 32
+	 * 5 = aiff 44100 | 16
+	 * 6 = aiff 48000 | 16
+	 * 7 = aiff 48000 | 24
+	 * 8 = flac 48000 
+	 * 9 = ogg VBR , disable comboboxes
+	 **/
+//	QMessageBox::information( this, "Hydrogen", trUtf8("index %1").arg(index) );
+	QString filename;
+	QStringList splitty;
+	switch ( index ) {
+	case 0:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 1 ); //44100hz
+		sdComboBox->setCurrentIndex ( 1 ); //16bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".wav";
+		exportNameTxt->setText(filename);
+		break;
+	case 1:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 2 ); //48000hz
+		sdComboBox->setCurrentIndex ( 1 ); //16bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".wav";
+		exportNameTxt->setText(filename);
+		break;
+	case 2:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 2 ); //48000hz
+		sdComboBox->setCurrentIndex ( 2 ); //24bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".wav";
+		exportNameTxt->setText(filename);
+		break;
+	case 3:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 0 ); //22050hz
+		sdComboBox->setCurrentIndex ( 0 ); //8bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".wav";
+		exportNameTxt->setText(filename);
+		break;
+	case 4:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 3 ); //96000hz
+		sdComboBox->setCurrentIndex ( 3 ); //32bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".wav";
+		exportNameTxt->setText(filename);
+		break;
+	case 5:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 1 ); //44100hz
+		sdComboBox->setCurrentIndex ( 1 ); //16bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".aiff";
+		exportNameTxt->setText(filename);
+		break;
+	case 6:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 2 ); //48000hz
+		sdComboBox->setCurrentIndex ( 1 ); //16bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".aiff";
+		exportNameTxt->setText(filename);
+		break;
+	case 7:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 2 ); //48000hz
+		sdComboBox->setCurrentIndex ( 2 ); //24bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".aiff";
+		exportNameTxt->setText(filename);
+		break;
+	case 8:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 2 ); //48000hz
+		sdComboBox->setCurrentIndex ( 2 ); //24bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".flac";
+		exportNameTxt->setText(filename);
+		break;
+	case 9:
+		srComboBox->hide();
+		sdComboBox->hide();
+		label->hide();
+		label_2->hide();
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".ogg";
+		exportNameTxt->setText(filename);
+		break;
+
+	default:
+		srComboBox->show();
+		sdComboBox->show();
+		srComboBox->setCurrentIndex ( 1 ); //44100hz
+		sdComboBox->setCurrentIndex ( 1 ); //16bit
+		filename = exportNameTxt->text();
+		splitty = filename.split(".");
+		splitty.removeLast();
+		filename = splitty.join( "." );
+		filename += ".wav";
+		exportNameTxt->setText(filename);
+		;
+	}
+
+
+}
+
+
 void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 {
 	QString filename = exportNameTxt->text();
@@ -163,14 +320,22 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	}
 
 	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
-		srComboBox->hide();
-		sdComboBox->hide();		
-	}else
-	{
-		srComboBox->show();
-		sdComboBox->show();
+		taplatescomboBox->setCurrentIndex( 9 );//ogg	
+	}
+	else if( filename.endsWith( ".flac" ) || filename.endsWith( ".FLAC" ) ){
 		label->show();
 		label_2->show();
+		taplatescomboBox->setCurrentIndex( 8 );//flac	
+	}
+	else if( filename.endsWith( ".aiff" ) || filename.endsWith( ".AIFF" ) ){
+		label->show();
+		label_2->show();
+		taplatescomboBox->setCurrentIndex( 5 );//aiff	
+	}
+	else if( filename.endsWith( ".wav" ) || filename.endsWith( ".WAV" ) ){
+		label->show();
+		label_2->show();
+		taplatescomboBox->setCurrentIndex( 0 );//wav	
 	}
 }
 
