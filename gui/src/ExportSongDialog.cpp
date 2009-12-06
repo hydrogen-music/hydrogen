@@ -82,7 +82,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::AnyFile);
 	//fd->setFilter( trUtf8("Wave file (*.wav)") );
-	fd->setNameFilters( QStringList() << "Microsoft WAV (*.wav *.WAv)"
+	fd->setNameFilters( QStringList() << "Microsoft WAV (*.wav *.WAV)"
          				  << "Apple AIFF (*.aiff *.AIFF)"
          				  << "Lossless  Flac (*.flac *.FLAC)"
 					  << "Compressed Ogg (*.ogg *.OGG)" );
