@@ -55,8 +55,12 @@ void* diskWriterDriver_thread( void* param )
 	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ) 
 		sfformat =  0x170000;
 
-	if( pDriver->m_nSampleDepth == 8 ) 
+	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){ 
 		bits = 0x0001;
+	}
+	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".wav") || pDriver->m_sFilename.endsWith(".WAV") ) ){ 
+		bits = 0x0005;
+	}
 	if( pDriver->m_nSampleDepth == 16 ) 
 		bits = 0x0002;
 	if( pDriver->m_nSampleDepth == 24 ) 
@@ -187,7 +191,7 @@ void* diskWriterDriver_thread( void* param )
 
 	pthread_exit( NULL );
 
-	Hydrogen::get_instance()->stopExportSong();
+//	Hydrogen::get_instance()->stopExportSong();
 	return NULL;
 }
 

@@ -51,7 +51,6 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_pProgressBar->setValue( 0 );
 	srComboBox->setCurrentIndex(1);
 	sdComboBox->setCurrentIndex(1);
-	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( sdComboBox->currentText() ) );
 
 	QString defaultFilename( Hydrogen::get_instance()->getSong()->get_filename() );
 	if( Hydrogen::get_instance()->getSong()->get_filename().isEmpty() )
@@ -131,6 +130,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
+	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( sdComboBox->currentText() ) );
 	QString filename = exportNameTxt->text();
 	if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
@@ -344,14 +344,10 @@ void ExportSongDialog::progressEvent( int nValue )
 {
         m_pProgressBar->setValue( nValue );
 	if ( nValue == 100 ) {
-	  	//INFOLOG("SONO A 100");
-		
-//		Hydrogen::get_instance()->stopExportSong();
 		m_bExporting = false;
 		QFile check( exportNameTxt->text() );
 		if ( ! check.exists() ) {
 			QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
 		}
-		accept();
 	}
 }
