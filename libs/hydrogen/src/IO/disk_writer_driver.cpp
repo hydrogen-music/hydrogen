@@ -70,9 +70,15 @@ void* diskWriterDriver_thread( void* param )
 
 	soundInfo.format =  sfformat|bits;
 
+	#ifdef HAVE_OGGVORBIS
+
 	//ogg vorbis option
 	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) )
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+
+	#endif
+
+
 ///format
 //          SF_FORMAT_WAV          = 0x010000,     /* Microsoft WAV format (little endian). */
 //          SF_FORMAT_AIFF         = 0x020000,     /* Apple/SGI AIFF format (big endian). */
