@@ -133,7 +133,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	installEventFilter( this );
 
 	connect(&m_http, SIGNAL(done(bool)), this, SLOT(latestVersionDone(bool)));
-	getLatestVersion();
 
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
@@ -1483,48 +1482,6 @@ void MainForm::action_window_showPatternEditor()
 	bool isVisible = HydrogenApp::get_instance()->getPatternEditorPanel()->isVisible();
 	HydrogenApp::get_instance()->getPatternEditorPanel()->setHidden( isVisible );
 }
-
-
-///
-/// Retrieve from the website the latest version available.
-///
-/// Warning: Hydrogen is not a spyware!!
-/// Hydrogen sends only the current version and the OS used in order to let possible
-/// to use an auto-updater in the future (this feature is not ready yet).
-///
-/// *** No user data will be stored in the server ***
-///
-void MainForm::getLatestVersion()
-{
-	#if defined( Q_OS_MACX )
-	QString os = "Mac";
-	#elif defined( Q_OS_WIN32 )
-	QString os = "Windows";
-	#elif defined( Q_OS_WIN64 )
-	QString os = "Windows64";
-	#elif defined( Q_OS_LINUX )
-	QString os = "Linux";
-	#elif defined( Q_OS_FREEBSD )
-	QString os = "FreeBSD";
-	#elif defined( Q_OS_UNIX )
-	QString os = "Unix";
-	#else
-	QString os = "Unknown";
-	#endif
-
-
-	QString sRequest = QString("/getLatestVersion.php?UsingVersion=%1").arg( get_version().c_str() );
-	sRequest += QString( "&OS=%1" ).arg( os );
-
-	//INFOLOG( sRequest );
-
-	QHttpRequestHeader header( "GET", sRequest );
-	header.setValue( "Host", "www.hydrogen-music.org" );
-
-	m_http.setHost( "www.hydrogen-music.org" );
-	m_http.request( header );
-}
-
 
 
 void MainForm::latestVersionDone(bool bError)

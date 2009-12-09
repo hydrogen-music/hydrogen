@@ -135,7 +135,6 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		std::map<int,int>  keycodeInstrumentMap;
 		void initKeyInstMap();
 
-		void getLatestVersion();
 		QString getAutoSaveFilename();
 	#ifdef LASH_SUPPORT
 		QTimer *lashPollTimer;
