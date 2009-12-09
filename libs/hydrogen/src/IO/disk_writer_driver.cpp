@@ -47,26 +47,30 @@ void* diskWriterDriver_thread( void* param )
 //	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
 	soundInfo.channels = 2;
 	//default format
-	int sfformat = 0x010000;
-	int bits = 0x0002;
+	int sfformat = 0x010000; //wav format (default)
+	int bits = 0x0002; //16 bit PCM (default)
 	//sf_format switch
-	if( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) 
-		sfformat =  0x020000;
-	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ) 
-		sfformat =  0x170000;
-
+	if( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ){
+		sfformat =  0x020000; //Apple/SGI AIFF format (big endian)
+	}
+	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ){
+		sfformat =  0x170000; //FLAC lossless file format
+	}
 	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){ 
-		bits = 0x0001;
+		bits = 0x0001; //Signed 8 bit data works with aiff
 	}
 	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".wav") || pDriver->m_sFilename.endsWith(".WAV") ) ){ 
-		bits = 0x0005;
+		bits = 0x0005; //Unsigned 8 bit data needed for Microsoft WAV format
 	}
-	if( pDriver->m_nSampleDepth == 16 ) 
-		bits = 0x0002;
-	if( pDriver->m_nSampleDepth == 24 ) 
-		bits = 0x0003;
-	if( pDriver->m_nSampleDepth == 32 ) 
-		bits = 0x0004;
+	if( pDriver->m_nSampleDepth == 16 ){
+		bits = 0x0002; //Signed 16 bit data
+	}
+	if( pDriver->m_nSampleDepth == 24 ){
+		bits = 0x0003; //Signed 24 bit data
+	}
+	if( pDriver->m_nSampleDepth == 32 ){
+		bits = 0x0004; ////Signed 32 bit data
+	}
 
 	soundInfo.format =  sfformat|bits;
 
@@ -79,7 +83,7 @@ void* diskWriterDriver_thread( void* param )
 	#endif
 
 
-///format
+///formats
 //          SF_FORMAT_WAV          = 0x010000,     /* Microsoft WAV format (little endian). */
 //          SF_FORMAT_AIFF         = 0x020000,     /* Apple/SGI AIFF format (big endian). */
 //          SF_FORMAT_AU           = 0x030000,     /* Sun/NeXT AU format (big endian). */
@@ -124,7 +128,7 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_R = pDriver->m_pOut_R;
 
 
-	//calculate exaxt song frames.
+	//calculate exact song length in frames (no loops).
 	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 	int nColumns = pPatternColumns->size();
 
@@ -141,7 +145,8 @@ void* diskWriterDriver_thread( void* param )
 	}
 
 	float ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / 192 *4;
-	unsigned songLengthinFrames = ticksize * nSongSize; 
+	 //here we have the song length in frames dependent from bpm and samplerate
+	unsigned songLengthinFrames = ticksize * nSongSize;
 
 	unsigned frameNumber = 0;
 	int lastRun = 0;
@@ -149,6 +154,8 @@ void* diskWriterDriver_thread( void* param )
 
 		int usedBuffer = pDriver->m_nBufferSize;
 
+		//this will calculate the the size from -last- (end of song) used frame buffer,
+		//which is mostly smaller than pDriver->m_nBufferSize
 		if( songLengthinFrames - frameNumber <  pDriver->m_nBufferSize ){
 			lastRun = songLengthinFrames - frameNumber;
 			usedBuffer = lastRun;
@@ -300,7 +307,6 @@ void DiskWriterDriver::locate( unsigned long nFrame )
 void DiskWriterDriver::updateTransportInfo()
 {
 //	errorLog( "[updateTransportInfo] not implemented yet" );
-	// not used
 }
 
 
