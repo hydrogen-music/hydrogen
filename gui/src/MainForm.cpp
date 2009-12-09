@@ -132,8 +132,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 //	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
-	connect(&m_http, SIGNAL(done(bool)), this, SLOT(latestVersionDone(bool)));
-
+	showDevelWarning();
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_autosaveTimer.start( 60 * 1000 );
@@ -1484,55 +1483,11 @@ void MainForm::action_window_showPatternEditor()
 }
 
 
-void MainForm::latestVersionDone(bool bError)
+void MainForm::showDevelWarning()
 {
-	if ( bError ) {
-		INFOLOG( "[MainForm::latestVersionDone] Error." );
-		return;
-	}
 
-	QString sLatestVersion( m_http.readAll() );
-	sLatestVersion = sLatestVersion.simplified();
-	QString sLatest_major = sLatestVersion.section( '.', 0, 0 );
-	QString sLatest_minor = sLatestVersion.section( '.', 1, 1 );
-	QString sLatest_micro = sLatestVersion.section( '.', 2, 2 );
-//	INFOLOG( "Latest available version is: " + QString( sLatestVersion.ascii() ) );
-
-	QString sCurrentVersion = get_version().c_str();
-	QString sCurrent_major = sCurrentVersion.section( '.', 0, 0 );
-	QString sCurrent_minor = sCurrentVersion.section( '.', 1, 1 );
-	QString sCurrent_micro = sCurrentVersion.section( '.', 2, 2 );
-	if ( sCurrent_micro.section( '-', 0, 0 ) != "" ) {
-		sCurrent_micro = sCurrent_micro.section( '-', 0, 0 );
-	}
-
-	bool bExistsNewVersion = false;
-	if ( sLatest_major > sCurrent_major ) {
-		bExistsNewVersion = true;
-	}
-	else if ( sLatest_minor > sCurrent_minor ) {
-			bExistsNewVersion = true;
-	}
-	else if ( sLatest_micro > sCurrent_micro ) {
-		bExistsNewVersion = true;
-	}
-
-	bool bUsingDevelVersion = false;
-	if ( sLatest_major < sCurrent_major ) {
-		bUsingDevelVersion = true;
-	}
-	else if ( sLatest_major == sCurrent_major && sLatest_minor < sCurrent_minor ) {
-		bUsingDevelVersion = true;
-	}
-	else if ( sLatest_major == sCurrent_major && sLatest_minor == sCurrent_minor && sLatest_micro < sCurrent_micro ) {
-		bUsingDevelVersion = true;
-	}
-
-	if ( bExistsNewVersion ) {
-		QString sLatest = QString(sLatest_major) + "." +  QString(sLatest_minor) + "." + QString(sLatest_micro);
-		WARNINGLOG( "\n\n*** A newer version (v" + sLatest + ") of Hydrogen is available at http://www.hydrogen-music.org\n" );
-	}
-        if ( bUsingDevelVersion ) {
+	//set this to 'false' for the case that you want to make a release..
+	if ( true ) {
                 Preferences *pref = Preferences::get_instance();
                 bool isDevelWarningEnabled = pref->getShowDevelWarning();
                 if(isDevelWarningEnabled) {

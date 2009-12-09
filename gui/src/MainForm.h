@@ -99,7 +99,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void onOpenAccelEvent();
 
 		void action_file_open_recent( QAction *pAction );
-		void latestVersionDone(bool bError);
+		void showDevelWarning();
 		void onLashPollTimer();
 
 	private slots:
