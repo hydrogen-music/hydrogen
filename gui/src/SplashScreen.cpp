@@ -85,39 +85,3 @@ void SplashScreen::onCloseTimer()
 {
 	hide();
 }
-
-
-/*void SplashScreen::drawContents ( QPainter *p )
-{
-	ERRORLOG( "drawContents" );
-	p->drawPixmap( rect(), *m_pBackground, rect() );
-*/
-	/*
-	QPixmap logo = QPixmap( Skin::getImagePath() + "/splash/splash.png" );
-
-	p->drawPixmap( rect(), logo, rect() );
-
-
-	QFont font;
-	font.setPointSize( 10 );
-	font.setBold( true );
-
-	p->setFont( font );
-	p->setPen( QColor( 20, 20, 20 ) );
-
-	string version = "v" + string(VERSION) + " (" + string(__DATE__) + ")";
-	p->drawText( 5, 5, width - 10, 40, Qt::AlignRight | Qt::AlignTop, QString( version.c_str() ) );
-
-	p->drawText( 5, height - 45, width - 10, 40, Qt::AlignHCenter | Qt::AlignBottom, QString( trUtf8( "Modules: %1" ) ).arg( COMPILED_FEATURES ) );
-
-
-	QLabel *logoLbl = new QLabel(this);
-	logoLbl->move(0, 0);
-	logoLbl->resize(400, 300);
-	logoLbl->setPixmap(logo);
-
-	*/
-//}
-
-
-
