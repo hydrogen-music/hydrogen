@@ -1554,6 +1554,7 @@ void SongEditorPositionRuler::createBackground()
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	QColor backgroundColor( pStyle->m_songEditor_backgroundColor.getRed(), pStyle->m_songEditor_backgroundColor.getGreen(), pStyle->m_songEditor_backgroundColor.getBlue() );
 	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
+	QColor textColorAlpha( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue(), 45 );
 	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor.getRed(), pStyle->m_songEditor_alternateRowColor.getGreen(), pStyle->m_songEditor_alternateRowColor.getBlue() );
 
 	m_pBackgroundPixmap->fill( backgroundColor );
@@ -1594,21 +1595,23 @@ void SongEditorPositionRuler::createBackground()
 
 //draw tempo content
 	if(pref->__usetimeline){
-		char tempo[10];	
-		for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-			uint x = 10 + i * m_nGridWidth;
-			p.setPen( textColor );
-			p.drawLine( x, 2, x, 5 );
-			p.drawLine( x, 19, x, 20 );
-			for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
-				if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == i ) {
-					sprintf( tempo, "%d",  ((int)Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm) );
-					p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
-				}
+		p.setPen( textColor );
+	}else
+	{
+		p.setPen( textColorAlpha );
+	}
+	char tempo[10];	
+	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
+		uint x = 10 + i * m_nGridWidth;
+		p.drawLine( x, 2, x, 5 );
+		p.drawLine( x, 19, x, 20 );
+		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == i ) {
+				sprintf( tempo, "%d",  ((int)Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm) );
+				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
 			}
 		}
 	}
- 
 
 	p.setPen( QColor(35, 39, 51) );
 	p.drawLine( 0, 0, width(), 0 );

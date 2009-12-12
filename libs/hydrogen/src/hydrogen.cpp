@@ -2115,7 +2115,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 							continue;
 						}
 		
-						if( ( pNote->m_bJustRecorded == false ) && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
+						if( ( pNote->m_bJustRecorded == false ) && (static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() < column + predelete +1 )){
 							delete pNote;
 							currentPattern->note_map.erase( pos0 );
 						}
@@ -2136,7 +2136,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 					continue;
 				}
 
-				if( ( pNote->m_bJustRecorded == false ) && (pNote->get_position() >= postdelete && pNote->get_position() <column + predelete +1 )){
+				if( ( pNote->m_bJustRecorded == false ) && ( static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() <column + predelete +1 )){
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 				}
