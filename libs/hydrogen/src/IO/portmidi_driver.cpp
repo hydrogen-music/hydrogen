@@ -140,7 +140,7 @@ void PortMidiDriver::open()
 
 	int nDeviceId = -1;
 	int nOutDeviceId = -1;
-	QString sMidiPortName = Preferences::getInstance()->m_sMidiPortName;
+	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	int nDevices = Pm_CountDevices();
 	for ( int i = 0; i < nDevices; i++ ) {
 		const PmDeviceInfo *info = Pm_GetDeviceInfo( i );
