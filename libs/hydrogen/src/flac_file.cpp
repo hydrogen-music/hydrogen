@@ -84,7 +84,6 @@ FLACFile_real::~FLACFile_real()
 
 ::FLAC__StreamDecoderWriteStatus FLACFile_real::write_callback( const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[] )
 {
-//	int nSampleRate = get_sample_rate();
 	int nChannelCount = get_channels();
 	int nBits = get_bits_per_sample();
 
@@ -209,7 +208,7 @@ Sample* FLACFile_real::getSample() {
 
 	memcpy( data_L, &m_audioVect_L[ 0 ], nFrames * sizeof( float ) );
 	memcpy( data_R, &m_audioVect_R[ 0 ], nFrames * sizeof( float ) );
-	pSample = new Sample( nFrames, m_sFilename, data_L, data_R );
+	pSample = new Sample( nFrames, m_sFilename, get_sample_rate(), data_L, data_R );
 
 	return pSample;
 }

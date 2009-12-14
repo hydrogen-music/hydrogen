@@ -42,6 +42,7 @@ namespace H2Core
 
 Sample::Sample( unsigned frames,
 		const QString& filename, 
+		unsigned sample_rate,
 		float* data_l,
 		float* data_r,
 		bool sample_is_modified,
@@ -59,7 +60,7 @@ Sample::Sample( unsigned frames,
 		: Object( "Sample" )
 		, __data_l( data_l )
 		, __data_r( data_r )
-		, __sample_rate( 44100 )
+		, __sample_rate( sample_rate )
 		, __filename( filename )
 		, __n_frames( frames )
 		, __sample_is_modified( sample_is_modified )
@@ -152,10 +153,7 @@ Sample* Sample::load_wave( const QString& filename )
 	}
 	delete[] pTmpBuffer;
 
-	Sample *pSample = new Sample( soundInfo.frames, filename );
-	pSample->__data_l = data_l;
-	pSample->__data_r = data_r;
-	pSample->__sample_rate = soundInfo.samplerate;
+	Sample *pSample = new Sample( soundInfo.frames, filename, soundInfo.samplerate, data_l, data_r );
 //	pSample->reverse_sample( pSample ); // test reverse
 	return pSample;
 }
@@ -316,7 +314,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		}
 
 	//create new sample
-	Sample *pSample = new Sample( newlength, filename );
+	Sample *pSample = new Sample( newlength, filename, samplerate );
 	
 
 	//check for volume vector

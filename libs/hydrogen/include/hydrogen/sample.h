@@ -78,6 +78,7 @@ class Sample : public Object
 public:
 	Sample( unsigned frames,
 		const QString& filename, 
+		unsigned sample_rate,
 		float* data_L = NULL,
 		float* data_R = NULL,
 		bool sample_is_modified = false,
