@@ -14,6 +14,17 @@
 	* added NO_GUI_SUPPORT if we want to build a version of hydrogen without a gui 
 	* added support for app bundles on OSX
 	* created new trunk from wolke's new_fx_rack_and_sample_fun branch
+		new main features coming in from this branch:
+		* non destructive sample editor
+		* piano roll editor
+		* instrument midi out
+		* destructive midi recording
+		* support for midi "note off" messages
+		* virtual pattern
+		* time line to change song tempo
+		* director
+		* and at least several small changes
+
 	* switch to hydrogen 0.9.5 development version	
 	* Xml handling is now done by QtXml instead of TinyXML
 	* improved support for non-ascii filenames / strings
