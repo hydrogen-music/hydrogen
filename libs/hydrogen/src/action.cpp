@@ -187,6 +187,7 @@ bool ActionManager::handleAction( Action * pAction ){
 	{	
 		pEngine->sequencer_stop();
 		pEngine->setPatternPos( 0 );
+		pEngine->setTimelineBpm();
 		return true;
 	}
 
@@ -568,11 +569,13 @@ bool ActionManager::handleAction( Action * pAction ){
 
 	if( sActionString == ">>_NEXT_BAR"){
 		pEngine->setPatternPos(pEngine->getPatternPos() +1 );
+		pEngine->setTimelineBpm();
 		return true;
 	}
 
 	if( sActionString == "<<_PREVIOUS_BAR"){
 		pEngine->setPatternPos(pEngine->getPatternPos() -1 );
+		pEngine->setTimelineBpm();
 		return true;
 	}
 	
