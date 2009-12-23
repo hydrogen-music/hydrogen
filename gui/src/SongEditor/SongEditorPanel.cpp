@@ -516,6 +516,7 @@ void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
 	if( m_pTimeLineToggleBtn->isPressed() ){
 		Preferences::get_instance()->__usetimeline = true;
+		Hydrogen::get_instance()->setTimelineBpm();
 	}
 	else
 	{

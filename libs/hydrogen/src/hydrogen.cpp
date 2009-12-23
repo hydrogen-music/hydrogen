@@ -3388,5 +3388,20 @@ void Hydrogen::sortTimelineTagVector()
 	sort(m_timelinetagvector.begin(), m_timelinetagvector.end(), TimelineTagComparator());
 }
 
+void Hydrogen::setTimelineBpm()
+{
+	//time line test
+	if ( Preferences::get_instance()->__usetimeline ){
+		float bpm = m_pSong->__bpm;
+		for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++){
+			if( m_timelinevector[i].m_htimelinebeat > getPatternPos() ){
+				break;
+			}
+			bpm = m_timelinevector[i].m_htimelinebpm;
+		}//for
+		setBPM( bpm );
+	}//if
+}
+
 };
 

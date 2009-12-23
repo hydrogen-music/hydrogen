@@ -743,6 +743,7 @@ void PlayerControl::stopBtnClicked(Button* ref)
 	m_pEngine->sequencer_stop();
 	m_pEngine->setPatternPos( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Stopped."), 5000);
+	Hydrogen::get_instance()->setTimelineBpm();
 }
 
 
@@ -1043,6 +1044,7 @@ void PlayerControl::FFWDBtnClicked( Button* )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
+	Hydrogen::get_instance()->setTimelineBpm();
 }
 
 
@@ -1051,8 +1053,8 @@ void PlayerControl::RewindBtnClicked( Button* )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
+	Hydrogen::get_instance()->setTimelineBpm();
 }
-
 
 
 void PlayerControl::songLoopBtnClicked( Button* )

@@ -265,6 +265,9 @@ public:
 			return lhs.m_htimelinebeat < rhs.m_htimelinebeat;
 		}
 	};
+
+	void setTimelineBpm();
+
 /// timeline tag vector
 	struct HTimelineTagVector
 	{
@@ -281,6 +284,7 @@ public:
 			return lhs.m_htimelinetagbeat < rhs.m_htimelinetagbeat;
 		}
 	};
+
 
 private:
 	static Hydrogen* __instance;
