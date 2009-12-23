@@ -1672,10 +1672,6 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		//time line test
 		Hydrogen::get_instance()->setTimelineBpm();
 
-
-
-
-
 	}
 	else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);

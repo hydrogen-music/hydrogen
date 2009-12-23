@@ -194,7 +194,6 @@ class PlayerControl : public QLabel, public Object
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
 		QString m_pScrollMessage; 
-		void setTimelineBpm();
 };
 
 
