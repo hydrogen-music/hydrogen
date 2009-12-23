@@ -1,5 +1,32 @@
 hydrogen (0.9.4) unstable; urgency=low
 
+  * Version 0.9.5 beta1
+
+  * fixed serveral export song failures
+  * added ogg, flac, aiff export support 
+  * added some new commandline parameter for no_gui version
+  * added rubberband-cli support
+  * several improvements on sample editor
+  * fixed some segmentation faults in sample-editor
+  * fixed possible segmentation fault in PlaylistDialog.cpp
+  * fixed memory issue in sampler.cpp
+  * added NO_GUI_SUPPORT if we want to build a version of hydrogen without a gui 
+  * added support for app bundles on OSX
+  * created new trunk from wolke's new_fx_rack_and_sample_fun branch
+      new main features coming in from this branch:
+      * non destructive sample editor
+      * piano roll editor
+      * instrument midi out
+      * destructive midi recording
+      * support for midi "note off" messages
+      * virtual pattern
+      * time line to change song tempo
+      * director
+      * and at least several small changes
+
+  * switch to hydrogen 0.9.5 development version	
+  * Xml handling is now done by QtXml instead of TinyXML
+  * improved support for non-ascii filenames / strings
 
   * Version 0.9.4
 
