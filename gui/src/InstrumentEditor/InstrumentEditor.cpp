@@ -232,7 +232,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( QString( "Auto-Stop-Note" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 15, 300 );
-	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample.\n This will save dsp-load and sounds better for cymbals." ) );
+	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
 //~ Instrument properties
