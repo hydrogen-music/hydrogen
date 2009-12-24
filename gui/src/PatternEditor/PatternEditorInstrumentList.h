@@ -56,7 +56,15 @@ class InstrumentLine : public PixmapWidget
 
 	private slots:
 		void functionClearNotes();
-		void functionFillNotes();
+
+		void functionFillAllNotes();
+		void functionFillEveryTwoNotes();
+		void functionFillEveryThreeNotes();
+		void functionFillEveryFourNotes();
+		void functionFillEverySixNotes();
+		void functionFillEveryEightNotes();
+		void functionFillNotes( int every );
+
 		void functionRandomizeVelocity();
 		void functionDeleteInstrument();
 		void muteClicked();
@@ -65,6 +73,7 @@ class InstrumentLine : public PixmapWidget
 
 	private:
 		QMenu *m_pFunctionPopup;
+		QMenu *m_pFunctionPopupSub;
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
 		int m_nInstrumentNumber;	///< The related instrument number

@@ -91,7 +91,14 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
 	m_pFunctionPopup->addAction( trUtf8( "Clear notes" ), this, SLOT( functionClearNotes() ) );
-	m_pFunctionPopup->addAction( trUtf8( "Fill notes" ), this, SLOT( functionFillNotes() ) );
+	m_pFunctionPopupSub = new QMenu( trUtf8( "Fill notes ..." ), m_pFunctionPopup );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/3 notes" ), this, SLOT( functionFillEveryThreeNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
+	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 	m_pFunctionPopup->addAction( trUtf8( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
 	m_pFunctionPopup->addSeparator();
 	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
@@ -239,8 +246,14 @@ void InstrumentLine::functionClearNotes()
 
 
 
+void InstrumentLine::functionFillAllNotes(){ functionFillNotes(1); }
+void InstrumentLine::functionFillEveryTwoNotes(){ functionFillNotes(2); }
+void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
+void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
+void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
+void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
 
-void InstrumentLine::functionFillNotes()
+void InstrumentLine::functionFillNotes( int every )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
@@ -259,7 +272,7 @@ void InstrumentLine::functionFillNotes()
 	else {
 		nBase = 4;
 	}
-	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
+	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
 
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
