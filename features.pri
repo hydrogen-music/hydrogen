@@ -17,7 +17,7 @@ macx-g++ {
 
 	LIBS += /opt/local/lib/libFLAC.dylib
 	LIBS += /opt/local/lib/libFLAC++.dylib
-	LIBS += /opt/local/lib/libjack.dylib
+	LIBS += /usr/local/lib/libjack.dylib
 	LIBS += /opt/local/lib/libtar.dylib
 	LIBS += /opt/local/lib/libpng.dylib
 	LIBS += /opt/local/lib/libsndfile.dylib 
