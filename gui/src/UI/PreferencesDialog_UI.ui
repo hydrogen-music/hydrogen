@@ -200,7 +200,7 @@
       <rect>
        <x>70</x>
        <y>91</y>
-       <width>331</width>
+       <width>451</width>
        <height>21</height>
       </rect>
      </property>
@@ -232,7 +232,7 @@
       <rect>
        <x>70</x>
        <y>121</y>
-       <width>261</width>
+       <width>451</width>
        <height>21</height>
       </rect>
      </property>
@@ -240,25 +240,45 @@
       <string>Beat counter start offset in ms    </string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget_0">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>160</y>
-       <width>331</width>
+       <x>11</x>
+       <y>161</y>
+       <width>511</width>
        <height>48</height>
       </rect>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Path to the Rubberband command-line utility</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLineEdit" name="rubberbandLineEdit"/>
+      <item row="1" column="0">
+       <widget class="QLineEdit" name="rubberbandLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>181</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -295,7 +315,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_1">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -586,7 +606,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_2">
      <property name="geometry">
       <rect>
        <x>10</x>

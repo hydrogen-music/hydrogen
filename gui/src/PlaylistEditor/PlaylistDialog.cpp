@@ -72,7 +72,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistMenu->addAction( trUtf8( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();				// -----
 	m_pPlaylistMenu->addAction( trUtf8( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence( "" ) );
-	m_pPlaylistMenu->addAction( trUtf8( "Remove all songs from &Playlistist " ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
+	m_pPlaylistMenu->addAction( trUtf8( "Remove all songs from &Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
 	m_pPlaylistMenu->addAction( trUtf8( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
