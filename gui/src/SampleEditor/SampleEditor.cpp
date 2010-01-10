@@ -71,6 +71,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pPositionsRulerPath = NULL;
 	m_pPlayButton = false;
 	m_pratio = 1.0;
+	m_ppitch = 0.0;
 	m_pRubberbandCsettings = 4;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
@@ -103,11 +104,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	getAllFrameInfos();
 
 	if ( QFile( Preferences::get_instance()->m_rubberBandCLIexecutable ).exists() == false ){
-		rubberComboBox->hide();
-		rubberbandLabel->hide();
-		rubberbandCsettingscomboBox->hide();
-		ratiolabel->hide();
-		r_c_label->hide();
+		RubberbandCframe->setDisabled ( true );
+//pitchdoubleSpinBox
 		m_pUseRubber = false;
 		m_pSampleEditorStatus = true;
 	}
@@ -192,6 +190,7 @@ void SampleEditor::getAllFrameInfos()
 	m_pRubberDivider = pSample->get_rubber_divider();
 	m_pSamplerate = pSample->get_sample_rate();
 	m_pRubberbandCsettings = pSample->get_rubber_C_settings();
+	m_ppitch = pSample->get_rubber_pitch();
 
 	Hydrogen::HVeloVector velovector;
 	//velovector
@@ -256,6 +255,8 @@ void SampleEditor::getAllFrameInfos()
 		if( !m_pUseRubber )rubberComboBox->setCurrentIndex( 0 );
 		rubberbandCsettingscomboBox->setCurrentIndex( m_pRubberbandCsettings );
 		if( !m_pUseRubber )rubberbandCsettingscomboBox->setCurrentIndex( 4 );
+		pitchdoubleSpinBox->setValue( m_ppitch );
+		if( !m_pUseRubber ) pitchdoubleSpinBox->setValue( 0.0 );
 
 		if( m_pRubberDivider == 1.0/64.0) rubberComboBox->setCurrentIndex( 1 );
 		else if( m_pRubberDivider == 1.0/32.0) rubberComboBox->setCurrentIndex( 2 );
@@ -277,7 +278,7 @@ void SampleEditor::getAllFrameInfos()
 	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
 	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
 	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString ) ) );
-
+	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this, SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
 }
 
 void SampleEditor::getAllLocalFrameInfos()
@@ -381,7 +382,8 @@ void SampleEditor::createNewLayer()
 							    m_sample_mode,
 							    m_pUseRubber,
 							    m_pRubberDivider,
-							    m_pRubberbandCsettings);
+							    m_pRubberbandCsettings,
+							    m_ppitch);
 
 		if( editSample == NULL ){
 			return;
@@ -781,6 +783,13 @@ void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
 	m_pSampleEditorStatus = false;
 }
 
+
+
+void SampleEditor::valueChangedpitchdoubleSpinBox( double )
+{
+	m_ppitch = pitchdoubleSpinBox->value();
+	m_pSampleEditorStatus = false;
+}
 
 
 void SampleEditor::valueChangedrubberComboBox( const QString  )

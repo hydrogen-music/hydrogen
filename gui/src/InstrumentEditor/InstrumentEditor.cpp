@@ -835,10 +835,10 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 {
 	if( !Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent /*&& Preferences::get_instance()->__usetimeline */){
 		//we return also if time-line is activated. this wont work.
-		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
+//		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
 		return;
 	}
-	INFOLOG( "Tempo change: Recomputing rubberband samples." );
+//	INFOLOG( "Tempo change: Recomputing rubberband samples." );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *song = pEngine->getSong();
 	assert(song);
@@ -855,7 +855,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 						Sample *pSample = pLayer->get_sample();
 						if ( pSample ) {
 							if(pSample->get_use_rubber()){
-								INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
+								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
 	
 								QString filename = pSample->get_filename();
 								unsigned startframe = pSample->get_start_frame();
@@ -866,6 +866,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 								bool userubber = pSample->get_use_rubber();
 								float rd = pSample->get_rubber_divider();
 								int csettings = pSample->get_rubber_C_settings();
+								float rpitch = pSample->get_rubber_pitch();
 
 								Hydrogen::HVeloVector velovector;
 								pEngine->m_volumen.clear();
@@ -891,21 +892,22 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 													mode,
 													userubber,
 													rd,
-													csettings);
+													csettings,
+													rpitch);
 	
 								if( !newSample  ){
 									continue;
-								}
-								AudioEngine::get_instance()->lock( RIGHT_HERE );	
+								}	
 								delete pSample;
+
 								// insert new sample from newInstrument
+								AudioEngine::get_instance()->lock( RIGHT_HERE );
 								pLayer->set_sample( newSample );
 								AudioEngine::get_instance()->unlock();
 	
 							}
 						}
 					}
-					
 				}
 			}
 		}

@@ -120,7 +120,7 @@ void PianoRollEditor::selectedInstrumentChangedEvent()
 
 void PianoRollEditor::selectedPatternChangedEvent()
 {
-	INFOLOG( "updating m_pPattern pointer" );
+	//INFOLOG( "updating m_pPattern pointer" );
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
@@ -146,7 +146,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 void PianoRollEditor::createBackground()
 {
-	INFOLOG( "(re)creating the background" );
+	//INFOLOG( "(re)creating the background" );
 
 	QColor backgroundColor( 250, 250, 250 );
 	m_pBackground->fill( backgroundColor );
@@ -371,7 +371,7 @@ void PianoRollEditor::drawPattern()
 	}
 
 
-	INFOLOG( "draw pattern" );
+	//INFOLOG( "draw pattern" );
 
 	QPainter p( m_pTemp );
 	// copy the background image
@@ -407,7 +407,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		}
 	}
 	if ( nInstrument == -1 ) {
-		ERRORLOG( "Instrument not found..skipping note" );
+		//ERRORLOG( "Instrument not found..skipping note" );
 		return;
 	}
 
@@ -470,7 +470,7 @@ int PianoRollEditor::getColumn(QMouseEvent *ev)
 
 void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 {
-	ERRORLOG("Mouse press event");
+	//ERRORLOG("Mouse press event");
 	if ( m_pPattern == NULL ) {
 		return;
 	}
@@ -884,7 +884,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 
 void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 {
-	INFOLOG("Mouse release event" );
+	//INFOLOG("Mouse release event" );
 }
 
 

@@ -31,7 +31,7 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
-
+#include <cmath>
 #include "gui/src/HydrogenApp.h"
 #include "gui/src/SampleEditor/SampleEditor.h"
 
@@ -54,7 +54,8 @@ Sample::Sample( unsigned frames,
 		SampleVeloPan velopan,
 		bool use_rubber_band,
 		float rubberband_divider,
-		int rubberband_C_settings)
+		int rubberband_C_settings,
+		float rubberband_pitch)
 
 
 		: Object( "Sample" )
@@ -73,6 +74,7 @@ Sample::Sample( unsigned frames,
 		, __use_rubber( use_rubber_band )
 		, __rubber_divider( rubberband_divider )
 		, __rubber_C_settings( rubberband_C_settings )
+		, __rubber_pitch( rubberband_pitch )
 {
 		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
 }
@@ -167,7 +169,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
 				const QString loopmode,
 				bool use_rubberband,
 				float rubber_divider,
-				int rubberbandCsettings)
+				int rubberbandCsettings,
+				float rubber_pitch)
 {
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
@@ -460,10 +463,14 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		QStringList arguments;
 
 		QString rCs = QString(" %1").arg(rubberbandCsettings);
+		float pitch = pow( 1.0594630943593, ( double)rubber_pitch );
+		QString rPs = QString(" %1").arg(pitch);
+
 		QString rubberResultPath = Preferences::get_instance()->getDataDirectory() + "/tmp_rb_result_file.wav";
 		arguments << "-D" << QString(" %1").arg( durationtime ) 	//stretch or squash to make output file X seconds long
 			  << "--threads"					//assume multi-CPU even if only one CPU is identified
 			  << "-P"						//aim for minimal time distortion
+			  << "-f" << rPs					//pitch
 			  << "-c" << rCs					//"crispness" levels
 			  << outfilePath 					//infile
 			  << rubberResultPath;					//outfile
@@ -524,12 +531,13 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		pSample->__use_rubber = true;
 		pSample->__rubber_divider = rubber_divider;
 		pSample->__rubber_C_settings = rubberbandCsettings;
+		pSample->__rubber_pitch = rubber_pitch;
 
 		//delete the tmp files
-		if( QFile( outfilePath ).remove() ) 
-			_INFOLOG("remove outfile");
-		if( QFile( rubberResultPath ).remove() )
-			_INFOLOG("remove rubberResultFile");;
+		if( QFile( outfilePath ).remove() ); 
+//			_INFOLOG("remove outfile");
+		if( QFile( rubberResultPath ).remove() );
+//			_INFOLOG("remove rubberResultFile");
 
 	}else///~rubberband
 	{

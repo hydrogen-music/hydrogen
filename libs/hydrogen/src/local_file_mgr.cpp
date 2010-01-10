@@ -1381,7 +1381,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			bool sUseRubber = pSample->get_use_rubber();
 			float sRubberDivider = pSample->get_rubber_divider();
 			int sRubberbandCsettings = pSample->get_rubber_C_settings();
-
+			float sRubberPitch = pSample->get_rubber_pitch();
 
 			if ( !instr->get_drumkit_name().isEmpty() ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -1400,6 +1400,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( sUseRubber ) );
 			LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( sRubberDivider ) );
 			LocalFileMng::writeXmlString( layerNode, "rubberCsettings", QString("%1").arg( sRubberbandCsettings ) );
+			LocalFileMng::writeXmlString( layerNode, "rubberPitch", QString("%1").arg( sRubberPitch ) );
 			LocalFileMng::writeXmlString( layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "max", QString("%1").arg( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "gain", QString("%1").arg( pLayer->get_gain() ) );

@@ -73,6 +73,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		void valueChangedProcessingTypeComboBox( const QString );
 		void valueChangedrubberComboBox( const QString  );
 		void valueChangedrubberbandCsettingscomboBox( const QString );
+		void valueChangedpitchdoubleSpinBox( double );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();
 		void valueChangedStartFrameSpinBox( int );
@@ -129,6 +130,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 		bool m_pUseRubber;
 		float m_pRubberDivider;
 		float m_pratio;
+		float m_ppitch;
 		int m_pRubberbandCsettings;
 
 		

@@ -562,9 +562,8 @@ int Sampler::__render_note_resample(
 	float fNotePitch = pNote->get_pitch() + fLayerPitch;
 	fNotePitch += pNote->m_noteKey.m_nOctave * 12 + pNote->m_noteKey.m_key;
 
-	//_INFOLOG( "pitch: " + to_string( fNotePitch ) );
-
 	float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+//	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
 	fStep *= ( float )pSample->get_sample_rate() / audio_output->getSampleRate(); // Adjust for audio driver sample rate
 
 	int nAvail_bytes = ( int )( ( float )( pSample->get_n_frames() - pNote->m_fSamplePosition ) / fStep );	// verifico il numero di frame disponibili ancora da eseguire
