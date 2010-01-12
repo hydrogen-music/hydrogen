@@ -62,7 +62,7 @@ class SongEditor : public QWidget, public Object
 	private:
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
-		static const unsigned m_nMaxPatternSequence = 400;
+		unsigned m_nMaxPatternSequence;
 		bool m_bSequenceChanged;
 		bool m_bIsMoving;
 		bool m_bIsCtrlPressed;
@@ -175,8 +175,8 @@ class SongEditorPositionRuler : public QWidget, public Object
 	private:
 		QTimer *m_pTimer;
 		uint m_nGridWidth;
-		static const uint m_nMaxPatternSequence = 400;
-		static const uint m_nInitialWidth = m_nMaxPatternSequence * 16;
+		uint m_nMaxPatternSequence;
+		uint m_nInitialWidth;
 		static const uint m_nHeight = 50;
 
 		QPixmap *m_pBackgroundPixmap;

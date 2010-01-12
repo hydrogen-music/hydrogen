@@ -512,6 +512,14 @@ public:
 		m_bUseLash = b;
 	}
 
+	void setMaxBars( int bars ){
+	    maxBars = bars;
+	}
+
+	int getMaxBars(){
+	    return maxBars;
+	}
+
 private:
 	static Preferences *__instance;
 
@@ -538,6 +546,7 @@ private:
 	int punchInPos;
 	int punchOutPos;
 	QString m_sLastNews;
+	int maxBars;
 
 
 	//___ GUI properties ___

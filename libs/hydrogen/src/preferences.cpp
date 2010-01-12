@@ -382,7 +382,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
 			__usetimeline = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __usetimeline );
-			
+			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
 
@@ -731,10 +732,14 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
-	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __usetimeline ? "true": "false" ); 
+	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __usetimeline ? "true": "false" );
+
+	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
+
+
 
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

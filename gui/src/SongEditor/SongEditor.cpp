@@ -66,6 +66,10 @@ SongEditor::SongEditor( QWidget *parent )
 	m_nGridWidth = 16;
 	m_nGridHeight = 18;
 
+	Preferences *pref = Preferences::get_instance();
+	m_nMaxPatternSequence = pref->getMaxBars();
+
+
 	int m_nInitialWidth = 10 + m_nMaxPatternSequence * m_nGridWidth;
 	int m_nInitialHeight = 10;
 
@@ -1506,6 +1510,10 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	setAttribute(Qt::WA_NoBackground);
 
 	m_nGridWidth = 16;
+	Preferences *pref = Preferences::get_instance();
+	m_nMaxPatternSequence = pref->getMaxBars();
+
+	m_nInitialWidth = m_nMaxPatternSequence * 16;
 
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
@@ -1600,7 +1608,7 @@ void SongEditorPositionRuler::createBackground()
 	{
 		p.setPen( textColorAlpha );
 	}
-	char tempo[10];	
+	char tempo[10];
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = 10 + i * m_nGridWidth;
 		p.drawLine( x, 2, x, 5 );
