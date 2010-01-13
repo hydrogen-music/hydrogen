@@ -302,10 +302,10 @@
       <string>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </string>
      </property>
      <property name="minimum">
-      <number>-500</number>
+      <number>1</number>
      </property>
      <property name="maximum">
-      <number>500</number>
+      <number>1000000</number>
      </property>
     </widget>
    </widget>
