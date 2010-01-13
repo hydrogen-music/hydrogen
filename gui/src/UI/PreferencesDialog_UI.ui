@@ -23,12 +23,6 @@
     </rect>
    </property>
    <layout class="QHBoxLayout">
-    <property name="spacing">
-     <number>6</number>
-    </property>
-    <property name="margin">
-     <number>0</number>
-    </property>
     <item>
      <spacer>
       <property name="orientation">
@@ -243,10 +237,10 @@
     <widget class="QWidget" name="layoutWidget_0">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>161</y>
+       <x>10</x>
+       <y>190</y>
        <width>511</width>
-       <height>48</height>
+       <height>49</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
@@ -254,16 +248,6 @@
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Path to the Rubberband command-line utility</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLineEdit" name="rubberbandLineEdit">
-        <property name="minimumSize">
-         <size>
-          <width>181</width>
-          <height>0</height>
-         </size>
         </property>
        </widget>
       </item>
@@ -280,7 +264,49 @@
         </property>
        </spacer>
       </item>
+      <item row="1" column="0">
+       <widget class="QLineEdit" name="rubberbandLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>181</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
      </layout>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>150</y>
+       <width>451</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Maximum number of bars</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="sBmaxBars">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>150</y>
+       <width>52</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </string>
+     </property>
+     <property name="minimum">
+      <number>-500</number>
+     </property>
+     <property name="maximum">
+      <number>500</number>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
@@ -341,12 +367,6 @@
       </item>
       <item>
        <layout class="QGridLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>6</number>
-        </property>
         <item row="1" column="1">
          <widget class="QSpinBox" name="bufferSizeSpinBox">
           <property name="minimumSize">
@@ -513,12 +533,6 @@
       </item>
       <item>
        <layout class="QGridLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>6</number>
-        </property>
         <item row="0" column="1">
          <widget class="QSpinBox" name="maxVoicesTxt">
           <property name="minimumSize">
@@ -612,7 +626,7 @@
        <x>10</x>
        <y>10</y>
        <width>516</width>
-       <height>126</height>
+       <height>135</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -799,16 +813,10 @@
        <x>10</x>
        <y>10</y>
        <width>521</width>
-       <height>63</height>
+       <height>64</height>
       </rect>
      </property>
      <layout class="QGridLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <property name="spacing">
-       <number>6</number>
-      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="applicationFontLbl">
         <property name="minimumSize">
@@ -859,16 +867,10 @@
        <x>10</x>
        <y>90</y>
        <width>521</width>
-       <height>63</height>
+       <height>66</height>
       </rect>
      </property>
      <layout class="QGridLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <property name="spacing">
-       <number>6</number>
-      </property>
       <item row="0" column="1">
        <widget class="QPushButton" name="selectMixerFontBtn">
         <property name="minimumSize">
