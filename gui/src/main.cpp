@@ -44,6 +44,7 @@
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 
+#include <signal.h>
 #include <iostream>
 using namespace std;
 
@@ -122,7 +123,20 @@ void setPalette( QApplication *pQApp )
 }
 
 
+static int setup_unix_signal_handlers()
+{
+    struct sigaction hup, term;
 
+    hup.sa_handler = MainForm::hupSignalHandler;
+    sigemptyset(&hup.sa_mask);
+    hup.sa_flags = 0;
+    hup.sa_flags |= SA_RESTART;
+
+    if (sigaction(SIGUSR1, &hup, 0) > 0)
+       return 1;
+
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -194,6 +208,8 @@ int main(int argc, char *argv[])
 					break;
 			}
 		}
+
+		setup_unix_signal_handlers();
 
 		if( showVersionOpt ) {
 			std::cout << get_version() << std::endl;
