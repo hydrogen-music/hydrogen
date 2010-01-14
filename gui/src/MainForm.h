@@ -51,7 +51,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void updateRecentUsedSongList();
 
 		virtual void errorEvent( int nErrorCode );
-		static void hupSignalHandler(int unused);
+		static void usr1SignalHandler(int unused);
 
 
 	public slots:
@@ -104,9 +104,6 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void showDevelWarning();
 		void onLashPollTimer();
 
-		void handleSigHup();
-
-
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
@@ -118,8 +115,8 @@ class MainForm : public QMainWindow, public EventListener, public Object
 	private:
 		HydrogenApp* h2app;
 
-		static int sighupFd[2];
-		QSocketNotifier *snHup;
+		static int sigusr1Fd[2];
+		QSocketNotifier *snUsr1;
 
 
 

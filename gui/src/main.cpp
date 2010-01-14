@@ -125,14 +125,14 @@ void setPalette( QApplication *pQApp )
 
 static int setup_unix_signal_handlers()
 {
-    struct sigaction hup, term;
+    struct sigaction usr1, term;
 
-    hup.sa_handler = MainForm::hupSignalHandler;
-    sigemptyset(&hup.sa_mask);
-    hup.sa_flags = 0;
-    hup.sa_flags |= SA_RESTART;
+    usr1.sa_handler = MainForm::usr1SignalHandler;
+    sigemptyset(&usr1.sa_mask);
+    usr1.sa_flags = 0;
+    usr1.sa_flags |= SA_RESTART;
 
-    if (sigaction(SIGUSR1, &hup, 0) > 0)
+    if (sigaction(SIGUSR1, &usr1, 0) > 0)
        return 1;
 
     return 0;

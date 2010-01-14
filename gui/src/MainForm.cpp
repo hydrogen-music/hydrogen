@@ -73,7 +73,7 @@ using namespace H2Core;
 using namespace std;
 using namespace H2Core;
 
-int MainForm::sighupFd[2];
+int MainForm::sigusr1Fd[2];
 
 MainForm::MainForm( QApplication *app, const QString& songFilename )
  : QMainWindow( 0, 0 )
@@ -82,11 +82,10 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	setMinimumSize( QSize( 1000, 600 ) );
 	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	sighupFd[0]=1;
-	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sighupFd))
+	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
 	   qFatal("Couldn't create HUP socketpair");
-	snHup = new QSocketNotifier(sighupFd[1], QSocketNotifier::Read, this);
-	connect(snHup, SIGNAL(activated(int)), this, SLOT(action_file_save() ));
+	snUsr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
+	connect(snUsr1, SIGNAL(activated(int)), this, SLOT(action_file_save() ));
 
 
 
@@ -1618,19 +1617,10 @@ bool MainForm::handleUnsavedChanges()
 	return rv;
 }
 
-void MainForm::hupSignalHandler(int)
+void MainForm::usr1SignalHandler(int)
  {
      char a = 1;
-     ::write(sighupFd[0], &a, sizeof(a));
+     ::write(sigusr1Fd[0], &a, sizeof(a));
  }
 
-void MainForm::handleSigHup()
-{
-    snHup->setEnabled(false);
-    char tmp;
-    ::read(sighupFd[1], &tmp, sizeof(tmp));
 
-    // do Qt stuff
-    qDebug() << "received signal!!";
-    snHup->setEnabled(true);
-}
