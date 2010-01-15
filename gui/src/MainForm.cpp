@@ -85,7 +85,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
 	   qFatal("Couldn't create HUP socketpair");
 	snUsr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
-	connect(snUsr1, SIGNAL(activated(int)), this, SLOT(action_file_save() ));
+	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 
 
 
@@ -1622,5 +1622,15 @@ void MainForm::usr1SignalHandler(int)
      char a = 1;
      ::write(sigusr1Fd[0], &a, sizeof(a));
  }
+
+void MainForm::handleSigUsr1()
+{
+    snUsr1->setEnabled(false);
+    char tmp;
+    ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+
+    action_file_save();
+    snUsr1->setEnabled(true);
+}
 
 

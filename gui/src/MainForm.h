@@ -104,6 +104,8 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void showDevelWarning();
 		void onLashPollTimer();
 
+		void handleSigUsr1();
+
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
