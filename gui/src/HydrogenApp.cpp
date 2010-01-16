@@ -82,6 +82,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	Hydrogen::get_instance()->setSong( pFirstSong );
 	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 
+	//setup the undo stack
+	m_undoStack = new QUndoStack( this );
+
 	// set initial title
 	QString qsSongName( pFirstSong->__name );
 	if( qsSongName == "Untitled Song" && !pFirstSong->get_filename().isEmpty() ){

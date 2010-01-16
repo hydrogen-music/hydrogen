@@ -88,6 +88,8 @@ class HydrogenApp : public QObject, public Object
 		PlayerControl* getPlayerControl() {	return m_pPlayerControl;	}
 		InstrumentRack* getInstrumentRack(){	return m_pInstrumentRack;	}
 
+		QUndoStack*  m_undoStack;
+
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );

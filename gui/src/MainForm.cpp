@@ -33,6 +33,7 @@
 #include <hydrogen/event_queue.h>
 using namespace H2Core;
 
+
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
 #include "ExportSongDialog.h"
@@ -44,6 +45,7 @@ using namespace H2Core;
 #include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
+#include "UndoActions.h"
 
 #include "MetroBlinker.h"
 #include "Mixer/Mixer.h"
@@ -259,6 +261,11 @@ void MainForm::createMenuBar()
 	connect( m_pRecentFilesMenu, SIGNAL( triggered(QAction*) ), this, SLOT( action_file_open_recent(QAction*) ) );
 	//~ FILE menu
 
+	// UNDO MENU ( just to test undo stuff...)
+	QMenu *m_pUndoMenu = m_pMenubar->addMenu( trUtf8( "U&ndo" ) );
+	m_pUndoMenu->addAction( trUtf8( "Add undoable test action " ), this, SLOT( action_addTestAction() ), QKeySequence( "" ) );
+	m_pUndoMenu->addAction( trUtf8( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "" ) );
+	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
@@ -1632,5 +1639,17 @@ void MainForm::handleSigUsr1()
     action_file_save();
     snUsr1->setEnabled(true);
 }
+
+void MainForm::action_addTestAction(){
+    TestAction *command1 = new TestAction("test");
+    h2app->m_undoStack->push(command1);
+};
+void MainForm::action_undo(){
+    h2app->m_undoStack->undo();
+};
+void MainForm::action_redo(){
+    h2app->m_undoStack->redo();
+};
+
 
 

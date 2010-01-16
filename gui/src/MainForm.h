@@ -104,6 +104,10 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void showDevelWarning();
 		void onLashPollTimer();
 
+		void action_addTestAction();
+		void action_undo();
+		void action_redo();
+
 		void handleSigUsr1();
 
 	private slots:
