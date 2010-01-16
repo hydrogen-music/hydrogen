@@ -33,7 +33,7 @@
 #include <hydrogen/instrument.h>
 using namespace H2Core;
 
-
+#include "UndoActions.h"
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 #include "SongEditorPanelBpmWidget.h"
@@ -152,6 +152,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		m_bIsCtrlPressed = false;
 	}
 
+	HydrogenApp* h2app = HydrogenApp::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
@@ -174,6 +175,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		}
 
 		if ( bOverExistingPattern ) {
+			qDebug() << "select over existing!!";
 			// MOVE PATTERNS
 //			INFOLOG( "[mousePressEvent] Move patterns" );
 			m_bIsMoving = true;
@@ -185,6 +187,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		}
 		else {
 //			INFOLOG( "[mousePressEvent] Select patterns" );
+			qDebug() << "select!!";
 			// select patterns
 			m_bShowLasso = true;
 			m_lasso.setCoords( ev->x(), ev->y(), ev->x(), ev->y() );
@@ -212,6 +215,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 				// DELETE PATTERN
 //				INFOLOG( "[mousePressEvent] delete pattern" );
 				pColumn->del( nColumnIndex );
+				qDebug() << "delete!!";
 
 				// elimino le colonne vuote
 				for ( int i = pColumns->size() - 1; i >= 0; i-- ) {
@@ -227,27 +231,13 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			}
 			else {
 				if ( nColumn < (int)pColumns->size() ) {
-					// ADD PATTERN
-//					INFOLOG( "[mousePressEvent] add pattern" );
-					m_selectedCells.clear();
-					pColumn->add( pPattern );
+				    SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow) ;
+				    h2app->m_undoStack->push( action );
 				}
 			}
 		}
 		else {
-			// ADD PATTERN (with spaces..)
-			m_selectedCells.clear();
-			int nSpaces = nColumn - pColumns->size();
-//			INFOLOG( "[mousePressEvent] add pattern (with " + to_string( nSpaces ) + " spaces)" );
-
-			PatternList *pColumn = new PatternList();
-			pColumns->push_back( pColumn );
-
-			for ( int i = 0; i < nSpaces; i++ ) {
-				pColumn = new PatternList();
-				pColumns->push_back( pColumn );
-			}
-			pColumn->add( pPattern );
+			addPattern( nColumn , nRow );
 		}
 		pSong->__is_modified = true;
 	}
@@ -260,6 +250,36 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 }
 
 
+void SongEditor::addPattern( int nColumn , int nRow )
+{
+    Hydrogen *pEngine = Hydrogen::get_instance();
+    Song *pSong = pEngine->getSong();
+    PatternList *pPatternList = pSong->get_pattern_list();
+    H2Core::Pattern *pPattern = pPatternList->get( nRow );
+    vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+
+
+    if ( nColumn < (int)pColumns->size() ) {
+	    PatternList *pColumn = ( *pColumns )[ nColumn ];
+	    // ADD PATTERN
+	    m_selectedCells.clear();
+	    pColumn->add( pPattern );
+
+	} else {
+	    //we need to add some new columns..
+	    PatternList *pColumn = new PatternList();
+	    m_selectedCells.clear();
+	    int nSpaces = nColumn - pColumns->size();
+
+	    pColumns->push_back( pColumn );
+
+	    for ( int i = 0; i < nSpaces; i++ ) {
+		    pColumn = new PatternList();
+		    pColumns->push_back( pColumn );
+	    }
+	    pColumn->add( pPattern );
+    }
+}
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {

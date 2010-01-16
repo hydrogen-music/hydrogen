@@ -51,6 +51,8 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
+		SongEditor* getSongEditor(){ return m_pSongEditor; }
+
 		void updateAll();
 		void updatePositionRuler();
 		void setModeActionBtn( bool mode );

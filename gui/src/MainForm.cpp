@@ -1624,6 +1624,7 @@ bool MainForm::handleUnsavedChanges()
 	return rv;
 }
 
+
 void MainForm::usr1SignalHandler(int)
  {
      char a = 1;
