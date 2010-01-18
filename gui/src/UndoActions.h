@@ -33,8 +33,8 @@ public:
     virtual void undo()
 	{
 	    qDebug() << "Undo not implemented yet.. ";
-	    //HydrogenApp* h2app = HydrogenApp::get_instance();
-	    //h2app->getSongEditorPanel()->getSongEditor()->addPattern( nColumn, nRow );
+	    HydrogenApp* h2app = HydrogenApp::get_instance();
+	    h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
 	}
     virtual void redo()
 	{

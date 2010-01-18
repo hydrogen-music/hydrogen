@@ -566,7 +566,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
 	QString sText = event->mimeData()->text();
-	ERRORLOG(sText);
+	//ERRORLOG(sText);
 	
 
 	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
@@ -587,14 +587,18 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		event->acceptProposedAction();
 	}
-	else {
-		
+	if( sText.startsWith("importInstrument:") ) {
+		//an instrument was dragged from the soundlibrary browser to the patterneditor
+
+		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitName = tokens.at( 0 );
 		QString sInstrumentName = tokens.at( 1 );
 		
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
+		if( pNewInstrument == NULL ) return;		
+
 		Hydrogen *pEngine = Hydrogen::get_instance();
 
 		// create a new valid ID for this instrument
