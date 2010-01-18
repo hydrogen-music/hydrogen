@@ -552,7 +552,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
 	QString sText = event->mimeData()->text();
-	ERRORLOG(sText);
+	//ERRORLOG(sText);
 	
 
 	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
@@ -573,8 +573,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		event->acceptProposedAction();
 	}
-	if( sText.startsWith("importInstrument") ) {
+	if( sText.startsWith("importInstrument:") ) {
 		//an instrument was dragged from the soundlibrary browser to the patterneditor
+
+		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitName = tokens.at( 0 );
