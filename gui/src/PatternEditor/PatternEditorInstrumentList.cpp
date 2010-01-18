@@ -573,14 +573,16 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		event->acceptProposedAction();
 	}
-	else {
-		
+	if( sText.startsWith("importInstrument") ) {
+		//an instrument was dragged from the soundlibrary browser to the patterneditor
 
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitName = tokens.at( 0 );
 		QString sInstrumentName = tokens.at( 1 );
 		
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
+		if( pNewInstrument == NULL ) return;		
+
 		Hydrogen *pEngine = Hydrogen::get_instance();
 
 		// create a new valid ID for this instrument
