@@ -430,6 +430,7 @@ void MainForm::action_file_new()
 		return;
 	}
 
+	h2app->m_undoStack->clear();
 	Hydrogen::get_instance()->m_timelinevector.clear();
 	Song * song = Song::get_empty_song();
 	song->set_filename( "" );
@@ -634,6 +635,7 @@ void MainForm::action_file_open() {
 		return;
 	}
 
+	h2app->m_undoStack->clear();
 	static QString lastUsedDir = Preferences::get_instance()->getDataDirectory() + "/songs";
 	
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -721,7 +723,8 @@ void MainForm::action_file_openDemo()
 	if(!proceed) {
 		return;
 	}
-
+	
+	h2app->m_undoStack->clear();
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
