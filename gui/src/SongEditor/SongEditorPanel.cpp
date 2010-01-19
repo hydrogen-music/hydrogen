@@ -29,6 +29,7 @@
 #include "../Skin.h"
 
 #include "SongEditor.h"
+#include "UndoActions.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
@@ -386,25 +387,12 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 {
 	UNUSED( btn );
 	Hydrogen *pEngine = Hydrogen::get_instance();
+
+	if( pEngine->getSelectedPatternNumber() < 0 || !pEngine->getSelectedPatternNumber() ) return;
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	Song *pSong = pEngine->getSong();
-	PatternList *pList = pSong->get_pattern_list();
-
-	if ( ( nSelectedPatternPos - 1 ) >= 0 ) {
-		Pattern *pTemp = pList->get( nSelectedPatternPos - 1 );
-		pList->replace( pList->get( nSelectedPatternPos ), nSelectedPatternPos - 1 );
-		pList->replace( pTemp, nSelectedPatternPos );
-		AudioEngine::get_instance()->unlock();
-		pEngine->setSelectedPatternNumber( nSelectedPatternPos - 1 );
-
-		updateAll();
-		pSong->__is_modified = true;
-	}
-	else {
-		AudioEngine::get_instance()->unlock();
-	}
+	SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos -1 ) ;
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
 
@@ -416,26 +404,14 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 {
 	UNUSED( btn );
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
+
+	if( pEngine->getSelectedPatternNumber() +1 >=  pSong->get_pattern_list()->get_size() ) return;
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	Song *pSong = pEngine->getSong();
-	PatternList *pList = pSong->get_pattern_list();
-
-	if ( ( nSelectedPatternPos + 1 ) < (int)pList->get_size() ) {
-		Pattern *pTemp = pList->get( nSelectedPatternPos + 1 );
-		pList->replace( pList->get( nSelectedPatternPos ), nSelectedPatternPos + 1 );
-		pList->replace( pTemp, nSelectedPatternPos );
-
-		AudioEngine::get_instance()->unlock();
-		pEngine->setSelectedPatternNumber( nSelectedPatternPos + 1 );
-
-		updateAll();
-		pSong->__is_modified = true;
-	}
-	else {
-		AudioEngine::get_instance()->unlock();
-	}
+	SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
 

@@ -1515,7 +1515,7 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		}
 		engine->setSelectedPatternNumber( nTargetPattern );
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-		
+		pSong->__is_modified = true;
 }
 
 
