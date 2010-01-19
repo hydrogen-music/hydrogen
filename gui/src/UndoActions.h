@@ -79,4 +79,31 @@ private:
     unsigned __nColumnIndex;
 };
 
+
+class SE_movePatternListItemAction : public QUndoCommand
+{
+public:
+    SE_movePatternListItemAction(  int nSourcePattern , int nTargetPattern ){
+	setText( QString( "Move Pattern List Item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
+//	setText("delete Pattern");
+	__nSourcePattern = nSourcePattern;
+	__nTargetPattern = nTargetPattern;
+    }
+    virtual void undo()
+	{
+	    qDebug() << "Move Pattern List Item Undo ";
+	    HydrogenApp* h2app = HydrogenApp::get_instance();
+	    h2app->getSongEditorPanel()->getSongEditorPatternList()->movePatternLine( __nTargetPattern, __nSourcePattern );
+	}
+    virtual void redo()
+	{
+	    qDebug() << "Move Pattern List Item redo " ;
+	    HydrogenApp* h2app = HydrogenApp::get_instance();
+	    h2app->getSongEditorPanel()->getSongEditorPatternList()->movePatternLine( __nSourcePattern , __nTargetPattern );
+	}
+private:
+    int __nSourcePattern;
+    int __nTargetPattern;
+};
+
 #endif // UNDOACTIONS_H

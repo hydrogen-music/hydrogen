@@ -52,6 +52,7 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		~SongEditorPanel();
 
 		SongEditor* getSongEditor(){ return m_pSongEditor; }
+		SongEditorPatternList* getSongEditorPatternList(){ return m_pPatternList; }
 
 		void updateAll();
 		void updatePositionRuler();

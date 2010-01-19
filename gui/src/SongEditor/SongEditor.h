@@ -105,6 +105,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 
 		void updateEditor();
 		void createBackground();
+		void movePatternLine( int, int );
 
 	public slots:
 		void patternPopup_edit();
@@ -148,7 +149,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 
 		virtual void patternChangedEvent();
 		void mouseMoveEvent(QMouseEvent *event);
-		void movePatternLine(int,int);
+		//void movePatternLine(int,int);
 		QPoint __drag_start_position;
 
 };

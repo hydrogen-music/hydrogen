@@ -1447,7 +1447,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		movePatternLine( nSourcePattern , nTargetPattern );
+		SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSourcePattern , nTargetPattern ) ;
+		HydrogenApp::get_instance()->m_undoStack->push( action );
+		//movePatternLine( nSourcePattern , nTargetPattern );
 
 		event->acceptProposedAction();
 	}else {
