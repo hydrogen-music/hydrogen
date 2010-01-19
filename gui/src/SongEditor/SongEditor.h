@@ -59,7 +59,8 @@ class SongEditor : public QWidget, public Object
 		int getGridWidth ();
 		void setGridWidth( uint width);
 
-		void addPattern( int nColumn, int nRow );
+		void addPattern( int nColumn, int nRow);
+		void deletePattern( int nColumn, int nRow, unsigned nColumnIndex);
 
 	private:
 		unsigned m_nGridHeight;

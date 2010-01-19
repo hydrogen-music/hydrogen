@@ -182,8 +182,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 //beatcouter
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
+	createUndoView();///debug only
 }
-
 
 
 MainForm::~MainForm()
@@ -211,6 +211,16 @@ MainForm::~MainForm()
 
 }
 
+
+///debug only
+void MainForm::createUndoView()
+{
+    undoView = new QUndoView(h2app->m_undoStack);
+    undoView->setWindowTitle(tr("Command List"));
+    undoView->show();
+    undoView->setAttribute(Qt::WA_QuitOnClose, false);
+}
+///~debug only
 
 
 ///

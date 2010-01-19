@@ -159,12 +159,11 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 	// don't lock the audio driver before checking that...
 	if ( nRow >= (int)pPatternList->get_size() || nRow < 0 || nColumn < 0 ) { return; }
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 
 	SongEditorActionMode actionMode = HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode();
 	if ( actionMode == SELECT_ACTION ) {
-
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		bool bOverExistingPattern = false;
 		for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
 			QPoint cell = m_selectedCells[ i ];
@@ -195,6 +194,10 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			m_selectedCells.clear();
 			m_selectedCells.push_back( QPoint( nColumn, nRow ) );
 		}
+		AudioEngine::get_instance()->unlock();
+		// update
+		m_bSequenceChanged = true;
+		update();
 	}
 	else if ( actionMode == DRAW_ACTION ) {
 		H2Core::Pattern *pPattern = pPatternList->get( nRow );
@@ -211,59 +214,42 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 				}
 			}
 
-			if ( bFound ) {
-				// DELETE PATTERN
-//				INFOLOG( "[mousePressEvent] delete pattern" );
-				pColumn->del( nColumnIndex );
-				qDebug() << "delete!!";
+			if ( bFound ) {//Delete pattern
+				SE_deletePatternAction *action = new SE_deletePatternAction( nColumn, nRow, nColumnIndex) ;
+				h2app->m_undoStack->push( action );
 
-				// elimino le colonne vuote
-				for ( int i = pColumns->size() - 1; i >= 0; i-- ) {
-					PatternList *pColumn = ( *pColumns )[ i ];
-					if ( pColumn->get_size() == 0 ) {
-						pColumns->erase( pColumns->begin() + i );
-						delete pColumn;
-					}
-					else {
-						break;
-					}
-				}
 			}
 			else {
 				if ( nColumn < (int)pColumns->size() ) {
-				    SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow) ;
+				    SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, nColumnIndex ) ;
 				    h2app->m_undoStack->push( action );
 				}
 			}
 		}
 		else {
-			addPattern( nColumn , nRow );
+			SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, 0 ) ;
+			h2app->m_undoStack->push( action );
 		}
-		pSong->__is_modified = true;
 	}
 
-	AudioEngine::get_instance()->unlock();
-
-	// update
-	m_bSequenceChanged = true;
-	update();
 }
 
 
 void SongEditor::addPattern( int nColumn , int nRow )
 {
-    Hydrogen *pEngine = Hydrogen::get_instance();
-    Song *pSong = pEngine->getSong();
-    PatternList *pPatternList = pSong->get_pattern_list();
-    H2Core::Pattern *pPattern = pPatternList->get( nRow );
-    vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	qDebug() << "add pattern!";
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
+	H2Core::Pattern *pPattern = pPatternList->get( nRow );
+	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 
-
-    if ( nColumn < (int)pColumns->size() ) {
-	    PatternList *pColumn = ( *pColumns )[ nColumn ];
-	    // ADD PATTERN
-	    m_selectedCells.clear();
-	    pColumn->add( pPattern );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if ( nColumn < (int)pColumns->size() ) {
+		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		// ADD PATTERN
+		m_selectedCells.clear();
+		pColumn->add( pPattern );
 
 	} else {
 	    //we need to add some new columns..
@@ -278,8 +264,45 @@ void SongEditor::addPattern( int nColumn , int nRow )
 		    pColumns->push_back( pColumn );
 	    }
 	    pColumn->add( pPattern );
-    }
+	}
+	pSong->__is_modified = true;
+	AudioEngine::get_instance()->unlock();
+	m_bSequenceChanged = true;
+	update();
 }
+
+
+void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
+{
+	qDebug() << "delete pattern!";
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
+	H2Core::Pattern *pPattern = pPatternList->get( nRow );
+	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	PatternList *pColumn = ( *pColumns )[ nColumn ];
+	pColumn->del( nColumnIndex );
+
+	// elimino le colonne vuote
+	for ( int i = pColumns->size() - 1; i >= 0; i-- ) {
+		PatternList *pColumn = ( *pColumns )[ i ];
+		if ( pColumn->get_size() == 0 ) {
+			pColumns->erase( pColumns->begin() + i );
+			delete pColumn;
+		}
+		else {
+			break;
+		}
+	}
+	pSong->__is_modified = true;
+	AudioEngine::get_instance()->unlock();
+	m_bSequenceChanged = true;
+	update();
+}
+
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {

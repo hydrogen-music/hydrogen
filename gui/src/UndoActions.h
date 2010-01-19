@@ -25,26 +25,58 @@ private:
 class SE_addPatternAction : public QUndoCommand
 {
 public:
-    SE_addPatternAction( int nColumn, int nRow){
-	setText("add Pattern");
+    SE_addPatternAction( int nColumn, int nRow, unsigned nColumnIndex ){
+	setText( QString( "Add Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	//setText("add Pattern");
 	__nColumn = nColumn;
 	__nRow = nRow;
+	__nColumnIndex = nColumnIndex;
     }
     virtual void undo()
 	{
-	    qDebug() << "Undo not implemented yet.. ";
+	    qDebug() << "add Pattern Undo ";
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
-	    h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
+	    h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow , __nColumnIndex );
 	}
     virtual void redo()
 	{
-	    qDebug() << "Redo " ;
+	    qDebug() << "add Pattern Redo " ;
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
 	}
 private:
     int __nColumn;
     int __nRow;
+    unsigned __nColumnIndex;
+};
+
+
+class SE_deletePatternAction : public QUndoCommand
+{
+public:
+    SE_deletePatternAction( int nColumn, int nRow, unsigned nColumnIndex ){
+	setText( QString( "Delete Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+//	setText("delete Pattern");
+	__nColumn = nColumn;
+	__nRow = nRow;
+	__nColumnIndex = nColumnIndex;
+    }
+    virtual void undo()
+	{
+	    qDebug() << "Delete pattern Undo ";
+	    HydrogenApp* h2app = HydrogenApp::get_instance();
+	    h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
+	}
+    virtual void redo()
+	{
+	    qDebug() << "Delete pattern Redo " ;
+	    HydrogenApp* h2app = HydrogenApp::get_instance();
+	    h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow, __nColumnIndex );
+	}
+private:
+    int __nColumn;
+    int __nRow;
+    unsigned __nColumnIndex;
 };
 
 #endif // UNDOACTIONS_H
