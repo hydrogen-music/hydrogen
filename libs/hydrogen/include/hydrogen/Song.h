@@ -179,6 +179,9 @@ public:
 		__song_mode = mode;
 	}
 
+	void readTempPatternList( QString filename );
+
+
 private:
 	float __volume;						///< volume of the song (0.0..1.0)
 	float __metronome_volume;				///< Metronome volume

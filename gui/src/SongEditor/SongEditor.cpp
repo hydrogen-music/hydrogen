@@ -701,9 +701,38 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 }
 
 
+void SongEditor::clearThePatternSequenseVector( QString filename )
+{
+	Hydrogen *engine = Hydrogen::get_instance();
 
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
+	Song *song = engine->getSong();
 
+	//before delet the sequense, write a temp seqense file to disk
+	LocalFileMng fileMng;
+	int err = fileMng.writeTempPatternList( song , filename);
+
+	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
+	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
+		PatternList *pPatternList = (*pPatternGroupsVect)[i];
+		pPatternList->clear();
+		delete pPatternList;
+	}
+	pPatternGroupsVect->clear();
+
+	song->__is_modified = true;
+	AudioEngine::get_instance()->unlock();
+	m_bSequenceChanged = true;
+	update();
+}
+
+void SongEditor::updateEditorandSetTrue()
+{
+	Hydrogen::get_instance()->getSong()->__is_modified = true;
+	m_bSequenceChanged = true;
+	update();
+}
 // :::::::::::::::::::
 
 

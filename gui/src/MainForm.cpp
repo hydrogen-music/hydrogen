@@ -201,6 +201,7 @@ MainForm::~MainForm()
 	QFile autosaveFile( "hydrogen_autosave.h2song" );
 	autosaveFile.remove();
 
+
 	hide();
 
 	if (h2app != NULL) {

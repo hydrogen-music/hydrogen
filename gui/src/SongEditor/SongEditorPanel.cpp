@@ -425,26 +425,21 @@ void SongEditorPanel::clearSequence( Button* btn)
 	if ( res == 1 ) {
 		return;
 	}
-
-	Hydrogen *engine = Hydrogen::get_instance();
-
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-	Song *song = engine->getSong();
-	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
-	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
-		PatternList *pPatternList = (*pPatternGroupsVect)[i];
-		pPatternList->clear();
-		delete pPatternList;
-	}
-	pPatternGroupsVect->clear();
-
-	AudioEngine::get_instance()->unlock();
-
-	updateAll();
-	song->__is_modified = true;
+	
+	//create a unique filename
+	time_t thetime;
+	thetime = time(NULL);
+	QString filename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
+
+void SongEditorPanel::restoreGroupVector( QString filename )
+{
+	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
+	m_pSongEditor->updateEditorandSetTrue();
+}
 
 
 void SongEditorPanel::resyncExternalScrollBar()
@@ -549,5 +544,5 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 
 void SongEditorPanel::selectedPatternChangedEvent()
 {
-  resyncExternalScrollBar();
+	resyncExternalScrollBar();
 }

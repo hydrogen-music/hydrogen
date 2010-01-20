@@ -61,8 +61,8 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
-		//~ Implements EventListener interface
-		
+		void restoreGroupVector( QString filename );
+		//~ Implements EventListener interface	
 
 	private slots:
 		void on_patternListScroll();

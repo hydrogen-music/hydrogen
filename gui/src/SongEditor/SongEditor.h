@@ -61,6 +61,8 @@ class SongEditor : public QWidget, public Object
 
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow, unsigned nColumnIndex);
+		void clearThePatternSequenseVector( QString filename );
+		void updateEditorandSetTrue();
 
 	private:
 		unsigned m_nGridHeight;

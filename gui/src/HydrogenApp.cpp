@@ -50,6 +50,7 @@
 //#include <hydrogen/sample.h>
 
 #include <QtGui>
+//#include <QDir>
 
 using namespace H2Core;
 
@@ -122,6 +123,14 @@ HydrogenApp::~HydrogenApp()
 {
 	INFOLOG( "[~HydrogenApp]" );
 	m_pEventQueueTimer->stop();
+
+	//delete the undo tmp directory
+	QString dataDir = Preferences::get_instance()->m_sPreferencesDirectory + "tmp/";
+	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
+	ERRORLOG( cmd );
+	if ( system( cmd.toLocal8Bit() ) != 0 ) {
+		ERRORLOG( "Error executing '" + cmd + "'" );
+	}
 
 	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;

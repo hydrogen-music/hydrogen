@@ -243,6 +243,151 @@ void Song::set_swing_factor( float factor )
 }
 
 
+void Song::readTempPatternList( QString filename )
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+
+	//AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	Song *song = engine->getSong();
+
+	if (QFile( filename ).exists() == false ) {
+		ERRORLOG( "tep file " + filename + " not found." );
+		return;
+	}
+
+	QDomDocument doc = LocalFileMng::openXmlDocument( filename );
+	QDomNodeList nodeList = doc.elementsByTagName( "tempPatternList" );
+	
+
+	if( nodeList.isEmpty() ){
+		ERRORLOG( "Error reading tmp file" );
+		return;
+	}
+
+	QDomNode songNode = nodeList.at(0);
+
+
+	
+	 // Virtual Patterns
+	QDomNode  virtualPatternListNode = songNode.firstChildElement( "virtualPatternList" ); 
+	QDomNode virtualPatternNode = virtualPatternListNode.firstChildElement( "pattern" );
+	if ( !virtualPatternNode.isNull() ) {
+
+	    	while (  ! virtualPatternNode.isNull()  ) {
+		QString sName = "";
+		sName = LocalFileMng::readXmlString(virtualPatternNode, "name", sName);
+		
+		Pattern *curPattern = NULL;
+		unsigned nPatterns = song->get_pattern_list()->get_size();
+		for ( unsigned i = 0; i < nPatterns; i++ ) {
+		    Pattern *pat = song->get_pattern_list()->get( i );
+		    
+		    if (pat->get_name() == sName) {
+			curPattern = pat;
+			break;
+		    }//if
+		}//for
+		
+		if (curPattern != NULL) {
+		    QDomNode  virtualNode = virtualPatternNode.firstChildElement( "virtual" );
+		    while (  !virtualNode.isNull()  ) {
+			QString virtName = virtualNode.firstChild().nodeValue();
+			
+			Pattern *virtPattern = NULL;
+			for ( unsigned i = 0; i < nPatterns; i++ ) {
+			    Pattern *pat = song->get_pattern_list()->get( i );
+		    
+			    if (pat->get_name() == virtName) {
+				virtPattern = pat;
+				break;
+			    }//if
+			}//for
+			
+			if (virtPattern != NULL) {
+			    curPattern->virtual_pattern_set.insert(virtPattern);
+			} else {
+			    ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
+			}//if
+			virtualNode = ( QDomNode ) virtualNode.nextSiblingElement( "virtual" );
+		    }//while
+		} else {
+		    ERRORLOG( "Song had invalid virtual pattern list data (name)" );
+		}//if
+		virtualPatternNode = ( QDomNode ) virtualPatternNode.nextSiblingElement( "pattern" );
+	    }//while
+	}//if
+	    
+	computeVirtualPatternTransitiveClosure( song->get_pattern_list() );
+
+	// Pattern sequence
+	QDomNode patternSequenceNode = songNode.firstChildElement( "patternSequence" );
+
+	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+	
+	// back-compatibility code..
+	QDomNode pPatternIDNode = patternSequenceNode.firstChildElement( "patternID" );
+	while ( ! pPatternIDNode.isNull()  ) {
+		WARNINGLOG( "Using old patternSequence code for back compatibility" );
+		PatternList *patternSequence = new PatternList();
+		QString patId = pPatternIDNode.firstChildElement().text();
+		ERRORLOG(patId);
+
+		Pattern *pat = NULL;
+		for ( unsigned i = 0; i < song->get_pattern_list()->get_size(); i++ ) {
+			Pattern *tmp = song->get_pattern_list()->get( i );
+			if ( tmp ) {
+				if ( tmp->get_name() == patId ) {
+					pat = tmp;
+					break;
+				}
+			}
+		}
+		if ( pat == NULL ) {
+			WARNINGLOG( "patternid not found in patternSequence" );
+			pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
+			continue;
+		}
+		patternSequence->add( pat );
+
+		pPatternGroupVector->push_back( patternSequence );
+
+		pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
+	}
+
+	QDomNode groupNode = patternSequenceNode.firstChildElement( "group" );
+	while (  !groupNode.isNull()  ) {
+		PatternList *patternSequence = new PatternList();
+		QDomNode patternId = groupNode.firstChildElement( "patternID" );
+		while (  !patternId.isNull()  ) {
+			QString patId = patternId.firstChild().nodeValue();
+
+			Pattern *pat = NULL;
+			for ( unsigned i = 0; i < song->get_pattern_list()->get_size(); i++ ) {
+				Pattern *tmp = song->get_pattern_list()->get( i );
+				if ( tmp ) {
+					if ( tmp->get_name() == patId ) {
+						pat = tmp;
+						break;
+					}
+				}
+			}
+			if ( pat == NULL ) {
+				WARNINGLOG( "patternid not found in patternSequence" );
+				patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
+				continue;
+			}
+			patternSequence->add( pat );
+			patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
+		}
+		pPatternGroupVector->push_back( patternSequence );
+
+		groupNode = groupNode.nextSiblingElement( "group" );
+	}
+
+	song->set_pattern_group_vector( pPatternGroupVector );
+
+}
 
 //::::::::::::::::::::
 

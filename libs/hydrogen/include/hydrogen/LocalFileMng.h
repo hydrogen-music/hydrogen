@@ -86,6 +86,8 @@ public:
 	int savePlayList( const std::string& patternname );
 	int loadPlayList( const std::string& patternname);
 
+	int writeTempPatternList( Song *song, const QString& filename);//used for undo/redo
+
 	static QString readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static float readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static int readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);

@@ -252,6 +252,10 @@ public:
 	const QString& getDataDirectory() {
 		return m_sDataDirectory;
 	}
+
+	const QString& getTmpDirectory(){
+		return m_sTmpDirectory;
+	}
 	
 	const QString& getDefaultEditor() {
 		return m_sDefaultEditor;
@@ -524,7 +528,7 @@ private:
 	static Preferences *__instance;
 
 	QString m_sDataDirectory;
-
+	QString m_sTmpDirectory;
 
 	/** directory of demo songs */
 	QString demoPath;
