@@ -1221,29 +1221,59 @@ void SongEditorPatternList::patternPopup_properties()
 
 void SongEditorPatternList::patternPopup_delete()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
 
-//	int state = engine->getState();
-// 	// per ora non lascio possibile la cancellazione del pattern durante l'esecuzione
-// 	// da togliere quando correggo il bug
-//         if (state == PLAYING) {
-//                 QMessageBox::information( this, "Hydrogen", trUtf8("Can't delete the pattern while the audio engine is playing"));
-//                 return;
-//         }
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *song = pEngine->getSong();
+	PatternList *pSongPatternList = song->get_pattern_list();
+	int patternPosition = pEngine->getSelectedPatternNumber();
+
+	//create a unique sequencefilename
+	time_t thetime;
+	thetime = time(NULL);
+	QString sequenceFileName = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+
+	//create a unique patternfilename
+	QString patternFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "PAT.xml" );
+
+	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternFilename , sequenceFileName, patternPosition );
+	HydrogenApp::get_instance()->m_undoStack->push( action );
+
+}
+
+
+void SongEditorPatternList::deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
+{
+
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
 		pEngine->sequencer_setNextPattern( -1, false, false );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
 	}
 
-//	pEngine->sequencer_stop();
-
-// "lock engine" I am not sure, but think this is unnecessarily. -wolke-
-//	AudioEngine::get_instance()->lock( RIGHT_HERE );
-
 	Song *song = pEngine->getSong();
 	PatternList *pSongPatternList = song->get_pattern_list();
 
-	H2Core::Pattern *pattern = pSongPatternList->get( pEngine->getSelectedPatternNumber() );
+
+	//write sequence to disk
+	//this is important because parts of the sequese will remove after deleting a pattern
+	LocalFileMng fileMng;
+	int errseq = fileMng.writeTempPatternList( song , sequenceFileName);
+	
+	//write pattern to disk;
+	Pattern *pat = song->get_pattern_list()->get( patternPosition );
+
+	QString patternname = pat->get_name();
+	int err =1;
+	err = fileMng.savePattern( song , patternPosition, patternFilename, patternname, 4 );
+
+#ifdef WIN32
+	Sleep ( 10 );
+#else
+	usleep ( 10000 );
+#endif 
+	//~save pattern end
+
+	H2Core::Pattern *pattern = pSongPatternList->get( patternPosition );
 	INFOLOG( QString("[patternPopup_delete] Delete pattern: %1 @%2").arg(pattern->get_name()).arg( (long)pattern ) );
 	pSongPatternList->del(pattern);
 
@@ -1262,21 +1292,8 @@ void SongEditorPatternList::patternPopup_delete()
 			}
 			j++;
 		}
-// 		for (uint j = 0; j < list->get_size(); j++) {
-// 			Pattern *pOldPattern = list->get( j );
-// 			if (pOldPattern == pattern ) {
-// 				list->del( j );
-// 			}
-// 		}
+		i++;
 
-/*		if (list->get_size() == 0 ) {
-			patternGroupVect->erase( patternGroupVect->begin() + i );
-			delete list;
-			list = NULL;
-		}
-		else {
-*/			i++;
-//		}
 	}
 
 
@@ -1312,15 +1329,46 @@ void SongEditorPatternList::patternPopup_delete()
 	VirtualPatternDialog::computeVirtualPatternTransitiveClosure(pSongPatternList);
 
 	delete pattern;
-
 	song->__is_modified = true;
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
-// "unlock" I am not sure, but think this is unnecessarily. -wolke-
-//	AudioEngine::get_instance()->unlock();
-
-	( HydrogenApp::get_instance() )->getSongEditorPanel()->updateAll();
 }
 
+void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition  )
+{
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	int tmpselectedpatternpos = patternPosition;
+	Song *song = engine->getSong();
+	PatternList *pPatternList = song->get_pattern_list();
+	Instrument *instr = song->get_instrument_list()->get( 0 );
+	assert( instr );
+	
+
+	LocalFileMng mng;
+	LocalFileMng fileMng;
+	Pattern* err = fileMng.loadPattern( patternFilename );
+	if ( err == 0 ) {
+		_ERRORLOG( "Error loading the pattern" );
+	}else{
+		H2Core::Pattern *pNewPattern = err;
+		pPatternList->add( pNewPattern );
+
+		for (int nPatr = pPatternList->get_size() +1 ; nPatr >= tmpselectedpatternpos; nPatr--) {
+			H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
+			pPatternList->replace( pPattern, nPatr );
+		}
+		pPatternList->replace( pNewPattern, tmpselectedpatternpos );
+
+		song->__is_modified = true;
+		createBackground();
+		update();
+	}
+
+	engine->setSelectedPatternNumber( tmpselectedpatternpos );
+
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+}
 
 
 void SongEditorPatternList::patternPopup_copy()

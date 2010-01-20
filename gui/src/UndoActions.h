@@ -116,18 +116,49 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "Restore complete pattern-sequence";
+		qDebug() << "Delete complete pattern-sequence  undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->restoreGroupVector( __pFilename );
 	}
 
     virtual void redo()
 	{
-		qDebug() << "Move Pattern List Item redo " ;
+		qDebug() << "Delete complete pattern-sequence redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenseVector( __pFilename );
 	}
 private:
 	QString __pFilename;
 };
+
+class SE_deletePatternFromListAction : public QUndoCommand
+{
+public:
+    SE_deletePatternFromListAction(  QString patternFilename , QString sequenceFileName, int patternPosition ){
+	setText( QString( "Delete pattern from list" ) );
+	__patternFilename =  patternFilename;
+	__sequenceFileName = sequenceFileName;
+	__patternPosition = patternPosition;
+    }
+    virtual void undo()
+	{
+		qDebug() << "Delete pattern from list undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __patternFilename, __sequenceFileName, __patternPosition );
+		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
+		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
+	}
+
+    virtual void redo()
+	{
+		qDebug() << "Delete pattern from list redo" ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __patternFilename, __sequenceFileName, __patternPosition );
+	}
+private:
+	QString __patternFilename;
+	QString __sequenceFileName;
+	int __patternPosition;
+};
+
 #endif // UNDOACTIONS_H
