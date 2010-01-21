@@ -23,3 +23,5 @@ MOC_DIR = objs
 INCLUDEPATH += .
 
 SOURCES += main.cpp
+DISTFILES += undo_implementation_todo
+

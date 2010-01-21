@@ -1,0 +1,33 @@
+commands which needs undo/redo support
+
+SongEditor:
+ + Add/remove pattern to sequence				| done
+ + Move pattern list item by drag and drop			| done
+ + Move patternlist item by clicking up/down buttons		| done
+ + Clear full pattern sequence					| done
+ + Delete pattern from list					| done
+ + Copy pattern							| ----
+ + Edit pattern property's					| ----
+ + Fill/delete pattern sequence 				| ----
+ + Load Pattern from context menu				| ----
+ + Drag and drop pattern from library to pattern list		| ----
+ + Edit virtual Pattern						| ----
+ + Move selection (pattern sequence)				| ----
+ + Copy and move selection (pattern sequence)			| ----
+ + Edit timeline tempo						| ----
+ + Edit timeline tags						| ----
+
+Pattern- & Piano Roll-Editor:
+ + Add/Remove note						| ----
+ + Context menu fill notes					| ----
+ + Context menu random velocity					| ----
+ + Add/delete instrument					| ----
+ + Drag and drop intrument from library				| ----
+ + Edit note length (right cklicking)				| ----
+
+Note properties ruler:
+ + Edit velocity						| ----
+ + Edit pan							| ----
+ + Edit lead lag						| ----
+ + Edit note key						| ----
+
