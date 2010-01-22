@@ -63,6 +63,8 @@ class SongEditorPanel : public QWidget, public EventListener, public Object
 		virtual void selectedPatternChangedEvent();
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface	
+		void addEmptyPattern( QString newPatternName , QString newPatternCategory, int patternPosition  );
+		void revertaddEmptyPattern( int patternPosition );
 
 	private slots:
 		void on_patternListScroll();

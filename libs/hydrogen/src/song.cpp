@@ -323,41 +323,13 @@ void Song::readTempPatternList( QString filename )
 	// Pattern sequence
 	QDomNode patternSequenceNode = songNode.firstChildElement( "patternSequence" );
 
-	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+	std::vector<PatternList*> *pPatternGroupVector = song->get_pattern_group_vector();
+	pPatternGroupVector->clear();
 	
-	// back-compatibility code..
-	QDomNode pPatternIDNode = patternSequenceNode.firstChildElement( "patternID" );
-	while ( ! pPatternIDNode.isNull()  ) {
-		WARNINGLOG( "Using old patternSequence code for back compatibility" );
-		PatternList *patternSequence = new PatternList();
-		QString patId = pPatternIDNode.firstChildElement().text();
-		ERRORLOG(patId);
-
-		Pattern *pat = NULL;
-		for ( unsigned i = 0; i < song->get_pattern_list()->get_size(); i++ ) {
-			Pattern *tmp = song->get_pattern_list()->get( i );
-			if ( tmp ) {
-				if ( tmp->get_name() == patId ) {
-					pat = tmp;
-					break;
-				}
-			}
-		}
-		if ( pat == NULL ) {
-			WARNINGLOG( "patternid not found in patternSequence" );
-			pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
-			continue;
-		}
-		patternSequence->add( pat );
-
-		pPatternGroupVector->push_back( patternSequence );
-
-		pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
-	}
-
+	PatternList *patternSequence;
 	QDomNode groupNode = patternSequenceNode.firstChildElement( "group" );
 	while (  !groupNode.isNull()  ) {
-		PatternList *patternSequence = new PatternList();
+		patternSequence = new PatternList();
 		QDomNode patternId = groupNode.firstChildElement( "patternID" );
 		while (  !patternId.isNull()  ) {
 			QString patId = patternId.firstChild().nodeValue();

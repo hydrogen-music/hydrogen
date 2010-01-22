@@ -112,6 +112,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition  );
 		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternCategory, int patternNr );
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr);
+		void loadPatternAction( QString filename, int position);
 
 	public slots:
 		void patternPopup_edit();

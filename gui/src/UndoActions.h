@@ -192,4 +192,66 @@ private:
 	QString __newPatternCategory;
 	int __patternNr;
 };
+
+class SE_addEmptyPatternAction : public QUndoCommand
+{
+public:
+    SE_addEmptyPatternAction(  QString newPatternName , QString newPatternCategory , int patternPosition){
+	setText( QString( "Add/Copy pattern" ) );
+	__newPatternName =  newPatternName;
+	__newPatternCategory = newPatternCategory;
+	__patternPosition = patternPosition;
+    }
+    virtual void undo()
+	{
+		qDebug() << "Add/copy pattern undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
+	}
+
+    virtual void redo()
+	{
+		qDebug() << "Add/copy pattern redo" ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->addEmptyPattern( __newPatternName ,__newPatternCategory, __patternPosition );
+	}
+private:
+	QString __newPatternName;
+	QString __newPatternCategory;
+	int __patternPosition;
+};
+
+class SE_loadPatternAction : public QUndoCommand
+{
+public:
+    SE_loadPatternAction(  QString patternName, QString oldPatternName, QString sequenceFileName, int patternPosition){
+	setText( QString( "Load/drag pattern" ) );
+	__patternName =  patternName;
+	__oldPatternName = oldPatternName;
+	__sequenceFileName = sequenceFileName;
+	__patternPosition = patternPosition;
+    }
+    virtual void undo()
+	{
+		qDebug() << "Load/drag pattern undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __oldPatternName, __sequenceFileName, __patternPosition );
+		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition +2 );
+		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
+		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
+	}
+
+    virtual void redo()
+	{
+		qDebug() <<  "Load/drag pattern redo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __oldPatternName, __sequenceFileName, __patternPosition );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->loadPatternAction( __patternName, __patternPosition  );
+	}
+private:
+	QString __patternName;
+	QString __oldPatternName;
+	QString __sequenceFileName;
+	int __patternPosition;
+};
 #endif // UNDOACTIONS_H

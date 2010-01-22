@@ -365,9 +365,12 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern, 0, true );
 	if ( dialog->exec() == QDialog::Accepted ) {
-		patternList->add( emptyPattern );
-		song->__is_modified = true;
-		updateAll();
+
+		SE_addEmptyPatternAction*action = new SE_addEmptyPatternAction( emptyPattern->get_name() , emptyPattern->get_category(), emptyPatternNo);
+		HydrogenApp::get_instance()->m_undoStack->push( action );
+		patternList->del( emptyPattern );
+		delete emptyPattern;
+		emptyPattern = NULL;
 	}
 	else {
 		patternList->del( emptyPattern );
@@ -379,6 +382,39 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 }
 
 
+void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatternCategory, int patternPosition )
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+
+	Pattern *emptyPattern = Pattern::get_empty_pattern();
+	emptyPattern->set_name( newPatternName );
+	emptyPattern->set_category( newPatternCategory );
+	patternList->add( emptyPattern );
+	if( patternPosition != patternList->get_size() ){
+		for (int nPatr = patternList->get_size() +1 ; nPatr >= patternPosition; nPatr--) {
+			H2Core::Pattern *pPattern = patternList->get(nPatr - 1);
+			patternList->replace( pPattern, nPatr );
+		}
+		patternList->replace( emptyPattern,  patternPosition );
+	}
+	song->__is_modified = true;
+	updateAll();
+}
+
+
+void SongEditorPanel::revertaddEmptyPattern( int patternPosition )
+{
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+	H2Core::Pattern *pattern = patternList->get( patternPosition -1 );
+	patternList->del(pattern);
+	song->__is_modified = true;
+	updateAll();
+}
 
 ///
 /// Move up a pattern in the patternList
@@ -437,8 +473,18 @@ void SongEditorPanel::clearSequence( Button* btn)
 
 void SongEditorPanel::restoreGroupVector( QString filename )
 {
+	//clear the old sequese
+	vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
+		PatternList *pPatternList = (*pPatternGroupsVect)[i];
+		pPatternList->clear();
+		delete pPatternList;
+	}
+	pPatternGroupsVect->clear();
+
 	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
 	m_pSongEditor->updateEditorandSetTrue();
+	updateAll();
 }
 
 

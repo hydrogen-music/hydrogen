@@ -6,14 +6,16 @@ SongEditor:
  + Move patternlist item by clicking up/down buttons		| done
  + Clear full pattern sequence					| done
  + Delete pattern from list					| done
- + Copy pattern							| ----
+ + Copy pattern							| done
  + Edit pattern properties					| done
- + Fill/delete pattern sequence 				| ----
- + Load Pattern from context menu				| ----
+ + Load Pattern from context menu				| done
  + Drag and drop pattern from library to pattern list		| ----
+ + Fill/delete pattern sequence 				| ----
  + Edit virtual Pattern						| ----
  + Move selection (pattern sequence)				| ----
  + Copy and move selection (pattern sequence)			| ----
+
+Time Line:
  + Edit timeline tempo						| ----
  + Edit timeline tags						| ----
 
