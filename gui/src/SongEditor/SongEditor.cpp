@@ -911,12 +911,13 @@ void SongEditorPatternList::inlineEditingEntered()
 {
 	assert( patternBeingEdited != NULL );
 	if ( PatternPropertiesDialog::nameCheck( line->text() ) )
-	{
-		patternBeingEdited->set_name( line->text() );
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-		createBackground();
-		update();
+	{	
+		Hydrogen *pEngine = Hydrogen::get_instance();
+		int nSelectedPattern = pEngine->getSelectedPatternNumber();
+
+		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_category(),
+												  line->text(), patternBeingEdited->get_category(), nSelectedPattern );	
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 // 	patternBeingEdited = NULL;
 }
@@ -1204,19 +1205,40 @@ void SongEditorPatternList::patternPopup_properties()
 	int nSelectedPattern = engine->getSelectedPatternNumber();
 	H2Core::Pattern *pattern = patternList->get( nSelectedPattern );
 
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, false);
-	if (dialog->exec() == QDialog::Accepted) {
-// 		Hydrogen *engine = Hydrogen::get_instance();
-// 		Song *song = engine->getSong();
-		song->__is_modified = true;
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-		createBackground();
-		update();
-	}
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, nSelectedPattern, false);
 	delete dialog;
 	dialog = NULL;
 }
 
+
+void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPatternName, QString newPatternCategory, int patternNr)
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+	H2Core::Pattern *pattern = patternList->get( patternNr );
+	pattern->set_name( newPatternName );
+	pattern->set_category( newPatternCategory );
+	song->__is_modified = true;
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	createBackground();
+	update();
+}
+
+
+void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr)
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+	H2Core::Pattern *pattern = patternList->get( patternNr );
+	pattern->set_name( oldPatternName );
+	pattern->set_category( oldPatternCategory );
+	song->__is_modified = true;
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	createBackground();
+	update();
+}
 
 
 void SongEditorPatternList::patternPopup_delete()
@@ -1383,7 +1405,7 @@ void SongEditorPatternList::patternPopup_copy()
 	pPatternList->add( pNewPattern );
 
 	// rename the copied pattern
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, true );
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
 	if ( dialog->exec() == QDialog::Accepted ) {
 		pSong->__is_modified = true;
 		pEngine->setSelectedPatternNumber(pPatternList->get_size() - 1);	// select the last pattern (the copied one)

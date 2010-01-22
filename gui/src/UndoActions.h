@@ -161,4 +161,35 @@ private:
 	int __patternPosition;
 };
 
+class SE_modifyPatternPropertiesAction : public QUndoCommand
+{
+public:
+    SE_modifyPatternPropertiesAction(  QString oldPatternName , QString oldPatternCategory, QString newPatternName , QString newPatternCategory, int patternNr ){
+	setText( QString( "Modify pattern properties" ) );
+	__oldPatternName =  oldPatternName;
+	__oldPatternCategory = oldPatternCategory;
+	__newPatternName =  newPatternName;
+	__newPatternCategory = newPatternCategory;
+	__patternNr = patternNr;
+    }
+    virtual void undo()
+	{
+		qDebug() << "Modify pattern properties undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->revertPatternPropertiesDialogSettings( __oldPatternName, __oldPatternCategory, __patternNr );
+	}
+
+    virtual void redo()
+	{
+		qDebug() << "Modify pattern properties redo" ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->acceptPatternPropertiesDialogSettings( __newPatternName, __newPatternCategory, __patternNr );
+	}
+private:
+	QString __oldPatternName;
+	QString __oldPatternCategory;
+	QString __newPatternName;
+	QString __newPatternCategory;
+	int __patternNr;
+};
 #endif // UNDOACTIONS_H

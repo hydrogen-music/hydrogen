@@ -40,7 +40,7 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 {
 	Q_OBJECT
 	public:
-		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern, bool save );
+		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern, int nselectedPattern, bool save );
 
 		~PatternPropertiesDialog();
 
@@ -56,7 +56,8 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 
 	private:
 		H2Core::Pattern *pattern;
-
+		int __nselectedPattern;
+		bool __savepattern;
 };
 
 

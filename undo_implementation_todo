@@ -7,7 +7,7 @@ SongEditor:
  + Clear full pattern sequence					| done
  + Delete pattern from list					| done
  + Copy pattern							| ----
- + Edit pattern property's					| ----
+ + Edit pattern properties					| done
  + Fill/delete pattern sequence 				| ----
  + Load Pattern from context menu				| ----
  + Drag and drop pattern from library to pattern list		| ----

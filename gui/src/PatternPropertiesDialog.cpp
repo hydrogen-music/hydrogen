@@ -22,15 +22,18 @@
 
 #include "PatternPropertiesDialog.h"
 #include "Skin.h"
+#include "HydrogenApp.h"
+#include "UndoActions.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Preferences.h>
 
+
 using namespace std;
 using namespace H2Core;
 
-PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern, bool savepattern)
+PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern, int nselectedPattern, bool savepattern)
  : QDialog(parent)
 {
 	setupUi( this );
@@ -42,6 +45,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	patternNameTxt->selectAll();
 
 	QString category = pattern->get_category();
+	__nselectedPattern = nselectedPattern;
+	__savepattern = savepattern;	
 	
 	if ( category == "" ){
 		category = "not_categorized";
@@ -104,8 +109,15 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		pPref->m_patternCategories.push_back( pattCategory );
 	}
 
-	pattern->set_name(pattName);
-	pattern->set_category( pattCategory );
+	if( __savepattern ){
+		pattern->set_name(pattName);
+		pattern->set_category( pattCategory );
+	}else
+	{
+		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_category(),
+												  pattName, pattCategory, __nselectedPattern );	
+		HydrogenApp::get_instance()->m_undoStack->push( action );
+	}
 	accept();
 }
 

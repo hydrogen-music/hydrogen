@@ -110,6 +110,8 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void movePatternLine( int, int );
 		void deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
 		void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition  );
+		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternCategory, int patternNr );
+		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr);
 
 	public slots:
 		void patternPopup_edit();
