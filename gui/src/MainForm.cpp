@@ -636,7 +636,6 @@ void MainForm::action_file_open() {
 		return;
 	}
 
-	h2app->m_undoStack->clear();
 	static QString lastUsedDir = Preferences::get_instance()->getDataDirectory() + "/songs";
 	
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -1132,7 +1131,7 @@ void MainForm::openSongFile( const QString& sFilename )
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
 		return;
 	}
-
+	h2app->m_undoStack->clear();
 
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::get_instance();

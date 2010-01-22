@@ -1569,7 +1569,6 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		event->acceptProposedAction();
 	}else {
 
-
 		PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 
 		QStringList tokens = sText.split( "::" );
@@ -1577,26 +1576,17 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		int nTargetPattern = event->pos().y() / m_nGridHeight;
 
-		LocalFileMng mng;
-		Pattern* err = mng.loadPattern( sPatternName );
-		if ( err == 0 ) {
-			_ERRORLOG( "Error loading the pattern" );
-		}else{
-			H2Core::Pattern *pNewPattern = err;
-			pPatternList->add( pNewPattern );
+		//create a unique sequencefilename
+		Song *song = Hydrogen::get_instance()->getSong();
+		Pattern *pat = song->get_pattern_list()->get( nTargetPattern );
 
-			for (int nPatr = pPatternList->get_size() +1 ; nPatr >= nTargetPattern; nPatr--) {
-				H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
-				pPatternList->replace( pPattern, nPatr );
-			}
-			pPatternList->replace( pNewPattern, nTargetPattern );
+		QString oldPatternName = pat->get_name();
 
-			Hydrogen::get_instance()->getSong()->__is_modified = true;
-			createBackground();
-			update();
-		}
-		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-		event->acceptProposedAction();
+		time_t thetime;
+		thetime = time(NULL);
+		QString sequenceFileName = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+		SE_loadPatternAction *action = new SE_loadPatternAction(  sPatternName, oldPatternName, sequenceFileName, nTargetPattern );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 		
 	}
 }
