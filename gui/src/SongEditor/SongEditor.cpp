@@ -1378,6 +1378,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 	Song *song = engine->getSong();
 	PatternList *pPatternList = song->get_pattern_list();
 
+
 	LocalFileMng mng;
 	LocalFileMng fileMng;
 	Pattern* err = fileMng.loadPattern( patternFilename );

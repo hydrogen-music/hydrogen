@@ -406,12 +406,17 @@ void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatte
 
 void SongEditorPanel::revertaddEmptyPattern( int patternPosition )
 {
-
+	
 	Hydrogen *engine = Hydrogen::get_instance();
+
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
 	H2Core::Pattern *pattern = patternList->get( patternPosition -1 );
+
+	if(patternPosition -1 == engine->getSelectedPatternNumber() )engine->setSelectedPatternNumber( patternPosition -2 );
 	patternList->del(pattern);
+	delete pattern;
+	pattern = NULL;
 	song->__is_modified = true;
 	updateAll();
 }

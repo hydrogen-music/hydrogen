@@ -254,4 +254,5 @@ private:
 	QString __sequenceFileName;
 	int __patternPosition;
 };
+
 #endif // UNDOACTIONS_H
