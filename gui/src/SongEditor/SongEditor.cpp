@@ -1417,7 +1417,7 @@ void SongEditorPatternList::patternPopup_copy()
 	// rename the copied pattern
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
 	if ( dialog->exec() == QDialog::Accepted ) {
-		SE_addEmptyPatternAction*action = new SE_addEmptyPatternAction( pNewPattern->get_name() , pNewPattern->get_category(), pPatternList->get_size() );
+		SE_addEmptyPatternAction *action = new SE_addEmptyPatternAction( pNewPattern->get_name() , pNewPattern->get_category(), pPatternList->get_size() );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 		pPatternList->del(  pNewPattern);
 		delete pNewPattern;
@@ -1444,13 +1444,12 @@ void SongEditorPatternList::patternPopup_fill()
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 	FillRange range;
 	PatternFillDialog *dialog = new PatternFillDialog( this, &range );
-	SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
-
 
 	// use a PatternFillDialog to get the range and mode data
 	if ( dialog->exec() == QDialog::Accepted ) {
-		fillRangeWithPattern(&range, nSelectedPattern);
-		pSEPanel->updateAll();
+
+		SE_fillRangePatternAction *action = new SE_fillRangePatternAction( &range, nSelectedPattern );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 
 	delete dialog;
@@ -1458,7 +1457,7 @@ void SongEditorPatternList::patternPopup_fill()
 }
 
 
-void SongEditorPatternList::fillRangeWithPattern(FillRange* pRange, int nPattern)
+void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPattern )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
@@ -1530,6 +1529,7 @@ void SongEditorPatternList::fillRangeWithPattern(FillRange* pRange, int nPattern
 
 	// Update
 	pSong->__is_modified = true;
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
 

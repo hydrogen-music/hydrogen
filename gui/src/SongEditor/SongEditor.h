@@ -113,6 +113,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternCategory, int patternNr );
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr);
 		void loadPatternAction( QString filename, int position);
+		void fillRangeWithPattern(FillRange* r, int nPattern);
 
 	public slots:
 		void patternPopup_edit();
@@ -127,7 +128,6 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void inlineEditingEntered();
 		virtual void dragEnterEvent(QDragEnterEvent *event);
 		virtual void dropEvent(QDropEvent *event);
-
 
 	private:
 		uint m_nGridHeight;
@@ -151,7 +151,6 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		virtual void mouseDoubleClickEvent( QMouseEvent *ev );
 		virtual void paintEvent( QPaintEvent *ev );
 
-		void fillRangeWithPattern(FillRange* r, int nPattern);
 		void togglePattern( int );
 
 		virtual void patternChangedEvent();
