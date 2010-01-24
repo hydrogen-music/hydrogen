@@ -4,6 +4,7 @@
 #include <QtGui>
 #include <QDebug>
 #include <QUndoCommand>
+#include <QPoint>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
@@ -300,6 +301,35 @@ private:
 	int __to;
 	bool __bInsert;
 	int __nPattern;
+};
+
+class SE_movePatternCellAction : public QUndoCommand
+{
+public:
+    SE_movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed ){
+	setText( QString( "move/copy selected cells" ) );
+	__selectedCells = selectedCells;
+	__movingCells = movingCells;
+	__bIsCtrlPressed = bIsCtrlPressed;
+	
+    }
+    virtual void undo()
+	{
+		qDebug() <<  "move/copy selected cells undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __selectedCells, __movingCells, __bIsCtrlPressed, true );
+	}
+
+    virtual void redo()
+	{
+		qDebug() <<  "move/copy selected cells redo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __movingCells, __selectedCells, __bIsCtrlPressed, false );
+	}
+private:
+	std::vector<QPoint> __selectedCells;
+	std::vector<QPoint> __movingCells;
+	bool __bIsCtrlPressed;
 };
 
 #endif // UNDOACTIONS_H

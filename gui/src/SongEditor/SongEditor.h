@@ -63,6 +63,7 @@ class SongEditor : public QWidget, public Object
 		void deletePattern( int nColumn, int nRow, unsigned nColumnIndex);
 		void clearThePatternSequenseVector( QString filename );
 		void updateEditorandSetTrue();
+		void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed, bool undo);
 
 	private:
 		unsigned m_nGridHeight;

@@ -316,7 +316,6 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 
 		int nRowDiff = nRow  - m_clickPoint.y();
 		int nColumnDiff = nColumn - m_clickPoint.x();
-
 //		INFOLOG( "[mouseMoveEvent] row diff: "+ to_string( nRowDiff ) );
 //		INFOLOG( "[mouseMoveEvent] col diff: "+ to_string( nColumnDiff ) );
 
@@ -392,45 +391,71 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	UNUSED( ev );
-//	INFOLOG( "[mouseReleaseEvent]" );
+	UNUSED(ev);
+	if ( m_bIsMoving ) {	// fine dello spostamento dei pattern
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		// create the new patterns
 
+		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_bIsCtrlPressed);
+		HydrogenApp::get_instance()->m_undoStack->push( action );
+
+	}
+
+	setCursor( QCursor( Qt::ArrowCursor ) );
+
+	m_bShowLasso = false;
+	m_bSequenceChanged = true;
+	m_bIsCtrlPressed = false;
+	update();
+}
+
+
+void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed, bool undo )
+{
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
+	for ( uint i = 0; i < movingCells.size(); i++ ) {
+		QPoint cell = movingCells[ i ];
+		if ( cell.x() < 0 || cell.y() < 0 || cell.y() >= (int)pPatternList->get_size() ) {
+			// skip
+			continue;
+		}
+		// aggiungo un pattern per volta
+		PatternList* pColumn = NULL;
+		if ( cell.x() < (int)pColumns->size() ) {
+			pColumn = (*pColumns)[ cell.x() ];
+		}
+		else {
+			// creo dei patternlist vuoti
+			int nSpaces = cell.x() - pColumns->size();
+			for ( int i = 0; i <= nSpaces; i++ ) {
+				pColumn = new PatternList();
+				pColumns->push_back( pColumn );
+			}
+		}
+		pColumn->add( pPatternList->get( cell.y() ) );
+	}
 
-	if ( m_bIsMoving ) {	// fine dello spostamento dei pattern
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-		// create the new patterns
-		for ( uint i = 0; i < m_movingCells.size(); i++ ) {
-			QPoint cell = m_movingCells[ i ];
-			if ( cell.x() < 0 || cell.y() < 0 || cell.y() >= (int)pPatternList->get_size() ) {
-				// skip
-				continue;
-			}
-			// aggiungo un pattern per volta
-			PatternList* pColumn = NULL;
-			if ( cell.x() < (int)pColumns->size() ) {
-				pColumn = (*pColumns)[ cell.x() ];
-			}
-			else {
-				// creo dei patternlist vuoti
-				int nSpaces = cell.x() - pColumns->size();
-				for ( int i = 0; i <= nSpaces; i++ ) {
+	if ( bIsCtrlPressed ) {	// COPY
+		if ( undo )
+			{
+			// remove the old patterns
+			for ( uint i = 0; i < selectedCells.size(); i++ ) {
+				QPoint cell = selectedCells[ i ];
+				PatternList* pColumn = NULL;
+				if ( cell.x() < (int)pColumns->size() ) {
+					pColumn = (*pColumns)[ cell.x() ];
+				}
+				else {
 					pColumn = new PatternList();
 					pColumns->push_back( pColumn );
 				}
+				pColumn->del(pPatternList->get( cell.y() ) );
 			}
-			pColumn->add( pPatternList->get( cell.y() ) );
-		}
-
-		if ( m_bIsCtrlPressed ) {	// COPY
-		}
-		else {	// MOVE
-			// remove the old patterns
-			for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
-				QPoint cell = m_selectedCells[ i ];
+			for ( uint i = 0; i < movingCells.size(); i++ ) {
+				QPoint cell = movingCells[ i ];
 				PatternList* pColumn = NULL;
 				if ( cell.x() < (int)pColumns->size() ) {
 					pColumn = (*pColumns)[ cell.x() ];
@@ -442,34 +467,43 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 				pColumn->del(pPatternList->get( cell.y() ) );
 			}
 		}
-
-		// remove the empty patternlist at the end of the song
-		for ( int i = pColumns->size() - 1; i != 0 ; i-- ) {
-			PatternList *pList = (*pColumns)[ i ];
-			int nSize = pList->get_size();
-			if ( nSize == 0 ) {
-				pColumns->erase( pColumns->begin() + i );
-				delete pList;
+	}
+	else {	// MOVE
+		// remove the old patterns
+		for ( uint i = 0; i < selectedCells.size(); i++ ) {
+			QPoint cell = selectedCells[ i ];
+			PatternList* pColumn = NULL;
+			if ( cell.x() < (int)pColumns->size() ) {
+				pColumn = (*pColumns)[ cell.x() ];
 			}
 			else {
-				break;
+				pColumn = new PatternList();
+				pColumns->push_back( pColumn );
 			}
+			pColumn->del(pPatternList->get( cell.y() ) );
 		}
-
-
-		pEngine->getSong()->__is_modified = true;
-		AudioEngine::get_instance()->unlock();
-
-		m_bIsMoving = false;
-		m_movingCells.clear();
-		m_selectedCells.clear();
 	}
 
-	setCursor( QCursor( Qt::ArrowCursor ) );
+	// remove the empty patternlist at the end of the song
+	for ( int i = pColumns->size() - 1; i != 0 ; i-- ) {
+		PatternList *pList = (*pColumns)[ i ];
+		int nSize = pList->get_size();
+		if ( nSize == 0 ) {
+			pColumns->erase( pColumns->begin() + i );
+			delete pList;
+		}
+		else {
+			break;
+		}
+	}
 
-	m_bShowLasso = false;
+	pEngine->getSong()->__is_modified = true;
+	AudioEngine::get_instance()->unlock();
+
+	m_bIsMoving = false;
+	m_movingCells.clear();
+	m_selectedCells.clear();
 	m_bSequenceChanged = true;
-	m_bIsCtrlPressed = false;
 	update();
 }
 
@@ -1043,6 +1077,7 @@ void SongEditorPatternList::createBackground()
 
 }
 
+
 void SongEditorPatternList::patternPopup_virtualPattern()
 {
     Hydrogen *pEngine = Hydrogen::get_instance();
@@ -1096,6 +1131,8 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 
     delete dialog;
 }//patternPopup_virtualPattern
+
+
 
 void SongEditorPatternList::patternPopup_load()
 {

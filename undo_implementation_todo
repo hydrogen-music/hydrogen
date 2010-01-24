@@ -12,8 +12,8 @@ SongEditor:
  + Drag and drop pattern from library to pattern list		| done
  + Fill/delete pattern sequence 				| done
  + Edit virtual Pattern						| ----
- + Move selection (pattern sequence)				| ----
- + Copy and move selection (pattern sequence)			| ----
+ + Move selection (pattern sequence)				| done
+ + Copy and move selection (pattern sequence)			| done
 
 Time Line:
  + Edit timeline tempo						| ----
