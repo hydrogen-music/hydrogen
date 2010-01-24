@@ -182,7 +182,9 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 //beatcouter
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
-	createUndoView();///debug only
+	undoView = new QUndoView(h2app->m_undoStack);
+	undoView->setWindowTitle(tr("Command history"));
+	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 }
 
 
@@ -211,18 +213,6 @@ MainForm::~MainForm()
 	}
 
 }
-
-
-///debug only
-void MainForm::createUndoView()
-{
-    undoView = new QUndoView(h2app->m_undoStack);
-    undoView->setWindowTitle(tr("Command List"));
-    undoView->show();
-    undoView->setAttribute(Qt::WA_QuitOnClose, false);
-}
-///~debug only
-
 
 ///
 /// Create the menubar
@@ -274,9 +264,9 @@ void MainForm::createMenuBar()
 
 	// UNDO MENU ( just to test undo stuff...)
 	QMenu *m_pUndoMenu = m_pMenubar->addMenu( trUtf8( "U&ndo" ) );
-	m_pUndoMenu->addAction( trUtf8( "Add undoable test action " ), this, SLOT( action_addTestAction() ), QKeySequence( "" ) );
 	m_pUndoMenu->addAction( trUtf8( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
 	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
+	m_pUndoMenu->addAction( trUtf8( "Open Undo Stack " ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
@@ -1654,13 +1644,16 @@ void MainForm::handleSigUsr1()
     snUsr1->setEnabled(true);
 }
 
-void MainForm::action_addTestAction(){
-    TestAction *command1 = new TestAction("test");
-    h2app->m_undoStack->push(command1);
+void MainForm::openUndoStack()
+{
+	undoView->show();
+	undoView->setAttribute(Qt::WA_QuitOnClose, false);
 };
+
 void MainForm::action_undo(){
     h2app->m_undoStack->undo();
 };
+
 void MainForm::action_redo(){
     h2app->m_undoStack->redo();
 };

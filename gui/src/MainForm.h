@@ -105,7 +105,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void showDevelWarning();
 		void onLashPollTimer();
 
-		void action_addTestAction();
+		void openUndoStack();
 		void action_undo();
 		void action_redo();
 
@@ -114,7 +114,6 @@ class MainForm : public QMainWindow, public EventListener, public Object
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
-		void createUndoView();
 
 	protected:
 		// Returns true if handled, false if aborted.
