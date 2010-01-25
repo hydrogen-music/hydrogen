@@ -179,6 +179,8 @@ class SongEditorPositionRuler : public QWidget, public Object
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
+		void editTimeLineAction( int newPosition, float newBpm );
+		void deleteTimeLinePosition( int position );
 
 	public slots:
 		void updatePosition();

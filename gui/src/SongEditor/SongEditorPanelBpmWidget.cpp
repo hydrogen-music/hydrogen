@@ -22,7 +22,7 @@
 
 #include <QtGui>
 
-
+#include "UndoActions.h"
 #include "../HydrogenApp.h"
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanel.h"
@@ -88,26 +88,19 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
 	Hydrogen* engine = Hydrogen::get_instance();
-	
-	//erase the value to set the new value
+	float oldBpm = -1.0;	
+	//search for an old entry
 	if( engine->m_timelinevector.size() >= 1 ){
 		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
 			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
+				oldBpm = engine->m_timelinevector[t].m_htimelinebpm;
 			}
 		}
 	}
 
-	Hydrogen::HTimelineVector tlvector;
 
-	tlvector.m_htimelinebeat = ( QString( lineEditBeat->text() ).toInt() ) -1 ;
-	float bpm;
-	bpm = QString( lineEditBpm->text() ).toFloat();
-	if( bpm < 30.0 ) bpm = 30.0;
-	if( bpm > 500.0 ) bpm = 500.0;	
-	tlvector.m_htimelinebpm = bpm;
-	engine->m_timelinevector.push_back( tlvector );
-	engine->sortTimelineVector();
+	SE_editTimeLineAction *action = new SE_editTimeLineAction( lineEditBeat->text().toInt(), oldBpm, QString( lineEditBpm->text() ).toFloat() );
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 	accept();
 }
 
@@ -115,17 +108,18 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 	Hydrogen* engine = Hydrogen::get_instance();
-	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
-	
-	if( timelineVector.size() > 0 ){
-		for ( int t = 0; t < timelineVector.size(); t++){
-			if ( timelineVector[t].m_htimelinebeat == m_stimelineposition ) {
-				timelineVector.erase( timelineVector.begin() +  t);
+	float oldBpm = -1.0;	
+	//search for an old entry
+	if( engine->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				oldBpm = engine->m_timelinevector[t].m_htimelinebpm;
 			}
 		}
 	}
-	
-	engine->m_timelinevector = timelineVector;
+
+	SE_deleteTimeLineAction *action = new SE_deleteTimeLineAction( lineEditBeat->text().toInt(), oldBpm );
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 	accept();
 }
 

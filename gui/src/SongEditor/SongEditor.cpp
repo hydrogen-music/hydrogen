@@ -1895,7 +1895,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelBpmWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
-			createBackground();
+			//createBackground();
 		}
 	}
 
@@ -1967,3 +1967,43 @@ void SongEditorPositionRuler::updatePosition()
 }
 
 
+void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm )
+{
+	Hydrogen* engine = Hydrogen::get_instance();
+	
+	//erase the value to set the new value
+	if( engine->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+			if ( engine->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
+				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
+			}
+		}
+	}
+
+	Hydrogen::HTimelineVector tlvector;
+
+	tlvector.m_htimelinebeat = newPosition -1 ;
+
+	if( newBpm < 30.0 ) newBpm = 30.0;
+	if( newBpm > 500.0 ) newBpm = 500.0;	
+	tlvector.m_htimelinebpm = newBpm;
+	engine->m_timelinevector.push_back( tlvector );
+	engine->sortTimelineVector();
+	createBackground();
+}
+
+
+
+void SongEditorPositionRuler::deleteTimeLinePosition( int position )
+{
+	Hydrogen* engine = Hydrogen::get_instance();
+	//erase the value to set the new value
+	if( engine->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+			if ( engine->m_timelinevector[t].m_htimelinebeat == position -1 ) {
+				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
+			}
+		}
+	}
+	createBackground();
+}

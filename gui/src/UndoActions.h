@@ -332,4 +332,68 @@ private:
 	bool __bIsCtrlPressed;
 };
 
+class SE_editTimeLineAction : public QUndoCommand
+{
+public:
+    SE_editTimeLineAction( int newPosition, float oldBpm, float newBpm ){
+	setText( QString( "edit timeline tempo" ) );
+	__newPosition = newPosition;
+	__oldBpm = oldBpm;
+	__newBpm = newBpm;
+	
+    }
+    virtual void undo()
+	{
+		qDebug() <<  "edit timeline tempo undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		if(__oldBpm >-1 ){
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __oldBpm );
+		}else
+		{
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTimeLinePosition( __newPosition );
+		}
+	}
+
+    virtual void redo()
+	{
+		qDebug() <<  "edit timeline tempo redo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __newBpm );
+	}
+private:
+	int __newPosition;
+	float __oldBpm;
+	float __newBpm;
+};
+
+
+class SE_deleteTimeLineAction : public QUndoCommand
+{
+public:
+    SE_deleteTimeLineAction( int newPosition, float oldBpm ){
+	setText( QString( "delete timeline tempo" ) );
+	__newPosition = newPosition;
+	__oldBpm = oldBpm;
+	
+    }
+    virtual void undo()
+	{
+		qDebug() <<  "delete timeline tempo undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __oldBpm );
+		
+	}
+
+    virtual void redo()
+	{
+		qDebug() <<  "delete timeline tempo redo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTimeLinePosition( __newPosition );
+	}
+private:
+	int __newPosition;
+	float __oldBpm;
+	float __newBpm;
+};
+
 #endif // UNDOACTIONS_H
