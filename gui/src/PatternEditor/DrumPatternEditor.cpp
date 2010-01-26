@@ -232,7 +232,12 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		__nRealColumn = nRealColumn;
 		__nColumn = nColumn;
 		__row = row;
-		__oldLength = m_pDraggedNote->get_length();
+		if( m_pDraggedNote ){
+			__oldLength = m_pDraggedNote->get_length();
+		}else
+		{
+			__oldLength = -1;
+		}
 		
 		AudioEngine::get_instance()->unlock();
 	}
