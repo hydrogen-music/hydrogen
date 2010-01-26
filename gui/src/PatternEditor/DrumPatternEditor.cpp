@@ -34,6 +34,7 @@
 #include <hydrogen/note.h>
 #include <hydrogen/audio_engine.h>
 
+#include "UndoActions.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 #include "../Skin.h"
@@ -160,61 +161,38 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
 	if (ev->button() == Qt::LeftButton ) {
-		m_bRightBtnPressed = false;
-		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-
-		bool bNoteAlreadyExist = false;
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
-			Note *pNote = pos->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				// the note exists...remove it!
-				bNoteAlreadyExist = true;
-				delete pNote;
-				m_pPattern->note_map.erase( pos );
-				break;
-			}
-		}
-
-		if ( bNoteAlreadyExist == false ) {
-			// create the new note
-			const unsigned nPosition = nColumn;
-			const float fVelocity = 0.8f;
-			const float fPan_L = 0.5f;
-			const float fPan_R = 0.5f;
-			const int nLength = -1;
-			const float fPitch = 0.0f;
-			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-			pNote->set_noteoff( false );
-			m_pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
-
-			// hear note
-			Preferences *pref = Preferences::get_instance();
-			if ( pref->getHearNewNotes() ) {
-				Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-				AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
-			}
-		}
-		pSong->__is_modified = true;
-		AudioEngine::get_instance()->unlock(); // unlock the audio engine
+		SE_addNoteAction *action = new SE_addNoteAction( nColumn, row );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 	else if (ev->button() == Qt::RightButton ) {
+	
+		unsigned nRealColumn = 0;
+			if( ev->x() > 20 ) {
+				nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+			}
 		m_bRightBtnPressed = true;
 		m_pDraggedNote = NULL;
+	
+		//	__rightclickedpattereditor
+		//	0 = note length
+		//	1 = note off"
+		//	2 = edit velocity
+		//	3 = edit pan
+		//	4 = edit lead lag
 
-		unsigned nRealColumn = 0;
-		if( ev->x() > 20 ) {
-			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+		if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
+			SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row );
+			HydrogenApp::get_instance()->m_undoStack->push( action );
+			return;
 		}
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
+	
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
 			Note *pNote = pos->second;
 			assert( pNote );
-
+	
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				m_pDraggedNote = pNote;
 				break;
@@ -224,38 +202,14 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			for ( pos = m_pPattern->note_map.lower_bound( nRealColumn ); pos != m_pPattern->note_map.upper_bound( nRealColumn ); ++pos ) {
 				Note *pNote = pos->second;
 				assert( pNote );
-
+	
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					m_pDraggedNote = pNote;
 					break;
 				}
 			}
-
-///
-		//	__rightclickedpattereditor
-		//	0 = note length
-		//	1 = note off"
-		//	2 = edit velocity
-		//	3 = edit pan
-		//	4 = edit lead lag
-
-			if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
-				// create the new note
-				const unsigned nPosition = nColumn;
-				const float fVelocity = 0.0f;
-				const float fPan_L = 0.5f;
-				const float fPan_R = 0.5f;
-				const int nLength = 1;
-				const float fPitch = 0.0f;
-				Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-				poffNote->set_noteoff( true );
 	
-				
-				m_pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
 	
-				pSong->__is_modified = true;
-			}
-///
 		}
 		// potrei essere sulla coda di una nota precedente..
 		for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
@@ -263,17 +217,70 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			for ( pos = m_pPattern->note_map.lower_bound( nCol ); pos != m_pPattern->note_map.upper_bound( nCol ); ++pos ) {
 				Note *pNote = pos->second;
 				assert( pNote );
-
+	
 				if ( pNote->get_instrument() == pSelectedInstrument
-				    && ( (nRealColumn <= pNote->get_position() + pNote->get_length() )
-				    && nRealColumn >= pNote->get_position() ) ){
+				&& ( (nRealColumn <= pNote->get_position() + pNote->get_length() )
+				&& nRealColumn >= pNote->get_position() ) ){
 					m_pDraggedNote = pNote;
 					break;
 				}
 			}
 		}
+		
+		//needed for undo note length
+		__nRealColumn = nRealColumn;
+		__nColumn = nColumn;
+		__row = row;
+		
 		AudioEngine::get_instance()->unlock();
 	}
+}
+
+void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row )
+{
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	int nInstruments = pSong->get_instrument_list()->get_size();
+
+	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
+	m_bRightBtnPressed = false;
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+	bool bNoteAlreadyExist = false;
+	std::multimap <int, Note*>::iterator pos;
+	for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
+		Note *pNote = pos->second;
+		assert( pNote );
+		if ( pNote->get_instrument() == pSelectedInstrument ) {
+			// the note exists...remove it!
+			bNoteAlreadyExist = true;
+			delete pNote;
+			m_pPattern->note_map.erase( pos );
+			break;
+		}
+	}
+
+	if ( bNoteAlreadyExist == false ) {
+		// create the new note
+		const unsigned nPosition = nColumn;
+		const float fVelocity = 0.8f;
+		const float fPan_L = 0.5f;
+		const float fPan_R = 0.5f;
+		const int nLength = -1;
+		const float fPitch = 0.0f;
+		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+		pNote->set_noteoff( false );
+		m_pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+
+		// hear note
+		Preferences *pref = Preferences::get_instance();
+		if ( pref->getHearNewNotes() ) {
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
+		}
+	}
+	pSong->__is_modified = true;
+	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 	// update the selected line
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -289,6 +296,50 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	}
 }
 
+
+void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row )
+{
+
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	int nInstruments = pSong->get_instrument_list()->get_size();
+	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
+
+
+	m_bRightBtnPressed = true;
+	m_pDraggedNote = NULL;
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	// create the new note
+	const unsigned nPosition = nColumn;
+	const float fVelocity = 0.0f;
+	const float fPan_L = 0.5f;
+	const float fPan_R = 0.5f;
+	const int nLength = 1;
+	const float fPitch = 0.0f;
+	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+	poffNote->set_noteoff( true );
+
+	
+	m_pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
+
+	pSong->__is_modified = true;
+
+	AudioEngine::get_instance()->unlock();
+
+	// update the selected line
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	if (nSelectedInstrument != row) {
+		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
+	}
+	else {
+		update( 0, 0, width(), height() );
+		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+		m_pPatternEditorPanel->getPanEditor()->updateEditor();
+		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	}
+}
 
 
 void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)

@@ -11,6 +11,13 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "PatternFillDialog.h"
 
+#include "PatternEditor/DrumPatternEditor.h"
+#include "PatternEditor/PatternEditorPanel.h"
+#include "PatternEditor/NotePropertiesRuler.h"
+
+
+//=====================================================================================================================================
+//test commands
 class TestAction : public QUndoCommand
 {
 public:
@@ -24,6 +31,9 @@ private:
     QString m_text;
 };
 
+//~test commands
+//=====================================================================================================================================
+//song editor commands
 class SE_addPatternAction : public QUndoCommand
 {
 public:
@@ -366,6 +376,9 @@ private:
 	float __newBpm;
 };
 
+//~song editor commands
+//=====================================================================================================================================
+//time line commands
 
 class SE_deleteTimeLineAction : public QUndoCommand
 {
@@ -434,5 +447,62 @@ private:
 	QString __text;
 	QString __oldText;
 	int __position;
+};
+
+//~time line commands
+//=====================================================================================================================================
+//pattern editor commands
+
+class SE_addNoteAction : public QUndoCommand
+{
+public:
+	SE_addNoteAction( int nColumn, int nRow ){
+	setText( QString( "Add Note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	//setText("add Pattern");
+	__nColumn = nColumn;
+	__nRow = nRow;
+	}
+	virtual void undo()
+	{
+		qDebug() << "Add note Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow );
+	}
+	virtual void redo()
+	{
+		qDebug() << "Add Note Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow );
+	}
+private:
+	int __nColumn;
+	int __nRow;
+};
+
+
+class SE_addNoteRightClickAction : public QUndoCommand
+{
+public:
+	SE_addNoteRightClickAction( int nColumn, int nRow ){
+	setText( QString( "Add off note Note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	//setText("add Pattern");
+	__nColumn = nColumn;
+	__nRow = nRow;
+	}
+	virtual void undo()
+	{
+		qDebug() << "Add off note Note Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow );
+	}
+	virtual void redo()
+	{
+		qDebug() << "Add off note Note Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addNoteRightClickAction( __nColumn, __nRow );
+	}
+private:
+	int __nColumn;
+	int __nRow;
 };
 #endif // UNDOACTIONS_H

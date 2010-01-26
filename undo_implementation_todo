@@ -20,12 +20,17 @@ Time Line:
  + Edit timeline tags						| done
 
 Pattern- & Piano Roll-Editor:
- + Add/Remove note						| ----
+ + Add/Remove note Pattern Editor				| Done
+ + Add/Remove noteoff note Pattern Editor			| Done
+ + Edit note length Pattern Editor (right cklicking)		| ----
+ + Add/Remove note Piano Roll Editor				| ----
+ + Add/Remove noteoff note Piano Roll Editor			| ----
+ + Edit note length Piano Roll Editor (right cklicking)		| ----
  + Context menu fill notes					| ----
  + Context menu random velocity					| ----
  + Add/delete instrument					| ----
  + Drag and drop intrument from library				| ----
- + Edit note length (right cklicking)				| ----
+
 
 Note properties ruler:
  + Edit velocity						| ----

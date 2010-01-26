@@ -53,7 +53,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 
 		void setResolution(uint res, bool bUseTriplets);
 		uint getResolution() {	return m_nResolution;	}
-		bool isUsingTriplets() {	return m_bUseTriplets;	}
+		bool isUsingTriplets() { return m_bUseTriplets;	}
 
 		void zoom_in();
 		void zoom_out();
@@ -64,7 +64,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
-
+		void addOrDeleteNoteAction( int __nColumn, int __nRow );
+		void addNoteRightClickAction( int nColumn, int nRow );
 
 	public slots:
 		void updateEditor();
@@ -102,6 +103,10 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		virtual void paintEvent(QPaintEvent *ev);
 
 		int getColumn(QMouseEvent *ev);
+
+		int __nRealColumn;
+		int __nColumn;
+		int __row;
 };
 
 
