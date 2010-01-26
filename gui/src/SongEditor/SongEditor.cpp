@@ -2009,13 +2009,13 @@ void SongEditorPositionRuler::deleteTimeLinePosition( int position )
 }
 
 
-void SongEditorPositionRuler::editTagAction( QString text, int position , QString textToRepace)
+void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
 	Hydrogen* engine = Hydrogen::get_instance();
 
 	//check vector for old entries and remove them.
-	for(int i = 0; i < engine->m_timelinetagvector.size(); ++i){
-		if( ( engine->m_timelinetagvector[i].m_htimelinetag == textToRepace ) && 
+	for( int i = 0; i < engine->m_timelinetagvector.size(); ++i ){
+		if( ( engine->m_timelinetagvector[i].m_htimelinetag == textToReplace ) && 
 		    ( engine->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
 
 			engine->m_timelinetagvector.erase( engine->m_timelinetagvector.begin() + i );
@@ -2034,7 +2034,7 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 
 	Hydrogen* engine = Hydrogen::get_instance();
-	for(int i = 0; i < engine->m_timelinetagvector.size(); ++i){
+	for( int i = 0; i < engine->m_timelinetagvector.size(); ++i ){
 		if( ( engine->m_timelinetagvector[i].m_htimelinetag == text ) && 
 		    ( engine->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
 

@@ -411,7 +411,7 @@ public:
 		qDebug() <<  "edit timeline tag undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		if( __oldText != "" ){
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __oldText, __position , __text);
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __oldText, __position , __text );
 		}else
 		{
 			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __text,  __position );
@@ -425,7 +425,8 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		if( __text == "" ){
 			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __oldText,  __position );
-		}else{
+		}else
+		{
 			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __text, __position, __oldText );
 		}
 	}
