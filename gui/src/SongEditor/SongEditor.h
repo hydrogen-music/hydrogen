@@ -181,6 +181,8 @@ class SongEditorPositionRuler : public QWidget, public Object
 		void setGridWidth (uint width);
 		void editTimeLineAction( int newPosition, float newBpm );
 		void deleteTimeLinePosition( int position );
+		void editTagAction( QString text, int position, QString textToRepace );
+		void deleteTagAction( QString text, int position );
 
 	public slots:
 		void updatePosition();

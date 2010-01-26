@@ -396,4 +396,42 @@ private:
 	float __newBpm;
 };
 
+class SE_editTagAction : public QUndoCommand
+{
+public:
+    SE_editTagAction( QString text, QString oldText, int position ){
+	setText( "edit timeline tag" );
+	__text = text;
+	__oldText = oldText;
+	__position = position;
+	
+    }
+    virtual void undo()
+	{
+		qDebug() <<  "edit timeline tag undo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		if( __oldText != "" ){
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __oldText, __position , __text);
+		}else
+		{
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __text,  __position );
+		}
+		
+	}
+
+    virtual void redo()
+	{
+		qDebug() <<  "edit timeline tag redo";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		if( __text == "" ){
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __oldText,  __position );
+		}else{
+			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __text, __position, __oldText );
+		}
+	}
+private:
+	QString __text;
+	QString __oldText;
+	int __position;
+};
 #endif // UNDOACTIONS_H

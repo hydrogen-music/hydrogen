@@ -22,7 +22,7 @@
 
 #include <QtGui>
 
-
+#include "UndoActions.h"
 #include "../HydrogenApp.h"
 #include "SongEditorPanelTagWidget.h"
 #include "SongEditorPanel.h"
@@ -42,6 +42,7 @@ SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int beat )
 	setWindowTitle( trUtf8( "Tag" ) );
 	createTheTagTableWidget();
 
+	connect( tagTableWidget, SIGNAL( itemChanged ( QTableWidgetItem *  ) ), this, SLOT( a_itemIsChanged( QTableWidgetItem * ) ) );
 }
 
 
@@ -51,7 +52,10 @@ SongEditorPanelTagWidget::~SongEditorPanelTagWidget()
 	INFOLOG( "DESTROY" );
 }
 
-
+void SongEditorPanelTagWidget::a_itemIsChanged(QTableWidgetItem *item)
+{
+	__theChangedItems << QString( "%1" ).arg( item->row() );
+}
 
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
@@ -120,22 +124,27 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	Hydrogen* engine = Hydrogen::get_instance();
 	int patterngroupvectorsize;
 	patterngroupvectorsize = engine->getSong()->get_pattern_group_vector()->size();
-	
-	engine->m_timelinetagvector.clear();
 
-	for( int i = 0; i < patterngroupvectorsize; i++ )
+	//oldText list contains all old item values. we need them for undo an item 
+	QStringList oldText;
+
+	if(engine->m_timelinetagvector.size() > 0){
+		for (int i = 0; i < patterngroupvectorsize; i++){
+			oldText << "";
+		}
+		for(int i = 0; i < engine->m_timelinetagvector.size(); ++i){
+			oldText.replace(engine->m_timelinetagvector[i].m_htimelinetagbeat , engine->m_timelinetagvector[i].m_htimelinetag);
+		}
+	}
+
+	for( int i = 0; i < __theChangedItems.size() ; i++ )
 	{
 		QTableWidgetItem *newTagItem = new QTableWidgetItem();
-		newTagItem = tagTableWidget->item( i, 0 );
-
+		int songPosition = __theChangedItems.value( i ).toInt();
+		newTagItem = tagTableWidget->item( songPosition, 0 );
 		if ( newTagItem ) {
-			if (newTagItem->text() != ""){
-				Hydrogen::HTimelineTagVector tlvector;
-				tlvector.m_htimelinetagbeat = i;
-				tlvector.m_htimelinetag = newTagItem->text();
-				engine->m_timelinetagvector.push_back( tlvector );
-				engine->sortTimelineTagVector();
-			}
+			SE_editTagAction *action = new SE_editTagAction(  newTagItem->text() ,oldText.value( songPosition ), songPosition );
+			HydrogenApp::get_instance()->m_undoStack->push( action );
 		}
 	}
 	accept();

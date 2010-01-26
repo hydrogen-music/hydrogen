@@ -1872,7 +1872,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelTagWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
-			createBackground();
+			//createBackground();
 		}
 	}
 	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
@@ -2005,5 +2005,43 @@ void SongEditorPositionRuler::deleteTimeLinePosition( int position )
 			}
 		}
 	}
+	createBackground();
+}
+
+
+void SongEditorPositionRuler::editTagAction( QString text, int position , QString textToRepace)
+{
+	Hydrogen* engine = Hydrogen::get_instance();
+
+	//check vector for old entries and remove them.
+	for(int i = 0; i < engine->m_timelinetagvector.size(); ++i){
+		if( ( engine->m_timelinetagvector[i].m_htimelinetag == textToRepace ) && 
+		    ( engine->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
+
+			engine->m_timelinetagvector.erase( engine->m_timelinetagvector.begin() + i );
+			break;
+		}
+	}
+	Hydrogen::HTimelineTagVector tlvector;
+	tlvector.m_htimelinetagbeat = position;
+	tlvector.m_htimelinetag = text;
+	engine->m_timelinetagvector.push_back( tlvector );
+	engine->sortTimelineTagVector();
+	createBackground();
+}
+
+void SongEditorPositionRuler::deleteTagAction( QString text, int position )
+{
+
+	Hydrogen* engine = Hydrogen::get_instance();
+	for(int i = 0; i < engine->m_timelinetagvector.size(); ++i){
+		if( ( engine->m_timelinetagvector[i].m_htimelinetag == text ) && 
+		    ( engine->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
+
+			engine->m_timelinetagvector.erase( engine->m_timelinetagvector.begin() + i );
+			break;
+		}
+	}
+	engine->sortTimelineTagVector();
 	createBackground();
 }
