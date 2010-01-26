@@ -52,6 +52,9 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 
 		void zoom_in();
 		void zoom_out();
+		void addOrDeleteNoteAction( int nColumn, int pressedLine, int selectedPatternNumber, int selectedinstrument, int oldLength );
+		void addNoteRightClickAction( int nColumn, int pressedLine, int selectedPatternNumber, int  selectedInstrumentnumber);
+		void editNoteLenghtAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber );
 
 	public slots:
 		void updateEditor();
@@ -88,6 +91,12 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 //		virtual void keyPressEvent ( QKeyEvent * ev );
 		int getColumn(QMouseEvent *ev);
+		int __selectedInstrumentnumber;
+		int __selectedPatternNumber;
+		int __nRealColumn;
+		int __nColumn;
+		int __pressedLine;
+		int __oldLength;
 };
 
 #endif

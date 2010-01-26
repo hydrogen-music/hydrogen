@@ -64,7 +64,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
-		void addOrDeleteNoteAction( int __nColumn, int __nRow, int  selectedPatternNumber);
+		void addOrDeleteNoteAction( int __nColumn, int __nRow, int  selectedPatternNumber, int oldLength );
 		void addNoteRightClickAction( int nColumn, int nRow, int selectedPatternNumber );
 		void editNoteLenghtAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 

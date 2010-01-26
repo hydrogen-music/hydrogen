@@ -162,7 +162,40 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
 	if (ev->button() == Qt::LeftButton ) {
-		SE_addNoteAction *action = new SE_addNoteAction( nColumn, row, __selectedPatternNumber );
+
+		unsigned nRealColumn = 0;
+			if( ev->x() > 20 ) {
+				nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+			}
+
+		H2Core::Note *pDraggedNote;
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+	
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
+				pDraggedNote = pNote;
+				break;
+			}
+		}
+		if ( !pDraggedNote ) {
+			for ( pos = m_pPattern->note_map.lower_bound( nRealColumn ); pos != m_pPattern->note_map.upper_bound( nRealColumn ); ++pos ) {
+				Note *pNote = pos->second;
+				assert( pNote );
+	
+				if ( pNote->get_instrument() == pSelectedInstrument ) {
+					pDraggedNote = pNote;
+					break;
+				}
+			}
+		}
+		int oldLength = -1;
+		if( pDraggedNote ){
+			oldLength = pDraggedNote->get_length();
+		}
+		
+		SE_addNoteAction *action = new SE_addNoteAction( nColumn, row, __selectedPatternNumber, oldLength );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 	else if (ev->button() == Qt::RightButton ) {
@@ -187,7 +220,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			return;
 		}
 
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+//		AudioEngine::get_instance()->lock( RIGHT_HERE );
 	
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
@@ -209,9 +242,8 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 					break;
 				}
 			}
-	
-	
 		}
+
 		// potrei essere sulla coda di una nota precedente..
 		for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
 			if ( m_pDraggedNote ) break;
@@ -239,11 +271,11 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			__oldLength = -1;
 		}
 		
-		AudioEngine::get_instance()->unlock();
+//		AudioEngine::get_instance()->unlock();
 	}
 }
 
-void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row, int selectedPatternNumber )
+void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row, int selectedPatternNumber, int oldLength )
 {
 
 
@@ -287,10 +319,15 @@ void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row, int selecte
 		const float fVelocity = 0.8f;
 		const float fPan_L = 0.5f;
 		const float fPan_R = 0.5f;
-		const int nLength = -1;
+		int nLength = -1;
+		if( oldLength > 0 ){
+			nLength = oldLength;
+		}
 		const float fPitch = 0.0f;
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_noteoff( false );
+
+
 		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
 
 		// hear note
@@ -314,6 +351,7 @@ void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row, int selecte
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 	}
 }
 
@@ -370,6 +408,7 @@ void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row, int selec
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 	}
 }
 
@@ -459,6 +498,7 @@ void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int 
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 
 }
 
