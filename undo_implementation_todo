@@ -20,21 +20,25 @@ Time Line:
  + Edit timeline tags						| done
 
 Pattern- & Piano Roll-Editor:
- + Add/Remove note Pattern Editor				| Done
+ + Add/Remove note Pattern Editor				| Done (fix me: restore all Note properties if a deleted note will undo) 
  + Add/Remove noteoff note Pattern Editor			| Done
  + Edit note length Pattern Editor (right cklicking)		| Done
- + Add/Remove note Piano Roll Editor				| Done
+ + Add/Remove note Piano Roll Editor				| Done (fix me: restore all Note properties if a deleted note will undo)
  + Add/Remove noteoff note Piano Roll Editor			| Done
  + Edit note length Piano Roll Editor (right cklicking)		| Done
+ + Edit velocity Piano Roll Editor				| ----
+ + Edit pan Piano Roll Editor					| ----
+ + Edit lead lag Piano Roll Editor				| ----
  + Context menu fill notes					| ----
  + Context menu random velocity					| ----
  + Add/delete instrument					| ----
  + Drag and drop intrument from library				| ----
+ + Drag and drop instruments order				| ----
 
 
 Note properties ruler:
- + Edit velocity						| ----
- + Edit pan							| ----
- + Edit lead lag						| ----
+ + Edit velocity						| Done 
+ + Edit pan							| Done
+ + Edit lead lag						| Done
  + Edit note key						| ----
 

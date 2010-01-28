@@ -67,6 +67,15 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		void addOrDeleteNoteAction( int __nColumn, int __nRow, int  selectedPatternNumber, int oldLength );
 		void addNoteRightClickAction( int nColumn, int nRow, int selectedPatternNumber );
 		void editNoteLenghtAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
+		void undoRedoAction(    int column,
+					QString mode,
+					int nSelectedPatternNumber,
+					int nSelectedInstrument,
+					float velocity,
+					float pan_L,
+					float pan_R,
+					float leadLag,
+					int noteKeyVal );
 
 	public slots:
 		void updateEditor();

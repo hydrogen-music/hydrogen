@@ -11,6 +11,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "PatternFillDialog.h"
 
+#include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/NotePropertiesRuler.h"
@@ -643,5 +644,100 @@ private:
 	int __length;
 	int __selectedPatternNumber;
 	int __nSelectedInstrumentnumber;
+};
+
+//~piano roll editor commands
+//=====================================================================================================================================
+//Note Properties Ruler commands
+
+class SE_editNotePropertiesVolumeAction : public QUndoCommand
+{
+public:
+
+	SE_editNotePropertiesVolumeAction( int undoColumn,
+					   QString mode,
+					   int nSelectedPatternNumber,
+					   int nSelectedInstrument,
+					   float velocity,
+					   float oldVelocity,
+					   float pan_L,
+					   float oldPan_L,
+					   float pan_R,
+					   float oldPan_R,
+					   float leadLag,
+					   float oldLeadLag,
+					   int noteKeyVal,
+					   int oldNoteKeyVal)
+	{
+
+
+	setText( QString( "edit note property" ) );
+	__undoColumn = undoColumn;
+	__mode = mode;
+	__nSelectedPatternNumber = nSelectedPatternNumber;
+	__nSelectedInstrument = nSelectedInstrument;
+	__velocity = velocity;
+	__oldVelocity = oldVelocity;
+	__pan_L = pan_L;
+	__oldPan_L = oldPan_L;
+	__pan_R = pan_R;
+	__oldPan_R = oldPan_R;
+	__leadLag = leadLag;
+	__oldLeadLag = oldLeadLag;
+	__noteKeyVal = noteKeyVal;
+	__oldNoteKeyVal = oldNoteKeyVal;
+	
+	}
+	virtual void undo()
+	{
+		qDebug() << "edit note property Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+	
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
+											__mode,
+											__nSelectedPatternNumber,
+											__nSelectedInstrument,
+											__oldVelocity,
+											__oldPan_L,
+											__oldPan_R,
+											__oldLeadLag,
+											__oldNoteKeyVal );
+	}
+	virtual void redo()
+	{
+		qDebug() << "edit note property Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
+											__mode,
+											__nSelectedPatternNumber,
+											__nSelectedInstrument,
+											__velocity,
+											__pan_L,
+											__pan_R,
+											__leadLag,
+											__noteKeyVal );
+	}
+private:
+
+
+	int __undoColumn;
+	QString __mode;
+	int __nSelectedPatternNumber;
+	int __nSelectedInstrument;
+	float __velocity;
+	float __oldVelocity;
+	float __pan_L;
+	float __oldPan_L;
+	float __pan_R;
+	float __oldPan_R;
+	float __leadLag;
+	float __oldLeadLag;
+	int __noteKeyVal;
+	int __oldNoteKeyVal;
+	int __selectedPatternNumber;
+	int __nSelectedInstrumentnumber;
+
+
+
 };
 #endif // UNDOACTIONS_H

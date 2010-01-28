@@ -953,3 +953,58 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 	//cout << "selected pattern changed EVENT" << endl;
 	updateEditor();
 }
+
+
+///NotePropertiesRuler undo redo action
+void DrumPatternEditor::undoRedoAction( int column,
+					QString mode,
+					int nSelectedPatternNumber,
+					int nSelectedInstrument,
+					float velocity,
+					float pan_L,
+					float pan_R,
+					float leadLag,
+					int noteKeyVal )
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	Pattern *pPattern;
+	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+	else {
+		pPattern = NULL;
+	}
+
+	std::multimap <int, Note*>::iterator pos;
+	for ( pos = pPattern->note_map.lower_bound( column ); pos != pPattern->note_map.upper_bound( column ); ++pos ) {
+		Note *pNote = pos->second;
+		assert( pNote );
+		assert( (int)pNote->get_position() == column );
+		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			continue;
+		}
+
+		if ( mode == "VELOCITY" && !pNote->get_noteoff() ) {
+			pNote->set_velocity( velocity );
+		}
+		else if ( mode == "PAN" ){
+
+			pNote->set_pan_l( pan_L );
+			pNote->set_pan_r( pan_R );
+		}
+		else if ( mode == "LEADLAG" ){
+				pNote->set_leadlag( leadLag );
+		}
+		pSong->__is_modified = true;
+		break;
+	}
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+
+}

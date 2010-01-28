@@ -31,6 +31,7 @@ using namespace H2Core;
 
 #include "../HydrogenApp.h"
 
+#include "UndoActions.h"
 #include "NotePropertiesRuler.h"
 #include "PatternEditorPanel.h"
 #include "DrumPatternEditor.h"
@@ -72,6 +73,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	show();
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	m_bMouseIsPressed = false;
 }
 
 
@@ -83,172 +85,12 @@ NotePropertiesRuler::~NotePropertiesRuler()
 }
 
 
-void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
+void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 {
-//	infoLog( "mousePressEvent()" );
+
 	if (m_pPattern == NULL) return;
 
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
-	int x_pos = ev->x();
-	int column;
-	column = (x_pos - 20) + (width / 2);
-	column = column / width;
-	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
-	float val = height() - ev->y();
-	if (val > height()) {
-		val = height();
-	}
-	else if (val < 0.0) {
-		val = 0.0;
-	}
-	int keyval = val;
-	val = val / height();
-
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Song *pSong = (Hydrogen::get_instance())->getSong();
-
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
-		Note *pNote = pos->second;
-		assert( pNote );
-		assert( (int)pNote->get_position() == column );
-		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-			continue;
-		}
-
-		if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
-			pNote->set_velocity( val );
-
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
-		}
-		else if ( m_mode == PAN ){
-			float pan_L, pan_R;
-			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-				val = 0.5;
-			}
-			if ( val > 0.5 ) {
-				pan_L = 1.0 - val;
-				pan_R = 0.5;
-			}
-			else {
-				pan_L = 0.5;
-				pan_R = val;
-			}
-
-			pNote->set_pan_l( pan_L );
-			pNote->set_pan_r( pan_R );
-		}
-		else if ( m_mode == LEADLAG ){
-			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-				pNote->set_leadlag(0.0);
-			} else {
-				pNote->set_leadlag((val * -2.0) + 1.0);
-				char valueChar[100];
-				if (pNote->get_leadlag() < 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-				} else if (pNote->get_leadlag() > 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
-				} else {
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
-				}
-
-			}
-		}
-
-		else if ( m_mode == NOTEKEY ){
-			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-				;
-			} else {
-				//set the note hight
-				//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
-				if (keyval >= 6 && keyval <= 15 ){//note c
-					pNote->m_noteKey.m_key = H2Core::NoteKey::C;
-				}
-				if (keyval >= 16 && keyval <= 25 ){//note cis / cs
-					pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
-				}
-				if (keyval >= 26 && keyval <= 35 ){//note d
-					pNote->m_noteKey.m_key = H2Core::NoteKey::D;
-				}
-				if (keyval >= 36 && keyval <= 45 ){//note dis / ef
-					pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
-				}
-				if (keyval >= 46 && keyval <= 55 ){//note E
-					pNote->m_noteKey.m_key = H2Core::NoteKey::E;
-				}
-				if (keyval >= 56 && keyval <= 65 ){//note f
-					pNote->m_noteKey.m_key = H2Core::NoteKey::F;
-				}
-				if (keyval >= 66 && keyval <= 75 ){//note fis
-					pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
-				}
-				if (keyval >= 76 && keyval <= 85 ){//note g
-					pNote->m_noteKey.m_key = H2Core::NoteKey::G;
-				}
-				if (keyval >= 86 && keyval <= 95 ){//note gis / af
-					pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
-				}
-				if (keyval >= 96 && keyval <= 105 ){//note a
-					pNote->m_noteKey.m_key = H2Core::NoteKey::A;
-				}
-				if (keyval >= 106 && keyval <= 115 ){//note his / bf
-					pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
-				}
-				if (keyval >= 116 && keyval <= 125 ){//note h / b
-					pNote->m_noteKey.m_key = H2Core::NoteKey::B;
-				}
-				
-				//set the note oktave 
-				if (keyval >= 135 && keyval <= 145 ){
-					pNote->m_noteKey.m_nOctave = -3;
-				}
-				else if( keyval >= 146 && keyval <= 155 ){
-					pNote->m_noteKey.m_nOctave = -2;
-				}
-				else if( keyval >= 156 && keyval <= 165 ){
-					pNote->m_noteKey.m_nOctave = -1;
-				}
-				else if( keyval >= 166 && keyval <= 175 ){
-					pNote->m_noteKey.m_nOctave = 0;
-				}
-				else if( keyval >= 176 && keyval <= 185 ){
-					pNote->m_noteKey.m_nOctave = 1;
-				}
-				else if( keyval >= 186 && keyval <= 195 ){
-					pNote->m_noteKey.m_nOctave = 2;
-				}
-				else if( keyval >= 196 && keyval <= 205 ){
-					pNote->m_noteKey.m_nOctave = 3;
-				}
-			}
-		}
-
-
-
-		pSong->__is_modified = true;
-		updateEditor();
-		break;
-	}
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-		pPatternEditor->updateEditor();
-}
-
-void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
-{
-//      infoLog( "mousePressEvent()" );
-	if (m_pPattern == NULL) return;
+	pressAction( ev->x(), ev->y() ); //get all old values
 
 	float delta;
 	if (ev->modifiers() == Qt::ControlModifier) {
@@ -297,6 +139,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
 			}
 
 			pNote->set_velocity(val);
+			__velocity = val;
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
@@ -346,19 +189,383 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev)
 		}
 
 		pSong->__is_modified = true;
+		startUndoAction();
 		updateEditor();
 		break;
 	}
 }
 
 
- void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 {
-//	infoLog( "mouse move" );
-	mousePressEvent( ev );
+	m_bMouseIsPressed = true;
+	pressAction( ev->x(), ev->y() );
+	mouseMoveEvent( ev );
 }
 
+void NotePropertiesRuler::pressAction( int x, int y)
+{
 
+	//create all needed old vars for undo
+	if (m_pPattern == NULL) return;
+
+	__oldVelocity = 0.8f;
+	__oldPan_L = 0.5f;
+	__oldPan_R = 0.5f;
+	__oldLeadLag = 0.0f;
+	__oldNoteKeyVal = 10;
+
+	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
+	int nBase;
+	if (pPatternEditor->isUsingTriplets()) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+	int x_pos = x;
+	int column;
+	column = (x_pos - 20) + (width / 2);
+	column = column / width;
+	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+	float val = height() - y;
+	if (val > height()) {
+		val = height();
+	}
+	else if (val < 0.0) {
+		val = 0.0;
+	}
+	int keyval = val;
+	val = val / height();
+
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+
+	__nSelectedInstrument = nSelectedInstrument;
+	__undoColumn = 	column;
+
+	std::multimap <int, Note*>::iterator pos;
+	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
+		Note *pNote = pos->second;
+		assert( pNote );
+		assert( (int)pNote->get_position() == column );
+		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			continue;
+		}
+
+		if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
+			__oldVelocity = pNote->get_velocity();
+			__mode = "VELOCITY";
+
+		}
+		else if ( m_mode == PAN ){
+
+			__oldPan_L = pNote->get_pan_l();
+			__oldPan_R = pNote->get_pan_r();
+			__mode = "PAN";
+		}
+		else if ( m_mode == LEADLAG ){
+			
+			__oldLeadLag = pNote->get_leadlag();
+			__mode = "LEADLAG";
+		}
+
+		else if ( m_mode == NOTEKEY ){
+			__mode = "NOTEKEY";/*
+			//set the note hight
+			//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+			if (keyval >= 6 && keyval <= 15 ){//note c
+				pNote->m_noteKey.m_key = H2Core::NoteKey::C;
+			}
+			if (keyval >= 16 && keyval <= 25 ){//note cis / cs
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
+			}
+			if (keyval >= 26 && keyval <= 35 ){//note d
+				pNote->m_noteKey.m_key = H2Core::NoteKey::D;
+			}
+			if (keyval >= 36 && keyval <= 45 ){//note dis / ef
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
+			}
+			if (keyval >= 46 && keyval <= 55 ){//note E
+				pNote->m_noteKey.m_key = H2Core::NoteKey::E;
+			}
+			if (keyval >= 56 && keyval <= 65 ){//note f
+				pNote->m_noteKey.m_key = H2Core::NoteKey::F;
+			}
+			if (keyval >= 66 && keyval <= 75 ){//note fis
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
+			}
+			if (keyval >= 76 && keyval <= 85 ){//note g
+				pNote->m_noteKey.m_key = H2Core::NoteKey::G;
+			}
+			if (keyval >= 86 && keyval <= 95 ){//note gis / af
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
+			}
+			if (keyval >= 96 && keyval <= 105 ){//note a
+				pNote->m_noteKey.m_key = H2Core::NoteKey::A;
+			}
+			if (keyval >= 106 && keyval <= 115 ){//note his / bf
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
+			}
+			if (keyval >= 116 && keyval <= 125 ){//note h / b
+				pNote->m_noteKey.m_key = H2Core::NoteKey::B;
+			}
+			
+			//set the note oktave 
+			if (keyval >= 135 && keyval <= 145 ){
+				pNote->m_noteKey.m_nOctave = -3;
+			}
+			else if( keyval >= 146 && keyval <= 155 ){
+				pNote->m_noteKey.m_nOctave = -2;
+			}
+			else if( keyval >= 156 && keyval <= 165 ){
+				pNote->m_noteKey.m_nOctave = -1;
+			}
+			else if( keyval >= 166 && keyval <= 175 ){
+				pNote->m_noteKey.m_nOctave = 0;
+			}
+			else if( keyval >= 176 && keyval <= 185 ){
+				pNote->m_noteKey.m_nOctave = 1;
+			}
+			else if( keyval >= 186 && keyval <= 195 ){
+				pNote->m_noteKey.m_nOctave = 2;
+			}
+			else if( keyval >= 196 && keyval <= 205 ){
+				pNote->m_noteKey.m_nOctave = 3;
+			
+			}*/
+			
+		}
+
+	}
+}
+
+ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+{
+	if( m_bMouseIsPressed ){
+
+		__velocity = 0.8f;
+		__pan_L = 0.5f;
+		__pan_R = 0.5f;
+		__leadLag = 0.0f ;
+		__noteKeyVal = 10;
+
+		if (m_pPattern == NULL) return;
+	
+		DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
+		int nBase;
+		if (pPatternEditor->isUsingTriplets()) {
+			nBase = 3;
+		}
+		else {
+			nBase = 4;
+		}
+		int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+		int x_pos = ev->x();
+		int column;
+		column = (x_pos - 20) + (width / 2);
+		column = column / width;
+		column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+
+		bool columnChange = false;
+		if( __columnCheckOnXmouseMouve != column ){
+			__undoColumn = column;
+			columnChange = true;
+		}
+
+		float val = height() - ev->y();
+		if (val > height()) {
+			val = height();
+		}
+		else if (val < 0.0) {
+			val = 0.0;
+		}
+		int keyval = val;
+		val = val / height();
+	
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		Song *pSong = (Hydrogen::get_instance())->getSong();
+		
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			assert( (int)pNote->get_position() == column );
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+	
+			if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
+				if( columnChange ){
+					__oldVelocity = pNote->get_velocity();
+				}
+				pNote->set_velocity( val );
+				__velocity = val;
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			}
+			else if ( m_mode == PAN ){
+				float pan_L, pan_R;
+				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+					val = 0.5;
+				}
+				if ( val > 0.5 ) {
+					pan_L = 1.0 - val;
+					pan_R = 0.5;
+				}
+				else {
+					pan_L = 0.5;
+					pan_R = val;
+				}
+
+				if( columnChange ){
+					__oldPan_L = pNote->get_pan_l();
+					__oldPan_R = pNote->get_pan_r();
+				}	
+				pNote->set_pan_l( pan_L );
+				pNote->set_pan_r( pan_R );
+				__pan_L = pan_L;
+				__pan_R = pan_R;
+			}
+			else if ( m_mode == LEADLAG ){
+				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+					pNote->set_leadlag(0.0);
+					__leadLag = 0.0;
+				} else {
+					if( columnChange ){
+						__oldLeadLag = pNote->get_leadlag();
+					}
+	
+					pNote->set_leadlag((val * -2.0) + 1.0);
+					__leadLag = (val * -2.0) + 1.0;
+					char valueChar[100];
+					if (pNote->get_leadlag() < 0.0) {
+						sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+						HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+					} else if (pNote->get_leadlag() > 0.0) {
+						sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+						HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					} else {
+						HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+					}
+	
+				}
+			}
+	
+			else if ( m_mode == NOTEKEY ){
+				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+					;
+				} else {
+					//set the note hight
+					//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+					if (keyval >= 6 && keyval <= 15 ){//note c
+						pNote->m_noteKey.m_key = H2Core::NoteKey::C;
+					}
+					if (keyval >= 16 && keyval <= 25 ){//note cis / cs
+						pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
+					}
+					if (keyval >= 26 && keyval <= 35 ){//note d
+						pNote->m_noteKey.m_key = H2Core::NoteKey::D;
+					}
+					if (keyval >= 36 && keyval <= 45 ){//note dis / ef
+						pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
+					}
+					if (keyval >= 46 && keyval <= 55 ){//note E
+						pNote->m_noteKey.m_key = H2Core::NoteKey::E;
+					}
+					if (keyval >= 56 && keyval <= 65 ){//note f
+						pNote->m_noteKey.m_key = H2Core::NoteKey::F;
+					}
+					if (keyval >= 66 && keyval <= 75 ){//note fis
+						pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
+					}
+					if (keyval >= 76 && keyval <= 85 ){//note g
+						pNote->m_noteKey.m_key = H2Core::NoteKey::G;
+					}
+					if (keyval >= 86 && keyval <= 95 ){//note gis / af
+						pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
+					}
+					if (keyval >= 96 && keyval <= 105 ){//note a
+						pNote->m_noteKey.m_key = H2Core::NoteKey::A;
+					}
+					if (keyval >= 106 && keyval <= 115 ){//note his / bf
+						pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
+					}
+					if (keyval >= 116 && keyval <= 125 ){//note h / b
+						pNote->m_noteKey.m_key = H2Core::NoteKey::B;
+					}
+					
+					//set the note oktave 
+					if (keyval >= 135 && keyval <= 145 ){
+						pNote->m_noteKey.m_nOctave = -3;
+					}
+					else if( keyval >= 146 && keyval <= 155 ){
+						pNote->m_noteKey.m_nOctave = -2;
+					}
+					else if( keyval >= 156 && keyval <= 165 ){
+						pNote->m_noteKey.m_nOctave = -1;
+					}
+					else if( keyval >= 166 && keyval <= 175 ){
+						pNote->m_noteKey.m_nOctave = 0;
+					}
+					else if( keyval >= 176 && keyval <= 185 ){
+						pNote->m_noteKey.m_nOctave = 1;
+					}
+					else if( keyval >= 186 && keyval <= 195 ){
+						pNote->m_noteKey.m_nOctave = 2;
+					}
+					else if( keyval >= 196 && keyval <= 205 ){
+						pNote->m_noteKey.m_nOctave = 3;
+					}
+				}
+			}
+	
+	
+			if( columnChange ){
+				__columnCheckOnXmouseMouve = column;
+				startUndoAction();
+				return;
+			}
+				
+			__columnCheckOnXmouseMouve = column;
+	
+			pSong->__is_modified = true;
+			updateEditor();
+			break;
+		}
+		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+		pPatternEditor->updateEditor();
+	}
+}
+
+void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
+{
+	m_bMouseIsPressed = false;
+	startUndoAction();
+}
+
+void NotePropertiesRuler::startUndoAction()
+{
+
+	SE_editNotePropertiesVolumeAction *action = new SE_editNotePropertiesVolumeAction( __undoColumn,
+											   __mode,
+											   __nSelectedPatternNumber,
+											   __nSelectedInstrument,
+											   __velocity,
+											   __oldVelocity,
+											   __pan_L,
+											   __oldPan_L,
+											   __pan_R,
+											   __oldPan_R,
+											   __leadLag,
+											   __oldLeadLag,
+											   __noteKeyVal,
+											   __oldNoteKeyVal);
+
+	HydrogenApp::get_instance()->m_undoStack->push( action );
+}
 
 void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 {
@@ -1184,7 +1391,7 @@ void NotePropertiesRuler::updateEditor()
 	else {
 		m_pPattern = NULL;
 	}
-
+	__nSelectedPatternNumber = nSelectedPatternNumber;
 
 	// update editor width
 	int editorWidth;

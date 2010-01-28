@@ -79,11 +79,32 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 		void mousePressEvent(QMouseEvent *ev);
 		void mouseMoveEvent(QMouseEvent *ev);
 		void wheelEvent(QWheelEvent *ev);
+		void mouseReleaseEvent(QMouseEvent *ev);
+		void startUndoAction();
+		void pressAction( int x, int y);
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
+		int __nSelectedPatternNumber;
+		int __nSelectedInstrument;
+		bool m_bMouseIsPressed;
+
+		float __velocity;
+		float __oldVelocity;
+		float __pan_L;
+		float __pan_R;
+		float __oldPan_L;
+		float __oldPan_R;
+		float __leadLag;
+		float __oldLeadLag;
+		int __noteKeyVal;
+		int __oldNoteKeyVal;
+
+		int __columnCheckOnXmouseMouve;
+		int __undoColumn;
+		QString __mode;
 
 };
 
