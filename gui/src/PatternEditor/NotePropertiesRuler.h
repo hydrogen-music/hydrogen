@@ -101,6 +101,9 @@ class NotePropertiesRuler : public QWidget, public Object, public EventListener
 		float __oldLeadLag;
 		int __noteKeyVal;
 		int __oldNoteKeyVal;
+		int __octaveKeyVal;
+		int __oldOctaveKeyVal;
+		int __checkXPosition;
 
 		int __columnCheckOnXmouseMouve;
 		int __undoColumn;

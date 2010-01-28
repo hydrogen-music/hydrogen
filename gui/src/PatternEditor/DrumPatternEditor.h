@@ -75,7 +75,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 					float pan_L,
 					float pan_R,
 					float leadLag,
-					int noteKeyVal );
+					int noteKeyVal, 
+					int octaveKeyVal );
 
 	public slots:
 		void updateEditor();

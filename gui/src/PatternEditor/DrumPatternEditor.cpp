@@ -964,7 +964,8 @@ void DrumPatternEditor::undoRedoAction( int column,
 					float pan_L,
 					float pan_R,
 					float leadLag,
-					int noteKeyVal )
+					int noteKeyVal,
+					int octaveKeyVal)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -995,8 +996,49 @@ void DrumPatternEditor::undoRedoAction( int column,
 			pNote->set_pan_r( pan_R );
 		}
 		else if ( mode == "LEADLAG" ){
-				pNote->set_leadlag( leadLag );
+			pNote->set_leadlag( leadLag );
 		}
+		else if ( mode == "NOTEKEY" ){
+	
+			if ( noteKeyVal == 0 ){//note c
+				pNote->m_noteKey.m_key = H2Core::NoteKey::C;
+			}
+			if ( noteKeyVal == 1 ){//note cis / cs
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
+			}
+			if ( noteKeyVal == 2 ){//note d
+				pNote->m_noteKey.m_key = H2Core::NoteKey::D;
+			}
+			if ( noteKeyVal == 3 ){//note dis / ef
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
+			}
+			if ( noteKeyVal == 4 ){//note E
+				pNote->m_noteKey.m_key = H2Core::NoteKey::E;
+			}
+			if ( noteKeyVal == 5 ){//note f
+				pNote->m_noteKey.m_key = H2Core::NoteKey::F;
+			}
+			if ( noteKeyVal == 6 ){//note fis
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
+			}
+			if ( noteKeyVal == 7 ){//note g
+				pNote->m_noteKey.m_key = H2Core::NoteKey::G;
+			}
+			if ( noteKeyVal == 8 ){//note gis / af
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
+			}
+			if ( noteKeyVal == 9 ){//note a
+				pNote->m_noteKey.m_key = H2Core::NoteKey::A;
+			}
+			if ( noteKeyVal == 10 ){//note his / bf
+				pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
+			}
+			if ( noteKeyVal == 11 ){//note h / b
+				pNote->m_noteKey.m_key = H2Core::NoteKey::B;
+			}
+	
+				pNote->m_noteKey.m_nOctave = octaveKeyVal;
+			}
 		pSong->__is_modified = true;
 		break;
 	}

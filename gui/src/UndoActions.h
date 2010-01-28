@@ -667,7 +667,9 @@ public:
 					   float leadLag,
 					   float oldLeadLag,
 					   int noteKeyVal,
-					   int oldNoteKeyVal)
+					   int oldNoteKeyVal,
+					   int octaveKeyVal,
+					   int oldOctaveKeyVal)
 	{
 
 
@@ -686,6 +688,8 @@ public:
 	__oldLeadLag = oldLeadLag;
 	__noteKeyVal = noteKeyVal;
 	__oldNoteKeyVal = oldNoteKeyVal;
+	__octaveKeyVal = octaveKeyVal;
+	__oldOctaveKeyVal = oldOctaveKeyVal;
 	
 	}
 	virtual void undo()
@@ -701,7 +705,8 @@ public:
 											__oldPan_L,
 											__oldPan_R,
 											__oldLeadLag,
-											__oldNoteKeyVal );
+											__oldNoteKeyVal,
+											__oldOctaveKeyVal );
 	}
 	virtual void redo()
 	{
@@ -715,7 +720,8 @@ public:
 											__pan_L,
 											__pan_R,
 											__leadLag,
-											__noteKeyVal );
+											__noteKeyVal,
+											__octaveKeyVal );
 	}
 private:
 
@@ -734,6 +740,8 @@ private:
 	float __oldLeadLag;
 	int __noteKeyVal;
 	int __oldNoteKeyVal;
+	int __octaveKeyVal;
+	int __oldOctaveKeyVal;
 	int __selectedPatternNumber;
 	int __nSelectedInstrumentnumber;
 

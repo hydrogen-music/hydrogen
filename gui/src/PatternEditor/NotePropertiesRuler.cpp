@@ -272,70 +272,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		}
 
 		else if ( m_mode == NOTEKEY ){
-			__mode = "NOTEKEY";/*
-			//set the note hight
-			//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
-			if (keyval >= 6 && keyval <= 15 ){//note c
-				pNote->m_noteKey.m_key = H2Core::NoteKey::C;
-			}
-			if (keyval >= 16 && keyval <= 25 ){//note cis / cs
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
-			}
-			if (keyval >= 26 && keyval <= 35 ){//note d
-				pNote->m_noteKey.m_key = H2Core::NoteKey::D;
-			}
-			if (keyval >= 36 && keyval <= 45 ){//note dis / ef
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
-			}
-			if (keyval >= 46 && keyval <= 55 ){//note E
-				pNote->m_noteKey.m_key = H2Core::NoteKey::E;
-			}
-			if (keyval >= 56 && keyval <= 65 ){//note f
-				pNote->m_noteKey.m_key = H2Core::NoteKey::F;
-			}
-			if (keyval >= 66 && keyval <= 75 ){//note fis
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
-			}
-			if (keyval >= 76 && keyval <= 85 ){//note g
-				pNote->m_noteKey.m_key = H2Core::NoteKey::G;
-			}
-			if (keyval >= 86 && keyval <= 95 ){//note gis / af
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
-			}
-			if (keyval >= 96 && keyval <= 105 ){//note a
-				pNote->m_noteKey.m_key = H2Core::NoteKey::A;
-			}
-			if (keyval >= 106 && keyval <= 115 ){//note his / bf
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
-			}
-			if (keyval >= 116 && keyval <= 125 ){//note h / b
-				pNote->m_noteKey.m_key = H2Core::NoteKey::B;
-			}
-			
-			//set the note oktave 
-			if (keyval >= 135 && keyval <= 145 ){
-				pNote->m_noteKey.m_nOctave = -3;
-			}
-			else if( keyval >= 146 && keyval <= 155 ){
-				pNote->m_noteKey.m_nOctave = -2;
-			}
-			else if( keyval >= 156 && keyval <= 165 ){
-				pNote->m_noteKey.m_nOctave = -1;
-			}
-			else if( keyval >= 166 && keyval <= 175 ){
-				pNote->m_noteKey.m_nOctave = 0;
-			}
-			else if( keyval >= 176 && keyval <= 185 ){
-				pNote->m_noteKey.m_nOctave = 1;
-			}
-			else if( keyval >= 186 && keyval <= 195 ){
-				pNote->m_noteKey.m_nOctave = 2;
-			}
-			else if( keyval >= 196 && keyval <= 205 ){
-				pNote->m_noteKey.m_nOctave = 3;
-			
-			}*/
-			
+			__mode = "NOTEKEY";
+		__oldOctaveKeyVal = pNote->m_noteKey.m_nOctave;
+		__oldNoteKeyVal = pNote->m_noteKey.m_key;
 		}
 
 	}
@@ -519,6 +458,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					else if( keyval >= 196 && keyval <= 205 ){
 						pNote->m_noteKey.m_nOctave = 3;
 					}
+
+					__octaveKeyVal = pNote->m_noteKey.m_nOctave;
+					__noteKeyVal = pNote->m_noteKey.m_key;
 				}
 			}
 	
@@ -562,7 +504,9 @@ void NotePropertiesRuler::startUndoAction()
 											   __leadLag,
 											   __oldLeadLag,
 											   __noteKeyVal,
-											   __oldNoteKeyVal);
+											   __oldNoteKeyVal,
+											   __octaveKeyVal,
+											   __oldOctaveKeyVal );
 
 	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
