@@ -6,7 +6,7 @@ SongEditor:
  + Move patternlist item by clicking up/down buttons		| done
  + Clear full pattern sequence					| done
  + Delete pattern from list					| done
- + Copy pattern							| done ( bug: redo don't work) 
+ + Copy pattern							| done
  + Edit pattern properties					| done
  + Load Pattern from context menu				| done
  + Drag and drop pattern from library to pattern list		| done
