@@ -20,10 +20,10 @@ Time Line:
  + Edit timeline tags						| done
 
 Pattern- & Piano Roll-Editor:
- + Add/Remove note Pattern Editor				| Done (fix me: restore all Note properties if a deleted note will undo) 
+ + Add/Remove note Pattern Editor				| Done
  + Add/Remove noteoff note Pattern Editor			| Done
  + Edit note length Pattern Editor (right cklicking)		| Done
- + Add/Remove note Piano Roll Editor				| Done (fix me: restore all Note properties if a deleted note will undo)
+ + Add/Remove note Piano Roll Editor				| Done 
  + Add/Remove noteoff note Piano Roll Editor			| Done
  + Edit note length Piano Roll Editor (right cklicking)		| Done
  + Edit velocity Piano Roll Editor				| ----

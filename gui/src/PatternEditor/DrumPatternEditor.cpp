@@ -190,12 +190,35 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 				}
 			}
 		}
+
 		int oldLength = -1;
+		float oldVelocity = 0.8f;
+		float oldPan_L = 0.5f;
+		float oldPan_R = 0.5f;
+		float oldLeadLag = 0.0f;
+		int oldNoteKeyVal = 0;
+		int oldOctaveKeyVal = 0;
+
 		if( pDraggedNote ){
 			oldLength = pDraggedNote->get_length();
+			oldVelocity = pDraggedNote->get_velocity();
+			oldPan_L = pDraggedNote->get_pan_l();
+			oldPan_R = pDraggedNote->get_pan_r();
+			oldLeadLag = pDraggedNote->get_leadlag();
+			oldNoteKeyVal = pDraggedNote->m_noteKey.m_key;
+			oldOctaveKeyVal = pDraggedNote->m_noteKey.m_nOctave;
 		}
-		
-		SE_addNoteAction *action = new SE_addNoteAction( nColumn, row, __selectedPatternNumber, oldLength );
+
+		SE_addNoteAction *action = new SE_addNoteAction( nColumn,
+								 row,
+								 __selectedPatternNumber,
+								 oldLength,
+								 oldVelocity,
+								 oldPan_L,
+								 oldPan_R,
+								 oldLeadLag,
+								 oldNoteKeyVal,
+								 oldOctaveKeyVal );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 	else if (ev->button() == Qt::RightButton ) {
@@ -275,9 +298,17 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	}
 }
 
-void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row, int selectedPatternNumber, int oldLength )
+void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
+						int row,
+						int selectedPatternNumber,
+						int oldLength,
+						float oldVelocity,
+						float oldPan_L,
+						float oldPan_R,
+						float oldLeadLag,
+						int oldNoteKeyVal,
+						int oldOctaveKeyVal )
 {
-
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
@@ -316,17 +347,55 @@ void DrumPatternEditor::addOrDeleteNoteAction( int nColumn, int row, int selecte
 	if ( bNoteAlreadyExist == false ) {
 		// create the new note
 		const unsigned nPosition = nColumn;
-		const float fVelocity = 0.8f;
-		const float fPan_L = 0.5f;
-		const float fPan_R = 0.5f;
-		int nLength = -1;
-		if( oldLength > 0 ){
-			nLength = oldLength;
-		}
+		const float fVelocity = oldVelocity;
+		const float fPan_L = oldPan_L ;
+		const float fPan_R = oldPan_R;
+		int nLength = oldLength;
+
 		const float fPitch = 0.0f;
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_noteoff( false );
+		pNote->set_leadlag( oldLeadLag );
 
+		if ( oldNoteKeyVal == 0 ){//note c
+			pNote->m_noteKey.m_key = H2Core::NoteKey::C;
+		}
+		if ( oldNoteKeyVal == 1 ){//note cis / cs
+			pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
+		}
+		if ( oldNoteKeyVal == 2 ){//note d
+			pNote->m_noteKey.m_key = H2Core::NoteKey::D;
+		}
+		if ( oldNoteKeyVal == 3 ){//note dis / ef
+			pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
+		}
+		if ( oldNoteKeyVal == 4 ){//note E
+			pNote->m_noteKey.m_key = H2Core::NoteKey::E;
+		}
+		if ( oldNoteKeyVal == 5 ){//note f
+			pNote->m_noteKey.m_key = H2Core::NoteKey::F;
+		}
+		if ( oldNoteKeyVal == 6 ){//note fis
+			pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
+		}
+		if ( oldNoteKeyVal == 7 ){//note g
+			pNote->m_noteKey.m_key = H2Core::NoteKey::G;
+		}
+		if ( oldNoteKeyVal == 8 ){//note gis / af
+			pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
+		}
+		if ( oldNoteKeyVal == 9 ){//note a
+			pNote->m_noteKey.m_key = H2Core::NoteKey::A;
+		}
+		if ( oldNoteKeyVal == 10 ){//note his / bf
+			pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
+		}
+		if ( oldNoteKeyVal == 11 ){//note h / b
+			pNote->m_noteKey.m_key = H2Core::NoteKey::B;
+		}
+
+		pNote->m_noteKey.m_nOctave = oldOctaveKeyVal;
+		
 
 		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
 

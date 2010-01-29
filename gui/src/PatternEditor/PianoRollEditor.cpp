@@ -546,11 +546,36 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		}
 
 		int oldLength = -1;
+		float oldVelocity = 0.8f;
+		float oldPan_L = 0.5f;
+		float oldPan_R = 0.5f;
+		float oldLeadLag = 0.0f;
+		int oldNoteKeyVal = 0;
+		int oldOctaveKeyVal = 0;
+
 		if( pDraggedNote ){
 			oldLength = pDraggedNote->get_length();
+			oldVelocity = pDraggedNote->get_velocity();
+			oldPan_L = pDraggedNote->get_pan_l();
+			oldPan_R = pDraggedNote->get_pan_r();
+			oldLeadLag = pDraggedNote->get_leadlag();
+			oldNoteKeyVal = pDraggedNote->m_noteKey.m_key;
+			oldOctaveKeyVal = pDraggedNote->m_noteKey.m_nOctave;
+			
+			
 		}
 
-		SE_addNotePianoRollAction *action = new SE_addNotePianoRollAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber, oldLength );
+		SE_addNotePianoRollAction *action = new SE_addNotePianoRollAction( nColumn,
+										   pressedline,
+										   __selectedPatternNumber,
+										   nSelectedInstrumentnumber,
+										   oldLength,
+										   oldVelocity,
+										   oldPan_L,
+										   oldPan_R,
+										   oldLeadLag,
+										   oldNoteKeyVal,
+										   oldOctaveKeyVal );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 
 	}
@@ -635,7 +660,17 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 	}	
 }
 
-void PianoRollEditor::addOrDeleteNoteAction( int nColumn, int pressedLine, int selectedPatternNumber, int selectedinstrument, int oldLength )
+void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
+					     int pressedLine,
+					     int selectedPatternNumber,
+					     int selectedinstrument,
+					     int oldLength,
+					     float oldVelocity,
+					     float oldPan_L,
+					     float oldPan_R,
+					     float oldLeadLag,
+					     int oldNoteKeyVal,
+					     int oldOctaveKeyVal )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -683,16 +718,15 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn, int pressedLine, int s
 	if ( bNoteAlreadyExist == false ) {
 		// create the new note
 		const unsigned nPosition = nColumn;
-		const float fVelocity = 0.8f;
-		const float fPan_L = 0.5f;
-		const float fPan_R = 0.5f;
-		int nLength = -1;
-		if( oldLength > 0 ){
-			nLength = oldLength;
-		}
+		const float fVelocity = oldVelocity;
+		const float fPan_L = oldPan_L;
+		const float fPan_R = oldPan_R;
+		int nLength = oldLength;
+
 		const float fPitch = 0.0f;
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_noteoff( false );
+		pNote->set_leadlag( oldLeadLag );
 
 		if ( pressednotekey == 0 )//note c
 			pNote->m_noteKey.m_key = H2Core::NoteKey::C;
