@@ -115,6 +115,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr);
 		void loadPatternAction( QString filename, int position);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
+		void patternPopup_copyAction( QString patternFilename );
 
 	public slots:
 		void patternPopup_edit();
