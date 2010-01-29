@@ -1456,9 +1456,11 @@ void SongEditorPatternList::patternPopup_copy()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		SE_addEmptyPatternAction *action = new SE_addEmptyPatternAction( pNewPattern->get_name() , pNewPattern->get_category(), pPatternList->get_size() );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
-		pPatternList->del(  pNewPattern);
-		delete pNewPattern;
-		pNewPattern = NULL;
+		H2Core::Pattern *pPatterntoDel;
+		pPatterntoDel = pPatternList->get( pPatternList->get_size() - 1 );		
+		pPatternList->del( pPatterntoDel );
+		delete pPatterntoDel;
+		pPatterntoDel = NULL;
 
 		pEngine->setSelectedPatternNumber(pPatternList->get_size() - 1);	// select the last pattern (the copied one)
 		if (pSong->get_mode() == Song::PATTERN_MODE) {
