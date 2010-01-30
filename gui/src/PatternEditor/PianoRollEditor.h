@@ -65,7 +65,16 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 					     int oldOctaveKeyVal );
 
 		void addNoteRightClickAction( int nColumn, int pressedLine, int selectedPatternNumber, int  selectedInstrumentnumber);
-		void editNoteLenghtAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber );
+		void editNotePropertiesAction(   int nColumn,
+						int nRealColumn,
+						int selectedPatternNumber,
+						int selectedInstrumentnumber,
+						float velocity,
+						float pan_L,
+						float pan_R,
+						float leadLag, 
+						int pressedLine );
+		void editNoteLenghtAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
 
 	public slots:
 		void updateEditor();
@@ -108,6 +117,15 @@ class PianoRollEditor: public QWidget, public EventListener, public Object
 		int __nColumn;
 		int __pressedLine;
 		int __oldLength;
+		
+		float __velocity;
+		float __oldVelocity;
+		float __pan_L;
+		float __oldPan_L;
+		float __pan_R;
+		float __oldPan_R;
+		float __leadLag;
+		float __oldLeadLag;		
 };
 
 #endif

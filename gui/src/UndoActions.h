@@ -726,7 +726,7 @@ private:
 class SE_editNoteLenghtPianoRollAction : public QUndoCommand
 {
 public:
-	SE_editNoteLenghtPianoRollAction( int nColumn, int nRealColumn, int length, int oldLength, int selectedPatternNumber, int nSelectedInstrumentnumber ){
+	SE_editNoteLenghtPianoRollAction( int nColumn, int nRealColumn, int length, int oldLength, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine){
 	setText( QString( "Change note length Piano Roll" ) );
 	__nColumn = nColumn;
 	__nRealColumn = nRealColumn;
@@ -734,18 +734,24 @@ public:
 	__oldLength = oldLength;
 	__selectedPatternNumber = selectedPatternNumber;
 	__nSelectedInstrumentnumber = nSelectedInstrumentnumber;
+	__pressedLine = pressedLine;
 	}
 	virtual void undo()
 	{
 		qDebug() << "Change note length Piano Roll Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction( __nColumn, __nRealColumn, __oldLength, __selectedPatternNumber, __nSelectedInstrumentnumber );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction( __nColumn, __nRealColumn, __oldLength, __selectedPatternNumber, __nSelectedInstrumentnumber,  __pressedLine);
 	}
 	virtual void redo()
 	{
 		qDebug() << "Change note length Piano RollRedo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction( __nColumn,  __nRealColumn, __length, __selectedPatternNumber, __nSelectedInstrumentnumber );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction(    __nColumn,
+												__nRealColumn,
+												__length,
+												__selectedPatternNumber,
+												__nSelectedInstrumentnumber,
+												__pressedLine );
 	}
 private:
 	int __nColumn;
@@ -754,6 +760,83 @@ private:
 	int __length;
 	int __selectedPatternNumber;
 	int __nSelectedInstrumentnumber;
+	int __pressedLine;
+};
+
+class SE_editNotePropertiesPianoRollAction : public QUndoCommand
+{
+public:
+	SE_editNotePropertiesPianoRollAction(   int nColumn,
+						int nRealColumn,
+						int selectedPatternNumber,
+						int selectedInstrumentnumber,
+						float velocity,
+						float oldVelocity,
+						float pan_L,
+						float oldPan_L,
+						float pan_R,
+						float oldPan_R,
+						float leadLag,
+						float oldLeadLag,
+						int pressedLine ){
+	setText( QString( "Change Note properties Piano Roll" ) );
+	__nColumn = nColumn;
+	__nRealColumn = nRealColumn;
+	__selectedPatternNumber = selectedPatternNumber;
+	__nSelectedInstrumentnumber = selectedInstrumentnumber;
+	__velocity = velocity;
+	__oldVelocity = oldVelocity;
+	__pan_L = pan_L;
+	__oldPan_L = oldPan_L;
+	__pan_R = pan_R;
+	__oldPan_R = oldPan_R;
+	__leadLag = leadLag;
+	__oldLeadLag = oldLeadLag;
+	__pressedLine = pressedLine;
+	}
+	virtual void undo()
+	{
+		qDebug() << "Change Note properties Piano Roll Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNotePropertiesAction( __nColumn,
+												__nRealColumn,
+												__selectedPatternNumber,
+												__nSelectedInstrumentnumber,
+												__oldVelocity,
+												__oldPan_L,
+												__oldPan_R,
+												__oldLeadLag,
+												__pressedLine );
+	}
+	virtual void redo()
+	{
+		qDebug() << "Change Note properties Piano RollRedo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNotePropertiesAction( __nColumn,
+												__nRealColumn,
+												__selectedPatternNumber,
+												__nSelectedInstrumentnumber,
+												__velocity,
+												__pan_L,
+												__pan_R,
+												__leadLag,
+												__pressedLine );
+	}
+
+private:
+	int __nColumn;
+	int __nRealColumn;
+	int __selectedPatternNumber;
+	int __nSelectedInstrumentnumber;
+	float __velocity;
+	float __oldVelocity;
+	float __pan_L;
+	float __oldPan_L;
+	float __pan_R;
+	float __oldPan_R;
+	float __leadLag;
+	float __oldLeadLag;
+	int __pressedLine;
 };
 
 //~piano roll editor commands
@@ -854,8 +937,11 @@ private:
 	int __oldOctaveKeyVal;
 	int __selectedPatternNumber;
 	int __nSelectedInstrumentnumber;
-
-
-
 };
+
+
+//~Note Properties Ruler commands
+//=====================================================================================================================================
+
+
 #endif // UNDOACTIONS_H

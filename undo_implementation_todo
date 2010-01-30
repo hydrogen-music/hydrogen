@@ -26,9 +26,9 @@ Pattern- & Piano Roll-Editor:
  + Add/Remove note Piano Roll Editor				| Done 
  + Add/Remove noteoff note Piano Roll Editor			| Done
  + Edit note length Piano Roll Editor (right cklicking)		| Done
- + Edit velocity Piano Roll Editor				| ----
- + Edit pan Piano Roll Editor					| ----
- + Edit lead lag Piano Roll Editor				| ----
+ + Edit velocity Piano Roll Editor				| Done
+ + Edit pan Piano Roll Editor					| Done
+ + Edit lead lag Piano Roll Editor				| Done
  + Context menu fill notes					| ----
  + Context menu random velocity					| ----
  + Add/delete instrument					| ----
