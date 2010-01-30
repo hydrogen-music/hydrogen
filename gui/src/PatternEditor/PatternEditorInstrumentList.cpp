@@ -239,9 +239,11 @@ void InstrumentLine::functionClearNotes()
 			pos++;
 		}
 	}	
-
-	SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	
+	if( noteList.size() > 0 ){
+		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
+		HydrogenApp::get_instance()->m_undoStack->push( action );
+	}
 }
 
 
@@ -256,12 +258,6 @@ void InstrumentLine::functionFillNotes( int every )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	const float velocity = 0.8f;
-	const float pan_L = 0.5f;
-	const float pan_R = 0.5f;
-	const float fPitch = 0.0f;
-	const int nLength = -1;
-
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 	int nBase;
@@ -274,10 +270,9 @@ void InstrumentLine::functionFillNotes( int every )
 	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
 
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-
-
 	Song *pSong = pEngine->getSong();
+
+	QStringList notePositions;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
@@ -301,21 +296,15 @@ void InstrumentLine::functionFillNotes( int every )
 				}
 
 				if ( noteAlreadyPresent == false ) {
-					// create the new note
-					Note *pNote = new Note( instrRef, i, velocity, pan_L, pan_R, nLength, fPitch );
-					//pNote->setInstrument(instrRef);
-					pCurrentPattern->note_map.insert( std::make_pair( i, pNote ) );
+					notePositions << QString("%1").arg(i);
 				}
 			}
+			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
+			HydrogenApp::get_instance()->m_undoStack->push( action );
 		}
 	}
-	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
-
-
 
 
 

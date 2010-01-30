@@ -1121,6 +1121,9 @@ void DrumPatternEditor::undoRedoAction( int column,
 }
 
 
+///==========================================================
+///undo / redo actions from pattern editor instrument list
+
 void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -1132,6 +1135,8 @@ void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, i
 	pPattern->purge_instrument( pSelectedInstrument );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
+
+
 
 void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber )
 {
@@ -1156,3 +1161,75 @@ void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* >
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 
 }
+
+
+
+void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
+{
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	Pattern *pPattern = pPatternList->get( patternNumber );
+	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( nSelectedInstrument );
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+	for (int i = 0; i < noteList.size(); i++ ) {
+		int nColumn  = noteList.value(i).toInt();
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = pPattern->note_map.lower_bound( nColumn ); pos != pPattern->note_map.upper_bound( nColumn ); ++pos ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
+				// the note exists...remove it!
+				delete pNote;
+				pPattern->note_map.erase( pos );
+				break;
+			}
+		}
+	}
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+}
+
+
+void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
+{
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	Pattern *pPattern = pPatternList->get( patternNumber );
+	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( nSelectedInstrument );
+
+	const float velocity = 0.8f;
+	const float pan_L = 0.5f;
+	const float pan_R = 0.5f;
+	const float fPitch = 0.0f;
+	const int nLength = -1;
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+	for (int i = 0; i < noteList.size(); i++ ) {
+
+		// create the new note
+		int position = noteList.value(i).toInt();
+		Note *pNote = new Note( pSelectedInstrument, position, velocity, pan_L, pan_R, nLength, fPitch );
+		pPattern->note_map.insert( std::make_pair( position, pNote ) );	
+	}
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+}
+
+///~undo / redo actions from pattern editor instrument list
+///==========================================================

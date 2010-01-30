@@ -661,9 +661,40 @@ private:
 	int __selectedPatternNumber;
 };
 
+
+class SE_fillNotesRightClickAction : public QUndoCommand
+{
+public:
+	SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
+	setText( QString( "fill notes Note" ) );
+	//setText("add Pattern");
+	__notePositions = notePositions;
+	__nSelectedInstrument= nSelectedInstrument;
+	__selectedPatternNumber = selectedPatternNumber;
+	}
+	virtual void undo()
+	{
+		qDebug() << "fill notes Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
+	}
+	virtual void redo()
+	{
+		qDebug() << "fill notes Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
+	}
+private:
+	QStringList __notePositions;
+	int __nSelectedInstrument;
+	int __selectedPatternNumber;
+};
+
+
 //~pattern editor commands
 //=====================================================================================================================================
 //piano roll editor commands
+
 
 class SE_addNotePianoRollAction : public QUndoCommand
 {
