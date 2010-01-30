@@ -39,7 +39,6 @@ namespace H2Core
 
 class PatternEditorInstrumentList;
 class PatternEditorPanel;
-
 ///
 /// Drum pattern editor
 ///
@@ -86,6 +85,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 					float leadLag,
 					int noteKeyVal, 
 					int octaveKeyVal );
+		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
+		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 
 	public slots:
 		void updateEditor();

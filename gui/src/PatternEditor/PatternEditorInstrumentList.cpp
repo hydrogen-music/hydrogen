@@ -32,6 +32,7 @@
 #include <hydrogen/Song.h>
 using namespace H2Core;
 
+#include "UndoActions.h"
 #include "PatternEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
@@ -221,29 +222,27 @@ void InstrumentLine::functionClearNotes()
 // 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 	Hydrogen * H = Hydrogen::get_instance();
-	Pattern *pCurrentPattern = getCurrentPattern();
+	int selectedPatternNr = H->getSelectedPatternNumber();
+	Pattern *pPattern = getCurrentPattern();
+	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
-	int nSelectedInstrument = m_nInstrumentNumber;
-	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( nSelectedInstrument );
-	
-	pCurrentPattern->purge_instrument( pSelectedInstrument );
-// 	std::multimap <int, Note*>::iterator pos;
-// 	for ( pos = pCurrentPattern->note_map.begin(); pos != pCurrentPattern->note_map.end(); ++pos ) {
-// 		Note *pNote = pos->second;
-// 		assert( pNote );
-// 		if ( pNote->get_instrument() != pSelectedInstrument ) {
-// 			continue;
-// 		}
-// 
-// 		delete pNote;
-// 		pCurrentPattern->note_map.erase( pos );
-// 	}
-// 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+	std::list< Note* > noteList;
+	std::multimap <int, Note*>::iterator pos = pPattern->note_map.begin();
+	while ( pos != pPattern->note_map.end() ) {
+		Note *pNote = pos->second;
+		assert( pNote );
+		
+		if ( pNote->get_instrument() == pSelectedInstrument ) {
+			noteList.push_back( pNote );
+			pos++ ;
+		} else {
+			pos++;
+		}
+	}	
 
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
-
 
 
 void InstrumentLine::functionFillAllNotes(){ functionFillNotes(1); }

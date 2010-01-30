@@ -1119,3 +1119,40 @@ void DrumPatternEditor::undoRedoAction( int column,
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 
 }
+
+
+void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, int patternNumber )
+{
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	Pattern *pPattern = pPatternList->get( patternNumber );
+
+	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( nSelectedInstrument );
+
+	pPattern->purge_instrument( pSelectedInstrument );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+}
+
+void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber )
+{
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	Pattern *pPattern = pPatternList->get( patternNumber );
+
+	std::list < H2Core::Note *>::iterator pos;
+	for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
+		Note *pNote;
+		pNote = new Note(*pos);
+		assert( pNote );
+		int nPosition = pNote->get_position();
+		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+	}
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+
+}

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
+#include <hydrogen/note.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
@@ -610,6 +611,53 @@ private:
 	int __row;
 	int __oldLength;
 	int __length;
+	int __selectedPatternNumber;
+};
+
+
+class SE_clearNotesPatternEditorAction : public QUndoCommand
+{
+public:
+	SE_clearNotesPatternEditorAction(  std::list<  H2Core::Note* > noteList, int nSelectedInstrument, int selectedPatternNumber ){
+	setText( QString( "clear note sequense Not " ) );
+	//setText("add Pattern");
+
+	std::list < H2Core::Note *>::iterator pos;
+	for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
+		H2Core::Note *pNote;
+		pNote = new H2Core::Note(*pos);
+		assert( pNote );
+		__noteList.push_back( pNote );
+	}
+
+	__nSelectedInstrument = nSelectedInstrument;
+	__selectedPatternNumber = selectedPatternNumber;
+	}
+
+	~SE_clearNotesPatternEditorAction(){
+		qDebug() << "delete left notes ";
+		while ( __noteList.size() ) {
+			delete __noteList.front();
+			__noteList.pop_front();
+		}
+
+	}
+
+	virtual void undo()
+	{
+		qDebug() << "clear note sequense Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
+	}
+	virtual void redo()
+	{
+		qDebug() << "clear note sequense Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesRedoAction( __nSelectedInstrument, __selectedPatternNumber );
+	}
+private:
+	std::list< H2Core::Note* > __noteList;
+	int __nSelectedInstrument;
 	int __selectedPatternNumber;
 };
 
