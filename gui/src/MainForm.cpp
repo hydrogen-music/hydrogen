@@ -795,32 +795,8 @@ void MainForm::action_window_showSongEditor()
 
 void MainForm::action_instruments_addInstrument()
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	InstrumentList* pList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-
-	// create a new valid ID for this instrument
-	int nID = -1;
-	for ( uint i = 0; i < pList->get_size(); ++i ) {
-		Instrument* pInstr = pList->get( i );
-		if ( pInstr->get_id().toInt() > nID ) {
-			nID = pInstr->get_id().toInt();
-		}
-	}
-	++nID;
-
-	Instrument *pNewInstr = new Instrument(QString( nID ), "New instrument", new ADSR());
-	pList->add( pNewInstr );
-	
-	#ifdef JACK_SUPPORT
-	Hydrogen::get_instance()->renameJackPorts();
-	#endif
-	
-	AudioEngine::get_instance()->unlock();
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
-
-	// Force an update
-	//EventQueue::get_instance()->pushEvent( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	SE_mainMenuAddInstrumentAction *action = new SE_mainMenuAddInstrumentAction();
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
 

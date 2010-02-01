@@ -369,20 +369,42 @@ void InstrumentLine::functionRandomizeVelocity()
 
 void InstrumentLine::functionDeleteInstrument()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->removeInstrument( m_nInstrumentNumber, false );
+	Hydrogen * H = Hydrogen::get_instance();
+	int selectedPatternNr = H->getSelectedPatternNumber();
+	Pattern *pPattern = getCurrentPattern();
+	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
+
+	std::list< Note* > noteList;
+	Song* song = H->getSong();
+	PatternList *patList = song->get_pattern_list();
+
+	QString instrumentName =  pSelectedInstrument->get_name();
+	QString drumkitName = pSelectedInstrument->get_drumkit_name();
+
+	for ( int i = 0; i < patList->get_size(); i++ ) {
+		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
+		std::multimap <int, Note*>::iterator pos = pPattern->note_map.begin();
+		while ( pos != pPattern->note_map.end() ) {
+			Note *pNote = pos->second;
+			assert( pNote );
+			
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
+				pNote->set_ID( i );
+				noteList.push_back( pNote );
+				pos++ ;
+			} else {
+				pos++;
+			}
+		}
+	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-#ifdef JACK_SUPPORT
-	pEngine->renameJackPorts();
-#endif
-	AudioEngine::get_instance()->unlock();
+	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, m_nInstrumentNumber );
+	HydrogenApp::get_instance()->m_undoStack->push( action );	
 }
 
 
 
 //////
-
 
 
 PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )

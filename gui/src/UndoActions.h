@@ -774,6 +774,79 @@ private:
 	QString __sInstrumentName;
 	int __nTargetInstrument;
 };
+
+
+class SE_deleteInstrumentAction : public QUndoCommand
+{
+public:
+	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString drumkitName, QString instrumentName, int nSelectedInstrument ){
+	setText( QString( "delete Instrument " ) );
+	//setText("add Pattern");
+
+	std::list < H2Core::Note *>::iterator pos;
+	for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
+		H2Core::Note *pNote;
+		pNote = new H2Core::Note(*pos);
+		assert( pNote );
+		__noteList.push_back( pNote );
+	}
+	__drumkitName = drumkitName;	
+	__instrumentName = instrumentName;
+	__nSelectedInstrument = nSelectedInstrument;
+	}
+
+	~SE_deleteInstrumentAction(){
+		qDebug() << "delete left notes ";
+		while ( __noteList.size() ) {
+			delete __noteList.front();
+			__noteList.pop_front();
+		}
+
+	}
+
+	virtual void undo()
+	{
+		qDebug() << "delete Instrument Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDeleteInstrumentUndoAction( __noteList, __nSelectedInstrument, __instrumentName, __drumkitName );
+	}
+	virtual void redo()
+	{
+		qDebug() << "delete Instrument Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		//delete an instrument from list
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument );
+	}
+private:
+	std::list< H2Core::Note* > __noteList;
+	QString __instrumentName;
+	QString __drumkitName;
+	int __nSelectedInstrument;
+};
+
+
+
+class SE_mainMenuAddInstrumentAction : public QUndoCommand
+{
+public:
+	SE_mainMenuAddInstrumentAction(){
+	setText( QString( "drop Instrument" ) );
+	}
+	virtual void undo()
+	{
+		qDebug() << "drop Instrument Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionAddEmptyInstrumentUndo();
+	}
+	virtual void redo()
+	{
+		qDebug() << "drop Instrument Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionAddEmptyInstrumentRedo();
+	}
+private:
+};
+
 //~pattern editor commands
 //=====================================================================================================================================
 //piano roll editor commands

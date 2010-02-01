@@ -214,7 +214,13 @@ public:
 	int get_midimsg1() const {
 		return __midimsg1;
 	}
-
+	
+	void set_ID( int pat_Id) {
+		__pat_Id = pat_Id;
+	}
+	int get_ID() const {
+		return __pat_Id;
+	}	
 	
 
 
@@ -230,6 +236,7 @@ private:
 	int __length;
 	float __pitch;
 	int __midimsg1;
+	int __pat_Id;
 
 };
 

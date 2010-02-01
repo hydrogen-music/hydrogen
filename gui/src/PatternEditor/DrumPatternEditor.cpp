@@ -1366,5 +1366,118 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 		pEngine->setSelectedInstrumentNumber(nTargetInstrument);
 		updateEditor();
 }
+
+
+
+
+void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName )
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Instrument *pNewInstrument;
+	if( drumkitName == "" ){
+		pNewInstrument = new Instrument(QString(  pEngine->getSong()->get_instrument_list()->get_size() -1 ), instrumentName, new ADSR());
+	}else
+	{
+		pNewInstrument = Instrument::load_instrument( drumkitName, instrumentName );
+	}
+	if( pNewInstrument == NULL ) return;		
+
+	// create a new valid ID for this instrument
+	int nID = -1;
+	for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->get_size(); ++i ) {
+		Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
+		if ( pInstr->get_id().toInt() > nID ) {
+			nID = pInstr->get_id().toInt();
+		}
+	}
+	++nID;
+
+	pNewInstrument->set_id( QString("%1").arg( nID ) );
+//	pNewInstrument->set_adsr( new ADSR( 0, 0, 1.0, 1000 ) );
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
+
+	#ifdef JACK_SUPPORT
+	pEngine->renameJackPorts();
+	#endif
+
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+
+	//move instrument to the position where it was dropped
+	functionMoveInstrumentAction(pEngine->getSong()->get_instrument_list()->get_size() - 1 , nSelectedInstrument );
+
+	// select the new instrument
+	pEngine->setSelectedInstrumentNumber( nSelectedInstrument );
+
+	H2Core::Pattern *pPattern;
+	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+
+	updateEditor();
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+	//restore all deleted instrument notes
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if(noteList.size() > 0 ){
+		std::list < H2Core::Note *>::iterator pos;
+		for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
+
+			Note *note = *pos;
+			note->set_instrument( pNewInstrument );
+			Note *pNote;
+			pNote = new Note( *note );
+			assert( pNote );
+			int nPosition = pNote->get_position();
+			pPattern = pPatternList->get( pNote->get_ID() );
+			assert (pPattern) ;	
+			pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+			//delete pNote;
+		}
+	}
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+}
+
+void DrumPatternEditor::functionAddEmptyInstrumentUndo()
+{
+
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	pEngine->removeInstrument( pEngine->getSong()->get_instrument_list()->get_size() -1 , false );
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+#ifdef JACK_SUPPORT
+	pEngine->renameJackPorts();
+#endif
+	AudioEngine::get_instance()->unlock();
+	updateEditor();
+}
+
+
+void DrumPatternEditor::functionAddEmptyInstrumentRedo()
+{
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	InstrumentList* pList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+
+	// create a new valid ID for this instrument
+	int nID = -1;
+	for ( uint i = 0; i < pList->get_size(); ++i ) {
+		Instrument* pInstr = pList->get( i );
+		if ( pInstr->get_id().toInt() > nID ) {
+			nID = pInstr->get_id().toInt();
+		}
+	}
+	++nID;
+
+	Instrument *pNewInstr = new Instrument(QString( nID ), "New instrument", new ADSR());
+	pList->add( pNewInstr );
+	
+	#ifdef JACK_SUPPORT
+	Hydrogen::get_instance()->renameJackPorts();
+	#endif
+	
+	AudioEngine::get_instance()->unlock();
+
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
+
+}
 ///~undo / redo actions from pattern editor instrument list
 ///==========================================================
