@@ -1231,5 +1231,47 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 }
 
+
+void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber )
+{
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	Pattern *pPattern = pPatternList->get( selectedPatternNumber );
+	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( nSelectedInstrument );
+
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+	int nBase;
+	if ( isUsingTriplets() ) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+
+	int nResolution = 4 * MAX_NOTES / ( nBase * getResolution() );
+	int positionCount = 0;
+	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
+		std::multimap <int, Note*>::iterator pos;
+		for ( pos = pPattern->note_map.lower_bound(i); pos != pPattern->note_map.upper_bound( i ); ++pos ) {
+			Note *pNote = pos->second;
+			if ( pNote->get_instrument() ==  pSelectedInstrument) {
+				float velocity = noteVeloValue.value( positionCount ).toFloat();
+				pNote->set_velocity(velocity);
+				positionCount++;
+			}
+		}
+	}
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+}
 ///~undo / redo actions from pattern editor instrument list
 ///==========================================================

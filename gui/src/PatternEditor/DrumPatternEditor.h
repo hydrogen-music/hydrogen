@@ -89,6 +89,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
 		void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
+		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 
 	public slots:
 		void updateEditor();

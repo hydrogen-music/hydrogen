@@ -315,7 +315,6 @@ void InstrumentLine::functionRandomizeVelocity()
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 	int nBase;
 	if ( pPatternEditor->isUsingTriplets() ) {
@@ -327,6 +326,9 @@ void InstrumentLine::functionRandomizeVelocity()
 	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
 
 	Song *pSong = pEngine->getSong();
+	
+	QStringList noteVeloValue;
+ 	QStringList oldNoteVeloValue;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
@@ -342,6 +344,7 @@ void InstrumentLine::functionRandomizeVelocity()
 					Note *pNote = pos->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						float fVal = ( rand() % 100 ) / 100.0;
+						oldNoteVeloValue <<  QString("%1").arg( pNote->get_velocity() );
 						fVal = pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 );
 						if ( fVal < 0  ) {
 							fVal = 0;
@@ -349,17 +352,15 @@ void InstrumentLine::functionRandomizeVelocity()
 						if ( fVal > 1 ) {
 							fVal = 1;
 						}
-						pNote->set_velocity(fVal);
+						noteVeloValue << QString("%1").arg(fVal);
+						//pNote->set_velocity(fVal);
 					}
 				}
 			}
+			SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
+			HydrogenApp::get_instance()->m_undoStack->push( action );
 		}
 	}
-	AudioEngine::get_instance()->unlock();	// unlock the audio engine
-
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
 }
 
 

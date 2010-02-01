@@ -691,6 +691,35 @@ private:
 };
 
 
+class SE_randomVelocityRightClickAction : public QUndoCommand
+{
+public:
+	SE_randomVelocityRightClickAction( QStringList noteVeloValue, QStringList oldNoteVeloValue, int nSelectedInstrument, int selectedPatternNumber  ){
+	setText( QString( "Random velocity" ) );
+	//setText("add Pattern");
+	__noteVeloValue = noteVeloValue;
+	__oldNoteVeloValue = oldNoteVeloValue;
+	__nSelectedInstrument= nSelectedInstrument;
+	__selectedPatternNumber = selectedPatternNumber;
+	}
+	virtual void undo()
+	{
+		qDebug() << "Random velocity Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionRandomVelocityAction( __oldNoteVeloValue, __nSelectedInstrument, __selectedPatternNumber );
+	}
+	virtual void redo()
+	{
+		qDebug() << "Random velocity Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionRandomVelocityAction( __noteVeloValue, __nSelectedInstrument, __selectedPatternNumber );
+	}
+private:
+	QStringList __noteVeloValue;
+	QStringList __oldNoteVeloValue;
+	int __nSelectedInstrument;
+	int __selectedPatternNumber;
+};
 //~pattern editor commands
 //=====================================================================================================================================
 //piano roll editor commands
