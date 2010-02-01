@@ -439,47 +439,6 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 }
 
 
-void PatternEditorInstrumentList::moveInstrumentLine( int nSourceInstrument , int nTargetInstrument )
-{
-		Hydrogen *engine = Hydrogen::get_instance();
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		Song *pSong = engine->getSong();
-		InstrumentList *pInstrumentList = pSong->get_instrument_list();
-
-		if ( ( nTargetInstrument > (int)pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
-			AudioEngine::get_instance()->unlock();
-			return;
-		}
-
-
-		// move instruments...
-
-		Instrument *pSourceInstr = pInstrumentList->get(nSourceInstrument);
-		if ( nSourceInstrument < nTargetInstrument) {
-			for (int nInstr = nSourceInstrument; nInstr < nTargetInstrument; nInstr++) {
-				Instrument * pInstr = pInstrumentList->get(nInstr + 1);
-				pInstrumentList->replace( pInstr, nInstr );
-			}
-			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
-		}
-		else {
-			for (int nInstr = nSourceInstrument; nInstr >= nTargetInstrument; nInstr--) {
-				Instrument * pInstr = pInstrumentList->get(nInstr - 1);
-				pInstrumentList->replace( pInstr, nInstr );
-			}
-			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
-		}
-
-		#ifdef JACK_SUPPORT
-		engine->renameJackPorts();
-		#endif
-
-		AudioEngine::get_instance()->unlock();
-		engine->setSelectedInstrumentNumber( nTargetInstrument );
-
-		pSong->__is_modified = true;
-}
 
 ///
 /// Update every InstrumentLine, create or destroy lines if necessary.
@@ -572,7 +531,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		moveInstrumentLine( nSourceInstrument , nTargetInstrument );
+		SE_moveInstrumentAction *action = new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 
 		event->acceptProposedAction();
 	}
@@ -584,50 +544,17 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitName = tokens.at( 0 );
 		QString sInstrumentName = tokens.at( 1 );
-		
-		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
-		if( pNewInstrument == NULL ) return;		
 
-		Hydrogen *pEngine = Hydrogen::get_instance();
-
-		// create a new valid ID for this instrument
-		int nID = -1;
-		for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->get_size(); ++i ) {
-			Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
-			if ( pInstr->get_id().toInt() > nID ) {
-				nID = pInstr->get_id().toInt();
-			}
-		}
-		++nID;
-
-		pNewInstrument->set_id( QString("%1").arg( nID ) );
-
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
-
-		#ifdef JACK_SUPPORT
-		pEngine->renameJackPorts();
-		#endif
-
-		AudioEngine::get_instance()->unlock();
-
-	
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
 		/*
 		    "X > 181": border between the instrument names on the left and the grid
 		    Because the right part of the grid starts above the name column, we have to subtract the difference 
 		*/
-
 		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 
-		//move instrument to the position where it was dropped
-		moveInstrumentLine(pEngine->getSong()->get_instrument_list()->get_size() - 1 , nTargetInstrument );
-
-
-
-		// select the new instrument
-		pEngine->setSelectedInstrumentNumber(nTargetInstrument);
+		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 
 		event->acceptProposedAction();
 	}

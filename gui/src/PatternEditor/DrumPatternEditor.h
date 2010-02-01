@@ -90,6 +90,9 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
 		void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
+		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
+		void functionDropInstrumentUndoAction( int nTargetInstrument );
+		void functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument );
 
 	public slots:
 		void updateEditor();

@@ -32,9 +32,10 @@ Pattern- & Piano Roll-Editor:
  + Context delete notes						| Done
  + Context menu fill notes					| Done
  + Context menu random velocity					| Done
- + Add/delete instrument					| ----
+ + Drag and drop instruments order				| Done
+ + Context menu Delete instrument				| ----
  + Drag and drop intrument from library				| ----
- + Drag and drop instruments order				| ----
+ + Main menu Add instrument					| ----
 
 
 Note properties ruler:
@@ -42,4 +43,3 @@ Note properties ruler:
  + Edit pan							| Done
  + Edit lead lag						| Done
  + Edit note key						| Done
-

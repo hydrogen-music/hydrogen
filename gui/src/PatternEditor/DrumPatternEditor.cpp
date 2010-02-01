@@ -1273,5 +1273,98 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 }
+
+
+void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument )
+{
+		Hydrogen *engine = Hydrogen::get_instance();
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+		Song *pSong = engine->getSong();
+		InstrumentList *pInstrumentList = pSong->get_instrument_list();
+
+		if ( ( nTargetInstrument > (int)pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
+			AudioEngine::get_instance()->unlock();
+			return;
+		}
+
+
+		// move instruments...
+
+		Instrument *pSourceInstr = pInstrumentList->get(nSourceInstrument);
+		if ( nSourceInstrument < nTargetInstrument) {
+			for (int nInstr = nSourceInstrument; nInstr < nTargetInstrument; nInstr++) {
+				Instrument * pInstr = pInstrumentList->get(nInstr + 1);
+				pInstrumentList->replace( pInstr, nInstr );
+			}
+			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
+		}
+		else {
+			for (int nInstr = nSourceInstrument; nInstr >= nTargetInstrument; nInstr--) {
+				Instrument * pInstr = pInstrumentList->get(nInstr - 1);
+				pInstrumentList->replace( pInstr, nInstr );
+			}
+			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
+		}
+
+		#ifdef JACK_SUPPORT
+		engine->renameJackPorts();
+		#endif
+
+		AudioEngine::get_instance()->unlock();
+		engine->setSelectedInstrumentNumber( nTargetInstrument );
+
+		pSong->__is_modified = true;
+}
+
+
+void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument )
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	pEngine->removeInstrument( nTargetInstrument, false );
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+#ifdef JACK_SUPPORT
+	pEngine->renameJackPorts();
+#endif
+	AudioEngine::get_instance()->unlock();
+	updateEditor();
+}
+
+
+void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument )
+{
+		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
+		if( pNewInstrument == NULL ) return;		
+
+		Hydrogen *pEngine = Hydrogen::get_instance();
+
+		// create a new valid ID for this instrument
+		int nID = -1;
+		for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->get_size(); ++i ) {
+			Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
+			if ( pInstr->get_id().toInt() > nID ) {
+				nID = pInstr->get_id().toInt();
+			}
+		}
+		++nID;
+
+		pNewInstrument->set_id( QString("%1").arg( nID ) );
+
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
+
+		#ifdef JACK_SUPPORT
+		pEngine->renameJackPorts();
+		#endif
+
+		AudioEngine::get_instance()->unlock();
+		//move instrument to the position where it was dropped
+		functionMoveInstrumentAction(pEngine->getSong()->get_instrument_list()->get_size() - 1 , nTargetInstrument );
+
+		// select the new instrument
+		pEngine->setSelectedInstrumentNumber(nTargetInstrument);
+		updateEditor();
+}
 ///~undo / redo actions from pattern editor instrument list
 ///==========================================================

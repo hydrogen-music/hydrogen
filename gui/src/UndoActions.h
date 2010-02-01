@@ -720,6 +720,60 @@ private:
 	int __nSelectedInstrument;
 	int __selectedPatternNumber;
 };
+
+
+
+class SE_moveInstrumentAction : public QUndoCommand
+{
+public:
+	SE_moveInstrumentAction(  int nSourceInstrument, int nTargetInstrument  ){
+	setText( QString( "move Instrument" ) );
+	__nSourceInstrument = nSourceInstrument;
+	__nTargetInstrument = nTargetInstrument;
+	}
+	virtual void undo()
+	{
+		qDebug() << "move Instrument Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionMoveInstrumentAction( __nTargetInstrument, __nSourceInstrument );
+	}
+	virtual void redo()
+	{
+		qDebug() << "move Instrument Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionMoveInstrumentAction( __nSourceInstrument, __nTargetInstrument );
+	}
+private:
+	int __nSourceInstrument;
+	int __nTargetInstrument;
+};
+
+class SE_dragInstrumentAction : public QUndoCommand
+{
+public:
+	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument  ){
+	setText( QString( "drop Instrument" ) );
+	__sDrumkitName = sDrumkitName;
+	__sInstrumentName = sInstrumentName;
+	__nTargetInstrument = nTargetInstrument;
+	}
+	virtual void undo()
+	{
+		qDebug() << "drop Instrument Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument );
+	}
+	virtual void redo()
+	{
+		qDebug() << "drop Instrument Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument );
+	}
+private:
+	QString __sDrumkitName;
+	QString __sInstrumentName;
+	int __nTargetInstrument;
+};
 //~pattern editor commands
 //=====================================================================================================================================
 //piano roll editor commands
