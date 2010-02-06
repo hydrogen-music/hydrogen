@@ -262,7 +262,7 @@ void MainForm::createMenuBar()
 	connect( m_pRecentFilesMenu, SIGNAL( triggered(QAction*) ), this, SLOT( action_file_open_recent(QAction*) ) );
 	//~ FILE menu
 
-	// UNDO MENU ( just to test undo stuff...)
+	// Undo menu
 	QMenu *m_pUndoMenu = m_pMenubar->addMenu( trUtf8( "U&ndo" ) );
 	m_pUndoMenu->addAction( trUtf8( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
 	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
