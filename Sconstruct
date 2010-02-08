@@ -277,7 +277,6 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	if str(env['portaudio']) == "1": env.Append( LIBS = [ "portaudio" ] )
 	if str(env['portmidi']) == "1":
 		env.Append( LIBS = [ "portmidi" ] )
-		env.Append( LIBS = [ "porttime" ] )
 	if str(env['lash']) == "1":
 	        env.ParseConfig('pkg-config --cflags --libs lash-1.0')
 
