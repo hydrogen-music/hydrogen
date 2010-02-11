@@ -254,7 +254,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 				float sec = ( float )( pNewSample->get_n_frames() / (float)pNewSample->get_sample_rate() );
 				QString qsec;
 				qsec.sprintf( "%2.2f", sec );
-				m_pLengthLable->setText( trUtf8( "Samplelength: " ) + qsec + trUtf8( " s" ) );
+				m_pLengthLable->setText( trUtf8( "Sample length: " ) + qsec + trUtf8( " s" ) );
 				
 				delete pNewSample;
 				m_psamplefilename = path2;
@@ -280,7 +280,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			m_pNameLabel->setText( trUtf8( "Name:"));
 			m_pNBytesLable->setText( trUtf8( "Size:" ) );
 			m_pSamplerateLable->setText( trUtf8( "Samplerate:" ) );
-			m_pLengthLable->setText( trUtf8( "Samplelength:" ) );
+			m_pLengthLable->setText( trUtf8( "Sample length:" ) );
 			m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
 			m_pPlayBtn->setEnabled( false );
 			m_pStopBtn->setEnabled( false );
