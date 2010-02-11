@@ -146,18 +146,18 @@ void* diskWriterDriver_thread( void* param )
 
 	float ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / 192 *4;
 	 //here we have the song length in frames dependent from bpm and samplerate
-	unsigned songLengthinFrames = ticksize * nSongSize;
+	unsigned songLengthInFrames = ticksize * nSongSize;
 
 	unsigned frameNumber = 0;
 	int lastRun = 0;
-	while ( frameNumber < songLengthinFrames ) {
+	while ( frameNumber < songLengthInFrames ) {
 
 		int usedBuffer = pDriver->m_nBufferSize;
 
 		//this will calculate the the size from -last- (end of song) used frame buffer,
 		//which is mostly smaller than pDriver->m_nBufferSize
-		if( songLengthinFrames - frameNumber <  pDriver->m_nBufferSize ){
-			lastRun = songLengthinFrames - frameNumber;
+		if( songLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
+			lastRun = songLengthInFrames - frameNumber;
 			usedBuffer = lastRun;
 		};
 
@@ -190,7 +190,7 @@ void* diskWriterDriver_thread( void* param )
 			_ERRORLOG( "Error during sf_write_float" );
 		}
 
-		float fPercent = ( float ) frameNumber / ( float )songLengthinFrames * 100.0;
+		float fPercent = ( float ) frameNumber / ( float )songLengthInFrames * 100.0;
 		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
 //		frameNuber += lastrun;
 	}
