@@ -521,15 +521,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Samplelength: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source> s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No clicking audio preview for samples longer than 10 minutes!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -545,7 +537,15 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Samplelength:</source>
+        <source>Sample length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample length:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

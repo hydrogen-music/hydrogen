@@ -270,7 +270,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 						on_m_pPlayBtn_clicked();
 					}else
 					{
-						QMessageBox::information ( this, "Hydrogen", trUtf8( "No clicking audio preview for samples longer than 10 minutes!" )  );
+						QMessageBox::information ( this, "Hydrogen", trUtf8( "Please do not preview samples which are longer than 10 minutes!" )  );
 					}
 				}
 			}

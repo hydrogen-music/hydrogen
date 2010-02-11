@@ -628,18 +628,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="257"/>
-        <source>Samplelength: </source>
-        <translation type="unfinished">Duljina uzorka:</translation>
+        <source>Sample length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="273"/>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="283"/>
+        <source>Sample length:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="257"/>
         <source> s</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="273"/>
-        <source>No clicking audio preview for samples longer than 10 minutes!</source>
-        <translation>Bez udarajućeg zvučnog pregleda za uzorke dulje od 10 minuta!</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="280"/>
@@ -655,11 +660,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="282"/>
         <source>Samplerate:</source>
         <translation>Frekvencija uzorka:</translation>
-    </message>
-    <message>
-        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="283"/>
-        <source>Samplelength:</source>
-        <translation>Duljina uzorka:</translation>
     </message>
 </context>
 <context>

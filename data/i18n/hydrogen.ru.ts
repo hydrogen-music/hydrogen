@@ -866,16 +866,8 @@ p, li { white-space: pre-wrap; }
         <translation>Частота сэмплирования: %1</translation>
     </message>
     <message>
-        <source>Samplelength: </source>
-        <translation>Длительность:</translation>
-    </message>
-    <message>
         <source> s</source>
         <translation>с</translation>
-    </message>
-    <message>
-        <source>No clicking audio preview for samples longer than 10 minutes!</source>
-        <translation>Не щелкайте по волновой форме сэмплов длиннее 10 минут!</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -890,8 +882,16 @@ p, li { white-space: pre-wrap; }
         <translation>Частота сэмплирования:</translation>
     </message>
     <message>
-        <source>Samplelength:</source>
-        <translation>Длительность:</translation>
+        <source>Sample length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample length:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

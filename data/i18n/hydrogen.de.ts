@@ -503,109 +503,109 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Realtime frames</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation type="unfinished">Audio Datei Browser</translation>
+        <translation>Audiodatei Browser</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation type="unfinished">Größe: %1 bytes</translation>
+        <translation>Größe: %1 bytes</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation type="unfinished">Sampelrate: %1</translation>
-    </message>
-    <message>
-        <source>Samplelength: </source>
-        <translation type="unfinished">Sampellänge: </translation>
+        <translation>Samplerate: %1</translation>
     </message>
     <message>
         <source> s</source>
-        <translation type="unfinished"> s</translation>
-    </message>
-    <message>
-        <source>No clicking audio preview for samples longer than 10 minutes!</source>
-        <translation type="unfinished">Audio Dateien länger als 10 Minuten können nicht durch anklicken abgespielt werden!  </translation>
+        <translation> s</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Größe:</translation>
+        <translation>Größe:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished">Sampelrate:</translation>
+        <translation>Samplerate:</translation>
     </message>
     <message>
-        <source>Samplelength:</source>
-        <translation type="unfinished">Sampellänge:</translation>
+        <source>Sample length: </source>
+        <translation>Sample Länge:</translation>
+    </message>
+    <message>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation>Bitte keinen Samples öffnen die länger als 10 Minuten sind!</translation>
+    </message>
+    <message>
+        <source>Sample length:</source>
+        <translation>Sample Länge:</translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Öffne</translation>
+        <translation type="unfinished">Öffnen</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished">Sampelrate:</translation>
+        <translation>Samplerate:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Größe:</translation>
+        <translation>Größe:</translation>
     </message>
     <message>
         <source>Length:</source>
-        <translation type="unfinished">Länge:</translation>
+        <translation>Länge:</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation type="unfinished">Spiele Dateien durch &amp;anklicken </translation>
+        <translation>Spiele Dateien durch &amp;anklicken </translation>
     </message>
     <message>
         <source>&amp;Up</source>
-        <translation type="unfinished">Ho&amp;ch</translation>
+        <translation>Ho&amp;ch</translation>
     </message>
     <message>
         <source>&amp;Home</source>
-        <translation type="unfinished">Persö&amp;hnlicher Ordner</translation>
+        <translation>Persö&amp;nlicher Ordner</translation>
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation type="unfinished">&amp;Spiele Datei</translation>
+        <translation>&amp;Spiele Datei</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation type="unfinished">&amp;Dateiname wird Instrument Name</translation>
+        <translation>&amp;Dateiname wird Instrument Name</translation>
     </message>
     <message>
         <source>&amp;Stop</source>
-        <translation type="unfinished">S&amp;topp</translation>
+        <translation>S&amp;topp</translation>
     </message>
     <message>
         <source>View hidden folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Verstecke Ordner anzeigen</translation>
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
@@ -716,16 +716,16 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Export failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Exportieren ist fehlgeschlagen!</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei %1 existiert bereits. Wollen sie sie überschreiben?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -768,7 +768,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Samplerate in Hz:</source>
-        <translation type="unfinished"></translation>
+        <translation>Samplerate in Hz:</translation>
     </message>
     <message>
         <source>22050</source>
@@ -812,7 +812,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Templates: </source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlagen:</translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
@@ -917,7 +917,7 @@ Sind sie sicher?
     <name>HydrogenApp</name>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Drumkit geladen: [%1]</translation>
+        <translation>Drumkit geladen: [%1]</translation>
     </message>
 </context>
 <context>
@@ -1493,22 +1493,22 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist: Song Nr. %1</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern konnte nicht exportiert werden.</translation>
     </message>
     <message>
         <source>
 The document contains unsaved changes.
 Do you want to save the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Das Dokument hat ungespeicherte Änderungen. Wollen sie nun speichern?</translation>
     </message>
     <message>
         <source>Director</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirigent</translation>
     </message>
 </context>
 <context>
@@ -1572,7 +1572,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation type="unfinished"></translation>
+        <translation>Knopf drücken um Midi-Event aufzunehmen</translation>
     </message>
 </context>
 <context>
@@ -1741,7 +1741,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Piano-Roll anzeigen</translation>
     </message>
     <message>
         <source>Drum</source>
@@ -1749,7 +1749,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Show drum editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Drum-Editor anzeigen</translation>
     </message>
     <message>
         <source>Right click into pattern editor add note-off-note or edit note-length, velocity or pan</source>

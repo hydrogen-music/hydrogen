@@ -521,16 +521,8 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Taux d&apos;échantillonage: %1</translation>
     </message>
     <message>
-        <source>Samplelength: </source>
-        <translation type="unfinished">Longueur d&apos;échantillonage: </translation>
-    </message>
-    <message>
         <source> s</source>
         <translation type="unfinished"> s</translation>
-    </message>
-    <message>
-        <source>No clicking audio preview for samples longer than 10 minutes!</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name:</source>
@@ -545,8 +537,16 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Taux d&apos;échantillonage:</translation>
     </message>
     <message>
-        <source>Samplelength:</source>
-        <translation type="unfinished">Longueur d&apos;échantillonage: </translation>
+        <source>Sample length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample length:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
