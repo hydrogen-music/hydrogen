@@ -435,7 +435,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 
 
-QColor computeNoteColor( float velocity ){
+QColor DrumPatternEditor::computeNoteColor( float velocity ){
     int red;
     int green;
     int blue;

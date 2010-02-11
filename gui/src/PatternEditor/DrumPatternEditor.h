@@ -65,6 +65,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
 
+		static QColor computeNoteColor( float );
+
 
 	public slots:
 		void updateEditor();

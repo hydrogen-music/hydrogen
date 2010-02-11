@@ -515,13 +515,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 				uint velocity = (uint)(pNote->get_velocity() * height());
 				uint line_start = line_end - velocity;
 			
-				int red = (int) (pNote->get_velocity() * 255);
-				int green;
-				int blue;
-				blue = (255 - (int) red)* .33;
-				green =  (255 - (int) red);
-	
-				QColor centerColor( red , green , blue );
+				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 	
 				int nLineWidth = 3;
 				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
@@ -679,13 +673,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 
-				int red = (int) (pNote->get_velocity() * 255);
-				int green;
-				int blue;
-				blue = (255 - (int) red)* .33;
-				green =  (255 - (int) red);
 	
-				QColor centerColor( red , green , blue );
+				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 	
 				if (pNote->get_pan_r() == pNote->get_pan_l()) {
 					// pan value is centered - draw circle
