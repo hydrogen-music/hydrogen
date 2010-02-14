@@ -44,6 +44,7 @@ def parse_ts(filename):
 
 
 
+parse_ts("hydrogen.cs.ts")
 parse_ts("hydrogen.de.ts")
 parse_ts("hydrogen.ca.ts")
 parse_ts("hydrogen.fr.ts")

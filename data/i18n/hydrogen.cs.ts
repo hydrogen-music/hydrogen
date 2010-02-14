@@ -1,54 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE">
+<TS version="2.0" language="cs_CZ">
 <context>
     <name>AboutDialog</name>
     <message>
-        <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Projektseite&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>About</source>
-        <translation>Über</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Hauptprogrammierer:&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>O aplikaci</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Domovská stránka&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Stránka projektu&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Mailinglisten&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Kontakty&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Hlavní vývojář a zástupce:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Translator:%1Alessandro Cominu</source>
-        <translation>Übersetzer:%1Alessandro Cominu</translation>
+        <translation>Překlad:%1Adam Radiměřský (Aidamos)</translation>
     </message>
 </context>
 <context>
     <name>AboutDialog_UI</name>
     <message>
-        <source>###</source>
-        <translation>###</translation>
-    </message>
-    <message>
         <source>About Hydrogen</source>
-        <translation>Über Hydrogen</translation>
-    </message>
-    <message>
-        <source>A&amp;bout</source>
-        <translation>&amp;Über</translation>
-    </message>
-    <message>
-        <source>&amp;Authors</source>
-        <translation>&amp;Autoren</translation>
-    </message>
-    <message>
-        <source>&amp;License</source>
-        <translation>&amp;Lizenz</translation>
+        <translation>O Hydrogenu</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -57,6 +41,22 @@
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
+    </message>
+    <message>
+        <source>A&amp;bout</source>
+        <translation>O &amp;programu</translation>
+    </message>
+    <message>
+        <source>###</source>
+        <translation>###</translation>
+    </message>
+    <message>
+        <source>&amp;Authors</source>
+        <translation>&amp;Autoři</translation>
+    </message>
+    <message>
+        <source>&amp;License</source>
+        <translation>&amp;Licence</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -405,148 +405,148 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;consider it more useful to permit linking proprietary applications with the&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;library.  If this is what you want to do, use the GNU Library General&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;Public License instead of this License.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation>Infos über die Audio-Engine</translation>
+        <translation>Informace o audio enginu</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>Playing notes</source>
-        <translation>Polyphonie</translation>
-    </message>
-    <message>
-        <source>Process time</source>
-        <translation>Prozesszeit</translation>
-    </message>
-    <message>
-        <source>Audio engine state</source>
-        <translation>Status der Audio-Engine</translation>
-    </message>
-    <message>
-        <source>Song state</source>
-        <translation>Songstatus</translation>
-    </message>
-    <message>
-        <source>Frames</source>
-        <translation>Rahmen</translation>
-    </message>
-    <message>
-        <source>Ticks</source>
-        <translation>Ticks</translation>
-    </message>
-    <message>
-        <source>Buffer size</source>
-        <translation>Puffergröße</translation>
-    </message>
-    <message>
-        <source>Sample rate</source>
-        <translation>Samplerate</translation>
+        <translation>Formulář1</translation>
     </message>
     <message>
         <source>###</source>
         <translation>###</translation>
     </message>
     <message>
-        <source>Song position</source>
-        <translation>Songposition</translation>
+        <source>Buffer size</source>
+        <translation>Velikost bufferu</translation>
     </message>
     <message>
-        <source>Patterns</source>
-        <translation>Patterns</translation>
-    </message>
-    <message>
-        <source>Selected pattern</source>
-        <translation>Gewähltes Pattern</translation>
-    </message>
-    <message>
-        <source>Selected instrument</source>
-        <translation>Gewähltes Instrument</translation>
+        <source>Sample rate</source>
+        <translation>Vzorkovací frekvence</translation>
     </message>
     <message>
         <source>Connected to</source>
-        <translation>Verbunden mit</translation>
+        <translation>Připojen k</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation type="unfinished"></translation>
+        <source>Frames</source>
+        <translation>Snímky</translation>
+    </message>
+    <message>
+        <source>Process time</source>
+        <translation>Vytížení procesoru</translation>
+    </message>
+    <message>
+        <source>Ticks</source>
+        <translation>Tempo</translation>
+    </message>
+    <message>
+        <source>Song state</source>
+        <translation>Stav skladby</translation>
+    </message>
+    <message>
+        <source>Selected instrument</source>
+        <translation>Vybraný nástroj</translation>
+    </message>
+    <message>
+        <source>Audio engine state</source>
+        <translation>Stav audio enginu</translation>
+    </message>
+    <message>
+        <source>Selected pattern</source>
+        <translation>Vybraný patern</translation>
+    </message>
+    <message>
+        <source>Playing notes</source>
+        <translation>Hrané noty</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation>Paterny</translation>
+    </message>
+    <message>
+        <source>Song position</source>
+        <translation>Pozice skladby</translation>
     </message>
     <message>
         <source>Sampler</source>
         <translation>Sampler</translation>
     </message>
     <message>
+        <source>Synth</source>
+        <translation>Syntezátor</translation>
+    </message>
+    <message>
         <source>Sequencer</source>
-        <translation>Sequenzer</translation>
+        <translation>Sekvencer</translation>
     </message>
     <message>
         <source>MIDI input</source>
-        <translation>Midi Eingang</translation>
+        <translation>MIDI vstup</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <source>Audio output</source>
-        <translation>Audio-Ausgang</translation>
+        <translation>Audio výstup</translation>
     </message>
     <message>
         <source>Realtime frames</source>
-        <translation></translation>
+        <translation>Realtimeové snímky</translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation>Audiodatei Browser</translation>
+        <translation>Vyhledávání audio souborů</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation>Größe: %1 bytes</translation>
+        <translation>Velikost: %1 B</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation>Samplerate: %1</translation>
+        <translation>Vzorkovací frekvence %1</translation>
     </message>
     <message>
         <source> s</source>
-        <translation> s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Name:</translation>
+        <translation>Název:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>Größe:</translation>
+        <translation>Velikost:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Samplerate:</translation>
+        <translation>Vzorkovací frekvence:</translation>
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Sample Länge:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation>Bitte keinen Samples öffnen die länger als 10 Minuten sind!</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sample length:</source>
-        <translation>Sample Länge:</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -557,55 +557,55 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Otevřít</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Name:</translation>
+        <translation>Název:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Samplerate:</translation>
+        <translation>Vzorkovací frekvence:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>Größe:</translation>
+        <translation>Velikost:</translation>
     </message>
     <message>
         <source>Length:</source>
-        <translation>Länge:</translation>
+        <translation>Délka:</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation>Storno</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation>Spiele Dateien durch &amp;anklicken </translation>
+        <translation>Přehrát vzork&amp;y po kliknutí</translation>
     </message>
     <message>
         <source>&amp;Up</source>
-        <translation>Ho&amp;ch</translation>
+        <translation>&amp;Nahoru</translation>
     </message>
     <message>
         <source>&amp;Home</source>
-        <translation>Persö&amp;nlicher Ordner</translation>
+        <translation>&amp;Domů</translation>
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation>&amp;Spiele Datei</translation>
+        <translation>&amp;Přehrát vzorek</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation>&amp;Dateiname wird Instrument Name</translation>
+        <translation>&amp;Název souboru do názvu nástroje</translation>
     </message>
     <message>
         <source>&amp;Stop</source>
-        <translation>S&amp;topp</translation>
+        <translation>&amp;Stop</translation>
     </message>
     <message>
         <source>View hidden folders</source>
-        <translation>Verstecke Ordner anzeigen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
@@ -620,30 +620,42 @@ p, li { white-space: pre-wrap; }
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>DrumkitManager_UI</name>
     <message>
         <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>Drumkit name</source>
-        <translation>Drumkit-Name</translation>
-    </message>
-    <message>
-        <source>Delete drumkit</source>
-        <translation>Drumkit löschen</translation>
-    </message>
-    <message>
-        <source>Load drumkit</source>
-        <translation>Drumkit laden</translation>
+        <translation>Formulář1</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation>Laden</translation>
+        <translation>Nahrát</translation>
+    </message>
+    <message>
+        <source>### Drumkit author</source>
+        <translation>### Autor bicí sady</translation>
+    </message>
+    <message>
+        <source>Delete drumkit</source>
+        <translation>Vymazat bicí sadu</translation>
+    </message>
+    <message>
+        <source>### Drumkit name</source>
+        <translation>### Název bicí sady</translation>
+    </message>
+    <message>
+        <source>### Drumkit info</source>
+        <translation>### info o bicí sadě</translation>
+    </message>
+    <message>
+        <source>Load drumkit</source>
+        <translation>Nahrát bicí sadu</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Uložit</translation>
     </message>
     <message>
         <source>Author</source>
@@ -651,47 +663,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Info</source>
-        <translation>Infos</translation>
+        <translation>Informace</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation>Speichern</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Durchsuchen</translation>
+        <source>Drumkit name</source>
+        <translation>Název bicí sady</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>Importieren</translation>
+        <translation>Import</translation>
     </message>
     <message>
         <source>Drumkit filename</source>
-        <translation>Dateiname des Drumkits</translation>
+        <translation>Název souboru bicí sady</translation>
     </message>
     <message>
-        <source>Export</source>
-        <translation>Exportieren</translation>
-    </message>
-    <message>
-        <source>Drumkit directory</source>
-        <translation>Drumkit-Verzeichnis</translation>
-    </message>
-    <message>
-        <source>### Drumkit author</source>
-        <translation>### Drumkit Autor</translation>
-    </message>
-    <message>
-        <source>### Drumkit info</source>
-        <translation>### Drumkit Info</translation>
-    </message>
-    <message>
-        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation>###Das Drumkit wird installiert zncxbmzbxcmznxbcmz</translation>
-    </message>
-    <message>
-        <source>### Drumkit name</source>
-        <translation>### Name des Drumkit</translation>
+        <source>Browse</source>
+        <translation>Najít</translation>
     </message>
     <message>
         <source>&lt;b&gt;
@@ -699,48 +687,60 @@ Download more drumkits at &lt;br&gt;
 http://www.hydrogen-music.org
 &lt;/b&gt;</source>
         <translation>&lt;b&gt;
-Mehr Drumkits gibt es unter&lt;br&gt;
+Bicích sady ke stažení na &lt;br&gt;
 http://www.hydrogen-music.org
 &lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
+        <translation>### Bicí sada bude nainstalována</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <source>Drumkit directory</source>
+        <translation>Adresář pro bicí sady</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
-        <translation>Song exportieren</translation>
+        <translation>Export skladby</translation>
     </message>
     <message>
         <source>Sample rate: %1</source>
-        <translation>Samplerate: %1</translation>
-    </message>
-    <message>
-        <source>Export failed!</source>
-        <translation>Das Exportieren ist fehlgeschlagen!</translation>
+        <translation>Vzorkovací frekvence: %1</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation>Die Datei %1 existiert bereits. Wollen sie sie überschreiben?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation>&amp;OK</translation>
+        <translation type="unfinished">&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation type="unfinished">&amp;Storno</translation>
+    </message>
+    <message>
+        <source>Export failed!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Export filename</source>
-        <translation>Export-Dateiname</translation>
+        <source>Export Whole Song to WAV</source>
+        <translation>Export celé skladby do WAV</translation>
     </message>
     <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Song als Wave-Datei exportieren</translation>
+        <source>&amp;Close</source>
+        <translation>&amp;Zavřít</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -748,27 +748,27 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Exportieren</translation>
+        <translation>&amp;Export</translation>
     </message>
     <message>
         <source>Alt+E</source>
         <translation>Alt+E</translation>
     </message>
     <message>
+        <source>Export filename</source>
+        <translation>Nazev exportovaného souboru</translation>
+    </message>
+    <message>
         <source>&amp;Browse...</source>
-        <translation>&amp;Durchsuchen...</translation>
+        <translation>&amp;Procházet...</translation>
     </message>
     <message>
         <source>Alt+B</source>
         <translation>Alt+B</translation>
     </message>
     <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Schließen</translation>
-    </message>
-    <message>
         <source>Samplerate in Hz:</source>
-        <translation>Samplerate in Hz:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>22050</source>
@@ -812,7 +812,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Templates: </source>
-        <translation>Vorlagen:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
@@ -866,11 +866,11 @@ Overwrite the existing file?</source>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
-        <translation>FX an/aus</translation>
+        <translation>Zapnout/vypnout efekt</translation>
     </message>
     <message>
         <source>Master output</source>
-        <translation>Master-Ausgang</translation>
+        <translation>Hlavní výstup (master)</translation>
     </message>
 </context>
 <context>
@@ -891,7 +891,7 @@ Overwrite the existing file?</source>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
         <source>SoundLibrary Properties</source>
-        <translation type="unfinished">Soundlibrary Eigenschaften</translation>
+        <translation>Vlastnosti zvukové knihovny</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -899,92 +899,91 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation type="unfinished">Nicht möglich, es lassen sich nur Änderungen an Instrumenten innerhalb der aktuell verwendeten Soundlibrary speichern.</translation>
+        <translation>Toto není dostupné, můžete pouze uložit změny nástroje do aktuálně nahrané zvukové knihovny</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
-        <translation type="unfinished">Achtung! Bei Änderungen des Drumkit-Namens wird ein neues Drumkit dieses Namens erstellt.
-Sind sie sicher?
-</translation>
+        <translation>Pozor! Změna názvu bicí sady bude mít za následek vytvoření nové bicí sady s tímto jménem.￼
+Určitě to chcete?</translation>
     </message>
 </context>
 <context>
     <name>HydrogenApp</name>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation>Drumkit geladen: [%1]</translation>
+        <translation>Nahraná bicí sada: [%1]</translation>
     </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Show instrument properties</source>
-        <translation>Eigenschaften des Instruments anzeigen</translation>
-    </message>
-    <message>
-        <source>Show layers properties</source>
-        <translation>Eigenschaften des Layers anzeigen</translation>
-    </message>
-    <message>
         <source>Random pitch factor</source>
-        <translation>Zufällige Tonhöhe</translation>
+        <translation>Náhodný faktor výšky</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation>Filter-Cutoff</translation>
+        <translation>Ořez filtru</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation>Filter-Resonanz</translation>
+        <translation>Rezonance filtru</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation>Attacke</translation>
+        <translation>Síla</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation>Dämpfung</translation>
+        <translation>Útlum</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation>halten</translation>
+        <translation>Výdrž</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation>freigeben</translation>
-    </message>
-    <message>
-        <source>Layer gain</source>
-        <translation>Aussteuerung des Layers</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>Neuer Name für das Instrument</translation>
+        <translation>Uvolnění</translation>
     </message>
     <message>
         <source>Instrument gain</source>
-        <translation>Aussteuerung des Instruments</translation>
+        <translation>Zisk nástroje</translation>
+    </message>
+    <message>
+        <source>Layer gain</source>
+        <translation>Zisk vrstvy</translation>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladění vrstvy (hrubé)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladění vrstvy (jemné)</translation>
+    </message>
+    <message>
+        <source>Show instrument properties</source>
+        <translation>Zobrazit vlastnosti nástroje</translation>
+    </message>
+    <message>
+        <source>Show layers properties</source>
+        <translation>Zobrazit vlastnosti vrstvy</translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation>Nový název nástroje</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Übersicht</translation>
+        <translation>Hlavní</translation>
     </message>
     <message>
         <source>Layers</source>
-        <translation>Layer</translation>
+        <translation>Vrstvy</translation>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
@@ -995,15 +994,15 @@ Sind sie sicher?
     <name>InstrumentLine</name>
     <message>
         <source>Clear notes</source>
-        <translation>Noten löschen</translation>
+        <translation>Vymazat noty</translation>
     </message>
     <message>
         <source>Randomize velocity</source>
-        <translation>zufälliger Anschlag (Velocity)</translation>
+        <translation>Náhodná síla úderu</translation>
     </message>
     <message>
         <source>Delete instrument</source>
-        <translation>Instrument löschen</translation>
+        <translation>Vymazat nástroj</translation>
     </message>
     <message>
         <source>Fill notes ...</source>
@@ -1038,72 +1037,76 @@ Sind sie sicher?
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation>Instrumenteneditor anzeigen</translation>
+        <translation>Zobrazit editor nástrojů</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation>Instrument</translation>
+        <translation>Nástroj</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation>Klangbibliothek anzeigen</translation>
+        <translation>Zobrazit knihovnu zvuků</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Klangbibliothek</translation>
+        <translation>Knihovna zvuků</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <source>Edit FX parameters</source>
-        <translation>Effektparameter bearbeiten</translation>
+        <source>FX bypass</source>
+        <translation>Vyřadit efekt</translation>
     </message>
     <message>
-        <source>FX bypass</source>
-        <translation>Effekt umgehen</translation>
+        <source>Edit FX parameters</source>
+        <translation>Editovat parametry efektu</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation>LADSPA-Effektname</translation>
+        <translation>Název LADSPA efektu</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation>Effekt-Return</translation>
+        <translation>Návrat efektu</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation>Effekt wählen</translation>
-    </message>
-    <message>
-        <source>[%1] LADSPA FX Properties</source>
-        <translation>Eigenschaften des LADSPA-Effekts [%1] </translation>
-    </message>
-    <message>
-        <source>LADSPA FX %1 Properties</source>
-        <translation>Eigenschaften des LADSPA-Effekts %1</translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Kein Plugin</translation>
+        <translation>Vybrat efekt</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation>Aktivieren</translation>
+        <translation>Zapnout</translation>
+    </message>
+    <message>
+        <source>[%1] LADSPA FX Properties</source>
+        <translation>[%1] Vlastnosti LADSPA efektu</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation>Deaktivieren</translation>
+        <translation>Vypnout</translation>
+    </message>
+    <message>
+        <source>LADSPA FX %1 Properties</source>
+        <translation>Vlastnosti LADSPA efektu %1</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Bez efektu</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXSelector</name>
     <message>
+        <source>Select LADSPA FX</source>
+        <translation>Vybrat LADSPA efekt</translation>
+    </message>
+    <message>
         <source>Groups</source>
-        <translation>Gruppen</translation>
+        <translation>Skupiny</translation>
     </message>
     <message>
         <source>Stereo</source>
@@ -1115,46 +1118,30 @@ Sind sie sicher?
     </message>
     <message>
         <source>Not supported</source>
-        <translation>Nicht unterstützt</translation>
-    </message>
-    <message>
-        <source>Select LADSPA FX</source>
-        <translation>LADSPA-Effekt wählen</translation>
+        <translation>Nepodporováno</translation>
     </message>
     <message>
         <source>Recently Used</source>
-        <translation>Zuletzt benutzt</translation>
+        <translation>Naposledy použité</translation>
     </message>
     <message>
         <source>Alphabetic List</source>
-        <translation>Alphatisch</translation>
+        <translation>Abecední seznam</translation>
     </message>
     <message>
         <source>Categorized</source>
-        <translation>Kategorisiert</translation>
+        <translation>Kategorizováno</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXSelector_UI</name>
     <message>
         <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>### fx label</source>
-        <translation>### fx Label</translation>
-    </message>
-    <message>
-        <source>### fx type</source>
-        <translation>### fx Typ</translation>
-    </message>
-    <message>
-        <source>### fx ID</source>
-        <translation>### fx ID</translation>
+        <translation>Formulář1</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -1166,7 +1153,19 @@ Sind sie sicher?
     </message>
     <message>
         <source>Alt+O</source>
-        <translation>###</translation>
+        <translation>Alt+O</translation>
+    </message>
+    <message>
+        <source>### fx label</source>
+        <translation>### Jmenovka efektu</translation>
+    </message>
+    <message>
+        <source>### fx type</source>
+        <translation>### Typ efektu</translation>
+    </message>
+    <message>
+        <source>### fx ID</source>
+        <translation>### ID efektu</translation>
     </message>
     <message>
         <source>1</source>
@@ -1178,12 +1177,13 @@ Sind sie sicher?
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>### fx name
 1</source>
-        <translation type="unfinished"></translation>
+        <translation>### Jméno efektu
+1</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1191,7 +1191,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1199,7 +1199,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1207,7 +1207,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1215,13 +1215,13 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>### FX maker
 1
 2</source>
-        <translation>### FX maker
+        <translation>### Autor efektu
 1
 2</translation>
     </message>
@@ -1231,7 +1231,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>### copyright
@@ -1247,306 +1247,307 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Speichern</translation>
-    </message>
-    <message>
-        <source>&amp;Discard</source>
-        <translation>Änderungen &amp;verwerfen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
-        <source>Error loading song.</source>
-        <translation>Fehler beim Laden des Songs.</translation>
-    </message>
-    <message>
         <source>Hydrogen Ready.</source>
-        <translation>Hydrogen ist bereit.</translation>
-    </message>
-    <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Hydrogen-Song (*.h2song)</translation>
-    </message>
-    <message>
-        <source>Save song</source>
-        <translation>Song speichern</translation>
-    </message>
-    <message>
-        <source>Open song</source>
-        <translation>Song öffnen</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Mididatei exportieren</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>Mididatei (*.mid)</translation>
-    </message>
-    <message>
-        <source>&amp;New</source>
-        <translation>&amp;Neu</translation>
-    </message>
-    <message>
-        <source>&amp;Open</source>
-        <translation>&amp;Öffnen</translation>
-    </message>
-    <message>
-        <source>Open &amp;Demo</source>
-        <translation>&amp;Demo öffnen</translation>
-    </message>
-    <message>
-        <source>Open &amp;recent</source>
-        <translation>Zuletzt &amp;geöffnet</translation>
-    </message>
-    <message>
-        <source>Export &amp;MIDI file</source>
-        <translation>&amp;Mididatei exportieren</translation>
-    </message>
-    <message>
-        <source>&amp;Preferences</source>
-        <translation>&amp;Einstellungen</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation>&amp;Beenden</translation>
-    </message>
-    <message>
-        <source>Show &amp;audio engine info</source>
-        <translation>&amp;Audioinformationen anzeigen</translation>
-    </message>
-    <message>
-        <source>&amp;User manual</source>
-        <translation>&amp;Handbuch</translation>
-    </message>
-    <message>
-        <source>&amp;About</source>
-        <translation>&amp;Über</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
-    </message>
-    <message>
-        <source>Unknown audio driver</source>
-        <translation>Unbekannter Audiotreiber</translation>
-    </message>
-    <message>
-        <source>Error starting audio driver</source>
-        <translation>Fehler beim Starten des Audiotreibers</translation>
-    </message>
-    <message>
-        <source>Jack driver: server shutdown</source>
-        <translation>JACK: Server geschlossen</translation>
-    </message>
-    <message>
-        <source>Jack driver: cannot activate client</source>
-        <translation>JACK: Konnte Client nicht aktivieren</translation>
-    </message>
-    <message>
-        <source>Jack driver: cannot connect output port</source>
-        <translation>JACK: Konnte nicht zum Ausgang verbinden</translation>
-    </message>
-    <message>
-        <source>Jack driver: error in port register</source>
-        <translation>JACK: Fehler im Portregister</translation>
-    </message>
-    <message>
-        <source>&amp;Export song</source>
-        <translation>Song &amp;exportieren</translation>
-    </message>
-    <message>
-        <source>De&amp;bug</source>
-        <translation>De&amp;bug</translation>
+        <translation>Hydrogen pripraven.</translation>
     </message>
     <message>
         <source>&amp;Project</source>
         <translation>&amp;Projekt</translation>
     </message>
     <message>
+        <source>&amp;New</source>
+        <translation>&amp;Nový</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Otevřít</translation>
+    </message>
+    <message>
+        <source>Open &amp;Demo</source>
+        <translation>Otevřít &amp;demo</translation>
+    </message>
+    <message>
+        <source>Open &amp;recent</source>
+        <translation>Otevřít &amp;nedávný</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Uložit</translation>
+    </message>
+    <message>
         <source>Save &amp;as...</source>
-        <translation>Speichern &amp;unter...</translation>
+        <translation>Uložit &amp;jako...</translation>
+    </message>
+    <message>
+        <source>Export &amp;MIDI file</source>
+        <translation>Export &amp;MIDI souboru</translation>
+    </message>
+    <message>
+        <source>&amp;Export song</source>
+        <translation>&amp;Export skladby</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation>&amp;Konec</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
-        <translation>&amp;Werkzeuge</translation>
+        <translation>&amp;Zobrazit</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
-        <translation>&amp;Mixer</translation>
+        <translation>&amp;Mixér</translation>
     </message>
     <message>
         <source>&amp;Instrument Rack</source>
-        <translation>&amp;Instrumenten Rack</translation>
+        <translation>&amp;Nástrojový panel</translation>
+    </message>
+    <message>
+        <source>&amp;Preferences</source>
+        <translation>&amp;Předvolby</translation>
+    </message>
+    <message>
+        <source>De&amp;bug</source>
+        <translation>&amp;Ladit</translation>
+    </message>
+    <message>
+        <source>Show &amp;audio engine info</source>
+        <translation>Zobrazit informace o &amp;audio enginu</translation>
     </message>
     <message>
         <source>Print Objects</source>
-        <translation>Objekte ausgeben</translation>
+        <translation>Tisk objektů</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation>&amp;Info</translation>
+        <translation>&amp;Informace</translation>
+    </message>
+    <message>
+        <source>&amp;User manual</source>
+        <translation>&amp;Uživatelská příručka</translation>
+    </message>
+    <message>
+        <source>&amp;About</source>
+        <translation>O &amp;aplikaci</translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <translation>&amp;Zahodit</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Storno</translation>
+    </message>
+    <message>
+        <source>Hydrogen Song (*.h2song)</source>
+        <translation>Skladba Hydrogen (*.h2song)</translation>
+    </message>
+    <message>
+        <source>Save song</source>
+        <translation>Uložit skladbu</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation>Komposition gespeichert.</translation>
+        <translation>Skladba uložena.</translation>
+    </message>
+    <message>
+        <source>Open song</source>
+        <translation>Otevřít skladbu</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation>Chyba při otevírání skladby.</translation>
+    </message>
+    <message>
+        <source>Midi file (*.mid)</source>
+        <translation>MIDI soubor (*.mid)</translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation>Export MIDI souboru</translation>
+    </message>
+    <message>
+        <source>Unknown audio driver</source>
+        <translation>Neznámý audio ovladač</translation>
+    </message>
+    <message>
+        <source>Error starting audio driver</source>
+        <translation>Chyba při zavádění audio ovladače</translation>
+    </message>
+    <message>
+        <source>Jack driver: server shutdown</source>
+        <translation>Jack: server neběží</translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot activate client</source>
+        <translation>Jack: nemohu aktivovat klienta</translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot connect output port</source>
+        <translation>Jack: nemohu připojit výstupní porty</translation>
+    </message>
+    <message>
+        <source>Jack driver: error in port register</source>
+        <translation>Jack: chyba registrace portů</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
-        <translation>Unbekannter Fehler %1</translation>
+        <translation>Neznámá chyba %1</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation>Alle Instrumente löschen?</translation>
+        <translation>Vymazat všechny nástroje?</translation>
     </message>
     <message>
         <source>Ok</source>
         <translation>OK</translation>
     </message>
     <message>
+        <source>Cancel</source>
+        <translation>Storno</translation>
+    </message>
+    <message>
         <source>Instrument %1</source>
-        <translation>Instrument %1</translation>
+        <translation>Nástroj %1</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation>Sie benutzern eine Entwicklerversion von Hydrogen. Bitte helfen sie uns in dem sie Fehler oder Verbesserungsvorschläge der hydrogen-devel Mailingliste melden.&lt;br&gt;&lt;br&gt;Danke!</translation>
+        <translation>Používáte vývojovou verzi Hydrogenu. Prosíme, pomozte nám hlášením chyb nebo nápady na kontaktní adrese hydrogen-devel týmu.&lt;br&gt;&lt;br&gt;Děkujeme!</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation>Der Song konnte nicht gespeichert werden.</translation>
+        <translation>Nemohu uložit skladbu.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation>Öffne &amp;Pattern</translation>
+        <translation>Otevřít &amp;patern</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen Pattern (*.h2pattern)</translation>
+        <translation>Hydrogen patern (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation>Speichere Pattern als...</translation>
+        <translation>Uložit patern jako...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation>Pattern gespeichert.</translation>
+        <translation>Patern uložen.</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation>Öffne Pattern</translation>
+        <translation>Otevřít patern</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation>Diese Nachricht nicht mehr anzeigen</translation>
+        <translation>Příště tuto zprávu již nezobrazovat</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation>Wiedergabeliste: Song %1</translation>
+        <translation>Playlist: Nastavit skladbu č. %1</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
-        <translation>Zeige  &amp;Information</translation>
+        <translation>&amp;Informace o skladbě</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
-        <translation>Expor&amp;tiere Pattern als...</translation>
+        <translation>Expor&amp;tovat patern jako...</translation>
     </message>
     <message>
         <source>I&amp;nstruments</source>
-        <translation>I&amp;nstrumente</translation>
+        <translation>&amp;Nástroje</translation>
     </message>
     <message>
         <source>&amp;Add instrument</source>
-        <translation>Instrument &amp;hinzufügen</translation>
+        <translation>&amp;Přidat nástroj</translation>
     </message>
     <message>
         <source>&amp;Clear all</source>
-        <translation>&amp;Alle Instr. löschen</translation>
+        <translation>&amp;Vymazat vše</translation>
     </message>
     <message>
         <source>&amp;Save library</source>
-        <translation>Bibliothek  &amp;speichern</translation>
+        <translation>&amp;Uložit knihovnu</translation>
     </message>
     <message>
         <source>&amp;Export library</source>
-        <translation>Bibliothek &amp;exportieren</translation>
+        <translation>&amp;Export knihovny</translation>
     </message>
     <message>
         <source>Playlist &amp;editor</source>
-        <translation>Wiedergabe&amp;liste editieren</translation>
+        <translation>Playlist &amp;editor</translation>
     </message>
     <message>
         <source>&amp;Import library</source>
-        <translation>Bibliothek &amp;importieren</translation>
+        <translation>&amp;Import knihovny</translation>
     </message>
     <message>
         <source></source>
         <comment>Info|About</comment>
+        <translatorcomment>informace|O aplikaci</translatorcomment>
         <translation></translation>
     </message>
     <message>
         <source>Song saved as.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skladba uložena.</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation>Playlist: Song Nr. %1</translation>
+        <translation>Playlist: Skladba č. %1</translation>
+    </message>
+    <message>
+        <source>Director</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation>Pattern konnte nicht exportiert werden.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>
 The document contains unsaved changes.
 Do you want to save the changes?
 </source>
-        <translation>Das Dokument hat ungespeicherte Änderungen. Wollen sie nun speichern?</translation>
-    </message>
-    <message>
-        <source>Director</source>
-        <translation>Dirigent</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <source>Set master volume [%1]</source>
-        <translation>Master-Lautstärke [%1]</translation>
-    </message>
-    <message>
-        <source>Swing</source>
-        <translation>Swing</translation>
+        <source>Humanize velocity</source>
+        <translation>Lidský faktor síly úderu</translation>
     </message>
     <message>
         <source>Humanize time</source>
-        <translation>Humanize-Time</translation>
+        <translation>Lidský faktor přesnosti</translation>
     </message>
     <message>
-        <source>Humanize velocity</source>
-        <translation>Humanize-Velocity</translation>
+        <source>Swing</source>
+        <translation>Kolísání</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Nastavit celkovou hlasitost [%1]</translation>
     </message>
     <message>
         <source>Set humanize time parameter [%1]</source>
-        <translation>Humanize-Time Parameter [%1]</translation>
+        <translation>Nastavit lidský faktor přesnosti [%1]</translation>
     </message>
     <message>
         <source>Set humanize velocity parameter [%1]</source>
-        <translation>Humanize-Velocity [%1]</translation>
+        <translation>Nastavit lidský faktor síly úderu [%1]</translation>
     </message>
     <message>
         <source>Set swing factor [%1]</source>
-        <translation>Swingfaktor [%1]</translation>
+        <translation>Nastavit faktor kolísání [%1]</translation>
     </message>
 </context>
 <context>
     <name>MetroBlinker</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished">Dirigent</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1560,7 +1561,7 @@ Do you want to save the changes?
     <name>MidiTable</name>
     <message>
         <source>Event</source>
-        <translation>Ereignis</translation>
+        <translation>Událost</translation>
     </message>
     <message>
         <source>Param.</source>
@@ -1568,164 +1569,156 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Action</source>
-        <translation>Aktion</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Knopf drücken um Midi-Event aufzunehmen</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Mixer</name>
     <message>
+        <source>Mixer</source>
+        <translation>Mixér</translation>
+    </message>
+    <message>
         <source>Show FX panel</source>
-        <translation>Effekte anzeigen</translation>
+        <translation>Zobrazit panel efektů</translation>
     </message>
     <message>
         <source>Show instrument peaks</source>
-        <translation>Peaks anzeigen</translation>
-    </message>
-    <message>
-        <source>Show instrument peaks = On</source>
-        <translation>&apos;Peaks anzeigen&apos; ist aktiviert</translation>
-    </message>
-    <message>
-        <source>Show instrument peaks = Off</source>
-        <translation>&apos;Peaks anzeigen&apos; ist deaktiviert</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation>Mixer</translation>
+        <translation>Zobrazit špičky nástrojů</translation>
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation>Effekt-Intensität %1</translation>
+        <translation>Nastavit úroveň efektu %1 </translation>
+    </message>
+    <message>
+        <source>Show instrument peaks = On</source>
+        <translation>Zobrazování spicek nastroju zapnuto</translation>
+    </message>
+    <message>
+        <source>Show instrument peaks = Off</source>
+        <translation>Zobrazování spicek nastroju vypnuto</translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation>LADSPA-Effektlautstärke (%1)</translation>
+        <translation>Nastavit hlasitost LADSPA efektu ( %1 )</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation>Sample abspielen</translation>
+        <translation>Přehrát vzorek</translation>
     </message>
     <message>
         <source>Mute</source>
-        <translation>Stumm</translation>
+        <translation>Ztlumit</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation>Solo</translation>
+        <translation>Sólo</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation>Pan</translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>Instrument name (double click to edit)</source>
-        <translation>Instrumentname (Doppelklick zum Ändern)</translation>
+        <translation>Název nástroje (dvojklik pro editaci)</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation>Instrumentlautstärke [%1]</translation>
+        <translation>Nastavit hlasitost nástroje [%1]</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
-        <translation>Panaroma für Instrument [%1] setzen</translation>
+        <translation>Nastavit panoramu nástroje [%1]</translation>
     </message>
 </context>
 <context>
     <name>PatternEditorPanel</name>
     <message>
-        <source>Hear new notes</source>
-        <translation>Neue Noten hören</translation>
-    </message>
-    <message>
-        <source>Hear new notes = On</source>
-        <translation>&apos;Neue Noten hören&apos; ist aktiviert</translation>
-    </message>
-    <message>
-        <source>Hear new notes = Off</source>
-        <translation>&apos;Neue Noten hören&apos; ist deaktiviert</translation>
-    </message>
-    <message>
-        <source>Pattern editor - %1</source>
-        <translation>Patterneditor - %1</translation>
-    </message>
-    <message>
-        <source>Quantize keyboard/midi events to grid</source>
-        <translation>Tastatur/Midi ins Raster quantisieren</translation>
-    </message>
-    <message>
-        <source>Quantize incoming keyboard/midi events = On</source>
-        <translation>&apos;Tastatur/Midi quantisieren&apos; ist aktiviert</translation>
-    </message>
-    <message>
-        <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation>&apos;Tastatur/Midi quantisieren&apos; ist deaktiviert</translation>
-    </message>
-    <message>
-        <source>Zoom in</source>
-        <translation>Einzoomen</translation>
-    </message>
-    <message>
-        <source>Zoom out</source>
-        <translation>Auszoomen</translation>
-    </message>
-    <message>
-        <source>Is not possible to change the pattern size when playing.</source>
-        <translation>Während des Abspielens kann die Patternlänge nicht verändert werden.</translation>
-    </message>
-    <message>
         <source>Select pattern size</source>
-        <translation>Patternlänge wählen</translation>
+        <translation>Vybrat velikost paternu</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
-        <translation>Gitterdichte wählen</translation>
+        <translation>Vybrat rozlišení mřížky</translation>
+    </message>
+    <message>
+        <source>Hear new notes</source>
+        <translation>Poslech nových not</translation>
+    </message>
+    <message>
+        <source>Quantize keyboard/midi events to grid</source>
+        <translation>Přichytit noty z klávesnice / MIDI ke mřížce</translation>
+    </message>
+    <message>
+        <source>Zoom in</source>
+        <translation>Zvětšit</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Zmenšit</translation>
+    </message>
+    <message>
+        <source>Pattern editor - %1</source>
+        <translation>Patern editor - %1</translation>
     </message>
     <message>
         <source>No pattern selected</source>
-        <translation>Kein Pattern ausgewählt</translation>
+        <translation>Není vybrán žádný patern</translation>
+    </message>
+    <message>
+        <source>Hear new notes = On</source>
+        <translation>Zapnout poslech nových not</translation>
+    </message>
+    <message>
+        <source>Hear new notes = Off</source>
+        <translation>Vypnout poslech nových not</translation>
+    </message>
+    <message>
+        <source>Quantize incoming keyboard/midi events = On</source>
+        <translation>Zapnout přichytávání not z klávesnice / MIDI</translation>
+    </message>
+    <message>
+        <source>Quantize incoming keyboard/midi events = Off</source>
+        <translation>Vypnout přichytávání not z klávesnice / MIDI</translation>
+    </message>
+    <message>
+        <source>Is not possible to change the pattern size when playing.</source>
+        <translation>Není možné změnit patern během přehrávání.</translation>
     </message>
     <message>
         <source>Select note properties</source>
-        <translation>Eigenschaften der Note wählen</translation>
+        <translation>Vybrat vlatnosti noty</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation>Velocity</translation>
+        <translation>Sila uderu</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation>Pan</translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Hranice</translation>
     </message>
     <message>
         <source>Resonance</source>
-        <translation>Resonanz</translation>
+        <translation>Rezonance</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation>Lead and Lag</translation>
+        <translation>Preciznost</translation>
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
-        <translation type="unfinished">Geladene Klangbibliothek</translation>
-    </message>
-    <message>
-        <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
-        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge spielen die geladene Klangbibliothek im Grund-Ton oder das ausgewählte Instrument mit Tonhöhen-Veränderung</translation>
-    </message>
-    <message>
-        <source>NoteKey</source>
-        <translation type="unfinished">Note</translation>
+        <translation>Nahraná zvuková knihovna</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
@@ -1736,12 +1729,24 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right click into pattern editor add note-off-note or edit note-length, velocity or pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Piano</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation>Piano-Roll anzeigen</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NoteKey</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Drum</source>
@@ -1749,10 +1754,6 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Show drum editor</source>
-        <translation>Drum-Editor anzeigen</translation>
-    </message>
-    <message>
-        <source>Right click into pattern editor add note-off-note or edit note-length, velocity or pan</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1760,18 +1761,18 @@ Do you want to save the changes?
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation>Mit ausgewähltem Pattern füllen</translation>
+        <translation>Vyplnit vybraným paternem</translation>
     </message>
 </context>
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
         <source>Form 1</source>
-        <translation>Formular 1</translation>
+        <translation>Form 1</translation>
     </message>
     <message>
         <source>&amp;Fill</source>
-        <translation>&amp;Füllen</translation>
+        <translation>Vy&amp;plnit</translation>
     </message>
     <message>
         <source>Alt+F</source>
@@ -1779,23 +1780,23 @@ Do you want to save the changes?
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation>&amp;Löschen</translation>
+        <translation>&amp;Vyčistit</translation>
     </message>
     <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <source>To:</source>
-        <translation>An:</translation>
+        <source>From:</source>
+        <translation>Od:</translation>
     </message>
     <message>
-        <source>From:</source>
-        <translation>Von:</translation>
+        <source>To:</source>
+        <translation>Do:</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation>Storno</translation>
     </message>
     <message>
         <source>OK</source>
@@ -1806,7 +1807,7 @@ Do you want to save the changes?
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
-        <translation>Patterneigenschaften</translation>
+        <translation>Vlastnosti paternu</translation>
     </message>
     <message>
         <source>%1#2</source>
@@ -1821,11 +1822,11 @@ Do you want to save the changes?
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <source>Form1</source>
-        <translation>Formular 1</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -1841,147 +1842,146 @@ Do you want to save the changes?
     </message>
     <message>
         <source>New Pattern Name</source>
-        <translation>Neuer Patternname</translation>
+        <translation>Název nového paternu</translation>
     </message>
     <message>
         <source>Pattern category</source>
-        <translation>Pattern Kategorie</translation>
+        <translation>Kategorie paternu</translation>
     </message>
 </context>
 <context>
     <name>PlayerControl</name>
     <message>
-        <source>Stop</source>
-        <translation>Stopp</translation>
-    </message>
-    <message>
-        <source>Song Mode</source>
-        <translation>Songmodus</translation>
-    </message>
-    <message>
-        <source>Playing.</source>
-        <translation>Spielt ab.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Gestoppt.</translation>
-    </message>
-    <message>
-        <source>Song mode selected.</source>
-        <translation>Songmodus gewählt.</translation>
-    </message>
-    <message>
-        <source>Pattern Mode</source>
-        <translation>Patternmodus</translation>
-    </message>
-    <message>
-        <source>Pattern mode selected.</source>
-        <translation>Patternmodus gewählt.</translation>
-    </message>
-    <message>
-        <source>Jack-transport on/off</source>
-        <translation>JACK-Transport an/aus</translation>
-    </message>
-    <message>
-        <source>Jack-transport mode = On</source>
-        <translation>&apos;JACK-Transport&apos; ist aktiviert</translation>
-    </message>
-    <message>
-        <source>Jack-transport mode = Off</source>
-        <translation>&apos;JACK-Transport&apos; ist deaktiviert</translation>
-    </message>
-    <message>
-        <source>New BPM value</source>
-        <translation>Neuer BPM-Wert</translation>
-    </message>
-    <message>
         <source>Rewind</source>
-        <translation>Zurückspulen</translation>
+        <translation>Zpět</translation>
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation>Play/Pause</translation>
+        <translation>Přehrát / Pauza</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation>Vorspulen</translation>
-    </message>
-    <message>
-        <source>Switch Song/ Pattern Mode</source>
-        <translation>Zwischen Song- und Patternmodus wechseln</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pause.</translation>
-    </message>
-    <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation>JACK-Transport funktioniert nur mit dem JACK-Treiber.</translation>
+        <translation>Vpřed</translation>
     </message>
     <message>
         <source>Loop song</source>
-        <translation>Song wiederholen</translation>
+        <translation>Opakovat skladbu</translation>
     </message>
     <message>
-        <source>Loop song = On</source>
-        <translation>&apos;Song wiederholen&apos; ist aktiviert</translation>
+        <source>Pattern Mode</source>
+        <translation>Režim patern</translation>
     </message>
     <message>
-        <source>Loop song = Off</source>
-        <translation>&apos;Song wiederholen&apos; ist deaktiviert</translation>
+        <source>Song Mode</source>
+        <translation>Režim skladba</translation>
+    </message>
+    <message>
+        <source>Switch Song/ Pattern Mode</source>
+        <translation>Přepnout režim patern / skladba</translation>
+    </message>
+    <message>
+        <source>Jack-transport on/off</source>
+        <translation>Zapnout / Vypnout Jack přenos</translation>
     </message>
     <message>
         <source>Show mixer</source>
-        <translation>Mixer anzeigen</translation>
+        <translation>Zobrazit mixér</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixer</translation>
+        <translation>Mixér</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
-        <translation>Instrumenten Rack anzeigen</translation>
+        <translation>Zobrazit nástrojový panel</translation>
     </message>
     <message>
         <source>Instrument rack</source>
-        <translation>Instrumenten Rack</translation>
+        <translation>Nástrojový panel</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>Prehrava se.</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pozastaveno.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Zastaveno.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Rezim skladby vybran.</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Rezim paternu vybran.</translation>
+    </message>
+    <message>
+        <source>Jack-transport mode = On</source>
+        <translation>Zapnout Jack přenos</translation>
+    </message>
+    <message>
+        <source>Jack-transport mode = Off</source>
+        <translation>Vypnout Jack přenos</translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation>Jack přenos pracuje pouze s Jack ovladačem.</translation>
+    </message>
+    <message>
+        <source>New BPM value</source>
+        <translation>Nová hodnota BPM</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Opakovani skladby zapnuto</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Opakovani skladby vypnuto</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation>Beatcounter
- sichtbar</translation>
+        <translation>Panel rytmu</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation>setze Geschwindigkeit / setze Geschwindigkeit und spiele ab</translation>
+        <translation>Nastavit BPM / Nastavit BPM a přehrát</translation>
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation>Jack Time Master an/aus</translation>
+        <translation>Zapnout / Vypnout Jack-Time-Master</translation>
     </message>
     <message>
         <source> BC Panel on</source>
-        <translation>Takt Zähler Anzeige sichtbar</translation>
+        <translation>Panel rytmu zapnut</translation>
     </message>
     <message>
         <source> BC Panel off</source>
-        <translation>Takt Zähler Anzeige aus</translation>
+        <translation>Panel rytmu vypnut</translation>
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation>Zaehle Takte und spiele ab</translation>
+        <translation>Zaznamenat BPM a prehrat</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation>Zaehle Takte setze BPM</translation>
+        <translation>Zaznamenat a nastavit BPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation>Jack Time Master Betrieb = ein</translation>
+        <translation>Jack-Time-Master mod zapnut</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation>Jack Time Master Betrieb = aus</translation>
+        <translation>Jack-Time-Master mod vypnut</translation>
     </message>
     <message>
         <source>Record</source>
@@ -1989,6 +1989,10 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Destructive Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2008,10 +2012,6 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Recalculate all samples using Rubberband ON</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2024,11 +2024,11 @@ Do you want to save the changes?
     <name>PlaylistDialog</name>
     <message>
         <source>Play List Browser</source>
-        <translation>Wiedergabeliste</translation>
+        <translation>Správce playlistů</translation>
     </message>
     <message>
         <source>Song list</source>
-        <translation>Titel</translation>
+        <translation>Seznam skladeb</translation>
     </message>
     <message>
         <source>Script</source>
@@ -2036,88 +2036,91 @@ Do you want to save the changes?
     </message>
     <message>
         <source>exec Script</source>
-        <translation>Skript ausführen</translation>
+        <translation>Spustit skript</translation>
     </message>
     <message>
         <source>Add Song to PlayList</source>
-        <translation>Titel hinzufügen</translation>
+        <translation>Přidat skladbu do playlistu</translation>
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation>Kein Titel ausgewählt!</translation>
+        <translation>Není vybrána žádná skladba!</translation>
     </message>
     <message>
         <source>Load Playlist</source>
-        <translation>Lade Wiedergabeliste</translation>
+        <translation>Nahrát playlist</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Hydrogen Wiedergabeliste (*.h2playlist)</translation>
+        <translation>Hydrogen playlist (*.h2playlist)</translation>
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation>Speichere Wiedergabeliste</translation>
+        <translation>Uložit playlist</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation>Kein Titel in der Liste oder kein Titel ausgewählt!</translation>
+        <translation>Seznam neobsahuje skladby nebo není žádná skladba vybrána!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
-        <translation>Hydrogen Wiedergabeliste (*.sh)</translation>
+        <translation>Hydrogen playlist (*.sh)</translation>
     </message>
     <message>
         <source>Add Script to selected Song</source>
-        <translation>Skript zu auswgeähltem Song hinzufügen</translation>
+        <translation>Přidat skript do zvolené skladby</translation>
     </message>
     <message>
         <source>No Script in use!</source>
-        <translation>Kein Skript in Verwendung!</translation>
+        <translation>Nepoužívá se žádný skript!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation>Kein standard Editor eingestellt. Bitte wähle deinen standard Editor aus.
-Konsolen-basierte Editoren werden noch nicht unterstützt.</translation>
+        <translation>Není nastaven výchozí editor. Prosím, nastavte si váš výchozí editor!￼
+Nepoužívejte konzolový editor!￼
+Omlouváme se, momentálně tato funkce není implementována.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
-        <translation>Wähle deinen standard Editor</translation>
+        <translation>Nastavte si vlastní výchozí editor</translation>
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation>Kein Skript ausgewählt!</translation>
+        <translation>Není vybrán žádný skript!</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation>Fehler beim Laden des Songs.</translation>
+        <translation>Chyba při otevírání skladby.</translation>
     </message>
     <message>
         <source>sort</source>
-        <translation>sortieren</translation>
+        <translation>Seřadit</translation>
     </message>
     <message>
         <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Hydrogen Skripte (*.sh)</translation>
+        <translation>Hydrogen skript (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
-        <translation>Neues Skript</translation>
+        <translation>Nový skript</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation>Der Pfad zum Skript oder der Skriptname darf keine Leerzeichen enthalten.</translation>
+        <translation>Název skriptu nebo cesta k němu obsahuje mezery.￼
+DŮLEŽITÉ￼
+Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
     </message>
     <message>
         <source>No Script!</source>
-        <translation>Kein Skript!</translation>
+        <translation>Žádný skript!</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation>Wiedergabeliste: Song %1</translation>
+        <translation>Playlist: nastavit skladbu č. %1</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -2173,7 +2176,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Zurückspulen</translation>
+        <translation type="unfinished">Zpět</translation>
     </message>
     <message>
         <source>Play/ Pause/ Load selected song</source>
@@ -2181,11 +2184,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stopp</translation>
+        <translation type="unfinished">Stop</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Vorspulen</translation>
+        <translation type="unfinished">Vpřed</translation>
     </message>
     <message>
         <source>Please save your song first</source>
@@ -2197,76 +2200,124 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Pause.</source>
-        <translation type="unfinished">Pause.</translation>
+        <translation type="unfinished">Pozastaveno.</translation>
     </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
-        <translation>Wiedergabeliste </translation>
+        <translation>Správce playlistů</translation>
     </message>
     <message>
         <source>Song list</source>
-        <translation>Song Liste</translation>
+        <translation>Seznam skladeb</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preferences</source>
+        <translation>Předvolby</translation>
+    </message>
+    <message>
         <source>Slow</source>
-        <translation>Langsam</translation>
+        <translation>Pomalu</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation>Normal</translation>
+        <translation>Normálně</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation>Schnell</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
-        <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;einfacher Audiotreiber [/dev/dsp]</translation>
-    </message>
-    <message>
-        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
-        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Nicht kompiliert&lt;/font&gt;&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
-        <translation>&lt;b&gt;Jack Audio Connection Kit&lt;/b&gt;&lt;br&gt;Niedriglatenztreiber</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Einstellungen</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;ALSA-Treiber&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>Rychle</translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Treiber automatisch wählen&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Automatický výběr ovladače&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
+        <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Jednoduchý audio ovladač [/dev/dsp]</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Nekompilováno&lt;/font&gt;&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
+        <translation>&lt;b&gt;Jack Audio Connection Kit&lt;/b&gt;&lt;br&gt;Nízkolatenční zvukový ovladač</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Ovladač ALSA&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;PortAudio-Treiber&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Ovladač PortAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;CoreAudio Treiber&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Ovladač CoreAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation>Bitte starten sie hydrogen neu um LASH support zu aktivieren/deaktivieren</translation>
+        <translation>Prosím restartujte Hydrogen pro zapnutí / vypnutí LASH podpory</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
+        <source>Form1</source>
+        <translation>Form1</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Storno</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation>Alt+C</translation>
+    </message>
+    <message>
+        <source>&amp;OK</source>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>Alt+O</source>
+        <translation>Alt+O</translation>
+    </message>
+    <message>
+        <source>&amp;General</source>
+        <translation>&amp;Obecné</translation>
+    </message>
+    <message>
+        <source>&amp;Reopen last used song</source>
+        <translation>&amp;Znovu načíst naposledy použitou skladbu</translation>
+    </message>
+    <message>
+        <source>Alt+R</source>
+        <translation>Alt+R</translation>
+    </message>
+    <message>
+        <source>Audio &amp;System</source>
+        <translation>Audio &amp;systém</translation>
+    </message>
+    <message>
+        <source>###</source>
+        <translation>###</translation>
+    </message>
+    <message>
+        <source>Device</source>
+        <translation>Zařízení</translation>
+    </message>
+    <message>
+        <source>Buffer size</source>
+        <translation>Velikost vyrovnávací paměti</translation>
+    </message>
+    <message>
         <source>Sample rate</source>
-        <translation>Samplerate</translation>
+        <translation>Vzorkovací frekvence</translation>
     </message>
     <message>
         <source>44100</source>
@@ -2277,24 +2328,44 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>48000</translation>
     </message>
     <message>
-        <source>Buffer size</source>
-        <translation>Puffergröße</translation>
+        <source>88200</source>
+        <translation>88200</translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation>Audiogerät</translation>
+        <source>96000</source>
+        <translation>96000</translation>
     </message>
     <message>
-        <source>Input</source>
-        <translation>Eingang</translation>
+        <source>Connect to &amp;Default Output Pair</source>
+        <translation>Napojit na &amp;výchozí stereo výstup</translation>
+    </message>
+    <message>
+        <source>Alt+D</source>
+        <translation>Alt+D</translation>
+    </message>
+    <message>
+        <source>Polyphony</source>
+        <translation type="unfinished">Vícehlas (polyfonie)</translation>
+    </message>
+    <message>
+        <source>Metronome volume</source>
+        <translation>Hlasitost metronomu</translation>
+    </message>
+    <message>
+        <source>&amp;Midi System</source>
+        <translation>&amp;MIDI systém</translation>
+    </message>
+    <message>
+        <source>Ignore note-off</source>
+        <translation>Ignorovat vypnuté noty</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation>Kanal</translation>
+        <translation>Kanál</translation>
     </message>
     <message>
         <source>All</source>
-        <translation>Alle</translation>
+        <translation>Všechno</translation>
     </message>
     <message>
         <source>1</source>
@@ -2361,164 +2432,92 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>16</translation>
     </message>
     <message>
-        <source>Meters falloff speed</source>
-        <translation>Peak-Abfallgeschwindigkeit</translation>
-    </message>
-    <message>
-        <source>Slow</source>
-        <translation>Langsam</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>Schnell</translation>
-    </message>
-    <message>
-        <source>Application font</source>
-        <translation>Anwendungs-Schriftart</translation>
-    </message>
-    <message>
-        <source>Mixer font</source>
-        <translation>Mixer-Schriftart</translation>
-    </message>
-    <message>
-        <source>Select font</source>
-        <translation>Schriftart wählen</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Nach einer Änderungen der Schriftart muss die Anwendung neu gestartet werden.&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>###</source>
-        <translation>###</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>Polyphony</source>
-        <translation>Polyphonie</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Stil</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>&amp;General</source>
-        <translation>&amp;Generell</translation>
-    </message>
-    <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
-    </message>
-    <message>
-        <source>Audio &amp;System</source>
-        <translation>Audio&amp;system</translation>
-    </message>
-    <message>
-        <source>Metronome volume</source>
-        <translation>Metronomlautstärke</translation>
-    </message>
-    <message>
-        <source>Connect to &amp;Default Output Pair</source>
-        <translation>Mit &amp;voreingestelltem Ausgang verbinden</translation>
-    </message>
-    <message>
-        <source>Alt+D</source>
-        <translation>Alt+D</translation>
-    </message>
-    <message>
-        <source>88200</source>
-        <translation>88200</translation>
-    </message>
-    <message>
-        <source>96000</source>
-        <translation>96000</translation>
-    </message>
-    <message>
-        <source>&amp;Midi System</source>
-        <translation>&amp;Midisystem</translation>
-    </message>
-    <message>
         <source>Midi driver</source>
-        <translation>Miditreiber</translation>
+        <translation>MIDI ovladač</translation>
     </message>
     <message>
-        <source>Ignore note-off</source>
-        <translation>&apos;Note-off&apos; ignorieren</translation>
+        <source>Input</source>
+        <translation>Vstup</translation>
     </message>
     <message>
         <source>&amp;Appearance</source>
-        <translation>&amp;Erscheinungsbild</translation>
+        <translation>&amp;Vzhled</translation>
     </message>
     <message>
-        <source>&amp;Reopen last used song</source>
-        <translation>&amp;Zuletzt geöffneten Song öffnen</translation>
+        <source>Application font</source>
+        <translation>Písmo aplikace</translation>
+    </message>
+    <message>
+        <source>Select font</source>
+        <translation>Vybrat písmo</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Styl</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>Pomalu</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>Normálně</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Rychle</translation>
+    </message>
+    <message>
+        <source>Meters falloff speed</source>
+        <translation>Rychlost poklesu indikátorů</translation>
+    </message>
+    <message>
+        <source>Mixer font</source>
+        <translation>Písmo mixéru</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Změna písma se projeví až po restartu aplikace.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Restart output</source>
-        <translation>Output-Treiber neu starten</translation>
+        <translation>Restartovat výstup</translation>
     </message>
     <message>
         <source>Audio output details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detaily audio výstupu</translation>
     </message>
     <message>
         <source>Post-Fader</source>
-        <translation>Post-Fader</translation>
+        <translation>Post fáder</translation>
     </message>
     <message>
         <source>Pre-Fader</source>
-        <translation>Pre-Fader</translation>
+        <translation>Pre fáder</translation>
     </message>
     <message>
         <source>Track output</source>
-        <translation type="unfinished">Spur Ausgang</translation>
+        <translation>Výstup stopy</translation>
     </message>
     <message>
         <source>Use lash</source>
-        <translation>Lash benutzen</translation>
+        <translation>Používat LASH</translation>
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
-        <translation type="unfinished">Zuerst, justiere die Zeitdifferenz zwischen Tastatur-/Controller-Anschlägen und den von Hydrogen errechneten BPM-Werten</translation>
+        <translation>První krok: upravte nesoulad časování mezi latencí tlačítka kontroléru (klávesnice) a napočítaným BPM</translation>
     </message>
     <message>
         <source>Beat counter drift compensation in 1/10 ms   </source>
-        <translation type="unfinished">Takt-Zähler-Kompensation in 1/10 ms      </translation>
+        <translation>Počítadlo úderů kompenzuje odchylku po 0,1 ms</translation>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation type="unfinished">Zweitens, justiere die Zeitdifferenz zwischen letzten Tastatur/Controller Anschlag und dem zeitverzögerten Sequenzer Start. </translation>
+        <translation>Druhý krok: upravte odstup mezi posledním stiskem tlačítka kontroléru (klávesnice) a zpožděním startu sekvenceru</translation>
     </message>
     <message>
         <source>Beat counter start offset in ms    </source>
-        <translation type="unfinished">Takt-Zähler-Startverzögerung in ms           </translation>
-    </message>
-    <message>
-        <source>create per-instrument outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Počítač úderů startuje s odchylkou v ms</translation>
     </message>
     <message>
         <source>Path to the Rubberband command-line utility</source>
@@ -2528,14 +2527,17 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Maximum number of bars</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
     <message>
         <source>Unsaved changes left. This changes will be lost. 
 Are you sure?</source>
-        <translation type="unfinished">Es sind noch nicht gespeicherte änderungen vorhanden. Diese Änderungen werden verloren gehen.
-Sind sie sicher? </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -2543,13 +2545,12 @@ Sind sie sicher? </translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation type="unfinished">&amp;Storno</translation>
     </message>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
 Are you sure?</source>
-        <translation type="unfinished">Schließe Fenster. Möglicherweise sind noch ungespeicherte änderungen an diesen Sampel.
-Sind sie sicher?</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2559,67 +2560,39 @@ Sind sie sicher?</translation>
         <translation type="unfinished">Dialog</translation>
     </message>
     <message>
-        <source>P&amp;lay original sample</source>
-        <translation type="unfinished">Spie&amp;le Original</translation>
-    </message>
-    <message>
-        <source>&amp;Apply Changes</source>
-        <translation type="unfinished">&amp;Anwenden</translation>
-    </message>
-    <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Schließen</translation>
+        <translation type="unfinished">&amp;Zavřít</translation>
     </message>
     <message>
         <source>Adjust sample start frame</source>
-        <translation type="unfinished">Justiere Sampel-Start</translation>
-    </message>
-    <message>
-        <source>Adjust sample loop begin frame</source>
-        <translation type="unfinished">Justieren den Sampel Loop-Anfang</translation>
-    </message>
-    <message>
-        <source>set processing</source>
-        <translation type="unfinished">Sampleverarbeitung einstellen</translation>
-    </message>
-    <message>
-        <source>forward</source>
-        <translation type="unfinished">vörwärts</translation>
-    </message>
-    <message>
-        <source>reverse</source>
-        <translation type="unfinished">rückwärts</translation>
-    </message>
-    <message>
-        <source>pingpong</source>
-        <translation type="unfinished">hin und her</translation>
-    </message>
-    <message>
-        <source>loops</source>
-        <translation type="unfinished">Wiederholungen</translation>
-    </message>
-    <message>
-        <source>Adjust sample end &amp; loop end frame</source>
-        <translation type="unfinished">Justiere Sampel ende &amp; Wiederholungs-Ende</translation>
-    </message>
-    <message>
-        <source>&amp;Play</source>
-        <translation type="unfinished">S&amp;piele</translation>
-    </message>
-    <message>
-        <source>new sample length:</source>
-        <translation type="unfinished">Neue Sempellänge:</translation>
-    </message>
-    <message>
-        <source>fade-out type</source>
-        <translation type="unfinished">Art der Ausblendung</translation>
-    </message>
-    <message>
-        <source>volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>panorama</source>
+        <source>Adjust sample loop begin frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>set processing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reverse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pingpong</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>loops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust sample end &amp; loop end frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2819,20 +2792,48 @@ p, li { white-space: pre-wrap; }
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Apply Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>P&amp;lay original sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>new sample length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fade-out type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>panorama</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
     <message>
         <source>Manual</source>
-        <translation>Handbuch</translation>
+        <translation>Příručka</translation>
     </message>
     <message>
         <source>Welcome to Hydrogen</source>
-        <translation>Willkommen in Hydrogen</translation>
+        <translation>Vítejte v Hydrogenu</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation>Diese Nachricht nicht mehr anzeigen</translation>
+        <translation>Tuto zprávu příště již nezobrazovat</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -2840,44 +2841,44 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Documentation index</source>
-        <translation>Index der Dokumentation</translation>
+        <translation>Obsah dokumentace</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPanel</name>
     <message>
-        <source>Create new pattern</source>
-        <translation>Neues Pattern</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern down</source>
-        <translation>Gewähltes Pattern nach unten</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Gewähltes Pattern nach oben</translation>
+        <source>Song Editor</source>
+        <translation>Editor skladby</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation>Pattern löschen</translation>
+        <translation>Vyčistit sekvenci paternu</translation>
     </message>
     <message>
-        <source>Song Editor</source>
-        <translation>Songeditor</translation>
+        <source>Create new pattern</source>
+        <translation>Vytvořit nový patern</translation>
+    </message>
+    <message>
+        <source>Move the selected pattern down</source>
+        <translation>Přesunout vybraný patern dolů</translation>
+    </message>
+    <message>
+        <source>Move the selected pattern up</source>
+        <translation>Přesunout vybraný patern nahoru</translation>
     </message>
     <message>
         <source>Select mode</source>
-        <translation>Auswahlmodus</translation>
+        <translation>Režim výběru</translation>
     </message>
     <message>
         <source>Draw mode</source>
-        <translation>Zeichenmodus</translation>
+        <translation>Režim zadávání</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation>Achtung, dieser Vorgang wird das Pattern löschen.
-Fortsetzen?</translation>
+        <translation>Varování: toto vymaže vaši sekvenci paternu.￼
+Určitě to chcete?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -2885,24 +2886,23 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>stacked mode</source>
-        <translation type="unfinished">
-</translation>
+        <translation>Hromadný režim</translation>
     </message>
     <message>
         <source>stacked pattern mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Režim více paternů</translation>
     </message>
     <message>
         <source>single pattern mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Režim jednoho paternu</translation>
     </message>
     <message>
         <source>not_categorized</source>
-        <translation>nicht_kategorisiert</translation>
+        <translation>Nekategorizováno</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
@@ -2953,7 +2953,7 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation type="unfinished">Storno</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -2972,7 +2972,7 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation type="unfinished">Storno</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -2983,51 +2983,43 @@ Fortsetzen?</translation>
     <name>SongEditorPatternList</name>
     <message>
         <source>Edit</source>
-        <translation>Bearbeiten</translation>
+        <translation>Upravit</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopieren</translation>
+        <translation>Kopírovat</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Löschen</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Eigenschaften</translation>
+        <translation>Vymazat</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation>Füllen/Löschen</translation>
+        <translation>Vyplnit / Vyčistit...</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Vlastnosti</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation>Speichere Pattern</translation>
+        <translation>Uložit patern</translation>
     </message>
     <message>
         <source>Load Pattern</source>
-        <translation>Lade Pattern</translation>
+        <translation>Nahrát patern</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation>Öffne Pattern</translation>
+        <translation>Otevřít patern</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen Pattern (*.h2pattern)</translation>
+        <translation>Hydrogen patern (*.h2pattern)</translation>
     </message>
     <message>
         <source>Virtual Pattern</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern 1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation type="unfinished">nicht_kategorisiert</translation>
     </message>
     <message>
         <source>The pattern-file exists. 
@@ -3040,64 +3032,72 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation type="unfinished">&amp;Storno</translation>
+    </message>
+    <message>
+        <source>Pattern 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation type="unfinished">Nekategorizováno</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
         <source>Song properties</source>
-        <translation>Songeigenschaften</translation>
+        <translation>Vlastnosti skladby</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>Notizen</translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
+        <source>Notes</source>
+        <translation>Poznámky</translation>
+    </message>
+    <message>
         <source>Song name</source>
-        <translation>Songname</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
+        <translation>Název skladby</translation>
     </message>
     <message>
         <source> &amp;OK</source>
-        <translation>&amp;OK</translation>
+        <translation> &amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Storno</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation>Alt+C</translation>
+    </message>
+    <message>
         <source>License</source>
-        <translation>Lizenz</translation>
+        <translation>Licence</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
         <source>Export Sound Library</source>
-        <translation>Soundlibrary exportieren</translation>
+        <translation>Export knihovny zvuků</translation>
     </message>
     <message>
         <source>Export drumkit</source>
-        <translation>Drumkit exportieren</translation>
+        <translation>Export bicí sady</translation>
     </message>
 </context>
 <context>
@@ -3108,38 +3108,38 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Browse</source>
-        <translation>Durchsuchen</translation>
+        <translation>Procházet</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>Exportieren</translation>
+        <translation>Export</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
         <source>Sound Library import</source>
-        <translation>Soundbibliothek importieren</translation>
+        <translation>Import knihovny zvuků</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Soundbibliothek</translation>
+        <translation>Knihovna zvuků</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Status</translation>
+        <translation>Stav</translation>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Liste der Soundbibliotheken wird aktualisiert...</translation>
+        <translation>Aktualizace seznamu knihoven zvuků...</translation>
     </message>
     <message>
         <source>Installed</source>
-        <translation>Installiert</translation>
+        <translation>Instalováno</translation>
     </message>
     <message>
         <source>New</source>
-        <translation>Neu</translation>
+        <translation>Nový</translation>
     </message>
     <message>
         <source>Author: %1</source>
@@ -3147,35 +3147,35 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation>Lade Klangbibliothek herunter...</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Soundbibliothek importiert in %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ein Fehler trat auf beim Importieren der Soundbibliothek.</translation>
+        <translation>Stahování knihovny zvuků...</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation>Drumkit importieren</translation>
+        <translation>Importovat bicí sadu</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Knihovna zvuků importována do %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
     </message>
     <message>
         <source>Drumkits</source>
-        <translation>Drumkits</translation>
+        <translation>Bicí sady</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation>Songs</translation>
+        <translation>Skladby</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation>Pattern</translation>
+        <translation>Paterny</translation>
     </message>
     <message>
         <source>License: %1</source>
-        <translation>Lizenz: %1</translation>
+        <translation>Licence: %1</translation>
     </message>
 </context>
 <context>
@@ -3190,15 +3190,15 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Update list</source>
-        <translation>Liste aktualisieren</translation>
+        <translation>Aktualizovat seznam</translation>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation>Soundbibliothek Name</translation>
+        <translation>Název knihovny zvuků</translation>
     </message>
     <message>
         <source>Sound library Info</source>
-        <translation>Soundbibliothek Info</translation>
+        <translation>Informace o knihovně zvuků</translation>
     </message>
     <message>
         <source>Author...</source>
@@ -3206,19 +3206,19 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Download and install</source>
-        <translation>Herunterladen und Installieren</translation>
+        <translation>Stáhnout a nainstalovat</translation>
     </message>
     <message>
         <source>Local file</source>
-        <translation>Lokale Datei</translation>
+        <translation>Lokální soubor</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation>Durchsuchen...</translation>
+        <translation>Procházet...</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation>Installieren</translation>
+        <translation>Instalovat</translation>
     </message>
     <message>
         <source>1</source>
@@ -3226,43 +3226,44 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>License...</source>
-        <translation>Lizenz...</translation>
+        <translation>Licence...</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation>Bearbeite Server-Liste</translation>
+        <translation>Upravit seznam serverů</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Schliessen</translation>
+        <translation>Zavřít</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
         <source>Load</source>
-        <translation>Laden</translation>
+        <translation>Nahrát</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>Exportieren</translation>
+        <translation>Export</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Löschen</translation>
+        <translation>Vymazat</translation>
     </message>
     <message>
         <source>System drumkits</source>
-        <translation>System Drumkits</translation>
+        <translation>Systémové bicí sady</translation>
     </message>
     <message>
         <source>User drumkits</source>
-        <translation>Benutzer Drumkits</translation>
+        <translation>Uživatelské bicí sady</translation>
     </message>
     <message>
         <source>Warning, the selected drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation>Achtung, das ausgewählte Drumkit wird von der Festplatte gelöscht. Sind sie sich sicher ?</translation>
+        <translation>Varování: vybraná bicí sada bude vymazána z disku.￼
+Určitě to chcete?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -3270,28 +3271,29 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation>Songs</translation>
+        <translation>Skladby</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation>Pattern</translation>
+        <translation>Paterny</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation>Fehler beim Laden des Songs.</translation>
+        <translation>Chyba při otevírání skladby.</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation>Eigenschaften</translation>
+        <translation>Vlastnosti</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
-        <translation>Achtung! Das ausgewählte Pattern wird von der Festplatte gelöscht werden. Sind sie sicher? </translation>
+        <translation>Varování: vybraný patern bude vymazán z disku.￼
+Určitě to chcete?</translation>
     </message>
 </context>
 <context>
@@ -3302,7 +3304,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <source>Author</source>
@@ -3310,34 +3312,34 @@ Are you sure?</source>
     </message>
     <message>
         <source>Information</source>
-        <translation>Information</translation>
+        <translation>Informace</translation>
     </message>
     <message>
         <source>License</source>
-        <translation>Lizenz</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Save </source>
-        <translation>Speichern</translation>
+        <translation>Uložit</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation>Storno</translation>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Änderungen an den Instrumenten übernehmen</translation>
+        <translation>Uložit provedené změny nástrojů do knihovny zvuků</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
-        <translation>bearbeite Repository-Einstellungen</translation>
+        <translation>Upravit nastavení repozitáře</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation>bearbeite Server-Liste</translation>
+        <translation>Upravit seznam serverů</translation>
     </message>
     <message>
         <source>URL</source>
@@ -3352,18 +3354,18 @@ Are you sure?</source>
     </message>
     <message>
         <source>Add</source>
-        <translation>Hinzufügen</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Löschen</translation>
+        <translation>Vymazat</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation>Soundbibliothek speichern</translation>
+        <translation>Uložit knihovnu zvuků</translation>
     </message>
     <message>
         <source>Please supply at least a valid name</source>
@@ -3378,7 +3380,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <source>Author</source>
@@ -3386,26 +3388,26 @@ Are you sure?</source>
     </message>
     <message>
         <source>Information</source>
-        <translation>Information</translation>
+        <translation>Informace</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation>Storno</translation>
     </message>
     <message>
         <source>License</source>
-        <translation>Lizenz</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Save </source>
-        <translation>Speichern</translation>
+        <translation>Uložit</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation>Soundbibliothek</translation>
+        <translation>Knihovna zvuků</translation>
     </message>
 </context>
 <context>
@@ -3427,7 +3429,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation type="unfinished">Storno</translation>
     </message>
 </context>
 </TS>
