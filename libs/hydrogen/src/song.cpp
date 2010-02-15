@@ -397,6 +397,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			if ( sId.isEmpty() ) {
 				ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
+				instrumentNode = (QDomNode) instrumentNode.nextSiblingElement( "instrument" );
 				continue;
 			}
 
