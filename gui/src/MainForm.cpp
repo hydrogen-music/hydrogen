@@ -798,7 +798,7 @@ void MainForm::action_instruments_addInstrument()
 	}
 	++nID;
 
-	Instrument *pNewInstr = new Instrument(QString( nID ), "New instrument", new ADSR());
+	Instrument *pNewInstr = new Instrument( QString::number( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
 	
 	#ifdef JACK_SUPPORT
