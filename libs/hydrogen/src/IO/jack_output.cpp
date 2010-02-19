@@ -530,6 +530,9 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	// Here, client should either be valid, or NULL.	
 	jack_server_sampleRate = jack_get_sample_rate ( client );
 	jack_server_bufferSize = jack_get_buffer_size ( client );
+	
+	Preferences::get_instance()->m_nSampleRate = jack_server_sampleRate;
+	Preferences::get_instance()->m_nBufferSize = jack_server_bufferSize;
 
 
 	/* tell the JACK server to call `process()' whenever

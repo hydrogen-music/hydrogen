@@ -32,13 +32,13 @@ public:
     }
     virtual void undo()
 	{
-	    qDebug() << "add Pattern Undo ";
+	    //qDebug() << "add Pattern Undo ";
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow , __nColumnIndex );
 	}
     virtual void redo()
 	{
-	    qDebug() << "add Pattern Redo " ;
+	    //qDebug() << "add Pattern Redo " ;
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
 	}
@@ -61,13 +61,13 @@ public:
     }
     virtual void undo()
 	{
-	    qDebug() << "Delete pattern Undo ";
+	    //qDebug() << "Delete pattern Undo ";
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
 	}
     virtual void redo()
 	{
-	    qDebug() << "Delete pattern Redo " ;
+	    //qDebug() << "Delete pattern Redo " ;
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow, __nColumnIndex );
 	}
@@ -89,13 +89,13 @@ public:
     }
     virtual void undo()
 	{
-	    qDebug() << "Move Pattern List Item Undo ";
+	    //qDebug() << "Move Pattern List Item Undo ";
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditorPatternList()->movePatternLine( __nTargetPattern, __nSourcePattern );
 	}
     virtual void redo()
 	{
-	    qDebug() << "Move Pattern List Item redo " ;
+	    //qDebug() << "Move Pattern List Item redo " ;
 	    HydrogenApp* h2app = HydrogenApp::get_instance();
 	    h2app->getSongEditorPanel()->getSongEditorPatternList()->movePatternLine( __nSourcePattern , __nTargetPattern );
 	}
@@ -114,14 +114,14 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "Delete complete pattern-sequence  undo";
+		//qDebug() << "Delete complete pattern-sequence  undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->restoreGroupVector( __pFilename );
 	}
 
     virtual void redo()
 	{
-		qDebug() << "Delete complete pattern-sequence redo " ;
+		//qDebug() << "Delete complete pattern-sequence redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenseVector( __pFilename );
 	}
@@ -140,7 +140,7 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "Delete pattern from list undo";
+		//qDebug() << "Delete pattern from list undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __patternFilename, __sequenceFileName, __patternPosition );
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
@@ -149,7 +149,7 @@ public:
 
     virtual void redo()
 	{
-		qDebug() << "Delete pattern from list redo" ;
+		//qDebug() << "Delete pattern from list redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __patternFilename, __sequenceFileName, __patternPosition );
 	}
@@ -172,14 +172,14 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "Modify pattern properties undo";
+		//qDebug() << "Modify pattern properties undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->revertPatternPropertiesDialogSettings( __oldPatternName, __oldPatternCategory, __patternNr );
 	}
 
     virtual void redo()
 	{
-		qDebug() << "Modify pattern properties redo" ;
+		//qDebug() << "Modify pattern properties redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->acceptPatternPropertiesDialogSettings( __newPatternName, __newPatternCategory, __patternNr );
 	}
@@ -202,14 +202,14 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "copy pattern undo";
+		//qDebug() << "copy pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
 	}
 
     virtual void redo()
 	{
-		qDebug() << "copy pattern redo" ;
+		//qDebug() << "copy pattern redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_copyAction( __patternFilename );
 	}
@@ -230,14 +230,14 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "Add pattern undo";
+		//qDebug() << "Add pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
 	}
 
     virtual void redo()
 	{
-		qDebug() << "Add pattern redo" ;
+		//qDebug() << "Add pattern redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->addEmptyPattern( __newPatternName ,__newPatternCategory, __patternPosition );
 	}
@@ -259,7 +259,7 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "Load/drag pattern undo";
+		//qDebug() << "Load/drag pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __oldPatternName, __sequenceFileName, __patternPosition );
 		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition +2 );
@@ -269,7 +269,7 @@ public:
 
     virtual void redo()
 	{
-		qDebug() <<  "Load/drag pattern redo";
+		//qDebug() <<  "Load/drag pattern redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __oldPatternName, __sequenceFileName, __patternPosition );
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->loadPatternAction( __patternName, __patternPosition  );
@@ -295,7 +295,7 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() << "fill/remove range of undo";
+		//qDebug() << "fill/remove range of undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		bool insert;
 		if( __bInsert ){
@@ -312,7 +312,7 @@ public:
 
     virtual void redo()
 	{
-		qDebug() <<  "fill/remove range of redo";
+		//qDebug() <<  "fill/remove range of redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		__pRange->bInsert = __bInsert;
 		__pRange->fromVal = __from;
@@ -339,14 +339,14 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() <<  "move/copy selected cells undo";
+		//qDebug() <<  "move/copy selected cells undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __selectedCells, __movingCells, __bIsCtrlPressed, true );
 	}
 
     virtual void redo()
 	{
-		qDebug() <<  "move/copy selected cells redo";
+		//qDebug() <<  "move/copy selected cells redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __movingCells, __selectedCells, __bIsCtrlPressed, false );
 	}
@@ -368,7 +368,7 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() <<  "edit timeline tempo undo";
+		//qDebug() <<  "edit timeline tempo undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		if(__oldBpm >-1 ){
 			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __oldBpm );
@@ -380,7 +380,7 @@ public:
 
     virtual void redo()
 	{
-		qDebug() <<  "edit timeline tempo redo";
+		//qDebug() <<  "edit timeline tempo redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __newBpm );
 	}
@@ -405,7 +405,7 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() <<  "delete timeline tempo undo";
+		//qDebug() <<  "delete timeline tempo undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __oldBpm );
 		
@@ -413,7 +413,7 @@ public:
 
     virtual void redo()
 	{
-		qDebug() <<  "delete timeline tempo redo";
+		//qDebug() <<  "delete timeline tempo redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTimeLinePosition( __newPosition );
 	}
@@ -435,7 +435,7 @@ public:
     }
     virtual void undo()
 	{
-		qDebug() <<  "edit timeline tag undo";
+		//qDebug() <<  "edit timeline tag undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		if( __oldText != "" ){
 			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __oldText, __position , __text );
@@ -448,7 +448,7 @@ public:
 
     virtual void redo()
 	{
-		qDebug() <<  "edit timeline tag redo";
+		//qDebug() <<  "edit timeline tag redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		if( __text == "" ){
 			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __oldText,  __position );
@@ -495,7 +495,7 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Add note Undo ";
+		//qDebug() << "Add note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction(  __nColumn,
 												__nRow,
@@ -510,7 +510,7 @@ public:
 	} 
 	virtual void redo()
 	{
-		qDebug() << "Add Note Redo " ;
+		//qDebug() << "Add Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction(  __nColumn,
 												__nRow,
@@ -549,13 +549,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Add off note Note Undo ";
+		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 );
 	}
 	virtual void redo()
 	{
-		qDebug() << "Add off note Note Redo " ;
+		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addNoteRightClickAction( __nColumn, __nRow, __selectedPatternNumber );
 	}
@@ -579,13 +579,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Change note length Undo ";
+		//qDebug() << "Change note length Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->editNoteLenghtAction( __nColumn,  __nRealColumn, __row, __oldLength, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		qDebug() << "Change note length Redo " ;
+		//qDebug() << "Change note length Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->editNoteLenghtAction( __nColumn,  __nRealColumn, __row, __length, __selectedPatternNumber );
 	}
@@ -619,7 +619,7 @@ public:
 	}
 
 	~SE_clearNotesPatternEditorAction(){
-		qDebug() << "delete left notes ";
+		//qDebug() << "delete left notes ";
 		while ( __noteList.size() ) {
 			delete __noteList.front();
 			__noteList.pop_front();
@@ -629,13 +629,13 @@ public:
 
 	virtual void undo()
 	{
-		qDebug() << "clear note sequense Undo ";
+		//qDebug() << "clear note sequense Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		qDebug() << "clear note sequense Redo " ;
+		//qDebug() << "clear note sequense Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesRedoAction( __nSelectedInstrument, __selectedPatternNumber );
 	}
@@ -658,13 +658,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "fill notes Undo ";
+		//qDebug() << "fill notes Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		qDebug() << "fill notes Redo " ;
+		//qDebug() << "fill notes Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
 	}
@@ -688,13 +688,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Random velocity Undo ";
+		//qDebug() << "Random velocity Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionRandomVelocityAction( __oldNoteVeloValue, __nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		qDebug() << "Random velocity Redo " ;
+		//qDebug() << "Random velocity Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionRandomVelocityAction( __noteVeloValue, __nSelectedInstrument, __selectedPatternNumber );
 	}
@@ -717,13 +717,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "move Instrument Undo ";
+		//qDebug() << "move Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionMoveInstrumentAction( __nTargetInstrument, __nSourceInstrument );
 	}
 	virtual void redo()
 	{
-		qDebug() << "move Instrument Redo " ;
+		//qDebug() << "move Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionMoveInstrumentAction( __nSourceInstrument, __nTargetInstrument );
 	}
@@ -743,13 +743,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "drop Instrument Undo ";
+		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument );
 	}
 	virtual void redo()
 	{
-		qDebug() << "drop Instrument Redo " ;
+		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument );
 	}
@@ -780,7 +780,7 @@ public:
 	}
 
 	~SE_deleteInstrumentAction(){
-		qDebug() << "delete left notes ";
+		//qDebug() << "delete left notes ";
 		while ( __noteList.size() ) {
 			delete __noteList.front();
 			__noteList.pop_front();
@@ -790,13 +790,13 @@ public:
 
 	virtual void undo()
 	{
-		qDebug() << "delete Instrument Undo ";
+		//qDebug() << "delete Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDeleteInstrumentUndoAction( __noteList, __nSelectedInstrument, __instrumentName, __drumkitName );
 	}
 	virtual void redo()
 	{
-		qDebug() << "delete Instrument Redo " ;
+		//qDebug() << "delete Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		//delete an instrument from list
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument );
@@ -818,13 +818,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "drop Instrument Undo ";
+		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionAddEmptyInstrumentUndo();
 	}
 	virtual void redo()
 	{
-		qDebug() << "drop Instrument Redo " ;
+		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionAddEmptyInstrumentRedo();
 	}
@@ -867,7 +867,7 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Add Piano Roll note Undo ";
+		//qDebug() << "Add Piano Roll note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
 											     __pressedLine,
@@ -883,7 +883,7 @@ public:
 	}
 	virtual void redo()
 	{
-		qDebug() << "Add Piano Roll Note Redo " ;
+		//qDebug() << "Add Piano Roll Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
 											     __pressedLine,
@@ -924,13 +924,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Add off note Note Undo ";
+		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 );
 	}
 	virtual void redo()
 	{
-		qDebug() << "Add off note Note Redo " ;
+		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->addNoteRightClickAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber);
 	}
@@ -957,13 +957,13 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Change note length Piano Roll Undo ";
+		//qDebug() << "Change note length Piano Roll Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction( __nColumn, __nRealColumn, __oldLength, __selectedPatternNumber, __nSelectedInstrumentnumber,  __pressedLine);
 	}
 	virtual void redo()
 	{
-		qDebug() << "Change note length Piano RollRedo " ;
+		//qDebug() << "Change note length Piano RollRedo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction(    __nColumn,
 												__nRealColumn,
@@ -1015,7 +1015,7 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "Change Note properties Piano Roll Undo ";
+		//qDebug() << "Change Note properties Piano Roll Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNotePropertiesAction( __nColumn,
 												__nRealColumn,
@@ -1029,7 +1029,7 @@ public:
 	}
 	virtual void redo()
 	{
-		qDebug() << "Change Note properties Piano RollRedo " ;
+		//qDebug() << "Change Note properties Piano RollRedo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNotePropertiesAction( __nColumn,
 												__nRealColumn,
@@ -1106,7 +1106,7 @@ public:
 	}
 	virtual void undo()
 	{
-		qDebug() << "edit note property Undo ";
+		//qDebug() << "edit note property Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 	
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
@@ -1122,7 +1122,7 @@ public:
 	}
 	virtual void redo()
 	{
-		qDebug() << "edit note property Redo " ;
+		//qDebug() << "edit note property Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
 											__mode,

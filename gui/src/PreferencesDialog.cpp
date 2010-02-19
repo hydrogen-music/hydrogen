@@ -31,7 +31,6 @@
 
 #include <QPixmap>
 #include <QFontDialog>
-
 #include "widgets/midiTable.h"
 
 #include <hydrogen/midiMap.h>
@@ -130,7 +129,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
-
 	switch ( pPref->m_nSampleRate ) {
 		case 44100:
 			sampleRateComboBox->setCurrentIndex( 0 );

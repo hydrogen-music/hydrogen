@@ -57,6 +57,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public Object
 		void zoom_in();
 		void zoom_out();
 
+		static QColor computeNoteColor( float );
+
 		// Implements EventListener interface
 		virtual void patternModifiedEvent();
 		virtual void patternChangedEvent();

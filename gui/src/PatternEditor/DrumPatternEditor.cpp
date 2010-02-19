@@ -704,6 +704,37 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 }
 
 
+
+QColor DrumPatternEditor::computeNoteColor( float velocity ){
+    int red;
+    int green;
+    int blue;
+
+
+    /*
+	The note gets painted black if it has the default velocity (0.8).
+	The color changes if you alter the velocity..
+    */
+
+    //qDebug() << "x: " << x;
+    //qDebug() << "x2: " << x*x;
+
+
+    if( velocity < 0.8){
+	red = fabs(-( velocity - 0.8))*255;
+	green =  fabs(-( velocity - 0.8))*255;
+	blue =  green * 1.25;
+    } else {
+	green = blue = 0;
+	red = (velocity-0.8)*5*255;
+    }
+
+    //qDebug() << "R " << red << "G " << green << "blue " << blue;
+    return QColor( red, green, blue );
+}
+
+
+
 ///
 /// Draws a note
 ///
@@ -733,11 +764,8 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	p.setPen( noteColor );
 
-	int red = (int) (note->get_velocity() * 255);
-	int green;
-	int blue;
-	blue = (255 - (int) red)* .33;
-	green =  (255 - (int) red);
+
+	QColor color = computeNoteColor( note->get_velocity() );
 
 	uint w = 8;
 	uint h =  m_nGridHeight / 3;
@@ -745,7 +773,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	if ( note->get_length() == -1 && note->get_noteoff() == false ) {	// trigger note
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
-		p.setBrush(QColor( red,green,blue ));
+		p.setBrush( color );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
 
@@ -771,8 +799,8 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
 		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
-		p.setBrush(QColor( red,green,blue ));
-		p.fillRect( x, y + 1, w, h + 1, QColor( red,green,blue ) );	/// \todo: definire questo colore nelle preferenze
+		p.setBrush( color );
+		p.fillRect( x, y + 1, w, h + 1, color );	/// \todo: definire questo colore nelle preferenze
 		p.drawRect( x, y + 1, w, h + 1 );
 	}
 }
@@ -1467,7 +1495,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	}
 	++nID;
 
-	Instrument *pNewInstr = new Instrument(QString( nID ), "New instrument", new ADSR());
+	Instrument *pNewInstr = new Instrument(QString::number( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
 	
 	#ifdef JACK_SUPPORT
