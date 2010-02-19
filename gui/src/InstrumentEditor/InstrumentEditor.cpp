@@ -625,6 +625,7 @@ void InstrumentEditor::loadLayer()
 	if ( filename.size() > 3) filename[1] = "true";
 
 	int selectedLayer =  m_nSelectedLayer;
+	int firstselection = selectedLayer;
 	
 	
 
@@ -632,7 +633,8 @@ void InstrumentEditor::loadLayer()
 		
 		for(int i=2;i < filename.size();++i) 
 		{
-			if( i-2 >= MAX_LAYERS ) break;
+			selectedLayer = m_nSelectedLayer + i - 2;
+			if( ( i-2 >= MAX_LAYERS ) || ( selectedLayer + 1  > MAX_LAYERS ) ) break;
 
 			Sample *newSample = Sample::load( filename[i] );
 	
@@ -647,9 +649,6 @@ void InstrumentEditor::loadLayer()
 				if we're using multiple layers, we start inserting the first layer 
 				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
 		 	*/
-			
-			selectedLayer = m_nSelectedLayer + i - 2;
-
 			
 			H2Core::InstrumentLayer *pLayer = pInstr->get_layer( selectedLayer );
 			if (pLayer != NULL) {
@@ -667,7 +666,7 @@ void InstrumentEditor::loadLayer()
 	
 			if ( fnc ){
 				QString newfilename = filename[i].section( '/', -1 );
-					newfilename.replace( "." + newfilename.section( '.', -1 ), "");
+				newfilename.replace( "." + newfilename.section( '.', -1 ), "");
 				m_pInstrument->set_name( newfilename );
 			}
 	
@@ -684,6 +683,7 @@ void InstrumentEditor::loadLayer()
 	}
 
 	selectedInstrumentChangedEvent();    // update all
+	selectLayer( firstselection );
 	m_pLayerPreview->updateAll();
 }
 
@@ -743,7 +743,6 @@ void InstrumentEditor::selectLayer( int nLayer )
 	if (!m_pInstrument) {
 		return;
 	}
-
 	m_nSelectedLayer = nLayer;
 
 	H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( nLayer );
