@@ -181,6 +181,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	
 //beatcouter
 	Hydrogen::get_instance()->setBcOffsetAdjust();
+// director
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 
 	undoView = new QUndoView(h2app->m_undoStack);
 	undoView->setWindowTitle(tr("Command history"));
@@ -1110,7 +1112,7 @@ void MainForm::openSongFile( const QString& sFilename )
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 }
 
 

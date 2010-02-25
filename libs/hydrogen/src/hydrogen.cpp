@@ -2806,8 +2806,10 @@ long Hydrogen::getTickForPosition( int pos )
 /// Set the position in the song
 void Hydrogen::setPatternPos( int pos )
 {
+	if ( pos < -1 )
+		pos = -1;
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	long totalTick = getTickForPosition( pos );
 	if ( totalTick < 0 ) {
 		AudioEngine::get_instance()->unlock();

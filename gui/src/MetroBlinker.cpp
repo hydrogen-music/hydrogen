@@ -94,6 +94,8 @@ void MetroBlinker::metronomeEvent( int nValue )
 	p_bpm = Hydrogen::get_instance()->getSong()->__bpm; 
 	//bar
 	p_bar = Hydrogen::get_instance()->getPatternPos() +1;
+	if ( p_bar <= 0 )
+		p_bar = 1;
 	// 1000 ms / bpm / 60s
 	timer->start( static_cast<int>( 1000 / ( p_bpm / 60 )) / 2 );
 	p_wechselblink = 0;
@@ -101,6 +103,8 @@ void MetroBlinker::metronomeEvent( int nValue )
 	if ( nValue == 2 ){
 		p_fadealpha = 0;
 		update();
+		TAG="";
+		TAG2="";
 		return;
 	}
 	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
@@ -151,7 +155,7 @@ void MetroBlinker::paintEvent( QPaintEvent* ev )
 	QPainter painter(this);
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
 	painter.setBrush( p_color );
-	painter.drawRect (  width() / 50 + p_wechselblink, height() /50 , width() -  width() / 25 -  width() / 2, height() -  height() / 25 );
+	painter.drawRect (  width() / 50 + p_wechselblink, height() / 50 , width() -  width() / 25 -  width() / 2, height() / 2 -  height() / 25 );
 
 	//draw bars
 	painter.setPen(Qt::white);
@@ -166,13 +170,14 @@ void MetroBlinker::paintEvent( QPaintEvent* ev )
 	if( TAG == TAG2 )
 		 TAG2 = "";
 	//draw current bar tag
-	painter.setPen(Qt::cyan);
-	painter.setFont(QFont("Arial", height() / 15 ));
-	QRect r3(QPoint ( width() * 1 / 50 , height() * 6 / 16 ), QSize( width() - width() / 25, height() / 3));
+	painter.setPen(Qt::white);
+	painter.setFont(QFont("Arial", height() / 13 ));
+	QRect r3(QPoint ( width() * 1 / 50 , height() * 8 / 16 ), QSize( width() - width() / 25, height() / 3));
 	painter.drawText( r3, Qt::AlignCenter, QString( (TAG) ) );
 
 	//draw next bar tag
-	painter.setPen(Qt::yellow);
-	QRect r4(QPoint ( width() * 1 / 50 , height() * 10 / 16 ), QSize( width() - width() / 25, height() / 3));
+	painter.setPen(Qt::gray);
+	painter.setFont(QFont("Arial", height() / 15 ));
+	QRect r4(QPoint ( width() * 1 / 50 , height() * 11 / 16 ), QSize( width() - width() / 25, height() / 3));
 	painter.drawText( r4, Qt::AlignCenter, QString( TAG2 ) );
 }
