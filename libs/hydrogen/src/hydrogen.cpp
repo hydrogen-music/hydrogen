@@ -2118,20 +2118,21 @@ void Hydrogen::restartDrivers()
 
 
 /// Export a song to a wav file, returns the elapsed time in mSec
-void Hydrogen::startExportSong( const QString& filename )
+void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 {
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
 	}
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 	Preferences *pPref = Preferences::get_instance();
 
 	m_oldEngineMode = m_pSong->get_mode();
 	m_bOldLoopEnabled = m_pSong->is_loop_enabled();
 
 	m_pSong->set_mode( Song::SONG_MODE );
-	m_pSong->set_loop_enabled( false );
-	unsigned nSamplerate = m_pAudioDriver->getSampleRate();
-
+	m_pSong->set_loop_enabled( true );
+//	unsigned nSamplerate = m_pAudioDriver->getSampleRate();
+	unsigned nSamplerate = (unsigned)rate;
 	// stop all audio drivers
 	audioEngine_stopAudioDrivers();
 
@@ -2140,10 +2141,9 @@ void Hydrogen::startExportSong( const QString& filename )
 	*/
 
 
-	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename );
+	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename, depth);
 
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
-
+	
 	// reset
 	m_pAudioDriver->m_transport.m_nFrames = 0;	// reset total frames
 	m_pAudioDriver->setBpm( m_pSong->__bpm );
@@ -2203,7 +2203,6 @@ void Hydrogen::stopExportSong()
 		_ERRORLOG( "m_pAudioDriver = NULL" );
 	}
 }
-
 
 
 /// Used to display audio driver info

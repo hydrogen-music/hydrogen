@@ -107,7 +107,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	QString filename = exportNameTxt->text();
 	m_bExporting = true;
-	Hydrogen::get_instance()->startExportSong( filename );
+	Hydrogen::get_instance()->startExportSong( filename , 44100, 16 );
 }
 
 
@@ -139,12 +139,11 @@ void ExportSongDialog::progressEvent( int nValue )
 	if ( nValue == 100 ) {
 	  	//INFOLOG("SONO A 100");
 		
-		Hydrogen::get_instance()->stopExportSong();
+		//Hydrogen::get_instance()->stopExportSong();
 		m_bExporting = false;
 		QFile check( exportNameTxt->text() );
 		if ( ! check.exists() ) {
 			QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
 		}
-		accept();
 	}
 }
