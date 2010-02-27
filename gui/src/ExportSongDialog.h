@@ -51,7 +51,7 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 		void on_closeBtn_clicked();
 		void on_okBtn_clicked();
 		void on_exportNameTxt_textChanged(const QString& text);
-		void on_taplatescomboBox_currentIndexChanged(int index );
+		void on_templateCombo_currentIndexChanged(int index );
 
 	private:
 		bool m_bExporting;

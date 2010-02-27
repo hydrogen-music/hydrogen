@@ -152,7 +152,7 @@ void ExportSongDialog::on_closeBtn_clicked()
 }
 
 
-void ExportSongDialog::on_taplatescomboBox_currentIndexChanged(int index )
+void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 {
 	/**index
 	 * 0 = wav 44100 | 16
@@ -320,22 +320,22 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	}
 
 	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
-		taplatescomboBox->setCurrentIndex( 9 );//ogg	
+		templateCombo->setCurrentIndex( 9 );//ogg
 	}
 	else if( filename.endsWith( ".flac" ) || filename.endsWith( ".FLAC" ) ){
 		label->show();
 		label_2->show();
-		taplatescomboBox->setCurrentIndex( 8 );//flac	
+		templateCombo->setCurrentIndex( 8 );//flac
 	}
 	else if( filename.endsWith( ".aiff" ) || filename.endsWith( ".AIFF" ) ){
 		label->show();
 		label_2->show();
-		taplatescomboBox->setCurrentIndex( 5 );//aiff	
+		templateCombo->setCurrentIndex( 5 );//aiff
 	}
 	else if( filename.endsWith( ".wav" ) || filename.endsWith( ".WAV" ) ){
 		label->show();
 		label_2->show();
-		taplatescomboBox->setCurrentIndex( 0 );//wav	
+		templateCombo->setCurrentIndex( 0 );//wav
 	}
 }
 
