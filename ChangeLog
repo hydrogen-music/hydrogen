@@ -3,6 +3,9 @@
 	* Release 0.9.5
 	* ....
 
+	* added czech translation
+	* Bugfix: Exported songs have now the correct length. 
+	* Bugfix: Generate new instrument id's correctly. 
 	* fixed serveral export song failures
 	* added ogg, flac, aiff export support 
 	* added some new commandline parameter for no_gui version
