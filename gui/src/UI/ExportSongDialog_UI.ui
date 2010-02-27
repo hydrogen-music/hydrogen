@@ -208,7 +208,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="srComboBox">
+       <widget class="QComboBox" name="sampleRateCombo">
         <property name="maximumSize">
          <size>
           <width>80</width>
@@ -254,7 +254,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="sdComboBox">
+       <widget class="QComboBox" name="sampleDepthCombo">
         <property name="maximumSize">
          <size>
           <width>60</width>
