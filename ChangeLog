@@ -1,3 +1,9 @@
+2010-02-27 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 0.9.4.1
+	* added czech translation
+	* Bugfix: Exported songs have now the correct length. 
+	* Bugfix: Generate new instrument id's correctly. 
+
 2009-09-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
   
 	* Release 0.9.4
