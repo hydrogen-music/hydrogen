@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="en_US">
-<defaultcodec></defaultcodec>
+<!DOCTYPE TS>
+<TS version="2.0" language="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AboutDialog.cpp" line="50"/>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Stranica projekta&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AboutDialog.cpp" line="39"/>
         <source>About</source>
         <translation>O Programu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AboutDialog.cpp" line="102"/>
         <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Glavni programer i održavatelj:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AboutDialog.cpp" line="48"/>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Web stranica&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AboutDialog.cpp" line="52"/>
         <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Mailing lista&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AboutDialog.cpp" line="106"/>
         <source>Translator:%1Alessandro Cominu</source>
         <translation>Prevoditelj:%1Mario Kozjak</translation>
     </message>
@@ -37,57 +37,57 @@
 <context>
     <name>AboutDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="13"/>
         <source>About Hydrogen</source>
         <translation>Informacije o programu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="110"/>
         <source>A&amp;bout</source>
         <translation>&amp;Informacije o programu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="148"/>
         <source>&amp;Authors</source>
         <translation>&amp;Autori</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="174"/>
         <source>&amp;License</source>
         <translation>&amp;Licenca</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="53"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="56"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="128"/>
         <source>###</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/about_dialog.ui" line="189"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;This program is distributed under the terms of the GPL v2.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>       Version 2, June 1991&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		       Version 2, June 1991&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; Copyright (C) 1989, 1991 Free Software Foundation, Inc.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;                          675 Mass Ave, Cambridge, MA 02139, USA&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; Everyone is permitted to copy and distribute verbatim copies&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; of this license document, but changing it is not allowed.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/><byte value="x9"/>    Preamble&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;			    Preamble&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  The licenses for most software are designed to take away your&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;freedom to share and change it.  By contrast, the GNU General Public&lt;/p&gt;
@@ -137,7 +137,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  The precise terms and conditions for copying, distribution and&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;modification follow.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		    GNU GENERAL PUBLIC LICENSE&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  0. This License applies to any program or other work which contains&lt;/p&gt;
@@ -336,7 +336,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;of preserving the free status of all derivatives of our free software and&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;of promoting the sharing and reuse of software generally.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/><byte value="x9"/>    NO WARRANTY&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;			    NO WARRANTY&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN&lt;/p&gt;
@@ -358,9 +358,9 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;POSSIBILITY OF SUCH DAMAGES.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/><byte value="x9"/>     END OF TERMS AND CONDITIONS&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;		     END OF TERMS AND CONDITIONS&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;<byte value="x9"/>    How to Apply These Terms to Your New Programs&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;	    How to Apply These Terms to Your New Programs&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;  If you develop a new program, and you want it to be of the greatest&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;possible use to the public, the best way to achieve this is to make it&lt;/p&gt;
@@ -425,7 +425,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioEngineInfoForm.cpp" line="49"/>
         <source>Audio Engine Info</source>
         <translation>Informacije o audio engine-u</translation>
     </message>
@@ -433,112 +433,130 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="65"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="122"/>
         <source>Playing notes</source>
         <translation>Polifonia</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="195"/>
         <source>Process time</source>
         <translation>Vrijeme izvođenja</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="167"/>
         <source>Audio engine state</source>
         <translation>Stanje audio engine-a</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="258"/>
         <source>Song state</source>
         <translation>Stanje pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="442"/>
         <source>Buffer size</source>
         <translation>Veličina buffer-a</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="470"/>
         <source>Sample rate</source>
         <translation>Frekvencija uzorka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="272"/>
         <source>Song position</source>
         <translation>Pozicija pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="279"/>
         <source>Patterns</source>
         <translation>Uzorci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="265"/>
         <source>Selected pattern</source>
         <translation>Odabrani uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="160"/>
         <source>Selected instrument</source>
         <translation>Odabrani instrument</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="371"/>
         <source>Connected to</source>
         <translation>Konektiran na</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="13"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="58"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="115"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="174"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="181"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="188"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="244"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="251"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="286"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="293"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="300"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="357"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="364"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="428"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="449"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="456"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="463"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="484"/>
         <source>###</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="491"/>
         <source>Frames</source>
         <translation>Frejmovi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="307"/>
         <source>Ticks</source>
         <translation>Udarci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="82"/>
         <source>Sampler</source>
         <translation>Sampler</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="25"/>
         <source>Synth</source>
         <translation>Synth</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="211"/>
         <source>Sequencer</source>
         <translation>Sequencer</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="324"/>
         <source>MIDI input</source>
         <translation>MIDI ulaz</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="378"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="477"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="395"/>
         <source>Audio output</source>
         <translation>Izlazni signal</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="435"/>
         <source>Realtime frames</source>
         <translation>Stvarni framerate</translation>
     </message>
@@ -546,52 +564,52 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioFileBrowser</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="48"/>
         <source>Audio File Browser</source>
         <translation>Pretraživač audio podataka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="253"/>
         <source>Size: %1 bytes</source>
         <translation>Veličina: %1 byte</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="254"/>
         <source>Samplerate: %1</source>
         <translation>Samplerate: %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="258"/>
         <source>Samplelength: </source>
         <translation type="unfinished">Duljina uzorka:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="258"/>
         <source> s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="274"/>
         <source>No clicking audio preview for samples longer than 10 minutes!</source>
         <translation>Bez udarajućeg zvučnog pregleda za uzorke dulje od 10 minuta!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="281"/>
         <source>Name:</source>
         <translation>Ime:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="282"/>
         <source>Size:</source>
         <translation>Veličina:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="283"/>
         <source>Samplerate:</source>
         <translation>Frekvencija uzorka:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser.cpp" line="284"/>
         <source>Samplelength:</source>
         <translation>Duljina uzorka:</translation>
     </message>
@@ -599,75 +617,90 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AudioFileBrowser_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="14"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="203"/>
         <source>Open</source>
         <translation>Otvori</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="60"/>
         <source>Name:</source>
         <translation>Ime:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="67"/>
         <source>Samplerate:</source>
         <translation>Frekvencija uzorka:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="74"/>
         <source>Size:</source>
         <translation>Veličina:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="81"/>
         <source>Length:</source>
         <translation>Duljina:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="210"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="98"/>
         <source>Pla&amp;y samples by clicking</source>
         <translation>S&amp;viraj uzorke klikajući na njih</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="117"/>
+        <source>View hidden folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="130"/>
         <source>&amp;Up</source>
         <translation>&amp;Gore</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="140"/>
         <source>&amp;Home</source>
         <translation>&amp;Početak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="156"/>
         <source>&amp;Play Sample</source>
         <translation>&amp;Sviraj Uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="194"/>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Ime fajla koje odgovara imenu instrumenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="228"/>
         <source>&amp;Stop</source>
         <translation>S&amp;tani</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="241"/>
+        <source>Be careful, this change all Layer velocity settings </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="244"/>
+        <source>Set automatic velocity</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DownloadWidget</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/widgets/DownloadWidget.cpp" line="214"/>
         <source>(%1/%2 KiB) - ETA %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -675,77 +708,80 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DrumkitManager_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="13"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="26"/>
         <source>Load</source>
         <translation>Podigni</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="53"/>
         <source>### Drumkit author</source>
         <translation>### Autor seta bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="72"/>
         <source>Delete drumkit</source>
         <translation>Izbriši set bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="85"/>
         <source>### Drumkit name</source>
         <translation>### Ime seta bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="98"/>
         <source>### Drumkit info</source>
         <translation>### Informacije o setu bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="118"/>
         <source>Load drumkit</source>
         <translation>Podigni set bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="140"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="201"/>
         <source>Save</source>
         <translation>Spremi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="152"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="165"/>
         <source>Info</source>
         <translation>Informacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="188"/>
         <source>Drumkit name</source>
         <translation>Ime seta bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="230"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="281"/>
         <source>Import</source>
         <translation>Umetni</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="242"/>
         <source>Drumkit filename</source>
         <translation>Ime seta bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="265"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="353"/>
         <source>Browse</source>
         <translation>Pretraži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="309"/>
         <source>&lt;b&gt;
 Download more drumkits at &lt;br&gt;
 http://www.hydrogen-music.org
@@ -756,17 +792,18 @@ http://www.hydrogen-music.org
 &lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="328"/>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
         <translation>### Set bubnjeva će biti instaliran</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="341"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="405"/>
         <source>Export</source>
         <translation>Izbaci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="379"/>
         <source>Drumkit directory</source>
         <translation>Mjesto (na disku) seta bubnjeva</translation>
     </message>
@@ -774,65 +811,71 @@ http://www.hydrogen-music.org
 <context>
     <name>ExportSongDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="72"/>
         <source>Wave file (*.wav)</source>
         <translation>Wave file (*.wav)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="46"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="75"/>
         <source>Export song</source>
         <translation>Izbaci pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="51"/>
         <source>Sample rate: %1</source>
         <translation>Frekvencija uzorka: %1</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="146"/>
+        <source>Export failed!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="170"/>
         <source>Export filename</source>
         <translation>Ime fajla za export</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="13"/>
         <source>Export Whole Song to WAV</source>
         <translation>Izbaci cijelu pjesmu u WAV obliku</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="127"/>
         <source>&amp;Export</source>
         <translation>&amp;Izbaci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="196"/>
         <source>&amp;Browse...</source>
         <translation>&amp;Pretraži...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="71"/>
         <source>&amp;Close</source>
         <translation>&amp;Zatvori</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="74"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="130"/>
         <source>Alt+E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="156"/>
         <source>textLabel1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="199"/>
         <source>Alt+B</source>
         <translation></translation>
     </message>
@@ -840,7 +883,7 @@ http://www.hydrogen-music.org
 <context>
     <name>FileBrowser</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/FileBrowser.cpp" line="189"/>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
         <translation></translation>
     </message>
@@ -848,12 +891,12 @@ http://www.hydrogen-music.org
 <context>
     <name>FxMixerLine</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="760"/>
         <source>FX on/off</source>
         <translation>Efekti on/off</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="777"/>
         <source>Master output</source>
         <translation>Glavni izlaz</translation>
     </message>
@@ -861,27 +904,27 @@ http://www.hydrogen-music.org
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog.cpp" line="46"/>
         <source>SoundLibrary Properties</source>
         <translation>Karakteristike &apos;Zvučne knjižnice&apos;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog.cpp" line="98"/>
         <source>&amp;Ok</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog.cpp" line="98"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog.cpp" line="81"/>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
         <translation>To nije moguće, možeš spremiti promjene unutar instrumenta u samo trenutno otvorenoj &apos;zvučnoj knjižnici&apos;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog.cpp" line="98"/>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
         <translation>Upozorenje! Mijenjanje imena seta bubnjeva će rezultirati stvaranjem novog seta bubnjeva s tim imenom.
@@ -891,7 +934,7 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>HydrogenApp</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/HydrogenApp.cpp" line="367"/>
         <source>Drumkit loaded: [%1]</source>
         <translation>Set bubnjeva učitan: [%1]</translation>
     </message>
@@ -899,82 +942,82 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="72"/>
         <source>Show instrument properties</source>
         <translation>Prikaži karakteristike instrumenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="87"/>
         <source>Show layers properties</source>
         <translation>Prikaži karakteristike razine</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="234"/>
         <source>Layer gain</source>
         <translation>Gain razine</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="621"/>
         <source>New instrument name</source>
         <translation>Novo ime instrumenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="147"/>
         <source>Instrument gain</source>
         <translation>Gain instrumenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="105"/>
         <source>Random pitch factor</source>
         <translation>Faktor izmjene nivoa</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="119"/>
         <source>Filter Cutoff</source>
         <translation>Filter Cutoff</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="122"/>
         <source>Filter resonance</source>
         <translation>Filter rezonancija</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="131"/>
         <source>Attack</source>
         <translation>Attack</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="132"/>
         <source>Decay</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="133"/>
         <source>Sustain</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="134"/>
         <source>Release</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="240"/>
         <source>Layer pitch (Coarse)</source>
         <translation>Layer pitch (grezzo)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="245"/>
         <source>Layer pitch (Fine)</source>
         <translation>Layer pitch (Fine)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="71"/>
         <source>General</source>
         <translation>Generale</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentEditor/InstrumentEditor.cpp" line="86"/>
         <source>Layers</source>
         <translation></translation>
     </message>
@@ -982,22 +1025,22 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>InstrumentLine</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorInstrumentList.cpp" line="93"/>
         <source>Clear notes</source>
         <translation>Obriši note</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorInstrumentList.cpp" line="94"/>
         <source>Fill notes</source>
         <translation>Popuni note</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorInstrumentList.cpp" line="95"/>
         <source>Randomize velocity</source>
         <translation>Automatski mijenjaj iznos note</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorInstrumentList.cpp" line="97"/>
         <source>Delete instrument</source>
         <translation>Izbriši instrument</translation>
     </message>
@@ -1005,22 +1048,22 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>InstrumentRack</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentRack.cpp" line="56"/>
         <source>Show Instrument editor</source>
         <translation>Prikaži uređivač instrumenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentRack.cpp" line="57"/>
         <source>Instrument</source>
         <translation>Instrument</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentRack.cpp" line="68"/>
         <source>Show sound library</source>
         <translation>Prikaži &apos;zvučnu knjižnicu&apos;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/InstrumentRack.cpp" line="69"/>
         <source>Sound library</source>
         <translation>Zvučna knjižnica</translation>
     </message>
@@ -1028,22 +1071,22 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1038"/>
         <source>Edit FX parameters</source>
         <translation>Uredi FX parametre</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1045"/>
         <source>Ladspa FX name</source>
         <translation>Ime LADSPA FX-a</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1026"/>
         <source>FX bypass</source>
         <translation>Zaobiđi efekt(e)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1048"/>
         <source>Effect return</source>
         <translation>FX Return</translation>
     </message>
@@ -1051,32 +1094,35 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>LadspaFXProperties</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="92"/>
         <source>Select FX</source>
         <translation>Odaberi efekt</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="209"/>
         <source>[%1] LADSPA FX Properties</source>
         <translation>[%1] LADSPA FX karakteristike</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="329"/>
         <source>LADSPA FX %1 Properties</source>
         <translation>LADSPA FX karakteristike %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="330"/>
         <source>No plugin</source>
         <translation>Nema dodatka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="98"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="222"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="392"/>
         <source>Activate</source>
         <translation>Aktiviraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="219"/>
+        <location filename="../../gui/src/LadspaFXProperties.cpp" line="389"/>
         <source>Deactivate</source>
         <translation>Deaktiviraj</translation>
     </message>
@@ -1084,42 +1130,42 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>LadspaFXSelector</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="61"/>
         <source>Groups</source>
         <translation>Grupe</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="191"/>
         <source>Stereo</source>
         <translation>Stereo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="194"/>
         <source>Mono</source>
         <translation>Mono</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="198"/>
         <source>Not supported</source>
         <translation>Nije podržano</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="47"/>
         <source>Select LADSPA FX</source>
         <translation>Izaberi LADSPA efekt</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="142"/>
         <source>Recently Used</source>
         <translation>Zadnje korišten</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="136"/>
         <source>Alphabetic List</source>
         <translation>Lista po abecedi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/LadspaFXSelector.cpp" line="139"/>
         <source>Categorized</source>
         <translation>Razvrstano</translation>
     </message>
@@ -1127,52 +1173,52 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>LadspaFXSelector_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="68"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="90"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="19"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="71"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="93"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="277"/>
         <source>### fx label</source>
         <translation>### naziv efekta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="350"/>
         <source>### fx type</source>
         <translation>### vrsta efekta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="366"/>
         <source>### fx ID</source>
         <translation>### ID efekta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="150"/>
         <source>1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="213"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1181,14 +1227,14 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Nome:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="230"/>
         <source>### fx name
 1</source>
         <translation>### ime efekta
 1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="260"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1197,7 +1243,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Etichetta:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="306"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1206,7 +1252,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tipo:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="333"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1215,7 +1261,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="392"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1224,7 +1270,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Autore:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="409"/>
         <source>### FX maker
 1
 2</source>
@@ -1233,7 +1279,7 @@ p, li { white-space: pre-wrap; }
 2</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="440"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1242,7 +1288,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="457"/>
         <source>### copyright
 1
 2
@@ -1256,319 +1302,306 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="226"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1657"/>
         <source>&amp;Save</source>
         <translation>&amp;Spremi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1657"/>
         <source>&amp;Discard</source>
         <translation>Odbaci promje&amp;ne</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="808"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1092"/>
         <source>Error loading song.</source>
         <translation>Neuspješno otvaranje pjesme.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="117"/>
         <source>Hydrogen Ready.</source>
         <translation>Hydrogen je spreman za rad.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>
-The document contains unsaved changes
-Do you want to save the changes before exiting?
-</source>
-        <translation>
-Dokument sadrži nesačuvane promjene
-Hoćeš li spremiti promijene prije izlaska?
-</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="420"/>
+        <location filename="../../gui/src/MainForm.cpp" line="611"/>
+        <location filename="../../gui/src/MainForm.cpp" line="697"/>
         <source>Hydrogen Song (*.h2song)</source>
         <translation>Hydrogen pjesma (*.h2song)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="422"/>
         <source>Save song</source>
         <translation>Spremi pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="614"/>
+        <location filename="../../gui/src/MainForm.cpp" line="699"/>
         <source>Open song</source>
         <translation>Otvori pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1395"/>
         <source>Export MIDI file</source>
         <translation>Izbaci MIDI file</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1393"/>
         <source>Midi file (*.mid)</source>
         <translation>MIDI file (*.mid)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="214"/>
         <source>&amp;New</source>
         <translation>&amp;Novo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="219"/>
         <source>&amp;Open</source>
         <translation>&amp;Otvori</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="220"/>
         <source>Open &amp;Demo</source>
         <translation>Otvori &amp;demonstraciju</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="222"/>
         <source>Open &amp;recent</source>
         <translation>Otvori &amp;posljednje</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="227"/>
         <source>Save &amp;as...</source>
         <translation>Spremi &amp;kao...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="236"/>
         <source>Export &amp;MIDI file</source>
         <translation>Izbaci &amp;MIDI file</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="273"/>
         <source>&amp;Preferences</source>
         <translation>&amp;Karakteristike</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="243"/>
         <source>&amp;Quit</source>
         <translation>&amp;Izlaz</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="281"/>
         <source>Show &amp;audio engine info</source>
         <translation>Prikaži informacije &amp;audio engine</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="288"/>
         <source>&amp;User manual</source>
         <translation>&amp;Korisnički priručnik</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="290"/>
         <source>&amp;About</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1655"/>
+        <source>
+The document contains unsaved changes.
+Do you want to save the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/MainForm.cpp" line="1657"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1428"/>
         <source>Unknown audio driver</source>
         <translation>Nepoznati audio driver</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1432"/>
         <source>Error starting audio driver</source>
         <translation>Problem pri pokretanju drivera zvuka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1436"/>
         <source>Jack driver: server shutdown</source>
         <translation>Jack driver: server shutdown</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1440"/>
         <source>Jack driver: cannot activate client</source>
         <translation>Jack driver: ne mogu aktivirati klijenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1444"/>
         <source>Jack driver: cannot connect output port</source>
         <translation>Jack driver: ne mogu povezati izlaz</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1448"/>
         <source>Jack driver: error in port register</source>
         <translation>Jack driver: greška u registraciji porta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="237"/>
         <source>&amp;Export song</source>
         <translation>&amp;Izbaci pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="280"/>
         <source>De&amp;bug</source>
         <translation>&amp;Debugiraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="212"/>
         <source>&amp;Project</source>
         <translation>&amp;Projekt</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="263"/>
         <source>&amp;Tools</source>
         <translation>&amp;Alati</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="270"/>
         <source>&amp;Mixer</source>
         <translation>&amp;Mixer</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="272"/>
         <source>&amp;Instrument Rack</source>
         <translation>&amp;Instrument Rack</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="282"/>
         <source>Print Objects</source>
         <translation>Isprintaj objekte</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="287"/>
         <source>&amp;Info</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="492"/>
         <source>Song saved.</source>
         <translation>Pjesma spremljena.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="584"/>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/MainForm.cpp" line="1452"/>
         <source>Unknown error %1</source>
         <translation>nepoznata pogreška %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>
-The song has unsaved changes
- Do you want to save the changes before exiting?
-</source>
-        <translation>
-Pjesma ima nespremljene promjene
-Želiš li sejvati?
-</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="806"/>
         <source>Clear all instruments?</source>
         <translation>Izbrisati sve instrumente?</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="807"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="825"/>
         <source>Instrument %1</source>
         <translation>Instrument %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation>Koristiš verziju Hydrogena koja je još u razvoju, molimo te da nam pomogneš tako da nas izvjestiš o greškama ili daš svoj savjet na hydrogen-devel mailing listu.&lt;br&gt;&lt;br&gt;Hvala!</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="480"/>
         <source>Could not save song.</source>
         <translation>Neuspješno spremanje pjesme.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="231"/>
         <source>Open &amp;Pattern</source>
         <translation>Otvori &amp;uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="543"/>
+        <location filename="../../gui/src/MainForm.cpp" line="651"/>
         <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation>Hydrogen uzorak (*.h2pattern)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="545"/>
         <source>Save Pattern as ...</source>
         <translation>Spremi uzorak kao ...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="588"/>
         <source>Pattern saved.</source>
         <translation>Uzorak spremljen.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="654"/>
         <source>Open Pattern</source>
         <translation>Otvori uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>Nemoj više prikazivati ovu poruku</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1299"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1308"/>
         <source>Playlist: Set song No. %1</source>
         <translation>Playlist: Pjesma br. %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="215"/>
         <source>Show &amp;info</source>
         <translation>Prikaži &amp;informacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="232"/>
         <source>Expor&amp;t pattern as...</source>
         <translation>Iz&amp;baci pattern kao...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="252"/>
         <source>I&amp;nstruments</source>
         <translation>Instru&amp;menti</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="253"/>
         <source>&amp;Add instrument</source>
         <translation>&amp;Dodaj instrument</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="254"/>
         <source>&amp;Clear all</source>
         <translation>&amp;Elimina tutti</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="255"/>
         <source>&amp;Save library</source>
         <translation>&amp;Salva libreria</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="256"/>
         <source>&amp;Export library</source>
         <translation>&amp;Esporta libreria</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="268"/>
         <source>Playlist &amp;editor</source>
         <translation>Playlist &amp;editor</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="257"/>
         <source>&amp;Import library</source>
         <translation>&amp;Importa libreria</translation>
     </message>
@@ -1576,15 +1609,15 @@ Pjesma ima nespremljene promjene
         <location filename="hydrogen/data/i18n" line="7471221"/>
         <source></source>
         <comment>Info|About</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="452"/>
         <source>Song saved as.</source>
         <translation>Pjesma spremljena kao.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1642"/>
         <source>Playlist: Song No. %1</source>
         <translation>Playlist: Pjesma br. %1</translation>
     </message>
@@ -1592,37 +1625,37 @@ Pjesma ima nespremljene promjene
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="566"/>
         <source>Set master volume [%1]</source>
         <translation>Podesi glavnu glasnoću [%1]</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="519"/>
         <source>Swing</source>
         <translation>Swing</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="515"/>
         <source>Humanize time</source>
         <translation>Humaniziraj tempo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="511"/>
         <source>Humanize velocity</source>
         <translation>Humaniziraj intenzitet</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="695"/>
         <source>Set humanize time parameter [%1]</source>
         <translation>Podesi parametar za humaniziranje tempa [%1]</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="699"/>
         <source>Set humanize velocity parameter [%1]</source>
         <translation>Podesi parametar za humaniziranje raspona [%1]</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="703"/>
         <source>Set swing factor [%1]</source>
         <translation>Swing faktor [%1]</translation>
     </message>
@@ -1630,17 +1663,22 @@ Pjesma ima nespremljene promjene
 <context>
     <name>MidiTable</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/widgets/midiTable.cpp" line="101"/>
+        <source>press button to record midi event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/widgets/midiTable.cpp" line="147"/>
         <source>Event</source>
         <translation>Događaj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/widgets/midiTable.cpp" line="147"/>
         <source>Param.</source>
         <translation>Param.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/widgets/midiTable.cpp" line="147"/>
         <source>Action</source>
         <translation>Poduzimanje</translation>
     </message>
@@ -1648,37 +1686,37 @@ Pjesma ima nespremljene promjene
 <context>
     <name>Mixer</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="119"/>
         <source>Show FX panel</source>
         <translation>Prikaži FX ploču</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="138"/>
         <source>Show instrument peaks</source>
         <translation>Prikaži visinu točke instrumenta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="716"/>
         <source>Show instrument peaks = On</source>
         <translation>Prikaži visinu točke instrumenta = Aktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="720"/>
         <source>Show instrument peaks = Off</source>
         <translation>Prikaži visinu točke instrumenta = Neaktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="54"/>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="649"/>
         <source>Set FX %1 level </source>
         <translation>Postavi razinu FX-a %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/Mixer.cpp" line="775"/>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Postavi glasnoću LADSPA FX-a ( %1 )</translation>
     </message>
@@ -1686,37 +1724,37 @@ Pjesma ima nespremljene promjene
 <context>
     <name>MixerLine</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="77"/>
         <source>Play sample</source>
         <translation>Suona sample</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="101"/>
         <source>Mute</source>
         <translation>Escludi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="113"/>
         <source>Solo</source>
         <translation>Solo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="117"/>
         <source>Pan</source>
         <translation>Pan</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="153"/>
         <source>Instrument name (double click to edit)</source>
         <translation>Nome strumento (doppio click per modificarne le proprietà)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="245"/>
         <source>Set instrument volume [%1]</source>
         <translation>Volume strumento [%1]</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="382"/>
         <source>Set instr. pan [%1]</source>
         <translation>Pan strumento [%1]</translation>
     </message>
@@ -1724,117 +1762,122 @@ Pjesma ima nespremljene promjene
 <context>
     <name>PatternEditorPanel</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="161"/>
         <source>Hear new notes</source>
         <translation>Poslušaj nove note</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="636"/>
         <source>Hear new notes = On</source>
         <translation>Poslušaj nove note = Aktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="639"/>
         <source>Hear new notes = Off</source>
         <translation>Poslušaj nove note = Neaktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="603"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="620"/>
         <source>Pattern editor - %1</source>
         <translation>Uređivač uzorka - %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="178"/>
         <source>Record keyboard/midi events</source>
         <translation>Snimaj klavijature/midi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="193"/>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Kvantiziranje klavijatura/midi pokušaja u rešetku</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="652"/>
         <source>Record keyboard/midi events = On</source>
         <translation>Snimaj klavijature/midi = Aktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="655"/>
         <source>Record keyboard/midi events = Off</source>
         <translation>Snimaj klavijature/midi = Neaktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="668"/>
         <source>Quantize incoming keyboard/midi events = On</source>
         <translation>Kvantiziranje nadolazećih klavijaturnih/midi sesija = Aktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="671"/>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Kvantiziranje nadolazećih klavijaturnih/midi sesija = Neaktivno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="835"/>
         <source>Is not possible to change the pattern size when playing.</source>
         <translation>Nije moguće promijeniti veličinu uzorka za vrijeme trajanja preslušavanja.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="113"/>
         <source>Select pattern size</source>
         <translation>Izaberi veličinu uzorka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="124"/>
         <source>Select grid resolution</source>
         <translation>Odaberi veličinu rešetke</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="214"/>
         <source>Zoom in</source>
         <translation>Povećaj pogled</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="229"/>
         <source>Zoom out</source>
         <translation>Smanji pogled</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="622"/>
         <source>No pattern selected</source>
         <translation>Nema izabranih uzoraka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="389"/>
         <source>Select note properties</source>
         <translation>Odaberni karakteristike note</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="390"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="515"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="960"/>
         <source>Velocity</source>
         <translation>Frekvencija</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="391"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="967"/>
         <source>Pan</source>
         <translation>Pan</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="981"/>
         <source>Cutoff</source>
         <translation>Cutoff</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="983"/>
         <source>Resonance</source>
         <translation>Rezonancija</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="392"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="974"/>
         <source>Lead and Lag</source>
         <translation>&apos;Lead and Lag&apos;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternEditor/PatternEditorPanel.cpp" line="100"/>
         <source>Loaded Soundlibrary</source>
         <translation>Otvorena zvučna knjižnica</translation>
     </message>
@@ -1842,7 +1885,7 @@ Pjesma ima nespremljene promjene
 <context>
     <name>PatternFillDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternFillDialog.cpp" line="40"/>
         <source>Fill with selected pattern</source>
         <translation>Popuni odabranim uzorkom</translation>
     </message>
@@ -1850,47 +1893,47 @@ Pjesma ima nespremljene promjene
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="63"/>
         <source>&amp;Fill</source>
         <translation>&amp;Popuni</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="76"/>
         <source>&amp;Clear</source>
         <translation>&amp;Obriši</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="124"/>
         <source>To:</source>
         <translation>K:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="104"/>
         <source>From:</source>
         <translation>Od:</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="176"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="183"/>
         <source>OK</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="24"/>
         <source>Form 1</source>
         <translation>Prva forma</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="66"/>
         <source>Alt+F</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="79"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
@@ -1898,45 +1941,55 @@ Pjesma ima nespremljene promjene
 <context>
     <name>PatternPropertiesDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PatternPropertiesDialog.cpp" line="37"/>
         <source>Pattern properties</source>
         <translation>Karakteristike uzorka</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PatternPropertiesDialog.cpp" line="120"/>
+        <source>%1#2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PatternPropertiesDialog.cpp" line="124"/>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="71"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="81"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="30"/>
         <source>New Pattern Name</source>
         <translation>Novo ime uzorka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="13"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="74"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="84"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="40"/>
         <source>Pattern category</source>
         <translation>Kategorija uzorka</translation>
     </message>
@@ -1944,167 +1997,170 @@ Pjesma ima nespremljene promjene
 <context>
     <name>PlayerControl</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="180"/>
         <source>Song Mode</source>
         <translation>Mod pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="620"/>
         <source>Playing.</source>
         <translation>Svira.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="639"/>
         <source>Stopped.</source>
         <translation>Zaustavljeno.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="658"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="681"/>
         <source>Song mode selected.</source>
         <translation>Mod pjesme odabran.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="167"/>
         <source>Pattern Mode</source>
         <translation>Uzorak Mod</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="664"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="697"/>
         <source>Pattern mode selected.</source>
         <translation>Uzorak Mod odabran.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="358"/>
         <source>Jack-transport on/off</source>
         <translation>Jack-transport uključen/isključen</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="822"/>
         <source>Jack-transport mode = On</source>
         <translation>Jack-transport Mod = Uključen</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="828"/>
         <source>Jack-transport mode = Off</source>
         <translation>Jack-transport Mod = Isključen</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="870"/>
         <source>New BPM value</source>
         <translation>Nova vrijednost broja udaraca u minuti (BPM)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="97"/>
         <source>Rewind</source>
         <translation>Premotaj unazad</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="110"/>
         <source>Play/ Pause</source>
         <translation>Reproduciraj/ Pauziraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="134"/>
         <source>Fast Forward</source>
         <translation>Premotaj unaprijed</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="192"/>
         <source>Switch Song/ Pattern Mode</source>
         <translation>Promijeni Mod pjesme/uzorka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="625"/>
         <source>Pause.</source>
         <translation>Pauza.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="832"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="861"/>
         <source>JACK-transport will work only with JACK driver.</source>
         <translation>JACK-transport će funkcionirati samo sa JACK driverom.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="146"/>
         <source>Loop song</source>
         <translation>Ponavljaj pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="943"/>
         <source>Loop song = On</source>
         <translation>Ponavljaj pjesmu = Uključeno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="946"/>
         <source>Loop song = Off</source>
         <translation>Ponavljaj pjesmu = Isključeno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="404"/>
         <source>Show mixer</source>
         <translation>Prikaži mixer</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="122"/>
         <source>Stop</source>
         <translation>Stani</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="405"/>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="417"/>
         <source>Show Instrument Rack</source>
         <translation>Prikaži Rack</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="418"/>
         <source>Instrument rack</source>
         <translation>Rack</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="211"/>
         <source>BeatCounter Panel on</source>
         <translation>Ploča brojača udaraca uključena</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="286"/>
         <source>Set BPM / Set BPM and play</source>
         <translation>Postavi BPM / Postavi BPM i reproduciraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="372"/>
         <source>Jack-Time-Master on/off</source>
         <translation>Jack-Time-Master uključen/isključen</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="726"/>
         <source> BC Panel on</source>
         <translation>Ploča brojača udaraca aktivan</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="732"/>
         <source> BC Panel off</source>
         <translation>Ploča brojača udaraca neaktivan</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="743"/>
         <source> Count BPM and start PLAY</source>
         <translation>Prebroji BPM i počni reprodukciju</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="748"/>
         <source> Count and set BPM</source>
         <translation>Izbroji i postavi BPM</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="847"/>
         <source> Jack-Time-Master mode = On</source>
         <translation>Mod Jack-Time-Master = Uključen</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="855"/>
         <source> Jack-Time-Master mode = Off</source>
         <translation>Mod Jack-Time-Master = Isključen</translation>
     </message>
@@ -2112,72 +2168,177 @@ Pjesma ima nespremljene promjene
 <context>
     <name>PlaylistDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="59"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="327"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="354"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="417"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="540"/>
         <source>Play List Browser</source>
         <translation>Pretraživač plejliste</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="69"/>
+        <source>&amp;Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="71"/>
+        <source>Add song to Play&amp;list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="72"/>
+        <source>Add &amp;current song to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="74"/>
+        <source>&amp;Remove selected song from Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="75"/>
+        <source>Remove all songs from &amp;Playlistist </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="77"/>
+        <source>&amp;Open Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="79"/>
+        <source>&amp;Save Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="80"/>
+        <source>Save Playlist &amp;as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="86"/>
+        <source>&amp;Scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="88"/>
+        <source>&amp;Add Script to selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="89"/>
+        <source>&amp;Edit selected Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="91"/>
+        <source>&amp;Remove selected Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="93"/>
+        <source>&amp;Create a new Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="114"/>
+        <source>Rewind</source>
+        <translation type="unfinished">Premotaj unazad</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="128"/>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="140"/>
+        <source>Stop</source>
+        <translation type="unfinished">Stani</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="152"/>
+        <source>Fast Forward</source>
+        <translation type="unfinished">Premotaj unaprijed</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="158"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="181"/>
         <source>Song list</source>
         <translation>Popis pjesama</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="181"/>
         <source>Script</source>
         <translation>Skripta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="181"/>
         <source>exec Script</source>
         <translation>Izvrši skriptu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="279"/>
         <source>Add Song to PlayList</source>
         <translation>Dodaj pjesmu na plejlistu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="299"/>
+        <source>Please save your song first</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="317"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="602"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="646"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="762"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="832"/>
         <source>No Song selected!</source>
         <translation>Nema izabrane pjesme!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="384"/>
         <source>Load Playlist</source>
         <translation>Učitaj plejlistu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="470"/>
+        <source>WARNING, the new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="511"/>
         <source>Hydrogen Playlist (*.h2playlist)</source>
         <translation>Hydrogen Playlist (*.h2playlist)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="513"/>
         <source>Save Playlist</source>
         <translation>Spremi plejlistu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="567"/>
         <source>No Song in List or no Song selected!</source>
         <translation>Nema pjesme na popisu ili na plejlisti!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="576"/>
         <source>Hydrogen Playlist (*.sh)</source>
         <translation>Shell script (*.sh)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="577"/>
         <source>Add Script to selected Song</source>
         <translation>Dodaj skriptu na izabranu pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="608"/>
         <source>No Script in use!</source>
         <translation>Nema skripte u upotrebi!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="474"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="625"/>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
@@ -2186,37 +2347,41 @@ Nemoj koristiti editor baziran na konzoli
 Nažalost, ovo trenutno neće funkcionirati.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="482"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="633"/>
         <source>Set your Default Editor</source>
         <translation>Postavi svoj osnovni uređivač</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="655"/>
         <source>No Script selected!</source>
         <translation>Skripta nije odabrana!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="781"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="856"/>
         <source>Error loading song.</source>
         <translation>Pogreška kod učitavanja pjesme.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="205"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="219"/>
         <source>sort</source>
         <translation>sortiraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="432"/>
         <source>Hydrogen Scripts (*.sh)</source>
         <translation>Shell Scripts (*.sh)</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="434"/>
         <source>New Script</source>
         <translation>Nova skripta</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="454"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="585"/>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
@@ -2225,12 +2390,17 @@ VAŽNO
 Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="744"/>
         <source>No Script!</source>
         <translation>Nema skripte!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="797"/>
+        <source>Pause.</source>
+        <translation type="unfinished">Pauza.</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="864"/>
         <source>Playlist: Set song No. %1</source>
         <translation>Plejlista: Postavi pjesmu br. %1</translation>
     </message>
@@ -2238,130 +2408,79 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog_UI.ui" line="13"/>
         <source>PlayList Browser</source>
         <translation>Pretraživač plejliste</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Add song to playlist</source>
-        <translation>Dodaj pjesmu na plejlistu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Remove song from playlist</source>
-        <translation>Ukloni pjesmu s plejliste</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Load script</source>
-        <translation>Učitaj skriptu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Remove script</source>
-        <translation>Ukloni skriptu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog_UI.ui" line="71"/>
         <source>Song list</source>
         <translation>Popis pjesama</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Load list</source>
-        <translation>Učitaj pjesmu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Save list</source>
-        <translation>Spremi pjesmu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Edit script</source>
-        <translation>Modificiraj skriptu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Play selected</source>
-        <translation>Reproduciraj odabrano</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Stop</source>
-        <translation>Stani</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Clear playlist</source>
-        <translation>Izbriši plejlistu</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>New Script</source>
-        <translation>Nova skripta</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="357"/>
         <source>Slow</source>
         <translation>Polako</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="360"/>
         <source>Normal</source>
         <translation>Umjereno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="363"/>
         <source>Fast</source>
         <translation>Brzo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="459"/>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
         <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;jednostavni audio driver [/dev/dsp]</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="461"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="474"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="487"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="500"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="512"/>
         <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
         <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Nije kompajlirano&lt;/font&gt;&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="472"/>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
         <translation>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="51"/>
         <source>Preferences</source>
         <translation>Postavke</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="485"/>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;ALSA driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="449"/>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
         <translation>&lt;b&gt;Automatsko odabiranje drivera&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="498"/>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;PortAudio driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="510"/>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;CoreAudio driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="642"/>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation>Restartaj hydrogen kako bi se uključila/isključila LASH podrška</translation>
     </message>
@@ -2369,355 +2488,352 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="379"/>
         <source>Buffer size</source>
         <translation>Veličina privremenog spremnika</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="366"/>
         <source>Device</source>
         <translation>Uređaj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="626"/>
         <source>Input</source>
         <translation>Ulaz</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="754"/>
         <source>Channel</source>
         <translation>Kanal</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="640"/>
         <source>All</source>
         <translation>Sve</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="910"/>
         <source>Meters falloff speed</source>
         <translation>Falloff brzina</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="924"/>
         <source>Slow</source>
         <translation>Sporo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="929"/>
         <source>Normal</source>
         <translation>Umjereno</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="934"/>
         <source>Fast</source>
         <translation>Brzo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="828"/>
         <source>Application font</source>
         <translation>Font aplikacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="954"/>
         <source>Mixer font</source>
         <translation>Font Mixera</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="854"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="897"/>
         <source>Select font</source>
         <translation>Odaberi font</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="785"/>
         <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Nakon promjene fonta aplikacija mora biti restartana.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="563"/>
         <source>Polyphony</source>
         <translation>Polifonija</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="838"/>
         <source>Style</source>
         <translation>Stil</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="71"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="93"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="150"/>
         <source>&amp;General</source>
         <translation>O&amp;pčenito</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="254"/>
         <source>Audio &amp;System</source>
         <translation>&amp;Audio Sustav</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="556"/>
         <source>Metronome volume</source>
         <translation>Glasnoća metronoma</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="460"/>
         <source>Connect to &amp;Default Output Pair</source>
         <translation>Poveži se na osnovnu &amp;izlaznu paricu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="587"/>
         <source>&amp;Midi System</source>
         <translation>&amp;Midi sustav</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="741"/>
         <source>Midi driver</source>
         <translation>Midi driver</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="728"/>
         <source>Ignore note-off</source>
         <translation>Ignoriraj note-off</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="773"/>
         <source>&amp;Appearance</source>
         <translation>&amp;Izgled</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="13"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="74"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="96"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="168"/>
         <source>&amp;Reopen last used song</source>
         <translation>&amp;Ponovno otvori zadnje korištenu pjesmu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="171"/>
         <source>Alt+R</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="272"/>
         <source>###</source>
         <translation>###</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="359"/>
         <source>Sample rate</source>
         <translation>Frekvencija uzorka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="400"/>
         <source>44100</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="405"/>
         <source>48000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="410"/>
         <source>88200</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="415"/>
         <source>96000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="463"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="473"/>
         <source>Alt+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="470"/>
+        <source>create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="645"/>
         <source>1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="650"/>
         <source>2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="655"/>
         <source>3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="660"/>
         <source>4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="665"/>
         <source>5</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="670"/>
         <source>6</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="675"/>
         <source>7</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="680"/>
         <source>8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="685"/>
         <source>9</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="690"/>
         <source>10</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="695"/>
         <source>11</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="700"/>
         <source>12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="705"/>
         <source>13</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="710"/>
         <source>14</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="715"/>
         <source>15</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="720"/>
         <source>16</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="302"/>
         <source>Restart output</source>
         <translation>Restartaj izlaz</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="266"/>
         <source>Audio output details</source>
         <translation>Detalji zvučnog izlaza</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="427"/>
         <source>Post-Fader</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="432"/>
         <source>Pre-Fader</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="446"/>
         <source>Track output</source>
         <translation>Izlaz trake</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Track Outputs</source>
-        <translation>Izlazi traka</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="184"/>
         <source>Use lash</source>
         <translation>Koristi LASH</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="197"/>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
         <translation>Prvo, namjesti vrijeme nepodudaranja signala latencije između kontrolera/klavijature i izračunatog BPM</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="216"/>
         <source>Beat counter drift compensation in 1/10 ms   </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="229"/>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="248"/>
         <source>Beat counter start offset in ms    </source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Enable timing offset (workaround for Ardour bug)</source>
         <translation></translation>
     </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/HelpBrowser.cpp" line="43"/>
         <source>Manual</source>
         <translation>Priručnik</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/HelpBrowser.cpp" line="49"/>
         <source>Welcome to Hydrogen</source>
         <translation>Dobrodošli u Hydrogen</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/HelpBrowser.cpp" line="57"/>
         <source>Don&apos;t show this message anymore</source>
         <translation>Nemoj više nikad prikazivati ovu obavijest</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/HelpBrowser.cpp" line="62"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/HelpBrowser.cpp" line="67"/>
         <source>Documentation index</source>
         <translation>Dokumentacija kazala pojmova</translation>
     </message>
@@ -2725,79 +2841,81 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
 <context>
     <name>SongEditorPanel</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="76"/>
         <source>Create new pattern</source>
         <translation>Kreiraj novi uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="88"/>
         <source>Move the selected pattern down</source>
         <translation>Pomakni dolje odabrani uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="100"/>
         <source>Move the selected pattern up</source>
         <translation>Pomakni gore odabrani uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="64"/>
         <source>Clear pattern sequence</source>
         <translation>Obriši sekvencu uzoraka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="48"/>
         <source>Song Editor</source>
         <translation>Editor pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="112"/>
         <source>Select mode</source>
         <translation>Odaberi Mod</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="124"/>
         <source>Draw mode</source>
         <translation>Crtački Mod</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="344"/>
+        <source>Pattern %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="430"/>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Pozor, ovo će obrisati sekvencu uzoraka.
 Da li to želiš napraviti?</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="430"/>
         <source>&amp;Ok</source>
         <translation>&amp;Ok</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="430"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Pattern</source>
-        <translation>Uzorak</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="136"/>
         <source>stacked mode</source>
         <translation>Skupni Mod</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="500"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="512"/>
         <source>stacked pattern mode</source>
         <translation>Skupni Mod uzorka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="502"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="515"/>
         <source>single pattern mode</source>
         <translation>Pojedinačni Mod uzoraka</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditorPanel.cpp" line="345"/>
         <source>not_categorized</source>
         <translation>Nije kategorizirano</translation>
     </message>
@@ -2805,62 +2923,81 @@ Da li to želiš napraviti?</translation>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="664"/>
         <source>Edit</source>
         <translation>Modificiraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="665"/>
         <source>Copy</source>
         <translation>Kopiraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="666"/>
         <source>Delete</source>
         <translation>Izbriši</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="668"/>
         <source>Properties</source>
         <translation>Karakteristike</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="995"/>
+        <source>The pattern-file exists. 
+Overwrite the existing pattern?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="995"/>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="995"/>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="1125"/>
+        <source>Pattern 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="1126"/>
+        <source>not_categorized</source>
+        <translation type="unfinished">Nije kategorizirano</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="667"/>
         <source>Fill/Clear ...</source>
         <translation>Popuni/Obriši ...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="670"/>
         <source>Save Pattern</source>
         <translation>Spremi uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="669"/>
         <source>Load Pattern</source>
         <translation>Učitaj uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="944"/>
         <source>Open Pattern</source>
         <translation>Otvori uzorak</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongEditor/SongEditor.cpp" line="941"/>
         <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation>Hydrogen Pattern (*.h2pattern)</translation>
-    </message>
-    <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
-        <source>Error saving pattern!
-The pattern-file exists.</source>
-        <translation>Pogreška pri spremanju uzorka!
-Fajl uzorka već postoji.</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SongPropertiesDialog.cpp" line="40"/>
         <source>Song properties</source>
         <translation>Karakteristike pjesme</translation>
     </message>
@@ -2868,47 +3005,47 @@ Fajl uzorka već postoji.</translation>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="70"/>
         <source>Notes</source>
         <translation>Note</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="41"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="89"/>
         <source>Song name</source>
         <translation>Ime pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="121"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="102"/>
         <source> &amp;OK</source>
         <translation> &amp;Ok</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="13"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="105"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="124"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="163"/>
         <source>License</source>
         <translation>Licenca</translation>
     </message>
@@ -2916,12 +3053,12 @@ Fajl uzorka već postoji.</translation>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog.cpp" line="48"/>
         <source>Export Sound Library</source>
         <translation>Izbaci zvučnu knjižnicu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog.cpp" line="108"/>
         <source>Export drumkit</source>
         <translation>Izbaci set bubnjeva</translation>
     </message>
@@ -2929,17 +3066,17 @@ Fajl uzorka već postoji.</translation>
 <context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog_UI.ui" line="13"/>
         <source>Dialog</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog_UI.ui" line="25"/>
         <source>Browse</source>
         <translation>Pretražuj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog_UI.ui" line="64"/>
         <source>Export</source>
         <translation>Izbaci</translation>
     </message>
@@ -2947,77 +3084,79 @@ Fajl uzorka već postoji.</translation>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="52"/>
         <source>Sound Library import</source>
         <translation>Ubaci zvučnu knjižnicu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="56"/>
         <source>Sound library</source>
         <translation>Zvučna knjižnica</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="56"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="123"/>
         <source>Updating SoundLibrary list...</source>
         <translation>Osvježavanje zvučne knjižnice...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="227"/>
         <source>Installed</source>
         <translation>Instalirano</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="231"/>
         <source>New</source>
         <translation>Novo</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="312"/>
         <source>Author: %1</source>
         <translation>Autor: %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="359"/>
         <source>Downloading SoundLibrary...</source>
         <translation>Skidanje zvučne knjižnice...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="420"/>
         <source>Import drumkit</source>
         <translation>Umetni set bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="379"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="444"/>
         <source>SoundLibrary imported in %1</source>
         <translation>Zvučna knjižnica umetnuta u %1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="388"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="452"/>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Došlo je do pogreške pri ubacivanju zvučne knjižnice.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="196"/>
         <source>Drumkits</source>
         <translation>Setovi bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="201"/>
         <source>Songs</source>
         <translation>Pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="205"/>
         <source>Patterns</source>
         <translation>Uzorci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog.cpp" line="314"/>
         <source>License: %1</source>
         <translation>Licenca: %1</translation>
     </message>
@@ -3025,72 +3164,72 @@ Fajl uzorka već postoji.</translation>
 <context>
     <name>SoundLibraryImportDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="13"/>
         <source>Dialog</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="23"/>
         <source>Internet</source>
         <translation>Internet</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="56"/>
         <source>Update list</source>
         <translation>Osvježi popis</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="130"/>
         <source>Sound Library Name</source>
         <translation>Ime zvučne knjižnice</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="145"/>
         <source>Sound library Info</source>
         <translation>Informacije o zvučnoj knjižnici</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="195"/>
         <source>Author...</source>
         <translation>Autor...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="215"/>
         <source>Download and install</source>
         <translation>Skini i instaliraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="224"/>
         <source>Local file</source>
         <translation>Lokalni fajl</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="257"/>
         <source>Browse...</source>
         <translation>Pretražuj...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="267"/>
         <source>Install</source>
         <translation>Instaliraj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="98"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="182"/>
         <source>License...</source>
         <translation>Licenca...</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="63"/>
         <source>Edit server list</source>
         <translation>Uredi server listu</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="307"/>
         <source>Close</source>
         <translation>Zatvori</translation>
     </message>
@@ -3098,69 +3237,76 @@ Fajl uzorka već postoji.</translation>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="79"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="91"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="95"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="100"/>
         <source>Load</source>
         <translation>Učitaj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="80"/>
         <source>Export</source>
         <translation>Izbaci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="83"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="87"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="96"/>
         <source>Delete</source>
         <translation>Obriši</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="156"/>
         <source>System drumkits</source>
         <translation>Setovi bubnjeva iz sustava</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="160"/>
         <source>User drumkits</source>
         <translation>Korisnički setovi bubnjeva</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="619"/>
         <source>Warning, the selected drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>Pozor, odabrani set bubnjeva će biti izbrisan.
 Potvrdi brisanje!</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="619"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="811"/>
         <source>&amp;Ok</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="619"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="811"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Odustani</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="240"/>
         <source>Songs</source>
         <translation>Pjesme</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="258"/>
         <source>Patterns</source>
         <translation>Uzorci</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="722"/>
         <source>Error loading song.</source>
         <translation>Pogreška pri učitavanju pjesme.</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="81"/>
         <source>Properties</source>
         <translation>Karakteristike</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPanel.cpp" line="811"/>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Pozor, odabrani uzorak će biti izbrisan.
@@ -3170,42 +3316,42 @@ Potvrdi brisanje!</translation>
 <context>
     <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="13"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="31"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="50"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="63"/>
         <source>Information</source>
         <translation>Informacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="136"/>
         <source>License</source>
         <translation>Licenca</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="180"/>
         <source>Save </source>
         <translation>Spremi</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="187"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="203"/>
         <source>Save changes made to instruments into sound library</source>
         <translation>Spremi promjene napravljene na instrumentima u zvučnoj knjižnici</translation>
     </message>
@@ -3213,17 +3359,17 @@ Potvrdi brisanje!</translation>
 <context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog.cpp" line="38"/>
         <source>Edit repository settings</source>
         <translation>Uredi postavke repositorija</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog.cpp" line="75"/>
         <source>Edit server list</source>
         <translation>Uredi popis servera</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog.cpp" line="75"/>
         <source>URL</source>
         <translation>URL</translation>
     </message>
@@ -3231,17 +3377,17 @@ Potvrdi brisanje!</translation>
 <context>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui" line="13"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui" line="30"/>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui" line="37"/>
         <source>Delete</source>
         <translation>Obriši</translation>
     </message>
@@ -3249,45 +3395,50 @@ Potvrdi brisanje!</translation>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog.cpp" line="33"/>
         <source>Save Sound Library</source>
         <translation>Spremi zvučnu knjižnicu</translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog.cpp" line="53"/>
+        <source>Please supply at least a valid name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="13"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="31"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="50"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="63"/>
         <source>Information</source>
         <translation>Informacije</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="184"/>
         <source>Cancel</source>
         <translation>Odustani</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="136"/>
         <source>License</source>
         <translation>Licenca</translation>
     </message>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="177"/>
         <source>Save </source>
         <translation>Spremi</translation>
     </message>
@@ -3295,7 +3446,7 @@ Potvrdi brisanje!</translation>
 <context>
     <name>SoundLibraryTree</name>
     <message>
-        <location filename="hydrogen/data/i18n" line="7471221"/>
+        <location filename="../../gui/src/SoundLibrary/SoundLibraryTree.cpp" line="30"/>
         <source>Sound library</source>
         <translation>Zvučna knjižnica</translation>
     </message>
