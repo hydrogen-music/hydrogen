@@ -268,7 +268,7 @@ void MainForm::createMenuBar()
 	QMenu *m_pUndoMenu = m_pMenubar->addMenu( trUtf8( "U&ndo" ) );
 	m_pUndoMenu->addAction( trUtf8( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
 	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
-	m_pUndoMenu->addAction( trUtf8( "Open Undo Stack " ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
+	m_pUndoMenu->addAction( trUtf8( "Command history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );

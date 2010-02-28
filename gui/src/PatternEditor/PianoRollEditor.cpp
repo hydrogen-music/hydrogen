@@ -522,6 +522,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		}
 
 		H2Core::Note *pDraggedNote;
+		pDraggedNote = NULL;
 		
 		std::multimap <int, Note*>::iterator pos;
 		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
