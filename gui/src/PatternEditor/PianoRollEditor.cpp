@@ -23,6 +23,7 @@
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
+#include "DrumPatternEditor.h"
 #include <cassert>
 
 #include <hydrogen/hydrogen.h>
@@ -420,14 +421,10 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	uint w = 8;
 	uint h = m_nRowHeight - 2;
 
-	int red = (int) (pNote->get_velocity() * 255);
-	int green;
-	int blue;
-	blue = (255 - (int) red)* .33;
-	green =  (255 - (int) red);
+	QColor color = m_pPatternEditorPanel->getDrumPatternEditor()->computeNoteColor( pNote->get_velocity() );
 
 	if ( pNote->get_length() == -1 && pNote->get_noteoff() == false ) {
-		pPainter->setBrush(QColor( red,green,blue ));
+		pPainter->setBrush( color );
 		pPainter->drawEllipse( start_x -4 , start_y, w, h );
 	}
 	else if ( pNote->get_length() == 1 && pNote->get_noteoff() == true ){
@@ -441,8 +438,8 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		int nend = m_nGridWidth * pNote->get_length() / fStep;
 		nend = nend - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-		pPainter->setBrush(QColor( red,green,blue ));
-		pPainter->fillRect( start_x, start_y, nend, h, QColor( red,green,blue ) );
+		pPainter->setBrush( color );
+		pPainter->fillRect( start_x, start_y, nend, h, color );
 		pPainter->drawRect( start_x, start_y, nend, h );
 	}
 }
