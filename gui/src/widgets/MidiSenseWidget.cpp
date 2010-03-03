@@ -20,19 +20,28 @@
  *
  */
 
+#include "hydrogen/midiMap.h"
 #include "MidiSenseWidget.h"
 #include <hydrogen/hydrogen.h>
 
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent) : QDialog( pParent ) , Object("MidiSenseWidget")
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , Action* midiAction ): QDialog( pParent ) , Object("MidiSenseWidget")
 {
+	directWrite = directWr;
+	action = midiAction;
+
+
 	setWindowTitle( "Waiting.." );
-	setFixedSize( 200, 100 );	
+	setFixedSize( 280, 100 );
 	
 	m_pURLLabel = new QLabel( this );
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
-	m_pURLLabel->setText( "Waiting for midi input..." );
-	
+
+	if(action != NULL){
+	    m_pURLLabel->setText( "Waiting for midi input..." );
+	} else{
+	    m_pURLLabel->setText( "This element is not midi operable." );
+	}
 	
 	QVBoxLayout* pVBox = new QVBoxLayout( this );
 	pVBox->addWidget( m_pURLLabel );
@@ -46,6 +55,8 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent) : QDialog( pParent ) , Object
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() ) );
 
 	m_pUpdateTimer->start( 100 );
+
+
 };
 
 MidiSenseWidget::~MidiSenseWidget(){
@@ -58,6 +69,31 @@ void MidiSenseWidget::updateMidi(){
 	if(	!pEngine->lastMidiEvent.isEmpty() ){
 		lastMidiEvent = pEngine->lastMidiEvent;
 		lastMidiEventParameter = pEngine->lastMidiEventParameter;
+
+
+		if( directWrite ){
+		    //write the action / parameter combination to the midiMap
+		    MidiMap *mM = MidiMap::get_instance();
+		    assert(action);
+		    Action* pAction = new Action( action->getType() );
+
+		    //if( action->getParameter1() != 0){
+		    pAction->setParameter1( action->getParameter1() );
+		    //}
+
+		    if( lastMidiEvent.left(2) == "CC" ){
+			    mM->registerCCEvent( lastMidiEventParameter , pAction );
+		    }
+
+		    if( lastMidiEvent.left(3) == "MMC" ){
+			    mM->registerMMCEvent( lastMidiEvent , pAction );
+		    }
+
+		    if( lastMidiEvent.left(4) == "NOTE" ){
+			    mM->registerNoteEvent( lastMidiEvent.toInt() , pAction );
+		    }
+		}
+
 		close();
 	}
 

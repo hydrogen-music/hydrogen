@@ -113,6 +113,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
 	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
 
+
 	// Record+delete button
 	m_pRecDelBtn = new ToggleButton(
 			pControlsPanel,
@@ -142,6 +143,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->setPressed(false);
 	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
+	Action* pAction = new Action("PLAY");
+	m_pPlayBtn->setAction( pAction );
+
 
 	// Stop button
 	m_pStopBtn = new Button(
@@ -154,6 +158,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pStopBtn->move(254, 17);
 	m_pStopBtn->setToolTip( trUtf8("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(stopBtnClicked(Button*)));
+	pAction = new Action("STOP");
+	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
 	m_pFfwdBtn = new Button(

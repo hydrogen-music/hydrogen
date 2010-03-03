@@ -27,6 +27,9 @@
 #include "config.h"
 
 #include <hydrogen/Object.h>
+#include <hydrogen/action.h>
+
+#include "MidiLearnable.h"
 
 #include <QtGui>
 
@@ -35,7 +38,7 @@ class PixmapWidget;
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, public Object
+class Button : public QWidget, public Object, public MidiLearnable
 {
 	Q_OBJECT
 

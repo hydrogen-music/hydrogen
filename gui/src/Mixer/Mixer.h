@@ -90,7 +90,7 @@ class Mixer : public QWidget, public EventListener, public Object
 		QTimer *m_pUpdateTimer;
 
 		uint findMixerLineByRef(MixerLine* ref);
-		MixerLine* createMixerLine();
+		MixerLine* createMixerLine( int );
 
 		// Implements EventListener interface
 		virtual void noteOnEvent( int nInstrument );
