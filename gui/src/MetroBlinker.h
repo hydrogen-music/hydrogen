@@ -53,7 +53,6 @@ class MetroBlinker : public QDialog, public Ui_MetroBlinker_UI, public Object, p
 
 	private:
 		QTimer *timer;
-		QTimer *timer2; //for moving metronom
 		QColor p_color;
 //		QPixmap *m_pBackground;
 		QPalette blinkerPalette;
@@ -65,6 +64,7 @@ class MetroBlinker : public QDialog, public Ui_MetroBlinker_UI, public Object, p
 		QString TAG;
 		QString TAG2;
 		int tagbeat;
+		bool n_bsongload;
 
 
 };

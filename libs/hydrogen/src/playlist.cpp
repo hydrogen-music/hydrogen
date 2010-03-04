@@ -29,6 +29,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
+#include <hydrogen/event_queue.h>
 
 #include <vector>
 #include <cstdlib>
@@ -94,6 +95,8 @@ void Playlist::setNextSongByNumber(int SongNumber)
 	loadSong( selected );
 	execScript( realNumber );
 
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+
 	#ifndef NO_GUI_SUPPORT
         	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	#endif
@@ -126,7 +129,9 @@ void Playlist::setNextSongPlaylist()
 
 	loadSong( selected );
 	execScript( index );
-	
+
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );	
+
 	#ifndef NO_GUI_SUPPORT
         	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	#endif
@@ -160,6 +165,8 @@ void Playlist::setPrevSongPlaylist()
 
 	loadSong( selected );
 	execScript( index );
+
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	#ifndef NO_GUI_SUPPORT
         	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();

@@ -181,6 +181,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 // director
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 }
 
@@ -424,6 +425,7 @@ void MainForm::action_file_new()
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	Hydrogen::get_instance()->m_timelinetagvector.clear();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
 
@@ -1126,7 +1128,8 @@ void MainForm::openSongFile( const QString& sFilename )
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+//	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
 
