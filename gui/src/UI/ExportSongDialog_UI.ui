@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>462</width>
-    <height>296</height>
+    <width>496</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>10</x>
      <y>250</y>
-     <width>445</width>
+     <width>471</width>
      <height>28</height>
     </rect>
    </property>
@@ -87,7 +87,7 @@
     <rect>
      <x>10</x>
      <y>160</y>
-     <width>441</width>
+     <width>471</width>
      <height>81</height>
     </rect>
    </property>
@@ -124,7 +124,7 @@
      <rect>
       <x>90</x>
       <y>40</y>
-      <width>341</width>
+      <width>371</width>
       <height>23</height>
      </rect>
     </property>
@@ -132,18 +132,24 @@
      <number>24</number>
     </property>
    </widget>
-   <widget class="QLabel" name="m_pSamplerateLbl">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>415</width>
+      <width>441</width>
       <height>25</height>
      </rect>
     </property>
-    <property name="text">
-     <string/>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QCheckBox" name="tocheckBox">
+       <property name="text">
+        <string>Track-Outs</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QLabel" name="TextLabel1">
@@ -164,7 +170,7 @@
     <rect>
      <x>10</x>
      <y>40</y>
-     <width>340</width>
+     <width>371</width>
      <height>24</height>
     </rect>
    </property>
@@ -175,7 +181,7 @@
   <widget class="QPushButton" name="browseBtn">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>390</x>
      <y>40</y>
      <width>90</width>
      <height>24</height>
@@ -192,9 +198,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>120</y>
-     <width>421</width>
-     <height>29</height>
+     <y>118</y>
+     <width>461</width>
+     <height>31</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
