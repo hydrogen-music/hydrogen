@@ -179,10 +179,19 @@ void ExportSongDialog::exportTracks()
 			}
 		}
 
-		if( !instrumentexists){
-			m_ninstrument++;
-			exportTracks();
+		if( !instrumentexists ){
+			if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
+				m_btrackoutisexporting = false;//
+				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//solo instrument. this will disable all other instrument-solos
+				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//unsolo this instrument because exporting is finished
+				m_ninstrument = 0;
+				return;
+			}else
+			{
+				m_ninstrument++;
+				exportTracks();
 			return;
+			}
 		}
 		
 		QStringList filenamelist =  exportNameTxt->text().split(".");

@@ -256,6 +256,7 @@ int PatternList::index_of( Pattern* pattern )
 
 	int r = 0;
 	for ( i = list.begin(); i != list.end(); ++i ) {
+		if ( !*i  ) return -1;
 		if ( *i == pattern ) return r;
 		++r;
 	}
