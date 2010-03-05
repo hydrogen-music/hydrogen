@@ -2423,7 +2423,7 @@ void Hydrogen::restartDrivers()
 
 
 /// Export a song to a wav file, returns the elapsed time in mSec
-void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
+bool Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 {
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
@@ -2474,7 +2474,9 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 	if ( res != 0 ) {
 		_ERRORLOG( "Error starting disk writer driver "
 			   "[DiskWriterDriver::connect()]" );
+		return false;
 	}
+	return true;
 }
 
 

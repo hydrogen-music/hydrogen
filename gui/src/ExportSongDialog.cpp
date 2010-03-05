@@ -28,6 +28,11 @@
 #include "ExportSongDialog.h"
 #include "Skin.h"
 #include "HydrogenApp.h"
+#include "Mixer/Mixer.h"
+
+#include <hydrogen/note.h>
+#include <hydrogen/Pattern.h>
+#include <hydrogen/instrument.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/IO/AudioOutput.h>
@@ -60,6 +65,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	defaultFilename += ".wav";
 	exportNameTxt->setText(defaultFilename);
 	b_QfileDialog = false;
+	m_btrackoutexport = true;
+	m_btrackoutisexporting = false;
+	m_ninstrument = 0;
 
 }
 
@@ -135,18 +143,78 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
-	m_pSamplerateLbl->setText( trUtf8( "Sample rate: %1" ).arg( sampleDepthCombo->currentText() ) );
 	QString filename = exportNameTxt->text();
 	if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if (res == 1 ) return;
 	}
-	m_bExporting = true;
-	
+
+	m_bExporting = tocheckBox->isChecked();//only for testing
+	if( m_bExporting ){
+		m_btrackoutisexporting = true;
+	}
 	Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
+
 }
 
+void ExportSongDialog::exportTracks()
+{
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if( m_ninstrument <= pSong->get_instrument_list()->get_size() -1 ){
 
+		bool instrumentexists = false;
+		//if a instrument contains no notes we jump to the next instrument
+		unsigned nPatterns = pSong->get_pattern_list()->get_size();
+		for ( unsigned i = 0; i < nPatterns; i++ ) {
+			Pattern *pat = pSong->get_pattern_list()->get( i );
+
+			std::multimap <int, Note*>::iterator pos;
+			for ( pos = pat->note_map.begin(); pos != pat->note_map.end(); ++pos ) {
+				Note *pNote = pos->second;
+				assert( pNote );
+				if( pNote->get_instrument()->get_name() == Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_ninstrument)->get_name() ){
+					instrumentexists = true;
+					break;
+				}
+			}
+		}
+
+		if( !instrumentexists){
+			m_ninstrument++;
+			exportTracks();
+			return;
+		}
+		
+		QStringList filenamelist =  exportNameTxt->text().split(".");
+		
+		QString firstitem = "";
+		if( !filenamelist.isEmpty() ){
+			firstitem = filenamelist.first();
+		}
+		QString newitem =  firstitem + "-" + Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_ninstrument)->get_name();
+		int listsize = filenamelist.size();
+		filenamelist.replace ( listsize -2, newitem );
+		QString filename = filenamelist.join(".");
+		
+		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
+			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
+			if (res == 1 ) return;
+		}
+
+		Hydrogen::get_instance()->stopExportSong();
+		m_bExporting = false;
+		HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
+		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
+		if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
+			m_btrackoutisexporting = false;//
+			HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
+			m_ninstrument = 0;
+		}else
+		{
+			m_ninstrument++;
+		}
+	}
+}
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
@@ -353,6 +421,9 @@ void ExportSongDialog::progressEvent( int nValue )
 		QFile check( exportNameTxt->text() );
 		if ( ! check.exists() ) {
 			QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
+		}
+		if( m_btrackoutexport && m_btrackoutisexporting ){
+			exportTracks();
 		}
 	}
 }

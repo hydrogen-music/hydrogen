@@ -113,7 +113,7 @@ public:
 
 	void restartDrivers();
 
-	void startExportSong( const QString& filename, int rate, int depth  );
+	bool startExportSong( const QString& filename, int rate, int depth  );
 	void stopExportSong();
 
 	AudioOutput* getAudioOutput();
