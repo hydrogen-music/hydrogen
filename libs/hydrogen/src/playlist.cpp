@@ -23,6 +23,7 @@
 #include "gui/src/HydrogenApp.h"
 #include "gui/src/InstrumentRack.h"
 #include "gui/src/SoundLibrary/SoundLibraryPanel.h"
+#include "gui/src/SongEditor/SongEditorPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
@@ -214,6 +215,8 @@ void Playlist::loadSong( QString songName )
 		engine->sequencer_stop();
 	}
 
+	engine->m_timelinetagvector.clear();
+
 	LocalFileMng mng;
 	Song *pSong = Song::load ( songName );
 	if ( pSong == NULL ){
@@ -222,6 +225,7 @@ void Playlist::loadSong( QString songName )
 
 	pH2App->setSong ( pSong );
         engine->setSelectedPatternNumber ( 0 );
+	pH2App->getSongEditorPanel()->updatePositionRuler();
 	#endif
 }
 
