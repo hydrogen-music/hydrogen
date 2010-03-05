@@ -20,55 +20,40 @@
  *
  */
 
-#ifndef METRO_BLINKER_H
-#define METRO_BLINKER_H
 
-#include "config.h"
+#ifndef MIDILEARNABLE_H
+#define MIDILEARNABLE_H
 
-#include <QDialog>
-#include "ui_MetroBlinker_UI.h"
-#include <hydrogen/Object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include "EventListener.h"
+#include <hydrogen/action.h>
 
 
-class MetroBlinker : public QDialog, public Ui_MetroBlinker_UI, public Object, public EventListener
 
+/*
+  Every widget which supports MidiLearn should derive from this Class.
+*/
+
+class MidiLearnable
 {
-	Q_OBJECT
-	public:
-		
-		MetroBlinker( QWidget* pParent );
-		~MetroBlinker();
+public:
+    MidiLearnable(){
+	m_action = NULL;
+    }
 
-		virtual void metronomeEvent( int nValue );	
-		virtual void paintEvent( QPaintEvent*);
+    ~MidiLearnable(){
+	if( m_action != NULL) delete m_action;
+    }
 
-	private slots:
+    void setAction( Action *action ){
+	m_action = action;
+    }
 
-		void updateMetronomBackground();
-		//void updateBackground();
-
-
-	private:
-		QTimer *timer;
-		QColor p_color;
-//		QPixmap *m_pBackground;
-		QPalette blinkerPalette;
-		int p_counter;
-		int p_fadealpha;
-		float p_bpm;
-		int p_bar;
-		int p_wechselblink;
-		QString TAG;
-		QString TAG2;
-		int tagbeat;
-		bool n_bsongload;
+    Action* getAction(){
+	return m_action;
+    }
 
 
+private:
+    Action *m_action;
 };
 
-
-#endif
-
+#endif // MIDILEARNABLE_H

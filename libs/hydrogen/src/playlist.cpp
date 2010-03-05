@@ -23,12 +23,14 @@
 #include "gui/src/HydrogenApp.h"
 #include "gui/src/InstrumentRack.h"
 #include "gui/src/SoundLibrary/SoundLibraryPanel.h"
+#include "gui/src/SongEditor/SongEditorPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
+#include <hydrogen/event_queue.h>
 
 #include <vector>
 #include <cstdlib>
@@ -94,6 +96,8 @@ void Playlist::setNextSongByNumber(int SongNumber)
 	loadSong( selected );
 	execScript( realNumber );
 
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+
 	#ifndef NO_GUI_SUPPORT
         	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	#endif
@@ -126,7 +130,9 @@ void Playlist::setNextSongPlaylist()
 
 	loadSong( selected );
 	execScript( index );
-	
+
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );	
+
 	#ifndef NO_GUI_SUPPORT
         	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	#endif
@@ -160,6 +166,8 @@ void Playlist::setPrevSongPlaylist()
 
 	loadSong( selected );
 	execScript( index );
+
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	#ifndef NO_GUI_SUPPORT
         	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -207,6 +215,8 @@ void Playlist::loadSong( QString songName )
 		engine->sequencer_stop();
 	}
 
+	engine->m_timelinetagvector.clear();
+
 	LocalFileMng mng;
 	Song *pSong = Song::load ( songName );
 	if ( pSong == NULL ){
@@ -215,6 +225,7 @@ void Playlist::loadSong( QString songName )
 
 	pH2App->setSong ( pSong );
         engine->setSelectedPatternNumber ( 0 );
+	pH2App->getSongEditorPanel()->updatePositionRuler();
 	#endif
 }
 

@@ -25,6 +25,7 @@
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "SongEditor/SongEditorPanel.h"
 #include "widgets/PixmapWidget.h"
 
 #include <hydrogen/LocalFileMng.h>
@@ -32,6 +33,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
+#include <hydrogen/event_queue.h>
 
 #include "../widgets/Button.h"
 
@@ -850,6 +852,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	m_pPlayBtn->setPressed(false);
 
+	engine->m_timelinetagvector.clear();
+
 	LocalFileMng mng;
 	Song *pSong = Song::load ( selected );
 	if ( pSong == NULL ){
@@ -860,10 +864,12 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	pH2App->setSong ( pSong );
 	engine->setSelectedPatternNumber ( 0 );
 
-
+	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	pH2App->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( index +1 ), 5000 );
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 ///exec script
 ///this is very very simple and only an experiment

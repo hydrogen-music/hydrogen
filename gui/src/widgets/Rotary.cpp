@@ -113,8 +113,8 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	UNUSED( ev );
 	QPainter painter(this);
 
-	float fRange = abs( m_fMax ) + abs( m_fMin );
-	float fValue = abs( m_fMin ) + m_fValue;
+	float fRange = fabs( m_fMax ) + fabs( m_fMin );
+	float fValue = fabs( m_fMin ) + m_fValue;
 
 	int nFrame;
 	if ( m_bUseIntSteps ) {
@@ -179,6 +179,11 @@ void Rotary::mousePressEvent(QMouseEvent *ev)
 		sprintf( tmp, "%#.2f", m_fValue );
 		m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
 	}
+
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+	}
 }
 
 
@@ -207,7 +212,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 		stepfactor = 1.0;
 	}
 	if ( !m_bUseIntSteps ) {
-		float fRange = abs( m_fMax ) + abs( m_fMin );
+		float fRange = fabs( m_fMax ) + fabs( m_fMin );
 		delta = fRange / 100.0;
 	}
 	if ( ev->delta() < 0 ) {
@@ -220,7 +225,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 
 
  void Rotary::mouseMoveEvent( QMouseEvent *ev ) {
-	float fRange = abs( m_fMax ) + abs( m_fMin );
+	float fRange = fabs( m_fMax ) + fabs( m_fMin );
 
 	float deltaY = ev->y() - m_fMousePressY;
 	float fNewValue = ( m_fMousePressValue - ( deltaY / 100.0 * fRange ) );

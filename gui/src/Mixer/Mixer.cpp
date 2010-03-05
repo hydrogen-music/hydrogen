@@ -170,9 +170,9 @@ Mixer::~Mixer()
 
 
 
-MixerLine* Mixer::createMixerLine()
+MixerLine* Mixer::createMixerLine( int nInstr )
 {
-	MixerLine *pMixerLine = new MixerLine( 0 );
+	MixerLine *pMixerLine = new MixerLine( 0 , nInstr);
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
@@ -393,7 +393,7 @@ void Mixer::updateMixer()
 		else {
 			if ( m_pMixerLine[ nInstr ] == NULL ) {
 				// the mixerline doesn't exists..I'll create a new one!
-				m_pMixerLine[ nInstr ] = createMixerLine();
+				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
 				m_pFaderHBox->addWidget( m_pMixerLine[ nInstr ] );
 
 				int newWidth = MIXER_STRIP_WIDTH * nInstruments;

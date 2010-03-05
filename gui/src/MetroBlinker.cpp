@@ -75,6 +75,7 @@ MetroBlinker::MetroBlinker ( QWidget* pParent )
 	p_fadealpha = 255;	//default alpha
 	p_bar = 1;	// default bar
 	p_wechselblink = 0;
+	n_bsongload = false;
 
 	p_bpm = Hydrogen::get_instance()->getSong()->__bpm;
 	timer = new QTimer( this );
@@ -90,6 +91,16 @@ MetroBlinker::~MetroBlinker()
 
 void MetroBlinker::metronomeEvent( int nValue )
 {
+
+	//load a new song
+	if( nValue == 3 ){
+		n_bsongload = true;
+		update();
+		return;
+	}
+
+	n_bsongload = false;
+
 	//bpm
 	p_bpm = Hydrogen::get_instance()->getSong()->__bpm; 
 	//bar
@@ -151,8 +162,23 @@ void MetroBlinker::updateMetronomBackground()
 
 void MetroBlinker::paintEvent( QPaintEvent* ev )
 {
-	//draw the metronome
 	QPainter painter(this);
+
+	//display songname
+	if( n_bsongload ){
+		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
+		QString lastItem = "";
+		if ( !list.isEmpty() ){
+			lastItem = list.last().replace( ".h2song", "" );
+		}
+		painter.setPen(Qt::white);
+		painter.setFont(QFont("Arial", height() / 13 ));
+		QRect r1(QPoint( width() * 1 / 16 , height() * 1 / 16 ), QSize( width() * 15/16 , height() * 15/16 ));
+		painter.drawText( r1, Qt::AlignCenter,  QString( lastItem ) );
+		return;
+	}
+
+	//draw the metronome
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
 	painter.setBrush( p_color );
 	painter.drawRect (  width() / 50 + p_wechselblink, height() / 50 , width() -  width() / 25 -  width() / 2, height() / 2 -  height() / 25 );

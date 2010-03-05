@@ -24,6 +24,7 @@
 #include "../Skin.h"
 #include "Fader.h"
 #include "LCD.h"
+#include "MidiSenseWidget.h"
 
 #include <QtGui>
 #include <hydrogen/globals.h>
@@ -92,7 +93,10 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 void Fader::mousePressEvent(QMouseEvent *ev)
 {
-	mouseMoveEvent( ev );
+    if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	MidiSenseWidget midiSense( this, true, this->getAction() );
+	midiSense.exec();
+    }
 }
 
 
@@ -359,7 +363,10 @@ void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 
 void MasterFader::mousePressEvent(QMouseEvent *ev)
 {
-	mouseMoveEvent( ev );
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	    MidiSenseWidget midiSense( this, true, this->getAction() );
+	    midiSense.exec();
+	}
 }
 
 
@@ -567,7 +574,12 @@ void Knob::setValue( float fValue )
 
 void Knob::mousePressEvent(QMouseEvent *ev)
 {
-	setCursor( QCursor( Qt::SizeVerCursor ) );
+    if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	MidiSenseWidget midiSense( this, true, this->getAction() );
+	midiSense.exec();
+    }
+
+    setCursor( QCursor( Qt::SizeVerCursor ) );
 
 	m_fMousePressValue = m_fValue;
 	m_fMousePressY = ev->y();

@@ -39,8 +39,18 @@ ActionManager* ActionManager::__instance = NULL;
 using namespace H2Core;
 
 /* Class Action */
-Action::Action( QString s ) : Object( "Action" ) {
-	type = s;
+Action::Action( QString typeString ) : Object( "Action" ) {
+
+	/*
+	    An "Action" is something which can be interpreted and executed by hydrogen.
+	    Example: If hydrogen executes the Action with type "MUTE", it will mute the outputs.
+
+	    The two parameters are optional and can be used to carry additional informations, which mean
+	    only something to this very Action. They can have totally different meanings for other Actions.
+	    Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
+	*/
+
+	type = typeString;
 	QString parameter1 = "0";
 	QString parameter2 = "0" ;
 }
@@ -52,6 +62,9 @@ ActionManager::ActionManager() : Object( "ActionManager" )
 {
 	__instance = this;
 	
+	/*
+	    the actionList holds all Action identfiers hydrogen is able to interpret.
+	*/
 	actionList <<""
 	<< "PLAY" 
 	<< "PLAY_TOGGLE"
@@ -368,7 +381,7 @@ bool ActionManager::handleAction( Action * pAction ){
 	}
 
 	
-	if( sActionString == "PAN_ABSOULTE" ){
+	if( sActionString == "PAN_ABSOLUTE" ){
 		
 		 // sets the absolute panning of a given mixer channel
 		

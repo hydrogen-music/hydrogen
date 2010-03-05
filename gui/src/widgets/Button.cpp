@@ -24,6 +24,7 @@
 
 #include "PixmapWidget.h"
 #include "../Skin.h"
+#include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
 
@@ -112,10 +113,16 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 }
 
 
-void Button::mousePressEvent(QMouseEvent*) {
+void Button::mousePressEvent(QMouseEvent*ev) {
+
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	    MidiSenseWidget midiSense( this, true, this->getAction() );
+	    midiSense.exec();
+	    return;
+	}
+
 	m_bPressed = true;
 	update();
-
 	emit mousePress(this);
 }
 
@@ -283,6 +290,13 @@ ToggleButton::~ToggleButton() {
 
 
 void ToggleButton::mousePressEvent(QMouseEvent *ev) {
+
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	    MidiSenseWidget midiSense( this, true, this->getAction() );
+	    midiSense.exec();
+	    return;
+	}
+
 	if (ev->button() == Qt::RightButton) {
                 emit rightClicked(this);
         }

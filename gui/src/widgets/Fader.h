@@ -29,11 +29,12 @@
 #include <QtGui>
 
 #include <hydrogen/Object.h>
+#include "MidiLearnable.h"
 
 ///
 /// Fader and VuMeter widget
 ///
-class Fader : public QWidget, public Object
+class Fader : public QWidget, public Object, public MidiLearnable
 {
 	Q_OBJECT
 
@@ -88,7 +89,7 @@ class Fader : public QWidget, public Object
 
 
 
-class MasterFader : public QWidget, public Object
+class MasterFader : public QWidget, public Object, public MidiLearnable
 {
 	Q_OBJECT
 
@@ -136,7 +137,7 @@ class MasterFader : public QWidget, public Object
 
 
 
-class Knob : public QWidget, public Object
+class Knob : public QWidget, public Object, public MidiLearnable
 {
 	Q_OBJECT
 	public:

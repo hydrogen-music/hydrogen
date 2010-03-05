@@ -35,6 +35,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/action.h>
 using namespace H2Core;
 
 #include "MixerLine.h"
@@ -48,7 +49,7 @@ using namespace H2Core;
 
 using namespace H2Core;
 
-MixerLine::MixerLine(QWidget* parent)
+MixerLine::MixerLine(QWidget* parent, int nInstr)
  : PixmapWidget( parent, "MixerLine" )
 {
 //	INFOLOG( "INIT" );
@@ -59,6 +60,8 @@ MixerLine::MixerLine(QWidget* parent)
 	m_nActivity = 0;
 	m_bIsSelected = false;
 	m_nPeakTimer = 0;
+
+	Action* pAction;
 
 	resize( m_nWidth, m_nHeight );
 	setFixedSize( m_nWidth, m_nHeight );
@@ -117,11 +120,18 @@ MixerLine::MixerLine(QWidget* parent)
 	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, trUtf8( "Pan" ), false, true);
 	m_pPanRotary->move( 14, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
+	pAction = new Action("PAN_ABSOLUTE");
+	pAction->setParameter1( QString::number(nInstr ));
+	pAction->setParameter2( QString::number( 1 ));
+	m_pPanRotary->setAction(pAction);
 
 	// FX send
 	uint y = 0;
 	for (uint i = 0; i < MAX_FX; i++) {
 		m_pKnob[i] = new Knob(this);
+		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
+		pAction->setParameter1( QString::number( nInstr ) );
+		m_pKnob[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
 			m_pKnob[i]->move( 9, 63 + (20 * y) );
 		}
@@ -160,6 +170,10 @@ MixerLine::MixerLine(QWidget* parent)
 	m_pFader->setMinValue( 0.0 );
 	m_pFader->setMaxValue( 1.5 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
+
+	pAction = new Action("STRIP_VOLUME_ABSOLUTE");
+	pAction->setParameter1( QString::number(nInstr) );
+	m_pFader->setAction( pAction );
 
 
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
@@ -499,6 +513,9 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
 	connect( m_pMasterFader, SIGNAL( valueChanged(MasterFader*) ), this, SLOT( faderChanged(MasterFader*) ) );
 
+	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
+	m_pMasterFader->setAction( pAction );
+
 	QFont mixerFont( family, size );
 
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
@@ -530,7 +547,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	);
 	m_pMuteBtn->move( 20, 32 );
 	connect( m_pMuteBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteClicked(Button*) ) );
-
+	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
 }
 
 

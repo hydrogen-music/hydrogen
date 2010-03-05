@@ -80,7 +80,7 @@ class MixerLine: public PixmapWidget
 {
 	Q_OBJECT
 	public:
-		MixerLine(QWidget* parent);
+		MixerLine(QWidget* parent, int nInstr);
 		~MixerLine();
 
 		void updateMixerLine();

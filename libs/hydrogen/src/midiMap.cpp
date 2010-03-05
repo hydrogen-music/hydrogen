@@ -99,6 +99,10 @@ std::map< QString, Action* > MidiMap::getMMCMap()
 void MidiMap::registerMMCEvent( QString eventString , Action* pAction )
 {
 	QMutexLocker mx(&__mutex);
+
+	if( mmcMap[ eventString ] != NULL){
+	    delete mmcMap[ eventString ];
+	}
 	mmcMap[ eventString ] = pAction;
 }
 

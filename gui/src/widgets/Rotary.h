@@ -24,6 +24,9 @@
 #define ROTARY_H
 
 #include "config.h"
+#include "MidiLearnable.h"
+#include "MidiSenseWidget.h"
+
 #include <QtGui>
 
 class LCDDisplay;
@@ -43,7 +46,7 @@ class RotaryTooltip : public QWidget
 
 
 
-class Rotary : public QWidget, public Object
+class Rotary : public QWidget, public Object, public MidiLearnable
 {
 	Q_OBJECT
 	public:
