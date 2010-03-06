@@ -242,16 +242,17 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 	QString filename;
 	QStringList splitty;
 
+	filename = exportNameTxt->text();
+	splitty = filename.split(".");
+	splitty.removeLast();
+	filename = splitty.join( "." );
+
 	switch ( index ) {
 	case 0:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
 		break;
 	case 1:
@@ -259,10 +260,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
 		break;
 	case 2:
@@ -270,10 +267,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
 		break;
 	case 3:
@@ -281,10 +274,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 0 ); //22050hz
 		sampleDepthCombo->setCurrentIndex ( 0 ); //8bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
 		break;
 	case 4:
@@ -292,10 +281,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 3 ); //96000hz
 		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
 		break;
 	case 5:
@@ -303,10 +288,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".aiff";
 		break;
 	case 6:
@@ -314,10 +295,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".aiff";
 		break;
 	case 7:
@@ -325,10 +302,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".aiff";
 		break;
 	case 8:
@@ -336,10 +309,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".flac";
 		break;
 	case 9:
@@ -347,10 +316,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->hide();
 		label->hide();
 		label_2->hide();
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".ogg";
 		break;
 
@@ -359,10 +324,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
 	}
 
