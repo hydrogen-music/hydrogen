@@ -83,18 +83,12 @@ ExportSongDialog::~ExportSongDialog()
 /// \todo: memorizzare l'ultima directory usata
 void ExportSongDialog::on_browseBtn_clicked()
 {
-//	static QString lastUsedDir = "";
 	static QString lastUsedDir = QDir::homePath();
 
 
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::AnyFile);
-	//fd->setFilter( trUtf8("Wave file (*.wav)") );
-	/*fd->setNameFilters( QStringList() << "Microsoft WAV (*.wav *.WAV)"
-         				  << "Apple AIFF (*.aiff *.AIFF)"
-         				  << "Lossless  Flac (*.flac *.FLAC)"
-					  << "Compressed Ogg (*.ogg *.OGG)" );
-					 // << "Any files (*)");*/
+
 
 	if( templateCombo->currentIndex() <= 4 ) fd->setNameFilter("Microsoft WAV (*.wav *.WAV)");
 	if( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) fd->setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
@@ -104,7 +98,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd->setDirectory( lastUsedDir );
 	fd->setAcceptMode( QFileDialog::AcceptSave );
 	fd->setWindowTitle( trUtf8( "Export song" ) );
-//	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
 
 	QString defaultFilename = exportNameTxt->text();
 
@@ -119,10 +113,6 @@ void ExportSongDialog::on_browseBtn_clicked()
 	if ( ! filename.isEmpty() ) {
 		lastUsedDir = fd->directory().absolutePath();
 		QString sNewFilename = filename;
-//		if ( sNewFilename.endsWith( ".wav" ) == false ) {
-//			filename += ".wav";
-//		}
-
 		exportNameTxt->setText(filename);
 	}
 
