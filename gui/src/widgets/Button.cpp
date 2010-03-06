@@ -115,7 +115,7 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 
 void Button::mousePressEvent(QMouseEvent*ev) {
 
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+    if ( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) ){
 	    MidiSenseWidget midiSense( this, true, this->getAction() );
 	    midiSense.exec();
 	    return;
@@ -291,7 +291,7 @@ ToggleButton::~ToggleButton() {
 
 void ToggleButton::mousePressEvent(QMouseEvent *ev) {
 
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
 	    MidiSenseWidget midiSense( this, true, this->getAction() );
 	    midiSense.exec();
 	    return;
