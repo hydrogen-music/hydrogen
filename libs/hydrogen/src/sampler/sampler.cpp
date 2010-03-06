@@ -567,8 +567,8 @@ int Sampler::__render_note_resample(
 		int nSamplePos = ( int )fSamplePos;
 		double fDiff = fSamplePos - nSamplePos;
 		if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-			fVal_L = linear_interpolation( pSample_data_L[ nSampleFrames ], 0, fDiff );
-			fVal_R = linear_interpolation( pSample_data_R[ nSampleFrames ], 0, fDiff );
+			fVal_L = linear_interpolation( pSample_data_L[ nSampleFrames-1 ], 0, fDiff );
+			fVal_R = linear_interpolation( pSample_data_R[ nSampleFrames-1 ], 0, fDiff );
 		} else {
 			fVal_L = linear_interpolation( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff );
 			fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
