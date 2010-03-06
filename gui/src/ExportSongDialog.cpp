@@ -65,8 +65,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	defaultFilename += ".wav";
 	exportNameTxt->setText(defaultFilename);
 	b_QfileDialog = false;
-	m_bExportTrackOuts = true;
-	m_bTrackoutIsExporting = false;
+	m_bExportTrackouts = false;
 	m_ninstrument = 0;
 
 }
@@ -141,7 +140,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	m_bExporting = tocheckBox->isChecked();//only for testing
 	if( m_bExporting ){
-		m_bTrackoutIsExporting = true;
+		m_bExportTrackouts = true;
 	}
 	Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 
@@ -171,7 +170,7 @@ void ExportSongDialog::exportTracks()
 
 		if( !instrumentexists ){
 			if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-				m_bTrackoutIsExporting = false;//
+				m_bExportTrackouts = false;//
 				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//solo instrument. this will disable all other instrument-solos
 				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//unsolo this instrument because exporting is finished
 				m_ninstrument = 0;
@@ -205,7 +204,7 @@ void ExportSongDialog::exportTracks()
 		HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
 		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 		if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-			m_bTrackoutIsExporting = false;//
+			m_bExportTrackouts = false;//
 			HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
 			m_ninstrument = 0;
 		}else
@@ -373,7 +372,7 @@ void ExportSongDialog::progressEvent( int nValue )
 		if ( ! check.exists() ) {
 			QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
 		}
-		if( m_bExportTrackOuts && m_bTrackoutIsExporting ){
+		if( m_bExportTrackouts ){
 			exportTracks();
 		}
 	}

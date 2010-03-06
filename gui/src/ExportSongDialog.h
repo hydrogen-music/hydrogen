@@ -56,8 +56,7 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 	private:
 		bool m_bExporting;
 		void exportTracks();
-		bool m_bExportTrackOuts;
-		bool m_bTrackoutIsExporting;
+		bool m_bExportTrackouts;
 		uint m_ninstrument;
 };
 
