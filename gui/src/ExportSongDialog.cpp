@@ -65,8 +65,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	defaultFilename += ".wav";
 	exportNameTxt->setText(defaultFilename);
 	b_QfileDialog = false;
-	m_btrackoutexport = true;
-	m_btrackoutisexporting = false;
+	m_bExportTrackouts = false;
 	m_ninstrument = 0;
 
 }
@@ -83,18 +82,12 @@ ExportSongDialog::~ExportSongDialog()
 /// \todo: memorizzare l'ultima directory usata
 void ExportSongDialog::on_browseBtn_clicked()
 {
-//	static QString lastUsedDir = "";
 	static QString lastUsedDir = QDir::homePath();
 
 
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::AnyFile);
-	//fd->setFilter( trUtf8("Wave file (*.wav)") );
-	/*fd->setNameFilters( QStringList() << "Microsoft WAV (*.wav *.WAV)"
-         				  << "Apple AIFF (*.aiff *.AIFF)"
-         				  << "Lossless  Flac (*.flac *.FLAC)"
-					  << "Compressed Ogg (*.ogg *.OGG)" );
-					 // << "Any files (*)");*/
+
 
 	if( templateCombo->currentIndex() <= 4 ) fd->setNameFilter("Microsoft WAV (*.wav *.WAV)");
 	if( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) fd->setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
@@ -104,7 +97,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd->setDirectory( lastUsedDir );
 	fd->setAcceptMode( QFileDialog::AcceptSave );
 	fd->setWindowTitle( trUtf8( "Export song" ) );
-//	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
 
 	QString defaultFilename = exportNameTxt->text();
 
@@ -119,10 +112,6 @@ void ExportSongDialog::on_browseBtn_clicked()
 	if ( ! filename.isEmpty() ) {
 		lastUsedDir = fd->directory().absolutePath();
 		QString sNewFilename = filename;
-//		if ( sNewFilename.endsWith( ".wav" ) == false ) {
-//			filename += ".wav";
-//		}
-
 		exportNameTxt->setText(filename);
 	}
 
@@ -151,7 +140,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	m_bExporting = tocheckBox->isChecked();//only for testing
 	if( m_bExporting ){
-		m_btrackoutisexporting = true;
+		m_bExportTrackouts = true;
 	}
 	Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 
@@ -181,7 +170,7 @@ void ExportSongDialog::exportTracks()
 
 		if( !instrumentexists ){
 			if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-				m_btrackoutisexporting = false;//
+				m_bExportTrackouts = false;//
 				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//solo instrument. this will disable all other instrument-solos
 				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//unsolo this instrument because exporting is finished
 				m_ninstrument = 0;
@@ -215,7 +204,7 @@ void ExportSongDialog::exportTracks()
 		HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
 		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 		if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-			m_btrackoutisexporting = false;//
+			m_bExportTrackouts = false;//
 			HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
 			m_ninstrument = 0;
 		}else
@@ -248,129 +237,85 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 	 * 8 = flac 48000 
 	 * 9 = ogg VBR , disable comboboxes
 	 **/
-//	QMessageBox::information( this, "Hydrogen", trUtf8("index %1").arg(index) );
+
 	QString filename;
 	QStringList splitty;
+
+	filename = exportNameTxt->text();
+	splitty = filename.split(".");
+	splitty.removeLast();
+	filename = splitty.join( "." );
+
 	switch ( index ) {
 	case 0:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
-		exportNameTxt->setText(filename);
 		break;
 	case 1:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
-		exportNameTxt->setText(filename);
 		break;
 	case 2:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
-		exportNameTxt->setText(filename);
 		break;
 	case 3:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 0 ); //22050hz
 		sampleDepthCombo->setCurrentIndex ( 0 ); //8bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
-		exportNameTxt->setText(filename);
 		break;
 	case 4:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 3 ); //96000hz
 		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
-		exportNameTxt->setText(filename);
 		break;
 	case 5:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".aiff";
-		exportNameTxt->setText(filename);
 		break;
 	case 6:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".aiff";
-		exportNameTxt->setText(filename);
 		break;
 	case 7:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".aiff";
-		exportNameTxt->setText(filename);
 		break;
 	case 8:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".flac";
-		exportNameTxt->setText(filename);
 		break;
 	case 9:
 		sampleRateCombo->hide();
 		sampleDepthCombo->hide();
 		label->hide();
 		label_2->hide();
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".ogg";
-		exportNameTxt->setText(filename);
 		break;
 
 	default:
@@ -378,14 +323,10 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleDepthCombo->show();
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename = exportNameTxt->text();
-		splitty = filename.split(".");
-		splitty.removeLast();
-		filename = splitty.join( "." );
 		filename += ".wav";
-		exportNameTxt->setText(filename);
-		;
 	}
+
+	exportNameTxt->setText(filename);
 
 
 }
@@ -431,7 +372,7 @@ void ExportSongDialog::progressEvent( int nValue )
 		if ( ! check.exists() ) {
 			QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
 		}
-		if( m_btrackoutexport && m_btrackoutisexporting ){
+		if( m_bExportTrackouts ){
 			exportTracks();
 		}
 	}

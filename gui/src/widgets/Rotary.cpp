@@ -180,7 +180,7 @@ void Rotary::mousePressEvent(QMouseEvent *ev)
 		m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
 	}
 
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::AltModifier ){
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
 	}
