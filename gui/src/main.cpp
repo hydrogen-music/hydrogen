@@ -125,6 +125,7 @@ void setPalette( QApplication *pQApp )
 
 static int setup_unix_signal_handlers()
 {
+#ifndef WIN32
     struct sigaction usr1, term;
 
     usr1.sa_handler = MainForm::usr1SignalHandler;
@@ -136,6 +137,7 @@ static int setup_unix_signal_handlers()
        return 1;
 
     return 0;
+#endif
 }
 
 int main(int argc, char *argv[])
