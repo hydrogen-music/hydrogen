@@ -457,7 +457,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		delete[] infobf;
 
 
-		QObject *parent;
+		QObject *parent = 0;
+
 		QProcess *rubberband = new QProcess(parent);
 
 		QStringList arguments;
