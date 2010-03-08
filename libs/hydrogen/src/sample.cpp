@@ -33,7 +33,6 @@
 #include <vector>
 #include <cmath>
 #include "gui/src/HydrogenApp.h"
-#include "gui/src/SampleEditor/SampleEditor.h"
 
 using namespace std;
 
