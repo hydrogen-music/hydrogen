@@ -9,6 +9,7 @@ TARGET = libhydrogen
 QMAKE_CXXFLAGS_RELEASE += -g -Wall
 QMAKE_CXXFLAGS_DEBUG += -g -Wall
 
+QT += xml
 CONFIG += qt warn_on thread staticlib precompile_header
 DESTDIR = ..
 INCLUDEPATH += ../.. include
