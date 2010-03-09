@@ -31,6 +31,8 @@ win32 {
     INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
 
     LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
+    LIBS += "C:\Program Files\Mega-Nerd\libsndfile\libsndfile-1.lib"
+    LIBS += "C:\MinGW\bin\pthread.dll"
 }
 
 #old windows libs..
@@ -91,6 +93,7 @@ HEADERS += src/AboutDialog.h \
            src/Skin.h \
            src/SongPropertiesDialog.h \
            src/SplashScreen.h \
+           src/VirtualPatternDialog.h \
            src/AudioFileBrowser/AudioFileBrowser.h \
            src/AudioFileBrowser/SampleWaveDisplay.h \
            src/InstrumentEditor/InstrumentEditor.h \
@@ -173,6 +176,7 @@ SOURCES += src/AboutDialog.cpp \
            src/PreferencesDialog.cpp \
            src/SongPropertiesDialog.cpp \
            src/SplashScreen.cpp \
+           src/VirtualPatternDialog.cpp \
            src/AudioFileBrowser/AudioFileBrowser.cpp \
            src/AudioFileBrowser/SampleWaveDisplay.cpp \
            src/InstrumentEditor/InstrumentEditor.cpp \
