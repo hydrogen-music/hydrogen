@@ -33,6 +33,7 @@ win32 {
     LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
     LIBS += "C:\Program Files\Mega-Nerd\libsndfile\libsndfile-1.lib"
     LIBS += "C:\MinGW\bin\pthread.dll"
+    LIBS += ../portaudio/portaudio_x86.dll
 }
 
 #old windows libs..
