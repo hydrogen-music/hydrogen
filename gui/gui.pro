@@ -15,6 +15,7 @@ PRECOMPILED_HEADER = src/Precompiled.h
 LIBS += ../libs/liblibhydrogen.a
 PRE_TARGETDEPS = ../libs/liblibhydrogen.a
 #QMAKE_CXXFLAGS += /D__PRETTY_FUNCTION__="__FUNCTION__" /wd4305 /DPTW32_STATIC_LIB
+DEFINES += $$H2DEFINES
 
 OBJECTS_DIR = objs
 UI_DIR = objs
