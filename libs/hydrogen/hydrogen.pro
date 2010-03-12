@@ -9,14 +9,22 @@ TARGET = libhydrogen
 QMAKE_CXXFLAGS_RELEASE += -g -Wall
 QMAKE_CXXFLAGS_DEBUG += -g -Wall
 
+QT += xml
 CONFIG += qt warn_on thread staticlib precompile_header
 DESTDIR = ..
+
 INCLUDEPATH += ../.. include
+INCLUDEPATH += ../../portaudio/include
+
 OBJECTS_DIR = objs
 win32 {
 	INCLUDEPATH += 
 	INCLUDEPATH += ../../3rdparty/libsndfile-1_0_17
 	INCLUDEPATH += "C:/Program Files/GnuWin32/include"
+        LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
+        LIBS += "C:\Program Files\Mega-Nerd\libsndfile\libsndfile-1.lib"
+        LIBS += "C:\MinGW\bin\pthread.dll"
+        LIBS += ../../portaudio/portaudio_x86.dll
 }
 DEFINES += $$H2DEFINES
 

@@ -162,7 +162,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistTree->setHeaderItem ( header );
 	m_pPlaylistTree->setAlternatingRowColors( true );
 
-	addSongBTN->setEnabled ( true );
+        /*addSongBTN->setEnabled ( true );
 	loadListBTN->setEnabled ( true );
 	removeFromListBTN->setEnabled ( false );
 	removeFromListBTN->setEnabled ( false );
@@ -172,7 +172,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	removeScriptBTN->hide();
 	editScriptBTN->hide();
 	newScriptBTN->hide();
-	clearPlBTN->setEnabled ( false );
+        clearPlBTN->setEnabled ( false );*/
 
 	QVBoxLayout *sideBarLayout = new QVBoxLayout(sideBarWidget);
 	sideBarLayout->setSpacing(0);

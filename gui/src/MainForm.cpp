@@ -21,7 +21,6 @@
  */
 #include "version.h"
 
-#include <sys/socket.h>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
@@ -62,6 +61,7 @@ using namespace H2Core;
 
 #ifndef WIN32
 	#include <sys/time.h>
+        #include <sys/socket.h>
 #endif
 
 #ifdef LASH_SUPPORT
@@ -84,11 +84,12 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	setMinimumSize( QSize( 1000, 600 ) );
 	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
+    #ifndef WIN32
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
 	   qFatal("Couldn't create HUP socketpair");
 	snUsr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
-
+    #endif
 
 
 	m_pQApp = app;

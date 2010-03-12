@@ -279,9 +279,12 @@ void PreferencesDialog::on_cancelBtn_clicked()
 
 void PreferencesDialog::on_okBtn_clicked()
 {
-	m_bNeedDriverRestart = true;
+//	m_bNeedDriverRestart = true;
 
 	Preferences *pPref = Preferences::get_instance();
+
+	MidiMap *mM = MidiMap::get_instance();
+	mM->reset_instance();
 
 	midiTable->saveMidiTable();
 
@@ -406,9 +409,11 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->savePreferences();
 
 	
-
 	if (m_bNeedDriverRestart) {
-		(Hydrogen::get_instance())->restartDrivers();
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		if ( res == 0 ) {
+			Hydrogen::get_instance()->restartDrivers();	
+		}
 	}
 	accept();
 }

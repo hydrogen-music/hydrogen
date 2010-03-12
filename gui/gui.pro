@@ -15,6 +15,7 @@ PRECOMPILED_HEADER = src/Precompiled.h
 LIBS += ../libs/liblibhydrogen.a
 PRE_TARGETDEPS = ../libs/liblibhydrogen.a
 #QMAKE_CXXFLAGS += /D__PRETTY_FUNCTION__="__FUNCTION__" /wd4305 /DPTW32_STATIC_LIB
+DEFINES += $$H2DEFINES
 
 OBJECTS_DIR = objs
 UI_DIR = objs
@@ -31,8 +32,9 @@ win32 {
     INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
 
     LIBS += "C:\Program Files\GnuWin32\lib\libarchive.lib"
-    LIBS += "C:\Qt\2009.03\mingw\lib\libpthread.a"
-    LIBS += "C:\Documents and Settings\sebastian\Desktop\hydrogen\3rdparty\libsndfile-1_0_17\libsndfile-1.dll"
+    LIBS += "C:\Program Files\Mega-Nerd\libsndfile\libsndfile-1.lib"
+    LIBS += "C:\MinGW\bin\pthread.dll"
+    LIBS += ../portaudio/portaudio_x86.dll
 }
 
 #old windows libs..
@@ -53,11 +55,11 @@ DEPENDPATH += . \
               src\AudioFileBrowser \
               src\InstrumentEditor \
               src\Mixer \
+              src\SampleEditor \
               src\PatternEditor \
               src\PlaylistEditor \
               src\SongEditor \
-              src\SoundLibrary \
-              src\SampleEditor \
+              src\SoundLibrary \              
               src\UI \
               src\widgets
 INCLUDEPATH += .
@@ -93,6 +95,7 @@ HEADERS += src/AboutDialog.h \
            src/Skin.h \
            src/SongPropertiesDialog.h \
            src/SplashScreen.h \
+           src/VirtualPatternDialog.h \
            src/AudioFileBrowser/AudioFileBrowser.h \
            src/AudioFileBrowser/SampleWaveDisplay.h \
            src/InstrumentEditor/InstrumentEditor.h \
@@ -115,6 +118,7 @@ HEADERS += src/AboutDialog.h \
            src/SongEditor/SongEditor.h \
            src/SongEditor/SongEditorPanel.h \
            src/SongEditor/SongEditorPanelBpmWidget.h \
+           src/SongEditor/SongEditorPanelTagWidget.h \
            src/SoundLibrary/FileBrowser.h \
            src/SoundLibrary/SoundLibraryExportDialog.h \
            src/SoundLibrary/SoundLibraryImportDialog.h \
@@ -138,13 +142,15 @@ HEADERS += src/AboutDialog.h \
  src/MetroBlinker.h
 FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/PlaylistEditor/PlaylistDialog_UI.ui \
-	 src/SampleEditor/SampleEditor_Ui.ui \
+         src/SampleEditor/SampleEditor_UI.ui \
          src/SoundLibrary/SoundLibraryExportDialog_UI.ui \
          src/SoundLibrary/SoundLibraryImportDialog_UI.ui \
          src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui \
          src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui \
          src/SoundLibrary/SoundLibrarySaveDialog_UI.ui \
          src/SongEditor/SongEditorPanelBpmWidget_UI.ui \
+         src/SongEditor/SongEditorPanelTagWidget_UI.ui \
+         src/UI/VirtualPatternDialog_UI.ui \
          src/UI/about_dialog.ui \
          src/UI/AudioEngineInfoForm_UI.ui \
          src/UI/DrumkitManager_UI.ui \
@@ -154,7 +160,7 @@ FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/UI/PatternPropertiesDialog_UI.ui \
          src/UI/PreferencesDialog_UI.ui \
          src/UI/SongPropertiesDialog_UI.ui \
- src/MetroBlinker_UI.ui
+         src/MetroBlinker_UI.ui
 SOURCES += src/AboutDialog.cpp \
 	  ../version.cpp \
            src/AudioEngineInfoForm.cpp \
@@ -172,6 +178,7 @@ SOURCES += src/AboutDialog.cpp \
            src/PreferencesDialog.cpp \
            src/SongPropertiesDialog.cpp \
            src/SplashScreen.cpp \
+           src/VirtualPatternDialog.cpp \
            src/AudioFileBrowser/AudioFileBrowser.cpp \
            src/AudioFileBrowser/SampleWaveDisplay.cpp \
            src/InstrumentEditor/InstrumentEditor.cpp \
@@ -194,6 +201,7 @@ SOURCES += src/AboutDialog.cpp \
            src/SongEditor/SongEditor.cpp \
            src/SongEditor/SongEditorPanel.cpp \
            src/SongEditor/SongEditorPanelBpmWidget.cpp \
+           src/SongEditor/SongEditorPanelTagWidget.cpp \
            src/SoundLibrary/FileBrowser.cpp \
            src/SoundLibrary/SoundLibraryExportDialog.cpp \
            src/SoundLibrary/SoundLibraryImportDialog.cpp \

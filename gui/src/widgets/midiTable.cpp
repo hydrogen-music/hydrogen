@@ -224,7 +224,7 @@ void MidiTable::saveMidiTable()
 		QString eventString;
 		QString actionString;
 
-		if( eventCombo->currentText() != "" && actionCombo->currentText() != "" ){
+		if( !eventCombo->currentText().isEmpty() && !actionCombo->currentText().isEmpty() ){
 			eventString = eventCombo->currentText();
 
 			actionString = actionCombo->currentText();
