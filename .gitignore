@@ -1,0 +1,7 @@
+*~
+*.o
+ui_*.h
+moc_*.cc
+build
+libs/hydrogen/include/hydrogen/config.h
+
