@@ -23,7 +23,6 @@
 #ifndef SOUND_LIBRARY_REPOSITORY_DIALOG_H
 #define SOUND_LIBRARY_REPOSITORY_DIALOG_H
 
-#include "config.h"
 #include "ui_SoundLibraryRepositoryDialog_UI.h"
 #include <hydrogen/Object.h>
 

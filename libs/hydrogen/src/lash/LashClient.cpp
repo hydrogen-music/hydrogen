@@ -26,7 +26,6 @@
  * Created by Jaakko Sipari (jaakko.sipari@gmail.com)
  */
 
-#include "config.h"
 
 #ifdef LASH_SUPPORT
 

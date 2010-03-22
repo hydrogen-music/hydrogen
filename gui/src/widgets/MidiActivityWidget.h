@@ -24,7 +24,6 @@
 #ifndef MIDI_ACTIVITY_WIDGET_H
 #define MIDI_ACTIVITY_WIDGET_H
 
-#include "config.h"
 
 #include <QtGui>
 

@@ -23,7 +23,6 @@
 #ifndef CLICKABLE_LABEL_H
 #define CLICKABLE_LABEL_H
 
-#include "config.h"
 #include <QtGui>
 
 

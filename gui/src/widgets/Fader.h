@@ -24,7 +24,6 @@
 #ifndef FADER_H
 #define FADER_H
 
-#include "config.h"
 
 #include <QtGui>
 

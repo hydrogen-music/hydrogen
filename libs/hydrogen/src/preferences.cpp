@@ -39,7 +39,6 @@
 #include <hydrogen/midiMap.h>
 
 #include <hydrogen/data_path.h>
-#include "config.h"
 #include "hydrogen/version.h"
 
 #include <QDir>

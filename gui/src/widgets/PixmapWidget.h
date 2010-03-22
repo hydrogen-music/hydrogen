@@ -23,7 +23,6 @@
 #ifndef PIXMAP_WIDGET_H
 #define PIXMAP_WIDGET_H
 
-#include "config.h"
 #include <QtGui>
 
 #include <hydrogen/Object.h>

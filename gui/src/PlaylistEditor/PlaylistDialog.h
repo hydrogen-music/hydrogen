@@ -23,7 +23,6 @@
 #ifndef PLAYLIST_DIALOG_H
 #define PLAYLIST_DIALOG_H
 
-#include "config.h"
 
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"

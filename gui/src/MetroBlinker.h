@@ -23,7 +23,6 @@
 #ifndef METRO_BLINKER_H
 #define METRO_BLINKER_H
 
-#include "config.h"
 
 #include <QDialog>
 #include "ui_MetroBlinker_UI.h"

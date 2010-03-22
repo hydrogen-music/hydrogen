@@ -1,6 +1,5 @@
 
 #include "PortAudioDriver.h"
-//#include "config.h"
 #ifdef PORTAUDIO_SUPPORT
 
 #include <iostream>

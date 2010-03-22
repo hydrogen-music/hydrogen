@@ -23,6 +23,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include "hydrogen/config.h"
 #include <hydrogen/data_path.h>
 
 #include <QFile>
@@ -35,7 +36,6 @@
 #include <iostream>
 using namespace std;
 
-#include "config.h"
 
 namespace H2Core
 {

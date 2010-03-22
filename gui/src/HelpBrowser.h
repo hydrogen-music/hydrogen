@@ -24,7 +24,6 @@
 #ifndef HELPBROWSER_H
 #define HELPBROWSER_H
 
-#include "config.h"
 
 #include <iostream>
 #include <string>

@@ -23,7 +23,6 @@
 #ifndef DOWNLOAD_WIDGET_H
 #define DOWNLOAD_WIDGET_H
 
-#include "config.h"
 
 #include <QtGui>
 #include <QtNetwork>

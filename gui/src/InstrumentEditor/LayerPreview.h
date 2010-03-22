@@ -22,7 +22,6 @@
 #ifndef LAYER_PREVIEW_H
 #define LAYER_PREVIEW_H
 
-#include "config.h"
 #include <QtGui>
 
 #include <hydrogen/Object.h>

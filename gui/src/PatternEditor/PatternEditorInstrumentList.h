@@ -24,7 +24,6 @@
 #ifndef PATTERN_EDITOR_INSTRUMENT_LIST_H
 #define PATTERN_EDITOR_INSTRUMENT_LIST_H
 
-#include "config.h"
 
 #include <hydrogen/globals.h>
 

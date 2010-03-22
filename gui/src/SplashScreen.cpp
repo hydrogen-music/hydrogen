@@ -20,7 +20,6 @@
  *
  */
 
-#include "config.h"
 #include <hydrogen/version.h>
 #include "SplashScreen.h"
 

@@ -23,7 +23,6 @@
 #ifndef AUDIOFILEBROWSER_H
 #define AUDIOFILEBROWSER_H
 
-#include "config.h"
 #include "ui_AudioFileBrowser_UI.h"
 #include "InstrumentEditor/InstrumentEditor.h"
 

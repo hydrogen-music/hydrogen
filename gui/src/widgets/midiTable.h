@@ -23,7 +23,6 @@
 #ifndef MIDI_TABLE_H
 #define MIDI_TABLE_H
 
-#include "config.h"
 #include <hydrogen/Object.h>
 
 #include <QtGui>

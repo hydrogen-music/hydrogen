@@ -23,7 +23,6 @@
 #ifndef LCDCOMBO_H
 #define LCDCOMBO_H
 
-#include "config.h"
 
 #include <QtGui>
 

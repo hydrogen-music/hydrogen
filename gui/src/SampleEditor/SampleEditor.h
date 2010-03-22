@@ -23,7 +23,6 @@
 #ifndef SAMPLEEDITOR_H
 #define SAMPLEEDITOR_H
 
-#include "config.h"
 #include "ui_SampleEditor_UI.h"
 #include "../InstrumentEditor/InstrumentEditor.h"
 

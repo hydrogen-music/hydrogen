@@ -23,7 +23,6 @@
 #ifndef SOUND_LIBRARY_PROPERTIES_DIALOG_H
 #define SOUND_LIBRARY_PROPERTIES_DIALOG_H
 
-#include "config.h"
 #include "ui_SoundLibraryPropertiesDialog_UI.h"
 #include <hydrogen/Object.h>
 

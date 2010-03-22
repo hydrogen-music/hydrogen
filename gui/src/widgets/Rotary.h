@@ -23,7 +23,6 @@
 #ifndef ROTARY_H
 #define ROTARY_H
 
-#include "config.h"
 #include "MidiLearnable.h"
 #include "MidiSenseWidget.h"
 

@@ -24,7 +24,6 @@
 #ifndef EXPORT_SONG_DIALOG_H
 #define EXPORT_SONG_DIALOG_H
 
-#include "config.h"
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"

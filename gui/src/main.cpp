@@ -22,7 +22,6 @@
 
 #include <QtGui>
 #include <QLibraryInfo>
-#include "config.h"
 #include <hydrogen/version.h>
 #include <getopt.h>
 

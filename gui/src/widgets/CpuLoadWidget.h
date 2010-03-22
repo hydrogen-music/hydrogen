@@ -23,7 +23,6 @@
 #ifndef CPU_LOAD_WIDGET_H
 #define CPU_LOAD_WIDGET_H
 
-#include "config.h"
 
 #include <iostream>
 

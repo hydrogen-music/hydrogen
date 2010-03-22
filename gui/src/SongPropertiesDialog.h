@@ -23,7 +23,6 @@
 #ifndef SONG_PROPERTIES_DIALOG_H
 #define SONG_PROPERTIES_DIALOG_H
 
-#include "config.h"
 
 #include "ui_SongPropertiesDialog_UI.h"
 #include "HydrogenApp.h"

@@ -23,7 +23,6 @@
 #ifndef LADSPA_FX_SELECTOR_H
 #define LADSPA_FX_SELECTOR_H
 
-#include "config.h"
 
 #include "ui_LadspaFXSelector_UI.h"
 

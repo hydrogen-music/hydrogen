@@ -499,7 +499,7 @@ print "\n================================================================="
 print ""
 
 # write the config.h file
-conf = open("config.h", "w")
+conf = open("libs/hydrogen/include/hydrogen/config.h", "w")
 
 conf.write( "#ifndef HYD_CONFIG_H\n" )
 conf.write( "#define HYD_CONFIG_H\n" )

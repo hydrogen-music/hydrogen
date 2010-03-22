@@ -23,7 +23,6 @@
 #ifndef SOUND_LIBRARY_TREE_H
 #define SOUND_LIBRARY_TREE_H
 
-#include "config.h"
 
 #include <QtGui>
 

@@ -23,7 +23,6 @@
 #ifndef FILE_BROWSER_H
 #define FILE_BROWSER_H
 
-#include "config.h"
 
 #include <hydrogen/Object.h>
 

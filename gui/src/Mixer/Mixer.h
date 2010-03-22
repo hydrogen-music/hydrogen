@@ -24,7 +24,6 @@
 #ifndef MIXER_H
 #define MIXER_H
 
-#include "config.h"
 
 #include <QtGui>
 

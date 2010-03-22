@@ -23,7 +23,6 @@
 #ifndef PATTERN_PROPERTIES_DIALOG_H
 #define PATTERN_PROPERTIES_DIALOG_H
 
-#include "config.h"
 
 #include <QtGui>
 #include "ui_PatternPropertiesDialog_UI.h"

@@ -29,7 +29,6 @@
 #include <map>
 
 #include "EventListener.h"
-#include "config.h"
 
 #include <hydrogen/Object.h>
 

@@ -23,7 +23,6 @@
 #ifndef HYDROGEN_APP_H
 #define HYDROGEN_APP_H
 
-#include "config.h"
 
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>

@@ -23,7 +23,6 @@
 #ifndef VIRTUAL_PATTERN_DIALOG_H
 #define VIRTUAL_PATTERN_DIALOG_H
 
-#include "config.h"
 
 #include <QtGui>
 #include "ui_VirtualPatternDialog_UI.h"

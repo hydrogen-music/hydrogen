@@ -24,7 +24,6 @@
 #ifndef DRUM_PATTERN_EDITOR_H
 #define DRUM_PATTERN_EDITOR_H
 
-#include "config.h"
 #include "../EventListener.h"
 
 #include <hydrogen/Object.h>

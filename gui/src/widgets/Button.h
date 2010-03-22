@@ -24,7 +24,6 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "config.h"
 
 #include <hydrogen/Object.h>
 #include <hydrogen/action.h>

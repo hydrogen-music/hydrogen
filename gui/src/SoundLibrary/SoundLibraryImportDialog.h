@@ -23,7 +23,6 @@
 #ifndef SOUND_LIBRARY_IMPORT_DIALOG_H
 #define SOUND_LIBRARY_IMPORT_DIALOG_H
 
-#include "config.h"
 
 #include "ui_SoundLibraryImportDialog_UI.h"
 #include <hydrogen/Object.h>

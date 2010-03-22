@@ -23,7 +23,6 @@
 #ifndef PATTERN_FILL_DIALOG_H
 #define PATTERN_FILL_DIALOG_H
 
-#include "config.h"
 
 #include <QtGui>
 #include "ui_PatternFillDialog_UI.h"

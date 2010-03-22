@@ -23,7 +23,6 @@
 #ifndef ABOUT__DIALOG_H
 #define ABOUT__DIALOG_H
 
-#include "config.h"
 
 #include <QtGui>
 

@@ -22,7 +22,6 @@
 #ifndef MIXERLINE_H
 #define MIXERLINE_H
 
-#include "config.h"
 
 #include <QtGui>
 

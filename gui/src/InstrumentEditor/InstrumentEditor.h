@@ -23,7 +23,6 @@
 #ifndef INSTRUMENT_EDITOR_DIALOG_H
 #define INSTRUMENT_EDITOR_DIALOG_H
 
-#include "config.h"
 
 #include <QtGui>
 

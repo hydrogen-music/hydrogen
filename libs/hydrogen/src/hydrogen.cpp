@@ -20,7 +20,6 @@
  *
  */
 
-#include "config.h"
 
 #ifdef WIN32
 #    include "hydrogen/timeHelper.h"

@@ -24,7 +24,6 @@
 #ifndef AUDIO_ENGINE_INFO_FORM_H
 #define AUDIO_ENGINE_INFO_FORM_H
 
-#include "config.h"
 #include <hydrogen/Object.h>
 
 #include "EventListener.h"
