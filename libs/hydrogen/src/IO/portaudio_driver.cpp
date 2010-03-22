@@ -9,10 +9,11 @@ namespace H2Core
 {
 
 int portAudioCallback(
-    void *inputBuffer,
+    const void *inputBuffer,
     void *outputBuffer,
     unsigned long framesPerBuffer,
-    PaTimestamp outTime,
+    const PaStreamCallbackTimeInfo* timeInfo,
+    PaStreamCallbackFlags statusFlags,
     void *userData
 )
 {
@@ -80,7 +81,6 @@ int PortAudioDriver::connect()
 	          paFloat32,      /* 32 bit floating point output */
 	          m_nSampleRate,          // sample rate
 	          m_nBufferSize,            // frames per buffer
-	          0,              // number of buffers, if zero then use default minimum
 	          portAudioCallback, /* specify our custom callback */
 	          this );        /* pass our data through to callback */
 	

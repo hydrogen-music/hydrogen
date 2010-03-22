@@ -62,7 +62,7 @@ public:
 	virtual void setBpm( float fBPM );
 
 private:
-	PortAudioStream *m_pStream;
+	PaStream *m_pStream;
 	unsigned m_nSampleRate;
 
 };
