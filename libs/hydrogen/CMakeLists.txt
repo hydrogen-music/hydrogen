@@ -1,0 +1,54 @@
+
+CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/libs/hydrogen/include/hydrogen/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" @ONLY)
+
+FILE(GLOB_RECURSE hydrogen_SOURCES src/*.cpp src/*.cc src/*.c)
+
+FILE(GLOB_RECURSE hydrogen_INCLUDES include/*.h)
+LIST(APPEND hydrogen_INCLUDES ${CMAKE_SOURCE_DIR}/config.h)
+
+ADD_LIBRARY( hydrogen-core ${HYDROGEN_CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
+INCLUDE_DIRECTORIES( include
+    ${CMAKE_SOURCE_DIR}                             # TODO remove this when core and gui are nicely splitted
+    ${CMAKE_CURRENT_BINARY_DIR}/include             # config.h
+    ${QT_INCLUDES}
+    ${LIBTAR_INCLUDE_DIR}
+    ${LIBARCHIVE_INCLUDE_DIR}
+    ${LIBSNDFILE_INCLUDE_DIR}
+    ${ALSA_INCLUDE_DIR}
+    ${OSS_INCLUDE_DIR}
+    ${JACK_INCLUDE_DIR}
+    ${PORTAUDIO_INCLUDE_DIR}
+    ${PORTMIDI_INCLUDE_DIR}
+    ${LASH_INCLUDE_DIR}
+    ${FLAC_INCLUDE_DIR}
+    ${FLAC++_INCLUDE_DIR}
+    ${LRDF_INCLUDE_DIR}
+)
+
+SET_TARGET_PROPERTIES(hydrogen-core
+    PROPERTIES
+    PUBLIC_HEADER   "${hydrogen_INCLUDES}"
+)
+
+TARGET_LINK_LIBRARIES(hydrogen-core
+    ${QT_QTCORE_LIBRARY}
+    ${QT_QTXML_LIBRARY}
+    ${LIBTAR_LIBRARIES}
+    ${LIBARCHIVE_LIBRARIES}
+    ${LIBSNDFILE_LIBRARIES}
+    ${ALSA_LIBRARIES}
+    ${OSS_LIBRARIES}
+    ${JACK_LIBRARIES}
+    ${PORTAUDIO_LIBRARIES}
+    ${PORTMIDI_LIBRARIES}
+    ${LASH_LIBRARIES}
+    ${FLAC_LIBRARIES}
+    ${FLAC++_LIBRARIES}
+    ${LRDF_LIBRARIES}
+)
+
+INSTALL(TARGETS hydrogen-core
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    PUBLIC_HEADER DESTINATION include/hydrogen
+)

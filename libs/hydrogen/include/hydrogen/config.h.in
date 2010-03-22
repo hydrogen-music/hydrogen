@@ -1,0 +1,35 @@
+#ifndef HYD_CONFIG_H
+#define HYD_CONFIG_H
+
+#include <string>
+
+#ifndef QT_BEGIN_NAMESPACE
+#    define QT_BEGIN_NAMESPACE
+#endif
+
+#ifndef QT_END_NAMESPACE
+#    define QT_END_NAMESPACE
+#endif
+
+#define DATA_PATH "@DATA_PATH@"
+#define CONFIG_PREFIX "@CMAKE_INSTALL_PREFIX@"
+
+#define HYDROGEN_VERSION "@VERSION@"
+#define HYDROGEN_SVN_VERSION "@SVN_VERSION@"
+#define HYDROGEN_VERSION_FULL "@VERSION@-svn-@SVN_VERSION@"
+
+#cmakedefine DEBUG_SUPPORT
+#cmakedefine BUNDLE_SUPPORT
+#cmakedefine LIBSNDFILE_SUPPORT
+#cmakedefine LIBARCHIVE_SUPPORT
+#cmakedefine OSS_SUPPORT
+#cmakedefine ALSA_SUPPORT
+#cmakedefine JACK_SUPPORT
+#cmakedefine LASH_SUPPORT
+#cmakedefine PORTAUDIO_SUPPORT
+#cmakedefine PORTMIDI_SUPPORT
+#cmakedefine FLAC_SUPPORT
+#cmakedefine LRDF_SUPPORT
+#cmakedefine LADSPA_SUPPORT
+
+#endif
