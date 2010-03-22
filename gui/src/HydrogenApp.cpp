@@ -20,7 +20,7 @@
  *
  */
 
-#include "version.h"
+#include <hydrogen/version.h>
 
 #include "HydrogenApp.h"
 #include "Skin.h"

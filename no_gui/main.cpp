@@ -22,7 +22,7 @@
 
 #include <QLibraryInfo>
 #include "config.h"
-#include "version.h"
+#include <hydrogen/version.h>
 #include <getopt.h>
 
 
