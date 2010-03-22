@@ -38,6 +38,7 @@ class PatternEditorPanel;
 
 class PianoRollEditor: public QWidget, public EventListener, public Object
 {
+    Q_OBJECT
 	public:
 		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel );
 		~PianoRollEditor();
