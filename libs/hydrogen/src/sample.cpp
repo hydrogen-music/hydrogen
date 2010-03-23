@@ -32,7 +32,6 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
-#include "gui/src/HydrogenApp.h"
 
 using namespace std;
 

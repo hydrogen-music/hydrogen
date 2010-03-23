@@ -39,10 +39,6 @@
 #include <hydrogen/Pattern.h>
 #include <hydrogen/event_queue.h>
 
-#include "gui/src/HydrogenApp.h"
-#include "gui/src/PatternEditor/PatternEditorPanel.h"
-#include "gui/src/PatternEditor/DrumPatternEditor.h"
-
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
 

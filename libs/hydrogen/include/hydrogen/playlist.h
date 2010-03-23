@@ -28,7 +28,6 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include "gui/src/HydrogenApp.h"
 #include <vector>
 #include <cassert>
 

@@ -24,7 +24,6 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
-#include <gui/src/HydrogenApp.h>
 
 #include <hydrogen/instrument.h>
 #include <hydrogen/Song.h>
