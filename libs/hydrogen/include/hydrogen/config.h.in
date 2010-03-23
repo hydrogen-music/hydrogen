@@ -18,18 +18,44 @@
 #define HYDROGEN_SVN_VERSION "@SVN_VERSION@"
 #define HYDROGEN_VERSION_FULL "@VERSION@-svn-@SVN_VERSION@"
 
+#ifndef DEBUG_SUPPORT
 #cmakedefine DEBUG_SUPPORT
+#endif
+#ifndef BUNDLE_SUPPORT
 #cmakedefine BUNDLE_SUPPORT
+#endif
+#ifndef LIBSNDFILE_SUPPORT
 #cmakedefine LIBSNDFILE_SUPPORT
+#endif
+#ifndef LIBARCHIVE_SUPPORT
 #cmakedefine LIBARCHIVE_SUPPORT
+#endif
+#ifndef OSS_SUPPORT
 #cmakedefine OSS_SUPPORT
+#endif
+#ifndef ALSA_SUPPORT
 #cmakedefine ALSA_SUPPORT
+#endif
+#ifndef JACK_SUPPORT
 #cmakedefine JACK_SUPPORT
+#endif
+#ifndef LASH_SUPPORT
 #cmakedefine LASH_SUPPORT
+#endif
+#ifndef PORTAUDIO_SUPPORT
 #cmakedefine PORTAUDIO_SUPPORT
+#endif
+#ifndef PORTMIDI_SUPPORT
 #cmakedefine PORTMIDI_SUPPORT
+#endif
+#ifndef FLAC_SUPPORT
 #cmakedefine FLAC_SUPPORT
+#endif
+#ifndef LRDF_SUPPORT
 #cmakedefine LRDF_SUPPORT
+#endif
+#ifndef LADSPA_SUPPORT
 #cmakedefine LADSPA_SUPPORT
+#endif
 
 #endif
