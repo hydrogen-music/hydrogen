@@ -219,7 +219,8 @@ Preferences::Preferences()
 
 	//___ General properties ___
 	m_bPatternModePlaysSelected = true;
-	restoreLastSong = true;
+	m_brestoreLastSong = true;
+	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
 	// NONE: lastSongFilename;
@@ -381,7 +382,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			//////// GENERAL ///////////
 			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
-			restoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", restoreLastSong );
+			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
+			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
 			__usetimeline = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __usetimeline );
@@ -632,7 +634,8 @@ void Preferences::loadPreferences( bool bGlobal )
 				recreate = true;
 			} else {
 				// last used song
-				lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", lastSongFilename, true );
+				m_lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", m_lastSongFilename, true );
+				m_lastPlaylistFilename = LocalFileMng::readXmlString( filesNode, "lastPlaylistFilename", m_lastPlaylistFilename, true );
 				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
 			}
 
@@ -728,7 +731,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "version", QString( get_version().c_str() ) );
 
 	////// GENERAL ///////
-	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", restoreLastSong ? "true": "false" );
+	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
+	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
 	
 	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
@@ -972,7 +976,8 @@ void Preferences::savePreferences()
 	QDomNode filesNode = doc.createElement( "files" );
 	{
 		// last used song
-		LocalFileMng::writeXmlString( filesNode, "lastSongFilename", lastSongFilename );
+		LocalFileMng::writeXmlString( filesNode, "lastSongFilename", m_lastSongFilename );
+		LocalFileMng::writeXmlString( filesNode, "lastPlaylistFilename", m_lastPlaylistFilename );
 		LocalFileMng::writeXmlString( filesNode, "defaulteditor", m_sDefaultEditor );
 	}
 	rootNode.appendChild( filesNode );

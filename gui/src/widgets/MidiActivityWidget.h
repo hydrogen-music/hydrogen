@@ -37,21 +37,17 @@ class MidiActivityWidget : public QWidget, public EventListener, public Object
 		MidiActivityWidget(QWidget * parent);
 		~MidiActivityWidget();
 
-		void setValue( int newValue );
-		uint getValue();
-
 		void mousePressEvent(QMouseEvent *ev);
 		void paintEvent(QPaintEvent *ev);
 
 	public slots:
-		void updateMidiActivityWidget();
+		void restoreMidiActivityWidget();
 
 	private:
-		uint m_nValue;
-
+		bool m_bValue;
+		QTimer *m_qTimer;
 		QPixmap m_back;
 		QPixmap m_leds;
-
 		virtual void midiActivityEvent();
 };
 

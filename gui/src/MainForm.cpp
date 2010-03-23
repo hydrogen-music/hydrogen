@@ -56,6 +56,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
 #include "SoundLibrary/SoundLibraryExportDialog.h"
+#include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
 
@@ -189,6 +190,11 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	undoView = new QUndoView(h2app->m_undoStack);
 	undoView->setWindowTitle(tr("Command history"));
 	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
+	//restore last playlist 
+	if( Preferences::get_instance()->isRestoreLastPlaylistEnabled() ){ 
+		h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() ); 
+	} 
 }
 
 
@@ -197,6 +203,9 @@ MainForm::~MainForm()
 	// remove the autosave file
 	QFile file( getAutoSaveFilename() );
         file.remove();
+
+	//if a playlist is used, we save the last playlist-path to hydrogen.conf
+	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->__playlistName );
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();

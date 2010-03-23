@@ -161,7 +161,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
+       <y>70</y>
        <width>511</width>
        <height>31</height>
       </rect>
@@ -173,8 +173,8 @@
     <widget class="QSpinBox" name="sBcountOffset">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>91</y>
+       <x>10</x>
+       <y>110</y>
        <width>52</width>
        <height>21</height>
       </rect>
@@ -193,7 +193,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>91</y>
+       <y>110</y>
        <width>451</width>
        <height>21</height>
       </rect>
@@ -205,8 +205,8 @@
     <widget class="QSpinBox" name="sBstartOffset">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>121</y>
+       <x>10</x>
+       <y>140</y>
        <width>52</width>
        <height>21</height>
       </rect>
@@ -225,7 +225,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>121</y>
+       <y>140</y>
        <width>451</width>
        <height>21</height>
       </rect>
@@ -238,7 +238,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>190</y>
+       <y>210</y>
        <width>511</width>
        <height>49</height>
       </rect>
@@ -280,7 +280,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>150</y>
+       <y>170</y>
        <width>451</width>
        <height>21</height>
       </rect>
@@ -292,8 +292,8 @@
     <widget class="QSpinBox" name="sBmaxBars">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>150</y>
+       <x>10</x>
+       <y>170</y>
        <width>52</width>
        <height>21</height>
       </rect>
@@ -306,6 +306,28 @@
      </property>
      <property name="maximum">
       <number>800</number>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="restoreLastUsedPlaylistCheckbox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>511</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>&amp;Reopen last used playlist</string>
+     </property>
+     <property name="shortcut">
+      <string>Alt+R</string>
      </property>
     </widget>
    </widget>

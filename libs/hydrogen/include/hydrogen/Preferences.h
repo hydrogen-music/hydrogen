@@ -268,7 +268,11 @@ public:
 
 	// General
 	void setRestoreLastSongEnabled( bool restore ) {
-		restoreLastSong = restore;
+		m_brestoreLastSong = restore;
+	}
+
+	void setRestoreLastPlaylistEnabled( bool restore ) {
+		m_brestoreLastPlaylist = restore;
 	}
 
 	void setShowDevelWarning( bool value ) {
@@ -280,14 +284,25 @@ public:
 	}
 
 	bool isRestoreLastSongEnabled() {
-		return restoreLastSong;
+		return m_brestoreLastSong;
+	}
+
+	bool isRestoreLastPlaylistEnabled() {
+		return m_brestoreLastPlaylist;
 	}
 
 	void setLastSongFilename( const QString& filename ) {
-		lastSongFilename = filename;
+		m_lastSongFilename = filename;
 	}
 	const QString& getLastSongFilename() {
-		return lastSongFilename;
+		return m_lastSongFilename;
+	}
+
+	void setLastPlaylistFilename( const QString& filename ) {
+		m_lastPlaylistFilename = filename;
+	}
+	const QString& getLastPlaylistFilename() {
+		return m_lastPlaylistFilename;
 	}
 
 	void setHearNewNotes( bool value ) {
@@ -535,10 +550,12 @@ private:
 
 	//___ General properties ___
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
-	bool restoreLastSong;		///< Restore last song?
+	bool m_brestoreLastSong;		///< Restore last song?
+	bool m_brestoreLastPlaylist;
 	bool m_bUseLash;
 	bool m_bShowDevelWarning;	///< Show development version warning?
-	QString lastSongFilename;	///< Last song used
+	QString m_lastSongFilename;	///< Last song used
+	QString m_lastPlaylistFilename;
 	bool hearNewNotes;
 	std::vector<QString> m_recentFiles;
 	QStringList m_recentFX;

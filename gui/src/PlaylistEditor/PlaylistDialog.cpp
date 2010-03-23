@@ -392,9 +392,8 @@ void PlaylistDialog::loadList()
 		LocalFileMng fileMng;
 		int err = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
 		if ( err != 0 ) {
-			_ERRORLOG( "Error saving the playlist" );
+			_ERRORLOG( "Error loading the playlist" );
 		}
-
 	
 		if(Hydrogen::get_instance()->m_PlayList.size() > 0){
 
@@ -993,3 +992,36 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 return NULL;
 }
 
+void PlaylistDialog::loadListByFileName( QString filename )
+{
+
+	LocalFileMng fileMng;
+	int err = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
+	if ( err != 0 ) {
+		_ERRORLOG( "Error loading the playlist" );
+	}
+	Preferences::get_instance()->setLastPlaylistFilename( filename );
+
+	if(Hydrogen::get_instance()->m_PlayList.size() > 0){
+
+		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
+		m_pPlaylist->clear();
+
+		for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
+			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
+			m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+			m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
+			if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
+				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
+			}else{
+				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
+			}
+		}
+
+		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( 0 );
+		m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+		Playlist::get_instance()->setSelectedSongNr( 0 );
+		Playlist::get_instance()->__playlistName = filename;
+		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
+	}
+}

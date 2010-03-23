@@ -33,7 +33,7 @@
 MidiActivityWidget::MidiActivityWidget( QWidget * parent )
  : QWidget( parent )
  , Object( "MidiActivityWidget" )
- , m_nValue( 0 )
+ , m_bValue( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -56,11 +56,10 @@ MidiActivityWidget::MidiActivityWidget( QWidget * parent )
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	QTimer *timer = new QTimer(this);
-	connect( timer, SIGNAL( timeout() ), this, SLOT( updateMidiActivityWidget() ) );
-	timer->start(200);	// update at 5 fps
-
 	HydrogenApp::get_instance()->addEventListener(this);
+	m_qTimer = new QTimer(this);
+	connect( m_qTimer, SIGNAL( timeout() ), this, SLOT( restoreMidiActivityWidget() ) );
+
 }
 
 
@@ -80,32 +79,6 @@ void MidiActivityWidget::mousePressEvent(QMouseEvent *ev)
 }
 
 
-
-void MidiActivityWidget::setValue( int newValue )
-{
-	if (newValue > 100) {
-		newValue = 100;
-	}
-	else if (newValue < 0) {
-		newValue = 0;
-	}
-
-	if ( m_nValue != (uint)newValue ) {
-		m_nValue = newValue;
-		update();
-	}
-}
-
-
-
-
-uint MidiActivityWidget::getValue()
-{
-	return m_nValue;
-}
-
-
-
 void MidiActivityWidget::paintEvent( QPaintEvent*)
 {
 	if ( !isVisible() ) {
@@ -115,7 +88,7 @@ void MidiActivityWidget::paintEvent( QPaintEvent*)
 	QPainter painter(this);
 
 
-	if (m_nValue > 0 ) {
+	if (m_bValue ) {
 //		bitBlt( this, 0, 0, &m_leds, 0, 0, width(), height(), CopyROP, true);
 		painter.drawPixmap( rect(), m_leds, rect() );
 	}
@@ -123,26 +96,26 @@ void MidiActivityWidget::paintEvent( QPaintEvent*)
 //		bitBlt( this, 0, 0, &m_back, 0, 0, width(), height(), CopyROP, true);
 		painter.drawPixmap( rect(), m_back, rect() );
 	}
+
 }
 
 
 
-void MidiActivityWidget::updateMidiActivityWidget()
+void MidiActivityWidget::restoreMidiActivityWidget()
 {
-	int newValue = m_nValue - 40;
-	if (newValue < 0 ) {
-		newValue = 0;
-	}
-	setValue( newValue );
+	m_bValue = false;
+	update();
+	m_qTimer->stop();
 }
 
 
 
 void MidiActivityWidget::midiActivityEvent()
 {
-	setValue( 100 );
-	updateMidiActivityWidget();
+	m_qTimer->stop();
+	m_bValue = true;
+	update();
+	m_qTimer->start( 100 );
 }
-
 
 
