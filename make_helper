@@ -45,7 +45,11 @@ function cmake_make () {
     if [ ! -d build ]; then
         mkdir build
     fi
-    cd build && cmake ${CMAKE_OPTIONS} .. && VERBOSE=$VERBOSE make
+    if [ $VERBOSE -eq 1 ]; then
+        cd build && cmake ${CMAKE_OPTIONS} .. && VERBOSE=1 make
+    else
+        cd build && cmake ${CMAKE_OPTIONS} .. && make
+    fi
 }
 
 function cmake_help () {
