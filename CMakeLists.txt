@@ -70,6 +70,7 @@ ELSE(WIN32)
         SET(HYDROGEN_BUNDLE_SUPPORT TRUE)
     ELSE(APPLE)
         MANDATORY_PKG(LIBSNDFILE)
+        SET(OSS_LIB_PATHS "/usr/lib/oss/lib" "/usr/local/lib/oss/lib" )
         SET(DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
         #EXECUTE_PROCESS(COMMAND svnversion -n OUTPUT_VARIABLE SVN_VERSION )
     ENDIF(APPLE)
@@ -107,7 +108,7 @@ ENDIF()
 FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
-#FIND_HELPER(OSS oss sys/soundcard.h oss )                                                      # TODO fix
+FIND_HELPER(OSS oss sys/soundcard.h OSSlib )
 FIND_HELPER(JACK jack jack/jack.h jack)
 FIND_HELPER(COREAUDIO coreaudio-2.0 coreaudio.h coreaudio)                                      # TODO test
 FIND_HELPER(COREMIDI coremidi coremidi.h coremidi)                                              # TODO test
