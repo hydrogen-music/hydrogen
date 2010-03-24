@@ -19,7 +19,10 @@ macro(COMPUTE_PKGS_FLAGS prefix)
             SET(${prefix}_STATUS "+ used ${${prefix}_VERSION} ( ${${prefix}_LIBRARIES} )")
             #  SET(HYDROGEN_${prefix}_SUPPORT           #TRUE) TODO enable with HYDROGEN_XXX_SUPPORT or H2_XXX_SUPPORT
             SET(${prefix}_SUPPORT TRUE)                 # TODO remove
-            ADD_DEFINITIONS( -D${prefix}_SUPPORT )      # TODO remove
+            string(COMPARE NOTEQUAL "${prefix}" "FLAC++" SET_SUPPORT)
+            if(SET_SUPPORT)
+                ADD_DEFINITIONS( -D${prefix}_SUPPORT )      # TODO remove
+            endif()
         endif()
     else()
         SET(${prefix}_LIBRARIES "" )
