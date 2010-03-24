@@ -125,7 +125,7 @@ HydrogenApp::~HydrogenApp()
 	m_pEventQueueTimer->stop();
 
 	//delete the undo tmp directory
-	QString dataDir = Preferences::get_instance()->m_sPreferencesDirectory + "tmp/";
+	QString dataDir = Preferences::get_instance()->getTmpDirectory();
 	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
 	ERRORLOG( cmd );
 	if ( system( cmd.toLocal8Bit() ) != 0 ) {

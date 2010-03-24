@@ -435,7 +435,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			_ERRORLOG( "Error in soundInfo" );
 			return 0;
 		}
-		QString outfilePath = Preferences::get_instance()->getDataDirectory() + "/tmp_rb_outfile.wav";
+		QString outfilePath = QDir::tempPath() + "/tmp_rb_outfile.wav";
 		SNDFILE* m_file = sf_open( outfilePath.toLocal8Bit(), SFM_WRITE, &rubbersoundInfo);
 
 		float *infobf = new float[rubbersoundInfo.channels * newlength];
@@ -465,7 +465,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		float pitch = pow( 1.0594630943593, ( double)rubber_pitch );
 		QString rPs = QString(" %1").arg(pitch);
 
-		QString rubberResultPath = Preferences::get_instance()->getDataDirectory() + "/tmp_rb_result_file.wav";
+		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
 		arguments << "-D" << QString(" %1").arg( durationtime ) 	//stretch or squash to make output file X seconds long
 			  << "--threads"					//assume multi-CPU even if only one CPU is identified
 			  << "-P"						//aim for minimal time distortion

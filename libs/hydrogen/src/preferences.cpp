@@ -138,7 +138,7 @@ Preferences::Preferences()
 	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
-	m_sTmpDirectory = QDir::homePath().append( "/.hydrogen/tmp/" );
+	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
 	if ( !QDir(m_sTmpDirectory).exists() ) {
 		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
 	}
