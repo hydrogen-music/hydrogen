@@ -79,6 +79,7 @@ ENDIF(WIN32)
 # HEADER LIBRARY FUNCTIONS
 #
 INCLUDE(FindHelper)
+INCLUDE(FindLadspa)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
 INCLUDE(FindZLIB)
@@ -105,8 +106,7 @@ IF( WANT_LIBARCHIVE AND LIBARCHIVE_FOUND)
 ENDIF()
 FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
-FIND_HELPER(LADSPA ladspa ladspa.h delay.so )                                                   # TODO find_library fails
-SET(LADSPA_FOUND TRUE)                                                                          # TODO remove
+FIND_LADSPA(LADSPA ladspa.h noise)
 #FIND_HELPER(OSS oss sys/soundcard.h oss )                                                      # TODO fix
 FIND_HELPER(JACK jack jack/jack.h jack)
 FIND_HELPER(COREAUDIO coreaudio-2.0 coreaudio.h coreaudio)                                      # TODO test
