@@ -193,7 +193,10 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	//restore last playlist 
 	if( Preferences::get_instance()->isRestoreLastPlaylistEnabled() ){ 
-		h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() ); 
+		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() );
+		if( !loadlist ){
+			_ERRORLOG ( "Error loading the playlist" );
+		}
 	} 
 }
 

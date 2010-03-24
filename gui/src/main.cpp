@@ -28,6 +28,7 @@
 #include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
+#include "PlaylistEditor/PlaylistDialog.h"
 
 #ifdef LASH_SUPPORT
 #include <hydrogen/LashClient.h>
@@ -42,6 +43,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
+#include <hydrogen/playlist.h>
 
 #include <signal.h>
 #include <iostream>
@@ -55,6 +57,7 @@ void showUsage();
 static struct option long_opts[] = {
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
+	{"playlist", required_argument, NULL, 'p'},
 	{"version", 0, NULL, 'v'},
 	{"nosplash", 0, NULL, 'n'},
 	{"verbose", optional_argument, NULL, 'V'},
@@ -161,6 +164,7 @@ int main(int argc, char *argv[])
 
 		// Deal with the options
 		QString songFilename;
+		QString playlistFilename;
 		bool bNoSplash = false;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
@@ -181,6 +185,10 @@ int main(int argc, char *argv[])
 
 				case 's':
 					songFilename = QString::fromLocal8Bit(optarg);
+					break;
+
+				case 'p':
+					playlistFilename = QString::fromLocal8Bit(optarg);
 					break;
 
 				case 'v':
@@ -346,6 +354,13 @@ int main(int argc, char *argv[])
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );
+		bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
+		if( loadlist ){
+			Playlist::get_instance()->setNextSongByNumber( 0 );
+		}else
+		{
+			_ERRORLOG ( "Error loading the playlist" );
+		}
 
 		pQApp->exec();
 
@@ -412,6 +427,7 @@ void showUsage()
 	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
 	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
+	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;	
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
 #ifdef LASH_SUPPORT
