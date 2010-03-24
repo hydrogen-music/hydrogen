@@ -48,6 +48,12 @@
 #ifndef PORTMIDI_SUPPORT
 #cmakedefine PORTMIDI_SUPPORT
 #endif
+#ifndef COREAUDIO_SUPPORT
+#cmakedefine COREAUDIO_SUPPORT
+#endif
+#ifndef COREMIDI_SUPPORT
+#cmakedefine COREMIDI_SUPPORT
+#endif
 #ifndef FLAC_SUPPORT
 #cmakedefine FLAC_SUPPORT
 #endif
