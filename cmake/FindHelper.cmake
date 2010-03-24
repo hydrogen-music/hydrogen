@@ -32,16 +32,16 @@ macro(FIND_HELPER prefix pkg_name header lib)
             MESSAGE(STATUS "Checking for module '${pkg_name}'")
         endif()
 
-        set(CMAKE_PREFIX_PATH ${${prefix}_PATH} )
+        #set(CMAKE_PREFIX_PATH ${${prefix}_PATH} )
 
         find_path(${prefix}_INCLUDE_DIR
             NAMES ${header}
-            PATHS ${${prefix}_INCLUDE_DIRS} ${${prefix}_INCLUDEDIR}
+            PATHS ${${prefix}_INCLUDE_DIRS} ${${prefix}_INCLUDEDIR} ${${prefix}_INC_PATHS} ENV ${prefix}_INC
         )
 
         find_library(${prefix}_LIBRARIES
             NAMES ${lib}
-            PATHS ${${prefix}_LIBDIR} ${${prefix}_LIBRARY_DIRS}
+            PATHS ${${prefix}_LIBDIR} ${${prefix}_LIBRARY_DIRS} ${${prefix}_LIB_PATHS} ENV ${prefix}_PATH
         )
     endif()
 
