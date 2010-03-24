@@ -992,13 +992,14 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 return NULL;
 }
 
-void PlaylistDialog::loadListByFileName( QString filename )
+bool PlaylistDialog::loadListByFileName( QString filename )
 {
 
 	LocalFileMng fileMng;
 	int err = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
 	if ( err != 0 ) {
 		_ERRORLOG( "Error loading the playlist" );
+		return 0;
 	}
 	Preferences::get_instance()->setLastPlaylistFilename( filename );
 
@@ -1024,4 +1025,5 @@ void PlaylistDialog::loadListByFileName( QString filename )
 		Playlist::get_instance()->__playlistName = filename;
 		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	}
+	return 1;
 }

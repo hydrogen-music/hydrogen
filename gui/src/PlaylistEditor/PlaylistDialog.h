@@ -49,7 +49,7 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Objec
 		PlaylistDialog( QWidget* pParent );
 		~PlaylistDialog();
 
-		void loadListByFileName( QString filename);	
+		bool loadListByFileName( QString filename);	
 
 
 	private slots:
