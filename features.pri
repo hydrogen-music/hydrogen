@@ -21,7 +21,8 @@ macx-g++ {
 	LIBS += /opt/local/lib/libtar.dylib
 	LIBS += /opt/local/lib/libpng.dylib
 	LIBS += /opt/local/lib/libsndfile.dylib 
-	
+
+	INCLUDEPATH += /opt/local/include
 }
 
 
