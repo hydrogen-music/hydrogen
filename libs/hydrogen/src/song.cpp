@@ -184,7 +184,7 @@ Song* Song::get_default_song(){
 		pList->add( pNewInstr );
 		song->set_instrument_list( pList );
 		
-		#ifdef JACK_SUPPORT
+		#ifdef H2CORE_HAVE_JACK
 		Hydrogen::get_instance()->renameJackPorts();
 		#endif
 
@@ -824,7 +824,7 @@ Song* SongReader::readSong( const QString& filename )
 
 	song->set_pattern_group_vector( pPatternGroupVector );
 	
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// reset FX
 	for ( int fx = 0; fx < MAX_FX; ++fx ) {
 		//LadspaFX* pFX = Effects::get_instance()->getLadspaFX( fx );
@@ -846,7 +846,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			if ( sName != "no plugin" ) {
 				// FIXME: il caricamento va fatto fare all'engine, solo lui sa il samplerate esatto
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 				LadspaFX* pFX = LadspaFX::load( sFilename, sName, 44100 );
 				Effects::get_instance()->setLadspaFX( pFX, nFX );
 				if ( pFX ) {

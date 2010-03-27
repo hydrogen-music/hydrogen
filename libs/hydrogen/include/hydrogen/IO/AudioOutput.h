@@ -23,8 +23,9 @@
 #define H2_AUDIO_OUTPUT_H
 
 
-#include <hydrogen/IO/TransportInfo.h>
+#include "hydrogen/config.h"
 #include <hydrogen/Object.h>
+#include <hydrogen/IO/TransportInfo.h>
 
 namespace H2Core
 {

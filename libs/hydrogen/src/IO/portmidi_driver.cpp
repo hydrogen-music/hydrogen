@@ -32,7 +32,7 @@
 #include <windows.h>
 #endif
 
-#ifdef PORTMIDI_SUPPORT
+#ifdef H2CORE_HAVE_PORTMIDI
 
 #include <porttime.h>
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
@@ -328,4 +328,4 @@ void PortMidiDriver::handleQueueAllNoteOff()
 
 };
 
-#endif	// PORTMIDI_SUPPORT
+#endif	// H2CORE_HAVE_PORTMIDI

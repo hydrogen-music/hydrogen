@@ -30,6 +30,7 @@
 
 #include "EventListener.h"
 
+#include <hydrogen/config.h>
 #include <hydrogen/Object.h>
 
 class HydrogenApp;
@@ -149,7 +150,7 @@ class MainForm : public QMainWindow, public EventListener, public Object
 		void initKeyInstMap();
 
 		QString getAutoSaveFilename();
-	#ifdef LASH_SUPPORT
+	#ifdef H2CORE_HAVE_LASH
 		QTimer *lashPollTimer;
 	#endif
 		QUndoView *undoView;///debug only

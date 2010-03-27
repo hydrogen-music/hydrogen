@@ -23,6 +23,7 @@
 #define HYDROGEN_H
 
 #include <stdint.h> // for uint32_t et al
+#include "hydrogen/config.h"
 #include <hydrogen/action.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Object.h>
@@ -168,7 +169,7 @@ public:
 
 	int getSelectedInstrumentNumber();
 	void setSelectedInstrumentNumber( int nInstrument );
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	void renameJackPorts();
 #endif
 

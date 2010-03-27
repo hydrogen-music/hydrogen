@@ -20,6 +20,7 @@
  *
  */
 
+#include <hydrogen/config.h>
 #include <hydrogen/version.h>
 
 #include "HydrogenApp.h"
@@ -147,7 +148,7 @@ HydrogenApp::~HydrogenApp()
 		delete song;
 	}
 
-	#ifdef LADSPA_SUPPORT
+	#ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		delete m_pLadspaFXProperties[nFX];
 	}
@@ -242,7 +243,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	QString sDocURI = sDocPath + "/manual.html";
 	m_pHelpBrowser = new SimpleHTMLBrowser( NULL, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// LADSPA FX
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( NULL, nFX );
@@ -264,7 +265,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 void HydrogenApp::closeFXProperties()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXProperties[nFX]->close();
 	}

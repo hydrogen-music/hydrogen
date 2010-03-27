@@ -20,8 +20,9 @@
  *
  */
 
+#include "hydrogen/config.h"
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 
 #ifndef LASH_CLIENT
 #define LASH_CLIENT
@@ -69,6 +70,6 @@ private:
 };
 
 #endif // LASH_CLIENT
-#endif // LASH_SUPPORT
+#endif // H2CORE_HAVE_LASH
 
 

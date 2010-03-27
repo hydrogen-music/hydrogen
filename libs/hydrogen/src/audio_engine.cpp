@@ -55,7 +55,7 @@ AudioEngine::AudioEngine()
 	__sampler = new Sampler;
 	__synth = new Synth;
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
 
@@ -66,7 +66,7 @@ AudioEngine::AudioEngine()
 AudioEngine::~AudioEngine()
 {
 	INFOLOG( "DESTROY" );
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	delete Effects::get_instance();
 #endif
 

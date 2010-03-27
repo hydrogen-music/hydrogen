@@ -23,7 +23,8 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 
-#ifdef LADSPA_SUPPORT
+#include "hydrogen/config.h"
+#ifdef H2CORE_HAVE_LADSPA
 
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>

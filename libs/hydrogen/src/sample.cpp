@@ -103,7 +103,7 @@ Sample* Sample::load( const QString& filename )
 /// load a FLAC file
 Sample* Sample::load_flac( const QString& filename )
 {
-#ifdef FLAC_SUPPORT
+#ifdef H2CORE_HAVE_FLAC
 	FLACFile file;
 	return file.load( filename );
 #else

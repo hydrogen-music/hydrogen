@@ -28,11 +28,12 @@
 #ifndef CORE_MIDI_DRIVER_H
 #define CORE_MIDI_DRIVER_H
 
-#ifdef COREMIDI_SUPPORT
-
-#include <CoreMidi/CoreMidi.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
+
+#ifdef H2CORE_HAVE_COREMIDI
+
+#include <CoreMidi/CoreMidi.h>
 
 namespace H2Core
 {
@@ -66,7 +67,7 @@ public:
 }
 ; // namespace
 
-#endif // COREMIDI_SUPPORT
+#endif // H2CORE_HAVE_COREMIDI
 
 
 #endif

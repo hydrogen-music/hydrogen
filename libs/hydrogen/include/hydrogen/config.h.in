@@ -18,50 +18,50 @@
 #define HYDROGEN_SVN_VERSION "@SVN_VERSION@"
 #define HYDROGEN_VERSION_FULL "@VERSION@-svn-@SVN_VERSION@"
 
-#ifndef DEBUG_SUPPORT
-#cmakedefine DEBUG_SUPPORT
+#ifndef H2CORE_HAVE_DEBUG
+#cmakedefine H2CORE_HAVE_DEBUG
 #endif
-#ifndef BUNDLE_SUPPORT
-#cmakedefine BUNDLE_SUPPORT
+#ifndef H2CORE_HAVE_BUNDLE
+#cmakedefine H2CORE_HAVE_BUNDLE
 #endif
-#ifndef LIBSNDFILE_SUPPORT
-#cmakedefine LIBSNDFILE_SUPPORT
+#ifndef H2CORE_HAVE_LIBSNDFILE
+#cmakedefine H2CORE_HAVE_LIBSNDFILE
 #endif
-#ifndef LIBARCHIVE_SUPPORT
-#cmakedefine LIBARCHIVE_SUPPORT
+#ifndef H2CORE_HAVE_LIBARCHIVE
+#cmakedefine H2CORE_HAVE_LIBARCHIVE
 #endif
-#ifndef OSS_SUPPORT
-#cmakedefine OSS_SUPPORT
+#ifndef H2CORE_HAVE_OSS
+#cmakedefine H2CORE_HAVE_OSS
 #endif
-#ifndef ALSA_SUPPORT
-#cmakedefine ALSA_SUPPORT
+#ifndef H2CORE_HAVE_ALSA
+#cmakedefine H2CORE_HAVE_ALSA
 #endif
-#ifndef JACK_SUPPORT
-#cmakedefine JACK_SUPPORT
+#ifndef H2CORE_HAVE_JACK
+#cmakedefine H2CORE_HAVE_JACK
 #endif
-#ifndef LASH_SUPPORT
-#cmakedefine LASH_SUPPORT
+#ifndef H2CORE_HAVE_LASH
+#cmakedefine H2CORE_HAVE_LASH
 #endif
-#ifndef PORTAUDIO_SUPPORT
-#cmakedefine PORTAUDIO_SUPPORT
+#ifndef H2CORE_HAVE_PORTAUDIO
+#cmakedefine H2CORE_HAVE_PORTAUDIO
 #endif
-#ifndef PORTMIDI_SUPPORT
-#cmakedefine PORTMIDI_SUPPORT
+#ifndef H2CORE_HAVE_PORTMIDI
+#cmakedefine H2CORE_HAVE_PORTMIDI
 #endif
-#ifndef COREAUDIO_SUPPORT
-#cmakedefine COREAUDIO_SUPPORT
+#ifndef H2CORE_HAVE_COREAUDIO
+#cmakedefine H2CORE_HAVE_COREAUDIO
 #endif
-#ifndef COREMIDI_SUPPORT
-#cmakedefine COREMIDI_SUPPORT
+#ifndef H2CORE_HAVE_COREMIDI
+#cmakedefine H2CORE_HAVE_COREMIDI
 #endif
-#ifndef FLAC_SUPPORT
-#cmakedefine FLAC_SUPPORT
+#ifndef H2CORE_HAVE_FLAC
+#cmakedefine H2CORE_HAVE_FLAC
 #endif
-#ifndef LRDF_SUPPORT
-#cmakedefine LRDF_SUPPORT
+#ifndef H2CORE_HAVE_LRDF
+#cmakedefine H2CORE_HAVE_LRDF
 #endif
-#ifndef LADSPA_SUPPORT
-#cmakedefine LADSPA_SUPPORT
+#ifndef H2CORE_HAVE_LADSPA
+#cmakedefine H2CORE_HAVE_LADSPA
 #endif
 
 #endif

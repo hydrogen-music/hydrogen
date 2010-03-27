@@ -21,7 +21,7 @@
  */
 
 #include <hydrogen/IO/JackOutput.h>
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -33,7 +33,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
 #endif
 
@@ -121,7 +121,7 @@ int JackOutput::connect()
 	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient && lashClient->isConnected())
@@ -574,7 +574,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 //	memset( out_L, 0, nBufferSize * sizeof( float ) );
 //	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient->isConnected())
@@ -831,4 +831,4 @@ void JackOutput::jack_timebase_callback_impl(jack_transport_state_t
 
 };
 
-#endif // JACK_SUPPORT
+#endif // H2CORE_HAVE_JACK

@@ -26,6 +26,7 @@
 
 #include "ui_LadspaFXSelector_UI.h"
 
+#include <hydrogen/config.h>
 #include <hydrogen/Object.h>
 
 #include <QtGui>
@@ -56,7 +57,7 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public O
 		QString m_sSelectedPluginName;
 		void buildLadspaGroups();
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 		void addGroup(QTreeWidgetItem *parent, H2Core::LadspaFXGroup *pGroup);
 		void addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup );
 		void buildGroup(QTreeWidgetItem *pNewItem, H2Core::LadspaFXGroup *pGroup);

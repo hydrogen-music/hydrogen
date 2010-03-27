@@ -23,7 +23,7 @@
 #ifndef HYDROGEN_APP_H
 #define HYDROGEN_APP_H
 
-
+#include <hydrogen/config.h>
 #include <hydrogen/Object.h>
 #include <hydrogen/globals.h>
 
@@ -94,7 +94,7 @@ class HydrogenApp : public QObject, public Object
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
                 void setWindowTitle( const QString& title);
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}
 #endif
 		void addEventListener( EventListener* pListener );
@@ -110,7 +110,7 @@ class HydrogenApp : public QObject, public Object
 	private:
 		static HydrogenApp *m_pInstance;	///< HydrogenApp instance
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 		LadspaFXProperties *m_pLadspaFXProperties[MAX_FX];
 #endif
 		MainForm *m_pMainForm;

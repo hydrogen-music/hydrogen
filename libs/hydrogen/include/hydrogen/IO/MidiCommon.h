@@ -23,6 +23,7 @@
 #ifndef H2_MIDI_COMMON_H
 #define H2_MIDI_COMMON_H
 
+#include "hydrogen/config.h"
 #include <hydrogen/Object.h>
 #include <string>
 #include <vector>

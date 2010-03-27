@@ -20,7 +20,6 @@
  *
  */
 
-
 #ifndef OSS_AUDIO_DRIVER_H
 #define OSS_AUDIO_DRIVER_H
 
@@ -28,7 +27,7 @@
 #include <hydrogen/IO/NullDriver.h>
 
 // check if OSS support is enabled
-#ifdef OSS_SUPPORT
+#ifdef H2CORE_HAVE_OSS
 
 
 #ifdef __NetBSD__

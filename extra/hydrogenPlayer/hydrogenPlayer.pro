@@ -46,23 +46,23 @@ macx {
 
 
 DEFINES += $$H2DEFINES
-contains(H2DEFINES, LRDF_SUPPORT ){
+contains(H2DEFINES, H2CORE_HAVE_LRDF ){
 	LIBS += -llrdf
 }
 
-contains(H2DEFINES, ALSA_SUPPORT ){
+contains(H2DEFINES, H2CORE_HAVE_ALSA ){
 	LIBS += -lasound
 }
 
-contains(H2DEFINES, JACK_SUPPORT ) {
+contains(H2DEFINES, H2CORE_HAVE_JACK ) {
 	LIBS += -ljack
 }
 
-contains(H2DEFINES, LASH_SUPPORT ) {
+contains(H2DEFINES, H2CORE_HAVE_LASH ) {
 	LIBS += -llash
 }
 
-contains(H2DEFINES, FLAC_SUPPORT ) {
+contains(H2DEFINES, H2CORE_HAVE_FLAC ) {
 	linux-g++ {
 		LIBS += -lFLAC -lFLAC++
 	}

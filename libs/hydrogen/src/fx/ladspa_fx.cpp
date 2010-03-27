@@ -20,9 +20,9 @@
  *
  */
 
-#ifdef LADSPA_SUPPORT
-
 #include <hydrogen/fx/LadspaFX.h>
+
+#ifdef H2CORE_HAVE_LADSPA
 #include <hydrogen/Preferences.h>
 
 #include <QDir>
@@ -454,4 +454,4 @@ void LadspaFX::setVolume( float fValue )
 };
 
 
-#endif // LADSPA_SUPPORT
+#endif // H2CORE_HAVE_LADSPA

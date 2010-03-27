@@ -26,7 +26,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/NullDriver.h>
 
-#ifdef PORTAUDIO_SUPPORT
+#ifdef H2CORE_HAVE_PORTAUDIO
 
 #include <inttypes.h>
 #include <portaudio.h>

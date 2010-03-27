@@ -24,7 +24,7 @@
 #include "Skin.h"
 #include "PlayerControl.h"
 #include "InstrumentRack.h"
-	#include "HydrogenApp.h"
+#include "HydrogenApp.h"
 
 #include "widgets/LCD.h"
 #include "widgets/Button.h"
@@ -601,7 +601,7 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	//jack transport master
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	if ( pPref->m_sAudioDriver == "Jack" ) {
 		m_pJackMasterBtn->show();
 		switch ( pPref->m_bJackMasterMode ) {
@@ -967,7 +967,7 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 //jack time master
 void PlayerControl::jackMasterBtnClicked( Button* )
 {	
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	Preferences *pPref = Preferences::get_instance();
 
 	if (m_pJackMasterBtn->isPressed()) {

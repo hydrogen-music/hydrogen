@@ -436,7 +436,7 @@ int Sampler::__render_note_no_resample(
 		nInstrument = 0;
 	}
 
-#ifdef JACK_SUPPORT 
+#ifdef H2CORE_HAVE_JACK 
 	JackOutput* jao = 0; 
 	float *track_out_L = 0; 
 	float *track_out_R = 0; 
@@ -469,7 +469,7 @@ int Sampler::__render_note_no_resample(
 			fVal_R = pNote->m_fLowPassFilterBuffer_R;
 		}
 
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	if( track_out_L ) { 
 		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
 	} 
@@ -500,7 +500,7 @@ int Sampler::__render_note_no_resample(
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -604,7 +604,7 @@ int Sampler::__render_note_resample(
 		nInstrument = 0;
 	}
 
-#ifdef JACK_SUPPORT 
+#ifdef H2CORE_HAVE_JACK 
 	JackOutput* jao = 0; 
 	float *track_out_L = 0; 
 	float *track_out_R = 0; 
@@ -653,7 +653,7 @@ int Sampler::__render_note_resample(
 		}
 
 
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	if( track_out_L ) { 
 		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
 	} 
@@ -685,7 +685,7 @@ int Sampler::__render_note_resample(
 
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );

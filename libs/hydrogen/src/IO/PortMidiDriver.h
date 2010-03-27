@@ -23,10 +23,10 @@
 #ifndef PORT_MIDI_DRIVER_H
 #define PORT_MIDI_DRIVER_H
 
-#ifdef PORTMIDI_SUPPORT
-
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
+
+#ifdef H2CORE_HAVE_PORTMIDI
 #include <portmidi.h>
 
 namespace H2Core

@@ -21,12 +21,13 @@
  */
 
 #include "flac_file.h"
+#include "hydrogen/config.h"
 #include <hydrogen/sample.h>
 
 #include <vector>
 #include <fstream>
 
-#ifdef FLAC_SUPPORT
+#ifdef H2CORE_HAVE_FLAC
 
 //#include "FLAC/file_decoder.h"
 #include <FLAC++/all.h>
@@ -243,5 +244,5 @@ Sample* FLACFile::load( const QString& sFilename ) {
 
 };
 
-#endif // FLAC_SUPPORT
+#endif // H2CORE_HAVE_FLAC
 

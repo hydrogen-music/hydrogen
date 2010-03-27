@@ -1,6 +1,6 @@
 
 #include "PortAudioDriver.h"
-#ifdef PORTAUDIO_SUPPORT
+#ifdef H2CORE_HAVE_PORTAUDIO
 
 #include <iostream>
 

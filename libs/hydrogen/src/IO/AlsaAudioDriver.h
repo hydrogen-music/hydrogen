@@ -25,7 +25,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/NullDriver.h>
 
-#ifdef ALSA_SUPPORT
+#ifdef H2CORE_HAVE_ALSA
 
 #include <inttypes.h>
 #include <alsa/asoundlib.h>
@@ -80,7 +80,7 @@ public:
 
 };
 
-#endif // ALSA_SUPPORT
+#endif // H2CORE_HAVE_ALSA
 
 };
 

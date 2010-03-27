@@ -27,7 +27,7 @@
 
 
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
 #endif
 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
                 H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 
                 LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
                 LashClient* lashClient = LashClient::get_instance();
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 
 
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
         if ( H2Core::Preferences::get_instance()->useLash() ){
                 if (lashClient->isConnected())
                 {
@@ -332,7 +332,7 @@ void showUsage()
         std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
         std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
                   << "                            it (LASH 0.5.3 and later)." << std::endl;
         std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl

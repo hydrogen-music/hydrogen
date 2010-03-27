@@ -23,7 +23,7 @@
 #include "OssDriver.h"
 
 // check if OSS support is enabled
-#ifdef OSS_SUPPORT
+#ifdef H2CORE_HAVE_OSS
 
 #include <hydrogen/Preferences.h>
 

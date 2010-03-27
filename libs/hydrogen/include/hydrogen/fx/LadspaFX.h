@@ -22,7 +22,8 @@
 #ifndef LADSPA_FX_H
 #define LADSPA_FX_H
 
-#ifdef LADSPA_SUPPORT
+#include "hydrogen/config.h"
+#ifdef H2CORE_HAVE_LADSPA
 
 #include <QLibrary>
 
@@ -193,4 +194,4 @@ private:
 
 #endif
 
-#endif // LADSPA_SUPPORT
+#endif // H2CORE_HAVE_LADSPA

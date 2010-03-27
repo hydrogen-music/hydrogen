@@ -20,6 +20,7 @@
  *
  */
 
+#include "hydrogen/config.h"
 
 #ifdef WIN32
 #    include "hydrogen/timeHelper.h"
@@ -162,7 +163,7 @@ int  m_audioEngineState = STATE_UNINITIALIZED;	///< Audio engine state
 
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 float m_fFXPeak_L[MAX_FX];
 float m_fFXPeak_R[MAX_FX];
 #endif
@@ -297,7 +298,7 @@ void audioEngine_init()
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
 	AudioEngine::create_instance();
@@ -481,7 +482,7 @@ inline void audioEngine_process_checkBPMChanged()
 			// update frame position
 			m_pAudioDriver->m_transport.m_nFrames = nNewFrames;
 			
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 			if ( "JackOutput" == m_pAudioDriver->get_class_name()
 			     && m_audioEngineState == STATE_PLAYING ) {
 				static_cast< JackOutput* >( m_pAudioDriver )
@@ -709,7 +710,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 		memset( m_pMainBuffer_R, 0, nFrames * sizeof( float ) );
 	}
 
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	JackOutput* jo = dynamic_cast<JackOutput*>(m_pAudioDriver);
 	if( jo && jo->has_track_outs() ) {
 		float* buf;
@@ -729,7 +730,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 
 	mx.unlock();
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	if ( m_audioEngineState >= STATE_READY ) {
 		Effects* pEffects = Effects::get_instance();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
@@ -796,7 +797,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			_INFOLOG( "End of song." );
 			return 1;	// kill the audio AudioDriver thread
 		}
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 		else if ( m_pAudioDriver->get_class_name() == sJackOutput ) {
 			// Do something clever :-s ... Jakob Lund
 			// Mainly to keep sync with Ardour.
@@ -835,7 +836,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 
 	timeval ladspaTime_start = renderTime_end;
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// Process LADSPA FX
 	if ( m_audioEngineState >= STATE_READY ) {
 		for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
@@ -940,7 +941,7 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 		return;
 	}
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( pFX == NULL ) {
@@ -974,7 +975,7 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 
 void audioEngine_renameJackPorts()
 {
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	// renames jack ports
 	if ( m_pSong == NULL ) {
 		return;
@@ -1559,7 +1560,7 @@ AudioOutput* createDriver( const QString& sDriver )
 			delete pDriver;
 			pDriver = NULL;
 		} else {
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 			static_cast<JackOutput*>(pDriver)->setConnectDefaults(
 				Preferences::get_instance()->m_bJackConnectDefaults
 				);
@@ -1671,7 +1672,7 @@ void audioEngine_startAudioDrivers()
 	}
 
 	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
-#ifdef ALSA_SUPPORT
+#ifdef H2CORE_HAVE_ALSA
 		// Create MIDI driver
 		AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
 		m_pMidiDriverOut = alsaMidiDriver;
@@ -1680,13 +1681,13 @@ void audioEngine_startAudioDrivers()
 		m_pMidiDriver->setActive( true );
 #endif
 	} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
-#ifdef PORTMIDI_SUPPORT
+#ifdef H2CORE_HAVE_PORTMIDI
 		m_pMidiDriver = new PortMidiDriver();
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
 	} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
-#ifdef COREMIDI_SUPPORT
+#ifdef H2CORE_HAVE_COREMIDI
 		m_pMidiDriver = new CoreMidiDriver();
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
@@ -1738,7 +1739,7 @@ void audioEngine_startAudioDrivers()
 			_ERRORLOG( "m_pMainBuffer_R == NULL" );
 		}
 
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 		audioEngine_renameJackPorts();
 #endif
 
@@ -2658,7 +2659,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		}
 	}
 
-	#ifdef JACK_SUPPORT
+	#ifdef H2CORE_HAVE_JACK
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 		renameJackPorts();
 	AudioEngine::get_instance()->unlock();
@@ -2836,7 +2837,7 @@ void Hydrogen::setPatternPos( int pos )
 
 void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	( *fL ) = m_fFXPeak_L[nFX];
 	( *fR ) = m_fFXPeak_R[nFX];
 #else
@@ -2849,7 +2850,7 @@ void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
 
 void Hydrogen::setLadspaFXPeak( int nFX, float fL, float fR )
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	m_fFXPeak_L[nFX] = fL;
 	m_fFXPeak_R[nFX] = fR;
 #endif
@@ -3008,7 +3009,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 }
 
 
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts()
 {
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
@@ -3181,7 +3182,7 @@ void Hydrogen::setHumantimeFrames(unsigned long hframes)
 
 
 
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
 	if ( m_pAudioDriver->get_class_name() == "JackOutput" ) {

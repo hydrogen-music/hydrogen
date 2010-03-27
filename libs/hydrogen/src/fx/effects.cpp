@@ -21,7 +21,7 @@
  */
 #include <hydrogen/fx/Effects.h>
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
@@ -32,7 +32,7 @@
 #include <QLibrary>
 #include <cassert>
 
-#ifdef LRDF_SUPPORT
+#ifdef H2CORE_HAVE_LRDF
 #include <lrdf.h>
 #endif
 
@@ -259,7 +259,7 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	}
 
 
-#ifdef LRDF_SUPPORT
+#ifdef H2CORE_HAVE_LRDF
 	LadspaFXGroup *pLRDFGroup = new LadspaFXGroup( "Categorized(LRDF)" );
 	m_pRootGroup->addChild( pLRDFGroup );
 	getRDF( pLRDFGroup, m_pluginList );
@@ -287,7 +287,7 @@ void Effects::updateRecentGroup()
 	}
 }
 
-#ifdef LRDF_SUPPORT
+#ifdef H2CORE_HAVE_LRDF
 
 
 void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
@@ -386,8 +386,8 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 }
 
 
-#endif // LRDF_SUPPORT
+#endif // H2CORE_HAVE_LRDF
 
 };
 
-#endif // LADSPA SUPPORT
+#endif // H2CORE_HAVE_LADSPA

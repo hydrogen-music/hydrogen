@@ -436,27 +436,27 @@ void PreferencesDialog::updateDriverInfo()
 	QString info;
 
 	bool bJack_support = false;
-	#ifdef JACK_SUPPORT
+	#ifdef H2CORE_HAVE_JACK
 	bJack_support = true;
 	#endif
 
 	bool bAlsa_support = false;
-	#ifdef ALSA_SUPPORT
+	#ifdef H2CORE_HAVE_ALSA
 	bAlsa_support = true;
 	#endif
 
 	bool bOss_support = false;
-	#ifdef OSS_SUPPORT
+	#ifdef H2CORE_HAVE_OSS
 	bOss_support = true;
 	#endif
 
 	bool bPortAudio_support = false;
-	#ifdef PORTAUDIO_SUPPORT
+	#ifdef H2CORE_HAVE_PORTAUDIO
 	bPortAudio_support = true;
 	#endif
 
 	bool bCoreAudio_support = false;
-	#ifdef COREAUDIO_SUPPORT
+	#ifdef H2CORE_HAVE_COREAUDIO
 	bCoreAudio_support = true;
 	#endif
 

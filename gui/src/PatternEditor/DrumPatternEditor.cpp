@@ -1337,7 +1337,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
 		}
 
-		#ifdef JACK_SUPPORT
+		#ifdef H2CORE_HAVE_JACK
 		engine->renameJackPorts();
 		#endif
 
@@ -1354,7 +1354,7 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 	pEngine->removeInstrument( nTargetInstrument, false );
 	
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	pEngine->renameJackPorts();
 #endif
 	AudioEngine::get_instance()->unlock();
@@ -1384,7 +1384,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
 
-		#ifdef JACK_SUPPORT
+		#ifdef H2CORE_HAVE_JACK
 		pEngine->renameJackPorts();
 		#endif
 
@@ -1428,7 +1428,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
 
-	#ifdef JACK_SUPPORT
+	#ifdef H2CORE_HAVE_JACK
 	pEngine->renameJackPorts();
 	#endif
 
@@ -1474,7 +1474,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 	pEngine->removeInstrument( pEngine->getSong()->get_instrument_list()->get_size() -1 , false );
 	
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 	pEngine->renameJackPorts();
 #endif
 	AudioEngine::get_instance()->unlock();
@@ -1500,7 +1500,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	Instrument *pNewInstr = new Instrument(QString::number( nID ), "New instrument", new ADSR());
 	pList->add( pNewInstr );
 	
-	#ifdef JACK_SUPPORT
+	#ifdef H2CORE_HAVE_JACK
 	Hydrogen::get_instance()->renameJackPorts();
 	#endif
 	

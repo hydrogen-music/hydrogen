@@ -133,7 +133,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 
 	for ( uint i = 0; i < m_pInputControlFaders.size(); i++ ) {
@@ -165,7 +165,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 
 void LadspaFXProperties::updateControls()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	INFOLOG( "*** [updateControls] ***" );
 	m_pTimer->stop();
 
@@ -339,7 +339,7 @@ void LadspaFXProperties::updateControls()
 
 void LadspaFXProperties::selectFXBtnClicked()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	LadspaFXSelector fxSelector(m_nLadspaFX);
 	if (fxSelector.exec() == QDialog::Accepted) {
 		QString sSelectedFX = fxSelector.getSelectedFX();
@@ -377,7 +377,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 
 void LadspaFXProperties::updateOutputControls()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 
 //	INFOLOG( "[updateOutputControls]" );
 //	Song *pSong = (Hydrogen::get_instance() )->getSong();
@@ -425,7 +425,7 @@ void LadspaFXProperties::updateOutputControls()
 
 void LadspaFXProperties::activateBtnClicked()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 //	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 	if (pFX) {

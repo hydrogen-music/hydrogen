@@ -23,10 +23,10 @@
 #ifndef ALSA_MIDI_DRIVER_H
 #define ALSA_MIDI_DRIVER_H
 
-#ifdef ALSA_SUPPORT
-
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
+
+#ifdef H2CORE_HAVE_ALSA
 
 #include <alsa/asoundlib.h>
 #include <string>
@@ -60,6 +60,6 @@ private:
 
 };
 
-#endif // ALSA_SUPPORT
+#endif // H2CORE_HAVE_ALSA
 
 #endif

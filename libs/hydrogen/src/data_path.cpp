@@ -46,7 +46,7 @@ QString DataPath::get_data_path()
 {
 #ifdef Q_OS_MACX
     //Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
-    #ifdef BUNDLE_SUPPORT
+    #ifdef H2CORE_HAVE_BUNDLE
 	QString qStringPath = qApp->applicationDirPath() + QString ( "/../Resources/data" ) ;
     #elif NO_GUI_SUPPORT
 	QString qStringPath = QString ( "./data" ) ;

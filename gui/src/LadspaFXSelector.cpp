@@ -60,7 +60,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	m_pGroupsListView->setHeaderLabels( QStringList( trUtf8( "Groups" ) ) );
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	//Song *pSong = Hydrogen::get_instance()->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
@@ -94,7 +94,7 @@ LadspaFXSelector::~LadspaFXSelector()
 
 void LadspaFXSelector::buildLadspaGroups()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	m_pGroupsListView->clear();
 
 //	QTreeWidgetItem* pRootItem = new QTreeWidgetItem( );
@@ -113,7 +113,7 @@ void LadspaFXSelector::buildLadspaGroups()
 
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 void LadspaFXSelector::addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup )
 {
 	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( parent );
@@ -169,7 +169,7 @@ QString LadspaFXSelector::getSelectedFX()
 
 void LadspaFXSelector::pluginSelected()
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	//INFOLOG( "[pluginSelected]" );
 	//
         
@@ -214,7 +214,7 @@ void LadspaFXSelector::pluginSelected()
 void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem * currentItem, QTreeWidgetItem * previous )
 {
 	UNUSED( previous );
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	//INFOLOG( "new selection: " + currentItem->text(0).toLocal8Bit().constData() );
 
 	m_pOkBtn->setEnabled(false);
@@ -260,7 +260,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 }
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 std::vector<H2Core::LadspaFXInfo*> LadspaFXSelector::findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup )
 {
 	//INFOLOG( "group: " + sSelectedGroup );

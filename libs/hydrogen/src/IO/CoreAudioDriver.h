@@ -29,13 +29,14 @@
 #ifndef COREAUDIO_DRIVER_H
 #define COREAUDIO_DRIVER_H
 
-#ifdef COREAUDIO_SUPPORT
+#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/NullDriver.h>
+
+#ifdef H2CORE_HAVE_COREAUDIO
 #include <AudioUnit/AudioUnit.h>
 #include <AudioToolbox/AudioToolbox.h>
 #endif
 
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/NullDriver.h>
 #include <hydrogen/Preferences.h>
 #include <inttypes.h>
 

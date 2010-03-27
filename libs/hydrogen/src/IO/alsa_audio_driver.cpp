@@ -19,9 +19,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifdef ALSA_SUPPORT
 
 #include "AlsaAudioDriver.h"
+
+#ifdef H2CORE_HAVE_ALSA
+
 #include <pthread.h>
 #include <iostream>
 #include <hydrogen/Preferences.h>
@@ -322,4 +324,4 @@ void AlsaAudioDriver::setBpm( float fBPM )
 
 };
 
-#endif // ALSA_SUPPORT
+#endif // H2CORE_HAVE_ALSA

@@ -22,7 +22,7 @@
 
 #include "AlsaMidiDriver.h"
 
-#ifdef ALSA_SUPPORT
+#ifdef H2CORE_HAVE_ALSA
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -34,7 +34,7 @@
 #include <hydrogen/note.h>
 #include <hydrogen/instrument.h>
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
 #endif
 
@@ -97,7 +97,7 @@ void* alsaMidiDriver_thread( void* param )
 	
 	clientId = snd_seq_client_id( seq_handle );
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient && lashClient->isConnected())
@@ -527,5 +527,5 @@ void AlsaMidiDriver::handleQueueAllNoteOff()
 
 };
 
-#endif // ALSA_SUPPORT
+#endif // H2CORE_HAVE_ALSA
 

@@ -26,11 +26,11 @@
  * Created by Jaakko Sipari (jaakko.sipari@gmail.com)
  */
 
+#include <hydrogen/LashClient.h>
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 
 #include <lash-1.0/lash/lash.h>
-#include <hydrogen/LashClient.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
 

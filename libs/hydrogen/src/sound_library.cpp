@@ -33,7 +33,7 @@
 
 #include <cstdlib>
 
-#ifdef LIBARCHIVE_SUPPORT
+#ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>		// used for drumkit install
 #include <archive_entry.h>	// used for drumkit install
 #else //use libtar
@@ -141,7 +141,7 @@ void Drumkit::dump()
 	}
 }
 
-#ifdef LIBARCHIVE_SUPPORT
+#ifdef H2CORE_HAVE_LIBARCHIVE
 void Drumkit::install( const QString& filename )
 {
 	_INFOLOG( "[Drumkit::install] drumkit = " + filename );

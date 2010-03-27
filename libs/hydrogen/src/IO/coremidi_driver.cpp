@@ -27,10 +27,9 @@
  * Added CFRelease code (20060514 Jonathan Dempsey)
  */
 
+#include "hydrogen/IO/CoreMidiDriver.h"
 
-#ifdef COREMIDI_SUPPORT
-
-#include <hydrogen/IO/CoreMidiDriver.h>
+#ifdef H2CORE_HAVE_COREMIDI
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/note.h>

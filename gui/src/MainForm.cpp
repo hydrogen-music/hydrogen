@@ -19,9 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+
 #include <hydrogen/version.h>
-
-
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/audio_engine.h>
@@ -65,7 +64,7 @@ using namespace H2Core;
         #include <sys/socket.h>
 #endif
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 #include <lash-1.0/lash/lash.h>
 #include <hydrogen/LashClient.h>
 #endif
@@ -153,7 +152,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	m_autosaveTimer.start( 60 * 1000 );
 
 
-#ifdef LASH_SUPPORT
+#ifdef H2CORE_HAVE_LASH
 
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
@@ -333,7 +332,7 @@ void MainForm::createMenuBar()
 
 void MainForm::onLashPollTimer()
 {
-#ifdef LASH_SUPPORT	
+#ifdef H2CORE_HAVE_LASH	
 if ( Preferences::get_instance()->useLash() ){
 	LashClient* client = LashClient::get_instance();
 	
@@ -974,7 +973,7 @@ void MainForm::closeAll() {
 	pref->setAudioEngineInfoProperties( audioEngineInfoProp );
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		WindowProperties prop;

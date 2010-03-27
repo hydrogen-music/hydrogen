@@ -27,7 +27,7 @@
 #include <hydrogen/IO/NullDriver.h>
 
 // check if jack support is enabled
-#ifdef JACK_SUPPORT
+#ifdef H2CORE_HAVE_JACK
 
 #include <pthread.h>
 #include <jack/jack.h>
@@ -161,7 +161,7 @@ public:
 };
 
 
-#endif // JACK_SUPPORT
+#endif // H2CORE_HAVE_JACK
 
 };
 

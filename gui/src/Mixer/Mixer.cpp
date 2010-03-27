@@ -120,7 +120,7 @@ Mixer::Mixer( QWidget* pParent )
 	connect( m_pShowFXPanelBtn, SIGNAL(clicked(Button*)), this, SLOT( showFXPanelClicked(Button*)));
 	m_pShowFXPanelBtn->setPressed( Preferences::get_instance()->isFXTabVisible() );
 
-#ifndef LADSPA_SUPPORT
+#ifndef H2CORE_HAVE_LADSPA
 	m_pShowFXPanelBtn->hide();
 #endif
 
@@ -539,7 +539,7 @@ void Mixer::updateMixer()
 	m_pMasterLine->updateMixerLine();
 
 
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -725,7 +725,7 @@ void Mixer::showPeaksBtnClicked(Button* ref)
 
 void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	bool bActive = ref->isFxActive();
 
 	//Hydrogen *engine = Hydrogen::get_instance();
@@ -747,7 +747,7 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 
 void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
@@ -763,7 +763,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 
 void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
-#ifdef LADSPA_SUPPORT
+#ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->__is_modified = true;
 
