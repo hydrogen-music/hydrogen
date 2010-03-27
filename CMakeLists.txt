@@ -42,14 +42,14 @@ OPTION(WANT_LRDF        "Include LRDF (Lightweight Resource Description Framewor
 OPTION(WANT_FLAC        "Include FLAC (Free Lossless Audio Codec) support" OFF)
 
 IF(WANT_SHARED)
-    SET(HYDROGEN_CORE_LIBRARY_TYPE SHARED)
+    SET(H2CORE_LIBRARY_TYPE SHARED)
 ELSE()
-    SET(HYDROGEN_CORE_LIBRARY_TYPE STATIC)
+    SET(H2CORE_LIBRARY_TYPE STATIC)
 ENDIF()
 IF(WANT_DEBUG)
-    SET(HYDROGEN_DEBUG_SUPPORT TRUE)
+    SET(H2CORE_HAVE_DEBUG TRUE)
 ELSE()
-    SET(HYDROGEN_DEBUG_SUPPORT FALSE)
+    SET(H2CORE_HAVE_DEBUG FALSE)
 ENDIF()
 
 #
@@ -69,7 +69,7 @@ IF(WIN32)
 ELSE(WIN32)
     IF(APPLE)
 	LINK_DIRECTORIES("/opt/local/lib")
-        SET(HYDROGEN_BUNDLE_SUPPORT TRUE)
+        SET(H2CORE_HAVE_BUNDLE TRUE)
     ELSE(APPLE)
         SET(OSS_LIB_PATHS "/usr/lib/oss/lib" "/usr/local/lib/oss/lib" )
         SET(DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
@@ -124,7 +124,7 @@ SET(QT_USE_QTXML true)
 FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
 
 #
-# COMPUTE HYDROGEN_SUPPORT_xx xx_STATUS_REPORT ADD_DEFINITIONS( ... )
+# COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
 SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK COREAUDIO COREMIDI PORTAUDIO PORTMIDI LASH LRDF FLAC )
 FOREACH( _pkg ${STATUS_LIST})
@@ -139,8 +139,8 @@ MESSAGE("\n"
 "--------------------\n"
 "* Install Directory            : ${CMAKE_INSTALL_PREFIX}\n"
 "* Data path                    : ${DATA_PATH}\n"
-"* core library build as        : ${HYDROGEN_CORE_LIBRARY_TYPE}\n"
-"* debug capabilities           : ${HYDROGEN_DEBUG_SUPPORT}\n"
+"* core library build as        : ${H2CORE_LIBRARY_TYPE}\n"
+"* debug capabilities           : ${H2CORE_HAVE_DEBUG}\n"
 "* Qt4 version                  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}\n"
 "* libsndfile                   : ${LIBSNDFILE_STATUS}\n"
 "* libtar                       : ${LIBTAR_STATUS}\n"

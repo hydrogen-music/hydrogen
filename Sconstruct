@@ -58,28 +58,6 @@ def get_platform_flags( opts ):
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
 			for flag in env["optflags"].split(" "):
 				cppflags.append(flag)
-		
-		if str(env['oss']) == "1": cppflags.append('-DOSS_SUPPORT')
-		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
-		if str(env['jack']) == "1": cppflags.append('-DJACK_SUPPORT')
-		if str(env['lash']) == "1": cppflags.append('-DLASH_SUPPORT')
-                if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
-		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
-		if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
-                if str(env['flac']) == "1": cppflags.append('-DFLAC_SUPPORT')
-		
-                #OSX related stuff..
-
-		if sys.platform == "darwin":
-		    if str(env['coreaudio']) == "1": cppflags.append('-DCOREAUDIO_SUPPORT')
-		    if str(env['coremidi']) == "1": cppflags.append('-DCOREMIDI_SUPPORT')
-		    if str(env['bundle']) == "1": cppflags.append('-DBUNDLE_SUPPORT')
-
-		cppflags.append('-DLADSPA_SUPPORT')
-		
-
-	if str(env['gui']) == "0": cppflags.append('-DNO_GUI_SUPPORT')
-	if str(env['libarchive']) == "1": cppflags.append('-DLIBARCHIVE_SUPPORT')
 
 	includes.append( './' )
 	includes.append( 'gui/src/' )
@@ -499,32 +477,44 @@ print "\n================================================================="
 print ""
 
 # write the config.h file
-conf = open("libs/hydrogen/include/hydrogen/config.h", "w")
+conf_in = open("libs/hydrogen/include/hydrogen/config.h.in", "r")
+conf_in_str = conf_in.read()
+conf_in.close()
 
-conf.write( "#ifndef HYD_CONFIG_H\n" )
-conf.write( "#define HYD_CONFIG_H\n" )
-conf.write( "#include <string>\n" )
+conf_in_str = conf_in_str.replace( "@DATA_PATH@",  ("%s/share/hydrogen/data" % env['prefix'] ) )
+conf_in_str = conf_in_str.replace( "@CMAKE_INSTALL_PREFIX@",  env['prefix'] )
+conf_in_str = conf_in_str.replace( "@VERSION@",  '0.9.5' )
+conf_in_str = conf_in_str.replace( "@SVN_VERSION@",  'exported' )
 
+conf_in_str = conf_in_str.replace( "#cmakedefine H2CORE_HAVE_LIBSNDFILE", "  #define H2CORE_HAVE_LIBSNDFILE" )
 
-if str(env['debug']) == "1": conf.write( "#define CONFIG_DEBUG\n" )
-if str(env['lash']) == "1": conf.write( "#define LASH\n" )
+def replace_sym( cond, sym ):
+    global conf_in_str
+    if cond:
+        repl = "  #define H2CORE_HAVE_"+sym
+    else:
+        repl = "  //#define H2CORE_HAVE_"+sym
+    conf_in_str = conf_in_str.replace( "#cmakedefine H2CORE_HAVE_"+sym, repl )
 
-conf.write( "#ifndef QT_BEGIN_NAMESPACE\n" )
-conf.write( "#    define QT_BEGIN_NAMESPACE\n" )
-conf.write( "#endif\n" )
-conf.write( "#ifndef QT_END_NAMESPACE\n" )
-conf.write( "#    define QT_END_NAMESPACE\n" )
-conf.write( "#endif\n" )
+replace_sym( str(env['debug'])=='1', 'DEBUG' )
+replace_sym( True, 'LADSPA' )
+replace_sym( str(env['libarchive'])=='1', 'LIBARCHIVE' )
+replace_sym( str(env['oss'])=='1', 'OSS' )
+replace_sym( str(env['alsa'])=='1', 'ALSA' )
+replace_sym( str(env['jack'])=='1', 'JACK' )
+replace_sym( str(env['lash'])=='1', 'LASH' )
+replace_sym( str(env['lash'])=='1' and str(env['lrdf'])=='1', 'LRDF' )
+replace_sym( str(env['portaudio'])=='1', 'PORTAUDIO' )
+replace_sym( str(env['portmidi'])=='1', 'PORTMIDI' )
+replace_sym( str(env['flac']) == '1', "FLAC" )
+replace_sym( sys.platform=='darwin' and str(env['bundle'])=='1', 'BUNDLE' )
+replace_sym( sys.platform=='darwin' and str(env['coreaudio'])=='1', 'COREAUDIO' )
+replace_sym( sys.platform=='darwin' and str(env['coremidi'])=='1', 'COREMIDI' )
+if str(env['gui']) == "0": cppflags.append('-DNO_GUI_SUPPORT')
 
-conf.write( "#define CONFIG_PREFIX \"%s\"\n" % env['prefix'] )
-conf.write( "#define DATA_PATH \"%s/share/hydrogen/data\"\n" % env['prefix'] )
-conf.write( "#define HYDROGEN_VERSION \"%s\"\n" % '0.9.5')
-conf.write( "#define HYDROGEN_SVN_VERSION \"%s\"\n" % 'exported' )
-conf.write( "#define HYDROGEN_VERSION_FULL \"%s\"\n" % ( '0.9.5-svn-'+get_svn_revision() ) )
-
-conf.write( "#endif\n" )
-
-conf.close()
+conf_out = open("libs/hydrogen/include/hydrogen/config.h", "w")
+conf_out.write( conf_in_str )
+conf_out.close()
 
 libhyd = get_hydrogen_lib( opts )
 app = get_hydrogen_gui( libhyd , opts )

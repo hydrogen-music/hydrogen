@@ -17,9 +17,7 @@ macro(COMPUTE_PKGS_FLAGS prefix)
             SET(${prefix}_INCLUDE_DIR "" )
         else()
             SET(${prefix}_STATUS "+ used ${${prefix}_VERSION} ( ${${prefix}_LIBRARIES} )")
-            #  SET(HYDROGEN_${prefix}_SUPPORT           #TRUE) TODO enable with HYDROGEN_XXX_SUPPORT or H2_XXX_SUPPORT
-            SET(${prefix}_SUPPORT TRUE)                 # TODO remove
-            ADD_DEFINITIONS( -D${prefix}_SUPPORT )      # TODO remove
+            SET(H2CORE_HAVE_${prefix} TRUE)
         endif()
     else()
         SET(${prefix}_LIBRARIES "" )
