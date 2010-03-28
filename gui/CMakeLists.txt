@@ -3,6 +3,22 @@ FILE(GLOB_RECURSE hydrogen_UIS src/*.ui)
 FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp)
 FILE(GLOB_RECURSE hydrogen_H src/*.h)
 
+# add undiscovered dependencies to generated config.h
+INCLUDE(AddFileDependencies)
+SET( CORE_DEP_FILES_LIST
+    src/main.cpp
+    src/HydrogenApp.cpp
+    src/LadspaFXProperties.cpp
+    src/LadspaFXSelector.cpp
+    src/MainForm.cpp
+    src/Mixer/Mixer.cpp
+    src/PatternEditor/DrumPatternEditor.cpp
+    src/PlayerControl.cpp
+    src/PreferencesDialog.cpp )
+FOREACH( _file ${CORE_DEP_FILES_LIST})
+    ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/libs/hydrogen/include/hydrogen/config.h)
+ENDFOREACH()
+
 QT4_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS}) # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
 QT4_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
 
@@ -21,5 +37,7 @@ TARGET_LINK_LIBRARIES(hydrogen
     ${QT_QTGUI_LIBRARY}
     ${QT_QTNETWORK_LIBRARY}
 )
+
+ADD_DEPENDENCIES(hydrogen hydrogen-core)
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION bin BUNDLE DESTINATION bin )
