@@ -1951,7 +1951,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	if ( H->getCurrentPatternList()->get_size() != 0 ) {
 		H2Core::Pattern *pPattern = H->getCurrentPatternList()->get( 0 );
-		fPos += (float)H->getTickPosition() / (float)pPattern->get_length();
+
+		if (pPattern != NULL){
+		    fPos += (float)H->getTickPosition() / (float)pPattern->get_length();
+		} else {
+		    fPos += (float)H->getTickPosition() / (float)MAX_NOTES;
+		}
 	}
 	else {
 		// nessun pattern, uso la grandezza di default
