@@ -3,7 +3,7 @@
 BUILDER=${BUILDER:-cmake}
 QTDIR=/usr/lib/qt
 VERBOSE=0
-CMAKE_OPTIONS="-DWANT_DEBUG=1 -DWANT_SHARED=1 -DWANT_JACK=1 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1"
+CMAKE_OPTIONS="-DWANT_DEBUG=0 -DWANT_SHARED=1 -DWANT_JACK=0 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DWANT_OSS=1 -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1 -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_FLAC=1"
 CMAKE_OPTIONS_="${CMAKE_OPTIONS} -DWANT_COREAUDIO=1 -DWANT_COREMIDI=1"
 
@@ -28,6 +28,10 @@ function scons_make () {
     echo -e " * scons make\n" && scons
 }
 
+function scons_graph () {
+    echo -e " * sorry, no can do\n"
+}
+
 function scons_help () {
     echo -e " * scons make\n" && scons
 }
@@ -45,11 +49,23 @@ function cmake_make () {
     if [ ! -d build ]; then
         mkdir build
     fi
-    if [ $VERBOSE -eq 1 ]; then
-        cd build && cmake ${CMAKE_OPTIONS} .. && VERBOSE=1 make
-    else
-        cd build && cmake ${CMAKE_OPTIONS} .. && make
+    cd build
+    if [ ! -e CMakeCache.txt ]; then
+        cmake ${CMAKE_OPTIONS} ..
     fi
+    if [ $VERBOSE -eq 1 ]; then
+        VERBOSE=1 make
+    else
+        make
+    fi
+}
+
+function cmake_graph () {
+    echo -e " * cmake graphviz\n"
+    if [ ! -d build ]; then
+        mkdir build
+    fi
+    cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot
 }
 
 function cmake_help () {
@@ -82,6 +98,9 @@ for arg in $@; do
             ;;
         "make")
             cmd="${BUILDER}_${arg}"
+            ;;
+        "g")
+            cmd="${BUILDER}_graph"
             ;;
         "h")
             cmd="${BUILDER}_help"
