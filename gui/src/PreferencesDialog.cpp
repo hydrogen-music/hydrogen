@@ -277,10 +277,10 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	Preferences *pPref = Preferences::get_instance();
 
-	midiTable->saveMidiTable();
-
 	MidiMap *mM = MidiMap::get_instance(); 
 	mM->reset_instance(); 
+
+	midiTable->saveMidiTable();
 
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {
