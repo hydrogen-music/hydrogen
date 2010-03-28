@@ -279,6 +279,9 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	midiTable->saveMidiTable();
 
+	MidiMap *mM = MidiMap::get_instance(); 
+	mM->reset_instance(); 
+
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {
 		pPref->m_sAudioDriver = "Auto";
