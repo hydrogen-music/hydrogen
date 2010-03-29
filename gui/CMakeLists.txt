@@ -1,32 +1,26 @@
 
+FILE(GLOB_RECURSE hydrogen_H src/*.h)
 FILE(GLOB_RECURSE hydrogen_UIS src/*.ui)
 FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp)
-FILE(GLOB_RECURSE hydrogen_H src/*.h)
 
 # add undiscovered dependencies to generated config.h
 INCLUDE(AddFileDependencies)
-SET( CORE_DEP_FILES_LIST
-    src/main.cpp
-    src/HydrogenApp.cpp
-    src/LadspaFXProperties.cpp
-    src/LadspaFXSelector.cpp
-    src/MainForm.cpp
-    src/Mixer/Mixer.cpp
-    src/PatternEditor/DrumPatternEditor.cpp
-    src/PlayerControl.cpp
-    src/PreferencesDialog.cpp )
-FOREACH( _file ${CORE_DEP_FILES_LIST})
-    ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/libs/hydrogen/include/hydrogen/config.h)
+FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
+    FILE(READ "${_file}" _FILE_CONTENT)
+    IF( "${_FILE_CONTENT}" MATCHES "H2CORE_HAVE_" )
+        ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/libs/hydrogen/include/hydrogen/config.h)
+    ENDIF()
 ENDFOREACH()
 
-QT4_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS}) # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
+QT4_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS})             # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
 QT4_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}                                 # TODO remove when gui and core are nicely splitted
+    #${CMAKE_SOURCE_DIR}                                 # TODO remove when gui and core are nicely splitted
     ${CMAKE_CURRENT_BINARY_DIR}                         # ui_ headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src                     # gui headers 
     ${CMAKE_SOURCE_DIR}/libs/hydrogen/include           # core headers
+    ${CMAKE_BINARY_DIR}/libs/hydrogen/include           # generated config.h
     ${LASH_INCLUDE_DIR}
     ${QT_INCLUDES}
 )
