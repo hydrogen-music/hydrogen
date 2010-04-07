@@ -409,7 +409,7 @@ void showInfo()
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
-	if ( Object::is_using_verbose_log() ) {
+	if ( Object::counts_objects() ) {
 		cout << "\nVerbose log mode = active" << endl;
 	}
 

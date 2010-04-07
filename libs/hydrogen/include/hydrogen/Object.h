@@ -33,29 +33,28 @@
 class Object
 {
 public:
-	static bool __use_log;
+    /** Constructor */
+    Object( const QString& className );
+    Object( const Object& obj );
 
-	/** Constructor */
-	Object( const QString& className );
-	Object( const Object& obj );
+    /** Destructor */
+    virtual ~Object();
 
-	/** Destructor */
-	virtual ~Object();
-
-	const QString& get_class_name() const {
-		return __class_name;
+    const QString& get_class_name() const {
+        return __class_name;
 	}
 
-	static int get_objects_number();
-	static void print_object_map();
-	static void set_logging_level( const char* level ); // May be None, Error, Warning, Info, or Debug
-	static bool is_using_verbose_log();
+    static int get_objects_number();
+    static void print_object_map();
+    static void set_logging_level( const char* level ); // May be None, Error, Warning, Info, or Debug
+    static bool counts_objects() { return __count_objects; }
 
 private:
-	static unsigned __objects;
-	static std::map<QString, int> __object_map;
-	Logger *__logger;
-	QString __class_name;
+    static bool __count_objects;
+    static unsigned __objects;
+    static std::map<QString, int> __object_map;
+    Logger *__logger;
+    QString __class_name;
 };
 
 // LOG MACROS

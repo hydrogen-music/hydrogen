@@ -31,7 +31,7 @@
 #endif
 
 unsigned int Object::__objects = 0;
-bool Object::__use_log = false;
+bool Object::__count_objects = false;
 std::map<QString, int> Object::__object_map;
 
 /**
@@ -43,7 +43,7 @@ Object::Object( const QString& class_name )
 	++__objects;
 	__logger = Logger::get_instance();
 
-	if ( __use_log ) {
+	if ( __count_objects ) {
 		int nInstances = __object_map[ __class_name ];
 		++nInstances;
 		__object_map[ __class_name ] = nInstances;
@@ -62,7 +62,7 @@ Object::Object( const Object& obj )
 //	__class_name = obj.getClassName;
 	__logger = Logger::get_instance();
 
-	if ( __use_log ) {
+	if ( __count_objects ) {
 		int nInstances = __object_map[ __class_name ];
 		++nInstances;
 		__object_map[ __class_name ] = nInstances;
@@ -76,7 +76,7 @@ Object::~Object()
 {
 	--__objects;
 
-	if ( __use_log ) {
+	if ( __count_objects ) {
 		int nInstances = __object_map[ __class_name ];
 		--nInstances;
 		__object_map[ __class_name ] = nInstances;
@@ -96,18 +96,13 @@ void Object::set_logging_level(const char* level)
 {
     unsigned log_level = Logger::parse_log_level( level );
 	Logger::set_log_level( log_level );
-	__use_log = (log_level&Logger::Debug)>0;
-	Logger::get_instance()->__use_file = __use_log;
-}
-
-bool Object::is_using_verbose_log()
-{
-	return __use_log;
+	__count_objects = (log_level&Logger::Debug)>0;
+	Logger::get_instance()->__use_file = __count_objects;
 }
 
 void Object::print_object_map()
 {
-	if (!__use_log) {
+	if (!__count_objects) {
 		std::cout << "[Object::print_object_map -- "
 			"object map disabled.]" << std::endl;
 		return;
