@@ -18,6 +18,8 @@
 #define HYDROGEN_SVN_VERSION "@SVN_VERSION@"
 #define HYDROGEN_VERSION_FULL "@VERSION@-svn-@SVN_VERSION@"
 
+#cmakedefine HAVE_SSCANF
+
 #ifndef H2CORE_HAVE_DEBUG
 #cmakedefine H2CORE_HAVE_DEBUG
 #endif

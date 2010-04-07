@@ -511,6 +511,7 @@ replace_sym( sys.platform=='darwin' and str(env['bundle'])=='1', 'BUNDLE' )
 replace_sym( sys.platform=='darwin' and str(env['coreaudio'])=='1', 'COREAUDIO' )
 replace_sym( sys.platform=='darwin' and str(env['coremidi'])=='1', 'COREMIDI' )
 if str(env['gui']) == "0": cppflags.append('-DNO_GUI_SUPPORT')
+conf_in_str = conf_in_str.replace( "#cmakedefine HAVE_SSCANF", "/* #undef HAVE_SSCANF */" )
 
 conf_out = open("libs/hydrogen/include/hydrogen/config.h", "w")
 conf_out.write( conf_in_str )
