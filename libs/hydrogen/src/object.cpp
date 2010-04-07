@@ -21,7 +21,6 @@
  */
 
 #include "hydrogen/Object.h"
-#include "hydrogen/util.h"
 
 #include <iostream>
 
@@ -95,49 +94,10 @@ int Object::get_objects_number()
 
 void Object::set_logging_level(const char* level)
 {
-	const char none[] = "None";
-	const char error[] = "Error";
-	const char warning[] = "Warning";
-	const char info[] = "Info";
-	const char debug[] = "Debug";
-	bool use;
-	unsigned log_level;
-
-	// insert hex-detecting code here.  :-)
-
-	if( 0 == strncasecmp( level, none, sizeof(none) ) ) {
-		log_level = 0;
-		use = false;
-	} else if ( 0 == strncasecmp( level, error, sizeof(error) ) ) {
-		log_level = Logger::Error;
-		use = true;
-	} else if ( 0 == strncasecmp( level, warning, sizeof(warning) ) ) {
-		log_level = Logger::Error | Logger::Warning;
-		use = true;
-	} else if ( 0 == strncasecmp( level, info, sizeof(info) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info;
-		use = true;
-	} else if ( 0 == strncasecmp( level, debug, sizeof(debug) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
-		use = true;
-	} else {
-		int val = H2Core::hextoi(level, -1);
-		if( val == 0 ) {
-			// Probably means hex was invalid.  Use -VNone instead.
-			log_level = Logger::Error;
-		} else {
-			log_level = val;
-			if( log_level & ~0x1 ) {
-				use = true;
-			} else {
-				use = false;
-			}
-		}
-	}
-
+    unsigned log_level = Logger::parse_log_level( level );
 	Logger::set_log_level( log_level );
-	__use_log = use;
-	Logger::get_instance()->__use_file = use;
+	__use_log = (log_level&Logger::Debug)>0;
+	Logger::get_instance()->__use_file = __use_log;
 }
 
 bool Object::is_using_verbose_log()

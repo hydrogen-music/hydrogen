@@ -33,6 +33,7 @@
 
 unsigned Logger::__log_level = 0;
 Logger* Logger::__instance=0;
+const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug" };
 
 pthread_t loggerThread;
 
@@ -191,3 +192,81 @@ void Logger::log( unsigned level,
 	__msg_queue.push_back( tmp );
 	pthread_mutex_unlock( &__mutex );
 }
+
+unsigned Logger::parse_log_level(const char* level)
+{
+	unsigned log_level;
+	if( 0 == strncasecmp( level, __levels[0], sizeof(__levels[0]) ) ) {
+		log_level = Logger::None;
+	} else if ( 0 == strncasecmp( level, __levels[1], sizeof(__levels[1]) ) ) {
+		log_level = Logger::Error;
+	} else if ( 0 == strncasecmp( level, __levels[2], sizeof(__levels[2]) ) ) {
+		log_level = Logger::Error | Logger::Warning;
+	} else if ( 0 == strncasecmp( level, __levels[3], sizeof(__levels[3]) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info;
+	} else if ( 0 == strncasecmp( level, __levels[4], sizeof(__levels[4]) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
+	} else {
+#ifdef HAVE_SSCANF
+		int val = sscanf(level,"%x",&log_level);
+		if( val != 1 ) {
+			// Probably means hex was invalid.  Use -VNone instead.
+			log_level = Logger::Error;
+	    }
+#else
+        int log_level = hextoi( level, -1 );
+        if( log_level==-1 ) {
+			// Probably means hex was invalid.  Use -VNone instead.
+			log_level = Logger::Error;
+        }
+#endif
+	}
+    return log_level;
+}
+
+#ifndef HAVE_SSCANF
+int Logger::hextoi(const char* str, long len)
+{
+    long pos = 0;
+    char c = 0;
+    int v = 0;
+    int res = 0;
+    bool leading_zero = false;
+    
+    while(1) {
+        if((len!=-1) && (pos>=len) ) {
+            break;
+        }
+        c = str[pos];
+        if(c==0) {
+            break;
+        } else if(c=='x' || c=='X') {
+            if ( (pos==1) && leading_zero ) {
+                assert( res == 0 );
+                pos++;
+                continue;
+            } else {
+                return -1;
+            }
+        } else if( c>='a' ) {
+            v = c-'a'+10;
+        } else if( c>='A' ) {
+            v = c-'A'+10;
+        } else if( c>='0' ) {
+            if ( (c=='0') && (pos==0) ) {
+                leading_zero = true;
+            }
+            v = c-'0';
+        } else {
+            return -1;
+        }
+        if(v>15) { return -1; }
+        //assert( v == (v & 0xF) );
+        res = (res << 4) | v;
+        assert( (res & 0xF) == (v & 0xF) );
+        pos++;
+    }
+    return res;
+}
+#endif // HAVE_SSCANF
+

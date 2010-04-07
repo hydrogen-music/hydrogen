@@ -69,6 +69,8 @@ public:
 	static void set_log_level(unsigned lev) { __log_level = lev; }
 	static unsigned get_log_level() { return __log_level; }
 
+	static unsigned parse_log_level(const char*);
+
 	void log( unsigned lev, const char* funcname, const QString& class_name, const QString& msg );
 
 	friend void* loggerThread_func(void* param);  // object.cpp
@@ -97,6 +99,14 @@ private:
 	pthread_mutex_t __mutex;  // Lock for adding or removing elements only
 	queue_t __msg_queue;
 	static unsigned __log_level; // A bitmask of log_level_t
+    static const char* __levels[];
+
+#ifndef HAVE_SSCANF
+    /* Convert a hex string to an integer.
+     * returns -1 on failure.
+     */
+    static int hextoi(const char*, long);
+#endif // HAVE_SSCANF
 
 	/** Constructor */
 	Logger();
