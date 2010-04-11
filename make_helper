@@ -78,6 +78,16 @@ function cmake_help () {
 
 
 echo -e "used builder : ${BUILDER}"
+if [ $# -eq 0 ]; then
+    echo "usage $0 [cmds list]"
+    echo "cmds may be"
+    echo "   r or rm     => all built, temp and cache files"
+    echo "   c or clean  => remove cache files"
+    echo "   m or make   => launch the build process"
+    echo "   g or graph  => draw a dependecies graph"
+    echo "   h or help   => show the build options"
+    exit 1
+fi
 
 for arg in $@; do
     case $arg in
@@ -101,6 +111,9 @@ for arg in $@; do
             ;;
         "g")
             cmd="${BUILDER}_graph"
+            ;;
+        "graph")
+            cmd="${BUILDER}_${arg}"
             ;;
         "h")
             cmd="${BUILDER}_help"
