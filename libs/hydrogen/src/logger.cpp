@@ -210,13 +210,11 @@ unsigned Logger::parse_log_level(const char* level)
 #ifdef HAVE_SSCANF
 		int val = sscanf(level,"%x",&log_level);
 		if( val != 1 ) {
-			// Probably means hex was invalid.  Use -VNone instead.
 			log_level = Logger::Error;
 	    }
 #else
         int log_level = hextoi( level, -1 );
         if( log_level==-1 ) {
-			// Probably means hex was invalid.  Use -VNone instead.
 			log_level = Logger::Error;
         }
 #endif
@@ -232,7 +230,7 @@ int Logger::hextoi(const char* str, long len)
     int v = 0;
     int res = 0;
     bool leading_zero = false;
-    
+
     while(1) {
         if((len!=-1) && (pos>=len) ) {
             break;
