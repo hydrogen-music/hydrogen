@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 BUILDER=${BUILDER:-cmake}
 QTDIR=/usr/lib/qt
@@ -10,12 +10,12 @@ CMAKE_OPTIONS_="${CMAKE_OPTIONS} -DWANT_COREAUDIO=1 -DWANT_COREMIDI=1"
 find . -name '*~' -exec rm '{}' \;
 rm libs/hydrogen/include/hydrogen/config.h 2>/dev/null
 
-function scons_clean () {
+function scons_clean() {
     echo -e " * clean scons files\n"
     rm -fr scache.conf scons_cache .sconf_temp .sconsign.dblite qt4.pyc config.log hydrogen libhydrogen.a
 }
 
-function scons_rm () {
+function scons_rm() {
     scons_clean
     echo -e " * rm scons files\n"
     find -name '*.a' -exec rm '{}' \;
@@ -24,27 +24,27 @@ function scons_rm () {
     find -name 'moc_*' -exec rm '{}' \;
 }
 
-function scons_make () {
+function scons_make() {
     echo -e " * scons make\n" && scons
 }
 
-function scons_graph () {
+function scons_graph() {
     echo -e " * sorry, no can do\n"
 }
 
-function scons_help () {
+function scons_help() {
     echo -e " * scons make\n" && scons
 }
 
-function cmake_clean () {
+function cmake_clean() {
     echo -e " * clean cmake files\n" && rm build/CMakeCache.txt 2>/dev/null
 }
 
-function cmake_rm () {
+function cmake_rm() {
     echo -e " * rm cmake files\n" && rm -fr build 2>/dev/null
 }
 
-function cmake_make () {
+function cmake_make() {
     echo -e " * cmake make\n"
     if [ ! -d build ]; then
         mkdir build
@@ -60,7 +60,7 @@ function cmake_make () {
     fi
 }
 
-function cmake_graph () {
+function cmake_graph() {
     echo -e " * cmake graphviz\n"
     if [ ! -d build ]; then
         mkdir build
@@ -68,7 +68,7 @@ function cmake_graph () {
     cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot
 }
 
-function cmake_help () {
+function cmake_help() {
     echo -e " * cmake help\n"
     if [ ! -d build ]; then
         mkdir build
@@ -111,6 +111,9 @@ for arg in $@; do
             ;;
         "g")
             cmd="${BUILDER}_graph"
+            ;;
+        "graph")
+            cmd="${BUILDER}_${arg}"
             ;;
         "graph")
             cmd="${BUILDER}_${arg}"
