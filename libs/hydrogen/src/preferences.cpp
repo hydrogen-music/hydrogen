@@ -122,6 +122,8 @@ Preferences::Preferences()
 #else
 		m_ladspaPathVect.push_back( "/usr/lib/ladspa" );
 		m_ladspaPathVect.push_back( "/usr/local/lib/ladspa" );
+		m_ladspaPathVect.push_back( "/usr/lib64/ladspa" );
+		m_ladspaPathVect.push_back( "/usr/local/lib64/ladspa" );
 #endif
 
 	}
