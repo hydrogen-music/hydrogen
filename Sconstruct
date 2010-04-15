@@ -280,7 +280,7 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 	if str(env['lash']) == "1":
 	        env.ParseConfig('pkg-config --cflags --libs lash-1.0')
 
-	if sys.platform == "darwin":
+	if sys.platform == "darwin" or sys.platform == "linux2":
 		env.Append( LIBS = ["z"] )
 
 	if sys.platform == "darwin" and str(env['coreaudio']) == "1":
