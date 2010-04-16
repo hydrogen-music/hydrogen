@@ -46,7 +46,7 @@ typedef int ( *audioProcessCallback )( uint32_t, void * );
 namespace H2Core
 {
 
-#ifdef Q_OS_MACX
+#ifdef H2CORE_HAVE_COREAUDIO
 
 class CoreAudioDriver : public AudioOutput
 {
@@ -99,7 +99,7 @@ public:
 
 };
 
-#endif // Q_OS_MACX
+#endif // H2CORE_HAVE_COREAUDIO
 
 }
 

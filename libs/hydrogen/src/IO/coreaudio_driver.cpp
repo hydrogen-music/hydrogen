@@ -29,7 +29,7 @@
 
 #include "CoreAudioDriver.h"
 
-#ifdef Q_OS_MACX
+#ifdef H2CORE_HAVE_COREAUDIO
 
 #include "CoreServices/CoreServices.h"
 ///
@@ -342,4 +342,4 @@ void CoreAudioDriver::setBpm( float fBPM )
 
 }
 
-#endif // Q_OS_MACX
+#endif // H2CORE_HAVE_COREAUDIO
