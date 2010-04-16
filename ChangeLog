@@ -2,7 +2,14 @@
 
 	* Release 0.9.5
 	* ....
-
+	* Improved playlist editor: load playlist at startup
+	* Improved midi bindings: midi-learn works now with shift-click on
+	some gui elements
+	* New feature: it is now possible to export every track to a seperate
+	file
+	* New feature: hydrogen is able to work with LADI(saves as it receives
+	SIGUSR1)
+	* New feature: maximum number of bars is now configurable
 	* added czech translation
 	* Bugfix: Exported songs have now the correct length. 
 	* Bugfix: Generate new instrument id's correctly. 
