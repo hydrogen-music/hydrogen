@@ -36,7 +36,7 @@ macro(FIND_HELPER prefix pkg_name header lib)
 
         find_path(${prefix}_INCLUDE_DIR
             NAMES ${header}
-            PATHS ${${prefix}_INCLUDE_DIRS} ${${prefix}_INCLUDEDIR} ${${prefix}_INC_PATHS} ENV ${prefix}_INC
+            PATHS ${${prefix}_INCLUDE_DIRS} ${${prefix}_INCLUDEDIR} ${${prefix}_INCLUDE_PATHS} ENV ${prefix}_INCLUDE
         )
 
         find_library(${prefix}_LIBRARIES
