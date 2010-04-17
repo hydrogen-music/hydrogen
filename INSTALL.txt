@@ -179,6 +179,10 @@ or debugging symbols, get more information like this:
 
 	$ cmake -L ..
 
+For possible make targets:
+
+    $ make help
+
 To change the directory where hydrogen is installed, it is done like
 this:
 

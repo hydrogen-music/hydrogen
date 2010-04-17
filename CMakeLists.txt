@@ -62,6 +62,8 @@ ELSE()
 ENDIF()
 IF(WANT_BUNDLE)
     SET(H2CORE_HAVE_BUNDLE TRUE)
+ELSE()
+    SET(H2CORE_HAVE_BUNDLE FALSE)
 ENDIF()
 
 #
@@ -157,6 +159,11 @@ MESSAGE("\n"
 "* Data path                    : ${DATA_PATH}\n"
 "* core library build as        : ${H2CORE_LIBRARY_TYPE}\n"
 "* debug capabilities           : ${H2CORE_HAVE_DEBUG}\n"
+"* macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
+)
+
+MESSAGE("\n"
+"Main librarires\n"
 "* Qt4 version                  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}\n"
 "* libsndfile                   : ${LIBSNDFILE_STATUS}\n"
 "* libtar                       : ${LIBTAR_STATUS}\n"
