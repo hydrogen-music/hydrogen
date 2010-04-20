@@ -38,48 +38,56 @@
     <name>AboutDialog_UI</name>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="13"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="118"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="118"/>
         <source>About Hydrogen</source>
         <translation>Informacije o programu</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="110"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="122"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="122"/>
         <source>A&amp;bout</source>
         <translation>&amp;Informacije o programu</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="148"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="123"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="123"/>
         <source>&amp;Authors</source>
         <translation>&amp;Autori</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="174"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="537"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="537"/>
         <source>&amp;License</source>
         <translation>&amp;Licenca</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="53"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="119"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="119"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="56"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="120"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="120"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="128"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="121"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="121"/>
         <source>###</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/about_dialog.ui" line="189"/>
+        <location filename="../../gui/objs/ui_about_dialog.h" line="124"/>
         <location filename="../../gui/src/UI/ui_about_dialog.h" line="124"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -443,6 +451,8 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="65"/>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="122"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="341"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="344"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="341"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="344"/>
         <source>Playing notes</source>
@@ -450,66 +460,77 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="195"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="350"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="350"/>
         <source>Process time</source>
         <translation>Vrijeme izvođenja</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="167"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="346"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="346"/>
         <source>Audio engine state</source>
         <translation>Stanje audio engine-a</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="258"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="354"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="354"/>
         <source>Song state</source>
         <translation>Stanje pjesme</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="442"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="370"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="370"/>
         <source>Buffer size</source>
         <translation>Veličina buffer-a</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="470"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="374"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="374"/>
         <source>Sample rate</source>
         <translation>Frekvencija uzorka</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="272"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="356"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="356"/>
         <source>Song position</source>
         <translation>Pozicija pjesme</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="279"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="357"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="357"/>
         <source>Patterns</source>
         <translation>Uzorci</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="265"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="355"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="355"/>
         <source>Selected pattern</source>
         <translation>Odabrani uzorak</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="160"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="345"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="345"/>
         <source>Selected instrument</source>
         <translation>Odabrani instrument</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="371"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="365"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="365"/>
         <source>Connected to</source>
         <translation>Konektiran na</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="338"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="338"/>
         <source>Form1</source>
         <translation></translation>
@@ -532,6 +553,23 @@ p, li { white-space: pre-wrap; }
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="456"/>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="463"/>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="484"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="340"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="343"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="347"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="348"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="349"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="352"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="353"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="358"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="359"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="360"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="363"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="364"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="368"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="371"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="372"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="373"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="376"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="340"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="343"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="347"/>
@@ -554,36 +592,42 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="491"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="377"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="377"/>
         <source>Frames</source>
         <translation>Frejmovi</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="307"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="361"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="361"/>
         <source>Ticks</source>
         <translation>Udarci</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="82"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="342"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="342"/>
         <source>Sampler</source>
         <translation>Sampler</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="25"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="339"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="339"/>
         <source>Synth</source>
         <translation>Synth</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="211"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="351"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="351"/>
         <source>Sequencer</source>
         <translation>Sequencer</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="324"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="362"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="362"/>
         <source>MIDI input</source>
         <translation>MIDI ulaz</translation>
@@ -591,6 +635,8 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="378"/>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="477"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="366"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="375"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="366"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="375"/>
         <source>Name</source>
@@ -598,12 +644,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="395"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="367"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="367"/>
         <source>Audio output</source>
         <translation>Izlazni signal</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/AudioEngineInfoForm_UI.ui" line="435"/>
+        <location filename="../../gui/objs/ui_AudioEngineInfoForm_UI.h" line="369"/>
         <location filename="../../gui/src/UI/ui_AudioEngineInfoForm_UI.h" line="369"/>
         <source>Realtime frames</source>
         <translation>Stvarni framerate</translation>
@@ -666,96 +714,112 @@ p, li { white-space: pre-wrap; }
     <name>AudioFileBrowser_UI</name>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="212"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="212"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="203"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="232"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="232"/>
         <source>Open</source>
         <translation>Otvori</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="60"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="213"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="213"/>
         <source>Name:</source>
         <translation>Ime:</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="67"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="214"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="214"/>
         <source>Samplerate:</source>
         <translation>Frekvencija uzorka:</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="74"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="215"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="215"/>
         <source>Size:</source>
         <translation>Veličina:</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="81"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="216"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="216"/>
         <source>Length:</source>
         <translation>Duljina:</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="210"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="233"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="233"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="98"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="217"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="217"/>
         <source>Pla&amp;y samples by clicking</source>
         <translation>S&amp;viraj uzorke klikajući na njih</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="117"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="219"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="219"/>
         <source>View hidden folders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="130"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="225"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="225"/>
         <source>&amp;Up</source>
         <translation>&amp;Gore</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="140"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="229"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="229"/>
         <source>&amp;Home</source>
         <translation>&amp;Početak</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="156"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="230"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="230"/>
         <source>&amp;Play Sample</source>
         <translation>&amp;Sviraj Uzorak</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="194"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="231"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="231"/>
         <source>&amp;Filename to instrument name</source>
         <translation>&amp;Ime fajla koje odgovara imenu instrumenta</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="228"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="234"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="234"/>
         <source>&amp;Stop</source>
         <translation>S&amp;tani</translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="241"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="236"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="236"/>
         <source>Be careful, this change all Layer velocity settings </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/AudioFileBrowser/AudioFileBrowser_UI.ui" line="244"/>
+        <location filename="../../gui/objs/ui_AudioFileBrowser_UI.h" line="238"/>
         <location filename="../../gui/src/AudioFileBrowser/ui_AudioFileBrowser_UI.h" line="238"/>
         <source>Set automatic velocity</source>
         <translation type="unfinished"></translation>
@@ -773,79 +837,97 @@ p, li { white-space: pre-wrap; }
     <name>DrumkitManager_UI</name>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="201"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="26"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="207"/>
         <source>Load</source>
         <translation>Podigni</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="53"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="202"/>
         <source>### Drumkit author</source>
         <translation>### Autor seta bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="72"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="203"/>
         <source>Delete drumkit</source>
         <translation>Izbriši set bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="85"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="204"/>
         <source>### Drumkit name</source>
         <translation>### Ime seta bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="98"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="205"/>
         <source>### Drumkit info</source>
         <translation>### Informacije o setu bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="118"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="206"/>
         <source>Load drumkit</source>
         <translation>Podigni set bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="140"/>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="201"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="211"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="212"/>
         <source>Save</source>
         <translation>Spremi</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="152"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="208"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="165"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="209"/>
         <source>Info</source>
         <translation>Informacije</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="188"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="210"/>
         <source>Drumkit name</source>
         <translation>Ime seta bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="230"/>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="281"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="215"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="222"/>
         <source>Import</source>
         <translation>Umetni</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="242"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="213"/>
         <source>Drumkit filename</source>
         <translation>Ime seta bubnjeva</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="265"/>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="353"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="214"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="223"/>
         <source>Browse</source>
         <translation>Pretraži</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="309"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="217"/>
         <source>&lt;b&gt;
 Download more drumkits at &lt;br&gt;
 http://www.hydrogen-music.org
@@ -857,17 +939,21 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="328"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="221"/>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
         <translation>### Set bubnjeva će biti instaliran</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="341"/>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="405"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="225"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="226"/>
         <source>Export</source>
         <translation>Izbaci</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/DrumkitManager_UI.ui" line="379"/>
+        <location filename="../../gui/objs/ui_DrumkitManager_UI.h" line="224"/>
         <source>Drumkit directory</source>
         <translation>Mjesto (na disku) seta bubnjeva</translation>
     </message>
@@ -875,34 +961,32 @@ http://www.hydrogen-music.org
 <context>
     <name>ExportSongDialog</name>
     <message>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="46"/>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="93"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="51"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="99"/>
         <source>Export song</source>
         <translation>Izbaci pjesmu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="133"/>
-        <source>Sample rate: %1</source>
-        <translation>Frekvencija uzorka: %1</translation>
-    </message>
-    <message>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="136"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="137"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="198"/>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="136"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="137"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="198"/>
         <source>&amp;Ok</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="136"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="137"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="198"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/ExportSongDialog.cpp" line="350"/>
+        <location filename="../../gui/src/ExportSongDialog.cpp" line="373"/>
         <source>Export failed!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -910,182 +994,219 @@ Overwrite the existing file?</source>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="162"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="191"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="165"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="204"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="204"/>
         <source>Export filename</source>
         <translation>Ime fajla za export</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="14"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="184"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="197"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="197"/>
         <source>Export Whole Song to WAV</source>
         <translation>Izbaci cijelu pjesmu u WAV obliku</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="119"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="188"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="116"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="201"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="201"/>
         <source>&amp;Export</source>
         <translation>&amp;Izbaci</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="188"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="192"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="148"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="203"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="203"/>
+        <source>Export to seperate tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="191"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="205"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="205"/>
         <source>&amp;Browse...</source>
         <translation>&amp;Pretraži...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="209"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="194"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="212"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="207"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="207"/>
         <source>Samplerate in Hz:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="223"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="197"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="226"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="210"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="210"/>
         <source>22050</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="228"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="198"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="231"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="211"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="211"/>
         <source>44100</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="233"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="199"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="236"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="212"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="212"/>
         <source>48000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="238"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="200"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="241"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="213"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="213"/>
         <source>96000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="243"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="201"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="246"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="214"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="214"/>
         <source>192000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="255"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="203"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="258"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="216"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="216"/>
         <source>SampleDepth in Bit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="269"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="206"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="272"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="219"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="219"/>
         <source>8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="274"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="207"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="277"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="220"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="220"/>
         <source>16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="279"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="208"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="282"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="221"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="221"/>
         <source>24</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="284"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="209"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="287"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="222"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="222"/>
         <source>32</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="306"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="211"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="309"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="224"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="224"/>
         <source>Templates: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="314"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="214"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="317"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="227"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="227"/>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="319"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="215"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="322"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="228"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="228"/>
         <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="324"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="216"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="327"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="229"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="229"/>
         <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="329"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="217"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="332"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="230"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="230"/>
         <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="334"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="218"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="337"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="231"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="231"/>
         <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="339"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="219"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="342"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="232"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="232"/>
         <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="344"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="220"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="347"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="233"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="233"/>
         <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="349"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="221"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="352"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="234"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="234"/>
         <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="354"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="222"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="357"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="235"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="235"/>
         <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="359"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="223"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="362"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="236"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="236"/>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="63"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="185"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="60"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="198"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="198"/>
         <source>&amp;Close</source>
         <translation>&amp;Zatvori</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="66"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="186"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="63"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="199"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="199"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="122"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="189"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="119"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="202"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="202"/>
         <source>Alt+E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="191"/>
-        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="193"/>
+        <location filename="../../gui/src/UI/ExportSongDialog_UI.ui" line="194"/>
+        <location filename="../../gui/objs/ui_ExportSongDialog_UI.h" line="206"/>
+        <location filename="../../gui/src/UI/ui_ExportSongDialog_UI.h" line="206"/>
         <source>Alt+B</source>
         <translation></translation>
     </message>
@@ -1101,12 +1222,12 @@ Overwrite the existing file?</source>
 <context>
     <name>FxMixerLine</name>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="760"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="777"/>
         <source>FX on/off</source>
         <translation>Efekti on/off</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="777"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="794"/>
         <source>Master output</source>
         <translation>Glavni izlaz</translation>
     </message>
@@ -1332,22 +1453,22 @@ Jesi li siguran da to želiš napraviti?</translation>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1038"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1055"/>
         <source>Edit FX parameters</source>
         <translation>Uredi FX parametre</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1045"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1062"/>
         <source>Ladspa FX name</source>
         <translation>Ime LADSPA FX-a</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1026"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1043"/>
         <source>FX bypass</source>
         <translation>Zaobiđi efekt(e)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1048"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="1065"/>
         <source>Effect return</source>
         <translation>FX Return</translation>
     </message>
@@ -1435,60 +1556,70 @@ Jesi li siguran da to želiš napraviti?</translation>
     <name>LadspaFXSelector_UI</name>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="68"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="189"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="189"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="90"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="191"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="191"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="19"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="188"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="188"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="71"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="190"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="190"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="93"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="192"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="192"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="277"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="210"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="210"/>
         <source>### fx label</source>
         <translation>### naziv efekta</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="350"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="221"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="221"/>
         <source>### fx type</source>
         <translation>### vrsta efekta</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="366"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="222"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="222"/>
         <source>### fx ID</source>
         <translation>### ID efekta</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="150"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="195"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="195"/>
         <source>1</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="213"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="198"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="198"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1499,6 +1630,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="230"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="203"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="203"/>
         <source>### fx name
 1</source>
@@ -1507,6 +1639,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="260"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="205"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="205"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1517,6 +1650,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="306"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="211"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="211"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1527,6 +1661,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="333"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="216"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="216"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1537,6 +1672,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="392"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="223"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="223"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1547,6 +1683,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="409"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="228"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="228"/>
         <source>### FX maker
 1
@@ -1557,6 +1694,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="440"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="231"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="231"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1567,6 +1705,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/UI/LadspaFXSelector_UI.ui" line="457"/>
+        <location filename="../../gui/objs/ui_LadspaFXSelector_UI.h" line="236"/>
         <location filename="../../gui/src/UI/ui_LadspaFXSelector_UI.h" line="236"/>
         <source>### copyright
 1
@@ -1581,116 +1720,116 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="238"/>
-        <location filename="../../gui/src/MainForm.cpp" line="1593"/>
+        <location filename="../../gui/src/MainForm.cpp" line="253"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1610"/>
         <source>&amp;Save</source>
         <translation>&amp;Spremi</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1593"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1610"/>
         <source>&amp;Discard</source>
         <translation>Odbaci promje&amp;ne</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="825"/>
+        <location filename="../../gui/src/MainForm.cpp" line="841"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1111"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1127"/>
         <source>Error loading song.</source>
         <translation>Neuspješno otvaranje pjesme.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="129"/>
+        <location filename="../../gui/src/MainForm.cpp" line="131"/>
         <source>Hydrogen Ready.</source>
         <translation>Hydrogen je spreman za rad.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="437"/>
-        <location filename="../../gui/src/MainForm.cpp" line="624"/>
-        <location filename="../../gui/src/MainForm.cpp" line="710"/>
+        <location filename="../../gui/src/MainForm.cpp" line="453"/>
+        <location filename="../../gui/src/MainForm.cpp" line="640"/>
+        <location filename="../../gui/src/MainForm.cpp" line="726"/>
         <source>Hydrogen Song (*.h2song)</source>
         <translation>Hydrogen pjesma (*.h2song)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="439"/>
+        <location filename="../../gui/src/MainForm.cpp" line="455"/>
         <source>Save song</source>
         <translation>Spremi pjesmu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="627"/>
-        <location filename="../../gui/src/MainForm.cpp" line="712"/>
+        <location filename="../../gui/src/MainForm.cpp" line="643"/>
+        <location filename="../../gui/src/MainForm.cpp" line="728"/>
         <source>Open song</source>
         <translation>Otvori pjesmu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1417"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1434"/>
         <source>Export MIDI file</source>
         <translation>Izbaci MIDI file</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1415"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1432"/>
         <source>Midi file (*.mid)</source>
         <translation>MIDI file (*.mid)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="226"/>
+        <location filename="../../gui/src/MainForm.cpp" line="241"/>
         <source>&amp;New</source>
         <translation>&amp;Novo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="231"/>
+        <location filename="../../gui/src/MainForm.cpp" line="246"/>
         <source>&amp;Open</source>
         <translation>&amp;Otvori</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="232"/>
+        <location filename="../../gui/src/MainForm.cpp" line="247"/>
         <source>Open &amp;Demo</source>
         <translation>Otvori &amp;demonstraciju</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="234"/>
+        <location filename="../../gui/src/MainForm.cpp" line="249"/>
         <source>Open &amp;recent</source>
         <translation>Otvori &amp;posljednje</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="239"/>
+        <location filename="../../gui/src/MainForm.cpp" line="254"/>
         <source>Save &amp;as...</source>
         <translation>Spremi &amp;kao...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="248"/>
+        <location filename="../../gui/src/MainForm.cpp" line="263"/>
         <source>Export &amp;MIDI file</source>
         <translation>Izbaci &amp;MIDI file</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="286"/>
+        <location filename="../../gui/src/MainForm.cpp" line="301"/>
         <source>&amp;Preferences</source>
         <translation>&amp;Karakteristike</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="255"/>
+        <location filename="../../gui/src/MainForm.cpp" line="270"/>
         <source>&amp;Quit</source>
         <translation>&amp;Izlaz</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="294"/>
+        <location filename="../../gui/src/MainForm.cpp" line="309"/>
         <source>Show &amp;audio engine info</source>
         <translation>Prikaži informacije &amp;audio engine</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="301"/>
+        <location filename="../../gui/src/MainForm.cpp" line="316"/>
         <source>&amp;User manual</source>
         <translation>&amp;Korisnički priručnik</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="303"/>
+        <location filename="../../gui/src/MainForm.cpp" line="318"/>
         <source>&amp;About</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1591"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1608"/>
         <source>
 The document contains unsaved changes.
 Do you want to save the changes?
@@ -1698,205 +1837,205 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1593"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1610"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1450"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1467"/>
         <source>Unknown audio driver</source>
         <translation>Nepoznati audio driver</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1454"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1471"/>
         <source>Error starting audio driver</source>
         <translation>Problem pri pokretanju drivera zvuka</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1458"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1475"/>
         <source>Jack driver: server shutdown</source>
         <translation>Jack driver: server shutdown</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1462"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1479"/>
         <source>Jack driver: cannot activate client</source>
         <translation>Jack driver: ne mogu aktivirati klijenta</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1466"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1483"/>
         <source>Jack driver: cannot connect output port</source>
         <translation>Jack driver: ne mogu povezati izlaz</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1470"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1487"/>
         <source>Jack driver: error in port register</source>
         <translation>Jack driver: greška u registraciji porta</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="249"/>
+        <location filename="../../gui/src/MainForm.cpp" line="264"/>
         <source>&amp;Export song</source>
         <translation>&amp;Izbaci pjesmu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="293"/>
+        <location filename="../../gui/src/MainForm.cpp" line="308"/>
         <source>De&amp;bug</source>
         <translation>&amp;Debugiraj</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="224"/>
+        <location filename="../../gui/src/MainForm.cpp" line="239"/>
         <source>&amp;Project</source>
         <translation>&amp;Projekt</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="275"/>
+        <location filename="../../gui/src/MainForm.cpp" line="290"/>
         <source>&amp;Tools</source>
         <translation>&amp;Alati</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="281"/>
+        <location filename="../../gui/src/MainForm.cpp" line="296"/>
         <source>Director</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="283"/>
+        <location filename="../../gui/src/MainForm.cpp" line="298"/>
         <source>&amp;Mixer</source>
         <translation>&amp;Mixer</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="285"/>
+        <location filename="../../gui/src/MainForm.cpp" line="300"/>
         <source>&amp;Instrument Rack</source>
         <translation>&amp;Instrument Rack</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="295"/>
+        <location filename="../../gui/src/MainForm.cpp" line="310"/>
         <source>Print Objects</source>
         <translation>Isprintaj objekte</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="300"/>
+        <location filename="../../gui/src/MainForm.cpp" line="315"/>
         <source>&amp;Info</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="507"/>
+        <location filename="../../gui/src/MainForm.cpp" line="523"/>
         <source>Song saved.</source>
         <translation>Pjesma spremljena.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="596"/>
-        <location filename="../../gui/src/MainForm.cpp" line="598"/>
+        <location filename="../../gui/src/MainForm.cpp" line="612"/>
+        <location filename="../../gui/src/MainForm.cpp" line="614"/>
         <source>Could not export pattern.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1474"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1491"/>
         <source>Unknown error %1</source>
         <translation>nepoznata pogreška %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="823"/>
+        <location filename="../../gui/src/MainForm.cpp" line="839"/>
         <source>Clear all instruments?</source>
         <translation>Izbrisati sve instrumente?</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="824"/>
+        <location filename="../../gui/src/MainForm.cpp" line="840"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="842"/>
+        <location filename="../../gui/src/MainForm.cpp" line="858"/>
         <source>Instrument %1</source>
         <translation>Instrument %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1506"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1523"/>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Koristiš verziju Hydrogena koja je još u razvoju, molimo te da nam pomogneš tako da nas izvjestiš o greškama ili daš svoj savjet na hydrogen-devel mailing listu.&lt;br&gt;&lt;br&gt;Hvala!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="495"/>
+        <location filename="../../gui/src/MainForm.cpp" line="511"/>
         <source>Could not save song.</source>
         <translation>Neuspješno spremanje pjesme.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="243"/>
+        <location filename="../../gui/src/MainForm.cpp" line="258"/>
         <source>Open &amp;Pattern</source>
         <translation>Otvori &amp;uzorak</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="555"/>
-        <location filename="../../gui/src/MainForm.cpp" line="664"/>
+        <location filename="../../gui/src/MainForm.cpp" line="571"/>
+        <location filename="../../gui/src/MainForm.cpp" line="680"/>
         <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation>Hydrogen uzorak (*.h2pattern)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="557"/>
+        <location filename="../../gui/src/MainForm.cpp" line="573"/>
         <source>Save Pattern as ...</source>
         <translation>Spremi uzorak kao ...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="601"/>
+        <location filename="../../gui/src/MainForm.cpp" line="617"/>
         <source>Pattern saved.</source>
         <translation>Uzorak spremljen.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="667"/>
+        <location filename="../../gui/src/MainForm.cpp" line="683"/>
         <source>Open Pattern</source>
         <translation>Otvori uzorak</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1510"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1527"/>
         <source>Don&apos;t show this message anymore</source>
         <translation>Nemoj više prikazivati ovu poruku</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1321"/>
-        <location filename="../../gui/src/MainForm.cpp" line="1330"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1338"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1347"/>
         <source>Playlist: Set song No. %1</source>
         <translation>Playlist: Pjesma br. %1</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="227"/>
+        <location filename="../../gui/src/MainForm.cpp" line="242"/>
         <source>Show &amp;info</source>
         <translation>Prikaži &amp;informacije</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="244"/>
+        <location filename="../../gui/src/MainForm.cpp" line="259"/>
         <source>Expor&amp;t pattern as...</source>
         <translation>Iz&amp;baci pattern kao...</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="264"/>
+        <location filename="../../gui/src/MainForm.cpp" line="279"/>
         <source>I&amp;nstruments</source>
         <translation>Instru&amp;menti</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="265"/>
+        <location filename="../../gui/src/MainForm.cpp" line="280"/>
         <source>&amp;Add instrument</source>
         <translation>&amp;Dodaj instrument</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="266"/>
+        <location filename="../../gui/src/MainForm.cpp" line="281"/>
         <source>&amp;Clear all</source>
         <translation>&amp;Elimina tutti</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="267"/>
+        <location filename="../../gui/src/MainForm.cpp" line="282"/>
         <source>&amp;Save library</source>
         <translation>&amp;Salva libreria</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="268"/>
+        <location filename="../../gui/src/MainForm.cpp" line="283"/>
         <source>&amp;Export library</source>
         <translation>&amp;Esporta libreria</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="280"/>
+        <location filename="../../gui/src/MainForm.cpp" line="295"/>
         <source>Playlist &amp;editor</source>
         <translation>Playlist &amp;editor</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="269"/>
+        <location filename="../../gui/src/MainForm.cpp" line="284"/>
         <source>&amp;Import library</source>
         <translation>&amp;Importa libreria</translation>
     </message>
@@ -1907,12 +2046,12 @@ Do you want to save the changes?
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="469"/>
+        <location filename="../../gui/src/MainForm.cpp" line="485"/>
         <source>Song saved as.</source>
         <translation>Pjesma spremljena kao.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/MainForm.cpp" line="1578"/>
+        <location filename="../../gui/src/MainForm.cpp" line="1595"/>
         <source>Playlist: Song No. %1</source>
         <translation>Playlist: Pjesma br. %1</translation>
     </message>
@@ -1920,37 +2059,37 @@ Do you want to save the changes?
 <context>
     <name>MasterMixerLine</name>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="566"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="583"/>
         <source>Set master volume [%1]</source>
         <translation>Podesi glavnu glasnoću [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="519"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="536"/>
         <source>Swing</source>
         <translation>Swing</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="515"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="532"/>
         <source>Humanize time</source>
         <translation>Humaniziraj tempo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="511"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="528"/>
         <source>Humanize velocity</source>
         <translation>Humaniziraj intenzitet</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="695"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="712"/>
         <source>Set humanize time parameter [%1]</source>
         <translation>Podesi parametar za humaniziranje tempa [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="699"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="716"/>
         <source>Set humanize velocity parameter [%1]</source>
         <translation>Podesi parametar za humaniziranje raspona [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="703"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="720"/>
         <source>Set swing factor [%1]</source>
         <translation>Swing faktor [%1]</translation>
     </message>
@@ -1967,6 +2106,7 @@ Do you want to save the changes?
     <name>MetroBlinker_UI</name>
     <message>
         <location filename="../../gui/src/MetroBlinker_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_MetroBlinker_UI.h" line="43"/>
         <location filename="../../gui/src/ui_MetroBlinker_UI.h" line="43"/>
         <source>Dialog</source>
         <translation type="unfinished">Dijalog</translation>
@@ -2036,37 +2176,37 @@ Do you want to save the changes?
 <context>
     <name>MixerLine</name>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="77"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="80"/>
         <source>Play sample</source>
         <translation>Suona sample</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="101"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="104"/>
         <source>Mute</source>
         <translation>Escludi</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="113"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="116"/>
         <source>Solo</source>
         <translation>Solo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="117"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="120"/>
         <source>Pan</source>
         <translation>Pan</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="153"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="163"/>
         <source>Instrument name (double click to edit)</source>
         <translation>Nome strumento (doppio click per modificarne le proprietà)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="245"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="259"/>
         <source>Set instrument volume [%1]</source>
         <translation>Volume strumento [%1]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="382"/>
+        <location filename="../../gui/src/Mixer/MixerLine.cpp" line="396"/>
         <source>Set instr. pan [%1]</source>
         <translation>Pan strumento [%1]</translation>
     </message>
@@ -2239,54 +2379,63 @@ Do you want to save the changes?
     <name>PatternFillDialog_UI</name>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="63"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="159"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="159"/>
         <source>&amp;Fill</source>
         <translation>&amp;Popuni</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="76"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="161"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="161"/>
         <source>&amp;Clear</source>
         <translation>&amp;Obriši</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="124"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="165"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="165"/>
         <source>To:</source>
         <translation>K:</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="104"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="163"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="163"/>
         <source>From:</source>
         <translation>Od:</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="176"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="166"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="166"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="183"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="167"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="167"/>
         <source>OK</source>
         <translation>Ok</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="24"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="154"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="154"/>
         <source>Form 1</source>
         <translation>Prva forma</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="66"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="160"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="160"/>
         <source>Alt+F</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternFillDialog_UI.ui" line="79"/>
+        <location filename="../../gui/objs/ui_PatternFillDialog_UI.h" line="162"/>
         <location filename="../../gui/src/UI/ui_PatternFillDialog_UI.h" line="162"/>
         <source>Alt+C</source>
         <translation></translation>
@@ -2314,42 +2463,49 @@ Do you want to save the changes?
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="71"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="122"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="122"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="81"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="124"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="124"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="30"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="120"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="120"/>
         <source>New Pattern Name</source>
         <translation>Novo ime uzorka</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="119"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="119"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="74"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="123"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="123"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="84"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="125"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="125"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PatternPropertiesDialog_UI.ui" line="40"/>
+        <location filename="../../gui/objs/ui_PatternPropertiesDialog_UI.h" line="121"/>
         <location filename="../../gui/src/UI/ui_PatternPropertiesDialog_UI.h" line="121"/>
         <source>Pattern category</source>
         <translation>Kategorija uzorka</translation>
@@ -2358,54 +2514,54 @@ Do you want to save the changes?
 <context>
     <name>PlayerControl</name>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="213"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="219"/>
         <source>Song Mode</source>
         <translation>Mod pjesme</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="726"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="732"/>
         <source>Playing.</source>
         <translation>Svira.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="745"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="751"/>
         <source>Stopped.</source>
         <translation>Zaustavljeno.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="765"/>
-        <location filename="../../gui/src/PlayerControl.cpp" line="788"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="771"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="794"/>
         <source>Song mode selected.</source>
         <translation>Mod pjesme odabran.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="200"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="206"/>
         <source>Pattern Mode</source>
         <translation>Uzorak Mod</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="771"/>
-        <location filename="../../gui/src/PlayerControl.cpp" line="804"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="777"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="810"/>
         <source>Pattern mode selected.</source>
         <translation>Uzorak Mod odabran.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="408"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="414"/>
         <source>Jack-transport on/off</source>
         <translation>Jack-transport uključen/isključen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="946"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="952"/>
         <source>Jack-transport mode = On</source>
         <translation>Jack-transport Mod = Uključen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="952"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="958"/>
         <source>Jack-transport mode = Off</source>
         <translation>Jack-transport Mod = Isključen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="994"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="1000"/>
         <source>New BPM value</source>
         <translation>Nova vrijednost broja udaraca u minuti (BPM)</translation>
     </message>
@@ -2415,73 +2571,73 @@ Do you want to save the changes?
         <translation>Premotaj unazad</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="143"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="144"/>
         <source>Play/ Pause</source>
         <translation>Reproduciraj/ Pauziraj</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="167"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="173"/>
         <source>Fast Forward</source>
         <translation>Premotaj unaprijed</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="225"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="231"/>
         <source>Switch Song/ Pattern Mode</source>
         <translation>Promijeni Mod pjesme/uzorka</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="731"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="737"/>
         <source>Pause.</source>
         <translation>Pauza.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="956"/>
-        <location filename="../../gui/src/PlayerControl.cpp" line="985"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="962"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="991"/>
         <source>JACK-transport will work only with JACK driver.</source>
         <translation>JACK-transport će funkcionirati samo sa JACK driverom.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="179"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="185"/>
         <source>Loop song</source>
         <translation>Ponavljaj pjesmu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="1068"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="1074"/>
         <source>Loop song = On</source>
         <translation>Ponavljaj pjesmu = Uključeno</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="1071"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="1077"/>
         <source>Loop song = Off</source>
         <translation>Ponavljaj pjesmu = Isključeno</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="454"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="460"/>
         <source>Show mixer</source>
         <translation>Prikaži mixer</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="155"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="159"/>
         <source>Stop</source>
         <translation>Stani</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="455"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="461"/>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="467"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="473"/>
         <source>Show Instrument Rack</source>
         <translation>Prikaži Rack</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="468"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="474"/>
         <source>Instrument rack</source>
         <translation>Rack</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="244"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="250"/>
         <source>BeatCounter Panel on</source>
         <translation>Ploča brojača udaraca uključena</translation>
     </message>
@@ -2491,82 +2647,82 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="127"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="128"/>
         <source>Destructive Record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="319"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="325"/>
         <source>Set BPM / Set BPM and play</source>
         <translation>Postavi BPM / Postavi BPM i reproduciraj</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="366"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="372"/>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="422"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="428"/>
         <source>Jack-Time-Master on/off</source>
         <translation>Jack-Time-Master uključen/isključen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="697"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="703"/>
         <source>Record midi events = On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="701"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="707"/>
         <source>Record midi events = Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="712"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="718"/>
         <source>Destructive mode = Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="716"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="722"/>
         <source>Destructive mode = On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="833"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="839"/>
         <source> BC Panel on</source>
         <translation>Ploča brojača udaraca aktivan</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="839"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="845"/>
         <source> BC Panel off</source>
         <translation>Ploča brojača udaraca neaktivan</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="850"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="856"/>
         <source> Count BPM and start PLAY</source>
         <translation>Prebroji BPM i počni reprodukciju</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="855"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="861"/>
         <source> Count and set BPM</source>
         <translation>Izbroji i postavi BPM</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="867"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="873"/>
         <source>Recalculate all samples using Rubberband ON</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="872"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="878"/>
         <source>Recalculate all samples using Rubberband OFF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="971"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="977"/>
         <source> Jack-Time-Master mode = On</source>
         <translation>Mod Jack-Time-Master = Uključen</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlayerControl.cpp" line="979"/>
+        <location filename="../../gui/src/PlayerControl.cpp" line="985"/>
         <source> Jack-Time-Master mode = Off</source>
         <translation>Mod Jack-Time-Master = Isključen</translation>
     </message>
@@ -2574,82 +2730,83 @@ Do you want to save the changes?
 <context>
     <name>PlaylistDialog</name>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="59"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="327"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="354"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="417"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="540"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="61"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="329"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="356"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="418"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="541"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="1026"/>
         <source>Play List Browser</source>
         <translation>Pretraživač plejliste</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="158"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="181"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="160"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="183"/>
         <source>Song list</source>
         <translation>Popis pjesama</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="181"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="183"/>
         <source>Script</source>
         <translation>Skripta</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="181"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="183"/>
         <source>exec Script</source>
         <translation>Izvrši skriptu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="279"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="281"/>
         <source>Add Song to PlayList</source>
         <translation>Dodaj pjesmu na plejlistu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="317"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="602"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="646"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="762"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="832"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="319"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="603"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="647"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="763"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="833"/>
         <source>No Song selected!</source>
         <translation>Nema izabrane pjesme!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="384"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="386"/>
         <source>Load Playlist</source>
         <translation>Učitaj plejlistu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="511"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="512"/>
         <source>Hydrogen Playlist (*.h2playlist)</source>
         <translation>Hydrogen Playlist (*.h2playlist)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="513"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="514"/>
         <source>Save Playlist</source>
         <translation>Spremi plejlistu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="567"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="568"/>
         <source>No Song in List or no Song selected!</source>
         <translation>Nema pjesme na popisu ili na plejlisti!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="576"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="577"/>
         <source>Hydrogen Playlist (*.sh)</source>
         <translation>Shell script (*.sh)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="577"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="578"/>
         <source>Add Script to selected Song</source>
         <translation>Dodaj skriptu na izabranu pjesmu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="608"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="609"/>
         <source>No Script in use!</source>
         <translation>Nema skripte u upotrebi!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="474"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="625"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="475"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="626"/>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
@@ -2658,131 +2815,131 @@ Nemoj koristiti editor baziran na konzoli
 Nažalost, ovo trenutno neće funkcionirati.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="482"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="633"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="483"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="634"/>
         <source>Set your Default Editor</source>
         <translation>Postavi svoj osnovni uređivač</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="655"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="656"/>
         <source>No Script selected!</source>
         <translation>Skripta nije odabrana!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="781"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="856"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="782"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="859"/>
         <source>Error loading song.</source>
         <translation>Pogreška kod učitavanja pjesme.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="205"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="219"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="207"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="221"/>
         <source>sort</source>
         <translation>sortiraj</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="69"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="71"/>
         <source>&amp;Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="71"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="73"/>
         <source>Add song to Play&amp;list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="72"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="74"/>
         <source>Add &amp;current song to Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="74"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="76"/>
         <source>&amp;Remove selected song from Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="75"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="77"/>
         <source>Remove all songs from &amp;Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="77"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="79"/>
         <source>&amp;Open Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="79"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="81"/>
         <source>&amp;Save Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="80"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="82"/>
         <source>Save Playlist &amp;as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="86"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="88"/>
         <source>&amp;Scripts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="88"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="90"/>
         <source>&amp;Add Script to selected song</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="89"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="91"/>
         <source>&amp;Edit selected Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="91"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="93"/>
         <source>&amp;Remove selected Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="93"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="95"/>
         <source>&amp;Create a new Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="114"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="116"/>
         <source>Rewind</source>
         <translation type="unfinished">Premotaj unazad</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="128"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="130"/>
         <source>Play/ Pause/ Load selected song</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="140"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="142"/>
         <source>Stop</source>
         <translation type="unfinished">Stani</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="152"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="154"/>
         <source>Fast Forward</source>
         <translation type="unfinished">Premotaj unaprijed</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="299"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="301"/>
         <source>Please save your song first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="432"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="433"/>
         <source>Hydrogen Scripts (*.sh)</source>
         <translation>Shell Scripts (*.sh)</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="434"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="435"/>
         <source>New Script</source>
         <translation>Nova skripta</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="454"/>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="585"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="455"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="586"/>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
@@ -2791,22 +2948,22 @@ VAŽNO
 Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="470"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="471"/>
         <source>WARNING, the new file is executable by the owner of the file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="744"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="745"/>
         <source>No Script!</source>
         <translation>Nema skripte!</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="797"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="798"/>
         <source>Pause.</source>
         <translation type="unfinished">Pauza.</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="864"/>
+        <location filename="../../gui/src/PlaylistEditor/PlaylistDialog.cpp" line="867"/>
         <source>Playlist: Set song No. %1</source>
         <translation>Plejlista: Postavi pjesmu br. %1</translation>
     </message>
@@ -2815,12 +2972,14 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     <name>PlaylistDialog_UI</name>
     <message>
         <location filename="../../gui/src/PlaylistEditor/PlaylistDialog_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_PlaylistDialog_UI.h" line="72"/>
         <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="72"/>
         <source>PlayList Browser</source>
         <translation>Pretraživač plejliste</translation>
     </message>
     <message>
         <location filename="../../gui/src/PlaylistEditor/PlaylistDialog_UI.ui" line="72"/>
+        <location filename="../../gui/objs/ui_PlaylistDialog_UI.h" line="74"/>
         <location filename="../../gui/src/PlaylistEditor/ui_PlaylistDialog_UI.h" line="74"/>
         <source>Song list</source>
         <translation>Popis pjesama</translation>
@@ -2829,36 +2988,52 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="363"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="366"/>
         <source>Slow</source>
         <translation>Polako</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="366"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="369"/>
         <source>Normal</source>
         <translation>Umjereno</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="369"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="372"/>
         <source>Fast</source>
         <translation>Brzo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="471"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="416"/>
+        <source>Driver restart required.
+ Restart driver?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="416"/>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="416"/>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="477"/>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
         <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;jednostavni audio driver [/dev/dsp]</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="473"/>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="486"/>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="499"/>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="512"/>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="524"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="479"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="492"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="505"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="518"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="530"/>
         <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
         <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Nije kompajlirano&lt;/font&gt;&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="484"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="490"/>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
         <translation>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</translation>
     </message>
@@ -2868,27 +3043,27 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
         <translation>Postavke</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="497"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="503"/>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;ALSA driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="461"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="467"/>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
         <translation>&lt;b&gt;Automatsko odabiranje drivera&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="510"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="516"/>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;PortAudio driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="522"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="528"/>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;CoreAudio driver&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/PreferencesDialog.cpp" line="654"/>
+        <location filename="../../gui/src/PreferencesDialog.cpp" line="660"/>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation>Restartaj hydrogen kako bi se uključila/isključila LASH podrška</translation>
     </message>
@@ -2896,404 +3071,483 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="421"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="577"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="443"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="584"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="584"/>
         <source>Buffer size</source>
         <translation>Veličina privremenog spremnika</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="408"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="576"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="430"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="583"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="583"/>
         <source>Device</source>
         <translation>Uređaj</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="658"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="599"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="680"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="606"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="606"/>
         <source>Input</source>
         <translation>Ulaz</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="678"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="600"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="700"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="607"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="607"/>
         <source>Channel</source>
         <translation>Kanal</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="692"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="603"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="714"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="610"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="610"/>
         <source>All</source>
         <translation>Sve</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="896"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="628"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="918"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="635"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="635"/>
         <source>Meters falloff speed</source>
         <translation>Falloff brzina</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="910"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="631"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="932"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="638"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="638"/>
         <source>Slow</source>
         <translation>Sporo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="915"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="632"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="937"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="639"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="639"/>
         <source>Normal</source>
         <translation>Umjereno</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="920"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="633"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="942"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="640"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="640"/>
         <source>Fast</source>
         <translation>Brzo</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="832"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="624"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="854"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="631"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="631"/>
         <source>Application font</source>
         <translation>Font aplikacije</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="940"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="635"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="962"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="642"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="642"/>
         <source>Mixer font</source>
         <translation>Font Mixera</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="858"/>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="883"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="626"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="627"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="880"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="905"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="633"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="634"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="633"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="634"/>
         <source>Select font</source>
         <translation>Odaberi font</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="807"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="623"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="829"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="630"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="630"/>
         <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Nakon promjene fonta aplikacija mora biti restartana.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="587"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="596"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="609"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="603"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="603"/>
         <source>Polyphony</source>
         <translation>Polifonija</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="842"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="625"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="864"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="632"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="632"/>
         <source>Style</source>
         <translation>Stil</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="57"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="548"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="553"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="553"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="79"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="550"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="555"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="555"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="136"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="571"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="578"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="578"/>
         <source>&amp;General</source>
         <translation>O&amp;pčenito</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="314"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="597"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="336"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="604"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="604"/>
         <source>Audio &amp;System</source>
         <translation>&amp;Audio Sustav</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="580"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="595"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="602"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="602"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="602"/>
         <source>Metronome volume</source>
         <translation>Glasnoća metronoma</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="502"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="591"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="524"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="598"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="598"/>
         <source>Connect to &amp;Default Output Pair</source>
         <translation>Poveži se na osnovnu &amp;izlaznu paricu</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="611"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="622"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="633"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="629"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="629"/>
         <source>&amp;Midi System</source>
         <translation>&amp;Midi sustav</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="638"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="598"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="660"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="605"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="605"/>
         <source>Midi driver</source>
         <translation>Midi driver</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="784"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="621"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="806"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="628"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="628"/>
         <source>Ignore note-off</source>
         <translation>Ignoriraj note-off</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="795"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="636"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="817"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="643"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="643"/>
         <source>&amp;Appearance</source>
         <translation>&amp;Izgled</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="14"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="547"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="552"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="552"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="60"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="549"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="554"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="554"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="82"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="551"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="556"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="556"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="154"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="555"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="560"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="560"/>
         <source>&amp;Reopen last used song</source>
         <translation>&amp;Ponovno otvori zadnje korištenu pjesmu</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="157"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="556"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="330"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="561"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="577"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="561"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="577"/>
         <source>Alt+R</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="250"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="566"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="571"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="571"/>
         <source>Path to the Rubberband command-line utility</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="289"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="567"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="572"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="572"/>
         <source>Maximum number of bars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="332"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="573"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="327"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="576"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="576"/>
+        <source>&amp;Reopen last used playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="354"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="580"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="580"/>
         <source>###</source>
         <translation>###</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="401"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="575"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="423"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="582"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="582"/>
         <source>Sample rate</source>
         <translation>Frekvencija uzorka</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="442"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="580"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="464"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="587"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="587"/>
         <source>44100</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="447"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="581"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="469"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="588"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="588"/>
         <source>48000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="452"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="582"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="474"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="589"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="589"/>
         <source>88200</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="457"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="583"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="479"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="590"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="590"/>
         <source>96000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="505"/>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="515"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="592"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="594"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="527"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="537"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="599"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="601"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="599"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="601"/>
         <source>Alt+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="512"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="593"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="534"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="600"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="600"/>
         <source>create per-instrument outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="697"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="604"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="719"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="611"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="611"/>
         <source>1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="702"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="605"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="724"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="612"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="612"/>
         <source>2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="707"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="606"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="729"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="613"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="613"/>
         <source>3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="712"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="607"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="734"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="614"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="614"/>
         <source>4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="717"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="608"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="739"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="615"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="615"/>
         <source>5</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="722"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="609"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="744"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="616"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="616"/>
         <source>6</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="727"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="610"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="749"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="617"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="617"/>
         <source>7</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="732"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="611"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="754"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="618"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="618"/>
         <source>8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="737"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="612"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="759"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="619"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="619"/>
         <source>9</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="742"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="613"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="764"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="620"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="620"/>
         <source>10</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="747"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="614"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="769"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="621"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="621"/>
         <source>11</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="752"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="615"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="774"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="622"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="622"/>
         <source>12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="757"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="616"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="779"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="623"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="623"/>
         <source>13</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="762"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="617"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="784"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="624"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="624"/>
         <source>14</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="767"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="618"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="789"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="625"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="625"/>
         <source>15</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="772"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="619"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="794"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="626"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="626"/>
         <source>16</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="362"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="574"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="384"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="581"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="581"/>
         <source>Restart output</source>
         <translation>Restartaj izlaz</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="326"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="572"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="348"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="579"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="579"/>
         <source>Audio output details</source>
         <translation>Detalji zvučnog izlaza</translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="469"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="587"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="491"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="594"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="594"/>
         <source>Post-Fader</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="474"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="588"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="496"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="595"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="595"/>
         <source>Pre-Fader</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="488"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="590"/>
+        <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="510"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="597"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="597"/>
         <source>Track output</source>
         <translation>Izlaz trake</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="170"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="557"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="562"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="562"/>
         <source>Use lash</source>
         <translation>Koristi LASH</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="183"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="559"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="564"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="564"/>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
         <translation>Prvo, namjesti vrijeme nepodudaranja signala latencije između kontrolera/klavijature i izračunatog BPM</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="202"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="561"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="566"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="566"/>
         <source>Beat counter drift compensation in 1/10 ms   </source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="215"/>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="302"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="563"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="569"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="568"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="574"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="568"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="574"/>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/PreferencesDialog_UI.ui" line="234"/>
-        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="565"/>
+        <location filename="../../gui/objs/ui_PreferencesDialog_UI.h" line="570"/>
+        <location filename="../../gui/src/UI/ui_PreferencesDialog_UI.h" line="570"/>
         <source>Beat counter start offset in ms    </source>
         <translation></translation>
     </message>
@@ -3332,126 +3586,147 @@ Are you sure?</source>
     <name>SampleEditor_UI</name>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="306"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="306"/>
         <source>Dialog</source>
         <translation type="unfinished">Dijalog</translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="661"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="408"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="408"/>
         <source>P&amp;lay original sample</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="615"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="406"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="406"/>
         <source>&amp;Apply Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="45"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="307"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="307"/>
         <source>&amp;Close</source>
         <translation type="unfinished">&amp;Zatvori</translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="67"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="309"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="309"/>
         <source>Adjust sample start frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="83"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="312"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="312"/>
         <source>Adjust sample loop begin frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="99"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="321"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="321"/>
         <source>set processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="103"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="316"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="316"/>
         <source>forward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="108"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="317"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="317"/>
         <source>reverse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="113"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="318"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="318"/>
         <source>pingpong</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="127"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="324"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="324"/>
         <source>loops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="146"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="327"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="327"/>
         <source>Adjust sample end &amp; loop end frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="252"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="329"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="329"/>
         <source>&quot;Rubberband Audio Processor&quot; Change the tempo(sample length) and pitch of audio. </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="261"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="330"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="330"/>
         <source>Sample length to beat:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="275"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="333"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="333"/>
         <source>off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="280"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="334"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="334"/>
         <source>1/64</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="285"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="335"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="335"/>
         <source>1/32</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="290"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="336"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="336"/>
         <source>1/16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="295"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="337"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="337"/>
         <source>1/8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="300"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="338"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="338"/>
         <source>1/4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="305"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="339"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="339"/>
         <source>1/2</source>
         <translation type="unfinished"></translation>
@@ -3459,6 +3734,8 @@ Are you sure?</source>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="310"/>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="570"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="340"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="382"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="340"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="382"/>
         <source>1</source>
@@ -3467,6 +3744,8 @@ Are you sure?</source>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="315"/>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="575"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="341"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="383"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="341"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="383"/>
         <source>2</source>
@@ -3475,6 +3754,8 @@ Are you sure?</source>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="320"/>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="580"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="342"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="384"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="342"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="384"/>
         <source>3</source>
@@ -3483,6 +3764,8 @@ Are you sure?</source>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="325"/>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="585"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="343"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="385"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="343"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="385"/>
         <source>4</source>
@@ -3491,6 +3774,8 @@ Are you sure?</source>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="330"/>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="590"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="344"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="386"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="344"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="386"/>
         <source>5</source>
@@ -3498,186 +3783,217 @@ Are you sure?</source>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="335"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="345"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="345"/>
         <source>6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="340"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="346"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="346"/>
         <source>7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="345"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="347"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="347"/>
         <source>8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="350"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="348"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="348"/>
         <source>9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="355"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="349"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="349"/>
         <source>10</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="360"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="350"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="350"/>
         <source>11</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="365"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="351"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="351"/>
         <source>12</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="370"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="352"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="352"/>
         <source>13</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="375"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="353"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="353"/>
         <source>14</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="380"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="354"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="354"/>
         <source>15</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="385"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="355"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="355"/>
         <source>16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="390"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="356"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="356"/>
         <source>17</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="395"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="357"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="357"/>
         <source>18</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="400"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="358"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="358"/>
         <source>19</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="405"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="359"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="359"/>
         <source>20</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="410"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="360"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="360"/>
         <source>21</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="415"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="361"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="361"/>
         <source>22</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="420"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="362"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="362"/>
         <source>23</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="425"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="363"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="363"/>
         <source>24</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="430"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="364"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="364"/>
         <source>25</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="435"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="365"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="365"/>
         <source>26</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="440"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="366"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="366"/>
         <source>27</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="445"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="367"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="367"/>
         <source>28</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="450"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="368"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="368"/>
         <source>29</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="455"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="369"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="369"/>
         <source>30</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="460"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="370"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="370"/>
         <source>31</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="465"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="371"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="371"/>
         <source>32</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="489"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="374"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="374"/>
         <source>Pitch: (Semitone,Cent)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="502"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="376"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="376"/>
         <source>Pitch the sample in semitones, cents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="529"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="378"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="378"/>
         <source>Crispness: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="548"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="389"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="389"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -3697,36 +4013,42 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="565"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="381"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="381"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="638"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="407"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="407"/>
         <source>&amp;Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="674"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="409"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="409"/>
         <source>new sample length:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="687"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="416"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="416"/>
         <source>fade-out type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="691"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="412"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="412"/>
         <source>volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SampleEditor/SampleEditor_UI.ui" line="696"/>
+        <location filename="../../gui/objs/ui_SampleEditor_UI.h" line="413"/>
         <location filename="../../gui/src/SampleEditor/ui_SampleEditor_UI.h" line="413"/>
         <source>panorama</source>
         <translation type="unfinished"></translation>
@@ -3851,66 +4173,77 @@ Da li to želiš napraviti?</translation>
     <name>SongEditorPanelBpmWidget_UI</name>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="112"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="112"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="31"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="114"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="114"/>
         <source>Edit the bpm value for current beat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="34"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="116"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="116"/>
         <source>500,55</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="41"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="118"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="118"/>
         <source>Edit beat in timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="44"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="120"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="120"/>
         <source>500</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="51"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="121"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="121"/>
         <source>Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="58"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="122"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="122"/>
         <source>BPM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="67"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="124"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="124"/>
         <source>Delete this BPM Marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="70"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="126"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="126"/>
         <source>Delete BPM Marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="82"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="130"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="130"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelBpmWidget_UI.ui" line="89"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelBpmWidget_UI.h" line="131"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelBpmWidget_UI.h" line="131"/>
         <source>Ok</source>
         <translation type="unfinished">Ok</translation>
@@ -3920,24 +4253,28 @@ Da li to želiš napraviti?</translation>
     <name>SongEditorPanelTagWidget_UI</name>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelTagWidget_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelTagWidget_UI.h" line="90"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelTagWidget_UI.h" line="90"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelTagWidget_UI.ui" line="24"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelTagWidget_UI.h" line="92"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelTagWidget_UI.h" line="92"/>
         <source>Tag</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelTagWidget_UI.ui" line="42"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelTagWidget_UI.h" line="96"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelTagWidget_UI.h" line="96"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../gui/src/SongEditor/SongEditorPanelTagWidget_UI.ui" line="49"/>
+        <location filename="../../gui/objs/ui_SongEditorPanelTagWidget_UI.h" line="97"/>
         <location filename="../../gui/src/SongEditor/ui_SongEditorPanelTagWidget_UI.h" line="97"/>
         <source>Ok</source>
         <translation type="unfinished">Ok</translation>
@@ -4034,54 +4371,63 @@ Overwrite the existing pattern?</source>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="70"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="90"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="90"/>
         <source>Notes</source>
         <translation>Note</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="41"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="89"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="89"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="89"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="91"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="91"/>
         <source>Song name</source>
         <translation>Ime pjesme</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="121"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="94"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="94"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="102"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="92"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="92"/>
         <source> &amp;OK</source>
         <translation> &amp;Ok</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="88"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="88"/>
         <source>Form1</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="105"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="93"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="93"/>
         <source>Alt+O</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="124"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="95"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="95"/>
         <source>Alt+C</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/SongPropertiesDialog_UI.ui" line="163"/>
+        <location filename="../../gui/objs/ui_SongPropertiesDialog_UI.h" line="96"/>
         <location filename="../../gui/src/UI/ui_SongPropertiesDialog_UI.h" line="96"/>
         <source>License</source>
         <translation>Licenca</translation>
@@ -4104,18 +4450,21 @@ Overwrite the existing pattern?</source>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_SoundLibraryExportDialog_UI.h" line="61"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h" line="61"/>
         <source>Dialog</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog_UI.ui" line="25"/>
+        <location filename="../../gui/objs/ui_SoundLibraryExportDialog_UI.h" line="62"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h" line="62"/>
         <source>Browse</source>
         <translation>Pretražuj</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryExportDialog_UI.ui" line="64"/>
+        <location filename="../../gui/objs/ui_SoundLibraryExportDialog_UI.h" line="63"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryExportDialog_UI.h" line="63"/>
         <source>Export</source>
         <translation>Izbaci</translation>
@@ -4205,84 +4554,98 @@ Overwrite the existing pattern?</source>
     <name>SoundLibraryImportDialog_UI</name>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="245"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="245"/>
         <source>Dialog</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="23"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="255"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="255"/>
         <source>Internet</source>
         <translation>Internet</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="56"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="246"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="246"/>
         <source>Update list</source>
         <translation>Osvježi popis</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="130"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="250"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="250"/>
         <source>Sound Library Name</source>
         <translation>Ime zvučne knjižnice</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="145"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="251"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="251"/>
         <source>Sound library Info</source>
         <translation>Informacije o zvučnoj knjižnici</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="195"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="253"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="253"/>
         <source>Author...</source>
         <translation>Autor...</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="215"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="254"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="254"/>
         <source>Download and install</source>
         <translation>Skini i instaliraj</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="224"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="258"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="258"/>
         <source>Local file</source>
         <translation>Lokalni fajl</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="257"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="256"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="256"/>
         <source>Browse...</source>
         <translation>Pretražuj...</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="267"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="257"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="257"/>
         <source>Install</source>
         <translation>Instaliraj</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="98"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="249"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="249"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="182"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="252"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="252"/>
         <source>License...</source>
         <translation>Licenca...</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="63"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="247"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="247"/>
         <source>Edit server list</source>
         <translation>Uredi server listu</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryImportDialog_UI.ui" line="307"/>
+        <location filename="../../gui/objs/ui_SoundLibraryImportDialog_UI.h" line="259"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryImportDialog_UI.h" line="259"/>
         <source>Close</source>
         <translation>Zatvori</translation>
@@ -4371,48 +4734,56 @@ Potvrdi brisanje!</translation>
     <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="134"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="134"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="31"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="135"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="135"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="50"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="136"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="136"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="63"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="137"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="137"/>
         <source>Information</source>
         <translation>Informacije</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="136"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="138"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="138"/>
         <source>License</source>
         <translation>Licenca</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="180"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="140"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="140"/>
         <source>Save </source>
         <translation>Spremi</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="187"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="141"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="141"/>
         <source>Cancel</source>
         <translation>Otkaži</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryPropertiesDialog_UI.ui" line="203"/>
+        <location filename="../../gui/objs/ui_SoundLibraryPropertiesDialog_UI.h" line="142"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryPropertiesDialog_UI.h" line="142"/>
         <source>Save changes made to instruments into sound library</source>
         <translation>Spremi promjene napravljene na instrumentima u zvučnoj knjižnici</translation>
@@ -4440,18 +4811,21 @@ Potvrdi brisanje!</translation>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_SoundLibraryRepositoryDialog_UI.h" line="76"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h" line="76"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui" line="30"/>
+        <location filename="../../gui/objs/ui_SoundLibraryRepositoryDialog_UI.h" line="77"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h" line="77"/>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibraryRepositoryDialog_UI.ui" line="37"/>
+        <location filename="../../gui/objs/ui_SoundLibraryRepositoryDialog_UI.h" line="78"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibraryRepositoryDialog_UI.h" line="78"/>
         <source>Delete</source>
         <translation>Obriši</translation>
@@ -4474,42 +4848,49 @@ Potvrdi brisanje!</translation>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="13"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="128"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="128"/>
         <source>Dialog</source>
         <translation>Dijalog</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="31"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="129"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="129"/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="50"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="130"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="130"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="63"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="131"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="131"/>
         <source>Information</source>
         <translation>Informacije</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="184"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="134"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="134"/>
         <source>Cancel</source>
         <translation>Odustani</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="136"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="132"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="132"/>
         <source>License</source>
         <translation>Licenca</translation>
     </message>
     <message>
         <location filename="../../gui/src/SoundLibrary/SoundLibrarySaveDialog_UI.ui" line="177"/>
+        <location filename="../../gui/objs/ui_SoundLibrarySaveDialog_UI.h" line="133"/>
         <location filename="../../gui/src/SoundLibrary/ui_SoundLibrarySaveDialog_UI.h" line="133"/>
         <source>Save </source>
         <translation>Spremi</translation>
@@ -4535,18 +4916,21 @@ Potvrdi brisanje!</translation>
     <name>VirtualPatternDialog_UI</name>
     <message>
         <location filename="../../gui/src/UI/VirtualPatternDialog_UI.ui" line="14"/>
+        <location filename="../../gui/objs/ui_VirtualPatternDialog_UI.h" line="87"/>
         <location filename="../../gui/src/UI/ui_VirtualPatternDialog_UI.h" line="87"/>
         <source>Dialog</source>
         <translation type="unfinished">Dijalog</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/VirtualPatternDialog_UI.ui" line="42"/>
+        <location filename="../../gui/objs/ui_VirtualPatternDialog_UI.h" line="88"/>
         <location filename="../../gui/src/UI/ui_VirtualPatternDialog_UI.h" line="88"/>
         <source>OK</source>
         <translation type="unfinished">Ok</translation>
     </message>
     <message>
         <location filename="../../gui/src/UI/VirtualPatternDialog_UI.ui" line="52"/>
+        <location filename="../../gui/objs/ui_VirtualPatternDialog_UI.h" line="89"/>
         <location filename="../../gui/src/UI/ui_VirtualPatternDialog_UI.h" line="89"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>

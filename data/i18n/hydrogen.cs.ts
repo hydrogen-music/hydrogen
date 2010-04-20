@@ -711,10 +711,6 @@ http://www.hydrogen-music.org
         <translation>Export skladby</translation>
     </message>
     <message>
-        <source>Sample rate: %1</source>
-        <translation>Vzorkovací frekvence: %1</translation>
-    </message>
-    <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
@@ -852,6 +848,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to seperate tracks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2264,6 +2264,19 @@ Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation>Prosím restartujte Hydrogen pro zapnutí / vypnutí LASH podpory</translation>
     </message>
+    <message>
+        <source>Driver restart required.
+ Restart driver?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished">&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Storno</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2529,6 +2542,10 @@ Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
     </message>
     <message>
         <source>create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Reopen last used playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

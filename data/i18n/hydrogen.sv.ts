@@ -711,10 +711,6 @@ http://www.hydrogen-music.org
         <translation type="unfinished">Exportera sång</translation>
     </message>
     <message>
-        <source>Sample rate: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export failed!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -852,6 +848,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to seperate tracks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2252,6 +2252,19 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Driver restart required.
+ Restart driver?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Avbryt</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2517,6 +2530,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Maximum number of bars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Reopen last used playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
