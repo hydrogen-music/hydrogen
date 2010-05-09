@@ -976,6 +976,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			}
 			if ( !instrRef ) {
 				ERRORLOG( "Instrument with ID: '" + instrId + "' not found. Note skipped." );
+				noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
 				continue;
 			}
 			//assert( instrRef );

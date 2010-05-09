@@ -1357,7 +1357,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					for ( pos0 = pPattern->note_map.lower_bound( m_nPatternTickPosition );
 							pos0 != pPattern->note_map.upper_bound( m_nPatternTickPosition );
 							++pos0 ) {
-						Note *pNote = pos0->second;
+                                                Note *pNote = NULL;
+                                                pNote = pos0->second;
 						assert( pNote != NULL );
 						if ( pNote->m_bJustRecorded == false ) {
 							delete pNote;
