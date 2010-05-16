@@ -27,7 +27,7 @@ function scons_rm() {
 }
 
 function scons_make() {
-    echo -e " * scons make\n" && scons
+    echo -e " * scons make\n" && scons || exit 1
 }
 
 function scons_graph() {
@@ -60,9 +60,9 @@ function cmake_make() {
         cmake ${CMAKE_OPTIONS} ..
     fi
     if [ $VERBOSE -eq 1 ]; then
-        VERBOSE=1 make $MAKE_OPTS
+        VERBOSE=1 make $MAKE_OPTS || exit 1
     else
-        make $MAKE_OPTS
+        make $MAKE_OPTS || exit 1
     fi
 }
 
