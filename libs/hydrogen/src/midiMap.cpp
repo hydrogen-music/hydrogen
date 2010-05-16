@@ -26,9 +26,10 @@
 #include <QMutexLocker>
 
 MidiMap * MidiMap::__instance = 0;
+const char* MidiMap::__class_name = "MidiMap";
 
 MidiMap::MidiMap()
- : Object( "midiMap" )
+ : Object( __class_name )
 {
 	__instance = this;
 	QMutexLocker mx(&__mutex);

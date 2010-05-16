@@ -60,6 +60,7 @@ public:
 ///
 class EventQueue : public Object
 {
+    H2_OBJECT
 public:
 	static void create_instance();
 	static EventQueue* get_instance() { assert(__instance); return __instance; }

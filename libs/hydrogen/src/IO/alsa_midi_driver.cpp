@@ -57,17 +57,18 @@ int outPortId;
 
 void* alsaMidiDriver_thread( void* param )
 {
+    Object* __object = ( Object* )param;
 	AlsaMidiDriver *pDriver = ( AlsaMidiDriver* )param;
-	_INFOLOG( "starting" );
+	__INFOLOG( "starting" );
 
 	if ( seq_handle != NULL ) {
-		_ERRORLOG( "seq_handle != NULL" );
+		__ERRORLOG( "seq_handle != NULL" );
 		pthread_exit( NULL );
 	}
 
 	int err;
 	if ( ( err = snd_seq_open( &seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0 ) ) < 0 ) {
-		_ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		__ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		pthread_exit( NULL );
 	}
 
@@ -80,7 +81,7 @@ void* alsaMidiDriver_thread( void* param )
 	                SND_SEQ_PORT_TYPE_APPLICATION
 	                                          )
 	     ) < 0 ) {
-		_ERRORLOG( "Error creating sequencer port." );
+		__ERRORLOG( "Error creating sequencer port." );
 		pthread_exit( NULL );
 	}
 	
@@ -91,7 +92,7 @@ void* alsaMidiDriver_thread( void* param )
 	                SND_SEQ_PORT_TYPE_APPLICATION
 	                                          )
 	     ) < 0 ) {
-		_ERRORLOG( "Error creating sequencer port." );
+		__ERRORLOG( "Error creating sequencer port." );
 		pthread_exit( NULL );
 	}
 	
@@ -115,9 +116,9 @@ void* alsaMidiDriver_thread( void* param )
 	int m_dest_addr_port = -1;
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
-	_INFOLOG( "MIDI port name: "  + sPortName );
-	_INFOLOG( "MIDI addr client: " +  m_dest_addr_client );
-	_INFOLOG( "MIDI addr port: " + m_dest_addr_port );
+	__INFOLOG( "MIDI port name: "  + sPortName );
+	__INFOLOG( "MIDI addr client: " +  m_dest_addr_client );
+	__INFOLOG( "MIDI addr port: " + m_dest_addr_port );
 
 	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
 		snd_seq_port_subscribe_t *subs;
@@ -136,17 +137,17 @@ void* alsaMidiDriver_thread( void* param )
 		/* subscribe */
 		int ret = snd_seq_subscribe_port( seq_handle, subs );
 		if ( ret < 0 ) {
-			_ERRORLOG( QString( "snd_seq_subscribe_port(%1:%2) error" ).arg( m_dest_addr_client ).arg( m_dest_addr_port ) );
+			__ERRORLOG( QString( "snd_seq_subscribe_port(%1:%2) error" ).arg( m_dest_addr_client ).arg( m_dest_addr_port ) );
 		}
 	}
 
-	_INFOLOG( QString( "Midi input port at %1:%2" ).arg( clientId ).arg( portId ) );
+	__INFOLOG( QString( "Midi input port at %1:%2" ).arg( clientId ).arg( portId ) );
 
 	npfd = snd_seq_poll_descriptors_count( seq_handle, POLLIN );
 	pfd = ( struct pollfd* )alloca( npfd * sizeof( struct pollfd ) );
 	snd_seq_poll_descriptors( seq_handle, pfd, npfd, POLLIN );
 
-	_INFOLOG( "MIDI Thread INIT" );
+	__INFOLOG( "MIDI Thread INIT" );
 	while ( isMidiDriverRunning ) {
 		if ( poll( pfd, npfd, 100 ) > 0 ) {
 			pDriver->midi_action( seq_handle );
@@ -154,7 +155,7 @@ void* alsaMidiDriver_thread( void* param )
 	}
 	snd_seq_close ( seq_handle );
 	seq_handle = NULL;
-	_INFOLOG( "MIDI Thread DESTROY" );
+	__INFOLOG( "MIDI Thread DESTROY" );
 
 	pthread_exit( NULL );
 	return NULL;
@@ -163,9 +164,10 @@ void* alsaMidiDriver_thread( void* param )
 
 
 
+const char* AlsaMidiDriver::__class_name = "AlsaMidiDriver";
 
 AlsaMidiDriver::AlsaMidiDriver()
-		: MidiInput( "AlsaMidiDriver" ), MidiOutput( "AlsaMidiDriver" ), Object( "AlsaMidiDriver" )
+		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
 {
 //	infoLog("INIT");
 }

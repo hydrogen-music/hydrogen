@@ -33,6 +33,7 @@ namespace H2Core
 ///
 class ADSR : private Object
 {
+    H2_OBJECT
 public:
 	float __attack;		///< Attack time (in samples)
 	float __decay;		///< Decay time (in samples)

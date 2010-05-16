@@ -38,6 +38,8 @@ using namespace std;
 namespace H2Core
 {
 
+const char* Sample::__class_name = "Sample";
+
 Sample::Sample( unsigned frames,
 		const QString& filename, 
 		unsigned sample_rate,
@@ -56,7 +58,7 @@ Sample::Sample( unsigned frames,
 		float rubberband_pitch)
 
 
-		: Object( "Sample" )
+		: Object( __class_name )
 		, __data_l( data_l )
 		, __data_r( data_r )
 		, __sample_rate( sample_rate )

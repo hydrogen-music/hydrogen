@@ -47,8 +47,9 @@ pthread_t PortMidiDriverThread;
 
 void* PortMidiDriver_thread( void* param )
 {
+    Object *__object = (Object*)param;
 	PortMidiDriver *instance = ( PortMidiDriver* )param;
-	_INFOLOG( "PortMidiDriver_thread starting" );
+	__INFOLOG( "PortMidiDriver_thread starting" );
 
 	PmError status;
 	int length;
@@ -86,12 +87,12 @@ void* PortMidiDriver_thread( void* param )
 					msg.m_nChannel = nEventType - 240;
 					msg.m_type = MidiMessage::SYSTEM_EXCLUSIVE;
 				} else {
-					_ERRORLOG( "Unhandled midi message type: " + QString::number( nEventType ) );
-					_INFOLOG( "MIDI msg: " );
-					_INFOLOG( QString::number( buffer[0].timestamp ) );
-					_INFOLOG( QString::number( Pm_MessageStatus( buffer[0].message ) ) );
-					_INFOLOG( QString::number( Pm_MessageData1( buffer[0].message ) ) );
-					_INFOLOG( QString::number( Pm_MessageData2( buffer[0].message ) ) );
+					__ERRORLOG( "Unhandled midi message type: " + QString::number( nEventType ) );
+					__INFOLOG( "MIDI msg: " );
+					__INFOLOG( QString::number( buffer[0].timestamp ) );
+					__INFOLOG( QString::number( Pm_MessageStatus( buffer[0].message ) ) );
+					__INFOLOG( QString::number( Pm_MessageData1( buffer[0].message ) ) );
+					__INFOLOG( QString::number( Pm_MessageData2( buffer[0].message ) ) );
 				}
 
 				msg.m_nData1 = Pm_MessageData1( buffer[0].message );
@@ -110,14 +111,15 @@ void* PortMidiDriver_thread( void* param )
 
 
 
-	_INFOLOG( "MIDI Thread DESTROY" );
+	__INFOLOG( "MIDI Thread DESTROY" );
 	pthread_exit( NULL );
 	return NULL;
 }
 
+const char* PortMidiDriver::__class_name = "PortMidiDriver";
 
 PortMidiDriver::PortMidiDriver()
-		: MidiInput( "PortMidiDriver" ), MidiOutput( "PortMidiDriver" ), Object( "PortMidiDriver" )
+		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
 		, m_bRunning( false )
 {
 	Pm_Initialize();

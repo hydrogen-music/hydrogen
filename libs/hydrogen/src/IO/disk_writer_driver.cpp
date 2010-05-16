@@ -36,8 +36,9 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
+    Object* __object = ( Object* )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
-	_INFOLOG( "DiskWriterDriver thread start" );
+	__INFOLOG( "DiskWriterDriver thread start" );
 
 	// always rolling, no user interaction
 	pDriver->m_transport.m_status = TransportInfo::ROLLING;
@@ -115,7 +116,7 @@ void* diskWriterDriver_thread( void* param )
 //          SF_FORMAT_VORBIS
 
 	if ( !sf_format_check( &soundInfo ) ) {
-		_ERRORLOG( "Error in soundInfo" );
+		__ERRORLOG( "Error in soundInfo" );
 		return 0;
 	}
 
@@ -187,7 +188,7 @@ void* diskWriterDriver_thread( void* param )
 		}
 		int res = sf_writef_float( m_file, pData, usedBuffer );
 		if ( res != ( int )usedBuffer ) {
-			_ERRORLOG( "Error during sf_write_float" );
+			__ERRORLOG( "Error during sf_write_float" );
 		}
 
 		float fPercent = ( float ) frameNumber / ( float )songLengthInFrames * 100.0;
@@ -200,7 +201,7 @@ void* diskWriterDriver_thread( void* param )
 
 	sf_close( m_file );
 
-	_INFOLOG( "DiskWriterDriver thread end" );
+	__INFOLOG( "DiskWriterDriver thread end" );
 
 	pthread_exit( NULL );
 
@@ -210,9 +211,10 @@ void* diskWriterDriver_thread( void* param )
 
 
 
+const char* DiskWriterDriver::__class_name = "DiskWriterDriver";
 
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename, int nSampleDepth )
-		: AudioOutput( "DiskWriterDriver" )
+		: AudioOutput( __class_name )
 		, m_nSampleRate( nSamplerate )
 		, m_sFilename( sFilename )
 		, m_nSampleDepth ( nSampleDepth )

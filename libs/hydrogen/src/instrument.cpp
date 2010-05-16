@@ -33,9 +33,10 @@
 namespace H2Core
 {
 
+const char* Instrument::__class_name = "Instrument";
 
 Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
-		: Object( "Instrument" )
+		: Object( __class_name )
 		, __queued( 0 )
 		, __adsr( adsr )
 		, __muted( false )
@@ -226,9 +227,10 @@ void Instrument::load_from_name(
 
 // ::::
 
+const char* InstrumentList::__class_name = "InstrumentList";
 
 InstrumentList::InstrumentList()
-		: Object( "InstrumentList" )
+		: Object( __class_name )
 {
 //	infoLog("INIT");
 }
@@ -304,10 +306,10 @@ void InstrumentList::del( int pos )
 }
 
 
-
+const char* InstrumentLayer::__class_name = "InstrumentLayer";
 
 InstrumentLayer::InstrumentLayer( Sample *sample )
-		: Object( "InstrumentLayer" )
+		: Object( __class_name )
 		, __start_velocity( 0.0 )
 		, __end_velocity( 1.0 )
 		, __pitch( 0.0 )

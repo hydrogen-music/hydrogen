@@ -52,6 +52,7 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 
 void* alsaAudioDriver_processCaller( void* param )
 {
+    Object *__object = (Object*)param;
 	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// stolen from amSynth
@@ -60,15 +61,15 @@ void* alsaAudioDriver_processCaller( void* param )
 	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
 	sched_getparam( 0, &sched );
 	if ( res ) {
-		_ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
+		__ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
 	}
-	_INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
+	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	sleep( 1 );
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		_ERRORLOG( QString( "Cannot prepare audio interface for use: %1" ).arg( snd_strerror ( err ) ) );
+		__ERRORLOG( QString( "Cannot prepare audio interface for use: %1" ).arg( snd_strerror ( err ) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
@@ -88,16 +89,16 @@ void* alsaAudioDriver_processCaller( void* param )
 		}
 
 		if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
-			_ERRORLOG( "XRUN" );
+			__ERRORLOG( "XRUN" );
 
 			if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
-				_ERRORLOG( "Can't recovery from XRUN" );
+				__ERRORLOG( "Can't recovery from XRUN" );
 			}
 			// retry
 			if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
-				_ERRORLOG( "XRUN 2" );
+				__ERRORLOG( "XRUN 2" );
 				if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
-					_ERRORLOG( "Can't recovery from XRUN" );
+					__ERRORLOG( "Can't recovery from XRUN" );
 				}
 			}
 
@@ -108,9 +109,10 @@ void* alsaAudioDriver_processCaller( void* param )
 }
 
 
+const char* AlsaAudioDriver::__class_name = "AlsaAudioDriver";
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput( "AlsaAudioDriver" )
+		: AudioOutput( __class_name )
 		, m_bIsRunning( false )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )

@@ -42,15 +42,16 @@ unsigned nNextFrames = 0;
 
 void* ossDriver_processCaller( void* param )
 {
+    Object* __object = ( Object* )param;
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
 	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
 	sched_getparam( 0, &sched );
 	if ( res ) {
-		_WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
+		__WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
 	}
-	_INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
+	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	OssDriver *ossDriver = ( OssDriver* )param;
 
@@ -67,9 +68,10 @@ void* ossDriver_processCaller( void* param )
 
 
 
+const char* OssDriver::__class_name = "OssDriver";
 
 OssDriver::OssDriver( audioProcessCallback processCallback )
-		: AudioOutput( "OssDriver" )
+		: AudioOutput( __class_name )
 {
 	INFOLOG( "INIT" );
 	audioBuffer = NULL;

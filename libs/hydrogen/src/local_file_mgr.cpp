@@ -57,8 +57,10 @@
 namespace H2Core
 {
 
+const char* LocalFileMng::__class_name = "LocalFileMng";
+
 LocalFileMng::LocalFileMng()
-		: Object( "LocalFileMng" )
+		: Object( __class_name )
 {
 //	infoLog("INIT");
 }
@@ -1323,9 +1325,10 @@ int LocalFileMng::writeTempPatternList(Song *song, const QString& filename)
 //	Implementation of SongWriter class
 //-----------------------------------------------------------------------------
 
+const char* SongWriter::__class_name = "SongWriter";
 
 SongWriter::SongWriter()
-		: Object( "SongWriter" )
+		: Object( __class_name )
 {
 //	infoLog("init");
 }

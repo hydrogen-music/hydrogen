@@ -35,6 +35,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class NullDriver : public AudioOutput
 {
+    H2_OBJECT
 public:
 	NullDriver( audioProcessCallback processCallback );
 	~NullDriver();

@@ -25,8 +25,10 @@
 namespace H2Core
 {
 
+const char* TransportInfo::__class_name = "TransportInfo";
+
 TransportInfo::TransportInfo()
-		: Object( "TransportInfo" )
+		: Object( __class_name )
 {
 //	infoLog( "INIT" );
 	m_status = STOPPED;

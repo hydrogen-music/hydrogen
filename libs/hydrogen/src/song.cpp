@@ -82,8 +82,10 @@ void computeVirtualPatternTransitiveClosure(H2Core::PatternList *pPatternList)
 namespace H2Core
 {
 
+const char* Song::__class_name = "Song";
+
 Song::Song( const QString& name, const QString& author, float bpm, float volume )
-		: Object( "Song" )
+		: Object( __class_name )
 		, __is_muted( false )
 		, __resolution( 48 )
 		, __bpm( bpm )
@@ -374,9 +376,10 @@ void Song::readTempPatternList( QString filename )
 //	Implementation of SongReader class
 //-----------------------------------------------------------------------------
 
+const char* SongReader::__class_name = "SongReader";
 
 SongReader::SongReader()
-		: Object( "SongReader" )
+		: Object( __class_name )
 {
 //	infoLog("init");
 }

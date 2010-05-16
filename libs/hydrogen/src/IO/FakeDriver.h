@@ -36,6 +36,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
  */
 class FakeDriver : public AudioOutput
 {
+    H2_OBJECT
 public:
 	FakeDriver( audioProcessCallback processCallback );
 	~FakeDriver();

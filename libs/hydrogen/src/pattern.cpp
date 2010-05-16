@@ -30,8 +30,10 @@
 namespace H2Core
 {
 
+const char* Pattern::__class_name = "Pattern";
+
 Pattern::Pattern( const QString& name, const QString& category, unsigned length )
-		: Object( "Pattern" )
+		: Object( __class_name )
 {
 //	INFOLOG( "INIT: " + m_sName );
 	set_name( name );
@@ -152,9 +154,10 @@ void Pattern::debug_dump()
 // ::::::::::::::::::::::::
 
 
+const char* PatternList::__class_name = "PatternList";
 
 PatternList::PatternList()
-		: Object( "PatternList" )
+		: Object( __class_name )
 {
 //	infoLog("Init");
 }

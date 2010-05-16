@@ -44,6 +44,7 @@ namespace H2Core
 ///
 class Synth : public Object
 {
+    H2_OBJECT
 public:
 	float *m_pOut_L;
 	float *m_pOut_R;

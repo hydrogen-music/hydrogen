@@ -51,6 +51,7 @@ class PatternList;
 */
 class Song : public Object
 {
+    H2_OBJECT
 public:
 	enum SongMode {
 		PATTERN_MODE,
@@ -206,6 +207,7 @@ private:
 */
 class SongReader : public Object
 {
+    H2_OBJECT
 public:
 	SongReader();
 	~SongReader();

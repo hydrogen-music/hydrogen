@@ -45,9 +45,10 @@ int activeSongNumber = -1;
 
 Playlist* Playlist::__instance = NULL;	
 
+const char* Playlist::__class_name = "Playlist";
 
 Playlist::Playlist()
-		: Object( "Playlist" )
+		: Object( __class_name )
 {
 	if ( __instance ) {class HydrogenApp;
 

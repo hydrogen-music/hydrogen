@@ -40,6 +40,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 class DiskWriterDriver : public AudioOutput
 {
+    H2_OBJECT
 	public:
 
 		unsigned m_nSampleRate;

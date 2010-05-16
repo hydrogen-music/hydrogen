@@ -31,6 +31,7 @@ namespace H2Core
 
 class SMFBuffer : public Object
 {
+    H2_OBJECT
 public:
 	std::vector<char> getBuffer() {
 		return m_buffer;
@@ -44,7 +45,7 @@ public:
 
 	std::vector<char> m_buffer;
 
-	SMFBuffer() : Object( "SMFBuffer" ) { }
+	SMFBuffer();
 };
 
 
@@ -83,8 +84,9 @@ public:
 
 class SMFEvent : public SMFBase, public Object
 {
+    H2_OBJECT
 public:
-	SMFEvent( const QString& sEventName, unsigned nTicks );
+	SMFEvent( const char* sEventName, unsigned nTicks );
 	virtual ~SMFEvent();
 
 	int m_nTicks;
@@ -95,6 +97,7 @@ public:
 
 class SMFTrackNameMetaEvent : public SMFEvent
 {
+    H2_OBJECT
 public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
 
@@ -109,6 +112,7 @@ private:
 
 class SMFNoteOnEvent : public SMFEvent
 {
+    H2_OBJECT
 public:
 	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
@@ -124,6 +128,7 @@ protected:
 
 class SMFNoteOffEvent : public SMFEvent
 {
+    H2_OBJECT
 public:
 	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 

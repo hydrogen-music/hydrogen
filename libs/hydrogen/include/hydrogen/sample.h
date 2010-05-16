@@ -75,6 +75,7 @@ public:
 
 class Sample : public Object
 {
+    H2_OBJECT
 public:
 	Sample( unsigned frames,
 		const QString& filename, 

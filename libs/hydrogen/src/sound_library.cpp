@@ -50,8 +50,10 @@
 namespace H2Core
 {
 
+const char* SoundLibrary::__class_name = "SoundLibrary";
+
 SoundLibrary::SoundLibrary()
-		: Object( "SoundLibrary" )
+		: Object( __class_name )
 {
 }
 
@@ -66,9 +68,10 @@ SoundLibrary::~SoundLibrary()
 // ::::::::::
 
 
+const char* Drumkit::__class_name = "Drumkit";
 
 Drumkit::Drumkit()
-		: Object( "Drumkit" )
+		: Object( __class_name )
 		, m_pInstrumentList( NULL )
 {
 }

@@ -44,11 +44,11 @@ unsigned long jack_server_sampleRate = 0;
 jack_nframes_t jack_server_bufferSize = 0;
 JackOutput *jackDriverInstance = NULL;
 
-int jackDriverSampleRate( jack_nframes_t nframes, void *arg )
+int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 {
-	UNUSED( arg );
+    Object* __object = ( Object* )param;
 	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
-	_INFOLOG( msg );
+	__INFOLOG( msg );
 	jack_server_sampleRate = nframes;
 	return 0;
 }
@@ -71,10 +71,10 @@ void jackDriverShutdown( void *arg )
 }
 
 
-
+const char* JackOutput::__class_name = "JackOutput";
 
 JackOutput::JackOutput( JackProcessCallback processCallback )
-		: AudioOutput( "JackOutput" )
+		: AudioOutput( __class_name )
 {
 	INFOLOG( "INIT" );
 	__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;	// allow per-track output
@@ -544,7 +544,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	/* tell the JACK server to call `srate()' whenever
 	   the sample rate of the system changes.
 	*/
-	jack_set_sample_rate_callback ( client, jackDriverSampleRate, 0 );
+	jack_set_sample_rate_callback ( client, jackDriverSampleRate, this );
 
 	/* tell JACK server to update us if the buffer size
 	   (frames per process cycle) changes.

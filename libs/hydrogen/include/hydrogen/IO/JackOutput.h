@@ -49,6 +49,7 @@ class Instrument;
 ///
 class JackOutput : public AudioOutput
 {
+    H2_OBJECT
 public:
 	jack_client_t *client;
 
@@ -155,6 +156,7 @@ namespace H2Core {
 
 class JackOutput : public NullDriver
 {
+    H2_OBJECT
 public:
 	JackOutput( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

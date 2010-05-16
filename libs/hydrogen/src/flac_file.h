@@ -35,6 +35,7 @@ class Sample;
 /// Class for FLAC file handling
 class FLACFile : public Object
 {
+    H2_OBJECT
 public:
 	FLACFile();
 	~FLACFile();

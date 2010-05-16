@@ -34,6 +34,7 @@ inline static float linear_interpolation( float fVal_A, float fVal_B, double fVa
 //	return fVal_A + ((fVal_B - fVal_A) * fVal);
 }
 
+const char* ADSR::__class_name = "ADSR";
 
 ADSR::ADSR(
     float attack,
@@ -41,7 +42,7 @@ ADSR::ADSR(
     float sustain,
     float release
 )
-		: Object( "ADSR" )
+		: Object( __class_name )
 		, __attack( attack )
 		, __decay( decay )
 		, __sustain( sustain )
@@ -56,7 +57,7 @@ ADSR::ADSR(
 
 
 ADSR::ADSR( const ADSR& orig )
-		: Object( "ADSR" )
+		: Object( __class_name )
 		, __attack( orig.__attack )
 		, __decay( orig.__decay )
 		, __sustain( orig.__sustain )

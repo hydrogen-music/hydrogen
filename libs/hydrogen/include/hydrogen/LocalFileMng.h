@@ -50,6 +50,7 @@ class Drumkit;
  */
 class LocalFileMng : public Object
 {
+    H2_OBJECT
 public:
 	LocalFileMng();
 	~LocalFileMng();
@@ -108,6 +109,7 @@ private:
  */
 class SongWriter : public Object
 {
+    H2_OBJECT
 public:
 	SongWriter();
 	~SongWriter();

@@ -50,6 +50,7 @@ namespace H2Core
 ///
 class Hydrogen : public Object
 {
+    H2_OBJECT
 public:
 	/// Return the Hydrogen instance
 	static void create_instance();  // Also creates other instances, like AudioEngine

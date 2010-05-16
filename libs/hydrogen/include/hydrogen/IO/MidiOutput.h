@@ -39,7 +39,7 @@ class Note;
 class MidiOutput : public virtual Object
 {
 public:
-	MidiOutput( const QString class_name );
+	MidiOutput( const char* class_name );
 	virtual ~MidiOutput();
 	
 	virtual void handleQueueNote(Note* pNote) = 0;

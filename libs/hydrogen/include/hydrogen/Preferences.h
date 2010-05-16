@@ -52,6 +52,7 @@ const float FALLOFF_FAST =	1.5f;
 */
 class WindowProperties : public Object
 {
+    H2_OBJECT
 public:
 	int x;
 	int y;
@@ -76,6 +77,7 @@ public:
 */
 class H2RGBColor : public Object
 {
+    H2_OBJECT
 public:
 	H2RGBColor( int r = -1, int g = -1, int b = -1 );
 	H2RGBColor( const QString& sColor );
@@ -107,6 +109,7 @@ private:
 */
 class UIStyle : public Object
 {
+    H2_OBJECT
 public:
 	UIStyle();
 	H2RGBColor m_songEditor_backgroundColor;
@@ -138,6 +141,7 @@ public:
 */
 class Preferences : public Object
 {
+    H2_OBJECT
 public:
 	enum {
 		USE_JACK_TRANSPORT = 0,

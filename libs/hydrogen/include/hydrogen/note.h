@@ -76,6 +76,7 @@ public:
 */
 class Note : public Object
 {
+    H2_OBJECT
 public:
 
 	float m_fSamplePosition; ///< Place marker for overlapping process() cycles

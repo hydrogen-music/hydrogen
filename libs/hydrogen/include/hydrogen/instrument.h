@@ -42,6 +42,7 @@ class Sample;
 */
 class InstrumentLayer : public Object
 {
+    H2_OBJECT
 public:
 	InstrumentLayer( Sample *sample );
 	~InstrumentLayer();
@@ -98,6 +99,7 @@ private:
 */
 class Instrument : public Object
 {
+    H2_OBJECT
 public:
 	Instrument(
 	    const QString& id,
@@ -349,6 +351,7 @@ inline InstrumentLayer* Instrument::get_layer( int nLayer )
 */
 class InstrumentList : public Object
 {
+    H2_OBJECT
 public:
 	InstrumentList();
 	~InstrumentList();

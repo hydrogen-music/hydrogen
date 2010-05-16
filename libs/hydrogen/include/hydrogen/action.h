@@ -30,6 +30,7 @@ using namespace std;
 
 
 class Action : public Object {
+    H2_OBJECT
 	public:
 		Action( QString );
 			
@@ -66,6 +67,7 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
 
 class ActionManager : public Object
 {
+    H2_OBJECT
 	private:
 		static ActionManager *__instance;
 		QStringList actionList;

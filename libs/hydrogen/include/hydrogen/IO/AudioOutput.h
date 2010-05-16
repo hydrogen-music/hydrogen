@@ -38,8 +38,8 @@ class AudioOutput : public Object
 public:
 	TransportInfo m_transport;		// Transport info
 
-	AudioOutput( const QString& sClassName )
-			: Object( sClassName )
+	AudioOutput( const char* class_name )
+			: Object( class_name )
 			, __track_out_enabled( false ) { }
 
 	virtual ~AudioOutput() { }

@@ -34,6 +34,7 @@ namespace H2Core
 
 class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
+    H2_OBJECT
 public:
 	PmStream *m_pMidiIn;
 	PmStream *m_pMidiOut;

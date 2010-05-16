@@ -43,11 +43,10 @@ namespace H2Core
 
 // static data
 Effects* Effects::__instance = NULL;
-
-
+const char* Effects::__class_name = "Effects";
 
 Effects::Effects()
-		: Object( "Effects" )
+		: Object( __class_name )
 		, m_pRootGroup( NULL )
 		, m_pRecentGroup( NULL )
 {

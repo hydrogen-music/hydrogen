@@ -55,9 +55,10 @@ inline static float linear_interpolation( float fVal_A, float fVal_B, float fVal
 }
 
 
+const char* Sampler::__class_name = "Sampler";
 
 Sampler::Sampler()
-		: Object( "Sampler" )
+		: Object( __class_name )
 		, __main_out_L( NULL )
 		, __main_out_R( NULL )
 		, __preview_instrument( NULL )

@@ -38,6 +38,7 @@ class InstrumentList;
 */
 class SoundLibrary : public Object
 {
+    H2_OBJECT
 public:
 	SoundLibrary();
 	~SoundLibrary();
@@ -53,6 +54,7 @@ private:
 */
 class Drumkit : public Object
 {
+    H2_OBJECT
 public:
 	Drumkit();
 	~Drumkit();

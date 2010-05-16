@@ -33,7 +33,7 @@
 namespace H2Core
 {
 
-MidiInput::MidiInput( const QString class_name )
+MidiInput::MidiInput( const char* class_name )
 		: Object( class_name )
 		, m_bActive( false )
 {

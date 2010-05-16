@@ -25,6 +25,10 @@
 namespace H2Core
 {
 
+const char* SMFBuffer::__class_name = "SMFBuffer";
+
+SMFBuffer::SMFBuffer() : Object( __class_name ) { }
+
 void SMFBuffer::writeByte( short int nByte )
 {
 //	infoLog( "[writeByte] " + to_string( nByte ) );
@@ -90,8 +94,10 @@ void SMFBuffer::writeVarLen( long value )
 
 // ::::::::::::::::::
 
+const char* SMFTrackNameMetaEvent::__class_name = "SMFTrackNameMetaEvent";
+
 SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nTicks )
-		: SMFEvent( "SMFTrackNameMetaEvent", nTicks )
+		: SMFEvent( __class_name, nTicks )
 		, m_sTrackName( sTrackName )
 {
 	// it's always at the start of the song
@@ -114,7 +120,7 @@ std::vector<char> SMFTrackNameMetaEvent::getBuffer()
 // :::::::::::::
 
 
-SMFEvent::SMFEvent( const QString& sEventName, unsigned nTicks )
+SMFEvent::SMFEvent( const char* sEventName, unsigned nTicks )
 		: Object( sEventName )
 		, m_nTicks( nTicks )
 		, m_nDeltaTime( -1 )
@@ -132,9 +138,10 @@ SMFEvent::~SMFEvent()
 
 // ::::::::::::::
 
+const char* SMFNoteOnEvent::__class_name = "SMFNoteOnEvent";
 
 SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
-		: SMFEvent( "SMFNoteOnEvent", nTicks )
+		: SMFEvent( __class_name, nTicks )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
@@ -161,9 +168,10 @@ std::vector<char> SMFNoteOnEvent::getBuffer()
 // :::::::::::
 
 
+const char* SMFNoteOffEvent::__class_name = "SMFNoteOffEvent";
 
 SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
-		: SMFEvent( "SMFNoteOffEvent", nTicks )
+		: SMFEvent( __class_name, nTicks )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )

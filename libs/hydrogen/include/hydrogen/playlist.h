@@ -40,6 +40,7 @@
 class Playlist :  public Object
 
 {
+    H2_OBJECT
 	
 	public:
 		static void create_instance();

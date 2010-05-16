@@ -32,8 +32,10 @@ using std::vector;
 namespace H2Core
 {
 
+const char* SMFHeader::__class_name = "SMFHeader";
+
 SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
-		: Object( "SMFHeader" )
+		: Object( __class_name )
 		, m_nFormat( nFormat )
 		, m_nTracks( nTracks )
 		, m_nTPQN( nTPQN )
@@ -68,9 +70,10 @@ vector<char> SMFHeader::getBuffer()
 // :::::::::::::::
 
 
+const char* SMFTrack::__class_name = "SMFTrack";
 
 SMFTrack::SMFTrack( const QString& sTrackName )
-		: Object( "SMFTrack" )
+		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
@@ -142,9 +145,10 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 
 
+const char* SMF::__class_name = "SMF";
 
 SMF::SMF()
-		: Object( "SMF" )
+		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
@@ -202,9 +206,10 @@ vector<char> SMF::getBuffer()
 // :::::::::::::::::::...
 
 
+const char* SMFWriter::__class_name = "SMFWriter";
 
 SMFWriter::SMFWriter()
-		: Object( "SMFWriter" )
+		: Object( __class_name )
 		, m_file( NULL )
 {
 	INFOLOG( "INIT" );

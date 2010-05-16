@@ -45,6 +45,7 @@ class AudioOutput;
 ///
 class Sampler : public Object
 {
+    H2_OBJECT
 public:
 	float *__main_out_L;	///< sampler main out (left channel)
 	float *__main_out_R;	///< sampler main out (right channel)

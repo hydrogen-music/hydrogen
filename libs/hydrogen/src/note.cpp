@@ -29,6 +29,8 @@
 namespace H2Core
 {
 
+const char* Note::__class_name = "Note";
+
 Note::Note(
     Instrument *pInstrument,
     unsigned position,
@@ -39,7 +41,7 @@ Note::Note(
     float fPitch,
     NoteKey key
 )
-		: Object( "Note" )
+		: Object( __class_name )
 		, m_fSamplePosition( 0.0 )
 		, m_nHumanizeDelay( 0 )
 		, m_noteKey( key )
@@ -70,7 +72,7 @@ Note::Note(
 
 
 Note::Note( const Note* pNote )
-		: Object( "Note" )
+		: Object( __class_name )
 {
 	__position	=	pNote->get_position();
 	__velocity	=	pNote->get_velocity();

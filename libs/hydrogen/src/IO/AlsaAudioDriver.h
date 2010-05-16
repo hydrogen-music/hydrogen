@@ -37,6 +37,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class AlsaAudioDriver : public AudioOutput
 {
+    H2_OBJECT
 public:
 	snd_pcm_t *m_pPlayback_handle;
 	bool m_bIsRunning;
@@ -75,6 +76,7 @@ namespace H2Core {
 
 class AlsaAudioDriver : public NullDriver
 {
+    H2_OBJECT
 public:
 	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

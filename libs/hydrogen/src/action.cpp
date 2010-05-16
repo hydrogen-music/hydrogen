@@ -37,8 +37,10 @@ ActionManager* ActionManager::__instance = NULL;
 
 using namespace H2Core;
 
+const char* Action::__class_name = "Action";
+
 /* Class Action */
-Action::Action( QString typeString ) : Object( "Action" ) {
+Action::Action( QString typeString ) : Object( __class_name ) {
 
 	/*
 	    An "Action" is something which can be interpreted and executed by hydrogen.
@@ -57,7 +59,9 @@ Action::Action( QString typeString ) : Object( "Action" ) {
 
 /* Class ActionManager */
 
-ActionManager::ActionManager() : Object( "ActionManager" )
+const char* ActionManager::__class_name = "ActionManager";
+
+ActionManager::ActionManager() : Object( __class_name )
 {
 	__instance = this;
 	

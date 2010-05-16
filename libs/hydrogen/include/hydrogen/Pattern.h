@@ -37,6 +37,7 @@ class Instrument;
 ///
 class Pattern : public Object
 {
+    H2_OBJECT
 public:
 	std::multimap <int, Note*> note_map;
     std::set<Pattern*> virtual_pattern_set;
@@ -94,6 +95,7 @@ private:
 /// Pattern List
 class PatternList : public Object
 {
+    H2_OBJECT
 public:
 	PatternList();
 	~PatternList();

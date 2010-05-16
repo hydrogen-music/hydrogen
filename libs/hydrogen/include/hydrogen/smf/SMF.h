@@ -37,6 +37,7 @@ namespace H2Core
 
 class SMFHeader : public SMFBase, public Object
 {
+    H2_OBJECT
 public:
 	SMFHeader( int nFormat, int nTracks, int nTPQN );
 	~SMFHeader();
@@ -52,6 +53,7 @@ public:
 
 class SMFTrack : public SMFBase, public Object
 {
+    H2_OBJECT
 public:
 	SMFTrack( const QString& sTrackName );
 	~SMFTrack();
@@ -68,6 +70,7 @@ private:
 
 class SMF : public SMFBase, public Object
 {
+    H2_OBJECT
 public:
 	SMF();
 	~SMF();
@@ -86,6 +89,7 @@ private:
 
 class SMFWriter : Object
 {
+    H2_OBJECT
 public:
 	SMFWriter();
 	~SMFWriter();

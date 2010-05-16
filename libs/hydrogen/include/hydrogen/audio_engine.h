@@ -44,6 +44,7 @@ namespace H2Core
 ///
 class AudioEngine : public Object
 {
+    H2_OBJECT
 public:
 	static void create_instance();
 	static AudioEngine* get_instance() { assert(__instance); return __instance; }

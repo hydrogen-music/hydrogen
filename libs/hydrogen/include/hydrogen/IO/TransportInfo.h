@@ -29,6 +29,7 @@ namespace H2Core
 
 class TransportInfo : public Object
 {
+    H2_OBJECT
 public:
 	enum {
 		STOPPED,

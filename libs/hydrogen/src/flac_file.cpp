@@ -48,6 +48,7 @@ namespace H2Core
 /// Reads a FLAC file...not optimized yet
 class FLACFile_real : public FLAC::Decoder::File, public Object
 {
+    H2_OBJECT
 public:
 	FLACFile_real();
 	~FLACFile_real();
@@ -67,9 +68,10 @@ private:
 };
 
 
+const char* FLACFile_real::__class_name = "FLACFile_real";
 
 FLACFile_real::FLACFile_real()
-		: Object( "FLACFile_real" )
+		: Object( __class_name )
 {
 //	infoLog( "INIT" );
 }
@@ -216,11 +218,10 @@ Sample* FLACFile_real::getSample() {
 
 // :::::::::::::::::::::::::::::
 
-
-
+const char* FLACFile::__class_name = "FLACFile";
 
 FLACFile::FLACFile()
-		: Object( "FLACFile" ) {
+		: Object( __class_name ) {
 	//infoLog( "INIT" );
 }
 
