@@ -19,6 +19,7 @@
 #define HYDROGEN_VERSION_FULL "@VERSION@-svn-@SVN_VERSION@"
 
 #cmakedefine HAVE_SSCANF
+#cmakedefine HAVE_RTCLOCK
 
 #ifndef H2CORE_HAVE_DEBUG
 #cmakedefine H2CORE_HAVE_DEBUG

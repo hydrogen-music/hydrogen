@@ -10,12 +10,14 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-macro(COMPILE_HELPER suffix src_file)
-    try_run( ${suffix}_RUNS ${suffix}_COMPILES ${CMAKE_BINARY_DIR}/tests ${src_file} )
-    if( ( ${suffix}_COMPILES )  AND ( ${suffix}_RUNS EQUAL 0 ) )
-        SET(HAVE_${suffix} TRUE)
-    else()
-        SET(HAVE_${suffix} FALSE)
+macro(COMPILE_HELPER suffix prj_dir prj_name )
+    try_compile( ${suffix}_COMPILES ${CMAKE_BINARY_DIR}/try/${prj_name} ${prj_dir} ${prj_name} )
+    SET(HAVE_${suffix} FALSE)
+    if( ${suffix}_COMPILES )
+        execute_process( COMMAND ${CMAKE_BINARY_DIR}/try/${prj_name}/${prj_name} RESULT_VARIABLE ${suffix}_RUNS)
+        if( ${suffix}_COMPILES )
+            SET(HAVE_${suffix} TRUE)
+        endif()
     endif()
     MESSAGE(STATUS  "Checking ${suffix} useability - ${HAVE_${suffix}}" )
 endmacro()

@@ -99,7 +99,8 @@ INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
 INCLUDE(FindZLIB)
 INCLUDE(FindThreads)
-COMPILE_HELPER(SSCANF ${CMAKE_SOURCE_DIR}/cmake/test_sscanf.c )
+COMPILE_HELPER(SSCANF ${CMAKE_SOURCE_DIR}/cmake/sscanf sscanf )
+COMPILE_HELPER(RTCLOCK ${CMAKE_SOURCE_DIR}/cmake/rtclock rtclock )
 CHECK_INCLUDE_FILES(sys/types.h HAVE_SYS_TYPES_H)
 CHECK_INCLUDE_FILES(sys/stat.h HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILES(libtar.h HAVE_LIBTAR_H)
@@ -196,6 +197,14 @@ MESSAGE(
 "* WAVE                         : builtin\n"
 "* FLAC                         : ${FLAC_STATUS}\n"
 )
+IF(WANT_DEBUG)
+    MESSAGE(
+    "Debug capabilities\n"
+    "-----------------------------------------\n"
+    "* realtime clock           : ${HAVE_RTCLOCK}\n"
+    "* working sscanf           : ${HAVE_SSCANF}\n"
+    )
+ENDIF()
 
 MESSAGE(
 "\n"
