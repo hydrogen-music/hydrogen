@@ -30,6 +30,10 @@ function scons_make() {
     echo -e " * scons make\n" && scons || exit 1
 }
 
+function scons_doc() {
+    echo -e " * sorry, no can do\n"
+}
+
 function scons_graph() {
     echo -e " * sorry, no can do\n"
 }
@@ -74,6 +78,12 @@ function cmake_graph() {
     cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot
 }
 
+function cmake_doc() {
+    if [ -d build ]; then
+        cd build && make doc
+    fi
+}
+
 function cmake_help() {
     echo -e " * cmake help\n"
     if [ ! -d build ]; then
@@ -93,6 +103,7 @@ if [ $# -eq 0 ]; then
     echo "   r or rm     => all built, temp and cache files"
     echo "   c or clean  => remove cache files"
     echo "   m or make   => launch the build process"
+    echo "   d or doc    => build html documentation"
     echo "   g or graph  => draw a dependecies graph"
     echo "   h or help   => show the build options"
     echo "   x or exec   => execute hydrogen"
@@ -125,8 +136,11 @@ for arg in $@; do
         "graph")
             cmd="${BUILDER}_${arg}"
             ;;
-        "graph")
-            cmd="${BUILDER}_${arg}"
+        "d")
+            cmd="${BUILDER}_doc"
+            ;;
+        "doc")
+            cmd="${BUILDER}_${doc}"
             ;;
         "h")
             cmd="${BUILDER}_help"
