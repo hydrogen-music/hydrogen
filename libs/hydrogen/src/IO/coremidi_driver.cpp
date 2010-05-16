@@ -79,8 +79,8 @@ static void midiProc ( const MIDIPacketList * pktlist,
 			msg.m_nChannel = nEventType - 240;
 			msg.m_type = MidiMessage::SYSTEM_EXCLUSIVE;
 		} else {
-			_ERRORLOG( QString( "Unhandled midi message type: %1" ).arg( nEventType ) );
-			_INFOLOG( "MIDI msg: " );
+			___ERRORLOG( QString( "Unhandled midi message type: %1" ).arg( nEventType ) );
+			___INFOLOG( "MIDI msg: " );
 			// instance->errorLog( "Unhandled midi message type: " + to_string( nEventType ) );
 			// instance->infoLog( "MIDI msg: " );
 		}
