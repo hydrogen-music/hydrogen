@@ -7,6 +7,7 @@ CMAKE_OPTIONS="-DWANT_DEBUG=1 -DWANT_JACK=1 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DWANT_OSS=1 -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1 -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_FLAC=1"
 CMAKE_OPTIONS_="${CMAKE_OPTIONS} -DWANT_COREAUDIO=1 -DWANT_COREMIDI=1"
 MAKE_OPTS="-j 2"
+H2FLAGS="-Vfx0"
 
 find . -name '*~' -exec rm '{}' \;
 rm libs/hydrogen/include/hydrogen/config.h 2>/dev/null
@@ -35,6 +36,10 @@ function scons_graph() {
 
 function scons_help() {
     echo -e " * scons make\n" && scons
+}
+
+function scsons_exec() {
+    echo -e " * execute hydrogen\n" && ./hydrogen $H2FLAGS
 }
 
 function cmake_clean() {
@@ -77,6 +82,9 @@ function cmake_help() {
     cd build && cmake -L ..
 }
 
+function cmake_exec() {
+    echo -e " * execute hydrogen\n" && ./gui/hydrogen $H2FLAGS
+}
 
 echo -e "used builder : ${BUILDER}"
 if [ $# -eq 0 ]; then
@@ -87,6 +95,7 @@ if [ $# -eq 0 ]; then
     echo "   m or make   => launch the build process"
     echo "   g or graph  => draw a dependecies graph"
     echo "   h or help   => show the build options"
+    echo "   x or exec   => execute hydrogen"
     exit 1
 fi
 
@@ -123,6 +132,12 @@ for arg in $@; do
             cmd="${BUILDER}_help"
             ;;
         "help")
+            cmd="${BUILDER}_${arg}"
+            ;;
+        "x")
+            cmd="${BUILDER}_exec"
+            ;;
+        "exec")
             cmd="${BUILDER}_${arg}"
             ;;
         *)
