@@ -104,4 +104,32 @@ class Object {
 #define ___WARNINGLOG(x) __LOG_STATIC(Logger::Warning,  (x) );
 #define ___ERRORLOG(x)  __LOG_STATIC( Logger::Error,    (x) );
 
+/* REALTIME CLOCK */
+#if defined(H2CORE_HAVE_DEBUG) and defined(HAVE_RTCLOCK)
+    #include <time.h>
+    //#include <stdint.h>
+    #define RTCLOCK_SETUP struct timespec __t0,__t1; //uint64_t __dt;
+    #define RTCLOCK_START clock_gettime(CLOCK_MONOTONIC, &__t0);
+    #define RTCLOCK_STOP clock_gettime(CLOCK_MONOTONIC, &__t1);
+    #define RTCLOCK_NS (((__t1.tv_sec * 1000000000) + __t1.tv_nsec) - ((__t0.tv_sec * 1000000000) + __t0.tv_nsec))
+    #define RTCLOCK_US (((__t1.tv_sec * 1000000000) + __t1.tv_nsec) - ((__t0.tv_sec * 1000000000) + __t0.tv_nsec))/1000
+    #define RTCLOCK_MS (((__t1.tv_sec * 1000000000) + __t1.tv_nsec) - ((__t0.tv_sec * 1000000000) + __t0.tv_nsec))/1000000
+/*
+    RTCLOCK_SETUP
+    RTCLOCK_START
+    ...
+    RTCLOCK_STOP
+    DEBUGLOG(QString("elapsed tim : %1 [ns]").arg(RTCLOCK_NS))
+    DEBUGLOG(QString("elapsed time : %1 [us]").arg(RTCLOCK_US))
+    DEBUGLOG(QString("elapsed time : %1 [ms]").arg(RTCLOCK_MS))
+ */
+#else
+    #define RTCLOCK_SETUP
+    #define RTCLOCK_START
+    #define RTCLOCK_STOP
+    #define RTCLOCK_NS -1
+    #define RTCLOCK_US -1
+    #define RTCLOCK_MS -1
+#endif
+
 #endif // H2_OBJECT_H
