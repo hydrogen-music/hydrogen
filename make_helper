@@ -6,6 +6,7 @@ VERBOSE=${VERBOSE:-0}
 CMAKE_OPTIONS="-DWANT_DEBUG=1 -DWANT_JACK=1 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DWANT_OSS=1 -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1 -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_FLAC=1"
 CMAKE_OPTIONS_="${CMAKE_OPTIONS} -DWANT_COREAUDIO=1 -DWANT_COREMIDI=1"
+MAKE_OPTS="-j 2"
 
 find . -name '*~' -exec rm '{}' \;
 rm libs/hydrogen/include/hydrogen/config.h 2>/dev/null
@@ -54,9 +55,9 @@ function cmake_make() {
         cmake ${CMAKE_OPTIONS} ..
     fi
     if [ $VERBOSE -eq 1 ]; then
-        VERBOSE=1 make
+        VERBOSE=1 make $MAKE_OPTS
     else
-        make
+        make $MAKE_OPTS
     fi
 }
 
