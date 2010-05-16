@@ -53,6 +53,7 @@ public:
 		Warning = 2,
 		Info = 4,
 		Debug = 8,
+		Constructors = 16,
         AELockTracing = 0x10
 	} log_level_t;
 	typedef std::list<QString> queue_t;
@@ -66,6 +67,7 @@ public:
 	/** Destructor */
 	~Logger();
 
+    bool should_log( unsigned lvl ) { return (lvl&__log_level); }
 	static void set_log_level(unsigned lev) { __log_level = lev; }
 	static unsigned get_log_level() { return __log_level; }
 

@@ -155,7 +155,7 @@ void Logger::log( unsigned level,
 #ifdef WIN32
 	const char* color[] = { "", "", "", "", "" };
 #else
-	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "" };
+	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m" };
 #endif // WIN32
 
 	int i;

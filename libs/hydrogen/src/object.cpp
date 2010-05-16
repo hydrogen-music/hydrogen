@@ -20,107 +20,126 @@
  *
  */
 
+#include "hydrogen/config.h"
 #include "hydrogen/Object.h"
 
-#include <iostream>
+#include <cassert>
+#include <sstream>
+#include <iomanip>
+#include <cstdlib>
 
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
+/* Object class instance */
+Logger* Object::__logger = 0;
+bool Object::__count = false;
+unsigned Object::__objects_count = 0;
+pthread_mutex_t Object::__mutex;
+Object::object_map_t Object::__objects_map;
+
+int Object::bootstrap( Logger* logger, bool count ) {
+    if(__logger==0 && logger!=0) {
+        __logger = logger;
+        __count = count;
+        pthread_mutex_init( &__mutex, NULL );
+        return 0;
+    }
+    return 1;
+}
+
+Object::~Object( ) {
+#ifdef H2CORE_HAVE_DEBUG
+    if(__count) del_object( this );
 #endif
-
-unsigned int Object::__objects = 0;
-bool Object::__count_objects = false;
-std::map<QString, int> Object::__object_map;
-
-/**
- * Constructor
- */
-Object::Object( const QString& class_name )
-		: __class_name( class_name )
-{
-	++__objects;
-	__logger = Logger::get_instance();
-
-	if ( __count_objects ) {
-		int nInstances = __object_map[ __class_name ];
-		++nInstances;
-		__object_map[ __class_name ] = nInstances;
-	}
 }
 
-/**
- * Copy constructor
- */
-Object::Object( const Object& obj )
-{
-
-	__class_name = obj.get_class_name();
-
-	++__objects;
-//	__class_name = obj.getClassName;
-	__logger = Logger::get_instance();
-
-	if ( __count_objects ) {
-		int nInstances = __object_map[ __class_name ];
-		++nInstances;
-		__object_map[ __class_name ] = nInstances;
-	}
+Object::Object( const Object& obj ) : __class_name(obj.__class_name) {
+#ifdef H2CORE_HAVE_DEBUG
+    if(__count) add_object( this, true );
+#endif
 }
 
-/**
- * Destructor
- */
-Object::~Object()
-{
-	--__objects;
+Object::Object( const char* class_name ) :__class_name(class_name) {
+#ifdef H2CORE_HAVE_DEBUG
+    if(__count) add_object( this, false );
+#endif
+}
 
-	if ( __count_objects ) {
-		int nInstances = __object_map[ __class_name ];
-		--nInstances;
-		__object_map[ __class_name ] = nInstances;
-	}
+void Object::set_count( bool status ) {
+#ifdef H2CORE_HAVE_DEBUG
+    __count = status;
+#else
+    if(__logger!=0 && __logger->should_log(Logger::Error) ){
+        __logger->log(  Logger::Error, "set_count", "Object", "not compiled with H2CORE_HAVE_DEBUG flag set" );
+    }
+#endif
+}
+
+void Object::add_object( const Object *obj, bool copy ) {
+#ifdef H2CORE_HAVE_DEBUG
+    const char* class_name = ((Object*)obj)->class_name();
+    if(__logger && __logger->should_log(Logger::Constructors)) __logger->log( Logger::Debug, 0, class_name, (copy ? "Copy Constructor" : "Constructor") );
+    pthread_mutex_lock( &__mutex );
+    //if( __objects_map.size()==0) atexit( Object::write_objects_map_to_cerr );
+    __objects_count++;
+    __objects_map[ class_name ].constructed++;
+    pthread_mutex_unlock( &__mutex );
+#endif
+}
+
+void Object::del_object( const Object* obj ) {
+#ifdef H2CORE_HAVE_DEBUG
+    const char* class_name = ((Object*)obj)->class_name();
+    if(__logger && __logger->should_log(Logger::Constructors)) __logger->log( Logger::Debug, 0, class_name, "Destructor");
+    object_map_t::iterator it_count = __objects_map.find( class_name );
+    if ( it_count==__objects_map.end() ) {
+        if(__logger!=0 && __logger->should_log(Logger::Error) ){
+            std::stringstream msg;
+            msg << "delete an uncounter object " <<  class_name << " [" << obj << "]";
+            __logger->log(Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );
+        }
+        return;
+    }
+    assert( (*it_count).first == class_name );
+    pthread_mutex_lock( &__mutex );
+    assert( __objects_map[class_name].constructed > (__objects_map[class_name].destructed ) );
+    __objects_count--;
+    __objects_map[ (*it_count).first ].destructed++;
+    pthread_mutex_unlock( &__mutex );
+#endif
+}
+void Object::write_objects_map_to(std::ostream &out ) {
+#ifdef H2CORE_HAVE_DEBUG
+    if(!__count) {
+    #ifdef WIN32
+        out << "level must be Debug or higher"<< std::endl;
+    #else
+        out << "\033[35mlog level must be \033[31mDebug\033[35m or higher\033[0m"<< std::endl;
+    #endif
+        return;
+    }
+    std::ostringstream o;
+    pthread_mutex_lock( &__mutex );
+    object_map_t::iterator it = __objects_map.begin();
+    while ( it != __objects_map.end() ) {
+        o << "\t[ " <<std::setw(30)<< (*it).first << " ]\t" << std::setw(6) <<(*it).second.constructed << "\t" << std::setw(6) << (*it).second.destructed
+            << "\t" << std::setw(6) << (*it).second.constructed - (*it).second.destructed << std::endl;
+        it++;
+    }
+    pthread_mutex_unlock( &__mutex );
+    #ifndef WIN32
+    out << std::endl << "\033[35m";
+    #endif
+    out << "Objects map :" << std::setw(30) << "class\t" << "constr   destr   alive" << std::endl << o.str() << "Total : " << std::setw(6) << __objects_count << " objects.";
+    #ifndef WIN32
+    out << "\033[0m";
+    #endif
+    out << std::endl << std::endl;
+#else
+    #ifdef WIN32
+    out << "Object::write_objects_map_to :: not compiled with H2CORE_HAVE_DEBUG flag set" << std::endl;
+    #else
+    out << "\033[35mObject::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
+    #endif
+#endif
 }
 
 
-/**
- * Return the number of Objects not deleted
- */
-int Object::get_objects_number()
-{
-	return __objects;
-}
-
-void Object::set_logging_level(const char* level)
-{
-    unsigned log_level = Logger::parse_log_level( level );
-	Logger::set_log_level( log_level );
-	__count_objects = (log_level&Logger::Debug)>0;
-	Logger::get_instance()->__use_file = __count_objects;
-}
-
-void Object::print_object_map()
-{
-	if (!__count_objects) {
-		std::cout << "[Object::print_object_map -- "
-			"object map disabled.]" << std::endl;
-		return;
-	}
-
-	std::cout << "[Object::print_object_map]" << std::endl;
-
-    std::map<QString, int>::iterator iter = __object_map.begin();
-	int nTotal = 0;
-	do {
-		int nInstances = ( *iter ).second;
-		QString sObject = ( *iter ).first;
-		if ( nInstances != 0 ) {
-			std::cout << nInstances << "\t" << sObject.toLocal8Bit().constData() << std::endl;
-		}
-		nTotal += nInstances;
-		iter++;
-	} while ( iter != __object_map.end() );
-
-	std::cout << "Total : " << nTotal << " objects." << std::endl;
-}

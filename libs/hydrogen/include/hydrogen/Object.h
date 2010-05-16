@@ -24,62 +24,84 @@
 #define H2_OBJECT_H
 
 #include "hydrogen/logger.h"
-#include <QtCore/QString>
+
 #include <map>
+#include <iostream>
 
 /**
  * Base class.
  */
-class Object
-{
-public:
-    /** Constructor */
-    Object( const QString& className );
-    Object( const Object& obj );
+class Object {
+    public:
+        ~Object();
+        Object( const Object& obj );
+        Object( const char* class_name );
 
-    /** Destructor */
-    virtual ~Object();
+        const char* class_name( ) { return __class_name;  }
 
-    const QString& get_class_name() const {
-        return __class_name;
-	}
+	    static void set_count( bool status );
+	    static bool count_active() { return __count; };
+        static unsigned objects_count() { return __objects_count; };
 
-    static int get_objects_number();
-    static void print_object_map();
-    static void set_logging_level( const char* level ); // May be None, Error, Warning, Info, or Debug
-    static bool counts_objects() { return __count_objects; }
+        static void write_objects_map_to( std::ostream &out );
+        static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }
 
-private:
-    static bool __count_objects;
-    static unsigned __objects;
-    static std::map<QString, int> __object_map;
-    Logger *__logger;
-    QString __class_name;
+        /**
+         * must be called before any Object instanciation !
+         */
+        static int bootstrap( Logger *logger, bool count=false );
+        static Logger* logger() { return __logger; }
+
+    private:
+        const char* __class_name;   /* without this, destructor will need a map ref=>class name */
+        static void del_object( const Object* );
+        static void add_object( const Object*, bool );
+
+        static bool __count;
+        static unsigned __objects_count;
+        typedef struct { unsigned constructed; unsigned destructed; } obj_cpt_t;
+        typedef std::map<const char*, obj_cpt_t> object_map_t;
+        static object_map_t __objects_map;
+	    static pthread_mutex_t __mutex;
+
+    protected:
+        static Logger* __logger;
 };
 
+/* Object inherited class declaration macro */
+#define H2_OBJECT                                                       \
+    public: static const char* class_name() { return __class_name; }    \
+    private: static const char* __class_name;                           \
+
 // LOG MACROS
+#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, msg ); }
+#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, msg ); }
+#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
+#define __LOG_STATIC(   lvl, msg )  if( Logger::get_instance()->should_log( (lvl) ) )   { Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
+#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, msg ); }
 
-/* __LOG_WRAPPER enables us to filter out log messages _BEFORE_ the
- * function call.  This is good, because it avoids QString
- * constructors for temporaries.
- */
-#define __LOG_WRAPPER(lev, funct, class_n, msg) {			\
-		if( Logger::get_log_level() & (lev) ){			\
-			Logger::get_instance()->log(			\
-				(lev),					\
-				(funct),				\
-				(class_n),				\
-				(msg)					\
-				);					\
-		}							\
-	}
+/* Object instance method logging macros */
+#define DEBUGLOG(x)     __LOG_METHOD( Logger::Debug,   (x) );
+#define INFOLOG(x)      __LOG_METHOD( Logger::Info,    (x) );
+#define WARNINGLOG(x)   __LOG_METHOD( Logger::Warning, (x) );
+#define ERRORLOG(x)     __LOG_METHOD( Logger::Error,   (x) );
 
-#define _INFOLOG(x) __LOG_WRAPPER( Logger::Info, __PRETTY_FUNCTION__, "", (x) );
-#define _WARNINGLOG(x) __LOG_WRAPPER( Logger::Warning, __PRETTY_FUNCTION__, "", (x) );
-#define _ERRORLOG(x) __LOG_WRAPPER( Logger::Error, __PRETTY_FUNCTION__, "", (x) );
+/* Object class method logging macros */
+#define _DEBUGLOG(x)    __LOG_CLASS( Logger::Debug,   (x) );
+#define _INFOLOG(x)     __LOG_CLASS( Logger::Info,    (x) );
+#define _WARNINGLOG(x)  __LOG_CLASS( Logger::Warning, (x) );
+#define _ERRORLOG(x)    __LOG_CLASS( Logger::Error,   (x) );
 
-#define INFOLOG(x) __LOG_WRAPPER( Logger::Info, __FUNCTION__, get_class_name(), (x) );
-#define WARNINGLOG(x) __LOG_WRAPPER( Logger::Warning, __FUNCTION__, get_class_name(), (x) );
-#define ERRORLOG(x) __LOG_WRAPPER( Logger::Error, __FUNCTION__, get_class_name(), (x) );
+/* logging macros using an Object *__object ( thread :  Object* __object = ( Object* )param; ) */
+#define __DEBUGLOG(x)   __LOG_OBJ( Logger::Debug,      (x) );
+#define __INFOLOG(x)    __LOG_OBJ( Logger::Info,       (x) );
+#define __WARNINGLOG(x) __LOG_OBJ( Logger::Warning,    (x) );
+#define __ERRORLOG(x)   __LOG_OBJ( Logger::Error,      (x) );
+
+/* logging macros using  ( thread :  Object* __object = ( Object* )param; ) */
+#define ___DEBUGLOG(x)  __LOG_STATIC( Logger::Debug,    (x) );
+#define ___INFOLOG(x)   __LOG_STATIC( Logger::Info,     (x) );
+#define ___WARNINGLOG(x) __LOG_STATIC(Logger::Warning,  (x) );
+#define ___ERRORLOG(x)  __LOG_STATIC( Logger::Error,    (x) );
 
 #endif // H2_OBJECT_H
