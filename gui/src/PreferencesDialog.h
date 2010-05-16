@@ -33,6 +33,7 @@
 ///
 class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		PreferencesDialog( QWidget* parent );

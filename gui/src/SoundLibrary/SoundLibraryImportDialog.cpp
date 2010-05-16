@@ -43,9 +43,11 @@
 
 #include <memory>
 
+const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
+
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object( "SoundLibraryImportDialog" )
+ , Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

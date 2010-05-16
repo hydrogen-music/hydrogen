@@ -44,6 +44,7 @@ class Rotary;
 
 class InstrumentNameWidget : public PixmapWidget
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		InstrumentNameWidget(QWidget* parent);
@@ -77,6 +78,7 @@ class InstrumentNameWidget : public PixmapWidget
 ///
 class MixerLine: public PixmapWidget
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		MixerLine(QWidget* parent, int nInstr);
@@ -161,6 +163,7 @@ class MixerLine: public PixmapWidget
 
 class MasterMixerLine: public PixmapWidget
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		MasterMixerLine(QWidget* parent);
@@ -214,6 +217,7 @@ class MasterMixerLine: public PixmapWidget
 ///
 class FxMixerLine: public PixmapWidget
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		FxMixerLine(QWidget* parent);
@@ -260,6 +264,7 @@ class FxMixerLine: public PixmapWidget
 
 class LadspaFXMixerLine : public PixmapWidget
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		LadspaFXMixerLine(QWidget* parent);

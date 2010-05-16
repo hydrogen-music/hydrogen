@@ -31,6 +31,7 @@
 ///
 class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepositoryDialog_UI, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		SoundLibraryRepositoryDialog( QWidget* pParent );

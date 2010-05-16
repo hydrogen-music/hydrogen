@@ -42,6 +42,7 @@ class ToggleButton;
 
 class InstrumentLine : public PixmapWidget
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -85,6 +86,7 @@ class InstrumentLine : public PixmapWidget
 
 
 class PatternEditorInstrumentList : public QWidget, public Object {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

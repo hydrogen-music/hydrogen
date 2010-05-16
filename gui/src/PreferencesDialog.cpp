@@ -41,9 +41,11 @@
 
 using namespace H2Core;
 
+const char* PreferencesDialog::__class_name = "PreferencesDialog";
+
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
- , Object( "PreferencesDialog" )
+ , Object( __class_name )
 {
 	setupUi( this );
 

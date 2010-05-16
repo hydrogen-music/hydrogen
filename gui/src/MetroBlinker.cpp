@@ -61,9 +61,11 @@
 using namespace H2Core;
 using namespace std;
 
+const char* MetroBlinker::__class_name = "MetroBlinker";
+
 MetroBlinker::MetroBlinker ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( "MetroBlinker" )
+		, Object ( __class_name )
 {
 
 	HydrogenApp::get_instance()->addEventListener( this );

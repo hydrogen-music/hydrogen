@@ -28,10 +28,11 @@ using namespace H2Core;
 #include "WaveDisplay.h"
 #include "../Skin.h"
 
+const char* WaveDisplay::__class_name = "WaveDisplay";
 
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( "WaveDisplay" )
+ , Object( __class_name )
  , m_sSampleName( "" )
 {
 	setAttribute(Qt::WA_NoBackground);

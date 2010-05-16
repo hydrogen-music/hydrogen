@@ -32,9 +32,11 @@
 namespace H2Core
 {
 
+const char* SongEditorPanelBpmWidget::__class_name = "SongEditorPanelBpmWidget";
+
 SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	: QDialog( pParent )
-	, Object( "SongEditorPanelBpmWidget" )
+	, Object( __class_name )
 	, m_stimelineposition ( beat )
 {
 	setupUi( this );

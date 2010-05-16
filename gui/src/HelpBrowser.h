@@ -33,6 +33,7 @@
 
 class SimpleHTMLBrowser : public QDialog, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		enum SimpleHTMLBrowserType {

@@ -30,6 +30,7 @@
 
 class FileBrowser : public QWidget, private Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		FileBrowser( QWidget* pParent );

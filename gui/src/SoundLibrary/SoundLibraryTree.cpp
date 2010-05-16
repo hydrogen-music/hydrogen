@@ -23,9 +23,11 @@
 #include "SoundLibraryTree.h"
 #include <QMimeData>
 
+const char* SoundLibraryTree::__class_name = "SoundLibraryTree";
+
 SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
  : QTreeWidget( pParent )
- , Object( "SoundLibraryTree" )
+ , Object( __class_name )
 {
 	setHeaderLabels( QStringList( trUtf8( "Sound library" ) ) );
 	setAlternatingRowColors(true);

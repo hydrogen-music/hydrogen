@@ -45,6 +45,7 @@ enum SongEditorActionMode
 
 class SongEditorPanel : public QWidget, public EventListener, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

@@ -33,6 +33,7 @@ class SoundLibraryPanel;
 
 class InstrumentRack : public QWidget, private Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		InstrumentRack( QWidget *pParent );

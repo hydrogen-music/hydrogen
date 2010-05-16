@@ -38,9 +38,11 @@
 using namespace H2Core;
 using namespace std;
 
+const char* SongEditorPanel::__class_name = "SongEditorPanel";
+
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
- , Object( "SongEditorPanel" )
+ , Object( __class_name )
  , m_actionMode( DRAW_ACTION )
 {
 	m_nInitialWidth = 600;

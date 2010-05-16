@@ -29,10 +29,11 @@
 #include <hydrogen/globals.h>
 
 const QString LCDCombo::SEPARATOR("--sep--");
+const char* LCDCombo::__class_name = "LCDCombo";
 
 LCDCombo::LCDCombo(QWidget *pParent, int digits)
  : QWidget(pParent)
- , Object( "LCDCombo") //, SEPARATOR("--sep--")
+ , Object( __class_name ) //, SEPARATOR("--sep--")
 {
 	INFOLOG( "INIT" );
 

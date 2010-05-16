@@ -42,6 +42,7 @@ class PixmapWidget;
 class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Object
 
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		

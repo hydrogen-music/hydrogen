@@ -47,6 +47,7 @@ struct SoundLibraryInfo
 ///
 class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		SoundLibraryImportDialog( QWidget* pParent );

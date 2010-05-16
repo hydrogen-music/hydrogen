@@ -30,6 +30,7 @@
 
 
 InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = NULL;
+const char* InstrumentEditorPanel::__class_name = "InstrumentEditorPanel";
 
 InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 {
@@ -42,7 +43,7 @@ InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 
 
 InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
- : Object( "InstrumentEditorPanel" )
+ : Object( __class_name )
 {
 	UNUSED( pParent );
 

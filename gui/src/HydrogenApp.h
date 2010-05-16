@@ -57,6 +57,7 @@ class MetroBlinker;
 
 class HydrogenApp : public QObject, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		HydrogenApp( MainForm* pMainForm, H2Core::Song *pFirstSong );

@@ -33,9 +33,11 @@
 using namespace std;
 using namespace H2Core;
 
+const char* LadspaFXSelector::__class_name = "LadspaFXSelector";
+
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
  : QDialog( NULL )
- , Object( "LadspaFXSelector" )
+ , Object( __class_name )
  , m_pCurrentItem( NULL )
 {
 	//INFOLOG( "INIT" );

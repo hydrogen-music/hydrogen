@@ -53,9 +53,11 @@ using namespace H2Core;
 
 using namespace std;
 
+const char* SongEditor::__class_name = "SongEditor";
+
 SongEditor::SongEditor( QWidget *parent )
  : QWidget( parent )
- , Object( "SongEditor" )
+ , Object( __class_name )
  , m_bSequenceChanged( true )
  , m_bIsMoving( false )
  , m_bShowLasso( false )
@@ -770,12 +772,11 @@ void SongEditor::updateEditorandSetTrue()
 // :::::::::::::::::::
 
 
-
-
+const char* SongEditorPatternList::__class_name = "SongEditorPatternList";
 
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
- , Object( "SongEditorPatternList" )
+ , Object( __class_name )
  , EventListener()
  , m_pBackgroundPixmap( NULL )
 {
@@ -1713,11 +1714,11 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 
 // ::::::::::::::::::::::::::
 
-
+const char* SongEditorPositionRuler::__class_name = "SongEditorPositionRuler";
 
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
- , Object( "SongEditorPositionRuler" )
+ , Object( __class_name )
  , m_bRightBtnPressed( false )
 {
 	setAttribute(Qt::WA_NoBackground);

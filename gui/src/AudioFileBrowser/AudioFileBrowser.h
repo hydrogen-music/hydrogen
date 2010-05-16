@@ -40,6 +40,7 @@ class SampleWaveDisplay;
 class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public Object
 
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		

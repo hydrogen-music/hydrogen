@@ -27,9 +27,11 @@
 #include <QtGui>
 #include <hydrogen/globals.h>
 
+const char* SimpleHTMLBrowser::__class_name = "SimpleHTMLBrowser";
+
 SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, SimpleHTMLBrowserType type )
  : QDialog( pParent )
- , Object( "SimpleHTMLBrowser" )
+ , Object( __class_name )
  , m_type( type )
  , m_sDataPath( sDataPath )
  , m_sFilename( sFilename )

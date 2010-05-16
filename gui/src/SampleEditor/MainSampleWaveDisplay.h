@@ -30,6 +30,7 @@ class SampleEditor;
 
 class MainSampleWaveDisplay : public QWidget, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

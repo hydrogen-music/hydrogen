@@ -41,9 +41,11 @@
 
 using namespace H2Core;
 
+const char* ExportSongDialog::__class_name = "ExportSongDialog";
+
 ExportSongDialog::ExportSongDialog(QWidget* parent)
  : QDialog(parent)
- , Object( "ExportSongDialog" )
+ , Object( __class_name )
  , m_bExporting( false )
 {
 	setupUi( this );

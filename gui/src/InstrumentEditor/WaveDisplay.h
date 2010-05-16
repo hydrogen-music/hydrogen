@@ -33,6 +33,7 @@ namespace H2Core
 
 class WaveDisplay : public QWidget, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

@@ -30,6 +30,7 @@
 
 class SoundLibraryTree : public QTreeWidget, private Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		SoundLibraryTree( QWidget *pParent );

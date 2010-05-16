@@ -30,12 +30,12 @@
 
 #include "Skin.h"
 
-
+const char* SplashScreen::__class_name = "SplashScreen";
 
 SplashScreen::SplashScreen()
 // : QWidget( NULL, Qt::SplashScreen )
  : QSplashScreen( NULL )
- , Object( "SplashScreen" )
+ , Object( __class_name )
 {
 	//INFOLOG( "SplashScreen" );
 

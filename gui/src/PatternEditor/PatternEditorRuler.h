@@ -37,6 +37,7 @@ namespace H2Core
 
 class PatternEditorRuler : public QWidget, public Object, public EventListener
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

@@ -24,8 +24,9 @@
 #include "MidiSenseWidget.h"
 #include <hydrogen/hydrogen.h>
 
+const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , Action* midiAction ): QDialog( pParent ) , Object("MidiSenseWidget")
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , Action* midiAction ): QDialog( pParent ) , Object(__class_name)
 {
 	directWrite = directWr;
 	action = midiAction;

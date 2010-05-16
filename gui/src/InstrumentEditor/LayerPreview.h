@@ -31,6 +31,7 @@
 
 class LayerPreview : public QWidget, public Object, public EventListener
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

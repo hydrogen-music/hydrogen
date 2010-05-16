@@ -31,6 +31,7 @@
 ///
 class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_UI, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		SoundLibrarySaveDialog( QWidget* pParent );

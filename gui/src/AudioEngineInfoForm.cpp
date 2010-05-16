@@ -37,9 +37,11 @@ using namespace H2Core;
 
 #include "Skin.h"
 
+const char* AudioEngineInfoForm::__class_name = "AudioEngineInfoForm";
+
 AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
  : QWidget( parent )
- , Object( "AudioEngineInfoForm" )
+ , Object( __class_name )
 {
 	setupUi( this );
 
@@ -139,7 +141,7 @@ void AudioEngineInfoForm::updateInfo()
 	// Audio driver info
 	AudioOutput *driver = pEngine->getAudioOutput();
 	if (driver) {
-		QString audioDriverName = driver->get_class_name();
+		QString audioDriverName = driver->class_name();
 		driverLbl->setText(audioDriverName);
 
 		// Audio driver buffer size
@@ -166,7 +168,7 @@ void AudioEngineInfoForm::updateInfo()
 	// Midi driver info
 	MidiInput *pMidiDriver = pEngine->getMidiInput();
 	if (pMidiDriver) {
-		midiDriverName->setText( pMidiDriver->get_class_name() );
+		midiDriverName->setText( pMidiDriver->class_name() );
 	}
 	else {
 		midiDriverName->setText("No MIDI driver support");

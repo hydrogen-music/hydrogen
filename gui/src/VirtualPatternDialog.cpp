@@ -56,10 +56,11 @@ void addEdges(std::set<H2Core::Pattern*> &patternSet)
     
 }//anonymous namespace
 
+const char* VirtualPatternDialog::__class_name = "VirtualPatternDialog";
 
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
  : QDialog(parent)
- , Object( "VirtualPatternDialog" )
+ , Object( __class_name )
 {
 	setupUi( this );
 

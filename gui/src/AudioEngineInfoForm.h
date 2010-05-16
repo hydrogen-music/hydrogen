@@ -36,6 +36,7 @@
  */
 class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, public EventListener, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	private:
 		QTimer *timer;

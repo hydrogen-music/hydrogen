@@ -40,6 +40,7 @@ namespace H2Core {
 
 class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

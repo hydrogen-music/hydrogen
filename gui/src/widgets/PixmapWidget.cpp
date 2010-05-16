@@ -26,8 +26,10 @@
 
 #include <hydrogen/Object.h>
 
-PixmapWidget::PixmapWidget( QWidget *pParent, const QString& sClassName )
- : Object( sClassName )
+const char* PixmapWidget::__class_name = "PixmapWidget";
+
+PixmapWidget::PixmapWidget( QWidget *pParent, const char* sClassName )
+ : Object( __class_name )
  , QWidget( pParent )
  , m_sPixmapPath( "" )
  , __expand_horiz(false)

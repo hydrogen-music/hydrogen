@@ -45,9 +45,11 @@
 using namespace H2Core;
 using namespace std;
 
+const char* SampleEditor::__class_name = "SampleEditor";
+
 SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
-		, Object ( "SampleEditor" )
+		, Object ( __class_name )
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );

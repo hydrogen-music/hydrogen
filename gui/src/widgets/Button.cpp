@@ -34,10 +34,11 @@
 
 #include <hydrogen/globals.h>
 
+const char* Button::__class_name = "Button";
 
 Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffImage, const QString& sOverImage, QSize size, bool use_skin_style )
  : QWidget( pParent )
- , Object( "Button" )
+ , Object( __class_name )
  , m_bPressed( false )
  , m_onPixmap( size )
  , m_offPixmap( size )

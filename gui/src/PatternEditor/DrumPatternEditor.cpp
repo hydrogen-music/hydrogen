@@ -48,9 +48,11 @@
 using namespace std;
 using namespace H2Core;
 
+const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
+
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : QWidget( parent )
- , Object( "DrumPatternEditor" )
+ , Object( __class_name )
  , m_nResolution( 8 )
  , m_bUseTriplets( false )
  , m_bRightBtnPressed( false )

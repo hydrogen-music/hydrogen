@@ -32,6 +32,7 @@
 ///
 class InstrumentEditorPanel : public QWidget, private Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		static InstrumentEditorPanel* get_instance();

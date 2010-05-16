@@ -29,6 +29,7 @@
 
 	class MidiSenseWidget : public QDialog ,public Object
 	{
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		MidiSenseWidget(QWidget*,bool directWrite = false , Action* action = NULL);

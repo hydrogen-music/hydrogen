@@ -29,8 +29,9 @@
 
 class PixmapWidget : public Object, public QWidget
 {
+    H2_OBJECT
 	public:
-		PixmapWidget( QWidget *pParent, const QString& sClassName = "PixmapWidget" );
+		PixmapWidget( QWidget *pParent, const char* = "PixmapWidget" );
 		~PixmapWidget();
 
 		void setPixmap( QString sPixmapPath, bool expand_horiz = false );

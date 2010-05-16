@@ -39,6 +39,7 @@ class PixmapWidget;
  */
 class Button : public QWidget, public Object, public MidiLearnable
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

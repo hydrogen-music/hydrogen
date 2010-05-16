@@ -24,10 +24,11 @@
 
 #include <cmath>
 
+const char* Download::__class_name = "Download";
 
 Download::Download( QWidget* pParent, const QString& download_url, const QString& local_file )
 		: QDialog( pParent )
-		, Object( "Download" )
+		, Object( __class_name )
 		, __download_percent( 0 )
 		, __eta( 0 )
 		, __bytes_current( 0 )

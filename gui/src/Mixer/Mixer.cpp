@@ -44,14 +44,15 @@ using namespace H2Core;
 #define MIXER_STRIP_WIDTH	56
 #define MASTERMIXER_STRIP_WIDTH	126
 
+const char* Mixer::__class_name = "Mixer";
 
 Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
 // : QWidget( pParent, Qt::WindowStaysOnTopHint )
 // : QWidget( pParent, Qt::Tool )
- , Object( "Mixer" )
+ , Object( __class_name )
 {
-	setWindowTitle( trUtf8( "Mixer" ) );
+	setWindowTitle( trUtf8( __class_name ) );
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );

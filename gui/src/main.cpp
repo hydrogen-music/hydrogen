@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 		bool bNoSplash = false;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
-		const char* logLevelOpt = "Error";
+		unsigned logLevelOpt = Logger::Error;
 		QString drumkitName;
 		bool showHelpOpt = false;
 
@@ -203,9 +203,9 @@ int main(int argc, char *argv[])
 
 				case 'V':
 					if( optarg ) {
-						logLevelOpt = optarg;
+						logLevelOpt = Logger::parse_log_level( optarg );
 					} else {
-						logLevelOpt = "Warning";
+						logLevelOpt = Logger::Error|Logger::Warning;
 					}
 					break;
 				case 'n':
@@ -233,14 +233,16 @@ int main(int argc, char *argv[])
 
 		// Man your battle stations... this is not a drill.
 		Logger::create_instance();
+        Logger::set_log_level( logLevelOpt );
+        Logger* logger = Logger::get_instance();
+		Object::bootstrap( logger, logger->should_log(Logger::Debug) );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
-		Object::set_logging_level( logLevelOpt );
 		// See below for H2Core::Hydrogen.
 
 
-		_INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-		_INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
+		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
+		___INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 
@@ -280,7 +282,7 @@ int main(int argc, char *argv[])
 				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 				pQApp->installTranslator( &qttor );
                         else
-				_INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(QLocale::system().name()));
+				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(QLocale::system().name()));
 
 
 			QString sTranslationPath = "data/i18n";
@@ -288,21 +290,21 @@ int main(int argc, char *argv[])
 
 			bool bTransOk = tor.load( total, "." );
 			if ( bTransOk ) {
-				_INFOLOG( QString( "Using locale: %1/%2" ).arg( sTranslationPath ).arg( sTranslationFile ) );
+				___INFOLOG( QString( "Using locale: %1/%2" ).arg( sTranslationPath ).arg( sTranslationFile ) );
 			}
 			else {
 				sTranslationPath = H2Core::DataPath::get_data_path() + "/i18n";
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {
-					_INFOLOG( "Using locale: " + sTranslationPath + "/" + sTranslationFile );
+					___INFOLOG( "Using locale: " + sTranslationPath + "/" + sTranslationFile );
 				}
 				else {
-					_INFOLOG( "Warning: no locale found: " + sTranslationPath + "/" + sTranslationFile );
+					___INFOLOG( "Warning: no locale found: " + sTranslationPath + "/" + sTranslationFile );
 				}
 			}
 			if (tor.isEmpty()) {
-				_INFOLOG( "Warning: error loading locale: " +  total );
+				___INFOLOG( "Warning: error loading locale: " +  total );
 			}
 		}
 		pQApp->installTranslator( &tor );
@@ -360,7 +362,7 @@ int main(int argc, char *argv[])
 			Playlist::get_instance()->setNextSongByNumber( 0 );
 		}else
 		{
-			_ERRORLOG ( "Error loading the playlist" );
+			___ERRORLOG ( "Error loading the playlist" );
 		}
 
 		pQApp->exec();
@@ -375,14 +377,12 @@ int main(int argc, char *argv[])
 		delete MidiMap::get_instance();
 		delete ActionManager::get_instance();
 
-		_INFOLOG( "Quitting..." );
+		___INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;
 		delete Logger::get_instance();
 
-		int nObj = Object::get_objects_number();
-		if (nObj != 0) {
-			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
-			Object::print_object_map();
+		if (Object::count_active()) {
+			Object::write_objects_map_to_cerr();
 		}
 
 		//	pQApp->dumpObjectTree();
@@ -407,10 +407,10 @@ void showInfo()
 {
 	cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
-//	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
+//	___INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
-	if ( Object::counts_objects() ) {
-		cout << "\nVerbose log mode = active" << endl;
+	if ( Object::count_active() ) {
+		cout << "\nObject counting = active" << endl;
 	}
 
 	cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << endl;

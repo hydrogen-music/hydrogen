@@ -26,9 +26,11 @@
 
 #include <QMessageBox>
 
+const char* SoundLibrarySaveDialog::__class_name = "SoundLibrarySaveDialog";
+
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object( "SoundLibrarySaveDialog" )
+ , Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

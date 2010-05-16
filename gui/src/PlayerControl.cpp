@@ -49,9 +49,11 @@ using namespace H2Core;
 int bcDisplaystatus = 0;
 //~ beatcounter
 
+const char* PlayerControl::__class_name = "PlayerControl";
+
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
- , Object( "PlayerControl" )
+ , Object( __class_name )
 {
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -1157,11 +1159,11 @@ void PlayerControl::onStatusTimerEvent()
 
 //::::::::::::::::::::::::::::::::::::::::::::::::
 
-
+const char* MetronomeWidget::__class_name = "MetronomeWidget";
 
 MetronomeWidget::MetronomeWidget(QWidget *pParent)
  : QWidget( pParent )
- , Object( "MetronomeWidget" )
+ , Object( __class_name )
  , m_nValue( 0 )
  , m_state( METRO_OFF )
 {

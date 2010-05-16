@@ -32,6 +32,7 @@
 
 class LCDDigit : public QWidget, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		enum LCDType {
@@ -68,7 +69,9 @@ class LCDDigit : public QWidget, public Object
 
 
 
-class LCDDisplay : public QWidget{
+class LCDDisplay : public QWidget, public Object
+{
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, bool leftAlign = false );
@@ -95,6 +98,7 @@ class LCDDisplay : public QWidget{
 
 class LCDSpinBox : public QWidget, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		enum LCDSpinBoxType {

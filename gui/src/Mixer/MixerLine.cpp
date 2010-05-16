@@ -49,8 +49,10 @@ using namespace H2Core;
 
 using namespace H2Core;
 
+const char* MixerLine::__class_name = "MixerLine";
+
 MixerLine::MixerLine(QWidget* parent, int nInstr)
- : PixmapWidget( parent, "MixerLine" )
+ : PixmapWidget( parent, __class_name )
 {
 //	INFOLOG( "INIT" );
 
@@ -481,10 +483,10 @@ void MixerLine::setSelected( bool bIsSelected )
 // ::::::::::::::::::::::::::::
 
 
-
+const char* MasterMixerLine::__class_name = "MasterMixerLine";
 
 MasterMixerLine::MasterMixerLine(QWidget* parent)
- : PixmapWidget( parent, "MasterMixerLine" )
+ : PixmapWidget( parent, __class_name )
 {
 	m_nWidth = MASTERMIXERLINE_WIDTH;
 	m_nHeight = MASTERMIXERLINE_HEIGHT;

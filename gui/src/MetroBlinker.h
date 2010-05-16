@@ -35,6 +35,7 @@
 class MetroBlinker : public QDialog, public Ui_MetroBlinker_UI, public Object, public EventListener
 
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		

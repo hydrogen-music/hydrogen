@@ -33,10 +33,11 @@ using namespace H2Core;
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
+const char* PatternEditorRuler::__class_name = "PatternEditorRuler";
 
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
- , Object( "PatternEditorRuler" )
+ , Object( __class_name )
 {
 	setAttribute(Qt::WA_NoBackground);
 

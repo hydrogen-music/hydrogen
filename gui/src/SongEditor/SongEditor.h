@@ -46,6 +46,7 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 ///
 class SongEditor : public QWidget, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -100,6 +101,7 @@ class SongEditor : public QWidget, public Object
 ///
 class SongEditorPatternList : public QWidget, public Object, public EventListener
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -170,6 +172,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 
 class SongEditorPositionRuler : public QWidget, public Object
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:

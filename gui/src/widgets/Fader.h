@@ -35,6 +35,7 @@
 ///
 class Fader : public QWidget, public Object, public MidiLearnable
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -90,6 +91,7 @@ class Fader : public QWidget, public Object, public MidiLearnable
 
 class MasterFader : public QWidget, public Object, public MidiLearnable
 {
+    H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -138,6 +140,7 @@ class MasterFader : public QWidget, public Object, public MidiLearnable
 
 class Knob : public QWidget, public Object, public MidiLearnable
 {
+    H2_OBJECT
 	Q_OBJECT
 	public:
 		Knob( QWidget* parent );
