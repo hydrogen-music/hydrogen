@@ -21,19 +21,15 @@
  */
 
 #include "SoundLibraryExportDialog.h"
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/filesystem.h>
-#include <hydrogen/SoundLibrary.h>
 
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/filesystem.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/h2_exception.h>
 
 #include <hydrogen/adsr.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/SoundLibrary.h>
-#include <hydrogen/data_path.h>
 
 #include <memory>
 #include <QtGui>

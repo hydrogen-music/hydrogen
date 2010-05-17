@@ -26,11 +26,11 @@
 #include "hydrogen/config.h"
 #include <hydrogen/action.h>
 #include <hydrogen/Song.h>
+#include <hydrogen/drumkit.h>
 #include <hydrogen/Object.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
-#include <hydrogen/SoundLibrary.h>
 #include <cassert>
 
 // Engine states  (It's ok to use ==, <, and > when testing)

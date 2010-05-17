@@ -22,7 +22,6 @@
 
 #include "SoundLibraryRepositoryDialog.h"
 
-#include <hydrogen/SoundLibrary.h>
 #include <hydrogen/Preferences.h>
 
 #include <QList>

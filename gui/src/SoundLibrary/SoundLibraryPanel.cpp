@@ -54,7 +54,7 @@
 #include <hydrogen/Pattern.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/SoundLibrary.h>
+#include <hydrogen/drumkit.h>
 
 using namespace H2Core;
 
@@ -589,11 +589,11 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	Drumkit::removeDrumkit( sSoundLibrary );
+	bool success = Drumkit::removeDrumkit( sSoundLibrary );
 	test_expandedItems();
 	updateDrumkitList();
 	QApplication::restoreOverrideCursor();
-
+    if( !success) QMessageBox::warning( this, "Hydrogen", QString( "Drumkit deletion failed.") );
 }
 
 

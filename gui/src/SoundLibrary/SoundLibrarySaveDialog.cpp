@@ -22,7 +22,7 @@
 
 #include "SoundLibrarySaveDialog.h"
 
-#include <hydrogen/SoundLibrary.h>
+#include <hydrogen/drumkit.h>
 
 #include <QMessageBox>
 
@@ -58,12 +58,9 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 			return;
 	}
 
-	H2Core::Drumkit::save(
-			nameTxt->text(),
-			authorTxt->text(),
-			infoTxt->toHtml(),
-			licenseTxt->text()
-	);
+	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text() ) ) {
+        //TODO
+    }
 	accept();
 }
 
