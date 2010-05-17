@@ -45,6 +45,7 @@ class InstrumentLayer : public Object
     H2_OBJECT
 public:
 	InstrumentLayer( Sample *sample );
+    InstrumentLayer( InstrumentLayer *other );
 	~InstrumentLayer();
 
 	void set_start_velocity( float vel ) {
@@ -106,6 +107,8 @@ public:
 	    const QString& name,
 	    ADSR* adsr
 	);
+
+    Instrument( Instrument *other );
 	
 	/// create a new object without anything in it.
 	static Instrument * create_empty();
@@ -354,6 +357,7 @@ class InstrumentList : public Object
     H2_OBJECT
 public:
 	InstrumentList();
+    InstrumentList( InstrumentList *other);
 	~InstrumentList();
 
 	void add( Instrument* pInstrument );

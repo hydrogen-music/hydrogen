@@ -21,11 +21,12 @@
  */
 
 #include <hydrogen/instrument.h>
+
 #include <hydrogen/adsr.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
+#include <hydrogen/drumkit.h>
 #include <hydrogen/filesystem.h>
-#include <hydrogen/SoundLibrary.h>
 #include <hydrogen/audio_engine.h>
 
 #include <cassert>
@@ -70,6 +71,43 @@ Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
 }
 
 
+Instrument::Instrument( Instrument *other ) : Object( __class_name )
+		, __queued( 0 )
+		, __adsr( new ADSR( *( other->get_adsr() ) ) )
+		, __muted( other->is_muted() )
+		, __name( other->get_name() )
+		, __pan_l( other->get_pan_l() )
+		, __pan_r( other->get_pan_r() )
+		, __gain( other->__gain )
+		, __volume( other->get_volume() )
+		, __filter_resonance( other->get_filter_resonance() )
+		, __filter_cutoff( other->get_filter_cutoff() )
+		, __peak_l( 0.0 )
+		, __peak_r( 0.0 )
+		, __random_pitch_factor( other->get_random_pitch_factor() )
+		, __id( other->get_id() )
+		, __drumkit_name( "" )
+		, __filter_active( other->is_filter_active() )
+		, __mute_group( other->get_mute_group() )
+		, __active( true )
+		, __soloed( false )
+		, __midi_out_channel( -1 )
+		, __midi_out_note( 60 )
+		, __stop_notes( false )
+{
+	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
+		__fx_level[ nFX ] = 0.0;
+	}
+
+	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+		InstrumentLayer *other_layer = other->get_layer( nLayer );
+		if ( other_layer ) {
+		    __layer_list[ nLayer ] = new InstrumentLayer( other_layer );
+        } else {
+		    __layer_list[ nLayer ] = NULL;
+        }
+	}
+}
 
 Instrument::~Instrument()
 {
@@ -112,7 +150,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 			InstrumentLayer *pOldLayer = this->get_layer( nLayer );
 
 			if ( pSample == NULL ) {
-				_ERRORLOG( "Error loading sample. Creating a new empty layer." );
+				_ERRORLOG( QString("Error loading sample %1. Creating a new empty layer.").arg(path+pNewSample->get_filename() ) );
 				if ( is_live )
 					AudioEngine::get_instance()->lock( RIGHT_HERE );
 				
@@ -230,6 +268,11 @@ InstrumentList::InstrumentList()
 //	infoLog("INIT");
 }
 
+InstrumentList::InstrumentList( InstrumentList *other) : Object( __class_name ) {
+    for ( int i=0; i<other->get_size(); i++ ) {
+		add( new Instrument( other->get( i ) ) );
+	}
+}
 
 
 InstrumentList::~InstrumentList()
@@ -315,6 +358,15 @@ InstrumentLayer::InstrumentLayer( Sample *sample )
 }
 
 
+InstrumentLayer::InstrumentLayer( InstrumentLayer *other )
+		: Object( __class_name )
+		, __start_velocity( other->get_start_velocity() )
+		, __end_velocity( other->get_end_velocity() )
+		, __pitch( other->get_pitch() )
+		, __gain( other->get_gain() )
+		, __sample( new Sample( 0, other->get_sample()->get_filename(), 0 ) )       // is not a real sample, it contains only the filename information
+{
+}
 
 InstrumentLayer::~InstrumentLayer()
 {
