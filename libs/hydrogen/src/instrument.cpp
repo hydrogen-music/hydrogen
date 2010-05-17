@@ -26,7 +26,7 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/drumkit.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/audio_engine.h>
 
 #include <cassert>

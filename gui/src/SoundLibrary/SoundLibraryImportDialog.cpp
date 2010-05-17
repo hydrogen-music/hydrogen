@@ -30,7 +30,7 @@
 #include "../InstrumentRack.h"
 
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/drumkit.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>

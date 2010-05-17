@@ -27,7 +27,7 @@
  */
 
 #include <hydrogen/config.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>

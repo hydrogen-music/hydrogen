@@ -38,7 +38,7 @@
 #include <hydrogen/midiMap.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/drumkit.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>

@@ -26,8 +26,8 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/instrument.h>
 
-#include <hydrogen/filesystem.h>
-#include <hydrogen/xml_helper.h>
+#include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/xml_helper.h>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>

@@ -27,7 +27,7 @@
 #include <QtCore/QString>
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
-#include <hydrogen/xml_helper.h>
+#include <hydrogen/helpers/xml_helper.h>
 #include <cassert>
 
 namespace H2Core

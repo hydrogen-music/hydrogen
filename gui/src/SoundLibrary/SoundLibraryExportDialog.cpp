@@ -23,7 +23,7 @@
 #include "SoundLibraryExportDialog.h"
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
 

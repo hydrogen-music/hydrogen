@@ -27,7 +27,7 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
 
 #include <hydrogen/fx/Effects.h>

@@ -42,7 +42,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/adsr.h>
 #include <hydrogen/h2_exception.h>

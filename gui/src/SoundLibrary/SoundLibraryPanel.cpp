@@ -49,7 +49,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/filesystem.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/sample.h>
