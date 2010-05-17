@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef H2_XML_HELPER_H
-#define H2_XML_HELPER_H
+#ifndef H2_XML_H
+#define H2_XML_H
 
 #include <hydrogen/Object.h>
 #include <QtCore/QString>
@@ -64,6 +64,6 @@ class XMLDoc : public Object, public QDomDocument
 
 };
 
-#endif  // H2_XML_HELPER_H
+#endif  // H2_XML_H
 
 /* vim: set softtabstop=4 expandtab: */

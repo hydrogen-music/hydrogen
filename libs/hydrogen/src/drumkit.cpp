@@ -27,7 +27,7 @@
 #include <hydrogen/instrument.h>
 
 #include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/helpers/xml_helper.h>
+#include <hydrogen/helpers/xml.h>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>

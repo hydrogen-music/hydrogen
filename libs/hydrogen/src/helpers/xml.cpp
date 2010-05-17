@@ -24,7 +24,7 @@
 
 
 
-#include <hydrogen/helpers/xml_helper.h>
+#include <hydrogen/helpers/xml.h>
 #include <QtCore/QLocale>
 #include <QtCore/QFile>
 

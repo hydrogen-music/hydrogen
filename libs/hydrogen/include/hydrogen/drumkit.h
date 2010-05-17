@@ -24,7 +24,7 @@
 #define H2_DRUMKIT_H
 
 #include <hydrogen/Object.h>
-#include <hydrogen/helpers/xml_helper.h>
+#include <hydrogen/helpers/xml.h>
 #include <hydrogen/instrument.h>
 
 namespace H2Core
