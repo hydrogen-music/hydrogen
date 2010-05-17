@@ -25,7 +25,6 @@
 #include "gui/src/SoundLibrary/SoundLibraryPanel.h"
 #include "gui/src/SongEditor/SongEditorPanel.h"
 
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -218,7 +217,6 @@ void Playlist::loadSong( QString songName )
 
 	engine->m_timelinetagvector.clear();
 
-	LocalFileMng mng;
 	Song *pSong = Song::load ( songName );
 	if ( pSong == NULL ){
 		return;
