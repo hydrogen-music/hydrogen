@@ -35,7 +35,6 @@
 		* director
 		* and at least several small changes
 
-	* switch to hydrogen 0.9.5 development version	
 	* Xml handling is now done by QtXml instead of TinyXML
 	* improved support for non-ascii filenames / strings
 
