@@ -594,19 +594,6 @@ int  LocalFileMng::mergeAllPatternList( std::vector<QString> current )
 
 
 
-std::vector<QString> LocalFileMng::getUserDrumkitList()
-{
-	std::vector<QString> oldLocation = getDrumkitsFromDirectory( Preferences::get_instance()->getDataDirectory() );
-	std::vector<QString> newLocation = getDrumkitsFromDirectory( Preferences::get_instance()->getDataDirectory() + "drumkits" );
-	return mergeQStringVectors( newLocation ,  oldLocation );
-}
-
-std::vector<QString> LocalFileMng::getSystemDrumkitList()
-{
-	return getDrumkitsFromDirectory( DataPath::get_data_path() + "/drumkits" );
-}
-
-
 /// Restituisce un oggetto DrumkitInfo.
 /// Gli strumenti non hanno dei veri propri sample,
 /// viene utilizzato solo il campo filename.

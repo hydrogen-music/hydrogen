@@ -49,6 +49,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/LocalFileMng.h>
+#include <hydrogen/filesystem.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/sample.h>
@@ -175,28 +176,20 @@ void SoundLibraryPanel::updateDrumkitList()
 	__user_drumkit_info_list.clear();
 
 	//User drumkit list
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	for (uint i = 0; i < userList.size(); ++i) {
-		QString absPath =  userList[i];
+    QStringList usr_dks = Filesystem::usr_drumkits_list();
+    for (int i = 0; i < usr_dks.size(); ++i) {
+		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks.at(i);
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
-
-		QString filenameforpattern = absPath + "/patterns/";
-		
-
 		if (pInfo) {
-
 			__user_drumkit_info_list.push_back( pInfo );
-
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->getName() );
 			if ( QString(pInfo->getName() ) == currentSL ){
 				pDrumkitItem->setBackgroundColor( 0, QColor( 50, 50, 50) );
 			}
-
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
-
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
 				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
@@ -206,24 +199,20 @@ void SoundLibraryPanel::updateDrumkitList()
 
 
 	//System drumkit list
-	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
-
-	for (uint i = 0; i < systemList.size(); i++) {
-		QString absPath = systemList[i];
+    QStringList sys_dks = Filesystem::sys_drumkits_list();
+    for (int i = 0; i < sys_dks.size(); ++i) {
+		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks.at(i);
 		Drumkit *pInfo = mng.loadDrumkit( absPath );
 		if (pInfo) {
 			__system_drumkit_info_list.push_back( pInfo );
-
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->getName() );
 			if ( QString( pInfo->getName() ) == currentSL ){
 				pDrumkitItem->setBackgroundColor( 0, QColor( 50, 50, 50) );
 			}
-
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
 			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
-
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
 				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
@@ -549,19 +538,11 @@ void SoundLibraryPanel::update_background_color()
 
 void SoundLibraryPanel::restore_background_color()
 {
-	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
- 
-	for (uint i = 0; i < systemList.size() ; i++){
-		if (  !__system_drumkits_item->child( i ) )
-			break;
+	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );		
 	}
 
-	for (uint i = 0; i < userList.size() ; i++){
-		if (  !__user_drumkits_item->child( i ) )
-			break;
+	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		( __user_drumkits_item->child( i ) )->setBackground(0, QBrush() );
 	}
 }
@@ -570,22 +551,16 @@ void SoundLibraryPanel::restore_background_color()
 
 void SoundLibraryPanel::change_background_color()
 {
-	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
 	QString curlib =  Hydrogen::get_instance()->m_currentDrumkit;
  
-	for (uint i = 0; i < systemList.size() ; i++){
-		if (  !__system_drumkits_item->child( i ) )
-			break;
+	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
 			( __system_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
 			break;
 		}
 	}
 
-	for (uint i = 0; i < userList.size() ; i++){
-		if (  !__user_drumkits_item->child( i ) )
-			break;
+	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
 			( __user_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
 			break;
@@ -605,19 +580,10 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	bool bIsUserSoundLibrary = false;
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	for ( uint i = 0; i < userList.size(); ++i ) {
-		if ( userList[ i ].endsWith( sSoundLibrary ) ) {
-			bIsUserSoundLibrary = true;
-			break;
-		}
-	}
-
-	if ( bIsUserSoundLibrary == false ) {
+    if( Filesystem::sys_drumkit_exists( sSoundLibrary ) ) {
 		QMessageBox::warning( this, "Hydrogen", QString( "A system drumkit can't be deleted.") );
 		return;
-	}
+    }
 
 	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected drumkit will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 	if ( res == 1 ) {

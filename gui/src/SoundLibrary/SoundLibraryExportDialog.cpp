@@ -22,6 +22,7 @@
 
 #include "SoundLibraryExportDialog.h"
 #include <hydrogen/LocalFileMng.h>
+#include <hydrogen/filesystem.h>
 #include <hydrogen/SoundLibrary.h>
 
 #include <hydrogen/hydrogen.h>
@@ -137,11 +138,9 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 	drumkitInfoList.clear();
 
-	//LocalFileMng mng;
-	std::vector<QString> userList = Drumkit::getUserDrumkitList();
-	for (uint i = 0; i < userList.size(); i++) {
-		QString absPath =  userList[i];
-
+    QStringList drumkits = Filesystem::usr_drumkits_list() + Filesystem::sys_drumkits_list();
+    for (int i = 0; i < drumkits.size(); ++i) {
+        QString absPath = drumkits.at(i);
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -149,18 +148,6 @@ void SoundLibraryExportDialog::updateDrumkitList()
 		}
 	}
 
-
-	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
-	for (uint i = 0; i < systemList.size(); i++) {
-		QString absPath = systemList[i];
-		Drumkit *info = Drumkit::load( absPath );
-		if (info) {
-			drumkitInfoList.push_back( info );
-			drumkitList->addItem( info->getName() );
-		}
-	}
-
-	
 	/// \todo sort in exportTab_drumkitList
 //	drumkitList->sort();
 

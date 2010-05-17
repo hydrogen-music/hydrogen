@@ -26,6 +26,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/LocalFileMng.h>
+#include <hydrogen/filesystem.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/adsr.h>
@@ -91,22 +92,6 @@ Drumkit* Drumkit::load( const QString& sFilename )
 	LocalFileMng mng;
 	return mng.loadDrumkit( sFilename );
 
-}
-
-
-
-std::vector<QString> Drumkit::getUserDrumkitList()
-{
-	LocalFileMng mng;
-	return mng.getUserDrumkitList();
-}
-
-
-
-std::vector<QString> Drumkit::getSystemDrumkitList()
-{
-	LocalFileMng mng;
-	return mng.getSystemDrumkitList();
 }
 
 
@@ -312,16 +297,11 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 
 void Drumkit::removeDrumkit( const QString& sDrumkitName )
 {
-	_INFOLOG( "Removing drumkit: " + sDrumkitName );
-
-	QString dataDir = Preferences::get_instance()->getDataDirectory() + "drumkits/";
-	dataDir += sDrumkitName;
-	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
-	_INFOLOG( cmd );
-	if ( system( cmd.toLocal8Bit() ) != 0 ) {
-		_ERRORLOG( "Error executing '" + cmd + "'" );
-		throw H2Exception( QString( "Error executing '%1'" ).arg( cmd ) );
-	}
+    QString path = Filesystem::usr_drumkits_dir() + "/" + sDrumkitName;
+	_INFOLOG( "Removing drumkit: " + path );
+    if( !Filesystem::rm_fr( path ) ) {
+	    _ERRORLOG( "Unable to remove drumkit: " + path );
+    }
 }
 
 };

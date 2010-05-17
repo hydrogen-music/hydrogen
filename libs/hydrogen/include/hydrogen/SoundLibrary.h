@@ -62,12 +62,6 @@ public:
 	/// Loads a single Drumkit
 	static Drumkit* load( const QString& sFilename );
 
-	/// Lists the User drumkit list
-	static std::vector<QString> getUserDrumkitList();
-
-	/// Lists the System drumkit list
-	static std::vector<QString> getSystemDrumkitList();
-
 	/// Installs a drumkit
 	static void install( const QString& filename );
 

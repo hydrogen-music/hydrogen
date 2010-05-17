@@ -151,6 +151,24 @@ bool Filesystem::file_copy( const QString& src, const QString& dst ) {
 	return QFile::copy(src,dst);
 }
 
+bool Filesystem::rm_fr( const QString& path ) {
+    bool ret = true;
+    QDir dir(path);
+    QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
+    for (int idx = 0; ((idx < entries.size()) && ret); idx++) {
+        QFileInfo entryInfo = entries[idx];
+        if (entryInfo.isDir() && !entryInfo.isSymLink() ) {
+             ret = rm_fr( entryInfo.absoluteFilePath() );
+        } else {
+            QFile file( entryInfo.absoluteFilePath() );
+            if (!file.remove()) ret = false;
+        }
+    }
+    if (!dir.rmdir(dir.absolutePath())) ret = false;
+    return ret;
+}
+
+
 bool Filesystem::check_sys_paths() {
 	if( !QFile(__sys_data_path).exists() ) {
         // TODO maybe quit ??
@@ -209,8 +227,10 @@ QString Filesystem::playlists_dir()             { return __usr_data_path + PLAYL
 QString Filesystem::demos_dir()                 { return __sys_data_path + DEMOS; }
 
 // DRUMKITS
-QStringList Filesystem::sys_drumkits_list( )    { return QDir( sys_drumkits_dir() ).entryList( QDir::Files | QDir::NoSymLinks ); }
-QStringList Filesystem::usr_drumkits_list( )    { return QDir( usr_drumkits_dir() ).entryList( QDir::Files | QDir::NoSymLinks ); }
+QStringList Filesystem::sys_drumkits_list( )    { return QDir( sys_drumkits_dir() ).entryList( QDir::Dirs | QDir::NoDotAndDotDot ); }
+QStringList Filesystem::usr_drumkits_list( )    { return QDir( usr_drumkits_dir() ).entryList( QDir::Dirs | QDir::NoDotAndDotDot ); }
+bool Filesystem::sys_drumkit_exists( const QString& dk_name ) { return QDir( sys_drumkits_dir() ).exists( dk_name ); }
+bool Filesystem::usr_drumkit_exists( const QString& dk_name ) { return QDir( usr_drumkits_dir() ).exists( dk_name ); }
 bool Filesystem::drumkit_exists( const QString& dk_name ) {
      if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return true;
      return QDir( usr_drumkits_dir() ).exists( dk_name );

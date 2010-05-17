@@ -30,6 +30,7 @@
 #include "../InstrumentRack.h"
 
 #include <hydrogen/LocalFileMng.h>
+#include <hydrogen/filesystem.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/Preferences.h>
@@ -250,19 +251,8 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	soundLibraryItemName = soundLibraryItemName.left( soundLibraryItemName.lastIndexOf( "." ) );
 
 	if ( sInfo.m_sType == "drumkit" ) {
-		std::vector<QString> systemList = H2Core::Drumkit::getSystemDrumkitList();
-		for ( uint i = 0; i < systemList.size(); ++i ) {
-			if ( systemList[ i ].endsWith(soundLibraryItemName) ) {
-				return true;
-			}
-		}
-
-		std::vector<QString> userList = H2Core::Drumkit::getUserDrumkitList();
-		for ( uint i = 0; i < userList.size(); ++i ) {
-			if ( userList[ i ].endsWith(soundLibraryItemName) ) {
-				return true;
-			}
-		}
+        if ( H2Core::Filesystem::drumkit_exists(soundLibraryItemName) )
+            return true;
 	}
 
 	if ( sInfo.m_sType == "pattern" ) {
