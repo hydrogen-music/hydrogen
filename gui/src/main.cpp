@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
         Logger* logger = Logger::get_instance();
 		Object::bootstrap( logger, logger->should_log(Logger::Debug) );
         H2Core::Filesystem::init( logger );
-        H2Core::Filesystem::show( );
+        H2Core::Filesystem::info( );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.

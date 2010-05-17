@@ -94,53 +94,47 @@ bool Filesystem::init( Logger* logger ) {
     return check_sys_paths() && check_usr_paths();
 }
 
-#define H2_IS_DIR       0x01
-#define H2_IS_FILE      0x02
-#define H2_READABLE     0x04
-#define H2_WRITABLE     0x08
-#define H2_EXECUTABLE   0x10
-
-bool Filesystem::check_permissions( const QString& path, const int perms ) {
+bool Filesystem::check_permissions( const QString& path, const int perms, bool silent) {
     QFileInfo fi( path );
-    if( (perms&H2_IS_FILE) && (perms&H2_WRITABLE) && !fi.exists() ) {
+    if( (perms & is_file) && (perms & is_writable) && !fi.exists() ) {
         QFileInfo folder( path.left( path.lastIndexOf("/") ) );
         if( !folder.isDir() ) {
-            ___ERRORLOG( QString("%1 is not a directory").arg(folder.fileName()) );
+            if(!silent) ___ERRORLOG( QString("%1 is not a directory").arg(folder.fileName()) );
             return false;
         }
         if( !folder.isWritable() ) {
-            ___ERRORLOG( QString("%1 is not writable").arg(folder.fileName()) );
+            if(!silent) ___ERRORLOG( QString("%1 is not writable").arg(folder.fileName()) );
             return false;
         }
         return true;
     }
-    if( (perms&H2_IS_DIR) && !fi.isDir() ) {
-        ___ERRORLOG( QString("%1 is not a directory").arg(path) );
+    if( (perms & is_dir) && !fi.isDir() ) {
+        if(!silent) ___ERRORLOG( QString("%1 is not a directory").arg(path) );
         return false;
     }
-    if( (perms&H2_IS_FILE) && !fi.isFile() ) {
-        ___ERRORLOG( QString("%1 is not a file").arg(path) );
+    if( (perms & is_file) && !fi.isFile() ) {
+        if(!silent) ___ERRORLOG( QString("%1 is not a file").arg(path) );
         return false;
     }
-    if( (perms&H2_READABLE) && !fi.isReadable() ) {
-        ___ERRORLOG( QString("%1 is not readable").arg(path) );
+    if( (perms & is_readable) && !fi.isReadable() ) {
+        if(!silent) ___ERRORLOG( QString("%1 is not readable").arg(path) );
         return false;
     }
-    if( (perms&H2_WRITABLE) && !fi.isWritable() ) {
-        ___ERRORLOG( QString("%1 is not writable").arg(path) );
+    if( (perms & is_writable) && !fi.isWritable() ) {
+        if(!silent) ___ERRORLOG( QString("%1 is not writable").arg(path) );
         return false;
     }
-    if( (perms&H2_EXECUTABLE) && !fi.isExecutable() ) {
-        ___ERRORLOG( QString("%1 is not executable").arg(path) );
+    if( (perms & is_executable) && !fi.isExecutable() ) {
+        if(!silent) ___ERRORLOG( QString("%1 is not executable").arg(path) );
         return false;
     }
     return true;
 }
 
-bool Filesystem::file_readable( const QString& path )   { return check_permissions(path, H2_IS_FILE|H2_READABLE); }
-bool Filesystem::file_writable( const QString& path )   { return check_permissions(path, H2_IS_FILE|H2_WRITABLE); }
-bool Filesystem::dir_readable( const QString& path )    { return check_permissions(path, H2_IS_DIR|H2_READABLE|H2_EXECUTABLE); }
-bool Filesystem::dir_writable( const QString& path )    { return check_permissions(path, H2_IS_DIR|H2_WRITABLE); }
+bool Filesystem::file_readable( const QString& path, bool silent )  { return check_permissions(path, is_file|is_readable, silent); }
+bool Filesystem::file_writable( const QString& path, bool silent )  { return check_permissions(path, is_file|is_writable, silent); }
+bool Filesystem::dir_readable(  const QString& path, bool silent )  { return check_permissions(path, is_dir|is_readable|is_executable, silent); }
+bool Filesystem::dir_writable(  const QString& path, bool silent )  { return check_permissions(path, is_dir|is_writable, silent); }
 
 bool Filesystem::mkdir( const QString& path ) {
     if ( !QDir("/").mkpath( path ) ) {
@@ -253,14 +247,13 @@ QString Filesystem::usr_gui_config()            { return __usr_data_path + GUI_C
 QString Filesystem::empty_sample()              { return __sys_data_path + EMPTY_SAMPLE; }
 QString Filesystem::empty_song()                { return __sys_data_path + DEFAULT_SONG; }
 QString Filesystem::click_file() {
-    QFile fp( __usr_data_path + CLICK_SAMPLE );
-    if( fp.exists() && (fp.permissions()&QFile::ReadUser) ) return fp.fileName();
+    if(file_readable( __usr_data_path + CLICK_SAMPLE, true )) return __usr_data_path + CLICK_SAMPLE;
     return __sys_data_path + CLICK_SAMPLE;
 }
 
 // DIRS
-QString Filesystem::img_dir()                   { return __usr_data_path + SONGS; }
-QString Filesystem::i18n_dir()                  { return __usr_data_path + SONGS; }
+QString Filesystem::img_dir()                   { return __sys_data_path + IMG; }
+QString Filesystem::i18n_dir()                  { return __sys_data_path + I18N; }
 QString Filesystem::songs_dir()                 { return __usr_data_path + SONGS; }
 QString Filesystem::patterns_dir()              { return __usr_data_path + PATTERNS; }
 QString Filesystem::sys_drumkits_dir()          { return __sys_data_path + DRUMKITS; }
@@ -269,23 +262,32 @@ QString Filesystem::playlists_dir()             { return __usr_data_path + PLAYL
 QString Filesystem::demos_dir()                 { return __sys_data_path + DEMOS; }
 
 // DRUMKITS
-QStringList Filesystem::sys_drumkits_list( )    { return QDir( sys_drumkits_dir() ).entryList( QDir::Dirs | QDir::NoDotAndDotDot ); }
-QStringList Filesystem::usr_drumkits_list( )    { return QDir( usr_drumkits_dir() ).entryList( QDir::Dirs | QDir::NoDotAndDotDot ); }
-bool Filesystem::sys_drumkit_exists( const QString& dk_name ) { return QDir( sys_drumkits_dir() ).exists( dk_name ); }
-bool Filesystem::usr_drumkit_exists( const QString& dk_name ) { return QDir( usr_drumkits_dir() ).exists( dk_name ); }
-bool Filesystem::drumkit_exists( const QString& dk_name ) {
-     if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return true;
-     return QDir( usr_drumkits_dir() ).exists( dk_name );
+QStringList Filesystem::drumkits_list( const QString& path )    {
+    QStringList ok;
+    QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+    for(int i=0; i<possible.size(); i++) {
+        if ( file_readable( path+"/"+possible[i]+"/"+DRUMKIT_XML, true ) )
+            ok << possible[i];
+        else {
+            ___ERRORLOG( QString("drumkit %1 is not usable").arg(path+"/"+possible[i]) );
+        }
+    }
+    return ok;
 }
-bool Filesystem::drumkit_valid( const QString& path ) { return file_readable( path + "/" + DRUMKIT_XML ); }
-QString Filesystem::drumkit_file( const QString& path ) { return path + "/" + DRUMKIT_XML; }
-
+QStringList Filesystem::sys_drumkits_list( )    { return drumkits_list( sys_drumkits_dir() ) ; }
+QStringList Filesystem::usr_drumkits_list( )    { return drumkits_list( usr_drumkits_dir() ) ; }
+bool Filesystem::drumkit_exists( const QString& dk_name ) {
+     if( sys_drumkits_list().contains( dk_name ) ) return true;
+     return usr_drumkits_list().contains( dk_name );
+}
 QString Filesystem::drumkit_path( const QString& dk_name ) {
-     if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
-     if( QDir( usr_drumkits_dir() ).exists( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
+     if( sys_drumkits_list().contains( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
+     if( usr_drumkits_list().contains( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
      ___ERRORLOG( QString("drumkit %1 not found").arg(dk_name) );
      return "";
 }
+bool Filesystem::drumkit_valid( const QString& dk_path )   { return file_readable( dk_path + "/" + DRUMKIT_XML ); }
+QString Filesystem::drumkit_file( const QString& dk_path ) { return dk_path + "/" + DRUMKIT_XML; }
 
 // PATTERNS
 QStringList Filesystem::patterns_list( )    { return QDir( patterns_dir() ).entryList( QStringList(PATTERN_FILTER), QDir::Files | QDir::NoDotAndDotDot ); }
@@ -294,7 +296,7 @@ QStringList Filesystem::patterns_list( )    { return QDir( patterns_dir() ).entr
 QStringList Filesystem::songs_list( )       { return QDir( songs_dir() ).entryList( QStringList(SONG_FILTER), QDir::Files | QDir::NoDotAndDotDot ); }
 bool Filesystem::song_exists( const QString& sg_name ) { return QDir( songs_dir() ).exists( sg_name ); }
 
-void Filesystem::show() {
+void Filesystem::info() {
     ___INFOLOG( QString("System wide core cfg file  : %1").arg( sys_core_config() ) );
     ___INFOLOG( QString("User core cfg file         : %1").arg( usr_core_config() ) );
     ___INFOLOG( QString("System wide gui cfg file   : %1").arg( sys_gui_config() ) );
