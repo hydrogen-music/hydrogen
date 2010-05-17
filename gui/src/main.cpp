@@ -38,6 +38,7 @@
 #include <hydrogen/midiMap.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/filesystem.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
@@ -236,6 +237,8 @@ int main(int argc, char *argv[])
         Logger::set_log_level( logLevelOpt );
         Logger* logger = Logger::get_instance();
 		Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+        H2Core::Filesystem::init( logger );
+        H2Core::Filesystem::show( );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
