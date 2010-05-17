@@ -55,6 +55,10 @@
 #define EMPTY_SAMPLE    "/empty_sample.wav"
 #define DEFAULT_SONG    "/empty_song.h2song"
 
+// filters
+#define SONG_FILTER     "*.h2song"
+#define PATTERN_FILTER  "*.h2pattern"
+
 namespace H2Core
 {
 
@@ -236,11 +240,18 @@ bool Filesystem::drumkit_exists( const QString& dk_name ) {
      return QDir( usr_drumkits_dir() ).exists( dk_name );
 }
 QString Filesystem::drumkit_path( const QString& dk_name ) {
-     if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return sys_drumkits_dir()+"/"+dk_name;
-     if( QDir( usr_drumkits_dir() ).exists( dk_name ) ) return usr_drumkits_dir()+"/"+dk_name;
+     if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
+     if( QDir( usr_drumkits_dir() ).exists( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
      ___ERRORLOG( QString("drumkit %1 not found").arg(dk_name) );
      return "";
 }
+
+// PATTERNS
+QStringList Filesystem::patterns_list( )    { return QDir( patterns_dir() ).entryList( QStringList(PATTERN_FILTER), QDir::Files | QDir::NoDotAndDotDot ); }
+
+// SONGS
+QStringList Filesystem::songs_list( )       { return QDir( songs_dir() ).entryList( QStringList(SONG_FILTER), QDir::Files | QDir::NoDotAndDotDot ); }
+bool Filesystem::song_exists( const QString& sg_name ) { return QDir( songs_dir() ).exists( sg_name ); }
 
 void Filesystem::show() {
     ___INFOLOG( QString("System wide core cfg file  : %1").arg( sys_core_config() ) );

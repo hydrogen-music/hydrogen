@@ -352,40 +352,6 @@ void LocalFileMng::fileCopy( const QString& sOrigFilename, const QString& sDestF
 }
 
 
-
-std::vector<QString> LocalFileMng::getSongList()
-{
-	std::vector<QString> list;
-	QString sDirectory = Preferences::get_instance()->getDataDirectory();
-
-	if( ! sDirectory.endsWith("/") ) { 
-		sDirectory += "/songs/";
-	} else {
-		sDirectory += "songs/";
-	}
-	
-	QDir dir( sDirectory );
-
-	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getSongList] Directory %1 not found" ).arg( sDirectory ) );
-	} else {
-		dir.setFilter( QDir::Files );
-		QFileInfoList fileList = dir.entryInfoList();
-		
-		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = fileList.at( i ).fileName();
-
-			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
-				continue;
-			}
-
-			list.push_back( sFile.left( sFile.indexOf( "." ) ) );
-		}
-	}
-
-	return list;
-}
-
 int LocalFileMng::getPatternList( const QString&  sPatternDir)
 {
 	std::vector<QString> list;
@@ -515,37 +481,6 @@ std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumki
 
 
 
-std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory )
-{
-	/*
-		returns a list of all drumkits in the given directory
-	*/
-
-	std::vector<QString> list;
-
-	QDir dir( sDirectory );
-	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getDrumkitList] Directory %1 not found" ).arg( sDirectory ) );
-	} else {
-		dir.setFilter( QDir::Dirs );
-		QFileInfoList fileList = dir.entryInfoList();
-		
-		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = fileList.at( i ).fileName();
-			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) || 
-			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" || sFile == "playlists" ) || (sFile == "scripts" )) {
-				continue;
-			}
-			if(! sDirectory.endsWith("/")) sDirectory = sDirectory + "/";
-			list.push_back( sDirectory + sFile );
-		}
-	}
-
-	return list;
-}
-
-
-
 std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std::vector<QString> secondVector )
 {
 	/*
@@ -582,7 +517,28 @@ std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std
 
 std::vector<QString> LocalFileMng::getPatternDirList()
 {
-	return getDrumkitsFromDirectory( Preferences::get_instance()->getDataDirectory() + "patterns" );
+	QString sDirectory = Preferences::get_instance()->getDataDirectory() + "patterns";
+	std::vector<QString> list;
+
+	QDir dir( sDirectory );
+	if ( !dir.exists() ) {
+		ERRORLOG( QString( "[getPatternDirList] Directory %1 not found" ).arg( sDirectory ) );
+	} else {
+		dir.setFilter( QDir::Dirs );
+		QFileInfoList fileList = dir.entryInfoList();
+		
+		for ( int i = 0; i < fileList.size(); ++i ) {
+			QString sFile = fileList.at( i ).fileName();
+			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) || 
+			(sFile =="songs" ) || ( sFile == "patterns" )  || (sFile == "drumkits" || sFile == "playlists" ) || (sFile == "scripts" )) {
+				continue;
+			}
+			if(! sDirectory.endsWith("/")) sDirectory = sDirectory + "/";
+			list.push_back( sDirectory + sFile );
+		}
+	}
+
+	return list;
 }
 
 

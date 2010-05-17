@@ -68,6 +68,13 @@ class Filesystem : public Object
         static bool sys_drumkit_exists( const QString& dk_name );
         static bool usr_drumkit_exists( const QString& dk_name );
         static bool drumkit_exists( const QString& dk_name );
+        
+        /* PATTERNS */
+        static QStringList patterns_list( );
+
+        /* SONGS */
+        static QStringList songs_list( );
+        static bool song_exists( const QString& sg_name );
 
         static void show();
 

@@ -223,20 +223,18 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	
 	//Songlist
-	std::vector<QString> songList = mng.getSongList();
-
-	if ( songList.size() > 0 ) {
-
+    QStringList songs = Filesystem::songs_list();
+	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
 		__song_item->setToolTip( 0, "double click to expand the list" );
 		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
-
-		for (uint i = 0; i < songList.size(); i++) {
-			QString absPath = DataPath::get_data_path() + "/songs/" + songList[i];
+		for (uint i = 0; i < songs.size(); i++) {
+			QString absPath = DataPath::get_data_path() + "/songs/" + songs.at(i);
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
-			pSongItem->setText( 0 , songList[ i ] );
-			pSongItem->setToolTip( 0, songList[ i ] );
+            QString song = songs.at(i);
+			pSongItem->setText( 0 , song.left( song.indexOf(".")) );
+			pSongItem->setToolTip( 0, song );
 		}
 	}
 

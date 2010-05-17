@@ -247,11 +247,11 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!
 
-	QString soundLibraryItemName = QFileInfo( sInfo.m_sURL ).fileName();
-	soundLibraryItemName = soundLibraryItemName.left( soundLibraryItemName.lastIndexOf( "." ) );
+	QString sName = QFileInfo( sInfo.m_sURL ).fileName();
+	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.m_sType == "drumkit" ) {
-        if ( H2Core::Filesystem::drumkit_exists(soundLibraryItemName) )
+        if ( H2Core::Filesystem::drumkit_exists(sName) )
             return true;
 	}
 
@@ -259,20 +259,15 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 		H2Core::LocalFileMng mng;
 		std::vector<QString> patternList = mng.getAllPatternName();
 		for ( uint i = 0; i < patternList.size(); ++i ) {
-			if ( patternList[ i ] == soundLibraryItemName ) {
+			if ( patternList[ i ] == sName ) {
 				return true;
 			}
 		}
 	}
 
 	if ( sInfo.m_sType == "song" ) {
-		H2Core::LocalFileMng mng;
-		std::vector<QString> songList = mng.getSongList();
-		for ( uint i = 0; i < songList.size(); ++i ) {
-			if ( songList[ i ] == soundLibraryItemName ) {
-				return true;
-			}
-		}
+        if ( H2Core::Filesystem::song_exists(sName) )
+            return true;
 	}
 
 	return false;
