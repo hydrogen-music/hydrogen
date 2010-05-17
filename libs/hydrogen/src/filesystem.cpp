@@ -29,8 +29,9 @@
 #include <hydrogen/config.h>
 #include <hydrogen/filesystem.h>
 
-#include <QtCore/QFile>
 #include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 //#include <QApplication>
 
 #ifdef Q_OS_MACX
@@ -58,6 +59,7 @@
 // filters
 #define SONG_FILTER     "*.h2song"
 #define PATTERN_FILTER  "*.h2pattern"
+#define DRUMKIT_XML     "drumkit.xml"
 
 namespace H2Core
 {
@@ -92,34 +94,45 @@ bool Filesystem::init( Logger* logger ) {
     return check_sys_paths() && check_usr_paths();
 }
 
-bool Filesystem::file_readable( const QString& path ) {
-    QFile fp( path );
-    if( !fp.exists() ) {
+#define H2_IS_DIR       0x01
+#define H2_IS_FILE      0x02
+#define H2_READABLE     0x04
+#define H2_WRITABLE     0x08
+#define H2_EXECUTABLE   0x10
+
+bool Filesystem::check_permissions( const QString& path, const int perms ) {
+    QFileInfo fi( path );
+    if( !fi.exists() ) {
         ___ERRORLOG( QString("%1 doesn't exists").arg(path) );
         return false;
     }
-    if( !fp.permissions() &QFile::ReadUser ) {
+    if( (perms&H2_IS_DIR) && !fi.isDir() ) {
+        ___ERRORLOG( QString("%1 is not a directory").arg(path) );
+        return false;
+    }
+    if( (perms&H2_IS_FILE) && !fi.isFile() ) {
+        ___ERRORLOG( QString("%1 is not a file").arg(path) );
+        return false;
+    }
+    if( (perms&H2_READABLE) && !fi.isReadable() ) {
         ___ERRORLOG( QString("%1 is not readable").arg(path) );
+        return false;
+    }
+    if( (perms&H2_WRITABLE) && !fi.isWritable() ) {
+        ___ERRORLOG( QString("%1 is not writable").arg(path) );
+        return false;
+    }
+    if( (perms&H2_EXECUTABLE) && !fi.isExecutable() ) {
+        ___ERRORLOG( QString("%1 is not executable").arg(path) );
         return false;
     }
     return true;
 }
 
-bool Filesystem::file_writable( const QString& path ) {
-    if( !QFile( path ).permissions() &QFile::WriteUser ) {
-        ___ERRORLOG( QString("%1 is not readable").arg(path) );
-        return false;
-    }
-    return true;
-}
-
-bool Filesystem::dir_readable( const QString& path ) {
-    if( !QDir( path ).isReadable() ) {
-        ___ERRORLOG( QString("%1 is not readable").arg(path) );
-        return false;
-    }
-    return true;
-}
+bool Filesystem::file_readable( const QString& path )   { return check_permissions(path, H2_IS_FILE|H2_READABLE); }
+bool Filesystem::file_writable( const QString& path )   { return check_permissions(path, H2_IS_FILE|H2_WRITABLE); }
+bool Filesystem::dir_readable( const QString& path )    { return check_permissions(path, H2_IS_DIR|H2_READABLE|H2_EXECUTABLE); }
+bool Filesystem::dir_writable( const QString& path )    { return check_permissions(path, H2_IS_DIR|H2_WRITABLE); }
 
 bool Filesystem::path_usable( const QString& path ) {
     if( !QDir( path ).exists() ) {
@@ -129,13 +142,17 @@ bool Filesystem::path_usable( const QString& path ) {
             return false;
         }
     }
-    return dir_readable( path );
+    return dir_readable( path ) && dir_writable( path );
 }
 
-bool Filesystem::write_to_file( const QString& path, const QString& content ) {
-	QFile file( path );
+bool Filesystem::write_to_file( const QString& dst, const QString& content ) {
+    if ( !file_writable( dst ) ) {
+        ___ERRORLOG( QString("unable to write to %1").arg(dst) );
+        return false;
+    }
+	QFile file( dst );
 	if ( !file.open( QIODevice::WriteOnly ) ) {
-        ___ERRORLOG( QString("unable to write to %1").arg(path) );
+        ___ERRORLOG( QString("unable to write to %1").arg(dst) );
 		return false;
     }
     file.write( content.toUtf8().data() );
@@ -165,10 +182,16 @@ bool Filesystem::rm_fr( const QString& path ) {
              ret = rm_fr( entryInfo.absoluteFilePath() );
         } else {
             QFile file( entryInfo.absoluteFilePath() );
-            if (!file.remove()) ret = false;
+            if (!file.remove()) {
+                ___ERRORLOG( QString("unable to remove %1").arg(entryInfo.absoluteFilePath()) );
+                ret = false;
+            }
         }
     }
-    if (!dir.rmdir(dir.absolutePath())) ret = false;
+    if (!dir.rmdir(dir.absolutePath())) {
+        ___ERRORLOG( QString("unable to remove %1").arg(dir.absolutePath()) );
+        ret = false;
+    }
     return ret;
 }
 

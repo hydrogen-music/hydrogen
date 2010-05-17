@@ -81,8 +81,9 @@ class Filesystem : public Object
         static bool file_readable( const QString& path );
         static bool file_writable( const QString& path );
         static bool dir_readable( const QString& path );
+        static bool dir_writable( const QString& path );
         static bool path_usable( const QString& path );
-        static bool write_to_file( const QString& path, const QString& content );
+        static bool write_to_file( const QString& dst, const QString& content );
         static bool file_copy( const QString& src, const QString& dst );
         static bool rm_fr( const QString& path );
 
@@ -90,6 +91,8 @@ class Filesystem : public Object
         static Logger* __logger;
         static bool check_sys_paths();
         static bool check_usr_paths();
+
+        static bool check_permissions( const QString& path, const int perms );
 
         static QString __sys_data_path;
         static QString __usr_data_path;
