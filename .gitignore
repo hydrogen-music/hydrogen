@@ -3,6 +3,5 @@
 ui_*.h
 moc_*.cc
 build
-git-tools
 libs/hydrogen/include/hydrogen/config.h
 

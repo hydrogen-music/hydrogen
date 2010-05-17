@@ -1,0 +1,127 @@
+#! /bin/bash
+
+if [ -z $GIT_BASE ]; then echo "GIT_BASE should be set" exit 1; fi
+
+PRJ=hydrogen
+SVN_URL=http://svn.assembla.com/svn/hydrogen
+BRANCHES_TO_TRACK="trunk undo"
+
+LOCAL_REPO=local
+LOCAL_DIR=${GIT_BASE}/${PRJ}
+SVN_CLONE_REPO=svn_clone
+SVN_CLONE_DIR=${GIT_BASE}/${PRJ}_svn
+
+RED="\033[0;31m"
+RESET="\033[0m"
+
+URL_COLOR="\033[0;34m"
+LRC="\033[0;33m"    # LOCAL REPO COLOR
+LBC="\033[0;36m"    # LOCAL BRANCH COLOR
+SRC="\033[0;35m"    # SVN CLONE REPO COLOR
+SBC="\033[0;32m"    # SVN CLONE BRANCH COLOR
+DSBC="\033[0;37m"   # DISTANT SVN BRANCH COLOR
+
+function error() {
+    echo -e "   => ${RED}FAILURE${RESET}"  && exit 1
+}
+
+function ask_ok() {
+    echo -n -e "$1${RESET}[${RED}Y${RESET}n] : " 
+    read  OK
+    if [ "$OK" = "" -o "$OK" = "y" -o "$OK" = "Y" ]; then
+        return 0
+    fi
+    echo -e "${RED}abort${RESET}" && return 1
+}
+
+function create_svn_clone() {
+    echo -e "** clone from ${URL_COLOR}${SVN_URL}${RESET}" && cd $GIT_BASE && git svn clone ${SVN_URL} -T trunk -b branches -t tags ${PRJ}_svn || error
+    cd ${SVN_CLONE_DIR}
+    for branch in $BRANCHES_TO_TRACK; do
+        echo -e "** checkout ${DSBC}${branch}${RESET} in ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${branch}_svn${RESET}" && git checkout $branch -b ${branch}_svn  || error
+    done
+    echo -e "** add ${LRC}${LOCAL_DIR}${RESET} as repo ${LRC}${LOCAL_REPO}${RESET}" && git remote add ${LOCAL_REPO} ${LOCAL_DIR} || error
+}
+
+function create_local_repo() {
+    echo -e "** git init ${LRC}${LOCAL_DIR}${RESET}" && git init ${LOCAL_DIR}|| error
+    echo -e "** cd ${LRC}${LOCAL_DIR}${RESET}" && cd ${LOCAL_DIR} || error
+    echo -e "** add ${SRC}${SVN_CLONE_DIR}${RESET} as repo ${SRC}${SVN_CLONE_REPO}${RESET}" && git remote add ${SVN_CLONE_REPO} ${SVN_CLONE_DIR} || error
+    echo -e "** fetch ${SRC}${SVN_CLONE_REPO}${RESET}" && git fetch ${SVN_CLONE_REPO} || error
+    for branch in $BRANCHES_TO_TRACK; do
+        echo -e "** checkout ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${branch}_svn${RESET} to ${SBC}${branch}${RESET}" && git checkout ${SVN_CLONE_REPO}/${branch}_svn -b ${branch}  || error
+    done
+}
+
+function fetch_svn(){
+    echo -e "** cd ${SRC}${SVN_CLONE_DIR}${RESET}" && cd ${SVN_CLONE_DIR} || error
+    echo -e "** fetch from ${URL_COLOR}${SVN_URL}${RESET}" && git svn fetch || error
+    BRANCHES=$(git branch | sed -e s/*//)
+    for branch in $BRANCHES; do
+        echo -e "** rebase ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${branch}${RESET}" && git checkout $branch && git svn rebase || error
+    done
+}
+
+function pull_from_clone() {
+    echo -e "** cd ${SRC}${LOCAL_DIR}${RESET}" && cd ${LOCAL_DIR} || error
+    echo -e "** fetch ${SRC}${SVN_CLONE_REPO}${RESET}" && git fetch ${SVN_CLONE_REPO} || error
+    echo -e "** merge ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET} within ${LRC}${LOCAL_REPO}${RESET}/${LBC}${LOCAL_B}${RESET}" && git merge ${SVN_CLONE_REPO}/${SVN_CLONE_B} || error
+}
+
+function push_to_clone() {
+    echo -e "** cd ${SRC}${SVN_CLONE_DIR}${RESET}" && cd ${SVN_CLONE_DIR} || error
+    echo -e "** checkout ${SBC}${SVN_CLONE_B}${RESET}" && git checkout ${SVN_CLONE_B} || error
+    echo -e "** fetch ${LRC}${LOCAL_REPO}${RESET}" && git fetch ${LOCAL_REPO} || error
+    echo -e "** merge ${LRC}${LOCAL_REPO}${RESET}/${LBC}${LOCAL_B}${RESET} within ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET}" && git merge ${LOCAL_REPO}/${LOCAL_B} || error
+}
+
+function dcommit() {
+    echo -e "** cd ${SRC}${SVN_CLONE_DIR}${RESET}" && cd ${SVN_CLONE_DIR} || error
+    echo -e "** checkout ${SBC}${SVN_CLONE_B}${RESET}" && git checkout ${SVN_CLONE_B} || error
+    echo -e "** push ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET} to ${URL_COLOR}${SVN_URL}${RESET}" && git svn dcommit
+}
+
+if [ ! -d ${SVN_CLONE_DIR} ]; then
+    ask_ok "clone svn repository ${URL_COLOR}${SVN_URL}${RESET} to ${SRC}${SVN_CLONE_DIR}${RESET} " && create_svn_clone
+fi
+if [ ! -d ${LOCAL_DIR} ]; then
+    ask_ok "create local repository within ${LRC}${LOCAL_DIR}${RESET} " && create_local_repo
+fi
+
+cd ${LOCAL_DIR}
+LOCAL_B=$(git branch |grep '*' | gawk '{print $2;}') || error
+echo -e "** ${LRC}${LOCAL_REPO}${RESET} current branch is ${LBC}${LOCAL_B}${RESET}"
+cd ${SVN_CLONE_DIR}
+SVN_CLONE_B=${LOCAL_B}_svn
+NONE=$(git branch |grep "${LOCAL_B}_svn" 2>/dev/null ) || error
+echo -e "** ${LRC}${SVN_CLONE_REPO}${RESET} corresponding branch is ${LBC}${SVN_CLONE_B}${RESET}"
+cd ${LOCAL_DIR}
+
+while [ 1 ]; do
+    echo -e "\nOptions :"
+    echo -e " # 1) ${RED}fetch svn${RESET} and update branches within ${SRC}${SVN_CLONE_DIR}${RESET}"
+    echo -e " # 2) ${RED}pull${RESET} ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET} within ${LRC}${LOCAL_REPO}${RESET}/${LBC}${LOCAL_B}${RESET}"
+    echo -e " # 3) ${RED}push${RESET} ${LRC}${LOCAL_REPO}${RESET}/${LBC}${LOCAL_B}${RESET} within ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET}"
+    echo -e " # 4) ${RED}push${RESET} ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET} to ${URL_COLOR}${SVN_URL}${RESET}"
+    echo -e " # q) ${RED}QUIT${RESET}"
+    echo -n -e "\nyour choice : "
+    read CHOICE
+    echo ""
+    case $CHOICE in
+        q)
+            exit 0
+            ;;
+        1)
+            fetch_svn
+            ;;
+        2)
+            pull_from_clone
+            ;;
+        3)
+            push_to_clone
+            ;;
+        4)
+            dcommit
+            ;;
+    esac
+done
