@@ -27,6 +27,7 @@
 #include <QtCore/QString>
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
+#include <hydrogen/xml_helper.h>
 #include <cassert>
 
 namespace H2Core
@@ -46,6 +47,7 @@ class InstrumentLayer : public Object
 public:
 	InstrumentLayer( Sample *sample );
     InstrumentLayer( InstrumentLayer *other );
+    static InstrumentLayer* load_from( XMLNode *node );
 	~InstrumentLayer();
 
 	void set_start_velocity( float vel ) {
@@ -109,6 +111,8 @@ public:
 	);
 
     Instrument( Instrument *other );
+
+    static Instrument* load_from( XMLNode *node );
 	
 	/// create a new object without anything in it.
 	static Instrument * create_empty();
@@ -368,6 +372,8 @@ public:
 	void del( int pos );
 
 	void replace( Instrument* pNewInstr, unsigned nPos );
+
+    static InstrumentList* load_from( XMLNode *node );
 
 private:
 	std::vector<Instrument*> m_list;

@@ -119,6 +119,58 @@ Instrument::~Instrument()
 	__adsr = NULL;
 }
 
+Instrument* Instrument::load_from( XMLNode *node ) {
+    QString id = node->read_string( "id", "" );
+    if ( id.isEmpty() ) return 0;
+    Instrument *instrument = new Instrument( id, node->read_string( "name", "" ), 0 );
+    instrument->set_volume( node->read_float( "volume", 1.0f ) );
+    instrument->set_muted( node->read_bool( "isMuted", false ) );
+    instrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
+    instrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
+    // may not exist, but can't be empty
+    instrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
+    instrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
+    instrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
+    instrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
+    float fAttack = node->read_float( "Attack", 0, true, false );
+    float fDecay = node->read_float( "Decay", 0, true, false  );
+    float fSustain = node->read_float( "Sustain", 1.0, true, false );
+    float fRelease = node->read_float( "Release", 1000, true, false );
+    instrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
+    instrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
+    instrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
+    instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
+    instrument->set_midi_out_note( node->read_int( "midiOutNote", 60, true, false ) );
+    instrument->set_stop_note( node->read_bool( "isStopNote", true ,false ) );
+
+    QDomNode filename_node = node->firstChildElement( "filename" );
+    if ( !filename_node.isNull() ) {
+        // back compatibility code
+        // TODO should be automaticaly rewritten
+        DEBUGLOG( "Using back compatibility code. filename node found" );
+        QString sFilename = node->read_string( "filename", "");
+        if( sFilename.isEmpty() ) {
+            ERRORLOG( "filename back compability node is empty" );
+        } else {
+            Sample *sample = new Sample( 0, sFilename, 0 );
+            InstrumentLayer *layer = new InstrumentLayer( sample );
+            instrument->set_layer( layer, 0 );
+        }
+    } else {
+        int n = 0;
+        XMLNode layer_node = node->firstChildElement( "layer" );
+        while ( !layer_node.isNull() ) {
+            if ( n >= MAX_LAYERS ) {
+                ERRORLOG( QString("n >= MAX_LAYERS (%1)").arg(MAX_LAYERS) );
+                break;
+            }
+            instrument->set_layer( InstrumentLayer::load_from( &layer_node ), n );
+            n++;
+            layer_node = layer_node.nextSiblingElement( "layer" );
+        }
+    }
+    return instrument;
+}
 
 
 void Instrument::set_layer( InstrumentLayer* pLayer, unsigned nLayer )
@@ -283,7 +335,27 @@ InstrumentList::~InstrumentList()
 	}
 }
 
-
+InstrumentList* InstrumentList::load_from( XMLNode *node ) {
+    XMLNode instrument_node = node->firstChildElement( "instrument" );
+    InstrumentList *instruments = new InstrumentList();
+    int count = 0;
+    while ( !instrument_node.isNull() ) {
+        count++;
+        if ( count > MAX_INSTRUMENTS ) {
+            ERRORLOG( QString("instrument count >= %2, stop reading instruments").arg(MAX_INSTRUMENTS) );
+            break;
+        }
+        Instrument* instrument = Instrument::load_from( &instrument_node );
+        if(instrument) {
+            instruments->add( instrument );
+        } else {
+            ERRORLOG( QString("Empty ID for instrument %1. The drumkit is corrupted. Skipping instrument").arg(count) );
+            count--;
+        }
+        instrument_node = instrument_node.nextSiblingElement( "instrument" );
+    }
+    return instruments;
+}
 
 void InstrumentList::add( Instrument* newInstrument )
 {
@@ -366,6 +438,16 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer *other )
 		, __gain( other->get_gain() )
 		, __sample( new Sample( 0, other->get_sample()->get_filename(), 0 ) )       // is not a real sample, it contains only the filename information
 {
+}
+
+InstrumentLayer* InstrumentLayer::load_from( XMLNode *node ) {
+    Sample* sample = new Sample( 0, node->read_string( "filename", "" ), 0 );
+    InstrumentLayer* layer = new InstrumentLayer( sample );
+    layer->set_start_velocity( node->read_float( "min", 0.0 ) );
+    layer->set_end_velocity( node->read_float( "max", 1.0 ) );
+    layer->set_gain( node->read_float( "gain", 1.0, true, false ) );
+    layer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
+    return layer;
 }
 
 InstrumentLayer::~InstrumentLayer()

@@ -54,103 +54,46 @@ Drumkit::Drumkit() : Object( __class_name ), __instruments( 0 ) { }
 
 Drumkit::~Drumkit() { if(__instruments) delete __instruments; }
 
-Drumkit* Drumkit::load( const QString& path ) {
-    INFOLOG( QString("Load drumkit %1").arg(path) );
-    if( !Filesystem::drumkit_valid( path ) ) {
-        ERRORLOG( QString("%1 is not valid drumkit").arg(path) );
+Drumkit* Drumkit::load( const QString& dk_path ) {
+    INFOLOG( QString("Load drumkit %1").arg(dk_path) );
+    if( !Filesystem::drumkit_valid( dk_path ) ) {
+        ERRORLOG( QString("%1 is not valid drumkit").arg(dk_path) );
         return 0;
     }
     XMLDoc doc;
-    if( !doc.read( Filesystem::drumkit_file(path) ) ) return 0;
+    if( !doc.read( Filesystem::drumkit_file(dk_path) ) ) return 0;
     // TODO XML VALIDATION !!!!!!!!!!
     XMLNode root = doc.firstChildElement( "drumkit_info" );
     if ( root.isNull() ) {
         ERRORLOG( "drumkit_info node not found" );
         return 0;
     }
-    QString drumkit_name = root.read_string( "name", "", false, false );
+    Drumkit* drumkit = Drumkit::load_from( &root );
+    drumkit->setPath( dk_path );
+    return drumkit;
+}
+
+Drumkit* Drumkit::load_from( XMLNode* node ) {
+    QString drumkit_name = node->read_string( "name", "", false, false );
     if ( drumkit_name.isEmpty() ) {
-        ERRORLOG( QString("Drumkit: %1 has no name, abort ").arg(path));
+        ERRORLOG( "Drumkit has no name, abort" );
         return 0;
     }
     Drumkit *drumkit = new Drumkit();
-    drumkit->setPath( path );
     drumkit->setName( drumkit_name );
-    drumkit->setAuthor( root.read_string( "author", "undefined author" ) );
-    drumkit->setInfo( root.read_string( "info", "defaultInfo" ) );
-    drumkit->setLicense( root.read_string( "license", "undefined license" ) );
-    InstrumentList *instruments = new InstrumentList();
-    XMLNode instruments_node = root.firstChildElement( "instrumentList" );
+    drumkit->setAuthor( node->read_string( "author", "undefined author" ) );
+    drumkit->setInfo( node->read_string( "info", "defaultInfo" ) );
+    drumkit->setLicense( node->read_string( "license", "undefined license" ) );
+    XMLNode instruments_node = node->firstChildElement( "instrumentList" );
     if ( instruments_node.isNull() ) {
         WARNINGLOG( "instrumentList node not found" );
+        drumkit->setInstrumentList( new InstrumentList() );
     } else {
-        int count = 0;
-        XMLNode node = instruments_node.firstChildElement( "instrument" );
-        while ( !node.isNull() ) {
-            count++;
-            if ( count > MAX_INSTRUMENTS ) {
-                ERRORLOG( QString("Drumkit: %1 instrument count >= %2").arg(drumkit->getName()).arg(MAX_INSTRUMENTS) );
-                break;
-            }
-            QString id = node.read_string( "id", "" );
-            if ( id.isEmpty() ) {
-                ERRORLOG( QString("Empty ID for instrument. The drumkit %1 is corrupted. Skipping instrument %2").arg(drumkit_name).arg(count) );
-                node = node.nextSiblingElement( "instrument" );
-                continue;
-            }
-            Instrument *instrument = new Instrument( id, node.read_string( "name", "" ), 0 );
-            instrument->set_drumkit_name( drumkit_name );   // TODO should not be needed !!!
-            instrument->set_volume( node.read_float( "volume", 1.0f ) );
-            instrument->set_muted( node.read_bool( "isMuted", false ) );
-            instrument->set_pan_l( node.read_float( "pan_L", 1.0f ) );
-            instrument->set_pan_r( node.read_float( "pan_R", 1.0f ) );
-            // may not exist, but can't be empty
-            instrument->set_filter_active( node.read_bool( "filterActive", true, false ) );
-            instrument->set_filter_cutoff( node.read_float( "filterCutoff", 1.0f, true, false ) );
-            instrument->set_filter_resonance( node.read_float( "filterResonance", 0.0f, true, false ) );
-            instrument->set_random_pitch_factor( node.read_float( "randomPitchFactor", 0.0f, true, false ) );
-            float fAttack = node.read_float( "Attack", 0, true, false );
-            float fDecay = node.read_float( "Decay", 0, true, false  );
-            float fSustain = node.read_float( "Sustain", 1.0, true, false );
-            float fRelease = node.read_float( "Release", 1000, true, false );
-            instrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
-            instrument->set_gain( node.read_float( "gain", 1.0f, true, false ) );
-            instrument->set_mute_group( node.read_int( "muteGroup", -1, true, false ) );
-            instrument->set_midi_out_channel( node.read_int( "midiOutChannel", -1, true, false ) );
-            instrument->set_midi_out_note( node.read_int( "midiOutNote", 60, true, false ) );
-            instrument->set_stop_note( node.read_bool( "isStopNote", true ,false ) );
-            QDomNode filenameNode = node.firstChildElement( "filename" );
-            if ( !filenameNode.isNull() ) {
-                // back compatibility code
-                WARNINGLOG( "Using back compatibility code. filename node found" );
-                QString sFilename = node.read_string( "filename", "" );
-                Sample *sample = new Sample( 0, sFilename, 0 );
-                InstrumentLayer *layer = new InstrumentLayer( sample );
-                instrument->set_layer( layer, 0 );
-            } else {
-                int n = 0;
-                XMLNode layerNode = node.firstChildElement( "layer" );
-                while ( !layerNode.isNull() ) {
-                    if ( n >= MAX_LAYERS ) {
-                        ERRORLOG( QString("n >= MAX_LAYERS (%1)").arg(MAX_LAYERS) );
-                        break;
-                    }
-                    Sample* sample = new Sample( 0, layerNode.read_string( "filename", "" ), 0 );
-                    InstrumentLayer* layer = new InstrumentLayer( sample );
-                    layer->set_start_velocity( layerNode.read_float( "min", 0.0 ) );
-                    layer->set_end_velocity( layerNode.read_float( "max", 1.0 ) );
-                    layer->set_gain( layerNode.read_float( "gain", 1.0, true, false ) );
-                    layer->set_pitch( layerNode.read_float( "pitch", 0.0, true, false ) );
-                    instrument->set_layer( layer, n );
-                    n++;
-                    layerNode = layerNode.nextSiblingElement( "layer" );
-                }
-            }
-            instruments->add( instrument );
-            node = node.nextSiblingElement( "instrument" );
-        }
+        InstrumentList *instruments = InstrumentList::load_from( &instruments_node );
+        // TODO should disepear
+        for(int i=0; i<instruments->get_size(); i++) instruments->get(i)->set_drumkit_name( drumkit_name );
+        drumkit->setInstrumentList( instruments );
     }
-    drumkit->setInstrumentList( instruments );
     drumkit->dump();
     return drumkit;
 }
