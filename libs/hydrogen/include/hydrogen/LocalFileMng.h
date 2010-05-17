@@ -90,7 +90,6 @@ public:
 	static QDomDocument openXmlDocument( const QString& filename );
 
 private:
-	void fileCopy( const QString& sOrigFilename, const QString& sDestFilename );
 	std::vector<QString> m_allPatternList;
 };
 
