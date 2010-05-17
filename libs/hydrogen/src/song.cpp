@@ -27,7 +27,6 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
 
 #include <hydrogen/fx/Effects.h>
@@ -548,7 +547,7 @@ Song* SongReader::readSong( const QString& filename )
 			QString drumkitPath;
 			if ( ( !sDrumkit.isEmpty() ) && ( sDrumkit != "-" ) ) {
 //				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit + "/";
-				drumkitPath = Filesystem::drumkit_path( sDrumkit );
+				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit;
 			}
 			
 			

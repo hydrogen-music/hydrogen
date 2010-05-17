@@ -42,9 +42,10 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/adsr.h>
+#include <hydrogen/SoundLibrary.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/instrument.h>
@@ -2581,7 +2582,8 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 	INFOLOG( drumkitInfo->getName() );
 	m_currentDrumkit = drumkitInfo->getName();
-	QString sDrumkitPath = Filesystem::drumkit_path( drumkitInfo->getName() );
+	LocalFileMng fileMng;
+	QString sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
 
 
 	//current instrument list

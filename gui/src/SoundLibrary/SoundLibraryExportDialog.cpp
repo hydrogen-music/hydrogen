@@ -21,15 +21,18 @@
  */
 
 #include "SoundLibraryExportDialog.h"
+#include <hydrogen/LocalFileMng.h>
+#include <hydrogen/SoundLibrary.h>
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
 
 #include <hydrogen/adsr.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/instrument.h>
+#include <hydrogen/h2_exception.h>
+#include <hydrogen/SoundLibrary.h>
+#include <hydrogen/data_path.h>
 
 #include <memory>
 #include <QtGui>
@@ -67,10 +70,7 @@ SoundLibraryExportDialog::~SoundLibraryExportDialog()
 
 void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
-    QMessageBox::warning( this, "Hydrogen", QString( "Not implemented yet.") );
-    ERRORLOG( " not implemented yet" );
-	/*
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	QString drumkitName = drumkitList->currentText();
 
@@ -85,7 +85,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
-    */
 }
 
 void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
@@ -134,9 +133,11 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 	drumkitInfoList.clear();
 
-    QStringList drumkits = Filesystem::usr_drumkits_list() + Filesystem::sys_drumkits_list();
-    for (int i = 0; i < drumkits.size(); ++i) {
-        QString absPath = drumkits.at(i);
+	//LocalFileMng mng;
+	std::vector<QString> userList = Drumkit::getUserDrumkitList();
+	for (uint i = 0; i < userList.size(); i++) {
+		QString absPath =  userList[i];
+
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -144,6 +145,18 @@ void SoundLibraryExportDialog::updateDrumkitList()
 		}
 	}
 
+
+	std::vector<QString> systemList = Drumkit::getSystemDrumkitList();
+	for (uint i = 0; i < systemList.size(); i++) {
+		QString absPath = systemList[i];
+		Drumkit *info = Drumkit::load( absPath );
+		if (info) {
+			drumkitInfoList.push_back( info );
+			drumkitList->addItem( info->getName() );
+		}
+	}
+
+	
 	/// \todo sort in exportTab_drumkitList
 //	drumkitList->sort();
 

@@ -22,8 +22,7 @@
 
 #include "SoundLibrarySaveDialog.h"
 
-#include <hydrogen/drumkit.h>
-#include <hydrogen/hydrogen.h>
+#include <hydrogen/SoundLibrary.h>
 
 #include <QMessageBox>
 
@@ -59,10 +58,12 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 			return;
 	}
 
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list() ) ) {
-        QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
-        return;
-    }
+	H2Core::Drumkit::save(
+			nameTxt->text(),
+			authorTxt->text(),
+			infoTxt->toHtml(),
+			licenseTxt->text()
+	);
 	accept();
 }
 

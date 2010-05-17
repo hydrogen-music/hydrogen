@@ -26,7 +26,7 @@
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
-#include <hydrogen/drumkit.h>
+#include <hydrogen/SoundLibrary.h>
 #include <hydrogen/hydrogen.h>
 
 namespace H2Core
@@ -108,9 +108,12 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	//save the drumkit	
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list() ) ) {
-        QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
-    }
+	H2Core::Drumkit::save(
+			nameTxt->text(),
+			authorTxt->text(),
+			infoTxt->toHtml(),
+			licenseTxt->text()
+	);
 	
 	//check the name and set the drumkitinfo to current drumkit
 	if ( drumkitinfo != NULL && !nameTxt->text().isEmpty() ){

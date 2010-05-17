@@ -27,7 +27,6 @@
 #include <QtCore/QString>
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
-#include <hydrogen/helpers/xml.h>
 #include <cassert>
 
 namespace H2Core
@@ -46,9 +45,6 @@ class InstrumentLayer : public Object
     H2_OBJECT
 public:
 	InstrumentLayer( Sample *sample );
-    InstrumentLayer( InstrumentLayer *other );
-    static InstrumentLayer* load_from( XMLNode *node );
-    void save_to( XMLNode* node );
 	~InstrumentLayer();
 
 	void set_start_velocity( float vel ) {
@@ -110,11 +106,6 @@ public:
 	    const QString& name,
 	    ADSR* adsr
 	);
-
-    Instrument( Instrument *other );
-
-    static Instrument* load_from( XMLNode *node );
-    void save_to( XMLNode* node );
 	
 	/// create a new object without anything in it.
 	static Instrument * create_empty();
@@ -327,7 +318,6 @@ private:
 	float __fx_level[MAX_FX];	///< Ladspa FX level
 	float __random_pitch_factor;
 	QString __id;			///< ID of the instrument
-    // TODO should be removed !!!!!!
 	QString __drumkit_name;		///< Drumkit name
 	bool __filter_active;		///< Is filter active?
 	int __mute_group;		///< Mute group
@@ -364,7 +354,6 @@ class InstrumentList : public Object
     H2_OBJECT
 public:
 	InstrumentList();
-    InstrumentList( InstrumentList *other);
 	~InstrumentList();
 
 	void add( Instrument* pInstrument );
@@ -375,9 +364,6 @@ public:
 	void del( int pos );
 
 	void replace( Instrument* pNewInstr, unsigned nPos );
-
-    static InstrumentList* load_from( XMLNode *node );
-    void save_to( XMLNode* node );
 
 private:
 	std::vector<Instrument*> m_list;

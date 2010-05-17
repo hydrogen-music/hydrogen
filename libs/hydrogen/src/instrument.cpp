@@ -21,12 +21,11 @@
  */
 
 #include <hydrogen/instrument.h>
-
 #include <hydrogen/adsr.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/drumkit.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/LocalFileMng.h>
+#include <hydrogen/SoundLibrary.h>
 #include <hydrogen/audio_engine.h>
 
 #include <cassert>
@@ -71,43 +70,6 @@ Instrument::Instrument( const QString& id, const QString& name, ADSR* adsr )
 }
 
 
-Instrument::Instrument( Instrument *other ) : Object( __class_name )
-		, __queued( 0 )
-		, __adsr( new ADSR( *( other->get_adsr() ) ) )
-		, __muted( other->is_muted() )
-		, __name( other->get_name() )
-		, __pan_l( other->get_pan_l() )
-		, __pan_r( other->get_pan_r() )
-		, __gain( other->__gain )
-		, __volume( other->get_volume() )
-		, __filter_resonance( other->get_filter_resonance() )
-		, __filter_cutoff( other->get_filter_cutoff() )
-		, __peak_l( 0.0 )
-		, __peak_r( 0.0 )
-		, __random_pitch_factor( other->get_random_pitch_factor() )
-		, __id( other->get_id() )
-		, __drumkit_name( "" )
-		, __filter_active( other->is_filter_active() )
-		, __mute_group( other->get_mute_group() )
-		, __active( true )
-		, __soloed( false )
-		, __midi_out_channel( -1 )
-		, __midi_out_note( 60 )
-		, __stop_notes( false )
-{
-	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		__fx_level[ nFX ] = 0.0;
-	}
-
-	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-		InstrumentLayer *other_layer = other->get_layer( nLayer );
-		if ( other_layer ) {
-		    __layer_list[ nLayer ] = new InstrumentLayer( other_layer );
-        } else {
-		    __layer_list[ nLayer ] = NULL;
-        }
-	}
-}
 
 Instrument::~Instrument()
 {
@@ -119,88 +81,7 @@ Instrument::~Instrument()
 	__adsr = NULL;
 }
 
-Instrument* Instrument::load_from( XMLNode *node ) {
-    QString id = node->read_string( "id", "" );
-    if ( id.isEmpty() ) return 0;
-    Instrument *instrument = new Instrument( id, node->read_string( "name", "" ), 0 );
-    instrument->set_volume( node->read_float( "volume", 1.0f ) );
-    instrument->set_muted( node->read_bool( "isMuted", false ) );
-    instrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
-    instrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
-    // may not exist, but can't be empty
-    instrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
-    instrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
-    instrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
-    instrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
-    float fAttack = node->read_float( "Attack", 0, true, false );
-    float fDecay = node->read_float( "Decay", 0, true, false  );
-    float fSustain = node->read_float( "Sustain", 1.0, true, false );
-    float fRelease = node->read_float( "Release", 1000, true, false );
-    instrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
-    instrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
-    instrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
-    instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
-    instrument->set_midi_out_note( node->read_int( "midiOutNote", 60, true, false ) );
-    instrument->set_stop_note( node->read_bool( "isStopNote", true ,false ) );
 
-    QDomNode filename_node = node->firstChildElement( "filename" );
-    if ( !filename_node.isNull() ) {
-        // back compatibility code
-        // TODO should be automaticaly rewritten
-        DEBUGLOG( "Using back compatibility code. filename node found" );
-        QString sFilename = node->read_string( "filename", "");
-        if( sFilename.isEmpty() ) {
-            ERRORLOG( "filename back compability node is empty" );
-        } else {
-            Sample *sample = new Sample( 0, sFilename, 0 );
-            InstrumentLayer *layer = new InstrumentLayer( sample );
-            instrument->set_layer( layer, 0 );
-        }
-    } else {
-        int n = 0;
-        XMLNode layer_node = node->firstChildElement( "layer" );
-        while ( !layer_node.isNull() ) {
-            if ( n >= MAX_LAYERS ) {
-                ERRORLOG( QString("n >= MAX_LAYERS (%1)").arg(MAX_LAYERS) );
-                break;
-            }
-            instrument->set_layer( InstrumentLayer::load_from( &layer_node ), n );
-            n++;
-            layer_node = layer_node.nextSiblingElement( "layer" );
-        }
-    }
-    return instrument;
-}
-
-void Instrument::save_to( XMLNode* node ) {
-    node->write_string( "id", __id );
-    node->write_string( "name", __name );
-    node->write_float( "volume", __volume );
-    node->write_bool( "isMuted", __muted );
-    node->write_float( "pan_L", __pan_l );
-    node->write_float( "pan_R", __pan_r );
-    node->write_float( "randomPitchFactor", __random_pitch_factor );
-    node->write_float( "gain", __gain );
-    node->write_bool( "filterActive", __filter_active );
-    node->write_float( "filterCutoff", __filter_cutoff );
-    node->write_float( "filterResonance", __filter_resonance );
-    node->write_float( "Attack", __adsr->__attack );
-    node->write_float( "Decay", __adsr->__decay );
-    node->write_float( "Sustain", __adsr->__sustain );
-    node->write_float( "Release", __adsr->__release );
-    node->write_int( "muteGroup", __mute_group );
-    node->write_bool( "isStopNote", __stop_notes );
-    node->write_int( "midiOutChannel", __midi_out_channel );
-    node->write_int( "midiOutNote", __midi_out_note );
-    for ( int n = 0; n < MAX_LAYERS; n++ ) {
-        XMLNode layer_node = XMLDoc().createElement( "layer" );
-        InstrumentLayer* layer = get_layer(n);
-        if(layer) {
-            layer->save_to( &layer_node );
-            node->appendChild( layer_node );
-        }
-    }
-}
 
 void Instrument::set_layer( InstrumentLayer* pLayer, unsigned nLayer )
 {
@@ -219,7 +100,8 @@ void Instrument::set_adsr( ADSR* adsr )
 
 void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 {
-	QString path = Filesystem::drumkit_path( placeholder->get_drumkit_name() )+ "/";
+	LocalFileMng mgr;
+	QString path = mgr.getDrumkitDirectory( placeholder->get_drumkit_name() ) + placeholder->get_drumkit_name() + "/";
 	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 		InstrumentLayer *pNewLayer = placeholder->get_layer( nLayer );
 		if ( pNewLayer != NULL ) {
@@ -231,7 +113,7 @@ void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 			InstrumentLayer *pOldLayer = this->get_layer( nLayer );
 
 			if ( pSample == NULL ) {
-				_ERRORLOG( QString("Error loading sample %1. Creating a new empty layer.").arg(path+pNewSample->get_filename() ) );
+				_ERRORLOG( "Error loading sample. Creating a new empty layer." );
 				if ( is_live )
 					AudioEngine::get_instance()->lock( RIGHT_HERE );
 				
@@ -316,10 +198,14 @@ void Instrument::load_from_name(
 {
 	Instrument * pInstr = NULL;
 	
+	LocalFileMng mgr;
+	QString sDrumkitPath = mgr.getDrumkitDirectory( drumkit_name );
+
 	// find the drumkit
-	 QString dir = Filesystem::drumkit_path( drumkit_name );
-	if ( dir.isEmpty() ) return;
-	Drumkit *pDrumkitInfo = Drumkit::load( dir );
+	QString dir = mgr.getDrumkitDirectory( drumkit_name ) + drumkit_name;
+	if ( QDir( dir ).exists() == false )
+		return;
+	Drumkit *pDrumkitInfo = mgr.loadDrumkit( dir );
 	assert( pDrumkitInfo );
 
 	// find the instrument
@@ -349,11 +235,6 @@ InstrumentList::InstrumentList()
 //	infoLog("INIT");
 }
 
-InstrumentList::InstrumentList( InstrumentList *other) : Object( __class_name ) {
-    for ( int i=0; i<other->get_size(); i++ ) {
-		add( new Instrument( other->get( i ) ) );
-	}
-}
 
 
 InstrumentList::~InstrumentList()
@@ -364,35 +245,7 @@ InstrumentList::~InstrumentList()
 	}
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode *node ) {
-    XMLNode instrument_node = node->firstChildElement( "instrument" );
-    InstrumentList *instruments = new InstrumentList();
-    int count = 0;
-    while ( !instrument_node.isNull() ) {
-        count++;
-        if ( count > MAX_INSTRUMENTS ) {
-            ERRORLOG( QString("instrument count >= %2, stop reading instruments").arg(MAX_INSTRUMENTS) );
-            break;
-        }
-        Instrument* instrument = Instrument::load_from( &instrument_node );
-        if(instrument) {
-            instruments->add( instrument );
-        } else {
-            ERRORLOG( QString("Empty ID for instrument %1. The drumkit is corrupted. Skipping instrument").arg(count) );
-            count--;
-        }
-        instrument_node = instrument_node.nextSiblingElement( "instrument" );
-    }
-    return instruments;
-}
 
-void InstrumentList::save_to( XMLNode* node ) {
-    for ( int i = 0; i < get_size(); i++ ) {
-        XMLNode instrument_node = XMLDoc().createElement( "instrument" );
-        get(i)->save_to( &instrument_node );
-        node->appendChild( instrument_node );
-    }
-}
 
 void InstrumentList::add( Instrument* newInstrument )
 {
@@ -467,40 +320,6 @@ InstrumentLayer::InstrumentLayer( Sample *sample )
 }
 
 
-InstrumentLayer::InstrumentLayer( InstrumentLayer *other )
-		: Object( __class_name )
-		, __start_velocity( other->get_start_velocity() )
-		, __end_velocity( other->get_end_velocity() )
-		, __pitch( other->get_pitch() )
-		, __gain( other->get_gain() )
-		, __sample( new Sample( 0, other->get_sample()->get_filename(), 0 ) )       // is not a real sample, it contains only the filename information
-{
-}
-
-InstrumentLayer* InstrumentLayer::load_from( XMLNode *node ) {
-    Sample* sample = new Sample( 0, node->read_string( "filename", "" ), 0 );
-    InstrumentLayer* layer = new InstrumentLayer( sample );
-    layer->set_start_velocity( node->read_float( "min", 0.0 ) );
-    layer->set_end_velocity( node->read_float( "max", 1.0 ) );
-    layer->set_gain( node->read_float( "gain", 1.0, true, false ) );
-    layer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
-    return layer;
-}
-
-void InstrumentLayer::save_to( XMLNode* node ) {
-    // TODO have to do this cause in Sample::load_wave, a new sample is created with an absolute path
-    QString path = get_sample()->get_filename();
-	int idx = path.lastIndexOf("/");
-    if(idx>=0) {
-        node->write_string( "filename", path.right( path.size()-1-path.lastIndexOf("/") ) );
-    } else {
-        node->write_string( "filename", path );
-    }
-    node->write_float( "min", __start_velocity );
-    node->write_float( "max", __end_velocity );
-    node->write_float( "gain", __gain );
-    node->write_float( "pitch", __pitch );
-}
 
 InstrumentLayer::~InstrumentLayer()
 {
