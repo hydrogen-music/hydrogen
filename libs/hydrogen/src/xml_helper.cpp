@@ -43,11 +43,11 @@ QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool 
     }
     QDomElement el = firstChildElement( node );
     if( el.isNull() ) {
-        if(!inexistent_ok) WARNINGLOG( QString("XML node %1->%2 should exists.").arg(nodeName()).arg(node) );
+        if(!inexistent_ok) DEBUGLOG( QString("XML node %1->%2 should exists.").arg(nodeName()).arg(node) );
         return 0;
     }
     if( el.text().isEmpty() ) {
-        if(!empty_ok) WARNINGLOG( QString("XML node %1->%2 should not be empty.").arg(nodeName()).arg(node) );
+        if(!empty_ok) DEBUGLOG( QString("XML node %1->%2 should not be empty.").arg(nodeName()).arg(node) );
         return 0;
     }
     return el.text();
@@ -56,7 +56,7 @@ QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool 
 QString XMLNode::read_string( const QString& node, const QString& default_value, bool inexistent_ok, bool empty_ok ) {
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
-        WARNINGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
+        DEBUGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
         return default_value;
     }
     return ret;
@@ -65,7 +65,7 @@ QString XMLNode::read_string( const QString& node, const QString& default_value,
 float XMLNode::read_float( const QString& node, float default_value, bool inexistent_ok, bool empty_ok ) {
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
-        WARNINGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
+        DEBUGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
         return default_value;
     }
     QLocale c_locale = QLocale::c();
@@ -75,7 +75,7 @@ float XMLNode::read_float( const QString& node, float default_value, bool inexis
 int XMLNode::read_int( const QString& node, int default_value, bool inexistent_ok, bool empty_ok ) {
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
-        WARNINGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
+        DEBUGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
         return default_value;
     }
     QLocale c_locale = QLocale::c();
@@ -85,7 +85,7 @@ int XMLNode::read_int( const QString& node, int default_value, bool inexistent_o
 bool XMLNode::read_bool( const QString& node, bool default_value, bool inexistent_ok, bool empty_ok ) {
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
-        WARNINGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
+        DEBUGLOG( QString("Using default value %1 for %2").arg(default_value).arg(node) );
         return default_value;
     }
     if(ret=="true") { return true; } else { return false; }
@@ -122,7 +122,7 @@ bool XMLDoc::read( const QString& filename ) {
 
 bool XMLDoc::write( const QString& filename ) {
     QFile file( filename );
-    if ( !file.open(QIODevice::WriteOnly | QIODevice::Text) ) {
+    if ( !file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) ) {
         ERRORLOG( QString("Unable to open %1 for writting").arg(filename) );
         return false;
     }
