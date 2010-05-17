@@ -102,9 +102,17 @@ bool Filesystem::init( Logger* logger ) {
 
 bool Filesystem::check_permissions( const QString& path, const int perms ) {
     QFileInfo fi( path );
-    if( !fi.exists() ) {
-        ___ERRORLOG( QString("%1 doesn't exists").arg(path) );
-        return false;
+    if( (perms&H2_IS_FILE) && (perms&H2_WRITABLE) && !fi.exists() ) {
+        QFileInfo folder( path.left( path.lastIndexOf("/") ) );
+        if( !folder.isDir() ) {
+            ___ERRORLOG( QString("%1 is not a directory").arg(folder.fileName()) );
+            return false;
+        }
+        if( !folder.isWritable() ) {
+            ___ERRORLOG( QString("%1 is not writable").arg(folder.fileName()) );
+            return false;
+        }
+        return true;
     }
     if( (perms&H2_IS_DIR) && !fi.isDir() ) {
         ___ERRORLOG( QString("%1 is not a directory").arg(path) );
@@ -133,6 +141,14 @@ bool Filesystem::file_readable( const QString& path )   { return check_permissio
 bool Filesystem::file_writable( const QString& path )   { return check_permissions(path, H2_IS_FILE|H2_WRITABLE); }
 bool Filesystem::dir_readable( const QString& path )    { return check_permissions(path, H2_IS_DIR|H2_READABLE|H2_EXECUTABLE); }
 bool Filesystem::dir_writable( const QString& path )    { return check_permissions(path, H2_IS_DIR|H2_WRITABLE); }
+
+bool Filesystem::mkdir( const QString& path ) {
+    if ( !QDir("/").mkpath( path ) ) {
+        ___ERRORLOG( QString("unable to create directory : %1").arg(path) );
+        return false;
+    }
+    return true;
+}
 
 bool Filesystem::path_usable( const QString& path ) {
     if( !QDir( path ).exists() ) {
@@ -194,7 +210,6 @@ bool Filesystem::rm_fr( const QString& path ) {
     }
     return ret;
 }
-
 
 bool Filesystem::check_sys_paths() {
 	if( !QFile(__sys_data_path).exists() ) {
@@ -262,6 +277,9 @@ bool Filesystem::drumkit_exists( const QString& dk_name ) {
      if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return true;
      return QDir( usr_drumkits_dir() ).exists( dk_name );
 }
+bool Filesystem::drumkit_valid( const QString& path ) { return file_readable( path + "/" + DRUMKIT_XML ); }
+QString Filesystem::drumkit_file( const QString& path ) { return path + "/" + DRUMKIT_XML; }
+
 QString Filesystem::drumkit_path( const QString& dk_name ) {
      if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
      if( QDir( usr_drumkits_dir() ).exists( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;

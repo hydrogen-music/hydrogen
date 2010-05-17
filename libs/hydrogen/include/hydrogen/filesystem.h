@@ -68,6 +68,8 @@ class Filesystem : public Object
         static bool sys_drumkit_exists( const QString& dk_name );
         static bool usr_drumkit_exists( const QString& dk_name );
         static bool drumkit_exists( const QString& dk_name );
+        static bool drumkit_valid( const QString& path );
+        static QString drumkit_file( const QString& path );
         
         /* PATTERNS */
         static QStringList patterns_list( );
@@ -86,6 +88,7 @@ class Filesystem : public Object
         static bool write_to_file( const QString& dst, const QString& content );
         static bool file_copy( const QString& src, const QString& dst );
         static bool rm_fr( const QString& path );
+        static bool mkdir( const QString& path );
 
     private:
         static Logger* __logger;
