@@ -25,8 +25,8 @@
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/sample.h>
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/filesystem.h>
+#include <hydrogen/xml_helper.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/adsr.h>
@@ -87,13 +87,182 @@ Drumkit::~Drumkit()
 
 
 
-Drumkit* Drumkit::load( const QString& sFilename )
-{
-	LocalFileMng mng;
-	return mng.loadDrumkit( sFilename );
-
+Drumkit* Drumkit::load( const QString& path ) {
+    INFOLOG( "[Drumkit::load]" );
+    if( !Filesystem::drumkit_valid( path ) ) {
+        ERRORLOG( QString("%1 is not valid drumkit").arg(path));
+        return 0;
+    }
+    XMLDoc doc;
+    if( !doc.read( Filesystem::drumkit_file(path) ) ) return 0;
+    // TODO XML VALIDATION !!!!!!!!!!
+    XMLNode root = doc.firstChildElement( "drumkit_info" );
+    if ( root.isNull() ) {
+        ERRORLOG( "drumkit_info node not found" );
+        return 0;
+    }
+    QString drumkit_name = root.read_string( "name", "", false, false );
+    if ( drumkit_name.isEmpty() ) {
+        ERRORLOG( QString("Drumkit: %1 has no name, abort ").arg(path));
+        return 0;
+    }
+    Drumkit *drumkitInfo = new Drumkit();
+    drumkitInfo->setName( drumkit_name );
+    drumkitInfo->setAuthor( root.read_string( "author", "undefined author" ) );
+    drumkitInfo->setInfo( root.read_string( "info", "defaultInfo" ) );
+    drumkitInfo->setLicense( root.read_string( "license", "undefined license" ) );
+    InstrumentList *instrumentList = new InstrumentList();
+    XMLNode instruments_node = root.firstChildElement( "instrumentList" );
+    if ( instruments_node.isNull() ) {
+        WARNINGLOG( "instrumentList node not found" );
+    } else {
+        int count = 0;
+        XMLNode node = instruments_node.firstChildElement( "instrument" );
+        while ( !node.isNull() ) {
+            count++;
+            if ( count > MAX_INSTRUMENTS ) {
+                ERRORLOG( QString("Drumkit: %1 instrument count >= %2").arg(drumkitInfo->getName()).arg(MAX_INSTRUMENTS) );
+                break;
+            }
+            QString id = node.read_string( "id", "" );
+            if ( id.isEmpty() ) {
+                ERRORLOG( QString("Empty ID for instrument. The drumkit %1 is corrupted. Skipping instrument %2").arg(drumkit_name).arg(count) );
+                node = node.nextSiblingElement( "instrument" );
+                continue;
+            }
+            Instrument *instrument = new Instrument( id, node.read_string( "name", "" ), 0 );
+            instrument->set_volume( node.read_float( "volume", 1.0f ) );
+            instrument->set_muted( node.read_bool( "isMuted", false ) );
+            instrument->set_pan_l( node.read_float( "pan_L", 1.0f ) );
+            instrument->set_pan_r( node.read_float( "pan_R", 1.0f ) );
+            // may not exist, but can't be empty
+            instrument->set_filter_active( node.read_bool( "filterActive", true, false ) );
+            instrument->set_filter_cutoff( node.read_float( "filterCutoff", 1.0f, true, false ) );
+            instrument->set_filter_resonance( node.read_float( "filterResonance", 0.0f, true, false ) );
+            instrument->set_random_pitch_factor( node.read_float( "randomPitchFactor", 0.0f, true, false ) );
+            float fAttack = node.read_float( "Attack", 0, true, false );
+            float fDecay = node.read_float( "Decay", 0, true, false  );
+            float fSustain = node.read_float( "Sustain", 1.0, true, false );
+            float fRelease = node.read_float( "Release", 1000, true, false );
+            instrument->set_adsr( new ADSR( fAttack, fDecay, fSustain, fRelease ) );
+            instrument->set_gain( node.read_float( "gain", 1.0f, true, false ) );
+            instrument->set_mute_group( node.read_int( "muteGroup", -1, true, false ) );
+            instrument->set_midi_out_channel( node.read_int( "midiOutChannel", -1, true, false ) );
+            instrument->set_midi_out_note( node.read_int( "midiOutNote", 60, true, false ) );
+            instrument->set_stop_note( node.read_bool( "isStopNote", true ,false ) );
+            QDomNode filenameNode = node.firstChildElement( "filename" );
+            if ( ! filenameNode.isNull() ) {
+                // back compatibility code
+                WARNINGLOG( "Using back compatibility code. filename node found" );
+                QString sFilename = node.read_string( "filename", "" );
+                Sample *pSample = new Sample( 0, sFilename, 0 );
+                InstrumentLayer *pLayer = new InstrumentLayer( pSample );
+                instrument->set_layer( pLayer, 0 );
+            } else {
+                int nLayer = 0;
+                XMLNode layerNode = node.firstChildElement( "layer" );
+                while ( !layerNode.isNull() ) {
+                    if ( nLayer >= MAX_LAYERS ) {
+                        ERRORLOG( "nLayer > MAX_LAYERS" );
+                        layerNode = layerNode.nextSiblingElement( "layer" );
+                        continue;
+                    }
+                    Sample* sample = new Sample( 0, layerNode.read_string( "filename", "" ), 0 );
+                    InstrumentLayer* layer = new InstrumentLayer( sample );
+                    layer->set_start_velocity( layerNode.read_float( "min", 0.0 ) );
+                    layer->set_end_velocity( layerNode.read_float( "max", 1.0 ) );
+                    layer->set_gain( layerNode.read_float( "gain", 1.0, true, false ) );
+                    layer->set_pitch( layerNode.read_float( "pitch", 0.0, true, false ) );
+                    instrument->set_layer( layer, nLayer );
+                    nLayer++;
+                    layerNode = layerNode.nextSiblingElement( "layer" );
+                }
+            }
+            instrumentList->add( instrument );
+            node = node.nextSiblingElement( "instrument" );
+        }
+    }
+    drumkitInfo->setInstrumentList( instrumentList );
+    return drumkitInfo;
 }
 
+bool Drumkit::save( ) {
+    INFOLOG( "[Drumkit::save]" );
+    QVector<QString> tempVector(MAX_LAYERS);
+    QString dk_dir = Filesystem::usr_drumkits_dir() + "/" + getName();
+    if( !Filesystem::mkdir( dk_dir) ) return false;
+    XMLDoc doc;
+    QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    doc.appendChild( header );
+    XMLNode root = doc.createElement( "drumkit_info" );
+    root.write_string( "name", getName() );
+    root.write_string( "author", getAuthor() );
+    root.write_string( "info", getInfo() );
+    root.write_string( "license", getLicense() );
+    XMLNode instruments_node = doc.createElement( "instrumentList" );
+    for ( int i = 0; i < getInstrumentList()->get_size(); i++ ) {
+        Instrument *instr = getInstrumentList()->get( i );
+        for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+            InstrumentLayer *layer = instr->get_layer( nLayer );
+            if ( layer ) {
+                Sample *pSample = layer->get_sample();
+                QString src = pSample->get_filename();
+                QString dst = src;
+                /*
+                 * Till rev. 743, the samples got copied into the
+                 * root of the drumkit folder.
+                 * Now the sample gets only copied to the folder
+                 * if it doesn't reside in a subfolder of the drumkit dir.
+                 * */
+                if( src.startsWith( dk_dir ) ){
+                    INFOLOG("sample is already in drumkit dir");
+                    tempVector[ nLayer ] = dst.remove( dk_dir + "/" );
+                } else {
+                    int nPos = dst.lastIndexOf( '/' );
+                    dst = dst.mid( nPos + 1, dst.size() - nPos - 1 );
+                    dst = dk_dir + "/" + dst;
+                    Filesystem::file_copy( src, dst );
+                    tempVector[ nLayer ] = dst.remove( dk_dir + "/" );
+                }
+            }
+        }
+        XMLNode instrument_node = doc.createElement( "instrument" );
+        instrument_node.write_string( "id", instr->get_id() );
+        instrument_node.write_string( "name", instr->get_name() );
+        instrument_node.write_float( "volume", instr->get_volume() );
+        instrument_node.write_bool( "isMuted", instr->is_muted() );
+        instrument_node.write_float( "pan_L", instr->get_pan_l() );
+        instrument_node.write_float( "pan_R", instr->get_pan_r() );
+        instrument_node.write_float( "randomPitchFactor", instr->get_random_pitch_factor() );
+        instrument_node.write_float( "gain", instr->get_gain() );
+        instrument_node.write_bool( "filterActive", instr->is_filter_active() );
+        instrument_node.write_float( "filterCutoff", instr->get_filter_cutoff() );
+        instrument_node.write_float( "filterResonance", instr->get_filter_resonance() );
+        instrument_node.write_float( "Attack", instr->get_adsr()->__attack );
+        instrument_node.write_float( "Decay", instr->get_adsr()->__decay );
+        instrument_node.write_float( "Sustain", instr->get_adsr()->__sustain );
+        instrument_node.write_float( "Release", instr->get_adsr()->__release );
+        instrument_node.write_int( "muteGroup", instr->get_mute_group() );
+        instrument_node.write_bool( "isStopNote", instr->is_stop_notes() );
+        instrument_node.write_int( "midiOutChannel", instr->get_midi_out_channel() );
+        instrument_node.write_int( "midiOutNote", instr->get_midi_out_note() );
+        for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+            InstrumentLayer *layer = instr->get_layer( nLayer );
+            if ( layer == NULL ) continue;
+            XMLNode layer_node = doc.createElement( "layer" );
+            layer_node.write_string( "filename", tempVector[ nLayer ] );
+            layer_node.write_float( "min", layer->get_start_velocity() );
+            layer_node.write_float( "max", layer->get_end_velocity() );
+            layer_node.write_float( "gain", layer->get_gain() );
+            layer_node.write_float( "pitch", layer->get_pitch() );
+            instrument_node.appendChild( layer_node );
+        }
+        instruments_node.appendChild( instrument_node );
+    }
+    root.appendChild( instruments_node );
+    doc.appendChild( root );
+    return doc.write( Filesystem::drumkit_file(dk_dir) );
+}
 
 
 void Drumkit::dump()
@@ -249,26 +418,20 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 		pNewInstr->set_muted( pOldInstr->is_muted() );
 		pNewInstr->set_random_pitch_factor( pOldInstr->get_random_pitch_factor() );
 		pNewInstr->set_mute_group( pOldInstr->get_mute_group() );
-
 		pNewInstr->set_filter_active( pOldInstr->is_filter_active() );
 		pNewInstr->set_filter_cutoff( pOldInstr->get_filter_cutoff() );
 		pNewInstr->set_filter_resonance( pOldInstr->get_filter_resonance() );
-
-
 		QString sInstrDrumkit = pOldInstr->get_drumkit_name();
-
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pOldLayer = pOldInstr->get_layer( nLayer );
 			if ( pOldLayer ) {
 				Sample *pSample = pOldLayer->get_sample();
-
 				Sample *pNewSample = new Sample( 0, pSample->get_filename(), 0 );	// is not a real sample, it contains only the filename information
 				InstrumentLayer *pLayer = new InstrumentLayer( pNewSample );
 				pLayer->set_gain( pOldLayer->get_gain() );
 				pLayer->set_pitch( pOldLayer->get_pitch() );
 				pLayer->set_start_velocity( pOldLayer->get_start_velocity() );
 				pLayer->set_end_velocity( pOldLayer->get_end_velocity() );
-
 				pNewInstr->set_layer( pLayer, nLayer );
 			} else {
 				pNewInstr->set_layer( NULL, nLayer );
@@ -276,17 +439,10 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 		}
 		pInstrumentList->add ( pNewInstr );
 	}
-
 	pDrumkitInfo->setInstrumentList( pInstrumentList );
-
-	LocalFileMng fileMng;
-	int err = fileMng.saveDrumkit( pDrumkitInfo );
-	if ( err != 0 ) {
-		_ERRORLOG( "Error saving the drumkit" );
+	if( !pDrumkitInfo->save() ) {
 		throw H2Exception( "Error saving the drumkit" );
 	}
-
-	// delete the drumkit info
 	delete pDrumkitInfo;
 	pDrumkitInfo = NULL;
 

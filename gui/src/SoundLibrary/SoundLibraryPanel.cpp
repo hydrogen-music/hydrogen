@@ -179,7 +179,7 @@ void SoundLibraryPanel::updateDrumkitList()
     QStringList usr_dks = Filesystem::usr_drumkits_list();
     for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks.at(i);
-		Drumkit *pInfo = mng.loadDrumkit( absPath );
+		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			__user_drumkit_info_list.push_back( pInfo );
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
@@ -202,7 +202,7 @@ void SoundLibraryPanel::updateDrumkitList()
     QStringList sys_dks = Filesystem::sys_drumkits_list();
     for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks.at(i);
-		Drumkit *pInfo = mng.loadDrumkit( absPath );
+		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			__system_drumkit_info_list.push_back( pInfo );
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
@@ -683,7 +683,6 @@ void SoundLibraryPanel::on_songLoadAction()
                 engine->sequencer_stop();
 	}
 
-	H2Core::LocalFileMng mng;
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == NULL ) {
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );

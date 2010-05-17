@@ -60,12 +60,13 @@ public:
 	~Drumkit();
 
 	/// Loads a single Drumkit
-	static Drumkit* load( const QString& sFilename );
+	static Drumkit* load( const QString& path );
 
 	/// Installs a drumkit
 	static void install( const QString& filename );
 
 	// Save a drumkit
+    bool save( );
 	static void save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense );
 
 

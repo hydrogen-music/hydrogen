@@ -70,9 +70,6 @@ public:
 	QString getCategoryFromPatternName( const QString& patternPathName );
 	QString getPatternNameFromPatternDir( const QString& patternDirName);
 
-	Drumkit* loadDrumkit( const QString& directory );
-	int saveDrumkit( Drumkit *pDrumkit );
-
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 

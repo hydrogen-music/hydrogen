@@ -24,7 +24,6 @@
 #include <hydrogen/adsr.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/filesystem.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/audio_engine.h>
@@ -101,7 +100,6 @@ void Instrument::set_adsr( ADSR* adsr )
 
 void Instrument::load_from_placeholder( Instrument* placeholder, bool is_live )
 {
-	LocalFileMng mgr;
 	QString path = Filesystem::drumkit_path( placeholder->get_drumkit_name() )+ "/";
 	for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 		InstrumentLayer *pNewLayer = placeholder->get_layer( nLayer );
@@ -199,12 +197,10 @@ void Instrument::load_from_name(
 {
 	Instrument * pInstr = NULL;
 	
-	LocalFileMng mgr;
-
 	// find the drumkit
 	 QString dir = Filesystem::drumkit_path( drumkit_name );
 	if ( dir.isEmpty() ) return;
-	Drumkit *pDrumkitInfo = mgr.loadDrumkit( dir );
+	Drumkit *pDrumkitInfo = Drumkit::load( dir );
 	assert( pDrumkitInfo );
 
 	// find the instrument
