@@ -1,0 +1,226 @@
+/*
+ * Copyright(c) 2009 by Zurcher Jérémy
+ *
+ * Hydrogen
+ * Copyright(c) 2002-2008 Jonathan Dempsey, Alessandro Cominu
+ *
+ * http://www.hydrogen-music.org
+ *
+ * Header to define the path to the data files for Hydrogen in such a
+ * way that self-contained Mac OS X application bundles can be built.
+ * Copyright (c) 2005 Jonathan Dempsey
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ 
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#include <hydrogen/config.h>
+#include <hydrogen/filesystem.h>
+
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+//#include <QApplication>
+
+#ifdef Q_OS_MACX
+#include <Carbon.h>
+#endif
+
+// directories
+#define IMG             "/img"
+#define I18N            "/i18n"
+#define SONGS           "/songs"
+#define PATTERNS        "/patterns"
+#define DRUMKITS        "/drumkits"
+#define PLAYLISTS       "/playlists"
+#define DEMOS           "/demo_songs"
+
+#define USER_CFG_DIR    "/.hydrogen"
+
+// files
+#define GUI_CONFIG      "/gui.conf"
+#define CORE_CONFIG     "/core.conf"
+#define CLICK_SAMPLE    "/click.wav"
+#define EMPTY_SAMPLE    "/empty_sample.wav"
+#define DEFAULT_SONG    "/empty_song.h2song"
+
+namespace H2Core
+{
+
+Logger* Filesystem::__logger = 0;
+const char* Filesystem::__class_name = "Filesystem";
+QString Filesystem::__sys_data_path;
+QString Filesystem::__usr_data_path;
+
+/* TODO qApp doesn't exists should be created within H2Core::Hydrogen::bootstrap( boll gui ); QApplication(argc,argv,gui); */
+/* TODO fix user path on start, .hydrogen/data is no more used !! */
+
+bool Filesystem::init( Logger* logger ) {
+    if(__logger==0 && logger!=0) {
+        __logger = logger;
+    }
+#ifdef Q_OS_MACX
+    #ifdef H2CORE_HAVE_BUNDLE
+    //Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
+	__sys_data_path = qApp->applicationDirPath().append( "/../Resources/data" ) ;
+    #else
+	__sys_data_path = qApp->applicationDirPath().append( "/data" ) ;
+    #endif
+	__usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen" );
+#elif WIN32
+	__sys_data_path = qApp->applicationDirPath().append( "/data" ) ;
+	__usr_data_path = qApp->applicationDirPath().append( "/hydrogen/data" ) ;
+#else
+	__sys_data_path = DATA_PATH;
+	__usr_data_path = QDir::homePath().append( USER_CFG_DIR );
+#endif
+    return check_sys_paths() && check_usr_paths();
+}
+
+bool Filesystem::file_readable( const QString& path ) {
+    QFile fp( path );
+    if( !fp.exists() ) {
+        ___ERRORLOG( QString("%1 doesn't exists").arg(path) );
+        return false;
+    }
+    if( !fp.permissions() &QFile::ReadUser ) {
+        ___ERRORLOG( QString("%1 is not readable").arg(path) );
+        return false;
+    }
+    return true;
+}
+
+bool Filesystem::file_writable( const QString& path ) {
+    if( !QFile( path ).permissions() &QFile::WriteUser ) {
+        ___ERRORLOG( QString("%1 is not readable").arg(path) );
+        return false;
+    }
+    return true;
+}
+
+bool Filesystem::dir_readable( const QString& path ) {
+    if( !QDir( path ).isReadable() ) {
+        ___ERRORLOG( QString("%1 is not readable").arg(path) );
+        return false;
+    }
+    return true;
+}
+
+bool Filesystem::path_usable( const QString& path ) {
+    if( !QDir( path ).exists() ) {
+        ___INFOLOG( QString("create user directory : %1").arg(path) );
+        if( !QDir("/").mkpath( path ) ) {
+            ___ERRORLOG( QString("unable to create user directory : %1").arg(path) );
+            return false;
+        }
+    }
+    return dir_readable( path );
+}
+
+bool Filesystem::write_to_file( const QString& path, const QString& content ) {
+	QFile file( path );
+	if ( !file.open( QIODevice::WriteOnly ) ) {
+        ___ERRORLOG( QString("unable to write to %1").arg(path) );
+		return false;
+    }
+    file.write( content.toUtf8().data() );
+	file.close();
+}
+
+bool Filesystem::check_sys_paths() {
+	if( !QFile(__sys_data_path).exists() ) {
+        // TODO maybe quit ??
+        ___ERRORLOG( QString("system wide data path : %1 doesn't exists, forced to %2").arg(__sys_data_path).arg(DATA_PATH) );
+        __sys_data_path = DATA_PATH;
+    }
+    if(  !dir_readable( __sys_data_path ) ) return false;
+    if(  !dir_readable( __sys_data_path + IMG ) ) return false;
+    if(  !dir_readable( __sys_data_path + I18N ) ) return false;
+    if(  !dir_readable( __sys_data_path + DEMOS ) ) return false;
+    if(  !dir_readable( __sys_data_path + DRUMKITS ) ) return false;
+    if( !file_readable( __sys_data_path + CLICK_SAMPLE ) ) return false;
+    if( !file_readable( __sys_data_path + EMPTY_SAMPLE ) ) return false;
+    if( !file_readable( __sys_data_path + GUI_CONFIG ) ) return false;
+    if( !file_readable( __sys_data_path + CORE_CONFIG ) ) return false;
+    if( !file_readable( __sys_data_path + DEFAULT_SONG ) ) return false;
+    ___INFOLOG( QString("system wide data path %1 is usable.").arg(__sys_data_path) );
+    return true;
+}
+
+
+bool Filesystem::check_usr_paths() {
+	if( !path_usable( __usr_data_path ) ) return false;
+	if( !path_usable( __usr_data_path+SONGS ) ) return false;
+	if( !path_usable( __usr_data_path+PATTERNS ) ) return false;
+	if( !path_usable( __usr_data_path+DRUMKITS ) ) return false;
+	if( !path_usable( __usr_data_path+PLAYLISTS ) ) return false;
+    ___INFOLOG( QString("user path %1 is usable.").arg(__usr_data_path) );
+    return true;
+}
+
+QString Filesystem::sys_data_path()             { return __sys_data_path; }
+QString Filesystem::usr_data_path()             { return __usr_data_path; }
+
+// FILES
+QString Filesystem::sys_core_config()           { return __sys_data_path + CORE_CONFIG; }
+QString Filesystem::usr_core_config()           { return __usr_data_path + CORE_CONFIG; }
+QString Filesystem::sys_gui_config()            { return __sys_data_path + GUI_CONFIG; }
+QString Filesystem::usr_gui_config()            { return __usr_data_path + GUI_CONFIG; }
+QString Filesystem::empty_sample()              { return __sys_data_path + EMPTY_SAMPLE; }
+QString Filesystem::empty_song()                { return __sys_data_path + DEFAULT_SONG; }
+QString Filesystem::click_file() {
+    QFile fp( __usr_data_path + CLICK_SAMPLE );
+    if( fp.exists() && (fp.permissions()&QFile::ReadUser) ) return fp.fileName();
+    return __sys_data_path + CLICK_SAMPLE;
+}
+
+// DIRS
+QString Filesystem::img_dir()                   { return __usr_data_path + SONGS; }
+QString Filesystem::i18n_dir()                  { return __usr_data_path + SONGS; }
+QString Filesystem::songs_dir()                 { return __usr_data_path + SONGS; }
+QString Filesystem::patterns_dir()              { return __usr_data_path + PATTERNS; }
+QString Filesystem::sys_drumkits_dir()          { return __sys_data_path + DRUMKITS; }
+QString Filesystem::usr_drumkits_dir()          { return __usr_data_path + DRUMKITS; }
+QString Filesystem::playlists_dir()             { return __usr_data_path + PLAYLISTS; }
+QString Filesystem::demos_dir()                 { return __sys_data_path + DEMOS; }
+
+// DRUMKITS
+QStringList Filesystem::sys_drumkits_list( )    { return QDir( sys_drumkits_dir() ).entryList( QDir::Files | QDir::NoSymLinks ); }
+QStringList Filesystem::usr_drumkits_list( )    { return QDir( usr_drumkits_dir() ).entryList( QDir::Files | QDir::NoSymLinks ); }
+bool Filesystem::drumkit_exists( const QString& filename ) {
+     if( QDir( sys_drumkits_dir() ).exists( filename ) ) return true;
+     return QDir( usr_drumkits_dir() ).exists( filename );
+}
+
+void Filesystem::show() {
+    ___INFOLOG( QString("System wide core cfg file  : %1").arg( sys_core_config() ) );
+    ___INFOLOG( QString("User core cfg file         : %1").arg( usr_core_config() ) );
+    ___INFOLOG( QString("System wide gui cfg file   : %1").arg( sys_gui_config() ) );
+    ___INFOLOG( QString("User gui cfg file          : %1").arg( usr_gui_config() ) );
+    ___INFOLOG( QString("Empty sample               : %1").arg( empty_sample() ) );
+    ___INFOLOG( QString("Empty song                 : %1").arg( empty_song() ) );
+    ___INFOLOG( QString("Click file                 : %1").arg( click_file() ) );
+    ___INFOLOG( QString("Images dir                 : %1").arg( img_dir() ) );
+    ___INFOLOG( QString("Internationalization dir   : %1").arg( i18n_dir() ) );
+    ___INFOLOG( QString("Songs dir                  : %1").arg( songs_dir() ) );
+    ___INFOLOG( QString("Patterns dir               : %1").arg( patterns_dir() ) );
+    ___INFOLOG( QString("Playlists dir              : %1").arg( playlists_dir() ) );
+    ___INFOLOG( QString("Demos dir                  : %1").arg( demos_dir() ) );
+    ___INFOLOG( QString("System drumkit dir         : %1").arg( sys_drumkits_dir() ) );
+    ___INFOLOG( QString("User drumkit dir           : %1").arg( usr_drumkits_dir() ) );
+}
+
+};
+
+/* vim: set softtabstop=4 expandtab: */
