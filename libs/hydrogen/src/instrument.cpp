@@ -172,6 +172,35 @@ Instrument* Instrument::load_from( XMLNode *node ) {
     return instrument;
 }
 
+void Instrument::save_to( XMLNode* node ) {
+    node->write_string( "id", __id );
+    node->write_string( "name", __name );
+    node->write_float( "volume", __volume );
+    node->write_bool( "isMuted", __muted );
+    node->write_float( "pan_L", __pan_l );
+    node->write_float( "pan_R", __pan_r );
+    node->write_float( "randomPitchFactor", __random_pitch_factor );
+    node->write_float( "gain", __gain );
+    node->write_bool( "filterActive", __filter_active );
+    node->write_float( "filterCutoff", __filter_cutoff );
+    node->write_float( "filterResonance", __filter_resonance );
+    node->write_float( "Attack", __adsr->__attack );
+    node->write_float( "Decay", __adsr->__decay );
+    node->write_float( "Sustain", __adsr->__sustain );
+    node->write_float( "Release", __adsr->__release );
+    node->write_int( "muteGroup", __mute_group );
+    node->write_bool( "isStopNote", __stop_notes );
+    node->write_int( "midiOutChannel", __midi_out_channel );
+    node->write_int( "midiOutNote", __midi_out_note );
+    for ( int n = 0; n < MAX_LAYERS; n++ ) {
+        XMLNode layer_node = XMLDoc().createElement( "layer" );
+        InstrumentLayer* layer = get_layer(n);
+        if(layer) {
+            layer->save_to( &layer_node );
+            node->appendChild( layer_node );
+        }
+    }
+}
 
 void Instrument::set_layer( InstrumentLayer* pLayer, unsigned nLayer )
 {
@@ -357,6 +386,14 @@ InstrumentList* InstrumentList::load_from( XMLNode *node ) {
     return instruments;
 }
 
+void InstrumentList::save_to( XMLNode* node ) {
+    for ( int i = 0; i < get_size(); i++ ) {
+        XMLNode instrument_node = XMLDoc().createElement( "instrument" );
+        get(i)->save_to( &instrument_node );
+        node->appendChild( instrument_node );
+    }
+}
+
 void InstrumentList::add( Instrument* newInstrument )
 {
 	m_list.push_back( newInstrument );
@@ -448,6 +485,21 @@ InstrumentLayer* InstrumentLayer::load_from( XMLNode *node ) {
     layer->set_gain( node->read_float( "gain", 1.0, true, false ) );
     layer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
     return layer;
+}
+
+void InstrumentLayer::save_to( XMLNode* node ) {
+    // TODO have to do this cause in Sample::load_wave, a new sample is created with an absolute path
+    QString path = get_sample()->get_filename();
+	int idx = path.lastIndexOf("/");
+    if(idx>=0) {
+        node->write_string( "filename", path.right( path.size()-1-path.lastIndexOf("/") ) );
+    } else {
+        node->write_string( "filename", path );
+    }
+    node->write_float( "min", __start_velocity );
+    node->write_float( "max", __end_velocity );
+    node->write_float( "gain", __gain );
+    node->write_float( "pitch", __pitch );
 }
 
 InstrumentLayer::~InstrumentLayer()

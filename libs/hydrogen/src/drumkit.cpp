@@ -90,7 +90,7 @@ Drumkit* Drumkit::load_from( XMLNode* node ) {
         drumkit->setInstrumentList( new InstrumentList() );
     } else {
         InstrumentList *instruments = InstrumentList::load_from( &instruments_node );
-        // TODO should disepear
+        // TODO next line should disapear
         for(int i=0; i<instruments->get_size(); i++) instruments->get(i)->set_drumkit_name( drumkit_name );
         drumkit->setInstrumentList( instruments );
     }
@@ -98,98 +98,71 @@ Drumkit* Drumkit::load_from( XMLNode* node ) {
     return drumkit;
 }
 
-bool Drumkit::save( ) {
-    QString dk_dir = Filesystem::usr_drumkits_dir() + "/" + getName();
-    INFOLOG( QString("save drumkit to %1").arg(dk_dir) );
-    if( !Filesystem::mkdir( dk_dir) ) return false;
-    XMLDoc doc;
-    QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
-    doc.appendChild( header );
-    XMLNode root = doc.createElement( "drumkit_info" );
-    root.write_string( "name", getName() );
-    root.write_string( "author", getAuthor() );
-    root.write_string( "info", getInfo() );
-    root.write_string( "license", getLicense() );
-    QVector<QString> tempVector(MAX_LAYERS);
-    XMLNode instruments_node = doc.createElement( "instrumentList" );
-    for ( int i = 0; i < getInstrumentList()->get_size(); i++ ) {
-        Instrument *instr = getInstrumentList()->get( i );
-        for ( int n = 0; n < MAX_LAYERS; n++ ) {
-            InstrumentLayer *layer = instr->get_layer( n );
-            if ( layer ) {
-                Sample *sample = layer->get_sample();
-                QString src = sample->get_filename();
-                QString dst = src;
-                /*
-                 * Till rev. 743, the samples got copied into the
-                 * root of the drumkit folder.
-                 * Now the sample gets only copied to the folder
-                 * if it doesn't reside in a subfolder of the drumkit dir.
-                 * */
-                if( src.startsWith( dk_dir ) ){
-                    INFOLOG("sample is already in drumkit dir");
-                    tempVector[ n ] = dst.remove( dk_dir + "/" );
-                } else {
-                    int p = dst.lastIndexOf( '/' );
-                    dst = dst.mid( p + 1, dst.size() - p - 1 );
-                    dst = dk_dir + "/" + dst;
-                    Filesystem::file_copy( src, dst );
-                    tempVector[ n ] = dst.remove( dk_dir + "/" );
-                }
-            }
-        }
-        XMLNode instrument_node = doc.createElement( "instrument" );
-        instrument_node.write_string( "id", instr->get_id() );
-        instrument_node.write_string( "name", instr->get_name() );
-        instrument_node.write_float( "volume", instr->get_volume() );
-        instrument_node.write_bool( "isMuted", instr->is_muted() );
-        instrument_node.write_float( "pan_L", instr->get_pan_l() );
-        instrument_node.write_float( "pan_R", instr->get_pan_r() );
-        instrument_node.write_float( "randomPitchFactor", instr->get_random_pitch_factor() );
-        instrument_node.write_float( "gain", instr->get_gain() );
-        instrument_node.write_bool( "filterActive", instr->is_filter_active() );
-        instrument_node.write_float( "filterCutoff", instr->get_filter_cutoff() );
-        instrument_node.write_float( "filterResonance", instr->get_filter_resonance() );
-        instrument_node.write_float( "Attack", instr->get_adsr()->__attack );
-        instrument_node.write_float( "Decay", instr->get_adsr()->__decay );
-        instrument_node.write_float( "Sustain", instr->get_adsr()->__sustain );
-        instrument_node.write_float( "Release", instr->get_adsr()->__release );
-        instrument_node.write_int( "muteGroup", instr->get_mute_group() );
-        instrument_node.write_bool( "isStopNote", instr->is_stop_notes() );
-        instrument_node.write_int( "midiOutChannel", instr->get_midi_out_channel() );
-        instrument_node.write_int( "midiOutNote", instr->get_midi_out_note() );
-        for ( unsigned n = 0; n < MAX_LAYERS; n++ ) {
-            InstrumentLayer *layer = instr->get_layer( n );
-            if ( layer == 0 ) continue;
-            XMLNode layer_node = doc.createElement( "layer" );
-            layer_node.write_string( "filename", tempVector[ n ] );
-            layer_node.write_float( "min", layer->get_start_velocity() );
-            layer_node.write_float( "max", layer->get_end_velocity() );
-            layer_node.write_float( "gain", layer->get_gain() );
-            layer_node.write_float( "pitch", layer->get_pitch() );
-            instrument_node.appendChild( layer_node );
-        }
-        instruments_node.appendChild( instrument_node );
-    }
-    root.appendChild( instruments_node );
-    doc.appendChild( root );
-    return doc.write( Filesystem::drumkit_file(dk_dir) );
-}
-
-bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license )
+bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments )
 {
-    _INFOLOG( "Saving drumkit" );
+    INFOLOG( "Saving drumkit" );
+    if( Filesystem::drumkit_exists( name ) ) {
+        ERRORLOG( QString("drumkit %1 already exists").arg(name) );
+        return false;
+    }
+    QString dk_path = Filesystem::usr_drumkits_dir() + "/" + name;
+    if( !Filesystem::mkdir( dk_path) ) {
+        ERRORLOG( QString("unable to create %1").arg(dk_path) );
+        return false;
+    }
     Drumkit *drumkit = new Drumkit();
+    drumkit->setPath( dk_path );
     drumkit->setName( name );
     drumkit->setAuthor( author );
     drumkit->setInfo( info );
     drumkit->setLicense( license );
-    // TODO this is not a real copy constructor, only the sample filename is copied !!!!
-	drumkit->setInstrumentList( new InstrumentList( Hydrogen::get_instance()->getSong()->get_instrument_list() ) );
-	bool ret = drumkit->save();
+	drumkit->setInstrumentList( new InstrumentList( instruments ) );
+    XMLDoc doc;
+    QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    doc.appendChild( header );
+    XMLNode root = doc.createElement( "drumkit_info" );
+    drumkit->save_to( &root );
+    doc.appendChild( root );
+    bool ret = doc.write( Filesystem::drumkit_file(dk_path) );
+    if(ret) {   
+        // Copy sample files
+        InstrumentList *instruments = drumkit->getInstrumentList();
+        for( int i=0; i<instruments->get_size(); i++) {
+            Instrument* instrument = instruments->get(i);
+            for ( int n = 0; n < MAX_LAYERS; n++ ) {
+                InstrumentLayer* layer = instrument->get_layer(n);
+                if(layer) {
+                    // TODO have to do this cause in Sample::load_wave, a new sample is created with an absolute path
+                    QString path = layer->get_sample()->get_filename();
+	                int idx = path.lastIndexOf("/");
+                    if(idx>=0) {
+                        QString dst = dk_path + "/" + path.right( path.size()-1-path.lastIndexOf("/") );
+                        if( Filesystem::file_readable( dst ) ) {
+                            WARNINGLOG( QString("do not overright %1 with %2 has it already exists").arg(dst).arg(path) );
+                        } else {
+                            Filesystem::file_copy( path, dst );
+                        }
+                    } else {
+                        QString dst = dk_path + "/" + path;
+                        ERRORLOG( QString("unable to copy %1 to %2, we don't know where it comes from").arg(path).arg(dst) );
+                    }
+                }
+            }
+        }
+        INFOLOG( QString("Drumkit saved in %1").arg(dk_path) );
+    }
 	delete drumkit;
-	drumkit = 0;
     return ret;
+}
+
+void Drumkit::save_to( XMLNode* node ) {
+    node->write_string( "name", __name );
+    node->write_string( "author", __author );
+    node->write_string( "info", __info );
+    node->write_string( "license", __license );
+    XMLNode instruments_node = XMLDoc().createElement( "instrumentList" );
+    __instruments->save_to( &instruments_node );
+    node->appendChild( instruments_node ); 
 }
 
 bool Drumkit::removeDrumkit( const QString& sDrumkitName ) {

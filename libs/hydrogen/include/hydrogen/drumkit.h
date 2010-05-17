@@ -47,8 +47,8 @@ class Drumkit : public Object {
          * \return a Drumkit on success, 0 otherwise
          */
         static Drumkit* load( const QString& dk_path );
-        /// Save a drumkit using given parameters and current song drumkit
-        static bool save( const QString& name, const QString& author, const QString& info, const QString& license );
+        /// Save a drumkit using given parameters and an instrument list
+        static bool save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments );
         /// Installs a drumkit
         static bool install( const QString& filename );
         /// Remove a drumkit from the disk
@@ -83,7 +83,7 @@ class Drumkit : public Object {
         QString __license;              ///< drumkit license description
         InstrumentList *__instruments;  ///< the list of instruments
         /// xml related save operations
-        bool save( );
+        void save_to( XMLNode* node );
         static Drumkit* load_from( XMLNode* node );
 };
 
