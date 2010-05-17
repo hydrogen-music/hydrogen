@@ -61,9 +61,11 @@ class Filesystem : public Object
         static QString playlists_dir();
         static QString demos_dir();
 
+        /* DRUMKIT */
         static QStringList sys_drumkits_list( );
         static QStringList usr_drumkits_list( );
-        static bool drumkit_exists( const QString& filename );
+        static QString drumkit_path( const QString& dk_name );
+        static bool drumkit_exists( const QString& dk_name );
 
         static void show();
 
@@ -72,6 +74,7 @@ class Filesystem : public Object
         static bool dir_readable( const QString& path );
         static bool path_usable( const QString& path );
         static bool write_to_file( const QString& path, const QString& content );
+        static bool file_copy( const QString& src, const QString& dst );
 
     private:
         static Logger* __logger;

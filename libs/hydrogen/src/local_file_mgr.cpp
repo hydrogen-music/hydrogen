@@ -607,32 +607,6 @@ std::vector<QString> LocalFileMng::getSystemDrumkitList()
 }
 
 
-QString LocalFileMng::getDrumkitDirectory( const QString& drumkitName )
-{
-	// search in system drumkit
-	std::vector<QString> systemDrumkits = Drumkit::getSystemDrumkitList();
-	for ( unsigned i = 0; i < systemDrumkits.size(); i++ ) {
-		if ( systemDrumkits[ i ].endsWith(drumkitName) ) {
-			QString path = QString( DataPath::get_data_path() ) + "/drumkits/";
-			return path;
-		}
-	}
-
-	// search in user drumkit
-	std::vector<QString> userDrumkits = Drumkit::getUserDrumkitList();
-	for ( unsigned i = 0; i < userDrumkits.size(); i++ ) {
-		if ( userDrumkits[ i ].endsWith(drumkitName) ) {
-			QString path = Preferences::get_instance()->getDataDirectory();
-			return userDrumkits[ i ].remove(userDrumkits[ i ].length() - drumkitName.length(),drumkitName.length());
-		}
-	}
-
-	ERRORLOG( "drumkit \"" + drumkitName + "\" not found" );
-	return "";	// FIXME
-}
-
-
-
 /// Restituisce un oggetto DrumkitInfo.
 /// Gli strumenti non hanno dei veri propri sample,
 /// viene utilizzato solo il campo filename.

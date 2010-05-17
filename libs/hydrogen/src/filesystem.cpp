@@ -138,6 +138,19 @@ bool Filesystem::write_to_file( const QString& path, const QString& content ) {
 	file.close();
 }
 
+bool Filesystem::file_copy( const QString& src, const QString& dst ) {
+    if ( !file_readable( src ) ) {
+        ___ERRORLOG( QString("unable to copy %1 to %2, %1 is not readable").arg(src).arg(dst) );
+        return false;
+    }
+    if ( !file_writable( dst ) ) {
+        ___ERRORLOG( QString("unable to copy %1 to %2, %2 is not writable").arg(src).arg(dst) );
+        return false;
+    }
+	___INFOLOG( QString("copy %1 to %2").arg(src).arg(dst) );
+	return QFile::copy(src,dst);
+}
+
 bool Filesystem::check_sys_paths() {
 	if( !QFile(__sys_data_path).exists() ) {
         // TODO maybe quit ??
@@ -198,9 +211,15 @@ QString Filesystem::demos_dir()                 { return __sys_data_path + DEMOS
 // DRUMKITS
 QStringList Filesystem::sys_drumkits_list( )    { return QDir( sys_drumkits_dir() ).entryList( QDir::Files | QDir::NoSymLinks ); }
 QStringList Filesystem::usr_drumkits_list( )    { return QDir( usr_drumkits_dir() ).entryList( QDir::Files | QDir::NoSymLinks ); }
-bool Filesystem::drumkit_exists( const QString& filename ) {
-     if( QDir( sys_drumkits_dir() ).exists( filename ) ) return true;
-     return QDir( usr_drumkits_dir() ).exists( filename );
+bool Filesystem::drumkit_exists( const QString& dk_name ) {
+     if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return true;
+     return QDir( usr_drumkits_dir() ).exists( dk_name );
+}
+QString Filesystem::drumkit_path( const QString& dk_name ) {
+     if( QDir( sys_drumkits_dir() ).exists( dk_name ) ) return sys_drumkits_dir()+"/"+dk_name;
+     if( QDir( usr_drumkits_dir() ).exists( dk_name ) ) return usr_drumkits_dir()+"/"+dk_name;
+     ___ERRORLOG( QString("drumkit %1 not found").arg(dk_name) );
+     return "";
 }
 
 void Filesystem::show() {
