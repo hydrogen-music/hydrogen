@@ -798,7 +798,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	INFOLOG( "[saveDrumkit]" );
 	info->dump();	// debug
 
-	QVector<QString> tempVector(16);
+        QVector<QString> tempVector( MAX_LAYERS );
 
 	QString sDrumkitDir = Preferences::get_instance()->getDataDirectory() + "drumkits/" + info->getName();
 

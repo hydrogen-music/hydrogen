@@ -55,6 +55,7 @@ void* diskWriterDriver_thread( void* param )
 	}
 	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ){
 		sfformat =  0x170000; //FLAC lossless file format
+                _ERRORLOG("flacflac");
 	}
 	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){ 
 		bits = 0x0001; //Signed 8 bit data works with aiff
@@ -74,13 +75,9 @@ void* diskWriterDriver_thread( void* param )
 
 	soundInfo.format =  sfformat|bits;
 
-	#ifdef HAVE_OGGVORBIS
-
 	//ogg vorbis option
 	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) )
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
-
-	#endif
 
 
 ///formats

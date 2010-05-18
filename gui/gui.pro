@@ -3,7 +3,7 @@
 ######################################################################
 include(../features.pri)
 
-TARGET = Hydrogen
+TARGET = hydrogen
 INCLUDEPATH += ../ ../libs/hydrogen/include
 INCLUDEPATH += ./src/
 DESTDIR = ..
