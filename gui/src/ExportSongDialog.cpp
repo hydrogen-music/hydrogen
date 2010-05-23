@@ -67,6 +67,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	b_QfileDialog = false;
 	m_bExportTrackouts = false;
 	m_ninstrument = 0;
+        m_sExtension = ".wav";
 
 }
 
@@ -112,6 +113,13 @@ void ExportSongDialog::on_browseBtn_clicked()
 	if ( ! filename.isEmpty() ) {
 		lastUsedDir = fd->directory().absolutePath();
 		QString sNewFilename = filename;
+
+                //this second extension check is mostly important if you leave a dot
+                //without a regular extionsion in a filename
+                if( !filename.endsWith( m_sExtension ) ){
+                    filename.append(m_sExtension);
+                }
+
 		exportNameTxt->setText(filename);
 	}
 
@@ -133,6 +141,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	}
 
 	QString filename = exportNameTxt->text();
+
 	if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if (res == 1 ) return;
@@ -253,6 +262,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
 		filename += ".wav";
+                m_sExtension = ".wav";
 		break;
 	case 1:
 		sampleRateCombo->show();
@@ -260,6 +270,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
 		filename += ".wav";
+                m_sExtension = ".wav";
 		break;
 	case 2:
 		sampleRateCombo->show();
@@ -267,6 +278,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
 		filename += ".wav";
+                m_sExtension = ".wav";
 		break;
 	case 3:
 		sampleRateCombo->show();
@@ -274,6 +286,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 0 ); //22050hz
 		sampleDepthCombo->setCurrentIndex ( 0 ); //8bit
 		filename += ".wav";
+                m_sExtension = ".wav";
 		break;
 	case 4:
 		sampleRateCombo->show();
@@ -281,6 +294,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 3 ); //96000hz
 		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
 		filename += ".wav";
+                m_sExtension = ".wav";
 		break;
 	case 5:
 		sampleRateCombo->show();
@@ -288,6 +302,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
 		filename += ".aiff";
+                m_sExtension = ".aiff";
 		break;
 	case 6:
 		sampleRateCombo->show();
@@ -295,6 +310,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
 		filename += ".aiff";
+                m_sExtension = ".aiff";
 		break;
 	case 7:
 		sampleRateCombo->show();
@@ -302,6 +318,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
 		filename += ".aiff";
+                m_sExtension = ".aiff";
 		break;
 	case 8:
 		sampleRateCombo->show();
@@ -309,6 +326,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
 		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
 		filename += ".flac";
+                m_sExtension = ".flac";
 		break;
 	case 9:
 		sampleRateCombo->hide();
@@ -316,6 +334,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		label->hide();
 		label_2->hide();
 		filename += ".ogg";
+                m_sExtension = ".ogg";
 		break;
 
 	default:
@@ -324,6 +343,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
 		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
 		filename += ".wav";
+                m_sExtension = ".wav";
 	}
 
 	exportNameTxt->setText(filename);

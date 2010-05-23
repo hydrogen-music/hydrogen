@@ -54,8 +54,7 @@ void* diskWriterDriver_thread( void* param )
 		sfformat =  0x020000; //Apple/SGI AIFF format (big endian)
 	}
 	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ){
-		sfformat =  0x170000; //FLAC lossless file format
-                _ERRORLOG("flacflac");
+                sfformat =  0x170000; //FLAC lossless file format
 	}
 	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){ 
 		bits = 0x0001; //Signed 8 bit data works with aiff
