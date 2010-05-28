@@ -90,6 +90,7 @@ ActionManager::ActionManager() : Object( "ActionManager" )
 	<< "EFFECT2_LEVEL_ABSOLUTE"
 	<< "EFFECT3_LEVEL_ABSOLUTE"
 	<< "EFFECT4_LEVEL_ABSOLUTE"
+	<< "SELECT_NEXT_PATTERN"
 	<< "PAN_RELATIVE"
 	<< "PAN_ABSOULTE"
 	<< "BEATCOUNTER"
@@ -229,6 +230,14 @@ bool ActionManager::handleAction( Action * pAction ){
 		pEngine->onTapTempoAccelEvent();
 		return true;
 	}
+
+	  if( sActionString == "SELECT_NEXT_PATTERN"){
+		bool ok;
+		int row = pAction->getParameter1().toInt(&ok,10);
+		pEngine->setSelectedPatternNumber( row );
+		pEngine->sequencer_setNextPattern( row, false, true );
+                return true;
+        }
 
 	if( sActionString == "SELECT_INSTRUMENT" ){
 		bool ok;
