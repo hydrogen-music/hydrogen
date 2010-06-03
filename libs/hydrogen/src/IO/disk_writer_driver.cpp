@@ -75,13 +75,13 @@ void* diskWriterDriver_thread( void* param )
 
 	soundInfo.format =  sfformat|bits;
 
-	#ifdef HAVE_OGGVORBIS
+//	#ifdef HAVE_OGGVORBIS
 
 	//ogg vorbis option
 	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) )
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
 
-	#endif
+//	#endif
 
 
 ///formats
