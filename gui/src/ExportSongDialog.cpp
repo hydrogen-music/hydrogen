@@ -192,17 +192,17 @@ void ExportSongDialog::exportTracks()
 			}
 		}
 		
-		QStringList filenamelist =  exportNameTxt->text().split(".");
+                QStringList filenamelist =  exportNameTxt->text().split( m_sExtension );
 		
 		QString firstitem = "";
 		if( !filenamelist.isEmpty() ){
 			firstitem = filenamelist.first();
 		}
 		QString newitem =  firstitem + "-" + Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_ninstrument)->get_name();
-		int listsize = filenamelist.size();
-		filenamelist.replace ( listsize -2, newitem );
-		QString filename = filenamelist.join(".");
-		
+                //int listsize = filenamelist.size();
+                //filenamelist.replace ( listsize -2, newitem );
+                QString filename =  newitem.append(m_sExtension);
+
 		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
 			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
 			if (res == 1 ) return;
