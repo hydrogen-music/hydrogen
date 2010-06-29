@@ -211,7 +211,7 @@ public:
 	{
 		//qDebug() << "copy pattern redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_copyAction( __patternFilename );
+                h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_copyAction( __patternFilename, __patternPosition );
 	}
 private:
 	QString __patternFilename;
@@ -232,7 +232,7 @@ public:
 	{
 		//qDebug() << "Add pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
+                h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition - 1 );
 	}
 
     virtual void redo()

@@ -160,7 +160,7 @@ for arg in $@; do
      $cmd
 done
 
-mv gui/hydrogen ../hydrogen
+cp gui/hydrogen ../hydrogen
 
 #grep -l -R SUPPORT gui/ | xargs sed -i -e 's/ \(.*\)_SUPPORT/ HYDROGEN_\1_SUPPORT/'
 #grep -l -R 'include "config.h"' gui/ | xargs sed -i -e '/include "config.h"help

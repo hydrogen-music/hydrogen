@@ -1465,7 +1465,7 @@ void SongEditorPatternList::patternPopup_copy()
 		int err =1;
 		err = fileMng.savePattern( pSong , pPatternList->get_size() -1 , patternFilename, pNewPattern->get_name(), 4 );
 
-		SE_copyPatternAction *action = new SE_copyPatternAction( patternFilename , pPatternList->get_size() );
+                SE_copyPatternAction *action = new SE_copyPatternAction( patternFilename ,nSelectedPattern + 1 );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 	
@@ -1479,7 +1479,7 @@ void SongEditorPatternList::patternPopup_copy()
 }
 
 
-void SongEditorPatternList::patternPopup_copyAction( QString patternFilename )
+void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, int patternposition )
 {
 	
 	Hydrogen *engine = Hydrogen::get_instance();
@@ -1494,6 +1494,14 @@ void SongEditorPatternList::patternPopup_copyAction( QString patternFilename )
 	}else{
 		H2Core::Pattern *pNewPattern = err;
 		pPatternList->add( pNewPattern );
+
+                for (int nPatr = pPatternList->get_size() +1 ; nPatr >= patternposition; nPatr--) {
+                        H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
+                        pPatternList->replace( pPattern, nPatr );
+                }
+                pPatternList->replace( pNewPattern, patternposition );
+                engine->setSelectedPatternNumber( patternposition );
+
 		song->__is_modified = true;
 		createBackground();
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();

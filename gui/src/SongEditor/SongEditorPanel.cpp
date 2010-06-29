@@ -413,9 +413,9 @@ void SongEditorPanel::revertaddEmptyPattern( int patternPosition )
 
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
-	H2Core::Pattern *pattern = patternList->get( patternPosition -1 );
+        H2Core::Pattern *pattern = patternList->get( patternPosition );
 
-	if(patternPosition -1 == engine->getSelectedPatternNumber() )engine->setSelectedPatternNumber( patternPosition -2 );
+	if(patternPosition == engine->getSelectedPatternNumber() )engine->setSelectedPatternNumber( patternPosition -1 );
 	patternList->del(pattern);
 	delete pattern;
 	pattern = NULL;
