@@ -141,7 +141,7 @@ Song* Song::get_default_song(){
 		song->set_swing_factor( 0.0 );
 
 		InstrumentList* pList = new InstrumentList();
-		Instrument *pNewInstr = new Instrument(QString( 0 ), "New instrument", new ADSR());
+		Instrument *pNewInstr = new Instrument(QString( "" ), "New instrument", new ADSR());
 		pList->add( pNewInstr );
 		song->set_instrument_list( pList );
 		
