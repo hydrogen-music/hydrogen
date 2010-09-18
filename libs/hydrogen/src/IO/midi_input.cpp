@@ -69,7 +69,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		break;
 
 	case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-		ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
 		break;
 
 	case MidiMessage::CONTROL_CHANGE:
@@ -83,7 +82,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		break;
 
 	case MidiMessage::CHANNEL_PRESSURE:
-		ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
 		break;
 
 	case MidiMessage::PITCH_WHEEL:
