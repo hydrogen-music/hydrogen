@@ -31,7 +31,7 @@
 #ifdef PORTMIDI_SUPPORT
 
 #include <porttime.h>
-#define TIME_PROC ((long (*)(void *)) Pt_Time)
+#define TIME_PROC ((PmTimestamp (*)(void *)) Pt_Time)
 #define TIME_START Pt_Start(1, 0, 0) /* timer started w/millisecond accuracy */
 
 #include <pthread.h>
@@ -47,7 +47,7 @@ void* PortMidiDriver_thread( void* param )
 	_INFOLOG( "PortMidiDriver_thread starting" );
 
 	PmError status;
-	PmError length;
+	int length;
 	PmEvent buffer[1];
 	while ( instance->m_bRunning ) {
 		status = Pm_Poll( instance->m_pMidiIn );
