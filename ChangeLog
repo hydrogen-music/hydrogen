@@ -1,3 +1,11 @@
+2010-09-19 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 0.9.4.2
+	* hydrogen compiles now with QT 4.7 and recent portmidi versions
+	* added /usr/lib64/ladspa and /usr/local/lib64/ladspa to the ladspa
+	  plugin path 
+	* fixed the linking of the wasp plugins
+	* Bugfix: Show only readable ports in the midi input dialog 
+
 2010-03-30 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 0.9.4.1
 	* added czech translation
