@@ -164,7 +164,7 @@ public:
 	void setBPM( float fBPM );
 
 	void restartLadspaFX();
-
+        void setSelectedPatternNumberWithoutGuiEvent( int nPat );
 	int getSelectedPatternNumber();
 	void setSelectedPatternNumber( int nPat );
 

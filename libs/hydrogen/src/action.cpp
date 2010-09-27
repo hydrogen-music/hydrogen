@@ -246,7 +246,7 @@ bool ActionManager::handleAction( Action * pAction ){
         if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY"){
               bool ok;
               int row = pAction->getParameter2().toInt(&ok,10);
-              pEngine->setSelectedPatternNumber( row );
+              pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
               return true;
         }
 
