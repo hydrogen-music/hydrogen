@@ -63,11 +63,12 @@ ActionManager::ActionManager() : Object( "ActionManager" )
 	__instance = this;
 	
 	/*
-	    the actionList holds all Action identfiers hydrogen is able to interpret.
+	    the actionList holds all Action identfiers which hydrogen is able to interpret.
 	*/
 	actionList <<""
 	<< "PLAY" 
-	<< "PLAY_TOGGLE"
+	<< "PLAY/STOP_TOGGLE"
+	<< "PLAY/PAUSE_TOGGLE"
 	<< "STOP"
 	<< "PAUSE"
 	<< "MUTE"
@@ -171,7 +172,7 @@ bool ActionManager::handleAction( Action * pAction ){
 		return true;
 	}
 
-	if( sActionString == "PLAY_TOGGLE" )
+	if( sActionString == "PLAY/STOP_TOGGLE" || sActionString == "PLAY/PAUSE_TOGGLE" )
 	{
 		int nState = pEngine->getState();
 		switch ( nState ) 
@@ -181,7 +182,9 @@ bool ActionManager::handleAction( Action * pAction ){
 				break;
 
 			case STATE_PLAYING:
+				if( sActionString == "PLAY/STOP_TOGGLE" ) pEngine->setPatternPos( 0 );
 				pEngine->sequencer_stop();
+				pEngine->setTimelineBpm();
 				break;
 
 			default:
@@ -190,6 +193,7 @@ bool ActionManager::handleAction( Action * pAction ){
 
 		return true;
 	}
+	
 
 	if( sActionString == "PAUSE" )
 	{	
