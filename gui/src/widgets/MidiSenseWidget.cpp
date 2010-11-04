@@ -41,7 +41,17 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , Action* midi
 	if(action != NULL){
 	    m_pURLLabel->setText( "Waiting for midi input..." );
 	} else{
-	    m_pURLLabel->setText( "This element is not midi operable." );
+
+            /*
+             *   Check if this widget got called from the midiTable in the preferences
+             *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
+             */
+
+            if(directWrite){
+                m_pURLLabel->setText( "This element is not midi operable." );
+            } else {
+                m_pURLLabel->setText( "Waiting for midi input..." );
+            }
 	}
 	
 	QVBoxLayout* pVBox = new QVBoxLayout( this );

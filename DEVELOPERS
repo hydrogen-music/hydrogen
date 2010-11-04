@@ -24,7 +24,7 @@ order to make a release has several, easy-to-forget steps.  They are:
   4. Make a tarball of the release (gzipped).  Use gzip instead of
      bzip2 for the folks on Windows.  Tarballs should be named:
                    
-                   +--- Relese version
+                   +--- Release version
                    |
                    |    +--- Extra release version info
                  __|__ _|_

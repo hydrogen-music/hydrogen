@@ -161,47 +161,9 @@ this:
 It's also best to ensure that your PATH is pointing to the Qt 4
 versions of moc and uic, and not the Qt 3 versions.
 
- 5.2 cmake method
- ----------------
-After you have all the prerequisites, building and installing will
-look like this:
+E.g. for Ubuntu 10.4, if you wanted to also enable lash, portaudio and portmidi you would use the following call:
 
-	$ tar xjf hydrogen-0.9.4.tar.bz2
-	$ cd hydrogen-0.9.4
-	$ mkdir build && cd build 
-    $ cmake ..
-	$ make && sudo make install
-
-In the above, all cmake commands should be executed in a build directory.
-
-If you wish to configure features like LADSPA plugins, FLAC support,
-or debugging symbols, get more information like this:
-
-	$ cmake -L ..
-
-For possible make targets:
-
-    $ make help
-
-To change the directory where hydrogen is installed, it is done like
-this:
-
-	$ cmake -DCMAKE_INSTALL_PREFIX=/opt/hydrogen ..
-	$ make && sudo make install
-
-Uninstalling Hydrogen is done like this:
-
-	$ sudo cmake uninstall
-
-Note that cmake is a build system and not a package manager.  While we
-make every effort to ensure that Hydrogen uninstalls cleanly, it is
-not a guarantee.
-
-Cmake macros should detect the correct Qt settings and location of your libraries,
-but sometimes it needs a little help.  If Hydrogen fails to build, some
-environment variables could help it.
-
-	$ QTDIR=/opt/lib/qt4 OSS_PATH="/usr/lib/oss/lib" OSS_INCLUDE="/usr/lib/oss/include" cmake ..
+	$ QTDIR=/usr/share/qt4 scons lash=1 portaudio=1 portmidi=1
 
 ___CREATING A BINARY PACKAGE___
 
@@ -227,7 +189,12 @@ To build the Hydrogen package:
 
 This will place the .deb package and description files in the parent
 directory.  If you wish to change the version number for the archive,
-edit linux/debian/changelog to set the version.
+edit linux/debian/changelog to set the version. To install the newly
+created deb package run the following (substitute the deb package
+name with the version your build created):
+
+	$ cd ..
+	$ sudo dpkg -i hydrogen_0.9.4_amd64.deb
 
 6. INSTALL.txt Changelog
 ------------------------

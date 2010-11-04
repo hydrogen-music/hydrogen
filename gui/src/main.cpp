@@ -64,6 +64,7 @@ static struct option long_opts[] = {
 	{"verbose", optional_argument, NULL, 'V'},
 	{"help", 0, NULL, 'h'},
 	{"install", required_argument, NULL, 'i'},
+	{"drumkit", required_argument, NULL, 'k'},
 	{0, 0, 0, 0},
 };
 
@@ -171,6 +172,7 @@ int main(int argc, char *argv[])
 		bool showVersionOpt = false;
 		unsigned logLevelOpt = Logger::Error;
 		QString drumkitName;
+		QString drumkitToLoad;
 		bool showHelpOpt = false;
 
 		int c;
@@ -190,6 +192,11 @@ int main(int argc, char *argv[])
 
 				case 'p':
 					playlistFilename = QString::fromLocal8Bit(optarg);
+					break;
+
+				case 'k':
+					//load Drumkit
+					drumkitToLoad = QString::fromLocal8Bit(optarg);
 					break;
 
 				case 'v':
@@ -256,7 +263,7 @@ int main(int argc, char *argv[])
 		    H2Core::Drumkit::install( drumkitName );
 		    exit(0);
 		}
-
+		
 		if (sSelectedDriver == "auto") {
 			pPref->m_sAudioDriver = "Auto";
 		}
@@ -365,6 +372,13 @@ int main(int argc, char *argv[])
 			___ERRORLOG ( "Error loading the playlist" );
 		}
 
+
+		if( ! drumkitToLoad.isEmpty() ){
+			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( drumkitToLoad );
+			H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+		}
+				
+
 		pQApp->exec();
 
 		delete pSplash;
@@ -443,3 +457,4 @@ void showUsage()
 	std::cout << "   -v, --version - Show version info" << std::endl;
 	std::cout << "   -h, --help - Show this help message" << std::endl;
 }
+

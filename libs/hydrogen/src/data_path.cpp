@@ -63,13 +63,17 @@ QString DataPath::get_data_path()
 #else
 	if ( __data_path.isEmpty() ) {
 		#ifdef NO_GUI_SUPPORT
-		    QString qStringPath = QString ( "./data" ) ;
+		    __data_path = QString ( "./data" ) ;
 		#else
-		    QString qStringPath = qApp->applicationDirPath() + QString ( "/data" ) ;
+		    __data_path = qApp->applicationDirPath() + QString ( "/data" ) ;
 		#endif
-		__data_path = qStringPath;
 
-		QFile file( __data_path );
+		/*
+		 * We're checking against __data_path + "/drumkits" because it is possible that there is a data directory
+		 * which does not belong to hydrogen. See Bug #140 for details.
+		 */
+
+		QFile file( __data_path + "/drumkits" );
 		if ( !file.exists() ) {
 			// try using the system wide data dir
 			__data_path = DATA_PATH;

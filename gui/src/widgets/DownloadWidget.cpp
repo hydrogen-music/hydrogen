@@ -23,6 +23,7 @@
 #include "DownloadWidget.h"
 
 #include <cmath>
+#include <cstdlib>
 
 const char* Download::__class_name = "Download";
 
@@ -45,6 +46,14 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 
 	QUrl url( __remote_url );
 
+	QString sEnvHttpProxy		= QString( getenv( "http_proxy" ) );
+	int     nEnvHttpPort		= 0;
+	QString sEnvHttpUser		= QString( getenv( "http_user" ) );
+	QString sEnvHttpPassword	= QString( getenv( "http_password" ) );
+
+	nEnvHttpPort	= sEnvHttpProxy.right( sEnvHttpProxy.length() - sEnvHttpProxy.indexOf(':') - 1 ).toInt();
+	sEnvHttpProxy	= sEnvHttpProxy.left( sEnvHttpProxy.indexOf(':') );
+
 	connect( &__http_client, SIGNAL( done( bool ) ), this, SLOT( __fetch_done( bool ) ) );
 	connect( &__http_client, SIGNAL( dataReadProgress( int, int ) ), this, SLOT( __fetch_progress( int, int ) ) );
 	connect( &__http_client, SIGNAL( requestFinished( int, bool ) ), this, SLOT( __http_request_finished( int, bool ) ) );
@@ -57,6 +66,10 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 	header.setValue( "Host", url.host() );
 
 	__time.start();
+
+	if ( ( !sEnvHttpProxy.isNull() ) && ( nEnvHttpPort != 0 ) ) {
+		__http_client.setProxy( sEnvHttpProxy, nEnvHttpPort, sEnvHttpUser, sEnvHttpPassword );
+	}
 
 	__http_client.setHost( url.host() );
 	__http_client.request( header );

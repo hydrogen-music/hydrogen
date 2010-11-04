@@ -358,7 +358,7 @@ std::vector<QString> AlsaMidiDriver::getOutputPortList()
 			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
 				// output ports
 				if  (
-				    ( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
+				    ( cap & SND_SEQ_PORT_CAP_SUBS_READ ) != 0 &&
 				    snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
 				) {
 					INFOLOG( snd_seq_port_info_get_name( pinfo ) );
@@ -408,7 +408,7 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
 				// output ports
 				if 	(
-				    ( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
+				    ( cap & SND_SEQ_PORT_CAP_SUBS_READ ) != 0 &&
 				    snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
 				) {
 					QString sName = snd_seq_port_info_get_name( pinfo );
