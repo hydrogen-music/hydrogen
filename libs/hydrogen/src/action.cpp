@@ -93,7 +93,7 @@ ActionManager::ActionManager() : Object( "ActionManager" )
 	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "SELECT_NEXT_PATTERN"
 	<< "PAN_RELATIVE"
-	<< "PAN_ABSOULTE"
+	<< "PAN_ABSOLUTE"
 	<< "BEATCOUNTER"
 	<< "TAP_TEMPO"
 	<< "SELECT_INSTRUMENT";
