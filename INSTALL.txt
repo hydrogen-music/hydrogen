@@ -159,6 +159,10 @@ this:
 It's also best to ensure that your PATH is pointing to the Qt 4
 versions of moc and uic, and not the Qt 3 versions.
 
+E.g. for Ubuntu 10.4, if you wanted to also enable lash, portaudio and portmidi you would use the following call:
+
+	$ QTDIR=/usr/share/qt4 scons lash=1 portaudio=1 portmidi=1
+
 ___CREATING A BINARY PACKAGE___
 
 If you are a package maintainer and wish for your packaging scripts to
@@ -183,7 +187,12 @@ To build the Hydrogen package:
 
 This will place the .deb package and description files in the parent
 directory.  If you wish to change the version number for the archive,
-edit linux/debian/changelog to set the version.
+edit linux/debian/changelog to set the version. To install the newly
+created deb package run the following (substitute the deb package
+name with the version your build created):
+
+	$ cd ..
+	$ sudo dpkg -i hydrogen_0.9.4_amd64.deb
 
 6. INSTALL.txt Changelog
 ------------------------
