@@ -141,7 +141,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app->getPlayerControl()->installEventFilter(this);
 	InstrumentEditorPanel::get_instance()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
-	h2app->getMetroBlinker()->installEventFilter(this);
+	h2app->getDirector()->installEventFilter(this);
 //	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
@@ -293,7 +293,7 @@ void MainForm::createMenuBar()
 //		m_pWindowMenu->addAction( trUtf8("Show song editor"), this, SLOT( action_window_showSongEditor() ), QKeySequence( "" ) );
 //	}
 	m_pToolsMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
-	m_pToolsMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_MetronWidget() ), QKeySequence( "Alt+B" ) );
+	m_pToolsMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+B" ) );
 
 	m_pToolsMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 
@@ -767,10 +767,10 @@ void MainForm::action_window_showPlaylistDialog()
 	h2app->showPlaylistDialog();	
 }
 
-void MainForm::action_window_show_MetronWidget()
+void MainForm::action_window_show_DirectorWidget()
 {
 
-	h2app->showMetroBlinker();
+	h2app->showDirector();
 }
 
 void MainForm::action_window_showMixer()
