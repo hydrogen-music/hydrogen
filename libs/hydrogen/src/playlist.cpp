@@ -39,12 +39,8 @@
 
 using namespace H2Core;
 
-//playlist globals
-int selectedSongNumber = -1;
-int activeSongNumber = -1;
 
 Playlist* Playlist::__instance = NULL;	
-
 
 Playlist::Playlist()
 		: Object( "Playlist" )
@@ -57,6 +53,8 @@ Playlist::Playlist()
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
 	__playlistName = "";
+	selectedSongNumber = -1;
+	activeSongNumber = -1;
 
 }
 
@@ -143,6 +141,8 @@ void Playlist::setNextSongPlaylist()
 void Playlist::setPrevSongPlaylist()
 {
 	int index = getSelectedSongNr();
+	cout << "Index: " << index << ":" <<Hydrogen::get_instance()->m_PlayList.size() << std::endl;
+
 
 	if (index == -1 ){
 		if ( getActiveSongNumber() != -1 ){
@@ -153,7 +153,8 @@ void Playlist::setPrevSongPlaylist()
 		}
 	}
 
-	index = index -1;
+	cout << "Index: " << index << ":" <<Hydrogen::get_instance()->m_PlayList.size() << std::endl;
+	index = index - 1;
 
 	if (index < 0 ) 
 		return;
@@ -162,6 +163,9 @@ void Playlist::setPrevSongPlaylist()
 	setActiveSongNumber( index );
 
 	QString selected;
+
+	cout << "Index: " << index << ":" <<Hydrogen::get_instance()->m_PlayList.size() << std::endl;
+	
 	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
 
 	loadSong( selected );

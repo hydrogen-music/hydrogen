@@ -55,6 +55,7 @@ class Playlist :  public Object
 		void setSelectedSongNr( int songNumber);
 
 		int selectedSongNumber;
+		int activeSongNumber;
 		
 		int getSelectedSongNr();
 		void setActiveSongNumber( int ActiveSongNumber);
