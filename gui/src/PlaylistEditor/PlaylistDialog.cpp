@@ -274,7 +274,7 @@ void PlaylistDialog::addSong()
 	static QString songDir = Preferences::get_instance()->getDataDirectory()  + "/songs";;
 
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::ExistingFile );
+	fd->setFileMode ( QFileDialog::ExistingFiles );
 	fd->setFilter ( "Hydrogen song (*.h2song)" );
 	fd->setDirectory ( songDir );
 
@@ -282,8 +282,11 @@ void PlaylistDialog::addSong()
 
 	QString filename;
 	if ( fd->exec() == QDialog::Accepted ){
-		filename = fd->selectedFiles().first();
-		updatePlayListNode ( filename );
+		int i;
+		for(i=0; i < fd->selectedFiles().size(); i++){ 
+			filename = fd->selectedFiles().at(i);
+			updatePlayListNode ( filename );
+		}
 	}
 
 
