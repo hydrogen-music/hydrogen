@@ -77,22 +77,21 @@ void Playlist::create_instance()
 
 
 
-void Playlist::setNextSongByNumber(int SongNumber)
+void Playlist::setNextSongByNumber(int songNumber)
 {
 	
-	int realNumber = SongNumber;
 	
-	if ( realNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
+	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
 		return;	
 
-	setSelectedSongNr(  realNumber );
-	setActiveSongNumber( realNumber );
+	setSelectedSongNr( songNumber );
+	setActiveSongNumber( songNumber );
 
 	QString selected;
-	selected = Hydrogen::get_instance()->m_PlayList[ realNumber ].m_hFile;
+	selected = Hydrogen::get_instance()->m_PlayList[ songNumber ].m_hFile;
 
 	loadSong( selected );
-	execScript( realNumber );
+	execScript( songNumber );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
@@ -153,7 +152,6 @@ void Playlist::setPrevSongPlaylist()
 		}
 	}
 
-	cout << "Index: " << index << ":" <<Hydrogen::get_instance()->m_PlayList.size() << std::endl;
 	index = index - 1;
 
 	if (index < 0 ) 
@@ -163,9 +161,6 @@ void Playlist::setPrevSongPlaylist()
 	setActiveSongNumber( index );
 
 	QString selected;
-
-	cout << "Index: " << index << ":" <<Hydrogen::get_instance()->m_PlayList.size() << std::endl;
-	
 	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
 
 	loadSong( selected );
