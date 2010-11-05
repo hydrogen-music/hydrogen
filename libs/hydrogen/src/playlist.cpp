@@ -140,8 +140,6 @@ void Playlist::setNextSongPlaylist()
 void Playlist::setPrevSongPlaylist()
 {
 	int index = getSelectedSongNr();
-	cout << "Index: " << index << ":" <<Hydrogen::get_instance()->m_PlayList.size() << std::endl;
-
 
 	if (index == -1 ){
 		if ( getActiveSongNumber() != -1 ){
