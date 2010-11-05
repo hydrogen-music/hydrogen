@@ -239,7 +239,7 @@ void Playlist::execScript( int index)
 	if( file == "no Script" || script == "Script not used")
 		return;
 
-	std::system( file.toLocal8Bit() );
+	int ret = std::system( file.toLocal8Bit() );
 
 	return;
 }
