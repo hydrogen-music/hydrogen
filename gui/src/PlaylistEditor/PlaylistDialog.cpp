@@ -58,7 +58,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	setupUi ( this );
 	INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
+	setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	setFixedSize ( width(), height() );
 
 	installEventFilter( this );
@@ -326,7 +326,7 @@ void PlaylistDialog::removeFromList()
 			Playlist::get_instance()->setSelectedSongNr( -1 );
 			Playlist::get_instance()->setActiveSongNumber( -1 );
 			Playlist::get_instance()->__playlistName = "";
-			setWindowTitle ( trUtf8 ( "Play List Browser" ) );
+			setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
 			return;
 		}else
 		{	
@@ -353,7 +353,7 @@ void PlaylistDialog::clearPlaylist()
 	Playlist::get_instance()->setSelectedSongNr( -1 );
 	Playlist::get_instance()->setActiveSongNumber( -1 );
 	Playlist::get_instance()->__playlistName = "";
-	setWindowTitle ( trUtf8 ( "Play List Browser" ) );
+	setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
 	return;	
 }
 
@@ -415,7 +415,7 @@ void PlaylistDialog::loadList()
 			m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 			Playlist::get_instance()->setSelectedSongNr( 0 );
 			Playlist::get_instance()->__playlistName = filename;
-			setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
+			setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 		}
 
 	}
@@ -538,7 +538,7 @@ void PlaylistDialog::saveListAs()
 	}else
 	{
 		Playlist::get_instance()->__playlistName = filename;
-		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
+		setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	}
 }
 
@@ -760,7 +760,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 	if (ref->isPressed()) {
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 		if ( m_pPlaylistItem == NULL ){
-			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Song selected!" ) );
+			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No song selected!" ) );
 			m_pPlayBtn->setPressed(false);
 			return;
 		}
@@ -864,7 +864,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	engine->setSelectedPatternNumber ( 0 );
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	pH2App->setStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( index +1 ), 5000 );
+	pH2App->setStatusBarMessage( trUtf8( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 
@@ -1023,7 +1023,7 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 		m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 		Playlist::get_instance()->setSelectedSongNr( 0 );
 		Playlist::get_instance()->__playlistName = filename;
-		setWindowTitle ( trUtf8 ( "Play List Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
+		setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + QString( Playlist::get_instance()->__playlistName  ) );
 	}
 	return 1;
 }
