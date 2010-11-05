@@ -44,7 +44,7 @@ using namespace H2Core;
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 
-#include "MetroBlinker.h"
+#include "Director.h"
 #include "Mixer/Mixer.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"

@@ -26,21 +26,21 @@
 #include "config.h"
 
 #include <QDialog>
-#include "ui_MetroBlinker_UI.h"
+#include "ui_Director_UI.h"
 #include <hydrogen/Object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include "EventListener.h"
 
 
-class MetroBlinker : public QDialog, public Ui_MetroBlinker_UI, public Object, public EventListener
+class Director : public QDialog, public Ui_Director_UI, public Object, public EventListener
 
 {
 	Q_OBJECT
 	public:
 		
-		MetroBlinker( QWidget* pParent );
-		~MetroBlinker();
+		Director( QWidget* pParent );
+		~Director();
 
 		virtual void metronomeEvent( int nValue );	
 		virtual void paintEvent( QPaintEvent*);

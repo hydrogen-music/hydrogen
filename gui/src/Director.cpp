@@ -30,8 +30,8 @@
  ** 	- bar position info
  ** 	- beat position info
  **	- bar position tags *
- ** *this will implemented at timeline. rightclick on timeline open a dioalog to add position tags. this director displayed this tags.
- ** *first row will display the current tag, second row display next bar tag.
+ ** *this will implemented at timeline. rightclick on timeline open a dialog to add position tags. this director displayed this tags.
+ ** *first row will display the current tag, second row display next bar tag.>
  **
  **	-------------------------------------------
  **	|                     |                     |
@@ -49,7 +49,7 @@
  **/
 
 
-#include "MetroBlinker.h"
+#include "Director.h"
 #include "HydrogenApp.h"
 #include "widgets/PixmapWidget.h"
 
@@ -60,10 +60,9 @@
 
 using namespace H2Core;
 using namespace std;
-
-MetroBlinker::MetroBlinker ( QWidget* pParent )
+Director::Director ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( "MetroBlinker" )
+		, Object ( "Director" )
 {
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -83,13 +82,13 @@ MetroBlinker::MetroBlinker ( QWidget* pParent )
 }
 
 
-MetroBlinker::~MetroBlinker()
+Director::~Director()
 {
 	INFOLOG ( "DESTROY" );
 }
 
 
-void MetroBlinker::metronomeEvent( int nValue )
+void Director::metronomeEvent( int nValue )
 {
 
 	//load a new song
@@ -152,7 +151,7 @@ void MetroBlinker::metronomeEvent( int nValue )
 }
 
 
-void MetroBlinker::updateMetronomBackground()
+void Director::updateMetronomBackground()
 {
 	p_color.setAlpha( 0 );
 	timer->stop();
@@ -160,7 +159,7 @@ void MetroBlinker::updateMetronomBackground()
 }
 
 
-void MetroBlinker::paintEvent( QPaintEvent* ev )
+void Director::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
 

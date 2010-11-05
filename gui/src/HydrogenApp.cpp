@@ -38,7 +38,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
-#include "MetroBlinker.h"
+#include "Director.h"
 
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -107,7 +107,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	}
 	
 	m_pPlaylistDialog = new PlaylistDialog( 0 );
-	m_pMetroBlinker = new MetroBlinker( 0 );
+	m_pMetroBlinker = new Director( 0 );
 //	m_pSampleEditor = new SampleEditor( 0 );
 	
 	showInfoSplash();	// First time information
