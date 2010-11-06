@@ -55,7 +55,6 @@ Playlist::Playlist()
 	__playlistName = "";
 	selectedSongNumber = -1;
 	activeSongNumber = -1;
-
 }
 
 
@@ -104,28 +103,25 @@ void Playlist::setNextSongByNumber(int songNumber)
 
 void Playlist::setNextSongPlaylist()
 {
-	
 	int index = getSelectedSongNr();
-	//_INFOLOG( "index" + to_string( index ) );
+	
 	if (index == -1 ){
 		if ( getActiveSongNumber() != -1){
 			index = getActiveSongNumber();
-		}else
-		{
-			return;
 		}
 	}
 
 	index = index +1;
+
 	if ( (int) index > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || index < 0) 
 		return;
+	
 	setSelectedSongNr( index );
 	setActiveSongNumber( index );
 
-	QString selected;
-	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
+	QString selectedSong = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
 
-	loadSong( selected );
+	loadSong( selectedSong );
 	execScript( index );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );	
