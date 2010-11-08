@@ -39,11 +39,8 @@
 
 using namespace H2Core;
 
-//playlist globals
-int selectedSongNumber = -1;
-int activeSongNumber = -1;
 
-Playlist* Playlist::__instance = NULL;	
+Playlist* Playlist::__instance = NULL;
 
 const char* Playlist::__class_name = "Playlist";
 
@@ -58,7 +55,8 @@ Playlist::Playlist()
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
 	__playlistName = "";
-
+	selectedSongNumber = -1;
+	activeSongNumber = -1;
 }
 
 
@@ -80,22 +78,21 @@ void Playlist::create_instance()
 
 
 
-void Playlist::setNextSongByNumber(int SongNumber)
+void Playlist::setNextSongByNumber(int songNumber)
 {
 	
-	int realNumber = SongNumber;
 	
-	if ( realNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
+	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
 		return;	
 
-	setSelectedSongNr(  realNumber );
-	setActiveSongNumber( realNumber );
+	setSelectedSongNr( songNumber );
+	setActiveSongNumber( songNumber );
 
 	QString selected;
-	selected = Hydrogen::get_instance()->m_PlayList[ realNumber ].m_hFile;
+	selected = Hydrogen::get_instance()->m_PlayList[ songNumber ].m_hFile;
 
 	loadSong( selected );
-	execScript( realNumber );
+	execScript( songNumber );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
@@ -108,28 +105,25 @@ void Playlist::setNextSongByNumber(int SongNumber)
 
 void Playlist::setNextSongPlaylist()
 {
-	
 	int index = getSelectedSongNr();
-	//_INFOLOG( "index" + to_string( index ) );
+	
 	if (index == -1 ){
 		if ( getActiveSongNumber() != -1){
 			index = getActiveSongNumber();
-		}else
-		{
-			return;
 		}
 	}
 
 	index = index +1;
+
 	if ( (int) index > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || index < 0) 
 		return;
+	
 	setSelectedSongNr( index );
 	setActiveSongNumber( index );
 
-	QString selected;
-	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
+	QString selectedSong = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
 
-	loadSong( selected );
+	loadSong( selectedSong );
 	execScript( index );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );	
@@ -154,7 +148,7 @@ void Playlist::setPrevSongPlaylist()
 		}
 	}
 
-	index = index -1;
+	index = index - 1;
 
 	if (index < 0 ) 
 		return;
@@ -243,7 +237,7 @@ void Playlist::execScript( int index)
 	if( file == "no Script" || script == "Script not used")
 		return;
 
-	std::system( file.toLocal8Bit() );
+	int ret = std::system( file.toLocal8Bit() );
 
 	return;
 }

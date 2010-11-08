@@ -139,7 +139,7 @@ HEADERS += src/AboutDialog.h \
            src/widgets/midiTable.h \
            src/widgets/PixmapWidget.h \
            src/widgets/Rotary.h \
- src/MetroBlinker.h
+           src/Director.h
 FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/PlaylistEditor/PlaylistDialog_UI.ui \
          src/SampleEditor/SampleEditor_UI.ui \
@@ -160,7 +160,7 @@ FORMS += src/AudioFileBrowser/AudioFileBrowser_UI.ui \
          src/UI/PatternPropertiesDialog_UI.ui \
          src/UI/PreferencesDialog_UI.ui \
          src/UI/SongPropertiesDialog_UI.ui \
-         src/MetroBlinker_UI.ui
+         src/Director_UI.ui
 SOURCES += src/AboutDialog.cpp \
 	  ../version.cpp \
            src/AudioEngineInfoForm.cpp \
@@ -222,5 +222,4 @@ SOURCES += src/AboutDialog.cpp \
            src/widgets/midiTable.cpp \
            src/widgets/PixmapWidget.cpp \
            src/widgets/Rotary.cpp \
- \
- src/MetroBlinker.cpp
+           src/Director.cpp

@@ -39,7 +39,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
-#include "MetroBlinker.h"
+#include "Director.h"
 
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -70,7 +70,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
  , m_pPlayerControl( NULL )
  , m_pPlaylistDialog( NULL )
  , m_pSampleEditor( NULL )
- , m_pMetroBlinker( NULL )
+ , m_pDirector( NULL )
 
 {
 	m_pInstance = this;
@@ -113,7 +113,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	}
 	
 	m_pPlaylistDialog = new PlaylistDialog( 0 );
-	m_pMetroBlinker = new MetroBlinker( 0 );
+	m_pDirector = new Director( 0 );
 //	m_pSampleEditor = new SampleEditor( 0 );
 	
 	showInfoSplash();	// First time information
@@ -138,7 +138,7 @@ HydrogenApp::~HydrogenApp()
 	delete m_pAudioEngineInfoForm;
 	delete m_pMixer;
 	delete m_pPlaylistDialog;
-	delete m_pMetroBlinker;
+	delete m_pDirector;
 	delete m_pSampleEditor;
 
 	Hydrogen *engine = Hydrogen::get_instance();
@@ -349,10 +349,10 @@ void HydrogenApp::showPlaylistDialog()
 }
 
 
-void HydrogenApp::showMetroBlinker()
+void HydrogenApp::showDirector()
 {
-	m_pMetroBlinker->hide();
-	m_pMetroBlinker->show();
+	m_pDirector->hide();
+	m_pDirector->show();
 }
 
 
