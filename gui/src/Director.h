@@ -63,9 +63,8 @@ class Director : public QDialog, public Ui_Director_UI, public Object, public Ev
 		int p_wechselblink;
 		QString TAG;
 		QString TAG2;
+		QString songName;
 		int tagbeat;
-		bool n_bsongload;
-
 
 };
 
