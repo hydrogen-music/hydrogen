@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>496</width>
-    <height>298</height>
+    <width>490</width>
+    <height>312</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,9 @@
   <widget class="QWidget" name="layout2">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>250</y>
-     <width>471</width>
+     <x>20</x>
+     <y>260</y>
+     <width>461</width>
      <height>28</height>
     </rect>
    </property>
@@ -36,8 +36,8 @@
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-	<width>126</width>
-	<height>16</height>
+        <width>126</width>
+        <height>16</height>
        </size>
       </property>
      </spacer>
@@ -46,14 +46,14 @@
      <widget class="QPushButton" name="closeBtn">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-	<horstretch>0</horstretch>
-	<verstretch>0</verstretch>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-	<width>0</width>
-	<height>26</height>
+        <width>0</width>
+        <height>26</height>
        </size>
       </property>
       <property name="text">
@@ -74,8 +74,8 @@
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-	<width>126</width>
-	<height>16</height>
+        <width>126</width>
+        <height>16</height>
        </size>
       </property>
      </spacer>
@@ -86,7 +86,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>160</y>
+     <y>170</y>
      <width>471</width>
      <height>81</height>
     </rect>
@@ -102,7 +102,7 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>72</width>
+      <width>81</width>
       <height>25</height>
      </rect>
     </property>
@@ -122,9 +122,9 @@
    <widget class="QProgressBar" name="m_pProgressBar">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>100</x>
       <y>40</y>
-      <width>371</width>
+      <width>361</width>
       <height>23</height>
      </rect>
     </property>
@@ -136,18 +136,14 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>441</width>
-      <height>25</height>
+      <y>0</y>
+      <width>191</width>
+      <height>33</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <widget class="QCheckBox" name="tocheckBox">
-       <property name="text">
-	<string>Export to seperate tracks</string>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="exportTypeCombo"/>
      </item>
     </layout>
    </widget>
@@ -155,8 +151,8 @@
   <widget class="QLabel" name="TextLabel1">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>10</y>
+     <x>20</x>
+     <y>20</y>
      <width>440</width>
      <height>24</height>
     </rect>
@@ -168,9 +164,9 @@
   <widget class="QLineEdit" name="exportNameTxt">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>371</width>
+     <x>20</x>
+     <y>50</y>
+     <width>351</width>
      <height>24</height>
     </rect>
    </property>
@@ -181,9 +177,9 @@
   <widget class="QPushButton" name="browseBtn">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>40</y>
-     <width>90</width>
+     <x>379</x>
+     <y>50</y>
+     <width>101</width>
      <height>24</height>
     </rect>
    </property>
@@ -198,7 +194,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>118</y>
+     <y>128</y>
      <width>461</width>
      <height>31</height>
     </rect>
@@ -208,85 +204,98 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="label">
-	<property name="text">
-	 <string>Samplerate in Hz:</string>
-	</property>
+        <property name="text">
+         <string>Samplerate in Hz:</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QComboBox" name="sampleRateCombo">
-	<property name="maximumSize">
-	 <size>
-	  <width>80</width>
-	  <height>25</height>
-	 </size>
-	</property>
-	<item>
-	 <property name="text">
-	  <string>22050</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>44100</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>48000</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>96000</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>192000</string>
-	 </property>
-	</item>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>25</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>22050</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>44100</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>48000</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>96000</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>192000</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
     </item>
     <item>
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLabel" name="label_2">
-	<property name="text">
-	 <string>SampleDepth in Bit:</string>
-	</property>
+        <property name="text">
+         <string>SampleDepth in Bit:</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QComboBox" name="sampleDepthCombo">
-	<property name="maximumSize">
-	 <size>
-	  <width>60</width>
-	  <height>25</height>
-	 </size>
-	</property>
-	<item>
-	 <property name="text">
-	  <string>8</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>16</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>24</string>
-	 </property>
-	</item>
-	<item>
-	 <property name="text">
-	  <string>32</string>
-	 </property>
-	</item>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>25</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>24</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>32</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
@@ -296,10 +305,10 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>80</y>
-     <width>474</width>
-     <height>27</height>
+     <x>20</x>
+     <y>90</y>
+     <width>461</width>
+     <height>33</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -314,52 +323,52 @@
      <widget class="QComboBox" name="templateCombo">
       <item>
        <property name="text">
-	<string>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</string>
+        <string>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
+        <string>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
+        <string>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>WAV LOFI &quot;22.05kHz, 8 bit PCM </string>
+        <string>WAV LOFI &quot;22.05kHz, 8 bit PCM </string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</string>
+        <string>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</string>
+        <string>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
+        <string>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
+        <string>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>FLAC lossless compressor in good quality &quot;48 kHz&quot;</string>
+        <string>FLAC lossless compressor in good quality &quot;48 kHz&quot;</string>
        </property>
       </item>
       <item>
        <property name="text">
-	<string>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</string>
+        <string>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</string>
        </property>
       </item>
      </widget>
