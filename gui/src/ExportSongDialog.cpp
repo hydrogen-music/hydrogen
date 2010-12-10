@@ -145,11 +145,6 @@ void ExportSongDialog::on_okBtn_clicked()
         if ( m_bExporting ) {
 		return;
         }
-        cout << "Index: " << exportTypeCombo->currentIndex() << endl;
-
-
-        m_bExporting = false;
-
 
         /* 0: Export to single track
         *  1: Export to multiple tracks
