@@ -70,7 +70,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	exportNameTxt->setText(defaultFilename);
 	b_QfileDialog = false;
 	m_bExportTrackouts = false;
-	m_ninstrument = 0;
+        m_nInstrument = 0;
         m_sExtension = ".wav";
 
 
@@ -177,7 +177,7 @@ void ExportSongDialog::on_okBtn_clicked()
 void ExportSongDialog::exportTracks()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	if( m_ninstrument <= pSong->get_instrument_list()->get_size() -1 ){
+        if( m_nInstrument <= pSong->get_instrument_list()->get_size() -1 ){
 
 		bool instrumentexists = false;
 		//if a instrument contains no notes we jump to the next instrument
@@ -190,7 +190,7 @@ void ExportSongDialog::exportTracks()
 				Note *pNote = pos->second;
 				assert( pNote );
 
-				if( pNote->get_instrument()->get_name() == Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_ninstrument)->get_name() ){
+                                if( pNote->get_instrument()->get_name() == Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_nInstrument)->get_name() ){
 					instrumentexists = true;
 					break;
 				}
@@ -199,30 +199,29 @@ void ExportSongDialog::exportTracks()
 		}
 
 		if( !instrumentexists ){
-			if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
+                        if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
 				m_bExportTrackouts = false;//
-				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//solo instrument. this will disable all other instrument-solos
-				HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );//unsolo this instrument because exporting is finished
-				m_ninstrument = 0;
+                                HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );//solo instrument. this will disable all other instrument-solos
+                                HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );//unsolo this instrument because exporting is finished
+                                m_nInstrument = 0;
 				return;
 			}else
 			{
-				m_ninstrument++;
+                                m_nInstrument++;
 				exportTracks();
 			return;
 			}
 		}
 
-                QStringList filenamelist =  exportNameTxt->text().split( m_sExtension );
+                QStringList filenameList =  exportNameTxt->text().split( m_sExtension );
 		
-		QString firstitem = "";
-		if( !filenamelist.isEmpty() ){
-			firstitem = filenamelist.first();
+                QString firstItem = "";
+                if( !filenameList.isEmpty() ){
+                        firstItem = filenameList.first();
 		}
-		QString newitem =  firstitem + "-" + Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_ninstrument)->get_name();
-                //int listsize = filenamelist.size();
-                //filenamelist.replace ( listsize -2, newitem );
-                QString filename =  newitem.append(m_sExtension);
+                QString newItem =  firstItem + "-" + Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_nInstrument)->get_name();
+
+                QString filename =  newItem.append(m_sExtension);
 
 		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
 			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
@@ -231,17 +230,13 @@ void ExportSongDialog::exportTracks()
 
                 Hydrogen::get_instance()->stopExportSong();
 		m_bExporting = false;
-		HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
+                HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
                 Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
-                cout << "switching metronome at the beginning!" << std::endl;
+
 		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 		
-		if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-			//m_bExportTrackouts = false;//
-			//m_ninstrument = 0;
-		}else
-		{
-			m_ninstrument++;
+                if(! m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
+                        m_nInstrument++;
 		}
 	}
 }
@@ -413,14 +408,12 @@ void ExportSongDialog::progressEvent( int nValue )
 		
 		m_bExporting = false;
                 Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
-                cout << "switching metronome at the end!" << std::endl;
 		
-		if( m_ninstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-			HydrogenApp::get_instance()->getMixer()->soloClicked( m_ninstrument );
-			m_ninstrument = 0;
+                if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
+                        HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
+                        m_nInstrument = 0;
 			m_bExportTrackouts = false;
 		}
-
 
 		QFile check( exportNameTxt->text() );
 		if ( ! check.exists() ) {
