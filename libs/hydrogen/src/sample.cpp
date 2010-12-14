@@ -24,8 +24,6 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 
-#include "flac_file.h"
-
 #include <sndfile.h>
 #include <iostream>
 #include <fstream>
@@ -91,31 +89,13 @@ Sample::~Sample()
 
 Sample* Sample::load( const QString& filename )
 {
-	// is it a flac file?
-	if ( ( filename.endsWith( "flac") ) || ( filename.endsWith( "FLAC" )) ) {
-		return load_flac( filename );
-	} else {
-		return load_wave( filename );
-	}
+
+        return load_sndfile( filename );
+
 }
 
 
-
-/// load a FLAC file
-Sample* Sample::load_flac( const QString& filename )
-{
-#ifdef FLAC_SUPPORT
-	FLACFile file;
-	return file.load( filename );
-#else
-	_ERRORLOG("[loadFLAC] FLAC support was disabled during compilation");
-	return NULL;
-#endif
-}
-
-
-
-Sample* Sample::load_wave( const QString& filename )
+Sample* Sample::load_sndfile( const QString& filename )
 {
 	// file exists?
 	if ( QFile( filename ).exists() == false ) {
@@ -160,16 +140,16 @@ Sample* Sample::load_wave( const QString& filename )
 }
 
 
-Sample* Sample::load_edit_wave( const QString& filename,
-				const unsigned startframe,
-				const unsigned loppframe,
-				const unsigned endframe,
-				const int loops,
-				const QString loopmode,
-				bool use_rubberband,
-				float rubber_divider,
-				int rubberbandCsettings,
-				float rubber_pitch)
+Sample* Sample::load_edit_sndfile( const QString& filename,
+                                   const unsigned startframe,
+                                   const unsigned loopframe,
+                                   const unsigned endframe,
+                                   const int loops,
+                                   const QString loopmode,
+                                   bool use_rubberband,
+                                   float rubber_divider,
+                                   int rubberbandCsettings,
+                                   float rubber_pitch)
 {
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
@@ -191,11 +171,11 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	SF_INFO soundInfo;
 	SNDFILE* file = sf_open( filename.toLocal8Bit(), SFM_READ, &soundInfo );
 	if ( !file ) {
-		_INFOLOG( QString( "[Sample::load] File not found or flacfile %1" ).arg( filename ) );
+                _INFOLOG( QString( "[Sample::load] File not: %1" ).arg( filename ) );
 	}
 
 	unsigned onesamplelength =  endframe - startframe;
-	unsigned looplength =  endframe - loppframe;
+        unsigned looplength =  endframe - loopframe;
 	unsigned repeatslength = looplength * loops;
 	unsigned newlength = 0;
 	if (onesamplelength == looplength){	
@@ -208,45 +188,30 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	float *origdata_l;
 	float *origdata_r;
 
-	bool isflac = false;
-	unsigned samplerate = 0;
-	if ( ( filename.endsWith( "flac") ) || ( filename.endsWith( "FLAC" ) ) ){		
-		Sample *tmpSample = load_flac( filename );
-		_INFOLOG( QString( "File is flac" ) );
-		unsigned nframes = tmpSample->get_n_frames();
-		origdata_l = new float[ nframes ];
-		origdata_r = new float[ nframes ];
-		for ( unsigned i = 0; i < nframes; i++ ) {
-			origdata_l[i] = tmpSample->__data_l[i];
-			origdata_r[i] = tmpSample->__data_r[i];
-		}
-		samplerate = tmpSample->__sample_rate;
-		isflac = true;
-		delete tmpSample;
-	}else{
-		float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
+        unsigned samplerate = 0;
+        float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
 	
-		//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-		sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-		sf_close( file );
-		samplerate = soundInfo.samplerate;
-		origdata_l = new float[ soundInfo.frames ];
-		origdata_r = new float[ soundInfo.frames ];
+        //int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+        sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
+        sf_close( file );
+        samplerate = soundInfo.samplerate;
+        origdata_l = new float[ soundInfo.frames ];
+        origdata_r = new float[ soundInfo.frames ];
 	
 	
-		if ( soundInfo.channels == 1 ) {	// MONO sample
-			for ( long int i = 0; i < soundInfo.frames; i++ ) {
-				origdata_l[i] = pTmpBuffer[i];
-				origdata_r[i] = pTmpBuffer[i];
-			}
-		} else if ( soundInfo.channels == 2 ) { // STEREO sample
-			for ( long int i = 0; i < soundInfo.frames; i++ ) {
-				origdata_l[i] = pTmpBuffer[i * 2];
-				origdata_r[i] = pTmpBuffer[i * 2 + 1];
-			}
-		}
-		delete[] pTmpBuffer;
-	}
+        if ( soundInfo.channels == 1 ) {	// MONO sample
+                for ( long int i = 0; i < soundInfo.frames; i++ ) {
+                        origdata_l[i] = pTmpBuffer[i];
+                        origdata_r[i] = pTmpBuffer[i];
+                }
+        } else if ( soundInfo.channels == 2 ) { // STEREO sample
+                for ( long int i = 0; i < soundInfo.frames; i++ ) {
+                        origdata_l[i] = pTmpBuffer[i * 2];
+                        origdata_r[i] = pTmpBuffer[i * 2 + 1];
+                }
+        }
+        delete[] pTmpBuffer;
+
 
 
 	float *tempdata_l = new float[ newlength ];
@@ -255,7 +220,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	float *looptempdata_l = new float[ looplength ];
 	float *looptempdata_r = new float[ looplength ];
 
-	long int z = loppframe;
+        long int z = loopframe;
 	long int y = startframe;
 
 	for ( unsigned i = 0; i < newlength; i++){ //first vector
@@ -282,12 +247,12 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		reverse(looptempdata_r, looptempdata_r + looplength);
 	}
 
-	if ( loopmode == "reverse" && loops > 0 && startframe == loppframe ){
+        if ( loopmode == "reverse" && loops > 0 && startframe == loopframe ){
 		reverse( tempdata_l, tempdata_l + onesamplelength );
 		reverse( tempdata_r, tempdata_r + onesamplelength );		
 		}
 
-	if ( loopmode == "pingpong" &&  startframe == loppframe){
+        if ( loopmode == "pingpong" &&  startframe == loopframe){
 		reverse(looptempdata_l, looptempdata_l + looplength);
 		reverse(looptempdata_r, looptempdata_r + looplength);
 	}
@@ -295,7 +260,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	for ( int i = 0; i< loops ;i++){
 			
 		unsigned tempdataend = onesamplelength + ( looplength * i );
-		if ( startframe == loppframe ){
+                if ( startframe == loopframe ){
 			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
 		}
@@ -303,7 +268,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 			reverse(looptempdata_l, looptempdata_l + looplength);
 			reverse(looptempdata_r, looptempdata_r + looplength);
 		}
-		if ( startframe != loppframe ){
+                if ( startframe != loopframe ){
 			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
 		}
@@ -311,8 +276,8 @@ Sample* Sample::load_edit_wave( const QString& filename,
 	}
 	
 	if ( loops == 0 && loopmode == "reverse" ){
-		reverse( tempdata_l + loppframe, tempdata_l + newlength);
-		reverse( tempdata_r + loppframe, tempdata_r + newlength);		
+                reverse( tempdata_l + loopframe, tempdata_l + newlength);
+                reverse( tempdata_r + loopframe, tempdata_r + newlength);
 		}
 
 	//create new sample
@@ -525,7 +490,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		pSample->__sample_is_modified = true;
 		pSample->__sample_mode = loopmode;
 		pSample->__start_frame = startframe;
-		pSample->__loop_frame = loppframe;
+                pSample->__loop_frame = loopframe;
 		pSample->__end_frame = endframe;
 		pSample->__repeats = loops;
 		pSample->__use_rubber = true;
@@ -548,7 +513,7 @@ Sample* Sample::load_edit_wave( const QString& filename,
 		pSample->__sample_is_modified = true;
 		pSample->__sample_mode = loopmode;
 		pSample->__start_frame = startframe;
-		pSample->__loop_frame = loppframe;
+                pSample->__loop_frame = loopframe;
 		pSample->__end_frame = endframe;
 		pSample->__repeats = loops;
 	

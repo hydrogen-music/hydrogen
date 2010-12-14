@@ -121,7 +121,7 @@ public:
 	static Sample* load( const QString& filename );
 
 	/// Loads an modified sample
-	static Sample* load_edit_wave( const QString& filename,
+        static Sample* load_edit_sndfile( const QString& filename,
 				const unsigned startframe,
 				const unsigned loppframe,
 				const unsigned endframe,
@@ -239,12 +239,9 @@ private:
 
 	//static int __total_used_bytes;
 
-	/// loads a wave file
-	static Sample* load_wave( const QString& filename );
+        /// loads a file
+        static Sample* load_sndfile( const QString& filename );
 
-	/// loads a FLAC file
-	static Sample* load_flac( const QString& filename );
-	Sample *tempsample;
 
 };
 

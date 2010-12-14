@@ -520,16 +520,16 @@ Song* SongReader::readSong( const QString& filename )
 							panNode = panNode.nextSiblingElement( "pan" );
 						}
 					
-						pSample = Sample::load_edit_wave( sFilename,
-										  sStartframe,
-										  sLoopFrame,
-										  sEndframe,
-										  sLoops,
-										  sMode,
-										  sUseRubber,
-										  sRubberDivider,
-										  sRubberCsettings,
-										  sRubberPitch);
+                                                pSample = Sample::load_edit_sndfile( sFilename,
+                                                                                     sStartframe,
+                                                                                     sLoopFrame,
+                                                                                     sEndframe,
+                                                                                     sLoops,
+                                                                                     sMode,
+                                                                                     sUseRubber,
+                                                                                     sRubberDivider,
+                                                                                     sRubberCsettings,
+                                                                                     sRubberPitch);
 					}
 					if ( pSample == NULL ) {
 						ERRORLOG( "Error loading sample: " + sFilename + " not found" );

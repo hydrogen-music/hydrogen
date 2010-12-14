@@ -374,16 +374,16 @@ void SampleEditor::createNewLayer()
 
 	if ( !m_pSampleEditorStatus ){
 
-		Sample *editSample = Sample::load_edit_wave( m_samplename,
-							    m_start_frame,
-							    m_loop_frame,
-							    m_end_frame,
-							    m_repeats,
-							    m_sample_mode,
-							    m_pUseRubber,
-							    m_pRubberDivider,
-							    m_pRubberbandCsettings,
-							    m_ppitch);
+                Sample *editSample = Sample::load_edit_sndfile( m_samplename,
+                                                                m_start_frame,
+                                                                m_loop_frame,
+                                                                m_end_frame,
+                                                                m_repeats,
+                                                                m_sample_mode,
+                                                                m_pUseRubber,
+                                                                m_pRubberDivider,
+                                                                m_pRubberbandCsettings,
+                                                                m_ppitch);
 
 		if( editSample == NULL ){
 			return;

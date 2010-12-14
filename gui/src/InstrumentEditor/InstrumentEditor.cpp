@@ -884,16 +884,16 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 									pEngine->m_pan.push_back( panvector );
 								}
 			
-								Sample *newSample = Sample::load_edit_wave( filename,
-													startframe,
-													loopframe,
-													endframe,
-													loops,
-													mode,
-													userubber,
-													rd,
-													csettings,
-													rpitch);
+                                                                Sample *newSample = Sample::load_edit_sndfile( filename,
+                                                                                                               startframe,
+                                                                                                               loopframe,
+                                                                                                               endframe,
+                                                                                                               loops,
+                                                                                                               mode,
+                                                                                                               userubber,
+                                                                                                               rd,
+                                                                                                               csettings,
+                                                                                                               rpitch);
 	
 								if( !newSample  ){
 									continue;
