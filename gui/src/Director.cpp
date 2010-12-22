@@ -197,13 +197,13 @@ void Director::paintEvent( QPaintEvent* ev )
 		 TAG2 = "";
 	//draw current bar tag
 	painter.setPen(Qt::white);
-	painter.setFont(QFont("Arial", height() * 12/100 ));
+	painter.setFont(QFont("Arial", height() * 8/100 ));
 	QRect r3(QPoint ( width() * 5/100 , height() * 65/100 ), QSize( width() * 90/100, height() * 14/100));
 	painter.drawText( r3, Qt::AlignCenter, QString( (TAG) ) );
 
 	//draw next bar tag
 	painter.setPen(Qt::gray);
-	painter.setFont(QFont("Arial", height() * 10/100 ));
+	painter.setFont(QFont("Arial", height() * 6/100 ));
 	QRect r4(QPoint ( width() * 5/100 , height() * 83/100 ), QSize( width() * 90/100, height() * 11/100));
 	painter.drawText( r4, Qt::AlignCenter, QString( TAG2 ) );
 }
