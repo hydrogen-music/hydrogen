@@ -72,7 +72,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_bExportTrackouts = false;
         m_nInstrument = 0;
         m_sExtension = ".wav";
-
+        m_bOverwriteFiles = false;
 
 
 }
@@ -146,6 +146,8 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
         }
 
+        m_bOverwriteFiles = false;
+
         /* 0: Export to single track
         *  1: Export to multiple tracks
         *  2: Export to both
@@ -156,8 +158,17 @@ void ExportSongDialog::on_okBtn_clicked()
 
                 QString filename = exportNameTxt->text();
                 if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
-                        int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
-                        if (res == 1 ) return;
+
+                    int res;
+                    if( exportTypeCombo->currentIndex() == 0 ){
+                        res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No );
+                    } else {
+                        res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
+                    }
+
+                    if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
+                    if (res == QMessageBox::No ) return;
+
                 }
 
                 if( exportTypeCombo->currentIndex() == 2 ) m_bExportTrackouts = true;
@@ -206,6 +217,7 @@ void ExportSongDialog::exportTracks()
                                 m_nInstrument = 0;
 				return;
                         }else {
+                                m_nInstrument++;
                                 exportTracks();
                                 return;
 			}
@@ -213,7 +225,7 @@ void ExportSongDialog::exportTracks()
 
                 QStringList filenameList =  exportNameTxt->text().split( m_sExtension );
 		
-                QString firstItem = "";
+                QString firstItem;
                 if( !filenameList.isEmpty() ){
                         firstItem = filenameList.first();
 		}
@@ -221,9 +233,10 @@ void ExportSongDialog::exportTracks()
 
                 QString filename =  newItem.append(m_sExtension);
 
-		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
-			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), tr("&Ok"), tr("&Cancel"), 0, 1 );
-			if (res == 1 ) return;
+                if ( QFile( filename ).exists() == true && b_QfileDialog == false && !m_bOverwriteFiles) {
+                        int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
+                        if (res == QMessageBox::No ) return;
+                        if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
 		}
 
                 Hydrogen::get_instance()->stopExportSong();
