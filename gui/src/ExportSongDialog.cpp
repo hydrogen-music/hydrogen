@@ -205,11 +205,9 @@ void ExportSongDialog::exportTracks()
                                 HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );//unsolo this instrument because exporting is finished
                                 m_nInstrument = 0;
 				return;
-			}else
-			{
-                                m_nInstrument++;
-				exportTracks();
-			return;
+                        }else {
+                                exportTracks();
+                                return;
 			}
 		}
 
@@ -235,9 +233,9 @@ void ExportSongDialog::exportTracks()
 
 		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 		
-                if(! m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
-                        m_nInstrument++;
-		}
+                if(! (m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 )){
+                    m_nInstrument++;
+                }
 	}
 }
 
@@ -409,11 +407,15 @@ void ExportSongDialog::progressEvent( int nValue )
 		m_bExporting = false;
                 Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 		
+
+
+
                 if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->get_size() -1 ){
                         HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
                         m_nInstrument = 0;
 			m_bExportTrackouts = false;
-		}
+
+                    }
 
 		QFile check( exportNameTxt->text() );
 		if ( ! check.exists() ) {
