@@ -287,6 +287,10 @@ public:
 		}
 	};
 
+        ///midi lookuptable
+        int m_nInstrumentLookupTable[128];
+        //void editInstrumentLookupTable( int instrument, int index);
+
 
 private:
 	static Hydrogen* __instance;

@@ -372,6 +372,15 @@ int main(int argc, char *argv[])
 			___ERRORLOG ( "Error loading the playlist" );
 		}
 
+                if( ! playlistFilename.isEmpty() ){
+                    bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
+                    if( loadlist ){
+                            Playlist::get_instance()->setNextSongByNumber( 0 );
+                    } else {
+                            ___ERRORLOG ( "Error loading the playlist" );
+                    }
+                }
+
 
 		if( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( drumkitToLoad );

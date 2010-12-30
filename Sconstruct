@@ -58,6 +58,16 @@ def get_platform_flags( opts ):
 			#cppflags += " %s" % get_optimized_flags( target_cpu )
 			for flag in env["optflags"].split(" "):
 				cppflags.append(flag)
+		
+		if str(env['oss']) == "1": cppflags.append('-DOSS_SUPPORT')
+		if str(env['alsa']) == "1": cppflags.append('-DALSA_SUPPORT')
+		if str(env['jack']) == "1": cppflags.append('-DJACK_SUPPORT')
+		if str(env['lash']) == "1": cppflags.append('-DLASH_SUPPORT')
+                if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
+		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
+                if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
+		
+                #OSX related stuff..
 
 	includes.append( './' )
 	includes.append( 'gui/src/' )
@@ -118,18 +128,18 @@ def download_3rdparty_libs():
 	if not os.path.exists( "3rdparty/libsndfile.tar.gz" ) and not os.path.exists("3rdparty/libsndfile.zip"):
 		if sys.platform != "win32":
 			print " * Downloading libsndfile.tar.gz"
-			urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1.0.17.tar.gz", "3rdparty/libsndfile.tar.gz")
+                        urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1.0.22.tar.gz", "3rdparty/libsndfile.tar.gz")
 		else:
 			print " * Downloading libsndfile.zip"
-			urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1_0_17.zip", "3rdparty/libsndfile.zip")
+                        urllib.urlretrieve("http://www.mega-nerd.com/libsndfile/libsndfile-1_0_22.zip", "3rdparty/libsndfile.zip")
 
 
 	if sys.platform != "win32":
 		#unix commands
 		if not os.path.exists( "3rdparty/install/lib/libsndfile.a" ):
 			Execute( "cd 3rdparty; tar xzf libsndfile.tar.gz" )
-			Execute( "cd 3rdparty/libsndfile-1.0.17; ./configure --disable-flac --prefix=%s %s" % (prefix, compile_flags) )
-			res = Execute( "cd 3rdparty/libsndfile-1.0.17; make -j2; make install" )
+                        Execute( "cd 3rdparty/libsndfile-1.0.22; ./configure --prefix=%s %s" % (prefix, compile_flags) )
+                        res = Execute( "cd 3rdparty/libsndfile-1.0.22; make -j2; make install" )
 			if res != 0:
 				raise Exception( "Error compiling 3rdparty libraries" )
 	else:
@@ -245,8 +255,7 @@ def get_hydrogen_gui( lib_hydrogen , opts ):
 		env.Append( LIBPATH = 'C:\Program Files\GnuWin32\lib' )
 		env.Append( LIBS = [ "pthread" ] )
 	
-	if str(env['lrdf']) == "1": env.Append( LIBS = ["lrdf"] )
-	if str(env['flac']) == "1": env.Append( LIBS = ["FLAC","FLAC++"] )
+        if str(env['lrdf']) == "1": env.Append( LIBS = ["lrdf"] )
 	if str(env['jack']) == "1": env.Append( LIBS = ["jack"])
 	if str(env['alsa']) == "1": env.Append( LIBS = ["asound"])
 	if str(env['libarchive']) == "1": env.Append( LIBS = ["archive"])
@@ -329,8 +338,7 @@ if sys.platform == "darwin":
 	opts.Add('portaudio', 'Set to 1 to enable portaudio',0)
 	opts.Add('oss', 'Set to 1 to enable oss',0)
 	opts.Add('alsa', 'Set to 1 to enable alsa',0)
-	opts.Add('jack', 'Set to 1 to enable jack',0)
-	opts.Add('flac', 'Set to 1 to enable flac',1)
+        opts.Add('jack', 'Set to 1 to enable jack',0)
 	opts.Add('lash', 'Set to 1 to enable lash',0)
 	opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
 
@@ -341,8 +349,7 @@ elif sys.platform != "win32":
 	opts.Add('lash', 'Set to 1 to enable lash',0)
 	opts.Add('alsa', 'Set to 1 to enable alsa',1)
 	opts.Add('jack', 'Set to 1 to enable jack',1)	
-	opts.Add('lrdf', 'Set to 1 to enable lrdf',1)
-	opts.Add('flac', 'Set to 1 to enable flac',1)
+        opts.Add('lrdf', 'Set to 1 to enable lrdf',1)
 else:
 	#alsa, lash,oss and jack are not available on windows
 	opts.Add('portmidi', 'Set to 1 to enable portmidi',1)
@@ -351,8 +358,7 @@ else:
 	opts.Add('lash', 'Set to 1 to enable lash',0)
 	opts.Add('alsa', 'Set to 1 to enable alsa',0)
 	opts.Add('jack', 'Set to 1 to enable jack',0)
-	opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
-	opts.Add('flac', 'Set to 1 to enable flac',0)
+        opts.Add('lrdf', 'Set to 1 to enable lrdf',0)
 
 
 
@@ -387,13 +393,9 @@ if not conf.CheckCHeader('sndfile.h'):
     print 'libsndfile must be installed!'
     Exit(1)
 
-
-
-# it seems that conf.CheckCHeader  dislikes like the "++" in filenames
-#if not conf.CheckCHeader('FLAC++/all.h'):
-#   print 'FLAC++ must be installed!'
-#   Exit(1)
-
+if not conf.CheckPKG('sndfile >= 1.0.18 '):
+    print 'a libsndfile version >= 1.0.18 is reqired!'
+    Exit(1)
 
 # these libraries are optional (can be enabled/disabled, see 'scons -h')
 
@@ -436,11 +438,6 @@ elif not str(env['libarchive']) == "1" and not conf.CheckCHeader("libtar.h"):
 #lrdf: categorizing of ladspa effects
 if str(env['lrdf']) == "1" and not conf.CheckCHeader('lrdf.h'):
     print 'lrdf must be installed!'
-    Exit(1)
-
-#flac: support for flac samples
-if str(env['flac']) == "1" and not conf.CheckCHeader('FLAC/all.h'):
-    print 'FLAC must be installed!'
     Exit(1)
 
 

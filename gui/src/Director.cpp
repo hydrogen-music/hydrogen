@@ -25,14 +25,17 @@
  **
  ** this dialog is used to use show a director.
  ** for example to play live without a click in your ears.
- ** here you get a: 
- ** 	- visual metronome 
+ ** here you get :
+ ** 	- song name
+ ** 	- a visual metronome
  ** 	- bar position info
  ** 	- beat position info
- **	- bar position tags *
- ** *this will implemented at timeline. rightclick on timeline open a dialog to add position tags. this director displayed this tags.
- ** *first row will display the current tag, second row display next bar tag.>
+ **	- bar position tags (current and next)
  **
+ **	-------------------------------------------
+ **	|                                           |
+ **	|                 song name                 |
+ **	|                                           |	
  **	-------------------------------------------
  **	|                     |                     |
  **	|        Bar          |       Beat          |	
@@ -73,8 +76,7 @@ Director::Director ( QWidget* pParent )
 	p_counter = 1;	// to compute the right beat
 	p_fadealpha = 255;	//default alpha
 	p_bar = 1;	// default bar
-	p_wechselblink = 0;
-	n_bsongload = false;
+	p_wechselblink = width() * 5/100;
 
 	p_bpm = Hydrogen::get_instance()->getSong()->__bpm;
 	timer = new QTimer( this );
@@ -93,12 +95,18 @@ void Director::metronomeEvent( int nValue )
 
 	//load a new song
 	if( nValue == 3 ){
-		n_bsongload = true;
+		
+		//update songname
+		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
+
+		if ( !list.isEmpty() ){
+			songName = list.last().replace( ".h2song", "" );
+		}
+		
 		update();
 		return;
 	}
 
-	n_bsongload = false;
 
 	//bpm
 	p_bpm = Hydrogen::get_instance()->getSong()->__bpm; 
@@ -108,7 +116,7 @@ void Director::metronomeEvent( int nValue )
 		p_bar = 1;
 	// 1000 ms / bpm / 60s
 	timer->start( static_cast<int>( 1000 / ( p_bpm / 60 )) / 2 );
-	p_wechselblink = 0;
+	p_wechselblink = width() * 5/100;
 	p_fadealpha = 255;
 	if ( nValue == 2 ){
 		p_fadealpha = 0;
@@ -124,7 +132,7 @@ void Director::metronomeEvent( int nValue )
 	else {	//foregroundcolor "rect" for all other blinks
 		p_counter++;
 		if( p_counter %2 == 0 ) 
-			p_wechselblink = width() / 2;
+			p_wechselblink = width() * 52.5/100;
 
 		p_color = QColor( 24, 250, 31, 255 );
 
@@ -163,46 +171,39 @@ void Director::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
 
-	//display songname
-	if( n_bsongload ){
-		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
-		QString lastItem = "";
-		if ( !list.isEmpty() ){
-			lastItem = list.last().replace( ".h2song", "" );
-		}
-		painter.setPen(Qt::white);
-		painter.setFont(QFont("Arial", height() / 13 ));
-		QRect r1(QPoint( width() * 1 / 16 , height() * 1 / 16 ), QSize( width() * 15/16 , height() * 15/16 ));
-		painter.drawText( r1, Qt::AlignCenter,  QString( lastItem ) );
-		return;
-	}
+	//draw the songname
+	painter.setFont(QFont("Arial", height() * 14/100 ));
+	QRect rect(QPoint( width() * 5/100 , height () * 2/100 ), QSize( width() * 90/100, height() * 21/100));
+	painter.drawText( rect, Qt::AlignCenter,  QString( songName ) );
+
 
 	//draw the metronome
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
 	painter.setBrush( p_color );
-	painter.drawRect (  width() / 50 + p_wechselblink, height() / 50 , width() -  width() / 25 -  width() / 2, height() / 2 -  height() / 25 );
+	painter.drawRect (  p_wechselblink, height() * 25/100, width() * 42.5/100, height() * 35/100);
+
 
 	//draw bars
 	painter.setPen(Qt::white);
-	painter.setFont(QFont("Arial", height() / 4 ));
-	QRect r1(QPoint( width() * 1 / 16 , height() * 1 / 16 ), QSize( width() / 3, height() / 3));
+	painter.setFont(QFont("Arial", height() * 25/100 ));
+	QRect r1(QPoint( width() * 5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
 	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( p_bar) );
 
 	//draw beats
-	QRect r2(QPoint( width() * 9 / 16 , height() * 1 / 16 ), QSize( width() / 3, height() / 3));
+	QRect r2(QPoint( width() * 52.5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
 
 	if( TAG == TAG2 )
 		 TAG2 = "";
 	//draw current bar tag
 	painter.setPen(Qt::white);
-	painter.setFont(QFont("Arial", height() / 13 ));
-	QRect r3(QPoint ( width() * 1 / 50 , height() * 8 / 16 ), QSize( width() - width() / 25, height() / 3));
+	painter.setFont(QFont("Arial", height() * 8/100 ));
+	QRect r3(QPoint ( width() * 5/100 , height() * 65/100 ), QSize( width() * 90/100, height() * 14/100));
 	painter.drawText( r3, Qt::AlignCenter, QString( (TAG) ) );
 
 	//draw next bar tag
 	painter.setPen(Qt::gray);
-	painter.setFont(QFont("Arial", height() / 15 ));
-	QRect r4(QPoint ( width() * 1 / 50 , height() * 11 / 16 ), QSize( width() - width() / 25, height() / 3));
+	painter.setFont(QFont("Arial", height() * 6/100 ));
+	QRect r4(QPoint ( width() * 5/100 , height() * 83/100 ), QSize( width() * 90/100, height() * 11/100));
 	painter.drawText( r4, Qt::AlignCenter, QString( TAG2 ) );
 }

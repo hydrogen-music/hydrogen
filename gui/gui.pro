@@ -26,7 +26,6 @@ win32 {
     INCLUDEPATH += ../3rdparty/install/include
     #INCLUDEPATH += ../3rdparty/install/libs/libpthread
     #INCLUDEPATH += ../3rdparty/install/libs/libsndfile
-    #INCLUDEPATH += ../3rdparty/install/libs/flac
     #INCLUDEPATH += ../3rdparty/install/libs/portaudio
     #INCLUDEPATH += ../3rdparty/install/libs/portmidi
     INCLUDEPATH += ../../../source/pthreads-w32-2-8-0-release
@@ -38,8 +37,6 @@ win32 {
 }
 
 #old windows libs..
-#LIBS += ../libflac++.lib ../libflac++_dynamic.lib ../libflac++_static.lib ../libflac.lib winmm.lib
-#LIBS += ../libflac++_static.lib ../libflac_static.lib winmm.lib
 #LIBS += ../optarg.lib
 #LIBS += ../ogg_static.lib
 #LIBS += ../pm_dll.lib

@@ -32,7 +32,6 @@
 
 #include <QDomDocument>
 
-class TiXmlNode;
 
 namespace H2Core
 {

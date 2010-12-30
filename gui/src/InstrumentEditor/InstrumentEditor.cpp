@@ -587,6 +587,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
 				Sample* pSample = pLayer->get_sample();
+				if( pSample == NULL) return;
 				QString name = pSample->get_filename();
 				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
 			}
@@ -885,16 +886,16 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 									pEngine->m_pan.push_back( panvector );
 								}
 			
-								Sample *newSample = Sample::load_edit_wave( filename,
-													startframe,
-													loopframe,
-													endframe,
-													loops,
-													mode,
-													userubber,
-													rd,
-													csettings,
-													rpitch);
+                                                                Sample *newSample = Sample::load_edit_sndfile( filename,
+                                                                                                               startframe,
+                                                                                                               loopframe,
+                                                                                                               endframe,
+                                                                                                               loops,
+                                                                                                               mode,
+                                                                                                               userubber,
+                                                                                                               rd,
+                                                                                                               csettings,
+                                                                                                               rpitch);
 	
 								if( !newSample  ){
 									continue;
