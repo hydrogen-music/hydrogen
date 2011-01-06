@@ -1,0 +1,4 @@
+#! /bin/bash
+
+find . -name "*~" -o -name "*.orig" | xargs rm 2>/dev/null
+
