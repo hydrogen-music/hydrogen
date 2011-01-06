@@ -313,7 +313,7 @@ void MainForm::createMenuBar()
 	//~ Tools menu
 
         Logger *l = Logger::get_instance();
-        if ( l->get_log_level() == 15 ) {
+        if ( l->bit_mask() == 15 ) {
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );

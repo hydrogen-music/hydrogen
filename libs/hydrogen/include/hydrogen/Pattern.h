@@ -25,6 +25,7 @@
 
 #include <hydrogen/globals.h>
 #include <hydrogen/Object.h>
+#include <set>
 
 namespace H2Core
 {

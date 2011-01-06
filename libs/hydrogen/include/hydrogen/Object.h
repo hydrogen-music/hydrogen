@@ -27,6 +27,7 @@
 
 #include <map>
 #include <iostream>
+#include <QtCore>
 
 /**
  * Base class.

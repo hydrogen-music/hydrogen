@@ -20,99 +20,113 @@
  *
  */
 
-#ifndef H2_LOGGER_H
-#define H2_LOGGER_H
+#ifndef H2C_LOGGER_H
+#define H2C_LOGGER_H
 
-#include <QtCore>
-
-#include <set>
 #include <cassert>
+#include <list>
 #include <pthread.h>
+
+#include "hydrogen/config.h"
+
+class QString;
+class QStringList;
 
 /**
  * Class for writing logs to the console
  */
-class Logger
-{
-public:
-	/* The log level setting is internally a bit-masked integer.
-	 * These are the bits.  It is valid for the log level to *not*
-	 * be one of these explicitly... however, you won't get proper
-	 * syntax highlighting.  E.g. ~0 will log, but won't get any
-	 * syntax highlighting.  Same with Error|Warning.
-	 *
-	 * This also allows for (future) debugging profiles.  For
-	 * example, if you only want to turn on log messages in a
-	 * specific section of code, you might do Logger::log( 0x80,
-	 * ... ), and set the logging level to 0x80 or 0x81 (to
-	 * include Error logs) with your debugger.
-	 */
-	typedef enum _log_level {
-		None = 0,
-		Error = 1,
-		Warning = 2,
-		Info = 4,
-		Debug = 8,
-		Constructors = 16,
-        AELockTracing = 0x10
-	} log_level_t;
-	typedef std::list<QString> queue_t;
+class Logger {
+    public:
+        /** possible logging bits */
+        typedef enum _log_level {
+            None = 0,
+            Error = 1,
+            Warning = 2,
+            Info = 4,
+            Debug = 8,
+            Constructors = 16,
+            AELockTracing = 0x10
+        } log_level_t;
 
-	bool __use_file;
-	bool __running;
+        /** mesage queue type */
+        typedef std::list<QString> queue_t;
 
-	static void create_instance();
-	static Logger* get_instance() { assert(__instance); return __instance; }
+        /**
+         * create the logger instance if not exists, set the log level and return the instance
+         * \param msk the logging level bitmask
+         */
+        static Logger* bootstrap( unsigned msk );
+        /** create the logger instance if not exists */
+        static Logger* create_instance();
+        /** return the logger instance */
+        static Logger* get_instance() { assert(__instance); return __instance; }
 
-	/** Destructor */
-	~Logger();
+        /** destructor */
+        ~Logger();
 
-    bool should_log( unsigned lvl ) { return (lvl&__log_level); }
-	static void set_log_level(unsigned lev) { __log_level = lev; }
-	static unsigned get_log_level() { return __log_level; }
+        /**
+         * return true if the level is set in the bitmask
+         * /param lvl the level to check
+         */
+        bool should_log( unsigned lvl ) const       { return (lvl&__bit_msk); }
+        /**
+         * set the bitmask
+         * /param msk the new bitmask to set
+         */
+        static void set_bit_mask( unsigned msk )    { __bit_msk = msk; }
+        /** return the current log level bit mask */
+        static unsigned bit_mask()                  { return __bit_msk; }
+        /**
+         * set use file flag
+         * /param use the flag status
+         */
+        void set_use_file( bool use )               { __use_file = use; }
+        /** return __use_file */
+        bool use_file() const                       { return __use_file; }
 
-	static unsigned parse_log_level(const char*);
+        /**
+         * parse a log level string and return the corresponding bit mask
+         * /param lvl the log level string
+         */
+        static unsigned parse_log_level( const char* lvl );
 
-	void log( unsigned lev, const char* funcname, const QString& class_name, const QString& msg );
+        /**
+         * the log function
+         * /param level used to output the corresponding level string
+         * /param class_name the name of the calling class
+         * /param func_name the name of the calling function/method
+         * /param msg the message to log
+         */
+        void log( unsigned level, const QString& class_name, const char* func_name, const QString& msg );
+        /**
+         * needed for beeing able to access logger internal
+         * /param param is a pointer to the logger instance
+         */
+        friend void* loggerThread_func( void* param );
 
-	friend void* loggerThread_func(void* param);  // object.cpp
+    private:
+        static Logger *__instance;      ///< logger private static instance
+        bool __use_file;                ///< write log to file if set to true
+        bool __running;                 ///< set to true when the logger thread is running
+        pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
+        queue_t __msg_queue;            ///< the message queue
+        static unsigned __bit_msk;      ///< the bitmask of log_level_t
+        static const char* __levels[];  ///< levels strings
 
-private:
-	static Logger *__instance;
-
-	/* __msg_queue needs to be a list type (e.g. std::list<>)
-	 * because of the following properties:
-	 *
-	 * - Constant time insertion/removal of elements
-	 * - Changing the list does not invalidate its iterators.
-	 *
-	 * However, the __mutex class member is here for safe access
-	 * to __msg_queue.  It should only be locked when you are
-	 * adding or removing elements to the END of the list.  This
-	 * works because:
-	 *
-	 * - Only one thread is referencing and removing elements
-	 *   from the beginning (the Logger thread).
-	 *
-	 * - While many threads are adding elements, they are only
-	 *   adding elements to the END of the list.
-	 *
-	 */
-	pthread_mutex_t __mutex;  // Lock for adding or removing elements only
-	queue_t __msg_queue;
-	static unsigned __log_level; // A bitmask of log_level_t
-    static const char* __levels[];
+        /** constructor */
+        Logger();
 
 #ifndef HAVE_SSCANF
-    /* Convert a hex string to an integer.
-     * returns -1 on failure.
-     */
-    static int hextoi(const char*, long);
+        /**
+         * convert an hex string to an integer.
+         * returns -1 on failure.
+         * /param str the hex string to convert
+         * /param len the length of the string
+         */
+        static int hextoi(const char* str, long len);
 #endif // HAVE_SSCANF
-
-	/** Constructor */
-	Logger();
-
 };
 
-#endif // H2_LOGGER_H
+#endif // H2C_LOGGER_H
+
+/* vim: set softtabstop=4 expandtab: */

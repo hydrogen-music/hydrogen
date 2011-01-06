@@ -20,137 +20,108 @@
  *
  */
 
-#include "hydrogen/config.h"
 #include "hydrogen/logger.h"
 
-#include <iostream>
+#include <cstdio>
+#include <QtCore/QDir>
+#include <QtCore/QString>
 
 #ifdef WIN32
 #include <windows.h>
+#define LOGGER_SLEEP Sleep( 100 )
 #else
 #include <unistd.h>
+#define LOGGER_SLEEP usleep( 1000000 )
 #endif
 
-unsigned Logger::__log_level = 0;
+unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=0;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug" };
 
 pthread_t loggerThread;
 
-void* loggerThread_func( void* param )
-{
-	if ( param == NULL ) {
-		// ??????
-		return NULL;
-	}
-
+void* loggerThread_func( void* param ) {
+	if ( param == 0 ) return 0;
+	Logger *logger = ( Logger* )param;
 #ifdef WIN32
 	::AllocConsole();
 //	::SetConsoleTitle( "Hydrogen debug log" );
 	freopen( "CONOUT$", "wt", stdout );
 #endif
-
-	Logger *pLogger = ( Logger* )param;
-
-	FILE *pLogFile = NULL;
-	if ( pLogger->__use_file ) {
+	FILE *log_file = 0;
+	if ( logger->__use_file ) {
+        // TODO
 #ifdef Q_OS_MACX
 		QString sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" );
 #else
 		QString sLogFilename = QDir::homePath().append( "/.hydrogen/hydrogen.log" );
 #endif
-
-		pLogFile = fopen( sLogFilename.toLocal8Bit(), "w" );
-		if ( pLogFile == NULL ) {
-			std::cerr << "Error: can't open log file for writing..." << std::endl;
+		log_file = fopen( sLogFilename.toLocal8Bit(), "w" );
+		if ( log_file ) {
+			fprintf( log_file, "Start logger" );
 		} else {
-			fprintf( pLogFile, "Start logger" );
+			fprintf( stderr, "Error: can't open log file for writing...\n" );
 		}
 	}
-
-	while ( pLogger->__running ) {
-#ifdef WIN32
-		Sleep( 1000 );
-#else
-		usleep( 999999 );
-#endif
-
-		Logger::queue_t& queue = pLogger->__msg_queue;
-		Logger::queue_t::iterator it, last;
-		QString tmpString;
-		for( it = last = queue.begin() ; it != queue.end() ; ++it ) {
-			last = it;
-			printf( it->toLocal8Bit() );
-			if( pLogFile ) {
-				fprintf( pLogFile, it->toLocal8Bit() );
-				fflush( pLogFile );
-			}
-		}
-		// See Object.h for documentation on __mutex and when
-		// it should be locked.
-		queue.erase( queue.begin(), last );
-		pthread_mutex_lock( &pLogger->__mutex );
-		if( ! queue.empty() ) queue.pop_front();
-		pthread_mutex_unlock( &pLogger->__mutex );
+	Logger::queue_t* queue = &logger->__msg_queue;
+    Logger::queue_t::iterator it, last;
+    QString tmpString;
+	while ( logger->__running ) {
+        LOGGER_SLEEP;
+        if( !queue->empty() ) {
+		    for( it = last = queue->begin() ; it != queue->end() ; ++it ) {
+			    last = it;
+			    fprintf( stdout, "%s", it->toLocal8Bit().data() );
+			    if( log_file ) {
+				    fprintf( log_file, "%s", it->toLocal8Bit().data() );
+				    fflush( log_file );
+			    }
+		    }
+            // remove all in front of last
+		    queue->erase( queue->begin(), last );
+            // lock before removing last
+		    pthread_mutex_lock( &logger->__mutex );
+		    queue->pop_front();
+		    pthread_mutex_unlock( &logger->__mutex );
+        }
 	}
-
-	if ( pLogFile ) {
-		fprintf( pLogFile, "Stop logger" );
-		fclose( pLogFile );
+	if ( log_file ) {
+		fprintf( log_file, "Stop logger" );
+		fclose( log_file );
 	}
 #ifdef WIN32
 	::FreeConsole();
 #endif
-
-
-#ifdef WIN32
-	Sleep( 1000 );
-#else
-	usleep( 100000 );
-#endif
-
-	pthread_exit( NULL );
-	return NULL;
+    LOGGER_SLEEP;
+	pthread_exit( 0 );
+	return 0;
 }
 
-void Logger::create_instance()
-{
-	if ( __instance == 0 ) {
-		__instance = new Logger;
-	}
+Logger* Logger::bootstrap( unsigned msk ) {
+    Logger::set_bit_mask( msk );
+    return Logger::create_instance();
+    return Logger::get_instance();
 }
 
-/**
- * Constructor
- */
-Logger::Logger()
-		: __use_file( false )
-		, __running( true )
-{
+Logger* Logger::create_instance() {
+    if ( __instance == 0 ) __instance = new Logger;
+}
+
+Logger::Logger() : __use_file( false ), __running( true ) {
 	__instance = this;
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
-	pthread_mutex_init( &__mutex, NULL );
+	pthread_mutex_init( &__mutex, 0 );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 }
 
-/**
- * Destructor
- */
-Logger::~Logger()
-{
+Logger::~Logger() {
 	__running = false;
-	pthread_join( loggerThread, NULL );
-
+	pthread_join( loggerThread, 0 );
 }
 
-void Logger::log( unsigned level,
-		  const char* funcname,
-		  const QString& class_name,
-		  const QString& msg )
-{
+void Logger::log( unsigned level, const QString& class_name, const char* func_name, const QString& msg ) {
 	if( level == None ) return;
-
 	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) " };
 #ifdef WIN32
 	const char* color[] = { "", "", "", "", "" };
@@ -181,11 +152,11 @@ void Logger::log( unsigned level,
 		break;
 	}
 
-	QString tmp = QString("%1%2%3\t%4 %5 \033[0m\n")
+	QString tmp = QString("%1%2%3::%4 %5\033[0m\n")
 		.arg(color[i])
 		.arg(prefix[i])
 		.arg(class_name)
-		.arg(funcname)
+		.arg(func_name)
 		.arg(msg);
 
 	pthread_mutex_lock( &__mutex);
@@ -193,8 +164,7 @@ void Logger::log( unsigned level,
 	pthread_mutex_unlock( &__mutex );
 }
 
-unsigned Logger::parse_log_level(const char* level)
-{
+unsigned Logger::parse_log_level(const char* level) {
 	unsigned log_level;
 	if( 0 == strncasecmp( level, __levels[0], sizeof(__levels[0]) ) ) {
 		log_level = Logger::None;
@@ -223,8 +193,7 @@ unsigned Logger::parse_log_level(const char* level)
 }
 
 #ifndef HAVE_SSCANF
-int Logger::hextoi(const char* str, long len)
-{
+int Logger::hextoi(const char* str, long len) {
     long pos = 0;
     char c = 0;
     int v = 0;

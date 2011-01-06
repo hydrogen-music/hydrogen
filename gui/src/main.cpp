@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 
 		// Man your battle stations... this is not a drill.
 		Logger::create_instance();
-        Logger::set_log_level( logLevelOpt );
+        Logger::set_bit_mask( logLevelOpt );
         Logger* logger = Logger::get_instance();
 		Object::bootstrap( logger, logger->should_log(Logger::Debug) );
 		MidiMap::create_instance();
