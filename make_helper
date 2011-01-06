@@ -3,11 +3,11 @@
 BUILDER=${BUILDER:-cmake}
 QTDIR=${QTDIR:-/usr/lib/qt}
 VERBOSE=${VERBOSE:-0}
-CMAKE_OPTIONS="-DWANT_DEBUG=1 -DWANT_JACK=1 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1"
-CMAKE_OPTIONS="${CMAKE_OPTIONS} -DWANT_OSS=1 -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1 -DWANT_LASH=1 -DWANT_LRDF=1 "
+CMAKE_OPTIONS="-DWANT_DEBUG=1 -DWANT_JACK=1 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1 -DWANT_RUBBERBAND=1"
+CMAKE_OPTIONS="${CMAKE_OPTIONS} -DWANT_OSS=1 -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1 -DWANT_LASH=1 -DWANT_LRDF=1"
 CMAKE_OPTIONS_="${CMAKE_OPTIONS} -DWANT_COREAUDIO=1 -DWANT_COREMIDI=1"
 MAKE_OPTS="-j 2"
-H2FLAGS="-V0x7"
+H2FLAGS="-V0xf"
 
 find . -name '*~' -exec rm '{}' \;
 rm libs/hydrogen/include/hydrogen/config.h 2>/dev/null
@@ -61,13 +61,14 @@ function cmake_make() {
     fi
     cd build
     if [ ! -e CMakeCache.txt ]; then
-        cmake ${CMAKE_OPTIONS} ..
+        cmake ${CMAKE_OPTIONS} .. || exit 1
     fi
     if [ $VERBOSE -eq 1 ]; then
         VERBOSE=1 make $MAKE_OPTS || exit 1
     else
         make $MAKE_OPTS || exit 1
     fi
+    cd ..
 }
 
 function cmake_graph() {
@@ -75,12 +76,12 @@ function cmake_graph() {
     if [ ! -d build ]; then
         mkdir build
     fi
-    cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot
+    cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot && cd ..
 }
 
 function cmake_doc() {
     if [ -d build ]; then
-        cd build && make doc
+        cd build && make doc && cd ..
     fi
 }
 
@@ -89,11 +90,11 @@ function cmake_help() {
     if [ ! -d build ]; then
         mkdir build
     fi
-    cd build && cmake -L ..
+    cd build && cmake -L .. && cd ..
 }
 
 function cmake_exec() {
-    echo -e " * execute hydrogen\n" && ./gui/hydrogen $H2FLAGS
+    echo -e " * execute hydrogen\n" && ./build/gui/hydrogen $H2FLAGS
 }
 
 echo -e "used builder : ${BUILDER}"
@@ -159,8 +160,3 @@ for arg in $@; do
      esac
      $cmd
 done
-
-cp gui/hydrogen ../hydrogen
-
-#grep -l -R SUPPORT gui/ | xargs sed -i -e 's/ \(.*\)_SUPPORT/ HYDROGEN_\1_SUPPORT/'
-#grep -l -R 'include "config.h"' gui/ | xargs sed -i -e '/include "config.h"help
