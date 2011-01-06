@@ -57,14 +57,14 @@
 #ifndef H2CORE_HAVE_COREMIDI
 #cmakedefine H2CORE_HAVE_COREMIDI
 #endif
-#ifndef H2CORE_HAVE_FLAC
-#cmakedefine H2CORE_HAVE_FLAC
-#endif
 #ifndef H2CORE_HAVE_LRDF
 #cmakedefine H2CORE_HAVE_LRDF
 #endif
 #ifndef H2CORE_HAVE_LADSPA
 #cmakedefine H2CORE_HAVE_LADSPA
+#endif
+#ifndef H2CORE_HAVE_RUBBERBAND
+#cmakedefine H2CORE_HAVE_RUBBERBAND
 #endif
 
 #endif
