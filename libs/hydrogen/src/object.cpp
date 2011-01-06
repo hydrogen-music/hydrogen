@@ -20,7 +20,6 @@
  *
  */
 
-#include "hydrogen/config.h"
 #include "hydrogen/Object.h"
 
 #include <cassert>
@@ -28,7 +27,6 @@
 #include <iomanip>
 #include <cstdlib>
 
-/* Object class instance */
 Logger* Object::__logger = 0;
 bool Object::__count = false;
 unsigned Object::__objects_count = 0;
@@ -39,7 +37,7 @@ int Object::bootstrap( Logger* logger, bool count ) {
     if(__logger==0 && logger!=0) {
         __logger = logger;
         __count = count;
-        pthread_mutex_init( &__mutex, NULL );
+        pthread_mutex_init( &__mutex, 0 );
         return 0;
     }
     return 1;
@@ -63,9 +61,9 @@ Object::Object( const char* class_name ) :__class_name(class_name) {
 #endif
 }
 
-void Object::set_count( bool status ) {
+void Object::set_count( bool flag ) {
 #ifdef H2CORE_HAVE_DEBUG
-    __count = status;
+    __count = flag;
 #else
     if(__logger!=0 && __logger->should_log(Logger::Error) ){
         __logger->log(  Logger::Error, "set_count", "Object", "not compiled with H2CORE_HAVE_DEBUG flag set" );
@@ -73,7 +71,7 @@ void Object::set_count( bool status ) {
 #endif
 }
 
-void Object::add_object( const Object *obj, bool copy ) {
+inline void Object::add_object( const Object* obj, bool copy ) {
 #ifdef H2CORE_HAVE_DEBUG
     const char* class_name = ((Object*)obj)->class_name();
     if(__logger && __logger->should_log(Logger::Constructors)) __logger->log( Logger::Debug, 0, class_name, (copy ? "Copy Constructor" : "Constructor") );
@@ -85,7 +83,7 @@ void Object::add_object( const Object *obj, bool copy ) {
 #endif
 }
 
-void Object::del_object( const Object* obj ) {
+inline void Object::del_object( const Object* obj ) {
 #ifdef H2CORE_HAVE_DEBUG
     const char* class_name = ((Object*)obj)->class_name();
     if(__logger && __logger->should_log(Logger::Constructors)) __logger->log( Logger::Debug, 0, class_name, "Destructor");
@@ -93,7 +91,7 @@ void Object::del_object( const Object* obj ) {
     if ( it_count==__objects_map.end() ) {
         if(__logger!=0 && __logger->should_log(Logger::Error) ){
             std::stringstream msg;
-            msg << "delete an uncounter object " <<  class_name << " [" << obj << "]";
+            msg << "the class " <<  class_name << " is not registered ! [" << obj << "]";
             __logger->log(Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );
         }
         return;
@@ -102,6 +100,7 @@ void Object::del_object( const Object* obj ) {
     pthread_mutex_lock( &__mutex );
     assert( __objects_map[class_name].constructed > (__objects_map[class_name].destructed ) );
     __objects_count--;
+    assert(__objects_count>=0);
     __objects_map[ (*it_count).first ].destructed++;
     pthread_mutex_unlock( &__mutex );
 #endif
@@ -142,4 +141,4 @@ void Object::write_objects_map_to(std::ostream &out ) {
 #endif
 }
 
-
+/* vim: set softtabstop=4 expandtab: */

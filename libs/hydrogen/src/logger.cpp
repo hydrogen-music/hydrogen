@@ -237,3 +237,4 @@ int Logger::hextoi(const char* str, long len) {
 }
 #endif // HAVE_SSCANF
 
+/* vim: set softtabstop=4 expandtab: */

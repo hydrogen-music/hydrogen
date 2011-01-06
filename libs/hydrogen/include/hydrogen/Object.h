@@ -20,12 +20,13 @@
  *
  */
 
-#ifndef H2_OBJECT_H
-#define H2_OBJECT_H
+#ifndef H2C_OBJECT_H
+#define H2C_OBJECT_H
 
 #include "hydrogen/logger.h"
+#include "hydrogen/config.h"
+#include "hydrogen/globals.h"
 
-#include <map>
 #include <iostream>
 #include <QtCore>
 
@@ -34,42 +35,66 @@
  */
 class Object {
     public:
+        /** destructor */
         ~Object();
+        /** copy constructor */
         Object( const Object& obj );
+        /** constructor */
         Object( const char* class_name );
 
-        const char* class_name( ) { return __class_name;  }
+        const char* class_name( ) const         { return __class_name;  }       ///< return the class name
+        /**
+         * enable/disable class instances counting
+         * /param flag the counting status to set
+         */
+	    static void set_count( bool flag );
+        static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
+        static unsigned objects_count()         { return __objects_count; }     ///< return the number of objects
 
-	    static void set_count( bool status );
-	    static bool count_active() { return __count; };
-        static unsigned objects_count() { return __objects_count; };
-
+        /**
+         * output the full objects map to a given ostream
+         * /param out the ostream to write to
+         */
         static void write_objects_map_to( std::ostream &out );
-        static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }
+        static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< ouput objects map to stderr
 
         /**
          * must be called before any Object instanciation !
+         * \param logger the logger instance used to send messages to
+         * \param count should we count objects instances or not
          */
         static int bootstrap( Logger *logger, bool count=false );
-        static Logger* logger() { return __logger; }
+        static Logger* logger()                 { return __logger; }            ///< return the logger instance
 
     private:
-        const char* __class_name;   /* without this, destructor will need a map ref=>class name */
-        static void del_object( const Object* );
-        static void add_object( const Object*, bool );
+        /**
+         * search for the class name within __objects_map, decrease class and global counts
+         * /param obj the object to be taken into account
+         */
+        static void del_object( const Object* obj );
+        /**
+         * search for the clas name within __objects_map, create it if doesn't exists, increase class and global counts
+         * /param obj the object to be taken into account
+         * /param copy is it called from a copy constructor
+         */
+        static void add_object( const Object* obj, bool copy );
 
-        static bool __count;
-        static unsigned __objects_count;
+        /** */
         typedef struct { unsigned constructed; unsigned destructed; } obj_cpt_t;
+        /** */
         typedef std::map<const char*, obj_cpt_t> object_map_t;
-        static object_map_t __objects_map;
-	    static pthread_mutex_t __mutex;
+
+        const char* __class_name;               ///< the object class name
+        static bool __count;                    ///< should we count class instances
+        static unsigned __objects_count;        ///< total objects count
+        static object_map_t __objects_map;      ///< objects classes and instances count structure
+	    static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
 
     protected:
-        static Logger* __logger;
+        static Logger* __logger;                ///< logger instance pointer
 };
 
-/* Object inherited class declaration macro */
+// Object inherited class declaration macro
 #define H2_OBJECT                                                       \
     public: static const char* class_name() { return __class_name; }    \
     private: static const char* __class_name;                           \
@@ -81,28 +106,30 @@ class Object {
 #define __LOG_STATIC(   lvl, msg )  if( Logger::get_instance()->should_log( (lvl) ) )   { Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, msg ); }
 
-/* Object instance method logging macros */
+// Object instance method logging macros
 #define DEBUGLOG(x)     __LOG_METHOD( Logger::Debug,   (x) );
 #define INFOLOG(x)      __LOG_METHOD( Logger::Info,    (x) );
 #define WARNINGLOG(x)   __LOG_METHOD( Logger::Warning, (x) );
 #define ERRORLOG(x)     __LOG_METHOD( Logger::Error,   (x) );
 
-/* Object class method logging macros */
+// Object class method logging macros
 #define _DEBUGLOG(x)    __LOG_CLASS( Logger::Debug,   (x) );
 #define _INFOLOG(x)     __LOG_CLASS( Logger::Info,    (x) );
 #define _WARNINGLOG(x)  __LOG_CLASS( Logger::Warning, (x) );
 #define _ERRORLOG(x)    __LOG_CLASS( Logger::Error,   (x) );
 
-/* logging macros using an Object *__object ( thread :  Object* __object = ( Object* )param; ) */
+// logging macros using an Object *__object ( thread :  Object* __object = ( Object* )param; )
 #define __DEBUGLOG(x)   __LOG_OBJ( Logger::Debug,      (x) );
 #define __INFOLOG(x)    __LOG_OBJ( Logger::Info,       (x) );
 #define __WARNINGLOG(x) __LOG_OBJ( Logger::Warning,    (x) );
 #define __ERRORLOG(x)   __LOG_OBJ( Logger::Error,      (x) );
 
-/* logging macros using  ( thread :  Object* __object = ( Object* )param; ) */
+// logging macros using  ( thread :  Object* __object = ( Object* )param; )
 #define ___DEBUGLOG(x)  __LOG_STATIC( Logger::Debug,    (x) );
 #define ___INFOLOG(x)   __LOG_STATIC( Logger::Info,     (x) );
 #define ___WARNINGLOG(x) __LOG_STATIC(Logger::Warning,  (x) );
 #define ___ERRORLOG(x)  __LOG_STATIC( Logger::Error,    (x) );
 
-#endif // H2_OBJECT_H
+#endif // H2C_OBJECT_H
+
+/* vim: set softtabstop=4 expandtab: */
