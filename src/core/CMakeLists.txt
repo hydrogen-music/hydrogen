@@ -5,7 +5,7 @@ FILE(GLOB_RECURSE hydrogen_INCLUDES include/*.h)
 FILE(GLOB_RECURSE hydrogen_SOURCES src/*.cpp src/*.cc src/*.c)
 LIST(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h)
 
-ADD_LIBRARY( hydrogen-core ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
+ADD_LIBRARY( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
 INCLUDE_DIRECTORIES( include
     ${CMAKE_SOURCE_DIR}/include                 # regular headers
     ${CMAKE_CURRENT_BINARY_DIR}/include         # generated config.h
@@ -25,12 +25,12 @@ INCLUDE_DIRECTORIES( include
     ${LRDF_INCLUDE_DIR}
 )
 
-SET_TARGET_PROPERTIES(hydrogen-core
+SET_TARGET_PROPERTIES(hydrogen-core-${VERSION}
     PROPERTIES
     PUBLIC_HEADER   "${hydrogen_INCLUDES}"
 )
 
-TARGET_LINK_LIBRARIES(hydrogen-core
+TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
     ${QT_QTCORE_LIBRARY}
     ${QT_QTXML_LIBRARY}
     ${LIBTAR_LIBRARIES}
@@ -49,7 +49,7 @@ TARGET_LINK_LIBRARIES(hydrogen-core
     ${LRDF_LIBRARIES}
 )
 
-INSTALL(TARGETS hydrogen-core
+INSTALL(TARGETS hydrogen-core-${VERSION}
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     PUBLIC_HEADER DESTINATION include/hydrogen

@@ -26,11 +26,11 @@ INCLUDE_DIRECTORIES(
 
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H})
 TARGET_LINK_LIBRARIES(hydrogen
-    hydrogen-core
+    hydrogen-core-${VERSION}
     ${QT_QTGUI_LIBRARY}
     ${QT_QTNETWORK_LIBRARY}
 )
 
-ADD_DEPENDENCIES(hydrogen hydrogen-core)
+ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION bin BUNDLE DESTINATION bin )
