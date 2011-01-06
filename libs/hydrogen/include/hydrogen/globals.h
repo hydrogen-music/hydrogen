@@ -19,22 +19,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef ENGINE_GLOBALS_H
-#define ENGINE_GLOBALS_H
+#ifndef H2C_GLOBALS_H
+#define H2C_GLOBALS_H
 
-#define MAX_INSTRUMENTS		1000
-#define MAX_NOTES		192
+#define MAX_INSTRUMENTS         1000
 
-#define MAX_FX			4
+#define MAX_NOTES		        192
 
-#define MAX_LAYERS		16
+#define MAX_LAYERS              16
 
-#define MAX_BUFFER_SIZE		8192
+#define MAX_FX			        4
 
-#define TWOPI 	6.28318530717958647692
+#define MAX_BUFFER_SIZE		    8192
 
-// useful to suppress gcc warning on unused variables
-#define UNUSED( v )  v = v
+#define MIDI_MIDDLE_C           60
+#define MIDI_OUT_NOTE_MIN       0
+#define MIDI_OUT_NOTE_MAX       127
+#define MIDI_OUT_CHANNEL_MIN    -1
+#define MIDI_OUT_CHANNEL_MAX    15
 
+#define EMPTY_INSTR_ID          -1
+#define METRONOME_INSTR_ID      -2
 
-#endif
+#define TWOPI                   6.28318530717958647692
+
+#define UNUSED( v )             (v = v)
+
+#endif // H2C_GLOBALS_H
