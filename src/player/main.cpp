@@ -24,7 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
@@ -43,20 +43,12 @@ void usage()
 	exit(0);
 }
 
-void quit()
-{
-	_INFOLOG( "Quitting..." );
-	sleep(1);
-	cout << "\nBye..." << endl;
-	delete Logger::get_instance();
-	exit(0);
-}
+int main(int argc, char** argv) {
 
-int main(int argc, char** argv)
-{
-	Object::use_verbose_log( true );
-	_INFOLOG( "test" );
-
+    int log_level = Logger::Debug | Logger::Info | Logger::Warning | Logger::Error;
+    Logger* logger = Logger::bootstrap( log_level );
+    Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+	___INFOLOG( "test" );
 
 	if (argc != 2) {
 		usage();
@@ -101,8 +93,8 @@ int main(int argc, char** argv)
 				delete preferences;
 				delete Logger::get_instance();
 
-				std::cout << std::endl << std::endl << Object::get_objects_number() << " alive objects" << std::endl << std::endl;
-				Object::print_object_map();
+				std::cout << std::endl << std::endl << Object::objects_count() << " alive objects" << std::endl << std::endl;
+				Object::write_objects_map_to_cerr();
 
 				exit(0);
 				break;
@@ -125,8 +117,8 @@ int main(int argc, char** argv)
 
 			case 'd':
 				cout << "DEBUG" << endl;
-				Object::print_object_map();
-				int nObj = Object::get_objects_number();
+				Object::write_objects_map_to_cerr();
+				int nObj = Object::objects_count();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;
 		}
