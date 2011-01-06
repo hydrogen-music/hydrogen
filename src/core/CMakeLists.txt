@@ -1,15 +1,15 @@
 
-CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/libs/hydrogen/include/hydrogen/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" @ONLY)
-
-FILE(GLOB_RECURSE hydrogen_SOURCES src/*.cpp src/*.cc src/*.c)
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/include/hydrogen/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" @ONLY)
 
 FILE(GLOB_RECURSE hydrogen_INCLUDES include/*.h)
+FILE(GLOB_RECURSE hydrogen_SOURCES src/*.cpp src/*.cc src/*.c)
 LIST(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h)
 
 ADD_LIBRARY( hydrogen-core ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
 INCLUDE_DIRECTORIES( include
-    ${CMAKE_SOURCE_DIR}                             # TODO remove this when core and gui are nicely splitted
-    ${CMAKE_CURRENT_BINARY_DIR}/include             # config.h
+    ${CMAKE_SOURCE_DIR}/include                 # regular headers
+    ${CMAKE_CURRENT_BINARY_DIR}/include         # generated config.h
+    ${CMAKE_SOURCE_DIR}                         # TODO remove this when core and gui are nicely splitted
     ${QT_INCLUDES}
     ${LIBTAR_INCLUDE_DIR}
     ${LIBARCHIVE_INCLUDE_DIR}
