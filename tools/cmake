@@ -1,6 +1,5 @@
 #! /bin/bash
 
-BUILDER=${BUILDER:-cmake}
 QTDIR=${QTDIR:-/usr/lib/qt}
 VERBOSE=${VERBOSE:-0}
 CMAKE_OPTIONS="-DWANT_DEBUG=1 -DWANT_JACK=1 -DWANT_ALSA=1 -DWANT_LIBARCHIVE=1 -DWANT_RUBBERBAND=1"
@@ -10,41 +9,6 @@ MAKE_OPTS="-j 2"
 H2FLAGS="-V0xf"
 
 find . -name '*~' -exec rm '{}' \;
-rm libs/hydrogen/include/hydrogen/config.h 2>/dev/null
-
-function scons_clean() {
-    echo -e " * clean scons files\n"
-    rm -fr scache.conf scons_cache .sconf_temp .sconsign.dblite qt4.pyc config.log hydrogen libhydrogen.a
-}
-
-function scons_rm() {
-    scons_clean
-    echo -e " * rm scons files\n"
-    find . -name '*.a' -exec rm '{}' \;
-    find . -name '*.o' -exec rm '{}' \;
-    find . -name 'ui_*' -exec rm '{}' \;
-    find . -name 'moc_*' -exec rm '{}' \;
-}
-
-function scons_make() {
-    echo -e " * scons make\n" && scons || exit 1
-}
-
-function scons_doc() {
-    echo -e " * sorry, no can do\n"
-}
-
-function scons_graph() {
-    echo -e " * sorry, no can do\n"
-}
-
-function scons_help() {
-    echo -e " * scons make\n" && scons
-}
-
-function scsons_exec() {
-    echo -e " * execute hydrogen\n" && ./hydrogen $H2FLAGS
-}
 
 function cmake_clean() {
     echo -e " * clean cmake files\n" && rm build/CMakeCache.txt 2>/dev/null
@@ -97,7 +61,6 @@ function cmake_exec() {
     echo -e " * execute hydrogen\n" && ./build/gui/hydrogen $H2FLAGS
 }
 
-echo -e "used builder : ${BUILDER}"
 if [ $# -eq 0 ]; then
     echo "usage $0 [cmds list]"
     echo "cmds may be"
@@ -108,52 +71,53 @@ if [ $# -eq 0 ]; then
     echo "   g or graph  => draw a dependecies graph"
     echo "   h or help   => show the build options"
     echo "   x or exec   => execute hydrogen"
+    echo "ex: ./tool/cmake r m x"
     exit 1
 fi
 
 for arg in $@; do
     case $arg in
         "c")
-            cmd="${BUILDER}_clean"
+            cmd="cmake_clean"
             ;;
         "clean")
-            cmd="${BUILDER}_${arg}"
+            cmd="cmake_${arg}"
             ;;
         "r")
-            cmd="${BUILDER}_rm"
+            cmd="cmake_rm"
             ;;
         "rm")
-            cmd="${BUILDER}_${arg}"
+            cmd="cmake_${arg}"
             ;;
         "m")
-            cmd="${BUILDER}_make"
+            cmd="cmake_make"
             ;;
         "make")
-            cmd="${BUILDER}_${arg}"
+            cmd="cmake_${arg}"
             ;;
         "g")
-            cmd="${BUILDER}_graph"
+            cmd="cmake_graph"
             ;;
         "graph")
-            cmd="${BUILDER}_${arg}"
+            cmd="cmake_${arg}"
             ;;
         "d")
-            cmd="${BUILDER}_doc"
+            cmd="cmake_doc"
             ;;
         "doc")
-            cmd="${BUILDER}_${doc}"
+            cmd="cmake_${doc}"
             ;;
         "h")
-            cmd="${BUILDER}_help"
+            cmd="cmake_help"
             ;;
         "help")
-            cmd="${BUILDER}_${arg}"
+            cmd="cmake_${arg}"
             ;;
         "x")
-            cmd="${BUILDER}_exec"
+            cmd="cmake_exec"
             ;;
         "exec")
-            cmd="${BUILDER}_${arg}"
+            cmd="cmake_${arg}"
             ;;
         *)
          echo "unknown command ${arg}" && exit 1

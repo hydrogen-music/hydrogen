@@ -12,7 +12,6 @@ Contents:
 3. Binary Packages
 4. Prerequisites to Build from Source
 5. Build and Install from Source
-6. INSTALL.txt Changelog
 
 1. System Requirements
 ----------------------
@@ -85,8 +84,8 @@ installed on your system, and the development header files:
 	* Qt 4 Library (>=4.4.0, 4.3.x might work, 4.2.x won't)
 	* Qt 4 SDK (moc, uic, etc.)
 	* GNU g++ compiler (>=4.0, 3.x might work)
-    * [ cmake (>=2.6) OR scons (>=0.98, 1.0 preferred, <0.98 might work) ]
-        * libsndfile >=1.0.18
+    * cmake (>=2.6)
+    * libsndfile >=1.0.18
 	* zlib and libtar -OR- libarchive
 	  OS X: You will probably need to build libarchive from source.
 	* At least 1 audio and 1 midi driver
@@ -102,7 +101,7 @@ installed on your system, and the development header files:
 	* CoreMidi (OS X)
 
 	OPTIONAL SUPPORT
-        * LASH (Linux Audio Session Handler)
+    * LASH (Linux Audio Session Handler)
 	* liblrdf for LADSPA plugins
 
 On a single, 500MHz processor Hydrogen takes about 1.5 hours to build.
@@ -121,48 +120,57 @@ Please read the relevant wiki pages for more informations:
 http://trac.assembla.com/hydrogen/wiki/development%3AcompileOSX
 http://trac.assembla.com/hydrogen/wiki/coding%3Apackagingwin
 
- 5.1 scons method
-----------------
+ 5.1 build
+ ---------
+
 After you have all the prerequisites, building and installing will
 look like this:
 
-        $ tar xjf hydrogen-0.9.5.tar.bz2
-        $ cd hydrogen-0.9.5
-	$ scons
-	$ sudo scons install
+	$ tar xjf hydrogen-0.9.5.tar.bz2
+	$ cd hydrogen-0.9.5
+	$ mkdir build && cd build
+    $ cmake ..
+	$ make && sudo make install
 
-If you wish to configure features like LADSPA plugins, FLAC support,
+All the following cmake commands should be executed in a build directory :
+
+If you wish to configure features like LADSPA plugins,
 or debugging symbols, get more information like this:
 
-	$ scons --help
+	$ cmake -L ..
+
+For possible make targets:
+
+    $ make help
 
 To change the directory where hydrogen is installed, it is done like
 this:
 
-	$ scons prefix=/path/to/install/dir
-	$ sudo scons install
+	$ cmake -DCMAKE_INSTALL_PREFIX=/opt/hydrogen ..
+	$ make && sudo make install
 
 Uninstalling Hydrogen is done like this:
 
-	$ sudo scons -c install
+	$ sudo cmake uninstall
 
-Note that scons is a build system and not a package manager.  While we
+Note that cmake is a build system and not a package manager.  While we
 make every effort to ensure that Hydrogen uninstalls cleanly, it is
 not a guarantee.
 
-Hydrogen uses a scons tool that detects the correct Qt settings, but
-sometimes it needs a little help.  If Hydrogen fails to build
-(typically when a .ui file fails), set the Qt 4 install directory like
-this:
+Cmake macros should detect the correct Qt settings and location of your libraries,
+but sometimes it needs a little help.  If Hydrogen fails to build, some
+environment variables could help it.
 
-	$ QTDIR=/opt/lib/qt4 scons
+	$ QTDIR=/opt/lib/qt4 OSS_PATH="/usr/lib/oss/lib" OSS_INCLUDE="/usr/lib/oss/include" cmake ..
 
-It's also best to ensure that your PATH is pointing to the Qt 4
-versions of moc and uic, and not the Qt 3 versions.
+ 5.2 cmake helper
+ ----------------
 
-E.g. for Ubuntu 10.4, if you wanted to also enable lash, portaudio and portmidi you would use the following call:
+ Alternatively you could use the cmake helper : ./tools/cmake
 
-	$ QTDIR=/usr/share/qt4 scons lash=1 portaudio=1 portmidi=1
+ To remove and build hydrogen from scratch
+
+    $ ./tools/cmake r m
 
 ___CREATING A BINARY PACKAGE___
 
@@ -181,8 +189,8 @@ In order to create a .deb package for Debian or Debian-based systems
 
 To build the Hydrogen package:
 
-        $ tar xjf hydrogen-0.9.5.tar
-        $ cd hydrogen-0.9.5
+    $ tar xjf hydrogen-0.9.5.tar
+    $ cd hydrogen-0.9.5
 	$ cd linux
 	$ fakeroot dpkg-buildpackage
 
@@ -195,8 +203,3 @@ name with the version your build created):
 	$ cd ..
         $ sudo dpkg -i hydrogen_0.9.5_amd64.deb
 
-6. INSTALL.txt Changelog
-------------------------
-
-2009-04-08 Gabriel M. Beddingfield <gabriel@teuton.org>
-	* Create INSTALL.txt

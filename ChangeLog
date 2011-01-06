@@ -22,10 +22,9 @@
 	* and at least several small changes
 	* Xml handling is now done by QtXml instead of TinyXML
 	* improved support for non-ascii filenames / strings
-        * remove direct dependencies to libflac
+	* remove direct dependencies to libflac
 
 2009-09-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
-  
 	* Release 0.9.4
 	* QT4 port
 	* Autosave
