@@ -3,12 +3,18 @@ Name=Hydrogen Drum Machine
 Name[de]=Hydrogen Drumsequencer
 Name[ru]=Драм-машина Hydrogen
 Name[hu]=Hydrogen Dobgép
+Name[tr]=Hydrogen Davul Makinası
 
 Comment=Create drum sequences
 Comment[de]=Schlagzeugsequenzen erstellen
 Comment[ru]=Создание партий ударных инструментов
 Comment[hu]=Dobszekvenciákat lehet vele készíteni
+Comment[tr]=Davul partisyonu yaz
 
+GenericName=Drum Machine
+GenericName[de]=Drumsequencer
+GenericName[ru]=Драм-машина
+GenericName[tr]=Davul Makinası
 
 Encoding=UTF-8
 Version=1.0
@@ -24,4 +30,4 @@ TryExec=hydrogen
 Terminal=false
 StartupNotify=true
 
-Icon=@ac_prefix@/share/pixmaps/icon.svg
+Icon=h2-icon
