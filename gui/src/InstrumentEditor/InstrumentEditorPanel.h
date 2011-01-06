@@ -24,7 +24,7 @@
 #define INSTRUMENT_EDITOR_PANEL_H
 
 #include <QtGui>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include "InstrumentEditor.h"
 
 ///

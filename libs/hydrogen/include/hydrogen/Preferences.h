@@ -30,7 +30,7 @@
 
 #include <hydrogen/action.h>
 #include <hydrogen/globals.h>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include <QStringList>
 #include <QDomDocument>

@@ -24,7 +24,7 @@
 #define MAIN_SAMPLE_WAVE_DISPLAY
 
 #include <QtGui>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include "SampleEditor.h"
 class SampleEditor;
 

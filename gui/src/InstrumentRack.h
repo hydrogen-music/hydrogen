@@ -24,7 +24,7 @@
 #ifndef INSTRUMENT_RACK_H
 #define INSTRUMENT_RACK_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include <QtGui>
 

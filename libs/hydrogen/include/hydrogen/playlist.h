@@ -24,7 +24,7 @@
 #define PLAYLIST_H
 
 #include <QDialog>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>

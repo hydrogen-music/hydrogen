@@ -26,7 +26,7 @@
 
 #include <QtGui>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class SoundLibraryTree : public QTreeWidget, private Object
 {

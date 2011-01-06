@@ -24,7 +24,7 @@
 #define H2_NOTE_H
 
 #include <cassert>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/adsr.h>
 
 

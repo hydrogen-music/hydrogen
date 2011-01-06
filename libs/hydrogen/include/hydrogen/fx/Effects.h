@@ -27,7 +27,7 @@
 #ifdef H2CORE_HAVE_LADSPA
 
 #include <hydrogen/globals.h>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/fx/LadspaFX.h>
 
 #include <vector>

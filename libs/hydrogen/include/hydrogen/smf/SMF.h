@@ -23,7 +23,7 @@
 #ifndef SMF_H
 #define SMF_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/Song.h>
 
 #include <string>

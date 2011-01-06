@@ -20,7 +20,7 @@
  *
  */
 
-#include "hydrogen/Object.h"
+#include "hydrogen/object.h"
 
 #include <cassert>
 #include <sstream>

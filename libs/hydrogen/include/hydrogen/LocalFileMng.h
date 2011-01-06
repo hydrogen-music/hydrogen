@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include <QDomDocument>
 

@@ -27,7 +27,7 @@
 #include <QtGui>
 
 #include <hydrogen/instrument.h>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include "../EventListener.h"
 #include "../widgets/PixmapWidget.h"

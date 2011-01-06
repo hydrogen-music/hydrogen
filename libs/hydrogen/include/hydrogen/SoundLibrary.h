@@ -24,7 +24,7 @@
 #define SOUNDLIBRARY_H
 
 #include <string>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 namespace H2Core
 {

@@ -29,7 +29,7 @@
 #include <vector>
 #include <map>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class TiXmlNode;
 

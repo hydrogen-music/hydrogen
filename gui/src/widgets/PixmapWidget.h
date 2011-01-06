@@ -25,7 +25,7 @@
 
 #include <QtGui>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class PixmapWidget : public Object, public QWidget
 {

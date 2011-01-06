@@ -24,7 +24,7 @@
 #define DETAIL_WAVE_DISPLAY
 
 #include <QtGui>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 namespace H2Core
 {

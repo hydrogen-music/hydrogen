@@ -25,7 +25,7 @@
 
 
 #include "ui_SoundLibraryImportDialog_UI.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 
 #include <vector>

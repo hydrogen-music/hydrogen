@@ -25,7 +25,7 @@
 
 #include <QDialog>
 #include "ui_SongEditorPanelTagWidget_UI.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 ///
 ///

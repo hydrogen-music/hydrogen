@@ -26,7 +26,7 @@
 #include "../EventListener.h"
 
 #include <QtGui>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class PatternEditorPanel;
 

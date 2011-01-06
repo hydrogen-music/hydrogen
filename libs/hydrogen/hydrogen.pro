@@ -64,7 +64,7 @@ HEADERS += src/Precompiled.h \
     include/hydrogen/LocalFileMng.h \
     include/hydrogen/midiMap.h \
     include/hydrogen/note.h \
-    include/hydrogen/Object.h \
+    include/hydrogen/object.h \
     include/hydrogen/Pattern.h \
     include/hydrogen/playlist.h \
     include/hydrogen/Preferences.h \

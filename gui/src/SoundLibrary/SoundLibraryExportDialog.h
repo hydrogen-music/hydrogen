@@ -25,7 +25,7 @@
 
 #include "ui_SoundLibraryExportDialog_UI.h"
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/SoundLibrary.h>
 

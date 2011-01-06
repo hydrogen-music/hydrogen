@@ -29,7 +29,7 @@
 
 #include <QtGui>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include "../widgets/PixmapWidget.h"
 
 namespace H2Core

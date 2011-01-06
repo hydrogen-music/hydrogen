@@ -30,7 +30,7 @@
 
 class LCDDisplay;
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class RotaryTooltip : public QWidget
 {

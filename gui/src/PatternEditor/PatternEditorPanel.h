@@ -26,7 +26,7 @@
 
 #include <QtGui>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"

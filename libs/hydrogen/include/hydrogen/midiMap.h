@@ -25,7 +25,7 @@
 
 #include <map>
 #include <cassert>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include <QtCore/QMutex>
 

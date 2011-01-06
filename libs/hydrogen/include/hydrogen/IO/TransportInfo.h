@@ -22,7 +22,7 @@
 #ifndef TRANSPORT_INFO_H
 #define TRANSPORT_INFO_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 namespace H2Core
 {

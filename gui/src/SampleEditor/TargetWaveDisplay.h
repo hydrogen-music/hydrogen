@@ -24,7 +24,7 @@
 #define TARGET_WAVE_DISPLAY
 
 #include <QtGui>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/sample.h>
 
 class SampleEditor;

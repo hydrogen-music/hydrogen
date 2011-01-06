@@ -27,7 +27,7 @@
 #include "../InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/sample.h>

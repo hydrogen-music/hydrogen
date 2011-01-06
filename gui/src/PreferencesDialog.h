@@ -26,7 +26,7 @@
 
 #include "ui_PreferencesDialog_UI.h"
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 ///
 /// Preferences Dialog

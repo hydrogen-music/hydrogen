@@ -27,7 +27,7 @@
 #include <iostream>
 
 #include "../EventListener.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include <QtGui>
 

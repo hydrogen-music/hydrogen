@@ -31,7 +31,7 @@
 
 #include "HydrogenApp.h"
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 /**
  * Fader and VuMeter widget

@@ -24,7 +24,7 @@
 #define PATTERN_H
 
 #include <hydrogen/globals.h>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <set>
 
 namespace H2Core

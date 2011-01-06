@@ -24,7 +24,7 @@
 #define FILE_BROWSER_H
 
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 #include <QtGui>
 

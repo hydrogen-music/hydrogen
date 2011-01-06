@@ -23,7 +23,7 @@
 #ifndef H2_MIDI_INPUT_H
 #define H2_MIDI_INPUT_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <string>
 #include <vector>
 #include "MidiCommon.h"

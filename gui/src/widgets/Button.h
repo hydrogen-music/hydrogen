@@ -25,7 +25,7 @@
 #define BUTTON_H
 
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/action.h>
 
 #include "MidiLearnable.h"

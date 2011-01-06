@@ -26,7 +26,7 @@
 
 #include <QDialog>
 #include "ui_Director_UI.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include "EventListener.h"

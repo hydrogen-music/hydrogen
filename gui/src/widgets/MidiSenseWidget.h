@@ -24,7 +24,7 @@
 
 	#include <QtGui>
 
-	#include <hydrogen/Object.h>
+	#include <hydrogen/object.h>
 	#include <hydrogen/action.h>
 
 	class MidiSenseWidget : public QDialog ,public Object

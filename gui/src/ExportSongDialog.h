@@ -27,7 +27,7 @@
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 ///
 /// Dialog for exporting song

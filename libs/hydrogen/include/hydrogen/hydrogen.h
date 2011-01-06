@@ -26,7 +26,7 @@
 #include "hydrogen/config.h"
 #include <hydrogen/action.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>

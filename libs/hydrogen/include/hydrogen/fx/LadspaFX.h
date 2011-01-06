@@ -30,7 +30,7 @@
 #include <vector>
 #include <list>
 #include "ladspa.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 namespace H2Core
 {

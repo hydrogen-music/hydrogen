@@ -23,7 +23,7 @@
 #ifndef ADSR_H
 #define ADSR_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 namespace H2Core
 {

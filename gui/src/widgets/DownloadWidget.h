@@ -27,7 +27,7 @@
 #include <QtGui>
 #include <QtNetwork>
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class Download : public QDialog, public Object
 {

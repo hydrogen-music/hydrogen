@@ -23,7 +23,7 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <cassert>
 
 #define MAX_EVENTS 1024

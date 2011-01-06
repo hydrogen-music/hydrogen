@@ -31,7 +31,7 @@
 #include "EventListener.h"
 
 #include <hydrogen/config.h>
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 
 class HydrogenApp;
 class QUndoView;///debug only

@@ -24,7 +24,7 @@
 
 
 #include "hydrogen/config.h"
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/IO/TransportInfo.h>
 
 namespace H2Core

@@ -20,7 +20,7 @@
 #include <QDir>
 /*
 // Hyd
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Instrument.h>
 #include <hydrogen/Pattern.h>

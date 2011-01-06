@@ -24,7 +24,7 @@
 #ifndef SAMPLER_H
 #define SAMPLER_H
 
-#include <hydrogen/Object.h>
+#include <hydrogen/object.h>
 #include <hydrogen/globals.h>
 
 #include <inttypes.h>
