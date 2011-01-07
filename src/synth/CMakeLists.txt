@@ -9,10 +9,10 @@ INCLUDE_DIRECTORIES(
 
 ADD_EXECUTABLE(h2synth WIN32 MACOSX_BUNDLE ${h2synth_SRCS} )
 TARGET_LINK_LIBRARIES(h2synth
-    hydrogen-core
+    hydrogen-core-${VERSION}
     ${QT_QTGUI_LIBRARY}
 )
 
-ADD_DEPENDENCIES(h2synth hydrogen-core)
+ADD_DEPENDENCIES(h2synth hydrogen-core-${VERSION})
 
 INSTALL(TARGETS h2synth RUNTIME DESTINATION bin BUNDLE DESTINATION bin )

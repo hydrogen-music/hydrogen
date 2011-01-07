@@ -155,15 +155,15 @@ int main(int argc, char *argv[])
                 }
 
                 // Man your battle stations... this is not a drill.
-                Logger::create_instance();
+                Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
+                Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
                 MidiMap::create_instance();
                 H2Core::Preferences::create_instance();
-                Object::set_logging_level( logLevelOpt );
                 // See below for H2Core::Hydrogen.
 
 
-                _INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-                _INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
+                ___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
+                ___INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
 
                 H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
                         if ( restoreLastSong && ( !filename.isEmpty() )) {
                                 song = H2Core::Song::load( filename );
                                 if (song == NULL) {
-                                        _INFOLOG("Starting with empty song");
+                                        ___INFOLOG("Starting with empty song");
                                         song = H2Core::Song::get_empty_song();
                                         song->set_filename( "" );
                                 }
@@ -278,14 +278,14 @@ int main(int argc, char *argv[])
                 delete MidiMap::get_instance();
                 delete ActionManager::get_instance();
 
-                _INFOLOG( "Quitting..." );
+                ___INFOLOG( "Quitting..." );
                 cout << "\nBye..." << endl;
                 delete Logger::get_instance();
 
-                int nObj = Object::get_objects_number();
+                int nObj = Object::objects_count();
                 if (nObj != 0) {
                         std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
-                        Object::print_object_map();
+                        Object::write_objects_map_to_cerr();
                 }
 
 
@@ -311,8 +311,8 @@ void showInfo()
         cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
-        if ( Object::is_using_verbose_log() ) {
-                cout << "\nVerbose log mode = active" << endl;
+        if ( Object::count_active() ) {
+                cout << "\nObject counting active" << endl;
         }
 
         cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << endl;
