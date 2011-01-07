@@ -34,7 +34,7 @@ pthread_mutex_t Object::__mutex;
 Object::object_map_t Object::__objects_map;
 
 int Object::bootstrap( Logger* logger, bool count ) {
-    if(__logger==0 && logger!=0) {
+    if( __logger==0 && logger!=0 ) {
         __logger = logger;
         __count = count;
         pthread_mutex_init( &__mutex, 0 );
@@ -45,19 +45,19 @@ int Object::bootstrap( Logger* logger, bool count ) {
 
 Object::~Object( ) {
 #ifdef H2CORE_HAVE_DEBUG
-    if(__count) del_object( this );
+    if( __count ) del_object( this );
 #endif
 }
 
-Object::Object( const Object& obj ) : __class_name(obj.__class_name) {
+Object::Object( const Object& obj ) : __class_name( obj.__class_name ) {
 #ifdef H2CORE_HAVE_DEBUG
-    if(__count) add_object( this, true );
+    if( __count ) add_object( this, true );
 #endif
 }
 
-Object::Object( const char* class_name ) :__class_name(class_name) {
+Object::Object( const char* class_name ) :__class_name( class_name ) {
 #ifdef H2CORE_HAVE_DEBUG
-    if(__count) add_object( this, false );
+    if( __count ) add_object( this, false );
 #endif
 }
 
@@ -65,7 +65,7 @@ void Object::set_count( bool flag ) {
 #ifdef H2CORE_HAVE_DEBUG
     __count = flag;
 #else
-    if(__logger!=0 && __logger->should_log(Logger::Error) ){
+    if( __logger!=0 && __logger->should_log( Logger::Error ) ) {
         __logger->log(  Logger::Error, "set_count", "Object", "not compiled with H2CORE_HAVE_DEBUG flag set" );
     }
 #endif
@@ -73,8 +73,8 @@ void Object::set_count( bool flag ) {
 
 inline void Object::add_object( const Object* obj, bool copy ) {
 #ifdef H2CORE_HAVE_DEBUG
-    const char* class_name = ((Object*)obj)->class_name();
-    if(__logger && __logger->should_log(Logger::Constructors)) __logger->log( Logger::Debug, 0, class_name, (copy ? "Copy Constructor" : "Constructor") );
+    const char* class_name = ( ( Object* )obj )->class_name();
+    if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, class_name, ( copy ? "Copy Constructor" : "Constructor" ) );
     pthread_mutex_lock( &__mutex );
     //if( __objects_map.size()==0) atexit( Object::write_objects_map_to_cerr );
     __objects_count++;
@@ -85,59 +85,59 @@ inline void Object::add_object( const Object* obj, bool copy ) {
 
 inline void Object::del_object( const Object* obj ) {
 #ifdef H2CORE_HAVE_DEBUG
-    const char* class_name = ((Object*)obj)->class_name();
-    if(__logger && __logger->should_log(Logger::Constructors)) __logger->log( Logger::Debug, 0, class_name, "Destructor");
+    const char* class_name = ( ( Object* )obj )->class_name();
+    if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, class_name, "Destructor" );
     object_map_t::iterator it_count = __objects_map.find( class_name );
     if ( it_count==__objects_map.end() ) {
-        if(__logger!=0 && __logger->should_log(Logger::Error) ){
+        if( __logger!=0 && __logger->should_log( Logger::Error ) ) {
             std::stringstream msg;
             msg << "the class " <<  class_name << " is not registered ! [" << obj << "]";
-            __logger->log(Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );
+            __logger->log( Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );
         }
         return;
     }
-    assert( (*it_count).first == class_name );
+    assert( ( *it_count ).first == class_name );
     pthread_mutex_lock( &__mutex );
-    assert( __objects_map[class_name].constructed > (__objects_map[class_name].destructed ) );
+    assert( __objects_map[class_name].constructed > ( __objects_map[class_name].destructed ) );
     __objects_count--;
-    assert(__objects_count>=0);
-    __objects_map[ (*it_count).first ].destructed++;
+    assert( __objects_count>=0 );
+    __objects_map[ ( *it_count ).first ].destructed++;
     pthread_mutex_unlock( &__mutex );
 #endif
 }
-void Object::write_objects_map_to(std::ostream &out ) {
+void Object::write_objects_map_to( std::ostream& out ) {
 #ifdef H2CORE_HAVE_DEBUG
-    if(!__count) {
-    #ifdef WIN32
+    if( !__count ) {
+#ifdef WIN32
         out << "level must be Debug or higher"<< std::endl;
-    #else
+#else
         out << "\033[35mlog level must be \033[31mDebug\033[35m or higher\033[0m"<< std::endl;
-    #endif
+#endif
         return;
     }
     std::ostringstream o;
     pthread_mutex_lock( &__mutex );
     object_map_t::iterator it = __objects_map.begin();
     while ( it != __objects_map.end() ) {
-        o << "\t[ " <<std::setw(30)<< (*it).first << " ]\t" << std::setw(6) <<(*it).second.constructed << "\t" << std::setw(6) << (*it).second.destructed
-            << "\t" << std::setw(6) << (*it).second.constructed - (*it).second.destructed << std::endl;
+        o << "\t[ " << std::setw( 30 ) << ( *it ).first << " ]\t" << std::setw( 6 ) << ( *it ).second.constructed << "\t" << std::setw( 6 ) << ( *it ).second.destructed
+          << "\t" << std::setw( 6 ) << ( *it ).second.constructed - ( *it ).second.destructed << std::endl;
         it++;
     }
     pthread_mutex_unlock( &__mutex );
-    #ifndef WIN32
+#ifndef WIN32
     out << std::endl << "\033[35m";
-    #endif
-    out << "Objects map :" << std::setw(30) << "class\t" << "constr   destr   alive" << std::endl << o.str() << "Total : " << std::setw(6) << __objects_count << " objects.";
-    #ifndef WIN32
+#endif
+    out << "Objects map :" << std::setw( 30 ) << "class\t" << "constr   destr   alive" << std::endl << o.str() << "Total : " << std::setw( 6 ) << __objects_count << " objects.";
+#ifndef WIN32
     out << "\033[0m";
-    #endif
+#endif
     out << std::endl << std::endl;
 #else
-    #ifdef WIN32
+#ifdef WIN32
     out << "Object::write_objects_map_to :: not compiled with H2CORE_HAVE_DEBUG flag set" << std::endl;
-    #else
+#else
     out << "\033[35mObject::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
-    #endif
+#endif
 #endif
 }
 

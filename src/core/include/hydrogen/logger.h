@@ -105,7 +105,7 @@ class Logger {
         friend void* loggerThread_func( void* param );
 
     private:
-        static Logger *__instance;      ///< logger private static instance
+        static Logger* __instance;      ///< logger private static instance
         bool __use_file;                ///< write log to file if set to true
         bool __running;                 ///< set to true when the logger thread is running
         pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
@@ -123,7 +123,7 @@ class Logger {
          * /param str the hex string to convert
          * /param len the length of the string
          */
-        static int hextoi(const char* str, long len);
+        static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
 };
 
