@@ -9,7 +9,6 @@ ADD_LIBRARY( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES}
 INCLUDE_DIRECTORIES( include
     ${CMAKE_SOURCE_DIR}/include                 # regular headers
     ${CMAKE_CURRENT_BINARY_DIR}/include         # generated config.h
-    ${CMAKE_SOURCE_DIR}/src                     # TODO remove this when core and gui are nicely splitted
     ${QT_INCLUDES}
     ${LIBTAR_INCLUDE_DIR}
     ${LIBARCHIVE_INCLUDE_DIR}

@@ -76,7 +76,7 @@ QString DataPath::get_data_path()
 		QFile file( __data_path + "/drumkits" );
 		if ( !file.exists() ) {
 			// try using the system wide data dir
-			__data_path = DATA_PATH;
+			__data_path = SYS_DATA_PATH;
 		}
 	}
 	return __data_path;

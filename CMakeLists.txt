@@ -75,7 +75,10 @@ MANDATORY_PKG(QT4)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
-SET(DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
+# TODO remove data from path
+SET(SYS_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
+# TODO remove data from path, could be .config/hydrogen
+SET(USR_DATA_PATH ".hydrogen/data")
 IF(WIN32)
     SET(WANT_JACK FALSE)
     SET(Threads_PATH "C:/Program Files/GnuWin32")
@@ -172,7 +175,8 @@ MESSAGE("\n"
 "Installation Summary\n"
 "--------------------\n"
 "* Install Directory            : ${CMAKE_INSTALL_PREFIX}\n"
-"* Data path                    : ${DATA_PATH}\n"
+"* User data path               : ${USR_DATA_PATH}\n"
+"* System data path             : ${SYS_DATA_PATH}\n"
 "* core library build as        : ${H2CORE_LIBRARY_TYPE}\n"
 "* debug capabilities           : ${H2CORE_HAVE_DEBUG}\n"
 "* macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
@@ -246,7 +250,7 @@ ADD_SUBDIRECTORY(src/gui)
 #ADD_SUBDIRECTORY(src/player)
 #ADD_SUBDIRECTORY(src/synth)
 
-INSTALL(DIRECTORY data DESTINATION ${DATA_PATH}/..)
+INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/..)
 IF(NOT WIN32 AND NOT APPLE)
     INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
 ENDIF()
