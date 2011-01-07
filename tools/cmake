@@ -10,6 +10,18 @@ H2FLAGS="-V0xf"
 
 find . -name '*~' -exec rm '{}' \;
 
+function cmake_init() {
+    echo -e " * cmake init\n"
+    if [ ! -d build ]; then
+        mkdir build || exit 1
+    fi
+    cd build || exit 1
+    if [ ! -e CMakeCache.txt ]; then
+        cmake ${CMAKE_OPTIONS} .. || exit 1
+    fi
+    cd .. || exit 1
+}
+
 function cmake_clean() {
     echo -e " * clean cmake files\n" && rm build/CMakeCache.txt 2>/dev/null
 }
@@ -19,14 +31,8 @@ function cmake_rm() {
 }
 
 function cmake_make() {
-    echo -e " * cmake make\n"
-    if [ ! -d build ]; then
-        mkdir build
-    fi
-    cd build
-    if [ ! -e CMakeCache.txt ]; then
-        cmake ${CMAKE_OPTIONS} .. || exit 1
-    fi
+    cmake_init
+    echo -e " * cmake make\n" && cd build || exit 1
     if [ $VERBOSE -eq 1 ]; then
         VERBOSE=1 make $MAKE_OPTS || exit 1
     else
@@ -36,42 +42,42 @@ function cmake_make() {
 }
 
 function cmake_graph() {
-    echo -e " * cmake graphviz\n"
-    if [ ! -d build ]; then
-        mkdir build
-    fi
-    cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot && cd ..
+    cmake_init
+    echo -e " * cmake graphviz\n" && cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot && cd .. || exit 1
 }
 
 function cmake_doc() {
-    if [ -d build ]; then
-        cd build && make doc && cd ..
-    fi
+    cmake_init
+    echo -e " * cmake doc\n" && cd build && make doc && cd .. || exit 1
 }
 
 function cmake_help() {
-    echo -e " * cmake help\n"
-    if [ ! -d build ]; then
-        mkdir build
-    fi
-    cd build && cmake -L .. && cd ..
+    cmake_init
+    echo -e " * cmake help\n" && cd build && cmake .. -L && cd .. || exit 1
 }
 
 function cmake_exec() {
-    echo -e " * execute hydrogen\n" && ./build/gui/hydrogen $H2FLAGS
+    cmake_init
+    echo -e " * execute hydrogen\n" && cd build && ./build/gui/hydrogen $H2FLAGS && cd .. || exit 1
+}
+
+function cmake_pkg() {
+    cmake_init
+    echo -e " * execute hydrogen\n" && cd build && make package_source && cd .. || exit 1
 }
 
 if [ $# -eq 0 ]; then
     echo "usage $0 [cmds list]"
     echo "cmds may be"
-    echo "   r or rm     => all built, temp and cache files"
-    echo "   c or clean  => remove cache files"
-    echo "   m or make   => launch the build process"
-    echo "   d or doc    => build html documentation"
-    echo "   g or graph  => draw a dependecies graph"
-    echo "   h or help   => show the build options"
-    echo "   x or exec   => execute hydrogen"
-    echo "ex: ./tool/cmake r m x"
+    echo "   r[m]     => all built, temp and cache files"
+    echo "   c[lean]  => remove cache files"
+    echo "   m[ake]   => launch the build process"
+    echo "   d[oc]    => build html documentation"
+    echo "   g[raph]  => draw a dependecies graph"
+    echo "   h[elp]   => show the build options"
+    echo "   x|exec   => execute hydrogen"
+    echo "   p[kg]    => build source package"
+    echo "ex: ./tool/cmake r m pkg x"
     exit 1
 fi
 
@@ -117,6 +123,12 @@ for arg in $@; do
             cmd="cmake_exec"
             ;;
         "exec")
+            cmd="cmake_${arg}"
+            ;;
+        "p")
+            cmd="cmake_pkg"
+            ;;
+        "pkg")
             cmd="cmake_${arg}"
             ;;
         *)

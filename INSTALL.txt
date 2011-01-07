@@ -126,8 +126,8 @@ http://trac.assembla.com/hydrogen/wiki/coding%3Apackagingwin
 After you have all the prerequisites, building and installing will
 look like this:
 
-	$ tar xjf hydrogen-0.9.5.tar.bz2
-	$ cd hydrogen-0.9.5
+	$ tar xjf hydrogen-0.9.6.tar.bz2
+	$ cd hydrogen-0.9.6
 	$ mkdir build && cd build
     $ cmake ..
 	$ make && sudo make install
@@ -189,8 +189,8 @@ In order to create a .deb package for Debian or Debian-based systems
 
 To build the Hydrogen package:
 
-    $ tar xjf hydrogen-0.9.5.tar
-    $ cd hydrogen-0.9.5
+    $ tar xjf hydrogen-0.9.6.tar.bz2
+    $ cd hydrogen-0.9.6
 	$ cd linux
 	$ fakeroot dpkg-buildpackage
 
@@ -201,5 +201,5 @@ created deb package run the following (substitute the deb package
 name with the version your build created):
 
 	$ cd ..
-        $ sudo dpkg -i hydrogen_0.9.5_amd64.deb
+        $ sudo dpkg -i hydrogen_0.9.6_amd64.deb
 
