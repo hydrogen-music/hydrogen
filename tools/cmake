@@ -58,7 +58,12 @@ function cmake_help() {
 
 function cmake_exec() {
     cmake_init
-    echo -e " * execute hydrogen\n" && cd build && ./build/gui/hydrogen $H2FLAGS && cd .. || exit 1
+    echo -e " * execute hydrogen\n" && cd build && ./src/gui/hydrogen $H2FLAGS && cd .. || exit 1
+}
+
+function cmake_tests() {
+    cmake_init
+    echo -e " * execute tests\n" && cd build && ./src/tests/tests&& cd .. || exit 1
 }
 
 function cmake_pkg() {
@@ -76,6 +81,7 @@ if [ $# -eq 0 ]; then
     echo "   g[raph]  => draw a dependecies graph"
     echo "   h[elp]   => show the build options"
     echo "   x|exec   => execute hydrogen"
+    echo "   t[ests]  => execute tests"
     echo "   p[kg]    => build source package"
     echo "ex: ./tool/cmake r m pkg x"
     exit 1
@@ -123,6 +129,12 @@ for arg in $@; do
             cmd="cmake_exec"
             ;;
         "exec")
+            cmd="cmake_${arg}"
+            ;;
+        "t")
+            cmd="cmake_tests"
+            ;;
+        "tests")
             cmd="cmake_${arg}"
             ;;
         "p")
