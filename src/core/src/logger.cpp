@@ -100,11 +100,11 @@ void* loggerThread_func( void* param ) {
 Logger* Logger::bootstrap( unsigned msk ) {
     Logger::set_bit_mask( msk );
     return Logger::create_instance();
-    return Logger::get_instance();
 }
 
 Logger* Logger::create_instance() {
     if ( __instance == 0 ) __instance = new Logger;
+    return __instance;
 }
 
 Logger::Logger() : __use_file( false ), __running( true ) {
