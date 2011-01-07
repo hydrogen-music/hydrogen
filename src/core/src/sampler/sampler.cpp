@@ -77,15 +77,15 @@ inline float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu
         ///y2 = buffervalue on position +1
         ///y3 = buffervalue on position +2
 
-        double a0,a1,a2,a3,mu2;
+        double a0, a1, a2, a3, mu2;
 
-        mu2 = mu*mu;
+        mu2 = mu * mu;
         a0 = y3 - y2 - y0 + y1;
         a1 = y0 - y1 - a0;
         a2 = y2 - y0;
         a3 = y1;
 
-        return( a0*mu*mu2+a1*mu2+a2*mu+a3 );
+        return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 }
 
 inline float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu)
@@ -96,15 +96,15 @@ inline float hermite_Interpolate( float y0, float y1, float y2, float y3, float 
         ///y2 = buffervalue on position +1
         ///y3 = buffervalue on position +2
 
-        double a0,a1,a2,a3,mu2;
+        double a0, a1, a2, a3, mu2;
 
-        mu2 = mu*mu;
-        a0 = -0.5*y0 + 1.5*y1 - 1.5*y2 + 0.5*y3;
-        a1 = y0 - 2.5*y1 + 2*y2 - 0.5*y3;
-        a2 = -0.5*y0 + 0.5*y2;
+        mu2 = mu * mu;
+        a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
+        a1 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3;
+        a2 = -0.5 * y0 + 0.5 * y2;
         a3 = y1;
 
-        return( a0*mu*mu2+a1*mu2+a2*mu+a3 );
+        return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 }
 
 const char* Sampler::__class_name = "Sampler";
