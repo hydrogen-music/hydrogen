@@ -20,12 +20,6 @@
  *
  */
 
-#include "gui/src/HydrogenApp.h"
-#include "gui/src/InstrumentRack.h"
-#include "gui/src/SoundLibrary/SoundLibraryPanel.h"
-#include "gui/src/SongEditor/SongEditorPanel.h"
-
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -78,12 +72,12 @@ void Playlist::create_instance()
 
 
 
-void Playlist::setNextSongByNumber(int songNumber)
+Song* Playlist::setNextSongByNumber(int songNumber)
 {
 	
 	
 	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
-		return;	
+		return 0;
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
@@ -91,51 +85,42 @@ void Playlist::setNextSongByNumber(int songNumber)
 	QString selected;
 	selected = Hydrogen::get_instance()->m_PlayList[ songNumber ].m_hFile;
 
-	loadSong( selected );
+	Song* song = loadSong( selected );
 	execScript( songNumber );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
-
-	#ifndef NO_GUI_SUPPORT
-        	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-	#endif
+    return song;
 }
 
 
 
-void Playlist::setNextSongPlaylist()
+Song* Playlist::setNextSongPlaylist()
 {
 	int index = getSelectedSongNr();
-	
 	if (index == -1 ){
 		if ( getActiveSongNumber() != -1){
 			index = getActiveSongNumber();
-		}
+        } else {
+            return 0;
+        }
 	}
 
 	index = index +1;
-
 	if ( (int) index > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || index < 0) 
-		return;
-	
+		return 0;
 	setSelectedSongNr( index );
 	setActiveSongNumber( index );
 
-	QString selectedSong = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
-
-	loadSong( selectedSong );
+	Song* song = loadSong( Hydrogen::get_instance()->m_PlayList[ index ].m_hFile );
 	execScript( index );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );	
-
-	#ifndef NO_GUI_SUPPORT
-        	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-	#endif
+    return song;
 }
 
 
 
-void Playlist::setPrevSongPlaylist()
+Song* Playlist::setPrevSongPlaylist()
 {
 	int index = getSelectedSongNr();
 
@@ -144,29 +129,23 @@ void Playlist::setPrevSongPlaylist()
 			index = getActiveSongNumber();
 		}else
 		{
-			return;
+			return 0;
 		}
 	}
 
-	index = index - 1;
+	index = index -1;
 
 	if (index < 0 ) 
-		return;
+		return 0;
 
 	setSelectedSongNr( index );
 	setActiveSongNumber( index );
 
-	QString selected;
-	selected = Hydrogen::get_instance()->m_PlayList[ index ].m_hFile;
-
-	loadSong( selected );
+	Song* song = loadSong( Hydrogen::get_instance()->m_PlayList[ index ].m_hFile );
 	execScript( index );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
-
-	#ifndef NO_GUI_SUPPORT
-        	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-	#endif
+    return song;
 }
 
 
@@ -199,10 +178,8 @@ int Playlist::getActiveSongNumber()
 
 
 
-void Playlist::loadSong( QString songName )
+Song* Playlist::loadSong( QString songName )
 {
-	#ifndef NO_GUI_SUPPORT
-        HydrogenApp *pH2App = HydrogenApp::get_instance();
 	Hydrogen *engine = Hydrogen::get_instance();
 	
 
@@ -211,17 +188,9 @@ void Playlist::loadSong( QString songName )
 	}
 
 	engine->m_timelinetagvector.clear();
+    engine->setSelectedPatternNumber ( 0 );
 
-	LocalFileMng mng;
-	Song *pSong = Song::load ( songName );
-	if ( pSong == NULL ){
-		return;
-	}
-
-	pH2App->setSong ( pSong );
-        engine->setSelectedPatternNumber ( 0 );
-	pH2App->getSongEditorPanel()->updatePositionRuler();
-	#endif
+    return Song::load( songName );
 }
 
 
