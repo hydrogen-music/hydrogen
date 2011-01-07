@@ -71,7 +71,7 @@ inline static float third_Interpolate( float y0, float y1, float y2, float y3, f
         return ( ( c3 * mu + c2 ) * mu + c1 ) * mu + c0;
 }
 
-inline float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu)
+inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu)
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -92,7 +92,7 @@ inline float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu
         return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 }
 
-inline float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu)
+inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu)
 {
         /*
          * mu defines where to estimate the value on the interpolated line
