@@ -66,19 +66,19 @@ class Logger {
 
         /**
          * return true if the level is set in the bitmask
-         * /param lvl the level to check
+         * \param lvl the level to check
          */
         bool should_log( unsigned lvl ) const       { return (lvl&__bit_msk); }
         /**
          * set the bitmask
-         * /param msk the new bitmask to set
+         * \param msk the new bitmask to set
          */
         static void set_bit_mask( unsigned msk )    { __bit_msk = msk; }
         /** return the current log level bit mask */
         static unsigned bit_mask()                  { return __bit_msk; }
         /**
          * set use file flag
-         * /param use the flag status
+         * \param use the flag status
          */
         void set_use_file( bool use )               { __use_file = use; }
         /** return __use_file */
@@ -86,21 +86,21 @@ class Logger {
 
         /**
          * parse a log level string and return the corresponding bit mask
-         * /param lvl the log level string
+         * \param lvl the log level string
          */
         static unsigned parse_log_level( const char* lvl );
 
         /**
          * the log function
-         * /param level used to output the corresponding level string
-         * /param class_name the name of the calling class
-         * /param func_name the name of the calling function/method
-         * /param msg the message to log
+         * \param level used to output the corresponding level string
+         * \param class_name the name of the calling class
+         * \param func_name the name of the calling function/method
+         * \param msg the message to log
          */
         void log( unsigned level, const QString& class_name, const char* func_name, const QString& msg );
         /**
          * needed for beeing able to access logger internal
-         * /param param is a pointer to the logger instance
+         * \param param is a pointer to the logger instance
          */
         friend void* loggerThread_func( void* param );
 
@@ -120,8 +120,8 @@ class Logger {
         /**
          * convert an hex string to an integer.
          * returns -1 on failure.
-         * /param str the hex string to convert
-         * /param len the length of the string
+         * \param str the hex string to convert
+         * \param len the length of the string
          */
         static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
