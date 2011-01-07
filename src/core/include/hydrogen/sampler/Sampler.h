@@ -74,6 +74,16 @@ public:
 	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
 	bool is_instrument_playing( Instrument* pInstr );
 
+        enum InterpolateMode { LINEAR,
+                               COSINE,
+                               THIRD,
+                               CUBIC,
+                               HERMITE };
+
+        void setInterpolateMode( InterpolateMode mode ){
+                 __interpolateMode = mode;
+        }
+
 private:
 	std::vector<Note*> __playing_notes_queue;
 	std::vector<Note*> __queuedNoteOffs;
@@ -82,6 +92,9 @@ private:
 	Instrument* __preview_instrument;
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
+
+        InterpolateMode __interpolateMode;
+        float Interpolate( float y0, float y1, float y2, float y3, float mu );
 
 	int __render_note_no_resample(
 	    Sample *pSample,

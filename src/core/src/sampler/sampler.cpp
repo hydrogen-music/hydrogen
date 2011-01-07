@@ -47,12 +47,31 @@
 namespace H2Core
 {
 
-inline static float linear_interpolation( float fVal_A, float fVal_B, float fVal )
+inline static float linear_Interpolate( float y1, float y2, float mu )
 {
-	return fVal_A * ( 1 - fVal ) + fVal_B * fVal;
+        /*
+         * mu defines where to estimate the value on the interpolated line
+         * y1 = buffervalue on position
+         * y2 = buffervalue on position +1
+         */
+        return y1 * ( 1 - mu ) + y2 * mu;
 //	return fVal_A + fVal * ( fVal_B - fVal_A );
 //	return fVal_A + ((fVal_B - fVal_A) * fVal);
 }
+
+inline static float cosine_Interpolate( float y1, float y2, float mu )
+{
+        /*
+         * mu defines where to estimate the value on the interpolated line
+         * y1 = buffervalue on position
+         * y2 = buffervalue on position +1
+         */
+        double mu2;
+
+        mu2 = ( 1 - cos ( mu * 3.14159 ) ) / 2;
+        return( y1 * (1 - mu2 ) + y2 * mu2 );
+}
+
 
 inline static float third_Interpolate( float y0, float y1, float y2, float y3, float mu )
 {
@@ -92,7 +111,7 @@ inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, f
         return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 }
 
-inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu)
+inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu )
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -113,6 +132,8 @@ inline static float hermite_Interpolate( float y0, float y1, float y2, float y3,
         return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 }
 
+
+
 const char* Sampler::__class_name = "Sampler";
 
 Sampler::Sampler()
@@ -122,7 +143,7 @@ Sampler::Sampler()
 		, __preview_instrument( NULL )
 {
 	INFOLOG( "INIT" );
-
+        __interpolateMode = LINEAR;
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
@@ -688,11 +709,9 @@ int Sampler::__render_note_resample(
 			//set this last frame to zero do nothin wrong.
 			fVal_L = 0.0;
 			fVal_R = 0.0;
-		} else {
-                        fVal_L = linear_interpolation( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff );
-                        fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
-                        //fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                        //fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                } else {
+                        fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                        fVal_R = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
 		}
 
 		// ADSR envelope
@@ -771,11 +790,9 @@ int Sampler::__render_note_resample(
 					//set this last frame to zero do nothin wrong.
 					fVal_L = 0.0;
 					fVal_R = 0.0;
-				} else {
-					fVal_L = linear_interpolation( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff );
-					fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
-                                        //fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                        //fVal_L = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
+                                } else {
+                                        fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                        fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
 				}
 
 				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L * cost_L;
@@ -947,6 +964,29 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 		}
 		
 	}
+}
+
+float Sampler::Interpolate( float y0, float y1, float y2, float y3, float mu )
+{
+
+        switch( __interpolateMode ){
+
+        case LINEAR:
+                return linear_Interpolate( y1, y2, mu );
+                break;
+        case COSINE:
+                return cosine_Interpolate( y1, y2, mu );
+                break;
+        case THIRD:
+                return third_Interpolate( y0, y1, y2, y3, mu );
+                break;
+        case CUBIC:
+                return cubic_Interpolate( y0, y1, y2, y3, mu );
+                break;
+        case HERMITE:
+                return hermite_Interpolate( y0, y1, y2, y3, mu );
+                break;
+        }
 }
 
 };
