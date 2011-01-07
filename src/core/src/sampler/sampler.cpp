@@ -56,11 +56,13 @@ inline static float linear_interpolation( float fVal_A, float fVal_B, float fVal
 
 inline static float third_Interpolate( float y0, float y1, float y2, float y3, float mu )
 {
-    //mu defines where to estimate the value on the interpolated line
-    //y0 = buffervalue on position -1
-    //y1 = buffervalue on position
-    //y2 = buffervalue on position +1
-    //y3 = buffervalue on position +2
+    /*
+     * mu defines where to estimate the value on the interpolated line
+     * y0 = buffervalue on position -1
+     * y1 = buffervalue on position
+     * y2 = buffervalue on position +1
+     * y3 = buffervalue on position +2
+     */
 
     float c0 = y1;
     float c1 = 0.5f * ( y2 - y0 );
@@ -71,11 +73,13 @@ inline static float third_Interpolate( float y0, float y1, float y2, float y3, f
 
 inline float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu)
 {
-        ///mu defines where to estimate the value on the interpolated line
-        ///y0 = buffervalue on position -1
-        ///y1 = buffervalue on position
-        ///y2 = buffervalue on position +1
-        ///y3 = buffervalue on position +2
+        /*
+         * mu defines where to estimate the value on the interpolated line
+         * y0 = buffervalue on position -1
+         * y1 = buffervalue on position
+         * y2 = buffervalue on position +1
+         * y3 = buffervalue on position +2
+         */
 
         double a0, a1, a2, a3, mu2;
 
@@ -90,11 +94,13 @@ inline float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu
 
 inline float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu)
 {
-        ///mu defines where to estimate the value on the interpolated line
-        ///y0 = buffervalue on position -1
-        ///y1 = buffervalue on position
-        ///y2 = buffervalue on position +1
-        ///y3 = buffervalue on position +2
+        /*
+         * mu defines where to estimate the value on the interpolated line
+         * y0 = buffervalue on position -1
+         * y1 = buffervalue on position
+         * y2 = buffervalue on position +1
+         * y3 = buffervalue on position +2
+         */
 
         double a0, a1, a2, a3, mu2;
 
