@@ -21,8 +21,7 @@
  */
 
 #include <hydrogen/adsr.h>
-#include "basics/getTableValue.h"
-#include "basics/TableExponential.h"
+#include "basics/exponential_tables.h"
 
 namespace H2Core
 {
@@ -84,7 +83,7 @@ float ADSR::get_value( float step )
 		if ( __attack == 0 ) {
 			__value = 1.0;
 		} else {
-			__value = getTableValue ( linear_interpolation( 0.0, 1.0, ( __ticks * 1.0 / __attack ) ), tableExponentConvex, tableExponentConvexSize );
+			__value = convex_exponant( linear_interpolation( 0.0, 1.0, ( __ticks * 1.0 / __attack ) ) );
 		}
 
 		__ticks += step;
@@ -98,7 +97,7 @@ float ADSR::get_value( float step )
 		if ( __decay == 0 ) {
 			__value = __sustain;
 		} else {
-			__value = getTableValue ( linear_interpolation( 1.0, __sustain, ( __ticks * 1.0 / __decay ) ), tableExponentConcave, tableExponentConcaveSize );
+			__value = concave_exponant( linear_interpolation( 1.0, __sustain, ( __ticks * 1.0 / __decay ) ) );
 		}
 
 		__ticks += step;
@@ -116,7 +115,7 @@ float ADSR::get_value( float step )
 		if ( __release < 256 ) {
 			__release = 256;
 		}
-		__value = getTableValue ( linear_interpolation( __release_value, 0.0, ( __ticks * 1.0 / __release ) ), tableExponentConcave, tableExponentConcaveSize );
+		__value = concave_exponant( linear_interpolation( __release_value, 0.0, ( __ticks * 1.0 / __release ) ) );
 
 		__ticks += step;
 		if ( __ticks > __release ) {

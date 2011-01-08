@@ -1,4 +1,13 @@
-float tableExponentConcave[4096] = {
+
+static inline float compute_exponant( const float input, const float* table, const int table_size ) {
+	int idx = ( int )( input * table_size );
+	if ( idx < 0 ) { idx = 0; }
+    else if ( idx >= table_size ) { idx = table_size-1; }
+	return ( table[idx] * input ) / ( ( float )(idx+1) / ( float )table_size );
+};
+
+static int concave_exponant_table_size = 4096;
+static float concave_exponant_table[4096] = {
 	1.5156104658808E-10, 9.9740596827554E-10, 3.0028776133939E-09, 6.5638149639822E-09,
 	1.2038851488192E-08, 1.9761595218725E-08, 3.0047077767325E-08, 4.3195717944104E-08,
 	5.9495986363365E-08, 7.9226309106588E-08, 1.02656489298E-07, 1.3004880513507E-07,
@@ -1024,10 +1033,10 @@ float tableExponentConcave[4096] = {
 	0.99536131683317, 0.99602315129226, 0.9966852638582, 0.99734765457984,
 	0.998010323506, 0.99867327068553, 0.99933649616726, 1,
 };
+inline float concave_exponant( float value ) { return compute_exponant( value, concave_exponant_table, concave_exponant_table_size ); }
 
-int tableExponentConcaveSize = 4096;
-
-float tableExponentConvex[4096] = {
+static int convex_exponant_table_size = 4096;
+static float convex_exponant_table[4096] = {
 	0.046890735084968, 0.060510367089532, 0.070244146759565, 0.078085884528682,
 	0.084766399299554, 0.090646885757071, 0.095935918022615, 0.10076629271815,
 	0.10522846666912, 0.10938719406252, 0.11329063214116, 0.11697569515052,
@@ -2053,5 +2062,6 @@ float tableExponentConvex[4096] = {
 	0.99937095987962, 0.99946086440801, 0.99955075504248, 0.99964063178859,
 	0.99973049465185, 0.99982034363783, 0.99991017875203, 1,
 };
+inline float convex_exponant( float value ) { return compute_exponant( value, convex_exponant_table, convex_exponant_table_size ); }
 
-int tableExponentConvexSize = 4096;
+/* vim: set softtabstop=4 expandtab: */
