@@ -1,4 +1,7 @@
 
+#ifndef H2C_EXPONENTIAL_TABLES_H
+#define H2C_EXPONENTIAL_TABLES_H
+
 static inline float compute_exponant( const float input, const float* table, const int table_size ) {
 	int idx = ( int )( input * table_size );
 	if ( idx < 0 ) { idx = 0; }
@@ -2063,5 +2066,7 @@ static float convex_exponant_table[4096] = {
 	0.99973049465185, 0.99982034363783, 0.99991017875203, 1,
 };
 inline float convex_exponant( float value ) { return compute_exponant( value, convex_exponant_table, convex_exponant_table_size ); }
+
+#endif //H2C_EXPONENTIAL_TABLES_H
 
 /* vim: set softtabstop=4 expandtab: */
