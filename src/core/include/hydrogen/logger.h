@@ -38,7 +38,7 @@ class QStringList;
 class Logger {
     public:
         /** possible logging bits */
-        typedef enum _log_level {
+        enum log_levels {
             None = 0,
             Error = 1,
             Warning = 2,
@@ -46,7 +46,7 @@ class Logger {
             Debug = 8,
             Constructors = 16,
             AELockTracing = 0x10
-        } log_level_t;
+        };
 
         /** mesage queue type */
         typedef std::list<QString> queue_t;

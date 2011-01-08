@@ -16,13 +16,13 @@ class Filesystem : public Object
     H2_OBJECT
     public:
         /** flags available for Filesystem::check_permissions */
-	    typedef enum _file_perms {
+	    enum file_perms {
             is_dir =0x01,
             is_file=0x02,
             is_readable=0x04,
             is_writable=0x08,
             is_executable=0x10
-        } file_perms_t;
+        };
 
         /**
          * check user and system filesystem usability
@@ -198,7 +198,7 @@ class Filesystem : public Object
         /**
          * return true if all the asked permissions are ok
          * \param path the path to the file to check
-         * \param perms bit mask of file_perms_t
+         * \param perms bit mask of file_perms
          * \param silent output not messages if set to true
          */
         static bool check_permissions( const QString& path, const int perms, bool silent );
