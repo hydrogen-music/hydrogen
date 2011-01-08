@@ -20,56 +20,114 @@
  *
  */
 
-#ifndef ADSR_H
-#define ADSR_H
+#ifndef H2C_ADSR_H
+#define H2C_ADSR_H
 
 #include <hydrogen/object.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
-///
-/// ADSR envelope.
-///
-class ADSR : private Object
-{
-    H2_OBJECT
-public:
-	float __attack;		///< Attack time (in samples)
-	float __decay;		///< Decay time (in samples)
-	float __sustain;	///< Sustain level
-	float __release;	///< Release time (in samples)
+/**
+ * Attack Decay Sustain Release envelope.
+ */
+class ADSR : private Object {
+        H2_OBJECT
+    public:
 
-	ADSR(
-	    float attack = 0.0,
-	    float decay = 0.0,
-	    float sustain = 1.0,
-	    float release = 1000
-	);
+        /**
+         * constructor
+         * \param attack tick duration
+         * \param decay tick duration
+         * \param sustain level
+         * \paramrelease tick duration
+         */
+        ADSR ( float attack = 0.0, float decay = 0.0, float sustain = 1.0, float release = 1000 );
 
-	ADSR( const ADSR& orig );
+        /** copy constructor */
+        ADSR( const ADSR* other );
 
-	~ADSR();
+        /** destructor */
+        ~ADSR();
 
-	float get_value( float step );
-	float release();
+        /**
+         * __attack setter
+         * \param value the new value
+         */
+        void set_attack( float value ) {
+            __attack = value;
+        }
+        /** __attack accessor */
+        float get_attack() {
+            return __attack;
+        }
+        /**
+         * __decay setter
+         * \param value the new value
+         */
+        void set_decay( float value ) {
+            __decay = value;
+        }
+        /** __decay accessor */
+        float get_decay() {
+            return __decay;
+        }
+        /**
+         * __sustain setter
+         * \param value the new value
+         */
+        void set_sustain( float value ) {
+            __sustain = value;
+        }
+        /** __sustain accessor */
+        float get_sustain() {
+            return __sustain;
+        }
+        /**
+         * __release setter
+         * \param value the new value
+         */
+        void set_release( float value ) {
+            __release = value;
+        }
+        /** __release accessor */
+        float get_release() {
+            return __release;
+        }
 
-private:
-	enum ADSRState {
-		ATTACK,
-		DECAY,
-		SUSTAIN,
-		RELEASE,
-		IDLE
-	};
+        /**
+         * compute the value and return it
+         * \param step the increment to be added to __ticks
+         */
+        float get_value( float step );
+        /**
+         * stets state to REALSE,
+         * returns 0 if the state is IDLE,
+         * __value if the state is RELEASE,
+         * set state to RELEASE, save __release_value and return it.
+         * */
+        float release();
 
-	ADSRState __state;
-	float __ticks;
-	float __value;
-	float __release_value;
+    private:
+        float __attack;		///< Attack tick count
+        float __decay;		///< Decay tick count
+        float __sustain;	///< Sustain level
+        float __release;	///< Release tick count
+        /** possible states */
+        enum ADSRState {
+            ATTACK,
+            DECAY,
+            SUSTAIN,
+            RELEASE,
+            IDLE
+        };
+        ADSRState __state;      ///< current state
+        float __ticks;          ///< current tick count
+        float __value;          ///< current value
+        float __release_value;  ///< value when the release state was entered
 };
 
 };
 
+#endif // H2C_ADRS_H
 
-#endif
+/* vim: set softtabstop=4 expandtab: */
