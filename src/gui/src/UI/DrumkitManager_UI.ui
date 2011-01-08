@@ -21,7 +21,7 @@
      <height>401</height>
     </rect>
    </property>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab0" >
     <attribute name="title" >
      <string>Load</string>
     </attribute>
@@ -135,7 +135,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab1" >
     <attribute name="title" >
      <string>Save</string>
     </attribute>
@@ -225,7 +225,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab2" >
     <attribute name="title" >
      <string>Import</string>
     </attribute>
@@ -336,7 +336,7 @@ http://www.hydrogen-music.org&#xd;
      </widget>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab" >
+   <widget class="QWidget" name="tab3" >
     <attribute name="title" >
      <string>Export</string>
     </attribute>
