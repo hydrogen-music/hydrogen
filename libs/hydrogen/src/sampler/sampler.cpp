@@ -58,21 +58,6 @@ inline static float linear_interpolation( float fVal_A, float fVal_B, float fVal
 //	return fVal_A + ((fVal_B - fVal_A) * fVal);
 }
 
-inline static float third_Interp( float y0, float y1, float y2, float y3, float x )
-{
-    ///x = diff on x axis
-    ///y0 = buffervalue on position -1
-    ///y1 = buffervalue on position
-    ///y2 = buffervalue on position +1
-    ///y3 = buffervalue on position +2
-    float c0 = y1;
-    float c1 = 0.5f * ( y2 - y0 );
-    float c3 = 1.5f * ( y1 - y2 ) + 0.5f * ( y3 - y0 );
-    float c2 = y0 - y1 + c1 - c3;
-    return ( ( c3 * x + c2 ) * x + c1 ) * x + c0;
-}
-
-
 Sampler::Sampler()
 		: Object( "Sampler" )
 		, __main_out_L( NULL )
@@ -641,18 +626,14 @@ int Sampler::__render_note_resample(
 
                 int nSamplePos = ( int )fSamplePos;
                 double fDiff = fSamplePos - nSamplePos;
-		if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-			//fVal_L = linear_interpolation( pSample_data_L[ nSampleFrames -1 ], 0, fDiff );
-			//fVal_R = linear_interpolation( pSample_data_R[ nSampleFrames -1 ], 0, fDiff );
-			//we reach the last audioframe. a interpolation here makes absolute no sense.
+                if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
+                        //we reach the last audioframe.
 			//set this last frame to zero do nothin wrong.
 			fVal_L = 0.0;
 			fVal_R = 0.0;
 		} else {
                         fVal_L = linear_interpolation( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff );
                         fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
-                        //fVal_L = third_Interp( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                        //fVal_R = third_Interp( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
 		}
 
 		// ADSR envelope
@@ -726,19 +707,14 @@ int Sampler::__render_note_resample(
 				int nSamplePos = ( int )fSamplePos;
 				double fDiff = fSamplePos - nSamplePos;
 
-				if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-					//fVal_L = linear_interpolation( pSample_data_L[nSamplePos], 0, fDiff );
-					//fVal_R = linear_interpolation( pSample_data_R[nSamplePos], 0, fDiff );
-
-					//we reach the last audioframe. a interpolation here makes absolute no sense.
+                                if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
+                                        //we reach the last audioframe.
 					//set this last frame to zero do nothin wrong.
 					fVal_L = 0.0;
 					fVal_R = 0.0;
 				} else {
 					fVal_L = linear_interpolation( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff );
-					fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
-                                        //fVal_L = third_Interp( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                        //fVal_L = third_Interp( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
+                                        fVal_R = linear_interpolation( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff );
 				}
 
 				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L * cost_L;
@@ -756,13 +732,6 @@ int Sampler::__render_note_resample(
 
 void Sampler::stop_playing_notes( Instrument* instrument )
 {
-	/*
-	// send a note-off event to all notes present in the playing note queue
-	for ( int i = 0; i < __playing_notes_queue.size(); ++i ) {
-		Note *pNote = __playing_notes_queue[ i ];
-		pNote->m_pADSR->release();
-	}
-	*/
 
 	if ( instrument ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < __playing_notes_queue.size(); ) {
