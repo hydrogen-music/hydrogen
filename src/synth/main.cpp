@@ -6,7 +6,7 @@ using namespace std;
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 
 #include <QtGui>
 

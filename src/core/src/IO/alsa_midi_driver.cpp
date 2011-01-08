@@ -31,7 +31,7 @@
 #include <hydrogen/event_queue.h>
 
 #include <pthread.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/instrument.h>
 
 #ifdef H2CORE_HAVE_LASH

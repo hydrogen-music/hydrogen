@@ -20,7 +20,8 @@
  *
  */
 
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
+
 #include <hydrogen/instrument.h>
 
 #include <cassert>

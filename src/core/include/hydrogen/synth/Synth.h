@@ -27,7 +27,7 @@
 #include <stdint.h> // For uint32_t et al
 
 #include <hydrogen/object.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/globals.h>

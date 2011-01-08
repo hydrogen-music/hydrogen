@@ -27,7 +27,6 @@
 #include <hydrogen/object.h>
 #include <hydrogen/basics/adsr.h>
 
-
 namespace H2Core
 {
 

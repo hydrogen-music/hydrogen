@@ -29,7 +29,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/LocalFileMng.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/Pattern.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Song.h>

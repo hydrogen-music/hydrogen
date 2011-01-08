@@ -32,7 +32,7 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>

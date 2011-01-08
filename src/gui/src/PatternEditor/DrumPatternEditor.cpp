@@ -31,7 +31,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
 
 #include "UndoActions.h"

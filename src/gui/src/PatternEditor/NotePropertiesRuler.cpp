@@ -24,7 +24,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 using namespace H2Core;
 
 #include <cassert>

@@ -25,7 +25,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/instrument.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>
 using namespace H2Core;

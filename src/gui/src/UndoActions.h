@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
