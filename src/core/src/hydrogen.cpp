@@ -44,7 +44,7 @@
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/event_queue.h>
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/audio_engine.h>

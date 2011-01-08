@@ -28,7 +28,7 @@
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/Preferences.h>
 
 #include <cstdlib>

@@ -20,8 +20,8 @@
  *
  */
 
-#include <hydrogen/adsr.h>
-#include "basics/exponential_tables.h"
+#include <hydrogen/basics/adsr.h>
+#include "exponential_tables.h"
 
 namespace H2Core
 {

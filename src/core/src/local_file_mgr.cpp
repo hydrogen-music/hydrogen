@@ -23,7 +23,7 @@
 #include "hydrogen/version.h"
 
 
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>

@@ -28,7 +28,7 @@
 #include <hydrogen/Song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/globals.h>
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/audio_engine.h>

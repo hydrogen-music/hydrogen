@@ -26,7 +26,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/JackOutput.h>
 
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/globals.h>

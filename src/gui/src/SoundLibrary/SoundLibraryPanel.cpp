@@ -42,7 +42,7 @@
 #include "../InstrumentRack.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h" 
 
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>

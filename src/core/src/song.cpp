@@ -24,7 +24,7 @@
 
 #include <cassert>
 
-#include <hydrogen/adsr.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
