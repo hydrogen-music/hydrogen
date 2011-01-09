@@ -52,6 +52,7 @@
 #include <hydrogen/sample.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/fx/Effects.h>

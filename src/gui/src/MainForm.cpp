@@ -28,6 +28,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/event_queue.h>
 using namespace H2Core;
 

@@ -31,6 +31,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>

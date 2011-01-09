@@ -51,6 +51,7 @@
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/SoundLibrary.h>

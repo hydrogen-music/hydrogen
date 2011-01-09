@@ -27,6 +27,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/Preferences.h>
 
 
