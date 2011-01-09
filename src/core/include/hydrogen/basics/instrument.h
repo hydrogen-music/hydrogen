@@ -28,6 +28,7 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/object.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <cassert>
 
 namespace H2Core
@@ -286,33 +287,6 @@ inline InstrumentLayer* Instrument::get_layer( int nLayer )
 
 	return __layer_list[ nLayer ];
 }
-
-
-/**
-
-\brief Instrument List
-
-*/
-class InstrumentList : public Object
-{
-    H2_OBJECT
-public:
-	InstrumentList();
-	~InstrumentList();
-
-	void add( Instrument* pInstrument );
-	Instrument* get( unsigned int pos );
-	int get_pos( Instrument* inst );
-	unsigned get_size();
-
-	void del( int pos );
-
-	void replace( Instrument* pNewInstr, unsigned nPos );
-
-private:
-	std::vector<Instrument*> m_list;
-	std::map<Instrument*, unsigned> m_posmap;
-};
 
 };
 
