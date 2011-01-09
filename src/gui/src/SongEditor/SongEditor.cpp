@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <memory>
 
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/pattern.h>

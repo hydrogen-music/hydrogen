@@ -33,7 +33,7 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/fx/Effects.h>

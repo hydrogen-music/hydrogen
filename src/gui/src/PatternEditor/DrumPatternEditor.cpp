@@ -25,7 +25,7 @@
 #include "NotePropertiesRuler.h"
 
 #include <hydrogen/globals.h>
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>

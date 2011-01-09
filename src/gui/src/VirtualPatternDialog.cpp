@@ -24,7 +24,7 @@
 #include "VirtualPatternDialog.h"
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 

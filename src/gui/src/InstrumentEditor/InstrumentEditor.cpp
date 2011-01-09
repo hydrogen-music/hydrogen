@@ -25,7 +25,7 @@
 #include <math.h>
 #include <assert.h>
 
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/basics/adsr.h>

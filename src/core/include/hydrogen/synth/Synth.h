@@ -28,7 +28,7 @@
 
 #include <hydrogen/object.h>
 #include <hydrogen/basics/note.h>
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/globals.h>
 

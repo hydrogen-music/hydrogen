@@ -24,7 +24,7 @@
 #define SMF_H
 
 #include <hydrogen/object.h>
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 
 #include <string>
 #include <cstdio>

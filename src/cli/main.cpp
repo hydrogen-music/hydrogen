@@ -31,7 +31,7 @@
 #include <hydrogen/LashClient.h>
 #endif
 
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/midiMap.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>

@@ -23,7 +23,7 @@
 #include <QtGui>
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Song.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
