@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/sample.h>
+#include <hydrogen/basics/sample.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 

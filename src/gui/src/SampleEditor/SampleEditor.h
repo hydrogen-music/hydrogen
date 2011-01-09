@@ -30,7 +30,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/sample.h>
+#include <hydrogen/basics/sample.h>
 #include <hydrogen/instrument.h>
 
 

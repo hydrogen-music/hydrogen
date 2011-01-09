@@ -34,7 +34,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/sample.h>
+#include <hydrogen/basics/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>

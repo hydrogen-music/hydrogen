@@ -29,7 +29,7 @@
 
 #include <hydrogen/data_path.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/sample.h>
+#include <hydrogen/basics/sample.h>
 #include <hydrogen/audio_engine.h>
 
 #include <QModelIndex>

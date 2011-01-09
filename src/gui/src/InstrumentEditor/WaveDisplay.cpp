@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/sample.h>
+#include <hydrogen/basics/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/instrument.h>
 using namespace H2Core;

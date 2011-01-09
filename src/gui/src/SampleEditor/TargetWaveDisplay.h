@@ -25,7 +25,7 @@
 
 #include <QtGui>
 #include <hydrogen/object.h>
-#include <hydrogen/sample.h>
+#include <hydrogen/basics/sample.h>
 
 class SampleEditor;
 
