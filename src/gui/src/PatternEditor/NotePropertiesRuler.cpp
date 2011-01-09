@@ -131,7 +131,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 			continue;
 		}
-		if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
+		if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
 			float val = pNote->get_velocity() + delta;
 			if (val > 1.0) {
 				val = 1.0;
@@ -170,20 +170,20 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			pNote->set_pan_r(pan_R);
 		}
 		else if ( m_mode == LEADLAG ){
-			float val = (pNote->get_leadlag() - 1.0)/-2.0 + delta;
+			float val = (pNote->get_lead_lag() - 1.0)/-2.0 + delta;
 			if (val > 1.0) {
 				val = 1.0;
 			}
 			else if (val < 0.0) {
 				val = 0.0;
 			}
-			pNote->set_leadlag((val * -2.0) + 1.0);
+			pNote->set_lead_lag((val * -2.0) + 1.0);
 			char valueChar[100];
-			if (pNote->get_leadlag() < 0.0) {
-				sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+			if (pNote->get_lead_lag() < 0.0) {
+				sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-			} else if (pNote->get_leadlag() > 0.0) {
-				sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+			} else if (pNote->get_lead_lag() > 0.0) {
+				sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
 			} else {
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
@@ -256,7 +256,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			continue;
 		}
 
-		if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
+		if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
 			__oldVelocity = pNote->get_velocity();
 			__mode = "VELOCITY";
 
@@ -269,14 +269,14 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		}
 		else if ( m_mode == LEADLAG ){
 			
-			__oldLeadLag = pNote->get_leadlag();
+			__oldLeadLag = pNote->get_lead_lag();
 			__mode = "LEADLAG";
 		}
 
 		else if ( m_mode == NOTEKEY ){
 			__mode = "NOTEKEY";
-		__oldOctaveKeyVal = pNote->m_noteKey.m_nOctave;
-		__oldNoteKeyVal = pNote->m_noteKey.m_key;
+		__oldOctaveKeyVal = pNote->get_octave();
+		__oldNoteKeyVal = pNote->get_key();
 		}
 
 	}
@@ -337,7 +337,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				continue;
 			}
 	
-			if ( m_mode == VELOCITY && !pNote->get_noteoff() ) {
+			if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
 				if( columnChange ){
 					__oldVelocity = pNote->get_velocity();
 				}
@@ -372,21 +372,21 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			}
 			else if ( m_mode == LEADLAG ){
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					pNote->set_leadlag(0.0);
+					pNote->set_lead_lag(0.0);
 					__leadLag = 0.0;
 				} else {
 					if( columnChange ){
-						__oldLeadLag = pNote->get_leadlag();
+						__oldLeadLag = pNote->get_lead_lag();
 					}
 	
-					pNote->set_leadlag((val * -2.0) + 1.0);
+					pNote->set_lead_lag((val * -2.0) + 1.0);
 					__leadLag = (val * -2.0) + 1.0;
 					char valueChar[100];
-					if (pNote->get_leadlag() < 0.0) {
-						sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					if (pNote->get_lead_lag() < 0.0) {
+						sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
 						HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-					} else if (pNote->get_leadlag() > 0.0) {
-						sprintf( valueChar, "%.2f",  ( pNote->get_leadlag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					} else if (pNote->get_lead_lag() > 0.0) {
+						sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
 						HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
 					} else {
 						HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
@@ -401,68 +401,18 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				} else {
 					//set the note hight
 					//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
-					if (keyval >= 6 && keyval <= 15 ){//note c
-						pNote->m_noteKey.m_key = H2Core::NoteKey::C;
-					}
-					if (keyval >= 16 && keyval <= 25 ){//note cis / cs
-						pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
-					}
-					if (keyval >= 26 && keyval <= 35 ){//note d
-						pNote->m_noteKey.m_key = H2Core::NoteKey::D;
-					}
-					if (keyval >= 36 && keyval <= 45 ){//note dis / ef
-						pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
-					}
-					if (keyval >= 46 && keyval <= 55 ){//note E
-						pNote->m_noteKey.m_key = H2Core::NoteKey::E;
-					}
-					if (keyval >= 56 && keyval <= 65 ){//note f
-						pNote->m_noteKey.m_key = H2Core::NoteKey::F;
-					}
-					if (keyval >= 66 && keyval <= 75 ){//note fis
-						pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
-					}
-					if (keyval >= 76 && keyval <= 85 ){//note g
-						pNote->m_noteKey.m_key = H2Core::NoteKey::G;
-					}
-					if (keyval >= 86 && keyval <= 95 ){//note gis / af
-						pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
-					}
-					if (keyval >= 96 && keyval <= 105 ){//note a
-						pNote->m_noteKey.m_key = H2Core::NoteKey::A;
-					}
-					if (keyval >= 106 && keyval <= 115 ){//note his / bf
-						pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
-					}
-					if (keyval >= 116 && keyval <= 125 ){//note h / b
-						pNote->m_noteKey.m_key = H2Core::NoteKey::B;
-					}
-					
-					//set the note oktave 
-					if (keyval >= 135 && keyval <= 145 ){
-						pNote->m_noteKey.m_nOctave = -3;
-					}
-					else if( keyval >= 146 && keyval <= 155 ){
-						pNote->m_noteKey.m_nOctave = -2;
-					}
-					else if( keyval >= 156 && keyval <= 165 ){
-						pNote->m_noteKey.m_nOctave = -1;
-					}
-					else if( keyval >= 166 && keyval <= 175 ){
-						pNote->m_noteKey.m_nOctave = 0;
-					}
-					else if( keyval >= 176 && keyval <= 185 ){
-						pNote->m_noteKey.m_nOctave = 1;
-					}
-					else if( keyval >= 186 && keyval <= 195 ){
-						pNote->m_noteKey.m_nOctave = 2;
-					}
-					else if( keyval >= 196 && keyval <= 205 ){
-						pNote->m_noteKey.m_nOctave = 3;
-					}
+                    int k = 666;
+                    int o = 666;
+                    if(keyval >=6 && keyval<=125) {
+                        k = (keyval-6)/10;
+                    } else if(keyval>=135 && keyval<=205) {
+                        o = (keyval-166)/10;
+                        if(o==-4) o=-3; // 135
+                    }
+                    pNote->set_key_octave(k,o); // won't set wrong values see Note::set_key_octave
 
-					__octaveKeyVal = pNote->m_noteKey.m_nOctave;
-					__noteKeyVal = pNote->m_noteKey.m_key;
+					__octaveKeyVal = pNote->get_octave();
+					__noteKeyVal = pNote->get_key();
 				}
 			}
 	
@@ -1001,7 +951,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 				blue1 = ( 255 - (int) red1 )* .33;
 				green1 =  ( 255 - (int) red1 );
 	
-				if (pNote->get_leadlag() == 0) {
+				if (pNote->get_lead_lag() == 0) {
 				
 					// leadlag value is centered - draw circle
 					int y_pos = (int)( height() * 0.5 );
@@ -1009,12 +959,12 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 					p.drawEllipse( x_pos-4 + xoffset, y_pos-4, 8, 8);
 				} else {
 					int y_start = (int)( height() * 0.5 );
-					int y_end = y_start + ((pNote->get_leadlag()/2) * height());
+					int y_end = y_start + ((pNote->get_lead_lag()/2) * height());
 		
 					int nLineWidth = 3;
 					int red;
 					int green;
-					int blue = (int) (pNote->get_leadlag() * 255);
+					int blue = (int) (pNote->get_lead_lag() * 255);
 					if (blue < 0)  {
 						red = blue *-1;
 						blue = (int) red * .33;
@@ -1200,42 +1150,11 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
-			
-			//check the note type
-			if ( !pNote->get_noteoff() ) {	
-				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
-	
-				int oktave = 0;
-				if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
-	
-				if (pNote->m_noteKey.m_nOctave == -3){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 70-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_nOctave == -2){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 60-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_nOctave == -1){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 50-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_nOctave == 0){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 40-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_nOctave == 1){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 30-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_nOctave == 2){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 20-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_nOctave == 3){
-					p.setBrush(QColor( 99, 160, 233 ));
-					p.drawEllipse( x_pos-3, 10-3, 6, 6);
-				}
+			if ( !pNote->get_note_off() ) {
+                uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
+                uint y_pos = (4-pNote->get_octave())*10-3;
+                p.setBrush(QColor( 99, 160, 233 ));
+                p.drawEllipse( x_pos, y_pos, 6, 6);
 			}
 		}
 	}
@@ -1253,60 +1172,26 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				continue;
 			}
 
-			if ( !pNote->get_noteoff() ) {
-				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
-	
-				int oktave = 0;
-				if ( pNote ) oktave = pNote->m_noteKey.m_nOctave;
-	
-				if (pNote->m_noteKey.m_key == 0 ){//note c
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 200-4, 8, 8);
-				}
-				if (pNote->m_noteKey.m_key == 1 ){//note cis
-					p.setBrush(QColor( 255, 255, 255  ));
-					p.drawEllipse( x_pos-3, 190-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_key == 2 ){//note d
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 180-4, 8, 8);
-				}
-				if (pNote->m_noteKey.m_key == 3 ){//note dis
-					p.setBrush(QColor( 255, 255, 255));
-					p.drawEllipse( x_pos-3, 170-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_key == 4 ){//note e
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 160-4, 8, 8);
-				}
-				if (pNote->m_noteKey.m_key == 5 ){//note f
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 150-4, 8, 8);
-				}
-				if (pNote->m_noteKey.m_key == 6 ){//note fis
-					p.setBrush(QColor( 255, 255, 255));
-					p.drawEllipse( x_pos-3, 140-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_key == 7 ){//note g
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 130-4, 8, 8);
-				}
-				if (pNote->m_noteKey.m_key == 8 ){//note gis
-					p.setBrush(QColor( 255, 255, 255));
-					p.drawEllipse( x_pos-3, 120-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_key == 9 ){//note a
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 110-4, 8, 8);
-				}
-				if (pNote->m_noteKey.m_key == 10 ){//note ais
-					p.setBrush(QColor( 255, 255, 255));
-					p.drawEllipse( x_pos-3, 100-3, 6, 6);
-				}
-				if (pNote->m_noteKey.m_key == 11 ){//note h
-					p.setBrush(QColor( 0, 0, 0));
-					p.drawEllipse( x_pos-4, 90-4, 8, 8);
-				}
+			if ( !pNote->get_note_off() ) {
+                int d = 6;
+                int k = pNote->get_key();
+                uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
+                uint y_pos = 200-(k*10)-3;
+                if(k<5) {
+                    if(!(k&0x01)) {
+                        x_pos-=1;
+                        y_pos-=1;
+                        d+=2;
+                    }
+                } else {
+                    if(k&0x01) {
+                        x_pos-=1;
+                        y_pos-=1;
+                        d+=2;
+                    }
+                }
+                p.setBrush(QColor( 0, 0, 0));
+                p.drawEllipse( x_pos, y_pos, d, d);
 			}
 		}
 	}	

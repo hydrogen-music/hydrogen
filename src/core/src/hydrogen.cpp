@@ -122,10 +122,10 @@ MidiOutput *m_pMidiDriverOut = NULL;	///< MIDI output
 // overload the the > operator of Note objects for priority_queue
 struct compare_pNotes {
 bool operator() (Note* pNote1, Note* pNote2) {
-	return (pNote1->m_nHumanizeDelay
+	return (pNote1->get_humanize_delay()
 		+ pNote1->get_position() * m_pAudioDriver->m_transport.m_nTickSize)
 		>
-		(pNote2->m_nHumanizeDelay
+		(pNote2->get_humanize_delay()
 		 + pNote2->get_position() * m_pAudioDriver->m_transport.m_nTickSize);
 }
 };
@@ -517,8 +517,8 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		// we don't miss the time slice.  ignore positive delay, or we
 		// might end the queue processing prematurely based on NoteQueue
 		// placement.  the sampler handles positive delay.
-		if (pNote->m_nHumanizeDelay < 0) {
-			noteStartInFrames += pNote->m_nHumanizeDelay;
+		if (pNote->get_humanize_delay() < 0) {
+			noteStartInFrames += pNote->get_humanize_delay();
 		}
 
 		// m_nTotalFrames <= NotePos < m_nTotalFrames + bufferSize
@@ -558,7 +558,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 							0.0,
 							-1,
 							0 );
-				pOffNote->set_noteoff( true );
+				pOffNote->set_note_off( true );
 				AudioEngine::get_instance()->get_sampler()->note_on( pOffNote );
 			}
 
@@ -1356,7 +1356,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
                                                 Note *pNote = NULL;
                                                 pNote = pos0->second;
 						assert( pNote != NULL );
-						if ( pNote->m_bJustRecorded == false ) {
+						if ( pNote->get_just_recorded() == false ) {
 							delete pNote;
 							pPattern->note_map.erase( pos0 );
 						}
@@ -1372,7 +1372,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				      ++pos ) {
 					Note *pNote = pos->second;
 					if ( pNote ) {
-						pNote->m_bJustRecorded = false;
+						pNote->set_just_recorded( false );
 						int nOffset = 0;
 
 						// Swing
@@ -1398,7 +1398,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						}
 						//~
 						// Lead or Lag - timing parameter
-						nOffset += (int) ( pNote->get_leadlag()
+						nOffset += (int) ( pNote->get_lead_lag()
 								   * nLeadLagFactor);
 						//~
 
@@ -1409,7 +1409,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						pCopiedNote->set_position( tick );
 
 						// humanize time
-						pCopiedNote->m_nHumanizeDelay = nOffset;
+						pCopiedNote->set_humanize_delay( nOffset );
 						pNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );
 						//pCopiedNote->dumpInfo();
@@ -2106,15 +2106,15 @@ void Hydrogen::addRealtimeNote( int instrument,
 				if( pref->__playselectedinstrument ){//fix me 
 					if( song->get_instrument_list()->get( getSelectedInstrumentNumber()) == pNote->get_instrument() ){
 						if(prefpredelete>=1 && prefpredelete <=14 )
-							pNote->m_bJustRecorded = false;
+							pNote->set_just_recorded( false );
 		
-						if( (prefpredelete == 15) && (pNote->m_bJustRecorded == false)){
+						if( (prefpredelete == 15) && (pNote->get_just_recorded() == false)){
 							delete pNote;
 							currentPattern->note_map.erase( pos0 );
 							continue;
 						}
 		
-						if( ( pNote->m_bJustRecorded == false ) && (static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() < column + predelete +1 )){
+						if( ( pNote->get_just_recorded() == false ) && (static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() < column + predelete +1 )){
 							delete pNote;
 							currentPattern->note_map.erase( pos0 );
 						}
@@ -2127,15 +2127,15 @@ void Hydrogen::addRealtimeNote( int instrument,
 				}
 
 				if(prefpredelete>=1 && prefpredelete <=14 )
-					pNote->m_bJustRecorded = false;
+					pNote->set_just_recorded( false );
 
-				if( (prefpredelete == 15) && (pNote->m_bJustRecorded == false)){
+				if( (prefpredelete == 15) && (pNote->get_just_recorded() == false)){
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 					continue;
 				}
 
-				if( ( pNote->m_bJustRecorded == false ) && ( static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() <column + predelete +1 )){
+				if( ( pNote->get_just_recorded() == false ) && ( static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() <column + predelete +1 )){
 					delete pNote;
 					currentPattern->note_map.erase( pos0 );
 				}
@@ -2174,7 +2174,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 			// Update velocity and flag as just recorded
 			if ( doRecord ) {
 				pNoteOld->set_velocity( velocity );
-				pNoteOld->m_bJustRecorded = true;
+				pNoteOld->set_just_recorded( true );
 			}
 		} else if ( !doRecord ) {
 			if ( pref->getHearNewNotes()
@@ -2202,7 +2202,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 					hearnote = true;
 				}
 	
-				note->m_bJustRecorded = true;
+				note->set_just_recorded( true );
 				song->__is_modified = true;
 	
 				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
@@ -2220,20 +2220,7 @@ void Hydrogen::addRealtimeNote( int instrument,
                                 int divider = msg1 / 12;
 				int octave = divider -3;
 				int notehigh = msg1 - (12 * divider);
-				note->m_noteKey.m_nOctave = octave;
-				note->set_midimsg1( msg1 );
-				if ( notehigh == 0) note->m_noteKey.m_key = H2Core::NoteKey::C;
-				else if ( notehigh == 1 ) note->m_noteKey.m_key = H2Core::NoteKey::Cs;
-				else if ( notehigh == 2 ) note->m_noteKey.m_key = H2Core::NoteKey::D;
-				else if ( notehigh == 3 ) note->m_noteKey.m_key = H2Core::NoteKey::Ef;
-				else if ( notehigh == 4 ) note->m_noteKey.m_key = H2Core::NoteKey::E;
-				else if ( notehigh == 5 ) note->m_noteKey.m_key = H2Core::NoteKey::F;
-				else if ( notehigh == 6 ) note->m_noteKey.m_key = H2Core::NoteKey::Fs;
-				else if ( notehigh == 7 ) note->m_noteKey.m_key = H2Core::NoteKey::G;
-				else if ( notehigh == 8 ) note->m_noteKey.m_key = H2Core::NoteKey::Af;
-				else if ( notehigh == 9 ) note->m_noteKey.m_key = H2Core::NoteKey::A;
-				else if ( notehigh == 10 ) note->m_noteKey.m_key = H2Core::NoteKey::Bf;
-				else if ( notehigh == 11 ) note->m_noteKey.m_key = H2Core::NoteKey::B;
+				note->set_midi_info( notehigh, octave, msg1 );
 
 				currentPattern->note_map.insert(
 					std::make_pair( column, note )
@@ -2245,7 +2232,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 					hearnote = true;
 				}
 
-				note->m_bJustRecorded = true;
+				note->set_just_recorded( true );
 				song->__is_modified = true;
 	
 				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );				
@@ -2282,21 +2269,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 			int notehigh = msg1 - (12 * divider);
 
 			//ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
-			note2->m_noteKey.m_nOctave = octave;
-			if ( notehigh == 0) note2->m_noteKey.m_key = H2Core::NoteKey::C;
-			else if ( notehigh == 1 ) note2->m_noteKey.m_key = H2Core::NoteKey::Cs;
-			else if ( notehigh == 2 ) note2->m_noteKey.m_key = H2Core::NoteKey::D;
-			else if ( notehigh == 3 ) note2->m_noteKey.m_key = H2Core::NoteKey::Ef;
-			else if ( notehigh == 4 ) note2->m_noteKey.m_key = H2Core::NoteKey::E;
-			else if ( notehigh == 5 ) note2->m_noteKey.m_key = H2Core::NoteKey::F;
-			else if ( notehigh == 6 ) note2->m_noteKey.m_key = H2Core::NoteKey::Fs;
-			else if ( notehigh == 7 ) note2->m_noteKey.m_key = H2Core::NoteKey::G;
-			else if ( notehigh == 8 ) note2->m_noteKey.m_key = H2Core::NoteKey::Af;
-			else if ( notehigh == 9 ) note2->m_noteKey.m_key = H2Core::NoteKey::A;
-			else if ( notehigh == 10 ) note2->m_noteKey.m_key = H2Core::NoteKey::Bf;
-			else if ( notehigh == 11 ) note2->m_noteKey.m_key = H2Core::NoteKey::B;
-
-			note2->set_midimsg1( msg1 );
+			note2->set_midi_info( notehigh, octave, msg1 );
 			midi_noteOn( note2 );
 		}	
 

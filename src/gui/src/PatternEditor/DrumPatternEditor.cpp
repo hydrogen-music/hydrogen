@@ -31,6 +31,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/instrument.h>
 #include <hydrogen/Pattern.h>
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
 
@@ -208,9 +209,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			oldVelocity = pDraggedNote->get_velocity();
 			oldPan_L = pDraggedNote->get_pan_l();
 			oldPan_R = pDraggedNote->get_pan_r();
-			oldLeadLag = pDraggedNote->get_leadlag();
-			oldNoteKeyVal = pDraggedNote->m_noteKey.m_key;
-			oldOctaveKeyVal = pDraggedNote->m_noteKey.m_nOctave;
+			oldLeadLag = pDraggedNote->get_lead_lag();
+			oldNoteKeyVal = pDraggedNote->get_key();
+			oldOctaveKeyVal = pDraggedNote->get_octave();
 		}
 
 		SE_addNoteAction *action = new SE_addNoteAction( nColumn,
@@ -358,47 +359,9 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 
 		const float fPitch = 0.0f;
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		pNote->set_noteoff( false );
-		pNote->set_leadlag( oldLeadLag );
-
-		if ( oldNoteKeyVal == 0 ){//note c
-			pNote->m_noteKey.m_key = H2Core::NoteKey::C;
-		}
-		if ( oldNoteKeyVal == 1 ){//note cis / cs
-			pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
-		}
-		if ( oldNoteKeyVal == 2 ){//note d
-			pNote->m_noteKey.m_key = H2Core::NoteKey::D;
-		}
-		if ( oldNoteKeyVal == 3 ){//note dis / ef
-			pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
-		}
-		if ( oldNoteKeyVal == 4 ){//note E
-			pNote->m_noteKey.m_key = H2Core::NoteKey::E;
-		}
-		if ( oldNoteKeyVal == 5 ){//note f
-			pNote->m_noteKey.m_key = H2Core::NoteKey::F;
-		}
-		if ( oldNoteKeyVal == 6 ){//note fis
-			pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
-		}
-		if ( oldNoteKeyVal == 7 ){//note g
-			pNote->m_noteKey.m_key = H2Core::NoteKey::G;
-		}
-		if ( oldNoteKeyVal == 8 ){//note gis / af
-			pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
-		}
-		if ( oldNoteKeyVal == 9 ){//note a
-			pNote->m_noteKey.m_key = H2Core::NoteKey::A;
-		}
-		if ( oldNoteKeyVal == 10 ){//note his / bf
-			pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
-		}
-		if ( oldNoteKeyVal == 11 ){//note h / b
-			pNote->m_noteKey.m_key = H2Core::NoteKey::B;
-		}
-
-		pNote->m_noteKey.m_nOctave = oldOctaveKeyVal;
+		pNote->set_note_off( false );
+		pNote->set_lead_lag( oldLeadLag );
+        pNote->set_key_octave( oldNoteKeyVal, oldOctaveKeyVal );
 		
 
 		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
@@ -461,7 +424,7 @@ void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row, int selec
 	const int nLength = 1;
 	const float fPitch = 0.0f;
 	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-	poffNote->set_noteoff( true );
+	poffNote->set_note_off( true );
 
 	
 	pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
@@ -496,7 +459,7 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 	}
 
 	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
-		if ( m_pDraggedNote->get_noteoff() ) return;
+		if ( m_pDraggedNote->get_note_off() ) return;
 
 		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber);
 		HydrogenApp::get_instance()->m_undoStack->push( action );
@@ -596,7 +559,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 	//	4 = edit lead lag
 
 	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
-		if ( m_pDraggedNote->get_noteoff() ) return;
+		if ( m_pDraggedNote->get_note_off() ) return;
 		int nTickColumn = getColumn( ev );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -606,7 +569,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 			nLen = -1;
 		}
 
-		float fNotePitch = m_pDraggedNote->m_noteKey.m_nOctave * 12 + m_pDraggedNote->m_noteKey.m_key;
+		float fNotePitch = m_pDraggedNote->get_octave() * 12 + m_pDraggedNote->get_key();
 		float fStep = 0;
 		if(nLen > -1){
 			fStep = pow( 1.0594630943593, ( double )fNotePitch );
@@ -774,7 +737,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	uint w = 8;
 	uint h =  m_nGridHeight / 3;
 
-	if ( note->get_length() == -1 && note->get_noteoff() == false ) {	// trigger note
+	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
 		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 		p.setBrush( color );
@@ -782,7 +745,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 
 	}
-	else if ( note->get_length() == 1 && note->get_noteoff() == true ){
+	else if ( note->get_length() == 1 && note->get_note_off() == true ){
 		p.setPen( noteoffColor );
 		uint x_pos = 20 + ( pos * m_nGridWidth );// - m_nGridWidth / 2.0;
 
@@ -794,7 +757,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	}		
 	else {
-		float fNotePitch = note->m_noteKey.m_nOctave * 12 + note->m_noteKey.m_key;
+		float fNotePitch = note->get_octave() * 12 + note->get_key();
 		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 
 		uint x = 20 + (pos * m_nGridWidth);
@@ -1088,7 +1051,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 			continue;
 		}
 
-		if ( mode == "VELOCITY" && !pNote->get_noteoff() ) {
+		if ( mode == "VELOCITY" && !pNote->get_note_off() ) {
 			pNote->set_velocity( velocity );
 		}
 		else if ( mode == "PAN" ){
@@ -1097,49 +1060,11 @@ void DrumPatternEditor::undoRedoAction( int column,
 			pNote->set_pan_r( pan_R );
 		}
 		else if ( mode == "LEADLAG" ){
-			pNote->set_leadlag( leadLag );
+			pNote->set_lead_lag( leadLag );
 		}
 		else if ( mode == "NOTEKEY" ){
-	
-			if ( noteKeyVal == 0 ){//note c
-				pNote->m_noteKey.m_key = H2Core::NoteKey::C;
-			}
-			if ( noteKeyVal == 1 ){//note cis / cs
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Cs;
-			}
-			if ( noteKeyVal == 2 ){//note d
-				pNote->m_noteKey.m_key = H2Core::NoteKey::D;
-			}
-			if ( noteKeyVal == 3 ){//note dis / ef
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Ef;
-			}
-			if ( noteKeyVal == 4 ){//note E
-				pNote->m_noteKey.m_key = H2Core::NoteKey::E;
-			}
-			if ( noteKeyVal == 5 ){//note f
-				pNote->m_noteKey.m_key = H2Core::NoteKey::F;
-			}
-			if ( noteKeyVal == 6 ){//note fis
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Fs;
-			}
-			if ( noteKeyVal == 7 ){//note g
-				pNote->m_noteKey.m_key = H2Core::NoteKey::G;
-			}
-			if ( noteKeyVal == 8 ){//note gis / af
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Af;
-			}
-			if ( noteKeyVal == 9 ){//note a
-				pNote->m_noteKey.m_key = H2Core::NoteKey::A;
-			}
-			if ( noteKeyVal == 10 ){//note his / bf
-				pNote->m_noteKey.m_key = H2Core::NoteKey::Bf;
-			}
-			if ( noteKeyVal == 11 ){//note h / b
-				pNote->m_noteKey.m_key = H2Core::NoteKey::B;
-			}
-	
-				pNote->m_noteKey.m_nOctave = octaveKeyVal;
-			}
+            pNote->set_key_octave( noteKeyVal, octaveKeyVal );
+		}
 		pSong->__is_modified = true;
 		break;
 	}
@@ -1460,7 +1385,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 			pNote = new Note( *note );
 			assert( pNote );
 			int nPosition = pNote->get_position();
-			pPattern = pPatternList->get( pNote->get_ID() );
+			pPattern = pPatternList->get( pNote->get_pattern_idx() );
 			assert (pPattern) ;	
 			pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
 			//delete pNote;

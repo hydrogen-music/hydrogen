@@ -387,7 +387,7 @@ void InstrumentLine::functionDeleteInstrument()
 			assert( pNote );
 			
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				pNote->set_ID( i );
+				pNote->set_pattern_idx( i );
 				noteList.push_back( pNote );
 				pos++ ;
 			} else {

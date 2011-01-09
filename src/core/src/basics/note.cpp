@@ -22,254 +22,208 @@
 
 #include <hydrogen/basics/note.h>
 
+#include <cassert>
+
+#include <hydrogen/helpers/xml.h>
+
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/instrument.h>
 
-#include <cassert>
-#include <cstdlib>
-
-namespace H2Core
-{
+namespace H2Core {
 
 const char* Note::__class_name = "Note";
+const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note(
-    Instrument *pInstrument,
-    unsigned position,
-    float velocity,
-    float fPan_L,
-    float fPan_R,
-    int nLength,
-    float fPitch,
-    NoteKey key
-)
-		: Object( __class_name )
-		, m_fSamplePosition( 0.0 )
-		, m_nHumanizeDelay( 0 )
-		, m_noteKey( key )
-// , m_pADSR( NULL )
-		, m_fCutoff( 1.0 )
-		, m_fResonance( 0.0 )
-		, m_fBandPassFilterBuffer_L( 0.0 )
-		, m_fBandPassFilterBuffer_R( 0.0 )
-		, m_fLowPassFilterBuffer_L( 0.0 )
-		, m_fLowPassFilterBuffer_R( 0.0 )
-		, m_bJustRecorded( false )
-		, __position( position )
-		, __velocity( velocity )
-		, __leadlag( 0.0 )
-		, __noteoff( false)
-		, __midimsg1(-1)
-		, __pat_Id( 0 )
-{
-	set_pan_l( fPan_L );
-	set_pan_r( fPan_R );
-	set_length( nLength );
-
-	set_instrument( pInstrument );
-	set_pitch( fPitch );
+Note::Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch )
+    : Object( __class_name ),
+      __instrument( instrument ),
+      __position( position ),
+      __velocity( velocity ),
+      __pan_l( pan_l ),
+      __pan_r( pan_r ),
+      __length( length ),
+      __pitch( pitch ),
+      __key( KEY_MIN ),
+      __octave( OCTAVE_DEFAULT ),
+      __adsr( new ADSR() ),
+      __lead_lag( 0.0 ),
+      __cut_off( 1.0 ),
+      __resonance( 0.0 ),
+      __humanize_delay( 0 ),
+      __sample_position( 0.0 ),
+      __bpfb_l( 0.0 ),
+      __bpfb_r( 0.0 ),
+      __lpfb_l( 0.0 ),
+      __lpfb_r( 0.0 ),
+      __pattern_idx( 0 ),
+      __midi_msg( -1 ),
+      __note_off( false ),
+      __just_recorded( false ) {
 }
 
+Note::Note( Note* other )
+    : Object( __class_name ),
+      __instrument( other->get_instrument() ),
+      __position( other->get_position() ),
+      __velocity( other->get_velocity() ),
+      __pan_l( other->get_pan_l() ),
+      __pan_r( other->get_pan_r() ),
+      __length( other->get_length() ),
+      __pitch( other->get_pitch() ),
+      __key( other->get_key() ),
+      __octave( other->get_octave() ),
+      __adsr( other->get_adsr() ),
+      __lead_lag( other->get_lead_lag() ),
+      __cut_off( other->get_cut_off() ),
+      __resonance( other->get_resonance() ),
+      __humanize_delay( other->get_humanize_delay() ),
+      __sample_position( other->get_sample_position() ),
+      __bpfb_l( other->get_bpfb_l() ),
+      __bpfb_r( other->get_bpfb_r() ),
+      __lpfb_l( other->get_lpfb_l() ),
+      __lpfb_r( other->get_lpfb_r() ),
+      __pattern_idx( other->get_pattern_idx() ),
+      __midi_msg( other->get_midi_msg() ),
+      __note_off( other->get_note_off() ),
+      __just_recorded( other->get_just_recorded() )
+{ }
 
+Note::~Note() { }
 
-
-Note::Note( const Note* pNote )
-		: Object( __class_name )
-{
-	__position	=	pNote->get_position();
-	__velocity	=	pNote->get_velocity();
-	set_pan_l(	pNote->get_pan_l()	);
-	set_pan_r(	pNote->get_pan_r()	);
-	set_leadlag(    pNote->get_leadlag()    );
-	set_length(	pNote->get_length()	);
-	set_pitch(	pNote->get_pitch()	);
-	set_noteoff(	pNote->get_noteoff()	);
-	set_midimsg1(	pNote->get_midimsg1()	);
-	set_ID(		pNote->get_ID()		);
-	m_noteKey	=	pNote->m_noteKey;
-	m_fCutoff	=	pNote->m_fCutoff;
-	m_fResonance	=	pNote->m_fResonance;
-	m_fBandPassFilterBuffer_L	= 	pNote->m_fBandPassFilterBuffer_L;
-	m_fBandPassFilterBuffer_R	= 	pNote->m_fBandPassFilterBuffer_R;
-	m_fLowPassFilterBuffer_L	=	pNote->m_fLowPassFilterBuffer_L;
-	m_fLowPassFilterBuffer_R	=	pNote->m_fLowPassFilterBuffer_R;
-	m_nHumanizeDelay		= 	pNote->m_nHumanizeDelay;
-	m_fSamplePosition		=	pNote->m_fSamplePosition;
-	m_bJustRecorded		=		pNote->m_bJustRecorded;
-	set_instrument( pNote->__instrument );
+static inline float check_boundary( float v, float min, float max ) {
+    if ( v>max ) return max;
+    if ( v<min ) return min;
+    return v;
 }
 
-
-
-Note::~Note()
-{
-	//infoLog("DESTROY");
-	//delete m_pADSR;
+void Note::set_velocity( float velocity ) {
+    __velocity = check_boundary( velocity, VELOCITY_MIN, VELOCITY_MAX );
 }
 
-
-
-void Note::set_instrument( Instrument* instrument )
-{
-	if ( instrument == NULL ) {
-		return;
-	}
-
-	__instrument = instrument;
-	assert( __instrument->get_adsr() );
-	m_adsr = ADSR( *( __instrument->get_adsr() ) );
-
-	/*
-		if ( pInstrument->m_pADSR == NULL ) {
-			ERRORLOG( "NULL ADSR? Instrument: " + pInstrument->m_sName );
-		}
-		else {
-			INFOLOG( "copio l'adsr dallo strumento" );
-			if ( m_pADSR ) {
-				WARNINGLOG( "Replacing an existing ADSR" );
-				delete m_pADSR;
-				m_pADSR = NULL;
-			}
-			m_pADSR = new ADSR( *(m_pInstrument->m_pADSR) );
-		}
-	*/
+void Note::set_lead_lag( float lead_lag ) {
+    __lead_lag = check_boundary( lead_lag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 }
 
-
-
-void Note::dumpInfo()
-{
-    INFOLOG( QString("pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5")
-	     .arg( get_position() )
-	     .arg( m_nHumanizeDelay )
-	     .arg( __instrument->get_name() )
-	     .arg( keyToString( m_noteKey ) )
-	     .arg( get_pitch() )
-	     .arg( get_noteoff() )
-	);
+void Note::set_pan_l( float pan ) {
+    __pan_l = check_boundary( pan, PAN_MIN, PAN_MAX );
 }
 
-
-
-NoteKey Note::stringToKey( const QString& str )
-{
-	NoteKey key;
-
-
-	QString sKey = str.left( str.length() - 1 );
-	QString sOct = str.mid( str.length() - 1, str.length() );
-
-	if ( sKey.endsWith( "-" ) ){
-		sKey.replace("-", "");
-		sOct.insert( 0, "-");
-	}
-	int nOctave = sOct.toInt();
-
-//	_INFOLOG( "skey: " + sKey );
-//	_INFOLOG( "sOct: " + sOct );
-//	_INFOLOG( "nOctave: " + to_string( nOctave ) );
-
-	if ( sKey == "C" ) {
-		key.m_key = NoteKey::C;
-	} else if ( sKey == "Cs" ) {
-		key.m_key = NoteKey::Cs;
-	} else if ( sKey == "D" ) {
-		key.m_key = NoteKey::D;
-	} else if ( sKey == "Ef" ) {
-		key.m_key = NoteKey::Ef;
-	} else if ( sKey == "E" ) {
-		key.m_key = NoteKey::E;
-	} else if ( sKey == "F" ) {
-		key.m_key = NoteKey::F;
-	} else if ( sKey == "Fs" ) {
-		key.m_key = NoteKey::Fs;
-	} else if ( sKey == "G" ) {
-		key.m_key = NoteKey::G;
-	} else if ( sKey == "Af" ) {
-		key.m_key = NoteKey::Af;
-	} else if ( sKey == "A" ) {
-		key.m_key = NoteKey::A;
-	} else if ( sKey == "Bf" ) {
-		key.m_key = NoteKey::Bf;
-	} else if ( sKey == "B" ) {
-		key.m_key = NoteKey::B;
-	} else {
-		_ERRORLOG( "Unhandled key: " + sKey );
-	}
-	key.m_nOctave = nOctave;
-
-	return key;
+void Note::set_pan_r( float pan ) {
+    __pan_r = check_boundary( pan, PAN_MIN, PAN_MAX );
 }
 
-
-
-QString Note::keyToString( NoteKey key )
-{
-	QString sKey;
-
-	switch ( key.m_key ) {
-	case NoteKey::C:
-		sKey = "C";
-		break;
-	case NoteKey::Cs:
-		sKey = "Cs";
-		break;
-	case NoteKey::D:
-		sKey = "D";
-		break;
-	case NoteKey::Ef:
-		sKey = "Ef";
-		break;
-	case NoteKey::E:
-		sKey = "E";
-		break;
-	case NoteKey::F:
-		sKey = "F";
-		break;
-	case NoteKey::Fs:
-		sKey = "Fs";
-		break;
-	case NoteKey::G:
-		sKey = "G";
-		break;
-	case NoteKey::Af:
-		sKey = "Af";
-		break;
-	case NoteKey::A:
-		sKey = "A";
-		break;
-	case NoteKey::Bf:
-		sKey = "Bf";
-		break;
-	case NoteKey::B:
-		sKey = "B";
-		break;
-
-	}
-
-	sKey = sKey + QString("%1").arg( key.m_nOctave );
-
-	return sKey;
+int Note::get_midi_key() const {
+    /* TODO ???
+    if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
+    */
+    return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key + __instrument->get_midi_out_note()-MIDI_MIDDLE_C;
 }
 
-
-Note* Note::copy()
-{
-	Note* note = new Note(
-	    get_instrument(),
-	    get_position(),
-	    get_velocity(),
-	    get_pan_l(),
-	    get_pan_r(),
-	    get_length(),
-	    get_pitch(),
-	    m_noteKey
-	);
-
-	note->set_leadlag(get_leadlag());
-
-
-	return note;
+void Note::compute_lr_values( float* val_l, float* val_r ) {
+    /* TODO ???
+    if( !has_instrument() ) {
+        *val_l = 0.0f;
+        *val_r = 0.0f;
+        return;
+    }
+    */
+    float cut_off = __instrument->get_filter_cutoff();
+    float resonance = __instrument->get_filter_resonance();
+    __bpfb_l  = ( resonance * __bpfb_l ) + cut_off * ( *val_l - __lpfb_l );
+    __lpfb_l += ( cut_off   * __bpfb_l );
+    __bpfb_r  = ( resonance * __bpfb_r ) + cut_off * ( *val_r - __lpfb_r );
+    __lpfb_r += ( cut_off   * __bpfb_r );
+    *val_l = __lpfb_l;
+    *val_r = __lpfb_r;
 }
 
+void Note::map_instrument( InstrumentList* instruments ) {
+    ERRORLOG( "FIXME" );
+    // TODO enable this when instrument is updated
+    /*
+    if( instruments==0 ) {
+        __instrument = new Instrument();
+    } else {
+        Instrument* instr = instruments->find( __instrument_id );
+        if( !instr ) {
+            ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
+            __instrument = new Instrument();
+        } else {
+            __instrument = instr;
+        }
+    }
+    */
+}
+
+void Note::set_instrument( Instrument* instrument ) {
+    if ( instrument == 0 ) return;
+    __instrument = instrument;
+    assert( __instrument->get_adsr() );
+    __adsr = new ADSR( *( __instrument->get_adsr() ) );
+}
+
+QString Note::key_to_string() {
+    return QString( "%1%2" ).arg( __key_str[__key] ).arg( __octave );
+}
+
+void Note::set_key_octave( const QString& str ) {
+    int l = str.length();
+    QString s_key = str.left( l-1 );
+    QString s_oct = str.mid( l-1, l );
+    if ( s_key.endsWith( "-" ) ) {
+        s_key.replace( "-", "" );
+        s_oct.insert( 0, "-" );
+    }
+    __octave = s_oct.toInt();
+    for( int i=KEY_MIN; i<=KEY_MAX; i++ ) {
+        if( __key_str[i]==s_key )
+            __key = i;
+        return;
+    }
+    ___ERRORLOG( "Unhandled key: " + s_key );
+}
+
+void Note::dump() {
+    INFOLOG( QString( "Note : pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5" )
+             .arg( __position )
+             .arg( __humanize_delay )
+             .arg( __instrument->get_name() )
+             .arg( key_to_string() )
+             .arg( __pitch )
+             .arg( __note_off )
+           );
+}
+
+void Note::save_to( XMLNode* node ) {
+    node->write_int( "position", __position );
+    node->write_float( "leadlag", __lead_lag );
+    node->write_float( "velocity", __velocity );
+    node->write_float( "pan_L", __pan_l );
+    node->write_float( "pan_R", __pan_r );
+    node->write_float( "pitch", __pitch );
+    node->write_string( "key", key_to_string() );
+    node->write_int( "length", __length );
+    node->write_string( "instrument", get_instrument()->get_id() );
+    node->write_bool( "note_off", __note_off );
+}
+
+Note* Note::load_from( XMLNode* node, InstrumentList* instruments ) {
+    Note* note = new Note(
+        0,
+        node->read_int( "position", 0 ),
+        node->read_float( "velocity", 0.8f ),
+        node->read_float( "pan_L", 0.5f ),
+        node->read_float( "pan_R", 0.5f ),
+        node->read_int( "length", -1 ),
+        node->read_float( "pitch", 0.0f )
+    );
+    note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
+    note->set_key_octave( node->read_string( "key", "C0", false, false ) );
+    note->set_note_off( node->read_bool( "note_off", false, false, false ) );
+    note->map_instrument( instruments );
+    return note;
+}
 
 };
+
+/* vim: set softtabstop=4 expandtab: */

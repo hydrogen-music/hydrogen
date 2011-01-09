@@ -987,9 +987,10 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			if ( nNoteOff == "true" ) 
 				noteoff = true;
 
-			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch, Note::stringToKey( sKey ) );
-			pNote->set_leadlag(fLeadLag);
-			pNote->set_noteoff( noteoff );
+			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+            pNote->set_key_octave( sKey );
+			pNote->set_lead_lag(fLeadLag);
+			pNote->set_note_off( noteoff );
 			pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );
 			
 			noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
@@ -1031,7 +1032,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 				assert( instrRef );
 
 				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
-				pNote->set_leadlag(fLeadLag);
+				pNote->set_lead_lag(fLeadLag);
 
 				//infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );
 				pPattern->note_map.insert( std::make_pair( pNote->get_position(), pNote ) );

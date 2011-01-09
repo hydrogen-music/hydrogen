@@ -109,7 +109,7 @@ void Pattern::set_to_old()
 	for ( pos = note_map.begin(); pos != note_map.end(); ++pos ) {
 		Note *pNote = pos->second;
 		assert( pNote );
-		pNote->m_bJustRecorded = false ;
+		pNote->set_just_recorded( false );
 	}
 }
 

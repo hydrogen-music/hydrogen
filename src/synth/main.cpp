@@ -36,9 +36,7 @@ int main( int argc, char* argv[] )
 			case 'a':
 				{
 				cout << "note on" << endl;
-				H2Core::NoteKey key;
-				key.m_key = H2Core::NoteKey::C;
-				H2Core::Note *pNote = new H2Core::Note( 0, 0, 0.8, 1.0, 1.0, -1, 0.0, key );
+				H2Core::Note *pNote = new H2Core::Note( 0, 0, 0.8, 1.0, 1.0, -1, 0.0 );
 
 				pSynth->noteOn( pNote );
 
@@ -48,9 +46,7 @@ int main( int argc, char* argv[] )
 			case 's':
 				{
 				cout << "note off" << endl;
-				H2Core::NoteKey key;
-				key.m_key = H2Core::NoteKey::C;
-				H2Core::Note *pNote = new H2Core::Note( 0, 0, 0.8, 1.0, 1.0, -1, 0.0, key );
+				H2Core::Note *pNote = new H2Core::Note( 0, 0, 0.8, 1.0, 1.0, -1, 0.0 );
 				pSynth->noteOff( pNote );
 				}
 				break;

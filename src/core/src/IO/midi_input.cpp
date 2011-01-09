@@ -262,7 +262,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
 						0.0,
 						-1,
 						0 );
-			offnote->set_noteoff( true );
+			offnote->set_note_off( true );
 			AudioEngine::get_instance()->get_sampler()->note_on( offnote );
 		}
 		if(Preferences::get_instance()->getRecordEvents())

@@ -438,9 +438,9 @@ void AlsaMidiDriver::handleQueueNote(Note* pNote)
 	if (channel < 0) {
 		return;
 	}
-	int key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key + pNote->get_instrument()->get_midi_out_note() - 60;
+	int key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() - 60;
 	//int key = pNote->get_instrument()->get_midi_out_note();
-	int velocity = pNote->get_velocity() * 127;
+	int velocity = pNote->get_midi_velocity();
 
 	snd_seq_event_t ev;	
 	
@@ -481,7 +481,7 @@ void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	}
 
 //	key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key;
-//	int velocity = pNote->get_velocity() * 127;
+//	int velocity = pNote->get_midi_velocity();
 
 	snd_seq_event_t ev;	
 	
