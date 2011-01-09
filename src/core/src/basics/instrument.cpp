@@ -306,28 +306,6 @@ void InstrumentList::del( int pos )
 }
 
 
-const char* InstrumentLayer::__class_name = "InstrumentLayer";
-
-InstrumentLayer::InstrumentLayer( Sample *sample )
-		: Object( __class_name )
-		, __start_velocity( 0.0 )
-		, __end_velocity( 1.0 )
-		, __pitch( 0.0 )
-		, __gain( 1.0 )
-		, __sample( sample )
-{
-	//infoLog( "INIT" );
-}
-
-
-
-InstrumentLayer::~InstrumentLayer()
-{
-	delete __sample;
-	__sample = NULL;
-	//infoLog( "DESTROY" );
-}
-
 };
 
 
