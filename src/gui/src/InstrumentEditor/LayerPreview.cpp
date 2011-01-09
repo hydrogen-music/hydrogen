@@ -24,7 +24,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>

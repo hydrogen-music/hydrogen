@@ -31,7 +31,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/basics/sample.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 
 
 class Button;

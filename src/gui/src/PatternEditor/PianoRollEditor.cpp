@@ -27,7 +27,7 @@
 #include <cassert>
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/pattern.h>

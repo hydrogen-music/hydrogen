@@ -30,7 +30,7 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/sample.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 using namespace H2Core;

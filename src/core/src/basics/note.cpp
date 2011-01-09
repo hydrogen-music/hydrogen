@@ -27,7 +27,7 @@
 #include <hydrogen/helpers/xml.h>
 
 #include <hydrogen/basics/adsr.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 
 namespace H2Core {
 

@@ -25,7 +25,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
 
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/Song.h>
 
 

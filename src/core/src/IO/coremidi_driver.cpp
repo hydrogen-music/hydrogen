@@ -33,7 +33,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/note.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/Preferences.h>
 
 namespace H2Core

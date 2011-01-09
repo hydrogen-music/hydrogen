@@ -22,7 +22,7 @@
 
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/hydrogen.h>
 
 #include "HydrogenApp.h"

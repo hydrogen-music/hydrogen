@@ -28,7 +28,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>

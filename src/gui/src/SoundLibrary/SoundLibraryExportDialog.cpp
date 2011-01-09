@@ -29,7 +29,7 @@
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/sample.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/SoundLibrary.h>
 #include <hydrogen/data_path.h>

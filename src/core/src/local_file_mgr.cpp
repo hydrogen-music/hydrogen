@@ -27,7 +27,7 @@
 #include <hydrogen/data_path.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/instrument.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
