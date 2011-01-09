@@ -94,7 +94,7 @@ private:
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
         InterpolateMode __interpolateMode;
-        float Interpolate( float y0, float y1, float y2, float y3, float mu );
+        float Interpolate( float y0, float y1, float y2, float y3, double mu );
 
 	int __render_note_no_resample(
 	    Sample *pSample,

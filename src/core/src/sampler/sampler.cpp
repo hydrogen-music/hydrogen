@@ -47,7 +47,7 @@
 namespace H2Core
 {
 
-inline static float linear_Interpolate( float y1, float y2, float mu )
+inline static float linear_Interpolate( float y1, float y2, double mu )
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -59,7 +59,7 @@ inline static float linear_Interpolate( float y1, float y2, float mu )
 //	return fVal_A + ((fVal_B - fVal_A) * fVal);
 }
 
-inline static float cosine_Interpolate( float y1, float y2, float mu )
+inline static float cosine_Interpolate( float y1, float y2, double mu )
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -73,7 +73,7 @@ inline static float cosine_Interpolate( float y1, float y2, float mu )
 }
 
 
-inline static float third_Interpolate( float y0, float y1, float y2, float y3, float mu )
+inline static float third_Interpolate( float y0, float y1, float y2, float y3, double mu )
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -90,7 +90,7 @@ inline static float third_Interpolate( float y0, float y1, float y2, float y3, f
         return ( ( c3 * mu + c2 ) * mu + c1 ) * mu + c0;
 }
 
-inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, float mu)
+inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, double mu)
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -111,7 +111,7 @@ inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, f
         return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 }
 
-inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, float mu )
+inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, double mu )
 {
         /*
          * mu defines where to estimate the value on the interpolated line
@@ -966,7 +966,7 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 	}
 }
 
-float Sampler::Interpolate( float y0, float y1, float y2, float y3, float mu )
+float Sampler::Interpolate( float y0, float y1, float y2, float y3, double mu )
 {
 
         switch( __interpolateMode ){
