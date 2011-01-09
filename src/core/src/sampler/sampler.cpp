@@ -36,7 +36,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 #include <hydrogen/event_queue.h>
 
 #include <hydrogen/fx/Effects.h>

@@ -34,7 +34,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 using namespace H2Core;
 using namespace std;
 

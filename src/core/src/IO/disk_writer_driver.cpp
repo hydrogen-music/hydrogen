@@ -24,7 +24,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 
 #include <pthread.h>
 #include <cassert>

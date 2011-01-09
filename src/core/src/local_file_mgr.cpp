@@ -30,7 +30,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/note.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/SoundLibrary.h>

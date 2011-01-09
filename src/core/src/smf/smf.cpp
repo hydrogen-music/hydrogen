@@ -21,7 +21,7 @@
  */
 
 #include <hydrogen/smf/SMF.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/instrument.h>
 

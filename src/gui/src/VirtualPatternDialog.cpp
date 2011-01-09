@@ -25,7 +25,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Song.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 
 #include "Skin.h"
 

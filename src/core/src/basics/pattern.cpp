@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>

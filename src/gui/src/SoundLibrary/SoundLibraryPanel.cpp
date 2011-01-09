@@ -50,7 +50,7 @@
 #include <hydrogen/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/Pattern.h>
+#include <hydrogen/basics/pattern.h>
 #include <hydrogen/sample.h>
 #include <hydrogen/Song.h>
 #include <hydrogen/SoundLibrary.h>
