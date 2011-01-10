@@ -58,7 +58,7 @@ Sampler::Sampler()
 		, __preview_instrument( NULL )
 {
 	INFOLOG( "INIT" );
-        __interpolateMode = THIRD;
+        __interpolateMode = LINEAR;
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
