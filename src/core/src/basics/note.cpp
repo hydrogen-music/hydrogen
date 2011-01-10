@@ -112,31 +112,6 @@ void Note::set_pan_r( float pan ) {
     __pan_r = check_boundary( pan, PAN_MIN, PAN_MAX );
 }
 
-int Note::get_midi_key() const {
-    /* TODO ???
-    if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
-    */
-    return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key + __instrument->get_midi_out_note()-MIDI_MIDDLE_C;
-}
-
-void Note::compute_lr_values( float* val_l, float* val_r ) {
-    /* TODO ???
-    if( !has_instrument() ) {
-        *val_l = 0.0f;
-        *val_r = 0.0f;
-        return;
-    }
-    */
-    float cut_off = __instrument->get_filter_cutoff();
-    float resonance = __instrument->get_filter_resonance();
-    __bpfb_l  = ( resonance * __bpfb_l ) + cut_off * ( *val_l - __lpfb_l );
-    __lpfb_l += ( cut_off   * __bpfb_l );
-    __bpfb_r  = ( resonance * __bpfb_r ) + cut_off * ( *val_r - __lpfb_r );
-    __lpfb_r += ( cut_off   * __bpfb_r );
-    *val_l = __lpfb_l;
-    *val_r = __lpfb_r;
-}
-
 void Note::map_instrument( InstrumentList* instruments ) {
     ERRORLOG( "FIXME" );
     // TODO enable this when instrument is updated

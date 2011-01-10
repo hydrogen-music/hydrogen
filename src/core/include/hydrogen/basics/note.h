@@ -25,6 +25,8 @@
 
 #include <hydrogen/object.h>
 
+#include <hydrogen/basics/instrument.h>
+
 #define KEY_MIN              0
 #define KEY_MAX             11
 #define OCTAVE_MIN          -3
@@ -53,7 +55,7 @@ class InstrumentList;
  * A note plays an associated instrument with a velocity left and right pan
  */
 class Note : public Object {
-    H2_OBJECT
+        H2_OBJECT
     public:
         /** possible keys */
         enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
@@ -93,48 +95,127 @@ class Note : public Object {
         /** output details through logger with DEBUG severity */
         void dump();
 
-        void map_instrument( InstrumentList* instruments );                 ///< find the corresponding instrument and point to it, or an empty instrument
-        void set_instrument( Instrument* instrument );                      ///< set the instrument
-        Instrument* get_instrument()        { return __instrument; }        ///< get the instrument
-        int get_instrument_id() const       { return __instrument_id; }     ///< get the instrument id
-        bool has_instrument() const         { return __instrument!=0; }     ///< returns true of the note is linked to an instrument
-        void set_position( int position )   { __position = position; }      ///< set the position of the note
-        int get_position() const            { return __position; }          ///< get the position of the note
-        void set_velocity( float velocity );                                ///< set the velocity of the note
-        float get_velocity() const          { return __velocity; }          ///< get the velocity of the note
-        void set_pan_l( float pan );                                        ///< set the left pan of the note
-        float get_pan_l() const             { return __pan_l; }             ///< get the left pan of the note
-        void set_pan_r( float pan );                                        ///< set the right pan of the note
-        float get_pan_r() const             { return __pan_r; }             ///< get the right pan of the note
-        void set_lead_lag( float lead_lag );                                ///< set the lead lag of the note
-        float get_lead_lag() const          { return __lead_lag; }          ///< get the lead lag of the note
-        void set_length( int length )       { __length = length; }          ///< set length of the note
-        int get_length() const              { return __length; }            ///< get length of the note
-        void set_pitch( float pitch )       { __pitch = pitch; }            ///< set pitch of the note
-        float get_pitch() const             { return __pitch; }             ///< get pitch of the note
-        void set_note_off( bool note_off )  { __note_off = note_off; }      ///< set note_off of the note
-        bool get_note_off() const           { return __note_off; }          ///< get note_off of the note
-        //void set_midi_msg( int midi_msg )   { __midi_msg = midi_msg; }      ///< set midi message of the note
-        int get_midi_msg() const            { return __midi_msg; }          ///< get midi message of the note
-        void set_pattern_idx( int idx )     { __pattern_idx = idx; }        ///< set pattern index of the note
-        int get_pattern_idx() const         { return __pattern_idx; }       ///< get pattern index of the note
-        void set_just_recorded( bool val )  { __just_recorded = val; }      ///< set just recorded
-        bool get_just_recorded() const      { return __just_recorded; }     ///< get just recorded
-        float get_sample_position() const   { return __sample_position; }   ///< get sample position
-        void set_humanize_delay( int delay ) { __humanize_delay = delay; }  ///< set humanize delay
-        int get_humanize_delay() const      { return __humanize_delay; }    ///< get humanize delay
-        float get_cut_off() const           { return __cut_off; }           ///< get cut off
-        float get_resonance() const         { return __resonance; }         ///< get resonance
-        float get_bpfb_l() const            { return __bpfb_l; }            ///< get left band pass filter buffer
-        float get_bpfb_r() const            { return __bpfb_r; }            ///< get right band pass filter buffer
-        float get_lpfb_l() const            { return __lpfb_l; }            ///< get left low pass filter buffer
-        float get_lpfb_r() const            { return __lpfb_r; }            ///< get right low pass filter buffer
-        Key get_key()                       { return __key; }               ///< get key
-        Octave get_octave()                 { return __octave; }            ///< get octave
-        int get_midi_key() const;                                           ///< return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!!
-        int get_midi_velocity() const       { return __velocity * MIDI_FACTOR; }                        ///< return scaled velocity for midi output
-        float get_notekey_pitch() const     { return __octave * KEYS_PER_OCTAVE + __key; }              ///< returns octave*12 + key
-        float get_total_pitch() const       { return __octave * KEYS_PER_OCTAVE + __key + __pitch; }    ///< returns octave*12+key+pitch
+        /**
+         * find the corresponding instrument and point to it, or an empty instrument
+         * \param instruments the list of instrument to look into
+         */
+        void map_instrument( InstrumentList* instruments );
+        /**
+         * set the instrument
+         * \param instrument the one to use
+         */
+        void set_instrument( Instrument* instrument );
+        /** __instrument accessor */
+        Instrument* get_instrument();
+        /** __instrument_id accessor */
+        int get_instrument_id() const;
+        /** return true if __instrument is set */
+        bool has_instrument() const;
+        /**
+         * __instrument setter
+         * \param value the new value
+         */
+        void set_position( int value );
+        /** __position accessor */
+        int get_position() const;
+        /**
+         * __velocity setter
+         * \param value the new value
+         */
+        void set_velocity( float value );
+        /** __velocity accessor */
+        float get_velocity() const;
+        /**
+         * __pan_l setter
+         * \param value the new value
+         */
+        void set_pan_l( float value );
+        /** __pan_l accessor */
+        float get_pan_l() const;
+        /**
+         * __pan_r setter
+         * \param value the new value
+         */
+        void set_pan_r( float value );
+        /** __pan_r accessor */
+        float get_pan_r() const;
+        /**
+         * __lead_lag setter
+         * \param value the new value
+         */
+        void set_lead_lag( float value );
+        /** __lead_lag accessor */
+        float get_lead_lag() const;
+        /**
+         * __length setter
+         * \param value the new value
+         */
+        void set_length( int value );
+        /** __length accessor */
+        int get_length() const;
+        /**
+         * __pitch setter
+         * \param value the new value
+         */
+        void set_pitch( float value );
+        /** __pitch accessor */
+        float get_pitch() const;
+        /**
+         * __note_off setter
+         * \param value the new value
+         */
+        void set_note_off( bool value );
+        /** __note_off accessor */
+        bool get_note_off() const;
+        /** __midi_msg accessor */
+        int get_midi_msg() const;
+        /**
+         * __pattern_idx setter
+         * \param value the new value
+         */
+        void set_pattern_idx( int value );
+        /** __pattern_idx accessor */
+        int get_pattern_idx() const;
+        /**
+         * __just_recorder setter
+         * \param value the new value
+         */
+        void set_just_recorded( bool value );
+        /** __just_recorder accessor */
+        bool get_just_recorded() const;
+        /** __sample_position accessor */
+        float get_sample_position() const;
+        /**
+         * __humanize_delay setter
+         * \param value the new value
+         */
+        void set_humanize_delay( int value );
+        /** __humanize_delay accessor */
+        int get_humanize_delay() const;
+        /** __cut_off accessor */
+        float get_cut_off() const;
+        /** __resonance accessor */
+        float get_resonance() const;
+        /** __bpfb_l accessor */
+        float get_bpfb_l() const;
+        /** __bpfb_r accessor */
+        float get_bpfb_r() const;
+        /** __lpfb_l accessor */
+        float get_lpfb_l() const;
+        /** __lpfb_r accessor */
+        float get_lpfb_r() const;
+        /** __key accessor */
+        Key get_key();
+        /** __octave accessor */
+        Octave get_octave();
+        /** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
+        int get_midi_key() const;
+        /** __midi_velocity accessor (__velocity*MIDI_FACTOR) */
+        int get_midi_velocity() const;
+        /** __note_key_pitch accessor (__octave * KEYS_PER_OCTAVE + __key) */
+        float get_notekey_pitch() const;
+        //* returns octave*12+key+pitch */
+        float get_total_pitch() const;
 
         /** return a string representation of key-actove */
         QString key_to_string();
@@ -148,25 +229,16 @@ class Note : public Object {
          * \param key the key to set
          * \param octave the octave to be set
          */
-        void set_key_octave( Key key, Octave octave )  {
-            if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
-            if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
-        }
+        void set_key_octave( Key key, Octave octave );
         /**
          * set __key, __octave and __midi_msg only if within acceptable range
          * \param key the key to set
          * \param octave the octave to be set
          */
-        void set_midi_info( Key key, Octave octave, int msg )  {
-            if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
-            if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
-            __midi_msg = msg;
-        }
+        void set_midi_info( Key key, Octave octave, int msg );
 
         /** get the ADSR of the note */
-        ADSR* get_adsr() const {
-            return __adsr;
-        }
+        ADSR* get_adsr() const;
         /** call release on adsr */
         //float release_adsr() const              { return __adsr->release(); }
         /** call get value on adsr */
@@ -176,19 +248,14 @@ class Note : public Object {
          * update sample_position with increment
          * \param incr the value to add to current sample position
          */
-        float update_sample_position( float incr )  {
-            __sample_position += incr;
-            return __sample_position;
-        }
+        float update_sample_position( float incr );
 
         /** return true if instrument, key and octave matches with internal
          * \param instrument the instrument to match with __instrument
          * \param key the key to match with __key
          * \param octave the octave to match with __octave
          */
-        bool match( Instrument* instrument, Key key, Octave octave ) const {
-            return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
-        }
+        bool match( Instrument* instrument, Key key, Octave octave ) const;
 
         /**
          * compute left and right output based on filters
@@ -200,7 +267,7 @@ class Note : public Object {
     private:
         Instrument* __instrument;   ///< the instrument to be played by this note
         int __instrument_id;        ///< the id of the instrument played by this note
-        unsigned __position;		///< note position inside the pattern
+        int __position;		        ///< note position inside the pattern
         float __velocity;		    ///< velocity (intensity) of the note [0;1]
         float __pan_l;			    ///< pan of the note (left volume) [0;1]
         float __pan_r;			    ///< pan of the note (right volume) [0;1]
@@ -224,6 +291,193 @@ class Note : public Object {
         bool __just_recorded;       ///< used in record+delete
         static const char* __key_str[]; ///< used to build QString from __key an __octave
 };
+
+// DEFINITIONS
+
+inline Instrument* Note::get_instrument() {
+    return __instrument;
+}
+
+inline int Note::get_instrument_id() const {
+    return __instrument_id;
+}
+
+inline bool Note::has_instrument() const {
+    return __instrument!=0;
+}
+
+inline void Note::set_position( int value ) {
+    __position = value;
+}
+
+inline int Note::get_position() const {
+    return __position;
+}
+
+inline float Note::get_velocity() const {
+    return __velocity;
+}
+
+inline float Note::get_pan_l() const {
+    return __pan_l;
+}
+
+inline float Note::get_pan_r() const {
+    return __pan_r;
+}
+
+inline float Note::get_lead_lag() const {
+    return __lead_lag;
+}
+
+inline void Note::set_length( int value ) {
+    __length = value;
+}
+
+inline int Note::get_length() const {
+    return __length;
+}
+
+inline void Note::set_pitch( float value ) {
+    __pitch = value;
+}
+
+inline float Note::get_pitch() const {
+    return __pitch;
+}
+
+inline void Note::set_note_off( bool value ) {
+    __note_off = value;
+}
+
+inline bool Note::get_note_off() const {
+    return __note_off;
+}
+
+inline int Note::get_midi_msg() const {
+    return __midi_msg;
+}
+
+inline void Note::set_pattern_idx( int value ) {
+    __pattern_idx = value;
+}
+
+inline int Note::get_pattern_idx() const {
+    return __pattern_idx;
+}
+
+inline void Note::set_just_recorded( bool value ) {
+    __just_recorded = value;
+}
+
+inline bool Note::get_just_recorded() const {
+    return __just_recorded;
+}
+
+inline float Note::get_sample_position() const {
+    return __sample_position;
+}
+
+inline void Note::set_humanize_delay( int value ) {
+    __humanize_delay = value;
+}
+
+inline int Note::get_humanize_delay() const {
+    return __humanize_delay;
+}
+
+inline float Note::get_cut_off() const {
+    return __cut_off;
+}
+
+inline float Note::get_resonance() const {
+    return __resonance;
+}
+
+inline float Note::get_bpfb_l() const {
+    return __bpfb_l;
+}
+
+inline float Note::get_bpfb_r() const {
+    return __bpfb_r;
+}
+
+inline float Note::get_lpfb_l() const {
+    return __lpfb_l;
+}
+
+inline float Note::get_lpfb_r() const {
+    return __lpfb_r;
+}
+
+inline Note::Key Note::get_key() {
+    return __key;
+}
+
+inline Note::Octave Note::get_octave() {
+    return __octave;
+}
+
+inline int Note::get_midi_key() const {
+    /* TODO ???
+    if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
+    */
+    return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key + __instrument->get_midi_out_note()-MIDI_MIDDLE_C;
+}
+
+inline int Note::get_midi_velocity() const {
+    return __velocity * MIDI_FACTOR;
+}
+
+inline float Note::get_notekey_pitch() const {
+    return __octave * KEYS_PER_OCTAVE + __key;
+}
+
+inline float Note::get_total_pitch() const {
+    return __octave * KEYS_PER_OCTAVE + __key + __pitch;
+}
+
+inline void Note::set_key_octave( Key key, Octave octave ) {
+    if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
+    if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
+}
+
+inline void Note::set_midi_info( Key key, Octave octave, int msg ) {
+    if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
+    if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
+    __midi_msg = msg;
+}
+
+inline ADSR* Note::get_adsr() const {
+    return __adsr;
+}
+
+inline float Note::update_sample_position( float incr ) {
+    __sample_position += incr;
+    return __sample_position;
+}
+
+inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const {
+    return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
+}
+
+inline void Note::compute_lr_values( float* val_l, float* val_r ) {
+    /* TODO ???
+    if( !has_instrument() ) {
+        *val_l = 0.0f;
+        *val_r = 0.0f;
+        return;
+    }
+    */
+    float cut_off = __instrument->get_filter_cutoff();
+    float resonance = __instrument->get_filter_resonance();
+    __bpfb_l  = ( resonance * __bpfb_l ) + cut_off * ( *val_l - __lpfb_l );
+    __lpfb_l += ( cut_off   * __bpfb_l );
+    __bpfb_r  = ( resonance * __bpfb_r ) + cut_off * ( *val_r - __lpfb_r );
+    __lpfb_r += ( cut_off   * __bpfb_r );
+    *val_l = __lpfb_l;
+    *val_r = __lpfb_r;
+}
 
 };
 
