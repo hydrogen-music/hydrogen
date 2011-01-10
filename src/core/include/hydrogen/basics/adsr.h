@@ -53,46 +53,30 @@ class ADSR : private Object {
          * __attack setter
          * \param value the new value
          */
-        void set_attack( float value ) {
-            __attack = value;
-        }
+        void set_attack( float value );
         /** __attack accessor */
-        float get_attack() {
-            return __attack;
-        }
+        float get_attack();
         /**
          * __decay setter
          * \param value the new value
          */
-        void set_decay( float value ) {
-            __decay = value;
-        }
+        void set_decay( float value );
         /** __decay accessor */
-        float get_decay() {
-            return __decay;
-        }
+        float get_decay();
         /**
          * __sustain setter
          * \param value the new value
          */
-        void set_sustain( float value ) {
-            __sustain = value;
-        }
+        void set_sustain( float value );
         /** __sustain accessor */
-        float get_sustain() {
-            return __sustain;
-        }
+        float get_sustain();
         /**
          * __release setter
          * \param value the new value
          */
-        void set_release( float value ) {
-            __release = value;
-        }
+        void set_release( float value );
         /** __release accessor */
-        float get_release() {
-            return __release;
-        }
+        float get_release();
 
         /**
          * compute the value and return it
@@ -125,6 +109,40 @@ class ADSR : private Object {
         float __value;          ///< current value
         float __release_value;  ///< value when the release state was entered
 };
+
+// DEFINITIONS
+
+inline void ADSR::set_attack( float value ) {
+    __attack = value;
+}
+
+inline float ADSR::get_attack() {
+    return __attack;
+}
+
+inline void ADSR::set_decay( float value ) {
+    __decay = value;
+}
+
+inline float ADSR::get_decay() {
+    return __decay;
+}
+
+inline void ADSR::set_sustain( float value ) {
+    __sustain = value;
+}
+
+inline float ADSR::get_sustain() {
+    return __sustain;
+}
+
+inline void ADSR::set_release( float value ) {
+    __release = value;
+}
+
+inline float ADSR::get_release() {
+    return __release;
+}
 
 };
 
