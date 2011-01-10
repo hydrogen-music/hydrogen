@@ -410,7 +410,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
                         o = (keyval-166)/10;
                         if(o==-4) o=-3; // 135
                     }
-                    pNote->set_key_octave(k,o); // won't set wrong values see Note::set_key_octave
+                    pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
 
 					__octaveKeyVal = pNote->get_octave();
 					__noteKeyVal = pNote->get_key();

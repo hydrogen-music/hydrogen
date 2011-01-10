@@ -202,8 +202,8 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		float oldPan_L = 0.5f;
 		float oldPan_R = 0.5f;
 		float oldLeadLag = 0.0f;
-		int oldNoteKeyVal = 0;
-		int oldOctaveKeyVal = 0;
+        Note::Key oldNoteKeyVal = Note::C;
+        Note::Octave oldOctaveKeyVal = Note::P8;
 
 		if( pDraggedNote ){
 			oldLength = pDraggedNote->get_length();
@@ -362,7 +362,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_note_off( false );
 		pNote->set_lead_lag( oldLeadLag );
-        pNote->set_key_octave( oldNoteKeyVal, oldOctaveKeyVal );
+        pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
 		
 
 		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
@@ -1064,7 +1064,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 			pNote->set_lead_lag( leadLag );
 		}
 		else if ( mode == "NOTEKEY" ){
-            pNote->set_key_octave( noteKeyVal, octaveKeyVal );
+            pNote->set_key_octave( (Note::Key)noteKeyVal, (Note::Octave)octaveKeyVal );
 		}
 		pSong->__is_modified = true;
 		break;

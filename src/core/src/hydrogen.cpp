@@ -2219,8 +2219,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 							0 );
 	
                                 int divider = msg1 / 12;
-				int octave = divider -3;
-				int notehigh = msg1 - (12 * divider);
+                Note::Octave octave = (Note::Octave)(divider -3);
+                Note::Key notehigh = (Note::Key)(msg1 - (12 * divider));
 				note->set_midi_info( notehigh, octave, msg1 );
 
 				currentPattern->note_map.insert(
@@ -2266,8 +2266,8 @@ void Hydrogen::addRealtimeNote( int instrument,
 						0 );
 
 			int divider = msg1 / 12;
-			int octave = divider -3;
-			int notehigh = msg1 - (12 * divider);
+            Note::Octave octave = (Note::Octave)(divider -3);
+            Note::Key notehigh = (Note::Key)(msg1 - (12 * divider));
 
 			//ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
 			note2->set_midi_info( notehigh, octave, msg1 );

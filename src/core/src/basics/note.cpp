@@ -43,8 +43,8 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __pan_r( pan_r ),
       __length( length ),
       __pitch( pitch ),
-      __key( KEY_MIN ),
-      __octave( OCTAVE_DEFAULT ),
+      __key( C ),
+      __octave( P8 ),
       __adsr( new ADSR() ),
       __lead_lag( 0.0 ),
       __cut_off( 1.0 ),
@@ -174,10 +174,10 @@ void Note::set_key_octave( const QString& str ) {
         s_key.replace( "-", "" );
         s_oct.insert( 0, "-" );
     }
-    __octave = s_oct.toInt();
+    __octave = (Octave)s_oct.toInt();
     for( int i=KEY_MIN; i<=KEY_MAX; i++ ) {
         if( __key_str[i]==s_key )
-            __key = i;
+            __key = (Key)i;
         return;
     }
     ___ERRORLOG( "Unhandled key: " + s_key );

@@ -500,14 +500,14 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
 	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
 
-	int pressedoctave = 3 - (pressedline / 12 );
-	int pressednotekey = 0;
+    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedline / 12 ));
+    Note::Key pressednotekey;
 	if ( pressedline < 12 ){
-		pressednotekey = 11 - pressedline;
+		pressednotekey = (Note::Key)(11 - pressedline);
 	}
 	else
 	{
-		pressednotekey = 11 - pressedline % 12;
+		pressednotekey = (Note::Key)(11 - pressedline % 12);
 	}
 
 	
@@ -700,14 +700,14 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		pPattern = NULL;
 	}
 
-	int pressedoctave = 3 - (pressedLine / 12 );
-	int pressednotekey = 0;
+    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedLine / 12 ));
+    Note::Key pressednotekey;
 	if ( pressedLine < 12 ){
-		pressednotekey = 11 - pressedLine;
+		pressednotekey = (Note::Key)(11 - pressedLine);
 	}
 	else
 	{
-		pressednotekey = 11 - pressedLine % 12;
+		pressednotekey = (Note::Key)(11 - pressedLine % 12);
 	}
 
 	m_bRightBtnPressed = false;
@@ -778,14 +778,14 @@ void PianoRollEditor::addNoteRightClickAction( int nColumn, int pressedLine, int
 		pPattern = NULL;
 	}
 
-	int pressedoctave = 3 - (pressedLine / 12 );
-	int pressednotekey = 0;
+    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedLine / 12 ));
+    Note::Key pressednotekey;
 	if ( pressedLine < 12 ){
-		pressednotekey = 11 - pressedLine;
+		pressednotekey = (Note::Key)(11 - pressedLine);
 	}
 	else
 	{
-		pressednotekey = 11 - pressedLine % 12;
+		pressednotekey = (Note::Key)(11 - pressedLine % 12);
 	}
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -1046,14 +1046,14 @@ void PianoRollEditor::editNoteLenghtAction( int nColumn,  int nRealColumn,  int 
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	int pressedoctave = 3 - (pressedline / 12 );
-	int pressednotekey = 0;
+    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedline / 12 ));
+    Note::Key pressednotekey;
 	if ( pressedline < 12 ){
-		pressednotekey = 11 - pressedline;
+		pressednotekey = (Note::Key)(11 - pressedline);
 	}
 	else
 	{
-		pressednotekey = 11 - pressedline % 12;
+		pressednotekey = (Note::Key)(11 - pressedline % 12);
 	}
 
 	std::multimap <int, Note*>::iterator pos;
@@ -1132,14 +1132,14 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 	}
 
 
-	int pressedoctave = 3 - (pressedline / 12 );
-	int pressednotekey = 0;
+    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedline / 12 ));
+    Note::Key pressednotekey;
 	if ( pressedline < 12 ){
-		pressednotekey = 11 - pressedline;
+		pressednotekey = (Note::Key)(11 - pressedline);
 	}
 	else
 	{
-		pressednotekey = 11 - pressedline % 12;
+		pressednotekey = (Note::Key)(11 - pressedline % 12);
 	}
 
 	Note *pDraggedNote;

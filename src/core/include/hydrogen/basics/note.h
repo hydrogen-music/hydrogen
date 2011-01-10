@@ -55,12 +55,10 @@ class InstrumentList;
 class Note : public Object {
     H2_OBJECT
     public:
-        // TODO use Key
         /** possible keys */
-        //enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
-        // TODO use Octave
+        enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
         /** possible octaves */
-        //enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=0, P8A=1, P8B=2, P8C=3 };
+        enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
 
         /**
          * constructor
@@ -131,8 +129,8 @@ class Note : public Object {
         float get_bpfb_r() const            { return __bpfb_r; }            ///< get right band pass filter buffer
         float get_lpfb_l() const            { return __lpfb_l; }            ///< get left low pass filter buffer
         float get_lpfb_r() const            { return __lpfb_r; }            ///< get right low pass filter buffer
-        int get_key()                       { return __key; }               ///< get key
-        int get_octave()                    { return __octave; }            ///< get octave
+        Key get_key()                       { return __key; }               ///< get key
+        Octave get_octave()                 { return __octave; }            ///< get octave
         int get_midi_key() const;                                           ///< return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!!
         int get_midi_velocity() const       { return __velocity * MIDI_FACTOR; }                        ///< return scaled velocity for midi output
         float get_notekey_pitch() const     { return __octave * KEYS_PER_OCTAVE + __key; }              ///< returns octave*12 + key
@@ -150,7 +148,7 @@ class Note : public Object {
          * \param key the key to set
          * \param octave the octave to be set
          */
-        void set_key_octave( int key, int octave )  {
+        void set_key_octave( Key key, Octave octave )  {
             if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
             if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
         }
@@ -159,7 +157,7 @@ class Note : public Object {
          * \param key the key to set
          * \param octave the octave to be set
          */
-        void set_midi_info( int key, int octave, int msg )  {
+        void set_midi_info( Key key, Octave octave, int msg )  {
             if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
             if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
             __midi_msg = msg;
@@ -188,7 +186,7 @@ class Note : public Object {
          * \param key the key to match with __key
          * \param octave the octave to match with __octave
          */
-        bool match( Instrument* instrument, int key, int octave ) const {
+        bool match( Instrument* instrument, Key key, Octave octave ) const {
             return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
         }
 
@@ -208,8 +206,8 @@ class Note : public Object {
         float __pan_r;			    ///< pan of the note (right volume) [0;1]
         int __length;               ///< the length of the note
         float __pitch;              ///< the frequency of the note
-        int __key;                  ///< the key, [0;11]==[C;B]
-        int __octave;               ///< the octave [-3;3]
+        Key __key;                  ///< the key, [0;11]==[C;B]
+        Octave __octave;            ///< the octave [-3;3]
         ADSR* __adsr;               ///< attack decay sustain release
         float __lead_lag;		    ///< lead or lag offset of the note
         float __cut_off;		    ///< filter cutoff [0;1]
