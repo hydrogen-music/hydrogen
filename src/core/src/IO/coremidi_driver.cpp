@@ -32,7 +32,7 @@
 #ifdef H2CORE_HAVE_COREMIDI
 
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/note.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/Preferences.h>
 
@@ -224,7 +224,7 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 		return;
 	}
 
-	int key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key + pNote->get_instrument()->get_midi_out_note() -60;
+	int key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() -60;
 	int velocity = pNote->get_velocity() * 127;
 	
 	MIDIPacketList packetList;
