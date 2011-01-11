@@ -600,8 +600,36 @@ int Sampler::__render_note_resample(
 			fVal_L = 0.0;
 			fVal_R = 0.0;
                 } else {
-                        fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                        fVal_R = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                        switch( __interpolateMode ){
+                                
+                        case LINEAR:
+                                fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+                                fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+                                //fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+                                //fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+                                break;
+                        case COSINE:
+                                fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+                                fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+                                break;
+                        case THIRD:
+                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                break;
+                        case CUBIC:
+                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                break;
+                        case HERMITE:
+                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                break;
+                                break;
+                        }
+                        // the methode Interpolate produce an extra function call and eat much more time here.
+                        // so i deside to code the switch direct in the resampler code. it is not so nice but save much process time.
+                        //fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                        //fVal_R = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
                         //y1 * ( 1 - mu ) + y2 * mu
                         //fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
                         //fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
@@ -678,8 +706,35 @@ int Sampler::__render_note_resample(
 					fVal_L = 0.0;
 					fVal_R = 0.0;
                                 } else {
-                                        fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                        fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
+                                        switch( __interpolateMode ){
+
+                                        case LINEAR:
+                                                fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+                                                fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+                                                //fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+                                                //fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+                                                break;
+                                        case COSINE:
+                                                fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+                                                fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+                                                break;
+                                        case THIRD:
+                                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                                break;
+                                        case CUBIC:
+                                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                                break;
+                                        case HERMITE:
+                                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                                break;
+                                        }
+                                        // methode Interpolate produce an extra function call and eat much more time here.
+                                        // so i deside to code the switch direct in the resampler methode
+                                        //fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+                                        //fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
 				}
 
 				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L * cost_L;

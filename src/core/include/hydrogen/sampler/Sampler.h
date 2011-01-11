@@ -95,7 +95,8 @@ private:
 
         InterpolateMode __interpolateMode;
 
-        inline double Interpolate( float y0, float y1, float y2, float y3, double mu )
+        /*
+        double Interpolate( float y0, float y1, float y2, float y3, double mu )
         {
                 switch( __interpolateMode ){
 
@@ -110,7 +111,7 @@ private:
                 case HERMITE:
                         return hermite_Interpolate( y0, y1, y2, y3, mu );
                 }
-        };
+        };*/
 
         inline static float linear_Interpolate( float y1, float y2, float mu )
         {
