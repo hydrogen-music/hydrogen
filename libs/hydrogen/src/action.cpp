@@ -92,6 +92,7 @@ ActionManager::ActionManager() : Object( "ActionManager" )
 	<< "EFFECT3_LEVEL_ABSOLUTE"
 	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "SELECT_NEXT_PATTERN"
+        << "SELECT_AND_PLAY_NEXT_PATTERN"
 	<< "PAN_RELATIVE"
 	<< "PAN_ABSOLUTE"
 	<< "BEATCOUNTER"
@@ -242,6 +243,21 @@ bool ActionManager::handleAction( Action * pAction ){
 		pEngine->sequencer_setNextPattern( row, false, true );
                 return true;
         }
+
+          if( sActionString == "SELECT_AND_PLAY_NEXT_PATTERN"){
+                bool ok;
+                int row = pAction->getParameter1().toInt(&ok,10);
+                pEngine->setSelectedPatternNumber( row );
+                pEngine->sequencer_setNextPattern( row, false, true );
+
+                int nState = pEngine->getState();
+                if ( nState == STATE_READY ){
+                        pEngine->sequencer_play();
+                }
+
+                return true;
+        }
+
 
 	if( sActionString == "SELECT_INSTRUMENT" ){
 		bool ok;
