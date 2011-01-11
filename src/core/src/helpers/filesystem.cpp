@@ -45,17 +45,18 @@ bool Filesystem::bootstrap( Logger* logger ) {
     } else {
         return false;
     }
+
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
     //Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
-    __sys_data_path = QCoreApplication->applicationDirPath().append( "/../Resources/data" ) ;
+    __sys_data_path = QCoreApplication::applicationDirPath().append( "/../Resources/data" ) ;
 #else
-    __sys_data_path = QCoreApplication->applicationDirPath().append( "/data" ) ;
+    __sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
 #endif
     __usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen" );
 #elif WIN32
-    __sys_data_path = QCoreApplication->applicationDirPath().append( "/data" ) ;
-    __usr_data_path = QCoreApplication->applicationDirPath().append( "/hydrogen/data" ) ;
+    __sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
+    __usr_data_path = QCoreApplication::applicationDirPath().append( "/hydrogen/data" ) ;
 #else
     __sys_data_path = SYS_DATA_PATH;
     __usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
