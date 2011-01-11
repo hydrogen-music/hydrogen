@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> <!-- -*- mode:nxml; indent-tabs-mode:nil; fill-column:80; -*- -->
+﻿<?xml version="1.0" encoding="UTF-8"?> <!-- -*- mode:nxml; indent-tabs-mode:nil; fill-column:80; -*- -->
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
                       "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
 <book id="Hydrogen-manual" lang="en">
@@ -40,20 +40,20 @@
       <title>Download</title>
 
       <para>
-        The latest stable version of hydrogen is available as a tarball at
-
-        <ulink url="http://www.hydrogen-music.org/?p=download">http://www.hydrogen-music.org</ulink>.
+        You can download Hydrogen from 
+        <ulink url="http://www.hydrogen-music.org/?p=download">http://www.hydrogen-music.org</ulink>.  
+        On the 'Downloads' page you can find several binaries (installers) for Linux, Mac and Windows.  (note that some versions may not be available for Windows and Mac)
       </para>
 
       <para>
-        It is possible to download the latest source files directly from our
+        If you want to compile Hydrogen yourself (see <xref linkend="sect.compilation"/>), you can download the latest source files directly from our
         subversion server with:
 
         <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/trunk</command></screen>
 
         A certain release can be fetched with:
 
-        <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.3</command></screen>
+        <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.5</command></screen>
       </para>
 
       <para>Compiling Hydrogen depends on the following libraries:</para>
@@ -110,48 +110,111 @@
     <section id="sect.compilation">
       <title>Build</title>
 
-      <para>Decompress the tarball or go to the directory where the subversion copy
-      was checked out:</para>
+      <para>Depending on the branch you are compiling you will need to use Scons or Cmake.  Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</para>
+      
+      <section id="sect.compilation.scons">
+        <title>Using scons</title>
 
-      <screen>
-        <prompt>$</prompt> <command>cd hydrogen-*</command>
-        <prompt>$</prompt> <command>scons</command>
-        <prompt>$</prompt> <command>su -c "scons install"</command>
-      </screen>
+        <para>Decompress the tarball or go to the directory where the subversion copy
+        was checked out:</para>
 
-      <para>Before compiling, check for additional options with:</para>
+        <screen>
+          <prompt>$</prompt> <command>cd hydrogen-*</command>
+          <prompt>$</prompt> <command>scons</command>
+          <prompt>$</prompt> <command>su -c "scons install"</command>
+        </screen>
 
-      <screen>
-        <prompt>$</prompt> <command>scons --help</command>
-      </screen>
+        <para>Before compiling, check for additional options with:</para>
 
-      <para>If you want to use features which are not enabled by default (for
-      instance PortAudio), you can enable them with:</para>
+        <screen>
+          <prompt>$</prompt> <command>scons --help</command>
+        </screen>
 
-      <screen>
-        <prompt>$</prompt> <command>scons portaudio=1</command>
-      </screen>
+        <para>If you want to use features which are not enabled by default (for
+        instance PortAudio), you can enable them with:</para>
 
-      <para>Namely, if you get some error while running Hydrogen and you want
-      to report it remember to configure hydrogen with:</para>
+        <screen>
+          <prompt>$</prompt> <command>scons portaudio=1</command>
+        </screen>
 
-      <screen>
-        <prompt>$</prompt> <command>scons debug=1</command>
-      </screen>
+        <para>Namely, if you get some error while running Hydrogen and you want
+        to report it remember to configure hydrogen with:</para>
 
-      <para>To clean up compiled code:</para>
+        <screen>
+          <prompt>$</prompt> <command>scons debug=1</command>
+        </screen>
 
-      <screen>
-        <prompt>$</prompt> <command>scons -c</command>
-      </screen>
+        <para>To clean up compiled code:</para>
+
+        <screen>
+          <prompt>$</prompt> <command>scons -c</command>
+        </screen>
+      </section>
+      
+      
+      <section id="sect.compilation.cmake">
+        <title>Using cmake</title>
+
+        <para>Compiling with cmake can be done easily by using the make_helper script. Decompress the tarball or go to the directory where the subversion copy
+        was checked out and run the make_helper script without any arguments to display the help :</para>
+
+        <screen>
+          <prompt>$</prompt> <command>cd hydrogen-*</command>
+          <prompt>$</prompt> <command>./make_helper</command>
+        </screen>
+      
+        <para>The help is now displayed (and is self-explanatory) :
+        </para>
+      
+        <screen>
+          <prompt>$</prompt> <command>used builder : cmake</command>
+          <prompt>$</prompt> <command>usage ./make_helper [cmds list]</command>
+          <prompt>$</prompt> <command>cmds may be</command>
+          <prompt>$</prompt> <command>   r or rm     => all built, temp and cache files</command>
+          <prompt>$</prompt> <command>   c or clean  => remove cache files</command>
+          <prompt>$</prompt> <command>   m or make   => launch the build process</command>
+          <prompt>$</prompt> <command>   d or doc    => build html documentation</command>
+          <prompt>$</prompt> <command>   h or help   => show the build options</command>
+          <prompt>$</prompt> <command>   x or exec   => execute hydrogen</command>
+        </screen>
+      
+      </section>
+      
     </section>
 
     <section id="sect.preferences">
-      <title>Audio preferences</title>
+      <title>Preferences</title>
 
-      <para>First of all you should make shure that the audio engine is
+      <para>First of all you should make sure that the audio engine is
       configured properly.  The preferences dialog can be accessed via the tools
       menu (tools -&gt; preferences).</para>
+
+      <section id="sect.preferences.general_tab">
+        <title>The General tab</title>
+        
+        <para>On the "General" tab (<xref linkend="fig.preferences.general_tab"/>) you can 
+        choose to automatically reopen the last used song and/or playlist.  This can save you 
+        the trouble of having to reopen the song you are working on every time you open 
+        Hydrogen.  Auto loading the playlist can come in handy when you are using Hydrogen live.</para>
+        <para>If you want to use Lash to manage your Jack connections you should enable 
+        it here so Hydrogen allows interaction with Lash.</para>
+        <para>The Beat Counter drift compensation and start offset allow you to compensate
+         for system latency when you are using the Beat Counter function (see <xref linkend="sect.tap_tempo"/>)</para>
+        <para>The Max number of bars in a song can be set here (currently limited to 800) and if you want to use rubberband for sample time-streching 
+        you need to enter the path where rubberband is installed on you system here.</para>
+        <!-- THIJS : NEED TO AD LINK TO SAMPLE EDITOR -->
+        
+        <figure id="fig.preferences.general_tab">
+          <title>The General Tab</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="img/PreferencesGeneral_V2.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+        
+
+      </section>
 
       <section id="sect.preferences.audio_tab">
         <title>The Audio System tab</title>
@@ -159,24 +222,25 @@
         <para>From the "Audio System" tab (<xref
         linkend="fig.preferences.audio_tab"/>) it is possible to modify the
         audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and
-        sampling rate (unless using JACK, in this case the audio driver
+        sampling rate (unless you are using JACK, in this case the audio driver
         configuration should happen before starting the JACK server).</para>
 
-        <para>We can set some features of Hydrogen like "Enable track outputs"
-        useful if you want to add effects to a single instrument with
-        jack-rack. "Connect to Default Output Pair" connects the output to the
-        default ports: uncheck this if you want to connect JACK output to other
-        ports without disconnecting them first</para>
+        <para>We can set some features of Hydrogen like "Create per-instrument outputs" 
+        this will create 1 output per instrument that you can connect to any other Jack enabled application.
+        This can be useful if you want to add effects to a single instrument with
+        jack-rack for example.  "Connect to Default Output Pair" connects the output to the
+        default ports: uncheck this if you want to connect the JACK output to other
+        ports without having to disconnect them first.</para>
 
-        <para>Keep also an eye on the value of "Polyphony": depending on your
+        <para>Also keep an eye on the value of "Polyphony": depending on your
         CPU you may want to change the max simultaneous notes in order to
-        prevent hydrogen from overunning the audio driver.</para>
+        prevent hydrogen from overrunning the audio driver.</para>
 
         <figure id="fig.preferences.audio_tab">
           <title>The Audio System Tab</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="img/PreferencesAudioSystem.png" format="PNG"/>
+              <imagedata fileref="img/PreferencesAudioSystem_V2.png" format="PNG"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -203,7 +267,7 @@
           <listitem>
             <para><emphasis role="bold">OSS</emphasis>: The Oss audio driver
             uses /dev/dsp and it's based on the OSS interface which is supported
-            by the vast majority of sound cards available for linux; this said,
+            by the vast majority of sound cards available for Linux; this said,
             the use of this audio driver blocks /dev/dsp until Hydrogen is
             closed i.e. unusable by any other software. Use it as last
             resort.</para>
@@ -211,7 +275,7 @@
 
           <listitem>
             <para><emphasis role="bold">PortAudio</emphasis>: an open-source
-            multiplatform audio driver</para>
+            multi platform audio driver</para>
           </listitem>
 
           <listitem>
@@ -225,14 +289,21 @@
         <title>The Midi System tab</title>
 
         <para>The "Midi System" tab (<xref linkend="fig.preferences.midi_tab"/>)
-        concerns the MIDI input. You can choose the MIDI driver and input, setup
-        channels, binding actions to MIDI events.</para>
+        contains all MIDI settings. Here you can choose the MIDI driver, input, and channel(s) that Hydrogen should respond to.  
+        You can also define midi bindings: link a midi note/message to an action. 
+        To do this simply press the red 'REC' button left of the 'binding' action line.  
+        A popup will inform you that Hydrogen is waiting for your input.  Press/hit/turn 
+        the key/pad/knob on your midi keyboard (or controller) that you want to link to 
+        this action.  The popup will close and the Event Param value will now show the 
+        midi note value of the key you pressed.  Once this is done you can select an Action 
+        from the action drop-down list.  Note that some actions (like SELECT_NEXT_PATTERN) 
+        also require an Action Param that references the pattern you want to select with this midi action.</para>
 
         <figure id="fig.preferences.midi_tab">
           <title>The MIDI System Tab</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="img/PreferencesMidiSystem.png" format="PNG"/>
+              <imagedata fileref="img/PreferencesMidiSystem_V2.png" format="PNG"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -242,8 +313,7 @@
         <title>The Appearance tab</title>
 
         <para>The "Appearance" tab (<xref
-        linkend="fig.preferences.appearance_tab"/>) let's you to modify Hydrogen
-        and QT graphical properties.</para>
+        linkend="fig.preferences.appearance_tab"/>) let's you modify Hydrogen look and feel (font settings and interface style). Also the VU meters fall-off speed of the Mixer Window can be changed here.</para>
 
         <figure id="fig.preferences.appearance_tab">
           <title>The Appearance Tab</title>
@@ -257,15 +327,16 @@
 
 
       <section id="sect.preferences.audio_engine_tab">
-        <title>The Audio Engine tab</title>
+        <title>The Audio Engine tab (debug only)</title>
 
-        <para>The audio engine info is a window with various stats about
+        <para>The "Audio Engine" tab (<xref linkend="fig.preferences.audio_engine_tab"/>) is a window that shows various stats about
         Hydrogen and the audio driver. In case JACK is used, buffer and sampling
         rate should be set before starting Hydrogen (JACK automatically starts
         when an application tries to connect).</para>
+        <para>Note that the Audio Engine tab is only available if Hydrogen was complied with debug support.</para>
 
         <figure id="fig.preferences.audio_engine_tab">
-          <title>The Audio Engine Info Window</title>
+          <title>The Audio Engine tab</title>
           <mediaobject>
             <imageobject>
               <imagedata fileref="img/AudioEngineInfoDialog.png" format="PNG"/>
@@ -273,8 +344,11 @@
           </mediaobject>
         </figure>
       </section>
+
+
     </section>
   </chapter>
+
 
   <!--
       ####################
@@ -304,7 +378,7 @@
         </listitem>
         <listitem>
           <para><emphasis role="bold">*.h2playlist</emphasis>: XML file
-          describing a playlist.A Playlist is a (ordered) group of songs.</para>
+          describing a playlist. A Playlist is a (ordered) group of songs.</para>
         </listitem>
         <listitem>
           <para><emphasis role="bold">*.h2drumkit</emphasis>: a compressed and
@@ -405,7 +479,7 @@
         </listitem>
       </itemizedlist>
 
-      <para><emphasis role="bold">Tools</emphasis>: opens the mixer, the
+      <para><emphasis role="bold">Tools</emphasis>: opens the mixer, the director, the
       playlist editor, the instrument rack and the general preferences
       window.</para>
 
@@ -413,6 +487,9 @@
         <listitem>
           <para><emphasis>Playlist editor</emphasis> - A tool to manage
           playlists.</para>
+        </listitem>
+        <listitem>
+          <para><emphasis>Director</emphasis> - Open the director window.</para>
         </listitem>
         <listitem>
           <para><emphasis>Mixer</emphasis> - Open the mixer window.</para>
@@ -430,7 +507,7 @@
 
       <para><emphasis role="bold">Debug</emphasis>: tools mainly for debugging
       and monitoring Hydrogen (only available when compiled with debug
-      support).</para>
+      support !).</para>
 
       <itemizedlist>
         <listitem>
@@ -456,7 +533,7 @@
           manual :)</para>
         </listitem>
         <listitem>
-          <para><emphasis>About - </emphasis>The usual window with licence
+          <para><emphasis>About - </emphasis>The usual window with license
           information, acknowledgements, etc.</para>
         </listitem>
       </itemizedlist>
@@ -499,7 +576,7 @@
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="img/MainToolbar.png" format="PNG"/>
+            <imagedata fileref="img/MainToolbar_V2.png" format="PNG"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -507,11 +584,11 @@
       <itemizedlist mark="opencircle">
         <listitem>
           <para><inlinemediaobject><imageobject><imagedata
-          fileref="img/background_Control.png" format="PNG"/>
+          fileref="img/background_Control_V2.png" format="PNG"/>
           </imageobject></inlinemediaobject></para>
 
           <para>Main controls to start <emphasis role="bold">[Hotkey =
-          Spacebar]</emphasis>, stop, fast forward, rewind, loop a song or a
+          Spacebar]</emphasis>, stop, record, fast forward, rewind, loop a song or a
           pattern.</para>
         </listitem>
 
@@ -522,6 +599,16 @@
 
           <para>Set Pattern/Song Mode.</para>
         </listitem>
+        
+        <listitem>
+          <para><inlinemediaobject><imageobject>
+          <imagedata fileref="img/MeasureSettings.png" format="PNG"/>
+          </imageobject></inlinemediaobject></para>
+
+          <para>Set measure type and Beat Counter (see <xref linkend="sect.tap_tempo"/>).</para>
+          
+        </listitem>
+        
 
         <listitem>
           <para><inlinemediaobject><imageobject>
@@ -535,12 +622,12 @@
 
         <listitem>
           <para><inlinemediaobject><imageobject>
-          <imagedata fileref="img/cpuload.png" format="PNG"/>
+          <imagedata fileref="img/MidiIN_CPU.png" format="PNG"/>
           </imageobject></inlinemediaobject></para>
 
-            <para>Shows CPU load.</para>
+            <para>Shows CPU load and MIDI events.  The CPU bargraph gives you an indication of the CPU load.  The MIDI led lights up every time Hydrogen receives a midi message.</para>
         </listitem>
-
+<!--
         <listitem>
           <para><inlinemediaobject><imageobject>
             <imagedata fileref="img/midi_in.png" format="PNG"/>
@@ -548,39 +635,20 @@
 
           <para>Shows MIDI events.</para>
         </listitem>
-
+-->
         <listitem>
           <para><inlinemediaobject><imageobject>
-            <imagedata fileref="img/jack_transport.png" format="PNG"/>
+            <imagedata fileref="img/JackTrans_Master.png" format="PNG"/>
           </imageobject></inlinemediaobject></para>
 
-          <para>Click to enable Jack transport: Hydrogen will work as 'slave'
-          with another 'master' program (e.g. Ardour). This applet is only
+          <para>Click J. TRANS to enable Jack transport.  If the J. MASTER button is pressed Hydrogen will work as 'master', else it will act as 'slave'
+          to another 'master' program (e.g. Ardour). This applet is only
           available if Jack Audio Driver is selected.</para>
         </listitem>
       </itemizedlist>
 
-      <para>Other useful keybindings (not customizable for the
-      moment):</para>
 
-      <itemizedlist mark="opencircle">
-        <listitem>
-          <para>
-            <emphasis role="bold">[CTRL + O]</emphasis> = Open File
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <emphasis role="bold">[CTRL + S]</emphasis> = Save File
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <emphasis role="bold">[Backspace]</emphasis> = Restart
-            song or pattern from the beginning
-          </para>
-        </listitem>
-      </itemizedlist>
+
 
       <section id="sect.tap_tempo">
         <title>Tap Tempo and BeatCounter</title>
@@ -646,15 +714,9 @@
         it).</para>
 
         <para>Some of the settings to adjust the BeatCounter's latency
-        compensation, and they are located on the <guilabel>General</guilabel>
-        tab of the Preferences Dialog (
-
-        <menuchoice>
-          <guimenu>Tools</guimenu>
-          <guimenuitem>Preferences</guimenuitem>
-        </menuchoice>
-
-        ). Here there are two spinboxes:</para>
+        compensation, are located on the General tab of the Preferences Dialog 
+        (see <xref linkend="sect.preferences.general_tab"/>
+        ). Here you will finde two spinboxes:</para>
 
         <itemizedlist>
           <listitem><para><emphasis role="bold"><guilabel>Beat counter drift
@@ -683,7 +745,7 @@
 
       <para>The "Song Editor" (<xref linkend="fig.song_editor"/>) gives an
       overview of the whole timeline of the song (e.g. intro, verse, bridge,
-      chorus and so on); each blue coloured square on this panel is a complete
+      chorus and so on); each blue colored square on this panel is a complete
       bar as shown in the underlying "Pattern Editor" panel. Here we have
       complete freedom to add, remove or move patterns in any order we
       prefer. We can also copy and paste patterns: use left mouse button to
@@ -825,12 +887,12 @@
         </mediaobject>
       </figure>
 
-      <para>Rememeber this constraint concerning the grid: if you are working
+      <para>Remember this constraint concerning the grid: if you are working
       with a resolution of 16 you can't go back to 8 and remove a 16th note; on
       the other hand if you are working with a resolution of 8 and you try to
       insert a note in the middle of two bars (looking for a 16 bars precision),
       notes will be placed in the previous or in the following 8th bar.  This
-      contraint can be removed if you disable the whole grid resolution (choose
+      constraint can be removed if you disable the whole grid resolution (choose
       "off" from the grid resolution LCD control). Now you'll be able to place
       notes wherever you prefer.</para>
 
@@ -1348,7 +1410,7 @@
               from 0 to the full velocity of the note.  If the value is 0, the
               sample will play immediately at full velocity.  If the value is
               1.0, the sample volume will use the maximum time available for the
-              attack paramater.
+              attack parameter.
               <footnote id="fn.adsrtimes">
                 <para>The attack, decay, and release parameters are all set by
                 the number of <emphasis>audio samples</emphasis>.  This means
@@ -1459,7 +1521,7 @@
             -->
           </note>
 
-          <para>The random pitch paramater allows you to randomly vary the pitch
+          <para>The random pitch parameter allows you to randomly vary the pitch
           of the sample every time it is triggered.  The value is set between 0
           and 1.0.  The pitch change is fairly small: &plusmn;2 half-steps
           &times; value.  Using this sparingly can help your sequences to sound
@@ -1557,7 +1619,7 @@
       <warning>
         <title>Plugins Kill</title>
         <para>A LADSPA plugin is compiled, executable code.  It is capable of
-        hanging, crashing, freezing, screaching, overflowing buffers, and even
+        hanging, crashing, freezing, screeching, overflowing buffers, and even
         phoning home.  If you start having issues with Hydrogen, disable your
         plugins and see if things improve.  Some plugins are not designed for
         real-time use, and some are just plain better than others.</para>
@@ -1635,7 +1697,7 @@
 
       <para>Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to
       <xref linkend="sect.main_toolbar"/> for the buttons to activate). When
-      "Pattern" mode is activated the current pattern is continously repeated,
+      "Pattern" mode is activated the current pattern is continuously repeated,
       so to help changing it until we don't like it, while "Song" mode repeats
       only the current pattern: this is useful when putting together the
       patterns, to create the whole structure for the song.</para>
@@ -1650,7 +1712,7 @@
       button and while the pattern is playing let's add notes in the grid of the
       Song Editor (<xref linkend="fig.pattern_editor.2"/>) simply
       left_mouse_clicking on it: adjust grid resolution and BPM speed if
-      needed. Rememeber some constraints of the grid: if you are working with a
+      needed. Remember some constraints of the grid: if you are working with a
       resolution of 16 you can't go back to 8 and remove a 16th note; same thing
       happens if you are working with a resolution of 8 and you try to insert a
       note in the middle of two bars (looking for a 16 bars precision): they
@@ -1743,8 +1805,8 @@
           </imageobject>
         </inlinemediaobject>
 
-        , simply mute <emphasis>that</emphasis> instrument. The maximun peak
-        indicates the maximun volume reached from the instrument; the peak must
+        , simply mute <emphasis>that</emphasis> instrument. The maximum peak
+        indicates the maximum volume reached from the instrument; the peak must
         be in a range of 0.0 and 1.0 (in <xref linkend="fig.mixer.2"/> you can
         see a few volumes too loud), otherwise it will get distorted producing a
         weird sound (especially with OSS audio driver), in this case it's better
@@ -1761,6 +1823,102 @@
       </figure>
     </section>
   </chapter>
+  
+  
+  <chapter id="chap.shortcuts">
+    <title>Shortcut lists</title>
+    
+      <itemizedlist mark="opencircle">
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + N]</emphasis> = New Project
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + O]</emphasis> = Open File
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + D]</emphasis> = Open Demo
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + S]</emphasis> = Save File
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + SHIFT + S]</emphasis> = Save File as
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + P]</emphasis> = Export Pattern as
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + M]</emphasis> = Export MIDI file
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + E]</emphasis> = Export Song
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + Q]</emphasis> = Quit Hydrogen
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[ALT + B]</emphasis> = Show Director window
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[ALT + M]</emphasis> = Show Mixer window
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[ALT + I]</emphasis> = Show Instrument rack
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[ALT + P]</emphasis> = Show Preferences window
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[CTRL + ?]</emphasis> = Show manual
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[Backspace]</emphasis> = Restart
+            song or pattern from the beginning
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[spacebar]</emphasis> = Play / Pause
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[,]</emphasis> (comma key) = Tap tempo (beatcounter)
+          </para>
+        </listitem>
+      </itemizedlist>    
+    
+  </chapter>
+  
   <glossary id="glossary">
     <title>Glossary</title>
 
@@ -1829,7 +1987,7 @@
     <glossentry id="def.bandpassfilter">
       <glossterm>Band-Pass Filter</glossterm>
       <glossdef>
-        <para>A filter that preserves a cetertain band of frequencies, and
+        <para>A filter that preserves a certain band of frequencies, and
         attenuates (silences) all others.  This is often done by combining a
         high-pass and a low-pass filter.</para>
 
@@ -1994,7 +2152,7 @@
     <glossentry id="def.lowpassfilter">
       <glossterm>Low-Pass Filter</glossterm>
       <glossdef>
-        <para>A filter that attenuates (silences) high frequences, but allows
+        <para>A filter that attenuates (silences) high frequencies, but allows
         low frequencies to pass through.</para>
 
         <glossseealso otherterm="def.filter"/>
@@ -2094,7 +2252,7 @@
         <para>This is the amount that frequencies are attenuated (suppressed) as
         the frequency changes (typically measured in dB/octave).</para>
 
-        <para>For example, in a low-pass filter the frequences below the cutoff
+        <para>For example, in a low-pass filter the frequencies below the cutoff
         frequency are not attenuated (they pass-through with the same volume).
         Same with the cutoff frequency.  As you go above the cutoff frequency,
         the frequencies that are near the cutoff frequency are not attenuated
