@@ -91,6 +91,7 @@ class Sample : public Object {
                 /** constructor */
                 LoopOptions() {
                     start_frame = loop_frame = end_frame = loops = 0;
+                    mode = FORWARD;
                 };
                 /** copy constructor */
                 LoopOptions( const LoopOptions* other) {
@@ -98,6 +99,7 @@ class Sample : public Object {
                     loop_frame = other->loop_frame;
                     end_frame = other->end_frame;
                     loops = other->loops;
+                    mode = other->mode;
                 };
         };
 
