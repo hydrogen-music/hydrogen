@@ -32,12 +32,6 @@
 
 #define MAX_BUFFER_SIZE		    8192
 
-#define MIDI_MIDDLE_C           60
-#define MIDI_OUT_NOTE_MIN       0
-#define MIDI_OUT_NOTE_MAX       127
-#define MIDI_OUT_CHANNEL_MIN    -1
-#define MIDI_OUT_CHANNEL_MAX    15
-
 #define EMPTY_INSTR_ID          -1
 #define METRONOME_INSTR_ID      -2
 
