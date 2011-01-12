@@ -864,7 +864,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 								unsigned loopframe = pSample->get_loop_frame();
 								unsigned endframe = pSample->get_end_frame();
 								int loops = pSample->get_loops();
-								QString	mode = pSample->get_loop_mode_string();
+                                Sample::LoopMode mode = pSample->get_loop_mode();
 								bool userubber = pSample->get_use_rubber();
 								float rd = pSample->get_rubber_divider();
 								int csettings = pSample->get_rubber_c_settings();

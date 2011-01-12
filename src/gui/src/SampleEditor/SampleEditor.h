@@ -60,7 +60,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
 
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_sample_is_modified;	///< true if sample is modified
-		QString m_sample_mode;		///< loop mode
+        H2Core::Sample::LoopMode m_sample_mode;		///< loop mode
 		int m_repeats;			///< repats from the loop section
 		unsigned m_start_frame;		///< start frame
 		unsigned m_loop_frame;		///< beginn of the loop section

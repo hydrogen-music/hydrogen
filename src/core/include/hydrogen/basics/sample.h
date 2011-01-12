@@ -151,7 +151,7 @@ class Sample : public Object {
                                    const unsigned loopframe,
                                    const unsigned endframe,
                                    const int loops,
-                                   const QString loopmode,
+                                   const LoopMode loopmode,
                                    bool use_rubberband,
                                    float rubber_divider,
                                    int rubberbandCsettings,

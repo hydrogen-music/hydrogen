@@ -183,7 +183,7 @@ void SampleEditor::getAllFrameInfos()
 
 //this values are needed if we restore a sample from from disk if a new song with sample changes will load 
 	m_sample_is_modified = pSample->get_is_modified();
-	m_sample_mode = pSample->get_loop_mode_string();
+	m_sample_mode = pSample->get_loop_mode();
 	m_start_frame = pSample->get_start_frame();
 	m_loop_frame = pSample->get_loop_frame();
 	m_repeats = pSample->get_loops();
@@ -235,11 +235,11 @@ void SampleEditor::getAllFrameInfos()
 
 	if (m_sample_is_modified) {
 		m_end_frame = pSample->get_end_frame();
-		if ( m_sample_mode == "forward" ) 
+		if ( m_sample_mode == Sample::FORWARD )
 			ProcessingTypeComboBox->setCurrentIndex ( 0 );
-		if ( m_sample_mode == "reverse" ) 
+		if ( m_sample_mode == Sample::REVERSE )
 			ProcessingTypeComboBox->setCurrentIndex ( 1 );
-		if ( m_sample_mode == "pingpong" ) 
+		if ( m_sample_mode == Sample::PINGPONG )
 			ProcessingTypeComboBox->setCurrentIndex ( 2 );
 
 		StartFrameSpinBox->setValue( m_start_frame );
@@ -685,7 +685,7 @@ void SampleEditor::createPositionsRulerPath()
 	unsigned *tempframes = new unsigned[ newlength ];
 	unsigned *loopframes = new unsigned[ looplength ];
 
-	QString loopmode = m_sample_mode;
+    Sample::LoopMode loopmode = m_sample_mode;
 	long int z = m_loop_frame;
 	long int y = m_start_frame;
 
@@ -703,15 +703,15 @@ void SampleEditor::createPositionsRulerPath()
 		loopframes[i] = normalframes[z];
 	}
 	
-	if ( loopmode == "reverse" ){
+	if ( loopmode == Sample::REVERSE ){
 		reverse(loopframes, loopframes + looplength);
 	}
 
-	if ( loopmode == "reverse" && m_repeats > 0 && m_start_frame == m_loop_frame ){
+	if ( loopmode == Sample::REVERSE && m_repeats > 0 && m_start_frame == m_loop_frame ){
 		reverse( tempframes, tempframes + onesamplelength );		
 		}
 
-	if ( loopmode == "pingpong" &&  m_start_frame == m_loop_frame){
+	if ( loopmode == Sample::PINGPONG &&  m_start_frame == m_loop_frame){
 		reverse(loopframes, loopframes + looplength);
 	}
 	
@@ -720,7 +720,7 @@ void SampleEditor::createPositionsRulerPath()
 		if ( m_start_frame == m_loop_frame ){
 			copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
 		}
-		if ( loopmode == "pingpong" && m_repeats > 1){
+		if ( loopmode == Sample::PINGPONG && m_repeats > 1){
 			reverse(loopframes, loopframes + looplength);
 		}
 		if ( m_start_frame != m_loop_frame ){		
@@ -730,7 +730,7 @@ void SampleEditor::createPositionsRulerPath()
 	}
 
 	
-	if ( m_repeats == 0 && loopmode == "reverse" ){
+	if ( m_repeats == 0 && loopmode == Sample::REVERSE ){
 		reverse( tempframes + m_loop_frame, tempframes + newlength);		
 	}
 
@@ -884,16 +884,16 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 {
 	switch ( ProcessingTypeComboBox->currentIndex() ){
 		case 0 :// 
-			m_sample_mode = "forward";
+			m_sample_mode = Sample::FORWARD;
 			break;
 		case 1 :// 
-			m_sample_mode = "reverse";
+			m_sample_mode = Sample::REVERSE;
 			break;
 		case 2 :// 
-			m_sample_mode = "pingpong";
+			m_sample_mode = Sample::PINGPONG;
 			break;
 		default:
-			m_sample_mode = "forward";
+			m_sample_mode = Sample::FORWARD;
 	}
 	m_pSampleEditorStatus = false;
 }

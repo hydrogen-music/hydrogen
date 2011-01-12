@@ -136,7 +136,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
                                    const unsigned loopframe,
                                    const unsigned endframe,
                                    const int loops,
-                                   const QString loopmode,
+                                   const LoopMode loopmode,
                                    bool use_rubberband,
                                    float rubber_divider,
                                    int rubberbandCsettings,
@@ -233,17 +233,17 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	}
 
 		
-	if ( loopmode == "reverse" ){
+	if ( loopmode == REVERSE ){
 		reverse(looptempdata_l, looptempdata_l + looplength);
 		reverse(looptempdata_r, looptempdata_r + looplength);
 	}
 
-        if ( loopmode == "reverse" && loops > 0 && startframe == loopframe ){
+        if ( loopmode == REVERSE && loops > 0 && startframe == loopframe ){
 		reverse( tempdata_l, tempdata_l + onesamplelength );
 		reverse( tempdata_r, tempdata_r + onesamplelength );		
 		}
 
-        if ( loopmode == "pingpong" &&  startframe == loopframe){
+        if ( loopmode == PINGPONG &&  startframe == loopframe){
 		reverse(looptempdata_l, looptempdata_l + looplength);
 		reverse(looptempdata_r, looptempdata_r + looplength);
 	}
@@ -255,7 +255,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
 		}
-		if ( loopmode == "pingpong" && loops > 1){
+		if ( loopmode == PINGPONG && loops > 1){
 			reverse(looptempdata_l, looptempdata_l + looplength);
 			reverse(looptempdata_r, looptempdata_r + looplength);
 		}
@@ -266,7 +266,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 
 	}
 	
-	if ( loops == 0 && loopmode == "reverse" ){
+	if ( loops == 0 && loopmode == REVERSE ){
                 reverse( tempdata_l + loopframe, tempdata_l + newlength);
                 reverse( tempdata_r + loopframe, tempdata_r + newlength);
 		}
@@ -479,7 +479,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	
 		pSample->__sample_rate = soundInfoRI.samplerate;	
 		pSample->set_is_modified( true );
-		pSample->__loop_options.mode = parse_loop_mode( loopmode );
+		pSample->__loop_options.mode = loopmode;
 		pSample->__loop_options.start_frame = startframe;
         pSample->__loop_options.loop_frame = loopframe;
 		pSample->__loop_options.end_frame = endframe;
@@ -502,7 +502,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	
 		pSample->__sample_rate = samplerate;	
 		pSample->set_is_modified( true );
-		pSample->__loop_options.mode = parse_loop_mode( loopmode );
+		pSample->__loop_options.mode = loopmode;
 		pSample->__loop_options.start_frame = startframe;
         pSample->__loop_options.loop_frame = loopframe;
 		pSample->__loop_options.end_frame = endframe;
