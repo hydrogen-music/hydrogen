@@ -73,52 +73,52 @@ public:
 class Sample : public Object {
         H2_OBJECT
     public:
-        /** possible sample editing loop mode */
-        enum LoopMode {
-            FORWARD=0,
-            REVERSE,
-            PINGPONG
-        };
 
-        /** set of loop options */
-        class LoopOptions {
+        /** set of loop configuration flags */
+        class Loops {
             public:
+                /** possible sample editing loop mode */
+                enum LoopMode {
+                    FORWARD=0,
+                    REVERSE,
+                    PINGPONG
+                };
                 int start_frame;        ///< the frame index where to start the new sample from
                 int loop_frame;         ///< the frame index where to start the loop from
                 int end_frame;          ///< the frame index where to end the new sample to
-                int loops;              ///< the counts of loops to apply
+                int count;              ///< the counts of loops to apply
                 LoopMode mode;          ///< one of the possible loop modes
                 /** constructor */
-                LoopOptions() {
-                    start_frame = loop_frame = end_frame = loops = 0;
+                Loops() {
+                    start_frame = loop_frame = end_frame = count = 0;
                     mode = FORWARD;
                 };
                 /** copy constructor */
-                LoopOptions( const LoopOptions* other) {
+                Loops( const Loops* other) {
                     start_frame = other->start_frame;
                     loop_frame = other->loop_frame;
                     end_frame = other->end_frame;
-                    loops = other->loops;
+                    count = other->count;
                     mode = other->mode;
                 };
         };
 
-        /** set of rubberband options */
-        class RubberBandOptions {
+        /** set of rubberband configuration flags */
+        class Rubberband {
             public:
                 bool use;               ///< TODO
                 float divider;          ///< TODO
                 int c_settings;         ///< TODO
                 float pitch;            ///< TODO
                 /** constructor */
-                RubberBandOptions() {
+                Rubberband() {
                     use = false;
                     divider = 1.0;
                     c_settings = 4;
                     pitch = 0.0;
                 };
                 /** copy constructor */
-                RubberBandOptions( const RubberBandOptions* other) {
+                Rubberband( const Rubberband* other) {
                     use = other->use;
                     divider = other->divider;
                     c_settings = other->c_settings;
@@ -146,16 +146,7 @@ class Sample : public Object {
          */
         static Sample* load( const QString& filepath );
 
-        static Sample* load_edit_sndfile( const QString& filepath,
-                                   const unsigned startframe,
-                                   const unsigned loopframe,
-                                   const unsigned endframe,
-                                   const int loops,
-                                   const LoopMode loopmode,
-                                   bool use_rubberband,
-                                   float rubber_divider,
-                                   int rubberbandCsettings,
-                                   float rubber_pitch);
+        static Sample* load_edit_sndfile( const QString& filepath, const Loops& lo, const Rubberband& ro );
 
         /** return true if both data channels are null pointers */
         bool is_empty() const;
@@ -189,76 +180,17 @@ class Sample : public Object {
         void set_is_modified( bool value );
         /** __is_modified accessor */
         bool get_is_modified() const;
-        /**
-         * __loop_options.mode setter
-         * \parama value the new value for __loop_options.mode
-         */
-        void set_loop_mode( LoopMode value );
-        /** __loop_options.mode accessor */
-        LoopMode get_loop_mode() const;
-        /** return __loop_options.mode as a string */
-        QString get_loop_mode_string() const;
+        /** get a copy of loop configuration options */
+        Loops copy_loops() const;
+        /** get a copy of rubberband configuration options */
+        Rubberband copy_rubberband() const;
         /**
          * parse the given string and rturn the corresponding lopp_mode
          * \param string the loop mode text to be parsed
          */
-        static LoopMode parse_loop_mode( const QString& string );
-        /**
-         * __loop_options.start_frame setter
-         * \parama value the new value for __loop_options.start_frame
-         */
-        void set_start_frame( int value );
-        /** __loop_options.start_frame accessor */
-        int get_start_frame() const;
-        /**
-         * __loop_options.end_frame setter
-         * \parama value the new value for __loop_options.end_frame
-         */
-        void set_end_frame( int value );
-        /** __loop_options.end_frame accessor */
-        int get_end_frame() const;
-        /**
-         * __loop_options.loop_frame setter
-         * \parama value the new value for __loop_options.loop_frame
-         */
-        void set_loop_frame( int value );
-        /** __loop_options.loop_frame accessor */
-        int get_loop_frame() const;
-        /**
-         * __loop_options.loops setter
-         * \parama value the new value for __loop_options.loops
-         */
-        void set_loops( int value );
-        /** __loop_options.loops accessor */
-        int get_loops() const;
-        /**
-         * __rubber_options.use setter
-         * \parama value the new value for __rubber_options.use
-         */
-        void set_use_rubber( bool value );
-        /** __rubber_options.use accessor */
-        bool get_use_rubber() const;
-        /**
-         * __rubber_options.pitch setter
-         * \parama value the new value for __rubber_options.pitch
-         */
-        void set_rubber_pitch( float value );
-        /** __rubber_options.pitch accessor */
-        float get_rubber_pitch() const;
-        /**
-         * __rubber_options.divider setter
-         * \parama value the new value for __rubber_options.divider
-         */
-        void set_rubber_divider( float value );
-        /** __rubber_options.divider accessor */
-        float get_rubber_divider() const;
-        /**
-         * __rubber_options.c_settings setter
-         * \parama value the new value for __rubber_options.c_settings
-         */
-        void set_rubber_c_settings( int value );
-        /** __rubber_options.c_settings accessor */
-        float get_rubber_c_settings() const;
+        static Loops::LoopMode parse_loop_mode( const QString& string );
+        /** return __loops.mode as a string */
+        QString get_loop_mode_string() const;
 
     private:
         QString __filename;                     ///< filename of the sample, no path information
@@ -268,10 +200,10 @@ class Sample : public Object {
         float* __data_r;                        ///< right channel data
         bool __is_modified;                     ///< true if sample is modified
     public:
-	    SampleVeloPan __velo_pan;	///< volume and pan vector
+	    SampleVeloPan __velo_pan;	            ///< volume and pan vector
     private:
-        LoopOptions __loop_options;             ///< set of loop options
-        RubberBandOptions __rubber_options;     ///< set of rubberband options
+        Loops __loops;                       ///< set of loop configuration options
+        Rubberband __rubberband;             ///< set of rubberband configuration options
         /** loop modes string */
         static const char* __loop_modes[];
         /**
@@ -323,80 +255,16 @@ inline bool Sample::get_is_modified() const {
     return __is_modified;
 }
 
-inline void Sample::set_loop_mode( Sample::LoopMode loop_mode ) {
-    __loop_options.mode = loop_mode;
-}
-
-inline Sample::LoopMode Sample::get_loop_mode() const {
-    return __loop_options.mode;
-}
-
 inline QString Sample::get_loop_mode_string() const {
-    return __loop_modes[__loop_options.mode];
+    return __loop_modes[__loops.mode];
 }
 
-inline void Sample::set_start_frame( int start_frame ) {
-    __loop_options.start_frame = start_frame;
+inline Sample::Loops Sample::copy_loops() const {
+    return __loops;
 }
 
-inline int Sample::get_start_frame() const {
-    return __loop_options.start_frame;
-}
-
-inline void Sample::set_end_frame( int end_frame ) {
-    __loop_options.end_frame = end_frame;
-}
-
-inline int Sample::get_end_frame() const {
-    return __loop_options.end_frame;
-}
-
-inline void Sample::set_loop_frame( int loop_frame ) {
-    __loop_options.loop_frame = loop_frame;
-}
-
-inline int Sample::get_loop_frame() const {
-    return __loop_options.loop_frame;
-}
-
-inline void Sample::set_loops( int loops ) {
-    __loop_options.loops = loops;
-}
-
-inline int Sample::get_loops() const {
-    return __loop_options.loops;
-}
-
-inline void Sample::set_use_rubber( bool use_rubber ) {
-    __rubber_options.use = use_rubber;
-}
-
-inline bool Sample::get_use_rubber() const {
-    return __rubber_options.use;
-}
-
-inline void Sample::set_rubber_pitch( float rubber_pitch ) {
-    __rubber_options.pitch = rubber_pitch;
-}
-
-inline float Sample::get_rubber_pitch() const {
-    return __rubber_options.pitch;
-}
-
-inline void Sample::set_rubber_divider( float use_rubber_divider ) {
-    __rubber_options.divider = use_rubber_divider;
-}
-
-inline float Sample::get_rubber_divider() const {
-    return __rubber_options.divider;
-}
-
-inline void Sample::set_rubber_c_settings( int use_rubber_c_settings ) {
-    __rubber_options.c_settings = use_rubber_c_settings;
-}
-
-inline float Sample::get_rubber_c_settings() const {
-    return __rubber_options.c_settings;
+inline Sample::Rubberband Sample::copy_rubberband() const {
+    return __rubberband;
 }
 
 };

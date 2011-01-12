@@ -856,19 +856,12 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 					if ( pLayer ) {
 						Sample *pSample = pLayer->get_sample();
 						if ( pSample ) {
-							if(pSample->get_use_rubber()){
+                            H2Core::Sample::Loops lo = pSample->copy_loops();
+                            H2Core::Sample::Rubberband ro = pSample->copy_rubberband();
+							if(ro.use){
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
 	
 								QString filename = pSample->get_filename();
-								unsigned startframe = pSample->get_start_frame();
-								unsigned loopframe = pSample->get_loop_frame();
-								unsigned endframe = pSample->get_end_frame();
-								int loops = pSample->get_loops();
-                                Sample::LoopMode mode = pSample->get_loop_mode();
-								bool userubber = pSample->get_use_rubber();
-								float rd = pSample->get_rubber_divider();
-								int csettings = pSample->get_rubber_c_settings();
-								float rpitch = pSample->get_rubber_pitch();
 
 								Hydrogen::HVeloVector velovector;
 								pEngine->m_volumen.clear();
@@ -886,16 +879,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 									pEngine->m_pan.push_back( panvector );
 								}
 			
-                                                                Sample *newSample = Sample::load_edit_sndfile( filename,
-                                                                                                               startframe,
-                                                                                                               loopframe,
-                                                                                                               endframe,
-                                                                                                               loops,
-                                                                                                               mode,
-                                                                                                               userubber,
-                                                                                                               rd,
-                                                                                                               csettings,
-                                                                                                               rpitch);
+                                Sample *newSample = Sample::load_edit_sndfile( filename, lo, ro );
 	
 								if( !newSample  ){
 									continue;

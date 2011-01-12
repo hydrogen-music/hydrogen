@@ -56,8 +56,8 @@ Sample::Sample( Sample* other ): Object( __class_name ),
     __data_r( 0 ),
     __is_modified( other->get_is_modified() ),
     __velo_pan( other->__velo_pan ),
-    __loop_options( other->__loop_options ),
-    __rubber_options( other->__rubber_options )
+    __loops( other->__loops ),
+    __rubberband( other->__rubberband )
 {
     __data_l = new float[__frames];
     __data_r = new float[__frames];
@@ -79,10 +79,10 @@ Sample* Sample::load( const QString& filepath ) {
 }
 
 /*
-Sample* Sample::load ( const QString& filepath, const LoopOptions& loop_options, const RubberBandOptions& rubber_options ) {
+Sample* Sample::load ( const QString& filepath, const Loops& loop_options, const Rubberband& rubber_options ) {
     Sample* sample = Sample::load( filepath );
     if ( sample==0 ) return 0;
-    if( !sample->apply( loop_options, rubber_options ) ) {
+    if( !sample->apply_loops( loop_options ) ) {
         // TODO
     }
     return sample;
@@ -131,21 +131,12 @@ Sample* Sample::libsndfile_load( const QString& filepath ) {
     return sample;
 }
 
-Sample* Sample::load_edit_sndfile( const QString& filepath,
-                                   const unsigned startframe,
-                                   const unsigned loopframe,
-                                   const unsigned endframe,
-                                   const int loops,
-                                   const LoopMode loopmode,
-                                   bool use_rubberband,
-                                   float rubber_divider,
-                                   int rubberbandCsettings,
-                                   float rubber_pitch)
+Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, const Rubberband& ro )
 {
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
 	//test the path. if test fails return NULL
-	if ( QFile( program ).exists() == false && use_rubberband) {
+	if ( QFile( program ).exists() == false && ro.use) {
 		_ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
 		return NULL;
 	}
@@ -165,12 +156,12 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
                 _INFOLOG( QString( "[Sample::load] File not: %1" ).arg( filepath ) );
 	}
 
-	unsigned onesamplelength =  endframe - startframe;
-        unsigned looplength =  endframe - loopframe;
-	unsigned repeatslength = looplength * loops;
+	unsigned onesamplelength =  lo.end_frame - lo.start_frame;
+    unsigned looplength =  lo.end_frame - lo.loop_frame;
+	unsigned repeatslength = looplength * lo.count;
 	unsigned newlength = 0;
 	if (onesamplelength == looplength){	
-		newlength = onesamplelength + onesamplelength * loops ;
+		newlength = onesamplelength + onesamplelength * lo.count ;
 	}else
 	{
 		newlength =onesamplelength + repeatslength;
@@ -211,8 +202,8 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	float *looptempdata_l = new float[ looplength ];
 	float *looptempdata_r = new float[ looplength ];
 
-        long int z = loopframe;
-	long int y = startframe;
+        long int z = lo.loop_frame;
+	long int y = lo.start_frame;
 
 	for ( unsigned i = 0; i < newlength; i++){ //first vector
 
@@ -233,42 +224,42 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	}
 
 		
-	if ( loopmode == REVERSE ){
+	if ( lo.mode == Loops::REVERSE ){
 		reverse(looptempdata_l, looptempdata_l + looplength);
 		reverse(looptempdata_r, looptempdata_r + looplength);
 	}
 
-        if ( loopmode == REVERSE && loops > 0 && startframe == loopframe ){
+        if ( lo.mode == Loops::REVERSE && lo.count > 0 && lo.start_frame == lo.loop_frame ){
 		reverse( tempdata_l, tempdata_l + onesamplelength );
 		reverse( tempdata_r, tempdata_r + onesamplelength );		
 		}
 
-        if ( loopmode == PINGPONG &&  startframe == loopframe){
+        if ( lo.mode == Loops::PINGPONG &&  lo.start_frame == lo.loop_frame){
 		reverse(looptempdata_l, looptempdata_l + looplength);
 		reverse(looptempdata_r, looptempdata_r + looplength);
 	}
 	
-	for ( int i = 0; i< loops ;i++){
+	for ( int i = 0; i< lo.count ;i++){
 			
 		unsigned tempdataend = onesamplelength + ( looplength * i );
-                if ( startframe == loopframe ){
+                if ( lo.start_frame == lo.loop_frame ){
 			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
 		}
-		if ( loopmode == PINGPONG && loops > 1){
+		if ( lo.mode == Loops::PINGPONG && lo.count > 1){
 			reverse(looptempdata_l, looptempdata_l + looplength);
 			reverse(looptempdata_r, looptempdata_r + looplength);
 		}
-                if ( startframe != loopframe ){
+                if ( lo.start_frame != lo.loop_frame ){
 			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
 			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
 		}
 
 	}
 	
-	if ( loops == 0 && loopmode == REVERSE ){
-                reverse( tempdata_l + loopframe, tempdata_l + newlength);
-                reverse( tempdata_r + loopframe, tempdata_r + newlength);
+	if ( lo.count == 0 && lo.mode == Loops::REVERSE ){
+                reverse( tempdata_l + lo.loop_frame, tempdata_l + newlength);
+                reverse( tempdata_r + lo.loop_frame, tempdata_r + newlength);
 		}
 
 	//create new sample
@@ -370,11 +361,11 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	}
 
 ///rubberband
-	if( use_rubberband ){
+	if( ro.use ){
 
 		unsigned rubberoutframes = 0;
 		double ratio = 1.0;
-		double durationtime = 60.0 / pEngine->getNewBpmJTM() * rubber_divider/*beats*/;	
+		double durationtime = 60.0 / pEngine->getNewBpmJTM() * ro.divider/*beats*/;	
 		double induration = (double) newlength / (double) samplerate;
 		if (induration != 0.0) ratio = durationtime / induration;
 		rubberoutframes = int(newlength * ratio + 0.1);
@@ -418,8 +409,8 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 
 		QStringList arguments;
 
-		QString rCs = QString(" %1").arg(rubberbandCsettings);
-		float pitch = pow( 1.0594630943593, ( double)rubber_pitch );
+		QString rCs = QString(" %1").arg(ro.c_settings);
+		float pitch = pow( 1.0594630943593, ( double)ro.pitch );
 		QString rPs = QString(" %1").arg(pitch);
 
 		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
@@ -479,15 +470,8 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	
 		pSample->__sample_rate = soundInfoRI.samplerate;	
 		pSample->set_is_modified( true );
-		pSample->__loop_options.mode = loopmode;
-		pSample->__loop_options.start_frame = startframe;
-        pSample->__loop_options.loop_frame = loopframe;
-		pSample->__loop_options.end_frame = endframe;
-		pSample->__loop_options.loops = loops;
-		pSample->__rubber_options.use = true;
-		pSample->__rubber_options.divider = rubber_divider;
-		pSample->__rubber_options.c_settings = rubberbandCsettings;
-		pSample->__rubber_options.pitch = rubber_pitch;
+		pSample->__loops = lo;
+		pSample->__rubberband = ro;
 
 		//delete the tmp files
 		if( QFile( outfilePath ).remove() ); 
@@ -502,22 +486,18 @@ Sample* Sample::load_edit_sndfile( const QString& filepath,
 	
 		pSample->__sample_rate = samplerate;	
 		pSample->set_is_modified( true );
-		pSample->__loop_options.mode = loopmode;
-		pSample->__loop_options.start_frame = startframe;
-        pSample->__loop_options.loop_frame = loopframe;
-		pSample->__loop_options.end_frame = endframe;
-		pSample->__loop_options.loops = loops;
+		pSample->__loops = lo;
 	
 	}
 		return pSample;
 }
 
-Sample::LoopMode Sample::parse_loop_mode( const QString& string ) {
+Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string ) {
     char* mode = string.toLocal8Bit().data();
-    for( int i=FORWARD; i<PINGPONG; i++ ) {
-        if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( LoopMode )i;
+    for( int i=Loops::FORWARD; i<Loops::PINGPONG; i++ ) {
+        if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( Loops::LoopMode )i;
     }
-    return FORWARD;
+    return Loops::FORWARD;
 }
 
 };

@@ -1437,15 +1437,9 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 			QString sFilename = pSample->get_filename();
 			bool sIsModified = pSample->get_is_modified();
+            Sample::Loops lo = pSample->copy_loops();
+            Sample::Rubberband ro = pSample->copy_rubberband();
 			QString sMode = pSample->get_loop_mode_string();
-			unsigned sStartframe = pSample->get_start_frame();
-			unsigned sLoopFrame =  pSample->get_loop_frame();
-			int sLoops = pSample->get_loops();
-			unsigned sEndframe =  pSample->get_end_frame();
-			bool sUseRubber = pSample->get_use_rubber();
-			float sRubberDivider = pSample->get_rubber_divider();
-			int sRubberbandCsettings = pSample->get_rubber_c_settings();
-			float sRubberPitch = pSample->get_rubber_pitch();
 
 			if ( !instr->get_drumkit_name().isEmpty() ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
@@ -1456,15 +1450,15 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			QDomNode layerNode = doc.createElement( "layer" );
 			LocalFileMng::writeXmlString( layerNode, "filename", sFilename );
 			LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
-			LocalFileMng::writeXmlString( layerNode, "smode", sMode );
-			LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( sStartframe ) );
-			LocalFileMng::writeXmlString( layerNode, "loopframe", QString("%1").arg( sLoopFrame ) );
-			LocalFileMng::writeXmlString( layerNode, "loops", QString("%1").arg( sLoops ) );
-			LocalFileMng::writeXmlString( layerNode, "endframe", QString("%1").arg( sEndframe ) );
-			LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( sUseRubber ) );
-			LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( sRubberDivider ) );
-			LocalFileMng::writeXmlString( layerNode, "rubberCsettings", QString("%1").arg( sRubberbandCsettings ) );
-			LocalFileMng::writeXmlString( layerNode, "rubberPitch", QString("%1").arg( sRubberPitch ) );
+			LocalFileMng::writeXmlString( layerNode, "smode", pSample->get_loop_mode_string() );
+			LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( lo.start_frame ) );
+			LocalFileMng::writeXmlString( layerNode, "loopframe", QString("%1").arg( lo.loop_frame ) );
+			LocalFileMng::writeXmlString( layerNode, "loops", QString("%1").arg( lo.count ) );
+			LocalFileMng::writeXmlString( layerNode, "endframe", QString("%1").arg( lo.end_frame ) );
+			LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( ro.use ) );
+			LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( ro.divider ) );
+			LocalFileMng::writeXmlString( layerNode, "rubberCsettings", QString("%1").arg( ro.c_settings ) );
+			LocalFileMng::writeXmlString( layerNode, "rubberPitch", QString("%1").arg( ro.pitch ) );
 			LocalFileMng::writeXmlString( layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "max", QString("%1").arg( pLayer->get_end_velocity() ) );
 			LocalFileMng::writeXmlString( layerNode, "gain", QString("%1").arg( pLayer->get_gain() ) );
