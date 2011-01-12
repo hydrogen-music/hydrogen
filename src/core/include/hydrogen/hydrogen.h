@@ -211,8 +211,6 @@ public:
 
 	///sample editor vectors
 
-	void sortVolVectors();
-	void sortPanVectors();
 	void sortTimelineVector();
 	void sortTimelineTagVector();
 

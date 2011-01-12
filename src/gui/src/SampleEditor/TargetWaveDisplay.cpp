@@ -272,7 +272,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
                     pt.value = ev->y();
                 }
                 pEngine->m_volumen.push_back( pt );
-                pEngine->sortVolVectors();
+                sort( pEngine->m_volumen.begin(), pEngine->m_volumen.end(), Sample::EnvelopePoint::Comparator() );
                 update();
                 return;
 			}else
@@ -309,7 +309,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
                     pt.value = ev->y();
                 }
                 pEngine->m_pan.push_back( pt );
-                pEngine->sortPanVectors();
+	            sort( pEngine->m_pan.begin(), pEngine->m_pan.end(), Sample::EnvelopePoint::Comparator() );
                 update();
                 return;
 			}else
@@ -355,7 +355,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			if ( ev->x() <= 6 ) x = 6;
 			if ( ev->x() >= 835 ) x = 835;
 			pEngine->m_volumen.push_back( new Sample::EnvelopePoint( x, y ) );
-			pEngine->sortVolVectors();
+            sort( pEngine->m_volumen.begin(), pEngine->m_volumen.end(), Sample::EnvelopePoint::Comparator() );
 		}
 	
 	
@@ -397,7 +397,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			if ( ev->x() <= 6 ) x = 6;
 			if ( ev->x() >= 835 ) x = 835;
 			pEngine->m_pan.push_back( new Sample::EnvelopePoint( x, y ) );
-			pEngine->sortPanVectors();
+	        sort( pEngine->m_pan.begin(), pEngine->m_pan.end(), Sample::EnvelopePoint::Comparator() );
 		}
 	
 	

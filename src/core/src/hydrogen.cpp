@@ -3352,20 +3352,6 @@ unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
 	return m_naddrealtimenotetickposition;
 }
 
-
-void Hydrogen::sortVolVectors()
-{
-	//sort the volume vector to xframes a < b
-	sort(m_volumen.begin(), m_volumen.end(), Sample::EnvelopePoint::Comparator());
-}
-
-
-void Hydrogen::sortPanVectors()
-{
-	//sort the pan vector to xframes a < b
-	sort(m_pan.begin(), m_pan.end(), Sample::EnvelopePoint::Comparator());
-}
-
 void Hydrogen::sortTimelineVector()
 {
 	//sort the timeline vector to beats a < b
