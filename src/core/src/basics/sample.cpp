@@ -23,9 +23,6 @@
 #include <hydrogen/basics/sample.h>
 
 #include <limits>
-#include <algorithm>
-#include <vector>
-#include <cmath>
 #include <sndfile.h>
 
 #include <hydrogen/hydrogen.h>
@@ -131,6 +128,85 @@ Sample* Sample::libsndfile_load( const QString& filepath ) {
     return sample;
 }
 
+bool Sample::apply_loops( const Loops& lo ) {
+    if( lo.start_frame<0 ){
+        ERRORLOG( QString( "start_frame %1 < 0 is not allowed" ).arg( lo.start_frame ) );
+        return false;
+    }
+    if( lo.loop_frame<lo.start_frame ){
+        ERRORLOG( QString( "loop_frame %1 < start_frame %2 is not allowed" ).arg( lo.loop_frame ).arg( lo.start_frame ) );
+        return false;
+    }
+    if( lo.end_frame<lo.loop_frame ){
+        ERRORLOG( QString( "end_frame %1 < loop_frame %2 is not allowed" ).arg( lo.end_frame ).arg( lo.loop_frame ) );
+        return false;
+    }
+    if( lo.end_frame>__frames ){
+        ERRORLOG( QString( "end_frame %1 > __frames %2 is not allowed" ).arg( lo.end_frame ).arg( __frames ) );
+        return false;
+    }
+    if( lo.count<0 ){
+        ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( lo.count ) );
+        return false;
+    }
+
+    bool full_loop = lo.start_frame==lo.loop_frame;
+    int full_length =  lo.end_frame - lo.start_frame;
+    int loop_length =  lo.end_frame - lo.loop_frame;
+    int new_length = full_length + loop_length * lo.count;
+
+    float* new_data_l = new float[ new_length ];
+    float* new_data_r = new float[ new_length ];
+
+    // copy full_length frames to new_data
+    if ( lo.mode==Loops::REVERSE && ( lo.count==0 || full_loop ) ) {
+        if( full_loop ) {
+            // copy end => start
+            for( int i=0, j=lo.end_frame; i<full_length; i++, j-- ) new_data_l[i]=__data_l[j];
+            for( int i=0, j=lo.end_frame; i<full_length; i++, j-- ) new_data_r[i]=__data_r[j];
+        } else {
+            // copy start => loop
+            int to_loop = lo.loop_frame - lo.start_frame;
+            memcpy( new_data_l, __data_l+lo.start_frame, sizeof( float )*to_loop );
+            memcpy( new_data_r, __data_r+lo.start_frame, sizeof( float )*to_loop );
+            // copy end => loop
+            for( int i=to_loop, j=lo.end_frame; i<full_length; i++, j-- ) new_data_l[i]=__data_l[j];
+            for( int i=to_loop, j=lo.end_frame; i<full_length; i++, j-- ) new_data_r[i]=__data_r[j];
+        }
+    } else {
+        // copy start => end
+        memcpy( new_data_l, __data_l+lo.start_frame, sizeof( float )*full_length );
+        memcpy( new_data_r, __data_r+lo.start_frame, sizeof( float )*full_length );
+    }
+    // copy the loops
+    if( lo.count>0 ) {
+        int x = full_length;
+        bool ping_pong = ( lo.mode==Loops::PINGPONG );
+        bool forward = ( ( lo.mode==Loops::FORWARD ) ? true : false );
+        for( int i=0; i<lo.count; i++ ) {
+            if ( forward ) {
+                // copy loop => end
+                memcpy( &new_data_l[x], __data_l+lo.loop_frame, sizeof( float )*loop_length );
+                memcpy( &new_data_r[x], __data_r+lo.loop_frame, sizeof( float )*loop_length );
+            } else {
+                // copy end => loop
+                for( int i=lo.end_frame, y=x; i>lo.loop_frame; i--, y++ ) new_data_l[y]=__data_l[i];
+                for( int i=lo.end_frame, y=x; i>lo.loop_frame; i--, y++ ) new_data_r[y]=__data_r[i];
+            }
+            x+=loop_length;
+            if( ping_pong ) forward=!forward;
+        }
+        assert( x==new_length );
+    }
+    __loops = lo;
+    delete __data_l;
+    delete __data_r;
+    __data_l = new_data_l;
+    __data_r = new_data_r;
+    __frames = new_length;
+    return true;
+}
+
 Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, const Rubberband& ro )
 {
 	//set the path to rubberband-cli
@@ -143,142 +219,27 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	// file exists?
-	if ( QFile( filepath ).exists() == false ) {
-		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filepath ) );
-		return NULL;
-	}
+    Sample* sample = load( filepath );
+    if( sample==0 ) return 0;
 
+    sample->apply_loops( lo );
 
-	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( filepath.toLocal8Bit(), SFM_READ, &soundInfo );
-	if ( !file ) {
-                _INFOLOG( QString( "[Sample::load] File not: %1" ).arg( filepath ) );
-	}
-
-	unsigned onesamplelength =  lo.end_frame - lo.start_frame;
-    unsigned looplength =  lo.end_frame - lo.loop_frame;
-	unsigned repeatslength = looplength * lo.count;
-	unsigned newlength = 0;
-	if (onesamplelength == looplength){	
-		newlength = onesamplelength + onesamplelength * lo.count ;
-	}else
-	{
-		newlength =onesamplelength + repeatslength;
-	}
-
-	float *origdata_l;
-	float *origdata_r;
-
-        unsigned samplerate = 0;
-        float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
-	
-        //int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-        sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-        sf_close( file );
-        samplerate = soundInfo.samplerate;
-        origdata_l = new float[ soundInfo.frames ];
-        origdata_r = new float[ soundInfo.frames ];
-	
-	
-        if ( soundInfo.channels == 1 ) {	// MONO sample
-                for ( long int i = 0; i < soundInfo.frames; i++ ) {
-                        origdata_l[i] = pTmpBuffer[i];
-                        origdata_r[i] = pTmpBuffer[i];
-                }
-        } else if ( soundInfo.channels == 2 ) { // STEREO sample
-                for ( long int i = 0; i < soundInfo.frames; i++ ) {
-                        origdata_l[i] = pTmpBuffer[i * 2];
-                        origdata_r[i] = pTmpBuffer[i * 2 + 1];
-                }
-        }
-        delete[] pTmpBuffer;
-
-
-
-	float *tempdata_l = new float[ newlength ];
-	float *tempdata_r = new float[ newlength ];
-
-	float *looptempdata_l = new float[ looplength ];
-	float *looptempdata_r = new float[ looplength ];
-
-        long int z = lo.loop_frame;
-	long int y = lo.start_frame;
-
-	for ( unsigned i = 0; i < newlength; i++){ //first vector
-
-		tempdata_l[i] = 0;
-		tempdata_r[i] = 0;
-	}
-
-	for ( unsigned i = 0; i < onesamplelength; i++, y++){ //first vector
-
-		tempdata_l[i] = origdata_l[y];
-		tempdata_r[i] = origdata_r[y];
-	}
-
-	for ( unsigned i = 0; i < looplength; i++, z++){ //loop vector
-
-		looptempdata_l[i] = origdata_l[z];
-		looptempdata_r[i] = origdata_r[z];
-	}
-
-		
-	if ( lo.mode == Loops::REVERSE ){
-		reverse(looptempdata_l, looptempdata_l + looplength);
-		reverse(looptempdata_r, looptempdata_r + looplength);
-	}
-
-        if ( lo.mode == Loops::REVERSE && lo.count > 0 && lo.start_frame == lo.loop_frame ){
-		reverse( tempdata_l, tempdata_l + onesamplelength );
-		reverse( tempdata_r, tempdata_r + onesamplelength );		
-		}
-
-        if ( lo.mode == Loops::PINGPONG &&  lo.start_frame == lo.loop_frame){
-		reverse(looptempdata_l, looptempdata_l + looplength);
-		reverse(looptempdata_r, looptempdata_r + looplength);
-	}
-	
-	for ( int i = 0; i< lo.count ;i++){
-			
-		unsigned tempdataend = onesamplelength + ( looplength * i );
-                if ( lo.start_frame == lo.loop_frame ){
-			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
-			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
-		}
-		if ( lo.mode == Loops::PINGPONG && lo.count > 1){
-			reverse(looptempdata_l, looptempdata_l + looplength);
-			reverse(looptempdata_r, looptempdata_r + looplength);
-		}
-                if ( lo.start_frame != lo.loop_frame ){
-			copy( looptempdata_l, looptempdata_l+looplength ,tempdata_l+tempdataend );
-			copy( looptempdata_r, looptempdata_r+looplength ,tempdata_r+tempdataend );
-		}
-
-	}
-	
-	if ( lo.count == 0 && lo.mode == Loops::REVERSE ){
-                reverse( tempdata_l + lo.loop_frame, tempdata_l + newlength);
-                reverse( tempdata_r + lo.loop_frame, tempdata_r + newlength);
-		}
-
-	//create new sample
-	Sample *pSample = new Sample( filepath, newlength, samplerate );
-	
+    float* data_l = sample->get_data_l();
+    float* data_r = sample->get_data_r();
 
 	//check for volume vector
 	if ( (pEngine->m_volumen.size() > 2 )|| ( pEngine->m_volumen.size() == 2 &&  (pEngine->m_volumen[0].m_hyvalue > 0 || pEngine->m_volumen[1].m_hyvalue > 0 ))){
 
 		//1. write velopan into sample
 		SampleVeloPan::SampleVeloVector velovec;
-		pSample->__velo_pan.m_Samplevolumen.clear();
+		sample->__velo_pan.m_Samplevolumen.clear();
 		for (int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){		
 			velovec.m_SampleVeloframe = pEngine->m_volumen[i].m_hxframe;
 			velovec.m_SampleVelovalue = pEngine->m_volumen[i].m_hyvalue;
-			pSample->__velo_pan.m_Samplevolumen.push_back( velovec );
+			sample->__velo_pan.m_Samplevolumen.push_back( velovec );
 		}
 		//2. compute volume
-		float divider = newlength / 841.0F;
+		float divider = sample->get_frames() / 841.0F;
 		for (int i = 1; i  < static_cast<int>(pEngine->m_volumen.size()); i++){
 			
 			double y =  (91 - static_cast<int>(pEngine->m_volumen[i - 1].m_hyvalue))/91.0F;
@@ -287,7 +248,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 			unsigned deltastartframe = pEngine->m_volumen[i - 1].m_hxframe * divider;
 			unsigned deltaendframe = pEngine->m_volumen[i].m_hxframe * divider;
 
-			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = newlength;
+			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = sample->get_frames();
 			unsigned deltaIdiff = deltaendframe - deltastartframe ;
 			double subtract = 0.0F;
 
@@ -299,8 +260,8 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 			}
 
 			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){			
-				tempdata_l[z] = tempdata_l[z] * y;
-				tempdata_r[z] = tempdata_r[z] * y;
+				data_l[z] = data_l[z] * y;
+				data_r[z] = data_r[z] * y;
 				y = y - subtract;
 			}
 		}
@@ -311,14 +272,14 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 	if ( (pEngine->m_pan.size() > 2 )|| ( pEngine->m_pan.size() == 2 &&  (pEngine->m_pan[0].m_hyvalue != 45 || pEngine->m_pan[1].m_hyvalue != 45 ))){
 		//first step write velopan into sample
 		SampleVeloPan::SamplePanVector panvec;
-		pSample->__velo_pan.m_SamplePan.clear();
+		sample->__velo_pan.m_SamplePan.clear();
 		for (int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){		
 			panvec.m_SamplePanframe = pEngine->m_pan[i].m_hxframe;
 			panvec.m_SamplePanvalue = pEngine->m_pan[i].m_hyvalue;
-			pSample->__velo_pan.m_SamplePan.push_back( panvec );
+			sample->__velo_pan.m_SamplePan.push_back( panvec );
 		}
 
-		float divider = newlength / 841.0F;
+		float divider = sample->get_frames() / 841.0F;
 		for (int i = 1; i  < static_cast<int>(pEngine->m_pan.size()); i++){
 			
 			double y =  (45 - static_cast<int>(pEngine->m_pan[i - 1].m_hyvalue))/45.0F;
@@ -327,7 +288,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 			unsigned deltastartframe = pEngine->m_pan[i - 1].m_hxframe * divider;
 			unsigned deltaendframe = pEngine->m_pan[i].m_hxframe * divider;
 
-			if ( i == static_cast<int>(pEngine->m_pan.size()) -1) deltaendframe = newlength;
+			if ( i == static_cast<int>(pEngine->m_pan.size()) -1) deltaendframe = sample->get_frames();
 			unsigned deltaIdiff = deltaendframe - deltastartframe ;
 			double subtract = 0.0F;
 
@@ -342,17 +303,17 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
 				if( y < 0 ){
 					double k = 1 + y;
-					tempdata_l[z] = tempdata_l[z] * k;
-					tempdata_r[z] = tempdata_r[z];
+					data_l[z] = data_l[z] * k;
+					data_r[z] = data_r[z];
 				}
 				else if(y > 0){
 					double k = 1 - y;
-					tempdata_l[z] = tempdata_l[z];
-					tempdata_r[z] = tempdata_r[z] * k;
+					data_l[z] = data_l[z];
+					data_r[z] = data_r[z] * k;
 				}
 				else if(y == 0){
-					tempdata_l[z] = tempdata_l[z];
-					tempdata_r[z] = tempdata_r[z];
+					data_l[z] = data_l[z];
+					data_r[z] = data_r[z];
 				}
 				y = y - subtract;	
 			}
@@ -366,15 +327,15 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 		unsigned rubberoutframes = 0;
 		double ratio = 1.0;
 		double durationtime = 60.0 / pEngine->getNewBpmJTM() * ro.divider/*beats*/;	
-		double induration = (double) newlength / (double) samplerate;
+		double induration = (double) sample->get_frames() / (double) sample->get_sample_rate();
 		if (induration != 0.0) ratio = durationtime / induration;
-		rubberoutframes = int(newlength * ratio + 0.1);
-//		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( newlength ));
+		rubberoutframes = int(sample->get_frames() * ratio + 0.1);
+//		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( sample->get_frames() ));
 	
 		//create new sample
 
 		SF_INFO rubbersoundInfo;
-		rubbersoundInfo.samplerate = samplerate;
+		rubbersoundInfo.samplerate = sample->get_sample_rate();
 		rubbersoundInfo.frames = rubberoutframes;
 		rubbersoundInfo.channels = 2;
 		rubbersoundInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
@@ -386,10 +347,10 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 		QString outfilePath = QDir::tempPath() + "/tmp_rb_outfile.wav";
 		SNDFILE* m_file = sf_open( outfilePath.toLocal8Bit(), SFM_WRITE, &rubbersoundInfo);
 
-		float *infobf = new float[rubbersoundInfo.channels * newlength];
-			for (int i = 0; i < newlength; ++i) {
-			float value_l = tempdata_l[i];
-			float value_r = tempdata_r[i];
+		float *infobf = new float[rubbersoundInfo.channels * sample->get_frames()];
+			for (int i = 0; i < sample->get_frames(); ++i) {
+			float value_l = data_l[i];
+			float value_r = data_r[i];
 			if (value_l > 1.f) value_l = 1.f;
 			if (value_l < -1.f) value_l = -1.f;
 			if (value_r > 1.f) value_r = 1.f;
@@ -398,7 +359,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 			infobf[i * rubbersoundInfo.channels + 1] = value_r;
 		}
 
-		int res = sf_writef_float(m_file, infobf, newlength );
+		int res = sf_writef_float(m_file, infobf, sample->get_frames() );
 		sf_close( m_file );
 		delete[] infobf;
 
@@ -452,7 +413,7 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 	
 	
 		if ( soundInfoRI.channels == 1 ) {	// MONO sample
-			for ( long int i = 0; i < soundInfo.frames; i++ ) {
+			for ( long int i = 0; i < soundInfoRI.frames; i++ ) {
 				dataRI_l[i] = pTmpBufferRI[i];
 				dataRI_r[i] = pTmpBufferRI[i];
 			}
@@ -464,14 +425,14 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 		}
 		delete[] pTmpBufferRI;
 
-		pSample->set_frames( soundInfoRI.frames );
-		pSample->__data_l = dataRI_l;
-		pSample->__data_r = dataRI_r;
+		sample->set_frames( soundInfoRI.frames );
+		sample->__data_l = dataRI_l;
+		sample->__data_r = dataRI_r;
 	
-		pSample->__sample_rate = soundInfoRI.samplerate;	
-		pSample->set_is_modified( true );
-		pSample->__loops = lo;
-		pSample->__rubberband = ro;
+		sample->__sample_rate = soundInfoRI.samplerate;
+		sample->set_is_modified( true );
+		sample->__loops = lo;
+		sample->__rubberband = ro;
 
 		//delete the tmp files
 		if( QFile( outfilePath ).remove() ); 
@@ -479,17 +440,9 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 		if( QFile( rubberResultPath ).remove() );
 //			_INFOLOG("remove rubberResultFile");
 
-	}else///~rubberband
-	{
-		pSample->__data_l = tempdata_l;
-		pSample->__data_r = tempdata_r;
-	
-		pSample->__sample_rate = samplerate;	
-		pSample->set_is_modified( true );
-		pSample->__loops = lo;
-	
 	}
-		return pSample;
+	sample->set_is_modified( true );
+    return sample;
 }
 
 Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string ) {

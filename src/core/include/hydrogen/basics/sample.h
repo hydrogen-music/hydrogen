@@ -148,6 +148,12 @@ class Sample : public Object {
 
         static Sample* load_edit_sndfile( const QString& filepath, const Loops& lo, const Rubberband& ro );
 
+        /**
+         * aplly loop transformation to the sample
+         * \lo loops definition
+         */
+        bool apply_loops( const Loops& lo );
+
         /** return true if both data channels are null pointers */
         bool is_empty() const;
         /** __filename accessor */
