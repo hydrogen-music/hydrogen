@@ -74,7 +74,7 @@ function pull_from_clone() {
     echo -e "  ${LRC}- save your current work      ${SRC}$ git stash save NAME${RESET}"
     echo -e "  ${LRC}- leave your current branch   ${SRC}$ git checkout ANOTHER_BRANCH${RESET}"
     echo -e "  ${LRC}- delete your branch          ${SRC}$ git branch -D ${LOCAL_B}${RESET}"
-    echo -e "  ${LRC}- checkout your branch        ${SRC}$ git checkout ${SVN_CLONE_REPO}/${LOCAL_B}_svn ${LOCAL_B}${RESET}"
+    echo -e "  ${LRC}- checkout your branch        ${SRC}$ git checkout ${SVN_CLONE_REPO}/${LOCAL_B}_svn -b ${LOCAL_B}${RESET}"
     echo -e "  ${LRC}- apply your current work     ${SRC}$ git stash pop/apply${RESET}"
 }
 
