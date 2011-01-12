@@ -253,7 +253,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			if ( pNewSample ) {
 				m_pNBytesLable->setText( trUtf8( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
 				m_pSamplerateLable->setText( trUtf8( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
-				float sec = ( float )( pNewSample->get_n_frames() / (float)pNewSample->get_sample_rate() );
+				float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
 				QString qsec;
 				qsec.sprintf( "%2.2f", sec );
 				m_pLengthLable->setText( trUtf8( "Sample length: " ) + qsec + trUtf8( " s" ) );
@@ -302,7 +302,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 	m_pStopBtn->setEnabled( true );
 	Sample *pNewSample = Sample::load( m_psamplefilename );
 	if ( pNewSample ){
-		int length = ( ( pNewSample->get_n_frames() / pNewSample->get_sample_rate() + 1) * 100 );
+		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
 	}
 }

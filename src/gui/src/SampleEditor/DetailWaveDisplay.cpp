@@ -127,7 +127,7 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 	if ( pNewSample ) {
 
-		int mSampleLength = pNewSample->get_n_frames();
+		int mSampleLength = pNewSample->get_frames();
 
 		m_pPeakDatal = new int[ mSampleLength + m_pnormalimagedetailframes /2 ];
 		m_pPeakDatar = new int[ mSampleLength + m_pnormalimagedetailframes /2 ];

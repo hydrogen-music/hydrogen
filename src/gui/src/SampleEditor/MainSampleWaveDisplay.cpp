@@ -158,7 +158,7 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 	
 	if ( pNewSample ) {
 
-		int nSampleLength = pNewSample->get_n_frames();
+		int nSampleLength = pNewSample->get_frames();
 		m_pSampleLength = nSampleLength;
 		float nScaleFactor = nSampleLength / (width() -50);
 		if ( nScaleFactor < 1 ){ 

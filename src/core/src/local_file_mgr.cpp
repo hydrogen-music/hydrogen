@@ -736,7 +736,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			if ( ! filenameNode.isNull() ) {
 				//warningLog( "Using back compatibility code. filename node found" );
 				QString sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
-				Sample *pSample = new Sample( 0, sFilename, 0 );
+				Sample *pSample = new Sample( sFilename, 0, 0 );
 				InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 				pInstrument->set_layer( pLayer, 0 );
 			}
@@ -756,7 +756,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 					float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0, false, false );
 					float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
 
-					Sample *pSample = new Sample( 0, sFilename, 0 );
+					Sample *pSample = new Sample( sFilename, 0, 0 );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 					pLayer->set_start_velocity( fMin );
 					pLayer->set_end_velocity( fMax );
@@ -1436,15 +1436,15 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			if ( pSample == NULL ) continue;
 
 			QString sFilename = pSample->get_filename();
-			bool sIsModified = pSample->get_sample_is_modified(); 
-			QString sMode = pSample->get_sample_mode();
+			bool sIsModified = pSample->get_is_modified();
+			QString sMode = pSample->get_loop_mode_string();
 			unsigned sStartframe = pSample->get_start_frame();
 			unsigned sLoopFrame =  pSample->get_loop_frame();
-			int sLoops = pSample->get_repeats();
+			int sLoops = pSample->get_loops();
 			unsigned sEndframe =  pSample->get_end_frame();
 			bool sUseRubber = pSample->get_use_rubber();
 			float sRubberDivider = pSample->get_rubber_divider();
-			int sRubberbandCsettings = pSample->get_rubber_C_settings();
+			int sRubberbandCsettings = pSample->get_rubber_c_settings();
 			float sRubberPitch = pSample->get_rubber_pitch();
 
 			if ( !instr->get_drumkit_name().isEmpty() ) {

@@ -21,127 +21,117 @@
  */
 
 #include <hydrogen/basics/sample.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
 
-#include <sndfile.h>
-#include <iostream>
-#include <fstream>
+#include <limits>
 #include <algorithm>
 #include <vector>
 #include <cmath>
+#include <sndfile.h>
 
-using namespace std;
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/helpers/filesystem.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
 const char* Sample::__class_name = "Sample";
+const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
 
-Sample::Sample( unsigned frames,
-		const QString& filename, 
-		unsigned sample_rate,
-		float* data_l,
-		float* data_r,
-		bool sample_is_modified,
-		const QString& sample_mode,
-		unsigned start_frame,
-		unsigned loop_frame,
-		int repeats,
-		unsigned end_frame,
-		SampleVeloPan velopan,
-		bool use_rubber_band,
-		float rubberband_divider,
-		int rubberband_C_settings,
-		float rubberband_pitch)
-
-
-		: Object( __class_name )
-		, __data_l( data_l )
-		, __data_r( data_r )
-		, __sample_rate( sample_rate )
-		, __filename( filename )
-		, __n_frames( frames )
-		, __sample_is_modified( sample_is_modified )
-		, __sample_mode( sample_mode )
-		, __start_frame( start_frame )
-		, __loop_frame( loop_frame )
-		, __repeats( repeats )
-		, __end_frame( end_frame )
-		, __velo_pan( velopan )
-		, __use_rubber( use_rubber_band )
-		, __rubber_divider( rubberband_divider )
-		, __rubber_C_settings( rubberband_C_settings )
-		, __rubber_pitch( rubberband_pitch )
+Sample::Sample( const QString& filename,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( __class_name ),
+    __filename( filename ),
+    __frames( frames ),
+    __sample_rate( sample_rate ),
+    __data_l( data_l ),
+    __data_r( data_r ),
+    __is_modified( false )
 {
-		//INFOLOG("INIT " + m_sFilename + ". nFrames: " + toString( nFrames ) );
+    //assert( __filename.lastIndexOf( "/" )<0 );
 }
 
-
-
-Sample::~Sample()
+Sample::Sample( Sample* other ): Object( __class_name ),
+    __filename( other->get_filename() ),
+    __frames( other->get_frames() ),
+    __sample_rate( other->get_sample_rate() ),
+    __data_l( 0 ),
+    __data_r( 0 ),
+    __is_modified( other->get_is_modified() ),
+    __velo_pan( other->__velo_pan ),
+    __loop_options( other->__loop_options ),
+    __rubber_options( other->__rubber_options )
 {
-	delete[] __data_l;
-	delete[] __data_r;
-	//INFOLOG( "DESTROY " + m_sFilename);
+    __data_l = new float[__frames];
+    __data_r = new float[__frames];
+    memcpy( __data_l, other->get_data_l(), __frames );
+    memcpy( __data_r, other->get_data_r(), __frames );
 }
 
-
-
-Sample* Sample::load( const QString& filename )
-{
-
-        return load_sndfile( filename );
-
+Sample::~Sample() {
+    if( __data_l!=0 ) delete[] __data_l;
+    if( __data_r!=0 ) delete[] __data_r;
 }
 
-
-Sample* Sample::load_sndfile( const QString& filename )
-{
-	// file exists?
-	if ( QFile( filename ).exists() == false ) {
-		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
-		return NULL;
-	}
-
-
-	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( filename.toLocal8Bit(), SFM_READ, &soundInfo );
-	if ( !file ) {
-		_ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filename ) );
-	}
-
-
-	float *pTmpBuffer = new float[ soundInfo.frames * soundInfo.channels ];
-
-	//int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-	sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-	sf_close( file );
-
-	float *data_l = new float[ soundInfo.frames ];
-	float *data_r = new float[ soundInfo.frames ];
-
-
-	if ( soundInfo.channels == 1 ) {	// MONO sample
-		for ( long int i = 0; i < soundInfo.frames; i++ ) {
-			data_l[i] = pTmpBuffer[i];
-			data_r[i] = pTmpBuffer[i];
-		}
-	} else if ( soundInfo.channels == 2 ) { // STEREO sample
-		for ( long int i = 0; i < soundInfo.frames; i++ ) {
-			data_l[i] = pTmpBuffer[i * 2];
-			data_r[i] = pTmpBuffer[i * 2 + 1];
-		}
-	}
-	delete[] pTmpBuffer;
-
-	Sample *pSample = new Sample( soundInfo.frames, filename, soundInfo.samplerate, data_l, data_r );
-//	pSample->reverse_sample( pSample ); // test reverse
-	return pSample;
+Sample* Sample::load( const QString& filepath ) {
+    if( !Filesystem::file_readable( filepath ) ) {
+        ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
+        return 0;
+    }
+    return libsndfile_load( filepath );
 }
 
+/*
+Sample* Sample::load ( const QString& filepath, const LoopOptions& loop_options, const RubberBandOptions& rubber_options ) {
+    Sample* sample = Sample::load( filepath );
+    if ( sample==0 ) return 0;
+    if( !sample->apply( loop_options, rubber_options ) ) {
+        // TODO
+    }
+    return sample;
+}
+*/
 
-Sample* Sample::load_edit_sndfile( const QString& filename,
+Sample* Sample::libsndfile_load( const QString& filepath ) {
+    SF_INFO sound_info;
+    SNDFILE* file = sf_open( filepath.toLocal8Bit(), SFM_READ, &sound_info );
+    if ( !file ) {
+        ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filepath ) );
+        return 0;
+    }
+    if ( sound_info.channels>2 ) {
+        WARNINGLOG( QString( "can't handle %1 channels, only 2 will be used" ).arg( sound_info.channels ) );
+        sound_info.channels = 2;
+    }
+    if ( sound_info.frames > ( std::numeric_limits<int>::max()/sound_info.channels ) ) {
+        WARNINGLOG( QString( "sample frames count (%1) and channels (%2) are too much, truncate it." ).arg( sound_info.frames ).arg( sound_info.channels ) );
+        sound_info.frames = ( std::numeric_limits<int>::max()/sound_info.channels );
+    }
+
+    float* buffer = new float[ sound_info.frames * sound_info.channels ];
+    memset( buffer, 0, sound_info.frames *sound_info.channels );
+    sf_count_t count = sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
+    sf_close( file );
+    if( count==0 ) WARNINGLOG( QString( "%1 is an empty sample" ).arg( filepath ) );
+
+    float* data_l = new float[ sound_info.frames ];
+    float* data_r = new float[ sound_info.frames ];
+
+    if ( sound_info.channels == 1 ) {
+        memcpy( data_l,buffer,sound_info.frames*sizeof( float ) );
+        memcpy( data_r,buffer,sound_info.frames*sizeof( float ) );
+    } else if ( sound_info.channels == 2 ) {
+        for ( int i = 0; i < sound_info.frames; i++ ) {
+            data_l[i] = buffer[i * 2];
+            data_r[i] = buffer[i * 2 + 1];
+        }
+    }
+    delete[] buffer;
+
+    //int idx = filepath.lastIndexOf( "/" );
+    //QString filename( ( idx>=0 ) ? filepath.right( filepath.size()-1-filepath.lastIndexOf( "/" ) ) : filepath );
+    Sample* sample = new Sample( filepath, sound_info.frames, sound_info.samplerate, data_l, data_r );
+    return sample;
+}
+
+Sample* Sample::load_edit_sndfile( const QString& filepath,
                                    const unsigned startframe,
                                    const unsigned loopframe,
                                    const unsigned endframe,
@@ -163,16 +153,16 @@ Sample* Sample::load_edit_sndfile( const QString& filename,
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	// file exists?
-	if ( QFile( filename ).exists() == false ) {
-		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filename ) );
+	if ( QFile( filepath ).exists() == false ) {
+		_ERRORLOG( QString( "[Sample::load] Load sample: File %1 not found" ).arg( filepath ) );
 		return NULL;
 	}
 
 
 	SF_INFO soundInfo;
-	SNDFILE* file = sf_open( filename.toLocal8Bit(), SFM_READ, &soundInfo );
+	SNDFILE* file = sf_open( filepath.toLocal8Bit(), SFM_READ, &soundInfo );
 	if ( !file ) {
-                _INFOLOG( QString( "[Sample::load] File not: %1" ).arg( filename ) );
+                _INFOLOG( QString( "[Sample::load] File not: %1" ).arg( filepath ) );
 	}
 
 	unsigned onesamplelength =  endframe - startframe;
@@ -282,7 +272,7 @@ Sample* Sample::load_edit_sndfile( const QString& filename,
 		}
 
 	//create new sample
-	Sample *pSample = new Sample( newlength, filename, samplerate );
+	Sample *pSample = new Sample( filepath, newlength, samplerate );
 	
 
 	//check for volume vector
@@ -483,21 +473,21 @@ Sample* Sample::load_edit_sndfile( const QString& filename,
 		}
 		delete[] pTmpBufferRI;
 
-		pSample->set_new_sample_length_frames( soundInfoRI.frames );
+		pSample->set_frames( soundInfoRI.frames );
 		pSample->__data_l = dataRI_l;
 		pSample->__data_r = dataRI_r;
 	
 		pSample->__sample_rate = soundInfoRI.samplerate;	
-		pSample->__sample_is_modified = true;
-		pSample->__sample_mode = loopmode;
-		pSample->__start_frame = startframe;
-                pSample->__loop_frame = loopframe;
-		pSample->__end_frame = endframe;
-		pSample->__repeats = loops;
-		pSample->__use_rubber = true;
-		pSample->__rubber_divider = rubber_divider;
-		pSample->__rubber_C_settings = rubberbandCsettings;
-		pSample->__rubber_pitch = rubber_pitch;
+		pSample->set_is_modified( true );
+		pSample->__loop_options.mode = parse_loop_mode( loopmode );
+		pSample->__loop_options.start_frame = startframe;
+        pSample->__loop_options.loop_frame = loopframe;
+		pSample->__loop_options.end_frame = endframe;
+		pSample->__loop_options.loops = loops;
+		pSample->__rubber_options.use = true;
+		pSample->__rubber_options.divider = rubber_divider;
+		pSample->__rubber_options.c_settings = rubberbandCsettings;
+		pSample->__rubber_options.pitch = rubber_pitch;
 
 		//delete the tmp files
 		if( QFile( outfilePath ).remove() ); 
@@ -511,15 +501,24 @@ Sample* Sample::load_edit_sndfile( const QString& filename,
 		pSample->__data_r = tempdata_r;
 	
 		pSample->__sample_rate = samplerate;	
-		pSample->__sample_is_modified = true;
-		pSample->__sample_mode = loopmode;
-		pSample->__start_frame = startframe;
-                pSample->__loop_frame = loopframe;
-		pSample->__end_frame = endframe;
-		pSample->__repeats = loops;
+		pSample->set_is_modified( true );
+		pSample->__loop_options.mode = parse_loop_mode( loopmode );
+		pSample->__loop_options.start_frame = startframe;
+        pSample->__loop_options.loop_frame = loopframe;
+		pSample->__loop_options.end_frame = endframe;
+		pSample->__loop_options.loops = loops;
 	
 	}
 		return pSample;
 }
+
+Sample::LoopMode Sample::parse_loop_mode( const QString& string ) {
+    char* mode = string.toLocal8Bit().data();
+    for( int i=FORWARD; i<PINGPONG; i++ ) {
+        if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( LoopMode )i;
+    }
+    return FORWARD;
+}
+
 };
 

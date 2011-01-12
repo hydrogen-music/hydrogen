@@ -190,7 +190,7 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
 
-		int nSampleLength = pLayer->get_sample()->get_n_frames();
+		int nSampleLength = pLayer->get_sample()->get_frames();
 		float nScaleFactor = nSampleLength / width();
 
 		float fGain = (height() - 8) / 2.0 * pLayer->get_gain();

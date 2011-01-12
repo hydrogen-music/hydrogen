@@ -260,7 +260,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		return 1;
 	}
 
-	if ( pNote->get_sample_position() >= pSample->get_n_frames() ) {
+	if ( pNote->get_sample_position() >= pSample->get_frames() ) {
 		WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
 		return 1;
 	}
@@ -381,7 +381,7 @@ int Sampler::__render_note_no_resample(
 		nNoteLength = ( int )( pNote->get_length() * audio_output->m_transport.m_nTickSize );
 	}
 
-	int nAvail_bytes = pSample->get_n_frames() - ( int )pNote->get_sample_position();	// verifico il numero di frame disponibili ancora da eseguire
+	int nAvail_bytes = pSample->get_frames() - ( int )pNote->get_sample_position();	// verifico il numero di frame disponibili ancora da eseguire
 
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
@@ -537,7 +537,7 @@ int Sampler::__render_note_resample(
 //	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
 	fStep *= ( float )pSample->get_sample_rate() / audio_output->getSampleRate(); // Adjust for audio driver sample rate
 
-	int nAvail_bytes = ( int )( ( float )( pSample->get_n_frames() - pNote->get_sample_position() ) / fStep );	// verifico il numero di frame disponibili ancora da eseguire
+	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pNote->get_sample_position() ) / fStep );	// verifico il numero di frame disponibili ancora da eseguire
 
 	int retValue = 1; // the note is ended
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
@@ -563,7 +563,7 @@ int Sampler::__render_note_resample(
 	float fADSRValue = 1.0;
 	float fVal_L;
 	float fVal_R;
-	int nSampleFrames = pSample->get_n_frames();
+	int nSampleFrames = pSample->get_frames();
 
 	/*
 	 * nInstrument could be -1 if the instrument is not found in the current drumset.

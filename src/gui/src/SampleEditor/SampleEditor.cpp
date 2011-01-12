@@ -90,7 +90,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pSamplefromFile = Sample::load( mSamplefilename );
 	if (!m_pSamplefromFile) reject();
 
-	unsigned slframes = m_pSamplefromFile->get_n_frames();
+	unsigned slframes = m_pSamplefromFile->get_frames();
 
 	LoopCountSpinBox->setRange(0, 20000 );
 	StartFrameSpinBox->setRange(0, slframes );
@@ -182,16 +182,16 @@ void SampleEditor::getAllFrameInfos()
 	}
 
 //this values are needed if we restore a sample from from disk if a new song with sample changes will load 
-	m_sample_is_modified = pSample->get_sample_is_modified();
-	m_sample_mode = pSample->get_sample_mode();
+	m_sample_is_modified = pSample->get_is_modified();
+	m_sample_mode = pSample->get_loop_mode_string();
 	m_start_frame = pSample->get_start_frame();
 	m_loop_frame = pSample->get_loop_frame();
-	m_repeats = pSample->get_repeats();
-	m_end_frame = pSample->get_n_frames();
+	m_repeats = pSample->get_loops();
+	m_end_frame = pSample->get_frames();
 	m_pUseRubber = pSample->get_use_rubber();
 	m_pRubberDivider = pSample->get_rubber_divider();
 	m_pSamplerate = pSample->get_sample_rate();
-	m_pRubberbandCsettings = pSample->get_rubber_C_settings();
+	m_pRubberbandCsettings = pSample->get_rubber_c_settings();
 	m_ppitch = pSample->get_rubber_pitch();
 
 	Hydrogen::HVeloVector velovector;
@@ -316,7 +316,7 @@ void SampleEditor::openDisplays()
 
 
 // wavedisplays
-	m_divider = m_pSamplefromFile->get_n_frames() / 574.0F;
+	m_divider = m_pSamplefromFile->get_frames() / 574.0F;
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
@@ -436,7 +436,7 @@ void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 bool SampleEditor::returnAllMainWaveDisplayValues()
 {
 	testpTimer();
-//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_n_frames()));
+//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_frames()));
 	m_sample_is_modified = true;
 	if( m_pMainSampleWaveDisplay->__startsliderismoved ) m_start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
 	if( m_pMainSampleWaveDisplay->__loopsliderismoved ) m_loop_frame = m_pMainSampleWaveDisplay->m_pLoopFramePosition  * m_divider - 25 * m_divider;
@@ -594,11 +594,11 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	}
 	Sample *pNewSample = Sample::load( m_samplename );
 	if ( pNewSample ){
-		int length = ( ( pNewSample->get_n_frames() / pNewSample->get_sample_rate() + 1) * 100 );
+		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
 	}
 
-	m_pslframes = pNewSample->get_n_frames();
+	m_pslframes = pNewSample->get_frames();
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( m_start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
@@ -673,7 +673,7 @@ void SampleEditor::createPositionsRulerPath()
 		newlength =onesamplelength + repeatslength;
 	}
 
-	unsigned  normallength = m_pSamplefromFile->get_n_frames();
+	unsigned  normallength = m_pSamplefromFile->get_frames();
 
 	unsigned *normalframes = new unsigned[ normallength ];
 
