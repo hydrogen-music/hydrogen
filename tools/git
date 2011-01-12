@@ -67,9 +67,15 @@ function fetch_svn(){
 }
 
 function pull_from_clone() {
-    echo -e "** cd ${SRC}${LOCAL_DIR}${RESET}" && cd ${LOCAL_DIR} || error
-    echo -e "** fetch ${SRC}${SVN_CLONE_REPO}${RESET}" && git fetch ${SVN_CLONE_REPO} || error
-    echo -e "** merge ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET} within ${LRC}${LOCAL_REPO}${RESET}/${LBC}${LOCAL_B}${RESET}" && git merge ${SVN_CLONE_REPO}/${SVN_CLONE_B} || error
+    #echo -e "** cd ${SRC}${LOCAL_DIR}${RESET}" && cd ${LOCAL_DIR} || error
+    #echo -e "** fetch ${SRC}${SVN_CLONE_REPO}${RESET}" && git fetch ${SVN_CLONE_REPO} || error
+    #echo -e "** merge ${SRC}${SVN_CLONE_REPO}${RESET}/${SBC}${SVN_CLONE_B}${RESET} within ${LRC}${LOCAL_REPO}${RESET}/${LBC}${LOCAL_B}${RESET}" && git merge ${SVN_CLONE_REPO}/${SVN_CLONE_B} || error
+    echo -e "To do so :"
+    echo -e "  ${LRC}- save your current work      ${SRC}$ git stash save NAME${RESET}"
+    echo -e "  ${LRC}- leave your current branch   ${SRC}$ git checkout ANOTHER_BRANCH${RESET}"
+    echo -e "  ${LRC}- delete your branch          ${SRC}$ git branch -D ${LOCAL_B}${RESET}"
+    echo -e "  ${LRC}- checkout your branch        ${SRC}$ git checkout ${SVN_CLONE_REPO}/${LOCAL_B}_svn ${LOCAL_B}${RESET}"
+    echo -e "  ${LRC}- apply your current work     ${SRC}$ git stash pop/apply${RESET}"
 }
 
 function push_to_clone() {
