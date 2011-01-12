@@ -30,50 +30,41 @@
 
 namespace H2Core {
 
-class SampleVeloPan
-{
-public:
-	struct SampleVeloVector
-	{
-		int m_SampleVeloframe;
-		int m_SampleVelovalue;
-	};
-
-	std::vector<SampleVeloVector> m_Samplevolumen;
-
-	struct SamplePanVector
-	{
-		int m_SamplePanframe;
-		int m_SamplePanvalue;
-	};
-
-	std::vector<SamplePanVector> m_SamplePan;
-
-	SampleVeloPan() {
-		SampleVeloVector velovector;
-		velovector.m_SampleVeloframe = -1;
-		velovector.m_SampleVelovalue = -1;
-		m_Samplevolumen.push_back( velovector );
-		SamplePanVector panvector;
-		panvector.m_SamplePanframe = -1;	
-		panvector.m_SamplePanvalue = -1;
-		m_SamplePan.push_back( panvector );
-	}
-
-	SampleVeloPan( const SampleVeloPan& velopan ) {
-		m_Samplevolumen = velopan.m_Samplevolumen;
-		m_SamplePan = velopan.m_SamplePan;
-	}
-
-};
-
 /**
  * A container for a sample, beeing able to apply modifications on it
  */
 class Sample : public Object {
         H2_OBJECT
     public:
-
+        /** an envelope point within a frame */
+        class EnvelopePoint {
+            public:
+                int frame;  ///< frame index
+                int value;  ///< value
+                /** to be able to sort velocity points vectors */
+                struct Comparator {
+                    bool operator()( Sample::EnvelopePoint const& a, Sample::EnvelopePoint const& b ) {
+                        return a.frame < b.frame;
+                    }
+                };
+                /** default constructor */
+                EnvelopePoint() : frame(0), value(0) { };
+                /**
+                 * constructor
+                 * \param f the frame index
+                 * \param v the value associated with the frame
+                 */
+                EnvelopePoint( int f, int v ) : frame(f), value(v) { };
+                /** copy constructor */
+                EnvelopePoint(EnvelopePoint* other) {
+                    frame = other->frame;
+                    value = other->value;
+                };
+        };
+        /** define the type used to store pan enveloppe points */
+        typedef std::vector<EnvelopePoint> PanEnvelope;
+        /** define the type used to store velocity enveloppe points */
+        typedef std::vector<EnvelopePoint> VelocityEnvelope;
         /** set of loop configuration flags */
         class Loops {
             public:
@@ -186,6 +177,10 @@ class Sample : public Object {
         void set_is_modified( bool value );
         /** __is_modified accessor */
         bool get_is_modified() const;
+        /** __pan_envelope accessor */
+        PanEnvelope* get_pan_envelope();
+        /** __velocity_envelope accessor */
+        VelocityEnvelope* get_velocity_envelope();
         /** get a copy of loop configuration options */
         Loops copy_loops() const;
         /** get a copy of rubberband configuration options */
@@ -205,8 +200,8 @@ class Sample : public Object {
         float* __data_l;                        ///< left channel data
         float* __data_r;                        ///< right channel data
         bool __is_modified;                     ///< true if sample is modified
-    public:
-	    SampleVeloPan __velo_pan;	            ///< volume and pan vector
+	    PanEnvelope __pan_envelope;             ///< pan envelope vector
+	    VelocityEnvelope __velocity_envelope;   ///< velocity envelope vector
     private:
         Loops __loops;                       ///< set of loop configuration options
         Rubberband __rubberband;             ///< set of rubberband configuration options
@@ -263,6 +258,14 @@ inline bool Sample::get_is_modified() const {
 
 inline QString Sample::get_loop_mode_string() const {
     return __loop_modes[__loops.mode];
+}
+
+inline Sample::PanEnvelope* Sample::get_pan_envelope() {
+    return &__pan_envelope;
+}
+
+inline Sample::VelocityEnvelope* Sample::get_velocity_envelope() {
+    return &__velocity_envelope;
 }
 
 inline Sample::Loops Sample::copy_loops() const {

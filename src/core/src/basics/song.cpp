@@ -623,24 +623,23 @@ Song* SongReader::readSong( const QString& filename )
 						pSample = Sample::load( sFilename );
 					}else
 					{
+                        Sample::EnvelopePoint pt;
 						pEngine->m_volumen.clear();
-						Hydrogen::HVeloVector velovector;
 						 QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 						 while (  ! volumeNode.isNull()  ) {
-							velovector.m_hxframe = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0);
-							velovector.m_hyvalue = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0);
-							pEngine->m_volumen.push_back( velovector );
+							pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0);
+							pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0);
+							pEngine->m_volumen.push_back( pt );
 							volumeNode = volumeNode.nextSiblingElement( "volume" );
 							//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 						}
 
 						pEngine->m_pan.clear();
-						Hydrogen::HPanVector panvector;
 						QDomNode  panNode = layerNode.firstChildElement( "pan" ); 
 						while (  ! panNode.isNull()  ) {
-							panvector.m_hxframe = LocalFileMng::readXmlInt( panNode, "pan-position", 0);
-							panvector.m_hyvalue = LocalFileMng::readXmlInt( panNode, "pan-value", 0);
-							pEngine->m_pan.push_back( panvector );
+							pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0);
+							pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0);
+							pEngine->m_pan.push_back( pt );
 							panNode = panNode.nextSiblingElement( "pan" );
 						}
 					

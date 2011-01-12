@@ -1465,17 +1465,19 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( layerNode, "pitch", QString("%1").arg( pLayer->get_pitch() ) );
 
 
-			for (int y = 0; y < static_cast<int>(pSample->__velo_pan.m_Samplevolumen.size()); y++){
+            Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
+			for (int y = 0; y < velocity->size(); y++){
 				QDomNode volumeNode = doc.createElement( "volume" );
-				LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( pSample->__velo_pan.m_Samplevolumen[y].m_SampleVeloframe ) );
-				LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( pSample->__velo_pan.m_Samplevolumen[y].m_SampleVelovalue ) );
+				LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y).frame ) );
+				LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y).value ) );
 				layerNode.appendChild( volumeNode );
 			}
 
-			for (int y = 0; y < static_cast<int>(pSample->__velo_pan.m_SamplePan.size()); y++){
+            Sample::PanEnvelope* pan = pSample->get_pan_envelope();
+			for (int y = 0; y < pan->size(); y++){
 				QDomNode panNode = doc.createElement( "pan" );
-				LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pSample->__velo_pan.m_SamplePan[y].m_SamplePanframe ) );
-				LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pSample->__velo_pan.m_SamplePan[y].m_SamplePanvalue ) );
+				LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y).frame ) );
+				LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y).value ) );
 				layerNode.appendChild( panNode );
 			}
 

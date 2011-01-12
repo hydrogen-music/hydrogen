@@ -26,6 +26,7 @@
 #include "hydrogen/config.h"
 #include <hydrogen/action.h>
 #include <hydrogen/basics/song.h>
+#include <hydrogen/basics/sample.h>
 #include <hydrogen/object.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
@@ -215,37 +216,8 @@ public:
 	void sortTimelineVector();
 	void sortTimelineTagVector();
 
-	struct HVeloVector
-	{
-		int m_hxframe;
-		int m_hyvalue;
-	};
-
-	std::vector<HVeloVector> m_volumen;
-
-	struct VolComparator
-	{
-		bool operator()( HVeloVector const& lhs, HVeloVector const& rhs)
-		{
-			return lhs.m_hxframe < rhs.m_hxframe;
-		}
-	};
-
-	struct HPanVector
-	{
-		int m_hxframe;
-		int m_hyvalue;
-	};
-
-	std::vector<HPanVector> m_pan;
-
-	struct PanComparator
-	{
-		bool operator()( HPanVector const& lhs, HPanVector const& rhs)
-		{
-			return lhs.m_hxframe < rhs.m_hxframe;
-		}
-	};
+    Sample::VelocityEnvelope m_volumen;
+    Sample::PanEnvelope m_pan;
 
 /// timeline vector
 	struct HTimelineVector

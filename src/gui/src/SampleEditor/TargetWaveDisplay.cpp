@@ -108,17 +108,17 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()) -1; i++){
 		//volume line
 		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
-		painter.drawLine( pEngine->m_volumen[i].m_hxframe, pEngine->m_volumen[i].m_hyvalue, pEngine->m_volumen[i + 1].m_hxframe, pEngine->m_volumen[i +1].m_hyvalue );
+		painter.drawLine( pEngine->m_volumen[i].frame, pEngine->m_volumen[i].value, pEngine->m_volumen[i + 1].frame, pEngine->m_volumen[i +1].value );
 		painter.setBrush(QColor( 99, 160, 233 ));
-		painter.drawEllipse ( pEngine->m_volumen[i].m_hxframe - 6/2, pEngine->m_volumen[i].m_hyvalue  - 6/2, 6, 6 );
+		painter.drawEllipse ( pEngine->m_volumen[i].frame - 6/2, pEngine->m_volumen[i].value  - 6/2, 6, 6 );
 	}
 
 	for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()) -1; i++){
 		//pan line
 		painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
-		painter.drawLine( pEngine->m_pan[i].m_hxframe, pEngine->m_pan[i].m_hyvalue, pEngine->m_pan[i + 1].m_hxframe, pEngine->m_pan[i +1].m_hyvalue );
+		painter.drawLine( pEngine->m_pan[i].frame, pEngine->m_pan[i].value, pEngine->m_pan[i + 1].frame, pEngine->m_pan[i +1].value );
 		painter.setBrush(QColor( 77, 189, 55 ));
-		painter.drawEllipse ( pEngine->m_pan[i].m_hxframe - 6/2, pEngine->m_pan[i].m_hyvalue  - 6/2, 6, 6 );
+		painter.drawEllipse ( pEngine->m_pan[i].frame - 6/2, pEngine->m_pan[i].value  - 6/2, 6, 6 );
 	}
 
 
@@ -130,17 +130,17 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	//first rect 
 	painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
 	painter.setBrush(QColor( 99, 160, 233 ));
-	painter.drawRect ( pEngine->m_volumen[0].m_hxframe - 12/2, pEngine->m_volumen[0].m_hyvalue  - 6/2, 12, 6 );
+	painter.drawRect ( pEngine->m_volumen[0].frame - 12/2, pEngine->m_volumen[0].value  - 6/2, 12, 6 );
 	//last rect 
-	painter.drawRect ( pEngine->m_volumen[pEngine->m_volumen.size() -1].m_hxframe - 12/2, pEngine->m_volumen[pEngine->m_volumen.size() -1].m_hyvalue  - 6/2, 12, 6 );
+	painter.drawRect ( pEngine->m_volumen[pEngine->m_volumen.size() -1].frame - 12/2, pEngine->m_volumen[pEngine->m_volumen.size() -1].value  - 6/2, 12, 6 );
 
 	//pan line
 	//first rect 
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
 	painter.setBrush(QColor( 77, 189, 55 ));
-	painter.drawRect ( pEngine->m_pan[0].m_hxframe - 12/2, pEngine->m_pan[0].m_hyvalue  - 6/2, 12, 6 );
+	painter.drawRect ( pEngine->m_pan[0].frame - 12/2, pEngine->m_pan[0].value  - 6/2, 12, 6 );
 	//last rect 
-	painter.drawRect ( pEngine->m_pan[pEngine->m_pan.size() -1].m_hxframe - 12/2, pEngine->m_pan[pEngine->m_pan.size() -1].m_hyvalue  - 6/2, 12, 6 );
+	painter.drawRect ( pEngine->m_pan[pEngine->m_pan.size() -1].frame - 12/2, pEngine->m_pan[pEngine->m_pan.size() -1].value  - 6/2, 12, 6 );
 
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
@@ -257,27 +257,24 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		m_y = ev->y();
 	
 		for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
-			if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+			if ( pEngine->m_volumen[i].frame >= ev->x() - snapradius && pEngine->m_volumen[i].frame <= ev->x() + snapradius ) {
 				pEngine->m_volumen.erase( pEngine->m_volumen.begin() + i);
-				Hydrogen::HVeloVector velovector;
-				if ( i == 0 ){
-					velovector.m_hxframe = 0;
-					velovector.m_hyvalue = ev->y();
-				}
-				else if ( i == static_cast<int>(pEngine->m_volumen.size()) ){
-					velovector.m_hxframe = pEngine->m_volumen[i].m_hxframe;
-					velovector.m_hyvalue = ev->y();
-					
-				}else
-				{
-					velovector.m_hxframe = ev->x();
-					velovector.m_hyvalue = ev->y();
-				}
-	
-				pEngine->m_volumen.push_back( velovector );
-				pEngine->sortVolVectors();	
-				update();
-				return;
+                Sample::EnvelopePoint pt;
+                if ( i == 0 ){
+                    pt.frame = 0;
+                    pt.value = ev->y();
+                } else if ( i == static_cast<int>(pEngine->m_volumen.size()) ) {
+                    pt.frame = pEngine->m_volumen[i].frame;
+                    pt.value = ev->y();
+
+                } else {
+                    pt.frame = ev->x();
+                    pt.value = ev->y();
+                }
+                pEngine->m_volumen.push_back( pt );
+                pEngine->sortVolVectors();
+                update();
+                return;
 			}else
 			{
 				m_pvmove = false;	
@@ -298,27 +295,23 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		m_y = ev->y();
 	
 		for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
-			if ( pEngine->m_pan[i].m_hxframe >= ev->x() - snapradius && pEngine->m_pan[i].m_hxframe <= ev->x() + snapradius ){
+			if ( pEngine->m_pan[i].frame >= ev->x() - snapradius && pEngine->m_pan[i].frame <= ev->x() + snapradius ) {
 				pEngine->m_pan.erase( pEngine->m_pan.begin() + i);
-				Hydrogen::HPanVector panvector;
-				if ( i == 0 ){
-					panvector.m_hxframe = 0;
-					panvector.m_hyvalue = ev->y();
-				}
-				else if ( i == static_cast<int>(pEngine->m_pan.size()) ){
-					panvector.m_hxframe = pEngine->m_pan[i].m_hxframe;
-					panvector.m_hyvalue = ev->y();
-					
-				}else
-				{
-					panvector.m_hxframe = ev->x();
-					panvector.m_hyvalue = ev->y();
-				}
-	
-				pEngine->m_pan.push_back( panvector );
-				pEngine->sortPanVectors();	
-				update();
-				return;
+                Sample::EnvelopePoint pt;
+                if ( i == 0 ){
+                    pt.frame = 0;
+                    pt.value = ev->y();
+                } else if ( i == static_cast<int>(pEngine->m_pan.size()) ) {
+                    pt.frame = pEngine->m_pan[i].frame;
+                    pt.value = ev->y();
+                } else {
+                    pt.frame = ev->x();
+                    pt.value = ev->y();
+                }
+                pEngine->m_pan.push_back( pt );
+                pEngine->sortPanVectors();
+                update();
+                return;
 			}else
 			{
 				m_pvmove = false;	
@@ -346,7 +339,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	if( editType == "volume" ){
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); ++i){
-			if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
+			if ( pEngine->m_volumen[i].frame >= ev->x() - snapradius && pEngine->m_volumen[i].frame <= ev->x() + snapradius ){
 				newpoint = false;
 			}
 		}
@@ -357,15 +350,12 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			m_info.setNum( info, 'g', 2 );
 			m_x = ev->x();
 			m_y = ev->y();
-			Hydrogen::HVeloVector velovector;
 			if ( ev->y() <= 0 ) y = 0;
 			if ( ev->y() >= 91 ) y = 91;
 			if ( ev->x() <= 6 ) x = 6;
 			if ( ev->x() >= 835 ) x = 835;
-			velovector.m_hxframe = x;
-			velovector.m_hyvalue = y;
-			pEngine->m_volumen.push_back( velovector );
-			pEngine->sortVolVectors();		
+			pEngine->m_volumen.push_back( new Sample::EnvelopePoint( x, y ) );
+			pEngine->sortVolVectors();
 		}
 	
 	
@@ -380,8 +370,8 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			m_info = "";
 
 			for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
-				if ( pEngine->m_volumen[i].m_hxframe >= ev->x() - snapradius && pEngine->m_volumen[i].m_hxframe <= ev->x() + snapradius ){
-					if ( pEngine->m_volumen[i].m_hxframe == 0 || pEngine->m_volumen[i].m_hxframe == 841) return;
+				if ( pEngine->m_volumen[i].frame >= ev->x() - snapradius && pEngine->m_volumen[i].frame <= ev->x() + snapradius ){
+					if ( pEngine->m_volumen[i].frame == 0 || pEngine->m_volumen[i].frame == 841) return;
 					pEngine->m_volumen.erase( pEngine->m_volumen.begin() +  i);
 				}
 			}	
@@ -391,7 +381,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	else if( editType == "panorama" ){
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); ++i){
-			if ( pEngine->m_pan[i].m_hxframe >= ev->x() - snapradius && pEngine->m_pan[i].m_hxframe <= ev->x() + snapradius ){
+			if ( pEngine->m_pan[i].frame >= ev->x() - snapradius && pEngine->m_pan[i].frame <= ev->x() + snapradius ){
 				newpoint = false;
 			}
 		}
@@ -402,15 +392,12 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			m_info.setNum( info, 'g', 2 );
 			m_x = ev->x();
 			m_y = ev->y();
-			Hydrogen::HPanVector panvector;
 			if ( ev->y() <= 0 ) y = 0;
 			if ( ev->y() >= 91 ) y = 91;
 			if ( ev->x() <= 6 ) x = 6;
 			if ( ev->x() >= 835 ) x = 835;
-			panvector.m_hxframe = x;
-			panvector.m_hyvalue = y;
-			pEngine->m_pan.push_back( panvector );
-			pEngine->sortPanVectors();		
+			pEngine->m_pan.push_back( new Sample::EnvelopePoint( x, y ) );
+			pEngine->sortPanVectors();
 		}
 	
 	
@@ -425,8 +412,8 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			m_info = "";
 
 			for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
-				if ( pEngine->m_pan[i].m_hxframe >= ev->x() - snapradius && pEngine->m_pan[i].m_hxframe <= ev->x() + snapradius ){
-					if ( pEngine->m_pan[i].m_hxframe == 0 || pEngine->m_pan[i].m_hxframe == 841) return;
+				if ( pEngine->m_pan[i].frame >= ev->x() - snapradius && pEngine->m_pan[i].frame <= ev->x() + snapradius ){
+					if ( pEngine->m_pan[i].frame == 0 || pEngine->m_pan[i].frame == 841) return;
 					pEngine->m_pan.erase( pEngine->m_pan.begin() +  i);
 				}
 			}	

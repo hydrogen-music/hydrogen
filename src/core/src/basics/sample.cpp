@@ -52,7 +52,6 @@ Sample::Sample( Sample* other ): Object( __class_name ),
     __data_l( 0 ),
     __data_r( 0 ),
     __is_modified( other->get_is_modified() ),
-    __velo_pan( other->__velo_pan ),
     __loops( other->__loops ),
     __rubberband( other->__rubberband )
 {
@@ -60,6 +59,12 @@ Sample::Sample( Sample* other ): Object( __class_name ),
     __data_r = new float[__frames];
     memcpy( __data_l, other->get_data_l(), __frames );
     memcpy( __data_r, other->get_data_r(), __frames );
+    EnvelopePoint pt;
+    PanEnvelope* pan = other->get_pan_envelope();
+    for( int i=0; i<pan->size(); i++ ) __pan_envelope.push_back( pan->at(i) );
+    PanEnvelope* velocity = other->get_velocity_envelope();
+    for( int i=0; i<velocity->size(); i++ ) __velocity_envelope.push_back( velocity->at(i) );
+
 }
 
 Sample::~Sample() {
@@ -181,8 +186,8 @@ bool Sample::apply_loops( const Loops& lo ) {
     // copy the loops
     if( lo.count>0 ) {
         int x = full_length;
+        bool forward = ( lo.mode==Loops::FORWARD );
         bool ping_pong = ( lo.mode==Loops::PINGPONG );
-        bool forward = ( ( lo.mode==Loops::FORWARD ) ? true : false );
         for( int i=0; i<lo.count; i++ ) {
             if ( forward ) {
                 // copy loop => end
@@ -226,100 +231,74 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 
     float* data_l = sample->get_data_l();
     float* data_r = sample->get_data_r();
+    PanEnvelope* pan = sample->get_pan_envelope();
+    VelocityEnvelope* velocity = sample->get_velocity_envelope();
 
-	//check for volume vector
-	if ( (pEngine->m_volumen.size() > 2 )|| ( pEngine->m_volumen.size() == 2 &&  (pEngine->m_volumen[0].m_hyvalue > 0 || pEngine->m_volumen[1].m_hyvalue > 0 ))){
+    pan->clear();
+    velocity->clear();
 
-		//1. write velopan into sample
-		SampleVeloPan::SampleVeloVector velovec;
-		sample->__velo_pan.m_Samplevolumen.clear();
-		for (int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){		
-			velovec.m_SampleVeloframe = pEngine->m_volumen[i].m_hxframe;
-			velovec.m_SampleVelovalue = pEngine->m_volumen[i].m_hyvalue;
-			sample->__velo_pan.m_Samplevolumen.push_back( velovec );
-		}
-		//2. compute volume
+	if ( pEngine->m_volumen.size()>0 ) {
+		*velocity = pEngine->m_volumen;
+        int size = pEngine->m_volumen.size();
+		// update frames values
 		float divider = sample->get_frames() / 841.0F;
-		for (int i = 1; i  < static_cast<int>(pEngine->m_volumen.size()); i++){
-			
-			double y =  (91 - static_cast<int>(pEngine->m_volumen[i - 1].m_hyvalue))/91.0F;
-			double k = (91 - static_cast<int>(pEngine->m_volumen[i].m_hyvalue))/91.0F;
+		for ( int i = 1; i  < size; i++ ){
+            double y =  (91 - static_cast<int>(pEngine->m_volumen[i - 1].value))/91.0F;
+            double k = (91 - static_cast<int>(pEngine->m_volumen[i].value))/91.0F;
+            unsigned deltastartframe = pEngine->m_volumen[i - 1].frame * divider;
+            unsigned deltaendframe = pEngine->m_volumen[i].frame * divider;
+            if ( i == size -1) deltaendframe = sample->get_frames();
+            unsigned deltaIdiff = deltaendframe - deltastartframe ;
+            double subtract = 0.0F;
+            if ( y > k ){
+                subtract = (y - k) / deltaIdiff;
+            } else {
+                subtract = ( k - y) / deltaIdiff * (-1);
+            }
+            for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
+                data_l[z] = data_l[z] * y;
+                data_r[z] = data_r[z] * y;
+                y = y - subtract;
+            }
+        }
+    }
 
-			unsigned deltastartframe = pEngine->m_volumen[i - 1].m_hxframe * divider;
-			unsigned deltaendframe = pEngine->m_volumen[i].m_hxframe * divider;
-
-			if ( i == static_cast<int>(pEngine->m_volumen.size()) -1) deltaendframe = sample->get_frames();
-			unsigned deltaIdiff = deltaendframe - deltastartframe ;
-			double subtract = 0.0F;
-
-			if ( y > k ){
-				subtract = (y - k) / deltaIdiff;
-			}else
-			{
-				subtract = ( k - y) / deltaIdiff * (-1);
-			}
-
-			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){			
-				data_l[z] = data_l[z] * y;
-				data_r[z] = data_r[z] * y;
-				y = y - subtract;
-			}
-		}
-		
-	}
-
-	//check for pan vector
-	if ( (pEngine->m_pan.size() > 2 )|| ( pEngine->m_pan.size() == 2 &&  (pEngine->m_pan[0].m_hyvalue != 45 || pEngine->m_pan[1].m_hyvalue != 45 ))){
-		//first step write velopan into sample
-		SampleVeloPan::SamplePanVector panvec;
-		sample->__velo_pan.m_SamplePan.clear();
-		for (int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){		
-			panvec.m_SamplePanframe = pEngine->m_pan[i].m_hxframe;
-			panvec.m_SamplePanvalue = pEngine->m_pan[i].m_hyvalue;
-			sample->__velo_pan.m_SamplePan.push_back( panvec );
-		}
-
+	if ( pEngine->m_pan.size() > 0 ) {
+        *pan = pEngine->m_pan;
+        int size = pEngine->m_volumen.size();
+		// compute
 		float divider = sample->get_frames() / 841.0F;
-		for (int i = 1; i  < static_cast<int>(pEngine->m_pan.size()); i++){
-			
-			double y =  (45 - static_cast<int>(pEngine->m_pan[i - 1].m_hyvalue))/45.0F;
-			double k = (45 - static_cast<int>(pEngine->m_pan[i].m_hyvalue))/45.0F;
-
-			unsigned deltastartframe = pEngine->m_pan[i - 1].m_hxframe * divider;
-			unsigned deltaendframe = pEngine->m_pan[i].m_hxframe * divider;
-
-			if ( i == static_cast<int>(pEngine->m_pan.size()) -1) deltaendframe = sample->get_frames();
-			unsigned deltaIdiff = deltaendframe - deltastartframe ;
-			double subtract = 0.0F;
-
-			
-			if ( y > k ){
-				subtract = (y - k) / deltaIdiff;
-			}else
-			{
-				subtract = ( k - y) / deltaIdiff * (-1);
-			}
-
-			for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
-				if( y < 0 ){
-					double k = 1 + y;
-					data_l[z] = data_l[z] * k;
-					data_r[z] = data_r[z];
-				}
-				else if(y > 0){
-					double k = 1 - y;
-					data_l[z] = data_l[z];
-					data_r[z] = data_r[z] * k;
-				}
-				else if(y == 0){
-					data_l[z] = data_l[z];
-					data_r[z] = data_r[z];
-				}
-				y = y - subtract;	
-			}
-		}
-		
-	}
+        for (int i = 1; i < size; i++ ){
+            double y =  (45 - static_cast<int>(pEngine->m_pan[i - 1].value))/45.0F;
+            double k = (45 - static_cast<int>(pEngine->m_pan[i].value))/45.0F;
+            unsigned deltastartframe = pEngine->m_pan[i - 1].frame * divider;
+            unsigned deltaendframe = pEngine->m_pan[i].frame * divider;
+            if ( i == size -1) deltaendframe = sample->get_frames();
+            unsigned deltaIdiff = deltaendframe - deltastartframe ;
+            double subtract = 0.0F;
+            if ( y > k ){
+                subtract = (y - k) / deltaIdiff;
+            } else {
+                subtract = ( k - y) / deltaIdiff * (-1);
+            }
+            for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
+                if( y < 0 ){
+                    double k = 1 + y;
+                    data_l[z] = data_l[z] * k;
+                    data_r[z] = data_r[z];
+                }
+                else if( y > 0 ) {
+                    double k = 1 - y;
+                    data_l[z] = data_l[z];
+                    data_r[z] = data_r[z] * k;
+                } else if( y == 0) {
+                    data_l[z] = data_l[z];
+                    data_r[z] = data_r[z];
+                }
+                y = y - subtract;
+            }
+        }
+    }
 
 ///rubberband
 	if( ro.use ){

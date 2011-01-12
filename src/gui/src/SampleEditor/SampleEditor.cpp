@@ -187,43 +187,20 @@ void SampleEditor::getAllFrameInfos()
     __loops = pSample->copy_loops();
     __rubberband = pSample->copy_rubberband();
 
-	Hydrogen::HVeloVector velovector;
-	//velovector
-	if ( pSample->__velo_pan.m_Samplevolumen[0].m_SampleVeloframe == -1 ){
-		pEngine->m_volumen.clear();
-		velovector.m_hxframe = 0;
-		velovector.m_hyvalue = 0;
-		pEngine->m_volumen.push_back( velovector );
-		velovector.m_hxframe = 841;
-		velovector.m_hyvalue = 0;
-		pEngine->m_volumen.push_back( velovector );
-	}else
-	{
-		pEngine->m_volumen.clear();
-		for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_Samplevolumen.size()); i++){
-			velovector.m_hxframe = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVeloframe;
-			velovector.m_hyvalue = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVelovalue;
-			pEngine->m_volumen.push_back( velovector );	
-		}
+    if ( pSample->get_velocity_envelope()->size()==0 ) {
+        pEngine->m_volumen.clear();
+		pEngine->m_volumen.push_back( Sample::EnvelopePoint(   0, 0 ) );
+		pEngine->m_volumen.push_back( Sample::EnvelopePoint( 841, 0 ) );
+	} else {
+        pEngine->m_volumen = *pSample->get_velocity_envelope();
 	}
 
-	Hydrogen::HPanVector panvector;
-	if ( pSample->__velo_pan.m_SamplePan[0].m_SamplePanframe == -1 ){
-		pEngine->m_pan.clear();
-		panvector.m_hxframe = 0;
-		panvector.m_hyvalue = 45;
-		pEngine->m_pan.push_back( panvector );
-		panvector.m_hxframe = 841;
-		panvector.m_hyvalue = 45;
-		pEngine->m_pan.push_back( panvector );
-	}else
-	{
-		pEngine->m_pan.clear();
-		for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_SamplePan.size()); i++){
-			panvector.m_hxframe = pSample->__velo_pan.m_SamplePan[i].m_SamplePanframe;
-			panvector.m_hyvalue = pSample->__velo_pan.m_SamplePan[i].m_SamplePanvalue;
-			pEngine->m_pan.push_back( panvector );
-		}
+    if ( pSample->get_pan_envelope()->size()==0 ) {
+        pEngine->m_pan.clear();
+		pEngine->m_pan.push_back( Sample::EnvelopePoint(   0, 45 ) );
+		pEngine->m_pan.push_back( Sample::EnvelopePoint( 841, 45 ) );
+	} else {
+        pEngine->m_pan = *pSample->get_pan_envelope();
 	}
 
 	if (m_sample_is_modified) {

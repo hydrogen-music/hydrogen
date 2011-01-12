@@ -863,21 +863,8 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 	
 								QString filename = pSample->get_filename();
 
-								Hydrogen::HVeloVector velovector;
-								pEngine->m_volumen.clear();
-								for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_Samplevolumen.size()); i++){
-									velovector.m_hxframe = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVeloframe;
-									velovector.m_hyvalue = pSample->__velo_pan.m_Samplevolumen[i].m_SampleVelovalue;
-									pEngine->m_volumen.push_back( velovector );	
-								}
-
-								Hydrogen::HPanVector panvector;
-								pEngine->m_pan.clear();
-								for( int i = 0 ; i < static_cast<int>(pSample->__velo_pan.m_SamplePan.size()); i++){
-									panvector.m_hxframe = pSample->__velo_pan.m_SamplePan[i].m_SamplePanframe;
-									panvector.m_hyvalue = pSample->__velo_pan.m_SamplePan[i].m_SamplePanvalue;
-									pEngine->m_pan.push_back( panvector );
-								}
+								pEngine->m_volumen = *pSample->get_velocity_envelope();
+								pEngine->m_pan = *pSample->get_pan_envelope();
 			
                                 Sample *newSample = Sample::load_edit_sndfile( filename, lo, ro );
 	
