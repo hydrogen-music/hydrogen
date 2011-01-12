@@ -1437,8 +1437,8 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 			QString sFilename = pSample->get_filename();
 			bool sIsModified = pSample->get_is_modified();
-            Sample::Loops lo = pSample->copy_loops();
-            Sample::Rubberband ro = pSample->copy_rubberband();
+            Sample::Loops lo = pSample->get_loops();
+            Sample::Rubberband ro = pSample->get_rubberband();
 			QString sMode = pSample->get_loop_mode_string();
 
 			if ( !instr->get_drumkit_name().isEmpty() ) {

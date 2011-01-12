@@ -402,7 +402,6 @@ Song* SongReader::readSong( const QString& filename )
 {
 	INFOLOG( filename );
 	Song* song = NULL;
-	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	if (QFile( filename ).exists() == false ) {
 		ERRORLOG( "Song file " + filename + " not found." );
@@ -624,26 +623,27 @@ Song* SongReader::readSong( const QString& filename )
 					}else
 					{
                         Sample::EnvelopePoint pt;
-						pEngine->m_volumen.clear();
-						 QDomNode volumeNode = layerNode.firstChildElement( "volume" );
-						 while (  ! volumeNode.isNull()  ) {
-							pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0);
+
+                        Sample::VelocityEnvelope velocity;
+                        QDomNode volumeNode = layerNode.firstChildElement( "volume" );
+                        while (  ! volumeNode.isNull()  ) {
+                            pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0);
 							pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0);
-							pEngine->m_volumen.push_back( pt );
+							velocity.push_back( pt );
 							volumeNode = volumeNode.nextSiblingElement( "volume" );
 							//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 						}
 
-						pEngine->m_pan.clear();
+                        Sample::VelocityEnvelope pan;
 						QDomNode  panNode = layerNode.firstChildElement( "pan" ); 
 						while (  ! panNode.isNull()  ) {
 							pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0);
 							pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0);
-							pEngine->m_pan.push_back( pt );
+							pan.push_back( pt );
 							panNode = panNode.nextSiblingElement( "pan" );
 						}
 					
-                        pSample = Sample::load_edit_sndfile( sFilename, lo, ro );
+                        pSample = Sample::load( sFilename, lo, ro, velocity, pan );
 					}
 					if ( pSample == NULL ) {
 						ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -659,8 +659,6 @@ Song* SongReader::readSong( const QString& filename )
 
 					layerNode = ( QDomNode ) layerNode.nextSiblingElement( "layer" );
 				}
-			pEngine->m_volumen.clear();
-			pEngine->m_pan.clear();
 			}
 
 			instrumentList->add( pInstrument );

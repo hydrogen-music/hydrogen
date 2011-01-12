@@ -856,23 +856,19 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 					if ( pLayer ) {
 						Sample *pSample = pLayer->get_sample();
 						if ( pSample ) {
-                            H2Core::Sample::Loops lo = pSample->copy_loops();
-                            H2Core::Sample::Rubberband ro = pSample->copy_rubberband();
-							if(ro.use){
+                            if( pSample->get_rubberband().use ) {
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
-	
-								QString filename = pSample->get_filename();
-
-								pEngine->m_volumen = *pSample->get_velocity_envelope();
-								pEngine->m_pan = *pSample->get_pan_envelope();
-			
-                                Sample *newSample = Sample::load_edit_sndfile( filename, lo, ro );
-	
+                                Sample *newSample = Sample::load(
+                                        pSample->get_filename(),
+                                        pSample->get_loops(),
+                                        pSample->get_rubberband(),
+                                        *pSample->get_velocity_envelope(),
+                                        *pSample->get_pan_envelope()
+                                        );
 								if( !newSample  ){
 									continue;
 								}	
 								delete pSample;
-
 								// insert new sample from newInstrument
 								AudioEngine::get_instance()->lock( RIGHT_HERE );
 								pLayer->set_sample( newSample );

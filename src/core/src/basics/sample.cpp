@@ -212,100 +212,89 @@ bool Sample::apply_loops( const Loops& lo ) {
     return true;
 }
 
-Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, const Rubberband& ro )
+void Sample::apply_velocity( const VelocityEnvelope& v ) {
+    __velocity_envelope.clear();
+    if ( v.size() > 0 ) {
+        float inv_resolution = __frames / 841.0F;
+        for ( int i = 1; i < v.size(); i++ ){
+            float y = ( 91 - v[i - 1].value ) / 91.0F;
+            float k = ( 91 - v[i].value ) / 91.0F;
+            int start_frame = v[i - 1].frame * inv_resolution;
+            int end_frame = v[i].frame * inv_resolution;
+            if ( i == v.size() -1) end_frame = __frames;
+            int length = end_frame - start_frame ;
+            float step = ( y - k ) / length;;
+            for ( int z = start_frame ; z < end_frame; z++ ){
+                __data_l[z] = __data_l[z] * y;
+                __data_r[z] = __data_r[z] * y;
+                y-=step;
+            }
+        }
+        __velocity_envelope = v;
+    }
+}
+
+void Sample::apply_pan( const PanEnvelope& p ) {
+    __pan_envelope.clear();
+    if ( p.size() > 0 ) {
+		float inv_resolution = __frames / 841.0F;
+        for (int i = 1; i < p.size(); i++ ){
+            float y = ( 45 - p[i - 1].value ) / 45.0F;
+            float k = ( 45 - p[i].value ) / 45.0F;
+            int start_frame = p[i - 1].frame * inv_resolution;
+            int end_frame = p[i].frame * inv_resolution;
+            if ( i == p.size() -1) end_frame = __frames;
+            int length = end_frame - start_frame ;
+            float step = ( y - k ) / length;;
+            for ( int z = start_frame ; z < end_frame; z++){
+                // seems wrong to modify only one channel ?!?!
+                if( y < 0 ) {
+                    float k = 1 + y;
+                    __data_l[z] = __data_l[z] * k;
+                    __data_r[z] = __data_r[z];
+                } else if ( y > 0 ) {
+                    float k = 1 - y;
+                    __data_l[z] = __data_l[z];
+                    __data_r[z] = __data_r[z] * k;
+                } else if( y==0 ) {
+                    __data_l[z] = __data_l[z];
+                    __data_r[z] = __data_r[z];
+                }
+                y-=step;
+            }
+        }
+        __pan_envelope = p;
+    }
+}
+
+Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
 {
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
 	//test the path. if test fails return NULL
-	if ( QFile( program ).exists() == false && ro.use) {
+	if ( QFile( program ).exists() == false && rubber.use) {
 		_ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
 		return NULL;
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
 
     Sample* sample = load( filepath );
     if( sample==0 ) return 0;
 
-    sample->apply_loops( lo );
+    sample->apply_loops( loops );
+    sample->apply_velocity( velocity );
+    sample->apply_pan( pan );
+
+    Hydrogen *pEngine = Hydrogen::get_instance();
 
     float* data_l = sample->get_data_l();
     float* data_r = sample->get_data_r();
-    PanEnvelope* pan = sample->get_pan_envelope();
-    VelocityEnvelope* velocity = sample->get_velocity_envelope();
-
-    pan->clear();
-    velocity->clear();
-
-	if ( pEngine->m_volumen.size()>0 ) {
-		*velocity = pEngine->m_volumen;
-        int size = pEngine->m_volumen.size();
-		// update frames values
-		float divider = sample->get_frames() / 841.0F;
-		for ( int i = 1; i  < size; i++ ){
-            double y =  (91 - static_cast<int>(pEngine->m_volumen[i - 1].value))/91.0F;
-            double k = (91 - static_cast<int>(pEngine->m_volumen[i].value))/91.0F;
-            unsigned deltastartframe = pEngine->m_volumen[i - 1].frame * divider;
-            unsigned deltaendframe = pEngine->m_volumen[i].frame * divider;
-            if ( i == size -1) deltaendframe = sample->get_frames();
-            unsigned deltaIdiff = deltaendframe - deltastartframe ;
-            double subtract = 0.0F;
-            if ( y > k ){
-                subtract = (y - k) / deltaIdiff;
-            } else {
-                subtract = ( k - y) / deltaIdiff * (-1);
-            }
-            for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
-                data_l[z] = data_l[z] * y;
-                data_r[z] = data_r[z] * y;
-                y = y - subtract;
-            }
-        }
-    }
-
-	if ( pEngine->m_pan.size() > 0 ) {
-        *pan = pEngine->m_pan;
-        int size = pEngine->m_volumen.size();
-		// compute
-		float divider = sample->get_frames() / 841.0F;
-        for (int i = 1; i < size; i++ ){
-            double y =  (45 - static_cast<int>(pEngine->m_pan[i - 1].value))/45.0F;
-            double k = (45 - static_cast<int>(pEngine->m_pan[i].value))/45.0F;
-            unsigned deltastartframe = pEngine->m_pan[i - 1].frame * divider;
-            unsigned deltaendframe = pEngine->m_pan[i].frame * divider;
-            if ( i == size -1) deltaendframe = sample->get_frames();
-            unsigned deltaIdiff = deltaendframe - deltastartframe ;
-            double subtract = 0.0F;
-            if ( y > k ){
-                subtract = (y - k) / deltaIdiff;
-            } else {
-                subtract = ( k - y) / deltaIdiff * (-1);
-            }
-            for ( int z = static_cast<int>(deltastartframe) ; z < static_cast<int>(deltaendframe); z++){
-                if( y < 0 ){
-                    double k = 1 + y;
-                    data_l[z] = data_l[z] * k;
-                    data_r[z] = data_r[z];
-                }
-                else if( y > 0 ) {
-                    double k = 1 - y;
-                    data_l[z] = data_l[z];
-                    data_r[z] = data_r[z] * k;
-                } else if( y == 0) {
-                    data_l[z] = data_l[z];
-                    data_r[z] = data_r[z];
-                }
-                y = y - subtract;
-            }
-        }
-    }
-
 ///rubberband
-	if( ro.use ){
+	if( rubber.use ){
 
 		unsigned rubberoutframes = 0;
 		double ratio = 1.0;
-		double durationtime = 60.0 / pEngine->getNewBpmJTM() * ro.divider/*beats*/;	
+		double durationtime = 60.0 / pEngine->getNewBpmJTM() * rubber.divider/*beats*/;
 		double induration = (double) sample->get_frames() / (double) sample->get_sample_rate();
 		if (induration != 0.0) ratio = durationtime / induration;
 		rubberoutframes = int(sample->get_frames() * ratio + 0.1);
@@ -349,8 +338,8 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 
 		QStringList arguments;
 
-		QString rCs = QString(" %1").arg(ro.c_settings);
-		float pitch = pow( 1.0594630943593, ( double)ro.pitch );
+		QString rCs = QString(" %1").arg(rubber.c_settings);
+		float pitch = pow( 1.0594630943593, ( double)rubber.pitch );
 		QString rPs = QString(" %1").arg(pitch);
 
 		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
@@ -410,8 +399,8 @@ Sample* Sample::load_edit_sndfile( const QString& filepath, const Loops& lo, con
 	
 		sample->__sample_rate = soundInfoRI.samplerate;
 		sample->set_is_modified( true );
-		sample->__loops = lo;
-		sample->__rubberband = ro;
+		sample->__loops = loops;
+		sample->__rubberband = rubber;
 
 		//delete the tmp files
 		if( QFile( outfilePath ).remove() ); 

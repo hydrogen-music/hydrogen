@@ -184,8 +184,8 @@ void SampleEditor::getAllFrameInfos()
 //this values are needed if we restore a sample from from disk if a new song with sample changes will load 
 	m_sample_is_modified = pSample->get_is_modified();
 	m_pSamplerate = pSample->get_sample_rate();
-    __loops = pSample->copy_loops();
-    __rubberband = pSample->copy_rubberband();
+    __loops = pSample->get_loops();
+    __rubberband = pSample->get_rubberband();
 
     if ( pSample->get_velocity_envelope()->size()==0 ) {
         pEngine->m_volumen.clear();
@@ -204,7 +204,7 @@ void SampleEditor::getAllFrameInfos()
 	}
 
 	if (m_sample_is_modified) {
-		__loops.end_frame = pSample->copy_loops().end_frame;
+		__loops.end_frame = pSample->get_loops().end_frame;
 		if ( __loops.mode == Sample::Loops::FORWARD )
 			ProcessingTypeComboBox->setCurrentIndex ( 0 );
 		if ( __loops.mode == Sample::Loops::REVERSE )
@@ -346,7 +346,7 @@ void SampleEditor::createNewLayer()
 
 	if ( !m_pSampleEditorStatus ){
 
-        Sample *editSample = Sample::load_edit_sndfile( m_samplename, __loops, __rubberband );
+        Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, Hydrogen::get_instance()->m_volumen, Hydrogen::get_instance()->m_pan );
 
 		if( editSample == NULL ){
 			return;

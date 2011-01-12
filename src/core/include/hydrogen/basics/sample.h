@@ -137,13 +137,33 @@ class Sample : public Object {
          */
         static Sample* load( const QString& filepath );
 
-        static Sample* load_edit_sndfile( const QString& filepath, const Loops& lo, const Rubberband& ro );
+        /**
+         * load a sample from a file and apply the desired tranformations
+         * \param filepath the file to load audio data from
+         * \param loops transformation parameter set
+         * \param rubber band transformation parameters
+         * \param velocity envelope
+         * \param pan envelope
+         */
+        static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 
         /**
          * aplly loop transformation to the sample
-         * \lo loops definition
+         * \param lo loops definition
          */
         bool apply_loops( const Loops& lo );
+
+        /**
+         * aplly velocity transformation to the sample
+         * \param v the velocity vector
+         */
+        void apply_velocity( const VelocityEnvelope& v );
+
+        /**
+         * aplly velocity transformation to the sample
+         * \param p the pan vector
+         */
+        void apply_pan( const PanEnvelope& p );
 
         /** return true if both data channels are null pointers */
         bool is_empty() const;
@@ -181,10 +201,10 @@ class Sample : public Object {
         PanEnvelope* get_pan_envelope();
         /** __velocity_envelope accessor */
         VelocityEnvelope* get_velocity_envelope();
-        /** get a copy of loop configuration options */
-        Loops copy_loops() const;
-        /** get a copy of rubberband configuration options */
-        Rubberband copy_rubberband() const;
+        /** __loops parameters accessor */
+        Loops get_loops() const;
+        /** __rubberband parameters accessor */
+        Rubberband get_rubberband() const;
         /**
          * parse the given string and rturn the corresponding lopp_mode
          * \param string the loop mode text to be parsed
@@ -203,8 +223,8 @@ class Sample : public Object {
 	    PanEnvelope __pan_envelope;             ///< pan envelope vector
 	    VelocityEnvelope __velocity_envelope;   ///< velocity envelope vector
     private:
-        Loops __loops;                       ///< set of loop configuration options
-        Rubberband __rubberband;             ///< set of rubberband configuration options
+        Loops __loops;                       ///< set of loop parameters
+        Rubberband __rubberband;             ///< set of rubberband parameters
         /** loop modes string */
         static const char* __loop_modes[];
         /**
@@ -268,11 +288,11 @@ inline Sample::VelocityEnvelope* Sample::get_velocity_envelope() {
     return &__velocity_envelope;
 }
 
-inline Sample::Loops Sample::copy_loops() const {
+inline Sample::Loops Sample::get_loops() const {
     return __loops;
 }
 
-inline Sample::Rubberband Sample::copy_rubberband() const {
+inline Sample::Rubberband Sample::get_rubberband() const {
     return __rubberband;
 }
 
