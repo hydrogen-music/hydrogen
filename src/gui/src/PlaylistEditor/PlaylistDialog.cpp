@@ -500,7 +500,7 @@ void PlaylistDialog::newScript()
 	char *ofile;
 	ofile = new char[openfile.length() + 1];
 	strcpy(ofile, openfile.toAscii());
-	std::system( ofile ); 
+	int ret = std::system( ofile );
 	delete [] ofile;
 	return;
 
@@ -665,7 +665,7 @@ void PlaylistDialog::editScript()
 	char *file;
 	file = new char[ filename.length() + 1 ];
 	strcpy( file , filename.toAscii() );
-	std::system( file ); 
+	int ret = std::system( file );
 	delete [] file;
 	return;
 
@@ -898,7 +898,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	char *file;
 	file = new char[ selected.length() + 1 ];
 	strcpy( file , selected.toAscii() );
-	std::system( file ); 
+	int ret = std::system( file );
 	delete [] file;
 	return;
 #endif

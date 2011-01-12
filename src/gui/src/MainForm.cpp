@@ -1633,14 +1633,14 @@ bool MainForm::handleUnsavedChanges()
 void MainForm::usr1SignalHandler(int)
  {
      char a = 1;
-     ::write(sigusr1Fd[0], &a, sizeof(a));
+     size_t ret = ::write(sigusr1Fd[0], &a, sizeof(a));
  }
 
 void MainForm::handleSigUsr1()
 {
     snUsr1->setEnabled(false);
     char tmp;
-    ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+    size_t ret = ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
 
     action_file_save();
     snUsr1->setEnabled(true);

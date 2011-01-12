@@ -81,7 +81,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
 
 	INFOLOG( "cmd: " + cmd );
-	system( cmd.toLocal8Bit() );
+	int ret = system( cmd.toLocal8Bit() );
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
