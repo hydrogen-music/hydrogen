@@ -30,6 +30,9 @@
 
 using namespace H2Core;
 
+#define UI_WIDTH   841
+#define UI_HEIGHT   91
+
 #include <vector>
 #include <algorithm>
 #include "TargetWaveDisplay.h"
@@ -45,8 +48,8 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 //	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 841;
-	int h = 91;
+	int w = UI_WIDTH;
+	int h = UI_HEIGHT;
 	resize( w, h );
 
 	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/targetsamplewavedisplay.png" );
@@ -144,9 +147,9 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, lcenter, 841, lcenter );	
+	painter.drawLine( 0, lcenter, UI_WIDTH, lcenter );
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, rcenter, 841, rcenter );
+	painter.drawLine( 0, rcenter, UI_WIDTH, rcenter );
 
 	if (m_y < 50){
 		if (m_x < 790){
@@ -246,12 +249,12 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	if( editType == "volume" ){
 		m_pvmove = true;
 	
-		if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() < 0 || ev->y() > 91 ){
+		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 			update();
 			m_pvmove = false;
 			return;
 		}
-		float info = (91 - ev->y()) / 91.0;
+		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
 		m_info.setNum( info, 'g', 2 );
 		m_x = ev->x();
 		m_y = ev->y();
@@ -284,12 +287,12 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	}else if( editType == "panorama" ){
 		m_pvmove = true;
 	
-		if ( ev->x() <= 0 || ev->x() >= 841 || ev->y() < 0 || ev->y() > 91 ){
+		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 			update();
 			m_pvmove = false;
 			return;
 		}
-		float info = (45 - ev->y()) / 45.0;
+		float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
 		m_info.setNum( info, 'g', 2 );
 		m_x = ev->x();
 		m_y = ev->y();
@@ -346,14 +349,14 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		int x = ev->x();
 		int y = ev->y();	
 		if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
-			float info = (91 - ev->y()) / 91.0;
+			float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
 			m_info.setNum( info, 'g', 2 );
 			m_x = ev->x();
 			m_y = ev->y();
 			if ( ev->y() <= 0 ) y = 0;
-			if ( ev->y() >= 91 ) y = 91;
-			if ( ev->x() <= 6 ) x = 6;
-			if ( ev->x() >= 835 ) x = 835;
+			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
+			if ( ev->x() <= snapradius ) x = snapradius;
+			if ( ev->x() >= UI_WIDTH-snapradius ) x = UI_WIDTH-snapradius;
 			pEngine->m_volumen.push_back( new Sample::EnvelopePoint( x, y ) );
             sort( pEngine->m_volumen.begin(), pEngine->m_volumen.end(), Sample::EnvelopePoint::Comparator() );
 		}
@@ -363,7 +366,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		snapradius = 10;
 		if (ev->button() == Qt::RightButton ){
 	
-			if ( ev->x() <= 0 || ev->x() >= 841 ){
+			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
 				update();
 				return;
 			}
@@ -371,7 +374,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 			for ( int i = 0; i < static_cast<int>(pEngine->m_volumen.size()); i++){
 				if ( pEngine->m_volumen[i].frame >= ev->x() - snapradius && pEngine->m_volumen[i].frame <= ev->x() + snapradius ){
-					if ( pEngine->m_volumen[i].frame == 0 || pEngine->m_volumen[i].frame == 841) return;
+					if ( pEngine->m_volumen[i].frame == 0 || pEngine->m_volumen[i].frame == UI_WIDTH) return;
 					pEngine->m_volumen.erase( pEngine->m_volumen.begin() +  i);
 				}
 			}	
@@ -388,14 +391,14 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		int x = ev->x();
 		int y = ev->y();	
 		if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
-			float info = (45 - ev->y()) / 45.0;
+			float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
 			m_info.setNum( info, 'g', 2 );
 			m_x = ev->x();
 			m_y = ev->y();
 			if ( ev->y() <= 0 ) y = 0;
-			if ( ev->y() >= 91 ) y = 91;
-			if ( ev->x() <= 6 ) x = 6;
-			if ( ev->x() >= 835 ) x = 835;
+			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
+			if ( ev->x() <= snapradius ) x = snapradius;
+			if ( ev->x() >= UI_WIDTH-snapradius ) x = UI_WIDTH-snapradius;
 			pEngine->m_pan.push_back( new Sample::EnvelopePoint( x, y ) );
 	        sort( pEngine->m_pan.begin(), pEngine->m_pan.end(), Sample::EnvelopePoint::Comparator() );
 		}
@@ -405,7 +408,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		snapradius = 10;
 		if (ev->button() == Qt::RightButton ){
 	
-			if ( ev->x() <= 0 || ev->x() >= 841 ){
+			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
 				update();
 				return;
 			}
@@ -413,7 +416,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 			for ( int i = 0; i < static_cast<int>(pEngine->m_pan.size()); i++){
 				if ( pEngine->m_pan[i].frame >= ev->x() - snapradius && pEngine->m_pan[i].frame <= ev->x() + snapradius ){
-					if ( pEngine->m_pan[i].frame == 0 || pEngine->m_pan[i].frame == 841) return;
+					if ( pEngine->m_pan[i].frame == 0 || pEngine->m_pan[i].frame == UI_WIDTH) return;
 					pEngine->m_pan.erase( pEngine->m_pan.begin() +  i);
 				}
 			}	

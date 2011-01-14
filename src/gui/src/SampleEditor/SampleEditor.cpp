@@ -190,15 +190,15 @@ void SampleEditor::getAllFrameInfos()
     if ( pSample->get_velocity_envelope()->size()==0 ) {
         pEngine->m_volumen.clear();
 		pEngine->m_volumen.push_back( Sample::EnvelopePoint(   0, 0 ) );
-		pEngine->m_volumen.push_back( Sample::EnvelopePoint( 841, 0 ) );
+		pEngine->m_volumen.push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
         pEngine->m_volumen = *pSample->get_velocity_envelope();
 	}
 
     if ( pSample->get_pan_envelope()->size()==0 ) {
         pEngine->m_pan.clear();
-		pEngine->m_pan.push_back( Sample::EnvelopePoint(   0, 45 ) );
-		pEngine->m_pan.push_back( Sample::EnvelopePoint( 841, 45 ) );
+		pEngine->m_pan.push_back( Sample::EnvelopePoint(   0, m_pTargetSampleView->height()/2 ) );
+		pEngine->m_pan.push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	} else {
         pEngine->m_pan = *pSample->get_pan_envelope();
 	}
@@ -605,7 +605,7 @@ void SampleEditor::updateTargetsamplePostionRuler()
 	}
 	if ( realpos < m_prealtimeframeendfortarget ){
 		unsigned pos = targetsamplelength - ( m_prealtimeframeendfortarget - realpos );
-		m_pTargetSampleView->paintLocatorEventTargetDisplay( (841 * pos /targetsamplelength), true);
+		m_pTargetSampleView->paintLocatorEventTargetDisplay( (m_pTargetSampleView->width() * pos /targetsamplelength), true);
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}else
 	{
