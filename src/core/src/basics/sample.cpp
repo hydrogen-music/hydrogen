@@ -27,11 +27,19 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
+#ifdef H2CORE_HAVE_RUBBERBAND
+#include <rubberband/RubberBandStretcher.h>
+#define RUBBERBAND_BUFFER_OVERSIZE  500
+#define RUBBERBAND_DEBUG            0
+#endif
 
 namespace H2Core {
 
 const char* Sample::__class_name = "Sample";
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
+
+static double compute_pitch_scale( const Sample::Rubberband& r );
+static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& r );
 
 Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( __class_name ),
     __filepath( filepath ),
@@ -77,17 +85,21 @@ Sample* Sample::load( const QString& filepath ) {
     return libsndfile_load( filepath );
 }
 
-/*
-Sample* Sample::load ( const QString& filepath, const Loops& loop_options, const Rubberband& rubber_options ) {
-    // TODO should replace the other one when rubberband is done
+Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
     Sample* sample = Sample::load( filepath );
     if ( sample==0 ) return 0;
-    if( !sample->apply_loops( loop_options ) ) {
+    if( !sample->apply_loops( loops ) ) {
         // TODO
     }
+    sample->apply_velocity( velocity );
+    sample->apply_pan( pan );
+#ifdef H2CORE_HAVE_RUBBERBAND
+    sample->apply_rubberband( rubber );
+#else
+    sample->exec_rubberband_cli( rubber );
+#endif
     return sample;
 }
-*/
 
 Sample* Sample::libsndfile_load( const QString& filepath ) {
     SF_INFO sound_info;
@@ -130,6 +142,7 @@ Sample* Sample::libsndfile_load( const QString& filepath ) {
 }
 
 bool Sample::apply_loops( const Loops& lo ) {
+    if( __loops == lo ) return true;
     if( lo.start_frame<0 ) {
         ERRORLOG( QString( "start_frame %1 < 0 is not allowed" ).arg( lo.start_frame ) );
         return false;
@@ -214,6 +227,7 @@ void Sample::apply_velocity( const VelocityEnvelope& v ) {
     // the VelocityEnvelope should be processed within TargetWaveDisplay
     // so that we here have ( int frame_idx, float scale ) points
     // but that will break the xml storage
+    if( v.empty() && __velocity_envelope.empty() ) return;
     __velocity_envelope.clear();
     if ( v.size() > 0 ) {
         float inv_resolution = __frames / 841.0F;
@@ -238,6 +252,7 @@ void Sample::apply_velocity( const VelocityEnvelope& v ) {
 
 void Sample::apply_pan( const PanEnvelope& p ) {
     // TODO see apply_velocity
+    if( p.empty() && __pan_envelope.empty() ) return;
     __pan_envelope.clear();
     if ( p.size() > 0 ) {
         float inv_resolution = __frames / 841.0F;
@@ -271,45 +286,94 @@ void Sample::apply_pan( const PanEnvelope& p ) {
     __is_modified = true;
 }
 
-Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
+void Sample::apply_rubberband( const Rubberband& rb ) {
+#ifdef H2CORE_HAVE_RUBBERBAND
+    if( __rubberband == rb ) return;
+    if( !rb.use ) return;
+    // compute rubberband options
+    double output_duration = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider;
+    double time_ratio = output_duration / get_sample_duration();
+    RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
+    double pitch_scale = compute_pitch_scale( rb );
+    // instanciate rubberband
+    RubberBand::RubberBandStretcher *rubber = new RubberBand::RubberBandStretcher( __sample_rate, 2, options, time_ratio, pitch_scale );
+    rubber->setDebugLevel( RUBBERBAND_DEBUG );
+    rubber->setExpectedInputDuration( __frames );
+    DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( get_filename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
+    // input buffer
+    float* ibuf[2];
+    ibuf[0] = __data_l;
+    ibuf[1] = __data_r;
+    // study sample
+    rubber->study( ibuf, __frames, true );
+    // process sample
+    rubber->process( ibuf, __frames, true );
+    // output buffer
+    int out_buffer_size = (int)(__frames*time_ratio)+RUBBERBAND_BUFFER_OVERSIZE;
+    int buffer_free = out_buffer_size;
+    float* out_data_l= new float[ out_buffer_size ];
+    float* out_data_r = new float[ out_buffer_size ];
+    // retrieve data
+    float* obuf[2];
+    int available = 0;
+    int retrieved = 0;
+    while( ( available=rubber->available() )>0 && buffer_free>0 ) {
+        obuf[0] = &out_data_l[retrieved];
+        obuf[1] = &out_data_r[retrieved];
+        //___DEBUGLOG( QString( "  available frames %1" ).arg( available ) );
+        int n = rubber->retrieve( obuf, available);
+        retrieved += n;
+        buffer_free -= n;
+        //___DEBUGLOG( QString( "  recieved frames %1" ).arg( n ) );
+    }
+    DEBUGLOG( QString( "%1 frames processed, %2 frames retrieved" ).arg( __frames ).arg( retrieved ) );
+    // final data buffers
+    delete __data_l;
+    delete __data_r;
+    __data_l = new float[ retrieved ];
+    __data_r = new float[ retrieved ];
+    memcpy( __data_l, out_data_l, retrieved*sizeof(float) );
+    memcpy( __data_r, out_data_r, retrieved*sizeof(float) );
+    delete out_data_l;
+    delete out_data_r;
+    // update sample
+    __rubberband = rb;
+    __frames = retrieved;
+    __is_modified = true;
+#endif
+}
+
+bool Sample::exec_rubberband_cli( const Rubberband& rb ) {
     //set the path to rubberband-cli
     QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
     //test the path. if test fails return NULL
-    if ( QFile( program ).exists() == false && rubber.use ) {
-        _ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
-        return NULL;
+    if ( QFile( program ).exists() == false && rb.use ) {
+        ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
+        return false;
     }
-
-
-    Sample* sample = load( filepath );
-    if( sample==0 ) return 0;
-
-    sample->apply_loops( loops );
-    sample->apply_velocity( velocity );
-    sample->apply_pan( pan );
-
     Hydrogen* pEngine = Hydrogen::get_instance();
-
-    if( rubber.use ) {
+    float* data_l = __data_l;
+    float* data_r = __data_r;
+    if( rb.use ) {
         QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
-        if( !sample->write( outfilePath ) ){
+        if( !write( outfilePath ) ){
             ERRORLOG( "unable to write sample" );
-            return sample;
+            return false;
         };
 
         unsigned rubberoutframes = 0;
         double ratio = 1.0;
-        double durationtime = 60.0 / pEngine->getNewBpmJTM() * rubber.divider/*beats*/;
-        double induration = ( double ) sample->get_frames() / ( double ) sample->get_sample_rate();
+        double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider/*beats*/;
+        double induration = get_sample_duration();
         if ( induration != 0.0 ) ratio = durationtime / induration;
-        rubberoutframes = int( sample->get_frames() * ratio + 0.1 );
-		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( sample->get_frames() ));
+        rubberoutframes = int( __frames * ratio + 0.1 );
+		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( __frames ));
 
         QObject* parent = 0;
         QProcess* rubberband = new QProcess( parent );
         QStringList arguments;
-        QString rCs = QString( " %1" ).arg( rubber.c_settings );
-        float pitch = pow( 1.0594630943593, ( double )rubber.pitch );
+        QString rCs = QString( " %1" ).arg( rb.c_settings );
+        float pitch = pow( 1.0594630943593, ( double )rb.pitch );
         QString rPs = QString( " %1" ).arg( pitch );
         QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
         arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
@@ -325,26 +389,27 @@ Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberb
         }
         if ( QFile( rubberResultPath ).exists() == false ) {
             _ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
-            return sample;
+            return false;
         }
 
         Sample* rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
         if( rubberbanded==0 ) {
-            return sample;
+            return false;
         }
-        rubberbanded->set_is_modified( true );
-        rubberbanded->__loops = loops;
-        rubberbanded->__rubberband = rubber;
-        rubberbanded->__pan_envelope = sample->__pan_envelope;
-        rubberbanded->__velocity_envelope = sample->__velocity_envelope;
         if( QFile( outfilePath ).remove() );
 //			_INFOLOG("remove outfile");
         if( QFile( rubberResultPath ).remove() );
 //			_INFOLOG("remove rubberResultFile");
-        delete sample;
-        return rubberbanded;
+        __frames = rubberbanded->get_frames();
+        __data_l = rubberbanded->get_data_l();
+        __data_r = rubberbanded->get_data_r();
+        rubberbanded->__data_l = 0;
+        rubberbanded->__data_r = 0;
+        __is_modified = true;
+        __rubberband = rb;
+        delete rubberbanded;
     }
-    return sample;
+    return true;
 }
 
 Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string ) {
@@ -389,6 +454,93 @@ bool Sample::write( const QString& path, int format ) {
     sf_close( sf_file );
     delete[] obuf;
     return true;
+}
+
+static double compute_pitch_scale( const Sample::Rubberband& rb ) {
+    double pitchshift = rb.pitch;
+    double frequencyshift = 1.0;
+    if (pitchshift != 0.0) {
+        frequencyshift *= pow(2.0, pitchshift / 12);
+    }
+    //float pitch = pow( 1.0594630943593, ( double )rb.pitch );
+    return frequencyshift;
+}
+
+static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& rb ) {
+    // default settings
+    enum {
+        CompoundDetector,
+        PercussiveDetector,
+        SoftDetector
+    } detector = CompoundDetector;
+    enum {
+        NoTransients,
+        BandLimitedTransients,
+        Transients
+    } transients = Transients;
+    bool lamination = true;
+    bool longwin = false;
+    bool shortwin = false;
+    RubberBand::RubberBandStretcher::Options options = RubberBand::RubberBandStretcher::DefaultOptions;
+    // apply our settings
+    int crispness = rb.c_settings;
+    // compute result options
+    switch (crispness) {
+    case -1: crispness = 5; break;
+    case 0: detector = CompoundDetector; transients = NoTransients; lamination = false; longwin = true; shortwin = false; break;
+    case 1: detector = SoftDetector; transients = Transients; lamination = false; longwin = true; shortwin = false; break;
+    case 2: detector = CompoundDetector; transients = NoTransients; lamination = false; longwin = false; shortwin = false; break;
+    case 3: detector = CompoundDetector; transients = NoTransients; lamination = true; longwin = false; shortwin = false; break;
+    case 4: detector = CompoundDetector; transients = BandLimitedTransients; lamination = true; longwin = false; shortwin = false; break;
+    case 5: detector = CompoundDetector; transients = Transients; lamination = true; longwin = false; shortwin = false; break;
+    case 6: detector = CompoundDetector; transients = Transients; lamination = false; longwin = false; shortwin = true; break;
+    };
+    //if (realtime)    options |= RubberBand::RubberBandStretcher::OptionProcessRealTime;
+    //if (precise)     options |= RubberBand::RubberBandStretcher::OptionStretchPrecise;
+    if (!lamination) options |= RubberBand::RubberBandStretcher::OptionPhaseIndependent;
+    if (longwin)     options |= RubberBand::RubberBandStretcher::OptionWindowLong;
+    if (shortwin)    options |= RubberBand::RubberBandStretcher::OptionWindowShort;
+    //if (smoothing)   options |= RubberBand::RubberBandStretcher::OptionSmoothingOn;
+    //if (formant)     options |= RubberBand::RubberBandStretcher::OptionFormantPreserved;
+    //if (hqpitch)     options |= RubberBand::RubberBandStretcher::OptionPitchHighQuality;
+    /*
+    switch (threading) {
+    case 0:
+        options |= RubberBand::RubberBandStretcher::OptionThreadingAuto;
+        break;
+    case 1:
+        options |= RubberBand::RubberBandStretcher::OptionThreadingNever;
+        break;
+    case 2:
+        options |= RubberBand::RubberBandStretcher::OptionThreadingAlways;
+        break;
+    }
+    */
+    switch (transients) {
+    case NoTransients:
+        options |= RubberBand::RubberBandStretcher::OptionTransientsSmooth;
+        break;
+    case BandLimitedTransients:
+        options |= RubberBand::RubberBandStretcher::OptionTransientsMixed;
+        break;
+    case Transients:
+        options |= RubberBand::RubberBandStretcher::OptionTransientsCrisp;
+        break;
+    }
+    /*
+    switch (detector) {
+    case CompoundDetector:
+        options |= RubberBand::RubberBandStretcher::OptionDetectorCompound;
+        break;
+    case PercussiveDetector:
+        options |= RubberBand::RubberBandStretcher::OptionDetectorPercussive;
+        break;
+    case SoftDetector:
+        options |= RubberBand::RubberBandStretcher::OptionDetectorSoft;
+        break;
+    }
+    */
+    return options;
 }
 
 };

@@ -88,6 +88,10 @@ class Sample : public Object {
                     end_frame( other->end_frame ),
                     count( other->count ),
                     mode( other->mode) { };
+                /** equal to operator */
+                bool operator ==( const Loops& b) const {
+                    return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
+                }
         };
 
         /** set of rubberband configuration flags */
@@ -105,6 +109,10 @@ class Sample : public Object {
                     divider ( other->divider ),
                     c_settings( other->c_settings ),
                     pitch( other->pitch ) { };
+                /** equal to operator */
+                bool operator ==( const Rubberband& b) const {
+                    return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
+                }
         };
 
         /**
@@ -160,6 +168,16 @@ class Sample : public Object {
          * \param p the pan vector
          */
         void apply_pan( const PanEnvelope& p );
+        /**
+         * aplly rubberband transformation to the sample
+         * \param r rubberband parameters
+         */
+        void apply_rubberband( const Rubberband& rb );
+        /**
+         * call rubberband cli to modify the sample
+         * \param r rubberband parameters
+         */
+        bool exec_rubberband_cli( const Rubberband& rb );
 
         /** return true if both data channels are null pointers */
         bool is_empty() const;
@@ -181,6 +199,8 @@ class Sample : public Object {
         void set_sample_rate( int value );
         /** __sample_rate accessor */
         int get_sample_rate() const;
+        /** return sample duration in seconds */
+        double get_sample_duration( ) const;
 
         /** return data size */
         int get_size() const;
@@ -256,6 +276,10 @@ inline int Sample::get_frames() const {
 
 inline int Sample::get_sample_rate() const {
     return __sample_rate;
+}
+
+inline double Sample::get_sample_duration() const {
+    return (double)__frames / (double)__sample_rate;
 }
 
 inline int Sample::get_size() const {
