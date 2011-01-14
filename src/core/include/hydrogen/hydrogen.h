@@ -214,9 +214,6 @@ public:
 	void sortTimelineVector();
 	void sortTimelineTagVector();
 
-    Sample::VelocityEnvelope m_volumen;
-    Sample::PanEnvelope m_pan;
-
 /// timeline vector
 	struct HTimelineVector
 	{

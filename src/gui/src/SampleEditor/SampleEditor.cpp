@@ -157,7 +157,6 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
 	H2Core::Instrument *pInstrument = NULL;
 	Sample* pSample = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -188,19 +187,19 @@ void SampleEditor::getAllFrameInfos()
     __rubberband = pSample->get_rubberband();
 
     if ( pSample->get_velocity_envelope()->size()==0 ) {
-        pEngine->m_volumen.clear();
-		pEngine->m_volumen.push_back( Sample::EnvelopePoint(   0, 0 ) );
-		pEngine->m_volumen.push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
+        m_pTargetSampleView->get_velocity()->clear();
+        m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint(   0, 0 ) );
+        m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
-        pEngine->m_volumen = *pSample->get_velocity_envelope();
+        *m_pTargetSampleView->get_velocity() = *pSample->get_velocity_envelope();
 	}
 
     if ( pSample->get_pan_envelope()->size()==0 ) {
-        pEngine->m_pan.clear();
-		pEngine->m_pan.push_back( Sample::EnvelopePoint(   0, m_pTargetSampleView->height()/2 ) );
-		pEngine->m_pan.push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
+        m_pTargetSampleView->get_pan()->clear();
+        m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint(   0, m_pTargetSampleView->height()/2 ) );
+        m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	} else {
-        pEngine->m_pan = *pSample->get_pan_envelope();
+        *m_pTargetSampleView->get_pan() = *pSample->get_pan_envelope();
 	}
 
 	if (m_sample_is_modified) {
@@ -346,7 +345,7 @@ void SampleEditor::createNewLayer()
 
 	if ( !m_pSampleEditorStatus ){
 
-        Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, Hydrogen::get_instance()->m_volumen, Hydrogen::get_instance()->m_pan );
+        Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
 
 		if( editSample == NULL ){
 			return;

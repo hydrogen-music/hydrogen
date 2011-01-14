@@ -47,6 +47,8 @@ class TargetWaveDisplay : public QWidget, public Object
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
+        H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
+        H2Core::Sample::VelocityEnvelope* get_velocity() { return &__velocity; }
 //		int m_pFadeOutFramePosition;
 
 	private:
@@ -64,6 +66,8 @@ class TargetWaveDisplay : public QWidget, public Object
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
+        H2Core::Sample::PanEnvelope __pan;
+        H2Core::Sample::VelocityEnvelope __velocity;
 		
 };
 
