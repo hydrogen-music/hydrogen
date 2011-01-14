@@ -88,10 +88,7 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
-		// Extract the filename from the complete path
-		QString sName = pLayer->get_sample()->get_filename();
-		int nPos = sName.lastIndexOf( "/" );
-		m_sSampleName = sName.mid( nPos + 1, sName.length() );
+		m_sSampleName = pLayer->get_sample()->get_filename();
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 

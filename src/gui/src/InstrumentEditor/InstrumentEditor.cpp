@@ -588,7 +588,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 			if ( pLayer ) {
 				Sample* pSample = pLayer->get_sample();
 				if( pSample == NULL) return;
-				QString name = pSample->get_filename();
+				QString name = pSample->get_filepath();
 				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
 			}
 		}
@@ -859,7 +859,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
                             if( pSample->get_rubberband().use ) {
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
                                 Sample *newSample = Sample::load(
-                                        pSample->get_filename(),
+                                        pSample->get_filepath(),
                                         pSample->get_loops(),
                                         pSample->get_rubberband(),
                                         *pSample->get_velocity_envelope(),

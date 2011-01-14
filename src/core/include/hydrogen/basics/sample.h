@@ -24,7 +24,6 @@
 #define H2C_SAMPLE_H
 
 #include <vector>
-#include <QtCore/QString>
 
 #include <hydrogen/object.h>
 
@@ -48,15 +47,15 @@ class Sample : public Object {
                     }
                 };
                 /** default constructor */
-                EnvelopePoint() : frame(0), value(0) { };
+                EnvelopePoint() : frame( 0 ), value( 0 ) { };
                 /**
                  * constructor
                  * \param f the frame index
                  * \param v the value associated with the frame
                  */
-                EnvelopePoint( int f, int v ) : frame(f), value(v) { };
+                EnvelopePoint( int f, int v ) : frame( f ), value( v ) { };
                 /** copy constructor */
-                EnvelopePoint(EnvelopePoint* other) {
+                EnvelopePoint( EnvelopePoint* other ) {
                     frame = other->frame;
                     value = other->value;
                 };
@@ -85,7 +84,7 @@ class Sample : public Object {
                     mode = FORWARD;
                 };
                 /** copy constructor */
-                Loops( const Loops* other) {
+                Loops( const Loops* other ) {
                     start_frame = other->start_frame;
                     loop_frame = other->loop_frame;
                     end_frame = other->end_frame;
@@ -109,7 +108,7 @@ class Sample : public Object {
                     pitch = 0.0;
                 };
                 /** copy constructor */
-                Rubberband( const Rubberband* other) {
+                Rubberband( const Rubberband* other ) {
                     use = other->use;
                     divider = other->divider;
                     c_settings = other->c_settings;
@@ -119,13 +118,13 @@ class Sample : public Object {
 
         /**
          * Sample constructor
-         * \param filename the sample file name
+         * \param filepath the path to the sample
          * \param frames the number of frames per channel in the sample
          * \param sample_rate the sample rate of the sample
          * \param data_l the left channel array of data
          * \param data_l the right channel array of data
          */
-        Sample( const QString& filename, int frames, int sample_rate, float* data_l=0, float* data_r=0 );
+        Sample( const QString& filepath, int frames, int sample_rate, float* data_l=0, float* data_r=0 );
         /** copy constructor */
         Sample( Sample* other );
         /** destructor */
@@ -167,7 +166,9 @@ class Sample : public Object {
 
         /** return true if both data channels are null pointers */
         bool is_empty() const;
-        /** __filename accessor */
+        /** __filepath accessor */
+        const QString get_filepath() const;
+        /** return filename part of __filepath */
         const QString get_filename() const;
         /**
          * __frames setter
@@ -214,14 +215,14 @@ class Sample : public Object {
         QString get_loop_mode_string() const;
 
     private:
-        QString __filename;                     ///< filename of the sample, no path information
+        QString __filepath;                     ///< filepath of the sample
         int __frames;                           ///< number of frames in this sample
         int __sample_rate;                      ///< samplerate for this sample
         float* __data_l;                        ///< left channel data
         float* __data_r;                        ///< right channel data
         bool __is_modified;                     ///< true if sample is modified
-	    PanEnvelope __pan_envelope;             ///< pan envelope vector
-	    VelocityEnvelope __velocity_envelope;   ///< velocity envelope vector
+        PanEnvelope __pan_envelope;             ///< pan envelope vector
+        VelocityEnvelope __velocity_envelope;   ///< velocity envelope vector
     private:
         Loops __loops;                       ///< set of loop parameters
         Rubberband __rubberband;             ///< set of rubberband parameters
@@ -240,8 +241,12 @@ inline bool Sample::is_empty() const {
     return ( __data_l==__data_r==0 );
 }
 
+inline const QString Sample::get_filepath() const {
+    return __filepath;
+}
+
 inline const QString Sample::get_filename() const {
-    return __filename;
+    return __filepath.section( "/", -1 );
 }
 
 inline void Sample::Sample::set_frames( int frames ) {

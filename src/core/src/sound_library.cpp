@@ -277,7 +277,7 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 			if ( pOldLayer ) {
 				Sample *pSample = pOldLayer->get_sample();
 
-				Sample *pNewSample = new Sample( pSample->get_filename(), 0, 0 );	// is not a real sample, it contains only the filename information
+				Sample *pNewSample = new Sample( pSample->get_filepath(), 0, 0 );	// is not a real sample, it contains only the filename information
 				InstrumentLayer *pLayer = new InstrumentLayer( pNewSample );
 				pLayer->set_gain( pOldLayer->get_gain() );
 				pLayer->set_pitch( pOldLayer->get_pitch() );

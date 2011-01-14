@@ -736,7 +736,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			if ( ! filenameNode.isNull() ) {
 				//warningLog( "Using back compatibility code. filename node found" );
 				QString sFilename = LocalFileMng::readXmlString( instrumentNode, "filename", "" );
-				Sample *pSample = new Sample( sFilename, 0, 0 );
+				Sample *pSample = new Sample( directory + "/" + sFilename, 0, 0 );
 				InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 				pInstrument->set_layer( pLayer, 0 );
 			}
@@ -756,7 +756,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 					float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0, false, false );
 					float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
 
-					Sample *pSample = new Sample( sFilename, 0, 0 );
+					Sample *pSample = new Sample( directory + "/" + sFilename, 0, 0 );
 					InstrumentLayer *pLayer = new InstrumentLayer( pSample );
 					pLayer->set_start_velocity( fMin );
 					pLayer->set_end_velocity( fMax );
@@ -847,10 +847,6 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );
 			if ( pLayer ) {
 				Sample *pSample = pLayer->get_sample();
-				QString sOrigFilename = pSample->get_filename();
-
-				QString sDestFilename = sOrigFilename;
-		
 				/*
 					Till rev. 743, the samples got copied into the
 					root of the drumkit folder.
@@ -858,16 +854,13 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 					Now the sample gets only copied to the folder
 					if it doesn't reside in a subfolder of the drumkit dir.
 				*/
-			
-				if( sOrigFilename.startsWith( sDrumkitDir ) ){
+				if( pSample->get_filepath().startsWith( sDrumkitDir ) ){
 					INFOLOG("sample is already in drumkit dir");
-					tempVector[ nLayer ] = sDestFilename.remove( sDrumkitDir + "/" );
+					tempVector[ nLayer ] = pSample->get_filename();
 				} else {
-					int nPos = sDestFilename.lastIndexOf( '/' );
-					sDestFilename = sDestFilename.mid( nPos + 1, sDestFilename.size() - nPos - 1 );
-					sDestFilename = sDrumkitDir + "/" + sDestFilename;
+					QString sDestFilename = sDrumkitDir + "/" + pSample->get_filename();
 
-					fileCopy( sOrigFilename, sDestFilename );
+					fileCopy( pSample->get_filepath(), sDestFilename );
 					tempVector[ nLayer ] = sDestFilename.remove( sDrumkitDir + "/" );
 				}
 			}
@@ -1435,20 +1428,13 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			Sample *pSample = pLayer->get_sample();
 			if ( pSample == NULL ) continue;
 
-			QString sFilename = pSample->get_filename();
 			bool sIsModified = pSample->get_is_modified();
             Sample::Loops lo = pSample->get_loops();
             Sample::Rubberband ro = pSample->get_rubberband();
 			QString sMode = pSample->get_loop_mode_string();
 
-			if ( !instr->get_drumkit_name().isEmpty() ) {
-				// se e' specificato un drumkit, considero solo il nome del file senza il path
-				int nPos = sFilename.lastIndexOf( "/" );
-				sFilename = sFilename.mid( nPos + 1, sFilename.length() );
-			}
-
 			QDomNode layerNode = doc.createElement( "layer" );
-			LocalFileMng::writeXmlString( layerNode, "filename", sFilename );
+			LocalFileMng::writeXmlString( layerNode, "filename", pSample->get_filename() );
 			LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
 			LocalFileMng::writeXmlString( layerNode, "smode", pSample->get_loop_mode_string() );
 			LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( lo.start_frame ) );
