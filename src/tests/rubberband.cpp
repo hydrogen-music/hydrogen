@@ -6,41 +6,6 @@
 #include <rubberband/RubberBandStretcher.h>
 #define RUBBER_SAMPLE_PATH "/usr/local/share/hydrogen/data/drumkits/GMkit/cym_Jazz.flac"
 
-bool write_sample( H2Core::Sample* sample, const char* path ) {
-    float* out_buf = new float[ 2 * sample->get_frames() ];
-    for ( int i = 0; i < sample->get_frames(); ++i ) {
-        float value_l = sample->get_data_l()[i];
-        float value_r = sample->get_data_r()[i];
-        if ( value_l > 1.f ) value_l = 1.f;
-        else if ( value_l < -1.f ) value_l = -1.f;
-        else if ( value_r > 1.f ) value_r = 1.f;
-        else if ( value_r < -1.f ) value_r = -1.f;
-        out_buf[ i* 2 + 0 ] = value_l;
-        out_buf[ i* 2 + 1 ] = value_r;
-    }
-
-    SF_INFO sf_info;
-    sf_info.channels = 2;
-    sf_info.frames = sample->get_frames();
-    sf_info.samplerate = sample->get_sample_rate();
-    sf_info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-
-    if ( !sf_format_check( &sf_info ) ) {
-        ___ERRORLOG( "SF_INFO error" );
-        return false;
-    }
-
-    SNDFILE* sf_file = sf_open(path, SFM_WRITE, &sf_info) ;
-    if ( sf_file==0 ) {
-        ___ERRORLOG( "sf_open error" );  // TODO errno ??
-        return false;
-    }
-    int res = sf_writef_float( sf_file, out_buf, sample->get_frames() );
-    sf_close( sf_file );
-    delete[] out_buf;
-    return true;
-}
-
 void rubberband_test() {
 
     int block_size = 1024;
@@ -62,7 +27,7 @@ void rubberband_test() {
                 .arg( sample->get_sample_rate() )
                     );
 
-    write_sample( sample, (const char*)"/tmp/before.wav" );
+    sample->write( "/tmp/before.wav" );
 
     // setup rubberband
     RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( sample->get_sample_rate(), 2, options, time_ratio, pitch );
@@ -149,7 +114,7 @@ void rubberband_test() {
     memcpy( data_r, out_data_r, retrieved*sizeof(float) );
     // new sample
     H2Core::Sample* sample2 = new H2Core::Sample( "/tmp/after.wav", retrieved, sample->get_sample_rate(), data_l, data_r );
-    write_sample( sample2, (const char*)"/tmp/after.wav" );
+    sample2->write( "/tmp/after.wav" );
     // clean
     delete rubber;
     delete sample;

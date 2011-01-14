@@ -205,6 +205,7 @@ bool Sample::apply_loops( const Loops& lo ) {
     __data_l = new_data_l;
     __data_r = new_data_r;
     __frames = new_length;
+    __is_modified = true;
     return true;
 }
 
@@ -232,6 +233,7 @@ void Sample::apply_velocity( const VelocityEnvelope& v ) {
         }
         __velocity_envelope = v;
     }
+    __is_modified = true;
 }
 
 void Sample::apply_pan( const PanEnvelope& p ) {
@@ -266,6 +268,7 @@ void Sample::apply_pan( const PanEnvelope& p ) {
         }
         __pan_envelope = p;
     }
+    __is_modified = true;
 }
 
 Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
@@ -287,10 +290,12 @@ Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberb
 
     Hydrogen* pEngine = Hydrogen::get_instance();
 
-    float* data_l = sample->get_data_l();
-    float* data_r = sample->get_data_r();
-///rubberband
     if( rubber.use ) {
+        QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
+        if( !sample->write( outfilePath ) ){
+            ERRORLOG( "unable to write sample" );
+            return sample;
+        };
 
         unsigned rubberoutframes = 0;
         double ratio = 1.0;
@@ -298,50 +303,14 @@ Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberb
         double induration = ( double ) sample->get_frames() / ( double ) sample->get_sample_rate();
         if ( induration != 0.0 ) ratio = durationtime / induration;
         rubberoutframes = int( sample->get_frames() * ratio + 0.1 );
-//		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( sample->get_frames() ));
-
-        //create new sample
-
-        SF_INFO rubbersoundInfo;
-        rubbersoundInfo.samplerate = sample->get_sample_rate();
-        rubbersoundInfo.frames = rubberoutframes;
-        rubbersoundInfo.channels = SAMPLE_CHANNELS;
-        rubbersoundInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-
-        if ( !sf_format_check( &rubbersoundInfo ) ) {
-            _ERRORLOG( "Error in soundInfo" );
-            return 0;
-        }
-        QString outfilePath = QDir::tempPath() + "/tmp_rb_outfile.wav";
-        SNDFILE* m_file = sf_open( outfilePath.toLocal8Bit(), SFM_WRITE, &rubbersoundInfo );
-
-        float* infobf = new float[rubbersoundInfo.channels * sample->get_frames()];
-        for ( int i = 0; i < sample->get_frames(); ++i ) {
-            float value_l = data_l[i];
-            float value_r = data_r[i];
-            if ( value_l > 1.f ) value_l = 1.f;
-            if ( value_l < -1.f ) value_l = -1.f;
-            if ( value_r > 1.f ) value_r = 1.f;
-            if ( value_r < -1.f ) value_r = -1.f;
-            infobf[i* rubbersoundInfo.channels + 0] = value_l;
-            infobf[i* rubbersoundInfo.channels + 1] = value_r;
-        }
-
-        int res = sf_writef_float( m_file, infobf, sample->get_frames() );
-        sf_close( m_file );
-        delete[] infobf;
-
+		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( sample->get_frames() ));
 
         QObject* parent = 0;
-
         QProcess* rubberband = new QProcess( parent );
-
         QStringList arguments;
-
         QString rCs = QString( " %1" ).arg( rubber.c_settings );
         float pitch = pow( 1.0594630943593, ( double )rubber.pitch );
         QString rPs = QString( " %1" ).arg( pitch );
-
         QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
         arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
                   << "--threads"					//assume multi-CPU even if only one CPU is identified
@@ -350,66 +319,31 @@ Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberb
                   << "-c" << rCs					//"crispness" levels
                   << outfilePath 					//infile
                   << rubberResultPath;					//outfile
-
         rubberband->start( program, arguments );
-
         while( !rubberband->waitForFinished() ) {
             //_ERRORLOG( QString( "prozessing" ));
         }
-
-        //open the new rubberband created file
-        // file exists?
         if ( QFile( rubberResultPath ).exists() == false ) {
             _ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
-            return NULL;
+            return sample;
         }
 
-        SF_INFO soundInfoRI;
-        SNDFILE* fileRI = sf_open( rubberResultPath.toLocal8Bit(), SFM_READ, &soundInfoRI );
-        if ( !fileRI ) {
-            _ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( rubberResultPath ) );
+        Sample* rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
+        if( rubberbanded==0 ) {
+            return sample;
         }
-
-        float* pTmpBufferRI = new float[ soundInfoRI.frames * soundInfoRI.channels ];
-
-        //int res = sf_read_float( file, pTmpBuffer, soundInfo.frames * soundInfo.channels );
-        sf_read_float( fileRI, pTmpBufferRI, soundInfoRI.frames * soundInfoRI.channels );
-        sf_close( fileRI );
-
-        float* dataRI_l = new float[ soundInfoRI.frames ];
-        float* dataRI_r = new float[ soundInfoRI.frames ];
-
-
-        if ( soundInfoRI.channels == 1 ) {	// MONO sample
-            for ( long int i = 0; i < soundInfoRI.frames; i++ ) {
-                dataRI_l[i] = pTmpBufferRI[i];
-                dataRI_r[i] = pTmpBufferRI[i];
-            }
-        } else if ( soundInfoRI.channels == SAMPLE_CHANNELS ) { // STEREO sample
-            for ( long int i = 0; i < soundInfoRI.frames; i++ ) {
-                dataRI_l[i] = pTmpBufferRI[i * SAMPLE_CHANNELS];
-                dataRI_r[i] = pTmpBufferRI[i * SAMPLE_CHANNELS + 1];
-            }
-        }
-        delete[] pTmpBufferRI;
-
-        sample->set_frames( soundInfoRI.frames );
-        sample->__data_l = dataRI_l;
-        sample->__data_r = dataRI_r;
-
-        sample->__sample_rate = soundInfoRI.samplerate;
-        sample->set_is_modified( true );
-        sample->__loops = loops;
-        sample->__rubberband = rubber;
-
-        //delete the tmp files
+        rubberbanded->set_is_modified( true );
+        rubberbanded->__loops = loops;
+        rubberbanded->__rubberband = rubber;
+        rubberbanded->__pan_envelope = sample->__pan_envelope;
+        rubberbanded->__velocity_envelope = sample->__velocity_envelope;
         if( QFile( outfilePath ).remove() );
 //			_INFOLOG("remove outfile");
         if( QFile( rubberResultPath ).remove() );
 //			_INFOLOG("remove rubberResultFile");
-
+        delete sample;
+        return rubberbanded;
     }
-    sample->set_is_modified( true );
     return sample;
 }
 
