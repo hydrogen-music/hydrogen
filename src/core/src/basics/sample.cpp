@@ -23,7 +23,6 @@
 #include <hydrogen/basics/sample.h>
 
 #include <limits>
-#include <sndfile.h>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
@@ -97,9 +96,9 @@ Sample* Sample::libsndfile_load( const QString& filepath ) {
         ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filepath ) );
         return 0;
     }
-    if ( sound_info.channels>2 ) {
+    if ( sound_info.channels > SAMPLE_CHANNELS ) {
         WARNINGLOG( QString( "can't handle %1 channels, only 2 will be used" ).arg( sound_info.channels ) );
-        sound_info.channels = 2;
+        sound_info.channels = SAMPLE_CHANNELS;
     }
     if ( sound_info.frames > ( std::numeric_limits<int>::max()/sound_info.channels ) ) {
         WARNINGLOG( QString( "sample frames count (%1) and channels (%2) are too much, truncate it." ).arg( sound_info.frames ).arg( sound_info.channels ) );
@@ -118,10 +117,10 @@ Sample* Sample::libsndfile_load( const QString& filepath ) {
     if ( sound_info.channels == 1 ) {
         memcpy( data_l,buffer,sound_info.frames*sizeof( float ) );
         memcpy( data_r,buffer,sound_info.frames*sizeof( float ) );
-    } else if ( sound_info.channels == 2 ) {
+    } else if ( sound_info.channels == SAMPLE_CHANNELS ) {
         for ( int i = 0; i < sound_info.frames; i++ ) {
-            data_l[i] = buffer[i * 2];
-            data_r[i] = buffer[i * 2 + 1];
+            data_l[i] = buffer[i * SAMPLE_CHANNELS];
+            data_r[i] = buffer[i * SAMPLE_CHANNELS + 1];
         }
     }
     delete[] buffer;
@@ -306,7 +305,7 @@ Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberb
         SF_INFO rubbersoundInfo;
         rubbersoundInfo.samplerate = sample->get_sample_rate();
         rubbersoundInfo.frames = rubberoutframes;
-        rubbersoundInfo.channels = 2;
+        rubbersoundInfo.channels = SAMPLE_CHANNELS;
         rubbersoundInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
         if ( !sf_format_check( &rubbersoundInfo ) ) {
@@ -386,10 +385,10 @@ Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberb
                 dataRI_l[i] = pTmpBufferRI[i];
                 dataRI_r[i] = pTmpBufferRI[i];
             }
-        } else if ( soundInfoRI.channels == 2 ) { // STEREO sample
+        } else if ( soundInfoRI.channels == SAMPLE_CHANNELS ) { // STEREO sample
             for ( long int i = 0; i < soundInfoRI.frames; i++ ) {
-                dataRI_l[i] = pTmpBufferRI[i * 2];
-                dataRI_r[i] = pTmpBufferRI[i * 2 + 1];
+                dataRI_l[i] = pTmpBufferRI[i * SAMPLE_CHANNELS];
+                dataRI_r[i] = pTmpBufferRI[i * SAMPLE_CHANNELS + 1];
             }
         }
         delete[] pTmpBufferRI;
@@ -422,5 +421,42 @@ Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string ) {
     return Loops::FORWARD;
 }
 
+bool Sample::write( const QString& path, int format ) {
+    float* obuf = new float[ SAMPLE_CHANNELS * __frames ];
+    for ( int i = 0; i < __frames; ++i ) {
+        float value_l = __data_l[i];
+        float value_r = __data_r[i];
+        if ( value_l > 1.f ) value_l = 1.f;
+        else if ( value_l < -1.f ) value_l = -1.f;
+        else if ( value_r > 1.f ) value_r = 1.f;
+        else if ( value_r < -1.f ) value_r = -1.f;
+        obuf[ i * SAMPLE_CHANNELS + 0 ] = value_l;
+        obuf[ i * SAMPLE_CHANNELS + 1 ] = value_r;
+    }
+    SF_INFO sf_info;
+    sf_info.channels = SAMPLE_CHANNELS;
+    sf_info.frames = __frames;
+    sf_info.samplerate = __sample_rate;
+    sf_info.format = format;
+    if ( !sf_format_check( &sf_info ) ) {
+        ___ERRORLOG( "SF_INFO error" );
+        return false;
+    }
+    SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info ) ;
+    if ( sf_file==0 ) {
+        ___ERRORLOG( QString("sf_open error : %1").arg( sf_strerror( sf_file ) ) );
+        return false;
+    }
+    sf_count_t res = sf_writef_float( sf_file, obuf, __frames );
+    if ( res<=0 ) {
+        ___ERRORLOG( QString("sf_writef_float error : %1").arg( sf_strerror( sf_file ) ) );
+        return false;
+    }
+    sf_close( sf_file );
+    delete[] obuf;
+    return true;
+}
+
 };
 
+/* vim: set softtabstop=4 expandtab: */

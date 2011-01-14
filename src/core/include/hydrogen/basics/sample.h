@@ -24,6 +24,7 @@
 #define H2C_SAMPLE_H
 
 #include <vector>
+#include <sndfile.h>
 
 #include <hydrogen/object.h>
 
@@ -129,6 +130,14 @@ class Sample : public Object {
         Sample( Sample* other );
         /** destructor */
         ~Sample();
+
+
+        /**
+         * write sample to a file
+         * \param path the path to write the sample to
+         * \format the format of the output
+         */
+        bool write( const QString& path, int format= (SF_FORMAT_WAV|SF_FORMAT_PCM_16) );
 
         /**
          * load a sample from a file

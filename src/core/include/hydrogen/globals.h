@@ -32,6 +32,8 @@
 
 #define MAX_BUFFER_SIZE		    8192
 
+#define SAMPLE_CHANNELS         2
+
 #define EMPTY_INSTR_ID          -1
 #define METRONOME_INSTR_ID      -2
 
