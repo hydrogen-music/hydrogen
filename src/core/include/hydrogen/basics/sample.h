@@ -80,41 +80,31 @@ class Sample : public Object {
                 int count;              ///< the counts of loops to apply
                 LoopMode mode;          ///< one of the possible loop modes
                 /** constructor */
-                Loops() {
-                    start_frame = loop_frame = end_frame = count = 0;
-                    mode = FORWARD;
-                };
+                Loops() : start_frame( 0 ), loop_frame( 0 ), end_frame( 0 ), count( 0 ), mode( FORWARD ) { };
                 /** copy constructor */
-                Loops( const Loops* other ) {
-                    start_frame = other->start_frame;
-                    loop_frame = other->loop_frame;
-                    end_frame = other->end_frame;
-                    count = other->count;
-                    mode = other->mode;
-                };
+                Loops( const Loops* other ) :
+                    start_frame( other->start_frame ),
+                    loop_frame( other->loop_frame ),
+                    end_frame( other->end_frame ),
+                    count( other->count ),
+                    mode( other->mode) { };
         };
 
         /** set of rubberband configuration flags */
         class Rubberband {
             public:
-                bool use;               ///< TODO
-                float divider;          ///< TODO
-                int c_settings;         ///< TODO
-                float pitch;            ///< TODO
+                bool use;               ///< is rubberband enabled
+                float divider;          ///< TODO should be ratio : desired time ratio
+                float pitch;            ///< desired pitch
+                int c_settings;        ///< TODO should be crispness, see rubberband -h
                 /** constructor */
-                Rubberband() {
-                    use = false;
-                    divider = 1.0;
-                    c_settings = 4;
-                    pitch = 0.0;
-                };
+                Rubberband() : use( false ), divider ( 1.0 ), pitch( 1.0 ), c_settings( 4 ) { };
                 /** copy constructor */
-                Rubberband( const Rubberband* other ) {
-                    use = other->use;
-                    divider = other->divider;
-                    c_settings = other->c_settings;
-                    pitch = other->pitch;
-                };
+                Rubberband( const Rubberband* other ) :
+                    use( other->use ),
+                    divider ( other->divider ),
+                    c_settings( other->c_settings ),
+                    pitch( other->pitch ) { };
         };
 
         /**
@@ -157,16 +147,14 @@ class Sample : public Object {
 
         /**
          * aplly loop transformation to the sample
-         * \param lo loops definition
+         * \param lo loops parameters
          */
         bool apply_loops( const Loops& lo );
-
         /**
          * aplly velocity transformation to the sample
          * \param v the velocity vector
          */
         void apply_velocity( const VelocityEnvelope& v );
-
         /**
          * aplly velocity transformation to the sample
          * \param p the pan vector
