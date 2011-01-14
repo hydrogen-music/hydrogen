@@ -296,7 +296,7 @@ void Sample::apply_rubberband( const Rubberband& rb ) {
     RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
     double pitch_scale = compute_pitch_scale( rb );
     // instanciate rubberband
-    RubberBand::RubberBandStretcher *rubber = new RubberBand::RubberBandStretcher( __sample_rate, 2, options, time_ratio, pitch_scale );
+    RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( __sample_rate, 2, options, time_ratio, pitch_scale );
     rubber->setDebugLevel( RUBBERBAND_DEBUG );
     rubber->setExpectedInputDuration( __frames );
     DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( get_filename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
@@ -309,7 +309,7 @@ void Sample::apply_rubberband( const Rubberband& rb ) {
     // process sample
     rubber->process( ibuf, __frames, true );
     // output buffer
-    int out_buffer_size = (int)(__frames*time_ratio)+RUBBERBAND_BUFFER_OVERSIZE;
+    int out_buffer_size = ( int )( __frames*time_ratio )+RUBBERBAND_BUFFER_OVERSIZE;
     int buffer_free = out_buffer_size;
     float* out_data_l= new float[ out_buffer_size ];
     float* out_data_r = new float[ out_buffer_size ];
@@ -321,7 +321,7 @@ void Sample::apply_rubberband( const Rubberband& rb ) {
         obuf[0] = &out_data_l[retrieved];
         obuf[1] = &out_data_r[retrieved];
         //___DEBUGLOG( QString( "  available frames %1" ).arg( available ) );
-        int n = rubber->retrieve( obuf, available);
+        int n = rubber->retrieve( obuf, available );
         retrieved += n;
         buffer_free -= n;
         //___DEBUGLOG( QString( "  recieved frames %1" ).arg( n ) );
@@ -332,8 +332,8 @@ void Sample::apply_rubberband( const Rubberband& rb ) {
     delete __data_r;
     __data_l = new float[ retrieved ];
     __data_r = new float[ retrieved ];
-    memcpy( __data_l, out_data_l, retrieved*sizeof(float) );
-    memcpy( __data_r, out_data_r, retrieved*sizeof(float) );
+    memcpy( __data_l, out_data_l, retrieved*sizeof( float ) );
+    memcpy( __data_r, out_data_r, retrieved*sizeof( float ) );
     delete out_data_l;
     delete out_data_r;
     // update sample
@@ -356,7 +356,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb ) {
     float* data_r = __data_r;
     if( rb.use ) {
         QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
-        if( !write( outfilePath ) ){
+        if( !write( outfilePath ) ) {
             ERRORLOG( "unable to write sample" );
             return false;
         };
@@ -367,7 +367,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb ) {
         double induration = get_sample_duration();
         if ( induration != 0.0 ) ratio = durationtime / induration;
         rubberoutframes = int( __frames * ratio + 0.1 );
-		_INFOLOG(QString("ratio: %1, rubberoutframes: %2, rubberinframes: %3").arg( ratio ).arg ( rubberoutframes ).arg ( __frames ));
+        _INFOLOG( QString( "ratio: %1, rubberoutframes: %2, rubberinframes: %3" ).arg( ratio ).arg ( rubberoutframes ).arg ( __frames ) );
 
         QObject* parent = 0;
         QProcess* rubberband = new QProcess( parent );
@@ -429,8 +429,8 @@ bool Sample::write( const QString& path, int format ) {
         else if ( value_l < -1.f ) value_l = -1.f;
         else if ( value_r > 1.f ) value_r = 1.f;
         else if ( value_r < -1.f ) value_r = -1.f;
-        obuf[ i * SAMPLE_CHANNELS + 0 ] = value_l;
-        obuf[ i * SAMPLE_CHANNELS + 1 ] = value_r;
+        obuf[ i* SAMPLE_CHANNELS + 0 ] = value_l;
+        obuf[ i* SAMPLE_CHANNELS + 1 ] = value_r;
     }
     SF_INFO sf_info;
     sf_info.channels = SAMPLE_CHANNELS;
@@ -443,12 +443,12 @@ bool Sample::write( const QString& path, int format ) {
     }
     SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info ) ;
     if ( sf_file==0 ) {
-        ___ERRORLOG( QString("sf_open error : %1").arg( sf_strerror( sf_file ) ) );
+        ___ERRORLOG( QString( "sf_open error : %1" ).arg( sf_strerror( sf_file ) ) );
         return false;
     }
     sf_count_t res = sf_writef_float( sf_file, obuf, __frames );
     if ( res<=0 ) {
-        ___ERRORLOG( QString("sf_writef_float error : %1").arg( sf_strerror( sf_file ) ) );
+        ___ERRORLOG( QString( "sf_writef_float error : %1" ).arg( sf_strerror( sf_file ) ) );
         return false;
     }
     sf_close( sf_file );
@@ -459,8 +459,8 @@ bool Sample::write( const QString& path, int format ) {
 static double compute_pitch_scale( const Sample::Rubberband& rb ) {
     double pitchshift = rb.pitch;
     double frequencyshift = 1.0;
-    if (pitchshift != 0.0) {
-        frequencyshift *= pow(2.0, pitchshift / 12);
+    if ( pitchshift != 0.0 ) {
+        frequencyshift *= pow( 2.0, pitchshift / 12 );
     }
     //float pitch = pow( 1.0594630943593, ( double )rb.pitch );
     return frequencyshift;
@@ -485,21 +485,65 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
     // apply our settings
     int crispness = rb.c_settings;
     // compute result options
-    switch (crispness) {
-    case -1: crispness = 5; break;
-    case 0: detector = CompoundDetector; transients = NoTransients; lamination = false; longwin = true; shortwin = false; break;
-    case 1: detector = SoftDetector; transients = Transients; lamination = false; longwin = true; shortwin = false; break;
-    case 2: detector = CompoundDetector; transients = NoTransients; lamination = false; longwin = false; shortwin = false; break;
-    case 3: detector = CompoundDetector; transients = NoTransients; lamination = true; longwin = false; shortwin = false; break;
-    case 4: detector = CompoundDetector; transients = BandLimitedTransients; lamination = true; longwin = false; shortwin = false; break;
-    case 5: detector = CompoundDetector; transients = Transients; lamination = true; longwin = false; shortwin = false; break;
-    case 6: detector = CompoundDetector; transients = Transients; lamination = false; longwin = false; shortwin = true; break;
+    switch ( crispness ) {
+    case -1:
+        crispness = 5;
+        break;
+    case 0:
+        detector = CompoundDetector;
+        transients = NoTransients;
+        lamination = false;
+        longwin = true;
+        shortwin = false;
+        break;
+    case 1:
+        detector = SoftDetector;
+        transients = Transients;
+        lamination = false;
+        longwin = true;
+        shortwin = false;
+        break;
+    case 2:
+        detector = CompoundDetector;
+        transients = NoTransients;
+        lamination = false;
+        longwin = false;
+        shortwin = false;
+        break;
+    case 3:
+        detector = CompoundDetector;
+        transients = NoTransients;
+        lamination = true;
+        longwin = false;
+        shortwin = false;
+        break;
+    case 4:
+        detector = CompoundDetector;
+        transients = BandLimitedTransients;
+        lamination = true;
+        longwin = false;
+        shortwin = false;
+        break;
+    case 5:
+        detector = CompoundDetector;
+        transients = Transients;
+        lamination = true;
+        longwin = false;
+        shortwin = false;
+        break;
+    case 6:
+        detector = CompoundDetector;
+        transients = Transients;
+        lamination = false;
+        longwin = false;
+        shortwin = true;
+        break;
     };
     //if (realtime)    options |= RubberBand::RubberBandStretcher::OptionProcessRealTime;
     //if (precise)     options |= RubberBand::RubberBandStretcher::OptionStretchPrecise;
-    if (!lamination) options |= RubberBand::RubberBandStretcher::OptionPhaseIndependent;
-    if (longwin)     options |= RubberBand::RubberBandStretcher::OptionWindowLong;
-    if (shortwin)    options |= RubberBand::RubberBandStretcher::OptionWindowShort;
+    if ( !lamination ) options |= RubberBand::RubberBandStretcher::OptionPhaseIndependent;
+    if ( longwin )     options |= RubberBand::RubberBandStretcher::OptionWindowLong;
+    if ( shortwin )    options |= RubberBand::RubberBandStretcher::OptionWindowShort;
     //if (smoothing)   options |= RubberBand::RubberBandStretcher::OptionSmoothingOn;
     //if (formant)     options |= RubberBand::RubberBandStretcher::OptionFormantPreserved;
     //if (hqpitch)     options |= RubberBand::RubberBandStretcher::OptionPitchHighQuality;
@@ -516,7 +560,7 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
         break;
     }
     */
-    switch (transients) {
+    switch ( transients ) {
     case NoTransients:
         options |= RubberBand::RubberBandStretcher::OptionTransientsSmooth;
         break;

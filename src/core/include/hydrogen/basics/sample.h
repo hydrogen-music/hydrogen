@@ -87,9 +87,9 @@ class Sample : public Object {
                     loop_frame( other->loop_frame ),
                     end_frame( other->end_frame ),
                     count( other->count ),
-                    mode( other->mode) { };
+                    mode( other->mode ) { };
                 /** equal to operator */
-                bool operator ==( const Loops& b) const {
+                bool operator ==( const Loops& b ) const {
                     return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
                 }
         };
@@ -110,7 +110,7 @@ class Sample : public Object {
                     c_settings( other->c_settings ),
                     pitch( other->pitch ) { };
                 /** equal to operator */
-                bool operator ==( const Rubberband& b) const {
+                bool operator ==( const Rubberband& b ) const {
                     return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
                 }
         };
@@ -135,7 +135,7 @@ class Sample : public Object {
          * \param path the path to write the sample to
          * \format the format of the output
          */
-        bool write( const QString& path, int format= (SF_FORMAT_WAV|SF_FORMAT_PCM_16) );
+        bool write( const QString& path, int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) );
 
         /**
          * load a sample from a file
@@ -279,7 +279,7 @@ inline int Sample::get_sample_rate() const {
 }
 
 inline double Sample::get_sample_duration() const {
-    return (double)__frames / (double)__sample_rate;
+    return ( double )__frames / ( double )__sample_rate;
 }
 
 inline int Sample::get_size() const {
