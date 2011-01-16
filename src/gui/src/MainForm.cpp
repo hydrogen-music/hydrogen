@@ -842,7 +842,7 @@ void MainForm::action_instruments_clearAll()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->get_instrument_list();
-	for (uint i = 0; i < pList->get_size(); i++) {
+	for (uint i = 0; i < pList->size(); i++) {
 		Instrument* pInstr = pList->get( i );
 		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )) );
 		// remove all layers

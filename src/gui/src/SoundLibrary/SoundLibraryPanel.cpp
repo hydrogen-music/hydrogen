@@ -195,7 +195,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
-			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
@@ -222,7 +222,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			}
 
 			InstrumentList *pInstrList = pInfo->getInstrumentList();
-			for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
 
 				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );

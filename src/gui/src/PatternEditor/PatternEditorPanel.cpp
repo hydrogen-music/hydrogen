@@ -935,9 +935,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
-		Instrument *pTemp = pInstrumentList->get( nSelectedInstrument - 1 );
-		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument - 1 );
-		pInstrumentList->replace( pTemp, nSelectedInstrument );
+		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
 
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
@@ -961,10 +959,8 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
-	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->get_size() ) {
-		Instrument *pTemp = pInstrumentList->get( nSelectedInstrument + 1 );
-		pInstrumentList->replace( pInstrumentList->get( nSelectedInstrument ), nSelectedInstrument + 1 );
-		pInstrumentList->replace( pTemp, nSelectedInstrument );
+	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
+		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
 
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );

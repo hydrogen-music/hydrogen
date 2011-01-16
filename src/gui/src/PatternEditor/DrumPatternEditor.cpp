@@ -150,7 +150,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->get_size();
+	int nInstruments = pSong->get_instrument_list()->size();
 
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
@@ -329,7 +329,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->get_size();
+	int nInstruments = pSong->get_instrument_list()->size();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 	m_bRightBtnPressed = false;
@@ -408,7 +408,7 @@ void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row, int selec
 	}
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->get_size();
+	int nInstruments = pSong->get_instrument_list()->size();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
 
@@ -483,7 +483,7 @@ void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int 
 
 	Note *pDraggedNote;
 	Song *pSong = pEngine->getSong();
-	int nInstruments = pSong->get_instrument_list()->get_size();
+	int nInstruments = pSong->get_instrument_list()->size();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
@@ -623,13 +623,13 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 
 	
-	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->get_size() ) ) {
+	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->size() ) ) {
 		// the number of instruments is changed...recreate all
-		m_nEditorHeight = m_nGridHeight * pInstrList->get_size();
+		m_nEditorHeight = m_nGridHeight * pInstrList->size();
 		resize( width(), m_nEditorHeight );
 	}
 
-	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+	for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 		uint y = m_nGridHeight * nInstr;
 		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
 			painter.fillRect( 0, y + 1, ( 20 + nNotes * m_nGridWidth ), m_nGridHeight - 1, selectedRowColor );
@@ -716,7 +716,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	int nInstrument = -1;
 	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-	for ( uint nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+	for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = pInstrList->get( nInstr );
 		if ( pInstr == note->get_instrument() ) {
  			nInstrument = nInstr;
@@ -868,7 +868,7 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->get_size();
+	int nInstruments = pSong->get_instrument_list()->size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
 		if ( i == (uint)nSelectedInstrument ) {
@@ -895,7 +895,7 @@ void DrumPatternEditor::__create_background( QPainter& p)
 	}
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->get_size();
+	int nInstruments = pSong->get_instrument_list()->size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
 		// the number of instruments is changed...recreate all
@@ -1241,29 +1241,12 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 		Song *pSong = engine->getSong();
 		InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
-		if ( ( nTargetInstrument > (int)pInstrumentList->get_size() ) || ( nTargetInstrument < 0) ) {
+		if ( ( nTargetInstrument > (int)pInstrumentList->size() ) || ( nTargetInstrument < 0) ) {
 			AudioEngine::get_instance()->unlock();
 			return;
 		}
 
-
-		// move instruments...
-
-		Instrument *pSourceInstr = pInstrumentList->get(nSourceInstrument);
-		if ( nSourceInstrument < nTargetInstrument) {
-			for (int nInstr = nSourceInstrument; nInstr < nTargetInstrument; nInstr++) {
-				Instrument * pInstr = pInstrumentList->get(nInstr + 1);
-				pInstrumentList->replace( pInstr, nInstr );
-			}
-			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
-		}
-		else {
-			for (int nInstr = nSourceInstrument; nInstr >= nTargetInstrument; nInstr--) {
-				Instrument * pInstr = pInstrumentList->get(nInstr - 1);
-				pInstrumentList->replace( pInstr, nInstr );
-			}
-			pInstrumentList->replace( pSourceInstr, nTargetInstrument );
-		}
+        pInstrumentList->move( nSourceInstrument, nTargetInstrument );
 
 		#ifdef H2CORE_HAVE_JACK
 		engine->renameJackPorts();
@@ -1299,7 +1282,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 		// create a new valid ID for this instrument
 		int nID = -1;
-		for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->get_size(); ++i ) {
+		for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->size(); ++i ) {
 			Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
 			if ( pInstr->get_id().toInt() > nID ) {
 				nID = pInstr->get_id().toInt();
@@ -1318,7 +1301,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 		AudioEngine::get_instance()->unlock();
 		//move instrument to the position where it was dropped
-		functionMoveInstrumentAction(pEngine->getSong()->get_instrument_list()->get_size() - 1 , nTargetInstrument );
+		functionMoveInstrumentAction(pEngine->getSong()->get_instrument_list()->size() - 1 , nTargetInstrument );
 
 		// select the new instrument
 		pEngine->setSelectedInstrumentNumber(nTargetInstrument);
@@ -1333,7 +1316,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Instrument *pNewInstrument;
 	if( drumkitName == "" ){
-		pNewInstrument = new Instrument(QString(  pEngine->getSong()->get_instrument_list()->get_size() -1 ), instrumentName, new ADSR());
+		pNewInstrument = new Instrument(QString(  pEngine->getSong()->get_instrument_list()->size() -1 ), instrumentName, new ADSR());
 	}else
 	{
 		pNewInstrument = Instrument::load_instrument( drumkitName, instrumentName );
@@ -1342,7 +1325,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 
 	// create a new valid ID for this instrument
 	int nID = -1;
-	for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->get_size(); ++i ) {
+	for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->size(); ++i ) {
 		Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
 		if ( pInstr->get_id().toInt() > nID ) {
 			nID = pInstr->get_id().toInt();
@@ -1363,7 +1346,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	//move instrument to the position where it was dropped
-	functionMoveInstrumentAction(pEngine->getSong()->get_instrument_list()->get_size() - 1 , nSelectedInstrument );
+	functionMoveInstrumentAction(pEngine->getSong()->get_instrument_list()->size() - 1 , nSelectedInstrument );
 
 	// select the new instrument
 	pEngine->setSelectedInstrumentNumber( nSelectedInstrument );
@@ -1399,7 +1382,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->removeInstrument( pEngine->getSong()->get_instrument_list()->get_size() -1 , false );
+	pEngine->removeInstrument( pEngine->getSong()->get_instrument_list()->size() -1 , false );
 	
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK
@@ -1417,7 +1400,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 
 	// create a new valid ID for this instrument
 	int nID = -1;
-	for ( uint i = 0; i < pList->get_size(); ++i ) {
+	for ( uint i = 0; i < pList->size(); ++i ) {
 		Instrument* pInstr = pList->get( i );
 		if ( pInstr->get_id().toInt() > nID ) {
 			nID = pInstr->get_id().toInt();
@@ -1434,7 +1417,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	
 	AudioEngine::get_instance()->unlock();
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->get_size() - 1 );
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->size() - 1 );
 
 }
 ///~undo / redo actions from pattern editor instrument list

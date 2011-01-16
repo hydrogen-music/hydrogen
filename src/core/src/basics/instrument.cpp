@@ -210,7 +210,7 @@ void Instrument::load_from_name(
 
 	// find the instrument
 	InstrumentList *pInstrList = pDrumkitInfo->getInstrumentList();
-	for ( unsigned nInstr = 0; nInstr < pInstrList->get_size(); ++nInstr ) {
+	for ( unsigned nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 		pInstr = pInstrList->get( nInstr );
 		if ( pInstr->get_name() == instrument_name ) {
 			break;

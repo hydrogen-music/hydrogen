@@ -568,8 +568,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
-			int nInstrument = m_pSong->get_instrument_list()
-					         ->get_pos( pNote->get_instrument() );
+			int nInstrument = m_pSong->get_instrument_list()->index( pNote->get_instrument() );
 			EventQueue::get_instance()->push_event( EVENT_NOTEON, nInstrument );
 			continue;
 		} else {
@@ -1949,7 +1948,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 	Song *song = getSong();
 	if ( !pref->__playselectedinstrument ){
-		if ( instrument >= ( int )song->get_instrument_list()->get_size() ) {
+		if ( instrument >= ( int )song->get_instrument_list()->size() ) {
 			// unused instrument
 			AudioEngine::get_instance()->unlock();
 			return;
@@ -2592,11 +2591,11 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	*/
 	
 	//needed for the new delete function
-	int instrumentDiff =  songInstrList->get_size() - pDrumkitInstrList->get_size();
+	int instrumentDiff =  songInstrList->size() - pDrumkitInstrList->size();
 
-	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->get_size(); ++nInstr ) {
+	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = NULL;
-		if ( nInstr < songInstrList->get_size() ) {
+		if ( nInstr < songInstrList->size() ) {
 			//instrument exists already
 			pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
@@ -2613,7 +2612,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		assert( pNewInstr );
 		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
 			  .arg( nInstr )
-			  .arg( pDrumkitInstrList->get_size() )
+			  .arg( pDrumkitInstrList->size() )
 			  .arg( pNewInstr->get_name() ) );
 		
 		// creo i nuovi layer in base al nuovo strumento
@@ -2626,7 +2625,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	if ( instrumentDiff >=0	){
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
-				m_pSong->get_instrument_list()->get_size() - 1,
+				m_pSong->get_instrument_list()->size() - 1,
 				true
 				);
 		}
@@ -2671,7 +2670,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 
 	Song *pSong = getSong();
 	InstrumentList* pList = pSong->get_instrument_list();
-	if(pList->get_size()==1){
+	if(pList->size()==1){
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		Instrument* pInstr = pList->get( 0 );
 		pInstr->set_name( (QString( "Instrument 1" )) );
@@ -2690,7 +2689,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	// if the instrument was the last on the instruments list, select the
 	// next-last
 	if ( instrumentnumber
-	     >= (int)getSong()->get_instrument_list()->get_size() - 1 ) {
+	     >= (int)getSong()->get_instrument_list()->size() - 1 ) {
 		Hydrogen::get_instance()
 			->setSelectedInstrumentNumber(
 				std::max(0, instrumentnumber - 1)

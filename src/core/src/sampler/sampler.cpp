@@ -396,7 +396,7 @@ int Sampler::__render_note_no_resample(
 	int nInitialSamplePos = ( int )pNote->get_sample_position();
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
+	int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
@@ -552,7 +552,7 @@ int Sampler::__render_note_resample(
 	float fInitialSamplePos = pNote->get_sample_position();
 	double fSamplePos = pNote->get_sample_position();
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->get_instrument_list()->get_pos( pNote->get_instrument() );
+	int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();

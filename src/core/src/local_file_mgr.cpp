@@ -179,7 +179,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 
 			Instrument *instrRef = NULL;
 			// search instrument by ref
-			for ( unsigned i = 0; i < instrList->get_size(); i++ ) { Instrument *instr = instrList->get( i );
+			for ( unsigned i = 0; i < instrList->size(); i++ ) { Instrument *instr = instrList->get( i );
 				if ( instrId == instr->get_id() ) {
 					instrRef = instr;
 					break;
@@ -838,7 +838,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 	//QDomNode instrumentListNode( "instrumentList" );		// instrument list
 	QDomElement instrumentListNode = doc.createElement( "instrumentList" );
 
-	unsigned nInstrument = info->getInstrumentList()->get_size();
+	unsigned nInstrument = info->getInstrumentList()->size();
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
 		Instrument *instr = info->getInstrumentList()->get( i );
@@ -1381,7 +1381,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 	// instrument list
 	QDomNode instrumentListNode = doc.createElement( "instrumentList" );
-	unsigned nInstrument = song->get_instrument_list()->get_size();
+	unsigned nInstrument = song->get_instrument_list()->size();
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {

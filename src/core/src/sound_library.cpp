@@ -119,11 +119,11 @@ void Drumkit::dump()
 	INFOLOG( "\t|- Info = " + m_sInfo );
 
 	INFOLOG( "\t|- Instrument list" );
-	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->get_size(); ++nInstrument ) {
+	for ( unsigned nInstrument = 0; nInstrument < m_pInstrumentList->size(); ++nInstrument ) {
 		Instrument *pInstr = m_pInstrumentList->get( nInstrument );
 		INFOLOG( QString("\t\t|- (%1 of %2) Name = %3")
 			 .arg( nInstrument )
-			 .arg( m_pInstrumentList->get_size() )
+			 .arg( m_pInstrumentList->size() )
 			 .arg( pInstr->get_name() )
 			);
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
@@ -254,7 +254,7 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 	InstrumentList *pSongInstrList = pSong->get_instrument_list();
 	InstrumentList *pInstrumentList = new InstrumentList();
 
-	for ( uint nInstrument = 0; nInstrument < pSongInstrList->get_size(); nInstrument++ ) {
+	for ( uint nInstrument = 0; nInstrument < pSongInstrList->size(); nInstrument++ ) {
 		Instrument *pOldInstr = pSongInstrList->get( nInstrument );
 		Instrument *pNewInstr = new Instrument( pOldInstr->get_id(), pOldInstr->get_name(), new ADSR( *( pOldInstr->get_adsr() ) ) );
 		pNewInstr->set_gain( pOldInstr->get_gain() );

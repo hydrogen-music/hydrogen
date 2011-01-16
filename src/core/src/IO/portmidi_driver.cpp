@@ -309,7 +309,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 	
 	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 		
-	unsigned int numInstruments = instList->get_size();
+	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
 		Instrument *curInst = instList->get(index);
 	

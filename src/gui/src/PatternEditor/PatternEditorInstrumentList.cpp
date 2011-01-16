@@ -476,7 +476,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
-	unsigned nInstruments = pInstrList->get_size();
+	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
 			if ( m_pInstrumentLine[ nInstr ] ) {
@@ -524,7 +524,7 @@ void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 	INFOLOG( "[dragEnterEvent]" );
 	if ( event->mimeData()->hasFormat("text/plain") ) {
 		Song *song = (Hydrogen::get_instance())->getSong();
-		int nInstruments = song->get_instrument_list()->get_size();
+		int nInstruments = song->get_instrument_list()->size();
 		if ( nInstruments < MAX_INSTRUMENTS ) {
 			event->acceptProposedAction();
 		}

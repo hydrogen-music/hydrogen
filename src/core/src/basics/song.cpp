@@ -961,7 +961,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 			Instrument *instrRef = NULL;
 			// search instrument by ref
-			for ( unsigned i = 0; i < instrList->get_size(); i++ ) {
+			for ( unsigned i = 0; i < instrList->size(); i++ ) {
 				Instrument *instr = instrList->get( i );
 				if ( instrId == instr->get_id() ) {
 					instrRef = instr;
@@ -1013,7 +1013,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 				Instrument *instrRef = NULL;
 				// search instrument by ref
-				for ( unsigned i = 0; i < instrList->get_size(); i++ ) {
+				for ( unsigned i = 0; i < instrList->size(); i++ ) {
 					Instrument *instr = instrList->get( i );
 					if ( instrId == instr->get_id() ) {
 						instrRef = instr;

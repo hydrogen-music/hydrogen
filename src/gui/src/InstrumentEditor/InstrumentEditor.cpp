@@ -364,7 +364,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= (int)pInstrList->get_size() ) {
+		if ( nInstr >= (int)pInstrList->size() ) {
 			nInstr = -1;
 		}
 
@@ -847,7 +847,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 	if(song){
 		InstrumentList *songInstrList = song->get_instrument_list();
 		assert(songInstrList);
-		for ( unsigned nInstr = 0; nInstr < songInstrList->get_size(); ++nInstr ) {
+		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){

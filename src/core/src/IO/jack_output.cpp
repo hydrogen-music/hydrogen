@@ -601,7 +601,7 @@ void JackOutput::makeTrackOutputs( Song * song )
 
 	InstrumentList * instruments = song->get_instrument_list();
 	Instrument * instr;
-	int nInstruments = ( int )instruments->get_size();
+	int nInstruments = ( int )instruments->size();
 
 	// create dedicated channel output ports
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );

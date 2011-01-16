@@ -8,15 +8,14 @@ basics classes :
  - Note                 done
  - Sample               done
  - InstrumentLayer      done
- - InstrumentList
  - Instrument
+ - InstrumentList       done
  - Drumkit
- - PatternList
  - Pattern
+ - PatternList
  - Song
 
 remove old classes :
-
  - LocalFileMng
  - SoundLibrary
 
@@ -24,7 +23,7 @@ rework :
  - Preferences rework
 
 GUI :
-
+ - use new InstrumentList capabilities
  - SampleEditor
    - use only SampleLayer index as constructor parameter
    - __sample = Sample::load( path )

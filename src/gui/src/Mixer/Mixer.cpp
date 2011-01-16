@@ -215,7 +215,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
-	int nInstruments = pInstrList->get_size();
+	int nInstruments = pInstrList->size();
 
 	int nLine = findMixerLineByRef(ref);
 	pEngine->setSelectedInstrumentNumber( nLine );
@@ -253,7 +253,7 @@ void Mixer::soloClicked(uint nLine)
 // 	Hydrogen *pEngine = Hydrogen::get_instance();
 // 	Song *pSong = pEngine->getSong();
 // 	InstrumentList *pInstrList = pSong->get_instrument_list();
-// 	int nInstruments = pInstrList->get_size();
+// 	int nInstruments = pInstrList->size();
 // 
 // 	bool isSoloClicked = m_pMixerLine[ nLine ]->isSoloClicked();
 // 
@@ -376,7 +376,7 @@ void Mixer::updateMixer()
 	float fallOff = pPref->getMixerFalloffSpeed();
 
 	uint nMuteClicked = 0;
-	uint nInstruments = pInstrList->get_size();
+	uint nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
