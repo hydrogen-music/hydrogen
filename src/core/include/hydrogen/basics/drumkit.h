@@ -31,23 +31,6 @@ namespace H2Core
 
 class InstrumentList;
 
-
-/**
-\ingroup H2CORE
-\brief	SoundLibrary class.
-*/
-class SoundLibrary : public Object
-{
-    H2_OBJECT
-public:
-	SoundLibrary();
-	~SoundLibrary();
-
-private:
-};
-
-
-
 /**
 \ingroup H2CORE
 \brief	Drumkit info
