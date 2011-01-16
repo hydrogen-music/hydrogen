@@ -529,10 +529,6 @@ void SampleEditor::on_PlayPushButton_clicked()
 	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 
 	//calculate the new rubberband sample length
-	
-//	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
-//	double induration = (double) m_pslframes / (double) m_pSamplerate;
-//	if (induration != 0.0) m_pratio = durationtime / induration;
 	if( __rubberband.use ){
 		m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
 	}else
@@ -804,12 +800,6 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 
 void SampleEditor::checkRatioSettings()
 {
-
-	//calculate ration 
-	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
-	double induration = (double) m_pslframes / (double) m_pSamplerate;
-	if (induration != 0.0) m_pratio = durationtime / induration;
-
 	//my personal ratio quality settings
 	//ratios < 0.1 || > 3.0 are bad (red) or experimental sounds
 	//ratios > 0.1 - 0.5 || > 2.0 are middle (yellow)

@@ -50,7 +50,6 @@ void* loggerThread_func( void* param ) {
 #endif
     FILE* log_file = 0;
     if ( logger->__use_file ) {
-        // TODO
 #ifdef Q_OS_MACX
         QString sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" );
 #else
