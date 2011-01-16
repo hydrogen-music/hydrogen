@@ -21,33 +21,82 @@
  */
 
 #include <hydrogen/basics/instrument_layer.h>
+
+#include <hydrogen/helpers/xml.h>
 #include <hydrogen/basics/sample.h>
 
-namespace H2Core
-{
+namespace H2Core {
 
 const char* InstrumentLayer::__class_name = "InstrumentLayer";
 
-InstrumentLayer::InstrumentLayer( Sample *sample )
-		: Object( __class_name )
-		, __start_velocity( 0.0 )
-		, __end_velocity( 1.0 )
-		, __pitch( 0.0 )
-		, __gain( 1.0 )
-		, __sample( sample )
+InstrumentLayer::InstrumentLayer( Sample* sample ) : Object( __class_name ),
+    __start_velocity( 0.0 ),
+    __end_velocity( 1.0 ),
+    __pitch( 0.0 ),
+    __gain( 1.0 ),
+    __sample( sample )
 {
-	//infoLog( "INIT" );
 }
 
-
-
-InstrumentLayer::~InstrumentLayer()
+InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_name ),
+    __start_velocity( other->get_start_velocity() ),
+    __end_velocity( other->get_end_velocity() ),
+    __pitch( other->get_pitch() ),
+    __gain( other->get_gain() ),
+    __sample( new Sample( other->get_sample() ) )
 {
-	delete __sample;
-	__sample = NULL;
-	//infoLog( "DESTROY" );
+}
+
+InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Object( __class_name ),
+    __start_velocity( other->get_start_velocity() ),
+    __end_velocity( other->get_end_velocity() ),
+    __pitch( other->get_pitch() ),
+    __gain( other->get_gain() ),
+    __sample( sample )
+{
+}
+
+InstrumentLayer::~InstrumentLayer() {
+    delete __sample;
+    __sample = 0;
+}
+
+bool InstrumentLayer::load_sample( const QString& path ) {
+    Sample* sample = Sample::load( path+"/"+__sample->get_filename() );
+    if( !sample ) return false;
+    if( __sample ) delete __sample;
+    __sample = sample;
+    return true;
+}
+
+bool InstrumentLayer::unload_sample() {
+    Sample* sample = new Sample( __sample->get_filename(), 0, 0 );
+    if( !sample ) return false;
+    if( __sample ) delete __sample;
+    __sample = sample;
+    return true;
+}
+
+InstrumentLayer* InstrumentLayer::load_from( XMLNode* node ) {
+    Sample* sample = new Sample( node->read_string( "filename", "" ), 0, 0 );
+    InstrumentLayer* layer = new InstrumentLayer( sample );
+    layer->set_start_velocity( node->read_float( "min", 0.0 ) );
+    layer->set_end_velocity( node->read_float( "max", 1.0 ) );
+    layer->set_gain( node->read_float( "gain", 1.0, true, false ) );
+    layer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
+    return layer;
+}
+
+void InstrumentLayer::save_to( XMLNode* node ) {
+    XMLNode layer_node = node->ownerDocument().createElement( "layer" );
+    layer_node.write_string( "filename", get_sample()->get_filename() );
+    layer_node.write_float( "min", __start_velocity );
+    layer_node.write_float( "max", __end_velocity );
+    layer_node.write_float( "gain", __gain );
+    layer_node.write_float( "pitch", __pitch );
+    node->appendChild( layer_node );
 }
 
 };
 
-
+/* vim: set softtabstop=4 expandtab: */
