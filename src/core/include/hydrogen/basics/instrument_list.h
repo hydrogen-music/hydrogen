@@ -46,7 +46,7 @@ class InstrumentList : public Object {
          * copy constructor
          * \param other
          */
-        // TODO InstrumentList( InstrumentList* other );
+        InstrumentList( InstrumentList* other );
 
         /** returns the numbers of instruments */
         int size() const;
@@ -99,7 +99,7 @@ class InstrumentList : public Object {
          * \param id the id of the instrument to find
          * \return 0 if not found
          */
-        // TODO Instrument* find( const int i );
+        Instrument* find( const int i );
         /**
          * find an instrument within the instruments
          * \param name the name of the instrument to find
@@ -123,22 +123,22 @@ class InstrumentList : public Object {
          * load instrument samples
          * \param path to the directory holding the samples
          */
-        // TODO bool load_samples( const QString& path );
+        bool load_samples( const QString& path );
         /*
          * unload instrument samples
          */
-        // TODO bool unload_samples();
+        bool unload_samples();
         /*
          * save the intrument list within the given XMLNode
          * \param node the XMLNode to feed
          */
-        // TODO void save_to( XMLNode* node );
+        void save_to( XMLNode* node );
         /**
          * load an instrument list from an XMLNode
          * \param node the XMLDode to read from
          * \return a new InstrumentList instance
          */
-        // TODO static InstrumentList* load_from( XMLNode* node );
+        static InstrumentList* load_from( XMLNode* node );
 
     private:
         std::vector<Instrument*> __instruments;            ///< the list of instruments

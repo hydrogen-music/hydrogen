@@ -36,10 +36,6 @@
 #define KEYS_PER_OCTAVE         12
 
 #define MIDI_MIDDLE_C           60
-#define MIDI_OUT_NOTE_MIN       0
-#define MIDI_OUT_NOTE_MAX       127
-#define MIDI_OUT_CHANNEL_MIN    -1
-#define MIDI_OUT_CHANNEL_MAX    15
 #define MIDI_FACTOR             127
 
 #define VELOCITY_MIN            0.0f

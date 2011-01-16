@@ -26,6 +26,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
@@ -378,7 +379,7 @@ void InstrumentLine::functionDeleteInstrument()
 	PatternList *patList = song->get_pattern_list();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = pSelectedInstrument->get_drumkit_name();
+	QString drumkitName = H->getCurrentDrumkitname();
 
 	for ( int i = 0; i < patList->get_size(); i++ ) {
 		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);

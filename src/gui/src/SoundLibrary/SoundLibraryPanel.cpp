@@ -48,6 +48,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/pattern.h>

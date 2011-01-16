@@ -32,14 +32,12 @@ const char* InstrumentList::__class_name = "InstrumentList";
 InstrumentList::InstrumentList() : Object( __class_name ) {
 }
 
-/* TODO when instrument is updated
 InstrumentList::InstrumentList( InstrumentList* other ) : Object( __class_name ) {
     assert( __instruments.size() == 0 );
     for ( int i=0; i<other->size(); i++ ) {
         ( *this ) << ( new Instrument( ( *other )[i] ) );
     }
 }
-*/
 
 InstrumentList::~InstrumentList() {
     for ( int i = 0; i < __instruments.size(); ++i ) {
@@ -47,7 +45,6 @@ InstrumentList::~InstrumentList() {
     }
 }
 
-/* TODO when instrument is updated
 bool InstrumentList::load_samples( const QString& path ) {
     for( int i=0; i<__instruments.size(); i++ ) {
         if( !__instruments[i]->load_samples( path ) ) {
@@ -56,9 +53,7 @@ bool InstrumentList::load_samples( const QString& path ) {
     }
     return true;
 }
-*/
 
-/* TODO when instrument is updated
 bool InstrumentList::unload_samples() {
     for( int i=0; i<__instruments.size(); i++ ) {
         if( !__instruments[i]->unload_samples() ) {
@@ -67,9 +62,7 @@ bool InstrumentList::unload_samples() {
     }
     return true;
 }
-*/
 
-/* TODO when instrument is updated
 InstrumentList* InstrumentList::load_from( XMLNode* node ) {
     return 0;
     InstrumentList* instruments = new InstrumentList();
@@ -92,9 +85,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* node ) {
     }
     return instruments;
 }
-*/
 
-/* TODO when instrument is updated
 void InstrumentList::save_to( XMLNode* node ) {
     XMLNode instruments_node = node->ownerDocument().createElement( "instrumentList" );
     for ( int i = 0; i < size(); i++ ) {
@@ -102,7 +93,6 @@ void InstrumentList::save_to( XMLNode* node ) {
     }
     node->appendChild( instruments_node );
 }
-*/
 
 void InstrumentList::operator<<( Instrument* instrument ) {
     // do nothing if already in __instruments
@@ -153,14 +143,12 @@ int InstrumentList::index( Instrument* instr ) {
     return -1;
 }
 
-/* TODO when instrument is updated
 Instrument*  InstrumentList::find( const int id ) {
     for( int i=0; i<__instruments.size(); i++ ) {
         if ( __instruments[i]->get_id()==id ) return __instruments[i];
     }
     return 0;
 }
-*/
 
 Instrument*  InstrumentList::find( const QString& name ) {
     for( int i=0; i<__instruments.size(); i++ ) {

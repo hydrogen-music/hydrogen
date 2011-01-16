@@ -28,6 +28,8 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
@@ -177,14 +179,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 
 			QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
 
-			Instrument *instrRef = NULL;
-			// search instrument by ref
-			for ( unsigned i = 0; i < instrList->size(); i++ ) { Instrument *instr = instrList->get( i );
-				if ( instrId == instr->get_id() ) {
-					instrRef = instr;
-					break;
-				}
-			}
+		    Instrument *instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				noteNode = noteNode.nextSiblingElement( "note" );
@@ -209,7 +204,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 }
 
 
-int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString& patternname, const QString& realpatternname, int mode)
+int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int selectedpattern , const QString& patternname, const QString& realpatternname, int mode)
 {
 	//int mode = 1 save, int mode = 2 save as
 	// INSTRUMENT NODE
@@ -219,7 +214,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 
 	Pattern *pat = song->get_pattern_list()->get( selectedpattern );
 
-	QString sPatternDir = Preferences::get_instance()->getDataDirectory() + "patterns/" +  instr->get_drumkit_name();
+	QString sPatternDir = Preferences::get_instance()->getDataDirectory() + "patterns/" +  drumkit_name;
 
 	INFOLOG( "[savePattern]" + sPatternDir );
 
@@ -262,7 +257,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 	QDomNode rootNode = doc.createElement( "drumkit_pattern" );
 	//LIB_ID just in work to get better usability
 	//writeXmlString( &rootNode, "LIB_ID", "in_work" );
-	writeXmlString( rootNode, "pattern_for_drumkit", instr->get_drumkit_name() );
+	writeXmlString( rootNode, "pattern_for_drumkit", drumkit_name );
 
 
 	// pattern
@@ -288,7 +283,7 @@ int LocalFileMng::savePattern( Song *song , int selectedpattern , const QString&
 			writeXmlString( noteNode, "key", pNote->key_to_string() );
 
 			writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length() ) );
-			writeXmlString( noteNode, "instrument", pNote->get_instrument()->get_id() );
+			writeXmlString( noteNode, "instrument", QString("%1").arg( pNote->get_instrument()->get_id() ) );
 			noteListNode.appendChild( noteNode );
 		}
 		patternNode.appendChild( noteListNode );
@@ -695,7 +690,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 				break;
 			}
 
-			QString id = readXmlString( instrumentNode, "id", "" );
+			int id = readXmlInt( instrumentNode, "id", -1 );
 			QString name = readXmlString( instrumentNode, "name", "" );
 
 			float volume = readXmlFloat( instrumentNode, "volume", 1.0f );
@@ -720,13 +715,13 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			int nMidiOutNote = sMidiOutNote.toInt();
 
 			// some sanity checks
-			if ( id.isEmpty() ) {
+			if ( id==-1 ) {
 				ERRORLOG( "Empty ID for instrument. The drumkit '" + sDrumkitName + "' is corrupted. Skipping instrument '" + name + "'" );
 				instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
 				continue;
 			}
 
-			Instrument *pInstrument = new Instrument( id, name, new ADSR() );
+			Instrument *pInstrument = new Instrument( id, name );
 			pInstrument->set_volume( volume );
 
 
@@ -777,10 +772,10 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 			pInstrument->set_pan_l( pan_L );
 			pInstrument->set_pan_r( pan_R );
 			pInstrument->set_random_pitch_factor( fRandomPitchFactor );
-			pInstrument->set_drumkit_name( drumkitInfo->getName() );
+			//pInstrument->set_drumkit_name( drumkitInfo->getName() );
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
-			pInstrument->set_stop_note( isStopNote );
+			pInstrument->set_stop_notes( isStopNote );
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
@@ -868,7 +863,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 		QDomNode instrumentNode = doc.createElement( "instrument" );
 
-		LocalFileMng::writeXmlString( instrumentNode, "id", instr->get_id() );
+		LocalFileMng::writeXmlString( instrumentNode, "id", QString("%1").arg( instr->get_id() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "name", instr->get_name() );
 		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( instr->get_volume() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", instr->is_muted() );
@@ -1390,8 +1385,8 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 		QDomNode instrumentNode = doc.createElement( "instrument" );
 
-		LocalFileMng::writeXmlString( instrumentNode, "id", instr->get_id() );
-		LocalFileMng::writeXmlString( instrumentNode, "drumkit", instr->get_drumkit_name() );
+		LocalFileMng::writeXmlString( instrumentNode, "id", QString("%1").arg( instr->get_id() ) );
+		//LocalFileMng::writeXmlString( instrumentNode, "drumkit", instr->get_drumkit_name() );
 		LocalFileMng::writeXmlString( instrumentNode, "name", instr->get_name() );
 		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( instr->get_volume() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", instr->is_muted() );
@@ -1505,7 +1500,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( noteNode, "key", pNote->key_to_string() );
 
 			LocalFileMng::writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length() ) );
-			LocalFileMng::writeXmlString( noteNode, "instrument", pNote->get_instrument()->get_id() );
+			LocalFileMng::writeXmlString( noteNode, "instrument", QString("%1").arg( pNote->get_instrument()->get_id() ) );
 
 			QString noteoff = "false"; 
 			if ( pNote->get_note_off() ) noteoff = "true";			

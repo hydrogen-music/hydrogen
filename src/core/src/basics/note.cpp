@@ -28,6 +28,7 @@
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 
 namespace H2Core {
 
@@ -113,9 +114,6 @@ void Note::set_pan_r( float pan ) {
 }
 
 void Note::map_instrument( InstrumentList* instruments ) {
-    ERRORLOG( "FIXME" );
-    // TODO enable this when instrument is updated
-    /*
     if( instruments==0 ) {
         __instrument = new Instrument();
     } else {
@@ -127,7 +125,6 @@ void Note::map_instrument( InstrumentList* instruments ) {
             __instrument = instr;
         }
     }
-    */
 }
 
 void Note::set_instrument( Instrument* instrument ) {
@@ -178,7 +175,7 @@ void Note::save_to( XMLNode* node ) {
     node->write_float( "pitch", __pitch );
     node->write_string( "key", key_to_string() );
     node->write_int( "length", __length );
-    node->write_string( "instrument", get_instrument()->get_id() );
+    node->write_int( "instrument", get_instrument()->get_id() );
     node->write_bool( "note_off", __note_off );
 }
 

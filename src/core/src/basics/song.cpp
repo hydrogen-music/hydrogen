@@ -34,6 +34,8 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
@@ -184,7 +186,7 @@ Song* Song::get_default_song(){
 	song->set_swing_factor( 0.0 );
 
 	InstrumentList* pList = new InstrumentList();
-	Instrument *pNewInstr = new Instrument(QString( "" ), "New instrument", new ADSR());
+	Instrument *pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
 	pList->add( pNewInstr );
 	song->set_instrument_list( pList );
 	
@@ -484,7 +486,7 @@ Song* SongReader::readSong( const QString& filename )
 		while ( ! instrumentNode.isNull()  ) {
 			instrumentList_count++;
 
-			QString sId = LocalFileMng::readXmlString( instrumentNode, "id", "" );			// instrument id
+			int id = LocalFileMng::readXmlInt( instrumentNode, "id", -1 );			// instrument id
 			QString sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
 			Hydrogen::get_instance()->setCurrentDrumkitname( sDrumkit ); 
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
@@ -516,7 +518,7 @@ Song* SongReader::readSong( const QString& filename )
 			int nMidiOutChannel = sMidiOutChannel.toInt();
 			int nMidiOutNote = sMidiOutNote.toInt();
 
-			if ( sId.isEmpty() ) {
+			if ( id==-1 ) {
 				ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
 				instrumentNode = (QDomNode) instrumentNode.nextSiblingElement( "instrument" );
 				continue;
@@ -524,12 +526,12 @@ Song* SongReader::readSong( const QString& filename )
 
 
 			// create a new instrument
-			Instrument *pInstrument = new Instrument( sId, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
+			Instrument *pInstrument = new Instrument( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
 			pInstrument->set_volume( fVolume );
 			pInstrument->set_muted( bIsMuted );
 			pInstrument->set_pan_l( fPan_L );
 			pInstrument->set_pan_r( fPan_R );
-			pInstrument->set_drumkit_name( sDrumkit );
+			//pInstrument->set_drumkit_name( sDrumkit );
 			pInstrument->set_fx_level( fFX1Level, 0 );
 			pInstrument->set_fx_level( fFX2Level, 1 );
 			pInstrument->set_fx_level( fFX3Level, 2 );
@@ -540,7 +542,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_filter_resonance( fFilterResonance );
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
-			pInstrument->set_stop_note( isStopNote );
+			pInstrument->set_stop_notes( isStopNote );
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
@@ -957,19 +959,13 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 
-			QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
+			int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
 			Instrument *instrRef = NULL;
 			// search instrument by ref
-			for ( unsigned i = 0; i < instrList->size(); i++ ) {
-				Instrument *instr = instrList->get( i );
-				if ( instrId == instr->get_id() ) {
-					instrRef = instr;
-					break;
-				}
-			}
+			instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
-				ERRORLOG( "Instrument with ID: '" + instrId + "' not found. Note skipped." );
+				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped.").arg( instrId ) );
 				noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
 				continue;
 			}
@@ -1011,15 +1007,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 				QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
 
-				Instrument *instrRef = NULL;
-				// search instrument by ref
-				for ( unsigned i = 0; i < instrList->size(); i++ ) {
-					Instrument *instr = instrList->get( i );
-					if ( instrId == instr->get_id() ) {
-						instrRef = instr;
-						break;
-					}
-				}
+				Instrument *instrRef = instrList->find( instrId );
 				assert( instrRef );
 
 				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );

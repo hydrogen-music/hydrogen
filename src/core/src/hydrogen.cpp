@@ -49,6 +49,8 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
@@ -290,7 +292,7 @@ void audioEngine_init()
 	QString sMetronomeFilename = QString( "%1/click.wav" )
 					.arg( DataPath::get_data_path() );
 	m_pMetronomeInstrument =
-		new Instrument( sMetronomeFilename, "metronome", new ADSR() );
+		new Instrument( METRONOME_INSTR_ID, "metronome" );
 	m_pMetronomeInstrument->set_layer(
 		new InstrumentLayer( Sample::load( sMetronomeFilename ) ),
 		0
@@ -2600,7 +2602,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 			pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
-			pInstr = Instrument::create_empty();
+			pInstr = new Instrument();
 			// The instrument isn't playing yet; no need for locking
 			// :-) - Jakob Lund.  AudioEngine::get_instance()->lock(
 			// "Hydrogen::loadDrumkit" );
@@ -2617,7 +2619,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		
 		// creo i nuovi layer in base al nuovo strumento
 		// Moved code from here right into the Instrument class - Jakob Lund.
-		pInstr->load_from_placeholder( pNewInstr );
+		pInstr->load_from( drumkitInfo, pNewInstr );
 	}
 
 

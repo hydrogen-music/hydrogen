@@ -32,3 +32,5 @@ GUI :
    - must update sample view when finished
    - compute rubberband parameters, see Rubberband declaration in sample.h
    - compute velocity and pan envelope, see apply_velocity and apply_pan in sample.cpp
+
+fix : src/gui/src/SampleEditor/SampleEditor_UI.ui: Warning: Z-order assignment: 'horizontalSpacer[_2]' is not a valid widget

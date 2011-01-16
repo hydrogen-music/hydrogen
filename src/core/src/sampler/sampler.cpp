@@ -32,6 +32,8 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/sample.h>
@@ -64,7 +66,7 @@ Sampler::Sampler()
 
 	// instrument used in file preview
 	QString sEmptySampleFilename = DataPath::get_data_path() + "/emptySample.wav";
-	__preview_instrument = new Instrument( sEmptySampleFilename, "preview", new ADSR() );
+	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
 	__preview_instrument->set_volume( 0.8 );
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );
 

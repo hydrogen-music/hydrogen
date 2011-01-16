@@ -24,6 +24,8 @@
 
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
@@ -250,9 +252,6 @@ void Drumkit::save( const QString& sName, const QString& sAuthor, const QString&
 		pNewInstr->set_filter_active( pOldInstr->is_filter_active() );
 		pNewInstr->set_filter_cutoff( pOldInstr->get_filter_cutoff() );
 		pNewInstr->set_filter_resonance( pOldInstr->get_filter_resonance() );
-
-
-		QString sInstrDrumkit = pOldInstr->get_drumkit_name();
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pOldLayer = pOldInstr->get_layer( nLayer );

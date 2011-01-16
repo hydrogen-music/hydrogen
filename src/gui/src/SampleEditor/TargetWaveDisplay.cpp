@@ -23,6 +23,7 @@
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_layer.h>
 
 #include "HydrogenApp.h"
 #include "SampleEditor.h"

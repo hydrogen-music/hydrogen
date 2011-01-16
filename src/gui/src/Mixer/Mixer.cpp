@@ -33,6 +33,7 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/note.h>

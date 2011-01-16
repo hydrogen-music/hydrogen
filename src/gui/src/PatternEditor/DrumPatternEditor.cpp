@@ -30,6 +30,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/adsr.h>
@@ -1284,13 +1285,13 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 		int nID = -1;
 		for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->size(); ++i ) {
 			Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
-			if ( pInstr->get_id().toInt() > nID ) {
-				nID = pInstr->get_id().toInt();
+			if ( pInstr->get_id() > nID ) {
+				nID = pInstr->get_id();
 			}
 		}
 		++nID;
 
-		pNewInstrument->set_id( QString("%1").arg( nID ) );
+		pNewInstrument->set_id( nID );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
@@ -1316,7 +1317,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Instrument *pNewInstrument;
 	if( drumkitName == "" ){
-		pNewInstrument = new Instrument(QString(  pEngine->getSong()->get_instrument_list()->size() -1 ), instrumentName, new ADSR());
+		pNewInstrument = new Instrument( pEngine->getSong()->get_instrument_list()->size() -1, instrumentName );
 	}else
 	{
 		pNewInstrument = Instrument::load_instrument( drumkitName, instrumentName );
@@ -1327,13 +1328,13 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	int nID = -1;
 	for ( uint i = 0; i < pEngine->getSong()->get_instrument_list()->size(); ++i ) {
 		Instrument* pInstr = pEngine->getSong()->get_instrument_list()->get( i );
-		if ( pInstr->get_id().toInt() > nID ) {
-			nID = pInstr->get_id().toInt();
+		if ( pInstr->get_id() > nID ) {
+			nID = pInstr->get_id();
 		}
 	}
 	++nID;
 
-	pNewInstrument->set_id( QString("%1").arg( nID ) );
+	pNewInstrument->set_id( nID );
 //	pNewInstrument->set_adsr( new ADSR( 0, 0, 1.0, 1000 ) );
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
@@ -1402,13 +1403,13 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	int nID = -1;
 	for ( uint i = 0; i < pList->size(); ++i ) {
 		Instrument* pInstr = pList->get( i );
-		if ( pInstr->get_id().toInt() > nID ) {
-			nID = pInstr->get_id().toInt();
+		if ( pInstr->get_id() > nID ) {
+			nID = pInstr->get_id();
 		}
 	}
 	++nID;
 
-	Instrument *pNewInstr = new Instrument(QString::number( nID ), "New instrument", new ADSR());
+	Instrument *pNewInstr = new Instrument( nID, "New instrument");
 	pList->add( pNewInstr );
 	
 	#ifdef H2CORE_HAVE_JACK

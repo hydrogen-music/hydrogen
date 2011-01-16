@@ -81,7 +81,7 @@ public:
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 
 	Pattern* loadPattern( const QString& directory );
-	int savePattern( Song *song , int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
+	int savePattern( Song *song , const QString& drumkit_name, int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
 
 	int savePlayList( const std::string& patternname );
 	int loadPlayList( const std::string& patternname);

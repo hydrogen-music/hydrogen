@@ -26,6 +26,7 @@
 #include <hydrogen/hydrogen.h>
 
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/song.h>
 
 

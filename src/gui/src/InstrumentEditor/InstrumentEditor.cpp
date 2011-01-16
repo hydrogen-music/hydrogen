@@ -31,6 +31,8 @@
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 using namespace H2Core;
@@ -678,7 +680,7 @@ void InstrumentEditor::loadLayer()
 				setAutoVelocity();
 			}
 	
-			pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
+			//pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
 	
 			AudioEngine::get_instance()->unlock();
 
@@ -801,7 +803,7 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
-	m_pInstrument->set_stop_note( on );
+	m_pInstrument->set_stop_notes( on );
 }
 
 void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)

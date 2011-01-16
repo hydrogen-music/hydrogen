@@ -23,6 +23,7 @@
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_layer.h>
 using namespace H2Core;
 
 #include "WaveDisplay.h"

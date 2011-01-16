@@ -287,7 +287,7 @@ void Sample::apply_pan( const PanEnvelope& p ) {
 }
 
 void Sample::apply_rubberband( const Rubberband& rb ) {
-    // TODO see RUbberband declaration in sample.h
+    // TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
     if( __rubberband == rb ) return;
     if( !rb.use ) return;

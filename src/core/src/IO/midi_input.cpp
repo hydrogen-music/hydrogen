@@ -25,6 +25,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/action.h>
 #include <hydrogen/audio_engine.h>
