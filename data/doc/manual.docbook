@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?> <!-- -*- mode:nxml; indent-tabs-mode:nil; fill-column:80; -*- -->
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
+  <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
                       "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
 <book id="Hydrogen-manual" lang="en">
 
@@ -106,6 +106,8 @@
       </screen>
 
     </section>
+
+<!-- COMPILATION  -->
 
     <section id="sect.compilation">
       <title>Build</title>
@@ -359,6 +361,7 @@
   <chapter id="chap.using_hydrogen">
     <title>Using Hydrogen</title>
 
+<!-- FILETYPES -->
     <section id="sect.file_types">
       <title>Used Filetypes</title>
 
@@ -389,6 +392,8 @@
       </itemizedlist>
     </section>
 
+
+<!--  MAIN MENU -->
     <section id="sect.main_menu">
       <title>Main menu</title>
 
@@ -539,6 +544,8 @@
       </itemizedlist>
     </section>
 
+
+<!--   MAIN TOOLBAR  -->
     <section id="sect.main_toolbar">
       <title>The main toolbar</title>
 
@@ -597,7 +604,11 @@
           <imagedata fileref="img/background_Mode.png" format="PNG"/>
           </imageobject></inlinemediaobject></para>
 
-          <para>Set Pattern/Song Mode.</para>
+          <para>Set Pattern/Song Mode. When Song mode is selected Hydrogen will play 
+          the complete song. This is the sequence of patterns you have created in the Song 
+          Editor (see <xref linkend="sect.song_editor"/>). When Pattern mode is selected 
+          Hydrogen will play the pattern that is currently selected, and thus displayed 
+          in the Pattern Editor (see <xref linkend="sect.pattern_editor"/>).</para>
         </listitem>
         
         <listitem>
@@ -648,7 +659,7 @@
       </itemizedlist>
 
 
-
+    <!--  TAP TEMPO -->
 
       <section id="sect.tap_tempo">
         <title>Tap Tempo and BeatCounter</title>
@@ -740,6 +751,8 @@
 
     </section>
 
+
+<!-- SONG EDITOR -->
     <section id="sect.song_editor">
       <title>Song Editor</title>
 
@@ -831,109 +844,141 @@
       </figure>
 
     </section>
+    
 
+<!--  PATTERN EDITOR  -->
     <section id="sect.pattern_editor">
+    
       <title>Pattern Editor</title>
 
-      <para>The "Pattern Editor" frame (<xref linkend="fig.pattern_editor"/>)
-      lets us create or modify the pattern (bar) which is being played, or
-      add/remove notes and tune intensity as well. On the higher-left side you
-      find a pair of LCD screens: the first one lets you choose the size of a
-      pattern while the second represents the current grid resolution (4 through
-      64). Selecting an instrument which has at least one note in the pattern
-      will show a few vertical bars (one per note) on the lowest part of this
-      frame. Those frame shows the so called "note properties". This are special
-      properties which can be set for every single note. Hydrogen knows of 3
-      Properties: Velocity, Pan and Lead/Lag. Lead and Lag allows a slight note
-      lead or lag in respect of the actual beat. The range is ca. 5 ticks which
-      equals around ca. 10 ms at a tempo of 120bpm.</para>
+      <para>The "Pattern Editor" 
+      lets us create or modify the pattern (bar) which is currently selected.  You can add/remove 
+      notes, and tune a number of per-note properties like velocity and pan. The Pattern Editor 
+      can be used in 2 modes : 'Drum' mode or 'Piano' mode.  You can switch between these 
+      modes by clicking the Drum/Piano button (located on the top-right of the Pattern Editor) 
+      </para>
+      <para>First let's take a look at the (classic) 'Drum' mode :
+        <figure id="fig.PatternEditor_DrumMode">
+         <title>Pattern Editor in Drum mode</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/PatternEditor_DrumMode.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </figure>
+      </para>
+      
+      <section id="sect.pattern_editor.controls"> 
+       
+        <title>Pattern Editor Controls</title>
+        <para>The top part of the pattern editor contains a number of controls :</para>
+      
+        <figure id="fig.PatternEditorControls">
+         <title>Pattern Editor Controls</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/PatternEditorControls.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </figure>
+        
+         <para>From left to right : </para>
+         <itemizedlist mark="opencircle">
 
+           <listitem><para><emphasis role="bold">SIZE</emphasis> : lets you choose the size of the pattern (the number of bars)</para></listitem>
+
+           <listitem>
+            <para>
+             <emphasis role="bold">RES</emphasis> : this is the current grid resolution (4 through 64)
+            </para>
+            <para>
+                Remember this constraint concerning the grid: if you are working
+                with a resolution of 16 you can't go back to 8 and remove a 16th note. On
+                the other hand if you are working with a resolution of 8 and you try to
+                insert a note in the middle of two bars (looking for a 16 bars precision),
+                notes will be placed in the previous or in the following 8th bar.  This
+                constraint can be removed if you disable the whole grid resolution (choose
+                "off" from the grid resolution LCD control). Now you'll be able to place
+                notes wherever you prefer.</para>
+           </listitem>
+        
+           <listitem><para><emphasis role="bold">HEAR</emphasis> : when enabled Hydrogen 
+           will play the sample as it's being added to the pattern.</para></listitem>
+
+           <listitem><para><emphasis role="bold">QUANT</emphasis> : enables/disables quantization.  
+           When enabled the beats inserted 
+            will automatically respect the grid resolution currently applied.</para></listitem>
+
+           <listitem><para><emphasis role="bold">Drumset / Instrument</emphasis> : 
+           when set to Drumset the keys on your midi keyboard will map to the instruments in your sound library as
+           described in the instrument mapping table below.  If you set it to Instrument the keys of your midi 
+           keyboard will trigger the instrument that is currently selected.  The pitch of the instrument will follow 
+           the key you press on your keyboard.  This feature is mainly used for non-drum instruments.  An example : 
+           if you use a sample of a piano for one of your instruments, you will be able to 'play' that piano instrument 
+           using your keyboard just like you are playing a piano synth.</para></listitem>
+
+           <listitem><para><emphasis role="bold">Note Length / Note off</emphasis> : these are 2 different
+            ways to define the duration of a note. See <xref linkend="sect.pattern_editor.sequence_area"/> for usage.</para></listitem>
+
+           <listitem><para><emphasis role="bold">Drum/Piano</emphasis> : switch Pattern Editor 
+           between Drum and Piano mode. (see below)</para></listitem>
+
+         </itemizedlist>
+
+      </section>
+      
+      <section id="sect.pattern_editor.drumkit">
+      <title>Pattern Editor Drumkit</title>
+        <para>The section on the left shows you what drumkit/library is currently selected (GMkit by default) and below that you can see
+        the instruments that are part of this kit.</para>
+        
+        <para>
+        <inlinemediaobject id="ifig.pattern_editor_instrument">
+          <imageobject>
+            <imagedata fileref="img/PatternEditorInstr_V2.png" format="PNG" />
+          </imageobject>
+        </inlinemediaobject>
+        </para>
+          
+        <para>Each instrument has its own set of features that are accessible by 
+        right-clicking the instrument.  From the context menu that pops up you can select </para>
+        <itemizedlist mark="opencircle"> 
+          <listitem><para><emphasis role="bold">Clear notes</emphasis> : to remove all notes for this instrument in this pattern.  </para></listitem>
+          <listitem><para><emphasis role="bold">Fill notes</emphasis> : this allows you to fill
+          up the pattern with notes for the selected instrument.  Depending on the choice you make (fill all, fill 1/2, fill 1/4 ...)
+          notes will be placed at all, 1/2, 1/4, etc of the note positions <emphasis role="bold">that are allowed by 
+          the grid setting</emphasis>.  So be careful not to mix up the 'musical' 1/2-note and the 'fill 1/2' note.</para></listitem>
+          <listitem><para><emphasis role="bold">Randomize velocity</emphasis>
+          : automatically apply a pseudo-random velocity to each note of that
+          instrument in the pattern. The more velocity you set on the instrument,
+          the more hydrogen will hit <quote>hard</quote> on that instrument when
+          played.
+          </para></listitem>
+          <listitem><para><emphasis role="bold">Delete Instrument</emphasis> : well, deletes the instrument ;-)</para></listitem>
+        </itemizedlist>
+        
+        <para>The small red and green buttons right of the instrument names are the
+        <quote><emphasis role="bold">mute</emphasis></quote> (red) and <quote><emphasis
+        role="bold">solo</emphasis></quote> (green) buttons.</para>
+
+        <para>The order of the instruments can be rearranged by simply dragging an instrument 
+        up/down in the list and dropping it on a new position within the drumkit/library.  Doing so 
+        will not change anything to the sequence you have created for that instrument, nor will
+        it change anything to the song or pattern you are working on.  It <emphasis role="bold">
+        will</emphasis> however, have an impact on the <emphasis role="bold">MIDI note 
+        mapping</emphasis> : in the table below you can find the link between the instrument
+        position, the MIDI note and the qwerty keyboard keys.</para>
+
+      <para><emphasis role="bold">Important Notes</emphasis> :</para>
+      <para>The name of the instrument depends on the
+      drumkit that is loaded. This list below refers to the GMkit that is loaded by default.
+      </para>
       <para>
-        The button
-        <inlinemediaobject>
-          <imageobject>
-            <imagedata fileref="img/btn_hear_on.png" format="PNG" />
-          </imageobject>
-        </inlinemediaobject>
-
-        (hear new notes) will play the sample as it's been added to the
-        pattern. Finally you can move an instrument up and down in the sequence
-        with the buttons
-
-        <inlinemediaobject>
-          <imageobject>
-            <imagedata fileref="img/btn_updown.png" format="PNG" />
-          </imageobject>
-        </inlinemediaobject>
-
-        . A useful <quote>Quantize</quote> feature is available activating
-
-        <inlinemediaobject>
-          <imageobject>
-            <imagedata fileref="img/btn_quant_off.png" format="PNG"/>
-          </imageobject>
-        </inlinemediaobject>
-
-        . This way the beats inserted will automatically respect the grid
-        resolution currently applied.
+      Keep in mind that it is the <emphasis>position</emphasis> of the instrument (within the loaded drumkit) that 
+      is linked to a MIDI-note/keyboard-key and <emphasis>not the name</emphasis> of the instrument.
       </para>
 
-      <figure id="fig.pattern_editor">
-        <title>The Pattern Editor</title>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="img/PatternEditor.png" format="PNG" />
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para>Remember this constraint concerning the grid: if you are working
-      with a resolution of 16 you can't go back to 8 and remove a 16th note; on
-      the other hand if you are working with a resolution of 8 and you try to
-      insert a note in the middle of two bars (looking for a 16 bars precision),
-      notes will be placed in the previous or in the following 8th bar.  This
-      constraint can be removed if you disable the whole grid resolution (choose
-      "off" from the grid resolution LCD control). Now you'll be able to place
-      notes wherever you prefer.</para>
-
-      <para>Each instrument has its own set of features accessible
-      right-clicking with your mouse on it; <quote><emphasis
-      role="bold">Fill/Clear notes</emphasis></quote> fills or deletes every
-      note of that instrument in the current pattern (remember that filling a
-      pattern is always relative to the grid resolution set) and finally
-      <quote><emphasis role="bold">Randomize velocity</emphasis></quote>
-      automatically apply a pseudo-random velocity to each note of that
-      instrument in the pattern. The more velocity you set on the instrument,
-      the more hydrogen will hit <quote>hard</quote> on that instrument when
-      played.</para>
-
-      <para>The small green and red squares beside the instrument name are the
-      <quote><emphasis role="bold">mute</emphasis></quote> and <quote><emphasis
-      role="bold">solo</emphasis></quote> buttons.</para>
-
-      <para>
-      <inlinemediaobject id="ifig.pattern_editor_instrument">
-          <imageobject>
-            <imagedata fileref="img/PatternEditorInstr.png" format="PNG" />
-          </imageobject>
-      </inlinemediaobject>
-      </para>
-
-      <para>Also, you can set new beats clicking on
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/btn_record_over.png" format="PNG"/>
-        </imageobject>
-      </inlinemediaobject>
-
-      which enables direct input by MIDI events or by keyboard according to the
-      following map key=instrument:</para>
-
-      <para><emphasis>Note that the name of the instrument depends on the
-      drumkit loaded. This list refers to the GMKit loaded by default. The
-      position of the instrument, however, is the same.</emphasis></para>
-
+<!--
       <itemizedlist>
         <listitem><para>Z = Kick</para></listitem>
         <listitem><para>X = Snare Jazz</para></listitem>
@@ -960,22 +1005,141 @@
         <listitem><para>6 = Instrument No. 21 (currently not assigned)</para></listitem>
         <listitem><para>7 = Instrument No. 23 (currently not assigned)</para></listitem>
       </itemizedlist>
+-->
 
+      <informalfigure id="fig.InstrumentMapping">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/InstrumentMapping.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+      </informalfigure>
 
       <para>Here's a quick reference of the above bindings for your
-      convenience. See <xref linkend="chap.create_song"/> for a basic
-      walkthrough of how the pattern editor works.</para>
+      convenience. </para>
 
-      <informalfigure id="ifig.letters_keyboard">
+      <informalfigure id="fig.letters_keyboard">
         <mediaobject>
           <imageobject>
             <imagedata fileref="img/tastiera.png" format="PNG" />
           </imageobject>
         </mediaobject>
       </informalfigure>
+      </section>
 
+      <section id="sect.pattern_editor.sequence_area">
+      <title>Pattern Editor Sequence area</title>
+        <para>This is where it all happens, this is where you can make music :-)</para>
+        <para>In this area you can see your selected pattern and add notes for any instrument. 
+        The simplest way to create a pattern is by adding notes using your mouse 
+        (and the 'Fill/Clear notes' function described above). Where you can add notes
+        depends on the used pattern size and resolution.</para>
+        <para>If you are using Hydrogen as a pure 'drum' you just want Hydrogen to 'hit' 
+        the instrument wherever there's a 'dot' in the pattern. If you are using Hydrogen as an 'instrument', the 
+        length of the note becomes very important. There are 2 ways to define the length of
+        a note : in 'Note Length' mode you can add a note by left-cliking, and you can 'stretch' that note by right-click-dragging it.
+        This will change the dot into a rectangle that represents the duration of that note.  In 'Note Off' mode you can also add a
+        note by left-clicking, but a right-click will now add a blue dot that represents the end of that note. 
+        <informalfigure id="fig.NoteOff_NoteLength">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/NoteOff_NoteLength.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+        </informalfigure>
+        (Figure above, from left>right : a 'normal' note, a note in 'note length' mode, a note in 'note off' mode) 
+        </para>
+
+        <para>So far we have only used the mouse to create a pattern, but you can also record your beats by clicking the Record button 
+         <inlinemediaobject>
+          <imageobject>
+           <imagedata fileref="img/Rec_button.png" format="PNG"/>
+          </imageobject>
+         </inlinemediaobject>
+        (see <xref linkend="sect.main_menu"/>) and simply playing your pattern on your 
+        MIDI drum or your pc keyboard (see instrument mapping above).  This is probably 
+        a more musical way of creating a pattern, but it's up to you to decide what works best for you.
+        (Also see <xref linkend="chap.create_song"/> for a basic
+        walk-through of how the pattern editor works) </para>
+ 
+      </section>
+      
+      <section id="sect.pattern_editor.note_properties">
+      <title>Pattern Editor Note Properties</title>
+      <para>Clicking on an instrument or adding/removing a note next to it 
+      will select this instrument.  Once an instrument is selected the note properties 
+      for this instrument will be shown in the form of vertical lines in the bottom window.  
+      The lines represent the value for the selected property of each note of the selected instrument.  
+      You can select another note-property from the note property drop-down list (located bottom-left).  
+      There are 4 note properties available : 
+      
+      <itemizedlist mark="opencircle">
+        <listitem>
+          <para><emphasis role="bold">Velocity</emphasis> : how hard the note is played (the volume of the note)</para>
+          <para>
+          Note that the color of the note-dot and the vertical bar will change according to the velocity value you have defined. 
+          A light shade of gray means a low velocity (low volume) and the higher you set the velocity the darker the color will be,
+          turning red when you reach the point of clipping.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para><emphasis role="bold">Pan</emphasis> : with this parameter you can define
+           the stereo image of the note (how loud it will be in the left/right output)</para>
+        </listitem>
+        
+        <listitem>
+          <para>
+          <emphasis role="bold">Lead/Lag</emphasis> : Lead and Lag allows a slight note
+          lead or lag in respect of the actual beat. The range is ca. 5 ticks which
+          equals around ca. 10 ms at a tempo of 120bpm.  Changing the lead/lag can make a huge
+          difference to the way your pattern sounds and feels.  It's a groove thing ;-) 
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+          <emphasis role="bold">Notekey</emphasis> : if you select this note parameter the 
+          area where you can modify the parameter will change into a 'piano keyboard'
+          </para>
+          <informalfigure id="fig.NoteKey">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/NoteKey.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+          </informalfigure>
+          <para>The striped black and white area represents a piano keyboard and in the gray 
+          area you can choose the octave.  By placing a dot on the octave scale and a dot on the 
+          'keyboard' you can choose any note.</para>
+        </listitem>
+      </itemizedlist>
+      </para>
+
+
+      </section>
+
+      <section id="sect.pattern_editor.piano_mode">
+      <title>Pattern Editor Piano mode</title>
+      <para>Drum mode (see <xref linkend="fig.PatternEditor_DrumMode"/>) focuses on using Hydrogen as a drum machine.
+      If you are using Hydrogen as an instrument there is a big chance that the Piano mode is for you.
+      It gives you a complete 'piano keyboard' so you can easily put down your tunes.</para>
+      <para>You can compare the Piano mode to the Note properties Notekey (described above), only here you have a 
+      complete piano keyboard, so you dont have to select the octave first.</para>
+       <figure id="fig.PatternEditor_PianoMode">
+         <title>Pattern Editor in Piano mode</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/PatternEditor_PianoMode.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </figure>
+      </section>
+     
     </section>
 
+
+<!-- MIXER -->
     <section id="sect.mixer">
       <title>Mixer</title>
 
@@ -1697,10 +1861,11 @@
 
       <para>Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to
       <xref linkend="sect.main_toolbar"/> for the buttons to activate). When
-      "Pattern" mode is activated the current pattern is continuously repeated,
-      so to help changing it until we don't like it, while "Song" mode repeats
-      only the current pattern: this is useful when putting together the
-      patterns, to create the whole structure for the song.</para>
+      "Pattern" mode is activated the current pattern is continuously repeated.
+      This mode is very well suited to tweak your pattern untill it's just right, since the 
+      pattern you are working on is constantly repeated. This way you can immediately 
+      hear the changes you have made. In "Song" mode the whole song is played.  
+      This is useful when putting together the patterns, to create the structure of the song.</para>
     </section>
 
     <section id="sect.create_pattern">
