@@ -38,8 +38,10 @@ namespace H2Core {
 const char* Sample::__class_name = "Sample";
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
 
+#ifdef H2CORE_HAVE_RUBBERBAND
 static double compute_pitch_scale( const Sample::Rubberband& r );
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& r );
+#endif
 
 Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( __class_name ),
     __filepath( filepath ),
@@ -457,6 +459,7 @@ bool Sample::write( const QString& path, int format ) {
     return true;
 }
 
+#ifdef H2CORE_HAVE_RUBBERBAND
 static double compute_pitch_scale( const Sample::Rubberband& rb ) {
     double pitchshift = rb.pitch;
     double frequencyshift = 1.0;
@@ -587,6 +590,7 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
     */
     return options;
 }
+#endif
 
 };
 
