@@ -21,9 +21,7 @@
  */
 
 #include "SoundLibrarySaveDialog.h"
-
-#include <hydrogen/SoundLibrary.h>
-
+#include <hydrogen/basics/drumkit.h>
 #include <QMessageBox>
 
 const char* SoundLibrarySaveDialog::__class_name = "SoundLibrarySaveDialog";

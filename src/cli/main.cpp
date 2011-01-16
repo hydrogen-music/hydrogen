@@ -40,7 +40,6 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/SoundLibrary.h>
 #include <hydrogen/LocalFileMng.h>
 
 #include <iostream>

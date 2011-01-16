@@ -31,7 +31,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
-#include <hydrogen/SoundLibrary.h>
+#include <hydrogen/basics/drumkit.h>
 #include <cassert>
 
 // Engine states  (It's ok to use ==, <, and > when testing)

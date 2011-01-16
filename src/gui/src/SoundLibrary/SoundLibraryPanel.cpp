@@ -54,7 +54,6 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/song.h>
-#include <hydrogen/SoundLibrary.h>
 
 using namespace H2Core;
 

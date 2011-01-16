@@ -22,7 +22,7 @@
 
 #include <QDir>
 
-#include <hydrogen/SoundLibrary.h>
+#include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/LocalFileMng.h>
