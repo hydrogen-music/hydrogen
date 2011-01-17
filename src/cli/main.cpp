@@ -40,7 +40,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/LocalFileMng.h>
+#include <hydrogen/helpers/filesystem.h>
 
 #include <iostream>
 using namespace std;
@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
                 // Man your battle stations... this is not a drill.
                 Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
                 Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
+                H2Core::Filesystem::bootstrap( logger );
                 MidiMap::create_instance();
                 H2Core::Preferences::create_instance();
                 // See below for H2Core::Hydrogen.
@@ -260,8 +261,7 @@ int main(int argc, char *argv[])
 
 
 		if( ! drumkitToLoad.isEmpty() ){
-                    H2Core::LocalFileMng* mng;
-                    H2Core::Drumkit* drumkitInfo = mng->loadDrumkit( drumkitToLoad );
+                    H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path( drumkitToLoad ) );
                     H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 		}
 

@@ -55,8 +55,6 @@ public:
 	~LocalFileMng();
 	
 	std::vector<QString> getDrumkitsFromDirectory( QString );
-	std::vector<QString> getUserDrumkitList();
-	std::vector<QString> getSystemDrumkitList();
 	std::vector<QString> getPatternDirList();
 	std::vector<QString> getSongList();
 	std::vector<QString> getPatternsForDrumkit( const QString&  );
@@ -72,9 +70,6 @@ public:
 	QString getDrumkitNameForPattern( const QString& patternDir );
 	QString getCategoryFromPatternName( const QString& patternPathName );
 	QString getPatternNameFromPatternDir( const QString& patternDirName);
-
-	Drumkit* loadDrumkit( const QString& directory );
-	int saveDrumkit( Drumkit *pDrumkit );
 
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
