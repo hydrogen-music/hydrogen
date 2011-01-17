@@ -72,6 +72,14 @@ class Drumkit : public Object {
          */
         bool save( bool overwrite=false );
         /**
+         * save a drumkit, xml file and samples
+         * neither __path nor __name are updated
+         * \param dk_dir the directory to save the drumkit into
+         * \param overwrite allows to write over existing drumkit files
+         * \return true on success
+         */
+        bool save( const QString& dk_dir, bool overwrite=false );
+        /**
          * save a drumkit into an xml file
          * \param dk_path the path to save the drumkit into
          * \param overwrite allows to write over existing drumkit file

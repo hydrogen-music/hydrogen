@@ -144,8 +144,11 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 }
 
 bool Drumkit::save( bool overwrite ) {
-    INFOLOG( "Saving drumkit" );
-    QString dk_dir = Filesystem::drumkit_path( __name );
+    return  save( Filesystem::drumkit_path( __name ), overwrite );
+}
+
+bool Drumkit::save( const QString& dk_dir, bool overwrite ) {
+    INFOLOG( QString( "Saving drumkit %1 into %2" ).arg( __name ).arg( dk_dir ) );
     if( !Filesystem::mkdir( dk_dir ) ) {
         ERRORLOG( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
@@ -158,7 +161,7 @@ bool Drumkit::save( bool overwrite ) {
 }
 
 bool Drumkit::save_file( const QString& dk_path, bool overwrite ) {
-    INFOLOG( QString( "Saving drumkit into %1" ).arg( dk_path ) );
+    INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
     if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
         ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
         return false;
@@ -244,7 +247,7 @@ void Drumkit::dump() {
             if ( layer ) {
                 Sample* sample = layer->get_sample();
                 if ( sample ) {
-                    DEBUGLOG( "   |- " + sample->get_filepath() );
+                    DEBUGLOG( QString( "   |- %1 [%2]" ).arg( sample->get_filepath() ).arg( sample->is_empty() ) );
                 } else {
                     DEBUGLOG( "   |- NULL sample" );
                 }
