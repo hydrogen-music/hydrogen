@@ -45,9 +45,9 @@ InstrumentList::~InstrumentList() {
     }
 }
 
-bool InstrumentList::load_samples( const QString& path ) {
+bool InstrumentList::load_samples( const QString& dirpath ) {
     for( int i=0; i<__instruments.size(); i++ ) {
-        if( !__instruments[i]->load_samples( path ) ) {
+        if( !__instruments[i]->load_samples( dirpath ) ) {
             return false;
         }
     }
@@ -63,8 +63,7 @@ bool InstrumentList::unload_samples() {
     return true;
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode* node ) {
-    return 0;
+InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path ) {
     InstrumentList* instruments = new InstrumentList();
     XMLNode instrument_node = node->firstChildElement( "instrument" );
     int count = 0;
@@ -74,7 +73,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* node ) {
             ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
             break;
         }
-        Instrument* instrument = Instrument::load_from( &instrument_node );
+        Instrument* instrument = Instrument::load_from( &instrument_node, dk_path );
         if( instrument ) {
             ( *instruments ) << instrument;
         } else {

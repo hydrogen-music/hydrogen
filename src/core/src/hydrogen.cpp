@@ -56,6 +56,7 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/IO/AudioOutput.h>
@@ -2558,17 +2559,17 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 		m_audioEngineState = STATE_PREPARED;
 	}
 
-	INFOLOG( drumkitInfo->getName() );
-	m_currentDrumkit = drumkitInfo->getName();
+	INFOLOG( drumkitInfo->get_name() );
+	m_currentDrumkit = drumkitInfo->get_name();
 	LocalFileMng fileMng;
-	QString sDrumkitPath = fileMng.getDrumkitDirectory( drumkitInfo->getName() );
+	QString sDrumkitPath = Filesystem::drumkit_path( drumkitInfo->get_name() );
 
 
 	//current instrument list
 	InstrumentList *songInstrList = m_pSong->get_instrument_list();
 
 	//new instrument list
-	InstrumentList *pDrumkitInstrList = drumkitInfo->getInstrumentList();
+	InstrumentList *pDrumkitInstrList = drumkitInfo->get_instruments();
 
 	/*
 		If the old drumkit is bigger then the new drumkit,

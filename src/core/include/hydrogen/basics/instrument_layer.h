@@ -81,9 +81,9 @@ class InstrumentLayer : public Object {
 
         /**
          * load the sample data
-         * \param path to the directory holding the samples
+         * \param dirpath to the directory holding the samples
          */
-        bool load_sample( const QString& path );
+        bool load_sample( const QString& dirpath=0 );
         /*
          * unload sample and replace it with an empty one
          */
@@ -97,9 +97,10 @@ class InstrumentLayer : public Object {
         /**
          * load an instrument layer from an XMLNode
          * \param node the XMLDode to read from
+         * \param dk_path the directory holding the drumkit data
          * \return a new InstrumentLayer instance
          */
-        static InstrumentLayer* load_from( XMLNode* node );
+        static InstrumentLayer* load_from( XMLNode* node, const QString& dk_path );
 
     private:
         float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default

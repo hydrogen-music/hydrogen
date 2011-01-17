@@ -51,11 +51,11 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 	//display the current drumkit infos into the qlineedit
 	if ( drumkitInfo != NULL ){
 		drumkitinfo = drumkitInfo;
-		nameTxt->setText( QString( drumkitInfo->getName() ) );
-		oldName = drumkitInfo->getName();
-		authorTxt->setText( QString( drumkitInfo->getAuthor() ) );
-		infoTxt->append( QString( drumkitInfo->getInfo() ) );
-		licenseTxt->setText( QString( drumkitInfo->getLicense() ) );
+		nameTxt->setText( QString( drumkitInfo->get_name() ) );
+		oldName = drumkitInfo->get_name();
+		authorTxt->setText( QString( drumkitInfo->get_author() ) );
+		infoTxt->append( QString( drumkitInfo->get_info() ) );
+		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
 	}
 
 }
@@ -78,7 +78,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	 
 	if ( saveChanges_checkBox->isChecked() ){
 		//test if the drumkit is loaded 
-		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->getName() ){
+		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->get_name() ){
 			QMessageBox::information( this, "Hydrogen", trUtf8 ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
 			saveChanges_checkBox->setChecked( false );
 			return;
@@ -88,7 +88,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	
 	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded 
 	if ( drumkitinfo != NULL && ( !saveChanges_checkBox->isChecked() ) ){
-		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->getName() ){
+		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->get_name() ){
 			Hydrogen::get_instance()->loadDrumkit( drumkitinfo );
 			Hydrogen::get_instance()->getSong()->__is_modified = true;	
 		}
@@ -107,25 +107,22 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	//save the drumkit	
-	H2Core::Drumkit::save(
-			nameTxt->text(),
-			authorTxt->text(),
-			infoTxt->toHtml(),
-			licenseTxt->text()
-	);
+	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), true ) ) {
+        QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
+    }
 	
 	//check the name and set the drumkitinfo to current drumkit
 	if ( drumkitinfo != NULL && !nameTxt->text().isEmpty() ){
-		drumkitinfo->setName( nameTxt->text() );
-		drumkitinfo->setAuthor( authorTxt->text() );
-		drumkitinfo->setInfo( infoTxt->toHtml() );
-		drumkitinfo->setLicense( licenseTxt->text() );
+		drumkitinfo->set_name( nameTxt->text() );
+		drumkitinfo->set_author( authorTxt->text() );
+		drumkitinfo->set_info( infoTxt->toHtml() );
+		drumkitinfo->set_license( licenseTxt->text() );
 	}
 	
 
 	//check pre loaded drumkit name  and reload the old drumkit 
 	if ( predrumkit != NULL ){
-		if ( predrumkit->getName() !=  Hydrogen::get_instance()->getCurrentDrumkitname() ){
+		if ( predrumkit->get_name() !=  Hydrogen::get_instance()->getCurrentDrumkitname() ){
 			Hydrogen::get_instance()->loadDrumkit( predrumkit );
 			Hydrogen::get_instance()->getSong()->__is_modified = true;
 		}

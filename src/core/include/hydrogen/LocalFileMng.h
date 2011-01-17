@@ -69,7 +69,6 @@ public:
 	}
 	std::vector<QString> getAllCategoriesFromPattern();
 
-	QString getDrumkitDirectory( const QString& drumkitName );
 	QString getDrumkitNameForPattern( const QString& patternDir );
 	QString getCategoryFromPatternName( const QString& patternPathName );
 	QString getPatternNameFromPatternDir( const QString& patternDirName);

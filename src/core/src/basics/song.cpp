@@ -39,6 +39,7 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
 
 #include <QDomDocument>
@@ -548,8 +549,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			QString drumkitPath;
 			if ( ( !sDrumkit.isEmpty() ) && ( sDrumkit != "-" ) ) {
-//				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit + "/";
-				drumkitPath = localFileMng.getDrumkitDirectory( sDrumkit ) + sDrumkit;
+				drumkitPath = Filesystem::drumkit_path( sDrumkit );
 			}
 			
 			

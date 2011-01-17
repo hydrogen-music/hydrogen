@@ -61,8 +61,8 @@ InstrumentLayer::~InstrumentLayer() {
     __sample = 0;
 }
 
-bool InstrumentLayer::load_sample( const QString& path ) {
-    Sample* sample = Sample::load( path+"/"+__sample->get_filename() );
+bool InstrumentLayer::load_sample( const QString& dirpath ) {
+    Sample* sample = ( dirpath==0 ? Sample::load( __sample->get_filepath() ) : Sample::load( dirpath+"/"+__sample->get_filename() ) );
     if( !sample ) return false;
     if( __sample ) delete __sample;
     __sample = sample;
@@ -70,15 +70,15 @@ bool InstrumentLayer::load_sample( const QString& path ) {
 }
 
 bool InstrumentLayer::unload_sample() {
-    Sample* sample = new Sample( __sample->get_filename(), 0, 0 );
+    Sample* sample = new Sample( __sample->get_filepath(), 0, 0 );
     if( !sample ) return false;
     if( __sample ) delete __sample;
     __sample = sample;
     return true;
 }
 
-InstrumentLayer* InstrumentLayer::load_from( XMLNode* node ) {
-    Sample* sample = new Sample( node->read_string( "filename", "" ), 0, 0 );
+InstrumentLayer* InstrumentLayer::load_from( XMLNode* node, const QString& dk_path ) {
+    Sample* sample = new Sample( dk_path+"/"+node->read_string( "filename", "" ), 0, 0 );
     InstrumentLayer* layer = new InstrumentLayer( sample );
     layer->set_start_velocity( node->read_float( "min", 0.0 ) );
     layer->set_end_velocity( node->read_float( "max", 1.0 ) );

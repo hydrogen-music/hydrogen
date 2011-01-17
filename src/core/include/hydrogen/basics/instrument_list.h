@@ -121,9 +121,9 @@ class InstrumentList : public Object {
 
         /*
          * load instrument samples
-         * \param path to the directory holding the samples
+         * \param dirpath to the directory holding the samples
          */
-        bool load_samples( const QString& path );
+        bool load_samples( const QString& dirpath=0 );
         /*
          * unload instrument samples
          */
@@ -136,9 +136,10 @@ class InstrumentList : public Object {
         /**
          * load an instrument list from an XMLNode
          * \param node the XMLDode to read from
+         * \param dk_path the directory holding the drumkit data
          * \return a new InstrumentList instance
          */
-        static InstrumentList* load_from( XMLNode* node );
+        static InstrumentList* load_from( XMLNode* node, const QString& dk_path );
 
     private:
         std::vector<Instrument*> __instruments;            ///< the list of instruments

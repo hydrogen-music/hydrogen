@@ -603,33 +603,6 @@ std::vector<QString> LocalFileMng::getSystemDrumkitList()
 	return getDrumkitsFromDirectory( DataPath::get_data_path() + "/drumkits" );
 }
 
-
-QString LocalFileMng::getDrumkitDirectory( const QString& drumkitName )
-{
-	// search in system drumkit
-	std::vector<QString> systemDrumkits = Drumkit::getSystemDrumkitList();
-	for ( unsigned i = 0; i < systemDrumkits.size(); i++ ) {
-		if ( systemDrumkits[ i ].endsWith(drumkitName) ) {
-			QString path = QString( DataPath::get_data_path() ) + "/drumkits/";
-			return path;
-		}
-	}
-
-	// search in user drumkit
-	std::vector<QString> userDrumkits = Drumkit::getUserDrumkitList();
-	for ( unsigned i = 0; i < userDrumkits.size(); i++ ) {
-		if ( userDrumkits[ i ].endsWith(drumkitName) ) {
-			QString path = Preferences::get_instance()->getDataDirectory();
-			return userDrumkits[ i ].remove(userDrumkits[ i ].length() - drumkitName.length(),drumkitName.length());
-		}
-	}
-
-	ERRORLOG( "drumkit \"" + drumkitName + "\" not found" );
-	return "";	// FIXME
-}
-
-
-
 /// Restituisce un oggetto DrumkitInfo.
 /// Gli strumenti non hanno dei veri propri sample,
 /// viene utilizzato solo il campo filename.
@@ -671,10 +644,10 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 	QString license = readXmlString( drumkitNode, "license", "undefined license", true );
 
 	Drumkit *drumkitInfo = new Drumkit();
-	drumkitInfo->setName( sDrumkitName );
-	drumkitInfo->setAuthor( author );
-	drumkitInfo->setInfo( info );
-	drumkitInfo->setLicense( license );
+	drumkitInfo->set_name( sDrumkitName );
+	drumkitInfo->set_author( author );
+	drumkitInfo->set_info( info );
+	drumkitInfo->set_license( license );
 
 	InstrumentList *instrumentList = new InstrumentList();
 
@@ -686,7 +659,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 		while (! instrumentNode.isNull()  ) {
 			instrumentList_count++;
 			if ( instrumentList_count > MAX_INSTRUMENTS ) {
-				ERRORLOG( "Instrument count >= MAX_INSTRUMENTS. Drumkit: " + drumkitInfo->getName() );
+				ERRORLOG( "Instrument count >= MAX_INSTRUMENTS. Drumkit: " + drumkitInfo->get_name() );
 				break;
 			}
 
@@ -786,7 +759,7 @@ Drumkit* LocalFileMng::loadDrumkit( const QString& directory )
 	} else {
 		WARNINGLOG( "Error reading drumkit: instrumentList node not found" );
 	}
-	drumkitInfo->setInstrumentList( instrumentList );
+	drumkitInfo->set_instruments( instrumentList );
 
 	return drumkitInfo;
 }
@@ -800,7 +773,7 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
         QVector<QString> tempVector( MAX_LAYERS );
 
-	QString sDrumkitDir = Preferences::get_instance()->getDataDirectory() + "drumkits/" + info->getName();
+	QString sDrumkitDir = Preferences::get_instance()->getDataDirectory() + "drumkits/" + info->get_name();
 
 	// check if the directory exists
 	QDir dir( sDrumkitDir );
@@ -825,18 +798,18 @@ int LocalFileMng::saveDrumkit( Drumkit *info )
 
 	QDomElement rootNode = doc.createElement( "drumkit_info" );
 
-	writeXmlString( rootNode, "name", info->getName() );	// name
-	writeXmlString( rootNode, "author", info->getAuthor() );	// author
-	writeXmlString( rootNode, "info", info->getInfo() );	// info
-	writeXmlString( rootNode, "license", info->getLicense() );	// license
+	writeXmlString( rootNode, "name", info->get_name() );	// name
+	writeXmlString( rootNode, "author", info->get_author() );	// author
+	writeXmlString( rootNode, "info", info->get_info() );	// info
+	writeXmlString( rootNode, "license", info->get_license() );	// license
 
 	//QDomNode instrumentListNode( "instrumentList" );		// instrument list
 	QDomElement instrumentListNode = doc.createElement( "instrumentList" );
 
-	unsigned nInstrument = info->getInstrumentList()->size();
+	unsigned nInstrument = info->get_instruments()->size();
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		Instrument *instr = info->getInstrumentList()->get( i );
+		Instrument *instr = info->get_instruments()->get( i );
 
 		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
 			InstrumentLayer *pLayer = instr->get_layer( nLayer );

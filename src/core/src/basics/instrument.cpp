@@ -128,8 +128,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
             if ( is_live )
                 AudioEngine::get_instance()->unlock();
         } else {
-            // TODO when drumkit is up QString sample_path =  drumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
-            QString sample_path = Filesystem::drumkit_path( drumkit->getName() )+"/"+src_layer->get_sample()->get_filename();
+            QString sample_path =  drumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
             Sample* sample = Sample::load( sample_path );
             if ( sample==0 ) {
                 _ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
@@ -172,14 +171,14 @@ void Instrument::load_from( const QString& drumkit_name, const QString& instrume
     if ( dir.isEmpty() ) return;
     Drumkit* drumkit = Drumkit::load( dir );
     assert( drumkit );
-    Instrument* instrument = drumkit->getInstrumentList()->find( instrument_name );
+    Instrument* instrument = drumkit->get_instruments()->find( instrument_name );
     if ( instrument!=0 ) {
         load_from( drumkit, instrument, is_live );
     }
     delete drumkit;
 }
 
-Instrument* Instrument::load_from( XMLNode* node ) {
+Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path ) {
     int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
     if ( id==EMPTY_INSTR_ID ) return 0;
     Instrument* instrument = new Instrument( id, node->read_string( "name", "" ), 0 );
@@ -215,7 +214,7 @@ Instrument* Instrument::load_from( XMLNode* node ) {
         if( sFilename.isEmpty() ) {
             ERRORLOG( "filename back compability node is empty" );
         } else {
-            Sample* sample = new Sample( sFilename, 0, 0 );
+            Sample* sample = new Sample( dk_path+"/"+sFilename, 0, 0 );
             InstrumentLayer* layer = new InstrumentLayer( sample );
             instrument->set_layer( layer, 0 );
         }
@@ -227,7 +226,7 @@ Instrument* Instrument::load_from( XMLNode* node ) {
                 ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
                 break;
             }
-            instrument->set_layer( InstrumentLayer::load_from( &layer_node ), n );
+            instrument->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
             n++;
             layer_node = layer_node.nextSiblingElement( "layer" );
         }
@@ -235,11 +234,11 @@ Instrument* Instrument::load_from( XMLNode* node ) {
     return instrument;
 }
 
-bool Instrument::load_samples( const QString& path ) {
+bool Instrument::load_samples( const QString& dirpath ) {
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         InstrumentLayer* layer = get_layer( i );
         if( layer!=0 ) {
-            if( !layer->load_sample( path ) ) {
+            if( !layer->load_sample( dirpath ) ) {
                 return false;
             }
         }

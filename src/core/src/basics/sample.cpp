@@ -50,6 +50,13 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
     __data_l( data_l ),
     __data_r( data_r ),
     __is_modified( false ) {
+    /*
+    if( !(filepath.lastIndexOf( "/" ) >0) ) {
+        ERRORLOG( QString( "sample path : %1 is not ok" ).arg( filepath ) );
+        sleep(1);
+        0/0;
+    }
+    */
     assert( filepath.lastIndexOf( "/" ) >0 );
 }
 

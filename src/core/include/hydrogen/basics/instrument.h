@@ -55,31 +55,35 @@ class Instrument : public Object {
         /** destructor */
         ~Instrument();
 
-        /** creates a new Instrument, loads samples from a given instrument within a given drumkit
+        /**
+         * creates a new Instrument, loads samples from a given instrument within a given drumkit
          * \param drumkit_name the drumkit to search the instrument in
          * \param instrument_name the instrument within the drumkit to load samples from
          * \return a new Instrument instance
          */
         static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name );
 
-        /** loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
+        /**
+         * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
          * \param drumkit_name the drumkit to search the instrument in
          * \param instrument_name the instrument within the drumkit to load samples from
          * \param is_live is it performed while playing
          */
         void load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live = true );
 
-        /** loads instrument from a given instrument into a `live` Instrument object.
+        /**
+         * loads instrument from a given instrument into a `live` Instrument object.
          * \param drumkit the drumkit the instrument belongs to
          * \param instrument to load samples and members from
          * \param is_live is it performed while playing
          */
         void load_from( Drumkit* drumkit, Instrument* instrument, bool is_live = true );
 
-        /**load samples data
-         * \param path to the directory holding the samples
+        /**
+         * load samples data
+         * \param dirpath to the directory holding the samples
          */
-        bool load_samples( const QString& path );
+        bool load_samples( const QString& dirpath=0 );
         /*
          * unload instrument samples
          */
@@ -93,9 +97,10 @@ class Instrument : public Object {
         /**
          * load an instrument from an XMLNode
          * \param node the XMLDode to read from
+         * \param dk_path the directory holding the drumkit data
          * \return a new Instrument instance
          */
-        static Instrument* load_from( XMLNode* node );
+        static Instrument* load_from( XMLNode* node, const QString& dk_path );
 
         /**
          * get an instrument layer from  the list

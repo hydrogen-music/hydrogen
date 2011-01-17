@@ -44,6 +44,7 @@
 #include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/playlist.h>
+#include <hydrogen/helpers/filesystem.h>
 
 #include <signal.h>
 #include <iostream>
@@ -242,6 +243,7 @@ int main(int argc, char *argv[])
         Logger::set_bit_mask( logLevelOpt );
         Logger* logger = Logger::get_instance();
 		Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+        H2Core::Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
