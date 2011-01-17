@@ -100,13 +100,19 @@ XMLDoc::XMLDoc( ) : Object( __class_name ) { }
 
 bool XMLDoc::read( const QString& filepath, const QString& schemapath ) {
     QXmlSchema schema;
+    bool schema_usable = false;
     if( schemapath!=0 ) {
         QFile file( schemapath );
         if ( !file.open( QIODevice::ReadOnly ) ) {
-            ERRORLOG( QString( "Unable to open xml schema %1 for reading" ).arg( schemapath ) );
+            ERRORLOG( QString( "Unable to open XML schema %1 for reading" ).arg( schemapath ) );
         } else {
             schema.load( &file, QUrl::fromLocalFile( file.fileName() ) );
             file.close();
+            if ( schema.isValid() ) {
+                schema_usable = true;
+            } else {
+                ERRORLOG( QString( "%2 XML schema is not valid" ).arg( schemapath ) );
+            }
         }
     }
     QFile file( filepath );
@@ -114,21 +120,16 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath ) {
         ERRORLOG( QString( "Unable to open %1 for reading" ).arg( filepath ) );
         return false;
     }
-    if ( schemapath!=0 ) {
-        if ( schema.isValid() ) {
-            QXmlSchemaValidator validator( schema );
-            INFOLOG( QString( "validating XML::%1 with XSD::%2" ).arg( filepath ).arg( schemapath ) );
-            if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
-                ERRORLOG( QString( "XML document %1 is not valid (%2)" ).arg( filepath ).arg( schemapath ) );
-                file.close();
-                return false;
-            }
+    if ( schema_usable ) {
+        QXmlSchemaValidator validator( schema );
+        if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
+            ERRORLOG( QString( "XML document %1 is not valid (%2), loading may fail" ).arg( filepath ).arg( schemapath ) );
+            // TODO should we be more strict ?
+            // file.close();
+            // return false;
         } else {
-            ERRORLOG( QString( "%2 XML schema is not valid" ).arg( schemapath ) );
-            file.close();
-            return false;
+            INFOLOG( QString( "XML document %1 is valid (%2)" ).arg( filepath ).arg( schemapath ) );
         }
-        INFOLOG( QString( "XML document %1 is valid (%2)" ).arg( filepath ).arg( schemapath ) );
         file.seek( 0 );
     }
     if( !setContent( &file ) ) {
