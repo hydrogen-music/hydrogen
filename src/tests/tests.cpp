@@ -4,6 +4,7 @@
 #include "hydrogen/helpers/filesystem.h"
 
 void rubberband_test();
+int xml_drumkit( int log_level );
 
 int main(int argc, char *argv[]) {
 
@@ -17,6 +18,7 @@ int main(int argc, char *argv[]) {
     H2Core::Filesystem::info();
 
     rubberband_test();
+    xml_drumkit( log_level );
 
     delete logger;
 

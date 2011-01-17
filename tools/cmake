@@ -63,7 +63,7 @@ function cmake_exec() {
 
 function cmake_tests() {
     cmake_init
-    echo -e " * execute tests\n" && cd build && ./src/tests/tests&& cd .. || exit 1
+    echo -e " * execute tests\n" && ./build/src/tests/tests&& cd .. || exit 1
 }
 
 function cmake_pkg() {
