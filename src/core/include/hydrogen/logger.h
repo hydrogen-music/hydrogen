@@ -32,6 +32,8 @@
 class QString;
 class QStringList;
 
+namespace H2Core {
+
 /**
  * Class for writing logs to the console
  */
@@ -125,6 +127,8 @@ class Logger {
          */
         static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
+};
+
 };
 
 #endif // H2C_LOGGER_H

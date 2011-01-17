@@ -99,8 +99,6 @@ class Object {
         static Logger* __logger;                ///< logger instance pointer
 };
 
-};
-
 // Object inherited class declaration macro
 #define H2_OBJECT                                                       \
     public: static const char* class_name() { return __class_name; }    \
@@ -110,32 +108,34 @@ class Object {
 #define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, msg ); }
 #define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, msg ); }
 #define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
-#define __LOG_STATIC(   lvl, msg )  if( Logger::get_instance()->should_log( (lvl) ) )   { Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
+#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, msg ); }
 
 // Object instance method logging macros
-#define DEBUGLOG(x)     __LOG_METHOD( Logger::Debug,   (x) );
-#define INFOLOG(x)      __LOG_METHOD( Logger::Info,    (x) );
-#define WARNINGLOG(x)   __LOG_METHOD( Logger::Warning, (x) );
-#define ERRORLOG(x)     __LOG_METHOD( Logger::Error,   (x) );
+#define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );
+#define INFOLOG(x)      __LOG_METHOD( H2Core::Logger::Info,    (x) );
+#define WARNINGLOG(x)   __LOG_METHOD( H2Core::Logger::Warning, (x) );
+#define ERRORLOG(x)     __LOG_METHOD( H2Core::Logger::Error,   (x) );
 
 // Object class method logging macros
-#define _DEBUGLOG(x)    __LOG_CLASS( Logger::Debug,   (x) );
-#define _INFOLOG(x)     __LOG_CLASS( Logger::Info,    (x) );
-#define _WARNINGLOG(x)  __LOG_CLASS( Logger::Warning, (x) );
-#define _ERRORLOG(x)    __LOG_CLASS( Logger::Error,   (x) );
+#define _DEBUGLOG(x)    __LOG_CLASS( H2Core::Logger::Debug,   (x) );
+#define _INFOLOG(x)     __LOG_CLASS( H2Core::Logger::Info,    (x) );
+#define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
+#define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
 
 // logging macros using an Object *__object ( thread :  Object* __object = ( Object* )param; )
-#define __DEBUGLOG(x)   __LOG_OBJ( Logger::Debug,      (x) );
-#define __INFOLOG(x)    __LOG_OBJ( Logger::Info,       (x) );
-#define __WARNINGLOG(x) __LOG_OBJ( Logger::Warning,    (x) );
-#define __ERRORLOG(x)   __LOG_OBJ( Logger::Error,      (x) );
+#define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
+#define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );
+#define __WARNINGLOG(x) __LOG_OBJ( H2Core::Logger::Warning,    (x) );
+#define __ERRORLOG(x)   __LOG_OBJ( H2Core::Logger::Error,      (x) );
 
 // logging macros using  ( thread :  Object* __object = ( Object* )param; )
-#define ___DEBUGLOG(x)  __LOG_STATIC( Logger::Debug,    (x) );
-#define ___INFOLOG(x)   __LOG_STATIC( Logger::Info,     (x) );
-#define ___WARNINGLOG(x) __LOG_STATIC(Logger::Warning,  (x) );
-#define ___ERRORLOG(x)  __LOG_STATIC( Logger::Error,    (x) );
+#define ___DEBUGLOG(x)  __LOG_STATIC( H2Core::Logger::Debug,    (x) );
+#define ___INFOLOG(x)   __LOG_STATIC( H2Core::Logger::Info,     (x) );
+#define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,  (x) );
+#define ___ERRORLOG(x)  __LOG_STATIC( H2Core::Logger::Error,    (x) );
+
+};
 
 #endif // H2C_OBJECT_H
 

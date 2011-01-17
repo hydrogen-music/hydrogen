@@ -34,6 +34,8 @@
 #define LOGGER_SLEEP usleep( 1000000 )
 #endif
 
+namespace H2Core {
+
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=0;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug" };
@@ -237,5 +239,7 @@ int Logger::hextoi( const char* str, long len ) {
     return res;
 }
 #endif // HAVE_SSCANF
+
+};
 
 /* vim: set softtabstop=4 expandtab: */

@@ -154,8 +154,8 @@ int main(int argc, char *argv[])
                 }
 
                 // Man your battle stations... this is not a drill.
-                Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
-                H2Core::Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
+                H2Core::Logger* logger = H2Core::Logger::bootstrap( H2Core::Logger::parse_log_level( logLevelOpt ) );
+                H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
                 H2Core::Filesystem::bootstrap( logger );
                 MidiMap::create_instance();
                 H2Core::Preferences::create_instance();
@@ -211,13 +211,13 @@ int main(int argc, char *argv[])
                                 songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
                                 songFilename.append("/hydrogen.h2song");
 
-//				Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+//				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
 
                                 lash_event_destroy(lash_event);
                         }
                         else if (lash_event)
                         {
-//				Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+//				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
                                 lash_event_destroy(lash_event);
                         }
                 }
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 
                 ___INFOLOG( "Quitting..." );
                 cout << "\nBye..." << endl;
-                delete Logger::get_instance();
+                delete H2Core::Logger::get_instance();
 
                 int nObj = H2Core::Object::objects_count();
                 if (nObj != 0) {

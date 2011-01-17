@@ -45,9 +45,9 @@ void usage()
 
 int main(int argc, char** argv) {
 
-    int log_level = Logger::Debug | Logger::Info | Logger::Warning | Logger::Error;
-    Logger* logger = Logger::bootstrap( log_level );
-    H2Core::Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+    int log_level = H2Core::Logger::Debug | H2Core::Logger::Info | H2Core::Logger::Warning | H2Core::Logger::Error;
+    H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
+    H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 	___INFOLOG( "test" );
 
 	if (argc != 2) {
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 				delete H2Core::EventQueue::get_instance();
 				delete H2Core::AudioEngine::get_instance();
 				delete preferences;
-				delete Logger::get_instance();
+				delete H2Core::Logger::get_instance();
 
 				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
                 H2Core::Object::write_objects_map_to_cerr();

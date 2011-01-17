@@ -8,11 +8,11 @@ int xml_drumkit( int log_level );
 
 int main(int argc, char *argv[]) {
 
-    int log_level = Logger::Debug | Logger::Info | Logger::Warning | Logger::Error;
+    int log_level = H2Core::Logger::Debug | H2Core::Logger::Info | H2Core::Logger::Warning | H2Core::Logger::Error;
     /* Logger */
-    Logger* logger = Logger::bootstrap( log_level );
+    H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
     /* Object */
-    H2Core::Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+    H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
     /* Filesystem */
     H2Core::Filesystem::bootstrap( logger );
     H2Core::Filesystem::info();
