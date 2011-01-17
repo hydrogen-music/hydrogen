@@ -84,6 +84,8 @@ public:
                  __interpolateMode = mode;
         }
 
+        InterpolateMode getInterpolateMode(){ return __interpolateMode; }
+
 private:
 	std::vector<Note*> __playing_notes_queue;
 	std::vector<Note*> __queuedNoteOffs;

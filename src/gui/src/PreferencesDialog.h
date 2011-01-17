@@ -47,6 +47,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
+                void on_resampleComboBox_currentIndexChanged ( int index );
 		void on_sampleRateComboBox_editTextChanged( const QString& text );
 		void on_midiPortComboBox_activated( int index );
 		void on_styleComboBox_activated( int index );

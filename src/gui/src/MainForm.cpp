@@ -768,9 +768,11 @@ void MainForm::action_file_openDemo()
 
 void MainForm::showPreferencesDialog()
 {
+/*
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
-		Hydrogen::get_instance()->sequencer_stop();
-	}
+                Hydrogen::get_instance()->sequencer_stop();
+        }
+*/
 
 	h2app->showPreferencesDialog();
 }

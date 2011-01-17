@@ -38,6 +38,8 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/LashClient.h>
+#include <hydrogen/audio_engine.h>
+#include <hydrogen/sampler/Sampler.h>
 
 using namespace H2Core;
 
@@ -148,6 +150,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
 	}
 
+        resampleComboBox->setCurrentIndex( (int) AudioEngine::get_instance()->get_sampler()->getInterpolateMode() );
 
 	// Appearance tab
 	QString applicationFamily = pPref->getApplicationFontFamily();
@@ -658,5 +661,28 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 		 Preferences::get_instance()->m_bsetLash = false ;
 	}
 	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
+}
+
+
+void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
+{
+        switch ( index ){
+        case 0:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+               break;
+        case 1:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+               break;
+        case 2:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+               break;
+        case 3:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+               break;
+        case 4:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+               break;
+        }
+
 }
 

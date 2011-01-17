@@ -626,7 +626,6 @@ int Sampler::__render_note_resample(
                                 fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
                                 fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
                                 break;
-                                break;
                         }
                         // the methode Interpolate produce an extra function call and eat much more time here.
                         // so i deside to code the switch direct in the resampler code. it is not so nice but save much process time.
