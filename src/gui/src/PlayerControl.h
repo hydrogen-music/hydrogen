@@ -44,7 +44,7 @@ class PixmapWidget;
 ///
 ///
 ///
-class MetronomeWidget : public QWidget,public EventListener, public Object
+class MetronomeWidget : public QWidget,public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -80,7 +80,7 @@ class MetronomeWidget : public QWidget,public EventListener, public Object
 ///
 /// Player control panel
 ///
-class PlayerControl : public QLabel, public Object
+class PlayerControl : public QLabel, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

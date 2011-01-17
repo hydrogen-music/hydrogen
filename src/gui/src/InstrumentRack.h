@@ -31,7 +31,7 @@
 class ToggleButton;
 class SoundLibraryPanel;
 
-class InstrumentRack : public QWidget, private Object
+class InstrumentRack : public QWidget, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

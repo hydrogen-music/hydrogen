@@ -58,7 +58,7 @@ public:
 ///
 /// Event queue: is the way the engine talks to the GUI
 ///
-class EventQueue : public Object
+class EventQueue : public H2Core::Object
 {
     H2_OBJECT
 public:

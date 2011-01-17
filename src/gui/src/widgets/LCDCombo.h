@@ -31,7 +31,7 @@
 class Button;
 class LCDDisplay;
 
-class LCDCombo : public QWidget, public Object
+class LCDCombo : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

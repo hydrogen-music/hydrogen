@@ -50,7 +50,7 @@ namespace H2Core
 ///
 /// Pattern Editor Panel
 ///
-class PatternEditorPanel : public QWidget, public EventListener, public Object
+class PatternEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

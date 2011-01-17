@@ -30,7 +30,7 @@
 #include "../EventListener.h"
 #include <hydrogen/object.h>
 
-class MidiActivityWidget : public QWidget, public EventListener, public Object
+class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

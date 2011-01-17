@@ -37,7 +37,7 @@ class Instrument;
 ///
 /// The Pattern is a Note container.
 ///
-class Pattern : public Object
+class Pattern : public H2Core::Object
 {
     H2_OBJECT
 public:

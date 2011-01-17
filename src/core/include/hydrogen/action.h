@@ -29,7 +29,7 @@
 using namespace std;
 
 
-class Action : public Object {
+class Action : public H2Core::Object {
     H2_OBJECT
 	public:
 		Action( QString );
@@ -65,7 +65,7 @@ class Action : public Object {
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
 
 
-class ActionManager : public Object
+class ActionManager : public H2Core::Object
 {
     H2_OBJECT
 	private:

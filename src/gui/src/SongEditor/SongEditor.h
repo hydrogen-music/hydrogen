@@ -44,7 +44,7 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 ///
 /// Song editor
 ///
-class SongEditor : public QWidget, public Object
+class SongEditor : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -99,7 +99,7 @@ class SongEditor : public QWidget, public Object
 ///
 /// Song editor pattern list
 ///
-class SongEditorPatternList : public QWidget, public Object, public EventListener
+class SongEditorPatternList : public QWidget, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
@@ -170,7 +170,7 @@ class SongEditorPatternList : public QWidget, public Object, public EventListene
 // }
 //
 
-class SongEditorPositionRuler : public QWidget, public Object
+class SongEditorPositionRuler : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

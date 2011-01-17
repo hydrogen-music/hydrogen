@@ -32,7 +32,7 @@
 ///
 /// Dialog for exporting song
 ///
-class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public EventListener, public Object
+class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

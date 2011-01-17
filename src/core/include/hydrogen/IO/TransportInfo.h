@@ -27,7 +27,7 @@
 namespace H2Core
 {
 
-class TransportInfo : public Object
+class TransportInfo : public H2Core::Object
 {
     H2_OBJECT
 public:

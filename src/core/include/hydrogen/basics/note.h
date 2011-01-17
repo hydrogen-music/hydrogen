@@ -55,7 +55,7 @@ class InstrumentList;
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
-class Note : public Object {
+class Note : public H2Core::Object {
         H2_OBJECT
     public:
         /** possible keys */

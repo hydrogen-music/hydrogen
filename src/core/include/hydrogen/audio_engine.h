@@ -42,7 +42,7 @@ namespace H2Core
 ///
 /// Audio Engine main class (Singleton).
 ///
-class AudioEngine : public Object
+class AudioEngine : public H2Core::Object
 {
     H2_OBJECT
 public:

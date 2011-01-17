@@ -35,7 +35,7 @@ namespace H2Core
 	class Pattern;
 }
 
-class PatternEditorRuler : public QWidget, public Object, public EventListener
+class PatternEditorRuler : public QWidget, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT

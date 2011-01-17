@@ -18,7 +18,7 @@ int main( int argc, char* argv[] )
 
     int log_level = Logger::Debug | Logger::Info | Logger::Warning | Logger::Error;
     Logger* logger = Logger::bootstrap( log_level );
-    Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+    H2Core::Object::bootstrap( logger, logger->should_log(Logger::Debug) );
 
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 
@@ -60,8 +60,8 @@ int main( int argc, char* argv[] )
 				delete H2Core::Preferences::get_instance();
 				delete Logger::get_instance();
 
-				std::cout << std::endl << std::endl << Object::objects_count() << " alive objects" << std::endl << std::endl;
-				Object::write_objects_map_to_cerr();
+				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
+                H2Core::Object::write_objects_map_to_cerr();
 
 				return 0;
 				break;

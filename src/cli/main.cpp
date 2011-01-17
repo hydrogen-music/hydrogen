@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 
                 // Man your battle stations... this is not a drill.
                 Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
-                Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
+                H2Core::Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
                 H2Core::Filesystem::bootstrap( logger );
                 MidiMap::create_instance();
                 H2Core::Preferences::create_instance();
@@ -281,10 +281,10 @@ int main(int argc, char *argv[])
                 cout << "\nBye..." << endl;
                 delete Logger::get_instance();
 
-                int nObj = Object::objects_count();
+                int nObj = H2Core::Object::objects_count();
                 if (nObj != 0) {
                         std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
-                        Object::write_objects_map_to_cerr();
+                        H2Core::Object::write_objects_map_to_cerr();
                 }
 
 
@@ -310,7 +310,7 @@ void showInfo()
         cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
-        if ( Object::count_active() ) {
+        if ( H2Core::Object::count_active() ) {
                 cout << "\nObject counting active" << endl;
         }
 

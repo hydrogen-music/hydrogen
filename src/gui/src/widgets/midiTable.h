@@ -27,7 +27,7 @@
 
 #include <QtGui>
 
-class MidiTable : public QTableWidget, public Object
+class MidiTable : public QTableWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

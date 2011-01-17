@@ -37,7 +37,7 @@
 /// handle playlist  
 ///
 
-class Playlist :  public Object
+class Playlist :  public H2Core::Object
 
 {
     H2_OBJECT

@@ -31,7 +31,7 @@
 
 class Action;
 
-class MidiMap : public Object
+class MidiMap : public H2Core::Object
 {
     H2_OBJECT
 	public:

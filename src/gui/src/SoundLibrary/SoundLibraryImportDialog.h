@@ -45,7 +45,7 @@ struct SoundLibraryInfo
 ///
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
 ///
-class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public Object
+class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

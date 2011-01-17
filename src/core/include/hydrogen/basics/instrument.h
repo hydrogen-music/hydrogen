@@ -40,7 +40,7 @@ class InstrumentLayer;
 /**
 Instrument class
 */
-class Instrument : public Object {
+class Instrument : public H2Core::Object {
         H2_OBJECT
     public:
         /**

@@ -40,7 +40,7 @@ namespace H2Core
 class SoundLibraryTree;
 class ToggleButton;
 
-class SoundLibraryPanel : public QWidget, private Object
+class SoundLibraryPanel : public QWidget, private H2Core::Object
 {
     H2_OBJECT
 Q_OBJECT

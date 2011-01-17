@@ -31,7 +31,7 @@ namespace H2Core
 	class InstrumentLayer;
 }
 
-class WaveDisplay : public QWidget, public Object
+class WaveDisplay : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

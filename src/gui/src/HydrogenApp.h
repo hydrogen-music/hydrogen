@@ -55,7 +55,7 @@ class PlaylistDialog;
 class SampleEditor;
 class Director;
 
-class HydrogenApp : public QObject, public Object
+class HydrogenApp : public QObject, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

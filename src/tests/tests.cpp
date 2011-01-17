@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     /* Logger */
     Logger* logger = Logger::bootstrap( log_level );
     /* Object */
-    Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+    H2Core::Object::bootstrap( logger, logger->should_log(Logger::Debug) );
     /* Filesystem */
     H2Core::Filesystem::bootstrap( logger );
     H2Core::Filesystem::info();

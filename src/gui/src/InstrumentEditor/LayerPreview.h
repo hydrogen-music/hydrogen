@@ -29,7 +29,7 @@
 #include "../EventListener.h"
 
 
-class LayerPreview : public QWidget, public Object, public EventListener
+class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT

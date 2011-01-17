@@ -32,7 +32,7 @@ class Fader;
 class LCDDisplay;
 class InstrumentNameWidget;
 
-class LadspaFXProperties : public QWidget, public Object {
+class LadspaFXProperties : public QWidget, public H2Core::Object {
     H2_OBJECT
 	Q_OBJECT
 

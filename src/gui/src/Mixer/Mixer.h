@@ -39,7 +39,7 @@ class MasterMixerLine;
 class LadspaFXMixerLine;
 class PixmapWidget;
 
-class Mixer : public QWidget, public EventListener, public Object
+class Mixer : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

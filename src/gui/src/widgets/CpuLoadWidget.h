@@ -34,7 +34,7 @@
 ///
 /// Shows CPU load
 ///
-class CpuLoadWidget : public QWidget, public EventListener, public Object
+class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

@@ -28,7 +28,7 @@
 
 #include <QtGui>
 
-class FileBrowser : public QWidget, private Object
+class FileBrowser : public QWidget, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

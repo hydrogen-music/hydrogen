@@ -28,7 +28,7 @@
 #include "SampleEditor.h"
 class SampleEditor;
 
-class MainSampleWaveDisplay : public QWidget, public Object
+class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

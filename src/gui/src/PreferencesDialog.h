@@ -31,7 +31,7 @@
 ///
 /// Preferences Dialog
 ///
-class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public Object
+class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

@@ -45,7 +45,7 @@ class LayerPreview;
 ///
 /// Instrument Editor
 ///
-class InstrumentEditor : public QWidget, public Object, public EventListener
+class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT

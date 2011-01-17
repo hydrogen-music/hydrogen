@@ -31,7 +31,7 @@
 
 #include <hydrogen/object.h>
 
-class SimpleHTMLBrowser : public QDialog, public Object
+class SimpleHTMLBrowser : public QDialog, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

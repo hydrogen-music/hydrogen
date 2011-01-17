@@ -30,7 +30,7 @@
 
 #include <vector>
 
-class LCDDigit : public QWidget, public Object
+class LCDDigit : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -69,7 +69,7 @@ class LCDDigit : public QWidget, public Object
 
 
 
-class LCDDisplay : public QWidget, public Object
+class LCDDisplay : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -96,7 +96,7 @@ class LCDDisplay : public QWidget, public Object
 };
 
 
-class LCDSpinBox : public QWidget, public Object
+class LCDSpinBox : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

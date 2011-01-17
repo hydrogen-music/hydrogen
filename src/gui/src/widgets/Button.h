@@ -37,7 +37,7 @@ class PixmapWidget;
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, public Object, public MidiLearnable
+class Button : public QWidget, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT

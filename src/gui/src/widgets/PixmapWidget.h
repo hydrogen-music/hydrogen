@@ -27,7 +27,7 @@
 
 #include <hydrogen/object.h>
 
-class PixmapWidget : public Object, public QWidget
+class PixmapWidget : public H2Core::Object, public QWidget
 {
     H2_OBJECT
 	public:

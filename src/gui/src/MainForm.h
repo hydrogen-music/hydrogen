@@ -39,7 +39,7 @@ class QUndoView;///debug only
 ///
 /// Main window
 ///
-class MainForm : public QMainWindow, public EventListener, public Object
+class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

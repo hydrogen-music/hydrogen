@@ -42,7 +42,7 @@ class	DetailWaveDisplay;
 ///
 /// This dialog is used to preview audiofiles
 ///
-class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public Object
+class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

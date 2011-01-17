@@ -27,6 +27,8 @@
 #include <iomanip>
 #include <cstdlib>
 
+namespace H2Core {
+
 Logger* Object::__logger = 0;
 bool Object::__count = false;
 unsigned Object::__objects_count = 0;
@@ -140,5 +142,7 @@ void Object::write_objects_map_to( std::ostream& out ) {
 #endif
 #endif
 }
+
+};
 
 /* vim: set softtabstop=4 expandtab: */

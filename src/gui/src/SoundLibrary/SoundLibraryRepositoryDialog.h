@@ -29,7 +29,7 @@
 ///
 ///
 ///
-class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepositoryDialog_UI, public Object
+class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepositoryDialog_UI, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

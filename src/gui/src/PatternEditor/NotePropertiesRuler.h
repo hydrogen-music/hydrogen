@@ -37,7 +37,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 
-class NotePropertiesRuler : public QWidget, public Object, public EventListener
+class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT

@@ -33,7 +33,7 @@ namespace H2Core
 class Pattern;
 
 /// Pattern List
-class PatternList : public Object
+class PatternList : public H2Core::Object
 {
     H2_OBJECT
 public:

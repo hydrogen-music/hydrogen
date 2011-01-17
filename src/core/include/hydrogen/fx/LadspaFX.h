@@ -35,7 +35,7 @@
 namespace H2Core
 {
 
-class LadspaFXInfo : public Object
+class LadspaFXInfo : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -57,7 +57,7 @@ public:
 
 
 
-class LadspaFXGroup : public Object
+class LadspaFXGroup : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -95,7 +95,7 @@ private:
 
 
 
-class LadspaControlPort : public Object
+class LadspaControlPort : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -111,7 +111,7 @@ public:
 
 
 
-class LadspaFX : public Object
+class LadspaFX : public H2Core::Object
 {
     H2_OBJECT
 public:

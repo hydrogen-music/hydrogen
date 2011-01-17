@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 		Logger::create_instance();
         Logger::set_bit_mask( logLevelOpt );
         Logger* logger = Logger::get_instance();
-		Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+        H2Core::Object::bootstrap( logger, logger->should_log(Logger::Debug) );
         H2Core::Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
@@ -405,8 +405,8 @@ int main(int argc, char *argv[])
 		cout << "\nBye..." << endl;
 		delete Logger::get_instance();
 
-		if (Object::count_active()) {
-			Object::write_objects_map_to_cerr();
+		if (H2Core::Object::count_active()) {
+            H2Core::Object::write_objects_map_to_cerr();
 		}
 
 		//	pQApp->dumpObjectTree();
@@ -433,7 +433,7 @@ void showInfo()
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	___INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
-	if ( Object::count_active() ) {
+	if ( H2Core::Object::count_active() ) {
 		cout << "\nObject counting = active" << endl;
 	}
 

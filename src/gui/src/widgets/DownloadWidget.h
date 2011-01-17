@@ -29,7 +29,7 @@
 
 #include <hydrogen/object.h>
 
-class Download : public QDialog, public Object
+class Download : public QDialog, public H2Core::Object
 {
     H2_OBJECT
 Q_OBJECT

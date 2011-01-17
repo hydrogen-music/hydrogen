@@ -36,7 +36,7 @@
 /**
  * Fader and VuMeter widget
  */
-class SplashScreen : public QSplashScreen, public Object
+class SplashScreen : public QSplashScreen, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

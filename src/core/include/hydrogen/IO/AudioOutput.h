@@ -33,7 +33,7 @@ namespace H2Core
 ///
 /// Base abstract class for audio output classes.
 ///
-class AudioOutput : public Object
+class AudioOutput : public H2Core::Object
 {
 public:
 	TransportInfo m_transport;		// Transport info

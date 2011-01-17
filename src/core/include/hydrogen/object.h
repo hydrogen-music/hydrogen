@@ -30,6 +30,8 @@
 #include <iostream>
 #include <QtCore>
 
+namespace H2Core {
+
 /**
  * Base class.
  */
@@ -95,6 +97,8 @@ class Object {
 
     protected:
         static Logger* __logger;                ///< logger instance pointer
+};
+
 };
 
 // Object inherited class declaration macro

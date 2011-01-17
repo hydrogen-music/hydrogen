@@ -28,7 +28,7 @@
 
 #include <hydrogen/object.h>
 
-class SoundLibraryTree : public QTreeWidget, private Object
+class SoundLibraryTree : public QTreeWidget, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

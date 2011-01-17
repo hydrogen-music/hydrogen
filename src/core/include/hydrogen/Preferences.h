@@ -46,7 +46,7 @@ const float FALLOFF_FAST =	1.5f;
 /**
 \ingroup H2CORE
 */
-class WindowProperties : public Object
+class WindowProperties : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -71,7 +71,7 @@ public:
 /**
 \ingroup H2CORE
 */
-class H2RGBColor : public Object
+class H2RGBColor : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -103,7 +103,7 @@ private:
 \ingroup H2CORE
 \brief	Colors for hydrogen
 */
-class UIStyle : public Object
+class UIStyle : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -135,7 +135,7 @@ public:
 \ingroup H2CORE
 \brief	Manager for User Preferences File (singleton)
 */
-class Preferences : public Object
+class Preferences : public H2Core::Object
 {
     H2_OBJECT
 public:

@@ -47,7 +47,7 @@ class Drumkit;
 /**
  *
  */
-class LocalFileMng : public Object
+class LocalFileMng : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -100,7 +100,7 @@ private:
 /**
  * Write XML file of a song
  */
-class SongWriter : public Object
+class SongWriter : public H2Core::Object
 {
     H2_OBJECT
 public:

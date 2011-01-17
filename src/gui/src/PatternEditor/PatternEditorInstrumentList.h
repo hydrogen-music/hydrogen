@@ -85,7 +85,7 @@ class InstrumentLine : public PixmapWidget
 };
 
 
-class PatternEditorInstrumentList : public QWidget, public Object {
+class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
     H2_OBJECT
 	Q_OBJECT
 

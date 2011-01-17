@@ -39,7 +39,7 @@ namespace H2Core
 /**
  *
  */
-class Effects : public Object
+class Effects : public H2Core::Object
 {
     H2_OBJECT
 public:

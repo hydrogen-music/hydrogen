@@ -29,7 +29,7 @@
 namespace H2Core
 {
 
-class SMFBuffer : public Object
+class SMFBuffer : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -82,7 +82,7 @@ public:
 
 
 
-class SMFEvent : public SMFBase, public Object
+class SMFEvent : public SMFBase, public H2Core::Object
 {
     H2_OBJECT
 public:

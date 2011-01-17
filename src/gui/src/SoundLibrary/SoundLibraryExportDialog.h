@@ -34,7 +34,7 @@
 ///
 ///
 ///
-class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDialog_UI, public Object
+class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDialog_UI, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

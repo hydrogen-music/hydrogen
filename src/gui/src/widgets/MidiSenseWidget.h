@@ -27,7 +27,7 @@
 	#include <hydrogen/object.h>
 	#include <hydrogen/action.h>
 
-	class MidiSenseWidget : public QDialog ,public Object
+	class MidiSenseWidget : public QDialog ,public H2Core::Object
 	{
     H2_OBJECT
 	Q_OBJECT

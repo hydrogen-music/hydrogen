@@ -49,7 +49,7 @@ class PatternList;
 \ingroup H2CORE
 \brief	Song class
 */
-class Song : public Object
+class Song : public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -205,7 +205,7 @@ private:
 \ingroup H2CORE
 \brief	Read XML file of a song
 */
-class SongReader : public Object
+class SongReader : public H2Core::Object
 {
     H2_OBJECT
 public:

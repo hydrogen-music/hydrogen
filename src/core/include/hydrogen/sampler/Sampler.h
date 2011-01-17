@@ -43,7 +43,7 @@ class AudioOutput;
 ///
 /// Waveform based sampler.
 ///
-class Sampler : public Object
+class Sampler : public H2Core::Object
 {
     H2_OBJECT
 public:

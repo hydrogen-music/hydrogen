@@ -41,7 +41,7 @@ class PatternEditorPanel;
 ///
 /// Drum pattern editor
 ///
-class DrumPatternEditor : public QWidget, public EventListener, public Object
+class DrumPatternEditor : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

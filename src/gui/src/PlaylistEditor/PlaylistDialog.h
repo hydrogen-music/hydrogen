@@ -39,7 +39,7 @@ class PixmapWidget;
 ///
 /// This dialog is used to use the H2PlayList
 ///
-class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public Object
+class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Core::Object
 
 {
     H2_OBJECT

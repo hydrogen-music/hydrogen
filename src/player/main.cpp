@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 
     int log_level = Logger::Debug | Logger::Info | Logger::Warning | Logger::Error;
     Logger* logger = Logger::bootstrap( log_level );
-    Object::bootstrap( logger, logger->should_log(Logger::Debug) );
+    H2Core::Object::bootstrap( logger, logger->should_log(Logger::Debug) );
 	___INFOLOG( "test" );
 
 	if (argc != 2) {
@@ -93,8 +93,8 @@ int main(int argc, char** argv) {
 				delete preferences;
 				delete Logger::get_instance();
 
-				std::cout << std::endl << std::endl << Object::objects_count() << " alive objects" << std::endl << std::endl;
-				Object::write_objects_map_to_cerr();
+				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
+                H2Core::Object::write_objects_map_to_cerr();
 
 				exit(0);
 				break;
@@ -117,8 +117,8 @@ int main(int argc, char** argv) {
 
 			case 'd':
 				cout << "DEBUG" << endl;
-				Object::write_objects_map_to_cerr();
-				int nObj = Object::objects_count();
+                H2Core::Object::write_objects_map_to_cerr();
+				int nObj = H2Core::Object::objects_count();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;
 		}

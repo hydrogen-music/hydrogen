@@ -42,7 +42,7 @@ namespace H2Core
 ///
 /// A simple synthetizer...
 ///
-class Synth : public Object
+class Synth : public H2Core::Object
 {
     H2_OBJECT
 public:

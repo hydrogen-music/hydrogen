@@ -35,7 +35,7 @@
 namespace H2Core
 {
 
-class SMFHeader : public SMFBase, public Object
+class SMFHeader : public SMFBase, public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -51,7 +51,7 @@ public:
 
 
 
-class SMFTrack : public SMFBase, public Object
+class SMFTrack : public SMFBase, public H2Core::Object
 {
     H2_OBJECT
 public:
@@ -68,7 +68,7 @@ private:
 
 
 
-class SMF : public SMFBase, public Object
+class SMF : public SMFBase, public H2Core::Object
 {
     H2_OBJECT
 public:

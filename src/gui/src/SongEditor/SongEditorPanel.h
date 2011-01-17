@@ -43,7 +43,7 @@ enum SongEditorActionMode
 };
 
 
-class SongEditorPanel : public QWidget, public EventListener, public Object
+class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT

@@ -10,7 +10,7 @@ namespace H2Core {
 /**
  * Filesystem is a thin layer over QDir, QFile and QFileInfo
  */
-class Filesystem : public Object {
+class Filesystem : public H2Core::Object {
         H2_OBJECT
     public:
         /** flags available for Filesystem::check_permissions */

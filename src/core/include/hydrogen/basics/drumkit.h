@@ -33,7 +33,7 @@ class InstrumentList;
 /**
  * Drumkit info
 */
-class Drumkit : public Object {
+class Drumkit : public H2Core::Object {
         H2_OBJECT
     public:
         /** drumkit constructor, does nothing */
