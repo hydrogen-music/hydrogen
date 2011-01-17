@@ -34,8 +34,7 @@ InstrumentLayer::InstrumentLayer( Sample* sample ) : Object( __class_name ),
     __end_velocity( 1.0 ),
     __pitch( 0.0 ),
     __gain( 1.0 ),
-    __sample( sample )
-{
+    __sample( sample ) {
 }
 
 InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_name ),
@@ -43,8 +42,7 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_nam
     __end_velocity( other->get_end_velocity() ),
     __pitch( other->get_pitch() ),
     __gain( other->get_gain() ),
-    __sample( new Sample( other->get_sample() ) )
-{
+    __sample( new Sample( other->get_sample() ) ) {
 }
 
 InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Object( __class_name ),
@@ -52,8 +50,7 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Obj
     __end_velocity( other->get_end_velocity() ),
     __pitch( other->get_pitch() ),
     __gain( other->get_gain() ),
-    __sample( sample )
-{
+    __sample( sample ) {
 }
 
 InstrumentLayer::~InstrumentLayer() {

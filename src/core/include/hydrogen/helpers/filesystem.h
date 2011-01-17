@@ -5,18 +5,16 @@
 #include <hydrogen/object.h>
 #include <QtCore/QString>
 
-namespace H2Core
-{
+namespace H2Core {
 
 /**
  * Filesystem is a thin layer over QDir, QFile and QFileInfo
  */
-class Filesystem : public Object
-{
-    H2_OBJECT
+class Filesystem : public Object {
+        H2_OBJECT
     public:
         /** flags available for Filesystem::check_permissions */
-	    enum file_perms {
+        enum file_perms {
             is_dir =0x01,
             is_file=0x02,
             is_readable=0x04,

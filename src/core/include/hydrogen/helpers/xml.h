@@ -9,15 +9,13 @@
 #define XMLNS_BASE "http://www.hydrogen-music.org"
 #define XMLNS_XSI "http://www.w3.org/2001/XMLSchema-instance"
 
-namespace H2Core
-{
+namespace H2Core {
 
 /**
  * XMLNode is a subclass of QDomNode with read and write values methods
 */
-class XMLNode : public Object, public QDomNode
-{
-    H2_OBJECT
+class XMLNode : public Object, public QDomNode {
+        H2_OBJECT
     public:
         /** basic constructor */
         XMLNode( );
@@ -100,9 +98,8 @@ class XMLNode : public Object, public QDomNode
 /**
  * XMLDoc is a subclass of QDomDocument with read and write methods
 */
-class XMLDoc : public Object, public QDomDocument
-{
-    H2_OBJECT
+class XMLDoc : public Object, public QDomDocument {
+        H2_OBJECT
     public:
         /** basic constructor */
         XMLDoc( );

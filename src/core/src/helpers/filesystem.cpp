@@ -301,7 +301,7 @@ QString Filesystem::sys_drumkits_dir() {
 QString Filesystem::usr_drumkits_dir() {
     return __usr_data_path + DRUMKITS;
 }
-QString Filesystem::playlists_dir(){
+QString Filesystem::playlists_dir() {
     return __usr_data_path + PLAYLISTS;
 }
 QString Filesystem::demos_dir() {

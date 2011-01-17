@@ -146,10 +146,10 @@ void Note::set_key_octave( const QString& str ) {
         s_key.replace( "-", "" );
         s_oct.insert( 0, "-" );
     }
-    __octave = (Octave)s_oct.toInt();
+    __octave = ( Octave )s_oct.toInt();
     for( int i=KEY_MIN; i<=KEY_MAX; i++ ) {
         if( __key_str[i]==s_key )
-            __key = (Key)i;
+            __key = ( Key )i;
         return;
     }
     ___ERRORLOG( "Unhandled key: " + s_key );
