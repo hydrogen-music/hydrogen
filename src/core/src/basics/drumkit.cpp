@@ -145,7 +145,7 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 
 bool Drumkit::save( bool overwrite ) {
     INFOLOG( "Saving drumkit" );
-    QString dk_dir = Filesystem::usr_drumkits_dir() + "/" + __name;
+    QString dk_dir = Filesystem::drumkit_path( __name );
     if( !Filesystem::mkdir( dk_dir ) ) {
         ERRORLOG( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
@@ -184,7 +184,7 @@ void Drumkit::save_to( XMLNode* node ) {
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite ) {
-    INFOLOG( QString( "Saving drumkit %1 samples into %2" ).arg( dk_dir ) );
+    INFOLOG( QString( "Saving drumkit %1 samples into %2" ).arg( __path ).arg( dk_dir ) );
     if( !Filesystem::mkdir( dk_dir ) ) {
         ERRORLOG( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
@@ -195,7 +195,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite ) {
         for ( int n = 0; n < MAX_LAYERS; n++ ) {
             InstrumentLayer* layer = instrument->get_layer( n );
             if( layer ) {
-                QString src = __path.left( __path.lastIndexOf( "/" ) ) + "/" + layer->get_sample()->get_filename();
+                QString src = __path + "/" + layer->get_sample()->get_filename();
                 QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
                 if( !Filesystem::file_copy( src, dst ) ) {
                     return false;
@@ -212,7 +212,7 @@ void Drumkit::set_instruments( InstrumentList* instruments ) {
 }
 
 bool Drumkit::remove( const QString& dk_name ) {
-    QString dk_dir = Filesystem::usr_drumkits_dir() + "/" + dk_name;
+    QString dk_dir = Filesystem::drumkit_path( dk_name );
     if( !Filesystem::drumkit_valid( dk_dir ) ) {
         ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
         return false;
