@@ -867,6 +867,18 @@
 	is enabled in the pattern matrix. This way, we only need to set one pattern every bar, instead of three.
       </para>
      
+ 
+     <figure id="fig.song_editor.virtualPattern.selectedMenu">
+        <title>The Virtual Pattern menu</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/Virtual_patterns_menu.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+
      <para>
 	Virtual patterns provide a function that's similar to the regular pattern editor, and one could argue that 
 	since a virtual pattern is also a regular pattern, we could have just merged the three 
