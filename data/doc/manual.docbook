@@ -163,7 +163,7 @@
         </screen>
       </section>
       
-      
+      <!-- 
       <section id="sect.compilation.cmake">
         <title>Using cmake</title>
 
@@ -191,6 +191,7 @@
         </screen>
       
       </section>
+      -->
       
     </section>
 
