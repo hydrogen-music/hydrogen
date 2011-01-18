@@ -81,13 +81,12 @@ class InstrumentLayer : public H2Core::Object {
 
         /**
          * load the sample data
-         * \param dirpath to the directory holding the samples
          */
-        bool load_sample( const QString& dirpath=0 );
+        void load_sample();
         /*
          * unload sample and replace it with an empty one
          */
-        bool unload_sample();
+        void unload_sample();
 
         /**
          * save the intrument layer within the given XMLNode

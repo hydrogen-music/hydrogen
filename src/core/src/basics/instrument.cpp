@@ -214,7 +214,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path ) {
         if( sFilename.isEmpty() ) {
             ERRORLOG( "filename back compability node is empty" );
         } else {
-            Sample* sample = new Sample( dk_path+"/"+sFilename, 0, 0 );
+            Sample* sample = new Sample( dk_path+"/"+sFilename );
             InstrumentLayer* layer = new InstrumentLayer( sample );
             instrument->set_layer( layer, 0 );
         }
@@ -234,28 +234,18 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path ) {
     return instrument;
 }
 
-bool Instrument::load_samples( const QString& dirpath ) {
+void Instrument::load_samples() {
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         InstrumentLayer* layer = get_layer( i );
-        if( layer!=0 ) {
-            if( !layer->load_sample( dirpath ) ) {
-                return false;
-            }
-        }
+        if( layer ) layer->load_sample( );
     }
-    return true;
 }
 
-bool Instrument::unload_samples() {
+void Instrument::unload_samples() {
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         InstrumentLayer* layer = get_layer( i );
-        if( layer!=0 ) {
-            if( !layer->unload_sample() ) {
-                return false;
-            }
-        }
+        if( layer ) layer->unload_sample();
     }
-    return true;
 }
 
 void Instrument::save_to( XMLNode* node ) {

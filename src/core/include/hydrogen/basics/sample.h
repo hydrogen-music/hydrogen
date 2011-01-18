@@ -123,7 +123,7 @@ class Sample : public H2Core::Object {
          * \param data_l the left channel array of data
          * \param data_l the right channel array of data
          */
-        Sample( const QString& filepath, int frames, int sample_rate, float* data_l=0, float* data_r=0 );
+        Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=0, float* data_r=0 );
         /** copy constructor */
         Sample( Sample* other );
         /** destructor */
@@ -142,17 +142,33 @@ class Sample : public H2Core::Object {
          * \param filepath the file to load audio data from
          */
         static Sample* load( const QString& filepath );
-
         /**
-         * load a sample from a file and apply the desired tranformations
+         * load a sample from a file and apply the transformations to the sample data
          * \param filepath the file to load audio data from
-         * \param loops transformation parameter set
+         * \param loops transformation parameters
          * \param rubber band transformation parameters
-         * \param velocity envelope
-         * \param pan envelope
+         * \param velocity envelope points
+         * \param pan envelope points
          */
         static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 
+        /**
+         * load sample data
+         */
+        void load();
+        /**
+         * unload sample data
+         */
+        void unload();
+
+        /**
+         * apply the transformations to the sample data
+         * \param loops transformation parameters
+         * \param rubber band transformation parameters
+         * \param velocity envelope points
+         * \param pan envelope points
+         */
+        void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
         /**
          * aplly loop transformation to the sample
          * \param lo loops parameters
@@ -240,19 +256,20 @@ class Sample : public H2Core::Object {
         bool __is_modified;                     ///< true if sample is modified
         PanEnvelope __pan_envelope;             ///< pan envelope vector
         VelocityEnvelope __velocity_envelope;   ///< velocity envelope vector
-    private:
         Loops __loops;                       ///< set of loop parameters
         Rubberband __rubberband;             ///< set of rubberband parameters
         /** loop modes string */
         static const char* __loop_modes[];
-        /**
-         * load sample data using libsndfile
-         * \param filepath the file to load audio data from
-         */
-        static Sample* libsndfile_load( const QString& filepath );
 };
 
 // DEFINITIONS
+inline void Sample::unload() {
+    if( __data_l ) delete __data_l;
+    if( __data_r ) delete __data_r;
+    __frames = __sample_rate = 0;
+    __data_l = __data_r = 0;
+    // __is_modified = false; leave this unchanged as pan, velocity, loop and rubberband are kept unchanged
+}
 
 inline bool Sample::is_empty() const {
     return ( __data_l==__data_r==0 );

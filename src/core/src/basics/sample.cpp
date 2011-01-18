@@ -91,31 +91,35 @@ Sample* Sample::load( const QString& filepath ) {
         ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
         return 0;
     }
-    return libsndfile_load( filepath );
+    Sample* sample = new Sample( filepath );
+    sample->load();
+    return sample;
 }
 
 Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
     Sample* sample = Sample::load( filepath );
-    if ( sample==0 ) return 0;
-    if( !sample->apply_loops( loops ) ) {
-        // TODO
-    }
-    sample->apply_velocity( velocity );
-    sample->apply_pan( pan );
-#ifdef H2CORE_HAVE_RUBBERBAND
-    sample->apply_rubberband( rubber );
-#else
-    sample->exec_rubberband_cli( rubber );
-#endif
+    if( !sample) return 0;
+    sample->apply( loops, rubber, velocity, pan );
     return sample;
 }
 
-Sample* Sample::libsndfile_load( const QString& filepath ) {
+void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
+    apply_loops( loops );
+    apply_velocity( velocity );
+    apply_pan( pan );
+#ifdef H2CORE_HAVE_RUBBERBAND
+    apply_rubberband( rubber );
+#else
+    exec_rubberband_cli( rubber );
+#endif
+}
+
+void Sample::load() {
     SF_INFO sound_info;
-    SNDFILE* file = sf_open( filepath.toLocal8Bit(), SFM_READ, &sound_info );
+    SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
     if ( !file ) {
-        ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( filepath ) );
-        return 0;
+        ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( __filepath ) );
+        return;
     }
     if ( sound_info.channels > SAMPLE_CHANNELS ) {
         WARNINGLOG( QString( "can't handle %1 channels, only 2 will be used" ).arg( sound_info.channels ) );
@@ -127,27 +131,28 @@ Sample* Sample::libsndfile_load( const QString& filepath ) {
     }
 
     float* buffer = new float[ sound_info.frames * sound_info.channels ];
-    memset( buffer, 0, sound_info.frames *sound_info.channels );
+    //memset( buffer, 0, sound_info.frames *sound_info.channels );
     sf_count_t count = sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
     sf_close( file );
-    if( count==0 ) WARNINGLOG( QString( "%1 is an empty sample" ).arg( filepath ) );
+    if( count==0 ) WARNINGLOG( QString( "%1 is an empty sample" ).arg( __filepath ) );
 
-    float* data_l = new float[ sound_info.frames ];
-    float* data_r = new float[ sound_info.frames ];
+    unload();
+
+    __data_l = new float[ sound_info.frames ];
+    __data_r = new float[ sound_info.frames ];
+    __frames = sound_info.frames;
+    __sample_rate = sound_info.samplerate;
 
     if ( sound_info.channels == 1 ) {
-        memcpy( data_l,buffer,sound_info.frames*sizeof( float ) );
-        memcpy( data_r,buffer,sound_info.frames*sizeof( float ) );
+        memcpy( __data_l, buffer, __frames * sizeof( float ) );
+        memcpy( __data_r, buffer, __frames * sizeof( float ) );
     } else if ( sound_info.channels == SAMPLE_CHANNELS ) {
-        for ( int i = 0; i < sound_info.frames; i++ ) {
-            data_l[i] = buffer[i * SAMPLE_CHANNELS];
-            data_r[i] = buffer[i * SAMPLE_CHANNELS + 1];
+        for ( int i = 0; i < __frames; i++ ) {
+            __data_l[i] = buffer[i * SAMPLE_CHANNELS];
+            __data_r[i] = buffer[i * SAMPLE_CHANNELS + 1];
         }
     }
     delete[] buffer;
-
-    Sample* sample = new Sample( filepath, sound_info.frames, sound_info.samplerate, data_l, data_r );
-    return sample;
 }
 
 bool Sample::apply_loops( const Loops& lo ) {
@@ -172,6 +177,7 @@ bool Sample::apply_loops( const Loops& lo ) {
         ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( lo.count ) );
         return false;
     }
+    //if( lo == __loops ) return true;
 
     bool full_loop = lo.start_frame==lo.loop_frame;
     int full_length =  lo.end_frame - lo.start_frame;
@@ -298,7 +304,7 @@ void Sample::apply_pan( const PanEnvelope& p ) {
 void Sample::apply_rubberband( const Rubberband& rb ) {
     // TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
-    if( __rubberband == rb ) return;
+    //if( __rubberband == rb ) return;
     if( !rb.use ) return;
     // compute rubberband options
     double output_duration = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider;

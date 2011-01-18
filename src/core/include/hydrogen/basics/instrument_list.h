@@ -121,13 +121,12 @@ class InstrumentList : public H2Core::Object {
 
         /*
          * load instrument samples
-         * \param dirpath to the directory holding the samples
          */
-        bool load_samples( const QString& dirpath=0 );
+        void load_samples();
         /*
          * unload instrument samples
          */
-        bool unload_samples();
+        void unload_samples();
         /*
          * save the intrument list within the given XMLNode
          * \param node the XMLNode to feed

@@ -54,7 +54,7 @@ int xml_drumkit( int log_level ) {
     spec( check_samples_data( dk0, false ), "sample data should be NULL" );
     //dk0->dump();
     // manually load samples
-    spec( dk0->load_samples()==true, "should be able to load sample" );
+    dk0->load_samples();
     spec( dk0->samples_loaded()==true, "samples should be loaded" );
     spec( check_samples_data( dk0, true ), "sample data should NOT be NULL" );
     //dk0->dump();
@@ -65,7 +65,7 @@ int xml_drumkit( int log_level ) {
     spec( check_samples_data( dk0, true ), "sample data should NOT be NULL" );
     //dk0->dump();
     // unload samples
-    spec( dk0->unload_samples(), "should be able to unload samples" );
+    dk0->unload_samples();
     spec( dk0->samples_loaded()==false, "samples should NOT be loaded" );
     spec( check_samples_data( dk0, false ), "sample data should be NULL" );
     //dk0->dump();

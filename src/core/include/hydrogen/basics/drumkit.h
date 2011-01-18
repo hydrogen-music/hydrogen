@@ -60,11 +60,11 @@ class Drumkit : public H2Core::Object {
         /**
          * load the instrument samples
          */
-        bool load_samples( );
+        void load_samples( );
         /**
          * unload the instrument samples
          */
-        bool unload_samples();
+        void unload_samples();
         /**
          * save a drumkit, xml file and samples
          * \param overwrite allows to write over existing drumkit files

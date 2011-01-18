@@ -45,22 +45,16 @@ InstrumentList::~InstrumentList() {
     }
 }
 
-bool InstrumentList::load_samples( const QString& dirpath ) {
+void InstrumentList::load_samples() {
     for( int i=0; i<__instruments.size(); i++ ) {
-        if( !__instruments[i]->load_samples( dirpath ) ) {
-            return false;
-        }
+        __instruments[i]->load_samples();
     }
-    return true;
 }
 
-bool InstrumentList::unload_samples() {
+void InstrumentList::unload_samples() {
     for( int i=0; i<__instruments.size(); i++ ) {
-        if( !__instruments[i]->unload_samples() ) {
-            return false;
-        }
+        __instruments[i]->unload_samples();
     }
-    return true;
 }
 
 InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path ) {
