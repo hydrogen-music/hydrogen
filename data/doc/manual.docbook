@@ -14,6 +14,16 @@
         <firstname>Alessandro</firstname>
         <surname>Cominu</surname>
       </author>
+      <author>
+        <firstname>Thijs</firstname>
+        <surname>van Severen</surname>
+      </author>
+      <author>
+        <firstname>Sebastian</firstname>
+        <surname>Moors</surname>
+      </author>
+
+
     </authorgroup>
 
     <date>22/may/2005</date>
@@ -842,6 +852,36 @@
           </imageobject>
         </mediaobject>
       </figure>
+     <section id="sect.song_editor.virtualPattern">
+     <title>Virtual patterns</title>
+     <para>
+	Virtual patterns are a convenient way of grouping patterns together. 
+        For example, say you have a song in which three patterns are always 
+        played together at the start of each bar. Previously, the way to do this 
+        in the pattern matrix was to explicitly enable the three patterns at each bar.
+     </para>
+     <para>
+     	With virtual patterns we can assign a pattern to be a sort of meta-pattern 
+	that implicitly invokes these three patterns together when the new virtual pattern 
+	is enabled in the pattern matrix. This way, we only need to set one pattern every bar, instead of three.
+      </para>
+     
+     <para>
+	Virtual patterns provide a function that's similar to the regular pattern editor, and one could argue that 
+	since a virtual pattern is also a regular pattern, we could have just merged the three 
+	patterns into this new one. However, the advantage that virtual patterns provide is that 
+	if one of the original three patterns changes, the virtual pattern automatically inherits 
+	the change. A virtual pattern can also invoke other virtual patterns.	
+     </para>
+     
+     <para>
+	To access virtual patterns, right click (bring up the context menu) on the label of 
+	an existing pattern and there select “Virtual Pattern”. This will bring up a small dialog 
+	that allows one to toggle which patterns are in the virtual pattern set.      
+     </para>
+     
+     </section>
+
 
     </section>
     
