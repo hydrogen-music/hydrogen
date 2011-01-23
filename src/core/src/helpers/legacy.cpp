@@ -106,6 +106,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
                         layer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );
                         layer->set_gain( layer_node.read_float( "gain", 1.0, true, false ) );
                         layer->set_pitch( layer_node.read_float( "pitch", 0.0, true, false ) );
+                        instrument->set_layer( layer, n );
                         n++;
                         layer_node = layer_node.nextSiblingElement( "layer" );
                     }
