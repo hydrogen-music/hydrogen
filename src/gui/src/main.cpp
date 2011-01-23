@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 		setup_unix_signal_handlers();
 
 		if( showVersionOpt ) {
-			std::cout << get_version() << std::endl;
+			std::cout << H2Core::get_version() << std::endl;
 			exit(0);
 		}
 		showInfo();
@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
  */
 void showInfo()
 {
-	cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
+	cout << "\nHydrogen " + H2Core::get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 //	___INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 

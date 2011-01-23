@@ -94,9 +94,10 @@ ELSE(WIN32)
     ELSE(APPLE)
         SET(OSS_LIB_PATHS "/usr/lib/oss/lib" "/usr/local/lib/oss/lib" )
         SET(RUBBERBAND_INCLUDE_PATHS "/usr/include/rubberband" )
-        #EXECUTE_PROCESS(COMMAND svnversion -n OUTPUT_VARIABLE SVN_VERSION )
     ENDIF(APPLE)
 ENDIF(WIN32)
+
+EXECUTE_PROCESS(COMMAND svnversion -n OUTPUT_VARIABLE REVISION )
 
 #
 # HEADER LIBRARY FUNCTIONS
