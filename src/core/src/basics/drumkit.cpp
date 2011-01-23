@@ -42,6 +42,7 @@
 
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/legacy.h>
 
 namespace H2Core {
 
@@ -75,7 +76,9 @@ Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples ) {
 
 Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples ) {
     XMLDoc doc;
-    if( !doc.read( dk_path, Filesystem::drumkit_xsd() ) ) return 0;
+    if( !doc.read( dk_path, Filesystem::drumkit_xsd() ) ) {
+        return Legacy::load_drumkit( dk_path );
+    }
     XMLNode root = doc.firstChildElement( "drumkit_info" );
     if ( root.isNull() ) {
         ERRORLOG( "drumkit_info node not found" );
@@ -113,7 +116,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path ) {
     drumkit->__author = node->read_string( "author", "undefined author" );
     drumkit->__info = node->read_string( "info", "defaultInfo" );
     drumkit->__license = node->read_string( "license", "undefined license" );
-    drumkit->__samples_loaded = false;
     XMLNode instruments_node = node->firstChildElement( "instrumentList" );
     if ( instruments_node.isNull() ) {
         WARNINGLOG( "instrumentList node not found" );

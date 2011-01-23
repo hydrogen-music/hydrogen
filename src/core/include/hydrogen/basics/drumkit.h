@@ -122,6 +122,8 @@ class Drumkit : public H2Core::Object {
         /**  returns __instruments */
         InstrumentList* get_instruments() const;
 
+        /** __path setter */
+        void set_path( const QString& path );
         /** __path accessor */
         const QString& get_path() const;
         /** __name setter */
@@ -170,6 +172,10 @@ class Drumkit : public H2Core::Object {
 
 inline InstrumentList* Drumkit::get_instruments() const {
     return __instruments;
+}
+
+inline void Drumkit::set_path( const QString& path ) {
+    __path = path;
 }
 
 inline const QString& Drumkit::get_path() const {

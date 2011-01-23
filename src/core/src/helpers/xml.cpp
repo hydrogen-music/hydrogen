@@ -124,9 +124,8 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath ) {
         QXmlSchemaValidator validator( schema );
         if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
             ERRORLOG( QString( "XML document %1 is not valid (%2), loading may fail" ).arg( filepath ).arg( schemapath ) );
-            // TODO should we be more strict ?
-            // file.close();
-            // return false;
+            file.close();
+            return false;
         } else {
             INFOLOG( QString( "XML document %1 is valid (%2)" ).arg( filepath ).arg( schemapath ) );
         }

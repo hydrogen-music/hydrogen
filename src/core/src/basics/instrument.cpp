@@ -204,32 +204,16 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path ) {
     for ( int i=0; i<MAX_FX; i++ ) {
         instrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
     }
-
-    QDomNode filename_node = node->firstChildElement( "filename" );
-    if ( !filename_node.isNull() ) {
-        // back compatibility code
-        // TODO should be automaticaly rewritten
-        DEBUGLOG( "Using back compatibility code. filename node found" );
-        QString sFilename = node->read_string( "filename", "" );
-        if( sFilename.isEmpty() ) {
-            ERRORLOG( "filename back compability node is empty" );
-        } else {
-            Sample* sample = new Sample( dk_path+"/"+sFilename );
-            InstrumentLayer* layer = new InstrumentLayer( sample );
-            instrument->set_layer( layer, 0 );
+    int n = 0;
+    XMLNode layer_node = node->firstChildElement( "layer" );
+    while ( !layer_node.isNull() ) {
+        if ( n >= MAX_LAYERS ) {
+            ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
+            break;
         }
-    } else {
-        int n = 0;
-        XMLNode layer_node = node->firstChildElement( "layer" );
-        while ( !layer_node.isNull() ) {
-            if ( n >= MAX_LAYERS ) {
-                ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
-                break;
-            }
-            instrument->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
-            n++;
-            layer_node = layer_node.nextSiblingElement( "layer" );
-        }
+        instrument->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
+        n++;
+        layer_node = layer_node.nextSiblingElement( "layer" );
     }
     return instrument;
 }
