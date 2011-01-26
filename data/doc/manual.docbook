@@ -16,7 +16,7 @@
       </author>
       <author>
         <firstname>Thijs</firstname>
-        <surname>van Severen</surname>
+        <surname>Van Severen</surname>
       </author>
       <author>
         <firstname>Sebastian</firstname>
@@ -1284,7 +1284,7 @@
         <title>System Drumkits</title>
 
         <para>This lists the drumkits that were installed by your system
-        administrator.  It was determined by the compile-time prefix.  On
+        administrator.  The location of these System Drumkits is determined by the compile-time prefix.  On
         Unix-like operating systems, this is usually <filename
         role="directory">/usr/share/hydrogen/data/drumkits</filename>, or
         possibly <filename
@@ -1348,14 +1348,30 @@
     <section id="sect.instrument_editing">
       <title>Drumkits and Instrument Editing</title>
 
-      <para>Creating a new drumkit with Hydrogen is done with the Instrument
-      Editor.  Using the instrument editor you can load samples, set envelope
-      parameters, set the gain, and a few other advanced features like mute
-      groups, low-pass resonance filter, and pitch randomization.</para>
-
-      <para>Instead of creating your own drumkit, you can also use or download
-      existing drumkits using the <xref linkend="sect.sound_library"/>.</para>
-
+      <para>First of all a little history on Drumkits : 'In the beginning' Hydrogen was a 90% drum 
+      machine.  Consequently the collection of drum sounds was called 'a drumkit'.
+      Since than a lot has changed and Hydrogen has become much more than a drum machine.
+      It is a versatile sound synthesizer/sequencer that is capable of generating and manipulating all sorts
+      of sounds.  Hence the term Drumkit might be misleading since you can load any sound into
+      a Drumkit and manipulate these sounds just like you are playing a 'regular' synthesizer.  
+      This is also the main reason why the Piano mode was added to the pattern editor 
+      (see <xref linkend="sect.pattern_editor.piano_mode"/>).</para>
+      <para>In this manual (and in other documentation) you will find the terms Drumkit and
+      Soundlibrary and they might be referring to the same thing ... or not. Below you can find an
+      overview of the the sound hierarchy :
+      <figure id="fig.SoundlibraryHierarchy">
+         <title>Soundlibrary/Drumkit hierarchy</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/SoundlibraryHierarchy_V3.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </figure>
+      
+      As you can see the Soundlibrary contains all Drumkits, and each Drumkit is a collection of a number
+      of instruments (snare, kick, sampled voice, bass sound ...).  An instrument can consist of multiple
+      layered samples.  Note that every block has a number of parameters (continue reading for more details).</para>
+      
       <!-- Need to add an explaination of what the instrument list
            and instrument editor are. -->
 
@@ -1440,6 +1456,14 @@
       </section>
       <section id="sect.instrument_editing.new_kit">
         <title>Creating a New Drumkit</title>
+        
+       <para>Creating a new drumkit with Hydrogen is done with the Instrument
+       Editor.  Using the instrument editor you can load samples, set envelope
+       parameters, set the gain, and a few other advanced features like mute
+       groups, low-pass resonance filter, and pitch randomization.</para>
+
+       <para>TIP : Instead of creating your own drumkit, you can also use or download
+       existing drumkits using the <xref linkend="sect.sound_library"/>.</para>
 
         <para>To start a brand new drum kit, select
         <menuchoice>
