@@ -1384,7 +1384,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			float sRubberPitch = pSample->get_rubber_pitch();
 
                      /*
-                       obsolete since we save songfiles in each only with absolute sample filenames
+                       obsolete since we save songfiles in only with absolute sample filenames
 
                         if ( !instr->get_drumkit_name().isEmpty() ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
