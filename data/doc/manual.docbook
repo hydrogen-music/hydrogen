@@ -1278,7 +1278,18 @@
       <para>The Sound Library saves you time in managing your drum kits,
       favorite patterns, and favorite songs.  When making new songs and drum
       kits, the Sound Library makes it easier for you to reuse and mix the
-      instruments and patterns from other kits and songs.</para>
+      instruments and patterns from other kits and songs.
+
+      <figure id="figsoundlibraryr">
+        <title>The Soundlibrary</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/SoundLibrary.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      
+      </para>
 
       <section id="sect.systemdrumkits">
         <title>System Drumkits</title>
@@ -1317,6 +1328,15 @@
         System Drumkits (see <xref linkend="sect.systemdrumkits"/>).</para>
 
       </section>
+      <section id="sect.sl.songs">
+        <title>Songs in the Sound Library</title>
+
+        <para>To save songs in the Sound Library, put them in your data
+        directory underneath the <filename role="directory">songs</filename>
+        folder (usually <filename role="directory">$HOME/.hydrogen/data/songs)</filename>.
+        To remove them, remove the file from that folder.</para>
+      </section>      
+      
       <section id="sect.sl.patterns">
         <title>Patterns in the Sound Library</title>
 
@@ -1333,18 +1353,9 @@
         <guimenuitem>Save Pattern</guimenuitem>.  It will appear in the Sound
         Library underneath <guilabel>Patterns</guilabel> and the category that
         you assigned to the pattern.</para>
-
-      </section>
-      <section id="sect.sl.songs">
-        <title>Songs in the Sound Library</title>
-
-        <para>To save songs in the Sound Library, put them in your data
-        directory underneath the <filename role="directory">songs</filename>
-        folder (usually <filename role="directory">$HOME/data/songs</filename>.
-        To remove them, remove the file from that folder.</para>
-      </section>
-
+        </section>
     </section>
+
     <section id="sect.instrument_editing">
       <title>Drumkits and Instrument Editing</title>
 
@@ -1363,13 +1374,13 @@
          <title>Soundlibrary/Drumkit hierarchy</title>
          <mediaobject>
            <imageobject>
-             <imagedata fileref="img/SoundlibraryHierarchy_V3.png" format="PNG" />
+             <imagedata fileref="img/SoundlibraryHierarchy_V4.png" format="PNG" />
            </imageobject>
          </mediaobject>
         </figure>
       
-      As you can see the Soundlibrary contains all Drumkits, and each Drumkit is a collection of a number
-      of instruments (snare, kick, sampled voice, bass sound ...).  An instrument can consist of multiple
+      As you can see the Soundlibrary contains all Drumkits (System- and User drumkits), your saved Patterns and your saved Songs.  Each Drumkit is a collection of a number
+      of instruments (snare, kick, sampled voice, bass sound ...) and in its turn an instrument can consist of multiple
       layered samples.  Note that every block has a number of parameters (continue reading for more details).</para>
       
       <!-- Need to add an explaination of what the instrument list
@@ -1389,6 +1400,7 @@
 
         <variablelist>
           <title>Sampling Synthesizer Terms</title>
+         
           <varlistentry>
             <term>Sample</term><listitem><para>A short recording of a sound,
             typically between .1 and 3.0 seconds long.</para></listitem>
@@ -1402,7 +1414,7 @@
             note.</para></listitem>
           </varlistentry>
           <varlistentry>
-            <term>ADSR Envelope Generator</term><listitem><para>An
+            <term> ADSR Envelope Generator</term><listitem><para>An
             Attack/Decay/Sustain/Release envelope generator.  After you trigger
             a note, Hydrogen will <emphasis>attack</emphasis> the note by
             increasing its volume from 0 to the full velocity of the note.
@@ -1410,7 +1422,7 @@
             note by lowering the volume until it reaches the
             <emphasis>sustain</emphasis> level.  When the note is
             <emphasis>released</emphasis>, Hydrogen reduces the volume from the
-            sustain level back down to 0.</para></listitem>
+            sustain level back down to 0.  See http://en.wikipedia.org/wiki/ADSR_envelope for more info</para></listitem>
           </varlistentry>
           <varlistentry>
             <term>Attack</term><listitem><para>The amount of <emphasis
@@ -1433,6 +1445,7 @@
             role="bold">time</emphasis> to go from the sustain volume back down
             to 0.</para></listitem>
           </varlistentry>
+
         </variablelist>
 
         <para>
