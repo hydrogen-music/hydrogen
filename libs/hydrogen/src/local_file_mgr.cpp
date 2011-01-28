@@ -1371,8 +1371,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			Sample *pSample = pLayer->get_sample();
 			if ( pSample == NULL ) continue;
 
-			QString sFilename = pSample->get_filename();
-                        qDebug() << sFilename;
+                        QString sFilename = pSample->get_filename();
 			bool sIsModified = pSample->get_sample_is_modified(); 
 			QString sMode = pSample->get_sample_mode();
 			unsigned sStartframe = pSample->get_start_frame();
@@ -1384,13 +1383,17 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			int sRubberbandCsettings = pSample->get_rubber_C_settings();
 			float sRubberPitch = pSample->get_rubber_pitch();
 
-/*
-			if ( !instr->get_drumkit_name().isEmpty() ) {
+                     /*
+                       obsolete since we save songfiles in each only with absolute sample filenames
+
+                        if ( !instr->get_drumkit_name().isEmpty() ) {
 				// se e' specificato un drumkit, considero solo il nome del file senza il path
 				int nPos = sFilename.lastIndexOf( "/" );
 				sFilename = sFilename.mid( nPos + 1, sFilename.length() );
                         }
-*/
+
+                        ~obsolete
+                      */
 
 			QDomNode layerNode = doc.createElement( "layer" );
 			LocalFileMng::writeXmlString( layerNode, "filename", sFilename );
