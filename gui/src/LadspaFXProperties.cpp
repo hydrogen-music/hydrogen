@@ -380,7 +380,6 @@ void LadspaFXProperties::selectFXBtnClicked()
 void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef LADSPA_SUPPORT
-        //AudioEngine::get_instance()->lock( RIGHT_HERE );
         Song *pSong = (Hydrogen::get_instance() )->getSong();
         pSong->__is_modified = true;
         Effects::get_instance()->setLadspaFX( NULL, m_nLadspaFX );
