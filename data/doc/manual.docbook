@@ -1273,8 +1273,32 @@
     </section>
 
     <section id="sect.sound_library">
-      <title>Sound Library (Drumkit Manager)</title>
+      <title>Sound Library (Drumkit/Pattern/Song Manager)</title>
 
+      <para>First of all a little history on the Sound library and Drumkits : 'In the beginning' Hydrogen was a 90% drum 
+      machine.  Consequently the collection of drum sounds was called 'a drumkit'.
+      Since then a lot has changed and Hydrogen has become much more than a drum machine.
+      It is a versatile sound synthesizer/sequencer that is capable of generating and manipulating all sorts
+      of sounds.  Hence the term Drumkit might be misleading since you can load any sound into
+      a Drumkit and manipulate that sound just like playing a 'regular' synthesizer.  
+      (This is also the main reason why the Piano mode was added to the pattern editor : 
+      see <xref linkend="sect.pattern_editor.piano_mode"/>).</para>
+      <para>In this manual (and in other documentation) you will find the terms Drumkit and
+      Soundlibrary frequently, and they might be referring to the same thing ... or not. The diagram
+      below show the relation between the Soundlibrary and Drumkits :
+      <figure id="fig.SoundlibraryHierarchy">
+         <title>Soundlibrary/Drumkit hierarchy</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/SoundlibraryHierarchy_V4.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </figure>
+      
+      As you can see the Soundlibrary contains all Drumkits (System- and User drumkits), your saved Patterns and your saved Songs.  Each Drumkit is a collection of a number
+      of instruments (snare, kick, sampled voice, bass sound ...) and in its turn an instrument can consist of multiple
+      layered samples.  Note that every block has a number of parameters (continue reading for more details).</para>
+      <para>This said. let's take a look at the Soundlibrary interface and see what it can do for you:</para>
       <para>The Sound Library saves you time in managing your drum kits,
       favorite patterns, and favorite songs.  When making new songs and drum
       kits, the Sound Library makes it easier for you to reuse and mix the
@@ -1288,7 +1312,6 @@
           </imageobject>
         </mediaobject>
       </figure>
-      
       </para>
 
       <section id="sect.systemdrumkits">
@@ -1359,29 +1382,7 @@
     <section id="sect.instrument_editing">
       <title>Drumkits and Instrument Editing</title>
 
-      <para>First of all a little history on Drumkits : 'In the beginning' Hydrogen was a 90% drum 
-      machine.  Consequently the collection of drum sounds was called 'a drumkit'.
-      Since than a lot has changed and Hydrogen has become much more than a drum machine.
-      It is a versatile sound synthesizer/sequencer that is capable of generating and manipulating all sorts
-      of sounds.  Hence the term Drumkit might be misleading since you can load any sound into
-      a Drumkit and manipulate these sounds just like you are playing a 'regular' synthesizer.  
-      This is also the main reason why the Piano mode was added to the pattern editor 
-      (see <xref linkend="sect.pattern_editor.piano_mode"/>).</para>
-      <para>In this manual (and in other documentation) you will find the terms Drumkit and
-      Soundlibrary and they might be referring to the same thing ... or not. Below you can find an
-      overview of the the sound hierarchy :
-      <figure id="fig.SoundlibraryHierarchy">
-         <title>Soundlibrary/Drumkit hierarchy</title>
-         <mediaobject>
-           <imageobject>
-             <imagedata fileref="img/SoundlibraryHierarchy_V4.png" format="PNG" />
-           </imageobject>
-         </mediaobject>
-        </figure>
-      
-      As you can see the Soundlibrary contains all Drumkits (System- and User drumkits), your saved Patterns and your saved Songs.  Each Drumkit is a collection of a number
-      of instruments (snare, kick, sampled voice, bass sound ...) and in its turn an instrument can consist of multiple
-      layered samples.  Note that every block has a number of parameters (continue reading for more details).</para>
+
       
       <!-- Need to add an explaination of what the instrument list
            and instrument editor are. -->
