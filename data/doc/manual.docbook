@@ -1469,7 +1469,11 @@
 
       </section>
       <section id="sect.instrument_editing.new_kit">
-        <title>Creating a New Drumkit</title>
+       <title>Creating a New Drumkit</title>
+       <para>In the next paragraphs we will show you how to create a complete drumkit.  
+       Keeping in mind the 'Soundlybrary hierarchy' (see <xref linkend="fig.SoundlibraryHierarchy"/>)
+       we will use a top-down approach, so we will start at the Drumkit level and work our way 
+       down to the samples.</para> 
         
        <para>Creating a new drumkit with Hydrogen is done with the Instrument
        Editor.  Using the instrument editor you can load samples, set envelope
@@ -1479,148 +1483,86 @@
        <para>TIP : Instead of creating your own drumkit, you can also use or download
        existing drumkits using the <xref linkend="sect.sound_library"/>.</para>
 
-        <para>To start a brand new drum kit, select
-        <menuchoice>
-          <guimenu>Instruments</guimenu>
-          <guimenuitem>Clear All</guimenuitem>
-        </menuchoice>
+        <para>Lets make a  brand new drum kit :</para>
+        <itemizedlist>
+          <listitem><para>select
+          <menuchoice>
+            <guimenu>Instruments</guimenu>
+            <guimenuitem>Clear All</guimenuitem>
+          </menuchoice>
 
-        .  This will give you a bank of 32 blank instruments.  To delete
-        instruments, right-click on on each instrument and select
-        <guimenuitem>Delete Instrument</guimenuitem>.  To add more instruments,
-        select
+          .  This will give you a bank of 32 blank instruments.  To delete
+          instruments, right-click on on each instrument and select
+          <guimenuitem>Delete Instrument</guimenuitem>.  To add more instruments,
+          select
 
-        <menuchoice>
-          <guimenu>Instruments</guimenu>
-          <guimenuitem>Add instrument</guimenuitem>
-        </menuchoice>
+          <menuchoice>
+            <guimenu>Instruments</guimenu>
+            <guimenuitem>Add instrument</guimenuitem>
+          </menuchoice>
+          .</para>
+          </listitem>
 
-        .
-        </para>
 
-        <para>Select an instrument to start editing it.  This is done by
-        left-clicking on the name of the instrument in the instrument list (at
-        the left).  You will notice that the name of the instrument in the
-        Instrument Editor matches the one that you clicked.</para>
+          <listitem>
+          <para>Select an instrument to start editing it.  This is done by
+          left-clicking on the name of the instrument in the instrument list (at
+          the left).  You will notice that the name of the instrument in the
+          Instrument Editor matches the one that you clicked.</para>
+          </listitem>
+         
+          <listitem>
+          <para>After you have your drum kit working the way you want, select
 
-        <para>After you have your drum kit working the way you want, select
+          <menuchoice>
+            <guimenuitem>Instruments</guimenuitem>
+            <guimenuitem>Save library</guimenuitem>
+          </menuchoice>
 
-        <menuchoice>
-          <guimenuitem>Instruments</guimenuitem>
-          <guimenuitem>Save library</guimenuitem>
-        </menuchoice>
+          .  It will ask you for the name of the kit to save.  If you wish to
+          <emphasis>overwrite</emphasis> an existing kit, you will need to type in
+          the same name as the kit that you want to replace.</para>
+         </listitem>
 
-        .  It will ask you for the name of the kit to save.  If you wish to
-        <emphasis>overwrite</emphasis> an existing kit, you will need to type in
-        the same name as the kit that you want to replace.</para>
+         <listitem>
+          <para>Drumkits are automatically stored in the <filename
+          class="directory">data</filename> directory (i.e. <filename
+          class="directory">$HOME/data/drumkits</filename>).</para>
+         </listitem>
 
-        <para>Drumkits are automatically stored in the <filename
-        class="directory">data</filename> directory (i.e. <filename
-        class="directory">$HOME/data/drumkits</filename>).</para>
+         <listitem>
+          <para>To export a drumkit (for sharing with others), it must first be
+          loaded into your Sound Library.  Then, select
 
-        <para>To export a drumkit (for sharing with others), it must first be
-        loaded into your Sound Library.  Then, select
+          <menuchoice>
+            <guimenuitem>Instruments</guimenuitem>
+            <guimenuitem>Export library</guimenuitem>
+          </menuchoice>
 
-        <menuchoice>
-          <guimenuitem>Instruments</guimenuitem>
-          <guimenuitem>Export library</guimenuitem>
-        </menuchoice>
-
-        from the menu.  Select the drum kit that you wish to export, and give it
-        a file name to save it to.</para>
+          from the menu.  Select the drum kit that you wish to export, and give it
+          a file name to save it to.</para>
+          </listitem>
+        </itemizedlist>
 
       </section>
-      <section id="sect.instrument_editing.new_instrument">
-        <title>Creating an Instrument and Layers</title>
-
-        <para>For each instrument in a drum kit, you can load several samples
-        and set different synthesizer parameters.  This section will step you
-        through how to create a new instrument and load the samples.</para>
-
-        <para>To begin creating an instrument, select
-        <menuchoice>
-          <guimenu>Instruments</guimenu>
-          <guimenuitem>Add instrument</guimenuitem>
-          </menuchoice>.  This will give you a blank
-        instrument to start from.</para>
-
-        <para>Now, you need two samples.  Any .WAV or .FLAC file will do.
-        Hydrogen provides several in the <filename
-        class="directory">data/drumkits</filename> directory.</para>
-
-        <para>In the instrument editor, click on <guibutton>Layers</guibutton>.
-        You can layer several samples into the instrument.  Which one is played
-        depends on the velocity of the incoming note.  Click <guibutton>Load
-        Layer</guibutton> and point the <guimenu>Audio File Browser</guimenu> to
-        your sample.  Note that the <guimenu>Audio File Browser</guimenu> will
-        allow you to preview the sample before you load it.  It will also allow
-        you to load more than one sample at a time.  But for now, only load
-        one.</para>
-
-        <para>After you load the sample, you'll see that there is now a
-        <guilabel>1</guilabel> at the top, and the topmost rectangle has turned
-        light blue.  To load a second sample, click the slot just below it, and
-        then click <guibutton>Load Layer</guibutton> to bring in another
-        sample.</para>
-
-        <para>After bringing in both samples, you'll probably notice that only
-        the <emphasis>first</emphasis> sample is being played whenever you
-        trigger the instrument.  This is because you need to set the
-        <emphasis>velocity</emphasis> ranges for the layers.  Move your mouse to
-        the sides of the light blue rectangles and you see that you get a
-        left-right drag cursor.  Now drag the sample to the left or right (like
-        a curtain).  You will now see Layer 2 appear.</para>
-
-        <para>The velocity setting for the layer is 0-velocity on the left, and
-        full velocity on the right.  Set up Layer 1 to sound for soft notes, and
-        Layer 2 to sound for hard notes.  (I.e. Layer 1 on the left and Layer 2
-        on the right.)</para>
-
-        <para>Now, in the pattern area, set up a simple pattern that plays this
-        instrument.  Adjust the velocity settings on each note so that you can
-        get the different samples to sound.  Now set the pattern to loop and
-        notice how your different samples are getting triggered.  (To learn
-        about editing a pattern, see <xref
-        linkend="sect.pattern_editor"/>)</para>
-
-        <para>For each layer, you can set the <guibutton>Gain</guibutton> and
-        the <guibutton>Pitch</guibutton>.  The pitch also has a
-        <guibutton>Fine</guibutton> adjustment.</para>
-
-        <para>Use the <guibutton>Gain</guibutton> adjustment to control how loud
-        the sample will play.  This is necessary because it's extremely
-        difficult to get a set of samples that all sound at about the same
-        volume.  By adjusting here, the samples that were recorded too quietly
-        can be turned up to match your loud samples (that had to be turned
-        down).</para>
-
-        <warning>
-          <para>It is very easy to set the <guibutton>Gain</guibutton> too high,
-          causing your sample to clip.  Remember to test the gain with
-          full-velocity notes.  If you clip your signal here, it will only get
-          worse as Hydrogen processes it.</para>
-        </warning>
-
-        <para>The pitch of the sample can be modified with the pitch controls.
-        The <guibutton>Pitch</guibutton> knob adjust the pitch in musical
-        half-steps.  (So, -12 is down 1 octave).  The pitch on the right adjusts
-        the pitch &plusmn;50 cents.  (One half-step is 100 cents.)</para>
-
-        <note>
-          <para>The pitch is adjusted by playing the sample back faster or
-          slower.  This is called the Dopplar Effect.  So, if you have a
-          1-second sample that you turn down -12 (1 octave), you sample will
-          only last for .5-seconds.</para>
-        </note>
-      </section>
+      
       <section id="sect.instrument_editing.parameters">
         <title>Instrument Parameters</title>
 
         <para>In the instrument editor, click on the
         <guibutton>General</guibutton> button.  Here you can adjust several
-        parameters that are for the whole instrument (not for each layer).  The
-        parameters that you can adjust are:</para>
-
+        parameters that are apply to the whole instrument (not for each layer).
+        
+        <figure id="instrumenteditor.general">
+        <title>The Instrument editor General view</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/Instrument_General.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+        </figure>
+        
+        The parameters that you can adjust are:</para>
         <itemizedlist>
           <listitem>
             <para><emphasis role="bold">Envelope parameters</emphasis>:
@@ -1784,6 +1726,106 @@
 
         </section>
       </section>
+      
+      
+      <section id="sect.instrument_editing.new_instrument">
+        <title>Creating an Instrument and Layers</title>
+
+        <para>For each instrument in a drum kit, you can load several samples
+        and set different synthesizer parameters.  This section will step you
+        through how to create a new instrument and load the samples.</para>
+
+        <para>To begin creating an instrument, select
+        <menuchoice>
+          <guimenu>Instruments</guimenu>
+          <guimenuitem>Add instrument</guimenuitem>
+          </menuchoice>.  This will give you a blank
+        instrument to start from.</para>
+
+        <para>Now, you need two samples.  Any .WAV or .FLAC file will do.
+        Hydrogen provides several in the <filename
+        class="directory">data/drumkits</filename> directory.</para>
+
+        <para>In the instrument editor, click on <guibutton>Layers</guibutton>.
+        You can layer several samples into the instrument.  Which one is played
+        depends on the velocity of the incoming note.  Click <guibutton>Load
+        Layer</guibutton> and point the <guimenu>Audio File Browser</guimenu> to
+        your sample.  Note that the <guimenu>Audio File Browser</guimenu> will
+        allow you to preview the sample before you load it.  It will also allow
+        you to load more than one sample at a time.  But for now, only load
+        one.</para>
+
+        <para>After you load the sample, you'll see that there is now a
+        <guilabel>1</guilabel> at the top, and the topmost rectangle has turned
+        light blue.  To load a second sample, click the slot just below it, and
+        then click <guibutton>Load Layer</guibutton> to bring in another
+        sample.</para>
+
+        <para>After bringing in both samples, you'll probably notice that only
+        the <emphasis>first</emphasis> sample is being played whenever you
+        trigger the instrument.  This is because you need to set the
+        <emphasis>velocity</emphasis> ranges for the layers.  Move your mouse to
+        the sides of the light blue rectangles and you see that you get a
+        left-right drag cursor.  Now drag the sample to the left or right (like
+        a curtain).  You will now see Layer 2 appear.</para>
+        
+        <figure id="instrumenteditor.layers">
+        <title>The Instrument editor Layers view</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/Instrument_Layers.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+        </figure>
+
+        <para>The velocity setting for the layer is 0-velocity on the left, and
+        full velocity on the right.  Set up Layer 1 to sound for soft notes, and
+        Layer 2 to sound for hard notes.  (I.e. Layer 1 on the left and Layer 2
+        on the right.)</para>
+
+        <para>Now, in the pattern area, set up a simple pattern that plays this
+        instrument.  Adjust the velocity settings on each note so that you can
+        get the different samples to sound.  Now set the pattern to loop and
+        notice how your different samples are getting triggered.  (To learn
+        about editing a pattern, see <xref
+        linkend="sect.pattern_editor"/>)</para>
+
+        <para>For each layer, you can set the <guibutton>Gain</guibutton> and
+        the <guibutton>Pitch</guibutton>.  The pitch also has a
+        <guibutton>Fine</guibutton> adjustment.</para>
+
+        <para>Use the <guibutton>Gain</guibutton> adjustment to control how loud
+        the sample will play.  This is necessary because it's extremely
+        difficult to get a set of samples that all sound at about the same
+        volume.  By adjusting here, the samples that were recorded too quietly
+        can be turned up to match your loud samples (that had to be turned
+        down).</para>
+
+        <warning>
+          <para>It is very easy to set the <guibutton>Gain</guibutton> too high,
+          causing your sample to clip.  Remember to test the gain with
+          full-velocity notes.  If you clip your signal here, it will only get
+          worse as Hydrogen processes it.</para>
+        </warning>
+
+        <para>The pitch of the sample can be modified with the pitch controls.
+        The <guibutton>Pitch</guibutton> knob adjust the pitch in musical
+        half-steps.  (So, -12 is down 1 octave).  The pitch on the right adjusts
+        the pitch &plusmn;50 cents.  (One half-step is 100 cents.)</para>
+
+        <note>
+          <para>The pitch is adjusted by playing the sample back faster or
+          slower.  This is called the Dopplar Effect.  So, if you have a
+          1-second sample that you turn down -12 (1 octave), you sample will
+          only last for .5-seconds.</para>
+        </note>
+      </section>
+
+      <section id="sect.layer_editing">
+        <title>Sample Editor</title>
+        <para>TODO : description on Sample editor</para>
+      </section>
+      
       <section id="sect.instrument_editing.tips">
         <title>Tips on Editing Instruments</title>
 
