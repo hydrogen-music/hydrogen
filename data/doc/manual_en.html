@@ -147,29 +147,31 @@
           in the Pattern Editor (see <a class="xref" href="#sect.pattern_editor" title="Pattern Editor">the section called &#8220;Pattern Editor&#8221;</a>).</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/MeasureSettings.png"></span></p><p>Set measure type and Beat Counter (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>).</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/background_BPM.png"></span></p><p>Set speed of playing (range: 30-400 bpm) <span class="bold"><strong>[Hotkey = mouse wheel]</strong></span> and button to
           enable/disable metronome</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/MidiIN_CPU.png"></span></p><p>Shows CPU load and MIDI events.  The CPU bargraph gives you an indication of the CPU load.  The MIDI led lights up every time Hydrogen receives a midi message.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/JackTrans_Master.png"></span></p><p>Click J. TRANS to enable Jack transport.  If the J. MASTER button is pressed Hydrogen will work as 'master', else it will act as 'slave'
           to another 'master' program (e.g. Ardour). This applet is only
-          available if Jack Audio Driver is selected.</p></li></ul></div><div class="section" title="Tap Tempo and BeatCounter"><div class="titlepage"><div><div><h3 class="title"><a name="sect.tap_tempo"></a>Tap Tempo and BeatCounter</h3></div></div></div><p>It is possible to change tempo at any time using the tap-tempo and
-        BeatCounter features of Hydrogen.  You can change these while playing or
+          available if Jack Audio Driver is selected.</p></li></ul></div><div class="section" title="Tap Tempo and BeatCounter"><div class="titlepage"><div><div><h3 class="title"><a name="sect.tap_tempo"></a>Tap Tempo and BeatCounter</h3></div></div></div><p>It is possible to change the tempo at any time using the tap-tempo and
+        BeatCounter features of Hydrogen.  You can do this while the song is playing or
         while the song is stopped.  To change the tempo, hit the
-        <span class="keycap"><strong>,</strong></span> (comma) key in tempo for the number of beats in the
-        measure.  After the correct number of beats are met, the tempo will
-        change to the average tempo that you tapped in.  If you continue to tap,
+        <span class="keycap"><strong>,</strong></span> (comma) key in the tempo you want.
+        After the correct number of keystrokes have been detected (see 
+        below for details), the tempo will change to the average tempo 
+        you tapped the comma key.  If you continue to tap,
         these new taps will become a part of a rolling average.  If you tap
         accidentally, or if you wait too long between taps, the tap tempo
         counter will start over.</p><p>The Tap Tempo is a part of the BeatCounter, which is essentially a
         Tap Tempo on steroids.  By default the BeatCounter display is not
         visible.  To see the BeatCounter widget click the upright button
         (<span class="guilabel">BC</span>) between Song/Pattern mode selector and the
-        BPM-widget.  Or, it can be shown by pressing the comma key
-        (<span class="keycap"><strong>,</strong></span>).</p><p>The tempo that you tap will be considered even beats of the beat
-        type.  The beat type can be set to 1/8 (for eight-note beats), 1/4 (for
+        BPM-widget, or, simply press the comma key.
+        (<span class="keycap"><strong>,</strong></span>).</p><p>The tempo that you tap will be considered even beats of the song's 
+        beat type.  The beat type can be set to 1/8 (for eight-note beats), 1/4 (for
         quarter-note beats), 1/2 (for half-note beats), and 1/1 (for whole-note
-        beats).  To change the beat type use the left arrow buttons.  To change
-        the number of beats that are counted, use the right arrow button.  You
-        can set from 2 to 16 beats.  (I.e. if you set the beat to 6, you will
+        beats).  To change the beat type use the left +/- buttons.  To change
+        the Countdown Counter value, use the right +/- buttons.  The Countdown 
+        Counter value can be set between 2 and 16 beats.  (I.e. if you set the beat to 6, you will
         have to tap 6 times before the new tempo is computed and set.)  When the
         display shows an <span class="guilabel">R</span>, it means that the BeatCounter
-        is ready to start from 0.  Every time you tap with the comma key, it
-        will show the number of taps that you have entered (1, 2, 3...).</p><p>The button in the bottom right-hand controls the auto-start
+        is ready to start from 0.  When you tap the comma key, the R will change to
+        1, and will increment with every keystroke until it reaches the Countdown 
+        Counter value (shown just below the 'R').</p><p>The button in the bottom right-hand controls the auto-start
         feature, and it toggles between <span class="guilabel">S</span> and
         <span class="guilabel">P</span>.  When it shows <span class="guilabel">P</span> for
         (<span class="emphasis"><em>Play</em></span>), the song will set the new tempo and
@@ -810,7 +812,7 @@
           </p></li><li class="listitem" style="list-style-type: circle"><p>
             <span class="bold"><strong>[CTRL + Q]</strong></span> = Quit Hydrogen
           </p></li><li class="listitem" style="list-style-type: circle"><p>
-            <span class="bold"><strong>[ALT + B]</strong></span> = Show Director window
+            <span class="bold"><strong>[ALT + D]</strong></span> = Show Director window
           </p></li><li class="listitem" style="list-style-type: circle"><p>
             <span class="bold"><strong>[ALT + M]</strong></span> = Show Mixer window
           </p></li><li class="listitem" style="list-style-type: circle"><p>
