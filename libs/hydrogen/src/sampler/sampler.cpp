@@ -875,4 +875,3 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 }
 
 };
-

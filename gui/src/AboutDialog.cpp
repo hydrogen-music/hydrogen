@@ -80,6 +80,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Gene", "", "Patches, testing" ) );
 	authorList.push_back( Author( "Jakob Lund", "jlund05@imada.sdu.dk", " coding" ) );
 	authorList.push_back( Author( "Jason Schaefer", "schaefer.jason@gmail.com", " Patches, lead/lag feature" ) );
+        authorList.push_back( Author( "J&#233;r&#233;my Zurcher", "", "coding") );
 	authorList.push_back( Author( "Jesse Chappel", "", "Jack patches" ) );
 	authorList.push_back( Author( "Jonas Melzer", "", "German manual" ) );
 	authorList.push_back( Author( "Jonathan Dempsey", "jonathandempsey@fastmail.fm", "Mac OSX port" ) );
@@ -94,6 +95,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Sebastian Moors (aka mauser)", "mauser@smoors.de", "coding" ) );
 	authorList.push_back( Author( "Sergio Gil Perez de la Manga", "", "Spanish translation" ) );
 	authorList.push_back( Author( "Simon Donike", "", "German translation" ) );
+        authorList.push_back( Author( "Thijs Van Severen", "", "manual, website, coding" ) );
 	authorList.push_back( Author( "Torben Hohn", "", "Bug fix, test" ) );
 	authorList.push_back( Author( "Yamasaki Yutaka", "yamasaki@good-day.co.jp", "Japanese translation" ) );
 	authorList.push_back( Author( "Willie Sippel", "willie@zeitgeistmedia.net", "GUI graphics, coding" ) );
