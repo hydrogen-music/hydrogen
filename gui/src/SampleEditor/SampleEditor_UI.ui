@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>858</width>
-    <height>543</height>
+    <width>862</width>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,11 +31,12 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
+   <zorder>rubberbandLabel</zorder>
   </widget>
   <widget class="QPushButton" name="ClosePushButton">
    <property name="geometry">
     <rect>
-     <x>775</x>
+     <x>770</x>
      <y>295</y>
      <width>81</width>
      <height>26</height>
@@ -48,18 +49,25 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>5</x>
+     <x>14</x>
      <y>295</y>
-     <width>621</width>
+     <width>701</width>
      <height>30</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="spinboxesLayout">
     <item>
+     <widget class="QLabel" name="label_Start">
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QSpinBox" name="StartFrameSpinBox">
       <property name="minimumSize">
        <size>
-        <width>140</width>
+        <width>100</width>
         <height>0</height>
        </size>
       </property>
@@ -72,10 +80,30 @@
      </widget>
     </item>
     <item>
+     <spacer name="horizontalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_Loop">
+      <property name="text">
+       <string>Loop</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QSpinBox" name="LoopFrameSpinBox">
       <property name="minimumSize">
        <size>
-        <width>140</width>
+        <width>100</width>
         <height>0</height>
        </size>
       </property>
@@ -84,6 +112,18 @@
       </property>
       <property name="maximum">
        <number>1000000000</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_LoopMode">
+      <property name="text">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -116,6 +156,18 @@
      </widget>
     </item>
     <item>
+     <widget class="QLabel" name="label_LoopCount">
+      <property name="text">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QSpinBox" name="LoopCountSpinBox">
       <property name="minimumSize">
        <size>
@@ -135,10 +187,30 @@
      </widget>
     </item>
     <item>
+     <spacer name="horizontalSpacer_4">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_End">
+      <property name="text">
+       <string>End</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QSpinBox" name="EndFrameSpinBox">
       <property name="minimumSize">
        <size>
-        <width>140</width>
+        <width>100</width>
         <height>0</height>
        </size>
       </property>
@@ -155,10 +227,10 @@
   <widget class="QWidget" name="layoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>5</x>
+     <x>10</x>
      <y>10</y>
-     <width>843</width>
-     <height>276</height>
+     <width>836</width>
+     <height>267</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="mainSampleViewLayout">
@@ -236,20 +308,20 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
       <width>821</width>
-      <height>51</height>
+      <height>53</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QLabel" name="rubberbandLabel">
        <property name="text">
-        <string>&quot;Rubberband Audio Processor&quot; Change the tempo(sample length) and pitch of audio. </string>
+        <string>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</string>
        </property>
       </widget>
      </item>
@@ -486,7 +558,7 @@
        <item>
         <widget class="QLabel" name="pitchlabel">
          <property name="text">
-          <string>Pitch: (Semitone,Cent)</string>
+          <string> Pitch (Semitone,Cent)</string>
          </property>
         </widget>
        </item>
@@ -517,6 +589,19 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item>
           <widget class="QLabel" name="r_c_label">
            <property name="maximumSize">
@@ -599,13 +684,13 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>410</y>
      <width>841</width>
-     <height>27</height>
+     <height>30</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -701,32 +786,15 @@ p, li { white-space: pre-wrap; }
    </layout>
   </widget>
   <zorder>targetSampleView</zorder>
-  <zorder>PlayOrigPushButton</zorder>
-  <zorder>PrevChangesPushButton</zorder>
   <zorder>ClosePushButton</zorder>
   <zorder>layoutWidget</zorder>
   <zorder>layoutWidget_2</zorder>
-  <zorder>PlayPushButton</zorder>
-  <zorder>newlengthLabel</zorder>
-  <zorder>EditTypeComboBox</zorder>
   <zorder>layoutWidget</zorder>
-  <zorder>pitchdoubleSpinBox</zorder>
-  <zorder>pitchlabel</zorder>
-  <zorder>ratiolabel</zorder>
-  <zorder>rubberbandLabel</zorder>
-  <zorder>rubberComboBox</zorder>
-  <zorder>label</zorder>
-  <zorder>horizontalSpacer</zorder>
-  <zorder>horizontalSpacer_2</zorder>
   <zorder>RubberbandCframe</zorder>
-  <zorder>rubberbandLabel</zorder>
  </widget>
  <tabstops>
-  <tabstop>StartFrameSpinBox</tabstop>
-  <tabstop>LoopFrameSpinBox</tabstop>
   <tabstop>ProcessingTypeComboBox</tabstop>
   <tabstop>LoopCountSpinBox</tabstop>
-  <tabstop>EndFrameSpinBox</tabstop>
   <tabstop>PrevChangesPushButton</tabstop>
   <tabstop>PlayOrigPushButton</tabstop>
   <tabstop>ClosePushButton</tabstop>
