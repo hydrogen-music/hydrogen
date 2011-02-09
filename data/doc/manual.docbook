@@ -1829,7 +1829,7 @@
         instrument parameters, played with velocity settings and so on.  Now it's 
         time to go one step deeper and edit the samples using one of the newest
         Hydrogen features : the Sample Editor.</para>
-        <para>The Sample Editor allows you to tweak and manipulate the actual samples.
+        <para>The Sample Editor allows you to tweak and manipulate your samples.
         This is a function that will really speed up the creation of a drumkit since
         you can do the fine-tunning of the sample within Hydrogen. In pre-0.9.5 builds
         the typical workflow would be to prepare your sample in an external sound editor,
@@ -1837,6 +1837,12 @@
         test ...  The sample editor allows you to do most of the sample manipulation 
         within Hydrogen.  This mean less switching between Hydrogen and your audio editor
         and more time to make music !</para>
+        <para><emphasis role="bold">NOTE</emphasis> : the changes you make to
+        your samples in the Sample Editor are <emphasis role="bold">non-destructive
+        </emphasis> and are saved <emphasis role="bold">per song</emphasis>.  
+        So the original sample will not be changed,
+        and you can reuse the same sample in multiple songs with different Sample Editor
+        settings.</para>
         
         <figure id="sample.editor">
         <title>The Sample Editor</title>
@@ -1870,13 +1876,14 @@
         marker, the position of the Loop marker, the Loop mode, the number of loops and the
         position of the End marker.  The position of the markers is expressed in number of
         samples from the very beginning of the sample.  These values will change if you drag the markers,
-        but you can also fine-tune the marker position by using the up/down arrows on the inputbox, 
-        the up/down keys on your keyboard, or by using your mouse scroll wheel.</para>
+        but you can also fine-tune the marker position by using the up/down arrows of the spinboxes, 
+        the up/down keys on your keyboard, or by using your mouse scroll wheel while hovering
+        above the spinboxes.</para>
         <para>Apart from the marker positions there are 2 settings that apply to the Sample
         Editor's loop function : loop mode and loop number.  With the loop function you can
         repeat the part of your sample <emphasis>that is in between the Loop- and the 
-        End-marker.</emphasis>. The way it is looped is determined by the Loop mode (
-        froward, revers or ping-pong) and the number of times it is looped is determined
+        End-marker.</emphasis>. The way it is looped is determined by the Loop mode 
+        (forward, revers or ping-pong) and the number of times it is looped is determined
         by the Loop number.</para>
         <para>If you want to hear a preview of the tweaking you have done so far, you first need to
         press the 'Apply Changes' button (@ the bottom of section 3) and then the Play button to
@@ -1892,8 +1899,10 @@
         
         <section id="sect.layer_editing.section3">
         <title>Sample Editor volume/pan</title>
-        <para>In the bottom section of the Sample Editor you can tweak the Volume and 
-        Panorama (Pan) of your sample.  This is done by creating 'envelopes' like the 
+        <para>In the bottom section of the Sample Editor you can see the end result 
+        of the tweaks you have made by pressing the Apply Changes button.  You can
+        also change the the Volume and Panorama (Pan) of your sample here.
+        This is done by creating 'envelopes' like the 
         ones you find in numerous DAW's for (parameter) automation.  To edit an
         envelope you first need to select 'Volume' or 'Panorama'in the upper right 
         corner of section 3.  The Volume envelope is blue, the pan envelope is yellow.

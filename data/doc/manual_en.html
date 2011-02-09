@@ -625,14 +625,19 @@
           only last for .5-seconds.</p></div></div><div class="section" title="Sample Editor"><div class="titlepage"><div><div><h3 class="title"><a name="sect.layer_editing"></a>Sample Editor</h3></div></div></div><p>So far we have created a multilayered Drumkit, set a number of 
         instrument parameters, played with velocity settings and so on.  Now it's 
         time to go one step deeper and edit the samples using one of the newest
-        Hydrogen features : the Sample Editor.</p><p>The Sample Editor allows you to tweak and manipulate the actual samples.
+        Hydrogen features : the Sample Editor.</p><p>The Sample Editor allows you to tweak and manipulate your samples.
         This is a function that will really speed up the creation of a drumkit since
         you can do the fine-tunning of the sample within Hydrogen. In pre-0.9.5 builds
         the typical workflow would be to prepare your sample in an external sound editor,
         import the sample in Hydrogen, test it, go back to the audio editor, import again, 
         test ...  The sample editor allows you to do most of the sample manipulation 
         within Hydrogen.  This mean less switching between Hydrogen and your audio editor
-        and more time to make music !</p><div class="figure"><a name="sample.editor"></a><p class="title"><b>Figure 2.12. The Sample Editor</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SampleEditor_V5.png" alt="The Sample Editor"></div></div></div><br class="figure-break"><p>The Sample Editor consists of 3 sections (as indicated in the figure above):</p><div class="section" title="Sample Editor in/out points"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section1"></a>Sample Editor in/out points</h4></div></div></div><p>
+        and more time to make music !</p><p><span class="bold"><strong>NOTE</strong></span> : the changes you make to
+        your samples in the Sample Editor are <span class="bold"><strong>non-destructive
+        </strong></span> and are saved <span class="bold"><strong>per song</strong></span>.  
+        So the original sample will not be changed,
+        and you can reuse the same sample in multiple songs with different Sample Editor
+        settings.</p><div class="figure"><a name="sample.editor"></a><p class="title"><b>Figure 2.12. The Sample Editor</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SampleEditor_V5.png" alt="The Sample Editor"></div></div></div><br class="figure-break"><p>The Sample Editor consists of 3 sections (as indicated in the figure above):</p><div class="section" title="Sample Editor in/out points"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section1"></a>Sample Editor in/out points</h4></div></div></div><p>
         In this section you can set the start, stop and loop points for the sample by dragging the 
         the 3 markers :
         </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>S-marker (green) : indicates the Start-point (in-point) of the sample.</p></li><li class="listitem"><p>E-marker (red) : indicates the End-point (out-point) of the sample.</p></li><li class="listitem"><p>L-marker (blue) : determines the loop-in point of your sample</p></li></ul></div><p>
@@ -646,18 +651,21 @@
         marker, the position of the Loop marker, the Loop mode, the number of loops and the
         position of the End marker.  The position of the markers is expressed in number of
         samples from the very beginning of the sample.  These values will change if you drag the markers,
-        but you can also fine-tune the marker position by using the up/down arrows on the inputbox, 
-        the up/down keys on your keyboard, or by using your mouse scroll wheel.</p><p>Apart from the marker positions there are 2 settings that apply to the Sample
+        but you can also fine-tune the marker position by using the up/down arrows of the spinboxes, 
+        the up/down keys on your keyboard, or by using your mouse scroll wheel while hovering
+        above the spinboxes.</p><p>Apart from the marker positions there are 2 settings that apply to the Sample
         Editor's loop function : loop mode and loop number.  With the loop function you can
         repeat the part of your sample <span class="emphasis"><em>that is in between the Loop- and the 
-        End-marker.</em></span>. The way it is looped is determined by the Loop mode (
-        froward, revers or ping-pong) and the number of times it is looped is determined
+        End-marker.</em></span>. The way it is looped is determined by the Loop mode 
+        (forward, revers or ping-pong) and the number of times it is looped is determined
         by the Loop number.</p><p>If you want to hear a preview of the tweaking you have done so far, you first need to
         press the 'Apply Changes' button (@ the bottom of section 3) and then the Play button to
         hear the result.</p></div><div class="section" title="Sample Editor rubberband"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section2"></a>Sample Editor rubberband</h4></div></div></div><p>This section of the Sample Editor allows you to control the Rubberband settings.
         Rubberband is a tool that allows you to change the pitch of a sample without changing 
-        the sample duration.  </p></div><div class="section" title="Sample Editor volume/pan"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section3"></a>Sample Editor volume/pan</h4></div></div></div><p>In the bottom section of the Sample Editor you can tweak the Volume and 
-        Panorama (Pan) of your sample.  This is done by creating 'envelopes' like the 
+        the sample duration.  </p></div><div class="section" title="Sample Editor volume/pan"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section3"></a>Sample Editor volume/pan</h4></div></div></div><p>In the bottom section of the Sample Editor you can see the end result 
+        of the tweaks you have made by pressing the Apply Changes button.  You can
+        also change the the Volume and Panorama (Pan) of your sample here.
+        This is done by creating 'envelopes' like the 
         ones you find in numerous DAW's for (parameter) automation.  To edit an
         envelope you first need to select 'Volume' or 'Panorama'in the upper right 
         corner of section 3.  The Volume envelope is blue, the pan envelope is yellow.
