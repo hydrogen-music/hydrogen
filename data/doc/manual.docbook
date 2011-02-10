@@ -76,7 +76,7 @@
           <para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/">http://www.mega-nerd.com/libsndfile/</ulink></para>
         </listitem>
         <listitem>
-          <para>ALSA (&gt;= 1.x) at <ulink url="http://www.alsa-project.com">http://www.alsa-project.com</ulink>
+          <para>ALSA (&gt;= 1.x) at <ulink url="http://www.alsa-project.org">http://www.alsa-project.org</ulink>
           (only if you wish to use ALSA as audio driver)</para>
         </listitem>
         <listitem>
@@ -93,11 +93,11 @@
           wish to use flac samples)</para>
         </listitem>
         <listitem>
-          <para>ladspa at <ulink url="http://ladspa.org">http://ladspa.org</ulink> (only if you wish
+          <para>ladspa at <ulink url="http://www.ladspa.org">http://www.ladspa.org</ulink> (only if you wish
           to use ladspa effects)</para>
         </listitem>
         <listitem>
-          <para>liblrdf at <ulink url="http://liblrdf.sf.net">http://liblrdf.sf.net</ulink> (only if you wish to use lrdf to categorise effects)</para>
+          <para>liblrdf at <ulink url="http://sf.net/projects/lrdf">http://sf.net/projects/lrdf</ulink> (only if you wish to use lrdf to categorise effects)</para>
         </listitem>
         <listitem>
           <para>lash at <ulink url="http://lash.nongnu.org">http://lash.nongnu.org</ulink> (only if
@@ -213,7 +213,8 @@
         it here so Hydrogen allows interaction with Lash.</para>
         <para>The Beat Counter drift compensation and start offset allow you to compensate
          for system latency when you are using the Beat Counter function (see <xref linkend="sect.tap_tempo"/>)</para>
-        <para>The Max number of bars in a song can be set here (currently limited to 800) and if you want to use rubberband for sample time-streching 
+        <para>The Max number of bars in a song can be set here (currently limited to 800) 
+        and if you want to use rubberband for sample time-streching (see <xref linkend="sect.layer_editing.section2"/>)
         you need to enter the path where rubberband is installed on you system here.</para>
         <!-- THIJS : NEED TO AD LINK TO SAMPLE EDITOR -->
         
