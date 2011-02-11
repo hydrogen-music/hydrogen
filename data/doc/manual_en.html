@@ -137,8 +137,8 @@
       look at the main toolbar and its components:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Pilot the song using the start, stop, pause, etc. buttons</p></li><li class="listitem"><p>Choose between "pattern" or "song" mode: in "pattern" mode only
           the currently selected pattern will play, while in "song" mode all
           patterns inserted will be played.</p></li><li class="listitem"><p>An advanced tap tempo function: choose note length and how many
-          notes to wait before recalculating BPM, then click the comma key
-          repeatedly until the 'R' letter will appear and the BPM will be
+          notes to wait before recalculating BPM, then hit the comma key
+          repeatedly until the 'R' letter appears and then the BPM will be
           updated.  (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>)</p></li><li class="listitem"><p>Manually set BPM</p></li><li class="listitem"><p>Manage JACK transport</p></li><li class="listitem"><p>Open the mixer and the instrument rack panels</p></li></ul></div><div class="figure"><a name="fig.main_toolbar"></a><p class="title"><b>Figure 2.1. The Main Toolbar</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/MainToolbar_V2.png" alt="The Main Toolbar"></div></div></div><br class="figure-break"><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/background_Control_V2.png"></span></p><p>Main controls to start <span class="bold"><strong>[Hotkey =
           Spacebar]</strong></span>, stop, record, fast forward, rewind, loop a song or a
           pattern.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/background_Mode.png"></span></p><p>Set Pattern/Song Mode. When Song mode is selected Hydrogen will play 
@@ -275,14 +275,14 @@
            will play the sample as it's being added to the pattern.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="bold"><strong>QUANT</strong></span> : enables/disables quantization.  
            When enabled the beats inserted 
             will automatically respect the grid resolution currently applied.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="bold"><strong>Drumset / Instrument</strong></span> : 
-           when set to Drumset the keys on your midi keyboard will map to the instruments in your sound library as
+           when set to Drumset the keys on your midi keyboard will map to the instruments in your drumkit as
            described in the instrument mapping table below.  If you set it to Instrument the keys of your midi 
            keyboard will trigger the instrument that is currently selected.  The pitch of the instrument will follow 
            the key you press on your keyboard.  This feature is mainly used for non-drum instruments.  An example : 
            if you use a sample of a piano for one of your instruments, you will be able to 'play' that piano instrument 
            using your keyboard just like you are playing a piano synth.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="bold"><strong>Note Length / Note off</strong></span> : these are 2 different
             ways to define the duration of a note. See <a class="xref" href="#sect.pattern_editor.sequence_area" title="Pattern Editor Sequence area">the section called &#8220;Pattern Editor Sequence area&#8221;</a> for usage.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="bold"><strong>Drum/Piano</strong></span> : switch Pattern Editor 
-           between Drum and Piano mode. (see below)</p></li></ul></div></div><div class="section" title="Pattern Editor Drumkit"><div class="titlepage"><div><div><h3 class="title"><a name="sect.pattern_editor.drumkit"></a>Pattern Editor Drumkit</h3></div></div></div><p>The section on the left shows you what drumkit/library is currently selected (GMkit by default) and below that you can see
+           between Drum and Piano mode. (see below)</p></li></ul></div></div><div class="section" title="Pattern Editor Drumkit"><div class="titlepage"><div><div><h3 class="title"><a name="sect.pattern_editor.drumkit"></a>Pattern Editor Drumkit</h3></div></div></div><p>The section on the left shows you what drumkit is currently selected (GMkit by default) and below that you can see
         the instruments that are part of this kit.</p><p>
         <span class="inlinemediaobject"><a name="ifig.pattern_editor_instrument"></a><img src="img/PatternEditorInstr_V2.png"></span>
         </p><p>Each instrument has its own set of features that are accessible by 
@@ -296,7 +296,7 @@
           played.
           </p></li><li class="listitem" style="list-style-type: circle"><p><span class="bold"><strong>Delete Instrument</strong></span> : well, deletes the instrument ;-)</p></li></ul></div><p>The small red and green buttons right of the instrument names are the
         <span class="quote">&#8220;<span class="quote"><span class="bold"><strong>mute</strong></span></span>&#8221;</span> (red) and <span class="quote">&#8220;<span class="quote"><span class="bold"><strong>solo</strong></span></span>&#8221;</span> (green) buttons.</p><p>The order of the instruments can be rearranged by simply dragging an instrument 
-        up/down in the list and dropping it on a new position within the drumkit/library.  Doing so 
+        up/down in the list and dropping it on a new position within the drumkit.  Doing so 
         will not change anything to the sequence you have created for that instrument, nor will
         it change anything to the song or pattern you are working on.  It <span class="bold"><strong>
         will</strong></span> however, have an impact on the <span class="bold"><strong>MIDI note 
@@ -394,7 +394,7 @@
       (This is also the main reason why the Piano mode was added to the pattern editor : 
       see <a class="xref" href="#sect.pattern_editor.piano_mode" title="Pattern Editor Piano mode">the section called &#8220;Pattern Editor Piano mode&#8221;</a>).</p><p>In this manual (and in other documentation) you will find the terms Drumkit and
       Soundlibrary frequently, and they might be referring to the same thing ... or not. The diagram
-      below show the relation between the Soundlibrary and Drumkits :
+      below shows the actual relation between the Soundlibrary and Drumkits :
       </p><div class="figure"><a name="fig.SoundlibraryHierarchy"></a><p class="title"><b>Figure 2.8. Soundlibrary/Drumkit hierarchy</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SoundlibraryHierarchy_V4.png" alt="Soundlibrary/Drumkit hierarchy"></div></div></div><p><br class="figure-break">
       
       As you can see the Soundlibrary contains all Drumkits (System- and User drumkits), your saved Patterns and your saved Songs.  Each Drumkit is a collection of a number
@@ -497,7 +497,7 @@
 
           .  It will ask you for the name of the kit to save.  If you wish to
           <span class="emphasis"><em>overwrite</em></span> an existing kit, you will need to type in
-          the same name as the kit that you want to replace.</p></li><li class="listitem"><p>Drumkits are automatically stored in the <code class="filename">data</code> directory (i.e. <code class="filename">$HOME/data/drumkits</code>).</p></li><li class="listitem"><p>To export a drumkit (for sharing with others), it must first be
+          the same name as the kit that you want to replace.</p></li><li class="listitem"><p>Drumkits are automatically stored in the <code class="filename">data</code> directory (i.e. <code class="filename">$HOME/.hydrogen/data/drumkits</code>).</p></li><li class="listitem"><p>To export a drumkit (for sharing with others), it must first be
           loaded into your Sound Library.  Then, select
 
           <span class="guimenuitem">Instruments</span> &#8594; <span class="guimenuitem">Export library</span>

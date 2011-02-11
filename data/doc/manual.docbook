@@ -575,8 +575,8 @@
         </listitem>
         <listitem>
           <para>An advanced tap tempo function: choose note length and how many
-          notes to wait before recalculating BPM, then click the comma key
-          repeatedly until the 'R' letter will appear and the BPM will be
+          notes to wait before recalculating BPM, then hit the comma key
+          repeatedly until the 'R' letter appears and then the BPM will be
           updated.  (see <xref linkend="sect.tap_tempo"/>)</para>
         </listitem>
         <listitem>
@@ -966,7 +966,7 @@
             will automatically respect the grid resolution currently applied.</para></listitem>
 
            <listitem><para><emphasis role="bold">Drumset / Instrument</emphasis> : 
-           when set to Drumset the keys on your midi keyboard will map to the instruments in your sound library as
+           when set to Drumset the keys on your midi keyboard will map to the instruments in your drumkit as
            described in the instrument mapping table below.  If you set it to Instrument the keys of your midi 
            keyboard will trigger the instrument that is currently selected.  The pitch of the instrument will follow 
            the key you press on your keyboard.  This feature is mainly used for non-drum instruments.  An example : 
@@ -985,7 +985,7 @@
       
       <section id="sect.pattern_editor.drumkit">
       <title>Pattern Editor Drumkit</title>
-        <para>The section on the left shows you what drumkit/library is currently selected (GMkit by default) and below that you can see
+        <para>The section on the left shows you what drumkit is currently selected (GMkit by default) and below that you can see
         the instruments that are part of this kit.</para>
         
         <para>
@@ -1018,7 +1018,7 @@
         role="bold">solo</emphasis></quote> (green) buttons.</para>
 
         <para>The order of the instruments can be rearranged by simply dragging an instrument 
-        up/down in the list and dropping it on a new position within the drumkit/library.  Doing so 
+        up/down in the list and dropping it on a new position within the drumkit.  Doing so 
         will not change anything to the sequence you have created for that instrument, nor will
         it change anything to the song or pattern you are working on.  It <emphasis role="bold">
         will</emphasis> however, have an impact on the <emphasis role="bold">MIDI note 
@@ -1288,7 +1288,7 @@
       see <xref linkend="sect.pattern_editor.piano_mode"/>).</para>
       <para>In this manual (and in other documentation) you will find the terms Drumkit and
       Soundlibrary frequently, and they might be referring to the same thing ... or not. The diagram
-      below show the relation between the Soundlibrary and Drumkits :
+      below shows the actual relation between the Soundlibrary and Drumkits :
       <figure id="fig.SoundlibraryHierarchy">
          <title>Soundlibrary/Drumkit hierarchy</title>
          <mediaobject>
@@ -1530,7 +1530,7 @@
          <listitem>
           <para>Drumkits are automatically stored in the <filename
           class="directory">data</filename> directory (i.e. <filename
-          class="directory">$HOME/data/drumkits</filename>).</para>
+          class="directory">$HOME/.hydrogen/data/drumkits</filename>).</para>
          </listitem>
 
          <listitem>
