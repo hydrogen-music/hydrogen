@@ -772,16 +772,24 @@
 
       <para>The "Song Editor" (<xref linkend="fig.song_editor"/>) gives an
       overview of the whole timeline of the song (e.g. intro, verse, bridge,
-      chorus and so on); each blue colored square on this panel is a complete
+      chorus and so on); each blue colored square on this panel represents a complete
       bar as shown in the underlying "Pattern Editor" panel. Here we have
-      complete freedom to add, remove or move patterns in any order we
-      prefer. We can also copy and paste patterns: use left mouse button to
-      highlight an area and drag it around. Dragging with CTRL key pressed
-      copies the patterns.</para>
-
-      <para>
-        The Song Editor comes with 7 buttons:
+      complete freedom to add and remove patterns to the song in any order we
+      prefer. We can also select a part of the song and delete, move or copy it.
+      
+           
+      <figure id="fig.song_editor">
+        <title>The Song Editor</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/SongEditor.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+      </figure>
       </para>
+
+     <section id="sect.song_editor.main_controls">
+      <title>Main controls</title>
       <para>
         <inlinemediaobject>
           <imageobject>
@@ -812,8 +820,8 @@
           <para><inlinemediaobject><imageobject>
             <imagedata fileref="img/btn_updown.png" format="PNG" />
             </imageobject></inlinemediaobject> Move currently selected pattern
-            up or down.
-          </para>
+            up or down.</para>
+          <para>Note that you can also just drag-and-drop a pattern up/down in the pattern list.</para>
         </listitem>
 
 
@@ -821,15 +829,23 @@
         <listitem>
           <para><inlinemediaobject><imageobject>
             <imagedata fileref="img/btn_select.png" format="PNG"/>
-            </imageobject></inlinemediaobject> Enable selecting patterns for
-            copy &amp; paste (Select Mode).
+            </imageobject></inlinemediaobject> Enable Select Mode.  This mode allows 
+            you to select a part of the song and delete/move/copy it.</para>
+            <para>Once you have selected a part of your song you can <emphasis role=
+            "bold">delete</emphasis> it by pressing the Delete button.  You can <emphasis
+             role="bold">move</emphasis> it by simply dragging your selection
+            to another location, and you can also <emphasis role="bold">copy</emphasis>
+             you selection by Ctrl-dragging it to a new location.
           </para>
         </listitem>
 
         <listitem>
           <para><inlinemediaobject><imageobject>
             <imagedata fileref="img/btn_draw.png" format="PNG"/>
-            </imageobject></inlinemediaobject> Enable Draw Mode.
+            </imageobject></inlinemediaobject> Enable Draw Mode.  This mode allows
+            you to create a song by drawing blocks on the song canvas.</para>
+            <para>Clicking a square on the song canvas will add a pattern (the square 
+            will turn blue), clicking it again will remove that pattern from the song.
           </para>
         </listitem>
 
@@ -837,42 +853,22 @@
           <para><inlinemediaobject><imageobject>
             <imagedata fileref="img/btn_pattern_mode.png" format="PNG"/>
             </imageobject></inlinemediaobject> Switch from "Single pattern mode"
-            to "Stacked pattern mode" and back..
+            to "Stacked pattern mode" and back.</para>
+            <para>For more info on this see <xref linkend="sect.midi_actions"/>.
           </para>
         </listitem>
       </itemizedlist>
 
-      <para>Under these buttons there is a list of patterns created and when
-      they will played (each square == 1 bar). Click on an squarebox to add or
-      cancel the pattern. Clicking on right mouse button over the name of a
-      pattern will bring up a menu to change name of the pattern or to allow
-      copying/deleting it. Patterns with very same name are not allowed.</para>
+      </section>
 
-      <figure id="fig.song_editor">
-        <title>The Song Editor</title>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="img/SongEditor.png" format="PNG" />
-          </imageobject>
-        </mediaobject>
-      </figure>
-     <section id="sect.song_editor.virtualPattern">
-     <title>Virtual patterns</title>
-     <para>
-	Virtual patterns are a convenient way of grouping patterns together. 
-        For example, say you have a song in which three patterns are always 
-        played together at the start of each bar. Previously, the way to do this 
-        in the pattern matrix was to explicitly enable the three patterns at each bar.
-     </para>
-     <para>
-     	With virtual patterns we can assign a pattern to be a sort of meta-pattern 
-	that implicitly invokes these three patterns together when the new virtual pattern 
-	is enabled in the pattern matrix. This way, we only need to set one pattern every bar, instead of three.
-      </para>
-     
- 
+     <section id="sect.song_editor.pattern_options">
+     <title>Patterns options</title>
+
+      <para>Right-clicking the name of a pattern will show you a menu 
+      where you can change a number of things :</para>
+      
      <figure id="fig.song_editor.virtualPattern.selectedMenu">
-        <title>The Virtual Pattern menu</title>
+        <title>The Pattern Options menu</title>
 
         <mediaobject>
           <imageobject>
@@ -880,21 +876,80 @@
           </imageobject>
         </mediaobject>
       </figure>
+      
+      
+      <itemizedlist mark="opencircle">
+
+        <listitem>
+          <para>Edit : will open the selected pattern in the Pattern Editor.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Copy : will open the selected pattern in the Pattern Editor.
+          </para>
+          <para>Note that patterns with the same name are not allowed.</para>
+        </listitem>
+        
+        <listitem>
+          <para>Delete : will open the selected pattern in the Pattern Editor.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Fill/Clear : will open the selected pattern in the Pattern Editor.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Properties : will open the selected pattern in the Pattern Editor.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Load Pattern : will open the selected pattern in the Pattern Editor.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Save Pattern : will open the selected pattern in the Pattern Editor.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Virtual Pattern : will open the selected pattern in the Pattern Editor.
+          </para>
+          <para>
+	        Virtual patterns are a convenient way of grouping patterns together. 
+          For example, say you have a song in which three patterns are always 
+          played together at the start of each bar. Previously, the way to do this 
+          in the pattern matrix was to explicitly enable the three patterns at each bar.
+         </para>
+         <para>
+        	With virtual patterns we can assign a pattern to be a sort of meta-pattern 
+	        that implicitly invokes these three patterns together when the new virtual pattern 
+	        is enabled in the pattern matrix. This way, we only need to set one pattern every 
+	        bar, instead of three.
+         </para>
+         <para>
+        	Virtual patterns provide a function that's similar to the regular pattern editor, and one could argue that 
+	        since a virtual pattern is also a regular pattern, we could have just merged the three 
+	        patterns into this new one. However, the advantage that virtual patterns provide is that 
+	        if one of the original three patterns changes, the virtual pattern automatically inherits 
+        	the change. A virtual pattern can also invoke other virtual patterns.	
+         </para>
+         
+          
+        </listitem>        
+        
+      </itemizedlist>
+        
+      
 
 
-     <para>
-	Virtual patterns provide a function that's similar to the regular pattern editor, and one could argue that 
-	since a virtual pattern is also a regular pattern, we could have just merged the three 
-	patterns into this new one. However, the advantage that virtual patterns provide is that 
-	if one of the original three patterns changes, the virtual pattern automatically inherits 
-	the change. A virtual pattern can also invoke other virtual patterns.	
-     </para>
-     
-     <para>
-	To access virtual patterns, right click (bring up the context menu) on the label of 
-	an existing pattern and there select “Virtual Pattern”. This will bring up a small dialog 
-	that allows one to toggle which patterns are in the virtual pattern set.      
-     </para>
+      
+
+
      
      </section>
 
@@ -913,6 +968,7 @@
       can be used in 2 modes : 'Drum' mode or 'Piano' mode.  You can switch between these 
       modes by clicking the Drum/Piano button (located on the top-right of the Pattern Editor) 
       </para>
+      
       <para>First let's take a look at the (classic) 'Drum' mode :
         <figure id="fig.PatternEditor_DrumMode">
          <title>Pattern Editor in Drum mode</title>
@@ -2062,6 +2118,13 @@
         </mediaobject>
       </figure>
 
+    </section>
+    
+    <section id="sect.midi_actions">
+      <title>Midi actions</title>
+      <para>In this section you can find more info about defining MIDI actions 
+      and how these can be useful for you.</para>
+      <para>+++++++++++++++ TO DO  +++++++++++++++++</para>
     </section>
 
   </chapter>
