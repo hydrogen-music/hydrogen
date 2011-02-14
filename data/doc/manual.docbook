@@ -773,9 +773,9 @@
       <para>The "Song Editor" (<xref linkend="fig.song_editor"/>) gives an
       overview of the whole timeline of the song (e.g. intro, verse, bridge,
       chorus and so on); each blue colored square on this panel represents a complete
-      bar as shown in the underlying "Pattern Editor" panel. Here we have
-      complete freedom to add and remove patterns to the song in any order we
-      prefer. We can also select a part of the song and delete, move or copy it.
+      bar as shown in the underlying "Pattern Editor" panel. The song editor gives
+      you complete freedom to add/remove patterns to the song and to move or 
+      copy any part of your song.
       
            
       <figure id="fig.song_editor">
@@ -860,6 +860,57 @@
       </itemizedlist>
 
       </section>
+      
+      
+     <section id="sect.song_editor.tempo_and_markers">
+     <title>Tempo bar and song Markers</title>
+     <para>this section describes tempo bar and markers
+     
+           <informalfigure id="fig.add_tempo_change">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/add_tempo_change.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
+
+           <informalfigure id="fig.tempo_bar">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/tempo_bar.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
+     
+     
+           <informalfigure id="fig.add_tag">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/add_tag.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
+
+           <informalfigure id="fig.tag_bar">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/tag_bar.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
+
+           <informalfigure id="fig.director">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/director.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
+
+     </para>
+
+     </section>
+
 
      <section id="sect.song_editor.pattern_options">
      <title>Patterns options</title>
@@ -886,23 +937,39 @@
         </listitem>
         
         <listitem>
-          <para>Copy : will open the selected pattern in the Pattern Editor.
+          <para>Copy : will copy the selected pattern to a new pattern in your song.
           </para>
           <para>Note that patterns with the same name are not allowed.</para>
         </listitem>
         
         <listitem>
-          <para>Delete : will open the selected pattern in the Pattern Editor.
+          <para>Delete : will completely remove the selected pattern from the song.
           </para>
         </listitem>
         
         <listitem>
-          <para>Fill/Clear : will open the selected pattern in the Pattern Editor.
+          <para>Fill/Clear : will open a window that allows you to fill/clear a 
+          part of the song with the selected pattern by entering the start- and end bar.
+           <informalfigure id="fig.fill_clear_pattern">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/fill_clear_pattern.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
           </para>
         </listitem>
         
         <listitem>
-          <para>Properties : will open the selected pattern in the Pattern Editor.
+          <para>Properties : will open a window where you can change 
+          the name of the pattern and also assign it to a certain cathergory.
+           <informalfigure id="fig.pattern_properties">
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="img/pattern_properties.png" format="PNG" />
+              </imageobject>
+            </mediaobject>
+            </informalfigure>
           </para>
         </listitem>
         
