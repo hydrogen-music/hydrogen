@@ -863,50 +863,94 @@
       
       
      <section id="sect.song_editor.tempo_and_markers">
-     <title>Tempo bar and song Markers</title>
-     <para>this section describes tempo bar and markers
+     <title>Tempo markers and song Tags</title>
+       <para>This section describes how you can define tempo changes and 
+       how you can add tags to your song.</para>
+       <para>The majority of songs consist of several parts (intro, verse, chorus ...) and
+       often these parts will have a different tempo.  Hydrogen provides an easy way
+       to let you change the tempo of a song at any given moment in the song.  This is 
+       done by adding Tempo change Markers to your song.</para>
+       <para>To add a Tempo change marker to your song you first need to enable the 'BPM' option
+       (the BPM button is located just above the Song editors main controls).  Once this is done
+       the horizontal bar next to the BPM button changes to a ruler with marks at every bar.
+       Now simply left-click this ruler at the bar you want the tempo to change and a
+       window will pop up where you can enter the new tempo.
      
-           <informalfigure id="fig.add_tempo_change">
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="img/add_tempo_change.png" format="PNG" />
-              </imageobject>
-            </mediaobject>
-            </informalfigure>
+        <informalfigure id="fig.add_tempo_change">
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/add_tempo_change.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+         </informalfigure>
+            
+       Once you have entered the new tempo and clicked OK, the tempo change will 
+       show up on the tempo ruler.  If you click the Tempo marker again you can edit 
+       the tempo, change the bar or delete the tempo marker.
 
-           <informalfigure id="fig.tempo_bar">
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="img/tempo_bar.png" format="PNG" />
-              </imageobject>
-            </mediaobject>
-            </informalfigure>
-     
-     
-           <informalfigure id="fig.add_tag">
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="img/add_tag.png" format="PNG" />
-              </imageobject>
-            </mediaobject>
-            </informalfigure>
+        <informalfigure id="fig.tempo_bar">
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/tempo_bar.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+         </informalfigure>
 
-           <informalfigure id="fig.tag_bar">
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="img/tag_bar.png" format="PNG" />
-              </imageobject>
-            </mediaobject>
-            </informalfigure>
+       </para>
+
+       <para>
+       In addidtion to changing the tempo when the song switches from intro > verse, 
+       it is also very handy to have a clear indication of this tempo switch (or any other
+       event in the song).  For this purpose you can also ad Tags markers to the song.
+       These Tags are short text messages you can add to your song at any given 
+       moment that will be displayed whenever the song playhead passes by that Tag.</para>
+       
+       <para>
+       To add a Tag to your song simply middle-click on the song ruler (just below the 
+       tempo ruler) and a window will pop up where that allows you to add text for any bar.
+            
+        <informalfigure id="fig.add_tag">
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/add_tag.png" format="PNG" />
+           </imageobject>
+          </mediaobject>
+         </informalfigure>
+
+       Once you are done you will see a small blue 'T' in the song ruler for every tag 
+       you have entered.  Middle-click anywhere on the song ruler to edit the tags.
+
+         <informalfigure id="fig.tag_bar">
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="img/tag_bar.png" format="PNG" />
+            </imageobject>
+           </mediaobject>
+          </informalfigure>
+       </para>
+
+       <para>
+       Now all we need is a way to see the tags we have entered.  This can be done 
+       using the Director window.  Open the Director by pressing Alt-D, or Tools- Director : 
 
            <informalfigure id="fig.director">
             <mediaobject>
               <imageobject>
-                <imagedata fileref="img/director.png" format="PNG" />
+                <imagedata fileref="img/screenshot-director.png" format="PNG" />
               </imageobject>
             </mediaobject>
             </informalfigure>
-
+       
+       The Director is your best friend when you need a quick overview of what Hydrogen
+       is currently doing.  This comes in very handy when you are recording a song, or
+       if you are using Hydrogen live on stage.</para>
+       
+       <para>
+       The Director shows you the song name, a visual metronome and of course the 
+       song Tags.  Just below the metronome you can see the latest tag, and below that 
+       the next upcoming tag.  This way you have a nice overview of what is going on, 
+       and what is about to happen in the song
+       
      </para>
 
      </section>
@@ -962,7 +1006,7 @@
         
         <listitem>
           <para>Properties : will open a window where you can change 
-          the name of the pattern and also assign it to a certain cathergory.
+          the name of the pattern and also assign it to a certain category.
            <informalfigure id="fig.pattern_properties">
             <mediaobject>
               <imageobject>
