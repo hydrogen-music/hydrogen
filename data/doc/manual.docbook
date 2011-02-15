@@ -327,7 +327,9 @@
         <title>The Appearance tab</title>
 
         <para>The "Appearance" tab (<xref
-        linkend="fig.preferences.appearance_tab"/>) let's you modify Hydrogen look and feel (font settings and interface style). Also the VU meters fall-off speed of the Mixer Window can be changed here.</para>
+        linkend="fig.preferences.appearance_tab"/>) let's you modify Hydrogen look 
+        and feel (font settings and interface style). Also the VU meters fall-off speed of
+        the Mixer Window can be changed here.</para>
 
         <figure id="fig.preferences.appearance_tab">
           <title>The Appearance Tab</title>
@@ -343,11 +345,13 @@
       <section id="sect.preferences.audio_engine_tab">
         <title>The Audio Engine tab (debug only)</title>
 
-        <para>The "Audio Engine" tab (<xref linkend="fig.preferences.audio_engine_tab"/>) is a window that shows various stats about
+        <para>The "Audio Engine" tab (<xref linkend="fig.preferences.audio_engine_tab"/>) 
+        is a window that shows various stats about
         Hydrogen and the audio driver. In case JACK is used, buffer and sampling
         rate should be set before starting Hydrogen (JACK automatically starts
         when an application tries to connect).</para>
-        <para>Note that the Audio Engine tab is only available if Hydrogen was complied with debug support.</para>
+        <para>Note that the Audio Engine tab is only available if Hydrogen was complied with 
+        debug support.</para>
 
         <figure id="fig.preferences.audio_engine_tab">
           <title>The Audio Engine tab</title>
@@ -1366,6 +1370,14 @@
     <section id="sect.mixer">
       <title>Mixer</title>
 
+      <para>The Mixer window can be opened by pressing Alt+M, by clicking 
+      Mixer in the Tools menu, or by clicking the Mixer button on the main toolbar.
+      </para>
+      <para>The Mixer consists of 3 sections (left>right) : the instrument channel strips, 
+      the FX plugin rack and the master fader section.  The Hydrogen Mixer works very
+       much like a hardware mixer does : it lets you set the volume, pan, FX and several 
+       other things for every instrument.
+
       <figure id="fig.mixer">
         <title>The Mixer</title>
         <mediaobject>
@@ -1374,52 +1386,59 @@
           </imageobject>
         </mediaobject>
       </figure>
+      </para>
 
-      <para>The Mixer frame (<xref linkend="fig.mixer"/>) is useful for tuning a
-      global or single volume of the current drumkit. It shows the current peak
-      (click on
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/showPeaks_on.png" format="PNG" />
-        </imageobject>
-      </inlinemediaobject>
-
-      to disable, useful on old CPUs) and let you set the maximum peak allowed
-      (tune with the fader knob of the instrument), lets you modify attributes
-      like pan, play solo
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/btn_solo_on.png" format="PNG" />
-        </imageobject>
-      </inlinemediaobject>
-
-      , mute
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/btn_mute_on.png" format="PNG" />
-        </imageobject>
-      </inlinemediaobject>
-
-      or test play only that instrument
-
+    <section id="sect.mixer.channel_strips">
+      <title>Instrument channel strips</title>
+       <para>From top to bottom : the 2 top elements on the strip are a 'play' button / 'trig' led combination.
+            (
       <inlinemediaobject>
         <imageobject>
           <imagedata fileref="img/btn_play_on_mixer.png" format="PNG" />
         </imageobject>
       </inlinemediaobject>
+       )
+         The play button lets you trigger the instrument at maximum velocity (handy for checking clipping), 
+       and the trig led lights up whenever this instrument is triggered (from the song sequence, 
+       or by an external midi controller).  Right of this button/led you will find another led that shows
+       you what instrument is currently selected.  This is also the instrument that is selected in the pattern editor.
+       As soon as you change one of the settings of a channel strip the instrument will be selected.</para>
 
-      ; selecting in the Pattern Editor an instrument causes a blue LED to light
-      on (near the play button). Near the global volume knob, you can set 3
-      global effect such a swing (shifts a few notes back or forward not
-      randomly), timing (modify timings of the notes) and humanize effect
-      (random velocity editing).
-      </para>
+       <para>Just below you can find the Mute
+       
+       <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/btn_mute_on.png" format="PNG" />
+        </imageobject>
+       </inlinemediaobject>
+      
+        and Solo
+        
+       <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/btn_solo_on.png" format="PNG" />
+        </imageobject>
+       </inlinemediaobject>       
+
+        buttons and the Pan(orama) knob. 
+       Note that the Mute and Solo states are also reflected in the Song editor.</para>
 
       <para>
-        In addition to all this you can set up to 4 special LADSPA effects for
+      Next are 4 FX send knobs that determine how much of this instrument will be sent to
+      the effect plugins in the FX rack.  Just below that you can find an LCD peak-value display,
+      and finally the volume fader for that instrument.</para>
+      <para><emphasis role="bold">IMPORTANT NOTE</emphasis> : keep in mind that the volume and pan settings that you
+      find on the Mixer are global settings.  The per-note velocity and pan settings in the Pattern editor
+      are settings that are relative to the settings in the Mixer window !</para>
+
+
+
+
+    </section>
+    
+    <section id="sect.fx_rack">
+      <title>FX rack</title>
+       <para>        In addition to all this you can set up to 4 special LADSPA effects for
         each instrument switching the
 
         <inlinemediaobject>
@@ -1428,18 +1447,29 @@
           </imageobject>
         </inlinemediaobject>
 
-        button. See next section for a detailed overview.
-
-        <informalfigure id="ifig.mixer_fx">
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="img/MixerFX.png" format="PNG" />
-            </imageobject>
-          </mediaobject>
-        </informalfigure>
-
-      </para>
-
+        button. See next section for a detailed overview.</para>
+    </section>
+     
+    <section id="sect.master">
+      <title>Master section</title>
+       <para>
+       
+Near the global volume knob, you can set 3
+      global effect such a swing (shifts a few notes back or forward not
+      randomly), timing (modify timings of the notes) and humanize effect
+      (random velocity editing).       
+       
+       
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/showPeaks_on.png" format="PNG" />
+        </imageobject>
+      </inlinemediaobject>       
+       
+       </para>
+    </section>
+    
+    
     </section>
 
     <section id="sect.sound_library">
