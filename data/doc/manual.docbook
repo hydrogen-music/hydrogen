@@ -1424,21 +1424,172 @@
        Note that the Mute and Solo states are also reflected in the Song editor.</para>
 
       <para>
-      Next are 4 FX send knobs that determine how much of this instrument will be sent to
-      the effect plugins in the FX rack.  Just below that you can find an LCD peak-value display,
-      and finally the volume fader for that instrument.</para>
+      Next are 4 pre-fader FX send knobs that determine how much of this instrument will be sent to
+      the effect plugins in the FX rack.
+      
+        <informalfigure id="fig.FX_send_knobs">
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/FX_send_knobs.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+         </informalfigure>
+      
+      
+      
+      Just below that you can find an LCD peak-value display,
+      and finally the volume fader and VU meter for that instrument.</para>
       <para><emphasis role="bold">IMPORTANT NOTE</emphasis> : keep in mind that the volume and pan settings that you
       find on the Mixer are global settings.  The per-note velocity and pan settings in the Pattern editor
       are settings that are relative to the settings in the Mixer window !</para>
 
 
-
-
     </section>
     
-    <section id="sect.fx_rack">
-      <title>FX rack</title>
-       <para>        In addition to all this you can set up to 4 special LADSPA effects for
+    <section id="sect.fx_rack_LADSPA">
+      <title>FX rack and LADSPA plugins</title>
+       <para>The FX rack has 4 bays where you can load a LADSPA effect plugin, but before
+        you can load any plugins these must be installed (surprised ?  ;-)</para>
+        <para>There are dozens of plugins available for download from various sources :
+
+      <itemizedlist>
+        <listitem>
+          <para>SWH-Plugins available at <ulink
+          url="http://plugin.org.uk">http://plugin.org.uk</ulink>. </para>
+          <para>(Note : if you want to compile these plugins
+          you need the FFTW tarball from <ulink
+          url="http://www.fftw.org">http://www.fftw.org</ulink>)</para>
+        </listitem>
+
+        <listitem>
+          <para>CMT available at <ulink url="http://www.ladspa.org">http://www.ladspa.org</ulink>.</para>
+        </listitem>
+
+        <listitem>
+          <para>TAP available at <ulink url="http://tap-plugins.sf.net">http://tap-plugins.sf.net</ulink>.</para>
+        </listitem>
+
+        <listitem>
+          <para>Calf plugins <ulink url="http://calf.sourceforge.net/">http://calf.sourceforge.net/</ulink>.</para>
+        </listitem>
+
+        <listitem>
+          <para> ....</para>
+        </listitem>
+
+      </itemizedlist>
+      </para>
+      
+      <warning>
+        <title>Plugins Kill</title>
+        <para>A LADSPA plugin is compiled, executable code.  It is capable of
+        hanging, crashing, freezing, screeching, overflowing buffers, and even
+        phoning home.  If you start having issues with Hydrogen, disable your
+        plugins and see if things improve.  Some plugins are not designed for
+        real-time use, and some are just plain better than others.</para>
+      </warning>
+
+      <para>Once you have installed some plugins you can select one by clicking the
+      
+
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/edit_off.png" format="PNG" />
+        </imageobject>
+      </inlinemediaobject>
+
+      button.  (if you do not see the FX rack, make sure that the 
+
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/showFX_on.png" format="PNG" />
+        </imageobject>
+      </inlinemediaobject>
+
+      button (in the Master section) is enabled)</para>
+      <para>Now the FX selector window will pop up :
+      
+      <figure id="fig.select_effect">
+        <title>Select an Effect</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/MixerFXSelect.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      
+      Once you have selected a plugin you will immediately have access 
+      to the parameters of that plugin :
+      
+       
+        <informalfigure id="figLADSPA_FX_Properties">
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/LADSPA_FX_Properties.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+         </informalfigure>
+
+
+      You can select another plugin by clicking the 'Select FX' button, and If you quickly want to 
+      enable/disable the effect click the 'Deactivate' button (or the Bypass (
+
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/bypass_over.png" format="PNG" />
+        </imageobject>
+        </inlinemediaobject>)
+
+      button in the FX rack).  This can be handy for a quick A/B comparison.</para>
+      
+      <para>After you have selected the FX and tweaked it's parameters you can use the 
+      FX return knob to increase/decrease how much of this FX will be returned to the master output.</para>
+
+    </section>
+     
+    <section id="sect.master">
+      <title>Master section</title>
+       <para>
+       
+      The Master section contains the Master volume fader with VU meters, and 3 global Humanize 'effects'
+      (Velocity, Timing and Swing).  These are not the type of effects as described in the LADSPA
+      section, instead these effects will alter the way the notes are played, in order to add a 'human feel' to the song :
+      
+     <itemizedlist>
+        <listitem>
+          <para>Velocity : this knob will add a certain randomness to the note velocity. 
+           The higher you turn this knob, the more the velocity will be randomized.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>Timing : this knob will add a certain randomness to the note timing (lead/lag).  
+          The higher you turn this knob, the more the timing will be randomized.</para>
+        </listitem>
+        
+       <listitem>
+          <para>Swing : this knob will add a certain amount of swing to the song.</para>
+        </listitem>        
+        
+     </itemizedlist>
+      
+      Note that Hydrogen can also be switched to 'per instrument output' mode (see <xref linkend="sect.preferences.audio_tab"/>),
+      and in this mode all channel strip outputs will be available in Jack (not just the Master output).  
+      This allows you to route the individual instruments directly into any other Jack enabled application (eg Ardour) and gives you
+      a lot more flexibility.</para>
+      
+      <para>On the bottom-right of the Master section you can find the' FX' button (show/hide the FX rack), and
+      the 'Peak' button (enable/disable the VU meters).
+       
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="img/showPeaks_on.png" format="PNG" />
+        </imageobject>
+      </inlinemediaobject>       
+       
+       Note that the VU meter fallof speed can be configured in the preferences window (see
+       <xref linkend ="sect.preferences.appearance_tab"/>)
+
         each instrument switching the
 
         <inlinemediaobject>
@@ -1447,24 +1598,7 @@
           </imageobject>
         </inlinemediaobject>
 
-        button. See next section for a detailed overview.</para>
-    </section>
-     
-    <section id="sect.master">
-      <title>Master section</title>
-       <para>
-       
-Near the global volume knob, you can set 3
-      global effect such a swing (shifts a few notes back or forward not
-      randomly), timing (modify timings of the notes) and humanize effect
-      (random velocity editing).       
-       
-       
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/showPeaks_on.png" format="PNG" />
-        </imageobject>
-      </inlinemediaobject>       
+        button. See next section for a detailed overview.
        
        </para>
     </section>
@@ -2169,97 +2303,7 @@ Near the global volume knob, you can set 3
       </section>
     </section>
 
-    <section id="sect.ladspa">
-      <title>LADSPA plugins</title>
-
-      <para>Hydrogen can also add effects to sounds using any LADSPA plugin
-      library. You need to have installed the LADSPA sources (available from
-      <ulink url="http://www.ladspa.org">http://www.ladspa.org</ulink>) and
-      while this will give a rough idea of how it works you should really have a
-      taste of the real thing installing one or more plugin libraries, it's as
-      simple as a <command>scons &amp;&amp; scons install</command>.  Here are a
-      few places to download plugin libraries:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>SWH-Plugins available at <ulink
-          url="http://plugin.org.uk">http://plugin.org.uk</ulink>. Note that before compiling these plugins
-          you need the FFTW tarball from <ulink
-          url="http://www.fftw.org">http://www.fftw.org</ulink>.</para>
-        </listitem>
-
-        <listitem>
-          <para>CMT available at <ulink url="http://www.ladspa.org">http://www.ladspa.org</ulink>.</para>
-        </listitem>
-
-        <listitem>
-          <para>TAP available at <ulink url="http://tap-plugins.sf.net">http://tap-plugins.sf.net</ulink>.</para>
-        </listitem>
-
-      </itemizedlist>
-
-      <warning>
-        <title>Plugins Kill</title>
-        <para>A LADSPA plugin is compiled, executable code.  It is capable of
-        hanging, crashing, freezing, screeching, overflowing buffers, and even
-        phoning home.  If you start having issues with Hydrogen, disable your
-        plugins and see if things improve.  Some plugins are not designed for
-        real-time use, and some are just plain better than others.</para>
-      </warning>
-
-      <para>Once you have installed a few plugins open a song you'd like add an
-      effect to and select an instrument that has a few beats in the pattern. In
-      the Mixer click on
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/showFX_on.png" format="PNG" />
-        </imageobject>
-      </inlinemediaobject>
-
-      and select one of the four available effect line Click on the Edit button
-      (
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/edit_off.png" format="PNG" />
-        </imageobject>
-      </inlinemediaobject>
-
-      ), than on <quote>Select the FX</quote>: this will bring up another window
-      (<xref linkend="fig.select_effect"/>) that lets you choose an effect
-      amongst those installed, they are alphabetically sorted and
-      categorized. Once you're done, adjust the level from the mixer and start
-      playing. Each round knob in the FX part controls the level of its effect.
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/MixerFXKnob.png" format="PNG"/>
-        </imageobject>
-      </inlinemediaobject>
-
-      If you want to quickly enable/disable the effect click the Bypass (
-
-      <inlinemediaobject>
-        <imageobject>
-          <imagedata fileref="img/bypass_over.png" format="PNG" />
-        </imageobject>
-        </inlinemediaobject>)
-
-
-      button.</para>
-
-
-      <figure id="fig.select_effect">
-        <title>Select an Effect</title>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="img/MixerFXSelect.png" format="PNG" />
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-    </section>
+   
     
     <section id="sect.midi_actions">
       <title>Midi actions</title>
