@@ -1638,7 +1638,7 @@
       kits, the Sound Library makes it easier for you to reuse and mix the
       instruments and patterns from other kits and songs.
 
-      <figure id="figsoundlibraryr">
+      <figure id="fig.soundlibrary">
         <title>The Soundlibrary</title>
         <mediaobject>
           <imageobject>
@@ -1671,7 +1671,7 @@
       </section>
 
       <section id="sect.userdrumkits">
-        <title>User Drumkits</title>
+        <title>(Adding) User Drumkits</title>
 
         <para>These are your own drum kits that you can manage yourself.  They
         are usually stored in <filename
@@ -1680,9 +1680,61 @@
         <menuchoice><guimenu>Instruments</guimenu><guimenuitem>Save
         library</guimenuitem></menuchoice>.</para>
 
+        <para>
+        You can import existing drumkits from other users via <menuchoice>
+        <guimenu>Instruments</guimenu><guimenuitem>Import library</guimenuitem>
+        </menuchoice>.  The Import window will pop up with the Internet tab selected.
+        By default the link to the drumkit list (on hydrogen-music.org) will be filled in, 
+        and after pressing the 'Update list' button you will get a complete list of all
+        drumkits that are available for download.  In the status column you can see
+        if a kit is installed or not.
 
-        <para>Loading drumkits and instruments to use is the same as for the
-        System Drumkits (see <xref linkend="sect.systemdrumkits"/>).</para>
+       <figure id="fig.import_drumkit">
+         <title>Import Drumkit</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/Sound_Library_import.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+       </figure>
+  
+        If you select one of the drumkits you will see info about this kit in the right
+        pane of the Import window : name, description, author and also the license type.
+
+       <warning>
+       <para>If you are using Hydrogen for commercial purposes, (creating songs and 
+       selling these on-line or in any other way) you need to pay special attention to the
+       license type of the drumkit(s) you are using.
+       </para>
+       <para>
+       If the exact license is not available for a drumkit, do _NOT_ assume that it is a CC (or
+       other open and free license type).
+       </para>
+       <para>
+       Even if the kit is CC licensed you should always check with the author before using 
+       the kit in your songs.
+       </para>
+       <para>DISCLAIMER : hydrogen is not responsible for the drumkits that are 
+       made available for download by our users, either via the hydrogen-music.org site or
+       via any other channel.</para>
+       
+       </warning>
+
+    
+       You can install a drumkit by selecting it and clicking 'Download and Install'.
+    
+       <informalfigure id="fig.downloading_soundlibrary">
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/Downloading_SoundLibrary.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </informalfigure>
+    
+       Once the kit has been downloaded it will be available in the Sound Library under User drumkits.
+     
+       </para>
+
 
       </section>
       <section id="sect.sl.songs">
