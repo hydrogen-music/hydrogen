@@ -608,7 +608,8 @@
             note by lowering the volume until it reaches the
             <span class="emphasis"><em>sustain</em></span> level.  When the note is
             <span class="emphasis"><em>released</em></span>, Hydrogen reduces the volume from the
-            sustain level back down to 0.  See http://en.wikipedia.org/wiki/ADSR_envelope for more info</p></dd><dt><span class="term">Attack</span></dt><dd><p>The amount of <span class="bold"><strong>time</strong></span> to go from 0 to full
+            sustain level back down to 0.  See <a class="ulink" href="http://en.wikipedia.org/wiki/ADSR_envelope" target="_top">ADSR
+            Envelope</a> for more info</p></dd><dt><span class="term">Attack</span></dt><dd><p>The amount of <span class="bold"><strong>time</strong></span> to go from 0 to full
             velocity.</p></dd><dt><span class="term">Decay</span></dt><dd><p>The amount of <span class="bold"><strong>time</strong></span> to go from full velocity to the sustain
             volume.</p></dd><dt><span class="term">Sustain</span></dt><dd><p>The <span class="bold"><strong>level</strong></span> (how loud) to hold the note between the
             sustain and the release.  It is a percentage of the velocity.  It
@@ -817,8 +818,25 @@
         by the Loop number.</p><p>If you want to hear a preview of the tweaking you have done so far, you first need to
         press the 'Apply Changes' button (@ the bottom of section 3) and then the Play button to
         hear the result.</p></div><div class="section" title="Sample Editor rubberband"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section2"></a>Sample Editor rubberband</h4></div></div></div><p>This section of the Sample Editor allows you to control the Rubberband settings.
-        Rubberband is a tool that allows you to change the pitch of a sample without changing 
-        the sample duration.  </p></div><div class="section" title="Sample Editor volume/pan"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section3"></a>Sample Editor volume/pan</h4></div></div></div><p>In the bottom section of the Sample Editor you can see the end result 
+        Rubberband is a tool that can change the tempo of a sample without changing 
+        the sample's pitch (and vice versa).</p><p>If you are using Ubuntu you can install rubberband from the Software Center 
+        (rubberband-cli).  For other linux distros check your package manager.  For other platforms
+        please check <a class="ulink" href="http://breakfastquay.com/rubberband/" target="_top">the rubberband site
+        </a>.  After installing rubberband you should check if the path to the rubberband cli is 
+        configured correctly (see <a class="xref" href="#sect.preferences.general_tab" title="The General tab">the section called &#8220;The General tab&#8221;</a>).</p><p>If rubberband is installed correctly you will have access to the rubberband 
+        settings, and an extra button named 'RUB' will be available in the Main Toolbar,
+        right of the BPM LCD display :
+        
+       </p><div class="informalfigure"><a name="rubberband_button"></a><div class="mediaobject"><img src="img/MainControls_Rubberband_btn.png"></div></div><p>                
+        
+        </p><p>Back to the rubberband settings : 
+        </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>Sample length to beat : when set to 'off' rubberband functionality is disabled. 
+         Normally this parameter should be set to the length of the part of the sample between 
+         the Start and End marker, expressed in number of beats.</p></li><li class="listitem" style="list-style-type: circle"><p>Pitch : this setting allows you to change the pitch of the sample, expressed in 
+         semitones,cent.</p></li><li class="listitem" style="list-style-type: circle"><p>Crispness : this setting does not affect tempo or pitch, but changes the way
+         the sample sounds.</p></li></ul></div><p>
+        </p><p><span class="bold"><strong>Note </strong></span>: If you want Hydrogen to recalculate the sample length on the fly (using rubberband)
+        you must enable the 'RUB' button (see figure above).</p></div><div class="section" title="Sample Editor volume/pan"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section3"></a>Sample Editor volume/pan</h4></div></div></div><p>In the bottom section of the Sample Editor you can see the end result 
         of the tweaks you have made by pressing the Apply Changes button.  You can
         also change the the Volume and Panorama (Pan) of your sample here.
         This is done by creating 'envelopes' like the 

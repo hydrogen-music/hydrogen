@@ -1809,7 +1809,8 @@
             note by lowering the volume until it reaches the
             <emphasis>sustain</emphasis> level.  When the note is
             <emphasis>released</emphasis>, Hydrogen reduces the volume from the
-            sustain level back down to 0.  See http://en.wikipedia.org/wiki/ADSR_envelope for more info</para></listitem>
+            sustain level back down to 0.  See <ulink url="http://en.wikipedia.org/wiki/ADSR_envelope">ADSR
+            Envelope</ulink> for more info</para></listitem>
           </varlistentry>
           <varlistentry>
             <term>Attack</term><listitem><para>The amount of <emphasis
@@ -2277,9 +2278,46 @@
         <section id="sect.layer_editing.section2">
         <title>Sample Editor rubberband</title>
         <para>This section of the Sample Editor allows you to control the Rubberband settings.
-        Rubberband is a tool that allows you to change the pitch of a sample without changing 
-        the sample duration.  </para>
+        Rubberband is a tool that can change the tempo of a sample without changing 
+        the sample's pitch (and vice versa).</para>
+        <para>If you are using Ubuntu you can install rubberband from the Software Center 
+        (rubberband-cli).  For other linux distros check your package manager.  For other platforms
+        please check <ulink url="http://breakfastquay.com/rubberband/">the rubberband site
+        </ulink>.  After installing rubberband you should check if the path to the rubberband cli is 
+        configured correctly (see <xref linkend="sect.preferences.general_tab"/>).</para>
+        
+        <para>If rubberband is installed correctly you will have access to the rubberband 
+        settings, and an extra button named 'RUB' will be available in the Main Toolbar,
+        right of the BPM LCD display :
+        
+       <informalfigure id="rubberband_button">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/MainControls_Rubberband_btn.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+        </informalfigure>                
+        
+        </para>
+        <para>Back to the rubberband settings : 
+        <itemizedlist mark="opencircle">
+         <listitem><para>Sample length to beat : when set to 'off' rubberband functionality is disabled. 
+         Normally this parameter should be set to the length of the part of the sample between 
+         the Start and End marker, expressed in number of beats.</para>
+         </listitem>
+         <listitem><para>Pitch : this setting allows you to change the pitch of the sample, expressed in 
+         semitones,cent.</para>
+         </listitem>
+         <listitem><para>Crispness : this setting does not affect tempo or pitch, but changes the way
+         the sample sounds.</para>
+         </listitem>
+        </itemizedlist>
+        </para>
+        <para><emphasis role="bold">Note </emphasis>: If you want Hydrogen to recalculate the sample length on the fly (using rubberband)
+        you must enable the 'RUB' button (see figure above).</para>
+        
         </section>
+        
         
         <section id="sect.layer_editing.section3">
         <title>Sample Editor volume/pan</title>
