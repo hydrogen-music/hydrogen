@@ -312,6 +312,7 @@
         midi note value of the key you pressed.  Once this is done you can select an Action 
         from the action drop-down list.  Note that some actions (like SELECT_NEXT_PATTERN) 
         also require an Action Param that references the pattern you want to select with this midi action.</para>
+       <para>See <xref linkend="sect.midi_actions"/> for more info on Midi actions.</para>
 
         <figure id="fig.preferences.midi_tab">
           <title>The MIDI System Tab</title>
@@ -2204,8 +2205,14 @@
           <para>The pitch is adjusted by playing the sample back faster or
           slower.  This is called the Doppler Effect.  So, if you have a
           1-second sample that you turn down -12 (1 octave), your sample will
-          only last for .5-seconds.</para>
+          only last for .5-seconds.  If you do not want this to happen you should
+          use rubberband instead (see <xref linkend="sect.layer_editing.section2"/>)</para>
         </note>
+
+        <para>You can hear the sample in a layer by clicking the layer id (just 
+        below the 'General' and 'Layers' buttons) and the 'Delete Layer' button 
+        will delete the currently selected layer.</para>
+
       </section>
 
       <section id="sect.layer_editing">
@@ -2397,9 +2404,181 @@
     
     <section id="sect.midi_actions">
       <title>Midi actions</title>
+      
       <para>In this section you can find more info about defining MIDI actions 
-      and how these can be useful for you.</para>
-      <para>+++++++++++++++ TO DO  +++++++++++++++++</para>
+       and how these can be useful for you.  Before you can work with midi actions
+       you should have your Midi devices, drivers and connections configured
+       correctly (see <xref linkend="sect.preferences.midi_tab"/>)
+      </para>
+
+      <para>Lets take a look at the available actions :
+      <informalfigure id="midi_actions">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/Midi_Actions.png" format="PNG" />
+          </imageobject>
+        </mediaobject>
+        </informalfigure>                
+
+      As you can see there are quite a number of actions available.  Below you can find
+       a description of all available actions :
+
+      <itemizedlist mark="opencircle">
+      <listitem><para>
+	      <emphasis role="bold">PLAY</emphasis> : start playback
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">PLAY/STOP_TOGGLE</emphasis> : toggles between PLAY and STOP.  Execute this action will 
+        start playback, execute it again and playback will stop + the playhead will return
+        to the start op the song.
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">PLAY/PAUSE_TOGGLE</emphasis> : toggles between PLAY and PAUSE.  (the playhead will not return
+	      to the start of the song, but will stay at its current position)
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">STOP</emphasis> : stop playback and return to the start of the song
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">PAUSE</emphasis> : pause the song
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">MUTE</emphasis> : mutes the the Master output
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">UNMUTE</emphasis> : unmutes the Master output
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MUTE_TOGGLE</emphasis> : toggles between MUTE and UNMUTE
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">NEXT_BAR</emphasis> : jumps to the next bar in the song
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">PREVIOUS_BAR</emphasis> : jumps to the previous bar in the song
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">BPM_INCR</emphasis> : increments the tempo of the song
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">BPM_DECR</emphasis> : decrements the tempo of the song
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">BPM_CC_RELATIVE</emphasis> : ??
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MASTER_VOLUME_RELATIVE</emphasis> : changes the Master output volume, relative
+	      to the current setting (if you are using rotary encoders)
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MASTER_VOLUME_ABSOLUTE</emphasis> : changes the Master output volume to the 
+	      absolute value of the midi control (use with midi fader)
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">STRIP_VOLUME_RELATIVE</emphasis> : see MASTER_VOLUME_RELATIVE, but applies to
+	      the channel strip defined in the Action Parameter.
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">STRIP_VOLUME_ABSOLUTE</emphasis> : see MASTER_VOLUME_ABSOLUTE, but applies to
+	      the channel strip defined in the Action Parameter.
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">EFFECTx_LEVEL_RELATIVE</emphasis> : 
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">SELECT_NEXT_PATTERN</emphasis> : will select the pattern that is defined in the Action Parameter.</para>
+        <para>Note that the reference to the pattern is zero-based : pattern1=0, pattern2=1 ...
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">SELECT_AND_PLAY_NEXT_PATTERN</emphasis> : combines the SELECT_NEXT_PATTERN with PLAY
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">PAN_RELATIVE</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">PAN_ABSOLUTE</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">BEATCOUNTER</emphasis> : allows you to set
+	      the tempo (see <xref linkend="sect.tap_tempo"/>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">TAP_TEMPO</emphasis> : allows you to set
+	      the tempo (see <xref linkend="sect.tap_tempo"/>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">SELECT_INSTRUMENT</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MMC_PLAY</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MMC_DEFERRED_PLAY</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MMC_STOP</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MMC_FAST_FORWARD</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MMC_REWIND</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">MMC_RECORD_STROBE</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">MMC_RECORD_EXIT</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+        <emphasis role="bold">MMC_PAUSE</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">NOTE</emphasis>
+	    </para></listitem>
+	    
+      <listitem><para>
+	      <emphasis role="bold">CC</emphasis>
+	    </para></listitem>
+    
+      </itemizedlist>
+      </para>
+
+
+
     </section>
 
   </chapter>

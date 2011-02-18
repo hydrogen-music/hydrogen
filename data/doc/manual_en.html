@@ -85,7 +85,7 @@
         this action.  The popup will close and the Event Param value will now show the 
         midi note value of the key you pressed.  Once this is done you can select an Action 
         from the action drop-down list.  Note that some actions (like SELECT_NEXT_PATTERN) 
-        also require an Action Param that references the pattern you want to select with this midi action.</p><div class="figure"><a name="fig.preferences.midi_tab"></a><p class="title"><b>Figure 1.3. The MIDI System Tab</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/PreferencesMidiSystem_V2.png" alt="The MIDI System Tab"></div></div></div><br class="figure-break"></div><div class="section" title="The Appearance tab"><div class="titlepage"><div><div><h3 class="title"><a name="sect.preferences.appearance_tab"></a>The Appearance tab</h3></div></div></div><p>The "Appearance" tab (<a class="xref" href="#fig.preferences.appearance_tab" title="Figure 1.4. The Appearance Tab">Figure 1.4, &#8220;The Appearance Tab&#8221;</a>) let's you modify Hydrogen look 
+        also require an Action Param that references the pattern you want to select with this midi action.</p><p>See <a class="xref" href="#sect.midi_actions" title="Midi actions">the section called &#8220;Midi actions&#8221;</a> for more info on Midi actions.</p><div class="figure"><a name="fig.preferences.midi_tab"></a><p class="title"><b>Figure 1.3. The MIDI System Tab</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/PreferencesMidiSystem_V2.png" alt="The MIDI System Tab"></div></div></div><br class="figure-break"></div><div class="section" title="The Appearance tab"><div class="titlepage"><div><div><h3 class="title"><a name="sect.preferences.appearance_tab"></a>The Appearance tab</h3></div></div></div><p>The "Appearance" tab (<a class="xref" href="#fig.preferences.appearance_tab" title="Figure 1.4. The Appearance Tab">Figure 1.4, &#8220;The Appearance Tab&#8221;</a>) let's you modify Hydrogen look 
         and feel (font settings and interface style). Also the VU meters fall-off speed of
         the Mixer Window can be changed here.</p><div class="figure"><a name="fig.preferences.appearance_tab"></a><p class="title"><b>Figure 1.4. The Appearance Tab</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/PreferencesAppearance.png" alt="The Appearance Tab"></div></div></div><br class="figure-break"></div><div class="section" title="The Audio Engine tab (debug only)"><div class="titlepage"><div><div><h3 class="title"><a name="sect.preferences.audio_engine_tab"></a>The Audio Engine tab (debug only)</h3></div></div></div><p>The "Audio Engine" tab (<a class="xref" href="#fig.preferences.audio_engine_tab" title="Figure 1.5. The Audio Engine tab">Figure 1.5, &#8220;The Audio Engine tab&#8221;</a>) 
         is a window that shows various stats about
@@ -779,7 +779,10 @@
         the pitch ±50 cents.  (One half-step is 100 cents.)</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>The pitch is adjusted by playing the sample back faster or
           slower.  This is called the Doppler Effect.  So, if you have a
           1-second sample that you turn down -12 (1 octave), your sample will
-          only last for .5-seconds.</p></div></div><div class="section" title="Sample Editor"><div class="titlepage"><div><div><h3 class="title"><a name="sect.layer_editing"></a>Sample Editor</h3></div></div></div><p>So far we have created a multilayered Drumkit, set a number of 
+          only last for .5-seconds.  If you do not want this to happen you should
+          use rubberband instead (see <a class="xref" href="#sect.layer_editing.section2" title="Sample Editor rubberband">the section called &#8220;Sample Editor rubberband&#8221;</a>)</p></div><p>You can hear the sample in a layer by clicking the layer id (just 
+        below the 'General' and 'Layers' buttons) and the 'Delete Layer' button 
+        will delete the currently selected layer.</p></div><div class="section" title="Sample Editor"><div class="titlepage"><div><div><h3 class="title"><a name="sect.layer_editing"></a>Sample Editor</h3></div></div></div><p>So far we have created a multilayered Drumkit, set a number of 
         instrument parameters, played with velocity settings and so on.  Now it's 
         time to go one step deeper and edit the samples using one of the newest
         Hydrogen features : the Sample Editor.</p><p>The Sample Editor allows you to tweak and manipulate your samples.
@@ -882,7 +885,96 @@
         samples go by, and not on how many seconds go by.  The sort of things
         that change are: anything time-base (like attack and release) and
         anything frequency based (like the cutoff frequency).</p></div></div><div class="section" title="Midi actions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.midi_actions"></a>Midi actions</h2></div></div></div><p>In this section you can find more info about defining MIDI actions 
-      and how these can be useful for you.</p><p>+++++++++++++++ TO DO  +++++++++++++++++</p></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn.adsrtimes" href="#fn.adsrtimes" class="para">1</a>] </sup>The attack, decay, and release parameters are all set by
+       and how these can be useful for you.  Before you can work with midi actions
+       you should have your Midi devices, drivers and connections configured
+       correctly (see <a class="xref" href="#sect.preferences.midi_tab" title="The Midi System tab">the section called &#8220;The Midi System tab&#8221;</a>)
+      </p><p>Lets take a look at the available actions :
+      </p><div class="informalfigure"><a name="midi_actions"></a><div class="mediaobject"><img src="img/Midi_Actions.png"></div></div><p>                
+
+      As you can see there are quite a number of actions available.  Below you can find
+       a description of all available actions :
+
+      </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>PLAY</strong></span> : start playback
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>PLAY/STOP_TOGGLE</strong></span> : toggles between PLAY and STOP.  Execute this action will 
+        start playback, execute it again and playback will stop + the playhead will return
+        to the start op the song.
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>PLAY/PAUSE_TOGGLE</strong></span> : toggles between PLAY and PAUSE.  (the playhead will not return
+	      to the start of the song, but will stay at its current position)
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>STOP</strong></span> : stop playback and return to the start of the song
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>PAUSE</strong></span> : pause the song
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>MUTE</strong></span> : mutes the the Master output
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>UNMUTE</strong></span> : unmutes the Master output
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MUTE_TOGGLE</strong></span> : toggles between MUTE and UNMUTE
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>NEXT_BAR</strong></span> : jumps to the next bar in the song
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>PREVIOUS_BAR</strong></span> : jumps to the previous bar in the song
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>BPM_INCR</strong></span> : increments the tempo of the song
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>BPM_DECR</strong></span> : decrements the tempo of the song
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>BPM_CC_RELATIVE</strong></span> : ??
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MASTER_VOLUME_RELATIVE</strong></span> : changes the Master output volume, relative
+	      to the current setting (if you are using rotary encoders)
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MASTER_VOLUME_ABSOLUTE</strong></span> : changes the Master output volume to the 
+	      absolute value of the midi control (use with midi fader)
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>STRIP_VOLUME_RELATIVE</strong></span> : see MASTER_VOLUME_RELATIVE, but applies to
+	      the channel strip defined in the Action Parameter.
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>STRIP_VOLUME_ABSOLUTE</strong></span> : see MASTER_VOLUME_ABSOLUTE, but applies to
+	      the channel strip defined in the Action Parameter.
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>EFFECTx_LEVEL_RELATIVE</strong></span> : 
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>SELECT_NEXT_PATTERN</strong></span> : will select the pattern that is defined in the Action Parameter.</p><p>Note that the reference to the pattern is zero-based : pattern1=0, pattern2=1 ...
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>SELECT_AND_PLAY_NEXT_PATTERN</strong></span> : combines the SELECT_NEXT_PATTERN with PLAY
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>PAN_RELATIVE</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>PAN_ABSOLUTE</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>BEATCOUNTER</strong></span> : allows you to set
+	      the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>TAP_TEMPO</strong></span> : allows you to set
+	      the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>SELECT_INSTRUMENT</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MMC_PLAY</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MMC_DEFERRED_PLAY</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MMC_STOP</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MMC_FAST_FORWARD</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MMC_REWIND</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>MMC_RECORD_STROBE</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>MMC_RECORD_EXIT</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+        <span class="bold"><strong>MMC_PAUSE</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>NOTE</strong></span>
+	    </p></li><li class="listitem" style="list-style-type: circle"><p>
+	      <span class="bold"><strong>CC</strong></span>
+	    </p></li></ul></div><p>
+      </p></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn.adsrtimes" href="#fn.adsrtimes" class="para">1</a>] </sup>The attack, decay, and release parameters are all set by
                 the number of <span class="emphasis"><em>audio samples</em></span>.  This means
                 that the time changes depending on the sample rate of your sound
                 card.  The max time for each of them is 100,000 audio samples
