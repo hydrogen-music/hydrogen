@@ -891,8 +891,34 @@
       </p><p>Lets take a look at the available actions :
       </p><div class="informalfigure"><a name="midi_actions"></a><div class="mediaobject"><img src="img/Midi_Actions.png"></div></div><p>                
 
-      As you can see there are quite a number of actions available.  Below you can find
-       a description of all available actions :
+      An Event is an incoming Midi message, and the Action describes what Hydrogen should do 
+      whenever that Event is detected.
+      </p><p>If you take a look at the Events list you will see that there are 3 types of Events 
+      available (as described in the Midi standard): 
+
+      </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>
+	        <span class="bold"><strong>NOTE </strong></span> : input coming from a regular black/white key of a keyboard or a drumpad
+	      </p></li><li class="listitem" style="list-style-type: circle"><p>
+	        <span class="bold"><strong>CC</strong></span> : controller commands coming from faders or rotary controllers
+	      </p></li><li class="listitem" style="list-style-type: circle"><p>
+	        <span class="bold"><strong>MMC_x</strong></span> : <a class="ulink" href="http://en.wikipedia.org/wiki/MIDI_Machine_Control" target="_top">
+	        machine control events</a> coming from play/stop... buttons on a controller
+	      </p></li></ul></div><p>
+       
+       The Param. (parameter) value right of the Event is the identifier of the note/button/controller
+       that is linked to this Action.  This parameter can be entered manually, or automatically by 
+       using the Midi learn function (see <a class="xref" href="#sect.preferences.midi_tab" title="The Midi System tab">the section called &#8220;The Midi System tab&#8221;</a>).
+       
+       </p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>You can also activate the Midi learn function by Shift-clicking most of the gui elements.  
+       A 'Waiting for Midi input...' popup informs you that Hydrogen is now waiting for you to press
+       a key or turn/move a controller.
+       </p><p>If you Shift-click on a gui element that does not support Midi automation a popup will
+       inform you about this.
+       </p></div><p>
+       
+       </p><p>
+
+      Next is a list if the available Actions :
 
       </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>PLAY</strong></span> : start playback
@@ -922,7 +948,7 @@
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>BPM_DECR</strong></span> : decrements the tempo of the song
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>BPM_CC_RELATIVE</strong></span> : ??
+	      <span class="bold"><strong>BPM_CC_RELATIVE</strong></span> : change the tempo relative to the current tempo, using a controller
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>MASTER_VOLUME_RELATIVE</strong></span> : changes the Master output volume, relative
 	      to the current setting (if you are using rotary encoders)
@@ -936,15 +962,15 @@
 	      <span class="bold"><strong>STRIP_VOLUME_ABSOLUTE</strong></span> : see MASTER_VOLUME_ABSOLUTE, but applies to
 	      the channel strip defined in the Action Parameter.
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-        <span class="bold"><strong>EFFECTx_LEVEL_RELATIVE</strong></span> : 
+        <span class="bold"><strong>EFFECTx_LEVEL_RELATIVE</strong></span> : changes the volume level of an effect
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
         <span class="bold"><strong>SELECT_NEXT_PATTERN</strong></span> : will select the pattern that is defined in the Action Parameter.</p><p>Note that the reference to the pattern is zero-based : pattern1=0, pattern2=1 ...
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
         <span class="bold"><strong>SELECT_AND_PLAY_NEXT_PATTERN</strong></span> : combines the SELECT_NEXT_PATTERN with PLAY
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>PAN_RELATIVE</strong></span>
+	      <span class="bold"><strong>PAN_RELATIVE</strong></span> : will change the panorama setting, relative to the current value
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>PAN_ABSOLUTE</strong></span>
+	      <span class="bold"><strong>PAN_ABSOLUTE</strong></span> : will change the panorama setting to the absolute value that the linked controller sends to Hydrogen
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>BEATCOUNTER</strong></span> : allows you to set
 	      the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
@@ -952,27 +978,7 @@
 	      <span class="bold"><strong>TAP_TEMPO</strong></span> : allows you to set
 	      the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>SELECT_INSTRUMENT</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>MMC_PLAY</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>MMC_DEFERRED_PLAY</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>MMC_STOP</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>MMC_FAST_FORWARD</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>MMC_REWIND</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>MMC_RECORD_STROBE</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-        <span class="bold"><strong>MMC_RECORD_EXIT</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-        <span class="bold"><strong>MMC_PAUSE</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>NOTE</strong></span>
-	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>CC</strong></span>
+	      <span class="bold"><strong>SELECT_INSTRUMENT</strong></span> : selects one of the instruments in the drumkit
 	    </p></li></ul></div><p>
       </p></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn.adsrtimes" href="#fn.adsrtimes" class="para">1</a>] </sup>The attack, decay, and release parameters are all set by
                 the number of <span class="emphasis"><em>audio samples</em></span>.  This means

@@ -2420,8 +2420,46 @@
         </mediaobject>
         </informalfigure>                
 
-      As you can see there are quite a number of actions available.  Below you can find
-       a description of all available actions :
+      An Event is an incoming Midi message, and the Action describes what Hydrogen should do 
+      whenever that Event is detected.
+      </para>
+      <para>If you take a look at the Events list you will see that there are 3 types of Events 
+      available (as described in the Midi standard): 
+
+      <itemizedlist mark="opencircle">
+
+        <listitem><para>
+	        <emphasis role="bold">NOTE </emphasis> : input coming from a regular black/white key of a keyboard or a drumpad
+	      </para></listitem>
+	    
+        <listitem><para>
+	        <emphasis role="bold">CC</emphasis> : controller commands coming from faders or rotary controllers
+	      </para></listitem>
+	    
+        <listitem><para>
+	        <emphasis role="bold">MMC_x</emphasis> : <ulink url="http://en.wikipedia.org/wiki/MIDI_Machine_Control">
+	        machine control events</ulink> coming from play/stop... buttons on a controller
+	      </para></listitem>
+	    
+       </itemizedlist>
+       
+       The Param. (parameter) value right of the Event is the identifier of the note/button/controller
+       that is linked to this Action.  This parameter can be entered manually, or automatically by 
+       using the Midi learn function (see <xref linkend="sect.preferences.midi_tab"/>).
+       
+       <note><para>You can also activate the Midi learn function by Shift-clicking most of the gui elements.  
+       A 'Waiting for Midi input...' popup informs you that Hydrogen is now waiting for you to press
+       a key or turn/move a controller.
+       </para>
+       <para>If you Shift-click on a gui element that does not support Midi automation a popup will
+       inform you about this.
+       </para></note>
+       
+       </para>
+       
+       <para>
+
+      Next is a list if the available Actions :
 
       <itemizedlist mark="opencircle">
       <listitem><para>
@@ -2476,7 +2514,7 @@
 	    </para></listitem>
 	    
       <listitem><para>
-	      <emphasis role="bold">BPM_CC_RELATIVE</emphasis> : ??
+	      <emphasis role="bold">BPM_CC_RELATIVE</emphasis> : change the tempo relative to the current tempo, using a controller
 	    </para></listitem>
 	    
       <listitem><para>
@@ -2500,7 +2538,7 @@
 	    </para></listitem>
 	    
       <listitem><para>
-        <emphasis role="bold">EFFECTx_LEVEL_RELATIVE</emphasis> : 
+        <emphasis role="bold">EFFECTx_LEVEL_RELATIVE</emphasis> : changes the volume level of an effect
 	    </para></listitem>
 	    
       <listitem><para>
@@ -2513,11 +2551,11 @@
 	    </para></listitem>
 	    
       <listitem><para>
-	      <emphasis role="bold">PAN_RELATIVE</emphasis>
+	      <emphasis role="bold">PAN_RELATIVE</emphasis> : will change the panorama setting, relative to the current value
 	    </para></listitem>
 	    
       <listitem><para>
-	      <emphasis role="bold">PAN_ABSOLUTE</emphasis>
+	      <emphasis role="bold">PAN_ABSOLUTE</emphasis> : will change the panorama setting to the absolute value that the linked controller sends to Hydrogen
 	    </para></listitem>
 	    
       <listitem><para>
@@ -2531,49 +2569,10 @@
 	    </para></listitem>
 	    
       <listitem><para>
-	      <emphasis role="bold">SELECT_INSTRUMENT</emphasis>
+	      <emphasis role="bold">SELECT_INSTRUMENT</emphasis> : selects one of the instruments in the drumkit
 	    </para></listitem>
 	    
-      <listitem><para>
-	      <emphasis role="bold">MMC_PLAY</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">MMC_DEFERRED_PLAY</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">MMC_STOP</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">MMC_FAST_FORWARD</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">MMC_REWIND</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">MMC_RECORD_STROBE</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-        <emphasis role="bold">MMC_RECORD_EXIT</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-        <emphasis role="bold">MMC_PAUSE</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">NOTE</emphasis>
-	    </para></listitem>
-	    
-      <listitem><para>
-	      <emphasis role="bold">CC</emphasis>
-	    </para></listitem>
-    
+   
       </itemizedlist>
       </para>
 
