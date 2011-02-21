@@ -5,4 +5,5 @@ moc_*.cc
 build
 git-tools
 libs/hydrogen/include/hydrogen/config.h
+cmake_opts
 

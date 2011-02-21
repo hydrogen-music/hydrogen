@@ -177,73 +177,65 @@ ENDIF()
 #
 # CONFIG PROCESS SUMMARY
 #
-MESSAGE("\n"
-"Installation Summary\n"
-"--------------------\n"
-"* Install Directory            : ${CMAKE_INSTALL_PREFIX}\n"
-"* User data path               : ${USR_DATA_PATH}\n"
-"* System data path             : ${SYS_DATA_PATH}\n"
-"* core library build as        : ${H2CORE_LIBRARY_TYPE}\n"
-"* debug capabilities           : ${H2CORE_HAVE_DEBUG}\n"
-"* macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
+COLOR_MESSAGE("${_escape}[1;36mInstallation Summary${_escape}[0m
+--------------------
+* Install Directory            : ${CMAKE_INSTALL_PREFIX}
+* User data path               : ${USR_DATA_PATH}
+* System data path             : ${SYS_DATA_PATH}
+* core library build as        : ${H2CORE_LIBRARY_TYPE}
+* debug capabilities           : ${H2CORE_HAVE_DEBUG}
+* macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
 )
 
-MESSAGE("\n"
-"Main librarires\n"
-"* Qt4 version                  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}\n"
-"* libsndfile                   : ${LIBSNDFILE_STATUS}\n"
-"*                                ${LIBSNDFILE_MSG}\n"
-"* libtar                       : ${LIBTAR_STATUS}\n"
-"* libarchive                   : ${LIBARCHIVE_STATUS}\n"
-"* ladspa                       : ${LADSPA_STATUS}\n"
+COLOR_MESSAGE("${_escape}[1;36mMain librarires${_escape}[0m
+* Qt4 version                  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
+* ${_escape}[1;35mlibsndfile${_escape}[0m                   : ${LIBSNDFILE_STATUS}
+*                                ${LIBSNDFILE_MSG}
+* ${_escape}[1;35mlibtar${_escape}[0m                       : ${LIBTAR_STATUS}
+* ${_escape}[1;35mlibarchive${_escape}[0m                   : ${LIBARCHIVE_STATUS}
+* ${_escape}[1;35mladspa${_escape}[0m                       : ${LADSPA_STATUS}\n"
 )
 
-MESSAGE(
-"Supported audio interfaces\n"
-"--------------------------\n"
-"* ALSA                         : ${ALSA_STATUS}\n"
-"* OSS                          : ${OSS_STATUS}\n"
-"* JACK                         : ${JACK_STATUS}\n"
-"* CoreAudio                    : ${COREAUDIO_STATUS}\n"
-"* CoreMidi                     : ${COREMIDI_STATUS}\n"
-"* PortAudio                    : ${PORTAUDIO_STATUS}\n"
-"* PortMidi                     : ${PORTMIDI_STATUS}\n"
+COLOR_MESSAGE("${_escape}[1;36mSupported audio interfaces${_escape}[0m
+--------------------------
+* ${_escape}[1;35mALSA${_escape}[0m                         : ${ALSA_STATUS}
+* ${_escape}[1;35mOSS${_escape}[0m                          : ${OSS_STATUS}
+* ${_escape}[1;35mJACK${_escape}[0m                         : ${JACK_STATUS}
+* ${_escape}[1;35mCoreAudio${_escape}[0m                    : ${COREAUDIO_STATUS}
+* ${_escape}[1;35mCoreMidi${_escape}[0m                     : ${COREMIDI_STATUS}
+* ${_escape}[1;35mPortAudio${_escape}[0m                    : ${PORTAUDIO_STATUS}
+* ${_escape}[1;35mPortMidi${_escape}[0m                     : ${PORTMIDI_STATUS}\n"
 )
 
-MESSAGE(
-"Usefull extensions\n"
-"-----------------------------------------\n"
-"* LASH                         : ${LASH_STATUS}\n"
-"* LRDF                         : ${LRDF_STATUS}\n"
-"* RUBBERBAND                   : ${RUBBERBAND_STATUS}\n"
+COLOR_MESSAGE("${_escape}[1;36mUsefull extensions${_escape}[0m
+-----------------------------------------
+* ${_escape}[1;35mLASH${_escape}[0m                         : ${LASH_STATUS}
+* ${_escape}[1;35mLRDF${_escape}[0m                         : ${LRDF_STATUS}
+* ${_escape}[1;35mRUBBERBAND${_escape}[0m                   : ${RUBBERBAND_STATUS}\n"
 )
 
 IF(WANT_DEBUG)
-    MESSAGE(
-    "Miscellaneous capabilities\n"
-    "-----------------------------------------\n"
-    "* realtime clock               : ${HAVE_RTCLOCK}\n"
-    "* working sscanf               : ${HAVE_SSCANF}\n"
+    COLOR_MESSAGE("${_escape}[1;36mMiscellaneous capabilities${_escape}[0m
+-----------------------------------------
+* realtime clock               : ${HAVE_RTCLOCK}
+* working sscanf               : ${HAVE_SSCANF}\n"
     )
 ENDIF()
 
-MESSAGE(
-"\n"
-"-----------------------------------------------------------------\n"
-"IMPORTANT:\n"
-"  after installing missing packages, remove ${CMAKE_BINARY_DIR}/CMakeCache.txt before\n"
-"  running cmake again!\n"
-"-----------------------------------------------------------------\n"
+COLOR_MESSAGE("-----------------------------------------------------------------
+${_escape}[1;31mIMPORTANT:${_escape}[0m
+  after installing missing packages, remove ${CMAKE_BINARY_DIR}/CMakeCache.txt before
+  running cmake again!
+-----------------------------------------------------------------\n"
 )
 
 find_path( HYDROGEN_INSTALLED NAMES hydrogen/config.h )
 IF( HYDROGEN_INSTALLED )
-    MESSAGE(
-    "-----------------------------------------------------------------\n"
-    "IMPORTANT:\n"
-    "  previously installed hydrogen headers found in ${HYDROGEN_INSTALLED}\n"
-    "  you should uninstall these files before building hydrogen unless you know what you are doing.\n"
-    "-----------------------------------------------------------------\n"
+    COLOR_MESSAGE("-----------------------------------------------------------------
+${_escape}[1;31mIMPORTANT${_escape}[0m:
+  previously installed hydrogen headers found in ${HYDROGEN_INSTALLED}
+  you should uninstall these files before building hydrogen unless you know what you are doing.
+-----------------------------------------------------------------\n"
     )
 ENDIF()
 
