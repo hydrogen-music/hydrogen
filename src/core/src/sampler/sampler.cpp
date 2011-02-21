@@ -147,14 +147,16 @@ void Sampler::note_on( Note *note )
 	//infoLog( "[noteOn]" );
 	assert( note );
 
+	note->get_adsr()->attack();
 	Instrument *pInstr = note->get_instrument();
 
-	// mute groups	
-	if ( pInstr->get_mute_group() != -1 ) {
+	// mute group
+    int mute_grp = pInstr->get_mute_group();
+	if ( mute_grp != -1 ) {
 		// remove all notes using the same mute group
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
 			Note *pNote = __playing_notes_queue[ j ];
-			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == pInstr->get_mute_group() ) ) {
+			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == mute_grp ) ) {
 				pNote->get_adsr()->release();
 			}
 		}

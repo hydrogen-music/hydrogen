@@ -280,7 +280,7 @@ inline ADSR* Instrument::get_adsr() const {
 }
 
 inline void Instrument::set_mute_group( int group ) {
-    __mute_group = group;
+    __mute_group = (group<-1 ? -1 : group);
 }
 
 inline int Instrument::get_mute_group() const {

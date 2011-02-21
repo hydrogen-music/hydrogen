@@ -108,9 +108,14 @@ float ADSR::get_value( float step ) {
     return __value;
 }
 
+void ADSR::attack() {
+    __state = ATTACK;
+    __ticks = 0;
+}
+
 float ADSR::release() {
     if ( __state == IDLE ) return 0;
-    if ( __state == RELEASE ) return __value; // TODO return __value instead of 1 right?!?
+    if ( __state == RELEASE ) return __value;
     __release_value = __value;
     __state = RELEASE;
     __ticks = 0;

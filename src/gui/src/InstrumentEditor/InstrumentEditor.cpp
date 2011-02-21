@@ -791,12 +791,14 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 {
 	assert( m_pInstrument );
 
+    int mute_grp = m_pInstrument->get_mute_group();
 	if (pRef == m_pAddMuteGroupBtn ) {
-		m_pInstrument->set_mute_group( m_pInstrument->get_mute_group() + 1);
+        mute_grp += 1;
 	}
 	else if (pRef == m_pDelMuteGroupBtn ) {
-		m_pInstrument->set_mute_group( m_pInstrument->get_mute_group() - 1);
+        mute_grp -= 1;
 	}
+	m_pInstrument->set_mute_group( mute_grp );
 
 	selectedInstrumentChangedEvent();	// force an update
 }

@@ -79,12 +79,16 @@ class ADSR : private Object {
         float get_release();
 
         /**
+         * sets state to ATTACK
+         */
+        void attack();
+        /**
          * compute the value and return it
          * \param step the increment to be added to __ticks
          */
         float get_value( float step );
         /**
-         * stets state to REALSE,
+         * sets state to RELEASE,
          * returns 0 if the state is IDLE,
          * __value if the state is RELEASE,
          * set state to RELEASE, save __release_value and return it.
@@ -98,7 +102,7 @@ class ADSR : private Object {
         float __release;	///< Release tick count
         /** possible states */
         enum ADSRState {
-            ATTACK,
+            ATTACK=0,
             DECAY,
             SUSTAIN,
             RELEASE,
