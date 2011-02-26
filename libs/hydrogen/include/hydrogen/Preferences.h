@@ -275,6 +275,14 @@ public:
 		return m_bShowDevelWarning;
 	}
 
+        void setShowExportWarning( bool value ) {
+                m_bShowExportWarning = value;
+        }
+
+        bool getShowExportWarning() {
+                return m_bShowExportWarning;
+        }
+
 	bool isRestoreLastSongEnabled() {
 		return m_brestoreLastSong;
 	}
@@ -546,6 +554,7 @@ private:
 	bool m_brestoreLastPlaylist;
 	bool m_bUseLash;
 	bool m_bShowDevelWarning;	///< Show development version warning?
+        bool m_bShowExportWarning;
 	QString m_lastSongFilename;	///< Last song used
 	QString m_lastPlaylistFilename;
 	bool hearNewNotes;

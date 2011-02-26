@@ -223,6 +223,8 @@ Preferences::Preferences()
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
 	// NONE: lastSongFilename;
+        //warn the user about the fact that 0.9.5 is able to export songs with tempo changes
+        m_bShowExportWarning = false;
 	hearNewNotes = true;
 	// NONE: m_recentFiles;
 	// NONE: m_recentFX;
