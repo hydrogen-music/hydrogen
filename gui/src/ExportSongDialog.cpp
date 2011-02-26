@@ -148,6 +148,23 @@ void ExportSongDialog::on_okBtn_clicked()
 
         m_bOverwriteFiles = false;
 
+
+        /* If the song has a tempo change, notify the user
+           that hydrogen is unable export songs with
+           tempo changes correctly
+        */
+
+        Hydrogen* engine = Hydrogen::get_instance();
+        std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
+
+        if( timelineVector.size() > 0 ){
+            int res = QMessageBox::information( this, "Hydrogen", tr( "This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes."), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
+            if (res == QMessageBox::No ) return;
+        }
+
+
+
+
         /* 0: Export to single track
         *  1: Export to multiple tracks
         *  2: Export to both
