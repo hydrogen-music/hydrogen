@@ -66,6 +66,9 @@ def get_platform_flags( opts ):
                 if str(env['lrdf']) == "1": cppflags.append('-DLRDF_SUPPORT')
 		if str(env['portaudio']) == "1": cppflags.append('-DPORTAUDIO_SUPPORT')
                 if str(env['portmidi']) == "1": cppflags.append('-DPORTMIDI_SUPPORT')
+
+	        cppflags.append( '-m64' )
+
 		
                 #OSX related stuff..
 

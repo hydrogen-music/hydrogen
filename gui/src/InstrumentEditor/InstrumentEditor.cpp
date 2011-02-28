@@ -230,7 +230,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
-	m_pIsStopNoteCheckBox = new QCheckBox ( QString( "Auto-Stop-Note" ), m_pInstrumentProp );
+        m_pIsStopNoteCheckBox = new QCheckBox ( trUtf8( "Auto-Stop-Note" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 15, 300 );
 	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );

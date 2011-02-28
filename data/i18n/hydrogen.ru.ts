@@ -1080,12 +1080,20 @@ Overwrite the existing file?</source>
 Перезаписать его?</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;OK</translation>
+        <source>Export to a single track</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>О&amp;тменить</translation>
+        <source>Export to seperate tracks</source>
+        <translation type="unfinished">Экспортировать в разные дорожки</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1209,10 +1217,6 @@ Overwrite the existing file?</source>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
         <translation>Ogg Vorbis, с потерями, но хорошим качеством: VBR</translation>
-    </message>
-    <message>
-        <source>Export to seperate tracks</source>
-        <translation>Экспортировать в разные дорожки</translation>
     </message>
 </context>
 <context>
@@ -1349,6 +1353,10 @@ Are you sure?</source>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
         <translation>Остановить воспроизведение текущей ноты при переходе к сэмплу следующей.</translation>
     </message>
+    <message>
+        <source>Auto-Stop-Note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
@@ -1456,6 +1464,10 @@ Are you sure?</source>
     <message>
         <source>Deactivate</source>
         <translation>Выключить</translation>
+    </message>
+    <message>
+        <source>Remove FX</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2574,6 +2586,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Playlist: set song no. %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>no Script</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -3016,10 +3032,6 @@ Are you sure?</source>
         <translation>панорама</translation>
     </message>
     <message>
-        <source>&quot;Rubberband Audio Processor&quot; Change the tempo(sample length) and pitch of audio. </source>
-        <translation>С помощью Rubberband вы можете изменить темп и высоту тона сэмпла.</translation>
-    </message>
-    <message>
         <source>Sample length to beat:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3180,10 +3192,6 @@ Are you sure?</source>
         <translation>32</translation>
     </message>
     <message>
-        <source>Pitch: (Semitone,Cent)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pitch the sample in semitones, cents</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3211,6 +3219,44 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>0</source>
         <translation>0</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Pitch (Semitone,Cent)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
