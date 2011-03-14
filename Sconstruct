@@ -517,8 +517,8 @@ version.write( '#include "config.h"\n' )
 version.write( "static const std::string extra_version = \"svn%s\";\n" % get_svn_revision() )
 
 #just for non-stable releases
-version.write( "static const std::string VERSION = \"0.9.5-\" + extra_version;\n" )
-#version.write( "static const std::string VERSION = \"0.9.5-rc1\";\n" )
+#version.write( "static const std::string VERSION = \"0.9.5-\" + extra_version;\n" )
+version.write( "static const std::string VERSION = \"0.9.5\";\n" )
 
 version.write( "std::string get_version() { return VERSION;	}\n" )
 version.close()
