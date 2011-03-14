@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="ru_RU">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -965,14 +965,14 @@ p, li { white-space: pre-wrap; }
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished">Дирижёр</translation>
+        <translation>Дирижёр</translation>
     </message>
 </context>
 <context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Диалог</translation>
+        <translation>Диалог</translation>
     </message>
 </context>
 <context>
@@ -1080,16 +1080,24 @@ Overwrite the existing file?</source>
 Перезаписать его?</translation>
     </message>
     <message>
+        <source>&amp;Ok</source>
+        <translation type="obsolete">&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="obsolete">О&amp;тменить</translation>
+    </message>
+    <message>
         <source>Export to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать в одну дорожку</translation>
     </message>
     <message>
         <source>Export to seperate tracks</source>
-        <translation type="unfinished">Экспортировать в разные дорожки</translation>
+        <translation>Экспортировать в разные дорожки</translation>
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation>И то, и другое</translation>
     </message>
     <message>
         <source>This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes.</source>
@@ -1156,7 +1164,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
-        <translation>Разрядность сэмпла в битах:</translation>
+        <translation>Разрядность сэмпла:</translation>
     </message>
     <message>
         <source>8</source>
@@ -1217,6 +1225,10 @@ Overwrite the existing file?</source>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
         <translation>Ogg Vorbis, с потерями, но хорошим качеством: VBR</translation>
+    </message>
+    <message>
+        <source>Export to seperate tracks</source>
+        <translation type="obsolete">Экспортировать в разные дорожки</translation>
     </message>
 </context>
 <context>
@@ -1443,19 +1455,19 @@ Are you sure?</source>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation>Выберите FX</translation>
+        <translation>Выбрать эффект</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation>Свойства [%1] LADSPA FX</translation>
+        <translation>Свойства эффекта [%1]</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation>Свойства [%1] LADSPA FX</translation>
+        <translation>Свойства эффекта [%1]</translation>
     </message>
     <message>
         <source>No plugin</source>
-        <translation>Нет расширения</translation>
+        <translation>Эффект не назначен</translation>
     </message>
     <message>
         <source>Activate</source>
@@ -1467,7 +1479,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Remove FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить эффект</translation>
     </message>
 </context>
 <context>
@@ -1708,7 +1720,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Preferences</source>
-        <translation>&amp;Параметры</translation>
+        <translation>&amp;Параметры Hydrogen</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
@@ -1884,7 +1896,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Список воспроизведения: композиция №%1</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
@@ -2361,11 +2373,11 @@ Do you want to save the changes?
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим Jack-Time-Master Вкл</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим Jack-Time-Master Выкл</translation>
     </message>
     <message>
         <source>Record</source>
@@ -2377,19 +2389,19 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Запись MIDI = Вкл</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Запись MIDI = Выкл</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Разруш. режим = Выкл</translation>
     </message>
     <message>
         <source>Destructive mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Разруш. режим = Вкл</translation>
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
@@ -2424,7 +2436,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation>Ни одна композиция не выбрана</translation>
+        <translation>Ни одна композиция не выбрана!</translation>
     </message>
     <message>
         <source>Load Playlist</source>
@@ -2440,7 +2452,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных композиций!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -2492,7 +2504,8 @@ Sorry, but this will not work for the moment.</source>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя сценария или путь к нему содержит пробелы.
+Этого не должно быть.</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -2576,11 +2589,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Playlist Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор списка воспроизведения</translation>
     </message>
     <message>
         <source>No song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ни одна композиция не выбрана!</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
@@ -2831,7 +2844,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation>&amp;Аудиосистема</translation>
+        <translation>&amp;Звуковая система</translation>
     </message>
     <message>
         <source>Metronome volume</source>
@@ -2927,7 +2940,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Path to the Rubberband command-line utility</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Расположение утилиты Rubberband</translation>
     </message>
     <message>
         <source>Maximum number of bars</source>
@@ -2993,15 +3006,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>forward</source>
-        <translation>вперёд</translation>
+        <translation>Вперёд</translation>
     </message>
     <message>
         <source>reverse</source>
-        <translation>назад</translation>
+        <translation>Назад</translation>
     </message>
     <message>
         <source>pingpong</source>
-        <translation>пингпонг</translation>
+        <translation>Пингпонг</translation>
     </message>
     <message>
         <source>loops</source>
@@ -3025,11 +3038,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>volume</source>
-        <translation>громкость</translation>
+        <translation>Громкость</translation>
     </message>
     <message>
         <source>panorama</source>
-        <translation>панорама</translation>
+        <translation>Панорама</translation>
+    </message>
+    <message>
+        <source>&quot;Rubberband Audio Processor&quot; Change the tempo(sample length) and pitch of audio. </source>
+        <translation type="obsolete">С помощью Rubberband вы можете изменить темп и высоту тона сэмпла.</translation>
     </message>
     <message>
         <source>Sample length to beat:</source>
@@ -3193,7 +3210,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить высоту тона в полутонах, сотых</translation>
     </message>
     <message>
         <source>Crispness: </source>
@@ -3222,11 +3239,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Начало:</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Петля</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -3235,7 +3252,12 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Режим&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;петли&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -3248,7 +3270,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation>Конец:</translation>
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
@@ -3256,7 +3278,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation type="unfinished"></translation>
+        <translation>Высота тона (полутона, сотые)</translation>
     </message>
 </context>
 <context>
@@ -3368,7 +3390,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Edit beat in timeline</source>
-        <translation>Указать долю на шкале времени</translation>
+        <translation>Указать долю на линии времени</translation>
     </message>
     <message>
         <source>500</source>
@@ -3471,7 +3493,8 @@ Are you sure?</source>
     <message>
         <source>The pattern-file exists. 
 Overwrite the existing pattern?</source>
-        <translation type="unfinished"></translation>
+        <translation>Такой файл паттерна уже существует.
+Перезаписать его?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -3486,7 +3509,7 @@ Overwrite the existing pattern?</source>
     <name>SongPropertiesDialog</name>
     <message>
         <source>Song properties</source>
-        <translation>Свойства композиции</translation>
+        <translation>Метаданные</translation>
     </message>
 </context>
 <context>
@@ -3598,7 +3621,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Во время импорта библиотеки звуков произошла ошибка</translation>
+        <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
     </message>
     <message>
         <source>Drumkits</source>
