@@ -30,6 +30,8 @@ order to make a release has several, easy-to-forget steps.  They are:
                  __|__ _|_
         hydrogen-0.9.4-rc2.tar.gz
 
+     Example: 'tar -pczf hydrogen-0.9.5.tar.gz hydrogen-0.9.5'
+
   5. If this is an RC release, the following steps are optional.
 
   6. In a clean directory, test build the tarball in as many ways as
