@@ -92,6 +92,7 @@ def get_platform_flags( opts ):
 		includes.append( '/usr/local/include/jack' )
 
 	elif sys.platform == 'linux2':
+		ldflags.append('-lpthread')
 		ldflags.append('-lasound')
 	#	ldflags.append('-lrubberband')
 
