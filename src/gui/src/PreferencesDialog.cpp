@@ -52,7 +52,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( trUtf8( "Preferences" ) );
-//	setIcon( QPixmap( Skin::getImagePath()  + "/icon16.png" ) );
+        setWindowIcon( QPixmap( Skin::getImagePath()  + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
 	setMaximumSize( width(), height() );

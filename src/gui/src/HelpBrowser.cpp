@@ -82,7 +82,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 	m_pBrowser->setSearchPaths( QStringList( m_sDataPath ) );
 	//m_pBrowser->setStyleSheet("background-color:#000000;");
 
-//	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+        setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QFile file( m_sFilename.toLocal8Bit() ); // Read the text from a file
 	if ( file.open( QIODevice::ReadOnly ) ) {

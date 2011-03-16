@@ -38,7 +38,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setMinimumSize( width(), height() );
 
 	setWindowTitle( trUtf8( "Song properties" ) );
-//	setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+        setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	Song *song = Hydrogen::get_instance()->getSong();
 	songNameTxt->setText( song->__name );
