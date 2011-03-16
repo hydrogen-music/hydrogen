@@ -55,6 +55,7 @@
 
 using namespace H2Core;
 
+
 HydrogenApp* HydrogenApp::m_pInstance = NULL;
 const char* HydrogenApp::__class_name = "HydrogenApp";
 
@@ -173,6 +174,10 @@ HydrogenApp* HydrogenApp::get_instance() {
 void HydrogenApp::setupSinglePanedInterface()
 {
 	Preferences *pPref = Preferences::get_instance();
+        int uiLayout = pPref->getDefaultUILayout();
+        qDebug() << "uiLayout" << QString::number(uiLayout);
+        qDebug() << "uiLayout" << QString::number( Preferences::UI_LAYOUT_SINGLE_PANE );
+        qDebug() << "uiLayout" << QString::number( Preferences::UI_LAYOUT_TABBED );
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -183,10 +188,20 @@ void HydrogenApp::setupSinglePanedInterface()
 	pSplitter->setOrientation( Qt::Vertical );
 	pSplitter->setOpaqueResize( true );
 
+        QTabWidget *pTab = new QTabWidget( NULL );
+        pTab->setStyleSheet("color: white;");
+
 	// SONG EDITOR
-	m_pSongEditorPanel = new SongEditorPanel( pSplitter );
-	WindowProperties songEditorProp = pPref->getSongEditorProperties();
-	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+        if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+            m_pSongEditorPanel = new SongEditorPanel( pSplitter );
+        else
+            m_pSongEditorPanel = new SongEditorPanel( pTab );
+
+        WindowProperties songEditorProp = pPref->getSongEditorProperties();
+        m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+
+        if( uiLayout == Preferences::UI_LAYOUT_TABBED)
+            pTab->addTab( m_pSongEditorPanel, "Song Editor" );
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( pSplitter );
@@ -197,6 +212,12 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( NULL );
+
+        if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
+            pTab->setMovable(true);
+            pTab->setTabsClosable(true);
+            pTab->addTab( pSouthPanel, " Instrument + Pattern " );
+        }
 
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( NULL );
@@ -218,25 +239,37 @@ void HydrogenApp::setupSinglePanedInterface()
 	pMainVBox->setSpacing( 5 );
 	pMainVBox->setMargin( 0 );
 	pMainVBox->addWidget( m_pPlayerControl );
-	pMainVBox->addWidget( pSplitter );
 
-	mainArea->setLayout( pMainVBox );
+        if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+            pMainVBox->addWidget( pSplitter );
+        else
+            pMainVBox->addWidget( pTab );
+
+        mainArea->setLayout( pMainVBox );
 
 
 
 
 	// MIXER
 	m_pMixer = new Mixer(0);
-	WindowProperties mixerProp = pPref->getMixerProperties();
-	m_pMixer->resize( mixerProp.width, mixerProp.height );
-	m_pMixer->move( mixerProp.x, mixerProp.y );
+        WindowProperties mixerProp = pPref->getMixerProperties();
+
+        if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ){
+            m_pMixer->resize( mixerProp.width, mixerProp.height );
+            m_pMixer->move( mixerProp.x, mixerProp.y );
+        }
+
+
 	m_pMixer->updateMixer();
-	if ( mixerProp.visible ) {
+        pTab->addTab(m_pMixer,"Mixer");
+
+
+        if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
 		m_pMixer->show();
 	}
 	else {
 		m_pMixer->hide();
-	}
+        }
 
 
 	// HELP BROWSER

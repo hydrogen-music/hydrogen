@@ -154,8 +154,8 @@ public:
 
 
         enum UI_LAYOUT_TYPES {
-                UI_LAYOUT_TABBED,
-                UI_LAYOUT_SINGLE_PANE
+                UI_LAYOUT_SINGLE_PANE,
+                UI_LAYOUT_TABBED
         };
 
         int m_nDefaultUILayout;
