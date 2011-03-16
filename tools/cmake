@@ -52,6 +52,7 @@ function cmake_make() {
     else
         make $MAKE_OPTS || exit 1
     fi
+    cp src/gui/hydrogen ..
     cd ..
 }
 
