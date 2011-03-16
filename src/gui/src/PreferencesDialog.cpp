@@ -181,6 +181,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg(falloffSpeed) );
 	}
 
+        uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
+
 	// Style
 	QStringList list = QStyleFactory::keys();
 	uint i = 0;
@@ -410,7 +412,10 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->setMaxBars( sBmaxBars->value() );
 
-	Hydrogen::get_instance()->setBcOffsetAdjust();
+        Hydrogen::get_instance()->setBcOffsetAdjust();
+
+        pPref->setDefaultUILayout( uiLayoutComboBox->currentIndex() );
+
 
 	pPref->savePreferences();
 
