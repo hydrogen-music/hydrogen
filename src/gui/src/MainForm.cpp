@@ -504,10 +504,6 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-//	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
-//		(Hydrogen::get_instance())->stop();
-//	}
-
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString filename = song->get_filename();
 
@@ -542,12 +538,6 @@ void MainForm::action_file_save()
 
 
 void MainForm::action_help_about() {
-	//QWidget *parent = this;
-//	if (workspace) {
-//		parent = workspace;
-//	}
-
-	// show modal dialog
 	AboutDialog *dialog = new AboutDialog( NULL );
 	dialog->exec();
 }
@@ -656,13 +646,6 @@ void MainForm::action_file_open() {
 
         fd->setWindowTitle( trUtf8( "Open song" ) );
 
-	/// \todo impostare il preview
-	/*
-	fd->setContentsPreviewEnabled( TRUE );
-	fd->setContentsPreview( "uno", "due" );
-	fd->setPreviewMode( QFileDialog::Contents );
-	*/
-
 	QString filename;
 	if (fd->exec() == QDialog::Accepted) {
 		filename = fd->selectedFiles().first();
@@ -743,12 +726,6 @@ void MainForm::action_file_openDemo()
 	fd->setWindowTitle( trUtf8( "Open song" ) );
 //	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	/// \todo impostare il preview
-	/*
-	fd->setContentsPreviewEnabled( TRUE );
-	fd->setContentsPreview( "uno", "due" );
-	fd->setPreviewMode( QFileDialog::Contents );
-	*/
 	fd->setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
 
 
@@ -768,12 +745,6 @@ void MainForm::action_file_openDemo()
 
 void MainForm::showPreferencesDialog()
 {
-/*
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
-                Hydrogen::get_instance()->sequencer_stop();
-        }
-*/
-
 	h2app->showPreferencesDialog();
 }
 
