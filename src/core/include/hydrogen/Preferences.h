@@ -153,6 +153,13 @@ public:
 	};
 
 
+        enum UI_LAYOUT_TYPES {
+                UI_LAYOUT_TABBED,
+                UI_LAYOUT_SINGLE_PANE
+        };
+
+        int m_nDefaultUILayout;
+
 	QString m_sPreferencesFilename;
 	QString m_sPreferencesDirectory;
 
@@ -264,6 +271,14 @@ public:
 	void setDefaultEditor( QString editor){
 		m_sDefaultEditor = editor;
 	}
+
+        int getDefaultUILayout(){
+            return m_nDefaultUILayout;
+        }
+
+        void setDefaultUILayout( int layout){
+                m_nDefaultUILayout = layout;
+        }
 
 
 	// General

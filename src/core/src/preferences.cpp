@@ -132,6 +132,7 @@ Preferences::Preferences()
 
 
 	m_pDefaultUIStyle = new UIStyle();
+        m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
 #ifdef Q_OS_MACX
 	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
@@ -391,6 +392,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
 			__usetimeline = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __usetimeline );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+                        m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -743,6 +745,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __usetimeline ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
+
+        LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
