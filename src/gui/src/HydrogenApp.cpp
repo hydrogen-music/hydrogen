@@ -175,9 +175,6 @@ void HydrogenApp::setupSinglePanedInterface()
 {
 	Preferences *pPref = Preferences::get_instance();
         int uiLayout = pPref->getDefaultUILayout();
-        qDebug() << "uiLayout" << QString::number(uiLayout);
-        qDebug() << "uiLayout" << QString::number( Preferences::UI_LAYOUT_SINGLE_PANE );
-        qDebug() << "uiLayout" << QString::number( Preferences::UI_LAYOUT_TABBED );
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
