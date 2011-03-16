@@ -32,8 +32,6 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/event_queue.h>
-using namespace H2Core;
-
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
@@ -724,7 +722,7 @@ void MainForm::action_file_openDemo()
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
 
 	fd->setWindowTitle( trUtf8( "Open song" ) );
-//	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+        fd->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	fd->setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
 
@@ -1207,42 +1205,6 @@ void MainForm::initKeyInstMap()
 		keycodeInstrumentMap[Qt::Key_7] = instr++;
 		keycodeInstrumentMap[Qt::Key_U] = instr++;
 	}
-
-	/*
-	// QWERTY etc.... rows of the keyboard
-	keycodeInstrumentMap[Qt::Key_Q] = instr++;
-	keycodeInstrumentMap[Qt::Key_W] = instr++;
-	keycodeInstrumentMap[Qt::Key_E] = instr++;
-	keycodeInstrumentMap[Qt::Key_R] = instr++;
-	keycodeInstrumentMap[Qt::Key_T] = instr++;
-	keycodeInstrumentMap[Qt::Key_Y] = instr++;
-	keycodeInstrumentMap[Qt::Key_U] = instr++;
-	keycodeInstrumentMap[Qt::Key_I] = instr++;
-	keycodeInstrumentMap[Qt::Key_O] = instr++;
-	keycodeInstrumentMap[Qt::Key_P] = instr++;
-	keycodeInstrumentMap[Qt::Key_BracketLeft] = instr++;
-	keycodeInstrumentMap[Qt::Key_BracketRight] = instr++;
-	keycodeInstrumentMap[Qt::Key_A] = instr++;
-	keycodeInstrumentMap[Qt::Key_S] = instr++;
-	keycodeInstrumentMap[Qt::Key_D] = instr++;
-	keycodeInstrumentMap[Qt::Key_F] = instr++;
-	keycodeInstrumentMap[Qt::Key_G] = instr++;
-	keycodeInstrumentMap[Qt::Key_H] = instr++;
-	keycodeInstrumentMap[Qt::Key_J] = instr++;
-	keycodeInstrumentMap[Qt::Key_K] = instr++;
-	keycodeInstrumentMap[Qt::Key_L] = instr++;
-	keycodeInstrumentMap[Qt::Key_Semicolon] = instr++;
-	keycodeInstrumentMap[Qt::Key_Apostrophe] = instr++;
-	keycodeInstrumentMap[Qt::Key_Z] = instr++;
-	keycodeInstrumentMap[Qt::Key_X] = instr++;
-	keycodeInstrumentMap[Qt::Key_C] = instr++;
-	keycodeInstrumentMap[Qt::Key_V] = instr++;
-	keycodeInstrumentMap[Qt::Key_B] = instr++;
-	keycodeInstrumentMap[Qt::Key_N] = instr++;
-	keycodeInstrumentMap[Qt::Key_M] = instr++;
-	keycodeInstrumentMap[Qt::Key_Comma] = instr++;
-	keycodeInstrumentMap[Qt::Key_Period] = instr++;
-*/
 }
 
 
@@ -1403,7 +1365,7 @@ void MainForm::action_file_export_midi()
 	fd->setDirectory( QDir::homePath() );
 	fd->setWindowTitle( trUtf8( "Export MIDI file" ) );
 	fd->setAcceptMode( QFileDialog::AcceptSave );
-//	fd->setIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+        fd->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QString sFilename;
 	if ( fd->exec() == QDialog::Accepted ) {
