@@ -27,14 +27,15 @@
  * Added CFRelease code (20060514 Jonathan Dempsey)
  */
 
-#include "hydrogen/IO/CoreMidiDriver.h"
-
-#ifdef H2CORE_HAVE_COREMIDI
-
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/Preferences.h>
+
+#include "hydrogen/IO/CoreMidiDriver.h"
+
+#ifdef H2CORE_HAVE_COREMIDI
 
 namespace H2Core
 {
@@ -283,7 +284,7 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 	
 	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 		
-	unsigned int numInstruments = instList->get_size();
+	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
 		Instrument *curInst = instList->get(index);
 	
