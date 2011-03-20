@@ -486,7 +486,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pInstrument->get_adsr()->set_sustain( fVal );
 		}
 		else if ( ref == m_pReleaseRotary ) {
-                        m_pInstrument->get_adsr()->set_attack( 256.0 + fVal * fVal * 100000 );
+                        m_pInstrument->get_adsr()->set_release( 256.0 + fVal * fVal * 100000 );
 		}
 		else if ( ref == m_pLayerGainRotary ) {
 			fVal = fVal * 5.0;
