@@ -472,10 +472,10 @@ inline void Note::compute_lr_values( float* val_l, float* val_r ) {
     */
     float cut_off = __instrument->get_filter_cutoff();
     float resonance = __instrument->get_filter_resonance();
-    __bpfb_l  = ( resonance * __bpfb_l ) + cut_off * ( *val_l - __lpfb_l );
-    __lpfb_l += ( cut_off   * __bpfb_l );
-    __bpfb_r  = ( resonance * __bpfb_r ) + cut_off * ( *val_r - __lpfb_r );
-    __lpfb_r += ( cut_off   * __bpfb_r );
+    __bpfb_l  =  resonance * __bpfb_l  + cut_off * ( *val_l - __lpfb_l );
+    __lpfb_l +=  cut_off   * __bpfb_l;
+    __bpfb_r  =  resonance * __bpfb_r  + cut_off * ( *val_r - __lpfb_r );
+    __lpfb_r +=  cut_off   * __bpfb_r;
     *val_l = __lpfb_l;
     *val_r = __lpfb_r;
 }

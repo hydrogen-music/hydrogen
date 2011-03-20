@@ -147,7 +147,7 @@ void Sampler::note_on( Note *note )
 	//infoLog( "[noteOn]" );
 	assert( note );
 
-	note->get_adsr()->attack();
+        note->get_adsr()->attack();
 	Instrument *pInstr = note->get_instrument();
 
 	// mute group
@@ -439,15 +439,14 @@ int Sampler::__render_note_no_resample(
 			}
 		}
 
-		fADSRValue = pNote->get_adsr()->get_value( 1 );
+                fADSRValue = pNote->get_adsr()->get_value( 1 );
+                fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
+                fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
 
-		// Low pass resonant filter
+                // Low pass resonant filter
 		if ( pNote->get_instrument()->is_filter_active() ) {
-            pNote->compute_lr_values( &fVal_L, &fVal_R );
-		} else {
-		    fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
-		    fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
-        }
+                     pNote->compute_lr_values( &fVal_L, &fVal_R );
+                }
 
 #ifdef H2CORE_HAVE_JACK
 	if( track_out_L ) { 
@@ -564,7 +563,7 @@ int Sampler::__render_note_resample(
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
 
-	float fADSRValue = 1.0;
+        float fADSRValue = 1.0;
 	float fVal_L;
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
@@ -639,14 +638,14 @@ int Sampler::__render_note_resample(
                 }
 
 		// ADSR envelope
-		fADSRValue = pNote->get_adsr()->get_value( fStep );
+                fADSRValue = pNote->get_adsr()->get_value( fStep );
+                fVal_L = fVal_L * fADSRValue;
+                fVal_R = fVal_R * fADSRValue;
 		// Low pass resonant filter
 		if ( pNote->get_instrument()->is_filter_active() ) {
-            pNote->compute_lr_values( &fVal_L, &fVal_R );
-		} else {
-		    fVal_L = fVal_L * fADSRValue;
-		    fVal_R = fVal_R * fADSRValue;
-        }
+                     pNote->compute_lr_values( &fVal_L, &fVal_R );
+                }
+
 
 
 #ifdef H2CORE_HAVE_JACK
