@@ -1097,8 +1097,9 @@ int SongWriter::writeSong( Song *song, const QString& filename )
             Sample::Rubberband ro = pSample->get_rubberband();
 			QString sMode = pSample->get_loop_mode_string();
 
+
 			QDomNode layerNode = doc.createElement( "layer" );
-			LocalFileMng::writeXmlString( layerNode, "filename", pSample->get_filename() );
+                        LocalFileMng::writeXmlString( layerNode, "filename", pSample->get_filepath() );
 			LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
 			LocalFileMng::writeXmlString( layerNode, "smode", pSample->get_loop_mode_string() );
 			LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( lo.start_frame ) );
