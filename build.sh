@@ -19,17 +19,16 @@ CMAKE_OPTIONS="
 "
 MAKE_OPTS="-j 2"
 H2FLAGS="-V0xf"
+BUILD_DIR=./build
 
 [ -f cmake_opts ] && source cmake_opts
 
-find . -name '*~' -exec rm '{}' \;
-
 function cmake_init() {
     echo -e " * cmake init\n"
-    if [ ! -d build ]; then
-        mkdir build || exit 1
+    if [ ! -d $BUILD_DIR ]; then
+        mkdir $BUILD_DIR || exit 1
     fi
-    cd build || exit 1
+    cd $BUILD_DIR || exit 1
     if [ ! -e CMakeCache.txt ]; then
         cmake ${CMAKE_OPTIONS} .. || exit 1
     fi
@@ -37,16 +36,16 @@ function cmake_init() {
 }
 
 function cmake_clean() {
-    echo -e " * clean cmake files\n" && rm build/CMakeCache.txt 2>/dev/null
+    echo -e " * clean cmake files\n" && rm $BUILD_DIR/CMakeCache.txt 2>/dev/null
 }
 
 function cmake_rm() {
-    echo -e " * rm cmake files\n" && rm -fr build 2>/dev/null
+    echo -e " * rm cmake files\n" && rm -fr $BUILD_DIR 2>/dev/null
 }
 
 function cmake_make() {
     cmake_init
-    echo -e " * cmake make\n" && cd build || exit 1
+    echo -e " * cmake make\n" && cd $BUILD_DIR || exit 1
     if [ $VERBOSE -eq 1 ]; then
         VERBOSE=1 make $MAKE_OPTS || exit 1
     else
@@ -58,32 +57,32 @@ function cmake_make() {
 
 function cmake_graph() {
     cmake_init
-    echo -e " * cmake graphviz\n" && cd build && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot && cd .. || exit 1
+    echo -e " * cmake graphviz\n" && cd $BUILD_DIR && cmake --graphviz=cmake.dot .. && dot -Tpng -o cmake_dep.png cmake.dot && cd .. || exit 1
 }
 
 function cmake_doc() {
     cmake_init
-    echo -e " * cmake doc\n" && cd build && make doc && cd .. || exit 1
+    echo -e " * cmake doc\n" && cd $BUILD_DIR && make doc && cd .. || exit 1
 }
 
 function cmake_help() {
     cmake_init
-    echo -e " * cmake help\n" && cd build && cmake .. -L && cd .. || exit 1
+    echo -e " * cmake help\n" && cd $BUILD_DIR && cmake .. -L && cd .. || exit 1
 }
 
 function cmake_exec() {
     cmake_init
-    echo -e " * execute hydrogen\n" && cd build && ./src/gui/hydrogen $H2FLAGS && cd .. || exit 1
+    echo -e " * execute hydrogen\n" && cd $BUILD_DIR && ./src/gui/hydrogen $H2FLAGS && cd .. || exit 1
 }
 
 function cmake_tests() {
     cmake_init
-    echo -e " * execute tests\n" && ./build/src/tests/tests&& cd .. || exit 1
+    echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests&& cd .. || exit 1
 }
 
 function cmake_pkg() {
     cmake_init
-    echo -e " * execute hydrogen\n" && cd build && make package_source && cd .. || exit 1
+    echo -e " * execute hydrogen\n" && cd $BUILD_DIR && make package_source && cd .. || exit 1
 }
 
 if [ $# -eq 0 ]; then
@@ -98,7 +97,7 @@ if [ $# -eq 0 ]; then
     echo "   x|exec   => execute hydrogen"
     echo "   t[ests]  => execute tests"
     echo "   p[kg]    => build source package"
-    echo "ex: ./tool/cmake r m pkg x"
+    echo "ex: $0 r m pkg x"
     exit 1
 fi
 
