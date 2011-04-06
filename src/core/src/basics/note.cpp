@@ -46,7 +46,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __pitch( pitch ),
       __key( C ),
       __octave( P8 ),
-      __adsr( new ADSR() ),
+      __adsr( __instrument->get_adsr() ),
       __lead_lag( 0.0 ),
       __cut_off( 1.0 ),
       __resonance( 0.0 ),
@@ -131,7 +131,7 @@ void Note::set_instrument( Instrument* instrument ) {
     if ( instrument == 0 ) return;
     __instrument = instrument;
     assert( __instrument->get_adsr() );
-    __adsr = new ADSR( *( __instrument->get_adsr() ) );
+    __adsr = __instrument->get_adsr();
 }
 
 QString Note::key_to_string() {
