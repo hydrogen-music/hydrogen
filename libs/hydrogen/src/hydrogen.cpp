@@ -170,7 +170,7 @@ float m_fFXPeak_R[MAX_FX];
 
 
 int m_nPatternStartTick = -1;
-int m_nPatternTickPosition = 0;
+unsigned int m_nPatternTickPosition = 0;
 int m_nLookaheadFrames = 0;
 
 // used in findPatternInTick
@@ -2778,7 +2778,7 @@ long Hydrogen::getTickForPosition( int pos )
 			_WARNINGLOG( QString( "patternPos > nPatternGroups. pos:"
 					      " %1, nPatternGroups: %2")
 				     .arg( pos )
-				     .arg(  nPatternGroups ) );
+                                     .arg(  nPatternGroups ) );
 			return -1;
 		}
 	}
@@ -2788,7 +2788,7 @@ long Hydrogen::getTickForPosition( int pos )
 	int nPatternSize;
 	Pattern *pPattern = NULL;
 	for ( int i = 0; i < pos; ++i ) {
-		PatternList *pColumn = ( *pColumns )[ i ];
+                PatternList *pColumn = ( *pColumns )[ i ];
 		// prendo solo il primo. I pattern nel gruppo devono avere la
 		// stessa lunghezza
 		pPattern = pColumn->get( 0 );
@@ -2812,7 +2812,7 @@ void Hydrogen::setPatternPos( int pos )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	long totalTick = getTickForPosition( pos );
 	if ( totalTick < 0 ) {
-		AudioEngine::get_instance()->unlock();
+                AudioEngine::get_instance()->unlock();
 		return;
 	}
 
@@ -2825,11 +2825,11 @@ void Hydrogen::setPatternPos( int pos )
 		m_nSongPos = pos;
 		m_nPatternTickPosition = 0;
 	}
-	m_pAudioDriver->locate(
-		( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize )
-		);
+        m_pAudioDriver->locate(
+                ( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize )
+                );
 
-	AudioEngine::get_instance()->unlock();
+        AudioEngine::get_instance()->unlock();
 }
 
 
@@ -3291,8 +3291,8 @@ void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 
 void Hydrogen::triggerRelocateDuringPlay()
 {
-	if ( m_pSong->get_mode() == Song::PATTERN_MODE )
-		m_nPatternStartTick = -1; // This forces the barline position 
+        if ( m_pSong->get_mode() == Song::PATTERN_MODE )
+                m_nPatternStartTick = -1; // This forces the barline position
 }
 
 

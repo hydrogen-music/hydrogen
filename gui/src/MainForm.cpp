@@ -309,7 +309,7 @@ void MainForm::createMenuBar()
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
 		m_pDebugMenu->addAction( trUtf8( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		//~ DEBUG menu
-	}
+        }
 
 	// INFO menu
 	QMenu *m_pInfoMenu = m_pMenubar->addMenu( trUtf8( "&Info" ) );
@@ -1027,7 +1027,7 @@ void MainForm::onPlayStopAccelEvent()
 void MainForm::onRestartAccelEvent()
 {
 	Hydrogen* pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( 0 );
+        pEngine->setPatternPos( 0 );
 }
 
 

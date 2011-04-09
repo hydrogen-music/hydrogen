@@ -105,7 +105,7 @@ public:
 	PatternList * getNextPatterns();
 
 	int getPatternPos();
-	void setPatternPos( int pos );
+        void setPatternPos( int pos );
 	
 	void triggerRelocateDuringPlay();
 
