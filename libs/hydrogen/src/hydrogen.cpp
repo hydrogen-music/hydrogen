@@ -170,7 +170,7 @@ float m_fFXPeak_R[MAX_FX];
 
 
 int m_nPatternStartTick = -1;
-int m_nPatternTickPosition = 0;
+unsigned int m_nPatternTickPosition = 0;
 int m_nLookaheadFrames = 0;
 
 // used in findPatternInTick
