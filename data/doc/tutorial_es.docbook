@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN"
+               "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
+<book id="Hydrogen-tutorial" lang="en">
+
+<bookinfo>
+        <title
+>Tutorial de Hydrogen</title>
+        <authorgroup>
+                <author
+><firstname
+>Antonio</firstname
+> <surname
+>Piraino</surname
+> </author>
+		</authorgroup>
+
+        <date
+>24/feb/2004</date>
+
+        <abstract>
+       		<para
+>Bueno, acabas de descargarte la última versión de Hydrogen y la has instalado correctamente.  Es momento de ponerla a prueba creando tu canción favorita para aprenderla mejor o creando un loop de alguna sección especialmente difícil para poder repetirla una y otra vez y así conseguir dominarla.  Por supuesto, Hydrogen también puede usarse como un metrónomo avanzado que puede ayudarte en tu práctica diaria (velocidad, precisión y arreglos).  
+
+Esta breve introducción te serviŕa de guía mostrando como crear una canción completa, para lo cual utilizaremos el tema de Toto "Georgy Porgy".  Esta canción en concreto posee una estructura sencilla y es idónea para empezar, aunque eso no significa que sea fácil, ya que Jeff Porcaro (batería de Toto) añade toques de fantasía que enriquecen el groove de la canción.  Lo más importante para que Hydrogen ofrezca una simulación fiel a la interpretación original es que el programador utilice su sensibilidad y experiencia para añadir las dinámicas necesarias.</para>
+        </abstract>
+
+</bookinfo>
+
+<chapter id="needed">
+        <title
+>Adelante</title>
+		<para
+>Antes de comenzar, asegúrate de que tienes lo siguiente:</para>
+		
+		<itemizedlist>
+		<listitem
+><para
+>La canción que vamos a utilizar, ya sea en un CD de audio o en formato más flexibles como OGG o MP3. </para
+></listitem>
+		<listitem
+><para
+>También sería interesante (aunque opcional) tener un borrador de la canción en papel, incluyendo información sobre el número de compases y las diferentes secciones de la canción que tendremos que programar en Hydrogen.</para
+></listitem>
+		</itemizedlist>
+		
+		<para
+>La canción con la que vamos a trabajar tiene la siguiente estructura:</para>
+		
+		<itemizedlist>
+		<listitem
+><para
+><emphasis role="bold"
+>Intro:</emphasis
+> 4 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estrofa:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Puente al estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estrofa:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Puente al estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Riff:</emphasis
+> 4 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estribillo (con guitarra):</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estrofa (con voz):</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Puente al estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Estribillo:</emphasis
+> 8 compases</para
+></listitem>
+		<listitem
+><para
+><emphasis role="bold"
+>Riff final:</emphasis
+> 4 compases</para
+></listitem>
+		</itemizedlist>
+		
+		<para
+>Tras analizar esta estructura, vemos que algunas secciones se repiten, así que usaremos los símbolos correspondientes en el editor de canciones de Hydrogen.</para>
+		
+		<itemizedlist>
+		<listitem
+><para
+>Estrofa -> A</para
+></listitem>
+		<listitem
+><para
+>Puente al estribillo -> B</para
+></listitem>
+		<listitem
+><para
+>Estribillo -> C</para
+></listitem>
+		</itemizedlist>
+		<para
+>Y para ahorrarnos texto innecesario, usaremos dos acrónimos comunes:</para>
+		<itemizedlist>
+		<listitem
+><para
+>BIR: botón izquierdo del ratón.</para
+></listitem>
+		<listitem
+><para
+>BDR: botón derecho del ratón.</para
+></listitem>
+		</itemizedlist>
+		
+		<para
+>Bueno, llega el momento de trabajar: apaga tu teléfono y arranca Hydrogen!</para>
+
+	<sect1 id="intro">
+		<title
+>Intro</title>
+		<para
+>El patrón principal (imagen 1 y 2) dura cuatro compases (divididos a su vez en dos compases diferentes que se repiten,  [2a*2]+[2b*2]) que duran toda la canción, incluído el riff.  Quitando el intro y el riff, este patrón base se repite dos veces para rellenar el espacio de ocho compases de cada parte de la canción (A, B y C).  Antes de comenzar, ajusta la velocidad para que sea 98bpm (TRUCO:  Puedes averiguar la velocidad de la canción mientras la escuchas simplemente pulsando la tecla "\" siguiendo el ritmo de la misma) y la <quote
+>Grid Resolution</quote
+> a semicorcheas.  Para crear un patrón nuevo, utiliza el instrumento <quote
+>Closed HH</quote
+>, haz click en el BDR y selecciona la opción <quote
+>Fill Notes</quote
+>: Los dos primeros compases serán rellenados.  A continuación inserta manualmente los golpes Snare Jazz (caja) y Kick (bombo) siguiendo las indicaciones de la imagen 2.  Con eso ya hemos completado nuestro patrón base!  Presta atención a los diferentes golpes de charles y descubrirás que no todos tienen la misma intensidad dinámica.  Los golpes que comienzan el compás tienen una intensidad de [0.78], mientras que los demás sólo [0.50] (puedes comprobar la intensidad en la barra inferior de Hydrogen), para dar un ritmo más "humano" a la canción.</para>
+		
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/PatternBase1.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 1</emphasis
+> Patrón base, primer compás. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/PatternBase2.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 2</emphasis
+> Patrón base, segundo compás. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+	
+			<para
+>Antes de empezar a introducir las estrofas tenemos cuatro compases de intro, todos idénticos entre si, excepto el último que tiene Charles abierto al final.  Por tanto, tenemos que hacer lo siguiente:</para>
+		
+		<itemizedlist>
+		<listitem
+><para
+>Renombrar el primer patrón en el editor de canción haciendo click en el BDR sobre el nombre <quote
+>Empty Pattern</quote
+> y cambiarlo a <quote
+>intro_a</quote
+>, por ejemplo.</para
+></listitem>
+		<listitem
+><para
+>Introducir dos 'X' tras la primera (que representan el segundo y tercer compás).</para
+></listitem>
+		<listitem
+><para
+>Crear el patrón base con el editor de patrones (Img. 1)</para
+></listitem>
+		</itemizedlist>
+
+		
+		<para
+>Para el cuarto compás usaremos el charles abierto (Img. 3)</para>
+	
+		<itemizedlist>
+		<listitem
+><para
+>Desde el editor de canción, haz click en BDR sobrel el patrón que acabamos de crear, selecciona la opción <quote
+>copiar</quote
+>, después elige un nombre (por ejemplo, <quote
+>intro_b</quote
+>) y de forma automática aparecerá un nuevo patrón debajo del ya existente.</para
+></listitem>
+		<listitem
+><para
+>Selecciona el patrón que acabas de crear (IMPORTANTE!)</para
+></listitem>
+		<listitem
+><para
+>Borra los ultimos dos compases de <quote
+>Closed HH</quote
+> y muévelos a <quote
+>Open HH</quote
+>.</para
+></listitem>
+		<listitem
+><para
+>Selecciona '32' desde <quote
+>Grid Resolution</quote
+> y añade otros dos golpes junto a los anteriores.</para
+></listitem>
+		<listitem
+><para
+>Ajusta la dinámica de estos 4 golpes para que el primero sea [0.78] mientras que los otros tres se mantienen en [0.20] para simular una apertura mayor.</para
+></listitem>
+		</itemizedlist>
+		
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Intro4th.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 3</emphasis
+> Detalle del Intro, cuarto compás. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+	</sect1>
+
+	<sect1 id="verse">
+		<title
+>Primera estrofa</title>
+		<para
+>Una vez completado el patrón base, ya debería empezar a entenderse la dinámica que vamos a seguir para las siguientes secciones.  Para crear la primera estrofa, basta con copiar el patrón <quote
+>intro_a</quote
+> y renombrarlo (por ejemplo a <quote
+>A-B-C_1</quote
+>, ya que es el primer compás de la estrofa que también servirá para el puente B y el estribillo C)  dentro del editor de canción.  <emphasis role="bold"
+>Atención</emphasis
+>, por qué no simplemente añadir dos 'X' más al siguiente patrón?  Porque en el primer compás hay un golpe de <quote
+>Crash</quote
+> que finaliza el intro anterior, por lo que los dos compases no son enteramente iguales.  Debes copiar el patrón <quote
+>A-B-C_1</quote
+> y renombrarlo a <quote
+>A-B-C_2</quote
+>, eliminando el golpe de <quote
+>Crash</quote
+> que comentábamos antes.</para>
+		
+		<para
+>Lo mismo para los dos siguientes compases:  simplemente copia el patrón de Img. 2 en el editor de canción y renómbralo en concordancia con los anteriores y añade dos 'X' (porque son idénticos).  Eso debería hacerte alcanzar el número '8', como se muestra en Img. 4.</para>
+		<para
+>Los cuatro compases siguientes de la estrofa son más o menos lo mismo que ya hemos escrito, así que no tiene sentido escribirlos desde cero.  Los compases 5, 6 y 7 son prácticamente idénticos a los anteriores, así que basta con añadir dos cruces al patrón <quote
+>A-B-C_2</quote
+> y una al patrón  <quote
+>A-B-C_3+4</quote
+>, para así mantener una lógica que nos permita seguir con facilidad la progresión de la canción en el editor de canción.  En cuanto al octavo compás, se cierra con un cambio de batería que pone fin a la estrofa.  Tenemos que copiar y pegar en una nueva línea un patrón que ya haya sido escrito (ej. <quote
+>A-B-C_3+4</quote
+>), renombrarlo a <quote
+>A-B-C_8</quote
+> y modificarlo como se muestra en Img. 4.  Una vez más, los tres golpes de <quote
+>Snare Jazz</quote
+> en el cuarto compás tienen ajustes de dinámica de [0.10], [0.20] and [0.78]; No se muestra en la imagen, pero los dos golpes finales del <quote
+>Tom Mid</quote
+> tienen dinámicas de [0.50], ya que el cambio no requiere más intensidad.</para>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Verse8th.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 4</emphasis
+> Octavo compás de la primera estrofa. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+	<para
+>El resultado en el editor de canción debería parecerse a lo que muestra Img. 5.</para>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/VerseAll.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 5</emphasis
+> Intro y primera estrofa en el editor de canción. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+	<para
+><emphasis role="bold"
+>PRECAUCIÓN!</emphasis
+> Si has llegado a este punto sin guardar tu trabajo, hazlo AHORA.  Con un simple [CTRL+S] seguido del nombre de la canción ya lo habrás hecho.  En caso de querer añadir más información, haz click en BIR sobre el botón 'S' del editor de canción y modifica los campos a tu gusto.  Esta información se mostrará cuando se abra este fichero.</para>
+	
+	</sect1>
+	
+	<sect1 id="verse2">
+		<title
+>Puente y continuación</title>
+		<para
+>Ahora que has completado la primera estrofa, ya deberías tener una idea clara del método a seguir: El primer puente está compuesto por ocho compases (4+4) con un sutil cambio al final del cuarto, que nos obligará a modificarlo, mientras que el resto podrán ser añadidos fácilmente con una ('X').</para>
+		
+		<para
+>Usemos el último patrón como muestra (<quote
+>A-B-C_8</quote
+>).  Vamos a copiarlo y renombrarlo a <quote
+>Bridge1_4</quote
+> (es decir, cuarto compás del primer puente), para después modificarlo como se muestra en Img. 6.  Hemos terminado el puente rápidamente!  El editor de canción debería parecerse ahora a Img. 7.  Podríamos preguntarnos por qué el quinto compás del puente (compás décimo séptimo de la canción) no está asignado al patŕon <quote
+>A-B-C_1</quote
+>; La respuesta es porque el patrón también tiene un <quote
+>Crash</quote
+> que no está presente en <quote
+>A-B-C_2+5+6</quote
+>.</para>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Bridge1_4th.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 6</emphasis
+> Cuarto compás del primer puente. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/VerseBridge.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 7</emphasis
+> El editor de canción mostrando el primer puente. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+	<para
+>Ahora ya podemos construir el resto de las partes de la canción con facilidad:  Tras este puente hay otra estrofa, después otro puente más seguido de un estribillo, que son casi lo mismo que ya hemos hecho, así que sólo tendremos que crear algún patrón nuevo más (con esta guía encontrarás el fichero con la canción completa).  No es obligatorio usar patrones ya creados, pero es un método sencillo para hacer la canción más fácil de seguir y además crearemos ficheros más pequeños que ocuparán menos espacio en disco.</para>
+		
+	</sect1>
+
+	<sect1 id="riffraff">
+		<title
+>El Riff</title>
+		<para
+>Alrededor de la mitad de la canción hay dos riffs.  Cada uno de estos riffs dura dos compases, pero el patrón es idéntico.  El resto de instrumentos tocan algo que veremos en el último riff de esta canción, momento en el que la batería también toca el patrón del riff.</para>
+		
+		<para
+>En este riff, la batería toca el mismo patrón de un compás que ya conocemos (mostrado en Img. 1).  Al llegar al segundo compás, sólo dos golpes (Img. 8), después el patrón de nuevo y para terminar, dos golpes con un pequeño cambio al final (Img. 9).  Como ya hemos comentado, el Charles abierto tiene diferentes intensidades dinámicas: [0.78] y [0.20].</para>
+
+<screenshot
+>		
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Riff1b.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 8</emphasis
+> Segundo compás del Riff. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Riff1c.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 9</emphasis
+> Cuarto compás del riff. </para>
+		</caption>
+	</mediaobject>
+</screenshot
+>	
+	</sect1>
+	
+	<sect1 id="resto">
+		<title
+>La segunda mitad de la canción</title>
+		<para
+>Tras el riff ya hemos completado la mitad del trabajo.  Tan sólo resta escribir dos estrofas, un puente, un estribillo que se repite 3 veces y el mismo riff para concluir.</para>
+		
+		<para
+>La segunda parte de la canción es ligeramente diferente a la anterior porque encontramos momentos en los que el charles está abierto durante las estrofas.  Además, cada 4 compases, casi siempre hay un pequeño cambio.  En este contexto, es más sencillo crear un grupo de patrones (ej. <quote
+>A-B-C-*</quote
+>) en el editor de canción copiándolo y añadiendo un sufijo como '_hh' para dar a entender que ese patrón tiene <quote
+>Open HH</quote
+>.  Como comentamos en la introdución de este tutorial, Jeff Porcaro emplea su enorme talento en esta canción, lo que hace que esa interpretación sea muy diferente a una transcripción en papel (o en Hydrogen): Por ello, intentaremos que las siguientes partes de la canción sean fieles a la grabación original, pero como hablamos de una transcripción, hay un factor subjetivo implícito, que depende del oído musical del autor de dicha transcripción.  Lo importante en este tutorial no es conseguir una transcripción perfecta, si no demostrar como funciona la aplicación.</para>
+		
+		<para
+>En Img. 10 vemos la sección en el editor de canción en la que aparecen las dos estrofas y el puente que vienen tras el primer puente.  Como puede apreciarse, los primeros compases (48-50 de acuerdo con la numeración del editor) ya están escritos mientras que los otros (51-71) son nuevos.  De hecho, hay algunos patrones nuevos etiquetados como <quote
+>A-B-C-3a_hh</quote
+> (Img. 11 muestra este ejemplo) y <quote
+>A-B-C-4a_hh</quote
+>, ya que ambos tienen algunos cambios que no aparecen en ningún patrón que se haya escrito hasta el momento.</para>
+		
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/VerseBridge_hh.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 10</emphasis
+> Tercer y cuarto compás en el editor de canción. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Bridge3_3a_hh.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 11</emphasis
+> Séptimo compás del tercer puente. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+	<para
+>Tras el tercer puente repetimos el estribillo: : la primera vez usaremos el <quote
+>Stick</quote
+> en lugar de <quote
+>Snare Jazz</quote
+> y no usamos <quote
+>Kick</quote
+> (aunque pudiera parecer lo contrario ya que el bajo sí toca en esta parte, así que hemos puesto esos golpes de bombo con poca intensidad [0.50]).  Sin embargo, la segunda y tercera vez que el estribillo se repite, hay algunos compases diferentes, como se muestra en <quote
+>C3_*</quote
+>.  En Img. 12, el patrón está etiquetado como <quote
+>C3_6+7 &amp; C4_3</quote
+> para así referirse al sexto y séptimo compás del tercer estribillo Y al tercer compás del cuarto estribillo  (si este método te resulta confuso, no dudes en seguir el tuyo propio).</para>
+
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/C3_6+7.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 12</emphasis
+> Patrón <quote
+>C3_6+7 &amp; C4_3</quote
+>. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+	
+	</sect1>
+	
+	<sect1 id="riffraff2">
+		<title
+>El riff final</title
+>	
+		<para
+>La canción termina repitiendo un riff un tanto diferente del que ya conocíamos:  Los dos primeros compases son idénticos (patrón + 2 compases), mientras que en el tercer compás la batería toca con el resto de instrumentos para concluir como siempre.</para>
+		
+<screenshot>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="img_tutorial/Riff1d.png" format="PNG"/>
+		</imageobject>
+		<caption>
+			<para
+><emphasis role="bold"
+>Img. 13</emphasis
+> El riff final. </para>
+		</caption>
+	</mediaobject>
+</screenshot>
+
+	<para
+>...Y ya llegamos al final.  El objetivo de este pequeño tutorial es ofrecer un vistazo general a las funciones más comunes en Hydrogen.  Sin embargo, esta aplicación puede usarse para otros fines, como un metrónomo avanzado o para practicar partes complicadas a base de repetirlas una y otra vez.  Dicho esto, analizar una canción, como hemos hecho en este caso, ayuda en la comprensión y dominio de las herramientas a nuestra disposición.</para>
+
+<para
+>Para cualquier tipo de sugerencia, corrección o comentario, puedes usar la lista de correo de Hydrogen (hydrogen.sf.net)</para>
+	
+	</sect1>
+</chapter>
+
+</book>
