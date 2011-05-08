@@ -74,8 +74,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pslframes = 0;
 	m_pPositionsRulerPath = NULL;
 	m_pPlayButton = false;
-	m_pratio = 1.0;
-	__rubberband.pitch = 0.0;
+        m_pratio = 1.0;
 	__rubberband.c_settings = 4;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
@@ -113,6 +112,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 		__rubberband.use = false;
 		m_pSampleEditorStatus = true;
 	}
+        __rubberband.pitch = 0.0;
 
 }
 
@@ -326,7 +326,7 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	getAllLocalFrameInfos();	
 	createNewLayer();
 	m_pSampleEditorStatus = true;
-	QApplication::restoreOverrideCursor();	
+        QApplication::restoreOverrideCursor();
 }
 
 
