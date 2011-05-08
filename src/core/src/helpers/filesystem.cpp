@@ -1,5 +1,6 @@
 
 #include <hydrogen/config.h>
+#include <hydrogen/data_path.h>
 #include <hydrogen/helpers/filesystem.h>
 
 #include <QtCore/QDir>
@@ -46,6 +47,7 @@ bool Filesystem::bootstrap( Logger* logger ) {
         return false;
     }
 
+
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
     //Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
@@ -58,7 +60,12 @@ bool Filesystem::bootstrap( Logger* logger ) {
     __sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
     __usr_data_path = QCoreApplication::applicationDirPath().append( "/hydrogen/data" ) ;
 #else
-    __sys_data_path = SYS_DATA_PATH;
+    if(QFile::exists(QString(SYS_DATA_PATH))){
+       __sys_data_path = SYS_DATA_PATH;
+    }else
+    {
+        __sys_data_path = DataPath::get_data_path().append("/drumkits");
+    }
     __usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
 #endif
     return check_sys_paths() && check_usr_paths();
