@@ -92,6 +92,11 @@ class Filesystem : public H2Core::Object {
          * returns true if the path contains a usable drumkit
          * \param dk_path the path to the drumkit
          */
+        static QString drumkit_location( const QString& dk_name );
+        /**
+         * returns true if the path contains a usable drumkit
+         * \param dk_location the root drumkit location
+         */
         static bool drumkit_valid( const QString& dk_path );
         /**
          * returns the path to the xml file within a suposed drumkit path
