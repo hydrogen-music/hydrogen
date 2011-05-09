@@ -251,21 +251,20 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMixer = new Mixer(0);
         WindowProperties mixerProp = pPref->getMixerProperties();
 
-        if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ){
-            m_pMixer->resize( mixerProp.width, mixerProp.height );
-            m_pMixer->move( mixerProp.x, mixerProp.y );
+        m_pMixer->resize( mixerProp.width, mixerProp.height );
+        m_pMixer->move( mixerProp.x, mixerProp.y );
+
+        if( uiLayout == Preferences::UI_LAYOUT_TABBED){
+                pTab->addTab(m_pMixer,"Mixer");
         }
 
-
 	m_pMixer->updateMixer();
-        pTab->addTab(m_pMixer,"Mixer");
-
 
         if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
 		m_pMixer->show();
-	}
-	else {
-		m_pMixer->hide();
+        }
+        else {
+                m_pMixer->hide();
         }
 
 
