@@ -358,7 +358,6 @@ void LadspaFXProperties::selectFXBtnClicked()
 					break;
 				}
 			}
-			//AudioEngine::get_instance()->lock( RIGHT_HERE );
 			Song *pSong = (Hydrogen::get_instance() )->getSong();
 			pSong->__is_modified = true;
 
