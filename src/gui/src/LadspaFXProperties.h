@@ -48,6 +48,7 @@ class LadspaFXProperties : public QWidget, public H2Core::Object {
 	public slots:
 		void faderChanged( Fader* ref );
 		void selectFXBtnClicked();
+		void removeFXBtnClicked();
 		void activateBtnClicked();
 		void updateOutputControls();
 
@@ -68,6 +69,7 @@ class LadspaFXProperties : public QWidget, public H2Core::Object {
 
 		QPushButton *m_pSelectFXBtn;
 		QPushButton *m_pActivateBtn;
+		QPushButton *m_pRemoveFXBtn; 
 
 		QTimer* m_pTimer;
 };

@@ -92,9 +92,14 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	m_pNameLbl->setFont( boldFont );
 
 	m_pSelectFXBtn = new QPushButton( trUtf8("Select FX"), this);
-	m_pSelectFXBtn->move( 280, 10 );
+	m_pSelectFXBtn->move( 170, 10 );
 	m_pSelectFXBtn->resize( 100, 24 );
 	connect( m_pSelectFXBtn, SIGNAL(clicked()), this, SLOT(selectFXBtnClicked()) );
+
+	m_pRemoveFXBtn = new QPushButton( trUtf8("Remove FX"), this); 
+	m_pRemoveFXBtn->move( 280, 10 ); 
+	m_pRemoveFXBtn->resize( 100, 24 ); 
+	connect( m_pRemoveFXBtn, SIGNAL(clicked()), this, SLOT(removeFXBtnClicked()) );
 
 
 	m_pActivateBtn = new QPushButton( trUtf8("Activate"), this);
@@ -374,6 +379,17 @@ void LadspaFXProperties::selectFXBtnClicked()
 #endif
 }
 
+
+void LadspaFXProperties::removeFXBtnClicked()
+{
+#ifdef H2CORE_HAVE_LADSPA
+	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	pSong->__is_modified = true;
+	Effects::get_instance()->setLadspaFX( NULL, m_nLadspaFX );
+	Hydrogen::get_instance()->restartLadspaFX();
+	updateControls();	
+#endif
+}
 
 
 void LadspaFXProperties::updateOutputControls()
