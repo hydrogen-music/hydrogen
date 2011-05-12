@@ -1,8 +1,11 @@
-2010-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+2011-03-15 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 
-	* Release 0.9.5
-	* ....
-
+        * Release 0.9.5
+	* load playlists at startup
+        * midi-learn works now with shift-click on some gui elements
+	* multi-track export
+	* LADI support
+	* maximum number of bars is now configurable
 	* added czech translation
 	* fixed serveral export song failures
 	* added ogg, flac, aiff export support 
@@ -22,9 +25,10 @@
 	* and at least several small changes
 	* Xml handling is now done by QtXml instead of TinyXML
 	* improved support for non-ascii filenames / strings
-	* remove direct dependencies to libflac
+        * remove direct dependencies to libflac
 
 2009-09-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+  
 	* Release 0.9.4
 	* QT4 port
 	* Autosave
