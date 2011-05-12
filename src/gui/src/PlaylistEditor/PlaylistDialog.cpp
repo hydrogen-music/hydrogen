@@ -368,7 +368,7 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 
 	QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 	m_pPlaylistItem->setText ( 0, file );
-	m_pPlaylistItem->setText ( 1, "no Script" );
+	m_pPlaylistItem->setText ( 1, trUtf8("no Script") );
 	m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
 
 	updatePlayListVector();
@@ -610,12 +610,13 @@ void PlaylistDialog::removeScript()
 	}else{
 		QString selected;
 		selected = m_pPlaylistItem->text ( 1 );
-		if( selected == "no Script"){
+		if( !QFile( selected ).exists()  ){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script in use!" ));
 			return;
 		}else
 		{
-			m_pPlaylistItem->setText ( 1, "no Script" );
+			m_pPlaylistItem->setText ( 1, trUtf8("no Script") );
+
 			m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
 			updatePlayListVector();
 		}
@@ -657,7 +658,7 @@ void PlaylistDialog::editScript()
 
 	QString filename = pPref->getDefaultEditor() + " " + selected + "&";
 
-	if( selected == "no Script"){
+	if( !QFile( selected ).exists()  ){
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script selected!" ));
 		return;
 	}
@@ -746,7 +747,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, in
 		QString selected;
 		selected = item->text ( 1 );
 
-		if( selected == "no Script"){
+		if( !QFile( selected ).exists() ){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Script!" ));
 			item->setCheckState( 2, Qt::Unchecked );
 			return;

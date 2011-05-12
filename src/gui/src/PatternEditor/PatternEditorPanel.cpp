@@ -245,7 +245,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/skin_btn_on.png",
 			"/skin_btn_off.png",
 			"/skin_btn_over.png",
-			QSize(50, 17),
+			QSize(60, 17),
 			true
 	);
 	__show_drum_btn->setText( trUtf8("Piano") );

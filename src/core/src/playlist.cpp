@@ -203,7 +203,7 @@ void Playlist::execScript( int index)
 	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
 	script = Hydrogen::get_instance()->m_PlayList[ index ].m_hScriptEnabled;
 
-	if( file == "no Script" || script == "Script not used")
+	if( !QFile( file ).exists()  || script == "Script not used")
 		return;
 
 	int ret = std::system( file.toLocal8Bit() );
