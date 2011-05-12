@@ -292,9 +292,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	float cost_L = 1.0f;
 	float cost_R = 1.0f;
 	float cost_track_L = 1.0f;
-	float cost_track_R = 1.0f;
-	float fSendFXLevel_L = 1.0f;
-	float fSendFXLevel_R = 1.0f;
+        float cost_track_R = 1.0f;
 
 	if ( pInstr->is_muted() || pSong->__is_muted ) {	// is instrument muted?
 		cost_L = 0.0;
@@ -305,15 +303,12 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 			cost_track_R = 0.0;
 		}
 
-		fSendFXLevel_L = 0.0f;
-		fSendFXLevel_R = 0.0f;
 	} else {	// Precompute some values...
 		cost_L = cost_L * pNote->get_velocity();		// note velocity
 		cost_L = cost_L * pNote->get_pan_l();		// note pan
 		cost_L = cost_L * fLayerGain;				// layer gain
 		cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
-		cost_L = cost_L * pInstr->get_gain();		// instrument gain
-		fSendFXLevel_L = cost_L;
+                cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
 		cost_L = cost_L * pInstr->get_volume();		// instrument volume
                 if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -328,8 +323,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		cost_R = cost_R * pNote->get_pan_r();		// note pan
 		cost_R = cost_R * fLayerGain;				// layer gain
 		cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
-		cost_R = cost_R * pInstr->get_gain();		// instrument gain
-		fSendFXLevel_R = cost_R;
+                cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
 		cost_R = cost_R * pInstr->get_volume();		// instrument volume
                 if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -357,9 +351,9 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 
 	if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) {	// NO RESAMPLE
-		return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fSendFXLevel_L, fSendFXLevel_R, pSong );
+                return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
 	} else {	// RESAMPLE
-		return __render_note_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, fSendFXLevel_L, fSendFXLevel_R, pSong );
+                return __render_note_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
 	}
 }
 
@@ -372,8 +366,6 @@ int Sampler::__render_note_no_resample(
     float cost_R,
     float cost_track_L,
     float cost_track_R,
-    float fSendFXLevel_L,
-    float fSendFXLevel_R,
     Song* pSong
 )
 {
@@ -480,6 +472,7 @@ int Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_LADSPA
+        float masterVol =  pSong->get_volume();
 	// LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -493,14 +486,14 @@ int Sampler::__render_note_no_resample(
 
 //			float fFXCost_L = cost_L * fLevel;
 //			float fFXCost_R = cost_R * fLevel;
-			float fFXCost_L = fLevel * fSendFXLevel_L;
-			float fFXCost_R = fLevel * fSendFXLevel_R;
+                        float fFXCost_L = fLevel * masterVol;
+                        float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
 			int nSamplePos = nInitialSamplePos;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
-				pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L * cost_L;
-				pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R * cost_R;
+                                pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L;
+                                pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R;
 				++nSamplePos;
 				++nBufferPos;
 			}
@@ -524,8 +517,6 @@ int Sampler::__render_note_resample(
     float cost_track_L,
     float cost_track_R,
     float fLayerPitch,
-    float fSendFXLevel_L,
-    float fSendFXLevel_R,
     Song* pSong
 )
 {
@@ -682,6 +673,7 @@ int Sampler::__render_note_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
+        float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
@@ -693,8 +685,8 @@ int Sampler::__render_note_resample(
 
 //			float fFXCost_L = cost_L * fLevel;
 //			float fFXCost_R = cost_R * fLevel;
-			float fFXCost_L = fLevel * fSendFXLevel_L;
-			float fFXCost_R = fLevel * fSendFXLevel_R;
+                        float fFXCost_L = fLevel * masterVol;
+                        float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
 			float fSamplePos = fInitialSamplePos;
@@ -739,8 +731,8 @@ int Sampler::__render_note_resample(
                                         //fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
 				}
 
-				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L * cost_L;
-				pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R * cost_R;
+                                pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L;
+                                pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R;
 				fSamplePos += fStep;
 				++nBufferPos;
 			}
