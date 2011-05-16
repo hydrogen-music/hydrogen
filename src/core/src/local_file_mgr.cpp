@@ -176,10 +176,9 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
+                        int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", 0, true );
 
-			QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
-
-		    Instrument *instrRef = instrList->find( instrId );
+                        Instrument *instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				noteNode = noteNode.nextSiblingElement( "note" );
@@ -191,7 +190,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 				noteoff = true;
 
 			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch);
-            pNote->set_key_octave( sKey );
+                        pNote->set_key_octave( sKey );
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );
 			pPattern->note_map.insert( std::make_pair( pNote->get_position(),pNote ) );
