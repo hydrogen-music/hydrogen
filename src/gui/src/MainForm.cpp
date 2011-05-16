@@ -313,14 +313,16 @@ void MainForm::createMenuBar()
 
 	//~ Tools menu
 
+
         Logger *l = Logger::get_instance();
-        if ( l->bit_mask() == 15 ) {
-		// DEBUG menu
+        if ( l->bit_mask() >= 1 ) {
+                // DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		m_pDebugMenu->addAction( trUtf8( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
+                if(l->bit_mask() == 8) // hydrogen -V8 list object map in console
+                    m_pDebugMenu->addAction( trUtf8( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		//~ DEBUG menu
-	}
+        }
 
 	// INFO menu
 	QMenu *m_pInfoMenu = m_pMenubar->addMenu( trUtf8( "&Info" ) );
@@ -1346,7 +1348,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 void MainForm::action_debug_printObjects()
 {
 	INFOLOG( "[action_debug_printObjects]" );
-	Object::write_objects_map_to_cerr();
+        Object::write_objects_map_to_cerr();
 }
 
 

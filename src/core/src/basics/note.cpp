@@ -46,7 +46,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __pitch( pitch ),
       __key( C ),
       __octave( P8 ),
-      __adsr( __instrument->get_adsr() ),
+//      __adsr( __instrument->get_adsr() ),
       __lead_lag( 0.0 ),
       __cut_off( 1.0 ),
       __resonance( 0.0 ),
@@ -59,7 +59,9 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __pattern_idx( 0 ),
       __midi_msg( -1 ),
       __note_off( false ),
-      __just_recorded( false ) {
+      __just_recorded( false )
+{    
+      set_ADSR( __instrument );
 }
 
 Note::Note( Note* other )
@@ -73,7 +75,7 @@ Note::Note( Note* other )
       __pitch( other->get_pitch() ),
       __key( other->get_key() ),
       __octave( other->get_octave() ),
-      __adsr( other->get_adsr() ),
+      //__adsr( other->get_adsr() ),
       __lead_lag( other->get_lead_lag() ),
       __cut_off( other->get_cut_off() ),
       __resonance( other->get_resonance() ),
@@ -87,7 +89,9 @@ Note::Note( Note* other )
       __midi_msg( other->get_midi_msg() ),
       __note_off( other->get_note_off() ),
       __just_recorded( other->get_just_recorded() )
-{ }
+{
+    set_ADSR( other->get_instrument() );
+ }
 
 Note::~Note() { }
 
@@ -127,11 +131,17 @@ void Note::map_instrument( InstrumentList* instruments ) {
     }
 }
 
+
+void Note::set_ADSR(Instrument* instrument){
+    assert( instrument->get_adsr() );
+    __adsr = instrument->get_adsr();
+}
+
 void Note::set_instrument( Instrument* instrument ) {
     if ( instrument == 0 ) return;
     __instrument = instrument;
     assert( __instrument->get_adsr() );
-    __adsr = __instrument->get_adsr();
+    __adsr = instrument->get_adsr();
 }
 
 QString Note::key_to_string() {

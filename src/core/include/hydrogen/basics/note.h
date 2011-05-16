@@ -24,7 +24,7 @@
 #define H2C_NOTE_H
 
 #include <hydrogen/object.h>
-
+#include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/instrument.h>
 
 #define KEY_MIN                 0
@@ -62,6 +62,10 @@ class Note : public H2Core::Object {
         enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
         /** possible octaves */
         enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
+
+        // Fixme, adsr needs get/setter methode. but currently i found no way beside this, to create an adsr object
+        // without lost adsr objects or segfaults on intrument reload.
+        ADSR __adsr;
 
         /**
          * constructor
@@ -105,6 +109,7 @@ class Note : public H2Core::Object {
          * set the instrument
          * \param instrument the one to use
          */
+        void set_ADSR(Instrument* instrument);
         void set_instrument( Instrument* instrument );
         /** __instrument accessor */
         Instrument* get_instrument();
@@ -239,7 +244,7 @@ class Note : public H2Core::Object {
         void set_midi_info( Key key, Octave octave, int msg );
 
         /** get the ADSR of the note */
-        ADSR* get_adsr() const;
+        //ADSR* get_adsr() const;
         /** call release on adsr */
         //float release_adsr() const              { return __adsr->release(); }
         /** call get value on adsr */
@@ -276,7 +281,7 @@ class Note : public H2Core::Object {
         float __pitch;              ///< the frequency of the note
         Key __key;                  ///< the key, [0;11]==[C;B]
         Octave __octave;            ///< the octave [-3;3]
-        ADSR* __adsr;               ///< attack decay sustain release
+        //ADSR* __adsr;               ///< attack decay sustain release
         float __lead_lag;		    ///< lead or lag offset of the note
         float __cut_off;		    ///< filter cutoff [0;1]
         float __resonance;	        ///< filter resonant frequency [0;1]
@@ -449,9 +454,7 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg ) {
     __midi_msg = msg;
 }
 
-inline ADSR* Note::get_adsr() const {
-    return __adsr;
-}
+
 
 inline float Note::update_sample_position( float incr ) {
     __sample_position += incr;
