@@ -56,6 +56,8 @@ class Filesystem : public H2Core::Object {
 
         /** returns gui image path */
         static QString img_dir();
+        /** returns documentation path */
+        static QString doc_dir();
         /** returns internationalization path */
         static QString i18n_dir();
         /** returns user songs path */
@@ -159,9 +161,10 @@ class Filesystem : public H2Core::Object {
         /**
          * returns true if the path is a readable and writable regular directory, create if it not exists
          * \param path the path to the file to check
+         * \param create will try to create path if not exists and set to true
          * \param silent output not messages if set to true
          */
-        static bool path_usable( const QString& path, bool silent=false );
+        static bool path_usable( const QString& path, bool create=true, bool silent=false );
         /**
          * writes to a file
          * \param dst the destination path

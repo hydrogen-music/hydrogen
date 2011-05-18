@@ -27,7 +27,6 @@
 #include "../widgets/Button.h"
 #include "../Skin.h"
 
-#include <hydrogen/data_path.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/audio_engine.h>
@@ -71,7 +70,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	m_psamplefilename = "";	
 	m_pselectedFile << "false" << "false";
 
-	sEmptySampleFilename = DataPath::get_data_path() + "/emptySample.wav";
+	sEmptySampleFilename = Filesystem::empty_sample();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
 	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));

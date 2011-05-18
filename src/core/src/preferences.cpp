@@ -38,8 +38,8 @@
 #include <list>
 #include <hydrogen/midiMap.h>
 
-#include <hydrogen/data_path.h>
 #include "hydrogen/version.h"
+#include "hydrogen/helpers/filesystem.h"
 
 #include <QDir>
 #include <QApplication>
@@ -60,7 +60,7 @@ const char* Preferences::__class_name = "Preferences";
 
 Preferences::Preferences()
 		: Object( __class_name )
-		, demoPath( QString( DataPath::get_data_path() ) + "/demo_songs/" )
+		, demoPath( Filesystem::demos_dir()+"/")
 		, m_sLastNews( "" )
 {
 	__instance = this;
@@ -315,7 +315,7 @@ void Preferences::loadPreferences( bool bGlobal )
 	QString sPreferencesFilename;
 	QString sDataDirectory;
 	if ( bGlobal ) {
-		sPreferencesDirectory = DataPath::get_data_path();
+		sPreferencesDirectory = Filesystem::sys_data_path();
 		sPreferencesFilename = sPreferencesDirectory + "/hydrogen.default.conf";
 		INFOLOG( "Loading preferences file (GLOBAL) [" + sPreferencesFilename + "]" );
 	} else {

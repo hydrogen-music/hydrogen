@@ -1,6 +1,5 @@
 
 #include <hydrogen/config.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/helpers/filesystem.h>
 
 #include <QtCore/QDir>
@@ -9,7 +8,9 @@
 #include <QtCore/QCoreApplication>
 
 // directories
+#define LOCAL_DATA_PATH "./data"
 #define IMG             "/img"
+#define DOC             "/doc"
 #define I18N            "/i18n"
 #define SONGS           "/songs"
 #define PATTERNS        "/patterns"
@@ -22,8 +23,8 @@
 #define GUI_CONFIG      "/gui.conf"
 #define CORE_CONFIG     "/core.conf"
 #define CLICK_SAMPLE    "/click.wav"
-#define EMPTY_SAMPLE    "/empty_sample.wav"
-#define EMPTY_SONG      "/empty_song.h2song"
+#define EMPTY_SAMPLE    "/emptySample.wav"
+#define EMPTY_SONG      "/DefaultSong.h2song"
 
 // filters
 #define SONG_FILTER     "*.h2song"
@@ -60,14 +61,12 @@ bool Filesystem::bootstrap( Logger* logger ) {
     __sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
     __usr_data_path = QCoreApplication::applicationDirPath().append( "/hydrogen/data" ) ;
 #else
-    if(QFile::exists(QString(SYS_DATA_PATH))){
-       __sys_data_path = SYS_DATA_PATH;
-    }else
-    {
-        __sys_data_path = DataPath::get_data_path().append("/drumkits");
-    }
+    __sys_data_path = SYS_DATA_PATH;
     __usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
 #endif
+    if( !path_usable( __sys_data_path, false ) ) {
+        __sys_data_path = LOCAL_DATA_PATH;
+    }
     return check_sys_paths() && check_usr_paths();
 }
 
@@ -135,10 +134,10 @@ bool Filesystem::mkdir( const QString& path ) {
     return true;
 }
 
-bool Filesystem::path_usable( const QString& path, bool silent ) {
+bool Filesystem::path_usable( const QString& path, bool create, bool silent ) {
     if( !QDir( path ).exists() ) {
         if( !silent ) INFOLOG( QString( "create user directory : %1" ).arg( path ) );
-        if( !QDir( "/" ).mkpath( path ) ) {
+        if( create && !QDir( "/" ).mkpath( path ) ) {
             if( !silent ) ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
             return false;
         }
@@ -224,6 +223,7 @@ bool Filesystem::check_sys_paths() {
     if(  !dir_readable( __sys_data_path ) ) return false;
     if(  !dir_readable( img_dir() ) ) return false;
     if(  !dir_readable( xsd_dir() ) ) return false;
+    if(  !dir_readable( doc_dir() ) ) return false;
     if(  !dir_readable( i18n_dir() ) ) return false;
     if(  !dir_readable( demos_dir() ) ) return false;
     if( !file_readable( click_file() ) ) return false;
@@ -292,6 +292,9 @@ QString Filesystem::pattern_xsd( ) {
 // DIRS
 QString Filesystem::img_dir() {
     return __sys_data_path + IMG;
+}
+QString Filesystem::doc_dir() {
+    return __sys_data_path + DOC;
 }
 QString Filesystem::i18n_dir() {
     return __sys_data_path + I18N;
@@ -375,6 +378,7 @@ bool Filesystem::song_exists( const QString& sg_name ) {
 
 void Filesystem::info() {
     INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
+    INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );
     INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
     INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
     INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );

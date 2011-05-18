@@ -269,7 +269,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 
 	// HELP BROWSER
-	QString sDocPath = QString( DataPath::get_data_path() ) + "/doc";
+	QString sDocPath = H2Core::Filesystem::doc_dir();
 	QString sDocURI = sDocPath + "/manual.html";
 	m_pHelpBrowser = new SimpleHTMLBrowser( NULL, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
@@ -405,7 +405,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 
 void HydrogenApp::showInfoSplash()
 {
-	QString sDocPath( DataPath::get_data_path().append( "/doc/infoSplash" ) );
+	QString sDocPath = H2Core::Filesystem::doc_dir().append("/infoSplash");
 
 	QDir dir(sDocPath);
 	if ( !dir.exists() ) {

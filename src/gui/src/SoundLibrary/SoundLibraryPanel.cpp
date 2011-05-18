@@ -45,7 +45,6 @@
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
@@ -228,7 +227,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		__song_item->setToolTip( 0, "double click to expand the list" );
 		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
 		for (uint i = 0; i < songs.size(); i++) {
-			QString absPath = DataPath::get_data_path() + "/songs/" + songs[i];
+			QString absPath = Filesystem::songs_dir()+"/"+songs[i];
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
             QString song = songs[i];
 			pSongItem->setText( 0 , song.left( song.indexOf(".")) );

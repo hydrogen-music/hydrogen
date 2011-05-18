@@ -25,7 +25,6 @@
 #include <cassert>
 
 #include <hydrogen/basics/adsr.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
 
@@ -216,15 +215,8 @@ Song* Song::get_default_song(){
 /// Return an empty song
 Song* Song::get_empty_song()
 {
-	QString dataDir = DataPath::get_data_path();	
-	QString filename = dataDir + "/DefaultSong.h2song";
 
-	if( ! QFile::exists( filename ) ){
-		_ERRORLOG("File " + filename + " exists not. Failed to load default song.");
-		filename = dataDir + "/DefaultSong.h2song";
-	}
-	
-	Song *song = Song::load( filename );
+	Song *song = Song::load( Filesystem::empty_song() );
 	
 	/* if file DefaultSong.h2song not accessible
 	 * create a simple default song.

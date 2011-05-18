@@ -24,7 +24,6 @@
 
 
 #include <hydrogen/basics/adsr.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/instrument.h>

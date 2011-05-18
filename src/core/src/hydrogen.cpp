@@ -67,7 +67,6 @@
 #include <hydrogen/IO/CoreMidiDriver.h>
 #include <hydrogen/IO/TransportInfo.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midiMap.h>
 #include <hydrogen/playlist.h>
@@ -290,8 +289,7 @@ void audioEngine_init()
 	srand( time( NULL ) );
 
 	// Create metronome instrument
-	QString sMetronomeFilename = QString( "%1/click.wav" )
-					.arg( DataPath::get_data_path() );
+	QString sMetronomeFilename = Filesystem::click_file();
 	m_pMetronomeInstrument =
 		new Instrument( METRONOME_INSTR_ID, "metronome" );
 	m_pMetronomeInstrument->set_layer(

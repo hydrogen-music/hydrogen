@@ -28,7 +28,6 @@
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
@@ -40,6 +39,7 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/event_queue.h>
 
 #include <hydrogen/fx/Effects.h>
@@ -65,7 +65,7 @@ Sampler::Sampler()
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
 	// instrument used in file preview
-	QString sEmptySampleFilename = DataPath::get_data_path() + "/emptySample.wav";
+	QString sEmptySampleFilename = Filesystem::empty_sample();
 	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
 	__preview_instrument->set_volume( 0.8 );
 	__preview_instrument->set_layer( new InstrumentLayer( Sample::load( sEmptySampleFilename ) ), 0 );

@@ -38,7 +38,6 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/helpers/filesystem.h>
 
@@ -163,7 +162,7 @@ int main(int argc, char *argv[])
 
 
                 ___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-                ___INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
+                ___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
                 H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 

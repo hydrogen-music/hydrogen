@@ -41,7 +41,6 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/data_path.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
@@ -250,7 +249,7 @@ int main(int argc, char *argv[])
 
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-		___INFOLOG( "Using data path: " + H2Core::DataPath::get_data_path() );
+		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 
@@ -301,7 +300,7 @@ int main(int argc, char *argv[])
 				___INFOLOG( QString( "Using locale: %1/%2" ).arg( sTranslationPath ).arg( sTranslationFile ) );
 			}
 			else {
-				sTranslationPath = H2Core::DataPath::get_data_path() + "/i18n";
+				sTranslationPath = H2Core::Filesystem::i18n_dir();
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {

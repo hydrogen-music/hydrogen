@@ -23,7 +23,7 @@
 #define H2_SKIN_H
 
 #include <QString>
-#include <hydrogen/data_path.h>
+#include <hydrogen/helpers/filesystem.h>
 
 ///
 /// Skin support
@@ -33,8 +33,7 @@ class Skin
 	public:
 		static QString getImagePath()
 		{
-			QString sSkin = "gray";
-			return QString( H2Core::DataPath::get_data_path() ).append( "/img/" ).append( sSkin );
+			return H2Core::Filesystem::img_dir().append( "/gray" );
 		}
 
 };
