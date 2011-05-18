@@ -72,7 +72,7 @@ function cmake_help() {
 
 function cmake_exec() {
     cmake_init
-    echo -e " * execute hydrogen\n" && cd $BUILD_DIR && ./src/gui/hydrogen $H2FLAGS && cd .. || exit 1
+    echo -e " * execute hydrogen\n" && ./hydrogen $H2FLAGS && cd .. || exit 1
 }
 
 function cmake_tests() {
