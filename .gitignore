@@ -2,7 +2,7 @@
 *.o
 ui_*.h
 moc_*.cc
-^build
-^libs/hydrogen/include/hydrogen/config.h
-^cmake_opts
-^hydrogen
+/build
+/libs/hydrogen/include/hydrogen/config.h
+/cmake_opts
+/hydrogen
