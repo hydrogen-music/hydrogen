@@ -89,8 +89,8 @@ class Filesystem : public H2Core::Object {
          */
         static QString drumkit_path( const QString& dk_name );
         /**
-         * returns true if the path contains a usable drumkit
-         * \param dk_path the path to the drumkit
+         * returns the directory holding the named drumkit
+         * \param dk_name the drumkit name
          */
         static QString drumkit_location( const QString& dk_name );
         /**
