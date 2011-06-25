@@ -201,7 +201,7 @@ void Drumkit::save_to( XMLNode* node ) {
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite ) {
     qDebug()<< QString( "Saving drumkit %1 samples into %2" ).arg( __name ).arg( dk_dir ) ;
     if( !Filesystem::mkdir( dk_dir ) ) {
-        qDebug()<<( QString( "unable to create %1" ).arg( dk_dir ) );
+        INFOLOG( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
     }
 
