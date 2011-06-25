@@ -164,6 +164,7 @@ int main(int argc, char *argv[])
                 ___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
                 ___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
+
                 H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 
 #ifdef H2CORE_HAVE_LASH

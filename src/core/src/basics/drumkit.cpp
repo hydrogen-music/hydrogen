@@ -21,7 +21,7 @@
  */
 
 #include <hydrogen/basics/drumkit.h>
-
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/config.h>
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
@@ -144,6 +144,7 @@ void Drumkit::unload_samples( ) {
 }
 
 bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, bool overwrite ) {
+
     Drumkit* drumkit = new Drumkit();
     drumkit->set_name( name );
     drumkit->set_author( author );
@@ -151,19 +152,17 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
     drumkit->set_license( license );
     drumkit->set_instruments( instruments );
     bool ret = drumkit->save( overwrite );
-    drumkit->set_instruments( 0 );
-    delete drumkit;
+    drumkit->~Object();
     return ret;
 }
 
 bool Drumkit::save( bool overwrite ) {
-    return  save( Filesystem::drumkit_path( __name ), overwrite );
+    INFOLOG( QString( "New drumkit dir " + Filesystem::usr_drumkits_dir() + "/" + __name ) );
+    return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
 }
 
 bool Drumkit::save( const QString& dk_dir, bool overwrite ) {
-    INFOLOG( QString( "Saving drumkit %1 into %2" ).arg( __name ).arg( dk_dir ) );
     if( !Filesystem::mkdir( dk_dir ) ) {
-        ERRORLOG( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
     }
     bool ret = save_file( Filesystem::drumkit_file( dk_dir ), overwrite );
@@ -200,18 +199,19 @@ void Drumkit::save_to( XMLNode* node ) {
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite ) {
-    INFOLOG( QString( "Saving drumkit %1 samples into %2" ).arg( __path ).arg( dk_dir ) );
+    qDebug()<< QString( "Saving drumkit %1 samples into %2" ).arg( __name ).arg( dk_dir ) ;
     if( !Filesystem::mkdir( dk_dir ) ) {
-        ERRORLOG( QString( "unable to create %1" ).arg( dk_dir ) );
+        qDebug()<<( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
     }
+
     InstrumentList* instruments = get_instruments();
     for( int i=0; i<instruments->size(); i++ ) {
         Instrument* instrument = ( *instruments )[i];
         for ( int n = 0; n < MAX_LAYERS; n++ ) {
             InstrumentLayer* layer = instrument->get_layer( n );
             if( layer ) {
-                QString src = __path + "/" + layer->get_sample()->get_filename();
+                QString src =  layer->get_sample()->get_filepath();
                 QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
                 if( !Filesystem::file_copy( src, dst ) ) {
                     return false;
