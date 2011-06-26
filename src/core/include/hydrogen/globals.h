@@ -24,13 +24,13 @@
 
 #define MAX_INSTRUMENTS         1000
 
-#define MAX_NOTES		        192
+#define MAX_NOTES               192
 
 #define MAX_LAYERS              16
 
-#define MAX_FX			        4
+#define MAX_FX		        4
 
-#define MAX_BUFFER_SIZE		    8192
+#define MAX_BUFFER_SIZE         8192
 
 #define MIDI_OUT_NOTE_MIN       0
 #define MIDI_OUT_NOTE_MAX       127

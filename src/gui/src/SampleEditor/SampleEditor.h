@@ -119,10 +119,10 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		QTimer *m_pTimer;
 		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
-		bool m_pPlayButton;
-		float m_pratio;
-        H2Core::Sample::Loops __loops;
-        H2Core::Sample::Rubberband __rubberband;
+                bool m_pPlayButton;
+                float m_pratio;
+                H2Core::Sample::Loops __loops;
+                H2Core::Sample::Rubberband __rubberband;
 
 		
 };

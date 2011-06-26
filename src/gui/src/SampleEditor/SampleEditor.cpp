@@ -72,8 +72,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_ponewayEnd = false;
 	m_pslframes = 0;
 	m_pPositionsRulerPath = NULL;
-	m_pPlayButton = false;
-        m_pratio = 1.0;
+        m_pPlayButton = false;
+        m_pratio = 1.0f;
 	__rubberband.c_settings = 4;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
@@ -531,7 +531,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 	//calculate the new rubberband sample length
 	if( __rubberband.use ){
-		m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
+                m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
 	}else
 	{
 		m_prealtimeframeendfortarget = m_prealtimeframeend;
@@ -594,7 +594,7 @@ void SampleEditor::updateTargetsamplePostionRuler()
 	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
 	unsigned targetsamplelength;
 	if( __rubberband.use ){
-		targetsamplelength =  m_pslframes * m_pratio + 0.1;
+                targetsamplelength =  m_pslframes * m_pratio + 0.1;
 	}else
 	{
 		targetsamplelength =  m_pslframes;
@@ -801,33 +801,38 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 
 void SampleEditor::checkRatioSettings()
 {
-	//my personal ratio quality settings
-	//ratios < 0.1 || > 3.0 are bad (red) or experimental sounds
-	//ratios > 0.1 - 0.5 || > 2.0 are middle (yellow)
-	//ratios < 0.5 || < 2.0 are good (green)
+        //calculate ration
+        double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
+        double induration = (double) m_pslframes / (double) m_pSamplerate;
+        if (induration != 0.0) m_pratio = durationtime / induration;
 
-	bool is_green = false;
-	//green ratio
-	if( (m_pratio >= 0.5) && (m_pratio <= 2.0) ){
-		rubberComboBox->setStyleSheet("QComboBox { background-color: green; }");
-		is_green = true;
-	}
-	//yellow ratio
-	if( ( (m_pratio > 0.1) || ( m_pratio <=  3.0 ) )&& (!is_green)){
-		rubberComboBox->setStyleSheet("QComboBox { background-color: yellow; }");
-	}
-	//red ratio
-	if( ( m_pratio <= 0.1 ) || ( m_pratio > 3.0 ) && (!is_green) ){
-		rubberComboBox->setStyleSheet("QComboBox { background-color: red; }");
-	}
-	QString text = QString( " RB-Ratio = %1").arg(m_pratio);
-	ratiolabel->setText( text );
+        //my personal ratio quality settings
+        //ratios < 0.1 || > 3.0 are bad (red) or experimental sounds
+        //ratios > 0.1 - 0.5 || > 2.0 are middle (yellow)
+        //ratios < 0.5 || < 2.0 are good (green)
 
-	//no rubberband = default
-	if( !__rubberband.use ){
-		rubberComboBox->setStyleSheet("QComboBox { background-color: 58, 62, 72; }");
-		ratiolabel->setText( "" );
-	}
+        bool is_green = false;
+        //green ratio
+        if( (m_pratio >= 0.5) && (m_pratio <= 2.0) ){
+            rubberComboBox->setStyleSheet("QComboBox { background-color: green; }");
+            is_green = true;
+        }
+        //yellow ratio
+        if( ( (m_pratio > 0.1) || ( m_pratio <=  3.0 ) )&& (!is_green)){
+            rubberComboBox->setStyleSheet("QComboBox { background-color: yellow; }");
+        }
+        //red ratio
+        if( ( m_pratio <= 0.1 ) || ( m_pratio > 3.0 ) && (!is_green) ){
+            rubberComboBox->setStyleSheet("QComboBox { background-color: red; }");
+        }
+        QString text = QString( " RB-Ratio = %1").arg(m_pratio);
+        ratiolabel->setText( text );
+
+        //no rubberband = default
+        if( !__rubberband.use ){
+            rubberComboBox->setStyleSheet("QComboBox { background-color: 58, 62, 72; }");
+            ratiolabel->setText( "" );
+        }
 }
 
 
