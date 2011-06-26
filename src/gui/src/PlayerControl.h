@@ -98,8 +98,7 @@ class PlayerControl : public QLabel, public H2Core::Object
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
 		void songModeBtnClicked(Button* ref);
-		void liveModeBtnClicked(Button* ref);
-		void switchModeBtnClicked(Button* ref);
+                void liveModeBtnClicked(Button* ref);
 		void jackTransportBtnClicked(Button* ref);
 		//jack time master
 		void jackMasterBtnClicked(Button* ref);
@@ -141,8 +140,7 @@ class PlayerControl : public QLabel, public H2Core::Object
 		ToggleButton *m_pSongLoopBtn;
 
 		ToggleButton *m_pSongModeBtn;
-		ToggleButton *m_pLiveModeBtn;
-		Button *m_pSwitchModeBtn;
+                ToggleButton *m_pLiveModeBtn;
 
 		//beatcounter
 		ToggleButton *m_pBConoffBtn;
