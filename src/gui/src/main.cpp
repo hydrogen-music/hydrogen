@@ -34,6 +34,9 @@
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
 #endif
+#ifdef H2CORE_HAVE_JACKSESSION
+#include <jack/session.h>
+#endif
 
 #include <hydrogen/midiMap.h>
 #include <hydrogen/audio_engine.h>
@@ -57,6 +60,9 @@ void showUsage();
 static struct option long_opts[] = {
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
+#ifdef H2CORE_HAVE_JACKSESSION
+        {"session-id", required_argument, NULL, 'S'},
+#endif
 	{"playlist", required_argument, NULL, 'p'},
 	{"version", 0, NULL, 'v'},
 	{"nosplash", 0, NULL, 'n'},
@@ -165,6 +171,9 @@ int main(int argc, char *argv[])
 
 		// Deal with the options
 		QString songFilename;
+#ifdef H2CORE_HAVE_JACKSESSION
+                QString sessionId;
+#endif
 		QString playlistFilename;
 		bool bNoSplash = false;
 		QString sSelectedDriver;
@@ -188,6 +197,11 @@ int main(int argc, char *argv[])
 				case 's':
 					songFilename = QString::fromLocal8Bit(optarg);
 					break;
+#ifdef H2CORE_HAVE_JACKSESSION
+                                case 'S':
+                                        sessionId = QString::fromLocal8Bit(optarg);
+                                        break;
+#endif
 
 				case 'p':
 					playlistFilename = QString::fromLocal8Bit(optarg);
@@ -451,6 +465,11 @@ void showUsage()
 	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
 	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
+
+#ifdef H2CORE_HAVE_JACKSESSION
+        std::cout << "   -S, --session-id ID - Start a JackSessionHandler session" << std::endl;
+#endif
+
 	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;	
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;

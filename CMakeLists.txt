@@ -34,16 +34,17 @@ IF(APPLE)
 ELSE()
     OPTION(WANT_SHARED      "Build the core library shared." ON)
 ENDIF()
-OPTION(WANT_LIBARCHIVE  "Enable use of libarchive instead of libtar" OFF)
-OPTION(WANT_LADSPA      "Enable use of LADSPA plugins" ON)
-OPTION(WANT_OSS         "Include OSS (Open Sound System) support" OFF)
-OPTION(WANT_ALSA        "Include ALSA (Advanced Linux Sound Architecture) support" OFF)
-OPTION(WANT_JACK        "Include JACK (Jack Audio Connection Kit) support" ON)
-OPTION(WANT_PORTAUDIO   "Include PortAudio support" OFF)
-OPTION(WANT_PORTMIDI    "Include PortMidi support" OFF)
-OPTION(WANT_LASH        "Include LASH (Linux Audio Session Handler) support" OFF)
-OPTION(WANT_LRDF        "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
-OPTION(WANT_RUBBERBAND  "Include RUbberBand (Audio Time Stretcher Library) support" OFF)
+OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" OFF)
+OPTION(WANT_LADSPA       "Enable use of LADSPA plugins" ON)
+OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
+OPTION(WANT_OSS          "Include OSS (Open Sound System) support" OFF)
+OPTION(WANT_ALSA         "Include ALSA (Advanced Linux Sound Architecture) support" OFF)
+OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
+OPTION(WANT_PORTAUDIO    "Include PortAudio support" OFF)
+OPTION(WANT_PORTMIDI     "Include PortMidi support" OFF)
+OPTION(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
+OPTION(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
+OPTION(WANT_RUBBERBAND   "Include RUbberBand (Audio Time Stretcher Library) support" OFF)
 IF(APPLE)
     OPTION(WANT_COREAUDIO   "Include CoreAudio support" ON)
     OPTION(WANT_COREMIDI    "Include CoreMidi support" ON)
@@ -136,6 +137,7 @@ FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
 FIND_HELPER(OSS oss sys/soundcard.h OSSlib )
 FIND_HELPER(JACK jack jack/jack.h jack)
+FIND_HELPER(JACKSESSION jack jack/session.h jack)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
     FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices)
@@ -161,7 +163,7 @@ include(doxygen OPTIONAL)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK COREAUDIO COREMIDI PORTAUDIO PORTMIDI LASH LRDF RUBBERBAND )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI LASH LRDF RUBBERBAND )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -201,6 +203,7 @@ COLOR_MESSAGE("${_escape}[1;36mSupported audio interfaces${_escape}[0m
 * ${_escape}[1;35mALSA${_escape}[0m                         : ${ALSA_STATUS}
 * ${_escape}[1;35mOSS${_escape}[0m                          : ${OSS_STATUS}
 * ${_escape}[1;35mJACK${_escape}[0m                         : ${JACK_STATUS}
+* ${_escape}[1;35mJACKSESSION${_escape}[0m                  : ${JACKSESSION_STATUS}
 * ${_escape}[1;35mCoreAudio${_escape}[0m                    : ${COREAUDIO_STATUS}
 * ${_escape}[1;35mCoreMidi${_escape}[0m                     : ${COREMIDI_STATUS}
 * ${_escape}[1;35mPortAudio${_escape}[0m                    : ${PORTAUDIO_STATUS}
