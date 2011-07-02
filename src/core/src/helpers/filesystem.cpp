@@ -8,7 +8,7 @@
 #include <QtCore/QCoreApplication>
 
 // directories
-#define LOCAL_DATA_PATH "./data"
+#define LOCAL_DATA_PATH QCoreApplication::applicationDirPath().append( "/data" )
 #define IMG             "/img"
 #define DOC             "/doc"
 #define I18N            "/i18n"
