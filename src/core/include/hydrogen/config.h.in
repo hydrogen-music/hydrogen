@@ -1,0 +1,77 @@
+#ifndef HYD_CONFIG_H
+#define HYD_CONFIG_H
+
+#include <string>
+
+#ifndef QT_BEGIN_NAMESPACE
+#    define QT_BEGIN_NAMESPACE
+#endif
+
+#ifndef QT_END_NAMESPACE
+#    define QT_END_NAMESPACE
+#endif
+
+#define USR_DATA_PATH "@USR_DATA_PATH@"
+#define SYS_DATA_PATH "@SYS_DATA_PATH@"
+#define CONFIG_PREFIX "@CMAKE_INSTALL_PREFIX@"
+
+#define H2CORE_VERSION_MAJOR @VERSION_MAJOR@
+#define H2CORE_VERSION_MINOR @VERSION_MINOR@
+#define H2CORE_VERSION_PATCH @VERSION_PATCH@
+#define H2CORE_VERSION "@VERSION@"
+#define H2CORE_REVISION "@REVISION@"
+#define H2CORE_VERSION_FULL "@VERSION@-svn-@REVISION@"
+
+#cmakedefine HAVE_SSCANF
+#cmakedefine HAVE_RTCLOCK
+
+#ifndef H2CORE_HAVE_DEBUG
+#cmakedefine H2CORE_HAVE_DEBUG
+#endif
+#ifndef H2CORE_HAVE_BUNDLE
+#cmakedefine H2CORE_HAVE_BUNDLE
+#endif
+#ifndef H2CORE_HAVE_LIBSNDFILE
+#cmakedefine H2CORE_HAVE_LIBSNDFILE
+#endif
+#ifndef H2CORE_HAVE_LIBARCHIVE
+#cmakedefine H2CORE_HAVE_LIBARCHIVE
+#endif
+#ifndef H2CORE_HAVE_OSS
+#cmakedefine H2CORE_HAVE_OSS
+#endif
+#ifndef H2CORE_HAVE_ALSA
+#cmakedefine H2CORE_HAVE_ALSA
+#endif
+#ifndef H2CORE_HAVE_JACK
+#cmakedefine H2CORE_HAVE_JACK
+#endif
+#ifndef H2CORE_HAVE_LASH
+#cmakedefine H2CORE_HAVE_LASH
+#endif
+#ifndef H2CORE_HAVE_JACKSESSION
+#cmakedefine H2CORE_HAVE_JACKSESSION
+#endif
+#ifndef H2CORE_HAVE_PORTAUDIO
+#cmakedefine H2CORE_HAVE_PORTAUDIO
+#endif
+#ifndef H2CORE_HAVE_PORTMIDI
+#cmakedefine H2CORE_HAVE_PORTMIDI
+#endif
+#ifndef H2CORE_HAVE_COREAUDIO
+#cmakedefine H2CORE_HAVE_COREAUDIO
+#endif
+#ifndef H2CORE_HAVE_COREMIDI
+#cmakedefine H2CORE_HAVE_COREMIDI
+#endif
+#ifndef H2CORE_HAVE_LRDF
+#cmakedefine H2CORE_HAVE_LRDF
+#endif
+#ifndef H2CORE_HAVE_LADSPA
+#cmakedefine H2CORE_HAVE_LADSPA
+#endif
+#ifndef H2CORE_HAVE_RUBBERBAND
+#cmakedefine H2CORE_HAVE_RUBBERBAND
+#endif
+
+#endif

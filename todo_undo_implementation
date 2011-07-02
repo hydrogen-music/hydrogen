@@ -1,0 +1,47 @@
+commands which needs undo/redo support
+
+SongEditor:
+ + Add/remove pattern to sequence                       | done
+ + Move pattern list item by drag and drop              | done
+ + Move patternlist item by clicking up/down buttons    | done
+ + Clear full pattern sequence                          | done
+ + Delete pattern from list                             | done
+ + Copy pattern                                         | done
+ + Edit pattern properties                              | done
+ + Load Pattern from context menu                       | done
+ + Drag and drop pattern from library to pattern list   | done
+ + Fill/delete pattern sequence                         | done
+ + Edit virtual Pattern                                 | ----
+ + Move selection (pattern sequence)                    | done
+ + Copy and move selection (pattern sequence)           | done
+
+Time Line:
+ + Edit timeline tempo                                  | done
+ + Edit timeline tags                                   | done
+
+Pattern- & Piano Roll-Editor:
+ + Add/Remove note Pattern Editor                       | Done
+ + Add/Remove noteoff note Pattern Editor               | Done
+ + Edit note length Pattern Editor (right cklicking)    | Done
+ + Add/Remove note Piano Roll Editor                    | Done
+ + Add/Remove noteoff note Piano Roll Editor            | Done
+ + Edit note length Piano Roll Editor (right cklicking) | Done
+ + Edit velocity Piano Roll Editor                      | Done
+ + Edit pan Piano Roll Editor                           | Done
+ + Edit lead lag Piano Roll Editor                      | Done
+ + Context delete notes                                 | Done
+ + Context menu fill notes                              | Done
+ + Context menu random velocity                         | Done
+ + Drag and drop instruments order                      | Done
+ + Context menu Delete instrument                       | Done
+ + Drag and drop intrument from library                 | Done
+ + Main menu Add instrument                             | Done
+
+
+Note properties ruler:
+ + Edit velocity                                        | Done
+ + Edit pan                                             | Done
+ + Edit lead lag                                        | Done
+ + Edit note key                                        | Done
+
+Mixer:

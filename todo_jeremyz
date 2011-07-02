@@ -1,0 +1,36 @@
+
+core classes :
+ - Logger               done
+ - Object               done
+
+basics classes :
+ - ADSR                 done
+ - Note                 done
+ - Sample               done
+ - InstrumentLayer      done
+ - Instrument           done
+ - InstrumentList       done
+ - Drumkit              done
+ - Pattern
+ - PatternList
+ - Song
+
+remove old classes :
+ - LocalFileMng
+ - SoundLibrary
+
+rework :
+ - Preferences rework
+
+GUI :
+ - use new InstrumentList capabilities
+ - SampleEditor
+   - use only SampleLayer index as constructor parameter
+   - __sample = Sample::load( path )
+   - __current = Sample::load( path, loops, rubber, velocity, pan );
+   - add reset butto(s)
+   - must update sample view when finished
+   - compute rubberband parameters, see Rubberband declaration in sample.h
+   - compute velocity and pan envelope, see apply_velocity and apply_pan in sample.cpp
+
+fix : src/gui/src/SampleEditor/SampleEditor_UI.ui: Warning: Z-order assignment: 'horizontalSpacer[_2]' is not a valid widget

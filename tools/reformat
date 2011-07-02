@@ -1,0 +1,21 @@
+#! /bin/bash
+
+ASTYLEOPTS="-v -r \
+    --indent=spaces=4 \
+    --brackets=attach \
+    --pad=paren-in \
+    --indent-classes \
+    --indent-preprocessor \
+    --align-pointer=type \
+    --suffix=none \
+    --formatted
+    "
+if [ $# -eq 0 ]; then
+    echo "need at least one argument" && exit 1
+fi
+
+CMD=$(which astyle)
+if [ "X${CMD}" != "X" ]; then
+    $CMD $ASTYLEOPTS $@
+fi
+
