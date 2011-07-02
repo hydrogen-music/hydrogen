@@ -33,9 +33,15 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
+#include <hydrogen/event_queue.h>
+
 
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
+#endif
+
+#ifdef H2CORE_HAVE_JACKSESSION
+#include <jack/session.h>
 #endif
 
 namespace H2Core
@@ -468,10 +474,30 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	int tries = 2;  // Sometimes jackd doesn't stop and start fast enough.
 	while ( tries > 0 ) {
 		--tries;
-		client = jack_client_open(
-			sClientName.toLocal8Bit(),
-			JackNullOption,
-			&status);
+
+#ifdef H2CORE_HAVE_JACKSESSION
+
+            if (Preferences::get_instance()->getJackSessionUUID().isEmpty()){
+                client = jack_client_open(
+                            sClientName.toLocal8Bit(),
+                            JackNullOption,
+                            &status);
+            }
+            else
+            {
+                const QByteArray uuid = Preferences::get_instance()->getJackSessionUUID().toLocal8Bit();
+                client = jack_client_open(
+                            sClientName.toLocal8Bit(),
+                            JackSessionID,
+                            &status,
+                            uuid.constData());
+            }
+#else
+                client = jack_client_open(
+                       sClientName.toLocal8Bit(),
+                       JackNullOption,
+                       &status);
+#endif
 		switch(status) {
 		case JackFailure:
 			CLIENT_FAILURE("unknown error");
@@ -583,6 +609,10 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 		    lashClient->setJackClientName(sClientName.toLocal8Bit().constData());
 		}
 	}
+#endif
+
+#ifdef H2CORE_HAVE_JACKSESSION
+        jack_set_session_callback (client, jack_session_callback, (void*)this);
 #endif
 
 	return 0;
@@ -723,6 +753,51 @@ int JackOutput::getNumTracks()
 	return track_port_count;
 }
 
+#ifdef H2CORE_HAVE_JACKSESSION
+void JackOutput::jack_session_callback(jack_session_event_t *event, void *arg)
+{
+    JackOutput *me = static_cast<JackOutput*>(arg);
+    if(me) {
+            me->jack_session_callback_impl(event);
+    }
+}
+
+void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
+{
+    INFOLOG("jack session calback");
+    enum session_events{
+        SAVE_SESSION,
+        SAVE_AND_QUIT,
+        SAVE_TEMPLATE
+    };
+
+    jack_session_event_t *ev = (jack_session_event_t *) event;
+
+    QString songfilename = Hydrogen::get_instance()->getSong()->get_filename();
+
+    /* Valid Song is needed */
+    if(songfilename.isEmpty()){
+        EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+    }
+
+    QString retval = QString(Preferences::get_instance()->getJackSessionApplicationPath() + " -s" + songfilename + " -S" + ev->client_uuid);
+    const char * filename = retval.toAscii().data();
+
+    if (ev->type == JackSessionSave){
+        EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+    }
+    if (ev->type == JackSessionSaveAndQuit) {
+        EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
+    }
+
+    ev->command_line = strdup (filename);
+
+    jack_session_reply(client, ev );
+
+    jack_session_event_free (ev);
+
+}
+#endif
 
 //beginn jack time master
 void JackOutput::initTimeMaster()

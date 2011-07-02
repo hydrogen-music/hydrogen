@@ -375,7 +375,6 @@ int main(int argc, char *argv[])
 
 #ifdef H2CORE_HAVE_JACKSESSION
                 if(!sessionId.isEmpty()){
-                    qDebug() << sessionId;
                     pPref->setJackSessionUUID( sessionId );
 
                     /*
@@ -386,21 +385,15 @@ int main(int argc, char *argv[])
                      */
                     pPref->m_sAudioDriver = "Jack";
 
-                    /*
-                     * the use of applicationFilePath() make it
-                     * possible to use different executables.
-                     * for example if you start hydrogen from a local
-                     * build directory.
-                     */
-                    QString path = pQApp->applicationFilePath();
-                    pPref->setJackSessionApplicationPath( path );
-                    qDebug() << path;
-
-                    /*
-                     * for now we just exit hydrogen:)
-                     */
-                    exit(0);
                 }
+                /*
+                 * the use of applicationFilePath() make it
+                 * possible to use different executables.
+                 * for example if you start hydrogen from a local
+                 * build directory.
+                 */
+                QString path = pQApp->applicationFilePath();
+                pPref->setJackSessionApplicationPath( path );
 #endif
 
 		// Hydrogen here to honor all preferences.

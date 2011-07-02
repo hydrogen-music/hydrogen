@@ -1429,6 +1429,19 @@ void MainForm::errorEvent( int nErrorCode )
 }
 
 
+void MainForm::jacksessionEvent( int nEvent )
+{
+        switch (nEvent){
+               case 0:
+                      action_file_save();
+                      break;
+               case 1:
+                      action_file_exit();
+                      break;
+        }
+
+}
+
 void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );

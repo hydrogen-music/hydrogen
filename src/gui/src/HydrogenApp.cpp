@@ -510,10 +510,13 @@ void HydrogenApp::onEventQueueTimer()
 					pListener->rubberbandbpmchangeEvent();
 					break;
 
-				case EVENT_PROGRESS:
+                                case EVENT_PROGRESS:
 					pListener->progressEvent( event.value );
 					break;
 
+                                case EVENT_JACK_SESSION:
+                                        pListener->jacksessionEvent(event.value );
+                                        break;
 				default:
 					ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

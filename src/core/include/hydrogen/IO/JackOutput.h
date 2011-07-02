@@ -31,6 +31,11 @@
 
 #include <pthread.h>
 #include <jack/jack.h>
+
+#ifdef H2CORE_HAVE_JACKSESSION
+#include <jack/session.h>
+#endif
+
 #include <jack/transport.h>
 
 #include <hydrogen/globals.h>
@@ -115,6 +120,13 @@ protected:
                                          jack_position_t *pos,
                                          int new_pos);
 //~ jack timebase callback
+
+#ifdef H2CORE_HAVE_JACKSESSION
+        static void jack_session_callback(jack_session_event_t *event, void *arg);
+
+        void jack_session_callback_impl(jack_session_event_t *event);
+#endif
+
 private:
 	H2Core::Hydrogen *m_pEngine;
 	void relocateBBT();

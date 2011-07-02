@@ -562,6 +562,14 @@ public:
 	    return maxBars;
 	}
 
+        void setWaitForSessionHandler(bool value){
+            waitingForSessionHandler = value;
+        }
+
+        bool getWaitForSessionHandler(){
+            return waitingForSessionHandler;
+        }
+
 #ifdef H2CORE_HAVE_JACKSESSION
         QString getJackSessionUUID(){
             return jackSessionUUID;
@@ -571,7 +579,7 @@ public:
             jackSessionUUID = uuid;
         }
         QString getJackSessionApplicationPath(){
-            return jackSessionUUID;
+            return jackSessionApplicationPath;
         }
 
         void setJackSessionApplicationPath( QString path ){
@@ -613,6 +621,7 @@ private:
         QString jackSessionUUID;
         QString jackSessionApplicationPath;
 #endif
+        bool waitingForSessionHandler;
 
 	//___ GUI properties ___
 	QString m_sQTStyle;
