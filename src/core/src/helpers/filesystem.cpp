@@ -64,9 +64,9 @@ bool Filesystem::bootstrap( Logger* logger ) {
     __sys_data_path = SYS_DATA_PATH;
     __usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
 #endif
-    if( !path_usable( __sys_data_path, false ) ) {
-        __sys_data_path = LOCAL_DATA_PATH;
-    }
+
+     __sys_data_path = SYS_DATA_PATH;
+
     return check_sys_paths() && check_usr_paths();
 }
 
