@@ -562,6 +562,23 @@ public:
 	    return maxBars;
 	}
 
+#ifdef H2CORE_HAVE_JACKSESSION
+        QString getJackSessionUUID(){
+            return jackSessionUUID;
+        }
+
+        void setJackSessionUUID( QString uuid ){
+            jackSessionUUID = uuid;
+        }
+        QString getJackSessionApplicationPath(){
+            return jackSessionUUID;
+        }
+
+        void setJackSessionApplicationPath( QString path ){
+            jackSessionApplicationPath = path;
+        }
+#endif
+
 private:
 	static Preferences *__instance;
 
@@ -592,7 +609,10 @@ private:
 	int punchOutPos;
 	QString m_sLastNews;
 	int maxBars;
-
+#ifdef H2CORE_HAVE_JACKSESSION
+        QString jackSessionUUID;
+        QString jackSessionApplicationPath;
+#endif
 
 	//___ GUI properties ___
 	QString m_sQTStyle;

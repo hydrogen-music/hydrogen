@@ -347,30 +347,60 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef H2CORE_HAVE_LASH
-	if ( H2Core::Preferences::get_instance()->useLash() ){	
-		if (lashClient->isConnected())
-		{
-			lash_event_t* lash_event = lashClient->getNextEvent();
-			if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
-			{
-				// notify client that this project was not a new one
-				lashClient->setNewProject(false);
-				
-				songFilename = "";
-				songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
-				songFilename.append("/hydrogen.h2song"); 
-				
-//				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
-	
-				lash_event_destroy(lash_event);
-			}
-			else if (lash_event)
-			{
-//				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
-				lash_event_destroy(lash_event);
-			}
-		}
-	}	
+                if ( H2Core::Preferences::get_instance()->useLash() ){
+                        if (lashClient->isConnected())
+                        {
+                                lash_event_t* lash_event = lashClient->getNextEvent();
+                                if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
+                                {
+                                        // notify client that this project was not a new one
+                                        lashClient->setNewProject(false);
+
+                                        songFilename = "";
+                                        songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
+                                        songFilename.append("/hydrogen.h2song");
+
+//        				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+
+                                        lash_event_destroy(lash_event);
+                                }
+                                else if (lash_event)
+                                {
+//        				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+                                        lash_event_destroy(lash_event);
+                                }
+                        }
+                }
+#endif
+
+#ifdef H2CORE_HAVE_JACKSESSION
+                if(!sessionId.isEmpty()){
+                    qDebug() << sessionId;
+                    pPref->setJackSessionUUID( sessionId );
+
+                    /*
+                     * imo, jack sessions use jack as default audio driver.
+                     * hydrogen remember last used audiodriver.
+                     * here we make it save that hydrogen start in a jacksession case
+                     * every time with jack as audio driver
+                     */
+                    pPref->m_sAudioDriver = "Jack";
+
+                    /*
+                     * the use of applicationFilePath() make it
+                     * possible to use different executables.
+                     * for example if you start hydrogen from a local
+                     * build directory.
+                     */
+                    QString path = pQApp->applicationFilePath();
+                    pPref->setJackSessionApplicationPath( path );
+                    qDebug() << path;
+
+                    /*
+                     * for now we just exit hydrogen:)
+                     */
+                    exit(0);
+                }
 #endif
 
 		// Hydrogen here to honor all preferences.
@@ -395,7 +425,6 @@ int main(int argc, char *argv[])
                     }
                 }
 
-
 		if( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( drumkitToLoad );
 			H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
@@ -419,10 +448,10 @@ int main(int argc, char *argv[])
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Object::count_active()) {
-            H2Core::Object::write_objects_map_to_cerr();
+                    H2Core::Object::write_objects_map_to_cerr();
 		}
 
-		//	pQApp->dumpObjectTree();
+                //pQApp->dumpObjectTree();
 
 	}
 	catch ( const H2Core::H2Exception& ex ) {
