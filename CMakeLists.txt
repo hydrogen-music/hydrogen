@@ -176,6 +176,9 @@ ELSE()
     SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support LFAC and OGG sound file formats")
 ENDIF()
 
+# RUBBERBAND information
+SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.\n*				 Because the current implementation produce wrong timing!\n*				 So long this bug isn't solved, please disable this option.\n*				 If rubberband-cli is installed, the hydrogen rubberband-fuction\n*				 will work properly as expected.")
+
 #
 # CONFIG PROCESS SUMMARY
 #
@@ -214,7 +217,8 @@ COLOR_MESSAGE("${_escape}[1;36mUsefull extensions${_escape}[0m
 -----------------------------------------
 * ${_escape}[1;35mLASH${_escape}[0m                         : ${LASH_STATUS}
 * ${_escape}[1;35mLRDF${_escape}[0m                         : ${LRDF_STATUS}
-* ${_escape}[1;35mRUBBERBAND${_escape}[0m                   : ${RUBBERBAND_STATUS}\n"
+* ${_escape}[1;35mRUBBERBAND${_escape}[0m                   : ${RUBBERBAND_STATUS}
+*                                ${LIBRUBBERBAND_MSG}\n"
 )
 
 IF(WANT_DEBUG)
