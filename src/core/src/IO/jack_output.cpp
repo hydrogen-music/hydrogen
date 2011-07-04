@@ -768,27 +768,34 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
     enum session_events{
         SAVE_SESSION,
         SAVE_AND_QUIT,
-        SAVE_TEMPLATE
+        SAVE_TEMPLATE,
+        SAVE_SESSION_NEW_FILE
     };
 
     jack_session_event_t *ev = (jack_session_event_t *) event;
 
     /* Valid Song is needed */
     if(Hydrogen::get_instance()->getSong()->get_filename().isEmpty()){
-        EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+        EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION_NEW_FILE);
+        jack_session_reply(client, ev );
+        jack_session_event_free (ev);
+        return;
+    }
+
+    QString songfilename;
+    if(Preferences::get_instance()->getJackSessionUseSessionDir()){
+        QString jackSessionDirectory = (QString)ev->session_dir;
+        QStringList list1 = Hydrogen::get_instance()->getSong()->get_filename().split("/");
+        QString realFillename = list1[list1.size()-1];
+        qDebug()<< realFillename;
+        Hydrogen::get_instance()->getSong()->set_filename(jackSessionDirectory + realFillename);
+        songfilename = "\"${SESSION_DIR}\"" + realFillename;
+    }else
+    {
+        songfilename = Hydrogen::get_instance()->getSong()->get_filename();
     }
 
 
-    /*
-    QString jackSessionDirectory = (QString)ev->session_dir;
-    QStringList list1 = Hydrogen::get_instance()->getSong()->get_filename().split("/");
-    QString realFillename = list1[list1.size()-1];
-    qDebug()<< realFillename;
-    Hydrogen::get_instance()->getSong()->set_filename(jackSessionDirectory + realFillename);
-    */
-
-
-    QString songfilename = Hydrogen::get_instance()->getSong()->get_filename();
     QString retval = QString(Preferences::get_instance()->getJackSessionApplicationPath() + " -s" + songfilename + " -S" + ev->client_uuid);
     const char * filename = retval.toAscii().data();
 
@@ -796,6 +803,9 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
         EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
     }
     if (ev->type == JackSessionSaveAndQuit) {
+        if(Preferences::get_instance()->getJackSessionUseSessionDir()){
+            EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+        }
         EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
     }
 

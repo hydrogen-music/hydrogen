@@ -1438,6 +1438,9 @@ void MainForm::jacksessionEvent( int nEvent )
                case 1:
                       action_file_exit();
                       break;
+               case 3:
+                      action_file_save();
+                      QMessageBox::information( this, "Hydrogen", trUtf8( "Sorry, the Hydrogen-Songfile is not saved properly in this Jack-Session! You have to repeat the \"Save-Session\" procedure from your Jack-Session-Manager.") );
         }
 
 }
