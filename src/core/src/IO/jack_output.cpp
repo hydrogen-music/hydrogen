@@ -796,7 +796,7 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
     }
 
 
-    QString retval = QString(Preferences::get_instance()->getJackSessionApplicationPath() + " -s" + songfilename + " -S" + ev->client_uuid);
+    QString retval = QString(Preferences::get_instance()->getJackSessionApplicationPath() + " -s" + songfilename + " --jacksessionid " + ev->client_uuid);
     const char * filename = retval.toAscii().data();
 
     if (ev->type == JackSessionSave){

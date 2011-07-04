@@ -61,7 +61,7 @@ static struct option long_opts[] = {
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
 #ifdef H2CORE_HAVE_JACKSESSION
-        {"session-id", required_argument, NULL, 'S'},
+        {"jacksessionid", required_argument, NULL, 'S'},
 #endif
 	{"playlist", required_argument, NULL, 'p'},
 	{"version", 0, NULL, 'v'},
@@ -489,7 +489,7 @@ void showUsage()
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
 
 #ifdef H2CORE_HAVE_JACKSESSION
-        std::cout << "   -S, --session-id ID - Start a JackSessionHandler session" << std::endl;
+        std::cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << std::endl;
 #endif
 
 	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;	
