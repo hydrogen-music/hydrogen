@@ -73,6 +73,10 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
+#ifdef H2CORE_HAVE_JACKSESSION
+        m_bjackSessionUseSessionDir = false;
+#endif
+
 	//init pre delete default
 	m_nRecPreDelete = 0;
 	m_nRecPostDelete = 0;
@@ -403,6 +407,10 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
+
+#ifdef H2CORE_HAVE_JACKSESSION
+                        m_bjackSessionUseSessionDir = LocalFileMng::readXmlBool( rootNode, "JackSessionUseSessionDir", m_bjackSessionUseSessionDir );
+#endif
 			
 			//rubberband
 			if( readPrefFileforotherplaces ){
@@ -752,7 +760,9 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 
-
+#ifdef H2CORE_HAVE_JACKSESSION
+        LocalFileMng::writeXmlString( rootNode, "JackSessionUseSessionDir", m_bjackSessionUseSessionDir ? "true": "false" );
+#endif
 
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

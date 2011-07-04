@@ -585,6 +585,13 @@ public:
         void setJackSessionApplicationPath( QString path ){
             jackSessionApplicationPath = path;
         }
+
+        bool getJackSessionUseSessionDir(){
+            return m_bjackSessionUseSessionDir;
+        }
+        void setJackSessionUseSessionDir( bool val ){
+            m_bjackSessionUseSessionDir = val;
+        }
 #endif
 
 private:
@@ -620,6 +627,7 @@ private:
 #ifdef H2CORE_HAVE_JACKSESSION
         QString jackSessionUUID;
         QString jackSessionApplicationPath;
+        bool m_bjackSessionUseSessionDir;
 #endif
         bool waitingForSessionHandler;
 

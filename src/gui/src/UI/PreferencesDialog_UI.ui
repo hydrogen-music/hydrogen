@@ -174,7 +174,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>110</y>
+       <y>170</y>
        <width>52</width>
        <height>21</height>
       </rect>
@@ -193,7 +193,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>110</y>
+       <y>170</y>
        <width>451</width>
        <height>21</height>
       </rect>
@@ -206,7 +206,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>200</y>
        <width>52</width>
        <height>21</height>
       </rect>
@@ -225,7 +225,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>140</y>
+       <y>200</y>
        <width>451</width>
        <height>21</height>
       </rect>
@@ -238,7 +238,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>270</y>
        <width>511</width>
        <height>52</height>
       </rect>
@@ -280,7 +280,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>170</y>
+       <y>230</y>
        <width>451</width>
        <height>21</height>
       </rect>
@@ -293,7 +293,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>170</y>
+       <y>230</y>
        <width>52</width>
        <height>21</height>
       </rect>
@@ -328,6 +328,32 @@
      </property>
      <property name="shortcut">
       <string>Alt+R</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="useJackSessinStoreFiles">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>511</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save song files in Jack Session Directory (requires Jack Session)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="jackSessionInfoLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>130</y>
+       <width>431</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Enable only if you exactly know what you do.</string>
      </property>
     </widget>
    </widget>

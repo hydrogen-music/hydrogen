@@ -253,6 +253,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	rubberbandLineEdit->setText( pathtoRubberband );
 
+#ifdef H2CORE_HAVE_JACKSESSION
+        useJackSessinStoreFiles->setVisible(true);
+        jackSessionInfoLabel->setVisible(true);
+        useJackSessinStoreFiles->setChecked(pPref->getJackSessionUseSessionDir());
+#else
+        useJackSessinStoreFiles->setVisible(false);
+        jackSessionInfoLabel->setVisible(false);
+#endif
+
 	m_bNeedDriverRestart = false;
 }
 
@@ -401,6 +410,10 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+
+#ifdef H2CORE_HAVE_JACKSESSION
+        pPref->setJackSessionUseSessionDir(useJackSessinStoreFiles->isChecked());
+#endif
 
 	//check preferences 
 	if ( pPref->m_brestartLash == true ){ 
