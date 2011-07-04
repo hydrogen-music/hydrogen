@@ -773,13 +773,22 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 
     jack_session_event_t *ev = (jack_session_event_t *) event;
 
-    QString songfilename = Hydrogen::get_instance()->getSong()->get_filename();
-
     /* Valid Song is needed */
-    if(songfilename.isEmpty()){
+    if(Hydrogen::get_instance()->getSong()->get_filename().isEmpty()){
         EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
     }
 
+
+    /*
+    QString jackSessionDirectory = (QString)ev->session_dir;
+    QStringList list1 = Hydrogen::get_instance()->getSong()->get_filename().split("/");
+    QString realFillename = list1[list1.size()-1];
+    qDebug()<< realFillename;
+    Hydrogen::get_instance()->getSong()->set_filename(jackSessionDirectory + realFillename);
+    */
+
+
+    QString songfilename = Hydrogen::get_instance()->getSong()->get_filename();
     QString retval = QString(Preferences::get_instance()->getJackSessionApplicationPath() + " -s" + songfilename + " -S" + ev->client_uuid);
     const char * filename = retval.toAscii().data();
 

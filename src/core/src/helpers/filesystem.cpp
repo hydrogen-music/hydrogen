@@ -67,6 +67,19 @@ bool Filesystem::bootstrap( Logger* logger ) {
 
      __sys_data_path = SYS_DATA_PATH;
 
+     QString localenv = getenv("PATH");
+     QStringList localenvlist = localenv.split(":");
+
+     bool pathIsEnv = false;
+     for(int i=0;i<localenvlist.size();i++){
+         if(QCoreApplication::applicationDirPath().contains(localenvlist[i]))
+                 pathIsEnv = true;
+     }
+
+     if(!QDir(__sys_data_path).exists()||!pathIsEnv){
+          __sys_data_path = LOCAL_DATA_PATH;
+     }
+    qDebug()<< "Data Path: "+__sys_data_path;
     return check_sys_paths() && check_usr_paths();
 }
 
