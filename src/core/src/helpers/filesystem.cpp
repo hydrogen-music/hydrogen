@@ -8,7 +8,7 @@
 #include <QtCore/QCoreApplication>
 
 // directories
-#define LOCAL_DATA_PATH QCoreApplication::applicationDirPath().append( "/data" )
+#define LOCAL_DATA_PATH "/data"
 #define IMG             "/img"
 #define DOC             "/doc"
 #define I18N            "/i18n"
@@ -48,7 +48,6 @@ bool Filesystem::bootstrap( Logger* logger ) {
         return false;
     }
 
-
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
     //Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
@@ -65,21 +64,10 @@ bool Filesystem::bootstrap( Logger* logger ) {
     __usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
 #endif
 
-     __sys_data_path = SYS_DATA_PATH;
-
-     QString localenv = getenv("PATH");
-     QStringList localenvlist = localenv.split(":");
-
-     bool pathIsEnv = false;
-     for(int i=0;i<localenvlist.size();i++){
-         if(QCoreApplication::applicationDirPath().contains(localenvlist[i]))
-                 pathIsEnv = true;
-     }
-
-     if(!QDir(__sys_data_path).exists()||!pathIsEnv){
-          __sys_data_path = LOCAL_DATA_PATH;
-     }
-    qDebug()<< "Data Path: "+__sys_data_path;
+    if( !dir_readable( __sys_data_path ) ) {
+        __sys_data_path = QCoreApplication::applicationDirPath().append( LOCAL_DATA_PATH );
+        ERRORLOG( QString("will use local data path : %1").arg(__sys_data_path));
+    }
     return check_sys_paths() && check_usr_paths();
 }
 
