@@ -177,7 +177,11 @@ ELSE()
 ENDIF()
 
 # RUBBERBAND information
-SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.\n*				 Because the current implementation produce wrong timing!\n*				 So long this bug isn't solved, please disable this option.\n*				 If rubberband-cli is installed, the hydrogen rubberband-fuction\n*				 will work properly as expected.")
+SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
+*				 Because the current implementation produce wrong timing!
+*				 So long this bug isn't solved, please disable this option.
+*				 If rubberband-cli is installed, the hydrogen rubberband-fuction
+*				 will work properly as expected.")
 
 #
 # CONFIG PROCESS SUMMARY
