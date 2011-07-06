@@ -182,7 +182,12 @@ SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.\n*		
 #
 # CONFIG PROCESS SUMMARY
 #
-COLOR_MESSAGE("${_escape}[1;36mInstallation Summary${_escape}[0m
+SET(reset "${_escape}[0m")
+SET(red "${_escape}[1;31m")
+SET(purple "${_escape}[1;35m")
+SET(cyan "${_escape}[1;36m")
+
+COLOR_MESSAGE("${cyan}Installation Summary${reset}
 --------------------
 * Install Directory            : ${CMAKE_INSTALL_PREFIX}
 * User data path               : ${USR_DATA_PATH}
@@ -192,37 +197,37 @@ COLOR_MESSAGE("${_escape}[1;36mInstallation Summary${_escape}[0m
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
 )
 
-COLOR_MESSAGE("${_escape}[1;36mMain librarires${_escape}[0m
-* Qt4 version                  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
-* ${_escape}[1;35mlibsndfile${_escape}[0m                   : ${LIBSNDFILE_STATUS}
+COLOR_MESSAGE("${cyan}Main librarires${reset}
+* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
+* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
 *                                ${LIBSNDFILE_MSG}
-* ${_escape}[1;35mlibtar${_escape}[0m                       : ${LIBTAR_STATUS}
-* ${_escape}[1;35mlibarchive${_escape}[0m                   : ${LIBARCHIVE_STATUS}
-* ${_escape}[1;35mladspa${_escape}[0m                       : ${LADSPA_STATUS}\n"
+* ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
+* ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
+* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n"
 )
 
-COLOR_MESSAGE("${_escape}[1;36mSupported audio interfaces${_escape}[0m
+COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 --------------------------
-* ${_escape}[1;35mALSA${_escape}[0m                         : ${ALSA_STATUS}
-* ${_escape}[1;35mOSS${_escape}[0m                          : ${OSS_STATUS}
-* ${_escape}[1;35mJACK${_escape}[0m                         : ${JACK_STATUS}
-* ${_escape}[1;35mJACKSESSION${_escape}[0m                  : ${JACKSESSION_STATUS}
-* ${_escape}[1;35mCoreAudio${_escape}[0m                    : ${COREAUDIO_STATUS}
-* ${_escape}[1;35mCoreMidi${_escape}[0m                     : ${COREMIDI_STATUS}
-* ${_escape}[1;35mPortAudio${_escape}[0m                    : ${PORTAUDIO_STATUS}
-* ${_escape}[1;35mPortMidi${_escape}[0m                     : ${PORTMIDI_STATUS}\n"
+* ${purple}ALSA${reset}                         : ${ALSA_STATUS}
+* ${purple}OSS${reset}                          : ${OSS_STATUS}
+* ${purple}JACK${reset}                         : ${JACK_STATUS}
+* ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
+* ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
+* ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
+* ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}
+* ${purple}PortMidi${reset}                     : ${PORTMIDI_STATUS}\n"
 )
 
-COLOR_MESSAGE("${_escape}[1;36mUsefull extensions${_escape}[0m
+COLOR_MESSAGE("${cyan}Usefull extensions${reset}
 -----------------------------------------
-* ${_escape}[1;35mLASH${_escape}[0m                         : ${LASH_STATUS}
-* ${_escape}[1;35mLRDF${_escape}[0m                         : ${LRDF_STATUS}
-* ${_escape}[1;35mRUBBERBAND${_escape}[0m                   : ${RUBBERBAND_STATUS}
+* ${purple}LASH${reset}                         : ${LASH_STATUS}
+* ${purple}LRDF${reset}                         : ${LRDF_STATUS}
+* ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
 *                                ${LIBRUBBERBAND_MSG}\n"
 )
 
 IF(WANT_DEBUG)
-    COLOR_MESSAGE("${_escape}[1;36mMiscellaneous capabilities${_escape}[0m
+    COLOR_MESSAGE("${cyan}Miscellaneous capabilities${reset}
 -----------------------------------------
 * realtime clock               : ${HAVE_RTCLOCK}
 * working sscanf               : ${HAVE_SSCANF}\n"
@@ -230,7 +235,7 @@ IF(WANT_DEBUG)
 ENDIF()
 
 COLOR_MESSAGE("-----------------------------------------------------------------
-${_escape}[1;31mIMPORTANT:${_escape}[0m
+${red}IMPORTANT:${reset}
   after installing missing packages, remove ${CMAKE_BINARY_DIR}/CMakeCache.txt before
   running cmake again!
 -----------------------------------------------------------------\n"
@@ -239,7 +244,7 @@ ${_escape}[1;31mIMPORTANT:${_escape}[0m
 find_path( HYDROGEN_INSTALLED NAMES hydrogen/config.h )
 IF( HYDROGEN_INSTALLED )
     COLOR_MESSAGE("-----------------------------------------------------------------
-${_escape}[1;31mIMPORTANT${_escape}[0m:
+${red}IMPORTANT${reset}:
   previously installed hydrogen headers found in ${HYDROGEN_INSTALLED}
   you should uninstall these files before building hydrogen unless you know what you are doing.
 -----------------------------------------------------------------\n"
