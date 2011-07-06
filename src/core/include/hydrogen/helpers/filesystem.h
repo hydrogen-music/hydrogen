@@ -86,15 +86,15 @@ class Filesystem : public H2Core::Object {
          */
         static bool drumkit_exists( const QString& dk_name );
         /**
-         * returns path for a drumkit searching within usable system then user drumkits
+         * returns path for a drumkit searching within user then system drumkits
          * \param dk_name the drumkit name
          */
-        static QString drumkit_path( const QString& dk_name );
+        static QString drumkit_path_search( const QString& dk_name );
         /**
-         * returns the directory holding the named drumkit
+         * returns the directory holding the named drumkit searching within user then system drumkits
          * \param dk_name the drumkit name
          */
-        static QString drumkit_location( const QString& dk_name );
+        static QString drumkit_dir_search( const QString& dk_name );
         /**
          * returns true if the path contains a usable drumkit
          * \param dk_location the root drumkit location

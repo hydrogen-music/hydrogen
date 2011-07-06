@@ -227,7 +227,7 @@ void Drumkit::set_instruments( InstrumentList* instruments ) {
 }
 
 bool Drumkit::remove( const QString& dk_name ) {
-    QString dk_dir = Filesystem::drumkit_path( dk_name );
+    QString dk_dir = Filesystem::drumkit_path_search( dk_name );
     if( !Filesystem::drumkit_valid( dk_dir ) ) {
         ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
         return false;

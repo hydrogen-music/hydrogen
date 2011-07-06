@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 
 
 		if( ! drumkitToLoad.isEmpty() ){
-                    H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path( drumkitToLoad ), true );
+                    H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path_search( drumkitToLoad ), true );
                     H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 		}
 

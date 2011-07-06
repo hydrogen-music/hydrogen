@@ -167,7 +167,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 }
 
 void Instrument::load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live ) {
-    QString dir = Filesystem::drumkit_path( drumkit_name );
+    QString dir = Filesystem::drumkit_path_search( drumkit_name );
     if ( dir.isEmpty() ) return;
     Drumkit* drumkit = Drumkit::load( dir );
     assert( drumkit );

@@ -71,7 +71,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
         QString drumkitName = drumkitList->currentText();
-        QString drumkitDir = Filesystem::drumkit_location( drumkitName );
+        QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
         QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
         //qDebug()<<QString( "cmd: " + cmd );

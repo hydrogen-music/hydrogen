@@ -2560,7 +2560,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	INFOLOG( drumkitInfo->get_name() );
 	m_currentDrumkit = drumkitInfo->get_name();
 	LocalFileMng fileMng;
-	QString sDrumkitPath = Filesystem::drumkit_path( drumkitInfo->get_name() );
+	QString sDrumkitPath = Filesystem::drumkit_path_search( drumkitInfo->get_name() );
 
 
 	//current instrument list
