@@ -345,6 +345,9 @@ bool Filesystem::drumkit_exists( const QString& dk_name ) {
     if( usr_drumkits_list().contains( dk_name ) ) return true;
     return sys_drumkits_list().contains( dk_name );
 }
+QString Filesystem::drumkit_usr_path( const QString& dk_name ) {
+    return usr_drumkits_dir() + "/" + dk_name;
+}
 QString Filesystem::drumkit_path_search( const QString& dk_name ) {
     if( usr_drumkits_list().contains( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
     if( sys_drumkits_list().contains( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
