@@ -25,8 +25,9 @@ class Filesystem : public H2Core::Object {
         /**
          * check user and system filesystem usability
          * \param logger is a pointer to the logger instance which will be used
+         * \param sys_path an alternate system data path
          */
-        static bool bootstrap( Logger* logger );
+        static bool bootstrap( Logger* logger, const QString& sys_path=0 );
 
         /** returns system data path */
         static QString sys_data_path();

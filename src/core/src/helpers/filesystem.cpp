@@ -41,7 +41,7 @@ QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
 
 /* TODO QCoreApplication is not instanciated */
-bool Filesystem::bootstrap( Logger* logger ) {
+bool Filesystem::bootstrap( Logger* logger, const QString& sys_path ) {
     if( __logger==0 && logger!=0 ) {
         __logger = logger;
     } else {
@@ -63,6 +63,7 @@ bool Filesystem::bootstrap( Logger* logger ) {
     __sys_data_path = SYS_DATA_PATH;
     __usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
 #endif
+    if( sys_path!=0 ) __sys_data_path = sys_path;
 
     if( !dir_readable( __sys_data_path ) ) {
         __sys_data_path = QCoreApplication::applicationDirPath().append( LOCAL_DATA_PATH );
