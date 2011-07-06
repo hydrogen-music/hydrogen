@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     /* Object */
     H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
     /* Filesystem */
-    H2Core::Filesystem::bootstrap( logger );
+    H2Core::Filesystem::bootstrap( logger, "./data" );
     H2Core::Filesystem::info();
 
     rubberband_test();

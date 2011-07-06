@@ -58,6 +58,7 @@ void showUsage();
 
 #define HAS_ARG 1
 static struct option long_opts[] = {
+	{"data", required_argument, NULL, 'P'},
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
 #ifdef H2CORE_HAVE_JACKSESSION
@@ -176,6 +177,7 @@ int main(int argc, char *argv[])
 #endif
 		QString playlistFilename;
 		bool bNoSplash = false;
+        QString sys_data_path;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
 		unsigned logLevelOpt = H2Core::Logger::Error;
@@ -190,6 +192,10 @@ int main(int argc, char *argv[])
 				break;
 
 			switch(c) {
+                case 'P':
+                    sys_data_path = QString::fromLocal8Bit(optarg);
+                    break;
+
 				case 'd':
 					sSelectedDriver = QString::fromLocal8Bit(optarg);
 					break;
@@ -256,7 +262,11 @@ int main(int argc, char *argv[])
         H2Core::Logger::set_bit_mask( logLevelOpt );
         H2Core::Logger* logger = H2Core::Logger::get_instance();
         H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-        H2Core::Filesystem::bootstrap( logger );
+        if(sys_data_path.length()==0 ) {
+            H2Core::Filesystem::bootstrap( logger );
+        } else {
+            H2Core::Filesystem::bootstrap( logger, sys_data_path );
+        }
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
@@ -485,6 +495,7 @@ void showInfo()
 void showUsage()
 {
 	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
+	std::cout << "   -P, --data PATH - Use an alternate system data path" << std::endl;
 	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
 
