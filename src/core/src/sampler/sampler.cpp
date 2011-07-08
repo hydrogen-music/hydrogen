@@ -824,7 +824,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 		( pEngine->getState() != STATE_PLAYING )){
 			PatternList *pPatternList = mSong->get_pattern_list();
 			if ( ( selectedpattern != -1 )
-			&& ( selectedpattern < ( int )pPatternList->get_size() ) ) {
+			&& ( selectedpattern < ( int )pPatternList->size() ) ) {
 				currentPattern = pPatternList->get( selectedpattern );
 			}
 		}else

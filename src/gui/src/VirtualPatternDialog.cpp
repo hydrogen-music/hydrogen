@@ -93,7 +93,7 @@ void VirtualPatternDialog::computeVirtualPatternTransitiveClosure(H2Core::Patter
 {
     //std::map<Pattern*, SimplePatternNode*> patternNodeGraph;
     
-    int listsize = pPatternList->get_size();    
+    int listsize = pPatternList->size();
     for (unsigned int index = 0; index < listsize; ++index) {
 	H2Core::Pattern *curPattern = pPatternList->get(index);
 	//SimplePatternNode *newNode = new SimplePatternNode();

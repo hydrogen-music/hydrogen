@@ -212,7 +212,7 @@ void ExportSongDialog::exportTracks()
 
 		bool instrumentexists = false;
 		//if a instrument contains no notes we jump to the next instrument
-		unsigned nPatterns = pSong->get_pattern_list()->get_size();
+		unsigned nPatterns = pSong->get_pattern_list()->size();
 		for ( unsigned i = 0; i < nPatterns; i++ ) {
 			Pattern *pat = pSong->get_pattern_list()->get( i );
 

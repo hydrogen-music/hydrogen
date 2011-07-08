@@ -381,7 +381,7 @@ void InstrumentLine::functionDeleteInstrument()
 	QString instrumentName =  pSelectedInstrument->get_name();
 	QString drumkitName = H->getCurrentDrumkitname();
 
-	for ( int i = 0; i < patList->get_size(); i++ ) {
+	for ( int i = 0; i < patList->size(); i++ ) {
 		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
 		std::multimap <int, Note*>::iterator pos = pPattern->note_map.begin();
 		while ( pos != pPattern->note_map.end() ) {

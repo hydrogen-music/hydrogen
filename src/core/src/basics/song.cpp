@@ -65,7 +65,7 @@ void computeVirtualPatternTransitiveClosure( H2Core::PatternList* pPatternList )
 {
     //std::map<Pattern*, SimplePatternNode*> patternNodeGraph;
 
-    int listsize = pPatternList->get_size();
+    int listsize = pPatternList->size();
     for ( unsigned int index = 0; index < listsize; ++index ) {
         H2Core::Pattern* curPattern = pPatternList->get( index );
         //SimplePatternNode *newNode = new SimplePatternNode();
@@ -138,7 +138,7 @@ Song::~Song()
 
 void Song::purge_instrument( Instrument* I )
 {
-    for ( int nPattern = 0; nPattern < ( int )__pattern_list->get_size(); ++nPattern ) {
+    for ( int nPattern = 0; nPattern < ( int )__pattern_list->size(); ++nPattern ) {
         __pattern_list->get( nPattern )->purge_instrument( I );
     }
 }
@@ -279,7 +279,7 @@ void Song::readTempPatternList( QString filename )
             sName = LocalFileMng::readXmlString( virtualPatternNode, "name", sName );
 
             Pattern* curPattern = NULL;
-            unsigned nPatterns = song->get_pattern_list()->get_size();
+            unsigned nPatterns = song->get_pattern_list()->size();
             for ( unsigned i = 0; i < nPatterns; i++ ) {
                 Pattern* pat = song->get_pattern_list()->get( i );
 
@@ -335,7 +335,7 @@ void Song::readTempPatternList( QString filename )
             QString patId = patternId.firstChild().nodeValue();
 
             Pattern* pat = NULL;
-            for ( unsigned i = 0; i < song->get_pattern_list()->get_size(); i++ ) {
+            for ( unsigned i = 0; i < song->get_pattern_list()->size(); i++ ) {
                 Pattern* tmp = song->get_pattern_list()->get( i );
                 if ( tmp ) {
                     if ( tmp->get_name() == patId ) {
@@ -706,7 +706,7 @@ Song* SongReader::readSong( const QString& filename )
             sName = LocalFileMng::readXmlString( virtualPatternNode, "name", sName );
 
             Pattern* curPattern = NULL;
-            unsigned nPatterns = patternList->get_size();
+            unsigned nPatterns = patternList->size();
             for ( unsigned i = 0; i < nPatterns; i++ ) {
                 Pattern* pat = patternList->get( i );
 
@@ -761,7 +761,7 @@ Song* SongReader::readSong( const QString& filename )
         ERRORLOG( patId );
 
         Pattern* pat = NULL;
-        for ( unsigned i = 0; i < patternList->get_size(); i++ ) {
+        for ( unsigned i = 0; i < patternList->size(); i++ ) {
             Pattern* tmp = patternList->get( i );
             if ( tmp ) {
                 if ( tmp->get_name() == patId ) {
@@ -790,7 +790,7 @@ Song* SongReader::readSong( const QString& filename )
             QString patId = patternId.firstChild().nodeValue();
 
             Pattern* pat = NULL;
-            for ( unsigned i = 0; i < patternList->get_size(); i++ ) {
+            for ( unsigned i = 0; i < patternList->size(); i++ ) {
                 Pattern* tmp = patternList->get( i );
                 if ( tmp ) {
                     if ( tmp->get_name() == patId ) {

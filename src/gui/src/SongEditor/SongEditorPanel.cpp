@@ -360,7 +360,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
-	int emptyPatternNo = patternList->get_size() + 1;
+	int emptyPatternNo = patternList->size() + 1;
 
 	Pattern *emptyPattern = Pattern::get_empty_pattern();
 	emptyPattern->set_name( trUtf8("Pattern %1").arg(emptyPatternNo) );
@@ -395,12 +395,12 @@ void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatte
 	emptyPattern->set_name( newPatternName );
 	emptyPattern->set_category( newPatternCategory );
 	patternList->add( emptyPattern );
-	if( patternPosition != patternList->get_size() ){
-		for (int nPatr = patternList->get_size() +1 ; nPatr >= patternPosition; nPatr--) {
+	if( patternPosition != patternList->size() ){
+		for (int nPatr = patternList->size() +1 ; nPatr >= patternPosition; nPatr--) {
 			H2Core::Pattern *pPattern = patternList->get(nPatr - 1);
-			patternList->replace( pPattern, nPatr );
+			patternList->replace( nPatr, pPattern );
 		}
-		patternList->replace( emptyPattern,  patternPosition );
+		patternList->replace( patternPosition, emptyPattern );
 	}
 	song->__is_modified = true;
 	updateAll();
@@ -451,7 +451,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 
-	if( pEngine->getSelectedPatternNumber() +1 >=  pSong->get_pattern_list()->get_size() ) return;
+	if( pEngine->getSelectedPatternNumber() +1 >=  pSong->get_pattern_list()->size() ) return;
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;

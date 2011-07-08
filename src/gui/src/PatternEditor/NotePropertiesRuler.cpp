@@ -1207,7 +1207,7 @@ void NotePropertiesRuler::updateEditor()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {

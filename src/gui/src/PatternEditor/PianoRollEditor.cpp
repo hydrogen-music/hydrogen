@@ -130,7 +130,7 @@ void PianoRollEditor::selectedPatternChangedEvent()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->get_size() ) ) {
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
@@ -694,7 +694,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
 	assert(pSelectedInstrument);
 
-	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->get_size() ) ) {
+	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
 	}
 	else {
@@ -772,7 +772,7 @@ void PianoRollEditor::addNoteRightClickAction( int nColumn, int pressedLine, int
 	pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
 	assert(pSelectedInstrument);
 
-	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->get_size() ) ) {
+	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
 	}
 	else {
@@ -1032,7 +1032,7 @@ void PianoRollEditor::editNoteLenghtAction( int nColumn,  int nRealColumn,  int 
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 
 	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->get_size() ) ) {
+	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
 	}
 	else {
@@ -1125,7 +1125,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 
 	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->get_size() ) ) {
+	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
 	}
 	else {

@@ -250,7 +250,7 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
 		for ( unsigned nPattern = 0 ;
-		      nPattern < pPatternList->get_size() ;
+		      nPattern < pPatternList->size() ;
 		      nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
 			// infoLog( "      |-> pattern: " + pPattern->getName() );
