@@ -35,30 +35,30 @@ class Pattern;
 /// Pattern List
 class PatternList : public H2Core::Object
 {
-    H2_OBJECT
-public:
-	PatternList();
-	~PatternList();
+        H2_OBJECT
+    public:
+        PatternList();
+        ~PatternList();
 
-	void add( Pattern* new_pattern );
-	Pattern* get( int pos );
-	unsigned int get_size();
-	void clear();
+        void add( Pattern* new_pattern );
+        Pattern* get( int pos );
+        unsigned int get_size();
+        void clear();
 
-	void replace( Pattern* new_pattern, unsigned pos );
-	int index_of( Pattern* pattern );
+        void replace( Pattern* new_pattern, unsigned pos );
+        int index_of( Pattern* pattern );
 
-	/// Remove a pattern from the list (every instance in the list), the pattern is not deleted!!!
-	/// Returns NULL if the pattern is not in the list
-	Pattern * del( Pattern *pattern ); 
+        /// Remove a pattern from the list (every instance in the list), the pattern is not deleted!!!
+        /// Returns NULL if the pattern is not in the list
+        Pattern* del( Pattern* pattern );
 
-	void set_to_old();
+        void set_to_old();
 
-	/// Remove one pattern from the list, the pattern is not deleted!!!
-	void del( unsigned index );
+        /// Remove one pattern from the list, the pattern is not deleted!!!
+        void del( unsigned index );
 
-private:
-	std::vector<Pattern*> list;
+    private:
+        std::vector<Pattern*> list;
 };
 
 };

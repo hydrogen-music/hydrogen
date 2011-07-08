@@ -27,7 +27,8 @@
 
 #include <hydrogen/object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class XMLNode;
 class Instrument;
@@ -35,7 +36,8 @@ class Instrument;
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
 */
-class InstrumentList : public H2Core::Object {
+class InstrumentList : public H2Core::Object
+{
         H2_OBJECT
     public:
         /** constructor */
@@ -146,7 +148,8 @@ class InstrumentList : public H2Core::Object {
 
 // DEFINITIONS
 
-inline int InstrumentList::size() const {
+inline int InstrumentList::size() const
+{
     return __instruments.size();
 }
 

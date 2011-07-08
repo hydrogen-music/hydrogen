@@ -30,7 +30,8 @@
 #define EMPTY_INSTR_ID          -1
 #define METRONOME_INSTR_ID      -2
 
-namespace H2Core {
+namespace H2Core
+{
 
 class XMLNode;
 class ADSR;
@@ -40,7 +41,8 @@ class InstrumentLayer;
 /**
 Instrument class
 */
-class Instrument : public H2Core::Object {
+class Instrument : public H2Core::Object
+{
         H2_OBJECT
     public:
         /**
@@ -259,39 +261,48 @@ class Instrument : public H2Core::Object {
 
 // DEFINITIONS
 
-inline void Instrument::set_name( const QString& name ) {
+inline void Instrument::set_name( const QString& name )
+{
     __name = name;
 }
 
-inline const QString& Instrument::get_name() const {
+inline const QString& Instrument::get_name() const
+{
     return __name;
 }
 
-inline void Instrument::set_id( const int id ) {
+inline void Instrument::set_id( const int id )
+{
     __id = id;
 }
 
-inline int Instrument::get_id() const {
+inline int Instrument::get_id() const
+{
     return __id;
 }
 
-inline ADSR* Instrument::get_adsr() const {
+inline ADSR* Instrument::get_adsr() const
+{
     return __adsr;
 }
 
-inline void Instrument::set_mute_group( int group ) {
-    __mute_group = (group<-1 ? -1 : group);
+inline void Instrument::set_mute_group( int group )
+{
+    __mute_group = ( group<-1 ? -1 : group );
 }
 
-inline int Instrument::get_mute_group() const {
+inline int Instrument::get_mute_group() const
+{
     return __mute_group;
 }
 
-inline int Instrument::get_midi_out_channel() const {
+inline int Instrument::get_midi_out_channel() const
+{
     return __midi_out_channel;
 }
 
-inline void Instrument::set_midi_out_channel( int channel ) {
+inline void Instrument::set_midi_out_channel( int channel )
+{
     if ( ( channel >= MIDI_OUT_CHANNEL_MIN ) && ( channel <= MIDI_OUT_CHANNEL_MAX ) ) {
         __midi_out_channel = channel;
     } else {
@@ -299,11 +310,13 @@ inline void Instrument::set_midi_out_channel( int channel ) {
     }
 }
 
-inline int Instrument::get_midi_out_note() const {
+inline int Instrument::get_midi_out_note() const
+{
     return __midi_out_note;
 }
 
-inline void Instrument::set_midi_out_note( int note ) {
+inline void Instrument::set_midi_out_note( int note )
+{
     if ( ( note >= MIDI_OUT_NOTE_MIN ) && ( note <= MIDI_OUT_NOTE_MAX ) ) {
         __midi_out_note = note;
     } else {
@@ -311,150 +324,186 @@ inline void Instrument::set_midi_out_note( int note ) {
     }
 }
 
-inline void Instrument::set_muted( bool muted ) {
+inline void Instrument::set_muted( bool muted )
+{
     __muted = muted;
 }
 
-inline bool Instrument::is_muted() const {
+inline bool Instrument::is_muted() const
+{
     return __muted;
 }
 
-inline void Instrument::set_pan_l( float val ) {
+inline void Instrument::set_pan_l( float val )
+{
     __pan_l = val;
 }
 
-inline float Instrument::get_pan_l() const {
+inline float Instrument::get_pan_l() const
+{
     return __pan_l;
 }
 
-inline void Instrument::set_pan_r( float val ) {
+inline void Instrument::set_pan_r( float val )
+{
     __pan_r = val;
 }
 
-inline float Instrument::get_pan_r() const {
+inline float Instrument::get_pan_r() const
+{
     return __pan_r;
 }
 
-inline void Instrument::set_gain( float gain ) {
+inline void Instrument::set_gain( float gain )
+{
     __gain = gain;
 }
 
-inline float Instrument::get_gain() const {
+inline float Instrument::get_gain() const
+{
     return __gain;
 }
 
-inline void Instrument::set_volume( float volume ) {
+inline void Instrument::set_volume( float volume )
+{
     __volume = volume;
 }
 
-inline float Instrument::get_volume() const {
+inline float Instrument::get_volume() const
+{
     return __volume;
 }
 
-inline void Instrument::set_filter_active( bool active ) {
+inline void Instrument::set_filter_active( bool active )
+{
     __filter_active = active;
 }
 
-inline bool Instrument::is_filter_active() const {
+inline bool Instrument::is_filter_active() const
+{
     return __filter_active;
 }
 
-inline void Instrument::set_filter_resonance( float val ) {
+inline void Instrument::set_filter_resonance( float val )
+{
     __filter_resonance = val;
 }
 
-inline float Instrument::get_filter_resonance() const {
+inline float Instrument::get_filter_resonance() const
+{
     return __filter_resonance;
 }
 
-inline void Instrument::set_filter_cutoff( float val ) {
+inline void Instrument::set_filter_cutoff( float val )
+{
     __filter_cutoff = val;
 }
 
-inline float Instrument::get_filter_cutoff() const {
+inline float Instrument::get_filter_cutoff() const
+{
     return __filter_cutoff;
 }
 
-inline void Instrument::set_peak_l( float val ) {
+inline void Instrument::set_peak_l( float val )
+{
     __peak_l = val;
 }
 
-inline float Instrument::get_peak_l() const {
+inline float Instrument::get_peak_l() const
+{
     return __peak_l;
 }
 
-inline void Instrument::set_peak_r( float val ) {
+inline void Instrument::set_peak_r( float val )
+{
     __peak_r = val;
 }
 
-inline float Instrument::get_peak_r() const {
+inline float Instrument::get_peak_r() const
+{
     return __peak_r;
 }
 
-inline void Instrument::set_fx_level( float level, int index ) {
+inline void Instrument::set_fx_level( float level, int index )
+{
     __fx_level[index] = level;
 }
 
-inline float Instrument::get_fx_level( int index ) const {
+inline float Instrument::get_fx_level( int index ) const
+{
     return __fx_level[index];
 }
 
-inline void Instrument::set_random_pitch_factor( float val ) {
+inline void Instrument::set_random_pitch_factor( float val )
+{
     __random_pitch_factor = val;
 }
 
-inline float Instrument::get_random_pitch_factor() const {
+inline float Instrument::get_random_pitch_factor() const
+{
     return __random_pitch_factor;
 }
 
-inline void Instrument::set_active( bool active ) {
+inline void Instrument::set_active( bool active )
+{
     __active = active;
 }
 
-inline bool Instrument::is_active() const {
+inline bool Instrument::is_active() const
+{
     return __active;
 }
 
-inline void Instrument::set_soloed( bool soloed ) {
+inline void Instrument::set_soloed( bool soloed )
+{
     __soloed = soloed;
 }
 
-inline bool Instrument::is_soloed() const {
+inline bool Instrument::is_soloed() const
+{
     return __soloed;
 }
 
-inline void Instrument::enqueue() {
+inline void Instrument::enqueue()
+{
     __queued++;
 }
 
-inline void Instrument::dequeue() {
+inline void Instrument::dequeue()
+{
     assert( __queued > 0 );
     __queued--;
 }
 
-inline bool Instrument::is_queued() const {
+inline bool Instrument::is_queued() const
+{
     return ( __queued > 0 );
 }
 
-inline void Instrument::set_stop_notes( bool stopnotes ) {
+inline void Instrument::set_stop_notes( bool stopnotes )
+{
     __stop_notes = stopnotes;
 }
 
-inline bool Instrument::is_stop_notes() const {
+inline bool Instrument::is_stop_notes() const
+{
     return __stop_notes;
 }
 
-inline InstrumentLayer* Instrument::operator[]( int idx ) {
+inline InstrumentLayer* Instrument::operator[]( int idx )
+{
     assert( idx>=0 && idx <MAX_LAYERS );
     return __layers[ idx ];
 }
 
-inline InstrumentLayer* Instrument::Instrument::get_layer( int idx ) {
+inline InstrumentLayer* Instrument::Instrument::get_layer( int idx )
+{
     assert( idx>=0 && idx <MAX_LAYERS );
     return __layers[ idx ];
 }
 
-inline void Instrument::set_layer( InstrumentLayer* layer, int idx ) {
+inline void Instrument::set_layer( InstrumentLayer* layer, int idx )
+{
     assert( idx>=0 && idx <MAX_LAYERS );
     __layers[ idx ] = layer;
 }

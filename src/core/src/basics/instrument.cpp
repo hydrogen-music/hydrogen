@@ -35,7 +35,8 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 const char* Instrument::__class_name = "Instrument";
 
@@ -61,7 +62,8 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
     , __soloed( false )
     , __muted( false )
     , __mute_group( -1 )
-    , __queued( 0 ) {
+    , __queued( 0 )
+{
     if ( __adsr==0 ) __adsr = new ADSR();
     for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
     for ( int i=0; i<MAX_LAYERS; i++ ) __layers[i] = NULL;
@@ -89,7 +91,8 @@ Instrument::Instrument( Instrument* other )
     , __soloed( other->is_soloed() )
     , __muted( other->is_muted() )
     , __mute_group( other->get_mute_group() )
-    , __queued( other->is_queued() ) {
+    , __queued( other->is_queued() )
+{
     for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
     for ( int i=0; i<MAX_LAYERS; i++ ) {
@@ -102,7 +105,8 @@ Instrument::Instrument( Instrument* other )
     }
 }
 
-Instrument::~Instrument() {
+Instrument::~Instrument()
+{
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         delete __layers[i];
         __layers[i] = 0;
@@ -111,13 +115,15 @@ Instrument::~Instrument() {
     __adsr = 0;
 }
 
-Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name ) {
+Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name )
+{
     Instrument* i = new Instrument();
     i->load_from( drumkit_name, instrument_name, false );
     return i;
 }
 
-void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_live ) {
+void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_live )
+{
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         InstrumentLayer* src_layer = instrument->get_layer( i );
         InstrumentLayer* my_layer = this->get_layer( i );
@@ -166,7 +172,8 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
         AudioEngine::get_instance()->unlock();
 }
 
-void Instrument::load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live ) {
+void Instrument::load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live )
+{
     QString dir = Filesystem::drumkit_path_search( drumkit_name );
     if ( dir.isEmpty() ) return;
     Drumkit* drumkit = Drumkit::load( dir );
@@ -178,7 +185,8 @@ void Instrument::load_from( const QString& drumkit_name, const QString& instrume
     delete drumkit;
 }
 
-Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path ) {
+Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path )
+{
     int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
     if ( id==EMPTY_INSTR_ID ) return 0;
     Instrument* instrument = new Instrument( id, node->read_string( "name", "" ), 0 );
@@ -218,21 +226,24 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path ) {
     return instrument;
 }
 
-void Instrument::load_samples() {
+void Instrument::load_samples()
+{
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         InstrumentLayer* layer = get_layer( i );
         if( layer ) layer->load_sample( );
     }
 }
 
-void Instrument::unload_samples() {
+void Instrument::unload_samples()
+{
     for ( int i=0; i<MAX_LAYERS; i++ ) {
         InstrumentLayer* layer = get_layer( i );
         if( layer ) layer->unload_sample();
     }
 }
 
-void Instrument::save_to( XMLNode* node ) {
+void Instrument::save_to( XMLNode* node )
+{
     XMLNode instrument_node = node->ownerDocument().createElement( "instrument" );
     instrument_node.write_int( "id", __id );
     instrument_node.write_string( "name", __name );
@@ -265,7 +276,8 @@ void Instrument::save_to( XMLNode* node ) {
     node->appendChild( instrument_node );
 }
 
-void Instrument::set_adsr( ADSR* adsr ) {
+void Instrument::set_adsr( ADSR* adsr )
+{
     if( __adsr ) delete __adsr;
     __adsr = adsr;
 }

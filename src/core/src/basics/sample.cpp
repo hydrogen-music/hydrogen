@@ -33,7 +33,8 @@
 #define RUBBERBAND_DEBUG            0
 #endif
 
-namespace H2Core {
+namespace H2Core
+{
 
 const char* Sample::__class_name = "Sample";
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
@@ -49,7 +50,8 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
     __sample_rate( sample_rate ),
     __data_l( data_l ),
     __data_r( data_r ),
-    __is_modified( false ) {
+    __is_modified( false )
+{
     /*
     if( !(filepath.lastIndexOf( "/" ) >0) ) {
         ERRORLOG( QString( "sample path : %1 is not ok" ).arg( filepath ) );
@@ -68,7 +70,8 @@ Sample::Sample( Sample* other ): Object( __class_name ),
     __data_r( 0 ),
     __is_modified( other->get_is_modified() ),
     __loops( other->__loops ),
-    __rubberband( other->__rubberband ) {
+    __rubberband( other->__rubberband )
+{
     __data_l = new float[__frames];
     __data_r = new float[__frames];
     memcpy( __data_l, other->get_data_l(), __frames );
@@ -81,12 +84,14 @@ Sample::Sample( Sample* other ): Object( __class_name ),
 
 }
 
-Sample::~Sample() {
+Sample::~Sample()
+{
     if( __data_l!=0 ) delete[] __data_l;
     if( __data_r!=0 ) delete[] __data_r;
 }
 
-Sample* Sample::load( const QString& filepath ) {
+Sample* Sample::load( const QString& filepath )
+{
     if( !Filesystem::file_readable( filepath ) ) {
         ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
         return 0;
@@ -96,14 +101,16 @@ Sample* Sample::load( const QString& filepath ) {
     return sample;
 }
 
-Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
+Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
+{
     Sample* sample = Sample::load( filepath );
-    if( !sample) return 0;
+    if( !sample ) return 0;
     sample->apply( loops, rubber, velocity, pan );
     return sample;
 }
 
-void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan ) {
+void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
+{
     apply_loops( loops );
     apply_velocity( velocity );
     apply_pan( pan );
@@ -114,7 +121,8 @@ void Sample::apply( const Loops& loops, const Rubberband& rubber, const Velocity
 #endif
 }
 
-void Sample::load() {
+void Sample::load()
+{
     SF_INFO sound_info;
     SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
     if ( !file ) {
@@ -155,7 +163,8 @@ void Sample::load() {
     delete[] buffer;
 }
 
-bool Sample::apply_loops( const Loops& lo ) {
+bool Sample::apply_loops( const Loops& lo )
+{
     if( __loops == lo ) return true;
     if( lo.start_frame<0 ) {
         ERRORLOG( QString( "start_frame %1 < 0 is not allowed" ).arg( lo.start_frame ) );
@@ -237,7 +246,8 @@ bool Sample::apply_loops( const Loops& lo ) {
     return true;
 }
 
-void Sample::apply_velocity( const VelocityEnvelope& v ) {
+void Sample::apply_velocity( const VelocityEnvelope& v )
+{
     // TODO frame width (841) and height (91) should go out of here
     // the VelocityEnvelope should be processed within TargetWaveDisplay
     // so that we here have ( int frame_idx, float scale ) points
@@ -265,7 +275,8 @@ void Sample::apply_velocity( const VelocityEnvelope& v ) {
     __is_modified = true;
 }
 
-void Sample::apply_pan( const PanEnvelope& p ) {
+void Sample::apply_pan( const PanEnvelope& p )
+{
     // TODO see apply_velocity
     if( p.empty() && __pan_envelope.empty() ) return;
     __pan_envelope.clear();
@@ -301,7 +312,8 @@ void Sample::apply_pan( const PanEnvelope& p ) {
     __is_modified = true;
 }
 
-void Sample::apply_rubberband( const Rubberband& rb ) {
+void Sample::apply_rubberband( const Rubberband& rb )
+{
     // TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
     //if( __rubberband == rb ) return;
@@ -359,7 +371,8 @@ void Sample::apply_rubberband( const Rubberband& rb ) {
 #endif
 }
 
-bool Sample::exec_rubberband_cli( const Rubberband& rb ) {
+bool Sample::exec_rubberband_cli( const Rubberband& rb )
+{
     //set the path to rubberband-cli
     QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
     //test the path. if test fails return NULL
@@ -428,7 +441,8 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb ) {
     return true;
 }
 
-Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string ) {
+Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string )
+{
     char* mode = string.toLocal8Bit().data();
     for( int i=Loops::FORWARD; i<Loops::PINGPONG; i++ ) {
         if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( Loops::LoopMode )i;
@@ -436,7 +450,8 @@ Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string ) {
     return Loops::FORWARD;
 }
 
-bool Sample::write( const QString& path, int format ) {
+bool Sample::write( const QString& path, int format )
+{
     float* obuf = new float[ SAMPLE_CHANNELS * __frames ];
     for ( int i = 0; i < __frames; ++i ) {
         float value_l = __data_l[i];
@@ -473,7 +488,8 @@ bool Sample::write( const QString& path, int format ) {
 }
 
 #ifdef H2CORE_HAVE_RUBBERBAND
-static double compute_pitch_scale( const Sample::Rubberband& rb ) {
+static double compute_pitch_scale( const Sample::Rubberband& rb )
+{
     double pitchshift = rb.pitch;
     double frequencyshift = 1.0;
     if ( pitchshift != 0.0 ) {
@@ -483,7 +499,8 @@ static double compute_pitch_scale( const Sample::Rubberband& rb ) {
     return frequencyshift;
 }
 
-static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& rb ) {
+static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& rb )
+{
     // default settings
     enum {
         CompoundDetector,

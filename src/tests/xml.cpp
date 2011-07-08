@@ -9,15 +9,17 @@
 
 #define BASE_DIR    "./src/tests/data"
 
-static void spec( bool cond, const char* msg ) {
+static void spec( bool cond, const char* msg )
+{
     if( !cond ) {
-        ___ERRORLOG( QString(" ** SPEC : %1" ).arg( msg ) );
+        ___ERRORLOG( QString( " ** SPEC : %1" ).arg( msg ) );
         sleep( 1 );
-        exit( EXIT_FAILURE);
+        exit( EXIT_FAILURE );
     }
 }
 
-static bool check_samples_data( H2Core::Drumkit* dk, bool loaded ) {
+static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
+{
     H2Core::InstrumentList* instruments = dk->get_instruments();
     for( int i=0; i<instruments->size(); i++ ) {
         H2Core::Instrument* instrument = ( *instruments )[i];
@@ -36,7 +38,8 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded ) {
     return true;
 }
 
-int xml_drumkit( int log_level ) {
+int xml_drumkit( int log_level )
+{
 
     H2Core::Filesystem::rm( BASE_DIR"/dk0", true );
     H2Core::Filesystem::rm( BASE_DIR"/drumkit.xml" );
@@ -72,18 +75,18 @@ int xml_drumkit( int log_level ) {
     // save drumkit elsewhere
     dk0->set_name( "dk0" );
     spec( dk0->save( BASE_DIR"/dk0", false ), "should be able to save drumkit" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/drumkit.xml"), "dk0/drumkit.xml should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/crash.wav"), "dk0/crash.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/hh.wav"), "dk0/hh.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/kick.wav"), "dk0/kick.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/snare.wav"), "dk0/snare.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/drumkit.xml" ), "dk0/drumkit.xml should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/crash.wav" ), "dk0/crash.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/hh.wav" ), "dk0/hh.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/kick.wav" ), "dk0/kick.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/snare.wav" ), "dk0/snare.wav should exists and be readable" );
     // load file
     dk1 = H2Core::Drumkit::load_file( BASE_DIR"/dk0/drumkit.xml" );
     spec( dk1!=0, "should be able to reload drumkit" );
     //dk1->dump();
     // copy constructor
     dk2 = new H2Core::Drumkit( dk1 );
-    dk2->set_name("COPY");
+    dk2->set_name( "COPY" );
     spec( dk2!=0, "should be able to copy a drumkit" );
     // save file
     spec( dk2->save_file( BASE_DIR"/drumkit.xml", true ), "should be able to save drumkit xml file" );;
@@ -91,6 +94,6 @@ int xml_drumkit( int log_level ) {
     delete dk0;
     delete dk1;
     delete dk2;
-    
+
     return EXIT_SUCCESS;
 }

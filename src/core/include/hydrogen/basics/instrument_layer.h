@@ -25,7 +25,8 @@
 
 #include <hydrogen/object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class XMLNode;
 class Sample;
@@ -38,7 +39,8 @@ class Sample;
  * <br><b>start velocity</b> and <b>end velocity</b> which allows you to chose between a layer or another within an instrument
  * by changing the velocity of the played note. so the only layer of an instrument should start at 0.0 and end at 1.0.
 */
-class InstrumentLayer : public H2Core::Object {
+class InstrumentLayer : public H2Core::Object
+{
         H2_OBJECT
     public:
         /** constructor
@@ -111,43 +113,53 @@ class InstrumentLayer : public H2Core::Object {
 
 // DEFINITIONS
 
-inline void InstrumentLayer::set_gain( float gain ) {
+inline void InstrumentLayer::set_gain( float gain )
+{
     __gain = gain;
 }
 
-inline float InstrumentLayer::get_gain() const {
+inline float InstrumentLayer::get_gain() const
+{
     return __gain;
 }
 
-inline void InstrumentLayer::set_pitch( float pitch ) {
+inline void InstrumentLayer::set_pitch( float pitch )
+{
     __pitch = pitch;
 }
 
-inline float InstrumentLayer::get_pitch() const {
+inline float InstrumentLayer::get_pitch() const
+{
     return __pitch;
 }
 
-inline void InstrumentLayer::set_start_velocity( float start ) {
+inline void InstrumentLayer::set_start_velocity( float start )
+{
     __start_velocity = start;
 }
 
-inline float InstrumentLayer::get_start_velocity() const {
+inline float InstrumentLayer::get_start_velocity() const
+{
     return __start_velocity;
 }
 
-inline void InstrumentLayer::set_end_velocity( float end ) {
+inline void InstrumentLayer::set_end_velocity( float end )
+{
     __end_velocity = end;
 }
 
-inline float InstrumentLayer::get_end_velocity() const {
+inline float InstrumentLayer::get_end_velocity() const
+{
     return __end_velocity;
 }
 
-inline void InstrumentLayer::set_sample( Sample* sample ) {
+inline void InstrumentLayer::set_sample( Sample* sample )
+{
     __sample = sample;
 }
 
-inline Sample* InstrumentLayer::get_sample() const {
+inline Sample* InstrumentLayer::get_sample() const
+{
     return __sample;
 }
 

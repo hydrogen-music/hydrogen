@@ -6,7 +6,8 @@
 void rubberband_test();
 int xml_drumkit( int log_level );
 
-int main(int argc, char *argv[]) {
+int main( int argc, char* argv[] )
+{
 
     int log_level = H2Core::Logger::Debug | H2Core::Logger::Info | H2Core::Logger::Warning | H2Core::Logger::Error;
     /* Logger */

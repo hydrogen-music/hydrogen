@@ -45,7 +45,8 @@
 #define LEAD_LAG_MIN            -1.0f
 #define LEAD_LAG_MAX            1.0f
 
-namespace H2Core {
+namespace H2Core
+{
 
 class XMLNode;
 class ADSR;
@@ -55,7 +56,8 @@ class InstrumentList;
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
-class Note : public H2Core::Object {
+class Note : public H2Core::Object
+{
         H2_OBJECT
     public:
         /** possible keys */
@@ -109,7 +111,7 @@ class Note : public H2Core::Object {
          * set the instrument
          * \param instrument the one to use
          */
-        void set_ADSR(Instrument* instrument);
+        void set_ADSR( Instrument* instrument );
         void set_instrument( Instrument* instrument );
         /** __instrument accessor */
         Instrument* get_instrument();
@@ -300,155 +302,192 @@ class Note : public H2Core::Object {
 
 // DEFINITIONS
 
-inline Instrument* Note::get_instrument() {
+inline Instrument* Note::get_instrument()
+{
     return __instrument;
 }
 
-inline int Note::get_instrument_id() const {
+inline int Note::get_instrument_id() const
+{
     return __instrument_id;
 }
 
-inline bool Note::has_instrument() const {
+inline bool Note::has_instrument() const
+{
     return __instrument!=0;
 }
 
-inline void Note::set_position( int value ) {
+inline void Note::set_position( int value )
+{
     __position = value;
 }
 
-inline int Note::get_position() const {
+inline int Note::get_position() const
+{
     return __position;
 }
 
-inline float Note::get_velocity() const {
+inline float Note::get_velocity() const
+{
     return __velocity;
 }
 
-inline float Note::get_pan_l() const {
+inline float Note::get_pan_l() const
+{
     return __pan_l;
 }
 
-inline float Note::get_pan_r() const {
+inline float Note::get_pan_r() const
+{
     return __pan_r;
 }
 
-inline float Note::get_lead_lag() const {
+inline float Note::get_lead_lag() const
+{
     return __lead_lag;
 }
 
-inline void Note::set_length( int value ) {
+inline void Note::set_length( int value )
+{
     __length = value;
 }
 
-inline int Note::get_length() const {
+inline int Note::get_length() const
+{
     return __length;
 }
 
-inline void Note::set_pitch( float value ) {
+inline void Note::set_pitch( float value )
+{
     __pitch = value;
 }
 
-inline float Note::get_pitch() const {
+inline float Note::get_pitch() const
+{
     return __pitch;
 }
 
-inline void Note::set_note_off( bool value ) {
+inline void Note::set_note_off( bool value )
+{
     __note_off = value;
 }
 
-inline bool Note::get_note_off() const {
+inline bool Note::get_note_off() const
+{
     return __note_off;
 }
 
-inline int Note::get_midi_msg() const {
+inline int Note::get_midi_msg() const
+{
     return __midi_msg;
 }
 
-inline void Note::set_pattern_idx( int value ) {
+inline void Note::set_pattern_idx( int value )
+{
     __pattern_idx = value;
 }
 
-inline int Note::get_pattern_idx() const {
+inline int Note::get_pattern_idx() const
+{
     return __pattern_idx;
 }
 
-inline void Note::set_just_recorded( bool value ) {
+inline void Note::set_just_recorded( bool value )
+{
     __just_recorded = value;
 }
 
-inline bool Note::get_just_recorded() const {
+inline bool Note::get_just_recorded() const
+{
     return __just_recorded;
 }
 
-inline float Note::get_sample_position() const {
+inline float Note::get_sample_position() const
+{
     return __sample_position;
 }
 
-inline void Note::set_humanize_delay( int value ) {
+inline void Note::set_humanize_delay( int value )
+{
     __humanize_delay = value;
 }
 
-inline int Note::get_humanize_delay() const {
+inline int Note::get_humanize_delay() const
+{
     return __humanize_delay;
 }
 
-inline float Note::get_cut_off() const {
+inline float Note::get_cut_off() const
+{
     return __cut_off;
 }
 
-inline float Note::get_resonance() const {
+inline float Note::get_resonance() const
+{
     return __resonance;
 }
 
-inline float Note::get_bpfb_l() const {
+inline float Note::get_bpfb_l() const
+{
     return __bpfb_l;
 }
 
-inline float Note::get_bpfb_r() const {
+inline float Note::get_bpfb_r() const
+{
     return __bpfb_r;
 }
 
-inline float Note::get_lpfb_l() const {
+inline float Note::get_lpfb_l() const
+{
     return __lpfb_l;
 }
 
-inline float Note::get_lpfb_r() const {
+inline float Note::get_lpfb_r() const
+{
     return __lpfb_r;
 }
 
-inline Note::Key Note::get_key() {
+inline Note::Key Note::get_key()
+{
     return __key;
 }
 
-inline Note::Octave Note::get_octave() {
+inline Note::Octave Note::get_octave()
+{
     return __octave;
 }
 
-inline int Note::get_midi_key() const {
+inline int Note::get_midi_key() const
+{
     /* TODO ???
     if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
     */
     return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key + __instrument->get_midi_out_note()-MIDI_MIDDLE_C;
 }
 
-inline int Note::get_midi_velocity() const {
+inline int Note::get_midi_velocity() const
+{
     return __velocity * MIDI_FACTOR;
 }
 
-inline float Note::get_notekey_pitch() const {
+inline float Note::get_notekey_pitch() const
+{
     return __octave * KEYS_PER_OCTAVE + __key;
 }
 
-inline float Note::get_total_pitch() const {
+inline float Note::get_total_pitch() const
+{
     return __octave * KEYS_PER_OCTAVE + __key + __pitch;
 }
 
-inline void Note::set_key_octave( Key key, Octave octave ) {
+inline void Note::set_key_octave( Key key, Octave octave )
+{
     if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
     if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
 }
 
-inline void Note::set_midi_info( Key key, Octave octave, int msg ) {
+inline void Note::set_midi_info( Key key, Octave octave, int msg )
+{
     if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
     if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
     __midi_msg = msg;
@@ -456,16 +495,19 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg ) {
 
 
 
-inline float Note::update_sample_position( float incr ) {
+inline float Note::update_sample_position( float incr )
+{
     __sample_position += incr;
     return __sample_position;
 }
 
-inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const {
+inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const
+{
     return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
 }
 
-inline void Note::compute_lr_values( float* val_l, float* val_r ) {
+inline void Note::compute_lr_values( float* val_l, float* val_r )
+{
     /* TODO ???
     if( !has_instrument() ) {
         *val_l = 0.0f;

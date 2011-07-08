@@ -24,11 +24,13 @@
 
 #include "exponential_tables.h"
 
-namespace H2Core {
+namespace H2Core
+{
 
 const char* ADSR::__class_name = "ADSR";
 
-inline static float linear_interpolation( float fVal_A, float fVal_B, double fVal ) {
+inline static float linear_interpolation( float fVal_A, float fVal_B, double fVal )
+{
     return fVal_A * ( 1 - fVal ) + fVal_B * fVal;
     //return fVal_A + fVal * ( fVal_B - fVal_A );
     //return fVal_A + ((fVal_B - fVal_A) * fVal);
@@ -56,7 +58,8 @@ ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
 
 ADSR::~ADSR() { }
 
-float ADSR::get_value( float step ) {
+float ADSR::get_value( float step )
+{
     switch ( __state ) {
     case ATTACK:
         if ( __attack == 0 ) {
@@ -108,12 +111,14 @@ float ADSR::get_value( float step ) {
     return __value;
 }
 
-void ADSR::attack() {
+void ADSR::attack()
+{
     __state = ATTACK;
     __ticks = 0;
 }
 
-float ADSR::release() {
+float ADSR::release()
+{
     if ( __state == IDLE ) return 0;
     if ( __state == RELEASE ) return __value;
     __release_value = __value;

@@ -39,58 +39,58 @@ class Instrument;
 ///
 class Pattern : public H2Core::Object
 {
-    H2_OBJECT
-public:
-	std::multimap <int, Note*> note_map;
-    std::set<Pattern*> virtual_pattern_set;
-    std::set<Pattern*> virtual_pattern_transitive_closure_set;
+        H2_OBJECT
+    public:
+        std::multimap <int, Note*> note_map;
+        std::set<Pattern*> virtual_pattern_set;
+        std::set<Pattern*> virtual_pattern_transitive_closure_set;
 
-	Pattern( const QString& name, const QString& category, unsigned length = MAX_NOTES );
-	~Pattern();
+        Pattern( const QString& name, const QString& category, unsigned length = MAX_NOTES );
+        ~Pattern();
 
-	/**
-	  Delete notes that pertain to instrument I.
-	  The function is thread safe (it locks the audio data while deleting notes)
-	*/
-	void purge_instrument( Instrument * I );
-	
-	/**
-	  Check if there are any notes pertaining to I
-	*/
-	bool references_instrument( Instrument * I );
+        /**
+          Delete notes that pertain to instrument I.
+          The function is thread safe (it locks the audio data while deleting notes)
+        */
+        void purge_instrument( Instrument* I );
 
-	void set_to_old();
-	
-	static Pattern* get_empty_pattern();
-	Pattern* copy();
+        /**
+          Check if there are any notes pertaining to I
+        */
+        bool references_instrument( Instrument* I );
 
-	void debug_dump();
+        void set_to_old();
 
-	unsigned get_length() {
-		return __length;
-	}
-	void set_length( unsigned length ) {
-		__length = length;
-	}
+        static Pattern* get_empty_pattern();
+        Pattern* copy();
 
-	void set_name( const QString& name ) {
-		__name = name;
-	}
-	const QString& get_name() const {
-		return __name;
-	}
+        void debug_dump();
 
-	void set_category( const QString& category ) {
-		__category = category;
-	}
-	const QString& get_category() const {
-		return __category;
-	}
+        unsigned get_length() {
+            return __length;
+        }
+        void set_length( unsigned length ) {
+            __length = length;
+        }
 
-private:
-	unsigned __length;
-	QString __name;
-	QString __category;
+        void set_name( const QString& name ) {
+            __name = name;
+        }
+        const QString& get_name() const {
+            return __name;
+        }
+
+        void set_category( const QString& category ) {
+            __category = category;
+        }
+        const QString& get_category() const {
+            return __category;
+        }
+
+    private:
+        unsigned __length;
+        QString __name;
+        QString __category;
 };
 
 };

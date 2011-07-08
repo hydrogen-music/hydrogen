@@ -1,9 +1,9 @@
 #! /bin/bash
 
-ASTYLEOPTS="-v -r \
+ASTYLEOPTS="-v \
     --indent=spaces=4 \
-    --brackets=attach \
-    --pad=paren-in \
+    --brackets=linux \
+    --pad-paren-in \
     --indent-classes \
     --indent-preprocessor \
     --align-pointer=type \

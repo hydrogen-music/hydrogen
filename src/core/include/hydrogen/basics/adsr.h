@@ -25,12 +25,14 @@
 
 #include <hydrogen/object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 /**
  * Attack Decay Sustain Release envelope.
  */
-class ADSR : private Object {
+class ADSR : private Object
+{
         H2_OBJECT
     public:
 
@@ -116,35 +118,43 @@ class ADSR : private Object {
 
 // DEFINITIONS
 
-inline void ADSR::set_attack( float value ) {
+inline void ADSR::set_attack( float value )
+{
     __attack = value;
 }
 
-inline float ADSR::get_attack() {
+inline float ADSR::get_attack()
+{
     return __attack;
 }
 
-inline void ADSR::set_decay( float value ) {
+inline void ADSR::set_decay( float value )
+{
     __decay = value;
 }
 
-inline float ADSR::get_decay() {
+inline float ADSR::get_decay()
+{
     return __decay;
 }
 
-inline void ADSR::set_sustain( float value ) {
+inline void ADSR::set_sustain( float value )
+{
     __sustain = value;
 }
 
-inline float ADSR::get_sustain() {
+inline float ADSR::get_sustain()
+{
     return __sustain;
 }
 
-inline void ADSR::set_release( float value ) {
+inline void ADSR::set_release( float value )
+{
     __release = value;
 }
 
-inline float ADSR::get_release() {
+inline float ADSR::get_release()
+{
     return __release;
 }
 

@@ -30,7 +30,8 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 const char* Note::__class_name = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
@@ -60,8 +61,8 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __midi_msg( -1 ),
       __note_off( false ),
       __just_recorded( false )
-{    
-      set_ADSR( __instrument );
+{
+    set_ADSR( __instrument );
 }
 
 Note::Note( Note* other )
@@ -91,33 +92,39 @@ Note::Note( Note* other )
       __just_recorded( other->get_just_recorded() )
 {
     set_ADSR( other->get_instrument() );
- }
+}
 
 Note::~Note() { }
 
-static inline float check_boundary( float v, float min, float max ) {
+static inline float check_boundary( float v, float min, float max )
+{
     if ( v>max ) return max;
     if ( v<min ) return min;
     return v;
 }
 
-void Note::set_velocity( float velocity ) {
+void Note::set_velocity( float velocity )
+{
     __velocity = check_boundary( velocity, VELOCITY_MIN, VELOCITY_MAX );
 }
 
-void Note::set_lead_lag( float lead_lag ) {
+void Note::set_lead_lag( float lead_lag )
+{
     __lead_lag = check_boundary( lead_lag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 }
 
-void Note::set_pan_l( float pan ) {
+void Note::set_pan_l( float pan )
+{
     __pan_l = check_boundary( pan, PAN_MIN, PAN_MAX );
 }
 
-void Note::set_pan_r( float pan ) {
+void Note::set_pan_r( float pan )
+{
     __pan_r = check_boundary( pan, PAN_MIN, PAN_MAX );
 }
 
-void Note::map_instrument( InstrumentList* instruments ) {
+void Note::map_instrument( InstrumentList* instruments )
+{
     if( instruments==0 ) {
         __instrument = new Instrument();
     } else {
@@ -132,23 +139,27 @@ void Note::map_instrument( InstrumentList* instruments ) {
 }
 
 
-void Note::set_ADSR(Instrument* instrument){
+void Note::set_ADSR(   Instrument*   instrument  )
+{
     assert( instrument->get_adsr() );
     __adsr = instrument->get_adsr();
 }
 
-void Note::set_instrument( Instrument* instrument ) {
+void Note::set_instrument( Instrument* instrument )
+{
     if ( instrument == 0 ) return;
     __instrument = instrument;
     assert( __instrument->get_adsr() );
     __adsr = instrument->get_adsr();
 }
 
-QString Note::key_to_string() {
+QString Note::key_to_string()
+{
     return QString( "%1%2" ).arg( __key_str[__key] ).arg( __octave );
 }
 
-void Note::set_key_octave( const QString& str ) {
+void Note::set_key_octave( const QString& str )
+{
     int l = str.length();
     QString s_key = str.left( l-1 );
     QString s_oct = str.mid( l-1, l );
@@ -165,7 +176,8 @@ void Note::set_key_octave( const QString& str ) {
     ___ERRORLOG( "Unhandled key: " + s_key );
 }
 
-void Note::dump() {
+void Note::dump()
+{
     INFOLOG( QString( "Note : pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5" )
              .arg( __position )
              .arg( __humanize_delay )
@@ -176,7 +188,8 @@ void Note::dump() {
            );
 }
 
-void Note::save_to( XMLNode* node ) {
+void Note::save_to( XMLNode* node )
+{
     node->write_int( "position", __position );
     node->write_float( "leadlag", __lead_lag );
     node->write_float( "velocity", __velocity );
@@ -189,7 +202,8 @@ void Note::save_to( XMLNode* node ) {
     node->write_bool( "note_off", __note_off );
 }
 
-Note* Note::load_from( XMLNode* node, InstrumentList* instruments ) {
+Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
+{
     Note* note = new Note(
         0,
         node->read_int( "position", 0 ),

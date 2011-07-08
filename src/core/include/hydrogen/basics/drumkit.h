@@ -25,7 +25,8 @@
 
 #include <hydrogen/object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 class XMLNode;
 class InstrumentList;
@@ -33,7 +34,8 @@ class InstrumentList;
 /**
  * Drumkit info
 */
-class Drumkit : public H2Core::Object {
+class Drumkit : public H2Core::Object
+{
         H2_OBJECT
     public:
         /** drumkit constructor, does nothing */
@@ -170,51 +172,63 @@ class Drumkit : public H2Core::Object {
 
 // DEFINITIONS
 
-inline InstrumentList* Drumkit::get_instruments() const {
+inline InstrumentList* Drumkit::get_instruments() const
+{
     return __instruments;
 }
 
-inline void Drumkit::set_path( const QString& path ) {
+inline void Drumkit::set_path( const QString& path )
+{
     __path = path;
 }
 
-inline const QString& Drumkit::get_path() const {
+inline const QString& Drumkit::get_path() const
+{
     return __path;
 }
 
-inline void Drumkit::set_name( const QString& name ) {
+inline void Drumkit::set_name( const QString& name )
+{
     __name = name;
 }
 
-inline const QString& Drumkit::get_name() const {
+inline const QString& Drumkit::get_name() const
+{
     return __name;
 }
 
-inline void Drumkit::set_author( const QString& author ) {
+inline void Drumkit::set_author( const QString& author )
+{
     __author = author;
 }
 
-inline const QString& Drumkit::get_author() const {
+inline const QString& Drumkit::get_author() const
+{
     return __author;
 }
 
-inline void Drumkit::set_info( const QString& info ) {
+inline void Drumkit::set_info( const QString& info )
+{
     __info = info;
 }
 
-inline const QString& Drumkit::get_info() const {
+inline const QString& Drumkit::get_info() const
+{
     return __info;
 }
 
-inline void Drumkit::set_license( const QString& license ) {
+inline void Drumkit::set_license( const QString& license )
+{
     __license = license;
 }
 
-inline const QString& Drumkit::get_license() const {
+inline const QString& Drumkit::get_license() const
+{
     return __license;
 }
 
-inline const bool Drumkit::samples_loaded() const {
+inline const bool Drumkit::samples_loaded() const
+{
     return __samples_loaded;
 }
 

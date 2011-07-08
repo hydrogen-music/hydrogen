@@ -28,16 +28,19 @@
 
 #include <hydrogen/object.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 /**
  * A container for a sample, beeing able to apply modifications on it
  */
-class Sample : public H2Core::Object {
+class Sample : public H2Core::Object
+{
         H2_OBJECT
     public:
         /** an envelope point within a frame */
-        class EnvelopePoint {
+        class EnvelopePoint
+        {
             public:
                 int frame;  ///< frame index
                 int value;  ///< value
@@ -66,7 +69,8 @@ class Sample : public H2Core::Object {
         /** define the type used to store velocity enveloppe points */
         typedef std::vector<EnvelopePoint> VelocityEnvelope;
         /** set of loop configuration flags */
-        class Loops {
+        class Loops
+        {
             public:
                 /** possible sample editing loop mode */
                 enum LoopMode {
@@ -95,7 +99,8 @@ class Sample : public H2Core::Object {
         };
 
         /** set of rubberband configuration flags */
-        class Rubberband {
+        class Rubberband
+        {
             public:
                 bool use;               ///< is rubberband enabled
                 float divider;          ///< TODO should be ratio : desired time ratio
@@ -256,14 +261,16 @@ class Sample : public H2Core::Object {
         bool __is_modified;                     ///< true if sample is modified
         PanEnvelope __pan_envelope;             ///< pan envelope vector
         VelocityEnvelope __velocity_envelope;   ///< velocity envelope vector
-        Loops __loops;                       ///< set of loop parameters
-        Rubberband __rubberband;             ///< set of rubberband parameters
+        Loops __loops;                          ///< set of loop parameters
+        Rubberband __rubberband;                ///< set of rubberband parameters
         /** loop modes string */
         static const char* __loop_modes[];
 };
 
 // DEFINITIONS
-inline void Sample::unload() {
+
+inline void Sample::unload()
+{
     if( __data_l ) delete __data_l;
     if( __data_r ) delete __data_r;
     __frames = __sample_rate = 0;
@@ -271,71 +278,88 @@ inline void Sample::unload() {
     // __is_modified = false; leave this unchanged as pan, velocity, loop and rubberband are kept unchanged
 }
 
-inline bool Sample::is_empty() const {
+inline bool Sample::is_empty() const
+{
     return ( __data_l==__data_r==0 );
 }
 
-inline const QString Sample::get_filepath() const {
+inline const QString Sample::get_filepath() const
+{
     return __filepath;
 }
 
-inline const QString Sample::get_filename() const {
+inline const QString Sample::get_filename() const
+{
     return __filepath.section( "/", -1 );
 }
 
-inline void Sample::Sample::set_frames( int frames ) {
+inline void Sample::Sample::set_frames( int frames )
+{
     __frames = frames;
 }
 
-inline int Sample::get_frames() const {
+inline int Sample::get_frames() const
+{
     return __frames;
 }
 
-inline int Sample::get_sample_rate() const {
+inline int Sample::get_sample_rate() const
+{
     return __sample_rate;
 }
 
-inline double Sample::get_sample_duration() const {
+inline double Sample::get_sample_duration() const
+{
     return ( double )__frames / ( double )__sample_rate;
 }
 
-inline int Sample::get_size() const {
+inline int Sample::get_size() const
+{
     return __frames * sizeof( float ) * 2;
 }
 
-inline float* Sample::get_data_l() const {
+inline float* Sample::get_data_l() const
+{
     return __data_l;
 }
 
-inline float* Sample::get_data_r() const {
+inline float* Sample::get_data_r() const
+{
     return __data_r;
 }
 
-inline void Sample::set_is_modified( bool is_modified ) {
+inline void Sample::set_is_modified( bool is_modified )
+{
     __is_modified = is_modified;
 }
 
-inline bool Sample::get_is_modified() const {
+inline bool Sample::get_is_modified() const
+{
     return __is_modified;
 }
 
-inline QString Sample::get_loop_mode_string() const {
+inline QString Sample::get_loop_mode_string() const
+{
     return __loop_modes[__loops.mode];
 }
 
-inline Sample::PanEnvelope* Sample::get_pan_envelope() {
+inline Sample::PanEnvelope* Sample::get_pan_envelope()
+{
     return &__pan_envelope;
 }
 
-inline Sample::VelocityEnvelope* Sample::get_velocity_envelope() {
+inline Sample::VelocityEnvelope* Sample::get_velocity_envelope()
+{
     return &__velocity_envelope;
 }
 
-inline Sample::Loops Sample::get_loops() const {
+inline Sample::Loops Sample::get_loops() const
+{
     return __loops;
 }
 
-inline Sample::Rubberband Sample::get_rubberband() const {
+inline Sample::Rubberband Sample::get_rubberband() const
+{
     return __rubberband;
 }
 

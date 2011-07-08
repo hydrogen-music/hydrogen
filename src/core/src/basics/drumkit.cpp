@@ -43,7 +43,8 @@
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/helpers/legacy.h>
 
-namespace H2Core {
+namespace H2Core
+{
 
 const char* Drumkit::__class_name = "Drumkit";
 
@@ -56,15 +57,18 @@ Drumkit::Drumkit( Drumkit* other ) :
     __author( other->get_author() ),
     __info( other->get_info() ),
     __license( other->get_license() ),
-    __samples_loaded( other->samples_loaded() ) {
+    __samples_loaded( other->samples_loaded() )
+{
     __instruments = new InstrumentList( other->get_instruments() );
 }
 
-Drumkit::~Drumkit() {
+Drumkit::~Drumkit()
+{
     if( __instruments ) delete __instruments;
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples ) {
+Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
+{
     INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
     if( !Filesystem::drumkit_valid( dk_dir ) ) {
         ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
@@ -73,7 +77,8 @@ Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples ) {
     return load_file( Filesystem::drumkit_file( dk_dir ), load_samples );
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples ) {
+Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
+{
     XMLDoc doc;
     if( !doc.read( dk_path, Filesystem::drumkit_xsd() ) ) {
         return Legacy::load_drumkit( dk_path );
@@ -103,7 +108,8 @@ Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples ) {
     return drumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path ) {
+Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
+{
     QString drumkit_name = node->read_string( "name", "", false, false );
     if ( drumkit_name.isEmpty() ) {
         ERRORLOG( "Drumkit has no name, abort" );
@@ -126,7 +132,8 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path ) {
     return drumkit;
 }
 
-void Drumkit::load_samples( ) {
+void Drumkit::load_samples( )
+{
     INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( __name ) );
     if( !__samples_loaded ) {
         __instruments->load_samples();
@@ -134,7 +141,8 @@ void Drumkit::load_samples( ) {
     }
 }
 
-void Drumkit::unload_samples( ) {
+void Drumkit::unload_samples( )
+{
     INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( __name ) );
     if( __samples_loaded ) {
         __instruments->unload_samples();
@@ -142,7 +150,8 @@ void Drumkit::unload_samples( ) {
     }
 }
 
-bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, bool overwrite ) {
+bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, bool overwrite )
+{
 
     Drumkit* drumkit = new Drumkit();
     drumkit->set_name( name );
@@ -155,12 +164,14 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
     return ret;
 }
 
-bool Drumkit::save( bool overwrite ) {
+bool Drumkit::save( bool overwrite )
+{
     INFOLOG( QString( "New drumkit dir " + Filesystem::usr_drumkits_dir() + "/" + __name ) );
     return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
 }
 
-bool Drumkit::save( const QString& dk_dir, bool overwrite ) {
+bool Drumkit::save( const QString& dk_dir, bool overwrite )
+{
     if( !Filesystem::mkdir( dk_dir ) ) {
         return false;
     }
@@ -171,7 +182,8 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite ) {
     return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite ) {
+bool Drumkit::save_file( const QString& dk_path, bool overwrite )
+{
     INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
     if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
         ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
@@ -189,7 +201,8 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite ) {
     return doc.write( dk_path );
 }
 
-void Drumkit::save_to( XMLNode* node ) {
+void Drumkit::save_to( XMLNode* node )
+{
     node->write_string( "name", __name );
     node->write_string( "author", __author );
     node->write_string( "info", __info );
@@ -197,7 +210,8 @@ void Drumkit::save_to( XMLNode* node ) {
     __instruments->save_to( node );
 }
 
-bool Drumkit::save_samples( const QString& dk_dir, bool overwrite ) {
+bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
+{
     qDebug()<< QString( "Saving drumkit %1 samples into %2" ).arg( __name ).arg( dk_dir ) ;
     if( !Filesystem::mkdir( dk_dir ) ) {
         INFOLOG( QString( "unable to create %1" ).arg( dk_dir ) );
@@ -221,12 +235,14 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite ) {
     return true;
 }
 
-void Drumkit::set_instruments( InstrumentList* instruments ) {
+void Drumkit::set_instruments( InstrumentList* instruments )
+{
     if( __instruments!=0 ) delete __instruments;
     __instruments = instruments;
 }
 
-bool Drumkit::remove( const QString& dk_name ) {
+bool Drumkit::remove( const QString& dk_name )
+{
     QString dk_dir = Filesystem::drumkit_path_search( dk_name );
     if( !Filesystem::drumkit_valid( dk_dir ) ) {
         ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
@@ -240,7 +256,8 @@ bool Drumkit::remove( const QString& dk_name ) {
     return true;
 }
 
-void Drumkit::dump() {
+void Drumkit::dump()
+{
     DEBUGLOG( "Drumkit dump" );
     DEBUGLOG( " |- Path = " + __path );
     DEBUGLOG( " |- Name = " + __name );
@@ -268,7 +285,8 @@ void Drumkit::dump() {
     }
 }
 
-bool Drumkit::install( const QString& path ) {
+bool Drumkit::install( const QString& path )
+{
     _INFOLOG( QString( "Install drumkit %1" ).arg( path ) );
 #ifdef H2CORE_HAVE_LIBARCHIVE
     int r;
