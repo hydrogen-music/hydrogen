@@ -21,168 +21,128 @@
  */
 
 #include <hydrogen/basics/pattern_list.h>
+
+//#include <hydrogen/helpers/xml.h>
 #include <hydrogen/basics/pattern.h>
 
-#include <vector>
-#include <cassert>
 namespace H2Core
 {
 
 const char* PatternList::__class_name = "PatternList";
 
-PatternList::PatternList()
-    : Object( __class_name )
+PatternList::PatternList() : Object( __class_name )
 {
-//	infoLog("Init");
 }
 
-
+PatternList::PatternList( PatternList* other ) : Object( __class_name )
+{
+    assert( __patterns.size() == 0 );
+    for ( int i=0; i<other->size(); i++ ) {
+        ( *this ) << ( new Pattern( ( *other )[i] ) );
+    }
+}
 
 PatternList::~PatternList()
 {
-//	infoLog("destroy");
-
-    // find single patterns. (skip duplicates)
-    std::vector<Pattern*> temp;
-    for ( unsigned int i = 0; i < list.size(); ++i ) {
-        Pattern* pat = list[i];
-
-        // pat exists in temp?
-        bool exists = false;
-        for ( unsigned int j = 0; j < temp.size(); ++j ) {
-            if ( pat == temp[j] ) {
-                exists = true;
-                break;
-            }
-        }
-        if ( !exists ) {
-            temp.push_back( pat );
-        }
-    }
-
-    // delete patterns
-    for ( unsigned int i = 0; i < temp.size(); ++i ) {
-        Pattern* pat = temp[i];
-        if ( pat != NULL ) {
-            delete pat;
-            pat = NULL;
-        }
+    for ( int i = 0; i < __patterns.size(); ++i ) {
+        delete __patterns[i];
     }
 }
 
-
-
-void PatternList::add( Pattern* newPattern )
+void PatternList::operator<<( Pattern* pattern )
 {
-    list.push_back( newPattern );
-}
-
-
-
-Pattern* PatternList::get( int nPos )
-{
-    if ( nPos >= ( int )list.size() ) {
-        ERRORLOG( QString( "Pattern index out of bounds. nPos > list.size() - %1 > %2" )
-                  .arg( nPos )
-                  .arg( list.size() )
-                );
-        return NULL;
+    // do nothing if already in __patterns
+    for( int i=0; i<__patterns.size(); i++ ) {
+        if( __patterns[i]==pattern ) return;
     }
-//	assert( nPos < (int)list.size() );
-    return list[ nPos ];
+    __patterns.push_back( pattern );
 }
 
-
-
-unsigned PatternList::get_size()
+void PatternList::add( Pattern* pattern )
 {
-    return list.size();
-}
-
-
-
-void PatternList::clear()
-{
-    list.clear();
-}
-
-
-
-/// Replace an existent pattern with another one
-void PatternList::replace( Pattern* newPattern, unsigned int pos )
-{
-    if ( pos >= ( unsigned )list.size() ) {
-        ERRORLOG( QString( "Pattern index out of bounds in PatternList::replace. pos >= list.size() - %1 > %2" )
-                  .arg( pos )
-                  .arg( list.size() )
-                );
-        return;
+    // do nothing if already in __patterns
+    for( int i=0; i<__patterns.size(); i++ ) {
+        if( __patterns[i]==pattern ) return;
     }
-    list.insert( list.begin() + pos, newPattern );	// insert the new pattern
-    // remove the old pattern
-    list.erase( list.begin() + pos + 1 );
+    __patterns.push_back( pattern );
 }
 
-
-
-int PatternList::index_of( Pattern* pattern )
+void PatternList::insert( int idx, Pattern* pattern )
 {
-    if ( get_size() < 1 ) return -1;
+    // do nothing if already in __patterns
+    for( int i=0; i<__patterns.size(); i++ ) {
+        if( __patterns[i]==pattern ) return;
+    }
+    __patterns.insert( __patterns.begin() + idx, pattern );
+}
 
-    std::vector<Pattern*>::iterator i;
+Pattern* PatternList::operator[]( int idx )
+{
+    if ( idx < 0 || idx >= __patterns.size() ) {
+        ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+        return 0;
+    }
+    assert( idx >= 0 && idx < __patterns.size() );
+    return __patterns[idx];
+}
 
-    int r = 0;
-    for ( i = list.begin(); i != list.end(); ++i ) {
-        if ( !*i  ) return -1;
-        if ( *i == pattern ) return r;
-        ++r;
+Pattern* PatternList::get( int idx )
+{
+    if ( idx < 0 || idx >= __patterns.size() ) {
+        ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+        return 0;
+    }
+    assert( idx >= 0 && idx < __patterns.size() );
+    return __patterns[idx];
+}
+
+int PatternList::index( Pattern* pattern )
+{
+    for( int i=0; i<__patterns.size(); i++ ) {
+        if ( __patterns[i]==pattern ) return i;
     }
     return -1;
 }
 
-
-
-Pattern* PatternList::del( Pattern* p )
+Pattern* PatternList::del( int idx )
 {
-    bool did_delete = false;
-    if ( get_size() < 1 ) return NULL;
-
-    std::vector<Pattern*>::iterator i;
-
-    for ( i = list.begin(); i != list.end(); i++ ) {
-        if ( *i == p ) {
-            i = list.erase( i );
-            did_delete = true;
-            break;
-            // NOTE: Do we need to delete EVERY instance of p in the list? Better to avoid adding more than one copy of a pattern in the first place! Using the iterator i after modifying the list is dangerous, so either just delete one OR...
-            // ... or roll back the iterator after deleting :
-// 			i--;
-        }
-    }
-    if ( did_delete ) return p;
-    return NULL;
+    assert( idx >= 0 && idx < __patterns.size() );
+    Pattern* pattern = __patterns[idx];
+    __patterns.erase( __patterns.begin() + idx );
+    return pattern;
 }
 
+Pattern* PatternList::del( Pattern* pattern )
+{
+    for( int i=0; i<__patterns.size(); i++ ) {
+        if( __patterns[i]==pattern ) {
+            __patterns.erase( __patterns.begin() + i );
+            return pattern;
+        }
+    }
+    return 0;
+}
+
+Pattern* PatternList::replace( int idx, Pattern* pattern )
+{
+    assert( idx >= 0 && idx < __patterns.size() );
+    if( idx < 0 || idx >= __patterns.size() ) {
+        ERRORLOG( QString( "index out of bounds %1 (size:%2)" ).arg( idx ).arg( __patterns.size() ) );
+        return 0;
+    }
+    Pattern* ret = __patterns[idx];
+    __patterns.insert( __patterns.begin() + idx, pattern );
+    __patterns.erase( __patterns.begin() + idx + 1 );
+    return ret;
+}
 
 void PatternList::set_to_old()
 {
-    for ( int nPattern = 0 ; nPattern < ( int ) get_size() ; ++nPattern ) {
-        get( nPattern )->set_to_old();
+    for( int i=0; i<__patterns.size(); i++ ) {
+        __patterns[i]->set_to_old();
     }
 }
-
-
-void PatternList::del( unsigned pos )
-{
-    if ( pos >= ( unsigned )list.size() ) {
-        ERRORLOG( QString( "Pattern index out of bounds in PatternList::del. pos >= list.size() - %1 > %2" )
-                  .arg( pos )
-                  .arg( list.size() )
-                );
-        return;
-    }
-    list.erase( list.begin()+pos );
-}
-
 
 };
+
+/* vim: set softtabstop=4 expandtab: */

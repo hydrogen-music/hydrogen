@@ -41,6 +41,11 @@ Pattern::Pattern( const QString& name, const QString& category, unsigned length 
     set_length( length );
 }
 
+Pattern::Pattern( Pattern* other)
+    : Object( __class_name )
+{
+    // TODO
+}
 
 
 Pattern::~Pattern()
