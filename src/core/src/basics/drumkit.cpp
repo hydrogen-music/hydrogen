@@ -167,12 +167,12 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 
 bool Drumkit::save( bool overwrite )
 {
-    INFOLOG( QString( "New drumkit dir " + Filesystem::usr_drumkits_dir() + "/" + __name ) );
     return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
 }
 
 bool Drumkit::save( const QString& dk_dir, bool overwrite )
 {
+    INFOLOG( QString( "Saving drumkit %1 into %2" ).arg( __name ).arg( dk_dir ) );
     if( !Filesystem::mkdir( dk_dir ) ) {
         return false;
     }
@@ -213,9 +213,8 @@ void Drumkit::save_to( XMLNode* node )
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 {
-    qDebug()<< QString( "Saving drumkit %1 samples into %2" ).arg( __name ).arg( dk_dir ) ;
+    INFOLOG( QString( "Saving drumkit %1 samples into %2" ).arg( __name ).arg( dk_dir ) );
     if( !Filesystem::mkdir( dk_dir ) ) {
-        INFOLOG( QString( "unable to create %1" ).arg( dk_dir ) );
         return false;
     }
 
