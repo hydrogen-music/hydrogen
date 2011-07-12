@@ -32,6 +32,7 @@ namespace H2Core
 {
 
 class Instrument;
+class PatternList;
 
 /**
 Pattern class is a Note container
@@ -46,9 +47,14 @@ class Pattern : public H2Core::Object
         typedef notes_t::iterator notes_it_t;
         ///< \brief multimap note const iterator type
         typedef notes_t::const_iterator notes_cst_it_t;
-
-        std::set<Pattern*> virtual_pattern_set;
-        std::set<Pattern*> virtual_pattern_transitive_closure_set;
+        ///< \brief note set type;
+        typedef std::set <Pattern*> virtual_patterns_t;
+        ///< \brief note set iterator type;
+        typedef virtual_patterns_t::iterator virtual_patterns_it_t;
+        ///< \brief note set const iterator type;
+        typedef virtual_patterns_t::const_iterator virtual_patterns_cst_it_t;
+        virtual_patterns_t virtual_pattern_set;
+        virtual_patterns_t virtual_pattern_transitive_closure_set;
         /**
          * constructor
          * \param name the name of the pattern
@@ -75,6 +81,10 @@ class Pattern : public H2Core::Object
         int get_length() const;
         ///< \brief get the note multimap
         const notes_t* get_notes() const;
+        ///< \brief get the virtual pattern set
+        const virtual_patterns_t* get_virtual_patterns() const;
+        ///< \brief get the flattened virtual pattern set
+        const virtual_patterns_t* get_flattened_virtual_patterns() const;
 
         /**
          * insert a new note within __notes
@@ -91,7 +101,7 @@ class Pattern : public H2Core::Object
          * \param strict if set to false, will search for a note around the given idx
          * \return the note if found, 0 otherwise
          */
-        Note* find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true);
+        Note* find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true );
         /**
          * \brief removes a given note from __notes, it's not deleted
          * \param note the note to be removed
@@ -114,6 +124,31 @@ class Pattern : public H2Core::Object
          */
         void set_to_old();
 
+        ///< \brief return true ifvirtual_pattern_set is empty
+        bool virtual_patterns_empty() const;
+        ///< \brief clear virtual_pattern_set
+        void virtual_patterns_clear();
+        /**
+         * \brief add a pattern to virtual_pattern_set
+         * \param pattern the pattern to add
+         */
+        void virtual_patterns_add( Pattern* pattern );
+        /**
+         * \brief remove a pattern from virtual_pattern set, flattened virtual patterns have to be rebuilt
+         *                   */
+        void virtual_pattern_del( Pattern* pattern );
+        /**
+         * \brief compute virtual_pattern_transitive_closure_set based on virtual_pattern_transitive_closure_set
+         * virtual_pattern_transitive_closure_set must have been cleared before which is the case is called
+         * from PatternList::compute_flattened_virtual_patterns
+         */
+        void compute_flattened_virtual_patterns();
+        /**
+         * \brief add content of __flatteened_virtual_patterns into patterns
+         * \param patterns the pattern list to feed
+         */
+        void extand_with_flattened_virtual_patterns( PatternList* patterns );
+
     private:
         int __length;                   ///< the length of the pattern
         QString __name;                 ///< the name of thepattern
@@ -125,13 +160,13 @@ class Pattern : public H2Core::Object
     for( Pattern::notes_cst_it_t (_it)=(_notes)->end(); (_it)!=(_notes)->begin(); (_it)++ )
 
 #define FOREACH_NOTE_CST_IT_BOUND(_notes,_it,_bound) \
-        for( Pattern::notes_cst_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
+    for( Pattern::notes_cst_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
 
 #define FOREACH_NOTE_IT_BEGIN_END(_notes,_it) \
     for( Pattern::notes_it_t (_it)=(_notes)->end(); (_it)!=(_notes)->begin(); (_it)++ )
 
 #define FOREACH_NOTE_IT_BOUND(_notes,_it,_bound) \
-        for( Pattern::notes_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
+    for( Pattern::notes_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
 
 // DEFINITIONS
 
@@ -170,9 +205,40 @@ inline const Pattern::notes_t* Pattern::get_notes() const
     return &__notes;
 }
 
+inline const Pattern::virtual_patterns_t* Pattern::get_virtual_patterns() const
+{
+    return &virtual_pattern_set;
+}
+
+inline const Pattern::virtual_patterns_t* Pattern::get_flattened_virtual_patterns() const
+{
+    return &virtual_pattern_transitive_closure_set;
+}
+
 inline void Pattern::insert_note( Note* note, int position )
 {
-    __notes.insert( std::make_pair( (position==-1 ? note->get_position() : position ), note ) );
+    __notes.insert( std::make_pair( ( position==-1 ? note->get_position() : position ), note ) );
+}
+
+inline bool Pattern::virtual_patterns_empty() const
+{
+    return virtual_pattern_set.empty();
+}
+
+inline void Pattern::virtual_patterns_clear()
+{
+    virtual_pattern_set.clear();
+}
+
+inline void Pattern::virtual_patterns_add( Pattern* pattern )
+{
+    virtual_pattern_set.insert( pattern );
+}
+
+inline void Pattern::virtual_pattern_del( Pattern* pattern )
+{
+    virtual_patterns_cst_it_t it = virtual_pattern_set.find( pattern );
+    if ( it!=virtual_pattern_set.end() ) virtual_pattern_set.erase( it );
 }
 
 };

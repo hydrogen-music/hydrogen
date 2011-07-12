@@ -25,6 +25,7 @@
 #include <cassert>
 
 #include <hydrogen/basics/note.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/audio_engine.h>
 
 namespace H2Core
@@ -40,13 +41,13 @@ Pattern::Pattern( const QString& name, const QString& category, int length )
 {
 }
 
-Pattern::Pattern( Pattern* other)
+Pattern::Pattern( Pattern* other )
     : Object( __class_name )
     , __length( other->get_length() )
     , __name( other->get_name() )
     , __category( other->get_category() )
 {
-    FOREACH_NOTE_CST_IT_BEGIN_END(other->get_notes(),it) {
+    FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
         __notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
     }
 }
@@ -58,27 +59,29 @@ Pattern::~Pattern()
     }
 }
 
-Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) {
-    if (strict) {
-        for( notes_cst_it_t it=__notes.lower_bound(idx); it!=__notes.upper_bound(idx); ++it ) {
+Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
+{
+    if ( strict ) {
+        for( notes_cst_it_t it=__notes.lower_bound( idx ); it!=__notes.upper_bound( idx ); ++it ) {
             Note* note = it->second;
-            if (note->match( instrument, key, octave )) return note;
+            if ( note->match( instrument, key, octave ) ) return note;
         }
     } else {
         // TODO maybe not start from 0 but idx-X
         for ( int n=0; n<idx; n++ ) {
-            for( notes_cst_it_t it=__notes.lower_bound(n); it!=__notes.upper_bound(n); ++it ) {
-                Note *note = it->second;
-                if (note->match( instrument, key, octave ) && ( (idx<=note->get_position()+note->get_length()) && idx>=note->get_position() ) ) return note;
+            for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); ++it ) {
+                Note* note = it->second;
+                if ( note->match( instrument, key, octave ) && ( ( idx<=note->get_position()+note->get_length() ) && idx>=note->get_position() ) ) return note;
             }
         }
     }
     return 0;
 }
 
-void Pattern::remove_note( Note* note ) {
+void Pattern::remove_note( Note* note )
+{
     for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
-        if(it->second==note) {
+        if( it->second==note ) {
             __notes.erase( it );
             break;
         }
@@ -88,7 +91,7 @@ void Pattern::remove_note( Note* note ) {
 bool Pattern::references( Instrument* instr )
 {
     for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-        Note *note = it->second;
+        Note* note = it->second;
         assert( note );
         if ( note->get_instrument() == instr ) {
             return true;
@@ -122,11 +125,35 @@ void Pattern::purge_instrument( Instrument* instr )
     }
 }
 
-void Pattern::set_to_old() {
+void Pattern::set_to_old()
+{
     for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-        Note *note = it->second;
+        Note* note = it->second;
         assert( note );
         note->set_just_recorded( false );
+    }
+}
+
+void Pattern::compute_flattened_virtual_patterns()
+{
+    // virtual_pattern_transitive_closure_set must have been clear before
+    if( virtual_pattern_transitive_closure_set.size() >= virtual_pattern_set.size() ) return;
+    // for each virtual pattern
+    for( virtual_patterns_cst_it_t it0=virtual_pattern_set.begin(); it0!=virtual_pattern_set.end(); ++it0 ) {
+        virtual_pattern_transitive_closure_set.insert( *it0 );        // add it
+        ( *it0 )->compute_flattened_virtual_patterns();     // build it's flattened virtual patterns set
+        // for each pattern of it's flattened virtual patern set
+        for( virtual_patterns_cst_it_t it1=( *it0 )->get_flattened_virtual_patterns()->begin(); it1!=( *it0 )->get_flattened_virtual_patterns()->end(); ++it1 ) {
+            // add the pattern
+            virtual_pattern_transitive_closure_set.insert( *it1 );
+        }
+    }
+}
+
+void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
+{
+    for( virtual_patterns_cst_it_t it=virtual_pattern_transitive_closure_set.begin(); it!=virtual_pattern_transitive_closure_set.end(); ++it ) {
+        patterns->add( *it );
     }
 }
 
