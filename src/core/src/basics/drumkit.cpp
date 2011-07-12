@@ -160,7 +160,8 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
     drumkit->set_license( license );
     drumkit->set_instruments( instruments );
     bool ret = drumkit->save( overwrite );
-    drumkit->~Object();
+    drumkit->set_instruments( 0 );
+    delete drumkit;
     return ret;
 }
 
