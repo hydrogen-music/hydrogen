@@ -82,6 +82,21 @@ class Pattern : public H2Core::Object
          * \param position if not -1 will be used as std::pair first element, otherwise note position will be used
          */
         void insert_note( Note* note, int position=-1 );
+        /**
+         * \brief search for a note at a given index within __notes wich correspond to the given arguments
+         * \param idx the index to search in within __notes
+         * \param instrument the instrument the note should be playing
+         * \param key the key that should be set to the note
+         * \param octave the octave that should be set to the note
+         * \param strict if set to false, will search for a note around the given idx
+         * \return the note if found, 0 otherwise
+         */
+        Note* find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true);
+        /**
+         * \brief removes a given note from __notes, it's not deleted
+         * \param note the note to be removed
+         */
+        void remove_note( Note* note );
 
         /**
          * check if this pattern contains a note referencing the given instrument

@@ -58,6 +58,33 @@ Pattern::~Pattern()
     }
 }
 
+Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) {
+    if (strict) {
+        for( notes_cst_it_t it=note_map.lower_bound(idx); it!=note_map.upper_bound(idx); ++it ) {
+            Note* note = it->second;
+            if (note->match( instrument, key, octave )) return note;
+        }
+    } else {
+        // TODO maybe not start from 0 but idx-X
+        for ( int n=0; n<idx; n++ ) {
+            for( notes_cst_it_t it=note_map.lower_bound(n); it!=note_map.upper_bound(n); ++it ) {
+                Note *note = it->second;
+                if (note->match( instrument, key, octave ) && ( (idx<=note->get_position()+note->get_length()) && idx>=note->get_position() ) ) return note;
+            }
+        }
+    }
+    return 0;
+}
+
+void Pattern::remove_note( Note* note ) {
+    for( notes_it_t it=note_map.begin(); it!=note_map.end(); ++it ) {
+        if(it->second==note) {
+            note_map.erase( it );
+            break;
+        }
+    }
+}
+
 bool Pattern::references( Instrument* instr )
 {
     for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
