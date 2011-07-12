@@ -111,6 +111,33 @@ class PatternList : public H2Core::Object
          * mark all patterns as old
          */
         void set_to_old();
+        /**
+         * find a pattern within the patterns
+         * \param name the name of the pattern to find
+         * \return 0 if not found
+         */
+        Pattern* find( const QString& name );
+        /**
+         * swap the patterns of two different indexes
+         * \param idx_a the first index
+         * \param idx_b the second index
+         */
+        void swap( int idx_a, int idx_b );
+        /**
+         * move a pattern from a position to another
+         * \param idx_a the start index
+         * \param idx_b the finish index
+         */
+        void move( int idx_a, int idx_b );
+        /**
+         * call compute_flattened_virtual_patterns on each pattern
+         */
+        void compute_flattened_virtual_patterns();
+        /**
+         * call del_virtual_pattern on each pattern
+         * \param pattern the pattern to remove where it's found
+         */
+        void del_virtual_pattern( Pattern* pattern );
 
     private:
         std::vector<Pattern*> __patterns;            ///< the list of patterns
