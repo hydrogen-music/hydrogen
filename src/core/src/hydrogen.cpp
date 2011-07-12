@@ -1203,36 +1203,16 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					return -1;
 				}
 			}
-			PatternList *pPatternList =
-				( *( m_pSong->get_pattern_group_vector() ) )[m_nSongPos];
-				
-			std::set<Pattern*> patternsToPlay;
-			for ( unsigned i = 0; i < pPatternList->size(); ++i ) {
-			    Pattern *curPattern = pPatternList->get(i);
-			    patternsToPlay.insert(curPattern);
-			    
-			    for (std::set<Pattern*>::const_iterator virtualIter = curPattern->virtual_pattern_transitive_closure_set.begin(); virtualIter != curPattern->virtual_pattern_transitive_closure_set.end(); ++virtualIter) {
-				patternsToPlay.insert(*virtualIter);
-			    }//for
-			}//for
-				
-			// copio tutti i pattern
-			m_pPlayingPatterns->clear();
-			for (std::set<Pattern*>::const_iterator virtualIter = patternsToPlay.begin(); virtualIter != patternsToPlay.end(); ++virtualIter) {
-			    m_pPlayingPatterns->add(*virtualIter);
-			}//for
-			
-			//if ( pPatternList ) {
-				//for ( unsigned i = 0; i < pPatternList->size(); ++i ) {
-				//	m_pPlayingPatterns->add( pPatternList->get( i ) );
-				//}
-				
-			//}
-
+            PatternList *pPatternList = ( *( m_pSong->get_pattern_group_vector() ) )[m_nSongPos];
+            m_pPlayingPatterns->clear();
+            for ( int i=0; i< pPatternList->size(); ++i ) {
+                Pattern* pattern = pPatternList->get(i);
+                m_pPlayingPatterns->add( pattern );
+                pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
+            }
 			// Set destructive record depending on punch area
 			doErase = doErase && Preferences::get_instance()->inPunchArea(m_nSongPos);
 		}
-		
 		// PATTERN MODE
 		else if ( m_pSong->get_mode() == Song::PATTERN_MODE )	{
 			// per ora considero solo il primo pattern, se ce ne
@@ -1245,22 +1225,10 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			
 			if ( Preferences::get_instance()->patternModePlaysSelected() )
 			{
-				m_pPlayingPatterns->clear();
-				Pattern * pSelectedPattern =
-					m_pSong->get_pattern_list()
-					       ->get(m_nSelectedPatternNumber);
-				
-				std::set<Pattern*> patternsToPlay;
-				patternsToPlay.insert(pSelectedPattern);
-				for (std::set<Pattern*>::const_iterator virtualIter = pSelectedPattern->virtual_pattern_transitive_closure_set.begin(); virtualIter != pSelectedPattern->virtual_pattern_transitive_closure_set.end(); ++virtualIter) {
-				    patternsToPlay.insert(*virtualIter);
-				}//for
-				
-				for (std::set<Pattern*>::const_iterator virtualIter = patternsToPlay.begin(); virtualIter != patternsToPlay.end(); ++virtualIter) {
-				   m_pPlayingPatterns->add(*virtualIter);
-				}//for
-				
-				//m_pPlayingPatterns->add( pSelectedPattern );
+                m_pPlayingPatterns->clear();
+                Pattern * pattern = m_pSong->get_pattern_list()->get(m_nSelectedPatternNumber);
+                m_pPlayingPatterns->add( pattern );
+                pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
 			}
 
 
