@@ -47,27 +47,27 @@ Pattern::Pattern( Pattern* other)
     , __category( other->get_category() )
 {
     FOREACH_NOTE_CST_IT_BEGIN_END(other->get_notes(),it) {
-        note_map.insert( std::make_pair( it->first, new Note( it->second ) ) );
+        __notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
     }
 }
 
 Pattern::~Pattern()
 {
-    for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+    for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
         delete it->second;
     }
 }
 
 Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) {
     if (strict) {
-        for( notes_cst_it_t it=note_map.lower_bound(idx); it!=note_map.upper_bound(idx); ++it ) {
+        for( notes_cst_it_t it=__notes.lower_bound(idx); it!=__notes.upper_bound(idx); ++it ) {
             Note* note = it->second;
             if (note->match( instrument, key, octave )) return note;
         }
     } else {
         // TODO maybe not start from 0 but idx-X
         for ( int n=0; n<idx; n++ ) {
-            for( notes_cst_it_t it=note_map.lower_bound(n); it!=note_map.upper_bound(n); ++it ) {
+            for( notes_cst_it_t it=__notes.lower_bound(n); it!=__notes.upper_bound(n); ++it ) {
                 Note *note = it->second;
                 if (note->match( instrument, key, octave ) && ( (idx<=note->get_position()+note->get_length()) && idx>=note->get_position() ) ) return note;
             }
@@ -77,9 +77,9 @@ Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::
 }
 
 void Pattern::remove_note( Note* note ) {
-    for( notes_it_t it=note_map.begin(); it!=note_map.end(); ++it ) {
+    for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
         if(it->second==note) {
-            note_map.erase( it );
+            __notes.erase( it );
             break;
         }
     }
@@ -87,7 +87,7 @@ void Pattern::remove_note( Note* note ) {
 
 bool Pattern::references( Instrument* instr )
 {
-    for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+    for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
         Note *note = it->second;
         assert( note );
         if ( note->get_instrument() == instr ) {
@@ -101,7 +101,7 @@ void Pattern::purge_instrument( Instrument* instr )
 {
     bool locked = false;
     std::list< Note* > slate;
-    for( notes_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+    for( notes_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
         Note* note = it->second;
         assert( note );
         if ( note->get_instrument() == instr ) {
@@ -110,7 +110,7 @@ void Pattern::purge_instrument( Instrument* instr )
                 locked = true;
             }
             slate.push_back( note );
-            note_map.erase( it );
+            __notes.erase( it );
         }
     }
     if ( locked ) {
@@ -123,7 +123,7 @@ void Pattern::purge_instrument( Instrument* instr )
 }
 
 void Pattern::set_to_old() {
-    for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+    for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
         Note *note = it->second;
         assert( note );
         note->set_just_recorded( false );

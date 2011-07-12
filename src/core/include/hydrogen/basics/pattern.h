@@ -118,8 +118,7 @@ class Pattern : public H2Core::Object
         int __length;                   ///< the length of the pattern
         QString __name;                 ///< the name of thepattern
         QString __category;             ///< the category of the pattern
-    public:
-        notes_t note_map;                ///< a multimap (hash with possible multiple values for one key) of notes
+        notes_t __notes;                ///< a multimap (hash with possible multiple values for one key) of notes
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
@@ -168,12 +167,12 @@ inline int Pattern::get_length() const
 
 inline const Pattern::notes_t* Pattern::get_notes() const
 {
-    return &note_map;
+    return &__notes;
 }
 
 inline void Pattern::insert_note( Note* note, int position )
 {
-    note_map.insert( std::make_pair( (position==-1 ? note->get_position() : position ), note ) );
+    __notes.insert( std::make_pair( (position==-1 ? note->get_position() : position ), note ) );
 }
 
 };
