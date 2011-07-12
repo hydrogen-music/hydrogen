@@ -46,25 +46,22 @@ Pattern::Pattern( Pattern* other)
     , __name( other->get_name() )
     , __category( other->get_category() )
 {
-    std::multimap <int, Note*>::const_iterator pos;
-    for ( pos = note_map.begin(); pos != note_map.end(); pos++ ) {
-        note_map.insert( std::make_pair( pos->first, new Note( pos->second ) ) );
+    for( notes_cst_it_t it=other->get_notes()->begin(); it!=other->get_notes()->end(); it++ ) {
+        note_map.insert( std::make_pair( it->first, new Note( it->second ) ) );
     }
 }
 
 Pattern::~Pattern()
 {
-    std::multimap <int, Note*>::const_iterator pos;
-    for ( pos = note_map.begin(); pos != note_map.end(); pos++ ) {
-        delete pos->second;
+    for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+        delete it->second;
     }
 }
 
 bool Pattern::references( Instrument* instr )
 {
-    std::multimap <int, Note*>::const_iterator pos;
-    for ( pos = note_map.begin(); pos != note_map.end(); pos++ ) {
-        Note *note = pos->second;
+    for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+        Note *note = it->second;
         assert( note );
         if ( note->get_instrument() == instr ) {
             return true;
@@ -77,9 +74,8 @@ void Pattern::purge_instrument( Instrument* instr )
 {
     bool locked = false;
     std::list< Note* > slate;
-    std::multimap <int, Note*>::iterator pos;
-    for ( pos = note_map.begin(); pos != note_map.end(); pos++ ) {
-        Note* note = pos->second;
+    for( notes_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+        Note* note = it->second;
         assert( note );
         if ( note->get_instrument() == instr ) {
             if ( !locked ) {
@@ -87,7 +83,7 @@ void Pattern::purge_instrument( Instrument* instr )
                 locked = true;
             }
             slate.push_back( note );
-            note_map.erase( pos );
+            note_map.erase( it );
         }
     }
     if ( locked ) {
@@ -100,9 +96,8 @@ void Pattern::purge_instrument( Instrument* instr )
 }
 
 void Pattern::set_to_old() {
-    std::multimap <int, Note*>::const_iterator pos;
-    for ( pos = note_map.begin(); pos != note_map.end(); pos++ ) {
-        Note *note = pos->second;
+    for( notes_cst_it_t it=note_map.begin(); it!=note_map.end(); it++ ) {
+        Note *note = it->second;
         assert( note );
         note->set_just_recorded( false );
     }

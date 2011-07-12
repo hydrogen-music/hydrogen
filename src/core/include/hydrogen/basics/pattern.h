@@ -40,7 +40,13 @@ class Pattern : public H2Core::Object
 {
         H2_OBJECT
     public:
-        std::multimap <int, Note*> note_map;
+        ///< \brief multimap note type
+        typedef std::multimap <int, Note*> notes_t;
+        ///< \brief multimap note iterator type
+        typedef notes_t::iterator notes_it_t;
+        ///< \brief multimap note const iterator type
+        typedef notes_t::const_iterator notes_cst_it_t;
+
         std::set<Pattern*> virtual_pattern_set;
         std::set<Pattern*> virtual_pattern_transitive_closure_set;
         /**
@@ -67,6 +73,15 @@ class Pattern : public H2Core::Object
         void set_length( int length );
         ///< get the length of the pattern
         int get_length() const;
+        ///< \brief get the note multimap
+        const notes_t* get_notes() const;
+
+        /**
+         * insert a new note within __notes
+         * \param position the position of the note
+         * \param note the note to be inserted
+         */
+        void insert_note( int position, Note* note);
 
         /**
          * check if this pattern contains a note referencing the given instrument
@@ -88,6 +103,8 @@ class Pattern : public H2Core::Object
         int __length;                   ///< the length of the pattern
         QString __name;                 ///< the name of thepattern
         QString __category;             ///< the category of the pattern
+    public:
+        notes_t note_map;                ///< a multimap (hash with possible multiple values for one key) of notes
 };
 
 // DEFINITIONS
@@ -120,6 +137,16 @@ inline void Pattern::set_length( int length )
 inline int Pattern::get_length() const
 {
     return __length;
+}
+
+inline const Pattern::notes_t* Pattern::get_notes() const
+{
+    return &note_map;
+}
+
+inline void Pattern::insert_note( int position, Note* note )
+{
+    note_map.insert( std::make_pair( position, note ) );
 }
 
 };
