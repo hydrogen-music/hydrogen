@@ -227,19 +227,14 @@ void InstrumentLine::functionClearNotes()
 	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	std::list< Note* > noteList;
-	std::multimap <int, Note*>::iterator pos = pPattern->note_map.begin();
-	while ( pos != pPattern->note_map.end() ) {
-		Note *pNote = pos->second;
+    const Pattern::notes_t* notes = pPattern->get_notes();
+    FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		Note *pNote = it->second;
 		assert( pNote );
-		
 		if ( pNote->get_instrument() == pSelectedInstrument ) {
 			noteList.push_back( pNote );
-			pos++ ;
-		} else {
-			pos++;
 		}
-	}	
-	
+	}
 	if( noteList.size() > 0 ){
 		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
 		HydrogenApp::get_instance()->m_undoStack->push( action );
@@ -284,10 +279,9 @@ void InstrumentLine::functionFillNotes( int every )
 
 			for (int i = 0; i < nPatternSize; i += nResolution) {
 				bool noteAlreadyPresent = false;
-
-				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pCurrentPattern->note_map.lower_bound( i ); pos != pCurrentPattern->note_map.upper_bound( i ); ++pos ) {
-					Note *pNote = pos->second;
+                const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+                FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
 						noteAlreadyPresent = true;
@@ -339,9 +333,9 @@ void InstrumentLine::functionRandomizeVelocity()
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
 
 			for (int i = 0; i < nPatternSize; i += nResolution) {
-				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pCurrentPattern->note_map.lower_bound(i); pos != pCurrentPattern->note_map.upper_bound( i ); ++pos ) {
-					Note *pNote = pos->second;
+                const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+                FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						float fVal = ( rand() % 100 ) / 100.0;
 						oldNoteVeloValue <<  QString("%1").arg( pNote->get_velocity() );
@@ -383,23 +377,18 @@ void InstrumentLine::functionDeleteInstrument()
 
 	for ( int i = 0; i < patList->size(); i++ ) {
 		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
-		std::multimap <int, Note*>::iterator pos = pPattern->note_map.begin();
-		while ( pos != pPattern->note_map.end() ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
 			assert( pNote );
-			
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				pNote->set_pattern_idx( i );
 				noteList.push_back( pNote );
-				pos++ ;
-			} else {
-				pos++;
 			}
 		}
 	}
-	
 	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, m_nInstrumentNumber );
-	HydrogenApp::get_instance()->m_undoStack->push( action );	
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
 

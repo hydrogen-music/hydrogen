@@ -176,21 +176,19 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		H2Core::Note *pDraggedNote;
 		pDraggedNote = NULL;
 
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BOUND(notes,it,nColumn) {
+			Note *pNote = it->second;
 			assert( pNote );
-	
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				pDraggedNote = pNote;
 				break;
 			}
 		}
 		if ( !pDraggedNote ) {
-			for ( pos = m_pPattern->note_map.lower_bound( nRealColumn ); pos != m_pPattern->note_map.upper_bound( nRealColumn ); ++pos ) {
-				Note *pNote = pos->second;
+            FOREACH_NOTE_CST_IT_BOUND(notes,it,nRealColumn) {
+				Note *pNote = it->second;
 				assert( pNote );
-	
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					pDraggedNote = pNote;
 					break;
@@ -251,22 +249,19 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		}
 
 //		AudioEngine::get_instance()->lock( RIGHT_HERE );
-	
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.lower_bound( nColumn ); pos != m_pPattern->note_map.upper_bound( nColumn ); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BOUND(notes,it,nColumn) {
+			Note *pNote = it->second;
 			assert( pNote );
-	
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				m_pDraggedNote = pNote;
 				break;
 			}
 		}
 		if ( !m_pDraggedNote ) {
-			for ( pos = m_pPattern->note_map.lower_bound( nRealColumn ); pos != m_pPattern->note_map.upper_bound( nRealColumn ); ++pos ) {
-				Note *pNote = pos->second;
+            FOREACH_NOTE_CST_IT_BOUND(notes,it,nRealColumn) {
+				Note *pNote = it->second;
 				assert( pNote );
-	
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					m_pDraggedNote = pNote;
 					break;
@@ -277,10 +272,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		// potrei essere sulla coda di una nota precedente..
 		for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
 			if ( m_pDraggedNote ) break;
-			for ( pos = m_pPattern->note_map.lower_bound( nCol ); pos != m_pPattern->note_map.upper_bound( nCol ); ++pos ) {
-				Note *pNote = pos->second;
+            FOREACH_NOTE_CST_IT_BOUND(notes,it,nCol) {
+				Note *pNote = it->second;
 				assert( pNote );
-	
 				if ( pNote->get_instrument() == pSelectedInstrument
 				&& ( (nRealColumn <= pNote->get_position() + pNote->get_length() )
 				&& nRealColumn >= pNote->get_position() ) ){
@@ -338,15 +332,15 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
 	bool bNoteAlreadyExist = false;
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = pPattern->note_map.lower_bound( nColumn ); pos != pPattern->note_map.upper_bound( nColumn ); ++pos ) {
-		Note *pNote = pos->second;
+    Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+    FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+		Note *pNote = it->second;
 		assert( pNote );
 		if ( pNote->get_instrument() == pSelectedInstrument ) {
 			// the note exists...remove it!
 			bNoteAlreadyExist = true;
 			delete pNote;
-			pPattern->note_map.erase( pos );
+			notes->erase( it );
 			break;
 		}
 	}
@@ -486,9 +480,9 @@ void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int 
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = pPattern->note_map.lower_bound( nColumn ); pos != pPattern->note_map.upper_bound( nColumn ); ++pos ) {
-		Note *pNote = pos->second;
+    const Pattern::notes_t* notes = pPattern->get_notes();
+    FOREACH_NOTE_CST_IT_BOUND(notes,it,nColumn) {
+		Note *pNote = it->second;
 		assert( pNote );
 
 		if ( pNote->get_instrument() == pSelectedInstrument ) {
@@ -497,8 +491,8 @@ void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int 
 		}
 	}
 	if ( !pDraggedNote ) {
-		for ( pos = pPattern->note_map.lower_bound( nRealColumn ); pos != pPattern->note_map.upper_bound( nRealColumn ); ++pos ) {
-			Note *pNote = pos->second;
+        FOREACH_NOTE_CST_IT_BOUND(notes,it,nRealColumn) {
+			Note *pNote = it->second;
 			assert( pNote );
 
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
@@ -512,8 +506,8 @@ void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int 
 	// potrei essere sulla coda di una nota precedente..
 	for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
 		if ( pDraggedNote ) break;
-		for ( pos = pPattern->note_map.lower_bound( nCol ); pos != pPattern->note_map.upper_bound( nCol ); ++pos ) {
-			Note *pNote = pos->second;
+        FOREACH_NOTE_CST_IT_BOUND(notes,it,nCol) {
+			Note *pNote = it->second;
 			assert( pNote );
 
 			if ( pNote->get_instrument() == pSelectedInstrument
@@ -660,9 +654,9 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	if( m_pPattern->get_notes()->size() == 0) return;
 
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
-		Note *note = pos->second;
+    const Pattern::notes_t* notes = m_pPattern->get_notes();
+    FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		Note *note = it->second;
 		assert( note );
 		__draw_note( note, painter );
 	}
@@ -1039,10 +1033,9 @@ void DrumPatternEditor::undoRedoAction( int column,
 	else {
 		pPattern = NULL;
 	}
-
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = pPattern->note_map.lower_bound( column ); pos != pPattern->note_map.upper_bound( column ); ++pos ) {
-		Note *pNote = pos->second;
+    const Pattern::notes_t* notes = pPattern->get_notes();
+    FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		Note *pNote = it->second;
 		assert( pNote );
 		assert( (int)pNote->get_position() == column );
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
@@ -1129,14 +1122,14 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 
 	for (int i = 0; i < noteList.size(); i++ ) {
 		int nColumn  = noteList.value(i).toInt();
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = pPattern->note_map.lower_bound( nColumn ); pos != pPattern->note_map.upper_bound( nColumn ); ++pos ) {
-			Note *pNote = pos->second;
+        Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+        FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				// the note exists...remove it!
 				delete pNote;
-				pPattern->note_map.erase( pos );
+				notes->erase( it );
 				break;
 			}
 		}
@@ -1207,9 +1200,9 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 	int nResolution = 4 * MAX_NOTES / ( nBase * getResolution() );
 	int positionCount = 0;
 	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = pPattern->note_map.lower_bound(i); pos != pPattern->note_map.upper_bound( i ); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+			Note *pNote = it->second;
 			if ( pNote->get_instrument() ==  pSelectedInstrument) {
 				float velocity = noteVeloValue.value( positionCount ).toFloat();
 				pNote->set_velocity(velocity);

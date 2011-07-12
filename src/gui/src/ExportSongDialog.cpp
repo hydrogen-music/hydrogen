@@ -215,10 +215,9 @@ void ExportSongDialog::exportTracks()
 		unsigned nPatterns = pSong->get_pattern_list()->size();
 		for ( unsigned i = 0; i < nPatterns; i++ ) {
 			Pattern *pat = pSong->get_pattern_list()->get( i );
-
-			std::multimap <int, Note*>::iterator pos;
-			for ( pos = pat->note_map.begin(); pos != pat->note_map.end(); ++pos ) {
-				Note *pNote = pos->second;
+            const Pattern::notes_t* notes = pat->get_notes();
+            FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+				Note *pNote = it->second;
 				assert( pNote );
 
                                 if( pNote->get_instrument()->get_name() == Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_nInstrument)->get_name() ){

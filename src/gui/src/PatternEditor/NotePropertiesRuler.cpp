@@ -125,9 +125,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
-		Note *pNote = pos->second;
+    const Pattern::notes_t* notes = m_pPattern->get_notes();
+    FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		Note *pNote = it->second;
 		assert( pNote );
 		assert( (int)pNote->get_position() == column );
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
@@ -249,9 +249,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	__nSelectedInstrument = nSelectedInstrument;
 	__undoColumn = 	column;
 
-	std::multimap <int, Note*>::iterator pos;
-	for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
-		Note *pNote = pos->second;
+    const Pattern::notes_t* notes = m_pPattern->get_notes();
+    FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		Note *pNote = it->second;
 		assert( pNote );
 		assert( (int)pNote->get_position() == column );
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
@@ -326,19 +326,18 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		}
 		int keyval = val;
 		val = val / height();
-	
+
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = (Hydrogen::get_instance())->getSong();
-		
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.lower_bound( column ); pos != m_pPattern->note_map.upper_bound( column ); ++pos ) {
-			Note *pNote = pos->second;
+
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+			Note *pNote = it->second;
 			assert( pNote );
 			assert( (int)pNote->get_position() == column );
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
-	
 			if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
 				if( columnChange ){
 					__oldVelocity = pNote->get_velocity();
@@ -598,30 +597,23 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pposNote = pos->second;
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
-
-			std::multimap <int, Note*>::iterator copos;
 			int xoffset = 0;
-			for ( copos = m_pPattern->note_map.lower_bound( pos ); copos != m_pPattern->note_map.upper_bound( pos ); ++copos ) {
-				Note *pNote = copos->second;
+            FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
 				}
-
 				uint x_pos = 20 + pos * m_nGridWidth;
-	
 				uint line_end = height();
-	
 				uint velocity = (uint)(pNote->get_velocity() * height());
 				uint line_start = line_end - velocity;
-			
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
-	
 				int nLineWidth = 3;
 				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
 				xoffset++;
@@ -761,26 +753,20 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pposNote = pos->second;
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
-
-			std::multimap <int, Note*>::iterator copos;
 			int xoffset = 0;
-			for ( copos = m_pPattern->note_map.lower_bound( pos ); copos != m_pPattern->note_map.upper_bound( pos ); ++copos ) {
-				Note *pNote = copos->second;
+            FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
 				}
-
 				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
-
-	
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
-	
 				if (pNote->get_pan_r() == pNote->get_pan_l()) {
 					// pan value is centered - draw circle
 					int y_pos = (int)( height() * 0.5 );
@@ -789,10 +775,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 				} else {
 					int y_start = (int)( pNote->get_pan_l() * height() );
 					int y_end = (int)( height() - pNote->get_pan_r() * height() );
-	
 					int nLineWidth = 3;
 					p.fillRect( x_pos - 1 + xoffset, y_start, nLineWidth, y_end - y_start, QColor(  centerColor) );
-	
 					p.fillRect( x_pos - 1 + xoffset, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor(  centerColor ) );
 				}
 				xoffset++;
@@ -928,18 +912,15 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
- 
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
 
-			Note *pposNote = pos->second;
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
-
-			std::multimap <int, Note*>::iterator copos;
 			int xoffset = 0;
-			for ( copos = m_pPattern->note_map.lower_bound( pos ); copos != m_pPattern->note_map.upper_bound( pos ); ++copos ) {
-				Note *pNote = copos->second;
+            FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
@@ -1144,10 +1125,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
- 
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
@@ -1165,10 +1145,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
- 
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = m_pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;

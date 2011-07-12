@@ -258,14 +258,10 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 				nMaxPatternLength = pPattern->get_length();
 			}
 
-			for ( unsigned nNote = 0 ;
-			      nNote < pPattern->get_length() ;
-			      nNote++ ) {
-				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pPattern->note_map.lower_bound( nNote ) ;
-				      pos != pPattern->note_map.upper_bound( nNote );
-				      ++pos ) {
-					Note *pNote = pos->second;
+			for ( unsigned nNote = 0; nNote < pPattern->get_length(); nNote++ ) {
+                const Pattern::notes_t* notes = pPattern->get_notes();
+                FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+					Note *pNote = it->second;
 					if ( pNote ) {
 						int nVelocity =
 							(int)( 127.0 * pNote->get_velocity() );

@@ -265,9 +265,9 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 	writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = pat->note_map.begin(); pos != pat->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = pat->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
 			assert( pNote );
 
 			QDomNode noteNode = doc.createElement( "note" );
@@ -1152,9 +1152,9 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
-		std::multimap <int, Note*>::iterator pos;
-		for ( pos = pat->note_map.begin(); pos != pat->note_map.end(); ++pos ) {
-			Note *pNote = pos->second;
+        const Pattern::notes_t* notes = pat->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
 			assert( pNote );
 
 			QDomNode noteNode = doc.createElement( "note" );

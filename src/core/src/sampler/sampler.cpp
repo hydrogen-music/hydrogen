@@ -842,14 +842,10 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 		if ( currentPattern ) {
 				int patternsize = currentPattern->get_length();
 	
-				for ( unsigned nNote = 0 ;
-				nNote < currentPattern->get_length() ;
-				nNote++ ) {
-					std::multimap <int, Note*>::iterator pos;
-					for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
-					pos != currentPattern->note_map.upper_bound( nNote ) ;
-					++pos ) {
-						Note *pNote = pos->second;
+				for ( unsigned nNote = 0; nNote < currentPattern->get_length(); nNote++ ) {
+                    const Pattern::notes_t* notes = currentPattern->get_notes();
+                    FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+						Note *pNote = it->second;
 						if ( pNote!=NULL ) {
 							if( !Preferences::get_instance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == instrument

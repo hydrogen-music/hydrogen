@@ -1347,31 +1347,22 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			      ++nPat ) {
 				Pattern *pPattern = m_pPlayingPatterns->get( nPat );
 				assert( pPattern != NULL );
-
+                Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
 				// Delete notes before attempting to play them
 				if ( doErase ) {
-					std::multimap <int, Note*>::iterator pos0;
-					for ( pos0 = pPattern->note_map.lower_bound( m_nPatternTickPosition );
-							pos0 != pPattern->note_map.upper_bound( m_nPatternTickPosition );
-							++pos0 ) {
-                                                Note *pNote = NULL;
-                                                pNote = pos0->second;
+                    FOREACH_NOTE_IT_BOUND(notes,it,m_nPatternTickPosition) {
+                        Note* pNote = it->second;
 						assert( pNote != NULL );
 						if ( pNote->get_just_recorded() == false ) {
 							delete pNote;
-							pPattern->note_map.erase( pos0 );
+							notes->erase( it );
 						}
 					}
 				}
 
-				assert( pPattern != NULL );
-
 				// Now play notes
-				std::multimap <int, Note*>::iterator pos;
-				for ( pos = pPattern->note_map.lower_bound( m_nPatternTickPosition ) ;
-				      pos != pPattern->note_map.upper_bound( m_nPatternTickPosition ) ;
-				      ++pos ) {
-					Note *pNote = pos->second;
+                FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) {
+					Note *pNote = it->second;
 					if ( pNote ) {
 						pNote->set_just_recorded( false );
 						int nOffset = 0;
@@ -2099,28 +2090,26 @@ void Hydrogen::addRealtimeNote( int instrument,
 				
 			}
 
-			std::multimap <int, Note*>::iterator pos0;
-			for ( pos0 = currentPattern->note_map.begin(); pos0 != currentPattern->note_map.end(); ++pos0 ) {
-				Note *pNote = pos0->second;
+            Pattern::notes_t* notes = (Pattern::notes_t*)currentPattern->get_notes();
+            FOREACH_NOTE_IT_BEGIN_END(notes,it) {
+				Note *pNote = it->second;
 				assert( pNote );
 
 				if( pref->__playselectedinstrument ){//fix me 
 					if( song->get_instrument_list()->get( getSelectedInstrumentNumber()) == pNote->get_instrument() ){
 						if(prefpredelete>=1 && prefpredelete <=14 )
 							pNote->set_just_recorded( false );
-		
 						if( (prefpredelete == 15) && (pNote->get_just_recorded() == false)){
 							delete pNote;
-							currentPattern->note_map.erase( pos0 );
+							notes->erase( it );
 							continue;
 						}
-		
 						if( ( pNote->get_just_recorded() == false ) && (static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() < column + predelete +1 )){
 							delete pNote;
-							currentPattern->note_map.erase( pos0 );
+							notes->erase( it );
 						}
 					}
-					continue;	
+					continue;
 				}
 
 				if ( !fp && pNote->get_instrument() != instrRef ) {
@@ -2132,13 +2121,13 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 				if( (prefpredelete == 15) && (pNote->get_just_recorded() == false)){
 					delete pNote;
-					currentPattern->note_map.erase( pos0 );
+					notes->erase( it );
 					continue;
 				}
 
 				if( ( pNote->get_just_recorded() == false ) && ( static_cast<int>( pNote->get_position() ) >= postdelete && pNote->get_position() <column + predelete +1 )){
 					delete pNote;
-					currentPattern->note_map.erase( pos0 );
+					notes->erase( it );
 				}
 				
 			}
@@ -2150,11 +2139,9 @@ void Hydrogen::addRealtimeNote( int instrument,
 		for ( unsigned nNote = 0 ;
 		      nNote < currentPattern->get_length() ;
 		      nNote++ ) {
-			std::multimap <int, Note*>::iterator pos;
-			for ( pos = currentPattern->note_map.lower_bound( nNote ) ;
-			      pos != currentPattern->note_map.upper_bound( nNote ) ;
-			      ++pos ) {
-				pNoteOld = pos->second;
+            const Pattern::notes_t* notes = currentPattern->get_notes();
+            FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+				pNoteOld = it->second;
 				if ( pNoteOld!=NULL ) {
 					if ( pNoteOld->get_instrument() == instrRef
 					     && nNote==column ) {
