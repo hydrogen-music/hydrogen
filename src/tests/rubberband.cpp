@@ -123,7 +123,7 @@ void rubberband_test( const QString& sample_path ) {
     delete out_data_r;
 }
 #else
-void rubberband_test() {
+void rubberband_test( const QString& sample_path ) {
     ___ERRORLOG("RUBBERBAND LIBRARY NOT AVAILABLE");
 }
 #endif
