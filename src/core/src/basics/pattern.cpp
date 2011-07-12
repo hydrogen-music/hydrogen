@@ -46,7 +46,7 @@ Pattern::Pattern( Pattern* other)
     , __name( other->get_name() )
     , __category( other->get_category() )
 {
-    for( notes_cst_it_t it=other->get_notes()->begin(); it!=other->get_notes()->end(); it++ ) {
+    FOREACH_NOTE_CST_IT_BEGIN_END(other->get_notes(),it) {
         note_map.insert( std::make_pair( it->first, new Note( it->second ) ) );
     }
 }
