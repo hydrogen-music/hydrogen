@@ -196,7 +196,7 @@ Song* Song::get_default_song()
 #endif
 
     PatternList* patternList = new PatternList();
-    Pattern* emptyPattern = Pattern::get_empty_pattern();
+    Pattern* emptyPattern = new Pattern();
     emptyPattern->set_name( QString( "Pattern 1" ) );
     emptyPattern->set_category( QString( "not_categorized" ) );
     patternList->add( emptyPattern );

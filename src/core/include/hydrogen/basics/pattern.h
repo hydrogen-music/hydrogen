@@ -20,23 +20,22 @@
  *
  */
 
-#ifndef PATTERN_H
-#define PATTERN_H
+#ifndef H2C_PATTERN_H
+#define H2C_PATTERN_H
 
-#include <hydrogen/globals.h>
-#include <hydrogen/object.h>
 #include <set>
+
+#include <hydrogen/object.h>
 
 namespace H2Core
 {
 
 class Note;
-class Pattern;
 class Instrument;
 
-///
-/// The Pattern is a Note container.
-///
+/**
+Pattern class is a Note container
+*/
 class Pattern : public H2Core::Object
 {
         H2_OBJECT
@@ -44,57 +43,87 @@ class Pattern : public H2Core::Object
         std::multimap <int, Note*> note_map;
         std::set<Pattern*> virtual_pattern_set;
         std::set<Pattern*> virtual_pattern_transitive_closure_set;
-
-        Pattern( const QString& name, const QString& category, unsigned length = MAX_NOTES );
+        /**
+         * constructor
+         * \param name the name of the pattern
+         * \param category the name of the pattern
+         * \param length the length of the pattern
+         */
+        Pattern( const QString& name="Pattern", const QString& category="not_categorized", int length=MAX_NOTES );
+        /** copy constructor */
         Pattern( Pattern* other );
+        /** destructor */
         ~Pattern();
 
-        /**
-          Delete notes that pertain to instrument I.
-          The function is thread safe (it locks the audio data while deleting notes)
-        */
-        void purge_instrument( Instrument* I );
+        ///< set the name of the pattern
+        void set_name( const QString& name );
+        ///< get the name of the pattern
+        const QString& get_name() const;
+        ///< set the category of the pattern
+        void set_category( const QString& category );
+        ///< get the category of the pattern
+        const QString& get_category() const;
+        ///< set the length of the pattern
+        void set_length( int length );
+        ///< get the length of the pattern
+        int get_length() const;
 
         /**
-          Check if there are any notes pertaining to I
+         * check if this pattern contains a note referencing the given instrument
+         * \param instr the instrument
         */
-        bool references_instrument( Instrument* I );
-
+        bool references( Instrument* instr );
+        /**
+         * delete the notes referencing the given instrument
+         * The function is thread safe (it locks the audio data while deleting notes)
+         * \param instr the instrument
+        */
+        void purge_instrument( Instrument* instr );
+        /**
+         * mark all notes as old
+         */
         void set_to_old();
 
-        static Pattern* get_empty_pattern();
-        Pattern* copy();
-
-        void debug_dump();
-
-        unsigned get_length() {
-            return __length;
-        }
-        void set_length( unsigned length ) {
-            __length = length;
-        }
-
-        void set_name( const QString& name ) {
-            __name = name;
-        }
-        const QString& get_name() const {
-            return __name;
-        }
-
-        void set_category( const QString& category ) {
-            __category = category;
-        }
-        const QString& get_category() const {
-            return __category;
-        }
-
     private:
-        unsigned __length;
-        QString __name;
-        QString __category;
+        int __length;                   ///< the length of the pattern
+        QString __name;                 ///< the name of thepattern
+        QString __category;             ///< the category of the pattern
 };
 
+// DEFINITIONS
+
+inline void Pattern::set_name( const QString& name )
+{
+    __name = name;
+}
+
+inline const QString& Pattern::get_name() const
+{
+    return __name;
+}
+
+inline void Pattern::set_category( const QString& category )
+{
+    __category = category;
+}
+
+inline const QString& Pattern::get_category() const
+{
+    return __category;
+}
+
+inline void Pattern::set_length( int length )
+{
+    __length = length;
+}
+
+inline int Pattern::get_length() const
+{
+    return __length;
+}
+
 };
 
-#endif
+#endif // H2C_PATTERN_H
 
+/* vim: set softtabstop=4 expandtab:  */

@@ -1384,7 +1384,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	}
 	else {
 		// there's no patterns..	
-		Pattern *emptyPattern = Pattern::get_empty_pattern();
+		Pattern *emptyPattern = new Pattern();
 		emptyPattern->set_name( trUtf8("Pattern 1") );
 		emptyPattern->set_category( trUtf8("not_categorized") );
 		pSongPatternList->add( emptyPattern );
@@ -1451,7 +1451,7 @@ void SongEditorPatternList::patternPopup_copy()
 	H2Core::Pattern *pPattern = pPatternList->get( nSelectedPattern );
 
 	//create a tmp pattern needed for PatternPropertiesDialog.
-	H2Core::Pattern *pNewPattern = pPattern->copy();
+	H2Core::Pattern *pNewPattern = new Pattern( pPattern );
 	pPatternList->add( pNewPattern );
 
 	// rename the copied pattern

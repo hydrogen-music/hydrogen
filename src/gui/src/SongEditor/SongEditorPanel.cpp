@@ -362,7 +362,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn)
 	PatternList *patternList = song->get_pattern_list();
 	int emptyPatternNo = patternList->size() + 1;
 
-	Pattern *emptyPattern = Pattern::get_empty_pattern();
+	Pattern *emptyPattern = new Pattern();
 	emptyPattern->set_name( trUtf8("Pattern %1").arg(emptyPatternNo) );
 	emptyPattern->set_category( trUtf8("not_categorized") );
 
@@ -391,7 +391,7 @@ void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatte
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
 
-	Pattern *emptyPattern = Pattern::get_empty_pattern();
+	Pattern *emptyPattern = new Pattern();
 	emptyPattern->set_name( newPatternName );
 	emptyPattern->set_category( newPatternCategory );
 	patternList->add( emptyPattern );

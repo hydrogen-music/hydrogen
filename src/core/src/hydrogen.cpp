@@ -2661,7 +2661,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		      ++nPattern ) {
 			if( pPatternList
 			    ->get( nPattern )
-			    ->references_instrument( pInstr ) ) {
+			    ->references( pInstr ) ) {
 				return;
 			}
 		}
