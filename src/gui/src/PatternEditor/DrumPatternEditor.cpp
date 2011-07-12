@@ -364,9 +364,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 		pNote->set_note_off( false );
 		pNote->set_lead_lag( oldLeadLag );
         pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
-		
-
-		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+		pPattern->insert_note( pNote );
 
 		// hear note
 		Preferences *pref = Preferences::get_instance();
@@ -427,9 +425,7 @@ void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row, int selec
 	const float fPitch = 0.0f;
 	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 	poffNote->set_note_off( true );
-
-	
-	pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
+	pPattern->insert_note( poffNote );
 
 	pSong->__is_modified = true;
 
@@ -662,7 +658,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 
 
-	if( m_pPattern->note_map.size() == 0) return;
+	if( m_pPattern->get_notes()->size() == 0) return;
 
 	std::multimap <int, Note*>::iterator pos;
 	for ( pos = m_pPattern->note_map.begin(); pos != m_pPattern->note_map.end(); pos++ ) {
@@ -1108,8 +1104,7 @@ void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* >
 		Note *pNote;
 		pNote = new Note(*pos);
 		assert( pNote );
-		int nPosition = pNote->get_position();
-		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+		pPattern->insert_note( pNote );
 	}
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	updateEditor();
@@ -1177,7 +1172,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 		// create the new note
 		int position = noteList.value(i).toInt();
 		Note *pNote = new Note( pSelectedInstrument, position, velocity, pan_L, pan_R, nLength, fPitch );
-		pPattern->note_map.insert( std::make_pair( position, pNote ) );	
+		pPattern->insert_note( pNote );
 	}
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
@@ -1369,10 +1364,9 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 			Note *pNote;
 			pNote = new Note( *note );
 			assert( pNote );
-			int nPosition = pNote->get_position();
 			pPattern = pPatternList->get( pNote->get_pattern_idx() );
-			assert (pPattern) ;	
-			pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+			assert (pPattern);
+			pPattern->insert_note( pNote );
 			//delete pNote;
 		}
 	}

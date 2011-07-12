@@ -683,7 +683,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		pNote->set_note_off( false );
 		pNote->set_lead_lag( oldLeadLag );
         pNote->set_key_octave( pressednotekey, pressedoctave );
-		pPattern->note_map.insert( std::make_pair( nPosition, pNote ) );
+		pPattern->insert_note( pNote );
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
@@ -743,7 +743,7 @@ void PianoRollEditor::addNoteRightClickAction( int nColumn, int pressedLine, int
 	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 	poffNote->set_note_off( true );
     poffNote->set_key_octave( pressednotekey, pressedoctave );
-	pPattern->note_map.insert( std::make_pair( nPosition, poffNote ) );
+	pPattern->insert_note( poffNote );
 
 	pSong->__is_modified = true;
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
