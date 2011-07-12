@@ -2193,7 +2193,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 						pan_R,
 						-1,
 						0 );
-				currentPattern->insert_note( column, note );
+				currentPattern->insert_note( note, column );
 
 				// hear note if its not in the future
 				if ( pref->getHearNewNotes()
@@ -2221,7 +2221,7 @@ void Hydrogen::addRealtimeNote( int instrument,
                 Note::Key notehigh = (Note::Key)(msg1 - (12 * divider));
 				note->set_midi_info( notehigh, octave, msg1 );
 
-				currentPattern->insert_note( column, note );
+				currentPattern->insert_note( note, column );
 
 				// hear note if its not in the future
 				if ( pref->getHearNewNotes()

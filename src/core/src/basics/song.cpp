@@ -968,7 +968,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
             pNote->set_key_octave( sKey );
             pNote->set_lead_lag( fLeadLag );
             pNote->set_note_off( noteoff );
-            pPattern->insert_note( pNote->get_position(), pNote );
+            pPattern->insert_note( pNote );
 
             noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
         }
@@ -1004,7 +1004,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
                 pNote->set_lead_lag( fLeadLag );
 
                 //infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );
-                pPattern->insert_note( pNote->get_position(), pNote );
+                pPattern->insert_note( pNote );
 
                 noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
 

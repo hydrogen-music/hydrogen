@@ -26,11 +26,11 @@
 #include <set>
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/note.h>
 
 namespace H2Core
 {
 
-class Note;
 class Instrument;
 
 /**
@@ -78,10 +78,10 @@ class Pattern : public H2Core::Object
 
         /**
          * insert a new note within __notes
-         * \param position the position of the note
          * \param note the note to be inserted
+         * \param position if not -1 will be used as std::pair first element, otherwise note position will be used
          */
-        void insert_note( int position, Note* note);
+        void insert_note( Note* note, int position=-1 );
 
         /**
          * check if this pattern contains a note referencing the given instrument
@@ -144,9 +144,9 @@ inline const Pattern::notes_t* Pattern::get_notes() const
     return &note_map;
 }
 
-inline void Pattern::insert_note( int position, Note* note )
+inline void Pattern::insert_note( Note* note, int position )
 {
-    note_map.insert( std::make_pair( position, note ) );
+    note_map.insert( std::make_pair( (position==-1 ? note->get_position() : position ), note ) );
 }
 
 };
