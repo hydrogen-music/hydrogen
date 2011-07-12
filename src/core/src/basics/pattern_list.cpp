@@ -164,8 +164,8 @@ void PatternList::swap( int idx_a, int idx_b )
 
 void PatternList::move( int idx_a, int idx_b )
 {
-    //assert( idx_a >= 0 && idx_a < __patterns.size() );
-    //assert( idx_b >= 0 && idx_b < __patterns.size() );
+    assert( idx_a >= 0 && idx_a < __patterns.size() );
+    assert( idx_b >= 0 && idx_b < __patterns.size() );
     if( idx_a == idx_b ) return;
     //DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
     Pattern* tmp = __patterns[idx_a];
@@ -173,15 +173,15 @@ void PatternList::move( int idx_a, int idx_b )
     __patterns.insert( __patterns.begin() + idx_b, tmp );
 }
 
-void PatternList::compute_flattened_virtual_patterns()
+void PatternList::flattened_virtual_patterns_compute()
 {
-    for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->clear_flattened_virtual_patterns();
-    for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->compute_flattened_virtual_patterns();
+    for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_clear();
+    for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_compute();
 }
 
-void PatternList::del_virtual_pattern( Pattern* pattern )
+void PatternList::virtual_pattern_del( Pattern* pattern )
 {
-    for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->del_virtual_pattern( pattern );
+    for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_pattern_del( pattern );
 }
 
 };

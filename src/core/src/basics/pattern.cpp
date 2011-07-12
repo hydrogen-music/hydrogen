@@ -134,14 +134,14 @@ void Pattern::set_to_old()
     }
 }
 
-void Pattern::compute_flattened_virtual_patterns()
+void Pattern::flattened_virtual_patterns_compute()
 {
-    // virtual_pattern_transitive_closure_set must have been clear before
+    // virtual_pattern_transitive_closure_set must have been cleared before
     if( virtual_pattern_transitive_closure_set.size() >= virtual_pattern_set.size() ) return;
     // for each virtual pattern
     for( virtual_patterns_cst_it_t it0=virtual_pattern_set.begin(); it0!=virtual_pattern_set.end(); ++it0 ) {
         virtual_pattern_transitive_closure_set.insert( *it0 );        // add it
-        ( *it0 )->compute_flattened_virtual_patterns();     // build it's flattened virtual patterns set
+        ( *it0 )->flattened_virtual_patterns_compute();     // build it's flattened virtual patterns set
         // for each pattern of it's flattened virtual patern set
         for( virtual_patterns_cst_it_t it1=( *it0 )->get_flattened_virtual_patterns()->begin(); it1!=( *it0 )->get_flattened_virtual_patterns()->end(); ++it1 ) {
             // add the pattern

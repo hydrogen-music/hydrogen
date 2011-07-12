@@ -132,12 +132,12 @@ class PatternList : public H2Core::Object
         /**
          * call compute_flattened_virtual_patterns on each pattern
          */
-        void compute_flattened_virtual_patterns();
+        void flattened_virtual_patterns_compute();
         /**
          * call del_virtual_pattern on each pattern
          * \param pattern the pattern to remove where it's found
          */
-        void del_virtual_pattern( Pattern* pattern );
+        void virtual_pattern_del( Pattern* pattern );
 
     private:
         std::vector<Pattern*> __patterns;            ///< the list of patterns

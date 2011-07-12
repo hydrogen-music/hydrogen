@@ -137,12 +137,14 @@ class Pattern : public H2Core::Object
          * \brief remove a pattern from virtual_pattern set, flattened virtual patterns have to be rebuilt
          *                   */
         void virtual_pattern_del( Pattern* pattern );
+        ///< \brief clear flattened_virtual_pattern_set
+        void flattened_virtual_patterns_clear();
         /**
          * \brief compute virtual_pattern_transitive_closure_set based on virtual_pattern_transitive_closure_set
          * virtual_pattern_transitive_closure_set must have been cleared before which is the case is called
          * from PatternList::compute_flattened_virtual_patterns
          */
-        void compute_flattened_virtual_patterns();
+        void flattened_virtual_patterns_compute();
         /**
          * \brief add content of __flatteened_virtual_patterns into patterns
          * \param patterns the pattern list to feed
@@ -239,6 +241,11 @@ inline void Pattern::virtual_pattern_del( Pattern* pattern )
 {
     virtual_patterns_cst_it_t it = virtual_pattern_set.find( pattern );
     if ( it!=virtual_pattern_set.end() ) virtual_pattern_set.erase( it );
+}
+
+inline void Pattern::flattened_virtual_patterns_clear()
+{
+    virtual_pattern_transitive_closure_set.clear();
 }
 
 };
