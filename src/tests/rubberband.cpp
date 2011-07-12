@@ -6,7 +6,7 @@
 #include <rubberband/RubberBandStretcher.h>
 #define RUBBER_SAMPLE_PATH "/usr/local/share/hydrogen/data/drumkits/GMkit/cym_Jazz.flac"
 
-void rubberband_test() {
+void rubberband_test( const QString& sample_path ) {
 
     int block_size = 1024;
     // set rubber band options
@@ -16,9 +16,9 @@ void rubberband_test() {
     RubberBand::RubberBandStretcher::Options options = 131088; //RubberBand::RubberBandStretcher::DefaultOptions;
 
     // load a sample
-    H2Core::Sample* sample = H2Core::Sample::load( RUBBER_SAMPLE_PATH );
+    H2Core::Sample* sample = H2Core::Sample::load( sample_path );
     if( sample==0 ) {
-        ___ERRORLOG( QString( "unable to load %1" ).arg( RUBBER_SAMPLE_PATH ) );
+        ___ERRORLOG( QString( "unable to load %1" ).arg( sample_path ) );
         return;
     }
     ___DEBUGLOG( QString( "input sample\n\tfilename\t: %1\n\tframes\t\t: %2\n\tsample rate\t: %3" )
