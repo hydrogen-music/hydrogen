@@ -30,83 +30,28 @@
 
 #include "Skin.h"
 
-namespace
-{
-
-struct SimplePatternNode
-{
-    H2Core::Pattern *curPattern;
-    int colour;
-    std::set<H2Core::Pattern*> edges;
-};//SimplePatternNode
-    
-void addEdges(std::set<H2Core::Pattern*> &patternSet)
-{
-    std::set<H2Core::Pattern*> curPatternSet = patternSet;
-    
-    for (std::set<H2Core::Pattern*>::const_iterator setIter = curPatternSet.begin(); setIter != curPatternSet.end(); ++setIter) {
-	 for (std::set<H2Core::Pattern*>::const_iterator innerSetIter = (*setIter)->virtual_pattern_set.begin(); innerSetIter != (*setIter)->virtual_pattern_set.end(); ++innerSetIter) {
-	     patternSet.insert(*innerSetIter);
-	 }//for
-    }//for
-    
-    if (patternSet.size() != curPatternSet.size()) {
-	addEdges(patternSet);
-    }//if
-}//addEdges
-    
-}//anonymous namespace
-
 const char* VirtualPatternDialog::__class_name = "VirtualPatternDialog";
 
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
- : QDialog(parent)
- , Object( __class_name )
+    : QDialog(parent)
+    , Object( __class_name )
 {
-	setupUi( this );
-
-	setFixedSize( width(), height() );
-	setWindowTitle( trUtf8( "Select virtual pattern" ) );
+    setupUi( this );
+    setFixedSize( width(), height() );
+    setWindowTitle( trUtf8( "Select virtual pattern" ) );
 }
-
-
 
 VirtualPatternDialog::~VirtualPatternDialog()
 {
 }
 
-
-
 void VirtualPatternDialog::on_cancelBtn_clicked()
 {
-	reject();
+    reject();
 }
-
-
 
 void VirtualPatternDialog::on_okBtn_clicked()
 {
-	accept();
+    accept();
 }
-
-void VirtualPatternDialog::computeVirtualPatternTransitiveClosure(H2Core::PatternList *pPatternList)
-{
-    //std::map<Pattern*, SimplePatternNode*> patternNodeGraph;
-    
-    int listsize = pPatternList->size();
-    for (unsigned int index = 0; index < listsize; ++index) {
-	H2Core::Pattern *curPattern = pPatternList->get(index);
-	//SimplePatternNode *newNode = new SimplePatternNode();
-	//newNode->curPattern = curPattern;
-	//newNode->colour = 0;
-	//newNode->edges = curPattern->virtual_pattern_set;
-	
-	curPattern->virtual_pattern_transitive_closure_set = curPattern->virtual_pattern_set;
-	
-	addEdges(curPattern->virtual_pattern_transitive_closure_set);
-	
-	//patternNodeGraph[curPattern] = newNode;
-    }//for
-}//computeVirtualPatternTransitiveClosure
-
 

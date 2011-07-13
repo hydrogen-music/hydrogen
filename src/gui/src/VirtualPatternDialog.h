@@ -46,7 +46,6 @@ class VirtualPatternDialog : public QDialog, public Ui_VirtualPatternDialog_UI, 
 	public:
 		VirtualPatternDialog( QWidget* parent );
 		~VirtualPatternDialog();
-		static void computeVirtualPatternTransitiveClosure(H2Core::PatternList *pPatternList);
 
 	private slots:
 		void on_cancelBtn_clicked();

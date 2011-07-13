@@ -662,25 +662,16 @@ void SongEditor::drawSequence()
 			    drawPattern( i, position, false );
 			}//if
 			
-			for (std::set<Pattern*>::const_iterator virtualIter = pat->virtual_pattern_transitive_closure_set.begin(); virtualIter != pat->virtual_pattern_transitive_closure_set.end(); ++virtualIter) {
-			    if (drawnAsVirtual.find(*virtualIter) == drawnAsVirtual.end()) {
-				int position = -1;
-				// find the position in pattern list
-				for (uint j = 0; j < listLength; j++) {
-				    H2Core::Pattern *pat2 = patList->get( j );
-				    if (*virtualIter == pat2) {
-					    position = j;
-					    break;
-				    }//if
-				}//for
+			for ( Pattern::virtual_patterns_cst_it_t it = pat->get_flattened_virtual_patterns()->begin(); it != pat->get_flattened_virtual_patterns()->end(); ++it) {
+			    if (drawnAsVirtual.find(*it) == drawnAsVirtual.end()) {
+				int position = patList->index(*it);
 				if (position == -1) {
 				    WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 				}
 				drawPattern( i, position, true );
-				
-				drawnAsVirtual.insert(*virtualIter);
-			    }//if
-			}//for
+				drawnAsVirtual.insert(*it);
+			    }
+			}
 		}
 	}
 
@@ -1110,26 +1101,26 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 	QListWidgetItem *newItem = new QListWidgetItem(patternName, dialog->patternList);
 	dialog->patternList->insertItem(0, newItem );
 	
-	if (selectedPattern->virtual_pattern_set.find(curPattern) != selectedPattern->virtual_pattern_set.end()) {
+	if (selectedPattern->get_virtual_patterns()->find(curPattern) != selectedPattern->get_virtual_patterns()->end()) {
 	    dialog->patternList->setItemSelected(newItem, true);
 	}//if
     }//for
     
     if ( dialog->exec() == QDialog::Accepted ) {
-	selectedPattern->virtual_pattern_set.clear();
+	selectedPattern->virtual_patterns_clear();
 	for (unsigned int index = 0; index < listsize-1; ++index) {
 	    QListWidgetItem *listItem = dialog->patternList->item(index);
 	    if (dialog->patternList->isItemSelected(listItem) == true) {
 		if (patternNameMap.find(listItem->text()) != patternNameMap.end()) {
-		    selectedPattern->virtual_pattern_set.insert(patternNameMap[listItem->text()]);
+		    selectedPattern->virtual_patterns_add(patternNameMap[listItem->text()]);
 		}//if
 	    }//if
 	}//for
 	
 	pSEPanel->updateAll();
     }//if
-    
-    dialog->computeVirtualPatternTransitiveClosure(pPatternList);
+
+    pPatternList->flattened_virtual_patterns_compute();
 
     delete dialog;
 }//patternPopup_virtualPattern
@@ -1395,13 +1386,13 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 	    H2Core::Pattern *curPattern = pSongPatternList->get(index);
 	    
-	    std::set<Pattern*>::iterator virtIter = curPattern->virtual_pattern_set.find(pattern);
-	    if (virtIter != curPattern->virtual_pattern_set.end()) {
-		curPattern->virtual_pattern_set.erase(virtIter);
+	    std::set<Pattern*>::iterator virtIter = curPattern->get_virtual_patterns()->find(pattern);
+	    if (virtIter != curPattern->get_virtual_patterns()->end()) {
+		curPattern->virtual_pattern_del(*virtIter);
 	    }//if
 	}//for
 
-	VirtualPatternDialog::computeVirtualPatternTransitiveClosure(pSongPatternList);
+	pSongPatternList->flattened_virtual_patterns_compute();
 
 	delete pattern;
 	song->__is_modified = true;
