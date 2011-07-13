@@ -1386,9 +1386,9 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 	    H2Core::Pattern *curPattern = pSongPatternList->get(index);
 	    
-	    std::set<Pattern*>::iterator virtIter = curPattern->get_virtual_patterns()->find(pattern);
-	    if (virtIter != curPattern->get_virtual_patterns()->end()) {
-		curPattern->virtual_pattern_del(*virtIter);
+        Pattern::virtual_patterns_cst_it_t it = curPattern->get_virtual_patterns()->find(pattern);
+	    if (it != curPattern->get_virtual_patterns()->end()) {
+		curPattern->virtual_patterns_del(*it);
 	    }//if
 	}//for
 

@@ -270,7 +270,7 @@ void Song::readTempPatternList( QString filename )
                     }//for
 
                     if ( virtPattern != NULL ) {
-                        curPattern->virtual_pattern_set.insert( virtPattern );
+                        curPattern->virtual_patterns_add( virtPattern );
                     } else {
                         ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
                     }//if
@@ -697,7 +697,7 @@ Song* SongReader::readSong( const QString& filename )
                     }//for
 
                     if ( virtPattern != NULL ) {
-                        curPattern->virtual_pattern_set.insert( virtPattern );
+                        curPattern->virtual_patterns_add( virtPattern );
                     } else {
                         ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
                     }//if

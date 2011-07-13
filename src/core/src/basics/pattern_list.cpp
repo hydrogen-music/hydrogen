@@ -181,7 +181,7 @@ void PatternList::flattened_virtual_patterns_compute()
 
 void PatternList::virtual_pattern_del( Pattern* pattern )
 {
-    for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_pattern_del( pattern );
+    for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
 };
