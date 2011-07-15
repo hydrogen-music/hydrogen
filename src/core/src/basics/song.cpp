@@ -960,7 +960,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
                 int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
                 float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 
-                QString instrId = LocalFileMng::readXmlString( noteNode, "instrument", "" );
+                int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
                 Instrument* instrRef = instrList->find( instrId );
                 assert( instrRef );
