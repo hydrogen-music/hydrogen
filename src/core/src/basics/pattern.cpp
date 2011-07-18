@@ -62,20 +62,46 @@ Pattern::~Pattern()
 Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
 {
     if ( strict ) {
-        for( notes_cst_it_t it=__notes.lower_bound( idx ); it!=__notes.upper_bound( idx ); ++it ) {
+        for( notes_cst_it_t it=__notes.lower_bound( idx ); it!=__notes.upper_bound( idx ); it++ ) {
             Note* note = it->second;
+            assert( note );
             if ( note->match( instrument, key, octave ) ) return note;
         }
     } else {
         // TODO maybe not start from 0 but idx-X
         for ( int n=0; n<idx; n++ ) {
-            for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); ++it ) {
+            for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
                 Note* note = it->second;
+                assert( note );
                 if ( note->match( instrument, key, octave ) && ( ( idx<=note->get_position()+note->get_length() ) && idx>=note->get_position() ) ) return note;
             }
         }
     }
     return 0;
+}
+
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument )
+{
+    notes_cst_it_t it;
+    for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
+        Note* note = it->second;
+        assert( note );
+        if ( note->get_instrument() == instrument ) return note;
+    }
+    for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
+        Note* note = it->second;
+        assert( note );
+        if ( note->get_instrument() == instrument ) return note;
+    }
+    // TODO maybe not start from 0 but idx-X
+    for ( int n=0; n<idx_b; n++ ) {
+        for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
+            Note* note = it->second;
+            assert( note );
+            if ( note->get_instrument() == instrument && ( ( n<=note->get_position()+note->get_length() ) && n>=note->get_position() ) ) return note;
+        }
+        return 0;
+    }
 }
 
 void Pattern::remove_note( Note* note )
