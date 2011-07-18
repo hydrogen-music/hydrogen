@@ -125,14 +125,24 @@ Pattern* PatternList::del( Pattern* pattern )
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
-    assert( idx >= 0 && idx < __patterns.size() );
+    ERRORLOG( QString("idx=%1 and __patterns.size()=%2").arg( idx ).arg( __patterns.size() ) );
+
+    /*
+     * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
+     * idx is > __pattern.size(). thats why i add +1 to assert expression
+     */
+
+    assert( idx >= 0 && idx <= __patterns.size() +1 );
     if( idx < 0 || idx >= __patterns.size() ) {
         ERRORLOG( QString( "index out of bounds %1 (size:%2)" ).arg( idx ).arg( __patterns.size() ) );
         return 0;
     }
-    Pattern* ret = __patterns[idx];
+
     __patterns.insert( __patterns.begin() + idx, pattern );
     __patterns.erase( __patterns.begin() + idx + 1 );
+
+    //create return pattern after patternlist tätatä to return the right one
+    Pattern* ret = __patterns[idx];
     return ret;
 }
 
