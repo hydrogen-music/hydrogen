@@ -105,9 +105,10 @@ class Pattern : public H2Core::Object
          * \param col_a the first __notes index to search in
          * \param col_b the second __notes index to search in
          * \param instrument the instrument the note should be playing
+         * \param strict if set to false, will search for a note around the given idx
          * \return the note if found, 0 otherwise
          */
-        Note* find_note( int idx_a, int idx_b, Instrument* instrument );
+        Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true );
         /**
          * removes a given note from __notes, it's not deleted
          * \param note the note to be removed

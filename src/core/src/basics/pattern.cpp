@@ -80,7 +80,7 @@ Note* Pattern::find_note( int idx, Instrument* instrument, Note::Key key, Note::
     return 0;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument )
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict )
 {
     notes_cst_it_t it;
     for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
@@ -93,6 +93,7 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument )
         assert( note );
         if ( note->get_instrument() == instrument ) return note;
     }
+    if ( strict ) return 0;
     // TODO maybe not start from 0 but idx-X
     for ( int n=0; n<idx_b; n++ ) {
         for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
