@@ -147,156 +147,84 @@ int DrumPatternEditor::getColumn(QMouseEvent *ev)
 
 void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 {
-	if ( m_pPattern == NULL ) {
-		return;
-	}
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
+    if ( m_pPattern == NULL ) {
+        return;
+    }
+    Song *pSong = Hydrogen::get_instance()->getSong();
+    int nInstruments = pSong->get_instrument_list()->size();
+    int row = (int)( ev->y()  / (float)m_nGridHeight);
+    if (row >= nInstruments) {
+        return;
+    }
+    int nColumn = getColumn( ev );
+    int nRealColumn = 0;
+    if( ev->x() > 20 ) {
+        nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+    }
+    if ( nColumn >= (int)m_pPattern->get_length() ) {
+        update( 0, 0, width(), height() );
+        return;
+    }
+    Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
+    if (ev->button() == Qt::LeftButton ) {
 
-	int row = (int)( ev->y()  / (float)m_nGridHeight);
-	if (row >= nInstruments) {
-		return;
-	}
+        H2Core::Note *pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
 
-	int nColumn = getColumn( ev );
-
-	if ( nColumn >= (int)m_pPattern->get_length() ) {
-		update( 0, 0, width(), height() );
-		return;
-	}
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-
-	if (ev->button() == Qt::LeftButton ) {
-
-		unsigned nRealColumn = 0;
-			if( ev->x() > 20 ) {
-				nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
-			}
-
-		H2Core::Note *pDraggedNote;
-		pDraggedNote = NULL;
-
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BOUND(notes,it,nColumn) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				pDraggedNote = pNote;
-				break;
-			}
-		}
-		if ( !pDraggedNote ) {
-            FOREACH_NOTE_CST_IT_BOUND(notes,it,nRealColumn) {
-				Note *pNote = it->second;
-				assert( pNote );
-				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					pDraggedNote = pNote;
-					break;
-				}
-			}
-		}
-
-		int oldLength = -1;
-		float oldVelocity = 0.8f;
-		float oldPan_L = 0.5f;
-		float oldPan_R = 0.5f;
-		float oldLeadLag = 0.0f;
+        int oldLength = -1;
+        float oldVelocity = 0.8f;
+        float oldPan_L = 0.5f;
+        float oldPan_R = 0.5f;
+        float oldLeadLag = 0.0f;
         Note::Key oldNoteKeyVal = Note::C;
         Note::Octave oldOctaveKeyVal = Note::P8;
 
-		if( pDraggedNote ){
-			oldLength = pDraggedNote->get_length();
-			oldVelocity = pDraggedNote->get_velocity();
-			oldPan_L = pDraggedNote->get_pan_l();
-			oldPan_R = pDraggedNote->get_pan_r();
-			oldLeadLag = pDraggedNote->get_lead_lag();
-			oldNoteKeyVal = pDraggedNote->get_key();
-			oldOctaveKeyVal = pDraggedNote->get_octave();
-		}
+        if( pDraggedNote ){
+            oldLength = pDraggedNote->get_length();
+            oldVelocity = pDraggedNote->get_velocity();
+            oldPan_L = pDraggedNote->get_pan_l();
+            oldPan_R = pDraggedNote->get_pan_r();
+            oldLeadLag = pDraggedNote->get_lead_lag();
+            oldNoteKeyVal = pDraggedNote->get_key();
+            oldOctaveKeyVal = pDraggedNote->get_octave();
+        }
 
-		SE_addNoteAction *action = new SE_addNoteAction( nColumn,
-								 row,
-								 __selectedPatternNumber,
-								 oldLength,
-								 oldVelocity,
-								 oldPan_L,
-								 oldPan_R,
-								 oldLeadLag,
-								 oldNoteKeyVal,
-								 oldOctaveKeyVal );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
-	}
-	else if (ev->button() == Qt::RightButton ) {
-	
-		unsigned nRealColumn = 0;
-			if( ev->x() > 20 ) {
-				nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
-			}
-		m_bRightBtnPressed = true;
-		m_pDraggedNote = NULL;
-	
-		//	__rightclickedpattereditor
-		//	0 = note length
-		//	1 = note off"
-		//	2 = edit velocity
-		//	3 = edit pan
-		//	4 = edit lead lag
-
-		if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
-			SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
-			return;
-		}
-
-//		AudioEngine::get_instance()->lock( RIGHT_HERE );
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BOUND(notes,it,nColumn) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				m_pDraggedNote = pNote;
-				break;
-			}
-		}
-		if ( !m_pDraggedNote ) {
-            FOREACH_NOTE_CST_IT_BOUND(notes,it,nRealColumn) {
-				Note *pNote = it->second;
-				assert( pNote );
-				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					m_pDraggedNote = pNote;
-					break;
-				}
-			}
-		}
-
-		// potrei essere sulla coda di una nota precedente..
-		for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
-			if ( m_pDraggedNote ) break;
-            FOREACH_NOTE_CST_IT_BOUND(notes,it,nCol) {
-				Note *pNote = it->second;
-				assert( pNote );
-				if ( pNote->get_instrument() == pSelectedInstrument
-				&& ( (nRealColumn <= pNote->get_position() + pNote->get_length() )
-				&& nRealColumn >= pNote->get_position() ) ){
-					m_pDraggedNote = pNote;
-					break;
-				}
-			}
-		}
-		
-		//needed for undo note length
-		__nRealColumn = nRealColumn;
-		__nColumn = nColumn;
-		__row = row;
-		if( m_pDraggedNote ){
-			__oldLength = m_pDraggedNote->get_length();
-		}else
-		{
-			__oldLength = -1;
-		}
-		
-//		AudioEngine::get_instance()->unlock();
-	}
+        SE_addNoteAction *action = new SE_addNoteAction( nColumn,
+                row,
+                __selectedPatternNumber,
+                oldLength,
+                oldVelocity,
+                oldPan_L,
+                oldPan_R,
+                oldLeadLag,
+                oldNoteKeyVal,
+                oldOctaveKeyVal );
+        HydrogenApp::get_instance()->m_undoStack->push( action );
+	} else if (ev->button() == Qt::RightButton ) {
+        m_bRightBtnPressed = true;
+        // __rightclickedpattereditor
+        // 0 = note length
+        // 1 = note off"
+        // 2 = edit velocity
+        // 3 = edit pan
+        // 4 = edit lead lag
+        if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
+            SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
+            HydrogenApp::get_instance()->m_undoStack->push( action );
+            return;
+        }
+        // AudioEngine::get_instance()->lock( RIGHT_HERE );
+        m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+        // needed for undo note length
+        __nRealColumn = nRealColumn;
+        __nColumn = nColumn;
+        __row = row;
+        if( m_pDraggedNote ){
+            __oldLength = m_pDraggedNote->get_length();
+        } else {
+            __oldLength = -1;
+        }
+        // AudioEngine::get_instance()->unlock();
+    }
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
@@ -340,7 +268,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 			// the note exists...remove it!
 			bNoteAlreadyExist = true;
 			delete pNote;
-			notes->erase( it );
+            notes->erase( it );
 			break;
 		}
 	}
@@ -461,73 +389,30 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 
 void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+    Hydrogen *pEngine = Hydrogen::get_instance();
+    PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 
-	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = NULL;
-	}
-
-	Note *pDraggedNote;
-	Song *pSong = pEngine->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
-
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-    const Pattern::notes_t* notes = pPattern->get_notes();
-    FOREACH_NOTE_CST_IT_BOUND(notes,it,nColumn) {
-		Note *pNote = it->second;
-		assert( pNote );
-
-		if ( pNote->get_instrument() == pSelectedInstrument ) {
-			pDraggedNote = pNote;
-			break;
-		}
-	}
-	if ( !pDraggedNote ) {
-        FOREACH_NOTE_CST_IT_BOUND(notes,it,nRealColumn) {
-			Note *pNote = it->second;
-			assert( pNote );
-
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				pDraggedNote = pNote;
-				break;
-			}
-		}
-
-
-	}
-	// potrei essere sulla coda di una nota precedente..
-	for ( int nCol = 0; unsigned(nCol) < nRealColumn; ++nCol ) {
-		if ( pDraggedNote ) break;
-        FOREACH_NOTE_CST_IT_BOUND(notes,it,nCol) {
-			Note *pNote = it->second;
-			assert( pNote );
-
-			if ( pNote->get_instrument() == pSelectedInstrument
-			&& ( (nRealColumn <= pNote->get_position() + pNote->get_length() )
-			&& nRealColumn >= pNote->get_position() ) ){
-				pDraggedNote = pNote;
-				break;
-			}
-		}
+    H2Core::Pattern *pPattern;
+    if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
+        pPattern = pPatternList->get( selectedPatternNumber );
+    } else {
+        pPattern = NULL;
 	}
 
-	pDraggedNote->set_length( length );
-	AudioEngine::get_instance()->unlock();
-	update( 0, 0, width(), height() );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-
+    Note *pDraggedNote;
+    Song *pSong = pEngine->getSong();
+    int nInstruments = pSong->get_instrument_list()->size();
+    Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
+    AudioEngine::get_instance()->lock( RIGHT_HERE );
+    pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+    pDraggedNote->set_length( length );
+    AudioEngine::get_instance()->unlock();
+    update( 0, 0, width(), height() );
+    m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+    m_pPatternEditorPanel->getPanEditor()->updateEditor();
+    m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+    m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+    m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 }
 
 
@@ -1033,6 +918,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 	else {
 		pPattern = NULL;
 	}
+
     const Pattern::notes_t* notes = pPattern->get_notes();
     FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 		Note *pNote = it->second;
@@ -1092,7 +978,7 @@ void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* >
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 	Pattern *pPattern = pPatternList->get( patternNumber );
 
-	std::list < H2Core::Note *>::iterator pos;
+	std::list < H2Core::Note *>::const_iterator pos;
 	for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
 		Note *pNote;
 		pNote = new Note(*pos);
@@ -1128,8 +1014,8 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 			assert( pNote );
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				// the note exists...remove it!
+                notes->erase( it );
 				delete pNote;
-				notes->erase( it );
 				break;
 			}
 		}
@@ -1349,7 +1235,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	//restore all deleted instrument notes
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	if(noteList.size() > 0 ){
-		std::list < H2Core::Note *>::iterator pos;
+		std::list < H2Core::Note *>::const_iterator pos;
 		for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
 
 			Note *note = *pos;
