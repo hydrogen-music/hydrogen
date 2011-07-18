@@ -522,10 +522,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		}
 
         H2Core::Note* pDraggedNote = 0;
-        pDraggedNote = m_pPattern->find_note( nColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-        if ( !pDraggedNote ) {
-            pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-        }
+        pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
 
 		int oldLength = -1;
 		float oldVelocity = 0.8f;
@@ -588,13 +585,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
 //		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-        m_pDraggedNote = m_pPattern->find_note( nColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-        if ( !m_pDraggedNote ) {
-            m_pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-        }
-        if ( !m_pDraggedNote ) {
-            m_pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
-        }
+        m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
 
 		//needed for undo note length
 		__nRealColumn = nRealColumn;
@@ -663,7 +654,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 
 	bool bNoteAlreadyExist = false;
     AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-    Note* note = m_pPattern->find_note( nColumn, pSelectedInstrument, pressednotekey, pressedoctave );
+    Note* note = m_pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
     if( note ) {
         // the note exists...remove it!
         bNoteAlreadyExist = true;
@@ -1000,13 +991,7 @@ void PianoRollEditor::editNoteLenghtAction( int nColumn,  int nRealColumn,  int 
 
     Note* pDraggedNote = 0;
     AudioEngine::get_instance()->lock( RIGHT_HERE );
-    pDraggedNote = m_pPattern->find_note( nColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-    if ( !pDraggedNote ) {
-        pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-    }
-    if ( !pDraggedNote ) {
-        pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
-    }
+    pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
     if ( pDraggedNote ){
         pDraggedNote->set_length( length );
     }
@@ -1061,13 +1046,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 
     Note* pDraggedNote = 0;
     AudioEngine::get_instance()->lock( RIGHT_HERE );
-    pDraggedNote = m_pPattern->find_note( nColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-    if ( !m_pDraggedNote ) {
-        pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
-    }
-    if ( !pDraggedNote ) {
-        pDraggedNote = m_pPattern->find_note( nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
-    }
+    pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
 	if ( pDraggedNote ){
 		pDraggedNote->set_velocity( velocity );
 		pDraggedNote->set_pan_l( pan_L );
