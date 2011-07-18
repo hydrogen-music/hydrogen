@@ -94,12 +94,12 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
         if ( note->get_instrument() == instrument ) return note;
     }
     if ( strict ) return 0;
-    // TODO maybe not start from 0 but idx-X
+    // TODO maybe not start from 0 but idx_b-X
     for ( int n=0; n<idx_b; n++ ) {
         for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
             Note* note = it->second;
             assert( note );
-            if ( note->get_instrument() == instrument && ( ( n<=note->get_position()+note->get_length() ) && n>=note->get_position() ) ) return note;
+            if ( note->get_instrument() == instrument && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
         }
         return 0;
     }
