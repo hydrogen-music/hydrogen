@@ -386,6 +386,7 @@ void PlaylistDialog::loadList()
 
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::ExistingFile );
+        fd->setFilter ( "Hydrogen playlist (*.h2playlist)" );
 	fd->setDirectory ( sDirectory );
 
 	fd->setWindowTitle ( trUtf8 ( "Load Playlist" ) );
