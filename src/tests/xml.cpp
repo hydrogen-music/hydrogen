@@ -2,6 +2,7 @@
 #include <hydrogen/helpers/filesystem.h>
 
 #include <hydrogen/basics/drumkit.h>
+#include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
@@ -20,8 +21,10 @@ static void spec( bool cond, const char* msg )
 
 static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 {
+    int count = 0;
     H2Core::InstrumentList* instruments = dk->get_instruments();
     for( int i=0; i<instruments->size(); i++ ) {
+        count++;
         H2Core::Instrument* instrument = ( *instruments )[i];
         for ( int n = 0; n < MAX_LAYERS; n++ ) {
             H2Core::InstrumentLayer* layer = instrument->get_layer( n );
@@ -35,13 +38,11 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
             }
         }
     }
-    return true;
+    return ( count==4 );
 }
 
 int xml_drumkit( int log_level )
 {
-
-    H2Core::Filesystem::rm( H2Core::Filesystem::tmp_dir(), true );
     QString dk_path = H2Core::Filesystem::tmp_dir()+"/dk0";
 
     ___INFOLOG( "test xml drumkit validation, read and write" );
@@ -55,6 +56,7 @@ int xml_drumkit( int log_level )
     spec( dk0!=0, "dk0 should not be null" );
     spec( dk0->samples_loaded()==false, "samples should NOT be loaded" );
     spec( check_samples_data( dk0, false ), "sample data should be NULL" );
+    spec( dk0->get_instruments()->size()==4, "instruments size should be 4" );
     //dk0->dump();
     // manually load samples
     dk0->load_samples();
@@ -94,6 +96,28 @@ int xml_drumkit( int log_level )
     delete dk0;
     delete dk1;
     delete dk2;
+
+    return EXIT_SUCCESS;
+}
+
+int xml_pattern( int log_level )
+{
+    QString dk_path = H2Core::Filesystem::tmp_dir()+"/pat";
+
+    ___INFOLOG( "test xml drumkit validation, read and write" );
+
+    H2Core::Pattern* pat0 = 0;
+    H2Core::Drumkit* dk0 = 0;
+    H2Core::InstrumentList* instruments = 0;
+
+    dk0 = H2Core::Drumkit::load( BASE_DIR"/drumkit" );
+    spec( dk0!=0, "dk0 should not be null" );
+    spec( dk0->get_instruments()->size()==4, "instruments size should be 4" );
+    instruments = dk0->get_instruments();
+    pat0 = H2Core::Pattern::load_file( BASE_DIR"/pattern/pat.h2pattern", instruments );
+
+    delete pat0;
+    delete dk0;
 
     return EXIT_SUCCESS;
 }
