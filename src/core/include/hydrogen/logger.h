@@ -41,13 +41,13 @@ class Logger {
     public:
         /** possible logging bits */
         enum log_levels {
-            None = 0,
-            Error = 1,
-            Warning = 2,
-            Info = 4,
-            Debug = 8,
-            Constructors = 16,
-            AELockTracing = 0x10
+            None            = 0x00,
+            Error           = 0x01,
+            Warning         = 0x02,
+            Info            = 0x04,
+            Debug           = 0x08,
+            Constructors    = 0x10,
+            AELockTracing   = 0x20
         };
 
         /** mesage queue type */
