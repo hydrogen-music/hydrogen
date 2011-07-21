@@ -97,7 +97,7 @@ class Note : public H2Core::Object
          * \param instruments the current instrument list to search instrument into
          * \return a new Note instance
          */
-        static Note* load_from( XMLNode* node, InstrumentList* instruments=0 );
+        static Note* load_from( XMLNode* node, InstrumentList* instruments );
 
         /** output details through logger with DEBUG severity */
         void dump();

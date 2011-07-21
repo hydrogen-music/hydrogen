@@ -125,16 +125,13 @@ void Note::set_pan_r( float pan )
 
 void Note::map_instrument( InstrumentList* instruments )
 {
-    if( instruments==0 ) {
+    assert( instruments );
+    Instrument* instr = instruments->find( __instrument_id );
+    if( !instr ) {
+        ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
         __instrument = new Instrument();
     } else {
-        Instrument* instr = instruments->find( __instrument_id );
-        if( !instr ) {
-            ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
-            __instrument = new Instrument();
-        } else {
-            __instrument = instr;
-        }
+        __instrument = instr;
     }
 }
 
