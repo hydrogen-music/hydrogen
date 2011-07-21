@@ -372,23 +372,23 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 }
 
 
-void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatternCategory, int patternPosition )
+void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatternCategory, int idx )
 {
     Hydrogen *engine = Hydrogen::get_instance();
     Song *song = engine->getSong();
     PatternList *patternList = song->get_pattern_list();
-    patternList->insert( patternPosition, new Pattern( newPatternName, newPatternCategory ) );
+    patternList->insert( idx, new Pattern( newPatternName, newPatternCategory ) );
     song->__is_modified = true;
     updateAll();
 }
 
-void SongEditorPanel::revertaddEmptyPattern( int patternPosition )
+void SongEditorPanel::revertaddEmptyPattern( int idx )
 {
     Hydrogen *engine = Hydrogen::get_instance();
     Song *song = engine->getSong();
     PatternList *patternList = song->get_pattern_list();
-    H2Core::Pattern *pattern = patternList->get( patternPosition );
-    if( patternPosition == engine->getSelectedPatternNumber() ) engine->setSelectedPatternNumber( patternPosition -1 );
+    H2Core::Pattern *pattern = patternList->get( idx );
+    if( idx == engine->getSelectedPatternNumber() ) engine->setSelectedPatternNumber( idx -1 );
     patternList->del( pattern );
     delete pattern;
     song->__is_modified = true;
