@@ -99,6 +99,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pMidiDriverComboBox->addItem( "ALSA" );
 	m_pMidiDriverComboBox->addItem( "PortMidi" );
 	m_pMidiDriverComboBox->addItem( "CoreMidi" );
+	m_pMidiDriverComboBox->addItem( "JackMidi" );
 
 	if ( pPref->m_sMidiDriver == "ALSA" ) {
 		m_pMidiDriverComboBox->setCurrentIndex(0);
@@ -108,6 +109,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	else if ( pPref->m_sMidiDriver == "CoreMidi" ) {
 		m_pMidiDriverComboBox->setCurrentIndex(2);
+	}
+	else if ( pPref->m_sMidiDriver == "JackMidi" ) {
+		m_pMidiDriverComboBox->setCurrentIndex(3);
 	}
 	else {
 		ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sMidiDriver + "]" );
@@ -371,6 +375,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	else if ( m_pMidiDriverComboBox->currentText() == "CoreMidi" ) {
 		pPref->m_sMidiDriver = "CoreMidi";
+	}
+	else if ( m_pMidiDriverComboBox->currentText() == "JackMidi" ) {
+		pPref->m_sMidiDriver = "JackMidi";
 	}
 
 	pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();

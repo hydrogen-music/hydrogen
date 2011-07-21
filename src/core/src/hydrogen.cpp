@@ -77,6 +77,7 @@
 #include "IO/PortAudioDriver.h"
 #include "IO/DiskWriterDriver.h"
 #include "IO/AlsaMidiDriver.h"
+#include "IO/JackMidiDriver.h"
 #include "IO/PortMidiDriver.h"
 #include "IO/CoreAudioDriver.h"
 
@@ -1646,6 +1647,12 @@ void audioEngine_startAudioDrivers()
 	} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
 #ifdef H2CORE_HAVE_COREMIDI
 		m_pMidiDriver = new CoreMidiDriver();
+		m_pMidiDriver->open();
+		m_pMidiDriver->setActive( true );
+#endif
+	} else if ( preferencesMng->m_sMidiDriver == "JackMidi" ) {
+#ifdef H2CORE_HAVE_JACK
+		m_pMidiDriver = new JackMidiDriver();
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif

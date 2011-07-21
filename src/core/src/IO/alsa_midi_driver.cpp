@@ -429,7 +429,7 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 }
 
 void AlsaMidiDriver::handleQueueNote(Note* pNote)
-{	
+{
 	if ( seq_handle == NULL ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
