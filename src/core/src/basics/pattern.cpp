@@ -28,6 +28,10 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/audio_engine.h>
 
+#include <hydrogen/helpers/xml.h>
+#include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/legacy.h>
+
 namespace H2Core
 {
 
@@ -57,6 +61,48 @@ Pattern::~Pattern()
     for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
         delete it->second;
     }
+}
+
+Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
+{
+    INFOLOG( QString("Load pattern %1").arg(pattern_path) );
+    if ( !Filesystem::file_readable( pattern_path ) ) return 0;
+    XMLDoc doc;
+    if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
+        return Legacy::load_drumkit_pattern( pattern_path );
+    }
+    XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+    if ( root.isNull() ) {
+        ERRORLOG( "drumkit_pattern node not found" );
+        return 0;
+    }
+    XMLNode pattern_node = root.firstChildElement( "pattern" );
+    if ( pattern_node.isNull() ) {
+        ERRORLOG( "pattern node not found" );
+        return 0;
+    }
+    return load_from( &pattern_node, instruments );
+}
+
+Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
+{
+    Pattern *pattern = new Pattern(
+            node->read_string( "name", "unknown", false, false ),
+            node->read_string( "category", "unknown", false, false ),
+            node->read_int( "size", -1, false, false )
+            );
+    XMLNode note_list_node = node->firstChildElement( "noteList" );
+	if ( !note_list_node.isNull() ) {
+        XMLNode note_node = note_list_node.firstChildElement( "note" );
+        while ( !note_node.isNull() ) {
+            Note *note = Note::load_from( &note_node, instruments );
+            if(note) {
+                pattern->insert_note( note);
+            }
+            note_node = note_node.nextSiblingElement( "note" );
+        }
+    }
+    return pattern;
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
