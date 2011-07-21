@@ -34,7 +34,8 @@
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define PATTERN_XSD     "pattern.xsd"
 
-namespace H2Core {
+namespace H2Core
+{
 
 Logger* Filesystem::__logger = 0;
 const char* Filesystem::__class_name = "Filesystem";
@@ -42,7 +43,8 @@ QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
 
 /* TODO QCoreApplication is not instanciated */
-bool Filesystem::bootstrap( Logger* logger, const QString& sys_path ) {
+bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
+{
     if( __logger==0 && logger!=0 ) {
         __logger = logger;
     } else {
@@ -68,12 +70,13 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path ) {
 
     if( !dir_readable( __sys_data_path ) ) {
         __sys_data_path = QCoreApplication::applicationDirPath().append( LOCAL_DATA_PATH );
-        ERRORLOG( QString("will use local data path : %1").arg(__sys_data_path));
+        ERRORLOG( QString( "will use local data path : %1" ).arg( __sys_data_path ) );
     }
     return check_sys_paths() && check_usr_paths();
 }
 
-bool Filesystem::check_permissions( const QString& path, const int perms, bool silent ) {
+bool Filesystem::check_permissions( const QString& path, const int perms, bool silent )
+{
     QFileInfo fi( path );
     if( ( perms & is_file ) && ( perms & is_writable ) && !fi.exists() ) {
         QFileInfo folder( path.left( path.lastIndexOf( "/" ) ) );
@@ -110,26 +113,33 @@ bool Filesystem::check_permissions( const QString& path, const int perms, bool s
     return true;
 }
 
-bool Filesystem::file_exists( const QString& path, bool silent ) {
+bool Filesystem::file_exists( const QString& path, bool silent )
+{
     return check_permissions( path, is_file, silent );
 }
-bool Filesystem::file_readable( const QString& path, bool silent ) {
+bool Filesystem::file_readable( const QString& path, bool silent )
+{
     return check_permissions( path, is_file|is_readable, silent );
 }
-bool Filesystem::file_writable( const QString& path, bool silent ) {
+bool Filesystem::file_writable( const QString& path, bool silent )
+{
     return check_permissions( path, is_file|is_writable, silent );
 }
-bool Filesystem::file_executable( const QString& path, bool silent ) {
+bool Filesystem::file_executable( const QString& path, bool silent )
+{
     return check_permissions( path, is_file|is_executable, silent );
 }
-bool Filesystem::dir_readable(  const QString& path, bool silent ) {
+bool Filesystem::dir_readable(  const QString& path, bool silent )
+{
     return check_permissions( path, is_dir|is_readable|is_executable, silent );
 }
-bool Filesystem::dir_writable(  const QString& path, bool silent ) {
+bool Filesystem::dir_writable(  const QString& path, bool silent )
+{
     return check_permissions( path, is_dir|is_writable, silent );
 }
 
-bool Filesystem::mkdir( const QString& path ) {
+bool Filesystem::mkdir( const QString& path )
+{
     if ( !QDir( "/" ).mkpath( QDir( path ).absolutePath() ) ) {
         ERRORLOG( QString( "unable to create directory : %1" ).arg( path ) );
         return false;
@@ -137,7 +147,8 @@ bool Filesystem::mkdir( const QString& path ) {
     return true;
 }
 
-bool Filesystem::path_usable( const QString& path, bool create, bool silent ) {
+bool Filesystem::path_usable( const QString& path, bool create, bool silent )
+{
     if( !QDir( path ).exists() ) {
         if( !silent ) INFOLOG( QString( "create user directory : %1" ).arg( path ) );
         if( create && !QDir( "/" ).mkpath( path ) ) {
@@ -148,7 +159,8 @@ bool Filesystem::path_usable( const QString& path, bool create, bool silent ) {
     return dir_readable( path, silent ) && dir_writable( path, silent );
 }
 
-bool Filesystem::write_to_file( const QString& dst, const QString& content ) {
+bool Filesystem::write_to_file( const QString& dst, const QString& content )
+{
     if ( !file_writable( dst ) ) {
         ERRORLOG( QString( "unable to write to %1" ).arg( dst ) );
         return false;
@@ -162,7 +174,8 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content ) {
     file.close();
 }
 
-bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite ) {
+bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
+{
     if( file_exists( dst, true ) && !overwrite ) {
         WARNINGLOG( QString( "do not overwrite %1 with %2 has it already exists" ).arg( dst ).arg( src ) );
         return true;
@@ -179,7 +192,8 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
     return QFile::copy( src,dst );
 }
 
-bool Filesystem::rm( const QString& path, bool recursive ) {
+bool Filesystem::rm( const QString& path, bool recursive )
+{
     if ( check_permissions( path, is_file, true ) ) {
         QFile file( path );
         bool ret = file.remove();
@@ -199,7 +213,8 @@ bool Filesystem::rm( const QString& path, bool recursive ) {
     return rm_fr( path );
 }
 
-bool Filesystem::rm_fr( const QString& path ) {
+bool Filesystem::rm_fr( const QString& path )
+{
     bool ret = true;
     QDir dir( path );
     QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
@@ -222,7 +237,8 @@ bool Filesystem::rm_fr( const QString& path ) {
     return ret;
 }
 
-bool Filesystem::check_sys_paths() {
+bool Filesystem::check_sys_paths()
+{
     if(  !dir_readable( __sys_data_path ) ) return false;
     if(  !dir_readable( img_dir() ) ) return false;
     if(  !dir_readable( xsd_dir() ) ) return false;
@@ -242,7 +258,8 @@ bool Filesystem::check_sys_paths() {
 }
 
 
-bool Filesystem::check_usr_paths() {
+bool Filesystem::check_usr_paths()
+{
     if( !path_usable( __usr_data_path ) ) return false;
     if( !path_usable( songs_dir() ) ) return false;
     if( !path_usable( patterns_dir() ) ) return false;
@@ -252,90 +269,115 @@ bool Filesystem::check_usr_paths() {
     return true;
 }
 
-QString Filesystem::sys_data_path() {
+QString Filesystem::sys_data_path()
+{
     return __sys_data_path;
 }
-QString Filesystem::usr_data_path() {
+QString Filesystem::usr_data_path()
+{
     return __usr_data_path;
 }
 
 // FILES
-QString Filesystem::sys_core_config() {
+QString Filesystem::sys_core_config()
+{
     return __sys_data_path + CORE_CONFIG;
 }
-QString Filesystem::usr_core_config() {
+QString Filesystem::usr_core_config()
+{
     return __usr_data_path + CORE_CONFIG;
 }
-QString Filesystem::sys_gui_config() {
+QString Filesystem::sys_gui_config()
+{
     return __sys_data_path + GUI_CONFIG;
 }
-QString Filesystem::usr_gui_config() {
+QString Filesystem::usr_gui_config()
+{
     return __usr_data_path + GUI_CONFIG;
 }
-QString Filesystem::empty_sample() {
+QString Filesystem::empty_sample()
+{
     return __sys_data_path + EMPTY_SAMPLE;
 }
-QString Filesystem::empty_song() {
+QString Filesystem::empty_song()
+{
     return __sys_data_path + EMPTY_SONG;
 }
-QString Filesystem::click_file() {
+QString Filesystem::click_file()
+{
     return __sys_data_path + CLICK_SAMPLE;
 }
-QString Filesystem::usr_click_file() {
+QString Filesystem::usr_click_file()
+{
     if( file_readable( __usr_data_path + CLICK_SAMPLE, true ) ) return __usr_data_path + CLICK_SAMPLE;
     return click_file();
 }
-QString Filesystem::drumkit_xsd( ) {
+QString Filesystem::drumkit_xsd( )
+{
     return xsd_dir() + "/" + DRUMKIT_XSD;
 }
-QString Filesystem::pattern_xsd( ) {
+QString Filesystem::pattern_xsd( )
+{
     return xsd_dir() + "/" + PATTERN_XSD;
 }
 
 // DIRS
-QString Filesystem::img_dir() {
+QString Filesystem::img_dir()
+{
     return __sys_data_path + IMG;
 }
-QString Filesystem::doc_dir() {
+QString Filesystem::doc_dir()
+{
     return __sys_data_path + DOC;
 }
-QString Filesystem::i18n_dir() {
+QString Filesystem::i18n_dir()
+{
     return __sys_data_path + I18N;
 }
-QString Filesystem::songs_dir() {
+QString Filesystem::songs_dir()
+{
     return __usr_data_path + SONGS;
 }
-QString Filesystem::patterns_dir() {
+QString Filesystem::patterns_dir()
+{
     return __usr_data_path + PATTERNS;
 }
-QString Filesystem::sys_drumkits_dir() {
+QString Filesystem::sys_drumkits_dir()
+{
     return __sys_data_path + DRUMKITS;
 }
-QString Filesystem::usr_drumkits_dir() {
+QString Filesystem::usr_drumkits_dir()
+{
     return __usr_data_path + DRUMKITS;
 }
-QString Filesystem::playlists_dir() {
+QString Filesystem::playlists_dir()
+{
     return __usr_data_path + PLAYLISTS;
 }
-QString Filesystem::demos_dir() {
+QString Filesystem::demos_dir()
+{
     return __sys_data_path + DEMOS;
 }
-QString Filesystem::xsd_dir() {
+QString Filesystem::xsd_dir()
+{
     return __sys_data_path + XSD;
 }
-QString Filesystem::tmp_dir() {
+QString Filesystem::tmp_dir()
+{
     return QDir::tempPath() + TMP;
 }
-QString Filesystem::tmp_file( const QString& base ) {
+QString Filesystem::tmp_file( const QString& base )
+{
     QTemporaryFile file( tmp_dir()+"/"+base );
-    file.setAutoRemove(false);
+    file.setAutoRemove( false );
     file.open();
     file.close();
     return file.fileName();
 }
 
 // DRUMKITS
-QStringList Filesystem::drumkits_list( const QString& path ) {
+QStringList Filesystem::drumkits_list( const QString& path )
+{
     QStringList ok;
     QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::NoDotAndDotDot );
     for( int i=0; i<possible.size(); i++ ) {
@@ -347,52 +389,64 @@ QStringList Filesystem::drumkits_list( const QString& path ) {
     }
     return ok;
 }
-QStringList Filesystem::sys_drumkits_list( ) {
+QStringList Filesystem::sys_drumkits_list( )
+{
     return drumkits_list( sys_drumkits_dir() ) ;
 }
-QStringList Filesystem::usr_drumkits_list( ) {
+QStringList Filesystem::usr_drumkits_list( )
+{
     return drumkits_list( usr_drumkits_dir() ) ;
 }
-bool Filesystem::drumkit_exists( const QString& dk_name ) {
+bool Filesystem::drumkit_exists( const QString& dk_name )
+{
     if( usr_drumkits_list().contains( dk_name ) ) return true;
     return sys_drumkits_list().contains( dk_name );
 }
-QString Filesystem::drumkit_usr_path( const QString& dk_name ) {
+QString Filesystem::drumkit_usr_path( const QString& dk_name )
+{
     return usr_drumkits_dir() + "/" + dk_name;
 }
-QString Filesystem::drumkit_path_search( const QString& dk_name ) {
+QString Filesystem::drumkit_path_search( const QString& dk_name )
+{
     if( usr_drumkits_list().contains( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
     if( sys_drumkits_list().contains( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
     ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
     return "";
 }
-QString Filesystem::drumkit_dir_search( const QString& dk_name ) {
+QString Filesystem::drumkit_dir_search( const QString& dk_name )
+{
     if( usr_drumkits_list().contains( dk_name ) ) return usr_drumkits_dir();
     if( sys_drumkits_list().contains( dk_name ) ) return sys_drumkits_dir();
     ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
     return "";
 }
-bool Filesystem::drumkit_valid( const QString& dk_path ) {
+bool Filesystem::drumkit_valid( const QString& dk_path )
+{
     return file_readable( dk_path + "/" + DRUMKIT_XML );
 }
-QString Filesystem::drumkit_file( const QString& dk_path ) {
+QString Filesystem::drumkit_file( const QString& dk_path )
+{
     return dk_path + "/" + DRUMKIT_XML;
 }
 
 // PATTERNS
-QStringList Filesystem::patterns_list( ) {
+QStringList Filesystem::patterns_list( )
+{
     return QDir( patterns_dir() ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::NoDotAndDotDot );
 }
 
 // SONGS
-QStringList Filesystem::songs_list( ) {
+QStringList Filesystem::songs_list( )
+{
     return QDir( songs_dir() ).entryList( QStringList( SONG_FILTER ), QDir::Files | QDir::NoDotAndDotDot );
 }
-bool Filesystem::song_exists( const QString& sg_name ) {
+bool Filesystem::song_exists( const QString& sg_name )
+{
     return QDir( songs_dir() ).exists( sg_name );
 }
 
-void Filesystem::info() {
+void Filesystem::info()
+{
     INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
     INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
     INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );
