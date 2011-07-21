@@ -158,9 +158,8 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
     drumkit->set_author( author );
     drumkit->set_info( info );
     drumkit->set_license( license );
-    drumkit->set_instruments( instruments );
+    drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
     bool ret = drumkit->save( overwrite );
-    drumkit->set_instruments( 0 );
     delete drumkit;
     return ret;
 }
