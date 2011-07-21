@@ -3333,7 +3333,9 @@ void Hydrogen::setTimelineBpm()
 			}
 			bpm = m_timelinevector[i].m_htimelinebpm;
 		}//for
-		setBPM( bpm );
+    if(bpm != m_pSong->__bpm){
+      setBPM( bpm );
+    }
 	}//if
 }
 

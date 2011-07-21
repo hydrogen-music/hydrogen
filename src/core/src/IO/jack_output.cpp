@@ -332,6 +332,7 @@ void JackOutput::updateTransportInfo()
 		// FIXME
 		// TickSize and BPM
 		Hydrogen * H = Hydrogen::get_instance();
+    H->setTimelineBpm(); // dlr: fix #168, jack may have re-located us anywhere, check for bpm change every cycle
 
 		if ( m_JackTransportPos.valid & JackPositionBBT ) {
 			float bpm = ( float )m_JackTransportPos.beats_per_minute;
@@ -371,6 +372,7 @@ void JackOutput::updateTransportInfo()
 					//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames();
 					//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
 					//if we remove this we also can remove *m_pEngine from header
+#if 0 // dlr: fix #169, why do we have a different behaviour for SONG_MODE?
 					if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
 						m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/; ///see comment in svn changeset 753
 					}
@@ -378,6 +380,10 @@ void JackOutput::updateTransportInfo()
 					{
 						m_transport.m_nFrames = H->getHumantimeFrames();
 					}
+#else
+          m_transport.m_nFrames = m_JackTransportPos.frame;
+          bbt_frame_offset = 0; // dlr: stop re-syncing in every cycle when STOPPED
+#endif
 					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
 					if ( m_transport.m_status == TransportInfo::ROLLING )
 							H->triggerRelocateDuringPlay();

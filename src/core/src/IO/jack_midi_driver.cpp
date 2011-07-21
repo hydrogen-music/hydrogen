@@ -361,6 +361,7 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 
 void JackMidiDriver::handleQueueNote(Note* pNote)
 {
+
 	uint8_t buffer[4];
 	int channel;
 	int key;
