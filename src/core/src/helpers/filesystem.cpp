@@ -32,6 +32,7 @@
 #define PATTERN_FILTER  "*.h2pattern"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
+#define DRUMPAT_XSD     "drumkit_pattern.xsd"
 #define PATTERN_XSD     "pattern.xsd"
 
 namespace H2Core
@@ -252,6 +253,7 @@ bool Filesystem::check_sys_paths()
     if( !file_readable( sys_core_config() ) ) return false;
     if(  !dir_readable( sys_drumkits_dir() ) ) return false;
     if( !file_readable( drumkit_xsd() ) ) return false;
+    if( !file_readable( drumkit_pattern_xsd() ) ) return false;
     if( !file_readable( pattern_xsd() ) ) return false;
     INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
     return true;
@@ -315,6 +317,10 @@ QString Filesystem::usr_click_file()
 QString Filesystem::drumkit_xsd( )
 {
     return xsd_dir() + "/" + DRUMKIT_XSD;
+}
+QString Filesystem::drumkit_pattern_xsd( )
+{
+    return xsd_dir() + "/" + DRUMPAT_XSD;
 }
 QString Filesystem::pattern_xsd( )
 {
