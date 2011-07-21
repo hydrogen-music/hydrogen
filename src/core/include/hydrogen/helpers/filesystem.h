@@ -75,6 +75,14 @@ class Filesystem : public H2Core::Object {
         static QString demos_dir();
         /** returns system xsd path */
         static QString xsd_dir();
+        /** returns temp path */
+        static QString tmp_dir();
+        /**
+         * touch a temporary file and return it's path
+         * file path will be constructed like this : tmp_dir()/base.xxxxxx
+         * \param base, part of the path
+         */
+        static QString tmp_file( const QString& base );
 
         /* DRUMKIT */
         /** returns list of usable system drumkits ( see Filesystem::drumkits_list ) */

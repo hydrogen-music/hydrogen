@@ -18,6 +18,7 @@
 #define PLAYLISTS       "/playlists"
 #define DEMOS           "/demo_songs"
 #define XSD             "/xsd"
+#define TMP             "/hydrogen"
 
 // files
 #define GUI_CONFIG      "/gui.conf"
@@ -322,6 +323,16 @@ QString Filesystem::demos_dir() {
 QString Filesystem::xsd_dir() {
     return __sys_data_path + XSD;
 }
+QString Filesystem::tmp_dir() {
+    return QDir::tempPath() + TMP;
+}
+QString Filesystem::tmp_file( const QString& base ) {
+    QTemporaryFile file( tmp_dir()+"/"+base );
+    file.setAutoRemove(false);
+    file.open();
+    file.close();
+    return file.fileName();
+}
 
 // DRUMKITS
 QStringList Filesystem::drumkits_list( const QString& path ) {
@@ -382,6 +393,7 @@ bool Filesystem::song_exists( const QString& sg_name ) {
 }
 
 void Filesystem::info() {
+    INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
     INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
     INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );
     INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
