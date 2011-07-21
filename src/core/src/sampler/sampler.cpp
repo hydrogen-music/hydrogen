@@ -147,7 +147,7 @@ void Sampler::note_on( Note *note )
 	//infoLog( "[noteOn]" );
 	assert( note );
 
-        note->__adsr.attack();
+        note->get_adsr()->attack();
 	Instrument *pInstr = note->get_instrument();
 
 	// mute group
@@ -157,7 +157,7 @@ void Sampler::note_on( Note *note )
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
 			Note *pNote = __playing_notes_queue[ j ];
 			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == mute_grp ) ) {
-                                pNote->__adsr.release();
+                                pNote->get_adsr()->release();
 			}
 		}
 	}
@@ -169,7 +169,7 @@ void Sampler::note_on( Note *note )
 
 			if ( ( pNote->get_instrument() == pInstr ) ) {
 				//ERRORLOG("note_off");
-                                pNote->__adsr.release();
+                                pNote->get_adsr()->release();
 			}	
 		}
 	}
@@ -193,7 +193,7 @@ void Sampler::midi_keyboard_note_off( int key )
 		Note *pNote = __playing_notes_queue[ j ];
 
 		if ( ( pNote->get_midi_msg() == key) ) {
-                        pNote->__adsr.release();
+                        pNote->get_adsr()->release();
 		}	
 	}
 }
@@ -212,7 +212,7 @@ void Sampler::note_off( Note* note )
 	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
  		Note *pNote = __playing_notes_queue[ j ];
 		if ( pNote->get_instrument() == pInstr ) {
-                        pNote->__adsr.release();
+                        pNote->get_adsr()->release();
 		}
  	}
 }
@@ -426,12 +426,12 @@ int Sampler::__render_note_no_resample(
 	
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->get_sample_position() )  ) {
-                        if ( pNote->__adsr.release() == 0 ) {
+                        if ( pNote->get_adsr()->release() == 0 ) {
 				retValue = 1;	// the note is ended
 			}
 		}
 
-                fADSRValue = pNote->__adsr.get_value( 1 );
+                fADSRValue = pNote->get_adsr()->get_value( 1 );
                 fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
                 fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
 
@@ -581,7 +581,7 @@ int Sampler::__render_note_resample(
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->get_sample_position() )  ) {
-                        if ( pNote->__adsr.release() == 0 ) {
+                        if ( pNote->get_adsr()->release() == 0 ) {
 				retValue = 1;	// the note is ended
 			}
 		}
@@ -622,7 +622,7 @@ int Sampler::__render_note_resample(
                 }
 
 		// ADSR envelope
-                fADSRValue = pNote->__adsr.get_value( fStep );
+                fADSRValue = pNote->get_adsr()->get_value( fStep );
                 fVal_L = fVal_L * fADSRValue;
                 fVal_R = fVal_R * fADSRValue;
 		// Low pass resonant filter

@@ -39,6 +39,7 @@ const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af
 Note::Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch )
     : Object( __class_name ),
       __instrument( instrument ),
+      __instrument_id( 0 ),
       __position( position ),
       __velocity( velocity ),
       __pan_l( pan_l ),
@@ -47,7 +48,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __pitch( pitch ),
       __key( C ),
       __octave( P8 ),
-//      __adsr( __instrument->get_adsr() ),
+      __adsr( 0 ),
       __lead_lag( 0.0 ),
       __cut_off( 1.0 ),
       __resonance( 0.0 ),
@@ -62,12 +63,16 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __note_off( false ),
       __just_recorded( false )
 {
-    set_ADSR( __instrument );
+    if ( __instrument != 0 ) {
+        __adsr = __instrument->get_adsr();
+        __instrument_id = __instrument->get_id();
+    }
 }
 
-Note::Note( Note* other )
+Note::Note( Note* other, Instrument* instrument )
     : Object( __class_name ),
       __instrument( other->get_instrument() ),
+      __instrument_id( 0 ),
       __position( other->get_position() ),
       __velocity( other->get_velocity() ),
       __pan_l( other->get_pan_l() ),
@@ -76,7 +81,7 @@ Note::Note( Note* other )
       __pitch( other->get_pitch() ),
       __key( other->get_key() ),
       __octave( other->get_octave() ),
-      //__adsr( other->get_adsr() ),
+      __adsr( 0 ),
       __lead_lag( other->get_lead_lag() ),
       __cut_off( other->get_cut_off() ),
       __resonance( other->get_resonance() ),
@@ -91,7 +96,11 @@ Note::Note( Note* other )
       __note_off( other->get_note_off() ),
       __just_recorded( other->get_just_recorded() )
 {
-    set_ADSR( other->get_instrument() );
+    if ( instrument != 0 ) __instrument = instrument;
+    if ( __instrument != 0 ) {
+        __adsr = __instrument->get_adsr();
+        __instrument_id = __instrument->get_id();
+    }
 }
 
 Note::~Note() { }
@@ -133,25 +142,6 @@ void Note::map_instrument( InstrumentList* instruments )
     } else {
         __instrument = instr;
     }
-}
-
-
-void Note::set_ADSR( Instrument* instrument )
-{
-    if ( instrument == 0 ) {
-        __adsr = new ADSR();
-    } else {
-        assert( instrument->get_adsr() );
-        __adsr = instrument->get_adsr();
-    }
-}
-
-void Note::set_instrument( Instrument* instrument )
-{
-    if ( instrument == 0 ) return;
-    __instrument = instrument;
-    assert( __instrument->get_adsr() );
-    __adsr = instrument->get_adsr();
 }
 
 QString Note::key_to_string()

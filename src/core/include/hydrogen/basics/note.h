@@ -24,7 +24,6 @@
 #define H2C_NOTE_H
 
 #include <hydrogen/object.h>
-#include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/instrument.h>
 
 #define KEY_MIN                 0
@@ -65,10 +64,6 @@ class Note : public H2Core::Object
         /** possible octaves */
         enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
 
-        // Fixme, adsr needs get/setter methode. but currently i found no way beside this, to create an adsr object
-        // without lost adsr objects or segfaults on intrument reload.
-        ADSR __adsr;
-
         /**
          * constructor
          * \param instrument the instrument played by this note
@@ -81,8 +76,11 @@ class Note : public H2Core::Object
          */
         Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch );
 
-        /** copy constructor */
-        Note( Note* other );
+        /**
+         * copy constructor with an optional parameter
+         * \param instrument, if set will be used as note instrument
+         */
+        Note( Note* other, Instrument* instrument=0 );
         /** destructor */
         ~Note();
 
@@ -107,12 +105,6 @@ class Note : public H2Core::Object
          * \param instruments the list of instrument to look into
          */
         void map_instrument( InstrumentList* instruments );
-        /**
-         * set the instrument
-         * \param instrument the one to use
-         */
-        void set_ADSR( Instrument* instrument );
-        void set_instrument( Instrument* instrument );
         /** __instrument accessor */
         Instrument* get_instrument();
         /** __instrument_id accessor */
@@ -246,7 +238,7 @@ class Note : public H2Core::Object
         void set_midi_info( Key key, Octave octave, int msg );
 
         /** get the ADSR of the note */
-        //ADSR* get_adsr() const;
+        ADSR* get_adsr() const;
         /** call release on adsr */
         //float release_adsr() const              { return __adsr->release(); }
         /** call get value on adsr */
@@ -275,32 +267,37 @@ class Note : public H2Core::Object
     private:
         Instrument* __instrument;   ///< the instrument to be played by this note
         int __instrument_id;        ///< the id of the instrument played by this note
-        int __position;		        ///< note position inside the pattern
-        float __velocity;		    ///< velocity (intensity) of the note [0;1]
-        float __pan_l;			    ///< pan of the note (left volume) [0;1]
-        float __pan_r;			    ///< pan of the note (right volume) [0;1]
+        int __position;             ///< note position inside the pattern
+        float __velocity;           ///< velocity (intensity) of the note [0;1]
+        float __pan_l;              ///< pan of the note (left volume) [0;1]
+        float __pan_r;              ///< pan of the note (right volume) [0;1]
         int __length;               ///< the length of the note
         float __pitch;              ///< the frequency of the note
         Key __key;                  ///< the key, [0;11]==[C;B]
         Octave __octave;            ///< the octave [-3;3]
-        //ADSR* __adsr;               ///< attack decay sustain release
-        float __lead_lag;		    ///< lead or lag offset of the note
-        float __cut_off;		    ///< filter cutoff [0;1]
-        float __resonance;	        ///< filter resonant frequency [0;1]
+        ADSR* __adsr;               ///< attack decay sustain release
+        float __lead_lag;           ///< lead or lag offset of the note
+        float __cut_off;            ///< filter cutoff [0;1]
+        float __resonance;          ///< filter resonant frequency [0;1]
         int __humanize_delay;       ///< used in "humanize" function
         float __sample_position;    ///< place marker for overlapping process() cycles
-        float __bpfb_l;		        ///< left band pass filter buffer
-        float __bpfb_r;		        ///< right band pass filter buffer
-        float __lpfb_l;		        ///< left low pass filter buffer
-        float __lpfb_r;		        ///< right low pass filter buffer
+        float __bpfb_l;             ///< left band pass filter buffer
+        float __bpfb_r;             ///< right band pass filter buffer
+        float __lpfb_l;             ///< left low pass filter buffer
+        float __lpfb_r;             ///< right low pass filter buffer
         int __pattern_idx;          ///< index of the pattern holding this note for undo actions
         int __midi_msg;             ///< TODO
-        bool __note_off;			///< note type on|off
+        bool __note_off;            ///< note type on|off
         bool __just_recorded;       ///< used in record+delete
         static const char* __key_str[]; ///< used to build QString from __key an __octave
 };
 
 // DEFINITIONS
+
+inline ADSR* Note::get_adsr() const
+{
+    return __adsr;
+}
 
 inline Instrument* Note::get_instrument()
 {
