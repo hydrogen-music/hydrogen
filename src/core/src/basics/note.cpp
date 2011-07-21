@@ -136,10 +136,14 @@ void Note::map_instrument( InstrumentList* instruments )
 }
 
 
-void Note::set_ADSR(   Instrument*   instrument  )
+void Note::set_ADSR( Instrument* instrument )
 {
-    assert( instrument->get_adsr() );
-    __adsr = instrument->get_adsr();
+    if ( instrument == 0 ) {
+        __adsr = new ADSR();
+    } else {
+        assert( instrument->get_adsr() );
+        __adsr = instrument->get_adsr();
+    }
 }
 
 void Note::set_instrument( Instrument* instrument )
