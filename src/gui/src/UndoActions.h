@@ -261,7 +261,7 @@ public:
 		//qDebug() << "Load/drag pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __oldPatternName, __sequenceFileName, __patternPosition );
-		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition +2 );
+		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition +1 );
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
 		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
 	}
