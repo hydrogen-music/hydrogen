@@ -17,7 +17,7 @@ int main( int argc, char* argv[] )
     H2Core::Filesystem::bootstrap( logger, "./data" );
     H2Core::Filesystem::info();
 
-    rubberband_test( H2Core::Filesystem::drumkit_path_search("GMkit")+"/cym_Jazz.flac" );
+    rubberband_test( H2Core::Filesystem::drumkit_path_search( "GMkit" )+"/cym_Jazz.flac" );
     xml_drumkit( log_level );
 
     delete logger;

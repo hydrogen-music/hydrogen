@@ -41,8 +41,8 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 int xml_drumkit( int log_level )
 {
 
-    H2Core::Filesystem::rm( BASE_DIR"/dk0", true );
-    H2Core::Filesystem::rm( BASE_DIR"/drumkit.xml" );
+    H2Core::Filesystem::rm( H2Core::Filesystem::tmp_dir(), true );
+    QString dk_path = H2Core::Filesystem::tmp_dir()+"/dk0";
 
     ___INFOLOG( "test xml drumkit validation, read and write" );
 
@@ -74,14 +74,14 @@ int xml_drumkit( int log_level )
     //dk0->dump();
     // save drumkit elsewhere
     dk0->set_name( "dk0" );
-    spec( dk0->save( BASE_DIR"/dk0", false ), "should be able to save drumkit" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/drumkit.xml" ), "dk0/drumkit.xml should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/crash.wav" ), "dk0/crash.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/hh.wav" ), "dk0/hh.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/kick.wav" ), "dk0/kick.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( BASE_DIR"/dk0/snare.wav" ), "dk0/snare.wav should exists and be readable" );
+    spec( dk0->save( dk_path, false ), "should be able to save drumkit" );
+    spec( H2Core::Filesystem::file_readable( dk_path+"/drumkit.xml" ), "dk0/drumkit.xml should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( dk_path+"/crash.wav" ), "dk0/crash.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( dk_path+"/hh.wav" ), "dk0/hh.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( dk_path+"/kick.wav" ), "dk0/kick.wav should exists and be readable" );
+    spec( H2Core::Filesystem::file_readable( dk_path+"/snare.wav" ), "dk0/snare.wav should exists and be readable" );
     // load file
-    dk1 = H2Core::Drumkit::load_file( BASE_DIR"/dk0/drumkit.xml" );
+    dk1 = H2Core::Drumkit::load_file( dk_path+"/drumkit.xml" );
     spec( dk1!=0, "should be able to reload drumkit" );
     //dk1->dump();
     // copy constructor
@@ -89,7 +89,7 @@ int xml_drumkit( int log_level )
     dk2->set_name( "COPY" );
     spec( dk2!=0, "should be able to copy a drumkit" );
     // save file
-    spec( dk2->save_file( BASE_DIR"/drumkit.xml", true ), "should be able to save drumkit xml file" );;
+    spec( dk2->save_file( dk_path+"/drumkit.xml", true ), "should be able to save drumkit xml file" );;
 
     delete dk0;
     delete dk1;
