@@ -354,74 +354,45 @@ void SongEditorPanel::updatePositionRuler()
 ///
 /// Create a new pattern
 ///
-void SongEditorPanel::newPatBtnClicked( Button* btn)
+void SongEditorPanel::newPatBtnClicked( Button* btn )
 {
-	UNUSED( btn );
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *patternList = song->get_pattern_list();
-	int emptyPatternNo = patternList->size() + 1;
-
-	Pattern *emptyPattern = new Pattern();
-	emptyPattern->set_name( trUtf8("Pattern %1").arg(emptyPatternNo) );
-	emptyPattern->set_category( trUtf8("not_categorized") );
-
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, emptyPattern, 0, true );
-	if ( dialog->exec() == QDialog::Accepted ) {
-
-		SE_addEmptyPatternAction*action = new SE_addEmptyPatternAction( emptyPattern->get_name() , emptyPattern->get_category(), emptyPatternNo);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
-		patternList->del( emptyPattern );
-		delete emptyPattern;
-		emptyPattern = NULL;
-	}
-	else {
-		patternList->del( emptyPattern );
-		delete emptyPattern;
-		emptyPattern = NULL;
-	}
-	delete dialog;
-	dialog = NULL;
+    UNUSED( btn );
+    Hydrogen *engine = Hydrogen::get_instance();
+    Song *song = engine->getSong();
+    PatternList *patternList = song->get_pattern_list();
+    Pattern *newPattern = new Pattern( trUtf8("Pattern %1").arg(patternList->size()+1), trUtf8("not_categorized") );
+    PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, newPattern, 0, true );
+    if ( dialog->exec() == QDialog::Accepted ) {
+        SE_addEmptyPatternAction*action =
+            new SE_addEmptyPatternAction( newPattern->get_name() , newPattern->get_category(), engine->getSelectedPatternNumber()+1);
+        HydrogenApp::get_instance()->m_undoStack->push( action );
+    }
+    delete newPattern;
+    delete dialog;
 }
 
 
 void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatternCategory, int patternPosition )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *patternList = song->get_pattern_list();
-
-	Pattern *emptyPattern = new Pattern();
-	emptyPattern->set_name( newPatternName );
-	emptyPattern->set_category( newPatternCategory );
-	patternList->add( emptyPattern );
-	if( patternPosition != patternList->size() ){
-		for (int nPatr = patternList->size() +1 ; nPatr >= patternPosition; nPatr--) {
-			H2Core::Pattern *pPattern = patternList->get(nPatr - 1);
-			patternList->replace( nPatr, pPattern );
-		}
-		patternList->replace( patternPosition, emptyPattern );
-	}
-	song->__is_modified = true;
-	updateAll();
+    Hydrogen *engine = Hydrogen::get_instance();
+    Song *song = engine->getSong();
+    PatternList *patternList = song->get_pattern_list();
+    patternList->insert( patternPosition, new Pattern( newPatternName, newPatternCategory ) );
+    song->__is_modified = true;
+    updateAll();
 }
-
 
 void SongEditorPanel::revertaddEmptyPattern( int patternPosition )
 {
-	
-	Hydrogen *engine = Hydrogen::get_instance();
-
-	Song *song = engine->getSong();
-	PatternList *patternList = song->get_pattern_list();
-        H2Core::Pattern *pattern = patternList->get( patternPosition );
-
-	if(patternPosition == engine->getSelectedPatternNumber() )engine->setSelectedPatternNumber( patternPosition -1 );
-	patternList->del(pattern);
-	delete pattern;
-	pattern = NULL;
-	song->__is_modified = true;
-	updateAll();
+    Hydrogen *engine = Hydrogen::get_instance();
+    Song *song = engine->getSong();
+    PatternList *patternList = song->get_pattern_list();
+    H2Core::Pattern *pattern = patternList->get( patternPosition );
+    if( patternPosition == engine->getSelectedPatternNumber() ) engine->setSelectedPatternNumber( patternPosition -1 );
+    patternList->del( pattern );
+    delete pattern;
+    song->__is_modified = true;
+    updateAll();
 }
 
 ///

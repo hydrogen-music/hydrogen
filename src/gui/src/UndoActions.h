@@ -218,33 +218,32 @@ private:
 	int __patternPosition;
 };
 
-
 class SE_addEmptyPatternAction : public QUndoCommand
 {
 public:
-    SE_addEmptyPatternAction(  QString newPatternName , QString newPatternCategory , int patternPosition){
-	setText( QString( "Add pattern" ) );
-	__newPatternName =  newPatternName;
-	__newPatternCategory = newPatternCategory;
-	__patternPosition = patternPosition;
+    SE_addEmptyPatternAction( QString newPatternName, QString newPatternCategory, int patternPosition )
+    {
+        setText( QString( "Add pattern" ) );
+        __newPatternName =  newPatternName;
+        __newPatternCategory = newPatternCategory;
+        __patternPosition = patternPosition;
     }
     virtual void undo()
-	{
+    {
 		//qDebug() << "Add pattern undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-                h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition - 1 );
-	}
-
+        HydrogenApp* h2app = HydrogenApp::get_instance();
+        h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
+    }
     virtual void redo()
-	{
-		//qDebug() << "Add pattern redo" ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->addEmptyPattern( __newPatternName ,__newPatternCategory, __patternPosition );
-	}
+    {
+        //qDebug() << "Add pattern redo" ;
+        HydrogenApp* h2app = HydrogenApp::get_instance();
+        h2app->getSongEditorPanel()->addEmptyPattern( __newPatternName ,__newPatternCategory, __patternPosition );
+    }
 private:
-	QString __newPatternName;
-	QString __newPatternCategory;
-	int __patternPosition;
+    QString __newPatternName;
+    QString __newPatternCategory;
+    int __patternPosition;
 };
 
 class SE_loadPatternAction : public QUndoCommand
