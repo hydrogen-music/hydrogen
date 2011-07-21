@@ -269,8 +269,8 @@ class Note : public H2Core::Object
         int __instrument_id;        ///< the id of the instrument played by this note
         int __position;             ///< note position inside the pattern
         float __velocity;           ///< velocity (intensity) of the note [0;1]
-        float __pan_l;              ///< pan of the note (left volume) [0;1]
-        float __pan_r;              ///< pan of the note (right volume) [0;1]
+        float __pan_l;              ///< pan of the note (left volume) [0;0.5]
+        float __pan_r;              ///< pan of the note (right volume) [0;0.5]
         int __length;               ///< the length of the note
         float __pitch;              ///< the frequency of the note
         Key __key;                  ///< the key, [0;11]==[C;B]
