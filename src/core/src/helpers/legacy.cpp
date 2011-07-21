@@ -3,13 +3,16 @@
 
 #include <hydrogen/version.h>
 #include <hydrogen/helpers/xml.h>
+#include <hydrogen/basics/song.h>
 #include <hydrogen/basics/drumkit.h>
+#include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/basics/adsr.h>
 
 namespace H2Core {
 
@@ -124,6 +127,11 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
     }
     //if( drumkit->__logger->should_log( Logger::Debug ) ) drumkit->dump();
     return drumkit;
+}
+
+Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
+    ERRORLOG( "NOT IMPLEMENTED YET !!!" );
+    return 0;
 }
 
 };
