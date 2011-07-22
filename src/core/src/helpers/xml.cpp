@@ -8,14 +8,19 @@
 #include <QtXmlPatterns/QXmlSchema>
 #include <QtXmlPatterns/QXmlSchemaValidator>
 
-namespace H2Core {
+#define XMLNS_BASE "http://www.hydrogen-music.org/"
+#define XMLNS_XSI "http://www.w3.org/2001/XMLSchema-instance"
+
+namespace H2Core
+{
 
 const char* XMLNode::__class_name ="XMLNode";
 
 XMLNode::XMLNode() : Object( __class_name ) { }
 XMLNode::XMLNode( QDomNode node ) : Object( __class_name ), QDomNode( node ) { }
 
-QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok ) {
+QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok )
+{
     if( isNull() ) {
         DEBUGLOG( QString( "try to read %1 XML node from an empty parent %2." ).arg( node ).arg( nodeName() ) );
         return 0;
@@ -32,7 +37,8 @@ QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool 
     return el.text();
 }
 
-QString XMLNode::read_string( const QString& node, const QString& default_value, bool inexistent_ok, bool empty_ok ) {
+QString XMLNode::read_string( const QString& node, const QString& default_value, bool inexistent_ok, bool empty_ok )
+{
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
         DEBUGLOG( QString( "Using default value %1 for %2" ).arg( default_value ).arg( node ) );
@@ -41,7 +47,8 @@ QString XMLNode::read_string( const QString& node, const QString& default_value,
     return ret;
 }
 
-float XMLNode::read_float( const QString& node, float default_value, bool inexistent_ok, bool empty_ok ) {
+float XMLNode::read_float( const QString& node, float default_value, bool inexistent_ok, bool empty_ok )
+{
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
         DEBUGLOG( QString( "Using default value %1 for %2" ).arg( default_value ).arg( node ) );
@@ -51,7 +58,8 @@ float XMLNode::read_float( const QString& node, float default_value, bool inexis
     return c_locale.toFloat( ret );
 }
 
-int XMLNode::read_int( const QString& node, int default_value, bool inexistent_ok, bool empty_ok ) {
+int XMLNode::read_int( const QString& node, int default_value, bool inexistent_ok, bool empty_ok )
+{
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
         DEBUGLOG( QString( "Using default value %1 for %2" ).arg( default_value ).arg( node ) );
@@ -61,7 +69,8 @@ int XMLNode::read_int( const QString& node, int default_value, bool inexistent_o
     return c_locale.toInt( ret );
 }
 
-bool XMLNode::read_bool( const QString& node, bool default_value, bool inexistent_ok, bool empty_ok ) {
+bool XMLNode::read_bool( const QString& node, bool default_value, bool inexistent_ok, bool empty_ok )
+{
     QString ret = read_child_node( node, inexistent_ok, empty_ok );
     if( ret.isNull() ) {
         DEBUGLOG( QString( "Using default value %1 for %2" ).arg( default_value ).arg( node ) );
@@ -74,23 +83,28 @@ bool XMLNode::read_bool( const QString& node, bool default_value, bool inexisten
     }
 }
 
-void XMLNode::write_child_node( const QString& node, const QString& text ) {
+void XMLNode::write_child_node( const QString& node, const QString& text )
+{
     QDomDocument doc = this->ownerDocument();
     QDomElement el = doc.createElement( node );
     QDomText txt = doc.createTextNode( text );
     el.appendChild( txt );
     this->appendChild( el );
 }
-void XMLNode::write_string( const QString& node, const QString& value ) {
+void XMLNode::write_string( const QString& node, const QString& value )
+{
     write_child_node( node, value );
 }
-void XMLNode::write_float( const QString& node, const float value ) {
+void XMLNode::write_float( const QString& node, const float value )
+{
     write_child_node( node, QString::number( value ) );
 }
-void XMLNode::write_int( const QString& node, const int value ) {
+void XMLNode::write_int( const QString& node, const int value )
+{
     write_child_node( node, QString::number( value ) );
 }
-void XMLNode::write_bool( const QString& name, const bool value ) {
+void XMLNode::write_bool( const QString& name, const bool value )
+{
     write_child_node( name, QString( ( value ? "true" : "false" ) ) );
 }
 
@@ -98,7 +112,8 @@ const char* XMLDoc::__class_name ="XMLDoc";
 
 XMLDoc::XMLDoc( ) : Object( __class_name ) { }
 
-bool XMLDoc::read( const QString& filepath, const QString& schemapath ) {
+bool XMLDoc::read( const QString& filepath, const QString& schemapath )
+{
     QXmlSchema schema;
     bool schema_usable = false;
     if( schemapath!=0 ) {
@@ -140,7 +155,8 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath ) {
     return true;
 }
 
-bool XMLDoc::write( const QString& filepath ) {
+bool XMLDoc::write( const QString& filepath )
+{
     QFile file( filepath );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) ) {
         ERRORLOG( QString( "Unable to open %1 for writting" ).arg( filepath ) );
@@ -151,6 +167,17 @@ bool XMLDoc::write( const QString& filepath ) {
     file.close();
     return true;
 };
+
+void XMLDoc::set_root( const QString& node_name, const QString& xmlns )
+{
+    QDomProcessingInstruction header = createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" );
+    appendChild( header );
+    XMLNode root = createElement( node_name );
+    QDomElement el = root.toElement();
+    el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
+    el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+    appendChild( root );
+}
 
 };
 

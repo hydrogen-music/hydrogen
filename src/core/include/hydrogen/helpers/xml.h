@@ -6,15 +6,14 @@
 #include <QtCore/QString>
 #include <QtXml/QDomDocument>
 
-#define XMLNS_BASE "http://www.hydrogen-music.org"
-#define XMLNS_XSI "http://www.w3.org/2001/XMLSchema-instance"
-
-namespace H2Core {
+namespace H2Core
+{
 
 /**
  * XMLNode is a subclass of QDomNode with read and write values methods
 */
-class XMLNode : public H2Core::Object, public QDomNode {
+class XMLNode : public H2Core::Object, public QDomNode
+{
         H2_OBJECT
     public:
         /** basic constructor */
@@ -98,7 +97,8 @@ class XMLNode : public H2Core::Object, public QDomNode {
 /**
  * XMLDoc is a subclass of QDomDocument with read and write methods
 */
-class XMLDoc : public H2Core::Object, public QDomDocument {
+class XMLDoc : public H2Core::Object, public QDomDocument
+{
         H2_OBJECT
     public:
         /** basic constructor */
@@ -114,6 +114,12 @@ class XMLDoc : public H2Core::Object, public QDomDocument {
          * \param filepath the path to the file to write to
          */
         bool write( const QString& filepath );
+        /**
+         * create the xml header and root node
+         * \param node_name, the name of the rootnode to build
+         * \param xmlns, the xml namespace prefix to add after XMLNS_BASE
+         */
+        void set_root( const QString& node_name, const QString& xmlns );
 };
 
 };

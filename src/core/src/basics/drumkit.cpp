@@ -190,14 +190,9 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite )
         return false;
     }
     XMLDoc doc;
-    QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" );
-    doc.appendChild( header );
-    XMLNode root = doc.createElement( "drumkit_info" );
-    QDomElement el = root.toElement();
-    el.setAttribute( "xmlns",XMLNS_BASE"/drumkit" );
-    el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+    doc.set_root( "drumkit_info", "drumkit" );
+    XMLNode root = doc.firstChildElement( "drumkit_info" );
     save_to( &root );
-    doc.appendChild( root );
     return doc.write( dk_path );
 }
 
