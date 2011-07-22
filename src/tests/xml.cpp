@@ -102,7 +102,7 @@ int xml_drumkit( int log_level )
 
 int xml_pattern( int log_level )
 {
-    QString dk_path = H2Core::Filesystem::tmp_dir()+"/pat";
+    QString pat_path = H2Core::Filesystem::tmp_dir()+"/pat";
 
     ___INFOLOG( "test xml drumkit validation, read and write" );
 
@@ -112,9 +112,11 @@ int xml_pattern( int log_level )
 
     dk0 = H2Core::Drumkit::load( BASE_DIR"/drumkit" );
     spec( dk0!=0, "dk0 should not be null" );
-    spec( dk0->get_instruments()->size()==4, "instruments size should be 4" );
     instruments = dk0->get_instruments();
+    spec( instruments->size()==4, "instruments size should be 4" );
     pat0 = H2Core::Pattern::load_file( BASE_DIR"/pattern/pat.h2pattern", instruments );
+
+    pat0->save_file( pat_path );
 
     delete pat0;
     delete dk0;

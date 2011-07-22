@@ -30,7 +30,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>1</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -42,7 +42,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>8</instrument>
+    <instrument>3</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -54,7 +54,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>2</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -66,7 +66,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>0</instrument>
+    <instrument>3</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -78,7 +78,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>0</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -90,7 +90,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>0</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -102,7 +102,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>2</instrument>
+    <instrument>1</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -114,7 +114,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>8</instrument>
+    <instrument>1</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -126,7 +126,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>2</instrument>
     <note_off>true</note_off>
    </note>
    <note>
@@ -162,7 +162,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>2</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -174,7 +174,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>3</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -186,7 +186,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>8</instrument>
+    <instrument>3</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -210,7 +210,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>1</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -222,7 +222,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>1</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -246,7 +246,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>8</instrument>
+    <instrument>3</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -258,7 +258,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>69</instrument>
     <note_off>false</note_off>
    </note>
    <note>
@@ -270,7 +270,7 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>12</instrument>
+    <instrument>666</instrument>
     <note_off>false</note_off>
    </note>
   </noteList>
