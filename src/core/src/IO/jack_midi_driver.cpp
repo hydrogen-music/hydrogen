@@ -399,7 +399,7 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 	if (vel < 0 || vel > 127)
 		return;
 
-	buffer[0] = 0x90 | channel;	/* note on */
+        buffer[0] = 0x80 | channel;	/* note off */
 	buffer[1] = key;
 	buffer[2] = 0;
 	buffer[3] = 0;

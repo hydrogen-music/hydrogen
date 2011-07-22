@@ -1652,7 +1652,9 @@ void audioEngine_startAudioDrivers()
 #endif
 	} else if ( preferencesMng->m_sMidiDriver == "JackMidi" ) {
 #ifdef H2CORE_HAVE_JACK
-		m_pMidiDriver = new JackMidiDriver();
+                JackMidiDriver *jackMidiDriver = new JackMidiDriver();
+                m_pMidiDriverOut = jackMidiDriver;
+                m_pMidiDriver = jackMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
