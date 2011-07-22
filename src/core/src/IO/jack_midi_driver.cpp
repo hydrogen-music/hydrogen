@@ -206,7 +206,7 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 	while ((t < nframes) &&
 	       (rx_out_pos != rx_in_pos)) {
 
-		len = buffer[4 * rx_in_pos];
+                len = jack_buffer[4 * rx_in_pos];
 		if (len == 0) {
 			rx_in_pos++;
 			if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
@@ -222,7 +222,7 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 		if (buffer == NULL)
 			break;
 
-		memcpy(buffer, buffer + (4 * rx_in_pos) + 1, len);
+                memcpy(buffer, jack_buffer + (4 * rx_in_pos) + 1, len);
 		t++;
 		rx_in_pos++;
 		if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
@@ -251,10 +251,10 @@ JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
 	if (len > 3)
 		len = 3;
 
-	buffer[(4 * next_pos)] = len;
-	buffer[(4 * next_pos) + 1] = buf[0];
-	buffer[(4 * next_pos) + 2] = buf[1];
-	buffer[(4 * next_pos) + 3] = buf[2];
+        jack_buffer[(4 * next_pos)] = len;
+        jack_buffer[(4 * next_pos) + 1] = buf[0];
+        jack_buffer[(4 * next_pos) + 2] = buf[1];
+        jack_buffer[(4 * next_pos) + 3] = buf[2];
 
 	rx_out_pos = next_pos;
 

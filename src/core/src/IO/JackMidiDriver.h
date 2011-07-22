@@ -75,7 +75,7 @@ private:
 	jack_client_t *jack_client;
 	pthread_mutex_t mtx;
 	int running;
-	uint8_t buffer[JACK_MIDI_BUFFER_MAX * 4];
+        uint8_t jack_buffer[JACK_MIDI_BUFFER_MAX * 4];
 	uint32_t rx_in_pos;
 	uint32_t rx_out_pos;
 };
