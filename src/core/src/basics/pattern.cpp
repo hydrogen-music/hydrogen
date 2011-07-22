@@ -65,7 +65,7 @@ Pattern::~Pattern()
 
 Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
 {
-    INFOLOG( QString("Load pattern %1").arg(pattern_path) );
+    INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
     if ( !Filesystem::file_readable( pattern_path ) ) return 0;
     XMLDoc doc;
     if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
@@ -86,23 +86,58 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 
 Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
-    Pattern *pattern = new Pattern(
-            node->read_string( "name", "unknown", false, false ),
-            node->read_string( "category", "unknown", false, false ),
-            node->read_int( "size", -1, false, false )
-            );
+    Pattern* pattern = new Pattern(
+        node->read_string( "name", "unknown", false, false ),
+        node->read_string( "category", "unknown", false, false ),
+        node->read_int( "size", -1, false, false )
+    );
     XMLNode note_list_node = node->firstChildElement( "noteList" );
-	if ( !note_list_node.isNull() ) {
+    if ( !note_list_node.isNull() ) {
         XMLNode note_node = note_list_node.firstChildElement( "note" );
         while ( !note_node.isNull() ) {
-            Note *note = Note::load_from( &note_node, instruments );
-            if(note) {
-                pattern->insert_note( note);
+            Note* note = Note::load_from( &note_node, instruments );
+            if( note ) {
+                pattern->insert_note( note );
             }
             note_node = note_node.nextSiblingElement( "note" );
         }
     }
     return pattern;
+}
+
+bool Pattern::save_file( const QString& pattern_path, bool overwrite )
+{
+    INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
+    if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
+        ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
+        return false;
+    }
+    XMLDoc doc;
+    doc.set_root( "drumkit_pattern", "drumkit_pattern" );
+    XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+    save_to( &root );
+    return doc.write( pattern_path );
+}
+
+void Pattern::save_to( XMLNode* node )
+{
+    // TODO drumkit_name !!!!!!
+    node->write_string( "drumkit_name", "TODO" );
+    XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
+    pattern_node.write_string( "name", __name );
+    pattern_node.write_string( "category", __category );
+    pattern_node.write_int( "size", __length );
+    XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );
+    for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
+        Note* note = it->second;
+        if( note ) {
+            XMLNode note_node = node->ownerDocument().createElement( "note" );
+            note->save_to( &note_node );
+            note_list_node.appendChild( note_node );
+        }
+    }
+    pattern_node.appendChild( note_list_node );
+    node->appendChild( pattern_node );
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
