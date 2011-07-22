@@ -207,6 +207,7 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
     note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
     note->set_key_octave( node->read_string( "key", "C0", false, false ) );
     note->set_note_off( node->read_bool( "note_off", false, false, false ) );
+    note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID ) );
     note->map_instrument( instruments );
     return note;
 }

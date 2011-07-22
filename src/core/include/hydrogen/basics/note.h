@@ -107,12 +107,17 @@ class Note : public H2Core::Object
         void map_instrument( InstrumentList* instruments );
         /** __instrument accessor */
         Instrument* get_instrument();
-        /** __instrument_id accessor */
-        int get_instrument_id() const;
         /** return true if __instrument is set */
         bool has_instrument() const;
         /**
-         * __instrument setter
+         * __instrument_id setter
+         * \param value the new value
+         */
+        void set_instrument_id( int value );
+        /** __instrument_id accessor */
+        int get_instrument_id() const;
+        /**
+         * __position setter
          * \param value the new value
          */
         void set_position( int value );
@@ -304,14 +309,19 @@ inline Instrument* Note::get_instrument()
     return __instrument;
 }
 
-inline int Note::get_instrument_id() const
-{
-    return __instrument_id;
-}
-
 inline bool Note::has_instrument() const
 {
     return __instrument!=0;
+}
+
+inline void Note::set_instrument_id( int value )
+{
+    __instrument_id = value;
+}
+
+inline int Note::get_instrument_id() const
+{
+    return __instrument_id;
 }
 
 inline void Note::set_position( int value )
