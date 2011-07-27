@@ -1080,14 +1080,6 @@ Overwrite the existing file?</source>
 Перезаписать его?</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation type="obsolete">&amp;OK</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="obsolete">О&amp;тменить</translation>
-    </message>
-    <message>
         <source>Export to a single track</source>
         <translation>Экспортировать в одну дорожку</translation>
     </message>
@@ -1225,10 +1217,6 @@ Overwrite the existing file?</source>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
         <translation>Ogg Vorbis, с потерями, но хорошим качеством: VBR</translation>
-    </message>
-    <message>
-        <source>Export to seperate tracks</source>
-        <translation type="obsolete">Экспортировать в разные дорожки</translation>
     </message>
 </context>
 <context>
@@ -3043,10 +3031,6 @@ Are you sure?</source>
     <message>
         <source>panorama</source>
         <translation>Панорама</translation>
-    </message>
-    <message>
-        <source>&quot;Rubberband Audio Processor&quot; Change the tempo(sample length) and pitch of audio. </source>
-        <translation type="obsolete">С помощью Rubberband вы можете изменить темп и высоту тона сэмпла.</translation>
     </message>
     <message>
         <source>Sample length to beat:</source>
