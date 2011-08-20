@@ -73,6 +73,8 @@ class ActionManager : public H2Core::Object
 		QStringList actionList;
 		QStringList eventList;
 
+		int lastBpmChangeCCParameter;
+
 	public:
 		bool handleAction( Action * );
 		

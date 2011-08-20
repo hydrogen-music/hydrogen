@@ -65,6 +65,8 @@ const char* ActionManager::__class_name = "ActionManager";
 ActionManager::ActionManager() : Object( __class_name )
 {
 	__instance = this;
+
+	int lastBpmChangeCCParameter = -1;
 	
 	/*
 	    the actionList holds all Action identfiers which hydrogen is able to interpret.
@@ -546,21 +548,22 @@ bool ActionManager::handleAction( Action * pAction ){
 		mult = pAction->getParameter1().toInt(&ok,10);
 		cc_param = pAction->getParameter2().toInt(&ok,10);
 			
-
+		if( lastBpmChangeCCParameter == -1)
+		{
+			lastBpmChangeCCParameter = cc_param;	
+		}
 
 		Song* pSong = pEngine->getSong();
 
-
-		
-		if ( cc_param == 1 && pSong->__bpm  < 300) {
-			pEngine->setBPM( pSong->__bpm + 1*mult );
-		}
-
-
-		if ( cc_param != 1 && pSong->__bpm  > 40 ) {
+		if ( lastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
 			pEngine->setBPM( pSong->__bpm - 1*mult );
 		}
 
+		if ( lastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+			pEngine->setBPM( pSong->__bpm + 1*mult );
+		}
+
+		lastBpmChangeCCParameter = cc_param;
 
 		AudioEngine::get_instance()->unlock();
 
