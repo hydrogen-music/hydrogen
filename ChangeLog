@@ -1,3 +1,10 @@
+2011-09-06 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+        * Release 0.9.6
+        * new build system (cmake)
+        * add undo for song/pattern editor
+        * jack-session support
+        * some bug fixes
+
 2011-03-15 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 
         * Release 0.9.5
