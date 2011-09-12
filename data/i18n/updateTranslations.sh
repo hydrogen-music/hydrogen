@@ -2,7 +2,7 @@
 
 echo "Updating translation (*.ts) files"
 
-cd ../../gui/
+cd ../../src/gui
 
 
 
@@ -39,7 +39,7 @@ $CMD ../data/i18n/hydrogen.cs.ts
 $CMD ../data/i18n/hydrogen.el.ts
 
 echo "Creating *.qm files"
-cd ../data/i18n
+cd ../../data/i18n
 $LRELEASE *.ts
 
 
