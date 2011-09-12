@@ -2,6 +2,33 @@
 <!DOCTYPE TS>
 <TS version="2.0">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation type="unfinished">Névjegy</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished">&lt;b&gt;Honlap&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Translator:%1Alessandro Cominu</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AboutDialog_UI</name>
     <message>
         <source>About Hydrogen</source>
@@ -382,6 +409,13 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>AudioEngineInfoForm</name>
+    <message>
+        <source>Audio Engine Info</source>
+        <translation type="unfinished">Hangeszköz információk</translation>
+    </message>
+</context>
+<context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Sample rate</source>
@@ -473,6 +507,49 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>AudioFileBrowser</name>
+    <message>
+        <source>Audio File Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size: %1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioFileBrowser_UI</name>
     <message>
         <source>Dialog</source>
@@ -540,9 +617,133 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Director</name>
+    <message>
+        <source>Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DownloadWidget</name>
+    <message>
+        <source>(%1/%2 KiB) - ETA %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitManager_UI</name>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">Betöltés</translation>
+    </message>
+    <message>
+        <source>Load drumkit</source>
+        <translation type="unfinished">Dobszerkó betöltése</translation>
+    </message>
+    <message>
+        <source>Delete drumkit</source>
+        <translation type="unfinished">Dobszerkó törlése</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Mentés</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation type="unfinished">Szerző</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished">Rövid leírás</translation>
+    </message>
+    <message>
+        <source>Drumkit name</source>
+        <translation type="unfinished">Dobszerkó neve</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">Importálás</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Tallóz</translation>
+    </message>
+    <message>
+        <source>Drumkit filename</source>
+        <translation type="unfinished">Dobszerkó fájl neve</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportálás</translation>
+    </message>
+    <message>
+        <source>Drumkit directory</source>
+        <translation type="unfinished">Dobszerkó könyvtár</translation>
+    </message>
+    <message>
+        <source>Form1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### Drumkit author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### Drumkit name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### Drumkit info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;
+Download more drumkits at &lt;br&gt;
+http://www.hydrogen-music.org
+&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportSongDialog</name>
+    <message>
+        <source>Export song</source>
+        <translation type="unfinished">Szám exportálása</translation>
+    </message>
+    <message>
+        <source>Export failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to seperate tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -670,6 +871,291 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>FileBrowser</name>
+    <message>
+        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FxMixerLine</name>
+    <message>
+        <source>FX on/off</source>
+        <translation type="unfinished">FX be/ki</translation>
+    </message>
+    <message>
+        <source>Master output</source>
+        <translation type="unfinished">Master kimenet</translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SongEditorPanelBpmWidget</name>
+    <message>
+        <source>BPM</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SongEditorPanelTagWidget</name>
+    <message>
+        <source>Tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SoundLibraryPropertiesDialog</name>
+    <message>
+        <source>SoundLibrary Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HydrogenApp</name>
+    <message>
+        <source>Drumkit loaded: [%1]</source>
+        <translation type="unfinished">Dobszerkó betöltve: [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentEditor</name>
+    <message>
+        <source>Random pitch factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Cutoff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter resonance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show instrument properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show layers properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Általános</translation>
+    </message>
+    <message>
+        <source>Layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop the current playing instrument-note before trigger the next note sample.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-Stop-Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentLine</name>
+    <message>
+        <source>Clear notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill notes ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill all notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentRack</name>
+    <message>
+        <source>Show Instrument editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LadspaFXMixerLine</name>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation type="unfinished">Effekt paraméterek módosítása</translation>
+    </message>
+    <message>
+        <source>FX bypass</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ladspa FX name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effect return</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LadspaFXProperties</name>
+    <message>
+        <source>Select FX</source>
+        <translation type="unfinished">Kiválasztás</translation>
+    </message>
+    <message>
+        <source>Activate</source>
+        <translation type="unfinished">Bekapcsolás</translation>
+    </message>
+    <message>
+        <source>[%1] LADSPA FX Properties</source>
+        <translation type="unfinished">[%1] LADSPA Effekt tulajdonságai</translation>
+    </message>
+    <message>
+        <source>Deactivate</source>
+        <translation type="unfinished">Kikapcsolás</translation>
+    </message>
+    <message>
+        <source>LADSPA FX %1 Properties</source>
+        <translation type="unfinished">LADSPA %1 effekt tulajdonságai</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation type="unfinished">Nincs plugin</translation>
+    </message>
+    <message>
+        <source>Remove FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LadspaFXSelector</name>
+    <message>
+        <source>Select LADSPA FX</source>
+        <translation type="unfinished">LADSPA effekt kiválasztása</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation type="unfinished">Csoportok</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Sztereó</translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Monó</translation>
+    </message>
+    <message>
+        <source>Not supported</source>
+        <translation type="unfinished">Nem támogatott</translation>
+    </message>
+    <message>
+        <source>Recently Used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alphabetic List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Categorized</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LadspaFXSelector_UI</name>
     <message>
         <source>Form1</source>
@@ -777,9 +1263,506 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
+        <source>Error loading song.</source>
+        <translation type="unfinished">A számot nem lehet betölteni.</translation>
+    </message>
+    <message>
+        <source>Hydrogen Ready.</source>
+        <translation type="unfinished">Hydrogen kész.</translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Exportálás MIDI-be</translation>
+    </message>
+    <message>
+        <source>Print Objects</source>
+        <translation type="unfinished">Objektumok nyomtatása</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation type="unfinished">&amp;Mentés</translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <translation type="unfinished">&amp;Eldobás</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Mégsem</translation>
+    </message>
+    <message>
+        <source>Hydrogen Song (*.h2song)</source>
+        <translation type="unfinished">Hydrogen szám (*.h2song)</translation>
+    </message>
+    <message>
+        <source>Save song</source>
+        <translation type="unfinished">Szám mentése</translation>
+    </message>
+    <message>
+        <source>Open song</source>
+        <translation type="unfinished">Szám megnyitása</translation>
+    </message>
+    <message>
+        <source>Unknown audio driver</source>
+        <translation type="unfinished">Ismeretlen audió meghajtó</translation>
+    </message>
+    <message>
+        <source>Error starting audio driver</source>
+        <translation type="unfinished">Audió meghajtó indítási hiba</translation>
+    </message>
+    <message>
+        <source>Jack driver: server shutdown</source>
+        <translation type="unfinished">Jack meghajtó: kiszolgáló leállt</translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot activate client</source>
+        <translation type="unfinished">Jack meghajtó: kliens nem aktiválható</translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot connect output port</source>
+        <translation type="unfinished">Jack meghajtó: nem sikerül csatlakozni a kimenethez</translation>
+    </message>
+    <message>
+        <source>Jack driver: error in port register</source>
+        <translation type="unfinished">Jack meghajtó: hiba a port regiszterben</translation>
+    </message>
+    <message>
+        <source>&amp;Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open &amp;Demo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open &amp;recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export &amp;MIDI file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Mixer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Instrument Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>De&amp;bug</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show &amp;audio engine info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;User manual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*.mid)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all instruments?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not save song.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open &amp;Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Pattern as ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message anymore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show &amp;info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expor&amp;t pattern as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>I&amp;nstruments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Clear all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist &amp;editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Import library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
+    </message>
+    <message>
+        <source>Song saved as.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Song No. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The document contains unsaved changes.
+Do you want to save the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MasterMixerLine</name>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation type="unfinished">Master hangerő [%1]</translation>
+    </message>
+    <message>
+        <source>Humanize velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize time parameter [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize velocity parameter [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MidiTable</name>
+    <message>
+        <source>Event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Param.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>press button to record midi event</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Mixer</name>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Keverő</translation>
+    </message>
+    <message>
+        <source>Set FX %1 level </source>
+        <translation type="unfinished">Effekt %1 szint</translation>
+    </message>
+    <message>
+        <source>Set LADSPA FX ( %1 ) volume</source>
+        <translation type="unfinished">LADSPA ( %1 ) effekt hangereje</translation>
+    </message>
+    <message>
+        <source>Show FX panel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show instrument peaks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show instrument peaks = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show instrument peaks = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MixerLine</name>
+    <message>
+        <source>Play sample</source>
+        <translation type="unfinished">Minta lejátszása</translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished">Némít</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Szóló</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Balansz</translation>
+    </message>
+    <message>
+        <source>Instrument name (double click to edit)</source>
+        <translation type="unfinished">Hangszer neve (dupla kattintással megváltoztatható)</translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation type="unfinished">[%1] hangszer hangerejének beállítása</translation>
+    </message>
+    <message>
+        <source>Set instr. pan [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorPanel</name>
+    <message>
+        <source>Hear new notes</source>
+        <translation type="unfinished">Lejátsza az új hangokat</translation>
+    </message>
+    <message>
+        <source>Quantize keyboard/midi events to grid</source>
+        <translation type="unfinished">Események illesztése a hálóhoz</translation>
+    </message>
+    <message>
+        <source>Pattern editor - %1</source>
+        <translation type="unfinished">Motívumok szerkesztése - %1</translation>
+    </message>
+    <message>
+        <source>Hear new notes = On</source>
+        <translation type="unfinished">Lejátsza az új hangokat = Igen</translation>
+    </message>
+    <message>
+        <source>Hear new notes = Off</source>
+        <translation type="unfinished">Lejátsza az új hangokat = Nem</translation>
+    </message>
+    <message>
+        <source>Quantize incoming keyboard/midi events = On</source>
+        <translation type="unfinished">Események illesztése a hálóhoz = Igen</translation>
+    </message>
+    <message>
+        <source>Quantize incoming keyboard/midi events = Off</source>
+        <translation type="unfinished">Események illesztése a hálóhoz = Nem</translation>
+    </message>
+    <message>
+        <source>Select pattern size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select grid resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Is not possible to change the pattern size when playing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select note properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Balansz</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loaded Soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NoteKey</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>destructive mode pre delete settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>destructive mode post delete settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Piano</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show piano roll editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show drum editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right click into pattern editor add note-off-note or edit note-length, velocity or pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PatternFillDialog</name>
+    <message>
+        <source>Fill with selected pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -822,6 +1805,21 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>PatternPropertiesDialog</name>
+    <message>
+        <source>Pattern properties</source>
+        <translation type="unfinished">Motívum tulajdonságai</translation>
+    </message>
+    <message>
+        <source>%1#2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <source>Form1</source>
@@ -853,6 +1851,364 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>PlayerControl</name>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished">Állj</translation>
+    </message>
+    <message>
+        <source>Song Mode</source>
+        <translation type="unfinished">Szám mód</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation type="unfinished">Motívum mód</translation>
+    </message>
+    <message>
+        <source>Jack-transport on/off</source>
+        <translation type="unfinished">Jack-transport Be/Ki</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation type="unfinished">Lejátszás.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation type="unfinished">Megállt.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation type="unfinished">Szám módot választottad.</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation type="unfinished">Motívum módot választottad.</translation>
+    </message>
+    <message>
+        <source>Jack-transport mode = On</source>
+        <translation type="unfinished">Jack-transport mode = Be</translation>
+    </message>
+    <message>
+        <source>Jack-transport mode = Off</source>
+        <translation type="unfinished">Jack-transport mode = Ki</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation type="unfinished">Keverő</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch Song/ Pattern Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Keverő</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New BPM value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BeatCounter Panel on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack-Time-Master on/off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> BC Panel on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> BC Panel off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Jack-Time-Master mode = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Jack-Time-Master mode = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive mode = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive mode = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PlaylistDialog</name>
+    <message>
+        <source>Song list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Song to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Song in List or no Song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script in use!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation type="unfinished">A számot nem lehet betölteni.</translation>
+    </message>
+    <message>
+        <source>sort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Scripts (*.sh)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to Play&amp;list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add &amp;current song to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove selected song from Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all songs from &amp;Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Playlist &amp;as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add Script to selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edit selected Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove selected Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Create a new Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished">Állj</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please save your song first</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WARNING, the new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: set song no. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
@@ -860,6 +2216,70 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Song list</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesDialog</name>
+    <message>
+        <source>Preferences</source>
+        <translation type="unfinished">Beállítások</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation type="unfinished">Lassú</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation type="unfinished">Normál</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation type="unfinished">Gyors</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
+        <translation type="unfinished">&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Egyszerű audio meghajtó [/dev/dsp]</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
+        <translation type="unfinished">&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Nincs lefordítva&lt;/font&gt;&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
+        <translation type="unfinished">&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Kis késleltetésű audio meghajtó</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please restart hydrogen to enable/disable LASH support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Driver restart required.
+ Restart driver?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1131,6 +2551,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SampleEditor</name>
+    <message>
+        <source>Unsaved changes left. This changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close dialog! maybe there is some unsaved work on sample.
+Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1433,6 +2874,97 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SimpleHTMLBrowser</name>
+    <message>
+        <source>Manual</source>
+        <translation type="unfinished">Kézikönyv</translation>
+    </message>
+    <message>
+        <source>Welcome to Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message anymore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Documentation index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SongEditorPanel</name>
+    <message>
+        <source>Song Editor</source>
+        <translation type="unfinished">Számszerkesztő</translation>
+    </message>
+    <message>
+        <source>Create new pattern</source>
+        <translation type="unfinished">Új motívum</translation>
+    </message>
+    <message>
+        <source>Move the selected pattern down</source>
+        <translation type="unfinished">Kijelölt lefelé mozgatása</translation>
+    </message>
+    <message>
+        <source>Move the selected pattern up</source>
+        <translation type="unfinished">Kijelölt felfelé mozgatása</translation>
+    </message>
+    <message>
+        <source>Clear pattern sequence</source>
+        <translation type="unfinished">Motívum törlése</translation>
+    </message>
+    <message>
+        <source>Select mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, this will erase your pattern sequence.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>stacked mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>stacked pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable time line edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SongEditorPanelBpmWidget_UI</name>
     <message>
         <source>Form</source>
@@ -1499,6 +3031,77 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SongEditorPatternList</name>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished">Szerkesztés</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Másolás</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Törlés</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation type="unfinished">Tulajdonságok</translation>
+    </message>
+    <message>
+        <source>Fill/Clear ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virtual Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The pattern-file exists. 
+Overwrite the existing pattern?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SongPropertiesDialog</name>
+    <message>
+        <source>Song properties</source>
+        <translation type="unfinished">Szám tulajdonságai</translation>
+    </message>
+</context>
+<context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Song name</source>
@@ -1538,6 +3141,17 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SoundLibraryExportDialog</name>
+    <message>
+        <source>Export Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export drumkit</source>
+        <translation type="unfinished">Dobszerkó exportálása</translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
         <source>Dialog</source>
@@ -1550,6 +3164,69 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Export</source>
         <translation type="unfinished">Exportálás</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryImportDialog</name>
+    <message>
+        <source>Sound Library import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Updating SoundLibrary list...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished">Új</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation type="unfinished">Szerző: %1</translation>
+    </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation type="unfinished">Dobszerkó importálása</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation type="unfinished">Motívumok</translation>
+    </message>
+    <message>
+        <source>License: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1612,6 +3289,63 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SoundLibraryPanel</name>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">Betöltés</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportálás</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Törlés</translation>
+    </message>
+    <message>
+        <source>System drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, the selected drumkit will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation type="unfinished">Motívumok</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation type="unfinished">A számot nem lehet betölteni.</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation type="unfinished">Tulajdonságok</translation>
+    </message>
+    <message>
+        <source>Warning, the selected pattern will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
         <source>Dialog</source>
@@ -1647,6 +3381,21 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SoundLibraryRepositoryDialog</name>
+    <message>
+        <source>Edit repository settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit server list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
         <source>Dialog</source>
@@ -1659,6 +3408,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Delete</source>
         <translation type="unfinished">Törlés</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibrarySaveDialog</name>
+    <message>
+        <source>Save Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please supply at least a valid name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1689,6 +3449,20 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Save </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>Sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VirtualPatternDialog</name>
+    <message>
+        <source>Select virtual pattern</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

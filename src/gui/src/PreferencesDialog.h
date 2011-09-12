@@ -52,6 +52,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_midiPortComboBox_activated( int index );
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
+                void onMidiDriverComboBoxIndexChanged( int index );
 
 	private:
 		bool m_bNeedDriverRestart;

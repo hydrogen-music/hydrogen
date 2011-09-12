@@ -2,6 +2,33 @@
 <!DOCTYPE TS>
 <TS version="2.0">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Stranica projekta&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation>O Programu</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Glavni programer i održavatelj:&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Web stranica&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Mailing lista&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>Translator:%1Alessandro Cominu</source>
+        <translation>Prevoditelj:%1Mario Kozjak</translation>
+    </message>
+</context>
+<context>
     <name>AboutDialog_UI</name>
     <message>
         <source>About Hydrogen</source>
@@ -382,6 +409,13 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>AudioEngineInfoForm</name>
+    <message>
+        <source>Audio Engine Info</source>
+        <translation>Informacije o audio engine-u</translation>
+    </message>
+</context>
+<context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Playing notes</source>
@@ -473,6 +507,49 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>AudioFileBrowser</name>
+    <message>
+        <source>Audio File Browser</source>
+        <translation>Pretraživač audio podataka</translation>
+    </message>
+    <message>
+        <source>Size: %1 bytes</source>
+        <translation>Veličina: %1 byte</translation>
+    </message>
+    <message>
+        <source>Samplerate: %1</source>
+        <translation>Samplerate: %1</translation>
+    </message>
+    <message>
+        <source>Sample length: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please do not preview samples which are longer than 10 minutes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Ime:</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation>Veličina:</translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation>Frekvencija uzorka:</translation>
+    </message>
+</context>
+<context>
     <name>AudioFileBrowser_UI</name>
     <message>
         <source>Dialog</source>
@@ -540,10 +617,137 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Director</name>
+    <message>
+        <source>Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished">Dijalog</translation>
+    </message>
+</context>
+<context>
+    <name>DownloadWidget</name>
+    <message>
+        <source>(%1/%2 KiB) - ETA %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitManager_UI</name>
+    <message>
+        <source>Form1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Podigni</translation>
+    </message>
+    <message>
+        <source>### Drumkit author</source>
+        <translation>### Autor seta bubnjeva</translation>
+    </message>
+    <message>
+        <source>Delete drumkit</source>
+        <translation>Izbriši set bubnjeva</translation>
+    </message>
+    <message>
+        <source>### Drumkit name</source>
+        <translation>### Ime seta bubnjeva</translation>
+    </message>
+    <message>
+        <source>### Drumkit info</source>
+        <translation>### Informacije o setu bubnjeva</translation>
+    </message>
+    <message>
+        <source>Load drumkit</source>
+        <translation>Podigni set bubnjeva</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Spremi</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Informacije</translation>
+    </message>
+    <message>
+        <source>Drumkit name</source>
+        <translation>Ime seta bubnjeva</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Umetni</translation>
+    </message>
+    <message>
+        <source>Drumkit filename</source>
+        <translation>Ime seta bubnjeva</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>Pretraži</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;
+Download more drumkits at &lt;br&gt;
+http://www.hydrogen-music.org
+&lt;/b&gt;</source>
+        <translation>&lt;b&gt;
+Skini druge raspoložive setove bubnjeva na&lt;br&gt;
+http://www.hydrogen-music.org
+&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
+        <translation>### Set bubnjeva će biti instaliran</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Izbaci</translation>
+    </message>
+    <message>
+        <source>Drumkit directory</source>
+        <translation>Mjesto (na disku) seta bubnjeva</translation>
+    </message>
+</context>
+<context>
+    <name>ExportSongDialog</name>
+    <message>
+        <source>Export song</source>
+        <translation>Izbaci pjesmu</translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to seperate tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -670,6 +874,292 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>FileBrowser</name>
+    <message>
+        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>FxMixerLine</name>
+    <message>
+        <source>FX on/off</source>
+        <translation>Efekti on/off</translation>
+    </message>
+    <message>
+        <source>Master output</source>
+        <translation>Glavni izlaz</translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SongEditorPanelBpmWidget</name>
+    <message>
+        <source>BPM</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SongEditorPanelTagWidget</name>
+    <message>
+        <source>Tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::SoundLibraryPropertiesDialog</name>
+    <message>
+        <source>SoundLibrary Properties</source>
+        <translation>Karakteristike &apos;Zvučne knjižnice&apos;</translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Otkaži</translation>
+    </message>
+    <message>
+        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
+        <translation>To nije moguće, možeš spremiti promjene unutar instrumenta u samo trenutno otvorenoj &apos;zvučnoj knjižnici&apos;</translation>
+    </message>
+    <message>
+        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
+Are you sure?</source>
+        <translation>Upozorenje! Mijenjanje imena seta bubnjeva će rezultirati stvaranjem novog seta bubnjeva s tim imenom.
+Jesi li siguran da to želiš napraviti?</translation>
+    </message>
+</context>
+<context>
+    <name>HydrogenApp</name>
+    <message>
+        <source>Drumkit loaded: [%1]</source>
+        <translation>Set bubnjeva učitan: [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentEditor</name>
+    <message>
+        <source>Show instrument properties</source>
+        <translation>Prikaži karakteristike instrumenta</translation>
+    </message>
+    <message>
+        <source>Show layers properties</source>
+        <translation>Prikaži karakteristike razine</translation>
+    </message>
+    <message>
+        <source>Stop the current playing instrument-note before trigger the next note sample.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer gain</source>
+        <translation>Gain razine</translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation>Novo ime instrumenta</translation>
+    </message>
+    <message>
+        <source>Instrument gain</source>
+        <translation>Gain instrumenta</translation>
+    </message>
+    <message>
+        <source>Random pitch factor</source>
+        <translation>Faktor izmjene nivoa</translation>
+    </message>
+    <message>
+        <source>Filter Cutoff</source>
+        <translation>Filter Cutoff</translation>
+    </message>
+    <message>
+        <source>Filter resonance</source>
+        <translation>Filter rezonancija</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation>Layer pitch (grezzo)</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation>Layer pitch (Fine)</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Generale</translation>
+    </message>
+    <message>
+        <source>Layers</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Auto-Stop-Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentLine</name>
+    <message>
+        <source>Clear notes</source>
+        <translation>Obriši note</translation>
+    </message>
+    <message>
+        <source>Fill notes ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill all notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Automatski mijenjaj iznos note</translation>
+    </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Izbriši instrument</translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentRack</name>
+    <message>
+        <source>Show Instrument editor</source>
+        <translation>Prikaži uređivač instrumenta</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrument</translation>
+    </message>
+    <message>
+        <source>Show sound library</source>
+        <translation>Prikaži &apos;zvučnu knjižnicu&apos;</translation>
+    </message>
+    <message>
+        <source>Sound library</source>
+        <translation>Zvučna knjižnica</translation>
+    </message>
+</context>
+<context>
+    <name>LadspaFXMixerLine</name>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Uredi FX parametre</translation>
+    </message>
+    <message>
+        <source>Ladspa FX name</source>
+        <translation>Ime LADSPA FX-a</translation>
+    </message>
+    <message>
+        <source>FX bypass</source>
+        <translation>Zaobiđi efekt(e)</translation>
+    </message>
+    <message>
+        <source>Effect return</source>
+        <translation>FX Return</translation>
+    </message>
+</context>
+<context>
+    <name>LadspaFXProperties</name>
+    <message>
+        <source>Select FX</source>
+        <translation>Odaberi efekt</translation>
+    </message>
+    <message>
+        <source>[%1] LADSPA FX Properties</source>
+        <translation>[%1] LADSPA FX karakteristike</translation>
+    </message>
+    <message>
+        <source>LADSPA FX %1 Properties</source>
+        <translation>LADSPA FX karakteristike %1</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Nema dodatka</translation>
+    </message>
+    <message>
+        <source>Activate</source>
+        <translation>Aktiviraj</translation>
+    </message>
+    <message>
+        <source>Deactivate</source>
+        <translation>Deaktiviraj</translation>
+    </message>
+    <message>
+        <source>Remove FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LadspaFXSelector</name>
+    <message>
+        <source>Groups</source>
+        <translation>Grupe</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation>Stereo</translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation>Mono</translation>
+    </message>
+    <message>
+        <source>Not supported</source>
+        <translation>Nije podržano</translation>
+    </message>
+    <message>
+        <source>Select LADSPA FX</source>
+        <translation>Izaberi LADSPA efekt</translation>
+    </message>
+    <message>
+        <source>Recently Used</source>
+        <translation>Zadnje korišten</translation>
+    </message>
+    <message>
+        <source>Alphabetic List</source>
+        <translation>Lista po abecedi</translation>
+    </message>
+    <message>
+        <source>Categorized</source>
+        <translation>Razvrstano</translation>
+    </message>
+</context>
+<context>
     <name>LadspaFXSelector_UI</name>
     <message>
         <source>&amp;Cancel</source>
@@ -783,9 +1273,506 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainForm</name>
     <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Spremi</translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <translation>Odbaci promje&amp;ne</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Otkaži</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation>Neuspješno otvaranje pjesme.</translation>
+    </message>
+    <message>
+        <source>Hydrogen Ready.</source>
+        <translation>Hydrogen je spreman za rad.</translation>
+    </message>
+    <message>
+        <source>Hydrogen Song (*.h2song)</source>
+        <translation>Hydrogen pjesma (*.h2song)</translation>
+    </message>
+    <message>
+        <source>Save song</source>
+        <translation>Spremi pjesmu</translation>
+    </message>
+    <message>
+        <source>Open song</source>
+        <translation>Otvori pjesmu</translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation>Izbaci MIDI file</translation>
+    </message>
+    <message>
+        <source>Midi file (*.mid)</source>
+        <translation>MIDI file (*.mid)</translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation>&amp;Novo</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Otvori</translation>
+    </message>
+    <message>
+        <source>Open &amp;Demo</source>
+        <translation>Otvori &amp;demonstraciju</translation>
+    </message>
+    <message>
+        <source>Open &amp;recent</source>
+        <translation>Otvori &amp;posljednje</translation>
+    </message>
+    <message>
+        <source>Save &amp;as...</source>
+        <translation>Spremi &amp;kao...</translation>
+    </message>
+    <message>
+        <source>Export &amp;MIDI file</source>
+        <translation>Izbaci &amp;MIDI file</translation>
+    </message>
+    <message>
+        <source>&amp;Preferences</source>
+        <translation>&amp;Karakteristike</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation>&amp;Izlaz</translation>
+    </message>
+    <message>
+        <source>Show &amp;audio engine info</source>
+        <translation>Prikaži informacije &amp;audio engine</translation>
+    </message>
+    <message>
+        <source>&amp;User manual</source>
+        <translation>&amp;Korisnički priručnik</translation>
+    </message>
+    <message>
+        <source>&amp;About</source>
+        <translation>&amp;Informacije</translation>
+    </message>
+    <message>
+        <source>
+The document contains unsaved changes.
+Do you want to save the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Otkaži</translation>
+    </message>
+    <message>
+        <source>Unknown audio driver</source>
+        <translation>Nepoznati audio driver</translation>
+    </message>
+    <message>
+        <source>Error starting audio driver</source>
+        <translation>Problem pri pokretanju drivera zvuka</translation>
+    </message>
+    <message>
+        <source>Jack driver: server shutdown</source>
+        <translation>Jack driver: server shutdown</translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot activate client</source>
+        <translation>Jack driver: ne mogu aktivirati klijenta</translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot connect output port</source>
+        <translation>Jack driver: ne mogu povezati izlaz</translation>
+    </message>
+    <message>
+        <source>Jack driver: error in port register</source>
+        <translation>Jack driver: greška u registraciji porta</translation>
+    </message>
+    <message>
+        <source>&amp;Export song</source>
+        <translation>&amp;Izbaci pjesmu</translation>
+    </message>
+    <message>
+        <source>De&amp;bug</source>
+        <translation>&amp;Debugiraj</translation>
+    </message>
+    <message>
+        <source>&amp;Project</source>
+        <translation>&amp;Projekt</translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <translation>&amp;Alati</translation>
+    </message>
+    <message>
+        <source>Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Mixer</source>
+        <translation>&amp;Mixer</translation>
+    </message>
+    <message>
+        <source>&amp;Instrument Rack</source>
+        <translation>&amp;Instrument Rack</translation>
+    </message>
+    <message>
+        <source>Print Objects</source>
+        <translation>Isprintaj objekte</translation>
+    </message>
+    <message>
+        <source>&amp;Info</source>
+        <translation>&amp;Informacije</translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation>Pjesma spremljena.</translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error %1</source>
+        <translation>nepoznata pogreška %1</translation>
+    </message>
+    <message>
+        <source>Clear all instruments?</source>
+        <translation>Izbrisati sve instrumente?</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <source>Instrument %1</source>
+        <translation>Instrument %1</translation>
+    </message>
+    <message>
+        <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
+        <translation>Koristiš verziju Hydrogena koja je još u razvoju, molimo te da nam pomogneš tako da nas izvjestiš o greškama ili daš svoj savjet na hydrogen-devel mailing listu.&lt;br&gt;&lt;br&gt;Hvala!</translation>
+    </message>
+    <message>
+        <source>Could not save song.</source>
+        <translation>Neuspješno spremanje pjesme.</translation>
+    </message>
+    <message>
+        <source>Open &amp;Pattern</source>
+        <translation>Otvori &amp;uzorak</translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation>Hydrogen uzorak (*.h2pattern)</translation>
+    </message>
+    <message>
+        <source>Save Pattern as ...</source>
+        <translation>Spremi uzorak kao ...</translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation>Uzorak spremljen.</translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <translation>Otvori uzorak</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message anymore</source>
+        <translation>Nemoj više prikazivati ovu poruku</translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Playlist: Pjesma br. %1</translation>
+    </message>
+    <message>
+        <source>Show &amp;info</source>
+        <translation>Prikaži &amp;informacije</translation>
+    </message>
+    <message>
+        <source>Expor&amp;t pattern as...</source>
+        <translation>Iz&amp;baci pattern kao...</translation>
+    </message>
+    <message>
+        <source>I&amp;nstruments</source>
+        <translation>Instru&amp;menti</translation>
+    </message>
+    <message>
+        <source>&amp;Add instrument</source>
+        <translation>&amp;Dodaj instrument</translation>
+    </message>
+    <message>
+        <source>&amp;Clear all</source>
+        <translation>&amp;Elimina tutti</translation>
+    </message>
+    <message>
+        <source>&amp;Save library</source>
+        <translation>&amp;Salva libreria</translation>
+    </message>
+    <message>
+        <source>&amp;Export library</source>
+        <translation>&amp;Esporta libreria</translation>
+    </message>
+    <message>
+        <source>Playlist &amp;editor</source>
+        <translation>Playlist &amp;editor</translation>
+    </message>
+    <message>
+        <source>&amp;Import library</source>
+        <translation>&amp;Importa libreria</translation>
+    </message>
+    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
+    </message>
+    <message>
+        <source>Song saved as.</source>
+        <translation>Pjesma spremljena kao.</translation>
+    </message>
+    <message>
+        <source>Playlist: Song No. %1</source>
+        <translation>Playlist: Pjesma br. %1</translation>
+    </message>
+</context>
+<context>
+    <name>MasterMixerLine</name>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Podesi glavnu glasnoću [%1]</translation>
+    </message>
+    <message>
+        <source>Swing</source>
+        <translation>Swing</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Humaniziraj tempo</translation>
+    </message>
+    <message>
+        <source>Humanize velocity</source>
+        <translation>Humaniziraj intenzitet</translation>
+    </message>
+    <message>
+        <source>Set humanize time parameter [%1]</source>
+        <translation>Podesi parametar za humaniziranje tempa [%1]</translation>
+    </message>
+    <message>
+        <source>Set humanize velocity parameter [%1]</source>
+        <translation>Podesi parametar za humaniziranje raspona [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Swing faktor [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiTable</name>
+    <message>
+        <source>press button to record midi event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event</source>
+        <translation>Događaj</translation>
+    </message>
+    <message>
+        <source>Param.</source>
+        <translation>Param.</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Poduzimanje</translation>
+    </message>
+</context>
+<context>
+    <name>Mixer</name>
+    <message>
+        <source>Show FX panel</source>
+        <translation>Prikaži FX ploču</translation>
+    </message>
+    <message>
+        <source>Show instrument peaks</source>
+        <translation>Prikaži visinu točke instrumenta</translation>
+    </message>
+    <message>
+        <source>Show instrument peaks = On</source>
+        <translation>Prikaži visinu točke instrumenta = Aktivno</translation>
+    </message>
+    <message>
+        <source>Show instrument peaks = Off</source>
+        <translation>Prikaži visinu točke instrumenta = Neaktivno</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mixer</translation>
+    </message>
+    <message>
+        <source>Set FX %1 level </source>
+        <translation>Postavi razinu FX-a %1</translation>
+    </message>
+    <message>
+        <source>Set LADSPA FX ( %1 ) volume</source>
+        <translation>Postavi glasnoću LADSPA FX-a ( %1 )</translation>
+    </message>
+</context>
+<context>
+    <name>MixerLine</name>
+    <message>
+        <source>Play sample</source>
+        <translation>Suona sample</translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation>Escludi</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Pan</translation>
+    </message>
+    <message>
+        <source>Instrument name (double click to edit)</source>
+        <translation>Nome strumento (doppio click per modificarne le proprietà)</translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation>Volume strumento [%1]</translation>
+    </message>
+    <message>
+        <source>Set instr. pan [%1]</source>
+        <translation>Pan strumento [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorPanel</name>
+    <message>
+        <source>Hear new notes</source>
+        <translation>Poslušaj nove note</translation>
+    </message>
+    <message>
+        <source>Hear new notes = On</source>
+        <translation>Poslušaj nove note = Aktivno</translation>
+    </message>
+    <message>
+        <source>Hear new notes = Off</source>
+        <translation>Poslušaj nove note = Neaktivno</translation>
+    </message>
+    <message>
+        <source>Pattern editor - %1</source>
+        <translation>Uređivač uzorka - %1</translation>
+    </message>
+    <message>
+        <source>Quantize keyboard/midi events to grid</source>
+        <translation>Kvantiziranje klavijatura/midi pokušaja u rešetku</translation>
+    </message>
+    <message>
+        <source>Quantize incoming keyboard/midi events = On</source>
+        <translation>Kvantiziranje nadolazećih klavijaturnih/midi sesija = Aktivno</translation>
+    </message>
+    <message>
+        <source>Quantize incoming keyboard/midi events = Off</source>
+        <translation>Kvantiziranje nadolazećih klavijaturnih/midi sesija = Neaktivno</translation>
+    </message>
+    <message>
+        <source>Is not possible to change the pattern size when playing.</source>
+        <translation>Nije moguće promijeniti veličinu uzorka za vrijeme trajanja preslušavanja.</translation>
+    </message>
+    <message>
+        <source>Select pattern size</source>
+        <translation>Izaberi veličinu uzorka</translation>
+    </message>
+    <message>
+        <source>Select grid resolution</source>
+        <translation>Odaberi veličinu rešetke</translation>
+    </message>
+    <message>
+        <source>destructive mode pre delete settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>destructive mode post delete settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Piano</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show piano roll editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom in</source>
+        <translation>Povećaj pogled</translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation>Smanji pogled</translation>
+    </message>
+    <message>
+        <source>NoteKey</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No pattern selected</source>
+        <translation>Nema izabranih uzoraka</translation>
+    </message>
+    <message>
+        <source>Select note properties</source>
+        <translation>Odaberni karakteristike note</translation>
+    </message>
+    <message>
+        <source>Right click into pattern editor add note-off-note or edit note-length, velocity or pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Frekvencija</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Pan</translation>
+    </message>
+    <message>
+        <source>Drum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show drum editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation>Cutoff</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation>Rezonancija</translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <translation>&apos;Lead and Lag&apos;</translation>
+    </message>
+    <message>
+        <source>Loaded Soundlibrary</source>
+        <translation>Otvorena zvučna knjižnica</translation>
+    </message>
+</context>
+<context>
+    <name>PatternFillDialog</name>
+    <message>
+        <source>Fill with selected pattern</source>
+        <translation>Popuni odabranim uzorkom</translation>
     </message>
 </context>
 <context>
@@ -828,6 +1815,21 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>PatternPropertiesDialog</name>
+    <message>
+        <source>Pattern properties</source>
+        <translation>Karakteristike uzorka</translation>
+    </message>
+    <message>
+        <source>%1#2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <source>&amp;Cancel</source>
@@ -859,6 +1861,368 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>PlayerControl</name>
+    <message>
+        <source>Song Mode</source>
+        <translation>Mod pjesme</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>Svira.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Zaustavljeno.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Mod pjesme odabran.</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation>Uzorak Mod</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Uzorak Mod odabran.</translation>
+    </message>
+    <message>
+        <source>Jack-transport on/off</source>
+        <translation>Jack-transport uključen/isključen</translation>
+    </message>
+    <message>
+        <source>Jack-transport mode = On</source>
+        <translation>Jack-transport Mod = Uključen</translation>
+    </message>
+    <message>
+        <source>Jack-transport mode = Off</source>
+        <translation>Jack-transport Mod = Isključen</translation>
+    </message>
+    <message>
+        <source>New BPM value</source>
+        <translation>Nova vrijednost broja udaraca u minuti (BPM)</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Premotaj unazad</translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation>Reproduciraj/ Pauziraj</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Premotaj unaprijed</translation>
+    </message>
+    <message>
+        <source>Switch Song/ Pattern Mode</source>
+        <translation>Promijeni Mod pjesme/uzorka</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pauza.</translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation>JACK-transport će funkcionirati samo sa JACK driverom.</translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation>Ponavljaj pjesmu</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Ponavljaj pjesmu = Uključeno</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Ponavljaj pjesmu = Isključeno</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Prikaži mixer</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stani</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mixer</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation>Prikaži Rack</translation>
+    </message>
+    <message>
+        <source>Instrument rack</source>
+        <translation>Rack</translation>
+    </message>
+    <message>
+        <source>BeatCounter Panel on</source>
+        <translation>Ploča brojača udaraca uključena</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>Postavi BPM / Postavi BPM i reproduciraj</translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack-Time-Master on/off</source>
+        <translation>Jack-Time-Master uključen/isključen</translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive mode = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destructive mode = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> BC Panel on</source>
+        <translation>Ploča brojača udaraca aktivan</translation>
+    </message>
+    <message>
+        <source> BC Panel off</source>
+        <translation>Ploča brojača udaraca neaktivan</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation>Prebroji BPM i počni reprodukciju</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation>Izbroji i postavi BPM</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Jack-Time-Master mode = On</source>
+        <translation>Mod Jack-Time-Master = Uključen</translation>
+    </message>
+    <message>
+        <source> Jack-Time-Master mode = Off</source>
+        <translation>Mod Jack-Time-Master = Isključen</translation>
+    </message>
+</context>
+<context>
+    <name>PlaylistDialog</name>
+    <message>
+        <source>Song list</source>
+        <translation>Popis pjesama</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Skripta</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Izvrši skriptu</translation>
+    </message>
+    <message>
+        <source>Add Song to PlayList</source>
+        <translation>Dodaj pjesmu na plejlistu</translation>
+    </message>
+    <message>
+        <source>No Song selected!</source>
+        <translation>Nema izabrane pjesme!</translation>
+    </message>
+    <message>
+        <source>Load Playlist</source>
+        <translation>Učitaj plejlistu</translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.h2playlist)</source>
+        <translation>Hydrogen Playlist (*.h2playlist)</translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation>Spremi plejlistu</translation>
+    </message>
+    <message>
+        <source>No Song in List or no Song selected!</source>
+        <translation>Nema pjesme na popisu ili na plejlisti!</translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation>Shell script (*.sh)</translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation>Dodaj skriptu na izabranu pjesmu</translation>
+    </message>
+    <message>
+        <source>No Script in use!</source>
+        <translation>Nema skripte u upotrebi!</translation>
+    </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation>Nije postavljen osnovni uređivač. Molim da ga odrediš
+Nemoj koristiti editor baziran na konzoli
+Nažalost, ovo trenutno neće funkcionirati.</translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation>Postavi svoj osnovni uređivač</translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation>Skripta nije odabrana!</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation>Pogreška kod učitavanja pjesme.</translation>
+    </message>
+    <message>
+        <source>sort</source>
+        <translation>sortiraj</translation>
+    </message>
+    <message>
+        <source>&amp;Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to Play&amp;list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add &amp;current song to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove selected song from Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all songs from &amp;Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Playlist &amp;as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add Script to selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edit selected Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove selected Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Create a new Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation type="unfinished">Premotaj unazad</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished">Stani</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation type="unfinished">Premotaj unaprijed</translation>
+    </message>
+    <message>
+        <source>Please save your song first</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Scripts (*.sh)</source>
+        <translation>Shell Scripts (*.sh)</translation>
+    </message>
+    <message>
+        <source>New Script</source>
+        <translation>Nova skripta</translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation>Ime skripte ili njezina adresa sadrže razmake.
+VAŽNO
+Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
+    </message>
+    <message>
+        <source>WARNING, the new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script!</source>
+        <translation>Nema skripte!</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation type="unfinished">Pauza.</translation>
+    </message>
+    <message>
+        <source>Playlist Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: set song no. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
@@ -867,6 +2231,70 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Song list</source>
         <translation>Popis pjesama</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesDialog</name>
+    <message>
+        <source>Slow</source>
+        <translation>Polako</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>Umjereno</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>Brzo</translation>
+    </message>
+    <message>
+        <source>Driver restart required.
+ Restart driver?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
+        <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;jednostavni audio driver [/dev/dsp]</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Nije kompajlirano&lt;/font&gt;&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
+        <translation>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Postavke</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;ALSA driver&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Automatsko odabiranje drivera&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;PortAudio driver&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;CoreAudio driver&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>Please restart hydrogen to enable/disable LASH support</source>
+        <translation>Restartaj hydrogen kako bi se uključila/isključila LASH podrška</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +2566,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Beat counter start offset in ms    </source>
         <translation></translation>
+    </message>
+</context>
+<context>
+    <name>SampleEditor</name>
+    <message>
+        <source>Unsaved changes left. This changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close dialog! maybe there is some unsaved work on sample.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1439,6 +2888,98 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SimpleHTMLBrowser</name>
+    <message>
+        <source>Manual</source>
+        <translation>Priručnik</translation>
+    </message>
+    <message>
+        <source>Welcome to Hydrogen</source>
+        <translation>Dobrodošli u Hydrogen</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message anymore</source>
+        <translation>Nemoj više nikad prikazivati ovu obavijest</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <source>Documentation index</source>
+        <translation>Dokumentacija kazala pojmova</translation>
+    </message>
+</context>
+<context>
+    <name>SongEditorPanel</name>
+    <message>
+        <source>Create new pattern</source>
+        <translation>Kreiraj novi uzorak</translation>
+    </message>
+    <message>
+        <source>Move the selected pattern down</source>
+        <translation>Pomakni dolje odabrani uzorak</translation>
+    </message>
+    <message>
+        <source>Move the selected pattern up</source>
+        <translation>Pomakni gore odabrani uzorak</translation>
+    </message>
+    <message>
+        <source>Clear pattern sequence</source>
+        <translation>Obriši sekvencu uzoraka</translation>
+    </message>
+    <message>
+        <source>Song Editor</source>
+        <translation>Editor pjesme</translation>
+    </message>
+    <message>
+        <source>Enable time line edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select mode</source>
+        <translation>Odaberi Mod</translation>
+    </message>
+    <message>
+        <source>Draw mode</source>
+        <translation>Crtački Mod</translation>
+    </message>
+    <message>
+        <source>Pattern %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, this will erase your pattern sequence.
+Are you sure?</source>
+        <translation>Pozor, ovo će obrisati sekvencu uzoraka.
+Da li to želiš napraviti?</translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation>&amp;Ok</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Otkaži</translation>
+    </message>
+    <message>
+        <source>stacked mode</source>
+        <translation>Skupni Mod</translation>
+    </message>
+    <message>
+        <source>stacked pattern mode</source>
+        <translation>Skupni Mod uzorka</translation>
+    </message>
+    <message>
+        <source>single pattern mode</source>
+        <translation>Pojedinačni Mod uzoraka</translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation>Nije kategorizirano</translation>
+    </message>
+</context>
+<context>
     <name>SongEditorPanelBpmWidget_UI</name>
     <message>
         <source>Form</source>
@@ -1505,6 +3046,77 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SongEditorPatternList</name>
+    <message>
+        <source>Edit</source>
+        <translation>Modificiraj</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiraj</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Izbriši</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Karakteristike</translation>
+    </message>
+    <message>
+        <source>The pattern-file exists. 
+Overwrite the existing pattern?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not_categorized</source>
+        <translation type="unfinished">Nije kategorizirano</translation>
+    </message>
+    <message>
+        <source>Fill/Clear ...</source>
+        <translation>Popuni/Obriši ...</translation>
+    </message>
+    <message>
+        <source>Save Pattern</source>
+        <translation>Spremi uzorak</translation>
+    </message>
+    <message>
+        <source>Load Pattern</source>
+        <translation>Učitaj uzorak</translation>
+    </message>
+    <message>
+        <source>Virtual Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Pattern</source>
+        <translation>Otvori uzorak</translation>
+    </message>
+    <message>
+        <source>Hydrogen Pattern (*.h2pattern)</source>
+        <translation>Hydrogen Pattern (*.h2pattern)</translation>
+    </message>
+</context>
+<context>
+    <name>SongPropertiesDialog</name>
+    <message>
+        <source>Song properties</source>
+        <translation>Karakteristike pjesme</translation>
+    </message>
+</context>
+<context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Notes</source>
@@ -1544,6 +3156,17 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SoundLibraryExportDialog</name>
+    <message>
+        <source>Export Sound Library</source>
+        <translation>Izbaci zvučnu knjižnicu</translation>
+    </message>
+    <message>
+        <source>Export drumkit</source>
+        <translation>Izbaci set bubnjeva</translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
         <source>Dialog</source>
@@ -1556,6 +3179,69 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Export</source>
         <translation>Izbaci</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryImportDialog</name>
+    <message>
+        <source>Sound Library import</source>
+        <translation>Ubaci zvučnu knjižnicu</translation>
+    </message>
+    <message>
+        <source>Sound library</source>
+        <translation>Zvučna knjižnica</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Updating SoundLibrary list...</source>
+        <translation>Osvježavanje zvučne knjižnice...</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation>Instalirano</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Novo</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Skidanje zvučne knjižnice...</translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Umetni set bubnjeva</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Zvučna knjižnica umetnuta u %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Došlo je do pogreške pri ubacivanju zvučne knjižnice.</translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <translation>Setovi bubnjeva</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation>Pjesme</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation>Uzorci</translation>
+    </message>
+    <message>
+        <source>License: %1</source>
+        <translation>Licenca: %1</translation>
     </message>
 </context>
 <context>
@@ -1618,6 +3304,65 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SoundLibraryPanel</name>
+    <message>
+        <source>Load</source>
+        <translation>Učitaj</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Izbaci</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Obriši</translation>
+    </message>
+    <message>
+        <source>System drumkits</source>
+        <translation>Setovi bubnjeva iz sustava</translation>
+    </message>
+    <message>
+        <source>User drumkits</source>
+        <translation>Korisnički setovi bubnjeva</translation>
+    </message>
+    <message>
+        <source>Warning, the selected drumkit will be deleted from disk.
+Are you sure?</source>
+        <translation>Pozor, odabrani set bubnjeva će biti izbrisan.
+Potvrdi brisanje!</translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Odustani</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation>Pjesme</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation>Uzorci</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation>Pogreška pri učitavanju pjesme.</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Karakteristike</translation>
+    </message>
+    <message>
+        <source>Warning, the selected pattern will be deleted from disk.
+Are you sure?</source>
+        <translation>Pozor, odabrani uzorak će biti izbrisan.
+Potvrdi brisanje!</translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
         <source>Dialog</source>
@@ -1653,6 +3398,21 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SoundLibraryRepositoryDialog</name>
+    <message>
+        <source>Edit repository settings</source>
+        <translation>Uredi postavke repositorija</translation>
+    </message>
+    <message>
+        <source>Edit server list</source>
+        <translation>Uredi popis servera</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
         <source>Dialog</source>
@@ -1665,6 +3425,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Delete</source>
         <translation>Obriši</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibrarySaveDialog</name>
+    <message>
+        <source>Save Sound Library</source>
+        <translation>Spremi zvučnu knjižnicu</translation>
+    </message>
+    <message>
+        <source>Please supply at least a valid name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1696,6 +3467,20 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Save </source>
         <translation>Spremi</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryTree</name>
+    <message>
+        <source>Sound library</source>
+        <translation>Zvučna knjižnica</translation>
+    </message>
+</context>
+<context>
+    <name>VirtualPatternDialog</name>
+    <message>
+        <source>Select virtual pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

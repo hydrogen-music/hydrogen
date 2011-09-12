@@ -267,6 +267,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 #endif
 
 	m_bNeedDriverRestart = false;
+        connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 }
 
 
@@ -379,6 +380,8 @@ void PreferencesDialog::on_okBtn_clicked()
 	else if ( m_pMidiDriverComboBox->currentText() == "JackMidi" ) {
 		pPref->m_sMidiDriver = "JackMidi";
 	}
+
+
 
 	pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();
 
@@ -709,5 +712,10 @@ void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
                break;
         }
 
+}
+
+void PreferencesDialog::onMidiDriverComboBoxIndexChanged ( int index )
+{
+    m_bNeedDriverRestart = true;
 }
 

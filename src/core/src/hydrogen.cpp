@@ -1743,7 +1743,7 @@ void audioEngine_stopAudioDrivers()
 
 	// delete MIDI driver
 	if ( m_pMidiDriver ) {
-		m_pMidiDriver->close();
+                m_pMidiDriver->close();
 		delete m_pMidiDriver;
 		m_pMidiDriver = NULL;
 		m_pMidiDriverOut = NULL;
