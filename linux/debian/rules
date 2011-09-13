@@ -8,14 +8,14 @@
 # To enable scons PARALLEL BUILDS (e.g. -j 4), run like this:
 #     $ H2_PARALLEL=4 dpkg-buildpackage -rfakeroot
 # ...or uncomment the following line:
-#H2_PARALLEL=4
+H2_PARALLEL=4
 # ...or invoke dpkg-buildpackage like this:
 #     $ dpkg-buildpackage -j4 -rfakeroot
 # However, the -j4 here will run more than gcc in parallel.
 
 # Check for parallel builds.
 # NUMJOBS script goodie courtesy of http://lists.debian.org/debian-policy/2007/08/msg00005.html
-, := ,
+
 NUMJOBS=$(patsubst parallel=%,%,$(filter parallel=%,$(subst $(,), ,$(DEB_BUILD_OPTIONS))))
 ifneq ("$(H2_PARALLEL)","")
 	H2_PARALLEL_BUILDS=-j $(H2_PARALLEL)
@@ -25,24 +25,33 @@ else
 	endif
 endif
 
-configure: 
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	mkdir ../builddebian
+	cd ../builddebian; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=$(CURDIR)/debian/hydrogen/usr
+	touch configure-stamp
+
 
 build: build-stamp
-
-build-stamp:
+build-stamp: configure-stamp
 	dh_testdir
 
-	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
-	cd ..; scons $(H2_PARALLEL_BUILDS) --no-cache DESTDIR=$(CURDIR)/debian/hydrogen/ prefix=/usr/
+        # Add here commands to compile the package.
+	cd ../builddebian; $(MAKE) $(H2_PARALLEL_BUILDS)
 
-	touch $@
+	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
+	rm -f build-stamp configure-stamp
+	-find . -name '*.py[co]' | xargs rm -f
 
-	cd ..; scons -c
-
+	# Add here commands to clean up after the build process.
+	rm -rf ../builddebian;
 	dh_clean
 
 
@@ -53,16 +62,15 @@ install: build
 	dh_installdirs
 
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
-	cd ..; scons install
-#	Clean out subversion's working copy folders (if accidentally copied
-#	into the target).
-	find $(CURDIR)/debian/hydrogen -type d -name '.svn' -print0 | xargs --null rm -rf
 
-	touch $@
+	cd ../builddebian; $(MAKE) install 
 
 docs:
 
+
 docs_install:
+
+
 
 # Build architecture-independent files here.
 binary-indep: build install docs docs_install
@@ -80,7 +88,7 @@ binary-arch: build install
 	dh_compress
 	dh_compress -X.py
 	dh_fixperms
-#	dh_python
+	#dh_python
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
