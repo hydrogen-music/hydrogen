@@ -63,7 +63,9 @@ install: build
 
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
 
-	cd ../builddebian; $(MAKE) install 
+	cd ../builddebian; $(MAKE) install
+	#remove not used .svn dirs 
+	find $(CURDIR)/debian/hydrogen/ -name '.svn' | xargs rm -rf 
 
 docs:
 
