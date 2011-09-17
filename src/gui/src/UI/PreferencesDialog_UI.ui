@@ -340,20 +340,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Save song files in Jack Session Directory (requires Jack Session)</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="jackSessionInfoLabel">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>130</y>
-       <width>431</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Enable only if you exactly know what you do.</string>
+      <string>Save song files in Jack Session Directory (default on)</string>
      </property>
     </widget>
    </widget>

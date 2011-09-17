@@ -259,11 +259,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 #ifdef H2CORE_HAVE_JACKSESSION
         useJackSessinStoreFiles->setVisible(true);
-        jackSessionInfoLabel->setVisible(true);
         useJackSessinStoreFiles->setChecked(pPref->getJackSessionUseSessionDir());
 #else
         useJackSessinStoreFiles->setVisible(false);
-        jackSessionInfoLabel->setVisible(false);
 #endif
 
 	m_bNeedDriverRestart = false;
