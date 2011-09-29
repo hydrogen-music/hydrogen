@@ -261,7 +261,7 @@ void ExportSongDialog::exportTracks()
                 Hydrogen::get_instance()->stopExportSong();
 		m_bExporting = false;
                 HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
-                Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
+                //Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 
 		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 		
@@ -437,10 +437,7 @@ void ExportSongDialog::progressEvent( int nValue )
 	if ( nValue == 100 ) {
 		
 		m_bExporting = false;
-                Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
-		
-
-
+                //Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 
                 if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size() -1 ){
                         HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
@@ -449,10 +446,10 @@ void ExportSongDialog::progressEvent( int nValue )
 
                     }
 
-		QFile check( exportNameTxt->text() );
-		if ( ! check.exists() ) {
-			QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
-		}
+                //QFile check( exportNameTxt->text() );
+                //if ( ! check.exists() ) {
+                //	QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
+                //}
 
 		if( m_bExportTrackouts ){
 			exportTracks();
