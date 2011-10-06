@@ -829,7 +829,7 @@ void MainForm::action_instruments_clearAll()
 			delete pLayer;
 			pInstr->set_layer( NULL, nLayer );
                 }
-                */
+             */
 	}
 //	AudioEngine::get_instance()->unlock();
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -848,16 +848,16 @@ void MainForm::functionDeleteInstrument(int instrument)
         QString drumkitName = H->getCurrentDrumkitname();
 
         for ( int i = 0; i < patList->size(); i++ ) {
-                H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
-        const Pattern::notes_t* notes = pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-                        Note *pNote = it->second;
-                        assert( pNote );
-                        if ( pNote->get_instrument() == pSelectedInstrument ) {
-                                pNote->set_pattern_idx( i );
-                                noteList.push_back( pNote );
-                        }
+            H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
+            const Pattern::notes_t* notes = pPattern->get_notes();
+            FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+                Note *pNote = it->second;
+                assert( pNote );
+                if ( pNote->get_instrument() == pSelectedInstrument ) {
+                    pNote->set_pattern_idx( i );
+                    noteList.push_back( pNote );
                 }
+            }
         }
         SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, instrument );
         HydrogenApp::get_instance()->m_undoStack->push( action );
