@@ -52,9 +52,9 @@ class InstrumentLine : public PixmapWidget
 		void setSelected(bool isSelected);
 		void setNumber(int nIndex);
 		void setMuted(bool isMuted);
-		void setSoloed( bool soloed );
+                void setSoloed( bool soloed );
 
-	private slots:
+        private slots:
 		void functionClearNotes();
 
 		void functionFillAllNotes();

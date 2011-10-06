@@ -815,10 +815,12 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all layers
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+//	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	InstrumentList* pList = pSong->get_instrument_list();
-	for (uint i = 0; i < pList->size(); i++) {
+        InstrumentList* pList = pSong->get_instrument_list();
+        for (uint i = pList->size(); i > 0; i--) {
+            functionDeleteInstrument(i - 1);
+            /*
 		Instrument* pInstr = pList->get( i );
 		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )) );
 		// remove all layers
@@ -826,12 +828,40 @@ void MainForm::action_instruments_clearAll()
 			InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
 			delete pLayer;
 			pInstr->set_layer( NULL, nLayer );
-		}
+                }
+                */
 	}
-	AudioEngine::get_instance()->unlock();
+//	AudioEngine::get_instance()->unlock();
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
+void MainForm::functionDeleteInstrument(int instrument)
+{
+        Hydrogen * H = Hydrogen::get_instance();
+        Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( instrument );
+
+        std::list< Note* > noteList;
+        Song* song = H->getSong();
+        PatternList *patList = song->get_pattern_list();
+
+        QString instrumentName =  pSelectedInstrument->get_name();
+        QString drumkitName = H->getCurrentDrumkitname();
+
+        for ( int i = 0; i < patList->size(); i++ ) {
+                H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
+        const Pattern::notes_t* notes = pPattern->get_notes();
+        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+                        Note *pNote = it->second;
+                        assert( pNote );
+                        if ( pNote->get_instrument() == pSelectedInstrument ) {
+                                pNote->set_pattern_idx( i );
+                                noteList.push_back( pNote );
+                        }
+                }
+        }
+        SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, instrument );
+        HydrogenApp::get_instance()->m_undoStack->push( action );
+}
 
 
 void MainForm::action_instruments_exportLibrary()

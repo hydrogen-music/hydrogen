@@ -57,7 +57,7 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 		static void usr1SignalHandler(int unused);
 
 
-	public slots:
+public slots:
 		void showPreferencesDialog();
 		void showUserManual();
 
@@ -127,6 +127,7 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 		static int sigusr1Fd[2];
 		QSocketNotifier *snUsr1;
 
+                void functionDeleteInstrument(int instrument);
 
 
 		QMenu *m_pRecentFilesMenu;
