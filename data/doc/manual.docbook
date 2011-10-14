@@ -409,6 +409,25 @@
       </itemizedlist>
     </section>
 
+<!--   UI OVERVIEW  -->
+    <section id="sect.UIoverview">
+      <title>The main User Interface : an overview</title>
+
+      <para>Below you can see the main UI split up in 5 parts : the Main Menu, Main 
+      Toolbar, Song Editor, Pattern Editor and the Instrument and Sound Library Editor.
+        These sections will be explained in detail further down in this manual.</para>
+      
+      <figure id="fig.UI_overview">
+        <title>The Main UI</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/GUI_Sections_0.9.5.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+      
+    </section>
 
 <!--  MAIN MENU -->
     <section id="sect.main_menu">
