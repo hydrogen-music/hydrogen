@@ -160,9 +160,10 @@ void Note::set_key_octave( const QString& str )
     }
     __octave = ( Octave )s_oct.toInt();
     for( int i=KEY_MIN; i<=KEY_MAX; i++ ) {
-        if( __key_str[i]==s_key )
+        if( __key_str[i]==s_key ){
             __key = ( Key )i;
-        return;
+            return;
+        }
     }
     ___ERRORLOG( "Unhandled key: " + s_key );
 }

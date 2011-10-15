@@ -173,7 +173,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
-			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
+                        QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
                         int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", 0, true );
 
