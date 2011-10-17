@@ -486,6 +486,21 @@
         </listitem>
       </itemizedlist>
 
+      <para><emphasis role="bold">Undo</emphasis>: Undo/Redo functions.</para>
+      
+        <itemizedlist>
+        <listitem>
+          <para><emphasis>Undo</emphasis> - Lets you undo your last action</para>
+        </listitem>
+        <listitem>
+          <para><emphasis>Redo</emphasis> - Lets you redo the last undone action</para>
+        </listitem>
+        <listitem>
+          <para><emphasis>Command History</emphasis> - Gives you an overview of your previous
+          actions</para>
+        </listitem>
+        </itemizedlist>
+
       <para><emphasis role="bold">Instruments</emphasis>: this menu offers
       instruments and drumkit (sound libraries) functions.</para>
 
@@ -692,6 +707,18 @@
           to another 'master' program (e.g. Ardour). This applet is only
           available if Jack Audio Driver is selected.</para>
         </listitem>
+        
+       <listitem>
+          <para><inlinemediaobject><imageobject>
+            <imagedata fileref="img/mixer-instrrack_btn.png" format="PNG"/>
+          </imageobject></inlinemediaobject></para>
+
+          <para>
+          The last section gives you quick access to the Mixer window and the Instrument Rack.
+            The LCD screen displays what Hydrogen is up to.
+          </para>
+        </listitem>        
+        
       </itemizedlist>
 
 
