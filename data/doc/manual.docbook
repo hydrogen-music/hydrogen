@@ -125,7 +125,7 @@
       <para>Depending on the branch you are compiling you will need to use Scons or Cmake.  Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</para>
       
       <section id="sect.compilation.scons">
-        <title>Using scons</title>
+        <title>Using scons (pre-0.9.6)</title>
 
         <para>Decompress the tarball or go to the directory where the subversion copy
         was checked out:</para>
@@ -163,22 +163,41 @@
         </screen>
       </section>
       
-      <!-- 
+      
       <section id="sect.compilation.cmake">
-        <title>Using cmake</title>
+        <title>Using cmake (0.9.6 and up)</title>
 
-        <para>Compiling with cmake can be done easily by using the make_helper script. Decompress the tarball or go to the directory where the subversion copy
-        was checked out and run the make_helper script without any arguments to display the help :</para>
+        <para>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the subversion copy
+        was checked out and run the build.sh script without any arguments to display the help :</para>
 
         <screen>
-          <prompt>$</prompt> <command>cd hydrogen-*</command>
-          <prompt>$</prompt> <command>./make_helper</command>
+           <prompt>$</prompt> <command>./build.sh</command>
         </screen>
       
         <para>The help is now displayed (and is self-explanatory) :
         </para>
       
         <screen>
+          <command>   r[m]     => all built, temp and cache files</command>
+          <command>   c[lean]  => remove cache files</command>
+          <command>   m[ake]   => launch the build process</command>
+          <command>   d[oc]    => build html documentation</command>
+          <command>   g[raph]  => draw a dependecies graph</command>
+          <command>   h[elp]   => show the build options</command>
+          <command>   x|exec   => execute hydrogen</command>
+          <command>   t[ests]  => execute tests</command>
+          <command>   p[kg]    => build source package</command>
+          <command>ex: ./build.sh r m pkg x</command>
+        </screen>
+
+        <para>To build Hydrogen run the build script with the 'm' option :
+        </para>
+      
+        <screen>
+           <prompt>$</prompt> <command>./build.sh</command>
+        </screen>      
+      
+        <!--
           <prompt>$</prompt> <command>used builder : cmake</command>
           <prompt>$</prompt> <command>usage ./make_helper [cmds list]</command>
           <prompt>$</prompt> <command>cmds may be</command>
@@ -188,10 +207,12 @@
           <prompt>$</prompt> <command>   d or doc    => build html documentation</command>
           <prompt>$</prompt> <command>   h or help   => show the build options</command>
           <prompt>$</prompt> <command>   x or exec   => execute hydrogen</command>
-        </screen>
+        -->
+        
+        
       
       </section>
-      -->
+      
       
     </section>
 
@@ -329,14 +350,16 @@
 
         <para>The "Appearance" tab (<xref
         linkend="fig.preferences.appearance_tab"/>) let's you modify Hydrogen look 
-        and feel (font settings and interface style). Also the VU meters fall-off speed of
-        the Mixer Window can be changed here.</para>
+        and feel (font settings and interface style). On this tab you can also change the 
+        VU meters fall-off speed and switch between Single pane and Tabbed interface
+        mode (see <xref linkend="sect.UIoverview"/>)
+        </para>
 
         <figure id="fig.preferences.appearance_tab">
           <title>The Appearance Tab</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="img/PreferencesAppearance.png" format="PNG"/>
+              <imagedata fileref="img/PreferencesAppearance_V2.png" format="PNG"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -413,12 +436,17 @@
     <section id="sect.UIoverview">
       <title>The main User Interface : an overview</title>
 
-      <para>Below you can see the main UI split up in 5 parts : the Main Menu, Main 
+      <para>The Main UI comes in 2 flavors : the (classic) Single Pane mode (ideal for
+      large- and medium size screens), and the Tabbed mode (optimized for netbook screen 
+      sizes).
+      </para>
+      <para>
+      Below you can see the main UI split up in 5 parts : the Main Menu, Main 
       Toolbar, Song Editor, Pattern Editor and the Instrument and Sound Library Editor.
         These sections will be explained in detail further down in this manual.</para>
       
       <figure id="fig.UI_overview">
-        <title>The Main UI</title>
+        <title>The Main UI in Single Pane mode</title>
 
         <mediaobject>
           <imageobject>
@@ -426,6 +454,17 @@
           </imageobject>
         </mediaobject>
       </figure>
+
+      <figure id="fig.tabbed_UI_overview">
+        <title>The Main UI in Tabbed mode</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="img/MainUI_tabbed.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
       
     </section>
 
