@@ -138,23 +138,21 @@ void Director::metronomeEvent( int nValue )
 
 	}
 
-	//get tags
-
-	if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
-			if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == p_bar ){
-				TAG2 =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
-			}
-			else if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == p_bar - 1){
-				TAG =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
-			}
-		}
-	}else
-	{
-		TAG="";
-		TAG2="";
-	}
-
+        // get tags
+        TAG="";
+        TAG2="";
+        for ( size_t t = 0; t < Hydrogen::get_instance()->m_timelinetagvector.size(); t++){
+            if(t+1<Hydrogen::get_instance()->m_timelinetagvector.size() &&
+                    Hydrogen::get_instance()->m_timelinetagvector[t+1].m_htimelinetagbeat == p_bar ){
+                TAG2 =  Hydrogen::get_instance()->m_timelinetagvector[t+1].m_htimelinetag ;
+            }
+            if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat <= p_bar-1){
+                TAG =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
+            }
+            if( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat > p_bar-1){
+                break;
+            }
+        }
 	update();
 }
 
