@@ -972,7 +972,6 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
         if ( e->type() == QEvent::KeyPress )
         {
                 QKeyEvent *k = ( QKeyEvent * ) e;
-                HydrogenApp* app = HydrogenApp::get_instance();
 
                 switch ( k->key() )
                 {
