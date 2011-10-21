@@ -23,7 +23,6 @@
 #define EVENT_LISTENER
 
 #include <hydrogen/globals.h>
-
 class EventListener
 {
 	public:
@@ -40,6 +39,7 @@ class EventListener
 		virtual void rubberbandbpmchangeEvent() {}
 		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
                 virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
+                virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
 
 		virtual ~EventListener() {}
 };

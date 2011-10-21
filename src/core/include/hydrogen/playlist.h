@@ -49,9 +49,7 @@ class Playlist :  public H2Core::Object
 		~Playlist();
 
 //		std::vector<HPlayListNode> m_PlayList;
-        H2Core::Song* setNextSongByNumber(int SongNumber);
-        H2Core::Song* setNextSongPlaylist();
-        H2Core::Song* setPrevSongPlaylist();
+                void setNextSongByNumber(int SongNumber);
 		void setSelectedSongNr( int songNumber);
 
 		int selectedSongNumber;
@@ -71,7 +69,6 @@ class Playlist :  public H2Core::Object
 		/// Constructor
 		Playlist();
 
-        H2Core::Song* loadSong( QString songName );
 		void execScript( int index);
 };
 

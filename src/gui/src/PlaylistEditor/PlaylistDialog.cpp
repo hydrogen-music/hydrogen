@@ -981,9 +981,7 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
                             || Playlist::get_instance()->getActiveSongNumber() <=0)
                                 break;
 
-                        app->setSong ( Playlist::get_instance()->setPrevSongPlaylist() );
-                        app->getSongEditorPanel()->updatePositionRuler();
-                        app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+                        Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()-1);
                         return TRUE;
                         break;
 
@@ -991,9 +989,7 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
                         if( Hydrogen::get_instance()->m_PlayList.size() == 0
                             || Playlist::get_instance()->getActiveSongNumber() >= Hydrogen::get_instance()->m_PlayList.size() -1)
                                 break;
-                        app->setSong ( Playlist::get_instance()->setNextSongPlaylist() );
-                        app->getSongEditorPanel()->updatePositionRuler();
-                        app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+                        Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
                         return TRUE;
                         break;
                 }

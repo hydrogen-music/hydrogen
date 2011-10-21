@@ -352,7 +352,7 @@ void SampleEditor::createNewLayer()
 			return;
 		}
 
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+                AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		H2Core::Instrument *pInstrument = NULL;
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -379,7 +379,7 @@ void SampleEditor::createNewLayer()
 		// insert new sample from newInstrument
 		pLayer->set_sample( editSample );
 
-		AudioEngine::get_instance()->unlock();
+                AudioEngine::get_instance()->unlock();
 		m_pTargetSampleView->updateDisplay( pLayer );
 		}
 		

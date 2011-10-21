@@ -72,82 +72,20 @@ void Playlist::create_instance()
 
 
 
-Song* Playlist::setNextSongByNumber(int songNumber)
+void Playlist::setNextSongByNumber(int songNumber)
 {
 	
 	
-	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
-		return 0;
+        if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
+                return;
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-	QString selected;
-	selected = Hydrogen::get_instance()->m_PlayList[ songNumber ].m_hFile;
+        EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
 
-	Song* song = loadSong( selected );
-	execScript( songNumber );
-
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
-    return song;
+        execScript( songNumber );
 }
-
-
-
-Song* Playlist::setNextSongPlaylist()
-{
-	int index = getSelectedSongNr();
-	if (index == -1 ){
-		if ( getActiveSongNumber() != -1){
-			index = getActiveSongNumber();
-        } else {
-            return 0;
-        }
-	}
-
-	index = index +1;
-	if ( (int) index > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || index < 0) 
-		return 0;
-	setSelectedSongNr( index );
-	setActiveSongNumber( index );
-
-	Song* song = loadSong( Hydrogen::get_instance()->m_PlayList[ index ].m_hFile );
-	execScript( index );
-
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );	
-    return song;
-}
-
-
-
-Song* Playlist::setPrevSongPlaylist()
-{
-	int index = getSelectedSongNr();
-
-	if (index == -1 ){
-		if ( getActiveSongNumber() != -1 ){
-			index = getActiveSongNumber();
-		}else
-		{
-			return 0;
-		}
-	}
-
-	index = index -1;
-
-	if (index < 0 ) 
-		return 0;
-
-	setSelectedSongNr( index );
-	setActiveSongNumber( index );
-
-	Song* song = loadSong( Hydrogen::get_instance()->m_PlayList[ index ].m_hFile );
-	execScript( index );
-
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
-    return song;
-}
-
 
 
 void Playlist::setSelectedSongNr( int songNumber )
@@ -156,12 +94,10 @@ void Playlist::setSelectedSongNr( int songNumber )
 }
 
 
-
 int Playlist::getSelectedSongNr()
 {
 	return selectedSongNumber;
 }
-
 
 
 void Playlist::setActiveSongNumber( int ActiveSongNumber)
@@ -170,29 +106,10 @@ void Playlist::setActiveSongNumber( int ActiveSongNumber)
 }
 
 
-
 int Playlist::getActiveSongNumber()
 {
 	return activeSongNumber;
 }
-
-
-
-Song* Playlist::loadSong( QString songName )
-{
-	Hydrogen *engine = Hydrogen::get_instance();
-	
-
-	if ( engine->getState() == STATE_PLAYING ){
-		engine->sequencer_stop();
-	}
-
-	engine->m_timelinetagvector.clear();
-    engine->setSelectedPatternNumber ( 0 );
-
-    return Song::load( songName );
-}
-
 
 
 void Playlist::execScript( int index)

@@ -515,9 +515,13 @@ void HydrogenApp::onEventQueueTimer()
 					break;
 
                                 case EVENT_JACK_SESSION:
-                                        pListener->jacksessionEvent(event.value );
+                                        pListener->jacksessionEvent( event.value );
                                         break;
-				default:
+
+                                case EVENT_PLAYLIST_LOADSONG:
+                                        pListener->playlistLoadSongEvent( event.value );
+                                        break;
+                                default:
 					ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
 

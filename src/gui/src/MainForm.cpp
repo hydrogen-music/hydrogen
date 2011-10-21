@@ -1448,6 +1448,14 @@ void MainForm::errorEvent( int nErrorCode )
 	QMessageBox::information( this, "Hydrogen", msg );
 }
 
+void MainForm::playlistLoadSongEvent(int nIndex)
+{
+
+        QString selected = Hydrogen::get_instance()->m_PlayList[ nIndex ].m_hFile;
+        openSongFile(selected);
+        EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+        HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
+}
 
 void MainForm::jacksessionEvent( int nEvent )
 {
@@ -1643,14 +1651,11 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
         HydrogenApp* app = HydrogenApp::get_instance();
         int songnumber = Playlist::get_instance()->getActiveSongNumber();
         if(songnumber+step >= 0 && songnumber+step <= playlistSize-1){
-                app->setSong ( Playlist::get_instance()->setNextSongByNumber(songnumber+step) );
+                Playlist::get_instance()->setNextSongByNumber( songnumber + step );
         }
         else
-                return false;
-        app->getSongEditorPanel()->updatePositionRuler();
-        songnumber = Playlist::get_instance()->getActiveSongNumber();
-        app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-        app->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
+                return FALSE;
+
         return TRUE;
 }
 

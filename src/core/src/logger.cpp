@@ -66,7 +66,7 @@ void* loggerThread_func( void* param ) {
     }
     Logger::queue_t* queue = &logger->__msg_queue;
     Logger::queue_t::iterator it, last;
-    QString tmpString;
+    //QString tmpString;
     while ( logger->__running ) {
         LOGGER_SLEEP;
         if( !queue->empty() ) {
