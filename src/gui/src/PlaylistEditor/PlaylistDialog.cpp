@@ -967,41 +967,44 @@ void PlaylistDialog::updateActiveSongNumber()
 
 bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 {
-	
-	UNUSED ( o );
-	if ( e->type() == QEvent::KeyPress )
-	{	
-		QKeyEvent *k = ( QKeyEvent * ) e;
-        HydrogenApp* app = HydrogenApp::get_instance();
 
-		switch ( k->key() )
-		{
-			case  Qt::Key_F5 :
-				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
-					break;
-                app->setSong ( Playlist::get_instance()->setPrevSongPlaylist() );
-                app->getSongEditorPanel()->updatePositionRuler();
-                app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-				return TRUE;
-				break;
+        UNUSED ( o );
+        if ( e->type() == QEvent::KeyPress )
+        {
+                QKeyEvent *k = ( QKeyEvent * ) e;
+                HydrogenApp* app = HydrogenApp::get_instance();
 
-			case  Qt::Key_F6 :
-				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
-					break;
-                app->setSong ( Playlist::get_instance()->setNextSongPlaylist() );
-                app->getSongEditorPanel()->updatePositionRuler();
-                app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-				return TRUE;
-				break;
-		}
+                switch ( k->key() )
+                {
+                case  Qt::Key_F5 :
+                        if( Hydrogen::get_instance()->m_PlayList.size() == 0
+                            || Playlist::get_instance()->getActiveSongNumber() <=0)
+                                break;
 
-	}
-	else
-	{
-		return FALSE; // standard event processing
-	}
+                        app->setSong ( Playlist::get_instance()->setPrevSongPlaylist() );
+                        app->getSongEditorPanel()->updatePositionRuler();
+                        app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+                        return TRUE;
+                        break;
 
-return NULL;
+                case  Qt::Key_F6 :
+                        if( Hydrogen::get_instance()->m_PlayList.size() == 0
+                            || Playlist::get_instance()->getActiveSongNumber() >= Hydrogen::get_instance()->m_PlayList.size() -1)
+                                break;
+                        app->setSong ( Playlist::get_instance()->setNextSongPlaylist() );
+                        app->getSongEditorPanel()->updatePositionRuler();
+                        app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+                        return TRUE;
+                        break;
+                }
+
+        }
+        else
+        {
+                return FALSE; // standard event processing
+        }
+
+        return NULL;
 }
 
 bool PlaylistDialog::loadListByFileName( QString filename )

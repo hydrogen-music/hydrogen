@@ -1244,130 +1244,120 @@ void MainForm::initKeyInstMap()
 
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
-	UNUSED( o );
+    UNUSED( o );
 
-	if ( e->type() == QEvent::KeyPress) {
-		// special processing for key press
-		QKeyEvent *k = (QKeyEvent *)e;
+    if ( e->type() == QEvent::KeyPress) {
+        // special processing for key press
+        QKeyEvent *k = (QKeyEvent *)e;
 
-		// qDebug( "Got key press for instrument '%c'", k->ascii() );
-		int songnumber = 0;
+        // qDebug( "Got key press for instrument '%c'", k->ascii() );
+        //int songnumber = 0;
         HydrogenApp* app = HydrogenApp::get_instance();
         Hydrogen* engine = Hydrogen::get_instance();
 
-		switch (k->key()) {
-			case Qt::Key_Space:
-				onPlayStopAccelEvent();
-				return TRUE; // eat event
+        switch (k->key()) {
+        case Qt::Key_Space:
+            onPlayStopAccelEvent();
+            return TRUE; // eat event
 
 
-			case Qt::Key_Comma:
-				engine->handleBeatCounter();
-				return TRUE; // eat even
-				break;
+        case Qt::Key_Comma:
+            engine->handleBeatCounter();
+            return TRUE; // eat even
+            break;
 
-			case Qt::Key_Backspace:
-				onRestartAccelEvent();
-				return TRUE; // eat event
-				break;
+        case Qt::Key_Backspace:
+            onRestartAccelEvent();
+            return TRUE; // eat event
+            break;
 
-			case Qt::Key_Plus:
-				onBPMPlusAccelEvent();
-				return TRUE; // eat event
-				break;
+        case Qt::Key_Plus:
+            onBPMPlusAccelEvent();
+            return TRUE; // eat event
+            break;
 
-			case Qt::Key_Minus:
-				onBPMMinusAccelEvent();
-				return TRUE; // eat event
-				break;
+        case Qt::Key_Minus:
+            onBPMMinusAccelEvent();
+            return TRUE; // eat event
+            break;
 
-			case Qt::Key_Backslash:
-				engine->onTapTempoAccelEvent();
-				return TRUE; // eat event
-				break;
+        case Qt::Key_Backslash:
+            engine->onTapTempoAccelEvent();
+            return TRUE; // eat event
+            break;
 
-			case  Qt::Key_S | Qt::CTRL:
-				onSaveAccelEvent();
-				return TRUE;
-				break;
-			
-			case  Qt::Key_F5 :
-				if( engine->m_PlayList.size() == 0)
-					break;
-                app->setSong ( Playlist::get_instance()->setPrevSongPlaylist() );
-                app->getSongEditorPanel()->updatePositionRuler();
-                songnumber = Playlist::get_instance()->getActiveSongNumber();
-                app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-                app->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
-				return TRUE;
-				break;
+        case  Qt::Key_S | Qt::CTRL:
+            onSaveAccelEvent();
+            return TRUE;
+            break;
 
-			case  Qt::Key_F6 :
-				if( Hydrogen::get_instance()->m_PlayList.size() == 0)
-					break;
-                app->setSong ( Playlist::get_instance()->setNextSongPlaylist() );
-                app->getSongEditorPanel()->updatePositionRuler();
-                songnumber = Playlist::get_instance()->getActiveSongNumber();
-                app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-                app->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
-				return TRUE;
-				break;
-
-			case  Qt::Key_F12 : //panic button stop all playing notes
-				engine->__panic();
-//				QMessageBox::information( this, "Hydrogen", trUtf8( "Panic" ) );
-				return TRUE;
-				break;
-
-			case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-				engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() - 1 );
-				return TRUE;
-				break;
-
-			case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-				engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() + 1 );
-				return TRUE;
-				break;
-			
-			case Qt::Key_L :
-                engine->togglePlaysSelected();
-                QString msg = Preferences::get_instance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
-                app->setStatusBarMessage( msg, 5000 );
-                app->getSongEditorPanel()->setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
-                app->getSongEditorPanel()->updateAll();
-				return TRUE;
+        case  Qt::Key_F5 :
+            if( engine->m_PlayList.size() == 0)
                 break;
-			
-		// 	QAccel *a = new QAccel( this );
-// 	a->connectItem( a->insertItem(Key_S + CTRL), this, SLOT( onSaveAccelEvent() ) );
-// 	a->connectItem( a->insertItem(Key_O + CTRL), this, SLOT( onOpenAccelEvent() ) );
+            return handleSelectNextPrevSongOnPlaylist( -1 );
+            break;
 
-		}
+        case  Qt::Key_F6 :
+            if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+                break;
+            return handleSelectNextPrevSongOnPlaylist( 1 );
+            break;
 
-		// virtual keyboard handling
-		map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
-		if (found != keycodeInstrumentMap.end()) {
-//			INFOLOG( "[eventFilter] virtual keyboard event" );
-			// insert note at the current column in time
-			// if event recording enabled
-			int row = (*found).second;
-			Hydrogen* engine = Hydrogen::get_instance();
+        case  Qt::Key_F12 : //panic button stop all playing notes
+            engine->__panic();
+            //				QMessageBox::information( this, "Hydrogen", trUtf8( "Panic" ) );
+            return TRUE;
+            break;
 
-			float velocity = 0.8;
-			float pan_L = 1.0;
-			float pan_R = 1.0;
+        case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
+            engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() - 1 );
+            return TRUE;
+            break;
 
-			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, NULL, NULL , row + 36);
+        case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
+            engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() + 1 );
+            return TRUE;
+            break;
 
-			return TRUE; // eat event
-		}
-		else {
-			return FALSE; // let it go
-		}
+        case Qt::Key_L :
+            engine->togglePlaysSelected();
+            QString msg = Preferences::get_instance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
+            app->setStatusBarMessage( msg, 5000 );
+            app->getSongEditorPanel()->setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
+            app->getSongEditorPanel()->updateAll();
+            return TRUE;
+            break;
+
+            // 	QAccel *a = new QAccel( this );
+            // 	a->connectItem( a->insertItem(Key_S + CTRL), this, SLOT( onSaveAccelEvent() ) );
+            // 	a->connectItem( a->insertItem(Key_O + CTRL), this, SLOT( onOpenAccelEvent() ) );
+
         }
-	else {
-		return FALSE; // standard event processing
+
+        // virtual keyboard handling
+        map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
+        if (found != keycodeInstrumentMap.end()) {
+            //			INFOLOG( "[eventFilter] virtual keyboard event" );
+            // insert note at the current column in time
+            // if event recording enabled
+            int row = (*found).second;
+            Hydrogen* engine = Hydrogen::get_instance();
+
+            float velocity = 0.8;
+            float pan_L = 1.0;
+            float pan_R = 1.0;
+
+            engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, NULL, NULL , row + 36);
+
+            return TRUE; // eat event
         }
+        else {
+            return FALSE; // let it go
+        }
+    }
+    else {
+        return FALSE; // standard event processing
+    }
 }
 
 
@@ -1617,34 +1607,52 @@ bool MainForm::handleUnsavedChanges()
 
 
 void MainForm::usr1SignalHandler(int)
- {
-     char a = 1;
-     size_t ret = ::write(sigusr1Fd[0], &a, sizeof(a));
- }
+{
+        char a = 1;
+        size_t ret = ::write(sigusr1Fd[0], &a, sizeof(a));
+}
 
 void MainForm::handleSigUsr1()
 {
-    snUsr1->setEnabled(false);
-    char tmp;
-    size_t ret = ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+        snUsr1->setEnabled(false);
+        char tmp;
+        size_t ret = ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
 
-    action_file_save();
-    snUsr1->setEnabled(true);
+        action_file_save();
+        snUsr1->setEnabled(true);
 }
 
 void MainForm::openUndoStack()
 {
-	undoView->show();
-	undoView->setAttribute(Qt::WA_QuitOnClose, false);
-};
+        undoView->show();
+        undoView->setAttribute(Qt::WA_QuitOnClose, false);
+}
 
 void MainForm::action_undo(){
-    h2app->m_undoStack->undo();
-};
+        h2app->m_undoStack->undo();
+}
 
 void MainForm::action_redo(){
-    h2app->m_undoStack->redo();
-};
+        h2app->m_undoStack->redo();
+}
+
+bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
+{
+        int playlistSize= Hydrogen::get_instance()->m_PlayList.size();
+
+        HydrogenApp* app = HydrogenApp::get_instance();
+        int songnumber = Playlist::get_instance()->getActiveSongNumber();
+        if(songnumber+step >= 0 && songnumber+step <= playlistSize-1){
+                app->setSong ( Playlist::get_instance()->setNextSongByNumber(songnumber+step) );
+        }
+        else
+                return false;
+        app->getSongEditorPanel()->updatePositionRuler();
+        songnumber = Playlist::get_instance()->getActiveSongNumber();
+        app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+        app->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( songnumber +1 ), 5000 );
+        return TRUE;
+}
 
 
 

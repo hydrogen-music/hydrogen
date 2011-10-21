@@ -158,6 +158,8 @@ public slots:
 	#endif
 		QUndoView *undoView;///debug only
 
+                bool handleSelectNextPrevSongOnPlaylist(int step);
+
 };
 
 #endif
