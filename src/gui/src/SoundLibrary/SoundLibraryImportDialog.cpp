@@ -344,14 +344,8 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 			for ( int i = 0; i < 30; ++i ) {
 				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
-				int returnCode = dl.exec();
+				dl.exec();
 
-				if(returnCode == 0)
-				{
-					QApplication::restoreOverrideCursor();
-					QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
-					return;	
-				}
 
 				QString redirect_url = dl.get_redirect_url();
 				if (redirect_url == "" ) {
