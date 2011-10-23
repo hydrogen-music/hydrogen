@@ -76,6 +76,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 		void browseTree( const QModelIndex& index );
 		
 		void getEnvironment();
+                bool isFileSupported( QString filename );
 		bool singleClick;
 		QDirModel *model;
 		QTreeView *tree;

@@ -51,7 +51,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 
         model = new QDirModel();
 	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
-	model->setNameFilters( QStringList() << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
+        model->setNameFilters( QStringList() << "*.ogg" << "*.OGG" << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
 	model->setSorting( QDir::DirsFirst |QDir::Name );
 	__index = model->index( QDir::currentPath() );
 	
@@ -103,6 +103,27 @@ AudioFileBrowser::~AudioFileBrowser()
 	Sample *pNewSample = Sample::load( sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
+}
+
+
+bool AudioFileBrowser::isFileSupported( QString filename )
+{
+    if 	(
+            ( filename.endsWith( ".ogg" ) ) ||
+            ( filename.endsWith( ".OGG" ) ) ||
+            ( filename.endsWith( ".wav" ) ) ||
+            ( filename.endsWith( ".WAV" ) ) ||
+            ( filename.endsWith( ".au" ) ) ||
+            ( filename.endsWith( ".AU" ) ) ||
+            ( filename.endsWith( ".aiff" ) ) ||
+            ( filename.endsWith( ".AIFF" ) ) ||
+            ( filename.endsWith( ".flac" ) ) ||
+            ( filename.endsWith( ".FLAC" ) )
+            ){
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
@@ -174,19 +195,11 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 {
 	QString path = model->filePath( index );
 
-	if( singleClick )
+        if( singleClick ){
 		browseTree( index );
+        }
 
-	if 	(
-		( path.endsWith( ".wav" ) ) ||
-		( path.endsWith( ".WAV" ) ) ||
-		( path.endsWith( ".au" ) ) ||
-		( path.endsWith( ".AU" ) ) ||
-		( path.endsWith( ".aiff" ) ) ||
-		( path.endsWith( ".AIFF" ) ) ||
-		( path.endsWith( ".flac" ) ) ||
-		( path.endsWith( ".FLAC" ) )
-		) {
+        if( isFileSupported( path ) ){
 		browseTree( index );
 	}
 
@@ -235,220 +248,200 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	if 	(
-		( path2.endsWith( ".wav" ) ) ||
-		( path2.endsWith( ".WAV" ) ) ||
-		( path2.endsWith( ".au" ) ) ||
-		( path2.endsWith( ".AU" ) ) ||
-		( path2.endsWith( ".aiff" ) ) ||
-		( path2.endsWith( ".AIFF" ) ) ||
-		( path2.endsWith( ".flac" ) ) ||
-		( path2.endsWith( ".FLAC" ) )
-		) {
-	
-			filelineedit->setText( fleTxt );
-			Sample *pNewSample = Sample::load( path2 );
+        if( isFileSupported( path2 ) )
+        {
 
-			if ( pNewSample ) {
-				m_pNBytesLable->setText( trUtf8( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
-				m_pSamplerateLable->setText( trUtf8( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
-				float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
-				QString qsec;
-				qsec.sprintf( "%2.2f", sec );
-				m_pLengthLable->setText( trUtf8( "Sample length: " ) + qsec + trUtf8( " s" ) );
-				
-				delete pNewSample;
-				m_psamplefilename = path2;
+            filelineedit->setText( fleTxt );
+            Sample *pNewSample = Sample::load( path2 );
 
-				m_pSampleWaveDisplay->updateDisplay( path2 );
-				m_pPlayBtn->setEnabled( true );
-				openBTN->setEnabled( true );
+            if ( pNewSample ) {
+                m_pNBytesLable->setText( trUtf8( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
+                m_pSamplerateLable->setText( trUtf8( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
+                float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
+                QString qsec;
+                qsec.sprintf( "%2.2f", sec );
+                m_pLengthLable->setText( trUtf8( "Sample length: " ) + qsec + trUtf8( " s" ) );
 
-				//important this will only working correct if m_pSampleWaveDisplay->updateDisplay( file )
-				//is ready with painting the wav file. else the playing sample get crackled sound!!
-				if (playSamplescheckBox->isChecked()){
-					if ( sec <= 600.00){
-						on_m_pPlayBtn_clicked();
-					}else
-					{
-						QMessageBox::information ( this, "Hydrogen", trUtf8( "Please do not preview samples which are longer than 10 minutes!" )  );
-					}
-				}
-			}
-		
-			m_pNameLabel->setText( message );
-		}else{
-			m_pNameLabel->setText( trUtf8( "Name:"));
-			m_pNBytesLable->setText( trUtf8( "Size:" ) );
-			m_pSamplerateLable->setText( trUtf8( "Samplerate:" ) );
-			m_pLengthLable->setText( trUtf8( "Sample length:" ) );
-			m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
-			m_pPlayBtn->setEnabled( false );
-			m_pStopBtn->setEnabled( false );
-			openBTN->setEnabled( false );
-			m_psamplefilename = "";
-		}
-	QApplication::restoreOverrideCursor();
+                delete pNewSample;
+                m_psamplefilename = path2;
+
+                m_pSampleWaveDisplay->updateDisplay( path2 );
+                m_pPlayBtn->setEnabled( true );
+                openBTN->setEnabled( true );
+
+                //important this will only working correct if m_pSampleWaveDisplay->updateDisplay( file )
+                //is ready with painting the wav file. else the playing sample get crackled sound!!
+                if (playSamplescheckBox->isChecked()){
+                    if ( sec <= 600.00){
+                        on_m_pPlayBtn_clicked();
+                    }else
+                    {
+                        QMessageBox::information ( this, "Hydrogen", trUtf8( "Please do not preview samples which are longer than 10 minutes!" )  );
+                    }
+                }
+            }
+
+            m_pNameLabel->setText( message );
+        }else{
+            m_pNameLabel->setText( trUtf8( "Name:"));
+            m_pNBytesLable->setText( trUtf8( "Size:" ) );
+            m_pSamplerateLable->setText( trUtf8( "Samplerate:" ) );
+            m_pLengthLable->setText( trUtf8( "Sample length:" ) );
+            m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
+            m_pPlayBtn->setEnabled( false );
+            m_pStopBtn->setEnabled( false );
+            openBTN->setEnabled( false );
+            m_psamplefilename = "";
+        }
+        QApplication::restoreOverrideCursor();
 }
 
 
 
-void AudioFileBrowser::on_m_pPlayBtn_clicked()
-{
+ void AudioFileBrowser::on_m_pPlayBtn_clicked()
+ {
 
-	if( QFile( m_psamplefilename ).exists() == false )
-		return;
-	m_pStopBtn->setEnabled( true );
-	Sample *pNewSample = Sample::load( m_psamplefilename );
-	if ( pNewSample ){
-		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
-		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
-	}
-}
-
-
-
-void AudioFileBrowser::on_m_pStopBtn_clicked()
-{
-	Sample *pNewSample = Sample::load( sEmptySampleFilename );
-	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
-	m_pStopBtn->setEnabled( false );
-}
+         if( QFile( m_psamplefilename ).exists() == false )
+                 return;
+         m_pStopBtn->setEnabled( true );
+         Sample *pNewSample = Sample::load( m_psamplefilename );
+         if ( pNewSample ){
+                 int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
+                 AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
+         }
+ }
 
 
 
-void AudioFileBrowser::on_cancelBTN_clicked()
-{
-	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
-	m_pselectedFile << "false" << "false" << "";
-	reject();
-}
+ void AudioFileBrowser::on_m_pStopBtn_clicked()
+ {
+         Sample *pNewSample = Sample::load( sEmptySampleFilename );
+         AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
+         m_pStopBtn->setEnabled( false );
+ }
 
 
 
-void AudioFileBrowser::on_openBTN_clicked()
-{
-
-	if( tree->selectionModel()->selectedIndexes().size() / 4 > 0){
-
-		QList<QModelIndex>::iterator i;
-		QList<QModelIndex> list = tree->selectionModel()->selectedIndexes();	
-
-    		for (i = list.begin(); i != list.end(); ++i){
-			QString path2 = (*i).data().toString();
-			if 	(
-			( path2.endsWith( ".wav" ) ) ||
-			( path2.endsWith( ".WAV" ) ) ||
-			( path2.endsWith( ".au" ) ) ||
-			( path2.endsWith( ".AU" ) ) ||
-			( path2.endsWith( ".aiff" ) ) ||
-			( path2.endsWith( ".AIFF" ) ) ||
-			( path2.endsWith( ".flac" ) ) ||
-			( path2.endsWith( ".FLAC" ) )
-			) {
-				QString path = pathLineEdit->text();
-				QString act_filename = path + path2;
-				m_pselectedFile << act_filename ;
-		
-			}
-			++i;++i;++i;
-		}
-	}
-	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
-	accept();
-}
+ void AudioFileBrowser::on_cancelBTN_clicked()
+ {
+         Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
+         m_pselectedFile << "false" << "false" << "";
+         reject();
+ }
 
 
 
-void AudioFileBrowser::on_playSamplescheckBox_clicked()
-{
-	Preferences::get_instance()->__playsamplesonclicking = playSamplescheckBox->isChecked();
-}
+ void AudioFileBrowser::on_openBTN_clicked()
+ {
+         if( tree->selectionModel()->selectedIndexes().size() / 4 > 0){
+                 QList<QModelIndex>::iterator i;
+                 QList<QModelIndex> list = tree->selectionModel()->selectedIndexes();
+
+                 for (i = list.begin(); i != list.end(); ++i){
+                         QString path2 = (*i).data().toString();
+                         if( isFileSupported( path2 ) ){
+                                 QString path = pathLineEdit->text();
+                                 QString act_filename = path + path2;
+                                 m_pselectedFile << act_filename ;
+
+                         }
+                         ++i;++i;++i;
+                 }
+         }
+         Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
+         accept();
+ }
 
 
 
-QStringList AudioFileBrowser::selectedFile()
-{
-	if ( useNameCheckBox->isChecked() ){
-		 m_pselectedFile[0] = "true";
-	}
-	if ( autoVelCheckBox->isChecked() ){
-		 m_pselectedFile[1] = "true";
-	}
-	return m_pselectedFile;
-}
+ void AudioFileBrowser::on_playSamplescheckBox_clicked()
+ {
+         Preferences::get_instance()->__playsamplesonclicking = playSamplescheckBox->isChecked();
+ }
 
 
 
-void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
-{
-
-	QString path = pathLineEdit->text();
-	QStringList pathlist = path.split("/");
-
-	while( path != QDir::rootPath() ){
-
-		if( pathlist.isEmpty () )
-			break;
-		pathlist.removeLast();
-		QString updir = pathlist.join("/");
-
-		pathLineEdit->setText( updir );
-		tree->setRootIndex( model->index( updir ) );
-		tree->collapse( model->index( updir  ) );
-		tree->setExpanded( model->index(updir), false  );
-		path = pathLineEdit->text();
-	}
-
-	pathLineEdit->setText( QDir::homePath() );
-	tree->setRootIndex( model->index( QDir::homePath() ) );
-
-	tree->collapse( model->index( QDir::homePath())  );
-}
+ QStringList AudioFileBrowser::selectedFile()
+ {
+         if ( useNameCheckBox->isChecked() ){
+                  m_pselectedFile[0] = "true";
+         }
+         if ( autoVelCheckBox->isChecked() ){
+                  m_pselectedFile[1] = "true";
+         }
+         return m_pselectedFile;
+ }
 
 
 
-void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
-{
-	QString path = pathLineEdit->text();
-	QStringList pathlist = path.split("/");
+ void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
+ {
 
-	if( pathlist.isEmpty () ){
-		return;
-	}
+         QString path = pathLineEdit->text();
+         QStringList pathlist = path.split("/");
 
-	if( path.endsWith( "/" ) ){
-		pathlist.removeLast();
-		QString tmpupdir = pathlist.join("/");
-		tree->setRootIndex( model->index( tmpupdir ) );
-		tree->collapse( model->index( tmpupdir  ) );
-		tree->setExpanded( model->index( tmpupdir ), false  );
-	}
+         while( path != QDir::rootPath() ){
 
-	pathlist.removeLast();
+                 if( pathlist.isEmpty () )
+                         break;
+                 pathlist.removeLast();
+                 QString updir = pathlist.join("/");
 
-	QString updir = pathlist.join("/");
-	if ( updir == "" ){
-		pathLineEdit->setText( QString("/") );	
-	}else
-	{
-		pathLineEdit->setText( updir );
-	}
+                 pathLineEdit->setText( updir );
+                 tree->setRootIndex( model->index( updir ) );
+                 tree->collapse( model->index( updir  ) );
+                 tree->setExpanded( model->index(updir), false  );
+                 path = pathLineEdit->text();
+         }
 
-	tree->setRootIndex( model->index( updir ) );
-	tree->collapse( model->index( updir  ) );
-	tree->setExpanded( model->index(updir), false  );
-}
+         pathLineEdit->setText( QDir::homePath() );
+         tree->setRootIndex( model->index( QDir::homePath() ) );
+
+         tree->collapse( model->index( QDir::homePath())  );
+ }
 
 
 
-void AudioFileBrowser::on_hiddenCB_clicked()
-{
-	if ( hiddenCB->isChecked() ){
-	 	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
-	}else
-	{
-	 	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
-		tree->setRootIndex( model->index( pathLineEdit->text() ) );
-	}
-}
+ void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
+ {
+         QString path = pathLineEdit->text();
+         QStringList pathlist = path.split("/");
+
+         if( pathlist.isEmpty () ){
+                 return;
+         }
+
+         if( path.endsWith( "/" ) ){
+                 pathlist.removeLast();
+                 QString tmpupdir = pathlist.join("/");
+                 tree->setRootIndex( model->index( tmpupdir ) );
+                 tree->collapse( model->index( tmpupdir  ) );
+                 tree->setExpanded( model->index( tmpupdir ), false  );
+         }
+
+         pathlist.removeLast();
+
+         QString updir = pathlist.join("/");
+         if ( updir == "" ){
+                 pathLineEdit->setText( QString("/") );
+         }else
+         {
+                 pathLineEdit->setText( updir );
+         }
+
+         tree->setRootIndex( model->index( updir ) );
+         tree->collapse( model->index( updir  ) );
+         tree->setExpanded( model->index(updir), false  );
+ }
+
+
+
+ void AudioFileBrowser::on_hiddenCB_clicked()
+ {
+         if ( hiddenCB->isChecked() ){
+                 model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
+         } else {
+                 model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+                 tree->setRootIndex( model->index( pathLineEdit->text() ) );
+         }
+ }
