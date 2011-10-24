@@ -244,9 +244,11 @@ bool ActionManager::handleAction( Action * pAction ){
 
 	  if( sActionString == "SELECT_NEXT_PATTERN"){
 		bool ok;
-		int row = pAction->getParameter1().toInt(&ok,10);
-		pEngine->setSelectedPatternNumber( row );
-		pEngine->sequencer_setNextPattern( row, false, true );
+                int row = pAction->getParameter1().toInt(&ok,10);
+                if(Preferences::get_instance()->patternModePlaysSelected())
+                        pEngine->setSelectedPatternNumber( row );
+                else
+                        pEngine->sequencer_setNextPattern( row, false, true );
                 return true;
         }
 
