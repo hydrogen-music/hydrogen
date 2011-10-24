@@ -158,7 +158,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	HydrogenApp* h2app = HydrogenApp::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+        PatternList *pPatternList = pSong->get_pattern_list();
 
 	// don't lock the audio driver before checking that...
 	if ( nRow >= (int)pPatternList->size() || nRow < 0 || nColumn < 0 ) { return; }

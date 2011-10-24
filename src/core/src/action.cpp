@@ -28,7 +28,7 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/song.h>
-
+#include <hydrogen/basics/pattern_list.h>
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/action.h>
@@ -245,6 +245,8 @@ bool ActionManager::handleAction( Action * pAction ){
 	  if( sActionString == "SELECT_NEXT_PATTERN"){
 		bool ok;
                 int row = pAction->getParameter1().toInt(&ok,10);
+                if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+                        return false;
                 if(Preferences::get_instance()->patternModePlaysSelected())
                         pEngine->setSelectedPatternNumber( row );
                 else
