@@ -570,4 +570,5 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 void SongEditorPanel::selectedPatternChangedEvent()
 {
 	resyncExternalScrollBar();
+        m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
 }

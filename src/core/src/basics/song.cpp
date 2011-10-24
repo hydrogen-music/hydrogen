@@ -389,8 +389,6 @@ Song* SongReader::readSong( const QString& filename )
     }
 
 
-
-
     float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
     Hydrogen::get_instance()->setNewBpmJTM( fBpm );
     float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
@@ -400,7 +398,7 @@ Song* SongReader::readSong( const QString& filename )
     QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
     QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
     bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
-
+    Preferences::get_instance()->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
     Song::SongMode nMode = Song::PATTERN_MODE;	// Mode (song/pattern)
     QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
     if ( sMode == "song" ) {
@@ -433,7 +431,6 @@ Song* SongReader::readSong( const QString& filename )
 
     //  Instrument List
 
-    LocalFileMng localFileMng;
     InstrumentList* instrumentList = new InstrumentList();
 
     QDomNode instrumentListNode = songNode.firstChildElement( "instrumentList" );
