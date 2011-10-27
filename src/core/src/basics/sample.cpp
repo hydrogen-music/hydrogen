@@ -325,7 +325,6 @@ void Sample::apply_rubberband( const Rubberband& rb )
     double pitch_scale = compute_pitch_scale( rb );
     // output buffer
     int out_buffer_size = ( int )( __frames* time_ratio + 0.1 );
-    qDebug()<<"outputsize"<<out_buffer_size;
     // instanciate rubberband
     RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( __sample_rate, 2, options, time_ratio, pitch_scale );
     rubber->setDebugLevel( RUBBERBAND_DEBUG );
