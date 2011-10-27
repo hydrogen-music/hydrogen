@@ -323,37 +323,94 @@ void Sample::apply_rubberband( const Rubberband& rb )
     double time_ratio = output_duration / get_sample_duration();
     RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
     double pitch_scale = compute_pitch_scale( rb );
+    // output buffer
+    int out_buffer_size = ( int )( __frames* time_ratio + 0.1 );
+    qDebug()<<"outputsize"<<out_buffer_size;
     // instanciate rubberband
     RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( __sample_rate, 2, options, time_ratio, pitch_scale );
     rubber->setDebugLevel( RUBBERBAND_DEBUG );
     rubber->setExpectedInputDuration( __frames );
-    DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( get_filename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
-    // input buffer
+
+    //DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( get_filename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
+
+    int block_size = 1024;
     float* ibuf[2];
-    ibuf[0] = __data_l;
-    ibuf[1] = __data_r;
-    // study sample
-    rubber->study( ibuf, __frames, true );
-    // process sample
-    rubber->process( ibuf, __frames, true );
-    // output buffer
-    int out_buffer_size = ( int )( __frames*time_ratio )+RUBBERBAND_BUFFER_OVERSIZE;
+    int studied = 0;
+
+    while( studied < __frames ) {
+        bool final = (studied + block_size >= __frames);
+        int ibs = (final ? (__frames-studied) : block_size );
+        //___DEBUGLOG( QString(" ibs : %1").arg( ibs ) );
+        float tempIbufL[ibs];
+        float tempIbufR[ibs];
+        for(int i = 0 ;i < ibs; i++){
+            tempIbufL[i] = __data_l[i + studied];
+            tempIbufR[i] = __data_r[i + studied];
+        }
+        ibuf[0] = tempIbufL;
+        ibuf[1] = tempIbufR;
+        rubber->study( ibuf, ibs, final );
+        studied += ibs;
+        if( final ) break;
+    }
+
     int buffer_free = out_buffer_size;
     float* out_data_l= new float[ out_buffer_size ];
     float* out_data_r = new float[ out_buffer_size ];
     // retrieve data
     float* obuf[2];
+    int processed = 0;
     int available = 0;
     int retrieved = 0;
-    while( ( available=rubber->available() )>0 && buffer_free>0 ) {
+    while( processed < __frames ) {
+        bool final = (processed + block_size >= __frames);
+        int ibs = (final ? (__frames-processed) : block_size );
+        float tempIbufL[ibs];
+        float tempIbufR[ibs];
+        for(int i = 0 ;i < ibs; i++){
+            tempIbufL[i] = __data_l[i + processed];
+            tempIbufR[i] = __data_r[i + processed];
+        }
+        ibuf[0] = tempIbufL;
+        ibuf[1] = tempIbufR;
+        rubber->process( ibuf, ibs, final );
+        processed += ibs;
+
+        // first run of stretcher.retrieve() frames.
+        // we retrieve audio frames from stretcher until
+        // available is >0. but important here is that stretcher
+        // is not finished processing even available is 0.
+        // stretcher finished with -1. but this status we
+        // cannot reach here, because stretcher becomes new
+        // inputbuffer in this while loop.
+        // we need a final run of stretcher after input processing loop
+        // is finished
+        while( (available=rubber->available())>0) {
+            obuf[0] = &out_data_l[retrieved];
+            obuf[1] = &out_data_r[retrieved];
+            int n = rubber->retrieve( obuf, available);
+
+            retrieved += n;
+            buffer_free -= n;
+        }
+        if( final ) break;
+    }
+
+    // second run of stretcher to retrieve all last
+    // frames until stretcher returns -1.
+    while( (available=rubber->available())!= -1) {
         obuf[0] = &out_data_l[retrieved];
         obuf[1] = &out_data_r[retrieved];
-        //___DEBUGLOG( QString( "  available frames %1" ).arg( available ) );
-        int n = rubber->retrieve( obuf, available );
+        int n = rubber->retrieve( obuf, available);
+
         retrieved += n;
         buffer_free -= n;
-        //___DEBUGLOG( QString( "  recieved frames %1" ).arg( n ) );
     }
+
+//    qDebug()<<"outputbuffersize"<<out_buffer_size;
+//    qDebug()<<"retrieved frames"<<retrieved;
+//    qDebug()<<"stretcher status"<<rubber->available();
+
     DEBUGLOG( QString( "%1 frames processed, %2 frames retrieved" ).arg( __frames ).arg( retrieved ) );
     // final data buffers
     delete __data_l;
@@ -380,9 +437,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
         ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
         return false;
     }
-    Hydrogen* pEngine = Hydrogen::get_instance();
-    float* data_l = __data_l;
-    float* data_r = __data_r;
+
     if( rb.use ) {
         QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
         if( !write( outfilePath ) ) {
@@ -575,12 +630,16 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
     };
     //if (realtime)    options |= RubberBand::RubberBandStretcher::OptionProcessRealTime;
     //if (precise)     options |= RubberBand::RubberBandStretcher::OptionStretchPrecise;
+
     if ( !lamination ) options |= RubberBand::RubberBandStretcher::OptionPhaseIndependent;
     if ( longwin )     options |= RubberBand::RubberBandStretcher::OptionWindowLong;
     if ( shortwin )    options |= RubberBand::RubberBandStretcher::OptionWindowShort;
+    options |= RubberBand::RubberBandStretcher::OptionProcessOffline;
+    options |= RubberBand::RubberBandStretcher::OptionStretchPrecise;
     //if (smoothing)   options |= RubberBand::RubberBandStretcher::OptionSmoothingOn;
     //if (formant)     options |= RubberBand::RubberBandStretcher::OptionFormantPreserved;
     //if (hqpitch)     options |= RubberBand::RubberBandStretcher::OptionPitchHighQuality;
+    options |= RubberBand::RubberBandStretcher::OptionPitchHighQuality;
     /*
     switch (threading) {
     case 0:
