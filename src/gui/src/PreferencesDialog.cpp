@@ -257,6 +257,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	rubberbandLineEdit->setText( pathtoRubberband );
 
+#ifdef H2CORE_HAVE_RUBBERBAND
+        pathToRubberbandExLable->hide();
+        rubberbandLineEdit->hide();
+#endif
+
 #ifdef H2CORE_HAVE_JACKSESSION
         useJackSessinStoreFiles->setVisible(true);
         useJackSessinStoreFiles->setChecked(pPref->getJackSessionUseSessionDir());

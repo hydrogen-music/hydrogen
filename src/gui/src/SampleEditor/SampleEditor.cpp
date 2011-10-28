@@ -105,12 +105,17 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	openDisplays();
 	getAllFrameInfos();
 
+#ifndef H2CORE_HAVE_RUBBERBAND
 	if ( QFile( Preferences::get_instance()->m_rubberBandCLIexecutable ).exists() == false ){
-		RubberbandCframe->setDisabled ( true );
-//pitchdoubleSpinBox
+                RubberbandCframe->setDisabled ( true );
 		__rubberband.use = false;
-		m_pSampleEditorStatus = true;
+                m_pSampleEditorStatus = true;
 	}
+#else
+       RubberbandCframe->setDisabled ( false );
+       m_pSampleEditorStatus = true;
+#endif
+
         __rubberband.pitch = 0.0;
 
 }
