@@ -353,7 +353,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
         if( final ) break;
     }
 
-    int buffer_free = out_buffer_size;
+    //int buffer_free = out_buffer_size;
     float* out_data_l= new float[ out_buffer_size ];
     float* out_data_r = new float[ out_buffer_size ];
     // retrieve data
@@ -390,7 +390,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
             int n = rubber->retrieve( obuf, available);
 
             retrieved += n;
-            buffer_free -= n;
+            //buffer_free -= n;
         }
         if( final ) break;
     }
@@ -403,14 +403,14 @@ void Sample::apply_rubberband( const Rubberband& rb )
         int n = rubber->retrieve( obuf, available);
 
         retrieved += n;
-        buffer_free -= n;
+        //buffer_free -= n;
     }
 
 //    qDebug()<<"outputbuffersize"<<out_buffer_size;
 //    qDebug()<<"retrieved frames"<<retrieved;
 //    qDebug()<<"stretcher status"<<rubber->available();
 
-    DEBUGLOG( QString( "%1 frames processed, %2 frames retrieved" ).arg( __frames ).arg( retrieved ) );
+    // DEBUGLOG( QString( "%1 frames processed, %2 frames retrieved" ).arg( __frames ).arg( retrieved ) );
     // final data buffers
     delete __data_l;
     delete __data_r;
