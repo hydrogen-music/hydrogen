@@ -332,7 +332,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 
     //DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( get_filename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
 
-    int block_size = 1024;
+    int block_size = Hydrogen::get_instance()->getAudioOutput()->getBufferSize();
     float* ibuf[2];
     int studied = 0;
 
