@@ -36,7 +36,7 @@
 
 using namespace H2Core;
 
-const char* Action::__class_name = "MidiAction";
+const char* MidiAction::__class_name = "MidiAction";
 
 
 /**
@@ -59,22 +59,14 @@ const char* Action::__class_name = "MidiAction";
 *
 * @author Sebastian Moors
 *
-* $Header $
 */
 
-Action::Action( QString typeString ) : Object( __class_name ) {
-
-	/*
-
-
-	*/
+MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
 
 	type = typeString;
 	QString parameter1 = "0";
 	QString parameter2 = "0" ;
 }
-
-
 
 
 
@@ -177,7 +169,7 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 
 }
 
-bool ActionManager::handleAction( Action * pAction ){
+bool ActionManager::handleAction( MidiAction * pAction ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 

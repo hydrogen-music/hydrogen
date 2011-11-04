@@ -166,12 +166,12 @@ void MidiTable::setupMidiTable()
 
 
 	bool ok;
-	std::map< QString , Action* > mmcMap = mM->getMMCMap();
-	std::map< QString , Action* >::iterator dIter( mmcMap.begin() );
+	std::map< QString , MidiAction* > mmcMap = mM->getMMCMap();
+	std::map< QString , MidiAction* >::iterator dIter( mmcMap.begin() );
 
 	
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ) {
-		Action * pAction = dIter->second;
+		MidiAction * pAction = dIter->second;
 		QString actionParameter;
 		int actionParameterInteger = 0;
 
@@ -182,7 +182,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int note = 0; note < 128; note++ ) {
-		Action * pAction = mM->getNoteAction( note );
+		MidiAction * pAction = mM->getNoteAction( note );
 		QString actionParameter;
 		int actionParameterInteger = 0;
 
@@ -196,7 +196,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int parameter = 0; parameter < 128; parameter++ ){
-		Action * pAction = mM->getCCAction( parameter );
+		MidiAction * pAction = mM->getCCAction( parameter );
 		QString actionParameter;
 		int actionParameterInteger = 0;
 
@@ -231,7 +231,7 @@ void MidiTable::saveMidiTable()
 
 			actionString = actionCombo->currentText();
 		
-			Action* pAction = new Action( actionString );
+			MidiAction* pAction = new MidiAction( actionString );
 
 			if( actionSpinner->cleanText() != ""){
 				pAction->setParameter1( actionSpinner->cleanText() );

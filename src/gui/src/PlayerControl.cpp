@@ -145,7 +145,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->setPressed(false);
 	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
-	Action* pAction = new Action("PLAY");
+	MidiAction* pAction = new MidiAction("PLAY");
 	m_pPlayBtn->setAction( pAction );
 
 
@@ -160,7 +160,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pStopBtn->move(254, 17);
 	m_pStopBtn->setToolTip( trUtf8("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(stopBtnClicked(Button*)));
-	pAction = new Action("STOP");
+	pAction = new MidiAction("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button

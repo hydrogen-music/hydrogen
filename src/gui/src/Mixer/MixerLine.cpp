@@ -63,7 +63,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_bIsSelected = false;
 	m_nPeakTimer = 0;
 
-	Action* pAction;
+	MidiAction* pAction;
 
 	resize( m_nWidth, m_nHeight );
 	setFixedSize( m_nWidth, m_nHeight );
@@ -122,7 +122,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, trUtf8( "Pan" ), false, true);
 	m_pPanRotary->move( 14, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
-	pAction = new Action("PAN_ABSOLUTE");
+	pAction = new MidiAction("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setParameter2( QString::number( 1 ));
 	m_pPanRotary->setAction(pAction);
@@ -131,7 +131,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	uint y = 0;
 	for (uint i = 0; i < MAX_FX; i++) {
 		m_pKnob[i] = new Knob(this);
-		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
+		pAction = new MidiAction(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
 		pAction->setParameter1( QString::number( nInstr ) );
 		m_pKnob[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
@@ -173,7 +173,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setMaxValue( 1.5 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
 
-	pAction = new Action("STRIP_VOLUME_ABSOLUTE");
+	pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr) );
 	m_pFader->setAction( pAction );
 
@@ -515,7 +515,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
 	connect( m_pMasterFader, SIGNAL( valueChanged(MasterFader*) ), this, SLOT( faderChanged(MasterFader*) ) );
 
-	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
+	MidiAction* pAction = new MidiAction("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
 	QFont mixerFont( family, size );
@@ -549,7 +549,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	);
 	m_pMuteBtn->move( 20, 32 );
 	connect( m_pMuteBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteClicked(Button*) ) );
-	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
+	m_pMuteBtn->setAction( new MidiAction("MUTE_TOGGLE"));
 }
 
 

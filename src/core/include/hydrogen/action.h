@@ -29,10 +29,10 @@
 using namespace std;
 
 
-class Action : public H2Core::Object {
+class MidiAction : public H2Core::Object {
     H2_OBJECT
 	public:
-		Action( QString );
+		MidiAction( QString );
 			
 		void setParameter1( QString text ){
 			parameter1 = text;
@@ -76,7 +76,7 @@ class ActionManager : public H2Core::Object
 		int lastBpmChangeCCParameter;
 
 	public:
-		bool handleAction( Action * );
+		bool handleAction( MidiAction * );
 		
 		static void create_instance();
 		static ActionManager* get_instance() { assert(__instance); return __instance; }

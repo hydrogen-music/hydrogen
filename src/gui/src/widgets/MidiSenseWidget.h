@@ -32,7 +32,7 @@
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiSenseWidget(QWidget*,bool directWrite = false , Action* action = NULL);
+		MidiSenseWidget(QWidget*,bool directWrite = false , MidiAction* action = NULL);
 		~MidiSenseWidget();
 
 		QString lastMidiEvent;
@@ -44,7 +44,7 @@
 	private:
 		QTimer* m_pUpdateTimer;
 		QLabel* m_pURLLabel;
-		Action* action;
+		MidiAction* action;
 		bool directWrite;
 };
 

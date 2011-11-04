@@ -26,7 +26,7 @@
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , Action* midiAction ): QDialog( pParent ) , Object(__class_name)
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* midiAction ): QDialog( pParent ) , Object(__class_name)
 {
 	directWrite = directWr;
 	action = midiAction;
@@ -86,7 +86,7 @@ void MidiSenseWidget::updateMidi(){
 		    //write the action / parameter combination to the midiMap
 		    MidiMap *mM = MidiMap::get_instance();
 		    assert(action);
-		    Action* pAction = new Action( action->getType() );
+		    MidiAction* pAction = new MidiAction( action->getType() );
 
 		    //if( action->getParameter1() != 0){
 		    pAction->setParameter1( action->getParameter1() );
