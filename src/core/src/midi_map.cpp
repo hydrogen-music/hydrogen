@@ -25,6 +25,24 @@
 #include <map>
 #include <QMutexLocker>
 
+
+/**
+* @class MidiMap
+*
+* @brief The MidiMap maps MidiActions to MidiEvents
+*
+*
+* The MidiMap stores the mapping between midi events
+* and midi actions. Each event relates to at most 1
+* midi action. Several events can relate to the same action.
+* Midi events are note, mmc or cc messages.
+*
+*
+* @author Sebastian Moors
+*
+*/
+
+
 MidiMap * MidiMap::__instance = 0;
 const char* MidiMap::__class_name = "MidiMap";
 
@@ -72,6 +90,11 @@ void MidiMap::reset_instance()
 	__instance->reset();
 }
 
+
+/**
+ * Clears the complete midi map and releases the memory
+ * of the contained actions
+ */
 void MidiMap::reset()
 {
 	QMutexLocker mx(&__mutex);
@@ -92,11 +115,16 @@ void MidiMap::reset()
 
 }
 
+
 std::map< QString, MidiAction* > MidiMap::getMMCMap()
 {
 	return mmcMap;
 }
 
+
+/**
+ * Sets up the relation between a mmc event and an action
+ */
 void MidiMap::registerMMCEvent( QString eventString , MidiAction* pAction )
 {
 	QMutexLocker mx(&__mutex);
@@ -107,6 +135,10 @@ void MidiMap::registerMMCEvent( QString eventString , MidiAction* pAction )
 	mmcMap[ eventString ] = pAction;
 }
 
+
+/**
+ * Sets up the relation between a note event and an action
+ */
 void MidiMap::registerNoteEvent( int note, MidiAction* pAction )
 {
 	QMutexLocker mx(&__mutex);
@@ -116,6 +148,10 @@ void MidiMap::registerNoteEvent( int note, MidiAction* pAction )
 	}
 }
 
+
+/**
+ * Sets up the relation between a cc event and an action
+ */
 void MidiMap::registerCCEvent( int parameter , MidiAction * pAction ){
 	QMutexLocker mx(&__mutex);
 	if( parameter >= 0 and parameter < 128 )
@@ -125,6 +161,10 @@ void MidiMap::registerCCEvent( int parameter , MidiAction * pAction ){
 	}
 }
 
+
+/**
+ * Returns the mmc action which was linked to the given event.
+ */
 MidiAction* MidiMap::getMMCAction( QString eventString )
 {
 	QMutexLocker mx(&__mutex);
@@ -136,12 +176,18 @@ MidiAction* MidiMap::getMMCAction( QString eventString )
 	return mmcMap[eventString];
 }
 
+/**
+ * Returns the note action which was linked to the given event.
+ */
 MidiAction* MidiMap::getNoteAction( int note )
 {
 	QMutexLocker mx(&__mutex);
 	return __note_array[ note ];
 }
 
+/**
+ * Returns the cc action which was linked to the given event.
+ */
 MidiAction * MidiMap::getCCAction( int parameter )
 {
 	QMutexLocker mx(&__mutex);

@@ -182,7 +182,10 @@ void MidiActionManager::create_instance()
 }
 
 
-
+/**
+ * The handleAction method is the heard of the MidiActionManager class.
+ * It executes the operations that are needed to carry the desired action.
+ */
 
 
 bool MidiActionManager::handleAction( MidiAction * pAction ){
