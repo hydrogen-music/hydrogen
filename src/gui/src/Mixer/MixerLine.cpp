@@ -35,7 +35,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 using namespace H2Core;
 
 #include "MixerLine.h"

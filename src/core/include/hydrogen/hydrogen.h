@@ -24,7 +24,7 @@
 
 #include <stdint.h> // for uint32_t et al
 #include "hydrogen/config.h"
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/object.h>

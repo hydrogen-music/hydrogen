@@ -27,9 +27,9 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/note.h>
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/midiMap.h>
+#include <hydrogen/midi_map.h>
 
 namespace H2Core
 {

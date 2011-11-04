@@ -33,7 +33,7 @@
 #include <QFontDialog>
 #include "widgets/midiTable.h"
 
-#include <hydrogen/midiMap.h>
+#include <hydrogen/midi_map.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/IO/MidiInput.h>

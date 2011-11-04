@@ -31,7 +31,7 @@
 #include <hydrogen/basics/pattern_list.h>
 
 #include <hydrogen/Preferences.h>
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 #include <map>
 
 using namespace H2Core;

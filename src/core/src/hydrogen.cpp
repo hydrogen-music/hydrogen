@@ -68,7 +68,7 @@
 #include <hydrogen/IO/TransportInfo.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/midiMap.h>
+#include <hydrogen/midi_map.h>
 #include <hydrogen/playlist.h>
 
 #include "IO/OssDriver.h"

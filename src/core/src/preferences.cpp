@@ -36,8 +36,8 @@
 #include <iostream>
 #include <cstdio>
 #include <list>
-#include <hydrogen/midiMap.h>
 
+#include <hydrogen/midi_map.h>
 #include "hydrogen/version.h"
 #include "hydrogen/helpers/filesystem.h"
 

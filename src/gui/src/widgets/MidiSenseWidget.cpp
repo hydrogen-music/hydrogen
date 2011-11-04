@@ -20,7 +20,7 @@
  *
  */
 
-#include "hydrogen/midiMap.h"
+#include "hydrogen/midi_map.h"
 #include "MidiSenseWidget.h"
 #include <hydrogen/hydrogen.h>
 

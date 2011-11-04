@@ -24,7 +24,7 @@
 #ifndef MIDILEARNABLE_H
 #define MIDILEARNABLE_H
 
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 
 
 

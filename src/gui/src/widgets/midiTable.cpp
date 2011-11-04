@@ -24,10 +24,10 @@
 #include "MidiSenseWidget.h"
 #include "midiTable.h"
 
-#include <hydrogen/midiMap.h>
+#include <hydrogen/midi_map.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 #include <hydrogen/hydrogen.h>
 
 const char* MidiTable::__class_name = "MidiTable";

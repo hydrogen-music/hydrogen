@@ -28,7 +28,7 @@
 #include <vector>
 #include <cassert>
 
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/object.h>
 

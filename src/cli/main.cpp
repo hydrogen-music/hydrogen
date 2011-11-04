@@ -32,7 +32,7 @@
 #endif
 
 #include <hydrogen/basics/song.h>
-#include <hydrogen/midiMap.h>
+#include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/globals.h>

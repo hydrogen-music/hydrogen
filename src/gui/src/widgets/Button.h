@@ -26,7 +26,7 @@
 
 
 #include <hydrogen/object.h>
-#include <hydrogen/action.h>
+#include <hydrogen/midi_action.h>
 
 #include "MidiLearnable.h"
 
