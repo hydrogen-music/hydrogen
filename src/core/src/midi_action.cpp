@@ -34,22 +34,39 @@
 #include <hydrogen/action.h>
 #include <map>
 
-ActionManager* ActionManager::__instance = NULL;
-
 using namespace H2Core;
 
-const char* Action::__class_name = "Action";
+const char* Action::__class_name = "MidiAction";
 
-/* Class Action */
+
+/**
+* @class MidiAction
+*
+* @brief This class represents a midi action.
+*
+* This class represents actions which can be executed
+* after a midi event occured. An example is the "MUTE"
+* action, which mutes the outputs of hydrogen.
+*
+* An action can be linked to an event. If this event occurs,
+* the action gets triggered. The handling of events takes place
+* in midi_input.cpp .
+*
+* Each action has two independ parameters. The two parameters are optional and
+* can be used to carry additional informations, which mean
+* only something to this very Action. They can have totally different meanings for other Actions.
+* Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
+*
+* @author Sebastian Moors
+*
+* $Header $
+*/
+
 Action::Action( QString typeString ) : Object( __class_name ) {
 
 	/*
-	    An "Action" is something which can be interpreted and executed by hydrogen.
-	    Example: If hydrogen executes the Action with type "MUTE", it will mute the outputs.
 
-	    The two parameters are optional and can be used to carry additional informations, which mean
-	    only something to this very Action. They can have totally different meanings for other Actions.
-	    Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
+
 	*/
 
 	type = typeString;
@@ -58,8 +75,11 @@ Action::Action( QString typeString ) : Object( __class_name ) {
 }
 
 
-/* Class ActionManager */
 
+
+
+/* Class ActionManager */
+ActionManager* ActionManager::__instance = NULL;
 const char* ActionManager::__class_name = "ActionManager";
 
 ActionManager::ActionManager() : Object( __class_name )
@@ -242,19 +262,17 @@ bool ActionManager::handleAction( Action * pAction ){
 		return true;
 	}
 
-	  if( sActionString == "SELECT_NEXT_PATTERN"){
+          if( sActionString == "SELECT_NEXT_PATTERN" ){
 		bool ok;
-                int row = pAction->getParameter1().toInt(&ok,10);
+		int row = pAction->getParameter1().toInt(&ok,10);
                 if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-                        return false;
-                if(Preferences::get_instance()->patternModePlaysSelected())
-                        pEngine->setSelectedPatternNumber( row );
-                else
-                        pEngine->sequencer_setNextPattern( row, false, true );
+                    return false;
+		pEngine->setSelectedPatternNumber( row );
+		pEngine->sequencer_setNextPattern( row, false, true );
                 return true;
         }
 
-        if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY"){
+        if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY" ){
               bool ok;
               int row = pAction->getParameter2().toInt(&ok,10);
               pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
