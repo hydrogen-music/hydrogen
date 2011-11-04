@@ -139,7 +139,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	ActionManager * aH = ActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 
-	Action * pAction; 
+        MidiAction * pAction;
 
 	pAction = mM->getCCAction( msg.m_nData1 );
 	pAction->setParameter2( QString::number( msg.m_nData2 ) );
