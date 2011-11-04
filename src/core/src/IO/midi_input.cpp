@@ -136,7 +136,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	ActionManager * aH = ActionManager::get_instance();
+        MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 
         MidiAction * pAction;
@@ -173,7 +173,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		bIsChannelValid = ( nChannel == nMidiChannelFilter );
 	}
 
-	ActionManager * aH = ActionManager::get_instance();
+        MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
@@ -304,7 +304,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	*/
 	
 	
-	ActionManager * aH = ActionManager::get_instance();
+        MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 

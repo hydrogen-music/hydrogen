@@ -36,8 +36,32 @@
 
 using namespace H2Core;
 
-const char* MidiAction::__class_name = "MidiAction";
 
+/* Helperfunction */
+
+bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
+{
+        //helper function to set fx levels
+
+        Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+
+        Hydrogen *engine = Hydrogen::get_instance();
+        Song *song = engine->getSong();
+        InstrumentList *instrList = song->get_instrument_list();
+        Instrument *instr = instrList->get( nLine );
+        if ( instr == NULL) return false;
+
+        if( fx_param != 0 ){
+                        instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
+        } else {
+                        instr->set_fx_level( 0 , fx_channel );
+        }
+
+        Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+
+        return true;
+
+}
 
 /**
 * @class MidiAction
@@ -61,6 +85,8 @@ const char* MidiAction::__class_name = "MidiAction";
 *
 */
 
+const char* MidiAction::__class_name = "MidiAction";
+
 MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
 
 	type = typeString;
@@ -70,11 +96,23 @@ MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
 
 
 
-/* Class ActionManager */
-ActionManager* ActionManager::__instance = NULL;
-const char* ActionManager::__class_name = "ActionManager";
+/**
+* @class MidiActionManager
+*
+* @brief The MidiActionManager cares for the execution of MidiActions
+*
+*
+* The MidiActionManager handles the execution of midi actions. The class
+* includes the names and implementations of all possible actions.
+*
+*
+* @author Sebastian Moors
+*
+*/
+MidiActionManager* MidiActionManager::__instance = NULL;
+const char* MidiActionManager::__class_name = "ActionManager";
 
-ActionManager::ActionManager() : Object( __class_name )
+MidiActionManager::MidiActionManager() : Object( __class_name )
 {
 	__instance = this;
 
@@ -131,45 +169,23 @@ ActionManager::ActionManager() : Object( __class_name )
 }
 
 
-ActionManager::~ActionManager(){
+MidiActionManager::~MidiActionManager(){
 	//INFOLOG( "ActionManager delete" );
 	__instance = NULL;
 }
 
-void ActionManager::create_instance()
+void MidiActionManager::create_instance()
 {
 	if ( __instance == 0 ) {
-		__instance = new ActionManager;
+                __instance = new MidiActionManager;
 	}
 }
 
 
 
-bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
-{
-	//helper function to set fx levels
-			
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-	Instrument *instr = instrList->get( nLine );
-	if ( instr == NULL) return false;
 
-	if( fx_param != 0 ){
-			instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
-	} else {
-			instr->set_fx_level( 0 , fx_channel );
-	}
-		
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-	
-	return true;
-
-}
-
-bool ActionManager::handleAction( MidiAction * pAction ){
+bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 

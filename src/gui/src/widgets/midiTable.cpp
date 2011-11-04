@@ -88,7 +88,7 @@ void MidiTable::updateTable()
 
 void MidiTable::insertNewRow(QString actionString , QString eventString, int eventParameter , int actionParameter)
 {
-	ActionManager *aH = ActionManager::get_instance();
+        MidiActionManager *aH = MidiActionManager::get_instance();
 
 	insertRow( __row_count );
 	

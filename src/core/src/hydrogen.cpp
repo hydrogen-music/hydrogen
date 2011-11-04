@@ -1832,7 +1832,7 @@ void Hydrogen::create_instance()
 	MidiMap::create_instance();
 	Preferences::create_instance();
 	EventQueue::create_instance();
-	ActionManager::create_instance();
+        MidiActionManager::create_instance();
 
 	if( __instance == 0 ) {
 		__instance = new Hydrogen;
