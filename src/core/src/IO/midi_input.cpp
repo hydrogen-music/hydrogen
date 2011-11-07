@@ -50,91 +50,112 @@ MidiInput::~MidiInput()
 
 void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
-	EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
+        EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
 //	infoLog( "[handleMidiMessage]" );
 //	infoLog( "[handleMidiMessage] channel: " + to_string( msg.m_nChannel ) );
 //	infoLog( "[handleMidiMessage] val1: " + to_string( msg.m_nData1 ) );
 //	infoLog( "[handleMidiMessage] val2: " + to_string( msg.m_nData2 ) );
 
-	switch ( msg.m_type ) {
-	case MidiMessage::SYSEX:
-		handleSysexMessage( msg );
-		break;
 
-	case MidiMessage::NOTE_ON:
-		handleNoteOnMessage( msg );
-		break;
+        // midi channel filter for all messages
+        bool bIsChannelValid = true;
+        if ( Preferences::get_instance()->m_nMidiChannelFilter != -1 ) {
+                bIsChannelValid = ( msg.m_nChannel ==  Preferences::get_instance()->m_nMidiChannelFilter);
+        }
 
-	case MidiMessage::NOTE_OFF:
-		handleNoteOffMessage( msg );
-		break;
+        // exclude all midi channel filter independent messages
+        int type = msg.m_type;
+        if(MidiMessage::SYSEX == type
+                        || MidiMessage::SYSTEM_EXCLUSIVE == type
+                        || MidiMessage::START == type
+                        || MidiMessage::CONTINUE == type
+                        || MidiMessage::STOP == type
+                        || MidiMessage::SONG_POS == type
+                        || MidiMessage::QUARTER_FRAME == type
+                        ){
+                bIsChannelValid =true;
+        }
+        if(!bIsChannelValid) return;
 
-	case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-		ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
-		break;
+        switch ( type ) {
+        case MidiMessage::SYSEX:
+                handleSysexMessage( msg );
+                break;
 
-	case MidiMessage::CONTROL_CHANGE:
-		INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2").arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
-		handleControlChangeMessage( msg );
-		break;
+        case MidiMessage::NOTE_ON:
+                handleNoteOnMessage( msg );
+                break;
 
-	case MidiMessage::PROGRAM_CHANGE:
-		INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" ).arg( msg.m_nData1 ) );
-		Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
-		break;
+        case MidiMessage::NOTE_OFF:
+                handleNoteOffMessage( msg );
+                break;
 
-	case MidiMessage::CHANNEL_PRESSURE:
-		ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
-		break;
+        case MidiMessage::POLYPHONIC_KEY_PRESSURE:
+                ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
+                break;
 
-	case MidiMessage::PITCH_WHEEL:
-		ERRORLOG( "PITCH_WHEEL event not handled yet" );
-		break;
+        case MidiMessage::CONTROL_CHANGE:
+                INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2").arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
+                handleControlChangeMessage( msg );
+                break;
 
-	case MidiMessage::SYSTEM_EXCLUSIVE:
-		ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
-		break;
+        case MidiMessage::PROGRAM_CHANGE:
+                INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" ).arg( msg.m_nData1 ) );
+                Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
+                break;
 
-	case MidiMessage::START:
-		INFOLOG( "START event" );
-		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
-			Hydrogen::get_instance()->sequencer_play();
-		}
-		break;
+        case MidiMessage::CHANNEL_PRESSURE:
+                ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
+                break;
 
-	case MidiMessage::CONTINUE:
-		ERRORLOG( "CONTINUE event not handled yet" );
-		break;
+        case MidiMessage::PITCH_WHEEL:
+                ERRORLOG( "PITCH_WHEEL event not handled yet" );
+                break;
 
-	case MidiMessage::STOP:
-		INFOLOG( "STOP event" );
-		if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
-			Hydrogen::get_instance()->sequencer_stop();
-		}
-		break;
+        case MidiMessage::SYSTEM_EXCLUSIVE:
+                ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
+                break;
 
-	case MidiMessage::SONG_POS:
-		ERRORLOG( "SONG_POS event not handled yet" );
-		break;
+        case MidiMessage::START:
+                INFOLOG( "START event" );
+                if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+                        Hydrogen::get_instance()->sequencer_play();
+                }
+                break;
 
-	case MidiMessage::QUARTER_FRAME:
-		WARNINGLOG( "QUARTER_FRAME event not handled yet" );
-		break;
+        case MidiMessage::CONTINUE:
+                ERRORLOG( "CONTINUE event not handled yet" );
+                break;
 
-	case MidiMessage::UNKNOWN:
-		ERRORLOG( "Unknown midi message" );
-		break;
+        case MidiMessage::STOP:
+                INFOLOG( "STOP event" );
+                if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+                        Hydrogen::get_instance()->sequencer_stop();
+                }
+                break;
 
-	default:
-		ERRORLOG( QString( "unhandled midi message type: %1" ).arg( msg.m_type ) );
-	}
+        case MidiMessage::SONG_POS:
+                ERRORLOG( "SONG_POS event not handled yet" );
+                break;
+
+        case MidiMessage::QUARTER_FRAME:
+                WARNINGLOG( "QUARTER_FRAME event not handled yet" );
+                break;
+
+        case MidiMessage::UNKNOWN:
+                ERRORLOG( "Unknown midi message" );
+                break;
+
+        default:
+                ERRORLOG( QString( "unhandled midi message type: %1" ).arg( msg.m_type ) );
+        }
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 {
-	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
-	
+        //INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
         MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
@@ -156,22 +177,13 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 //	INFOLOG( "handleNoteOnMessage" );
 
-
-	int nMidiChannelFilter = Preferences::get_instance()->m_nMidiChannelFilter;
-	int nChannel = msg.m_nChannel;
 	int nNote = msg.m_nData1;
 	float fVelocity = msg.m_nData2 / 127.0;
 
 	if ( fVelocity == 0 ) {
 		handleNoteOffMessage( msg );
 		return;
-	}
-
-
-	bool bIsChannelValid = true;
-	if ( nMidiChannelFilter != -1 ) {
-		bIsChannelValid = ( nChannel == nMidiChannelFilter );
-	}
+        }
 
         MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
@@ -184,32 +196,32 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	
 	if ( action && Preferences::get_instance()->m_bMidiDiscardNoteAfterAction)
 	{
-		return;
+                return;
 	}
 
 	bool bPatternSelect = false;
 
-	if ( bIsChannelValid ) {
-		if ( bPatternSelect ) {
-			int patternNumber = nNote - 36;
-			//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
 
-			pEngine->sequencer_setNextPattern( patternNumber, false, false );
-		} else {
-			static const float fPan_L = 1.0f;
-			static const float fPan_R = 1.0f;
+        if ( bPatternSelect ) {
+                int patternNumber = nNote - 36;
+                //INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
 
-			int nInstrument = nNote - 36;
-			if ( nInstrument < 0 ) {
-				nInstrument = 0;
-			}
-			if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
-				nInstrument = MAX_INSTRUMENTS - 1;
-			}
+                pEngine->sequencer_setNextPattern( patternNumber, false, false );
+        } else {
+                static const float fPan_L = 1.0f;
+                static const float fPan_R = 1.0f;
 
-			pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
-		}
-	}
+                int nInstrument = nNote - 36;
+                if ( nInstrument < 0 ) {
+                        nInstrument = 0;
+                }
+                if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
+                        nInstrument = MAX_INSTRUMENTS - 1;
+                }
+
+                pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
+        }
+
 	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
 }
 
