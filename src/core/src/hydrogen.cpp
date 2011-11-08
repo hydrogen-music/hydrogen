@@ -3014,106 +3014,106 @@ void Hydrogen::setBcOffsetAdjust()
 
 void Hydrogen::handleBeatCounter()
 {
-	// Get first time value:
-	if (beatCount == 1)
-		gettimeofday(&currentTime,NULL);
+        // Get first time value:
+        if (beatCount == 1)
+                gettimeofday(&currentTime,NULL);
 
-	eventCount++;
-		
-	// Set wlastTime to wcurrentTime to remind the time:		
-	lastTime = currentTime;
-	
-	// Get new time:
-	gettimeofday(&currentTime,NULL);
-	
+        eventCount++;
 
-	// Build doubled time difference:
-	lastBeatTime = (double)(
-		lastTime.tv_sec
-		+ (double)(lastTime.tv_usec * US_DIVIDER)
-		+ (int)m_nCoutOffset * .0001
-		);
-	currentBeatTime = (double)(
-		currentTime.tv_sec
-		+ (double)(currentTime.tv_usec * US_DIVIDER)
-		);
-	beatDiff = beatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
-		
-	//if differences are to big reset the beatconter
-		if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ){
-			eventCount = 1;
-			beatCount = 1;
-			return;
-		} 
-	// Only accept differences big enough
-		if (beatCount == 1 || beatDiff > .001) {
-			if (beatCount > 1)
-				beatDiffs[beatCount - 2] = beatDiff ;
-		// Compute and reset:
-			if (beatCount == m_nbeatsToCount){
-//				unsigned long currentframe = getRealtimeFrames();
-				double beatTotalDiffs = 0;
-				for(int i = 0; i < (m_nbeatsToCount - 1); i++) 
-					beatTotalDiffs += beatDiffs[i];
-				double beatDiffAverage =
-					beatTotalDiffs
-					/ (beatCount - 1)
-					* m_ntaktoMeterCompute ;
-				beatCountBpm =
-					(float) ((int) (60 / beatDiffAverage * 100))
-					/ 100;
-				AudioEngine::get_instance()->lock( RIGHT_HERE );
-				if ( beatCountBpm > 500)
-						beatCountBpm = 500; 
-				setBPM( beatCountBpm );
-				AudioEngine::get_instance()->unlock();
-				if (Preferences::get_instance()->m_mmcsetplay
-				    == Preferences::SET_PLAY_OFF) {
-					beatCount = 1; 
-					eventCount = 1;
-				}else{
-					if ( m_audioEngineState != STATE_PLAYING ){
-						unsigned bcsamplerate =
-							m_pAudioDriver->getSampleRate();
-						unsigned long rtstartframe = 0;
-						if ( m_ntaktoMeterCompute <= 1){
-							rtstartframe =
-								bcsamplerate
-								* beatDiffAverage
-								* ( 1/ m_ntaktoMeterCompute );
-						}else
-						{
-							rtstartframe =
-								bcsamplerate
-								* beatDiffAverage
-								/ m_ntaktoMeterCompute ;
-						}
+        // Set wlastTime to wcurrentTime to remind the time:
+        lastTime = currentTime;
 
-						int sleeptime =
-							( (float) rtstartframe
-							  / (float) bcsamplerate
-							  * (int) 1000 )
-							+ (int)m_nCoutOffset
-							+ (int) m_nStartOffset;
-						#ifdef WIN32
-						Sleep( sleeptime );
-						#else
-						usleep( 1000 * sleeptime );
-						#endif
+        // Get new time:
+        gettimeofday(&currentTime,NULL);
 
-						sequencer_play();
-					}
-					
-					beatCount = 1; 
-					eventCount = 1;
-					return;
-				}
-			}
-			else {
-				beatCount ++;
-			}				
-		}
-		return;
+
+        // Build doubled time difference:
+        lastBeatTime = (double)(
+                                lastTime.tv_sec
+                                + (double)(lastTime.tv_usec * US_DIVIDER)
+                                + (int)m_nCoutOffset * .0001
+                                );
+        currentBeatTime = (double)(
+                                currentTime.tv_sec
+                                + (double)(currentTime.tv_usec * US_DIVIDER)
+                                );
+        beatDiff = beatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
+
+        //if differences are to big reset the beatconter
+        if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ){
+                eventCount = 1;
+                beatCount = 1;
+                return;
+        }
+        // Only accept differences big enough
+        if (beatCount == 1 || beatDiff > .001) {
+                if (beatCount > 1)
+                        beatDiffs[beatCount - 2] = beatDiff ;
+                // Compute and reset:
+                if (beatCount == m_nbeatsToCount){
+                        //				unsigned long currentframe = getRealtimeFrames();
+                        double beatTotalDiffs = 0;
+                        for(int i = 0; i < (m_nbeatsToCount - 1); i++)
+                                beatTotalDiffs += beatDiffs[i];
+                        double beatDiffAverage =
+                                        beatTotalDiffs
+                                        / (beatCount - 1)
+                                        * m_ntaktoMeterCompute ;
+                        beatCountBpm =
+                                        (float) ((int) (60 / beatDiffAverage * 100))
+                                        / 100;
+                        AudioEngine::get_instance()->lock( RIGHT_HERE );
+                        if ( beatCountBpm > 500)
+                                beatCountBpm = 500;
+                        setBPM( beatCountBpm );
+                        AudioEngine::get_instance()->unlock();
+                        if (Preferences::get_instance()->m_mmcsetplay
+                                        == Preferences::SET_PLAY_OFF) {
+                                beatCount = 1;
+                                eventCount = 1;
+                        }else{
+                                if ( m_audioEngineState != STATE_PLAYING ){
+                                        unsigned bcsamplerate =
+                                                        m_pAudioDriver->getSampleRate();
+                                        unsigned long rtstartframe = 0;
+                                        if ( m_ntaktoMeterCompute <= 1){
+                                                rtstartframe =
+                                                                bcsamplerate
+                                                                * beatDiffAverage
+                                                                * ( 1/ m_ntaktoMeterCompute );
+                                        }else
+                                        {
+                                                rtstartframe =
+                                                                bcsamplerate
+                                                                * beatDiffAverage
+                                                                / m_ntaktoMeterCompute ;
+                                        }
+
+                                        int sleeptime =
+                                                        ( (float) rtstartframe
+                                                          / (float) bcsamplerate
+                                                          * (int) 1000 )
+                                                        + (int)m_nCoutOffset
+                                                        + (int) m_nStartOffset;
+#ifdef WIN32
+                                        Sleep( sleeptime );
+#else
+                                        usleep( 1000 * sleeptime );
+#endif
+
+                                        sequencer_play();
+                                }
+
+                                beatCount = 1;
+                                eventCount = 1;
+                                return;
+                        }
+                }
+                else {
+                        beatCount ++;
+                }
+        }
+        return;
 }
 //~ beatcounter
 
@@ -3231,7 +3231,7 @@ void Hydrogen::setNewBpmJTM( float bpmJTM )
 void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 {
 	if ( ( m_audioEngineState == STATE_PLAYING ) )
-	m_nHumantimeFrames = nFrames + m_nHumantimeFrames;
+                m_nHumantimeFrames = nFrames + m_nHumantimeFrames;
 }
 
 
@@ -3326,19 +3326,19 @@ void Hydrogen::sortTimelineTagVector()
 
 void Hydrogen::setTimelineBpm()
 {
-	//time line test
-	if ( Preferences::get_instance()->__usetimeline ){
-		float bpm = m_pSong->__bpm;
-		for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++){
-			if( m_timelinevector[i].m_htimelinebeat > getPatternPos() ){
-				break;
-			}
-			bpm = m_timelinevector[i].m_htimelinebpm;
-		}//for
-    if(bpm != m_pSong->__bpm){
-      setBPM( bpm );
-    }
-	}//if
+        //time line test
+        if ( Preferences::get_instance()->__usetimeline ){
+                float bpm = m_pSong->__bpm;
+                for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++){
+                        if( m_timelinevector[i].m_htimelinebeat > getPatternPos() ){
+                                break;
+                        }
+                        bpm = m_timelinevector[i].m_htimelinebpm;
+                }//for
+                if(bpm != m_pSong->__bpm){
+                        setBPM( bpm );
+                }
+        }//if
 }
 
 };

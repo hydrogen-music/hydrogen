@@ -411,7 +411,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	if ( pPref->m_nMidiChannelFilter != midiPortChannelComboBox->currentIndex() - 1 ) {
-		m_bNeedDriverRestart = true;
+                //m_bNeedDriverRestart = true;
 	}
 	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 

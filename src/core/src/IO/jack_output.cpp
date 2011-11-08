@@ -294,124 +294,124 @@ void JackOutput::relocateBBT()
 
 void JackOutput::updateTransportInfo()
 {
-	if ( locate_countdown == 1 )
-		locate( locate_frame );
-	if ( locate_countdown > 0 )
-		locate_countdown--;
+        if ( locate_countdown == 1 )
+                locate( locate_frame );
+        if ( locate_countdown > 0 )
+                locate_countdown--;
 
-	if ( Preferences::get_instance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
-		m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
-
-
-		// update m_transport with jack-transport data
-		switch ( m_JackTransportState ) {
-		case JackTransportStopped:
-			m_transport.m_status = TransportInfo::STOPPED;
-			//infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
-			break;
-
-		case JackTransportRolling:
-			if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
-				must_relocate = 2;
-				//WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
-			}
-			m_transport.m_status = TransportInfo::ROLLING;
-			//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
-			break;
-
-		case JackTransportStarting:
-			m_transport.m_status = TransportInfo::STOPPED;
-			//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
-			break;
-
-		default:
-			ERRORLOG( "Unknown jack transport state" );
-		}
+        if ( Preferences::get_instance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
+                m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
 
 
-		// FIXME
-		// TickSize and BPM
-		Hydrogen * H = Hydrogen::get_instance();
-    H->setTimelineBpm(); // dlr: fix #168, jack may have re-located us anywhere, check for bpm change every cycle
+                // update m_transport with jack-transport data
+                switch ( m_JackTransportState ) {
+                case JackTransportStopped:
+                        m_transport.m_status = TransportInfo::STOPPED;
+                        //infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
+                        break;
 
-		if ( m_JackTransportPos.valid & JackPositionBBT ) {
-			float bpm = ( float )m_JackTransportPos.beats_per_minute;
-			if ( m_transport.m_nBPM != bpm ) {
+                case JackTransportRolling:
+                        if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
+                                must_relocate = 2;
+                                //WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
+                        }
+                        m_transport.m_status = TransportInfo::ROLLING;
+                        //infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
+                        break;
 
-				
-				if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ){
-// 					WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
-					m_transport.m_nBPM = bpm;
-					must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
+                case JackTransportStarting:
+                        m_transport.m_status = TransportInfo::STOPPED;
+                        //infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
+                        break;
 
-// This commenting out is rude perhaps, but I cant't figure out what this bit is doing.
-// In any case, setting must_relocate = 1 here causes too many relocates. Jakob Lund
-/*				} else { 
-					if ( m_transport.m_status == TransportInfo::STOPPED ) {
-						oldpo = H->getPatternPos();
-						must_relocate = 1;
-						//changer =1;
-					}*/
+                default:
+                        ERRORLOG( "Unknown jack transport state" );
+                }
 
-				}
-				
-				// Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
-			}
-		}
 
-		if ( m_transport.m_nFrames + bbt_frame_offset != m_JackTransportPos.frame ) {
-			if ( ( m_JackTransportPos.valid & JackPositionBBT ) && must_relocate == 0 ) {
-				WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
-				must_relocate = 2;
-			} else {
-				if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
-					// If There's no timebase_master, and audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match, but hopefully it was calculated correctly:
+                // FIXME
+                // TickSize and BPM
+                Hydrogen * H = Hydrogen::get_instance();
+                H->setTimelineBpm(); // dlr: fix #168, jack may have re-located us anywhere, check for bpm change every cycle
 
-					//this perform Jakobs mod in pattern mode, but both m_transport.m_nFrames works with the same result in pattern Mode
-					// in songmode the first case dont work. 
-					//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames();
-					//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
-					//if we remove this we also can remove *m_pEngine from header
+                if ( m_JackTransportPos.valid & JackPositionBBT ) {
+                        float bpm = ( float )m_JackTransportPos.beats_per_minute;
+                        if ( m_transport.m_nBPM != bpm ) {
+
+
+                                if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ){
+                                        // 					WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
+                                        m_transport.m_nBPM = bpm;
+                                        must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
+
+                                        // This commenting out is rude perhaps, but I cant't figure out what this bit is doing.
+                                        // In any case, setting must_relocate = 1 here causes too many relocates. Jakob Lund
+                                        /*				} else {
+     if ( m_transport.m_status == TransportInfo::STOPPED ) {
+      oldpo = H->getPatternPos();
+      must_relocate = 1;
+      //changer =1;
+     }*/
+
+                                }
+
+                                // Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
+                        }
+                }
+
+                if ( m_transport.m_nFrames + bbt_frame_offset != m_JackTransportPos.frame ) {
+                        if ( ( m_JackTransportPos.valid & JackPositionBBT ) && must_relocate == 0 ) {
+                                WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
+                                must_relocate = 2;
+                        } else {
+                                if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
+                                        // If There's no timebase_master, and audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match, but hopefully it was calculated correctly:
+
+                                        //this perform Jakobs mod in pattern mode, but both m_transport.m_nFrames works with the same result in pattern Mode
+                                        // in songmode the first case dont work.
+                                        //so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames();
+                                        //because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
+                                        //if we remove this we also can remove *m_pEngine from header
 #if 0 // dlr: fix #169, why do we have a different behaviour for SONG_MODE?
-					if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
-						m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/; ///see comment in svn changeset 753
-					}
-					else
-					{
-						m_transport.m_nFrames = H->getHumantimeFrames();
-					}
+                                        if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
+                                                m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/; ///see comment in svn changeset 753
+                                        }
+                                        else
+                                        {
+                                                m_transport.m_nFrames = H->getHumantimeFrames();
+                                        }
 #else
-          m_transport.m_nFrames = m_JackTransportPos.frame;
-          bbt_frame_offset = 0; // dlr: stop re-syncing in every cycle when STOPPED
+                                        m_transport.m_nFrames = m_JackTransportPos.frame;
+                                        bbt_frame_offset = 0; // dlr: stop re-syncing in every cycle when STOPPED
 #endif
-					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
-					if ( m_transport.m_status == TransportInfo::ROLLING )
-							H->triggerRelocateDuringPlay();
-				} else {
-					///this is experimantal... but it works for the moment... fix me fix :-) wolke
-					// ... will this actually happen? keeping it for now ( jakob lund )
-					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();// have nothing to do with the old ardour transport bug
-				}
-			}
-		}
-		
-		// humantime fix
-		if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
+                                        // In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
+                                        if ( m_transport.m_status == TransportInfo::ROLLING )
+                                                H->triggerRelocateDuringPlay();
+                                } else {
+                                        ///this is experimantal... but it works for the moment... fix me fix :-) wolke
+                                        // ... will this actually happen? keeping it for now ( jakob lund )
+                                        m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();// have nothing to do with the old ardour transport bug
+                                }
+                        }
+                }
 
-			H->setHumantimeFrames(m_JackTransportPos.frame);
-			//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
-		}
+                // humantime fix
+                if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
 
-		if ( must_relocate == 1 ) {
-			//WARNINGLOG( "Resyncing!" );
-			relocateBBT();
-			if ( m_transport.m_status == TransportInfo::ROLLING ) {
-				H->triggerRelocateDuringPlay();
-			}
-		}
-		
-		if ( must_relocate > 0 ) must_relocate--;
-	}
+                        H->setHumantimeFrames(m_JackTransportPos.frame);
+                        //WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
+                }
+
+                if ( must_relocate == 1 ) {
+                        //WARNINGLOG( "Resyncing!" );
+                        relocateBBT();
+                        if ( m_transport.m_status == TransportInfo::ROLLING ) {
+                                H->triggerRelocateDuringPlay();
+                        }
+                }
+
+                if ( must_relocate > 0 ) must_relocate--;
+        }
 }
 
 
