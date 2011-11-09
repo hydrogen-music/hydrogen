@@ -1167,10 +1167,23 @@
       <title>Pattern Editor</title>
 
       <para>The "Pattern Editor" 
-      lets us create or modify the pattern (bar) which is currently selected.  You can add/remove 
-      notes, and tune a number of per-note properties like velocity and pan. The Pattern Editor 
+      allows you to create or modify the selected pattern by adding/removing notes and tunning 
+      a number of per-note properties like velocity and pan.
+      The Pattern Editor 
       can be used in 2 modes : 'Drum' mode or 'Piano' mode.  You can switch between these 
       modes by clicking the Drum/Piano button (located on the top-right of the Pattern Editor) 
+      <note>
+      <itemizedlist mark="opencircle">
+      <listitem><para>
+      If you are editing a pattern in Single Pattern Mode you will always hear the pattern you are 
+      editing when you press play.</para></listitem>
+      <listitem><para>If you are working in Stacked Pattern Mode you will hear the <emphasis>active</emphasis> pattern(s), 
+      not necessarily the pattern you are currently editing.
+      (The active patterns have a small triangle next to the pattern name in the Song Editor). 
+      </para></listitem>
+      </itemizedlist>
+      </note>
+      
       </para>
       
       <para>First let's take a look at the (classic) 'Drum' mode :
