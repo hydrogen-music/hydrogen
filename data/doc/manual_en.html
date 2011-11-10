@@ -96,9 +96,12 @@
             resort.</p></li><li class="listitem"><p><span class="bold"><strong>PortAudio</strong></span>: an open-source
             multi platform audio driver</p></li><li class="listitem"><p><span class="bold"><strong>CoreAudio</strong></span>: a driver for Mac
             OS X (experimental)</p></li></ul></div></div><div class="section" title="The Midi System tab"><div class="titlepage"><div><div><h3 class="title"><a name="sect.preferences.midi_tab"></a>The Midi System tab</h3></div></div></div><p>The "Midi System" tab (<a class="xref" href="#fig.preferences.midi_tab" title="Figure 1.3. The MIDI System Tab">Figure 1.3, &#8220;The MIDI System Tab&#8221;</a>)
-        contains all MIDI settings. Here you can choose the MIDI driver, input, and channel(s) that Hydrogen should respond to.  
+        contains all MIDI settings. Here you can choose the MIDI driver (ALSA, PortMidi, 
+        CoreMidi or JackMidi) input, and channel(s) that Hydrogen should respond to.  
+        </p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>If you want to use Jack Session management you should select the 
+        JackMidi driver.  Jack Session management can only (re)store Jack midi connections.</p></div><p>
         You can also define midi bindings: link a midi note/message to an action. 
-        To do this simply press the red 'REC' button left of the 'binding' action line.  
+        To do this simply press the red 'REC' button left of the event-action binding line.  
         A popup will inform you that Hydrogen is waiting for your input.  Press/hit/turn 
         the key/pad/knob on your midi keyboard (or controller) that you want to link to 
         this action.  The popup will close and the Event Param value will now show the 
@@ -179,8 +182,8 @@
           Hydrogen will play the pattern that is currently selected, and thus displayed 
           in the Pattern Editor (see <a class="xref" href="#sect.pattern_editor" title="Pattern Editor">the section called &#8220;Pattern Editor&#8221;</a>).</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/MeasureSettings.png"></span></p><p>Set measure type and Beat Counter (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>).</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/background_BPM.png"></span></p><p>Set speed of playing (range: 30-400 bpm) <span class="bold"><strong>[Hotkey = mouse wheel]</strong></span> and button to
           enable/disable metronome</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/MidiIN_CPU.png"></span></p><p>Shows CPU load and MIDI events.  The CPU bargraph gives you an indication of the CPU load.  The MIDI led lights up every time Hydrogen receives a midi message.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/JackTrans_Master.png"></span></p><p>Click J. TRANS to enable Jack transport.  If the J. MASTER button is pressed Hydrogen will work as 'master', else it will act as 'slave'
-          to another 'master' program (e.g. Ardour). This applet is only
-          available if Jack Audio Driver is selected.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/mixer-instrrack_btn.png"></span></p><p>
+          to another 'master' program (e.g. Ardour). Note that this applet is only
+          available if Jack Audio Driver is selected, <span class="emphasis"><em>NOT</em></span> when the Audio driver is set to 'Auto'.</p></li><li class="listitem" style="list-style-type: circle"><p><span class="inlinemediaobject"><img src="img/mixer-instrrack_btn.png"></span></p><p>
           The last section gives you quick access to the Mixer window and the Instrument Rack.
             The LCD screen displays what Hydrogen is up to.
           </p></li></ul></div><div class="section" title="Tap Tempo and BeatCounter"><div class="titlepage"><div><div><h3 class="title"><a name="sect.tap_tempo"></a>Tap Tempo and BeatCounter</h3></div></div></div><p>It is possible to change the tempo at any time using the tap-tempo and

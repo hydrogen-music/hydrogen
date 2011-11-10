@@ -325,9 +325,12 @@
         <title>The Midi System tab</title>
 
         <para>The "Midi System" tab (<xref linkend="fig.preferences.midi_tab"/>)
-        contains all MIDI settings. Here you can choose the MIDI driver, input, and channel(s) that Hydrogen should respond to.  
+        contains all MIDI settings. Here you can choose the MIDI driver (ALSA, PortMidi, 
+        CoreMidi or JackMidi) input, and channel(s) that Hydrogen should respond to.  
+        <note><para>If you want to use Jack Session management you should select the 
+        JackMidi driver.  Jack Session management can only (re)store Jack midi connections.</para></note>
         You can also define midi bindings: link a midi note/message to an action. 
-        To do this simply press the red 'REC' button left of the 'binding' action line.  
+        To do this simply press the red 'REC' button left of the event-action binding line.  
         A popup will inform you that Hydrogen is waiting for your input.  Press/hit/turn 
         the key/pad/knob on your midi keyboard (or controller) that you want to link to 
         this action.  The popup will close and the Event Param value will now show the 
@@ -744,8 +747,8 @@
           </imageobject></inlinemediaobject></para>
 
           <para>Click J. TRANS to enable Jack transport.  If the J. MASTER button is pressed Hydrogen will work as 'master', else it will act as 'slave'
-          to another 'master' program (e.g. Ardour). This applet is only
-          available if Jack Audio Driver is selected.</para>
+          to another 'master' program (e.g. Ardour). Note that this applet is only
+          available if Jack Audio Driver is selected, <emphasis>NOT</emphasis> when the Audio driver is set to 'Auto'.</para>
         </listitem>
         
        <listitem>
