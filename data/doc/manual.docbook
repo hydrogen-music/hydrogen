@@ -230,8 +230,9 @@
         choose to automatically reopen the last used song and/or playlist.  This can save you 
         the trouble of having to reopen the song you are working on every time you open 
         Hydrogen.  Auto loading the playlist can come in handy when you are using Hydrogen live.</para>
-        <para>If you want to use Lash to manage your Jack connections you should enable 
-        it here so Hydrogen allows interaction with Lash.</para>
+        <para>If you want to use Lash for session management you should enable 
+        it here so Hydrogen allows interaction with Lash.  If jou are using Jack Session for session management
+        you have to option to let Hydrogen automatically save the song file in the Jack Session Directory.</para>
         <para>The Beat Counter drift compensation and start offset allow you to compensate
          for system latency when you are using the Beat Counter function (see <xref linkend="sect.tap_tempo"/>)</para>
         <para>The Max number of bars in a song can be set here (currently limited to 800) 
@@ -243,7 +244,7 @@
           <title>The General Tab</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="img/PreferencesGeneral_V2.png" format="PNG"/>
+              <imagedata fileref="img/PreferencesGeneral_V3.png" format="PNG"/>
             </imageobject>
           </mediaobject>
         </figure>
