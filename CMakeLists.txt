@@ -48,7 +48,7 @@ OPTION(WANT_RUBBERBAND   "Include RUbberBand (Audio Time Stretcher Library) supp
 IF(APPLE)
     OPTION(WANT_COREAUDIO   "Include CoreAudio support" ON)
     OPTION(WANT_COREMIDI    "Include CoreMidi support" ON)
-    OPTION(WANT_BUNDLE  "Build a MAC OSX bundle application" OFF)
+    OPTION(WANT_BUNDLE  "Build a MAC OSX bundle application" ON)
 ENDIF()
 
 IF(WANT_DEBUG)
@@ -58,16 +58,19 @@ ELSE()
     SET(CMAKE_BUILD_TYPE Release)
     SET(H2CORE_HAVE_DEBUG FALSE)
 ENDIF()
+
 IF(WANT_BUNDLE)
     SET(H2CORE_HAVE_BUNDLE TRUE)
 ELSE()
     SET(H2CORE_HAVE_BUNDLE FALSE)
 ENDIF()
+
 IF(WANT_SHARED)
     SET(H2CORE_LIBRARY_TYPE SHARED)
 ELSE()
     SET(H2CORE_LIBRARY_TYPE STATIC)
 ENDIF()
+
 #SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
 SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
 SET(CMAKE_CXX_FLAGS_RELEASE "")
@@ -294,6 +297,8 @@ ENDIF(VERSION_SUFFIX)
 
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen ${VERSION}")
 
+
+
 IF(WIN32)
     # TODO
     #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\nsis_branding.bmp")
@@ -307,32 +312,18 @@ IF(WIN32)
     SET(CPACK_NSIS_MENU_LINKS "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
     SET(CPACK_SOURCE_GENERATOR "ZIP")
 ELSE(WIN32)
-    IF(APPLE)
-        IF(WANT_BUNDLE)
-            #http://www.cmake.org/cmake/help/cmake-2-8-docs.html#prop_tgt:MACOSX_BUNDLE
-            SET(MACOSX_BUNDLE_INFO_STRING "wazza?!?")
-            SET(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/data/img/gray/icon.svg")
-            SET(MACOSX_BUNDLE_GUI_IDENTIFIER "Hydrogen")
-            SET(MACOSX_BUNDLE_LONG_VERSION_STRING "${VERSION}")
-            SET(MACOSX_BUNDLE_BUNDLE_NAME "Hydrogen an andvanced drum machine for GNU/Linux")
-            SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VERSION}")
-            SET(MACOSX_BUNDLE_BUNDLE_VERSION "${VERSION}")
-            SET(MACOSX_BUNDLE_COPYRIGHT "Hydrogen Developers, 2009")
-        ELSE()
-            SET(CPACK_STRIP_FILES "")
-            SET(CPACK_PACKAGE_EXECUTABLES "hydrogen-gui" "Hydrogen binary")
-            SET(CPACK_SOURCE_GENERATOR "TBZ2")
-        ENDIF()
-    ELSE()
-        SET(CPACK_STRIP_FILES "")
-        SET(CPACK_PACKAGE_EXECUTABLES "hydrogen-gui" "Hydrogen binary")
-        SET(CPACK_SOURCE_GENERATOR "TBZ2")
-    ENDIF()
+    #apple stuff was moved to src/gui/CMakeLists.txt
 ENDIF()
 
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "hydrogen-${VERSION}")
 SET(CPACK_SOURCE_IGNORE_FILES ".*~;\\\\.git;\\\\.svn;${CMAKE_BINARY_DIR}")
 
+#!The following 5 lines are copied from cmake's QtTest example
+
+# To Create a package, one can run "cpack -G DragNDrop CPackConfig.cmake" on Mac OS X
+# where CPackConfig.cmake is created by including CPack
+# And then there's ways to customize this as well
+set(CPACK_BINARY_DRAGNDROP ON)
 INCLUDE(CPack)
 
 #

@@ -24,6 +24,28 @@ INCLUDE_DIRECTORIES(
     ${QT_INCLUDES}
 )
 
+IF(APPLE)
+	# set how it shows up in the Info.plist file
+     	SET(MACOSX_BUNDLE_INFO_STRING "Hydrogen for Mac")
+	SET(MACOSX_BUNDLE_ICON_FILE "icon.icns")
+	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "Hydrogen")
+	SET(MACOSX_BUNDLE_LONG_VERSION_STRING "${VERSION}")
+	SET(MACOSX_BUNDLE_BUNDLE_NAME "Hydrogen an andvanced drum machine for GNU/Linux")
+	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VERSION}")
+	SET(MACOSX_BUNDLE_BUNDLE_VERSION "${VERSION}")
+	SET(MACOSX_BUNDLE_COPYRIGHT "Hydrogen Developers, 2009")
+
+  	# set where in the bundle to put the icns file
+	SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/data/img/gray/icon.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	# include the icns file in the target
+	SET(hydrogen_SRCS ${hydrogen_SRCS} ${CMAKE_SOURCE_DIR}/data/img/gray/icon.icns)
+	
+	#copy the data folder
+	FILE(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION hydrogen.app/Contents/Resources PATTERN ".svn" EXCLUDE)
+  	
+ENDIF()
+
+
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H})
 TARGET_LINK_LIBRARIES(hydrogen
     hydrogen-core-${VERSION}
