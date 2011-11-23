@@ -75,6 +75,12 @@ ENDIF()
 SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
 SET(CMAKE_CXX_FLAGS_RELEASE "")
 SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
+
+
+IF(APPLE)
+	#Compile for 32bit and 64bit intel macs
+	SET (CMAKE_OSX_ARCHITECTURES "i386;x86_64;")
+ENDIF()
 #
 # MANDATORY PKGS AND DEFAULT OPTIONS
 #
