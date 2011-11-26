@@ -129,7 +129,7 @@ void Director::metronomeEvent( int nValue )
 		return;
 	}
 	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
-                __p_color = QColor( 255, 50, 1 ,255 );
+                __color = QColor( 255, 50, 1 ,255 );
 		p_counter = 1;		
 	}
 	else {	//foregroundcolor "rect" for all other blinks
@@ -137,7 +137,7 @@ void Director::metronomeEvent( int nValue )
 		if( p_counter %2 == 0 ) 
                         p_wechselblink = width() * 52.5/100;
 
-                __p_color = QColor( 24, 250, 31, 255 );
+                __color = QColor( 24, 250, 31, 255 );
 
 	}
 
@@ -162,7 +162,7 @@ void Director::metronomeEvent( int nValue )
 
 void Director::updateMetronomBackground()
 {
-        __p_color.setAlpha( 0 );
+        __color.setAlpha( 0 );
         timer->stop();
 	update();
 }
@@ -180,7 +180,7 @@ void Director::paintEvent( QPaintEvent* ev )
 
 	//draw the metronome
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
-        painter.setBrush( __p_color );
+        painter.setBrush( __color );
 	painter.drawRect (  p_wechselblink, height() * 25/100, width() * 42.5/100, height() * 35/100);
 
 

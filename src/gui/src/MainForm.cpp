@@ -450,8 +450,11 @@ void MainForm::action_file_new()
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	Hydrogen::get_instance()->m_timelinetagvector.clear();
+
+        // update director tags
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+        // update director songname
+        EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
 

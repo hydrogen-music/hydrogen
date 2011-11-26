@@ -52,7 +52,7 @@ class Director : public QDialog, public Ui_Director_UI, public H2Core::Object, p
 
 	private:
                 QTimer *timer;
-                QColor __p_color;
+                QColor __color;
 //		QPixmap *m_pBackground;
                 QPalette __blinkerPalette;
 		int p_counter;
