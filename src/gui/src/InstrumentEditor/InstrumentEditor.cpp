@@ -805,7 +805,8 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
-	m_pInstrument->set_stop_notes( on );
+        m_pInstrument->set_stop_notes( on );
+        selectedInstrumentChangedEvent();	// force an update
 }
 
 void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)

@@ -512,7 +512,6 @@ void MainForm::action_file_save()
 		return action_file_save_as();
 	}
 
-	LocalFileMng mng;
 	bool saved = false;
 	saved = song->save( filename );
 	
@@ -531,6 +530,7 @@ void MainForm::action_file_save()
 		updateRecentUsedSongList();
 
 		h2app->setScrollStatusBarMessage( trUtf8("Song saved.") + QString(" Into: ") + filename, 2000 );
+                EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	}
 }
 

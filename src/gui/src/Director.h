@@ -51,19 +51,19 @@ class Director : public QDialog, public Ui_Director_UI, public H2Core::Object, p
 
 
 	private:
-		QTimer *timer;
-		QColor p_color;
+                QTimer *timer;
+                QColor __p_color;
 //		QPixmap *m_pBackground;
-		QPalette blinkerPalette;
+                QPalette __blinkerPalette;
 		int p_counter;
 		int p_fadealpha;
-		float p_bpm;
+                float f_bpm;
 		int p_bar;
 		int p_wechselblink;
-		QString TAG;
-		QString TAG2;
-		QString songName;
-		int tagbeat;
+                QString __TAG;
+                QString __TAG2;
+                QString __songName;
+                int p_tagbeat;
 
 };
 
