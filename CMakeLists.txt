@@ -29,14 +29,22 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG       "build with debug information" ON)
+
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
 ELSE()
     OPTION(WANT_SHARED      "Build the core library shared." ON)
 ENDIF()
+
 OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" OFF)
 OPTION(WANT_LADSPA       "Enable use of LADSPA plugins" ON)
-OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
+
+IF(APPLE)
+	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
+ELSE()
+	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
+ENDIF()
+
 OPTION(WANT_OSS          "Include OSS (Open Sound System) support" OFF)
 OPTION(WANT_ALSA         "Include ALSA (Advanced Linux Sound Architecture) support" ON)
 OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
