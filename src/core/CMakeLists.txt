@@ -49,8 +49,8 @@ TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
 #SET_TARGET_PROPERTIES(hydrogen-core-${VERSION} PROPERTIES PUBLIC_HEADER   "${hydrogen_INCLUDES}" )
 
 INSTALL(TARGETS hydrogen-core-${VERSION}
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+    ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
     # do not copy directory hierarchy
     #PUBLIC_HEADER DESTINATION include/hydrogen
 )
