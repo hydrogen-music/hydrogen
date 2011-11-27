@@ -252,7 +252,7 @@ void Button::paintEvent( QPaintEvent* ev)
 		QColor text(10, 10, 10);
 
 		if (m_bMouseOver) {
-			shadow = QColor(150, 250, 150, 100);
+			shadow = QColor(220, 220, 220, 100);
 		}
 
 		// shadow
