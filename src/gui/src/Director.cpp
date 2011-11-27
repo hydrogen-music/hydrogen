@@ -70,7 +70,7 @@ Director::Director ( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
-	INFOLOG ( "INIT" );
+	//INFOLOG ( "INIT" );
 	setWindowTitle ( trUtf8 ( "Director" ) );
 
 	p_counter = 1;	// to compute the right beat
@@ -86,7 +86,7 @@ Director::Director ( QWidget* pParent )
 
 Director::~Director()
 {
-	INFOLOG ( "DESTROY" );
+	//INFOLOG ( "DESTROY" );
 }
 
 
