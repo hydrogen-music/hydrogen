@@ -121,7 +121,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	sAuthors += "</ul>";
 
 
-	authorsTxt->append( sAuthors );
+	authorsTxt->setText( sAuthors );
 
 	logoLabel->setPixmap( QPixmap( Skin::getImagePath() +"/about/aboutLogo.png" ) );
 }
