@@ -494,7 +494,7 @@
 
       </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>SWH-Plugins available at <a class="ulink" href="http://plugin.org.uk" target="_top">http://plugin.org.uk</a>. </p><p>(Note : if you want to compile these plugins
           you need the FFTW tarball from <a class="ulink" href="http://www.fftw.org" target="_top">http://www.fftw.org</a>)</p></li><li class="listitem"><p>CMT available at <a class="ulink" href="http://www.ladspa.org" target="_top">http://www.ladspa.org</a>.</p></li><li class="listitem"><p>TAP available at <a class="ulink" href="http://tap-plugins.sf.net" target="_top">http://tap-plugins.sf.net</a>.</p></li><li class="listitem"><p>Calf plugins <a class="ulink" href="http://calf.sourceforge.net/" target="_top">http://calf.sourceforge.net/</a>.</p></li><li class="listitem"><p> ....</p></li></ul></div><p>
-      </p><div class="warning" title="Plugins Kill" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Plugins Kill</h3><p>A LADSPA plugin is compiled, executable code.  It is capable of
+      </p><div class="warning" title="Plugins Kill" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Plugins Kill</h3><p>A badly designed LADSPA plugin is capable of
         hanging, crashing, freezing, screeching, overflowing buffers, and even
         phoning home.  If you start having issues with Hydrogen, disable your
         plugins and see if things improve.  Some plugins are not designed for
@@ -512,13 +512,13 @@
       </p><div class="figure"><a name="fig.select_effect"></a><p class="title"><b>Figure 2.10. Select an Effect</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/MixerFXSelect.png" alt="Select an Effect"></div></div></div><p><br class="figure-break">
       
       Once you have selected a plugin you will immediately have access 
-      to the parameters of that plugin :
+      to its parameters:
       
        
         </p><div class="informalfigure"><a name="figLADSPA_FX_Properties"></a><div class="mediaobject"><img src="img/LADSPA_FX_Properties.png"></div></div><p>
 
 
-      You can select another plugin by clicking the 'Select FX' button, and If you quickly want to 
+      You can select another plugin by clicking the 'Select FX' button. If you quickly want to 
       enable/disable the effect click the 'Deactivate' button (or the Bypass (
 
       <span class="inlinemediaobject"><img src="img/bypass_over.png"></span>)
@@ -526,50 +526,45 @@
       button in the FX rack).  This can be handy for a quick A/B comparison.</p><p>After you have selected the FX and tweaked it's parameters you can use the 
       FX return knob to increase/decrease how much of this FX will be returned to the master output.</p></div><div class="section" title="Master section"><div class="titlepage"><div><div><h3 class="title"><a name="sect.master"></a>Master section</h3></div></div></div><p>
        
-      The Master section contains the Master volume fader with VU meters, and 3 global Humanize 'effects'
-      (Velocity, Timing and Swing).  These are not the type of effects as described in the LADSPA
-      section, instead these effects will alter the way the notes are played, in order to add a 'human feel' to the song :
+      The Master section contains the Master volume fader with VU meters and three global Humanize 
+      settings for Velocity, Timing and Swing (in order to add a 'human feel' to the song):
       
-     </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Velocity : this knob will add a certain randomness to the note velocity. 
+     </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Velocity : adds a certain randomness to the note velocity. 
            The higher you turn this knob, the more the velocity will be randomized.
-          </p></li><li class="listitem"><p>Timing : this knob will add a certain randomness to the note timing (lead/lag).  
+          </p></li><li class="listitem"><p>Timing : adds a certain randomness to the note timing (lead/lag).  
           The higher you turn this knob, the more the timing will be randomized.</p></li><li class="listitem"><p>Swing : this knob will add a certain amount of swing to the song.</p></li></ul></div><p>
       
       Note that Hydrogen can also be switched to 'per instrument output' mode (see <a class="xref" href="#sect.preferences.audio_tab" title="The Audio System tab">the section called &#8220;The Audio System tab&#8221;</a>),
       and in this mode all channel strip outputs will be available in Jack (not just the Master output).  
       This allows you to route the individual instruments directly into any other Jack enabled application (eg Ardour) and gives you
-      a lot more flexibility.</p><p>On the bottom-right of the Master section you can find the' FX' button (show/hide the FX rack), and
-      the 'Peak' button (enable/disable the VU meters).
+      a lot more flexibility.</p><p>On the bottom-right of the Master section the 'FX' button 
+        <span class="inlinemediaobject"><img src="img/showFX_on.png"></span>      
+        will show/hide the FX rack, and the 'Peak' button 
        
       <span class="inlinemediaobject"><img src="img/showPeaks_on.png"></span>       
+       will enable/disable the VU meters.
        
-       Note that the VU meter fallof speed can be configured in the preferences window (see
+       </p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>The VU meter fall off speed can be configured in the preferences window (see
        <a class="xref" href="#sect.preferences.appearance_tab" title="The Appearance tab">the section called &#8220;The Appearance tab&#8221;</a>)
-
-        each instrument switching the
-
-        <span class="inlinemediaobject"><img src="img/showFX_on.png"></span>
-
-        button. See next section for a detailed overview.
+       </p></div><p>
        
-       </p></div></div><div class="section" title="Sound Library (Drumkit/Pattern/Song Manager)"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.sound_library"></a>Sound Library (Drumkit/Pattern/Song Manager)</h2></div></div></div><p>First of all a little history on the Sound library and Drumkits : 'In the beginning' Hydrogen was a 90% drum 
-      machine.  Consequently the collection of drum sounds was called 'a drumkit'.
-      Since then a lot has changed and Hydrogen has become much more than a drum machine.
-      It is a versatile sound synthesizer/sequencer that is capable of generating and manipulating all sorts
-      of sounds.  Hence the term Drumkit might be misleading since you can load any sound into
-      a Drumkit and manipulate that sound just like playing a 'regular' synthesizer.  
-      (This is also the main reason why the Piano mode was added to the pattern editor : 
-      see <a class="xref" href="#sect.pattern_editor.piano_mode" title="Pattern Editor Piano mode">the section called &#8220;Pattern Editor Piano mode&#8221;</a>).</p><p>In this manual (and in other documentation) you will find the terms Drumkit and
-      Soundlibrary frequently, and they might be referring to the same thing ... or not. The diagram
-      below shows the actual relation between the Soundlibrary and Drumkits :
+       </p></div></div><div class="section" title="Sound Library (Drumkit/Pattern/Song Manager)"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.sound_library"></a>Sound Library (Drumkit/Pattern/Song Manager)</h2></div></div></div><p>First of all a little history on the Sound library and Drumkits. Hydrogen began as a 
+      dedicated drum machine but has evolved into a versatile sound synthesizer/sequencer 
+      that is capable of generating and manipulating all sorts of sounds. Hence the original 
+      "Drumkit" terminology is slightly misleading. You can load any kind of sound into a
+      "Drumkit" and manipulate that sound just like playing a regular synthesizer. This is 
+      also the main reason why the Piano mode was added to the pattern editor 
+      (see <a class="xref" href="#sect.pattern_editor.piano_mode" title="Pattern Editor Piano mode">the section called &#8220;Pattern Editor Piano mode&#8221;</a>).</p><p>In this manual (and in other documentation) "Drumkit" and "Soundlibrary" 
+      frequently mean the same thing, but not always. The diagram below shows the actual 
+      relation between the Soundlibrary and Drumkits:
       </p><div class="figure"><a name="fig.SoundlibraryHierarchy"></a><p class="title"><b>Figure 2.11. Soundlibrary/Drumkit hierarchy</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SoundlibraryHierarchy_V4.png" alt="Soundlibrary/Drumkit hierarchy"></div></div></div><p><br class="figure-break">
       
-      As you can see the Soundlibrary contains all Drumkits (System- and User drumkits), your saved Patterns and your saved Songs.  Each Drumkit is a collection of a number
+      As you can see the Soundlibrary contains all Drumkits (System and User drumkits), 
+      your saved Patterns and your saved Songs.  Each Drumkit is a collection of a number
       of instruments (snare, kick, sampled voice, bass sound ...) and in its turn an instrument can consist of multiple
       layered samples.  Note that every block has a number of parameters (continue reading for more details).</p><p>This said. let's take a look at the Soundlibrary interface and see what it can do for you:</p><p>The Sound Library saves you time in managing your drum kits,
-      favorite patterns, and favorite songs.  When making new songs and drum
-      kits, the Sound Library makes it easier for you to reuse and mix the
-      instruments and patterns from other kits and songs.
+      favourite patterns, and favourite songs.  When making new songs and new drum
+      kits, it allows you to reuse and mix the instruments and patterns from other kits and songs.
 
       </p><div class="figure"><a name="fig.soundlibrary"></a><p class="title"><b>Figure 2.12. The Soundlibrary</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SoundLibrary.png" alt="The Soundlibrary"></div></div></div><p><br class="figure-break">
       </p><div class="section" title="System Drumkits"><div class="titlepage"><div><div><h3 class="title"><a name="sect.systemdrumkits"></a>System Drumkits</h3></div></div></div><p>This lists the drumkits that were installed by your system
@@ -598,7 +593,7 @@
        </p><div class="figure"><a name="fig.import_drumkit"></a><p class="title"><b>Figure 2.13. Import Drumkit</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/Sound_Library_import.png" alt="Import Drumkit"></div></div></div><p><br class="figure-break">
   
         If you select one of the drumkits you will see info about this kit in the right
-        pane of the Import window : name, description, author and also the license type.
+        pane of the Import window: name, description, author and also the license type.
 
        </p><div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>If you are using Hydrogen for commercial purposes, (creating songs and 
        selling these on-line or in any other way) you need to pay special attention to the
@@ -618,30 +613,30 @@
     
        </p><div class="informalfigure"><a name="fig.downloading_soundlibrary"></a><div class="mediaobject"><img src="img/Downloading_SoundLibrary.png"></div></div><p>
     
-       Once the kit has been downloaded it will be available in the Sound Library under User drumkits.
+       Once the kit has been downloaded it will be available in the Sound Library under "User drumkits".
      
        </p></div><div class="section" title="Songs in the Sound Library"><div class="titlepage"><div><div><h3 class="title"><a name="sect.sl.songs"></a>Songs in the Sound Library</h3></div></div></div><p>To save songs in the Sound Library, put them in your data
         directory underneath the <code class="filename">songs</code>
         folder (usually <code class="filename">$HOME/.hydrogen/data/songs)</code>.
-        To remove them, remove the file from that folder.</p></div><div class="section" title="Patterns in the Sound Library"><div class="titlepage"><div><div><h3 class="title"><a name="sect.sl.patterns"></a>Patterns in the Sound Library</h3></div></div></div><p>Before you save your favorite patterns to the sound library, be
-        sure to edit it's properties by right-clicking and selecting
-        <span class="guimenuitem">Properties</span>.  There, you can give the pattern
-        a title and a category.  You can use one of the categories already
+        To remove them, remove the file from that folder.</p></div><div class="section" title="Patterns in the Sound Library"><div class="titlepage"><div><div><h3 class="title"><a name="sect.sl.patterns"></a>Patterns in the Sound Library</h3></div></div></div><p>Before you save a pattern to the sound library, be
+        sure to give it a title and a category.  Right-click on the pattern, select
+        "<span class="guimenuitem">Properties</span>" and enter the details.
+        You can use one of the categories already
         provided, or create your own categories by simply typing in a category
         name.  The category name is important, because the patterns will be
-        filed by category in the Sound Library.</p><p>You can save your favorite patterns in the sound library by right
+        filed by category in the Sound Library.</p><p>You can add a pattern to the sound library by right
         clicking the title of the pattern in the song editor, and selecting
-        <span class="guimenuitem">Save Pattern</span>.  It will appear in the Sound
-        Library underneath <span class="guilabel">Patterns</span> and the category that
+        "<span class="guimenuitem">Save Pattern</span>".  It will now appear in the Sound
+        Library underneath "<span class="guilabel">Patterns</span>" and the category that
         you assigned to the pattern.</p></div></div><div class="section" title="Drumkits and Instrument Editing"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.instrument_editing"></a>Drumkits and Instrument Editing</h2></div></div></div><div class="section" title="Concepts"><div class="titlepage"><div><div><h3 class="title"><a name="sect.instrument_editing.concepts"></a>Concepts</h3></div></div></div><p>
           The synthesizer in Hydrogen is a sample-based synthesizer.  A sample
-          is a piece of pre-recorded audio (usually between .1 sec and 3 sec).
+          is a piece of pre-recorded audio (usually between 0.1 sec and 3 sec).
           To play a note, the sample is simply played back at the right time.
-          There's a few concepts and terms that you should understand when you
+          There are a few concepts and terms that you should understand when you
           are putting together a drumkit.  (See <a class="xref" href="#glossary" title="Glossary">Glossary</a> for
           more detailed explanations.)
         </p><div class="variablelist" title="Sampling Synthesizer Terms"><p class="title"><b>Sampling Synthesizer Terms</b></p><dl><dt><span class="term">Sample</span></dt><dd><p>A short recording of a sound,
-            typically between .1 and 3.0 seconds long.</p></dd><dt><span class="term">Gain</span></dt><dd><p>Volume
+            typically between 0.1 and 3.0 seconds long.</p></dd><dt><span class="term">Gain</span></dt><dd><p>Volume
             adjustment.</p></dd><dt><span class="term">Velocity</span></dt><dd><p>How hard you hit a
             note.</p></dd><dt><span class="term"> ADSR Envelope Generator</span></dt><dd><p>An
             Attack/Decay/Sustain/Release envelope generator.  After you trigger
@@ -675,40 +670,40 @@
        Keeping in mind the 'Soundlibrary hierarchy' (see <a class="xref" href="#fig.SoundlibraryHierarchy" title="Figure 2.11. Soundlibrary/Drumkit hierarchy">Figure 2.11, &#8220;Soundlibrary/Drumkit hierarchy&#8221;</a>)
        we will use a top-down approach, so we will start at the Drumkit level and work our way 
        down to the samples.</p><p>Creating a new drumkit with Hydrogen is done with the Instrument
-       Editor.  Using the instrument editor you can load samples, set envelope
-       parameters, set the gain, and a few other advanced features like mute
-       groups, low-pass resonance filter, and pitch randomization.</p><p>TIP : Instead of creating your own drumkit, you can also use or download
+       Editor.  You can load samples, set envelope
+       parameters, set the gain, and other advanced features like mute
+       groups, a low-pass resonance filter, and pitch randomization.</p><p>TIP : Instead of creating your own drumkit, you can also use or download
        existing drumkits using the <a class="xref" href="#sect.sound_library" title="Sound Library (Drumkit/Pattern/Song Manager)">the section called &#8220;Sound Library (Drumkit/Pattern/Song Manager)&#8221;</a>.</p><p>Lets make a  brand new drum kit :</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>select
-          <span class="guimenu">Instruments</span> &#8594; <span class="guimenuitem">Clear All</span>
+          <span class="guimenu">Instruments</span> &#8594; <span class="guimenuitem">"Clear All"</span>
 
           .  This will give you a bank of 32 blank instruments.  To delete
           instruments, right-click on on each instrument and select
-          <span class="guimenuitem">Delete Instrument</span>.  To add more instruments,
+          "<span class="guimenuitem">Delete Instrument</span>".  To add more instruments,
           select
 
-          <span class="guimenu">Instruments</span> &#8594; <span class="guimenuitem">Add instrument</span>
+          <span class="guimenu">Instruments</span> &#8594; <span class="guimenuitem">"Add instrument"</span>
           .</p></li><li class="listitem"><p>Select an instrument to start editing it.  This is done by
           left-clicking on the name of the instrument in the instrument list (at
           the left).  You will notice that the name of the instrument in the
-          Instrument Editor matches the one that you clicked.</p></li><li class="listitem"><p>After you have your drum kit working the way you want, select
+          Instrument Editor matches the one that you clicked.</p></li><li class="listitem"><p>Once you have your drum kit working the way you want, select
 
-          <span class="guimenuitem">Instruments</span> &#8594; <span class="guimenuitem">Save library</span>
+          <span class="guimenuitem">Instruments</span> &#8594; <span class="guimenuitem">"Save library"</span>
 
-          .  It will ask you for the name of the kit to save.  If you wish to
+          .  You will be prompted for the name of the kit to save.  If you wish to
           <span class="emphasis"><em>overwrite</em></span> an existing kit, you will need to type in
           the same name as the kit that you want to replace.</p></li><li class="listitem"><p>Drumkits are automatically stored in the <code class="filename">data</code> directory (i.e. <code class="filename">$HOME/.hydrogen/data/drumkits</code>).</p></li><li class="listitem"><p>To export a drumkit (for sharing with others), it must first be
           loaded into your Sound Library.  Then, select
 
-          <span class="guimenuitem">Instruments</span> &#8594; <span class="guimenuitem">Export library</span>
+          <span class="guimenuitem">Instruments</span> &#8594; <span class="guimenuitem">"Export library"</span>
 
           from the menu.  Select the drum kit that you wish to export, and give it
           a file name to save it to.</p></li></ul></div></div><div class="section" title="Instrument Parameters"><div class="titlepage"><div><div><h3 class="title"><a name="sect.instrument_editing.parameters"></a>Instrument Parameters</h3></div></div></div><p>In the instrument editor, click on the
         <span class="guibutton">General</span> button.  Here you can adjust several
-        parameters that are apply to the whole instrument (not for each layer).
+        parameters that apply to the instrument (applies to all layers as well).
         
         </p><div class="figure"><a name="instrumenteditor.general"></a><p class="title"><b>Figure 2.14. The Instrument editor General view</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/Instrument_General.png" alt="The Instrument editor General view"></div></div></div><p><br class="figure-break">
         
-        The parameters that you can adjust are:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p><span class="bold"><strong>Envelope parameters</strong></span>:
+        The parameters are:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p><span class="bold"><strong>Envelope parameters</strong></span>:
             <span class="guibutton">Attack</span>, <span class="guibutton">Decay</span>,
             <span class="guibutton">Sustain</span>, <span class="guibutton">Release</span>.
             (See <a class="xref" href="#def.envelopegenerator" title="Envelope Generator">Envelope Generator</a>)</p></li><li class="listitem"><p><span class="bold"><strong><span class="guibutton">Gain</span></strong></span>:
@@ -758,7 +753,7 @@
           triggered, it will immediately silence (mute) and start playing the
           other instrument.  This is useful, especially, for instruments like
           hi-hats where the open sound and the closed sound are different
-          instruments.</p><p>If the mute group is set to <span class="guilabel">Off</span>, then the
+          instruments.</p><p>If the mute group is set to "<span class="guilabel">Off</span>", then the
           instrument is not part of any mute grouping.  If the mute group is set
           to any number, then that is the group that the instrument is a part
           of.  To set other instruments into the same grouping, set their mute
@@ -801,8 +796,8 @@
         left-right drag cursor.  Now drag the sample to the left or right (like
         a curtain).  You will now see Layer 2 appear.</p><div class="figure"><a name="instrumenteditor.layers"></a><p class="title"><b>Figure 2.15. The Instrument editor Layers view</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/Instrument_Layers.png" alt="The Instrument editor Layers view"></div></div></div><br class="figure-break"><p>The velocity setting for the layer is 0-velocity on the left, and
         full velocity on the right.  Set up Layer 1 to sound for soft notes, and
-        Layer 2 to sound for hard notes.  (I.e. Layer 1 on the left and Layer 2
-        on the right.)</p><p>Now, in the pattern area, set up a simple pattern that plays this
+        Layer 2 to sound for hard notes (i.e. Layer 1 on the left and Layer 2
+        on the right).</p><p>Now, in the pattern area, set up a simple pattern that plays this
         instrument.  Adjust the velocity settings on each note so that you can
         get the different samples to sound.  Now set the pattern to loop and
         notice how your different samples are getting triggered.  (To learn
@@ -828,21 +823,21 @@
         will delete the currently selected layer.</p></div><div class="section" title="Sample Editor"><div class="titlepage"><div><div><h3 class="title"><a name="sect.layer_editing"></a>Sample Editor</h3></div></div></div><p>So far we have created a multilayered Drumkit, set a number of 
         instrument parameters, played with velocity settings and so on.  Now it's 
         time to go one step deeper and edit the samples using one of the newest
-        Hydrogen features : the Sample Editor.</p><p>The Sample Editor allows you to tweak and manipulate your samples.
+        Hydrogen features: the Sample Editor.</p><p>The Sample Editor allows you to tweak and manipulate your samples.
         This is a function that will really speed up the creation of a drumkit since
         you can do the fine-tunning of the sample within Hydrogen. In pre-0.9.5 builds
         the typical workflow would be to prepare your sample in an external sound editor,
         import the sample in Hydrogen, test it, go back to the audio editor, import again, 
         test ...  The sample editor allows you to do most of the sample manipulation 
         within Hydrogen.  This mean less switching between Hydrogen and your audio editor
-        and more time to make music !</p><p><span class="bold"><strong>NOTE</strong></span> : the changes you make to
+        and more time to make music !</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>The changes you make to
         your samples in the Sample Editor are <span class="bold"><strong>non-destructive
         </strong></span> and are saved <span class="bold"><strong>per song</strong></span>.  
         So the original sample will not be changed,
         and you can reuse the same sample in multiple songs with different Sample Editor
-        settings.</p><div class="figure"><a name="sample.editor"></a><p class="title"><b>Figure 2.16. The Sample Editor</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SampleEditor_V5.png" alt="The Sample Editor"></div></div></div><br class="figure-break"><p>The Sample Editor consists of 3 sections (as indicated in the figure above):</p><div class="section" title="Sample Editor in/out points"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section1"></a>Sample Editor in/out points</h4></div></div></div><p>
+        settings.</p></div><div class="figure"><a name="sample.editor"></a><p class="title"><b>Figure 2.16. The Sample Editor</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SampleEditor_V5.png" alt="The Sample Editor"></div></div></div><br class="figure-break"><p>The Sample Editor consists of 3 sections (as indicated in the figure above):</p><div class="section" title="Sample Editor in/out points"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section1"></a>Sample Editor in/out points</h4></div></div></div><p>
         In this section you can set the start, stop and loop points for the sample by dragging the 
-        the 3 markers :
+        the 3 markers:
         </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>S-marker (green) : indicates the Start-point (in-point) of the sample.</p></li><li class="listitem"><p>E-marker (red) : indicates the End-point (out-point) of the sample.</p></li><li class="listitem"><p>L-marker (blue) : determines the loop-in point of your sample</p></li></ul></div><p>
         You can easily move one of the markers by grabbing them close to the
         letter that marks them.  Whenever you grab one of the markers you will see a detail
@@ -857,9 +852,9 @@
         but you can also fine-tune the marker position by using the up/down arrows of the spinboxes, 
         the up/down keys on your keyboard, or by using your mouse scroll wheel while hovering
         above the spinboxes.</p><p>Apart from the marker positions there are 2 settings that apply to the Sample
-        Editor's loop function : loop mode and loop number.  With the loop function you can
+        Editor's loop function: loop mode and loop number.  With the loop function you can
         repeat the part of your sample <span class="emphasis"><em>that is in between the Loop- and the 
-        End-marker.</em></span>. The way it is looped is determined by the Loop mode 
+        End-marker</em></span>. The way it is looped is determined by the Loop mode 
         (forward, revers or ping-pong) and the number of times it is looped is determined
         by the Loop number.</p><p>If you want to hear a preview of the tweaking you have done so far, you first need to
         press the 'Apply Changes' button (@ the bottom of section 3) and then the Play button to

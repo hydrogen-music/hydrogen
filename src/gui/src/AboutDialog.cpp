@@ -89,6 +89,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Matt Walker", "", "" ) );
 	authorList.push_back( Author( "Michael Wolkstein", "m.wolkstein@gmx.de", "coding" ) );
 	authorList.push_back( Author( "Nikos Papadopoylos", "", "Greek translation" ) );
+	authorList.push_back( Author( "Noel Darlow", "", "manual reviewing" ) );
 	authorList.push_back( Author( "Paul Dorman", "", "" ) );
 	authorList.push_back( Author( "Pieter Van Isacker (aka aikie)", "", "Dutch manual and translation" ) );
 	authorList.push_back( Author( "Samuel Mimram", "", "Packages" ) );
