@@ -82,7 +82,7 @@ class SE_movePatternListItemAction : public QUndoCommand
 {
 public:
     SE_movePatternListItemAction(  int nSourcePattern , int nTargetPattern ){
-	setText( QString( "Move Pattern List Item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
+	setText( QString( "Move pattern list item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
 //	setText("delete Pattern");
 	__nSourcePattern = nSourcePattern;
 	__nTargetPattern = nTargetPattern;
@@ -285,7 +285,7 @@ class SE_fillRangePatternAction : public QUndoCommand
 {
 public:
     SE_fillRangePatternAction( FillRange* pRange, int nPattern ){
-	setText( QString( "fill/remove range of pattern" ) );
+	setText( QString( "Fill/remove range of pattern" ) );
 	__pRange = pRange;
 	__from = pRange->fromVal;
 	__to = pRange->toVal;
@@ -330,7 +330,7 @@ class SE_movePatternCellAction : public QUndoCommand
 {
 public:
     SE_movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed ){
-	setText( QString( "move/copy selected cells" ) );
+	setText( QString( "Move/copy selected cells" ) );
 	__selectedCells = selectedCells;
 	__movingCells = movingCells;
 	__bIsCtrlPressed = bIsCtrlPressed;
@@ -359,7 +359,7 @@ class SE_editTimeLineAction : public QUndoCommand
 {
 public:
     SE_editTimeLineAction( int newPosition, float oldBpm, float newBpm ){
-	setText( QString( "edit timeline tempo" ) );
+	setText( QString( "Edit timeline tempo" ) );
 	__newPosition = newPosition;
 	__oldBpm = oldBpm;
 	__newBpm = newBpm;
@@ -397,7 +397,7 @@ class SE_deleteTimeLineAction : public QUndoCommand
 {
 public:
     SE_deleteTimeLineAction( int newPosition, float oldBpm ){
-	setText( QString( "delete timeline tempo" ) );
+	setText( QString( "Delete timeline tempo" ) );
 	__newPosition = newPosition;
 	__oldBpm = oldBpm;
 	
@@ -426,7 +426,7 @@ class SE_editTagAction : public QUndoCommand
 {
 public:
     SE_editTagAction( QString text, QString oldText, int position ){
-	setText( "edit timeline tag" );
+	setText( "Edit timeline tag" );
 	__text = text;
 	__oldText = oldText;
 	__position = position;
@@ -479,7 +479,7 @@ public:
 			   float oldLeadLag,
 			   int oldNoteKeyVal,
 			   int oldOctaveKeyVal ){
-	setText( QString( "Add Note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
+	setText( QString( "Add note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
 	//setText("add Pattern");
 	__nColumn = nColumn;
 	__nRow = nRow;
@@ -540,7 +540,7 @@ class SE_addNoteRightClickAction : public QUndoCommand
 {
 public:
 	SE_addNoteRightClickAction( int nColumn, int nRow, int selectedPatternNumber ){
-	setText( QString( "Add off note Note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	setText( QString( "Add pattern editor NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
 	//setText("add Pattern");
 	__nColumn = nColumn;
 	__nRow = nRow;
@@ -602,7 +602,7 @@ class SE_clearNotesPatternEditorAction : public QUndoCommand
 {
 public:
 	SE_clearNotesPatternEditorAction(  std::list<  H2Core::Note* > noteList, int nSelectedInstrument, int selectedPatternNumber ){
-	setText( QString( "clear note sequense Not " ) );
+	setText( QString( "Clear notes" ) );
 	//setText("add Pattern");
 
 	std::list < H2Core::Note *>::iterator pos;
@@ -649,7 +649,7 @@ class SE_fillNotesRightClickAction : public QUndoCommand
 {
 public:
 	SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
-	setText( QString( "fill notes Note" ) );
+	setText( QString( "Fill notes" ) );
 	//setText("add Pattern");
 	__notePositions = notePositions;
 	__nSelectedInstrument= nSelectedInstrument;
@@ -710,7 +710,7 @@ class SE_moveInstrumentAction : public QUndoCommand
 {
 public:
 	SE_moveInstrumentAction(  int nSourceInstrument, int nTargetInstrument  ){
-	setText( QString( "move Instrument" ) );
+	setText( QString( "Move instrument" ) );
 	__nSourceInstrument = nSourceInstrument;
 	__nTargetInstrument = nTargetInstrument;
 	}
@@ -735,7 +735,7 @@ class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
 	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument  ){
-	setText( QString( "drop Instrument" ) );
+	setText( QString( "Drop instrument" ) );
 	__sDrumkitName = sDrumkitName;
 	__sInstrumentName = sInstrumentName;
 	__nTargetInstrument = nTargetInstrument;
@@ -763,7 +763,7 @@ class SE_deleteInstrumentAction : public QUndoCommand
 {
 public:
 	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString drumkitName, QString instrumentName, int nSelectedInstrument ){
-	setText( QString( "delete Instrument " ) );
+	setText( QString( "Delete instrument " ) );
 	//setText("add Pattern");
 
 	std::list < H2Core::Note *>::iterator pos;
@@ -813,7 +813,7 @@ class SE_mainMenuAddInstrumentAction : public QUndoCommand
 {
 public:
 	SE_mainMenuAddInstrumentAction(){
-	setText( QString( "drop Instrument" ) );
+	setText( QString( "Drop instrument" ) );
 	}
 	virtual void undo()
 	{
@@ -849,7 +849,7 @@ public:
 				   float oldLeadLag,
 				   int oldNoteKeyVal,
 				   int oldOctaveKeyVal ){
-	setText( QString( "Add Piano Roll Note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
+	setText( QString( "Add piano roll note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
 	//setText("add Pattern");
 	__nColumn = nColumn;
 	__pressedLine = pressedLine;
@@ -914,7 +914,7 @@ class SE_addNoteRightClickPianoRollAction : public QUndoCommand
 {
 public:
 	SE_addNoteRightClickPianoRollAction( int nColumn, int pressedLine, int selectedPatternNumber, int nSelectedInstrumentnumber ){
-	setText( QString( "Add off note Note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
+	setText( QString( "Add  piano roll NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
 	//setText("add Pattern");
 	__nColumn = nColumn;
 	__pressedLine = pressedLine;
@@ -945,7 +945,7 @@ class SE_editNoteLenghtPianoRollAction : public QUndoCommand
 {
 public:
 	SE_editNoteLenghtPianoRollAction( int nColumn, int nRealColumn, int length, int oldLength, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine){
-	setText( QString( "Change note length Piano Roll" ) );
+	setText( QString( "Change piano roll note length " ) );
 	__nColumn = nColumn;
 	__nRealColumn = nRealColumn;
 	__length = length;
@@ -997,7 +997,7 @@ public:
 						float leadLag,
 						float oldLeadLag,
 						int pressedLine ){
-	setText( QString( "Change Note properties Piano Roll" ) );
+	setText( QString( "Change note properties piano roll" ) );
 	__nColumn = nColumn;
 	__nRealColumn = nRealColumn;
 	__selectedPatternNumber = selectedPatternNumber;
@@ -1084,7 +1084,7 @@ public:
 	{
 
 
-	setText( QString( "edit note property" ) );
+	setText( QString( "Edit note property" ) );
 	__undoColumn = undoColumn;
 	__mode = mode;
 	__nSelectedPatternNumber = nSelectedPatternNumber;
