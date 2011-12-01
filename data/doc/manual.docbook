@@ -522,7 +522,7 @@
         </listitem>
         <listitem>
           <para><emphasis>Export song</emphasis> - Export current song in WAV
-          format</para>
+          format (see <xref linkend="sect.song_editor.export_song"/>)</para>
         </listitem>
         <listitem>
           <para><emphasis>Quit</emphasis> - Quit Hydrogen</para>
@@ -713,6 +713,7 @@
           <para>Set measure type and Beat Counter (see <xref linkend="sect.tap_tempo"/>).</para>
           
         </listitem>
+        
         
 
         <listitem>
@@ -1159,6 +1160,71 @@
 
 
      
+     </section>
+
+     <section id="sect.song_editor.export_song">
+     <title>Exporting your song</title>
+
+      <para>Once your song is finished you can export it to an audio file.
+      This audio file can then be played on your favorite media player or imported
+      in an other audio application.</para>
+      <para>
+      To do this, go to Project - "Export song" and the following window will pop up:
+        <figure id="fig.Export_song">
+         <title>Export a song</title>
+         <mediaobject>
+           <imageobject>
+             <imagedata fileref="img/Export_song.png" format="PNG" />
+           </imageobject>
+         </mediaobject>
+        </figure>
+      To export a song you need to do 3 things:
+     
+      </para>
+      
+       <itemizedlist mark="opencircle">
+
+        <listitem>
+          <para>Enter a name and location for the export file in the 'Export filename' field
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Select one of the available templates (e.g. CD, DAT ...) according to your needs:  
+          each template has a specific bitrate, resolution, and audio format (WAV, AIFF, FLAC or OGG).
+          You can tweak the selected template using the samplerate/sampledepth dropdown boxes
+          underneath the template field.
+          
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>Export mode: 'Export to a single track' will export 1 stereo downmix of your 
+          song (= the master output).  'Export to separate tracks' will create files for each 
+          instrument/track.  'Both' will create a stereo downmix + audio files for all individual
+          instruments.
+          </para>
+        </listitem>
+        
+        </itemizedlist>
+        
+        <para>
+        Once all these settings have been configured all you need to do is click the 'Export'
+        button and Hydrogen will generate the requested files.
+        </para>
+
+      <note>
+       <para>
+       If you have tempo changes in your song (see <xref linkend="sect.song_editor.tempo_and_markers"/>) 
+       these tempo changes will not be exported.  This is a know limitation of the current versions 
+       (including 0.9.6)
+       </para>
+       <para>
+       As a workaround you can record the output of Hydrogen with an audio recording
+       application (like Ardour, Qtractor ...)
+       </para>
+      </note>
+
      </section>
 
 
