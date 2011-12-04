@@ -732,6 +732,13 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 			m_pInstrument->set_name( sNewName );
 			selectedInstrumentChangedEvent();
 
+                        #ifdef H2CORE_HAVE_JACK
+                        AudioEngine::get_instance()->lock( RIGHT_HERE );
+                        Hydrogen *engine = Hydrogen::get_instance();
+                        engine->renameJackPorts();
+                        AudioEngine::get_instance()->unlock();
+                        #endif
+
 			// this will force an update...
 			EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
