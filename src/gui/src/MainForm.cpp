@@ -190,7 +190,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	undoView = new QUndoView(h2app->m_undoStack);
-	undoView->setWindowTitle(tr("Command history"));
+	undoView->setWindowTitle(tr("Undo history"));
 	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	//restore last playlist 
@@ -284,7 +284,7 @@ void MainForm::createMenuBar()
 	QMenu *m_pUndoMenu = m_pMenubar->addMenu( trUtf8( "Undo" ) );
 	m_pUndoMenu->addAction( trUtf8( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
 	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
-	m_pUndoMenu->addAction( trUtf8( "Command history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
+	m_pUndoMenu->addAction( trUtf8( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
