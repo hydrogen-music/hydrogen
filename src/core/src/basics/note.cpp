@@ -64,7 +64,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
       __just_recorded( false )
 {
     if ( __instrument != 0 ) {
-        __adsr = __instrument->get_adsr();
+        __adsr = __instrument->copy_adsr();
         __instrument_id = __instrument->get_id();
     }
 }
@@ -98,7 +98,7 @@ Note::Note( Note* other, Instrument* instrument )
 {
     if ( instrument != 0 ) __instrument = instrument;
     if ( __instrument != 0 ) {
-        __adsr = __instrument->get_adsr();
+        __adsr = __instrument->copy_adsr();
         __instrument_id = __instrument->get_id();
     }
 }

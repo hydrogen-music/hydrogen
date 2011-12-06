@@ -26,6 +26,7 @@
 #include <cassert>
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/adsr.h>
 
 #define EMPTY_INSTR_ID          -1
 #define METRONOME_INSTR_ID      -2
@@ -137,6 +138,8 @@ class Instrument : public H2Core::Object
         void set_adsr( ADSR* adsr );
         /** get the ADSR of the instrument */
         ADSR* get_adsr() const;
+        /** get a copy of the ADSR of the instrument */
+        ADSR* copy_adsr() const;
 
         /** set the mute group of the instrument */
         void set_mute_group( int group );
@@ -284,6 +287,11 @@ inline int Instrument::get_id() const
 inline ADSR* Instrument::get_adsr() const
 {
     return __adsr;
+}
+
+inline ADSR* Instrument::copy_adsr() const
+{
+    return new ADSR( __adsr );
 }
 
 inline void Instrument::set_mute_group( int group )
