@@ -103,7 +103,11 @@ Note::Note( Note* other, Instrument* instrument )
     }
 }
 
-Note::~Note() { }
+Note::~Note()
+{
+    delete __adsr;
+    __adsr = 0;
+}
 
 static inline float check_boundary( float v, float min, float max )
 {
