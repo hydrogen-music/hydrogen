@@ -3003,7 +3003,33 @@
         </listitem>
         <listitem>
           <para>
-            <emphasis role="bold">[,]</emphasis> (comma key) = Tap tempo (beatcounter)
+            <emphasis role="bold">[,]</emphasis> (comma key) = Beatcounter
+          </para>
+        </listitem>
+       <listitem>
+          <para>
+            <emphasis role="bold">[\]</emphasis> (backslash) = Tap tempo
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[+] and [-]</emphasis> = Tempo up / down
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[F9]</emphasis> = Jump back to previous bar in the song
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[F10]</emphasis> = Jump to the next bar in the song
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis role="bold">[F12]</emphasis> = Panic button  (stops the song and mutes all
+            playing sounds)
           </para>
         </listitem>
       </itemizedlist>    
