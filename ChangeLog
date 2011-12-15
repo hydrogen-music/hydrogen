@@ -1,4 +1,4 @@
-2011-09-06 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+2011-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
         * Release 0.9.6
         * new build system (cmake)
         * add undo for song/pattern editor
