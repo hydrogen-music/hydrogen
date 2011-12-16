@@ -395,7 +395,6 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED(ev);
 	if ( m_bIsMoving ) {	// fine dello spostamento dei pattern
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		// create the new patterns
 
 		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_bIsCtrlPressed);
@@ -419,8 +418,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 
-
-	AudioEngine::get_instance()->lock();
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	//create the new patterns
 	for ( uint i = 0; i < movingCells.size(); i++ ) {
