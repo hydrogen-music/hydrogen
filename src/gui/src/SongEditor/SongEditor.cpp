@@ -176,7 +176,6 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		}
 
 		if ( bOverExistingPattern ) {
-			qDebug() << "select over existing!!";
 			// MOVE PATTERNS
 //			INFOLOG( "[mousePressEvent] Move patterns" );
 			m_bIsMoving = true;
@@ -188,7 +187,6 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		}
 		else {
 //			INFOLOG( "[mousePressEvent] Select patterns" );
-			qDebug() << "select!!";
 			// select patterns
 			m_bShowLasso = true;
 			m_lasso.setCoords( ev->x(), ev->y(), ev->x(), ev->y() );
@@ -239,7 +237,6 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 void SongEditor::addPattern( int nColumn , int nRow )
 {
-	qDebug() << "add pattern!";
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
@@ -276,7 +273,6 @@ void SongEditor::addPattern( int nColumn , int nRow )
 
 void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
 {
-	qDebug() << "delete pattern!";
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
