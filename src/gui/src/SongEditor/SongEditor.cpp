@@ -142,7 +142,6 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	if ( ev->x() < 10 ) {
 		return;
 	}
-	//WARNINGLOG( "editor-pressed" );
 
 	int nRow = ev->y() / m_nGridHeight;
 	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
@@ -419,6 +418,11 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
+
+
+	AudioEngine::get_instance()->lock();
+
+	//create the new patterns
 	for ( uint i = 0; i < movingCells.size(); i++ ) {
 		QPoint cell = movingCells[ i ];
 		if ( cell.x() < 0 || cell.y() < 0 || cell.y() >= (int)pPatternList->size() ) {
