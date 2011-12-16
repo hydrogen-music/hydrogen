@@ -399,7 +399,6 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 
 		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_bIsCtrlPressed);
 		HydrogenApp::get_instance()->m_undoStack->push( action );
-
 	}
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
@@ -478,6 +477,26 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 		for ( uint i = 0; i < selectedCells.size(); i++ ) {
 			QPoint cell = selectedCells[ i ];
 			PatternList* pColumn = NULL;
+			
+			/* 
+			 * Check first if pattern was present in movingCells. 
+			 * If it was, don't delete it! 
+			 */
+
+			bool moved = false;
+			for ( uint i = 0; i < movingCells.size(); i++ ) {
+				QPoint cell2 = movingCells[ i ];
+				if(cell.x() == cell2.x()){
+					moved = true;	
+				}
+			}
+
+			if(moved)
+			{
+				continue;
+			}
+			
+
 			if ( cell.x() < (int)pColumns->size() ) {
 				pColumn = (*pColumns)[ cell.x() ];
 			}
