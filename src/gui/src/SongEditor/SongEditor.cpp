@@ -405,9 +405,17 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 	update();
 }
 
+/**
+ * @brief moves or copies a cell which represents a pattern
+ * @param movingCells Target cells for move/copy action
+ * @param selectedCells Currently selected cells for move/copy action
+ * @param bIsCtrlPressed If ctrl is pressed, do copy instead of move
+ * @param undo	Determine if this is an undo-operation
+ */
 
 void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed, bool undo )
 {
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
@@ -438,9 +446,10 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 		pColumn->add( pPatternList->get( cell.y() ) );
 	}
 
-	if ( bIsCtrlPressed ) {	// COPY
-		if ( undo )
-			{
+	if ( bIsCtrlPressed) //Copy
+	{
+		if(undo)
+		{
 			// remove the old patterns
 			for ( uint i = 0; i < selectedCells.size(); i++ ) {
 				QPoint cell = selectedCells[ i ];
@@ -454,18 +463,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 				}
 				pColumn->del(pPatternList->get( cell.y() ) );
 			}
-			for ( uint i = 0; i < movingCells.size(); i++ ) {
-				QPoint cell = movingCells[ i ];
-				PatternList* pColumn = NULL;
-				if ( cell.x() < (int)pColumns->size() ) {
-					pColumn = (*pColumns)[ cell.x() ];
-				}
-				else {
-					pColumn = new PatternList();
-					pColumns->push_back( pColumn );
-				}
-				pColumn->del(pPatternList->get( cell.y() ) );
-			}
+			
 		}
 	}
 	else {	// MOVE
