@@ -329,10 +329,11 @@ private:
 class SE_movePatternCellAction : public QUndoCommand
 {
 public:
-    SE_movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed ){
+    SE_movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> existingCells, bool bIsCtrlPressed ){
 	setText( QString( "Move/copy selected cells" ) );
 	__selectedCells = selectedCells;
 	__movingCells = movingCells;
+        __existingCells = existingCells;
 	__bIsCtrlPressed = bIsCtrlPressed;
 	
     }
@@ -340,18 +341,19 @@ public:
 	{
 		//qDebug() <<  "move/copy selected cells undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __selectedCells, __movingCells, __bIsCtrlPressed, true );
+                h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __selectedCells, __movingCells, __existingCells, __bIsCtrlPressed, true );
 	}
 
     virtual void redo()
 	{
 		//qDebug() <<  "move/copy selected cells redo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __movingCells, __selectedCells, __bIsCtrlPressed, false );
+                h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __movingCells, __selectedCells, __existingCells, __bIsCtrlPressed, false );
 	}
 private:
 	std::vector<QPoint> __selectedCells;
 	std::vector<QPoint> __movingCells;
+        std::vector<QPoint> __existingCells;
 	bool __bIsCtrlPressed;
 };
 

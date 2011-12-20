@@ -56,6 +56,15 @@ using namespace std;
 
 const char* SongEditor::__class_name = "SongEditor";
 
+
+GridRepresentationItem::GridRepresentationItem(int x, int y, bool value)
+{
+    this->x = x;
+    this->y = y;
+    this->value = value;
+}
+
+
 SongEditor::SongEditor( QWidget *parent )
  : QWidget( parent )
  , Object( __class_name )
@@ -71,8 +80,6 @@ SongEditor::SongEditor( QWidget *parent )
 
 	Preferences *pref = Preferences::get_instance();
 	m_nMaxPatternSequence = pref->getMaxBars();
-
-
 	int m_nInitialWidth = 10 + m_nMaxPatternSequence * m_nGridWidth;
 	int m_nInitialHeight = 10;
 
@@ -390,10 +397,44 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED(ev);
+
 	if ( m_bIsMoving ) {	// fine dello spostamento dei pattern
 		// create the new patterns
+		
+		/*
+		 * For the proper handling of undo events we have to make sure
+		 * that the array m_movingCells does not include cells that are
+		 * already existing.
+		 *
+		 * Example: A song consists of a sequence with the cells 0,1 and 3.
+		 * Consider that we the two first cells 0 and 1 get moved one 
+		 * cell to the right (to 2,3). An undo action would now delete 
+		 * (2,3) for and re-create 0,1. Cell 3 got deleted now, but it existed
+		 * before the first move operation.
+		 */
 
-		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_bIsCtrlPressed);
+                GridRepresentationItem* item;
+                m_existingCells.clear();
+		for ( uint i = 0; i < m_movingCells.size(); i++ )
+		{
+                        QPoint cell = m_movingCells[ i ];
+
+                        //looking for cell identified with (cell.x/cell.y) in the gridRepresentation
+                        bool found = false;
+                        foreach(item, gridRepresentation)
+                        {
+                            if(item->x == cell.x() && item->y == cell.y())
+                            {
+                                found = true;
+                            }
+                        }
+
+                        if( found ){
+                            m_existingCells.push_back(cell);
+                        }
+		}
+
+                SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_existingCells, m_bIsCtrlPressed);
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 
@@ -409,13 +450,13 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
  * @brief moves or copies a cell which represents a pattern
  * @param movingCells Target cells for move/copy action
  * @param selectedCells Currently selected cells for move/copy action
+ * @param existingCells Cells which are included in selected/movingCells but where existing before(import for undo).
  * @param bIsCtrlPressed If ctrl is pressed, do copy instead of move
  * @param undo	Determine if this is an undo-operation
  */
 
-void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed, bool undo )
+void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> existingCells,  bool bIsCtrlPressed, bool undo )
 {
-
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
@@ -448,11 +489,25 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 
 	if ( bIsCtrlPressed) //Copy
 	{
-		if(undo)
+                if( undo )
 		{
 			// remove the old patterns
 			for ( uint i = 0; i < selectedCells.size(); i++ ) {
 				QPoint cell = selectedCells[ i ];
+
+                                bool existing = false;
+                                for ( uint i = 0; i < existingCells.size(); i++ ) {
+                                    QPoint existing_cell = existingCells[ i ];
+                                    if(existing_cell.x() == cell.x() && existing_cell.y() == cell.y()) existing = true;
+                                }
+
+                                //this cell existed before. Don't delete it!
+                                if(existing){
+                                    continue;
+                                }
+
+
+
 				PatternList* pColumn = NULL;
 				if ( cell.x() < (int)pColumns->size() ) {
 					pColumn = (*pColumns)[ cell.x() ];
@@ -485,10 +540,24 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 				}
 			}
 
-			if(moved)
+                        if( moved )
 			{
 				continue;
 			}
+
+                        if( undo )
+                        {
+                            bool existing = false;
+                            for ( uint i = 0; i < existingCells.size(); i++ ) {
+                                QPoint existing_cell = existingCells[ i ];
+                                if(existing_cell.x() == cell.x() && existing_cell.y() == cell.y()) existing = true;
+                            }
+
+                            //this cell existed before. Don't delete it!
+                            if(existing){
+                                continue;
+                            }
+                        }
 			
 
 			if ( cell.x() < (int)pColumns->size() ) {
@@ -653,6 +722,14 @@ void SongEditor::drawSequence()
 	PatternList *patList = song->get_pattern_list();
 	vector<PatternList*>* pColumns = song->get_pattern_group_vector();
 	uint listLength = patList->size();
+
+	//Drawing the pattern based on the gridRepresentation array
+
+        while (!gridRepresentation.isEmpty())
+             delete gridRepresentation.takeFirst();
+
+
+
 	for (uint i = 0; i < pColumns->size(); i++) {
 		PatternList* pColumn = (*pColumns)[ i ];
 		
@@ -674,7 +751,9 @@ void SongEditor::drawSequence()
 			    if (position == -1) {
 				    WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 			    }
-			    drawPattern( i, position, false );
+			    //normal pattern
+
+                            gridRepresentation.append(new GridRepresentationItem(i,position,false));
 			}//if
 			
 			for ( Pattern::virtual_patterns_cst_it_t it = pat->get_flattened_virtual_patterns()->begin(); it != pat->get_flattened_virtual_patterns()->end(); ++it) {
@@ -683,12 +762,21 @@ void SongEditor::drawSequence()
 				if (position == -1) {
 				    WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 				}
-				drawPattern( i, position, true );
+				//virtual pattern
+                                gridRepresentation.append(new GridRepresentationItem(i,position,true));
 				drawnAsVirtual.insert(*it);
 			    }
 			}
 		}
 	}
+
+
+        //Draw the patterns according to the gridRepresentation
+        GridRepresentationItem* s;
+        foreach(s, gridRepresentation)
+        {
+            drawPattern( s->x, s->y, s->value);
+        }
 
 	// Moving cells
 	p.begin( m_pSequencePixmap );

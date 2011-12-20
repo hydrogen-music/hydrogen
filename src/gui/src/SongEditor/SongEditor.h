@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <QtGui>
+#include <QList>
 
 #include <hydrogen/object.h>
 #include "../EventListener.h"
@@ -40,6 +41,17 @@ class SongEditorPositionRuler;
 
 static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
 static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
+
+
+class GridRepresentationItem
+{
+    public:
+            GridRepresentationItem(int x, int y, bool value);
+            ~GridRepresentationItem();
+            int x;
+            int y;
+            bool value;
+};
 
 ///
 /// Song editor
@@ -64,9 +76,12 @@ class SongEditor : public QWidget, public H2Core::Object
 		void deletePattern( int nColumn, int nRow, unsigned nColumnIndex);
 		void clearThePatternSequenseVector( QString filename );
 		void updateEditorandSetTrue();
-		void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, bool bIsCtrlPressed, bool undo);
+                void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> m_existingCells, bool bIsCtrlPressed, bool undo);
 
 	private:
+                //holds a list for active patterns for each pattern
+                QList<GridRepresentationItem*> gridRepresentation;
+
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
 		unsigned m_nMaxPatternSequence;
@@ -79,6 +94,8 @@ class SongEditor : public QWidget, public H2Core::Object
 
 		std::vector<QPoint> m_selectedCells;
 		std::vector<QPoint> m_movingCells;
+                std::vector<QPoint> m_existingCells;
+
 		QPoint m_clickPoint;	// Usato come riferimento per le operazioni di spostamento
 		bool m_bShowLasso;
 		QRect m_lasso;
