@@ -43,11 +43,10 @@ static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
 static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 
 
-class GridRepresentationItem
+class SongEditorGridRepresentationItem
 {
     public:
-            GridRepresentationItem(int x, int y, bool value);
-            ~GridRepresentationItem();
+            SongEditorGridRepresentationItem(int x, int y, bool value);
             int x;
             int y;
             bool value;
@@ -80,7 +79,7 @@ class SongEditor : public QWidget, public H2Core::Object
 
 	private:
                 //holds a list for active patterns for each pattern
-                QList<GridRepresentationItem*> gridRepresentation;
+                QList<SongEditorGridRepresentationItem*> gridRepresentation;
 
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;

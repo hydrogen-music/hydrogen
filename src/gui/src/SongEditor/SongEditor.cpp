@@ -57,7 +57,7 @@ using namespace std;
 const char* SongEditor::__class_name = "SongEditor";
 
 
-GridRepresentationItem::GridRepresentationItem(int x, int y, bool value)
+SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value)
 {
     this->x = x;
     this->y = y;
@@ -413,7 +413,7 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 		 * before the first move operation.
 		 */
 
-                GridRepresentationItem* item;
+                SongEditorGridRepresentationItem* item;
                 m_existingCells.clear();
 		for ( uint i = 0; i < m_movingCells.size(); i++ )
 		{
@@ -753,7 +753,7 @@ void SongEditor::drawSequence()
 			    }
 			    //normal pattern
 
-                            gridRepresentation.append(new GridRepresentationItem(i,position,false));
+                            gridRepresentation.append(new SongEditorGridRepresentationItem(i,position,false));
 			}//if
 			
 			for ( Pattern::virtual_patterns_cst_it_t it = pat->get_flattened_virtual_patterns()->begin(); it != pat->get_flattened_virtual_patterns()->end(); ++it) {
@@ -763,7 +763,7 @@ void SongEditor::drawSequence()
 				    WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 				}
 				//virtual pattern
-                                gridRepresentation.append(new GridRepresentationItem(i,position,true));
+                                gridRepresentation.append(new SongEditorGridRepresentationItem(i,position,true));
 				drawnAsVirtual.insert(*it);
 			    }
 			}
@@ -772,7 +772,7 @@ void SongEditor::drawSequence()
 
 
         //Draw the patterns according to the gridRepresentation
-        GridRepresentationItem* s;
+        SongEditorGridRepresentationItem* s;
         foreach(s, gridRepresentation)
         {
             drawPattern( s->x, s->y, s->value);
