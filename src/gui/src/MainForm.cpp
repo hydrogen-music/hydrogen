@@ -768,7 +768,6 @@ void MainForm::action_window_showMixer()
 {
 	bool isVisible = HydrogenApp::get_instance()->getMixer()->isVisible();
         h2app->showMixer( !isVisible );
-        qDebug()<< isVisible;
 }
 
 

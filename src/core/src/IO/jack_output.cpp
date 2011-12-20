@@ -793,7 +793,6 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
         QString jackSessionDirectory = (QString)ev->session_dir;
         QStringList list1 = Hydrogen::get_instance()->getSong()->get_filename().split("/");
         QString realFillename = list1[list1.size()-1];
-        qDebug()<< realFillename;
         Hydrogen::get_instance()->getSong()->set_filename(jackSessionDirectory + realFillename);
         songfilename = "\"${SESSION_DIR}\"" + realFillename;
     }else
