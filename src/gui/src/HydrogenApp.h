@@ -89,6 +89,8 @@ class HydrogenApp : public QObject, public H2Core::Object
 		InstrumentRack* getInstrumentRack(){	return m_pInstrumentRack;	}
 
 		QUndoStack*  m_undoStack;
+                QTabWidget *pTab;
+                QSplitter *pSplitter;
 
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
