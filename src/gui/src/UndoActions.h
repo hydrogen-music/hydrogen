@@ -480,9 +480,14 @@ public:
 			   float oldPan_R,
 			   float oldLeadLag,
 			   int oldNoteKeyVal,
-			   int oldOctaveKeyVal ){
-	setText( QString( "Add note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
-	//setText("add Pattern");
+                           int oldOctaveKeyVal,
+                           bool noteExisted){
+
+        if( noteExisted ){
+            setText( QString( "Delete note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
+        } else {
+            setText( QString( "Add note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
+        }
 	__nColumn = nColumn;
 	__nRow = nRow;
 	__selectedPatternNumber = selectedPatternNumber;

@@ -178,6 +178,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
         Note::Key oldNoteKeyVal = Note::C;
         Note::Octave oldOctaveKeyVal = Note::P8;
 
+        bool noteExisted = false;
         if( pDraggedNote ){
             oldLength = pDraggedNote->get_length();
             oldVelocity = pDraggedNote->get_velocity();
@@ -186,7 +187,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
             oldLeadLag = pDraggedNote->get_lead_lag();
             oldNoteKeyVal = pDraggedNote->get_key();
             oldOctaveKeyVal = pDraggedNote->get_octave();
+            noteExisted = true;
         }
+
 
         SE_addNoteAction *action = new SE_addNoteAction( nColumn,
                 row,
@@ -197,21 +200,27 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
                 oldPan_R,
                 oldLeadLag,
                 oldNoteKeyVal,
-                oldOctaveKeyVal );
+                oldOctaveKeyVal,
+                noteExisted);
+
         HydrogenApp::get_instance()->m_undoStack->push( action );
-	} else if (ev->button() == Qt::RightButton ) {
+
+    } else if (ev->button() == Qt::RightButton ) {
         m_bRightBtnPressed = true;
+
         // __rightclickedpattereditor
         // 0 = note length
         // 1 = note off"
         // 2 = edit velocity
         // 3 = edit pan
         // 4 = edit lead lag
+
         if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
             SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
             HydrogenApp::get_instance()->m_undoStack->push( action );
             return;
         }
+
         // AudioEngine::get_instance()->lock( RIGHT_HERE );
         m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
         // needed for undo note length
