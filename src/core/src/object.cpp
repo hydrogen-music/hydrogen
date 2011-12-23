@@ -27,6 +27,20 @@
 #include <iomanip>
 #include <cstdlib>
 
+
+/**
+* @class Object
+*
+* @brief Base class of all components of hydrogen.
+*
+* Every component of hydrogen is inherited from the
+* Object class. Each object has a qualified name
+* and gets registered in a memory map at creation.
+* This memory map helps to debug memory leaks and
+* can be printed at any time.
+*
+*/
+
 namespace H2Core {
 
 Logger* Object::__logger = 0;
