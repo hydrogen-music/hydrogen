@@ -350,12 +350,10 @@ QString Filesystem::patterns_dir()
 }
 QString Filesystem::sys_drumkits_dir()
 {
-    qDebug() << "sys Drumkit path " <<  __sys_data_path + DRUMKITS;
     return __sys_data_path + DRUMKITS;
 }
 QString Filesystem::usr_drumkits_dir()
 {
-    qDebug() << "usr Drumkit path " <<  __usr_data_path + DRUMKITS;
     return __usr_data_path + DRUMKITS;
 }
 QString Filesystem::playlists_dir()
