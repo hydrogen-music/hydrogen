@@ -59,7 +59,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 #else
     __sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
 #endif
-    __usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen" );
+    __usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/data" );
 #elif WIN32
     __sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
     __usr_data_path = QCoreApplication::applicationDirPath().append( "/hydrogen/data" ) ;
@@ -350,10 +350,12 @@ QString Filesystem::patterns_dir()
 }
 QString Filesystem::sys_drumkits_dir()
 {
+    qDebug() << "sys Drumkit path " <<  __sys_data_path + DRUMKITS;
     return __sys_data_path + DRUMKITS;
 }
 QString Filesystem::usr_drumkits_dir()
 {
+    qDebug() << "usr Drumkit path " <<  __usr_data_path + DRUMKITS;
     return __usr_data_path + DRUMKITS;
 }
 QString Filesystem::playlists_dir()
