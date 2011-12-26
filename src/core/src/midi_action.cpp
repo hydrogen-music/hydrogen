@@ -278,8 +278,10 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		int row = pAction->getParameter1().toInt(&ok,10);
                 if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
                     return false;
-		pEngine->setSelectedPatternNumber( row );
-		pEngine->sequencer_setNextPattern( row, false, true );
+                if(Preferences::get_instance()->patternModePlaysSelected())
+                        pEngine->setSelectedPatternNumber( row );
+                else
+                        pEngine->sequencer_setNextPattern( row, false, true );
                 return true;
         }
 
