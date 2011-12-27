@@ -1958,7 +1958,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 		// Right-click+drag
 		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
-		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+                if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
 			pPref->setPunchOutPos(-1);
 			return;
 		}
@@ -1979,7 +1979,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		int column = (ev->x() / m_nGridWidth);
 		m_bRightBtnPressed = false;
 
-		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+                if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
 			return;
 		}
 	
