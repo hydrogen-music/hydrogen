@@ -70,6 +70,7 @@ using namespace H2Core;
 
 #include <memory>
 #include <cassert>
+#include <unistd.h>
 
 using namespace std;
 using namespace H2Core;

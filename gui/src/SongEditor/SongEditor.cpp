@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <memory>
+#include <unistd.h>
 
 #include <hydrogen/Song.h>
 #include <hydrogen/hydrogen.h>
@@ -370,9 +371,11 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 			PatternList* pColumn = NULL;
 			if ( cell.x() < (int)pColumns->size() ) {
 				pColumn = (*pColumns)[ cell.x() ];
+				qDebug() << "Adding cell " << cell.x();
 			}
 			else {
 				// creo dei patternlist vuoti
+				qDebug() << "Adding cell 2 " << cell.x();
 				int nSpaces = cell.x() - pColumns->size();
 				for ( int i = 0; i <= nSpaces; i++ ) {
 					pColumn = new PatternList();
@@ -389,12 +392,15 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 			for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
 				QPoint cell = m_selectedCells[ i ];
 				PatternList* pColumn = NULL;
+				qDebug() << "Remove cell: " << cell.x();  
 				if ( cell.x() < (int)pColumns->size() ) {
 					pColumn = (*pColumns)[ cell.x() ];
+					qDebug() << "1";
 				}
 				else {
 					pColumn = new PatternList();
 					pColumns->push_back( pColumn );
+					qDebug() << "2";
 				}
 				pColumn->del(pPatternList->get( cell.y() ) );
 			}
@@ -628,6 +634,7 @@ void SongEditor::drawSequence()
 
 void SongEditor::drawPattern( int pos, int number, bool invertColour )
 {
+	qDebug() << "Drawing Pattern!";
 	Preferences *pref = Preferences::get_instance();
 	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QPainter p( m_pSequencePixmap );
