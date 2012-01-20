@@ -27,6 +27,7 @@
 #include <QtGui>
 
 #include <map>
+#include <unistd.h>
 
 #include "EventListener.h"
 

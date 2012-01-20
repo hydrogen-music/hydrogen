@@ -24,6 +24,7 @@
 #define SONG_EDITOR_H
 
 #include <vector>
+#include <unistd.h>
 
 #include <QtGui>
 #include <QList>
