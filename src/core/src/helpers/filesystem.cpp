@@ -208,8 +208,12 @@ bool Filesystem::rm( const QString& path, bool recursive )
         return false;
     }
     if ( !recursive ) {
-        ERRORLOG( QString( "unable to remove directory %1 without recursive parameter set to true" ).arg( path ) );
-        return false;
+        QDir dir;
+        bool ret = dir.rmdir( path );
+        if( !ret ) {
+            ERRORLOG( QString( "unable to remove dir %1 without recursive argument, maybe it is not empty?" ).arg( path ) );
+        }
+        return ret;
     }
     return rm_fr( path );
 }

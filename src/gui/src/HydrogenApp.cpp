@@ -574,5 +574,7 @@ void HydrogenApp::cleanupTemporaryFiles()
     for (int i = 0; i < temporaryFileList.size(); ++i){
         Filesystem::rm( temporaryFileList[i] );
     }
+
+    Filesystem::rm( Preferences::get_instance()->getTmpDirectory() );
 }
 
