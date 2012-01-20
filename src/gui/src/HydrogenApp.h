@@ -32,6 +32,7 @@
 #include <iostream>
 #include <vector>
 #include <QtGui>
+ #include <QStringList>
 
 namespace H2Core
 {
@@ -107,6 +108,9 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void onDrumkitLoad( QString name );
 		void enableDestructiveRecMode();
 
+        void cleanupTemporaryFiles();
+        void addTemporaryFile( const QString& );
+
 	public slots:
 		void onEventQueueTimer();
 
@@ -116,6 +120,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 #ifdef H2CORE_HAVE_LADSPA
 		LadspaFXProperties *m_pLadspaFXProperties[MAX_FX];
 #endif
+
 		MainForm *m_pMainForm;
 		Mixer *m_pMixer;
 		PatternEditorPanel* m_pPatternEditorPanel;
@@ -130,6 +135,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 		Director *m_pDirector;
 		QTimer *m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;
+        QStringList temporaryFileList;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);

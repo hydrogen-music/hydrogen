@@ -1232,7 +1232,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 
 void SongEditorPatternList::patternPopup_load()
 {
-
+    HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	Hydrogen *engine = Hydrogen::get_instance();
 	int tmpselectedpatternpos = engine->getSelectedPatternNumber();
 
@@ -1261,9 +1261,11 @@ void SongEditorPatternList::patternPopup_load()
 	//create a unique sequencefilename
 	time_t thetime;
 	thetime = time(NULL);
-	QString sequenceFileName = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
-	SE_loadPatternAction *action = new SE_loadPatternAction(  filename, oldPatternName, sequenceFileName, tmpselectedpatternpos );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+
+    QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+    SE_loadPatternAction *action = new SE_loadPatternAction(  filename, oldPatternName, sequenceFilename, tmpselectedpatternpos );
+    hydrogenApp->addTemporaryFile( sequenceFilename );
+    hydrogenApp->m_undoStack->push( action );
 
 	
 
@@ -1392,6 +1394,7 @@ void SongEditorPatternList::patternPopup_delete()
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
+    HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	Song *song = pEngine->getSong();
 	PatternList *pSongPatternList = song->get_pattern_list();
 	int patternPosition = pEngine->getSelectedPatternNumber();
@@ -1399,13 +1402,15 @@ void SongEditorPatternList::patternPopup_delete()
 	//create a unique sequencefilename
 	time_t thetime;
 	thetime = time(NULL);
-	QString sequenceFileName = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+    QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
 
 	//create a unique patternfilename
-	QString patternFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "PAT.xml" );
+    QString patternFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "PAT.xml" );
 
-	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternFilename , sequenceFileName, patternPosition );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+    SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternFilename , sequenceFilename, patternPosition );
+    hydrogenApp->addTemporaryFile( sequenceFilename );
+    hydrogenApp->addTemporaryFile( patternFilename );
+    hydrogenApp->m_undoStack->push( action );
 
 }
 
@@ -1539,6 +1544,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 void SongEditorPatternList::patternPopup_copy()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
+    HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
@@ -1560,8 +1566,9 @@ void SongEditorPatternList::patternPopup_copy()
 		int err =1;
 		err = fileMng.savePattern( pSong, pEngine->getCurrentDrumkitname(), pPatternList->size() -1 , patternFilename, pNewPattern->get_name(), 4 );
 
-                SE_copyPatternAction *action = new SE_copyPatternAction( patternFilename ,nSelectedPattern + 1 );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+        SE_copyPatternAction *action = new SE_copyPatternAction( patternFilename ,nSelectedPattern + 1 );
+        hydrogenApp->addTemporaryFile( patternFilename );
+        hydrogenApp->m_undoStack->push( action );
 	}
 	
 	//delete the tmp pattern
@@ -1746,15 +1753,17 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		//create a unique sequencefilename
 		Song *song = Hydrogen::get_instance()->getSong();
 		Pattern *pat = song->get_pattern_list()->get( nTargetPattern );
+        HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 
 		QString oldPatternName = pat->get_name();
 
 		time_t thetime;
 		thetime = time(NULL);
-		QString sequenceFileName = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
-		SE_loadPatternAction *action = new SE_loadPatternAction(  sPatternName, oldPatternName, sequenceFileName, nTargetPattern );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
-		
+        QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+        SE_loadPatternAction *action = new SE_loadPatternAction(  sPatternName, oldPatternName, sequenceFilename, nTargetPattern );
+
+        hydrogenApp->addTemporaryFile( sequenceFilename);
+        hydrogenApp->m_undoStack->push( action );
 	}
 }
 

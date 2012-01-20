@@ -446,7 +446,10 @@ void SongEditorPanel::clearSequence( Button* btn)
 	thetime = time(NULL);
 	QString filename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
 	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+    HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+
+    hydrogenApp->m_undoStack->push( action );
+     hydrogenApp->addTemporaryFile( filename );
 }
 
 

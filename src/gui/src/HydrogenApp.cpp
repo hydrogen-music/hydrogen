@@ -22,6 +22,11 @@
 
 #include <hydrogen/config.h>
 #include <hydrogen/version.h>
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/event_queue.h>
+#include <hydrogen/fx/LadspaFX.h>
+#include <hydrogen/Preferences.h>
+#include <hydrogen/helpers/filesystem.h>
 
 #include "HydrogenApp.h"
 #include "Skin.h"
@@ -32,6 +37,7 @@
 #include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
+#include "Director.h"
 
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
@@ -39,19 +45,13 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
-#include "Director.h"
-
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/fx/LadspaFX.h>
-#include <hydrogen/Preferences.h>
-//#include <hydrogen/sample.h>
+
 
 #include <QtGui>
-//#include <QDir>
+
 
 using namespace H2Core;
 
@@ -127,13 +127,9 @@ HydrogenApp::~HydrogenApp()
 	INFOLOG( "[~HydrogenApp]" );
 	m_pEventQueueTimer->stop();
 
+
 	//delete the undo tmp directory
-	QString dataDir = Preferences::get_instance()->getTmpDirectory();
-	QString cmd = QString( "rm -rf \"" ) + dataDir + "\"";
-        INFOLOG( cmd );
-	if ( system( cmd.toLocal8Bit() ) != 0 ) {
-		ERRORLOG( "Error executing '" + cmd + "'" );
-	}
+    cleanupTemporaryFiles();
 
 	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
@@ -557,5 +553,26 @@ void HydrogenApp::removeEventListener( EventListener* pListener )
 			m_eventListeners.erase( m_eventListeners.begin() + i );
 		}
 	}
+}
+
+
+/**
+ * Adds temporary file to the list
+ */
+void HydrogenApp::addTemporaryFile( const QString& path)
+{
+    temporaryFileList.append( path );
+}
+
+
+/**
+ * Removes temporary files that were created
+ * for undo'ing things.
+ */
+void HydrogenApp::cleanupTemporaryFiles()
+{
+    for (int i = 0; i < temporaryFileList.size(); ++i){
+        Filesystem::rm( temporaryFileList[i] );
+    }
 }
 
