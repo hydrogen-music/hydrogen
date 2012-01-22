@@ -194,7 +194,7 @@ void HydrogenApp::setupSinglePanedInterface()
         m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
         if( uiLayout == Preferences::UI_LAYOUT_TABBED)
-            pTab->addTab( m_pSongEditorPanel, "Song Editor" );
+            pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( pSplitter );
@@ -209,7 +209,7 @@ void HydrogenApp::setupSinglePanedInterface()
         if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
             pTab->setMovable(true);
             pTab->setTabsClosable(true);
-            pTab->addTab( pSouthPanel, " Instrument + Pattern " );
+            pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
         }
 
 	// PATTERN EDITOR
@@ -251,7 +251,7 @@ void HydrogenApp::setupSinglePanedInterface()
         m_pMixer->move( mixerProp.x, mixerProp.y );
 
         if( uiLayout == Preferences::UI_LAYOUT_TABBED){
-                pTab->addTab(m_pMixer,"Mixer");
+                pTab->addTab(m_pMixer,trUtf8("Mixer"));
         }
 
 	m_pMixer->updateMixer();
