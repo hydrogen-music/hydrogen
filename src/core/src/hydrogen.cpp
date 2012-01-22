@@ -492,7 +492,7 @@ inline void audioEngine_process_checkBPMChanged()
 					->calculateFrameOffset();
 			}
 #endif
-			EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+                        EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 		}
 	}
 }
@@ -2384,7 +2384,7 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 	
 	// reset
 	m_pAudioDriver->m_transport.m_nFrames = 0;	// reset total frames
-	m_pAudioDriver->setBpm( m_pSong->__bpm );
+        //m_pAudioDriver->setBpm( m_pSong->__bpm );
 	m_nSongPos = 0;
 	m_nPatternTickPosition = 0;
 	m_audioEngineState = STATE_PLAYING;

@@ -39,6 +39,8 @@ void* diskWriterDriver_thread( void* param )
 {
     Object* __object = ( Object* )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
+        pDriver->setBpm( Hydrogen::get_instance()->getSong()->__bpm );
+        pDriver->audioEngine_process_checkBPMChanged();
 	__INFOLOG( "DiskWriterDriver thread start" );
 
 	// always rolling, no user interaction
@@ -130,72 +132,97 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_R = pDriver->m_pOut_R;
 
 
-	//calculate exact song length in frames (no loops).
+        Hydrogen* engine = Hydrogen::get_instance();
+
 	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 	int nColumns = pPatternColumns->size();
 
 	int nPatternSize;
-	int nSongSize = 0;
-	for ( int i = 0; i < nColumns; ++i ) {
-		PatternList *pColumn = ( *pPatternColumns )[ i ];
+        int validBpm = Hydrogen::get_instance()->getSong()->__bpm;
+        float ticksize = 0;
+        for ( int patternposition = 0; patternposition < nColumns; ++patternposition ) {
+                PatternList *pColumn = ( *pPatternColumns )[ patternposition ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->get( 0 )->get_length();
 		} else {
 			nPatternSize = MAX_NOTES;
-		}
-		nSongSize += nPatternSize;
-	}
+                }
 
-	float ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / 192 *4;
-	 //here we have the song length in frames dependent from bpm and samplerate
-	unsigned songLengthInFrames = ticksize * nSongSize;
+                ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
+                // check pattern bpm if timeline bpm is in use
+                if(Preferences::get_instance()->__usetimeline){
+                        if( engine->m_timelinevector.size() >= 1 ){
 
-	unsigned frameNumber = 0;
-	int lastRun = 0;
-	while ( frameNumber < songLengthInFrames ) {
+                                for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+                                        if(engine->m_timelinevector[t].m_htimelinebeat == patternposition && engine->m_timelinevector[t].m_htimelinebpm != validBpm){
+                                                validBpm =  engine->m_timelinevector[t].m_htimelinebpm;
+                                        }
 
-		int usedBuffer = pDriver->m_nBufferSize;
+                                }
+                        }
+                        pDriver->setBpm(validBpm);
+                        ticksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
+                        pDriver->audioEngine_process_checkBPMChanged();
+                        Hydrogen::get_instance()->setPatternPos(patternposition );
 
-		//this will calculate the the size from -last- (end of song) used frame buffer,
-		//which is mostly smaller than pDriver->m_nBufferSize
-		if( songLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
-			lastRun = songLengthInFrames - frameNumber;
-			usedBuffer = lastRun;
-		};
+                }
+                else
+                {
+                        ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
+                        //pDriver->m_transport.m_nTickSize = ticksize;
+                }
 
-		frameNumber += usedBuffer;
-		int ret = pDriver->m_processCallback( usedBuffer, NULL );
 
-		for ( unsigned i = 0; i < usedBuffer; i++ ) {
-			if(pData_L[i] > 1){
-				pData[i * 2] = 1;
-			}
-			else if(pData_L[i] < -1){
-				pData[i * 2] = -1;
-			}else
-			{ 
-				pData[i * 2] = pData_L[i];
-			}
+                 //here we have the song length in frames dependent from bpm and samplerate
+                unsigned patternLengthInFrames = ticksize * nPatternSize;
+        
+                unsigned frameNumber = 0;
+                int lastRun = 0;
+                while ( frameNumber < patternLengthInFrames ) {
+        
+                        int usedBuffer = pDriver->m_nBufferSize;
+        
+                        //this will calculate the the size from -last- (end of song) used frame buffer,
+                        //which is mostly smaller than pDriver->m_nBufferSize
+                        if( patternLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
+                                lastRun = patternLengthInFrames - frameNumber;
+                                usedBuffer = lastRun;
+                        };
+        
+                        frameNumber += usedBuffer;
+                        int ret = pDriver->m_processCallback( usedBuffer, NULL );
+        
+                        for ( unsigned i = 0; i < usedBuffer; i++ ) {
+                                if(pData_L[i] > 1){
+                                        pData[i * 2] = 1;
+                                }
+                                else if(pData_L[i] < -1){
+                                        pData[i * 2] = -1;
+                                }else
+                                {
+                                        pData[i * 2] = pData_L[i];
+                                }
+        
+                                if(pData_R[i] > 1){
+                                        pData[i * 2 + 1] = 1;
+                                }
+                                else if(pData_R[i] < -1){
+                                        pData[i * 2 + 1] = -1;
+                                }else
+                                {
+                                        pData[i * 2 + 1] = pData_R[i];
+                                }
+                        }
+                        int res = sf_writef_float( m_file, pData, usedBuffer );
+                        if ( res != ( int )usedBuffer ) {
+                                __ERRORLOG( "Error during sf_write_float" );
+                        }
+                }
 
-			if(pData_R[i] > 1){
-				pData[i * 2 + 1] = 1;
-			}
-			else if(pData_R[i] < -1){
-				pData[i * 2 + 1] = -1;
-			}else
-			{ 
-				pData[i * 2 + 1] = pData_R[i];
-			}
-		}
-		int res = sf_writef_float( m_file, pData, usedBuffer );
-		if ( res != ( int )usedBuffer ) {
-			__ERRORLOG( "Error during sf_write_float" );
-		}
-
-		float fPercent = ( float ) frameNumber / ( float )songLengthInFrames * 100.0;
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
-//		frameNuber += lastrun;
-	}
+                // this progress bar methode is not exact but ok enough to give users a usable visible progress feedback
+                float fPercent = ( float )(patternposition +1) / ( float )nColumns * 100.0;
+                EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
+        }
 
 	delete[] pData;
 	pData = NULL;
@@ -320,5 +347,31 @@ void DiskWriterDriver::setBpm( float fBPM )
 	m_transport.m_nBPM = fBPM;
 }
 
+void DiskWriterDriver::audioEngine_process_checkBPMChanged()
+{
+        float fNewTickSize =
+                        getSampleRate() * 60.0
+                        / Hydrogen::get_instance()->getSong()->__bpm
+                        / Hydrogen::get_instance()->getSong()->__resolution;
+
+        if ( fNewTickSize != m_transport.m_nTickSize ) {
+                // cerco di convertire ...
+                float fTickNumber =
+                                ( float )m_transport.m_nFrames
+                                / ( float )m_transport.m_nTickSize;
+
+                m_transport.m_nTickSize = fNewTickSize;
+
+                if ( m_transport.m_nTickSize == 0 ) {
+                        return;
+                }
+                long long nNewFrames = ( long long )( fTickNumber * fNewTickSize );
+                // update frame position
+                m_transport.m_nFrames = nNewFrames;
+
+                // currently unuseble here
+                //EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+        }
+}
 
 };

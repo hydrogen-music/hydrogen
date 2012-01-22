@@ -60,7 +60,9 @@ class DiskWriterDriver : public AudioOutput
 		void disconnect();
 	
 		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
-	
+
+                void audioEngine_process_checkBPMChanged();
+
 		unsigned getBufferSize() {
 			return m_nBufferSize;
 		}
@@ -80,6 +82,7 @@ class DiskWriterDriver : public AudioOutput
 		virtual void setBpm( float fBPM );
 	
 	private:
+
 
 };
 
