@@ -2354,7 +2354,6 @@ void Hydrogen::restartDrivers()
 }
 
 
-
 /// Export a song to a wav file, returns the elapsed time in mSec
 void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 {
@@ -2372,7 +2371,7 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 //	unsigned nSamplerate = m_pAudioDriver->getSampleRate();
 	unsigned nSamplerate = (unsigned)rate;
 	// stop all audio drivers
-	audioEngine_stopAudioDrivers();
+        audioEngine_stopAudioDrivers();
 
 	/*
 		FIXME: Questo codice fa davvero schifo....
@@ -2410,11 +2409,31 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 	}
 }
 
+void Hydrogen::stopTempExportSong(){
+        if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
+                return;
+        }
 
+//	audioEngine_stopAudioDrivers();
+        m_pAudioDriver->disconnect();
+
+        m_audioEngineState = STATE_INITIALIZED;
+        delete m_pAudioDriver;
+        m_pAudioDriver = NULL;
+
+        m_pMainBuffer_L = NULL;
+        m_pMainBuffer_R = NULL;
+
+        m_pSong->set_mode( m_oldEngineMode );
+        m_pSong->set_loop_enabled( m_bOldLoopEnabled );
+
+        m_nSongPos = -1;
+        m_nPatternTickPosition = 0;
+}
 
 void Hydrogen::stopExportSong()
 {
-	if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
+        if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
 		return;
 	}
 
@@ -3327,7 +3346,7 @@ void Hydrogen::sortTimelineTagVector()
 void Hydrogen::setTimelineBpm()
 {
         //time line test
-        if ( Preferences::get_instance()->__usetimeline ){
+        if ( Preferences::get_instance()->getUseTimelineBpm() ){
                 float bpm = m_pSong->__bpm;
                 for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++){
                         if( m_timelinevector[i].m_htimelinebeat > getPatternPos() ){

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>490</width>
-    <height>312</height>
+    <width>495</width>
+    <height>336</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>260</y>
+     <y>290</y>
      <width>461</width>
      <height>28</height>
     </rect>
@@ -86,7 +86,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>170</y>
+     <y>200</y>
      <width>471</width>
      <height>81</height>
     </rect>
@@ -171,7 +171,10 @@
     </rect>
    </property>
    <property name="readOnly">
-    <bool>true</bool>
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string notr="true"/>
    </property>
   </widget>
   <widget class="QPushButton" name="browseBtn">
@@ -410,6 +413,121 @@
         <string>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</string>
        </property>
       </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>165</y>
+     <width>461</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_6">
+    <item>
+     <widget class="QLabel" name="resapelingLbl">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="sizeIncrement">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Interpolation: </string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="resampleComboBox">
+      <property name="maximumSize">
+       <size>
+        <width>100</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Choose type of interpolation methode</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Linear</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Cosine</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Third</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Cubic</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Hermite</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_5">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="toggleTimeLineBPMCheckBox">
+      <property name="toolTip">
+       <string>Enable tempo changing</string>
+      </property>
+      <property name="text">
+       <string>TimeLine BPM</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_6">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="toggleRubberbandCheckBox">
+      <property name="toolTip">
+       <string>Enable use of rubberband batch processor</string>
+      </property>
+      <property name="text">
+       <string>Rubberbad Batch</string>
+      </property>
      </widget>
     </item>
    </layout>

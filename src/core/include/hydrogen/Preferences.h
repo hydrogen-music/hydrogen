@@ -149,7 +149,7 @@ public:
 		NO_JACK_TIME_MASTER = 1,
 		PRE_FADER = 1,
 		SET_PLAY_OFF = 1,
-		BC_OFF = 1,
+                BC_OFF = 1
 	};
 
 
@@ -182,7 +182,7 @@ public:
 
 	bool m_bFollowPlayhead;
 
-	bool __usetimeline;
+
 	
 	// switch to enable / disable lash, only on h2 startup
 	bool m_brestartLash;
@@ -239,8 +239,7 @@ public:
 
 	///Rubberband CLI
 	QString m_rubberBandCLIexecutable;
-	///rubberband bpm change queue
-	bool m_useTheRubberbandBpmChangeEvent;
+
 	/// Returns an instance of PreferencesMng class
 	static void create_instance();
 	static Preferences* get_instance() { assert(__instance); return __instance; }
@@ -594,6 +593,27 @@ public:
         }
 #endif
 
+        bool getUseTimelineBpm(){
+            return __useTimelineBpm;
+        }
+        void setUseTimelineBpm( bool val ){
+            __useTimelineBpm = val;
+        }
+
+        int getRubberBandCalcTime(){
+                return __rubberBandCalcTime;
+        }
+        void setRubberBandCalcTime( int val ){
+                __rubberBandCalcTime = val;
+        }
+
+        int getRubberBandBatchMode(){
+                return m_useTheRubberbandBpmChangeEvent;
+        }
+        void setRubberBandBatchMode( int val ){
+                m_useTheRubberbandBpmChangeEvent = val;
+        }
+
 private:
 	static Preferences *__instance;
 
@@ -604,6 +624,9 @@ private:
 	QString demoPath;
 
 	//___ General properties ___
+        int __rubberBandCalcTime;
+        ///rubberband bpm change queue
+        bool m_useTheRubberbandBpmChangeEvent;
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
 	bool m_brestoreLastSong;		///< Restore last song?
 	bool m_brestoreLastPlaylist;
@@ -630,6 +653,7 @@ private:
         bool m_bjackSessionUseSessionDir;
 #endif
         bool waitingForSessionHandler;
+        bool __useTimelineBpm;
 
 	//___ GUI properties ___
 	QString m_sQTStyle;

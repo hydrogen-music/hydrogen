@@ -871,12 +871,12 @@ void PlayerControl::rubberbandButtonToggle(Button* )
 	Preferences *pPref = Preferences::get_instance();
 	if (m_pRubberBPMChange->isPressed()) {
 		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
-		pPref->m_useTheRubberbandBpmChangeEvent = true;
+                pPref->setRubberBandBatchMode(true);
 		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Recalculate all samples using Rubberband ON"), 2000);
 		
 	}
 	else {
-		pPref->m_useTheRubberbandBpmChangeEvent = false;
+                pPref->setRubberBandBatchMode(false);
 		(HydrogenApp::get_instance())->setScrollStatusBarMessage(trUtf8("Recalculate all samples using Rubberband OFF"), 2000);
 	}
 }

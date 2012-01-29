@@ -926,7 +926,7 @@ void SongEditorPatternList::patternChangedEvent() {
 	update();
 	///here we check the timeline  && m_pSong->get_mode() == Song::SONG_MODE
 	Hydrogen *engine = Hydrogen::get_instance();
-	if ( ( Preferences::get_instance()->__usetimeline ) && ( engine->getSong()->get_mode() == Song::SONG_MODE ) ){
+        if ( ( Preferences::get_instance()->getUseTimelineBpm() ) && ( engine->getSong()->get_mode() == Song::SONG_MODE ) ){
 		for ( int i = 0; i < static_cast<int>(engine->m_timelinevector.size()); i++){
 			if ( ( engine->m_timelinevector[i].m_htimelinebeat == engine->getPatternPos() )
 				&& ( engine->getNewBpmJTM() != engine->m_timelinevector[i].m_htimelinebpm ) ){
@@ -1928,7 +1928,7 @@ void SongEditorPositionRuler::createBackground()
 
 
 //draw tempo content
-	if(pref->__usetimeline){
+        if(pref->getUseTimelineBpm()){
 		p.setPen( textColor );
 	}else
 	{
@@ -2030,7 +2030,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchOutPos(-1);
 		update();
 	}
-	else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->__usetimeline ){
+        else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelBpmWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {

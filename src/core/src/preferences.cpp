@@ -89,6 +89,7 @@ Preferences::Preferences()
 
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
+        __rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
@@ -172,7 +173,7 @@ Preferences::Preferences()
 
 	__expandSongItem = true; //SoundLibraryPanel 
 	__expandPatternItem = true; //SoundLibraryPanel 
-	__usetimeline = false;		// use timeline
+        __useTimelineBpm = false;		// use timeline
  
 
 	/////////////////////////////////////////////////////////////////////////
@@ -395,7 +396,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
-			__usetimeline = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __usetimeline );
+                        __useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
                         m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 
@@ -751,7 +752,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
-	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __usetimeline ? "true": "false" );
+        LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
 

@@ -113,10 +113,11 @@ public:
 
 	long getTickForPosition( int );
 
-	void restartDrivers();
+        void restartDrivers();
 
 	void startExportSong( const QString& filename, int rate, int depth  );
 	void stopExportSong();
+        void stopTempExportSong();
 
 	AudioOutput* getAudioOutput();
 	MidiInput* getMidiInput();

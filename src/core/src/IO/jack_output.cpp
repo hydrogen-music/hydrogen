@@ -206,7 +206,7 @@ void JackOutput::deactivate()
 		}
 	}
 	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
-	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
+        memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 }
 
 unsigned JackOutput::getBufferSize()

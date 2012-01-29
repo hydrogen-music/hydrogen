@@ -52,14 +52,25 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 		void on_okBtn_clicked();
 		void on_exportNameTxt_textChanged(const QString& text);
 		void on_templateCombo_currentIndexChanged(int index );
+                void toggleRubberbandBatchMode(bool toggled);
+                void togglTimeLineBPMMode(bool toggled);
+                void resampleComboBoIndexChanged(int index );
 
 	private:
-		bool m_bExporting;
+
+                void setResamplerMode(int index);
+                void calculateRubberbandTime();
+
+                bool m_bExporting;
 		void exportTracks();
 		bool m_bExportTrackouts;
                 bool m_bOverwriteFiles;
                 uint m_nInstrument;
                 QString m_sExtension;
+                bool b_oldRubberbandBatchMode;
+                bool b_oldTimeLineBPMMode;
+                int m_oldInterpolation;
+
 };
 
 

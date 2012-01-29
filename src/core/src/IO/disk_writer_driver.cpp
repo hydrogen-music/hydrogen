@@ -37,8 +37,10 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
-    Object* __object = ( Object* )param;
+
+        Object* __object = ( Object* )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
+        EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
         pDriver->setBpm( Hydrogen::get_instance()->getSong()->__bpm );
         pDriver->audioEngine_process_checkBPMChanged();
 	__INFOLOG( "DiskWriterDriver thread start" );
@@ -138,7 +140,8 @@ void* diskWriterDriver_thread( void* param )
 	int nColumns = pPatternColumns->size();
 
 	int nPatternSize;
-        int validBpm = Hydrogen::get_instance()->getSong()->__bpm;
+        int validBpm = engine->getSong()->__bpm;
+        float oldBPM = 0;
         float ticksize = 0;
         for ( int patternposition = 0; patternposition < nColumns; ++patternposition ) {
                 PatternList *pColumn = ( *pPatternColumns )[ patternposition ];
@@ -148,9 +151,9 @@ void* diskWriterDriver_thread( void* param )
 			nPatternSize = MAX_NOTES;
                 }
 
-                ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
+                ticksize = pDriver->m_nSampleRate * 60.0 /  engine->getSong()->__bpm / engine->getSong()->__resolution;
                 // check pattern bpm if timeline bpm is in use
-                if(Preferences::get_instance()->__usetimeline){
+                if(Preferences::get_instance()->getUseTimelineBpm() ){
                         if( engine->m_timelinevector.size() >= 1 ){
 
                                 for ( int t = 0; t < engine->m_timelinevector.size(); t++){
@@ -163,7 +166,15 @@ void* diskWriterDriver_thread( void* param )
                         pDriver->setBpm(validBpm);
                         ticksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
                         pDriver->audioEngine_process_checkBPMChanged();
-                        Hydrogen::get_instance()->setPatternPos(patternposition );
+                        engine->setPatternPos(patternposition);
+
+                        // delay needed time to calculate all rubberband samples
+                        if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
+                                EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+                                int sleepTime = Preferences::get_instance()->getRubberBandCalcTime()+1;
+                                while ((sleepTime = sleep(sleepTime)) > 0);
+                        }
+                        oldBPM = validBpm;
 
                 }
                 else
@@ -173,7 +184,7 @@ void* diskWriterDriver_thread( void* param )
                 }
 
 
-                 //here we have the song length in frames dependent from bpm and samplerate
+                 //here we have the pattern length in frames dependent from bpm and samplerate
                 unsigned patternLengthInFrames = ticksize * nPatternSize;
         
                 unsigned frameNumber = 0;
@@ -182,7 +193,7 @@ void* diskWriterDriver_thread( void* param )
         
                         int usedBuffer = pDriver->m_nBufferSize;
         
-                        //this will calculate the the size from -last- (end of song) used frame buffer,
+                        //this will calculate the the size from -last- (end of pattern) used frame buffer,
                         //which is mostly smaller than pDriver->m_nBufferSize
                         if( patternLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
                                 lastRun = patternLengthInFrames - frameNumber;
@@ -233,7 +244,6 @@ void* diskWriterDriver_thread( void* param )
 
 	pthread_exit( NULL );
 
-//	Hydrogen::get_instance()->stopExportSong();
 	return NULL;
 }
 
@@ -286,7 +296,8 @@ int DiskWriterDriver::connect()
 
 	pthread_create( &diskWriterDriverThread, &attr, diskWriterDriver_thread, this );
 
-	return 0;
+        return 0;
+
 }
 
 
@@ -294,13 +305,13 @@ int DiskWriterDriver::connect()
 /// disconnect
 void DiskWriterDriver::disconnect()
 {
-	INFOLOG( "[disconnect]" );
-
+        INFOLOG( "[disconnect]" );
 	delete[] m_pOut_L;
 	m_pOut_L = NULL;
 
 	delete[] m_pOut_R;
 	m_pOut_R = NULL;
+
 }
 
 
@@ -365,9 +376,9 @@ void DiskWriterDriver::audioEngine_process_checkBPMChanged()
                 if ( m_transport.m_nTickSize == 0 ) {
                         return;
                 }
-                long long nNewFrames = ( long long )( fTickNumber * fNewTickSize );
+
                 // update frame position
-                m_transport.m_nFrames = nNewFrames;
+                m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
 
                 // currently unuseble here
                 //EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);

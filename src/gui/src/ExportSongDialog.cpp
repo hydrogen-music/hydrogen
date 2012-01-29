@@ -35,10 +35,14 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/audio_engine.h>
+#include <hydrogen/sampler/Sampler.h>
+#include <hydrogen/event_queue.h>
 
 #include <memory>
 
@@ -59,7 +63,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
         exportTypeCombo->addItem(trUtf8("Export to seperate tracks"));
         exportTypeCombo->addItem(trUtf8("Both"));
 
-	HydrogenApp::get_instance()->addEventListener( this );
+        HydrogenApp::get_instance()->addEventListener( this );
 
 	m_pProgressBar->setValue( 0 );
 	sampleRateCombo->setCurrentIndex(1);
@@ -78,7 +82,27 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
         m_sExtension = ".wav";
         m_bOverwriteFiles = false;
 
+        // use of rubberband batch
+        //toggleRubberbandBatchButton->setCheckable(true);
+        toggleRubberbandCheckBox->setChecked(Preferences::get_instance()->getRubberBandBatchMode());
+        b_oldRubberbandBatchMode = Preferences::get_instance()->getRubberBandBatchMode();
+        connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
 
+        // use of timeline
+        //toggleTimeLineBPMButton->setCheckable(true);
+        toggleTimeLineBPMCheckBox->setChecked(Preferences::get_instance()->getUseTimelineBpm());
+        b_oldTimeLineBPMMode = Preferences::get_instance()->getUseTimelineBpm();
+        connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(togglTimeLineBPMMode( bool )));
+
+        // use of interpolation mode
+        m_oldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
+        resampleComboBox->setCurrentIndex( m_oldInterpolation );
+        connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
+
+        // if rubberbandBatch calculate time needed by lib rubberband to resample samples
+        if(b_oldRubberbandBatchMode){
+                calculateRubberbandTime();
+        }
 }
 
 
@@ -151,7 +175,6 @@ void ExportSongDialog::on_okBtn_clicked()
         }
 
         m_bOverwriteFiles = false;
-
 
 	/* If the song has a tempo change, notify the user 
 	 *  that hydrogen is unable export songs with 
@@ -258,10 +281,10 @@ void ExportSongDialog::exportTracks()
                         if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
 		}
 
-                Hydrogen::get_instance()->stopExportSong();
+                //Hydrogen::get_instance()->stopExportSong();
+                Hydrogen::get_instance()->stopTempExportSong();
 		m_bExporting = false;
                 HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
-                //Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 
 		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 		
@@ -269,12 +292,19 @@ void ExportSongDialog::exportTracks()
                     m_nInstrument++;
                 }
 	}
+
 }
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
 	Hydrogen::get_instance()->stopExportSong();
 	m_bExporting = false;
+        if(Preferences::get_instance()->getRubberBandBatchMode()){
+                EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+        }
+        Preferences::get_instance()->setRubberBandBatchMode( b_oldRubberbandBatchMode );
+        Preferences::get_instance()->setUseTimelineBpm( b_oldTimeLineBPMMode );
+        setResamplerMode(m_oldInterpolation);
 	accept();
 
 }
@@ -434,25 +464,138 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 void ExportSongDialog::progressEvent( int nValue )
 {
         m_pProgressBar->setValue( nValue );
-	if ( nValue == 100 ) {
-		
-		m_bExporting = false;
-                //Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
+        if ( nValue == 100 ) {
+
+                m_bExporting = false;
 
                 if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size() -1 ){
                         HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
                         m_nInstrument = 0;
-			m_bExportTrackouts = false;
+                        m_bExportTrackouts = false;
 
-                    }
+                }
 
-                //QFile check( exportNameTxt->text() );
-                //if ( ! check.exists() ) {
-                //	QMessageBox::information( this, "Hydrogen", trUtf8("Export failed!") );
-                //}
+                if( m_bExportTrackouts ){
+                        exportTracks();
+                }
+        }
 
-		if( m_bExportTrackouts ){
-			exportTracks();
-		}
-	}
+        if ( nValue < 100 ) {
+                closeBtn->setEnabled(false);
+                resampleComboBox->setEnabled(false);
+
+        }else
+        {
+                closeBtn->setEnabled(true);
+                resampleComboBox->setEnabled(true);
+        }
+}
+
+void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
+{
+        Preferences::get_instance()->setRubberBandBatchMode(toggled);
+        if(toggled){
+                calculateRubberbandTime();
+        }
+}
+
+void ExportSongDialog::togglTimeLineBPMMode(bool toggled)
+{
+        Preferences::get_instance()->setUseTimelineBpm(toggled);
+}
+
+void ExportSongDialog::resampleComboBoIndexChanged(int index )
+{
+        setResamplerMode(index);
+}
+
+void ExportSongDialog::setResamplerMode(int index)
+{
+        switch ( index ){
+        case 0:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+               break;
+        case 1:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+               break;
+        case 2:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+               break;
+        case 3:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+               break;
+        case 4:
+               AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+               break;
+        }
+}
+
+
+void ExportSongDialog::calculateRubberbandTime()
+{
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        closeBtn->setEnabled(false);
+        resampleComboBox->setEnabled(false);
+        okBtn->setEnabled(false);
+        Hydrogen* engine = Hydrogen::get_instance();
+        float oldBPM = engine->getSong()->__bpm;
+        float lowBPM = oldBPM;
+
+        if( engine->m_timelinevector.size() >= 1 ){
+                for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+                        if(engine->m_timelinevector[t].m_htimelinebpm < lowBPM){
+                                lowBPM =  engine->m_timelinevector[t].m_htimelinebpm;
+                        }
+
+                }
+        }
+
+        engine->setBPM(lowBPM);
+        time_t sTime = time(NULL);
+        Hydrogen *pEngine = Hydrogen::get_instance();
+        Song *song = pEngine->getSong();
+        assert(song);
+        if(song){
+                InstrumentList *songInstrList = song->get_instrument_list();
+                assert(songInstrList);
+                for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
+                        Instrument *pInstr = songInstrList->get( nInstr );
+                        assert( pInstr );
+                        if ( pInstr ){
+                                for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                                        InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
+                                        if ( pLayer ) {
+                                                Sample *pSample = pLayer->get_sample();
+                                                if ( pSample ) {
+                            if( pSample->get_rubberband().use ) {
+                                Sample *newSample = Sample::load(
+                                        pSample->get_filepath(),
+                                        pSample->get_loops(),
+                                        pSample->get_rubberband(),
+                                        *pSample->get_velocity_envelope(),
+                                        *pSample->get_pan_envelope()
+                                        );
+                                                                if( !newSample  ){
+                                                                        continue;
+                                                                }
+                                                                delete pSample;
+                                                                // insert new sample from newInstrument
+                                                                AudioEngine::get_instance()->lock( RIGHT_HERE );
+                                                                pLayer->set_sample( newSample );
+                                                                AudioEngine::get_instance()->unlock();
+
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                }
+        }
+        Preferences::get_instance()->setRubberBandCalcTime(time(NULL) - sTime);
+        engine->setBPM(oldBPM);
+        closeBtn->setEnabled(true);
+        resampleComboBox->setEnabled(true);
+        okBtn->setEnabled(true);
+        QApplication::restoreOverrideCursor();
+
 }

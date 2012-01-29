@@ -847,7 +847,7 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 
  void InstrumentEditor::rubberbandbpmchangeEvent()
 {
-	if( !Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent /*&& Preferences::get_instance()->__usetimeline */){
+        if( !Preferences::get_instance()->getRubberBandBatchMode() /*&& Preferences::get_instance()->__usetimeline */){
 		//we return also if time-line is activated. this wont work.
 //		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
 		return;
@@ -892,6 +892,6 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 				}
 			}
 		}
-	}
+        }
 
 }

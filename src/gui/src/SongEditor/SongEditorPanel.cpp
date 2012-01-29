@@ -67,7 +67,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-	m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->__usetimeline );
+        m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->getUseTimelineBpm() );
 
 
 	// clear sequence button
@@ -514,12 +514,12 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
 	if( m_pTimeLineToggleBtn->isPressed() ){
-		Preferences::get_instance()->__usetimeline = true;
+                Preferences::get_instance()->setUseTimelineBpm( true );
 		Hydrogen::get_instance()->setTimelineBpm();
 	}
 	else
 	{
-		Preferences::get_instance()->__usetimeline = false;
+                Preferences::get_instance()->setUseTimelineBpm( false );
 	}
 	m_pPositionRuler->createBackground();
 }
