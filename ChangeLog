@@ -4,6 +4,8 @@
         * add undo for song/pattern editor
         * jack-session support
         * some bug fixes
+        * improve ExportSong add use of TimeLineBPM,
+          RubberbandBatch processor and different types of resample interpolation
 
 2011-03-15 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 

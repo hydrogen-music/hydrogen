@@ -2443,7 +2443,6 @@ void Hydrogen::stopExportSong( bool reconnectOldDriver )
 }
 
 
-
 /// Used to display audio driver info
 AudioOutput* Hydrogen::getAudioOutput()
 {
