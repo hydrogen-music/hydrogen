@@ -613,7 +613,6 @@ void ExportSongDialog::calculateRubberbandTime()
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
-        bool check = false;
         Hydrogen *pEngine = Hydrogen::get_instance();
         Song *song = pEngine->getSong();
         assert(song);
