@@ -83,16 +83,28 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
         m_bOverwriteFiles = false;
 
         // use of rubberband batch
-        //toggleRubberbandBatchButton->setCheckable(true);
-        toggleRubberbandCheckBox->setChecked(Preferences::get_instance()->getRubberBandBatchMode());
-        b_oldRubberbandBatchMode = Preferences::get_instance()->getRubberBandBatchMode();
-        connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
+        if(checkUseOfRubberband()){
+                b_oldRubberbandBatchMode = Preferences::get_instance()->getRubberBandBatchMode();
+                toggleRubberbandCheckBox->setChecked(Preferences::get_instance()->getRubberBandBatchMode());
+                connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
+        }else
+        {
+                b_oldRubberbandBatchMode = Preferences::get_instance()->getRubberBandBatchMode();
+                toggleRubberbandCheckBox->setEnabled( false );
+        }
+
 
         // use of timeline
-        //toggleTimeLineBPMButton->setCheckable(true);
-        toggleTimeLineBPMCheckBox->setChecked(Preferences::get_instance()->getUseTimelineBpm());
-        b_oldTimeLineBPMMode = Preferences::get_instance()->getUseTimelineBpm();
-        connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(togglTimeLineBPMMode( bool )));
+        if( Hydrogen::get_instance()->m_timelinevector.size() > 0 ){
+                toggleTimeLineBPMCheckBox->setChecked(Preferences::get_instance()->getUseTimelineBpm());
+                b_oldTimeLineBPMMode = Preferences::get_instance()->getUseTimelineBpm();
+                connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(togglTimeLineBPMMode( bool )));
+        }else
+        {
+                b_oldTimeLineBPMMode = Preferences::get_instance()->getUseTimelineBpm();
+                toggleTimeLineBPMCheckBox->setEnabled( false );
+        }
+
 
         // use of interpolation mode
         m_oldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
@@ -597,4 +609,35 @@ void ExportSongDialog::calculateRubberbandTime()
         okBtn->setEnabled(true);
         QApplication::restoreOverrideCursor();
 
+}
+
+bool ExportSongDialog::checkUseOfRubberband()
+{
+        bool check = false;
+        Hydrogen *pEngine = Hydrogen::get_instance();
+        Song *song = pEngine->getSong();
+        assert(song);
+        if(song){
+                InstrumentList *songInstrList = song->get_instrument_list();
+                assert(songInstrList);
+                for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
+                        Instrument *pInstr = songInstrList->get( nInstr );
+                        assert( pInstr );
+                        if ( pInstr ){
+                                for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                                        InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
+                                        if ( pLayer ) {
+                                                Sample *pSample = pLayer->get_sample();
+                                                if ( pSample ) {
+                            if( pSample->get_rubberband().use ) {
+                                    return true;
+
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                }
+        }
+        return false;
 }

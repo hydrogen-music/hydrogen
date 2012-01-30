@@ -60,6 +60,7 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 
                 void setResamplerMode(int index);
                 void calculateRubberbandTime();
+                bool checkUseOfRubberband();
 
                 bool m_bExporting;
 		void exportTracks();
