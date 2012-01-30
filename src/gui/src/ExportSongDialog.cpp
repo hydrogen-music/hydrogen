@@ -293,7 +293,7 @@ void ExportSongDialog::exportTracks()
                 }
 
                 //Hydrogen::get_instance()->stopExportSong();
-                Hydrogen::get_instance()->stopTempExportSong();
+                Hydrogen::get_instance()->stopExportSong( false );
                 m_bExporting = false;
                 HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
 
@@ -308,7 +308,7 @@ void ExportSongDialog::exportTracks()
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
-	Hydrogen::get_instance()->stopExportSong();
+        Hydrogen::get_instance()->stopExportSong( true );
 	m_bExporting = false;
         if(Preferences::get_instance()->getRubberBandBatchMode()){
                 EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
@@ -578,14 +578,14 @@ void ExportSongDialog::calculateRubberbandTime()
                                         if ( pLayer ) {
                                                 Sample *pSample = pLayer->get_sample();
                                                 if ( pSample ) {
-                            if( pSample->get_rubberband().use ) {
-                                Sample *newSample = Sample::load(
-                                        pSample->get_filepath(),
-                                        pSample->get_loops(),
-                                        pSample->get_rubberband(),
-                                        *pSample->get_velocity_envelope(),
-                                        *pSample->get_pan_envelope()
-                                        );
+                                                        if( pSample->get_rubberband().use ) {
+                                                                Sample *newSample = Sample::load(
+                                                                                        pSample->get_filepath(),
+                                                                                        pSample->get_loops(),
+                                                                                        pSample->get_rubberband(),
+                                                                                        *pSample->get_velocity_envelope(),
+                                                                                        *pSample->get_pan_envelope()
+                                                                                        );
                                                                 if( !newSample  ){
                                                                         continue;
                                                                 }
@@ -628,9 +628,8 @@ bool ExportSongDialog::checkUseOfRubberband()
                                         if ( pLayer ) {
                                                 Sample *pSample = pLayer->get_sample();
                                                 if ( pSample ) {
-                            if( pSample->get_rubberband().use ) {
-                                    return true;
-
+                                                        if( pSample->get_rubberband().use ) {
+                                                                return true;
                                                         }
                                                 }
                                         }

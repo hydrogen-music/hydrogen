@@ -2409,29 +2409,7 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 	}
 }
 
-void Hydrogen::stopTempExportSong(){
-        if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
-                return;
-        }
-
-//	audioEngine_stopAudioDrivers();
-        m_pAudioDriver->disconnect();
-
-        m_audioEngineState = STATE_INITIALIZED;
-        delete m_pAudioDriver;
-        m_pAudioDriver = NULL;
-
-        m_pMainBuffer_L = NULL;
-        m_pMainBuffer_R = NULL;
-
-        m_pSong->set_mode( m_oldEngineMode );
-        m_pSong->set_loop_enabled( m_bOldLoopEnabled );
-
-        m_nSongPos = -1;
-        m_nPatternTickPosition = 0;
-}
-
-void Hydrogen::stopExportSong()
+void Hydrogen::stopExportSong( bool reconnectOldDriver )
 {
         if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
 		return;
@@ -2452,6 +2430,9 @@ void Hydrogen::stopExportSong()
 
 	m_nSongPos = -1;
 	m_nPatternTickPosition = 0;
+
+        if(!reconnectOldDriver) return;
+
 	audioEngine_startAudioDrivers();
 
 	if ( m_pAudioDriver ) {

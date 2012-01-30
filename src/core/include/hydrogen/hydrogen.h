@@ -108,7 +108,7 @@ public:
 
 	int getPatternPos();
 	void setPatternPos( int pos );
-	
+
 	void triggerRelocateDuringPlay();
 
 	long getTickForPosition( int );
@@ -116,8 +116,7 @@ public:
         void restartDrivers();
 
 	void startExportSong( const QString& filename, int rate, int depth  );
-	void stopExportSong();
-        void stopTempExportSong();
+        void stopExportSong( bool reconnectOldDriver );
 
 	AudioOutput* getAudioOutput();
 	MidiInput* getMidiInput();
