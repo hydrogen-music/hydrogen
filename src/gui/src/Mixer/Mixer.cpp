@@ -210,7 +210,28 @@ void Mixer::muteClicked(MixerLine* ref)
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }
 
+void Mixer::unmuteAll( bool findSelectedInstr )
+{
+        if(findSelectedInstr)
+                unmuteAll( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+        else
+                unmuteAll( 0 );
+}
 
+void Mixer::unmuteAll( int selectedInstrument )
+{
+        Hydrogen *pEngine = Hydrogen::get_instance();
+        Song *pSong = pEngine->getSong();
+        InstrumentList *pInstrList = pSong->get_instrument_list();
+        int nInstruments = pInstrList->size();
+        for ( int i = 0; i < nInstruments; ++i ) {
+                m_pMixerLine[i]->setMuteClicked( false );
+                m_pMixerLine[i]->setSoloClicked( false );
+                pInstrList->get( i )->set_muted( false );
+        }
+        // select first instrument after unmute all
+        Hydrogen::get_instance()->setSelectedInstrumentNumber(selectedInstrument);
+}
 
 void Mixer::soloClicked(MixerLine* ref)
 {
