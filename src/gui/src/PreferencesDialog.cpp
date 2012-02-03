@@ -130,7 +130,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
 
 	// JACK
-	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
+        trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
+        connect(trackOutsCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTrackOutsCheckBox( bool )));
+
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
 	trackOutputComboBox->setCurrentIndex( pPref->m_nJackTrackOutputMode );
 	//~ JACK
@@ -338,7 +340,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	// JACK
-	pPref->m_bJackTrackOuts = trackOutsCheckBox->isChecked();
 	pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
 
 	
@@ -722,3 +723,8 @@ void PreferencesDialog::onMidiDriverComboBoxIndexChanged ( int index )
     m_bNeedDriverRestart = true;
 }
 
+void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
+{
+        Preferences::get_instance()->m_bJackTrackOuts = toggled;
+        m_bNeedDriverRestart = true;
+}
