@@ -24,6 +24,7 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/playlist.h>
 
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
@@ -153,6 +154,8 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "PAN_ABSOLUTE"
 	<< "BEATCOUNTER"
 	<< "TAP_TEMPO"
+        << "PLAYLIST_NEXT_SONG"
+        << "PLAYLIST_PREV_SONG"
 	<< "SELECT_INSTRUMENT";
 
 	eventList << ""
@@ -654,6 +657,22 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		pEngine->setTimelineBpm();
 		return true;
 	}
+
+        if( sActionString == "PLAYLIST_NEXT_SONG"){
+                int songnumber = Playlist::get_instance()->getActiveSongNumber();
+                if(songnumber+1 >= 0 && songnumber+1 <= pEngine->m_PlayList.size()-1){
+                        Playlist::get_instance()->setNextSongByNumber( songnumber + 1 );
+                }
+                return true;
+        }
+
+        if( sActionString == "PLAYLIST_PREV_SONG"){
+                int songnumber = Playlist::get_instance()->getActiveSongNumber();
+                if(songnumber-1 >= 0 && songnumber-1 <= pEngine->m_PlayList.size()-1){
+                        Playlist::get_instance()->setNextSongByNumber( songnumber - 1 );
+                }
+                return true;
+        }
 	
 	return false;
 }
