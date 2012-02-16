@@ -253,12 +253,16 @@ bool Filesystem::check_sys_paths()
     if( !file_readable( click_file() ) ) return false;
     if( !file_readable( empty_song() ) ) return false;
     if( !file_readable( empty_sample() ) ) return false;
-    if( !file_readable( sys_gui_config() ) ) return false;
-    if( !file_readable( sys_core_config() ) ) return false;
+
+    //@Jeremy: Please check if those files are obsolote
+    //if( !file_readable( sys_gui_config() ) ) return false;
+    //if( !file_readable( sys_core_config() ) ) return false;
+    //if( !file_readable( pattern_xsd() ) ) return false;
+
     if(  !dir_readable( sys_drumkits_dir() ) ) return false;
     if( !file_readable( drumkit_xsd() ) ) return false;
     if( !file_readable( drumkit_pattern_xsd() ) ) return false;
-    if( !file_readable( pattern_xsd() ) ) return false;
+
     INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
     return true;
 }
