@@ -532,43 +532,43 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 			 * If it was, don't delete it! 
 			 */
 
-			bool moved = false;
-			for ( uint i = 0; i < movingCells.size(); i++ ) {
-				QPoint cell2 = movingCells[ i ];
-				if(cell.x() == cell2.x()){
-					moved = true;	
-				}
-			}
+            bool moved = false;
+            for ( uint i = 0; i < movingCells.size(); i++ ) {
+                QPoint cell2 = movingCells[ i ];
+                if( cell.x() == cell2.x() && cell.y() == cell2.y() ){
+                    moved = true;
+                }
+            }
 
-                        if( moved )
-			{
-				continue;
-			}
+            if( moved )
+            {
+                continue;
+            }
 
-                        if( undo )
-                        {
-                            bool existing = false;
-                            for ( uint i = 0; i < existingCells.size(); i++ ) {
-                                QPoint existing_cell = existingCells[ i ];
-                                if(existing_cell.x() == cell.x() && existing_cell.y() == cell.y()) existing = true;
-                            }
+            if( undo )
+            {
+                bool existing = false;
+                for ( uint i = 0; i < existingCells.size(); i++ ) {
+                    QPoint existing_cell = existingCells[ i ];
+                    if(existing_cell.x() == cell.x() && existing_cell.y() == cell.y()) existing = true;
+                }
 
-                            //this cell existed before. Don't delete it!
-                            if(existing){
-                                continue;
-                            }
-                        }
-			
+                //this cell existed before. Don't delete it!
+                if(existing){
+                    continue;
+                }
+            }
 
-			if ( cell.x() < (int)pColumns->size() ) {
-				pColumn = (*pColumns)[ cell.x() ];
-			}
-			else {
-				pColumn = new PatternList();
-				pColumns->push_back( pColumn );
-			}
-			pColumn->del(pPatternList->get( cell.y() ) );
-		}
+
+            if ( cell.x() < (int)pColumns->size() ) {
+                pColumn = (*pColumns)[ cell.x() ];
+            }
+            else {
+                pColumn = new PatternList();
+                pColumns->push_back( pColumn );
+            }
+            pColumn->del(pPatternList->get( cell.y() ) );
+        }
 	}
 
 	// remove the empty patternlist at the end of the song
