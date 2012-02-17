@@ -1097,7 +1097,7 @@ void PlayerControl::showButtonClicked( Button* pRef )
 	}
 	else if ( pRef == m_pShowInstrumentRackBtn ) {
 		bool isVisible = pH2App->getInstrumentRack()->isVisible();
-		pH2App->getInstrumentRack()->setHidden( isVisible );
+        pH2App->showInstrumentPanel( isVisible );
 	}
 }
 

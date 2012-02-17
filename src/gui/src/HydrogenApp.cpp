@@ -207,8 +207,8 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pInstrumentRack = new InstrumentRack( NULL );
 
         if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
-            pTab->setMovable(true);
-            pTab->setTabsClosable(true);
+            pTab->setMovable( false );
+            pTab->setTabsClosable( false );
             pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
         }
 
@@ -338,11 +338,31 @@ void HydrogenApp::showMixer(bool show)
 
         Preferences *pPref = Preferences::get_instance();
         int uiLayout = pPref->getDefaultUILayout();
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED)
+
+        if( uiLayout == Preferences::UI_LAYOUT_TABBED )
         {
-            pTab->setCurrentWidget( m_pMixer );
+            pTab->setCurrentIndex( 2 );
         } else {
             m_pMixer->setVisible( show );
+        }
+}
+
+void HydrogenApp::showInstrumentPanel(bool show)
+{
+        /*
+         *   Switch to pattern editor/instrument tab in tabbed mode,
+         *   otherwise hide instrument panel
+         */
+
+        Preferences *pPref = Preferences::get_instance();
+        int uiLayout = pPref->getDefaultUILayout();
+
+        if( uiLayout == Preferences::UI_LAYOUT_TABBED )
+        {
+            pTab->setCurrentIndex( 1 );
+            getInstrumentRack()->setHidden( show );
+        } else {
+            getInstrumentRack()->setHidden( show );
         }
 }
 
