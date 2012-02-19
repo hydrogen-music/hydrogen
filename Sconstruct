@@ -520,7 +520,7 @@ version.write( "static const std::string extra_version = \"svn%s\";\n" % get_svn
 
 #just for non-stable releases
 #version.write( "static const std::string VERSION = \"0.9.5-\" + extra_version;\n" )
-version.write( "static const std::string VERSION = \"0.9.5\";\n" )
+version.write( "static const std::string VERSION = \"0.9.5.1\";\n" )
 
 version.write( "std::string get_version() { return VERSION;	}\n" )
 version.close()

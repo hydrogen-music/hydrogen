@@ -146,7 +146,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 //	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
-	showDevelWarning();
+	//showDevelWarning();
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_autosaveTimer.start( 60 * 1000 );
