@@ -1,3 +1,12 @@
+
+2011-02-19 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 0.9.5.1
+	* Compatible with linux 3.0 kernels
+	* Compiles now with gcc 4.7
+	* Added greek translation 
+	* Updated czech translation
+	* Few small bugfixes
+
 2011-03-15 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 
         * Release 0.9.5
