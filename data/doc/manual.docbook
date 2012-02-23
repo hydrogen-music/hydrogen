@@ -2144,6 +2144,12 @@
             <para><emphasis role="bold"><guibutton>Random
             Pitch</guibutton></emphasis></para>
           </listitem>
+          <listitem>
+            <para><emphasis role="bold"><guibutton>Midi out Channel and Note</guibutton></emphasis></para>
+          </listitem>
+          <listitem>
+            <para><emphasis role="bold"><guibutton>Auto Stop-Note</guibutton></emphasis></para>
+          </listitem>
         </itemizedlist>
 
         <para>It's important that you understand <xref
@@ -2281,6 +2287,45 @@
           more like a real drummer.</para>
 
         </section>
+        
+        
+
+        <section id="sect.instrument_editing.midi_out_settings">
+          <title>Midi out settings</title>
+
+          <para>Hydrogen is capable of generating midi messages that you can use 
+          to trigger any external midi device or application.  To do this you simply need to 
+          configure the Midi out channel and Note for every instrument.  As you can see
+          this is a very flexible approach that enables you to trigger samples or sounds
+          from multiple devices and/or apps.  Finally you need to make sure the proper 
+          Midi routing/wiring is in place and you're set.
+          </para>
+
+          <para>From now on every time a note is played for that instrument (in the Hydrogen sequencer) 
+          a midi message will be sent to your external app/device and trigger a sound.  
+          This way you can use Hydrogen as a pure sequencer for other apps, or combine the 
+          internal Hydrogen sampler with multiple external apps/devices.</para>
+
+        </section>        
+        
+        <section id="sect.instrument_editing.auto_stop_note">
+          <title>Auto Stop-Note</title>
+
+          <para>If this box is checked Hydrogen will immediately stop any playing sample that
+          belongs to this instrument whenever the instrument is re-triggered.</para>
+          <para>This option is particularly useful when you are using long samples like a 
+          crash or some existing audio that you have sampled (like a looped voice in a 
+          dance/electro song)  For the crash you will need to use the Auto Stop-Note when 
+          you are sequencing multiple notes in fast succession and want to make it sound realistic.  If you do 
+          not check this option the cymbal will start to sound like multiple cymbals 
+          instead of only one (since the sample of each individual hit will be played completely).
+          For the voice sample this option is useful if you are trying to get that 'stuttering' effect.
+
+          </para>
+
+        </section>        
+        
+        
       </section>
       
       
