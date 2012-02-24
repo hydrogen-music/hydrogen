@@ -911,31 +911,31 @@
         </a>.  After installing rubberband you should check if the path to the rubberband cli is 
         configured correctly (see <a class="xref" href="#sect.preferences.general_tab" title="The General tab">the section called &#8220;The General tab&#8221;</a>).</p><p>If rubberband is installed correctly you will have access to the rubberband 
         settings, and an extra button named 'RUB' will be available in the Main Toolbar,
-        right of the BPM LCD display :
+        right of the BPM LCD display:
         
        </p><div class="informalfigure"><a name="rubberband_button"></a><div class="mediaobject"><img src="img/MainControls_Rubberband_btn.png"></div></div><p>                
         
         </p><p>Back to the rubberband settings : 
-        </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>Sample length to beat : when set to 'off' rubberband functionality is disabled. 
+        </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>Sample length to beat : when set to 'off', rubberband functionality is disabled. 
          Normally this parameter should be set to the length of the part of the sample between 
          the Start and End marker, expressed in number of beats.</p></li><li class="listitem" style="list-style-type: circle"><p>Pitch : this setting allows you to change the pitch of the sample, expressed in 
          semitones,cent.</p></li><li class="listitem" style="list-style-type: circle"><p>Crispness : this setting does not affect tempo or pitch, but changes the way
          the sample sounds.</p></li></ul></div><p>
-        </p><p><span class="bold"><strong>Note </strong></span>: If you want Hydrogen to recalculate the sample length on the fly (using rubberband)
+        </p><p><span class="bold"><strong>Note</strong></span>: If you want Hydrogen to recalculate the sample length on the fly (using rubberband)
         you must enable the 'RUB' button (see figure above).</p></div><div class="section" title="Sample Editor volume/pan"><div class="titlepage"><div><div><h4 class="title"><a name="sect.layer_editing.section3"></a>Sample Editor volume/pan</h4></div></div></div><p>In the bottom section of the Sample Editor you can see the end result 
         of the tweaks you have made by pressing the Apply Changes button.  You can
         also change the the Volume and Panorama (Pan) of your sample here.
         This is done by creating 'envelopes' like the 
-        ones you find in numerous DAW's for (parameter) automation.  To edit an
+        ones you find in numerous DAW's for automation.  To edit an
         envelope you first need to select 'Volume' or 'Panorama'in the upper right 
-        corner of section 3.  The Volume envelope is blue, the pan envelope is yellow.
-        Left clicking in the bottom window will ad a node to an envelope, and also 
+        corner of section 3.  The Volume envelope is blue, and the pan envelope is yellow.
+        Left clicking in the bottom window will ad a node to an envelope and also 
         allows you to drag an existing node.  Right-clicking a node will delete it. 
         Don't forget to Apply Changes before you play your tweaked sample.</p></div></div><div class="section" title="Tips on Editing Instruments"><div class="titlepage"><div><div><h3 class="title"><a name="sect.instrument_editing.tips"></a>Tips on Editing Instruments</h3></div></div></div><p>With all of the different parameters available to tweak, it can be
-        difficult to set up something that sounds nice when you're done.  Here's
-        a few tips on setting up an instrument:</p><p><span class="bold"><strong>Turn down the gain.</strong></span> Every time
-        you have a gain knob (i.e. an amplifier), this is called a
-        <span class="emphasis"><em>gain stage</em></span>.  With every gain stage you have, it's
+        difficult to set up something that sounds nice when you're done.  Here are 
+        a few tips on setting up an instrument:</p><p><span class="bold"><strong>Turn down the gain.</strong></span> Every gain
+        knob (i.e. an amplifier), this is a <span class="emphasis"><em>gain stage</em></span>.  
+        With every gain stage you have, it's
         easy to overdrive your signal &#8212; which means the signal gets
         distorted by clipping.  In addition, if you have two samples that, by
         themselves, peg your meters &#8212; what do you think happens when you
@@ -956,7 +956,7 @@
         also be on this line.  However, if your signal is a little above or a
         little below this line, you will hear a click at the beginning and the
         end of your sample whenever it is played.  If your sample editor doesn't
-        provide any tools to fix a DC Offset problem, you can eliminate the
+        provide any tools to fix a DC offset problem, you can eliminate the
         noise by putting a slight fade-in/out at the ends of your sample.</p><p><span class="bold"><strong>The ADSR will not be longer than your
         sample.</strong></span> If you have a short sample, it doesn't matter how
         long you set the attack and delay &#8212; the sample will stop playing
@@ -964,34 +964,34 @@
         rate.</strong></span> If you have a really nice setup with all your
         parameters painstakenly tweaked... things <span class="emphasis"><em>will</em></span>
         change if you change the sample rate of your audio card.  Many of
-        Hydrogens internal settings and parameters are done based on how many
-        samples go by, and not on how many seconds go by.  The sort of things
+        Hydrogen's internal settings and parameters are based on how many
+        samples go by, not on how many seconds go by.  The sorts of things
         that change are: anything time-base (like attack and release) and
         anything frequency based (like the cutoff frequency).</p></div></div><div class="section" title="Midi"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.midi"></a>Midi</h2></div></div></div><p>In this section you can find more info about defining MIDI actions 
-       and how these can be useful for you.  Before you can work with midi actions
+       and how they can be useful for you.  Before you can work with midi actions
        you should have your Midi devices, drivers and connections configured
-       correctly (see <a class="xref" href="#sect.preferences.midi_tab" title="The Midi System tab">the section called &#8220;The Midi System tab&#8221;</a>)
+       correctly (see <a class="xref" href="#sect.preferences.midi_tab" title="The Midi System tab">the section called &#8220;The Midi System tab&#8221;</a>).
       </p><p>Lets take a look at the available options :
       </p><div class="informalfigure"><a name="midi_actions"></a><div class="mediaobject"><img src="img/Midi_Actions.png"></div></div><p>                
       </p><div class="section" title="Midi Events"><div class="titlepage"><div><div><h3 class="title"><a name="sect.midi.events"></a>Midi Events</h3></div></div></div><p>An Event is an incoming Midi message, coming from a MIDI controller or 
-        an external sequencer.</p><p>If you take a look at the Events list you will see that there are 3 types of Events 
+        an external sequencer.</p><p>If you look at the Events list you will see that there are 3 types of Events 
         available (as described in the Midi standard): </p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>
-	         <span class="bold"><strong>NOTE </strong></span> : input coming from a regular black/white key of a keyboard or a drumpad
+	         <span class="bold"><strong>NOTE</strong></span>: input coming from a regular black/white key of a keyboard or a drumpad
 	       </p></li><li class="listitem" style="list-style-type: circle"><p>
-	         <span class="bold"><strong>CC</strong></span> : controller commands coming from faders or rotary controllers
+	         <span class="bold"><strong>CC</strong></span>: controller commands coming from faders or rotary controllers
 	       </p></li><li class="listitem" style="list-style-type: circle"><p>
-	         <span class="bold"><strong>MMC_x</strong></span> : <a class="ulink" href="http://en.wikipedia.org/wiki/MIDI_Machine_Control" target="_top">
+	         <span class="bold"><strong>MMC_x</strong></span>: <a class="ulink" href="http://en.wikipedia.org/wiki/MIDI_Machine_Control" target="_top">
 	         machine control events</a> coming from play/stop... buttons on a controller
 	       </p></li></ul></div><p>
-       The Param. (parameter) value right of the Event is the identifier of the note/button/controller
+       The Param. (parameter) value to the right of the Event is the identifier of the note/button/controller
        that is linked to this Action.  This parameter can be entered manually, or automatically by 
        using the Midi learn function (see <a class="xref" href="#sect.preferences.midi_tab" title="The Midi System tab">the section called &#8220;The Midi System tab&#8221;</a>).
        </p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>You can also activate the Midi learn function by Shift-clicking most of the gui elements.  
        A 'Waiting for Midi input...' popup informs you that Hydrogen is now waiting for you to press
        a key or turn/move a controller.
        </p><p>If you Shift-click on a gui element that does not support Midi automation a popup will
-       inform you about this.
-       </p></div></div><div class="section" title="Midi Actions"><div class="titlepage"><div><div><h3 class="title"><a name="sect.midi.actions"></a>Midi Actions</h3></div></div></div><p>Next is a list of the available Actions : an Action describes what Hydrogen should do 
+       inform you.
+       </p></div></div><div class="section" title="Midi Actions"><div class="titlepage"><div><div><h3 class="title"><a name="sect.midi.actions"></a>Midi Actions</h3></div></div></div><p>Next is a list of the available Actions: an Action describes what Hydrogen should do 
         when a specific Midi Event is detected.</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>** Some of the Midi Actions require that the Action Parameter is configured.  The
         Parameter usually references a specific channel, instrument, FXsend...  Keep in mind that the 
         Parameter value is <span class="emphasis"><em>zero-based</em></span>. So if you want to reference channel 1 you 
@@ -1000,14 +1000,14 @@
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
         <span class="bold"><strong>PLAY/STOP_TOGGLE</strong></span> : toggles between PLAY and STOP.  Execute this action will 
         start playback, execute it again and playback will stop + the playhead will return
-        to the start op the song
+        to the start of the song
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>PLAY/PAUSE_TOGGLE</strong></span> : toggles between PLAY and PAUSE.  (the playhead will not return
 	      to the start of the song, but will stay at its current position)
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>STOP</strong></span> : stop playback and return to the start of the song
+	      <span class="bold"><strong>STOP</strong></span> : stops playback and returns to the start of the song
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>PAUSE</strong></span> : pause the song
+	      <span class="bold"><strong>PAUSE</strong></span> : pauses the song
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
         <span class="bold"><strong>MUTE</strong></span> : mutes the the Master output (sequencer keeps running)
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
@@ -1023,7 +1023,7 @@
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>BPM_DECR</strong></span> : decrements the tempo of the song
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>BPM_CC_RELATIVE</strong></span> : change the tempo relative to the current tempo, using a controller
+	      <span class="bold"><strong>BPM_CC_RELATIVE</strong></span> : changes the tempo relative to the current tempo, using a controller
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>MASTER_VOLUME_RELATIVE</strong></span> : changes the Master output volume, relative
 	      to the current setting (e.g. if you are using rotary encoders)
@@ -1037,58 +1037,55 @@
 	      <span class="bold"><strong>STRIP_VOLUME_ABSOLUTE</strong></span> : see MASTER_VOLUME_ABSOLUTE, but applies to
 	      the channel strip defined in the Action Parameter **
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-        <span class="bold"><strong>EFFECTx_LEVEL_RELATIVE</strong></span> : changes the volume level of effect 'x'
-         The value you enter in the Action Parameter determines the channel strip this action applies to **
+        <span class="bold"><strong>EFFECTx_LEVEL_RELATIVE</strong></span> : changes the volume level of effect 'x';
+         the value you enter in the Action Parameter determines the channel strip this action applies to **
       </p></li><li class="listitem" style="list-style-type: circle"><p>
-        <span class="bold"><strong>SELECT_NEXT_PATTERN</strong></span> : will select the pattern that is defined in the Action Parameter **
+        <span class="bold"><strong>SELECT_NEXT_PATTERN</strong></span> : selects the pattern that is defined in the Action Parameter **
       </p></li><li class="listitem" style="list-style-type: circle"><p>
         <span class="bold"><strong>SELECT_AND_PLAY_NEXT_PATTERN</strong></span> : combines the SELECT_NEXT_PATTERN with PLAY
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>PAN_RELATIVE</strong></span> : will change the panorama setting, relative to the current value
-	        The value you enter in the Action Parameter determines the channel strip this action applies to **
+	      <span class="bold"><strong>PAN_RELATIVE</strong></span> : changes the panorama setting, relative to the current value;
+         the value you enter in the Action Parameter determines the channel strip this action applies to **
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>PAN_ABSOLUTE</strong></span> : will change the panorama setting to the absolute value that the linked controller sends to Hydrogen
+	      <span class="bold"><strong>PAN_ABSOLUTE</strong></span> : changes the panorama setting to the absolute value that the linked controller sends to Hydrogen
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>BEATCOUNTER</strong></span> : allows you to set
-	      the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
+	      <span class="bold"><strong>BEATCOUNTER</strong></span> : sets the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
-	      <span class="bold"><strong>TAP_TEMPO</strong></span> : allows you to set
-	      the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
+	      <span class="bold"><strong>TAP_TEMPO</strong></span> : sets the tempo (see <a class="xref" href="#sect.tap_tempo" title="Tap Tempo and BeatCounter">the section called &#8220;Tap Tempo and BeatCounter&#8221;</a>
 	    </p></li><li class="listitem" style="list-style-type: circle"><p>
 	      <span class="bold"><strong>SELECT_INSTRUMENT</strong></span> : selects one of the instruments in the drumkit
 	    </p></li></ul></div></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn.adsrtimes" href="#fn.adsrtimes" class="para">1</a>] </sup>The attack, decay, and release parameters are all set by
                 the number of <span class="emphasis"><em>audio samples</em></span>.  This means
                 that the time changes depending on the sample rate of your sound
                 card.  The max time for each of them is 100,000 audio samples
-                (typ. 2.27 sec at 44.1 kHz).</p></div></div></div><div class="chapter" title="Chapter 3. A new song"><div class="titlepage"><div><div><h2 class="title"><a name="chap.create_song"></a>Chapter 3. A new song</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#sect.song_vs_pattern">"Song" mode and "Pattern" mode</a></span></dt><dt><span class="section"><a href="#sect.create_pattern">A new pattern</a></span></dt><dt><span class="section"><a href="#sect.create_sequence">A new sequence</a></span></dt><dt><span class="section"><a href="#sect.create_song.adjust_mixer">Adjust from the mixer</a></span></dt></dl></div><div class="section" title='"Song" mode and "Pattern" mode'><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.song_vs_pattern"></a>"Song" mode and "Pattern" mode</h2></div></div></div><p>This is just a quick-and-dirty walkthrough to Hydrogen. Refer to the
+                (typ. 2.27 sec at 44.1 kHz).</p></div></div></div><div class="chapter" title="Chapter 3. A new song"><div class="titlepage"><div><div><h2 class="title"><a name="chap.create_song"></a>Chapter 3. A new song</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#sect.song_vs_pattern">"Song" mode and "Pattern" mode</a></span></dt><dt><span class="section"><a href="#sect.create_pattern">A new pattern</a></span></dt><dt><span class="section"><a href="#sect.create_sequence">A new sequence</a></span></dt><dt><span class="section"><a href="#sect.create_song.adjust_mixer">Adjust from the mixer</a></span></dt></dl></div><div class="section" title='"Song" mode and "Pattern" mode'><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.song_vs_pattern"></a>"Song" mode and "Pattern" mode</h2></div></div></div><p>This section is a quick-and-dirty walkthrough to Hydrogen. Refer to the
       tutorial for a more detailed overview.</p><p>Hydrogen has 2 main modes: "Pattern" mode and "Song" mode (refer to
-      <a class="xref" href="#sect.main_toolbar" title="The main toolbar">the section called &#8220;The main toolbar&#8221;</a> for the buttons to activate). When
+      <a class="xref" href="#sect.main_toolbar" title="The main toolbar">the section called &#8220;The main toolbar&#8221;</a> for the buttons that activate each mode). When
       "Pattern" mode is activated the current pattern is continuously repeated.
-      This mode is very well suited to tweak your pattern untill it's just right, since the 
+      This mode is very well suited to tweak your pattern until it's just right, since the 
       pattern you are working on is constantly repeated. This way you can immediately 
       hear the changes you have made. In "Song" mode the whole song is played.  
-      This is useful when putting together the patterns, to create the structure of the song.</p></div><div class="section" title="A new pattern"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.create_pattern"></a>A new pattern</h2></div></div></div><p>We'll start from an empty song with an empty pattern, as created by
-      default: "pattern" mode should be selected now. It is also possible to
-      change name of the pattern. Now let's click on the <span class="quote">&#8220;<span class="quote">Play</span>&#8221;</span>
-      button and while the pattern is playing let's add notes in the grid of the
-      Song Editor (<a class="xref" href="#fig.pattern_editor.2" title="Figure 3.1. The Pattern Editor">Figure 3.1, &#8220;The Pattern Editor&#8221;</a>) simply
-      left_mouse_clicking on it: adjust grid resolution and BPM speed if
-      needed. Remember some constraints of the grid: if you are working with a
-      resolution of 16 you can't go back to 8 and remove a 16th note; same thing
-      happens if you are working with a resolution of 8 and you try to insert a
-      note in the middle of two bars (looking for a 16 bars precision): they
-      will be placed on the previous or on the following 8th bar (unless you
-      choose <span class="quote">&#8220;<span class="quote">off</span>&#8221;</span> from the Grid Resolution LCD, in this case
+      This is useful when putting together the patterns to create the structure of the song.</p></div><div class="section" title="A new pattern"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.create_pattern"></a>A new pattern</h2></div></div></div><p>We'll start from the empty song with an empty pattern created when
+      Hydrogen starts up: "pattern" mode should be selected by default. Now
+      let's click on the <span class="quote">&#8220;<span class="quote">Play</span>&#8221;</span>button, and while the pattern is playing
+      let's add notes by left_mouse_clicking in the grid of the Song Editor 
+      (<a class="xref" href="#fig.pattern_editor.2" title="Figure 3.1. The Pattern Editor">Figure 3.1, &#8220;The Pattern Editor&#8221;</a>). Adjust the grid resolution and BPM
+      speed if needed. Remember some constraints of the grid: if you are
+      working with a resolution of 16 you can't go back to 8 and remove a
+      16th note; same thing happens if you are working with a resolution of
+      8 and you try to insert a note in the middle of two bars (looking for
+      a 16 bars precision): they will be placed on the previous or on the
+      following 8th bar (unless you choose <span class="quote">&#8220;<span class="quote">off</span>&#8221;</span> from the Grid Resolution LCD in which case
       you're free to place notes wherever you prefer). <span class="bold"><strong>Be
       sure to select the correct pattern in the Song Editor before adding notes
       in the Pattern Editor!</strong></span></p><div class="figure"><a name="fig.pattern_editor.2"></a><p class="title"><b>Figure 3.1. The Pattern Editor</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/PatternEditor.png" alt="The Pattern Editor"></div></div></div><br class="figure-break"></div><div class="section" title="A new sequence"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.create_sequence"></a>A new sequence</h2></div></div></div><p>Once patterns are created (<a class="xref" href="#fig.insert_notes" title="Figure 3.2. Inserting Notes in a Pattern">Figure 3.2, &#8220;Inserting Notes in a Pattern&#8221;</a>), we
-      can copy/paste/delete them simply dragging with the mouse (activate the
-      select mode for the Song Editor and keep pressed left mouse button to
-      select those you want to move or copy).</p><div class="figure"><a name="fig.insert_notes"></a><p class="title"><b>Figure 3.2. Inserting Notes in a Pattern</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SongEditor.png" alt="Inserting Notes in a Pattern"></div></div></div><br class="figure-break"></div><div class="section" title="Adjust from the mixer"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.create_song.adjust_mixer"></a>Adjust from the mixer</h2></div></div></div><p>Of course we can always use the mixer window, either when creating
+      can copy/paste/delete them using the Select Mode (see <a class="xref" href="#sect.song_editor.main_controls" title="Main controls">the section called &#8220;Main controls&#8221;</a>).
+      </p><div class="figure"><a name="fig.insert_notes"></a><p class="title"><b>Figure 3.2. Inserting Notes in a Pattern</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/SongEditor.png" alt="Inserting Notes in a Pattern"></div></div></div><br class="figure-break"></div><div class="section" title="Adjust from the mixer"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.create_song.adjust_mixer"></a>Adjust from the mixer</h2></div></div></div><p>Of course we can always use the mixer window, either when creating
       or playing patterns.</p><p>The Mixer frame (<a class="xref" href="#fig.mixer.2" title="Figure 3.3. The Mixer">Figure 3.3, &#8220;The Mixer&#8221;</a>) is made of 32
-      independent tracks, each of these is binded to an instrument, plus a
-      "Master Output" line to adjust general output volume and a "FX" button to
-      set effects. Every line features 3 buttons (
+      independent tracks, each of these is bound to an instrument, plus a
+      "Master Output" control and a "FX" button to show and hide the 
+      effects panel.
+      Every line features 3 buttons (
 
         <span class="inlinemediaobject"><img src="img/btn_play_on_mixer.png"></span>
 
@@ -1104,17 +1101,16 @@
 
         <span class="inlinemediaobject"><img src="img/btn_solo_on.png"></span>
 
-        will play the selected instrument, cutting the others. The "Mute"
-        button
+        will play the selected instrument, cutting the others. The "Mute" button
 
         <span class="inlinemediaobject"><img src="img/btn_mute_on.png"></span>
 
         , simply mute <span class="emphasis"><em>that</em></span> instrument. The maximum peak
-        indicates the maximum volume reached from the instrument; the peak must
+        indicates the maximum volume reached from the instrument.   The peak must
         be in a range of 0.0 and 1.0 (in <a class="xref" href="#fig.mixer.2" title="Figure 3.3. The Mixer">Figure 3.3, &#8220;The Mixer&#8221;</a> you can
-        see a few volumes too loud), otherwise it will get distorted producing a
-        weird sound (especially with OSS audio driver), in this case it's better
-        to set volume down; keep an eye on each vu-meter.
+        see a few volumes too loud).  Peaks outside that range will get distorted 
+        (especially with OSS audio driver). Keep an eye on each vu-meter and
+        if distortion appears, turn the volume down for that instrument.
       </p><div class="figure"><a name="fig.mixer.2"></a><p class="title"><b>Figure 3.3. The Mixer</b></p><div class="figure-contents"><div class="mediaobject"><img src="img/Mixer.png" alt="The Mixer"></div></div></div><br class="figure-break"></div></div><div class="chapter" title="Chapter 4. Shortcut lists"><div class="titlepage"><div><div><h2 class="title"><a name="chap.shortcuts"></a>Chapter 4. Shortcut lists</h2></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>
             <span class="bold"><strong>[CTRL + N]</strong></span> = New Project
           </p></li><li class="listitem" style="list-style-type: circle"><p>
@@ -1162,12 +1158,12 @@
             <span class="bold"><strong>[F12]</strong></span> = Panic button  (stops the song and mutes all
             playing sounds)
           </p></li></ul></div></div><div class="glossary" title="Glossary"><div class="titlepage"><div><div><h2 class="title"><a name="glossary"></a>Glossary</h2></div></div></div><p>This is a glossary of general terms encountered when using Hydrogen,
-    synthesizers, drums, or samplers.  The definitions in the text are
-    simplified, but the definitions here are more general and have more
-    explanation.  For example, the text of the manual would have you believe
-    that an ADSR is the only kind of envelope generator, and could only ever
-    control the volume.  While it's simple for new users, it's not quite
-    right.</p><dl><dt><a name="def.adsr"></a>ADSR</dt><dd><p>A type of envelope generator that allows you to control the
+     synthesizers, drums, or samplers. The definitions here provide more
+     detail and explanation than the simplified ones in the text. For
+     example, the text of the manual would have you believe that an ADSR is
+     the only kind of envelope generator and could only ever control the
+     volume. While the simplified definitions help new users start using
+     Hydrogen quickly, they can lack the nuances presented here.</p><dl><dt><a name="def.adsr"></a>ADSR</dt><dd><p>A type of envelope generator that allows you to control the
         <a class="link" href="#def.attack" title="Attack">Attack</a>,
         <a class="link" href="#def.decay" title="Decay">Decay</a>,
         <a class="link" href="#def.sustain" title="Sustain">Sustain</a>, and
@@ -1196,7 +1192,12 @@
         guitar), it sounds like someone is putting a blanket over the speaker.
         The higher frequencies are being attenuated above 30 Hz.</p><p>See Also <a class="glossseealso" href="#def.filter">Filter</a>, <a class="glossseealso" href="#def.highpassfilter">High-Pass Filter</a>, <a class="glossseealso" href="#def.lowpassfilter">Low-Pass Filter</a>, <a class="glossseealso" href="#def.resonancefilter">Resonance Filter</a>.</p></dd><dt><a name="def.decay"></a>Decay</dt><dd><p>After reaching full velocity from the attack, this is the amount
         of <span class="emphasis"><em>time</em></span> to turn the parameter down from full
-        velocity to the sustain level.</p><p>See Also <a class="glossseealso" href="#def.adsr">ADSR</a>.</p></dd><dt><a name="def.envelopegenerator"></a>Envelope Generator</dt><dd><p>A way to control (change) a parameter over time as a response to
+        velocity to the sustain level.</p><p>See Also <a class="glossseealso" href="#def.adsr">ADSR</a>.</p></dd><dt><a name="def.dc-offsety"></a>DC-offsety</dt><dd><p>DC offset, or DC coefficient is the mean value of the wavefor.m</p><p>DC offset is usually undesirable. For example, in audio processing, a 
+        sound that has DC offset will not be at its loudest possible volume when
+        normalized (because the offset consumes headroom), and this problem can 
+        possibly extend to the mix as a whole, since a sound with DC offset and a sound
+        without DC offset will have DC offset when mixed. It may also cause other artifacts
+        depending on what is being done with the signal.</p></dd><dt><a name="def.envelopegenerator"></a>Envelope Generator</dt><dd><p>A way to control (change) a parameter over time as a response to
         triggering, holding, and releasing a note.</p><p>Did your eyes just glaze over? Let's try again:</p><p>Imagine that you're playing a note on the keyboard and you have
         your other hand on a knob (volume, filter cutoff, etc.).  As you play
         the note, you twist the knob (often up, then down... or down, then up).

@@ -66,6 +66,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Christian Vorhof", "", "Interface design concept" ) );
 	authorList.push_back( Author( "Daniil Kolpakov", "", "" ) );
 	authorList.push_back( Author( "Daniel Tonda Castillo", "", "Spanish manual" ) );
+	authorList.push_back( Author( "Dave Allan", "", "Manual review" ) );
 	authorList.push_back( Author( "Dave Fancella", "", "" ) );
 	authorList.push_back( Author( "Dave Phillips", "", "Bug reports, ideas" ) );
 	authorList.push_back( Author( "Derrick Karpo", "", "Patches, testing" ) );
