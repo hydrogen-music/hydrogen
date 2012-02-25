@@ -114,6 +114,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 	public slots:
 		void onEventQueueTimer();
+		void currentTabChanged(int);
 
 	private:
 		static HydrogenApp *m_pInstance;	///< HydrogenApp instance

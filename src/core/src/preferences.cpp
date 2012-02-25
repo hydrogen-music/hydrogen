@@ -399,6 +399,7 @@ void Preferences::loadPreferences( bool bGlobal )
                         __useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
                         m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
+                        m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -757,6 +758,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
 
         LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
+        LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );

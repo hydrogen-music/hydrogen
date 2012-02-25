@@ -160,6 +160,7 @@ public:
 
         int m_nDefaultUILayout;
 
+
 	QString m_sPreferencesFilename;
 	QString m_sPreferencesDirectory;
 
@@ -614,6 +615,13 @@ public:
                 m_useTheRubberbandBpmChangeEvent = val;
         }
 
+	int getLastOpenTab(){
+		return m_nLastOpenTab;
+	}
+	void setLastOpenTab(int n){
+		m_nLastOpenTab = n;
+	}
+
 private:
 	static Preferences *__instance;
 
@@ -657,6 +665,7 @@ private:
 
 	//___ GUI properties ___
 	QString m_sQTStyle;
+	int m_nLastOpenTab;
 
 	QString applicationFontFamily;
 	int applicationFontPointSize;

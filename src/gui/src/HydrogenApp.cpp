@@ -235,8 +235,10 @@ void HydrogenApp::setupSinglePanedInterface()
 
         if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
             pMainVBox->addWidget( pSplitter );
-        else
-            pMainVBox->addWidget( pTab );
+        else {
+	   pMainVBox->addWidget( pTab );
+            
+	}
 
         mainArea->setLayout( pMainVBox );
 
@@ -285,9 +287,18 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 #endif
 
-//	m_pMainForm->showMaximized();
+        if( uiLayout == Preferences::UI_LAYOUT_TABBED){
+		pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
+		QObject::connect(pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+	}
 }
 
+
+
+void HydrogenApp::currentTabChanged(int index)
+{
+	Preferences::get_instance()->setLastOpenTab( index );
+}
 
 void HydrogenApp::closeFXProperties()
 {
