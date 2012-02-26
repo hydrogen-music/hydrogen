@@ -737,22 +737,6 @@ void JackOutput::setBpm( float fBPM )
 }
 
 
-void JackOutput::setPortName( int nPort, bool bLeftChannel, const QString& sName )
-{
-//	infoLog( "[setPortName] " + sName );
-	jack_port_t *pPort;
-	if ( bLeftChannel ) {
-		pPort = track_output_ports_L[ nPort ];
-	} else {
-		pPort = track_output_ports_R[ nPort ];
-	}
-
-	int err = jack_port_set_name( pPort, sName.toLocal8Bit() );
-	if ( err != 0 ) {
-		ERRORLOG( " Error in jack_port_set_name!" );
-	}
-}
-
 int JackOutput::getNumTracks()
 {
 //	INFOLOG( "get num tracks()" );

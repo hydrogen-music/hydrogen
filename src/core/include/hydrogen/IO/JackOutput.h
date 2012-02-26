@@ -76,7 +76,6 @@ public:
 	}
 
 
-	void setPortName( int nPort, bool bLeftChannel, const QString& sName );
 	void makeTrackOutputs( Song * );
 	void setTrackOutput( int, Instrument * );
 
