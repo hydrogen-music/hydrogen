@@ -125,7 +125,6 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
         }
         drumkit->set_instruments( instruments );
     }
-    //if( drumkit->__logger->should_log( Logger::Debug ) ) drumkit->dump();
     return drumkit;
 }
 

@@ -128,7 +128,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
     } else {
         drumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path ) );
     }
-    //if( drumkit->__logger->should_log( Logger::Debug ) ) drumkit->dump();
     return drumkit;
 }
 
