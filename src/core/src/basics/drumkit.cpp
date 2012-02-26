@@ -90,21 +90,6 @@ Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
     }
     Drumkit* drumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
     if( load_samples ) drumkit->load_samples();
-    /*
-    if( load_samples ) {
-        InstrumentList* instruments = drumkit->get_instruments();
-        for( int i=0; i<instruments->size(); i++ ) {
-            Instrument* instrument = ( *instruments )[i];
-            for ( int n = 0; n < MAX_LAYERS; n++ ) {
-                InstrumentLayer* layer = instrument->get_layer( n );
-                if( layer ) {
-                    Sample* sample = layer->get_sample();
-                    if( sample ) sample->load();
-                }
-            }
-        }
-    }
-    */
     return drumkit;
 }
 
@@ -340,7 +325,7 @@ bool Drumkit::install( const QString& path )
     TAR* tar_file;
     char tar_path[1024];
     strncpy( tar_path, gzd_name.toLocal8Bit(), 1024 );
-    if ( tar_open( &tar_file, tar_path, NULL, O_RDONLY, 0, TAR_VERBOSE | TAR_GNU ) == -1 ) {
+    if ( tar_open( &tar_file, tar_path, NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
         _ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
         return false;
     }
