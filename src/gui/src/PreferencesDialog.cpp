@@ -61,60 +61,56 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	pPref->loadPreferences( false );	// reload user's preferences
 
 	driverComboBox->clear();
-	driverComboBox->addItem( "Auto" );
+        driverComboBox->addItem( "Auto" );
+#ifdef H2CORE_HAVE_JACK
 	driverComboBox->addItem( "JACK" );
-	driverComboBox->addItem( "ALSA" );
-	driverComboBox->addItem( "OSS" );
+#endif
+#ifdef H2CORE_HAVE_ALSA
+        driverComboBox->addItem( "ALSA" );
+#endif
+#ifdef H2CORE_HAVE_OSS
+        driverComboBox->addItem( "OSS" );
+#endif
+#ifdef H2CORE_HAVE_PORTAUDIO
 	driverComboBox->addItem( "PortAudio" );
-#ifdef Q_OS_MACX
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
 	driverComboBox->addItem( "CoreAudio" );
 #endif
 
-	// Selected audio Driver
-	QString sAudioDriver = pPref->m_sAudioDriver;
-	if (sAudioDriver == "Auto") {
-		driverComboBox->setCurrentIndex(0);
-	}
-	else if (sAudioDriver == "Jack") {
-		driverComboBox->setCurrentIndex(1);
-	}
-	else if ( sAudioDriver == "Alsa" ) {
-		driverComboBox->setCurrentIndex(2);
-	}
-	else if ( sAudioDriver == "Oss" ) {
-		driverComboBox->setCurrentIndex(3);
-	}
-	else if ( sAudioDriver == "PortAudio" ) {
-		driverComboBox->setCurrentIndex(4);
-	}
-	else if ( sAudioDriver == "CoreAudio" ) {
-		driverComboBox->setCurrentIndex(5);
-	}
-	else {
-		ERRORLOG( "Unknown audio driver from preferences [" + sAudioDriver + "]" );
-	}
+
+        if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
+              driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
+        }
+        else
+        {
+               driverInfoLbl->setText("Select your Audio Driver");
+               ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sAudioDriver + "]" );
+        }
 
 
 	m_pMidiDriverComboBox->clear();
+#ifdef H2CORE_HAVE_ALSA
 	m_pMidiDriverComboBox->addItem( "ALSA" );
+#endif
+#ifdef H2CORE_HAVE_PORTMIDI
 	m_pMidiDriverComboBox->addItem( "PortMidi" );
-	m_pMidiDriverComboBox->addItem( "CoreMidi" );
-	m_pMidiDriverComboBox->addItem( "JackMidi" );
+#endif
+#ifdef H2CORE_HAVE_COREMIDI
+        m_pMidiDriverComboBox->addItem( "CoreMidi" );
+#endif
+#ifdef H2CORE_HAVE_JACK
+        m_pMidiDriverComboBox->addItem( "JackMidi" );
+#endif
 
-	if ( pPref->m_sMidiDriver == "ALSA" ) {
-		m_pMidiDriverComboBox->setCurrentIndex(0);
-	}
-	else if ( pPref->m_sMidiDriver == "PortMidi" ) {
-		m_pMidiDriverComboBox->setCurrentIndex(1);
-	}
-	else if ( pPref->m_sMidiDriver == "CoreMidi" ) {
-		m_pMidiDriverComboBox->setCurrentIndex(2);
-	}
-	else if ( pPref->m_sMidiDriver == "JackMidi" ) {
-		m_pMidiDriverComboBox->setCurrentIndex(3);
-	}
-	else {
-		ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sMidiDriver + "]" );
+
+        if( m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver) > -1){
+              m_pMidiDriverComboBox->setCurrentIndex(m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver));
+        }
+        else
+        {
+               driverInfoLbl->setText("Select your Midi Driver");
+               ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sMidiDriver + "]" );
 	}
 
 	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
