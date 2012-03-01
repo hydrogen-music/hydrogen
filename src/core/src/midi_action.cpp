@@ -149,7 +149,8 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "EFFECT3_LEVEL_ABSOLUTE"
 	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "SELECT_NEXT_PATTERN"
-        << "SELECT_NEXT_PATTERN_PROMPTLY"
+    << "SELECT_NEXT_PATTERN_PROMPTLY"
+    << "SELECT_AND_PLAY_PATTERN"
 	<< "PAN_RELATIVE"
 	<< "PAN_ABSOLUTE"
 	<< "BEATCOUNTER"
@@ -293,6 +294,20 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
               int row = pAction->getParameter2().toInt(&ok,10);
               pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
               return true;
+        }
+
+          if( sActionString == "SELECT_AND_PLAY_PATTERN"){
+                bool ok;
+                int row = pAction->getParameter1().toInt(&ok,10);
+                pEngine->setSelectedPatternNumber( row );
+                pEngine->sequencer_setNextPattern( row, false, true );
+
+                int nState = pEngine->getState();
+                if ( nState == STATE_READY ){
+                        pEngine->sequencer_play();
+                }
+
+                return true;
         }
 
 	if( sActionString == "SELECT_INSTRUMENT" ){
