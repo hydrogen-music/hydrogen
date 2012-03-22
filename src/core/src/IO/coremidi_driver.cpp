@@ -76,9 +76,14 @@ static void midiProc ( const MIDIPacketList * pktlist,
 		} else if ( ( nEventType >= 224 ) && ( nEventType < 240 ) ) {	// Pitch Wheel Change
 			msg.m_nChannel = nEventType - 224;
 			msg.m_type = MidiMessage::PITCH_WHEEL;
-		} else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
-			msg.m_nChannel = nEventType - 240;
-			msg.m_type = MidiMessage::SYSTEM_EXCLUSIVE;
+                } else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
+                       msg.m_type = MidiMessage::SYSEX;
+                       for(int i = 0; i< packet->length;i++){
+                              msg.m_sysexData.push_back(packet->data[i]);
+                       }
+                       instance->handleMidiMessage( msg );
+                       packet = MIDIPacketNext( packet );
+                       return;
 		} else {
 			___ERRORLOG( QString( "Unhandled midi message type: %1" ).arg( nEventType ) );
 			___INFOLOG( "MIDI msg: " );
