@@ -62,12 +62,12 @@ JackMidiDriver::unlock(void)
 void
 JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 {
-	int error;
+        int error;
 	int events;
 	int i;
 	void *buf;
 	jack_midi_event_t event;
-	uint8_t buffer[8];
+        uint8_t buffer[13];// 13 is needed if we get sysex goto messages
 
 	if (input_port == NULL)
 		return;
@@ -114,8 +114,8 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 			msg.m_type = MidiMessage::NOTE_ON;
 			msg.m_nData1 = buffer[1];
 			msg.m_nData2 = buffer[2];
-			msg.m_nChannel = buffer[0] & 0xF;
-			handleMidiMessage(msg);
+                        msg.m_nChannel = buffer[0] & 0xF;
+                        handleMidiMessage(msg);
 			break;
 		case 0xB:	 /* control change */
 			msg.m_type = MidiMessage::CONTROL_CHANGE;
@@ -131,10 +131,22 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 			msg.m_nChannel = buffer[0] & 0xF;
 			handleMidiMessage(msg);
 			break;
-		case 0xF:
-			switch (buffer[0]) {
-			case 0xF0:	/* system exclusive */
-				break;
+                case 0xF:
+                    switch (buffer[0]) {
+                        case 0xF0:	/* system exclusive */
+                                msg.m_type = MidiMessage::SYSEX;
+                                if(buffer[3] == 06 ){// MMC message
+                                    for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
+                                             msg.m_sysexData.push_back( buffer[i] );
+                                    }
+                                }else
+                                {
+                                    for ( int i = 0; i < sizeof(buffer); i++ ) {
+                                             msg.m_sysexData.push_back( buffer[i] );
+                                    }
+                                }
+                                handleMidiMessage(msg);
+                                break;
 			case 0xF1:
 				msg.m_type = MidiMessage::QUARTER_FRAME;
 				msg.m_nData1 = buffer[1];

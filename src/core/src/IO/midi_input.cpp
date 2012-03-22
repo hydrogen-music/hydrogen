@@ -315,7 +315,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		240	127	id	6	68	6	1	hr	mn	sc	fr	ff	247
 	*/
 	
-	
+
         MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -327,7 +327,7 @@ if ( msg.m_sysexData.size() == 6 ) {
 		if (
                     ( msg.m_sysexData[0] == 240 ) &&
 		    ( msg.m_sysexData[1] == 127 ) &&
-                    ( msg.m_sysexData[2] == 0 ) &&
+                    //( msg.m_sysexData[2] == 0 ) &&
 		    ( msg.m_sysexData[3] == 6 ) ) {
 
 			
