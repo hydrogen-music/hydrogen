@@ -691,8 +691,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-
-
 	if( sActionString == "BPM_DECR" ){
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
