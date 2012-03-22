@@ -140,6 +140,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "BPM_INCR"
 	<< "BPM_DECR"
 	<< "BPM_CC_RELATIVE"
+        << "BPM_FINE_CC_RELATIVE"
 	<< "MASTER_VOLUME_RELATIVE"
 	<< "MASTER_VOLUME_ABSOLUTE"
 	<< "STRIP_VOLUME_RELATIVE"
@@ -628,6 +629,48 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		return true;
 	}
+
+        if( sActionString == "BPM_FINE_CC_RELATIVE" ){
+               /*
+                * increments/decrements the BPM
+                * this is useful if the bpm is set by a rotary control knob
+               */
+
+               AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+               int mult = 1;
+
+               //second parameter of cc command
+               //this value should be 1 to decrement and something other then 1 to increment the bpm
+               int cc_param = 1;
+
+               //this Action should be triggered only by CC commands
+
+               bool ok;
+               mult = pAction->getParameter1().toInt(&ok,10);
+               cc_param = pAction->getParameter2().toInt(&ok,10);
+
+               if( lastBpmChangeCCParameter == -1)
+               {
+                       lastBpmChangeCCParameter = cc_param;
+               }
+
+               Song* pSong = pEngine->getSong();
+
+               if ( lastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
+                       pEngine->setBPM( pSong->__bpm - 0.01*mult );
+               }
+
+               if ( lastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+                       pEngine->setBPM( pSong->__bpm + 0.01*mult );
+               }
+
+               lastBpmChangeCCParameter = cc_param;
+
+               AudioEngine::get_instance()->unlock();
+
+               return true;
+        }
 
 
 	if( sActionString == "BPM_INCR" ){
