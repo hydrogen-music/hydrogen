@@ -306,7 +306,8 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 		4	Fast Forward
 		5	Rewind
 		6	Record strobe (punch in)
-		7	Record exit (punch out)
+                7	Record exit (punch out)
+                8      Record ready
 		9	Pause
 
 
@@ -374,6 +375,11 @@ if ( msg.m_sysexData.size() == 6 ) {
 				pEngine->lastMidiEvent = "MMC_RECORD_EXIT";
 				aH->handleAction(mM->getMMCAction("MMC_RECORD_EXIT"));
 				break;
+
+                        case 8:	// RECORD READY
+                                pEngine->lastMidiEvent = "MMC_RECORD_READY";
+                                aH->handleAction(mM->getMMCAction("MMC_RECORD_READY"));
+                                break;
 
 			case 9:	//PAUSE
 				pEngine->lastMidiEvent = "MMC_PAUSE";

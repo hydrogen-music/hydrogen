@@ -114,6 +114,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setToolTip( trUtf8("Record") );
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
 	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
+        MidiAction* pAction = new MidiAction("RECORD_READY");
+        m_pRecBtn->setAction( pAction );
 
 
 	// Record+delete button
@@ -145,7 +147,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->setPressed(false);
 	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
-	MidiAction* pAction = new MidiAction("PLAY");
+        pAction = new MidiAction("PLAY");
 	m_pPlayBtn->setAction( pAction );
 
 

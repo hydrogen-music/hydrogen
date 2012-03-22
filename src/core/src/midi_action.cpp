@@ -128,6 +128,10 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "PLAY/PAUSE_TOGGLE"
 	<< "STOP"
 	<< "PAUSE"
+        << "RECORD_READY"
+        << "RECORD/STROBE_TOGGLE"
+        << "RECORD_STROBE"
+        << "RECORD_EXIT"
 	<< "MUTE"
 	<< "UNMUTE"
 	<< "MUTE_TOGGLE"
@@ -149,8 +153,8 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "EFFECT3_LEVEL_ABSOLUTE"
 	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "SELECT_NEXT_PATTERN"
-    << "SELECT_NEXT_PATTERN_PROMPTLY"
-    << "SELECT_AND_PLAY_PATTERN"
+        << "SELECT_NEXT_PATTERN_PROMPTLY"
+        << "SELECT_AND_PLAY_PATTERN"
 	<< "PAN_RELATIVE"
 	<< "PAN_ABSOLUTE"
 	<< "BEATCOUNTER"
@@ -167,6 +171,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "MMC_REWIND"
 	<< "MMC_RECORD_STROBE"
 	<< "MMC_RECORD_EXIT"
+        << "MMC_RECORD_READY"
 	<< "MMC_PAUSE"
 	<< "NOTE"
 	<< "CC";
@@ -687,6 +692,43 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
                         Playlist::get_instance()->setNextSongByNumber( songnumber - 1 );
                 }
                 return true;
+        }
+
+        if( sActionString == "RECORD_READY"){
+               if ( pEngine->getState() != STATE_PLAYING ) {
+                       if (!Preferences::get_instance()->getRecordEvents()) {
+                               Preferences::get_instance()->setRecordEvents(true);
+                       }
+                       else {
+                               Preferences::get_instance()->setRecordEvents(false);
+                       }
+               }
+               return true;
+        }
+        if( sActionString == "RECORD/STROBE_TOGGLE"){
+               if (!Preferences::get_instance()->getRecordEvents()) {
+                      Preferences::get_instance()->setRecordEvents(true);
+               }
+               else {
+                      Preferences::get_instance()->setRecordEvents(false);
+               }
+               return true;
+        }
+
+        if( sActionString == "RECORD_STROBE"){
+
+               if (!Preferences::get_instance()->getRecordEvents()) {
+                      Preferences::get_instance()->setRecordEvents(true);
+               }
+               return true;
+        }
+
+        if( sActionString == "RECORD_EXIT"){
+
+               if (Preferences::get_instance()->getRecordEvents()) {
+                      Preferences::get_instance()->setRecordEvents(false);
+               }
+               return true;
         }
 	
 	return false;
