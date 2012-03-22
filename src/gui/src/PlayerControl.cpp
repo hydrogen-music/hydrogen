@@ -396,6 +396,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pMetronomeBtn->move( 10, 26 );
 	connect( m_pMetronomeBtn, SIGNAL( clicked( Button* ) ), this, SLOT(metronomeButtonClicked( Button* ) ) );
+        pAction = new MidiAction("TOGGLE_METRONOME");
+        m_pMetronomeBtn->setAction( pAction );
+
 //~ BPM
 
 

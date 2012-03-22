@@ -161,6 +161,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "TAP_TEMPO"
         << "PLAYLIST_NEXT_SONG"
         << "PLAYLIST_PREV_SONG"
+        << "TOGGLE_METRONOME"
 	<< "SELECT_INSTRUMENT";
 
 	eventList << ""
@@ -730,6 +731,11 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
                }
                return true;
         }
-	
+
+        if( sActionString == "TOGGLE_METRONOME"){
+
+               Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
+               return true;
+        }
 	return false;
 }
