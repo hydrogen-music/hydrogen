@@ -323,12 +323,11 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	pEngine->lastMidiEventParameter = msg.m_nData1;
 
 
-
 if ( msg.m_sysexData.size() == 6 ) {
 		if (
-		    ( msg.m_sysexData[0] == 0xF0 ) &&
+                    ( msg.m_sysexData[0] == 240 ) &&
 		    ( msg.m_sysexData[1] == 127 ) &&
-		    ( msg.m_sysexData[2] == 127 ) &&
+                    ( msg.m_sysexData[2] == 0 ) &&
 		    ( msg.m_sysexData[3] == 6 ) ) {
 
 			
@@ -356,8 +355,8 @@ if ( msg.m_sysexData.size() == 6 ) {
 			}
 
 			case 4:	// FAST FWD
-				pEngine->lastMidiEvent = "MMC_FAST_FWD";
-				aH->handleAction(mM->getMMCAction("MMC_FAST_FWD"));
+                                pEngine->lastMidiEvent = "MMC_FAST_FORWARD";
+                                aH->handleAction(mM->getMMCAction("MMC_FAST_FORWARD"));
 				
 				break;
 
