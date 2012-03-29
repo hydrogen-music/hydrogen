@@ -2935,7 +2935,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat )
 		m_nSelectedPatternNumber = nPat;
 	}
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+        EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
 

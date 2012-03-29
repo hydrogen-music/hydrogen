@@ -154,6 +154,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "EFFECT3_LEVEL_ABSOLUTE"
 	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "SELECT_NEXT_PATTERN"
+        << "SELECT_NEXT_PATTERN_CC_ABSOLUT"
         << "SELECT_NEXT_PATTERN_PROMPTLY"
         << "SELECT_AND_PLAY_PATTERN"
 	<< "PAN_RELATIVE"
@@ -284,7 +285,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-          if( sActionString == "SELECT_NEXT_PATTERN" ){
+        if( sActionString == "SELECT_NEXT_PATTERN" ){
 		bool ok;
 		int row = pAction->getParameter1().toInt(&ok,10);
                 if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
@@ -296,7 +297,19 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
                 return true;
         }
 
-        if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY" ){
+        if( sActionString == "SELECT_NEXT_PATTERN_CC_ABSOLUT" ){
+                bool ok;
+                int row = pAction->getParameter2().toInt(&ok,10);
+                if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+                    return false;
+                if(Preferences::get_instance()->patternModePlaysSelected())
+                        pEngine->setSelectedPatternNumber( row );
+                else
+                        return true;// only usefully in normal pattern mode
+                return true;
+        }
+
+        if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY" ){// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
               bool ok;
               int row = pAction->getParameter2().toInt(&ok,10);
               pEngine->setSelectedPatternNumberWithoutGuiEvent( row );

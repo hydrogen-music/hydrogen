@@ -574,4 +574,5 @@ void SongEditorPanel::selectedPatternChangedEvent()
 {
 	resyncExternalScrollBar();
         m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
+        HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
