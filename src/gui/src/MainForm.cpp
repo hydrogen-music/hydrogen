@@ -486,7 +486,7 @@ void MainForm::action_file_save_as()
 	fd->selectFile( defaultFilename );
 
 	QString filename;
-	if (fd->exec() == QDialog::Accepted) {
+        if (fd->exec() == QDialog::Accepted) {
 		filename = fd->selectedFiles().first();
 	}
 
@@ -510,10 +510,10 @@ void MainForm::action_file_save()
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString filename = song->get_filename();
 
-	if ( filename.isEmpty() ) {
-		// just in case!
-		return action_file_save_as();
-	}
+        if ( filename.isEmpty() ) {
+                // just in case!
+                return action_file_save_as();
+        }
 
 	bool saved = false;
 	saved = song->save( filename );
@@ -1468,9 +1468,6 @@ void MainForm::jacksessionEvent( int nEvent )
                case 1:
                       action_file_exit();
                       break;
-               case 3:
-                      action_file_save();
-                      QMessageBox::information( this, "Hydrogen", trUtf8( "Sorry, the Hydrogen-Songfile is not saved properly in this Jack-Session! You have to repeat the \"Save-Session\" procedure from your Jack-Session-Manager.") );
         }
 
 }

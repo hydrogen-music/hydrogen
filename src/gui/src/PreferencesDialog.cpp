@@ -260,13 +260,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
         rubberbandLineEdit->hide();
 #endif
 
-#ifdef H2CORE_HAVE_JACKSESSION
-        useJackSessinStoreFiles->setVisible(true);
-        useJackSessinStoreFiles->setChecked(pPref->getJackSessionUseSessionDir());
-#else
-        useJackSessinStoreFiles->setVisible(false);
-#endif
-
 	m_bNeedDriverRestart = false;
         connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 }
@@ -420,10 +413,6 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
-
-#ifdef H2CORE_HAVE_JACKSESSION
-        pPref->setJackSessionUseSessionDir(useJackSessinStoreFiles->isChecked());
-#endif
 
 	//check preferences 
 	if ( pPref->m_brestartLash == true ){ 

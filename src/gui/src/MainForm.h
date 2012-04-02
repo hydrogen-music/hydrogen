@@ -67,7 +67,7 @@ public slots:
 		void action_file_new();
 		void action_file_open();
 		void action_file_openDemo();
-		void action_file_save();
+                void action_file_save();
 		void action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as();
