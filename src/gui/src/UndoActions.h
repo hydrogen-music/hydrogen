@@ -481,7 +481,10 @@ public:
 			   float oldLeadLag,
 			   int oldNoteKeyVal,
                            int oldOctaveKeyVal,
-                           bool noteExisted){
+                           bool noteExisted,
+                           bool listen,
+                           bool isMidi,
+                           bool isInstrumentMode){
 
         if( noteExisted ){
             setText( QString( "Delete note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
@@ -498,11 +501,15 @@ public:
 	__oldLeadLag = oldLeadLag;
 	__oldNoteKeyVal = oldNoteKeyVal;
 	__oldOctaveKeyVal = oldOctaveKeyVal;
+        __listen = listen;
+        __isMidi = isMidi;
+        __isInstrumentMode = isInstrumentMode;
 	}
 	virtual void undo()
 	{
-		//qDebug() << "Add note Undo ";
+                //qDebug() << "Add note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
+                __isMidi = false; // undo is never a midi event.
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction(  __nColumn,
 												__nRow,
 												__selectedPatternNumber,
@@ -512,11 +519,14 @@ public:
 												__oldPan_R,
 												__oldLeadLag,
 												__oldNoteKeyVal,
-												__oldOctaveKeyVal );
+                                                                                              __oldOctaveKeyVal,
+                                                                                              __listen,
+                                                                                              __isMidi,
+                                                                                              __isInstrumentMode);
 	} 
 	virtual void redo()
 	{
-		//qDebug() << "Add Note Redo " ;
+                //qDebug() << "Add Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction(  __nColumn,
 												__nRow,
@@ -527,7 +537,10 @@ public:
 												__oldPan_R,
 												__oldLeadLag,
 												__oldNoteKeyVal,
-												__oldOctaveKeyVal );
+                                                                                              __oldOctaveKeyVal,
+                                                                                              __listen,
+                                                                                              __isMidi,
+                                                                                              __isInstrumentMode);
 	}
 private:
 	int __nColumn;
@@ -540,6 +553,9 @@ private:
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
+        bool __listen;
+        bool __isMidi;
+        bool __isInstrumentMode;
 };
 
 
@@ -557,7 +573,7 @@ public:
 	{
 		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 );
+                h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false);
 	}
 	virtual void redo()
 	{

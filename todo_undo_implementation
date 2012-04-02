@@ -25,6 +25,8 @@ Pattern- & Piano Roll-Editor:
  + Edit note length Pattern Editor (right cklicking)    | Done
  + Add/Remove note Piano Roll Editor                    | Done
  + Add/Remove noteoff note Piano Roll Editor            | Done
+ + Add/Remove note via Midi                             | Done
+ + Destructive recording (Delete Notes)                 | Done
  + Edit note length Piano Roll Editor (right cklicking) | Done
  + Edit velocity Piano Roll Editor                      | Done
  + Edit pan Piano Roll Editor                           | Done

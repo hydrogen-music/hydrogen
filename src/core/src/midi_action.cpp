@@ -164,7 +164,9 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
         << "PLAYLIST_NEXT_SONG"
         << "PLAYLIST_PREV_SONG"
         << "TOGGLE_METRONOME"
-	<< "SELECT_INSTRUMENT";
+        << "SELECT_INSTRUMENT"
+        << "UNDO_ACTION"
+        << "REDO_ACTION";
 
 	eventList << ""
 	<< "MMC_PLAY"
@@ -791,5 +793,15 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
                Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
                return true;
         }
-	return false;
+
+        if( sActionString == "UNDO_ACTION"){
+                EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
+                return true;
+        }
+
+        if( sActionString == "REDO_ACTION"){
+                EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
+                return true;
+        }
+        return false;
 }

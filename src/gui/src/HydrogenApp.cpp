@@ -47,6 +47,7 @@
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
+#include "UndoActions.h"
 
 
 
@@ -117,7 +118,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	m_pDirector = new Director( 0 );
 //	m_pSampleEditor = new SampleEditor( 0 );
 	
-	showInfoSplash();	// First time information
+        showInfoSplash();	// First time information
 }
 
 
@@ -560,12 +561,45 @@ void HydrogenApp::onEventQueueTimer()
                                 case EVENT_PLAYLIST_LOADSONG:
                                         pListener->playlistLoadSongEvent( event.value );
                                         break;
+
+                                case EVENT_UNDO_REDO:
+                                        pListener->undoRedoActionEvent( event.value );
+                                        break;
+
                                 default:
 					ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
 
 		}
-	}
+        }
+
+        // midi notes
+        while(!pQueue->m_addMidiNoteVector.empty()){
+
+               int rounds = 1;
+               if(pQueue->m_addMidiNoteVector[0].b_noteExist)// runn twice, delete old note and add new note. this let the undo stack consistent
+                      rounds = 2;
+               for(int i = 0; i<rounds; i++){
+                      SE_addNoteAction *action = new SE_addNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
+                                                                       pQueue->m_addMidiNoteVector[0].m_row,
+                                                                       pQueue->m_addMidiNoteVector[0].m_pattern,
+                                                                       pQueue->m_addMidiNoteVector[0].m_length,
+                                                                       pQueue->m_addMidiNoteVector[0].f_velocity,
+                                                                       pQueue->m_addMidiNoteVector[0].f_pan_L,
+                                                                       pQueue->m_addMidiNoteVector[0].f_pan_R,
+                                                                       0.0,
+                                                                       pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+                                                                       pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+                                                                       false,
+                                                                       false,
+                                                                       pQueue->m_addMidiNoteVector[0].b_isMidi,
+                                                                       pQueue->m_addMidiNoteVector[0].b_isInstrumentMode);
+
+                      HydrogenApp::get_instance()->m_undoStack->push( action );
+               }
+               pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
+
+        }
 }
 
 

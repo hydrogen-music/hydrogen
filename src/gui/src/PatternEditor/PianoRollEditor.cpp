@@ -624,74 +624,74 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 					     int oldNoteKeyVal,
 					     int oldOctaveKeyVal )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	H2Core::Pattern *pPattern;
+       Hydrogen *pEngine = Hydrogen::get_instance();
+       Song *pSong = pEngine->getSong();
+       PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+       H2Core::Pattern *pPattern;
 
-	Instrument *pSelectedInstrument = NULL;
-	pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
-	assert(pSelectedInstrument);
+       Instrument *pSelectedInstrument = NULL;
+       pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
+       assert(pSelectedInstrument);
 
-	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = NULL;
-	}
+       if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
+              pPattern = pPatternList->get( selectedPatternNumber );
+       }
+       else {
+              pPattern = NULL;
+       }
 
-    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedLine / 12 ));
-    Note::Key pressednotekey;
-	if ( pressedLine < 12 ){
-		pressednotekey = (Note::Key)(11 - pressedLine);
-	}
-	else
-	{
-		pressednotekey = (Note::Key)(11 - pressedLine % 12);
-	}
+       Note::Octave pressedoctave = (Note::Octave)(3 - (pressedLine / 12 ));
+       Note::Key pressednotekey;
+       if ( pressedLine < 12 ){
+              pressednotekey = (Note::Key)(11 - pressedLine);
+       }
+       else
+       {
+              pressednotekey = (Note::Key)(11 - pressedLine % 12);
+       }
 
-	m_bRightBtnPressed = false;
+       m_bRightBtnPressed = false;
 
-	bool bNoteAlreadyExist = false;
-    AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-    Note* note = m_pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
-    if( note ) {
-        // the note exists...remove it!
-        bNoteAlreadyExist = true;
-        m_pPattern->remove_note( note );
-        delete note;
-    }
+       bool bNoteAlreadyExist = false;
+       AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+       Note* note = m_pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
+       if( note ) {
+              // the note exists...remove it!
+              bNoteAlreadyExist = true;
+              m_pPattern->remove_note( note );
+              delete note;
+       }
 
-	if ( bNoteAlreadyExist == false ) {
-		// create the new note
-		const unsigned nPosition = nColumn;
-		const float fVelocity = oldVelocity;
-		const float fPan_L = oldPan_L;
-		const float fPan_R = oldPan_R;
-		int nLength = oldLength;
-		const float fPitch = 0.0f;
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		pNote->set_note_off( false );
-		pNote->set_lead_lag( oldLeadLag );
-        pNote->set_key_octave( pressednotekey, pressedoctave );
-		pPattern->insert_note( pNote );
-		// hear note
-		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() ) {
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-            pNote2->set_key_octave( pressednotekey, pressedoctave );
-			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
-		}
-	}
-	pSong->__is_modified = true;
-	AudioEngine::get_instance()->unlock(); // unlock the audio engine
+       if ( bNoteAlreadyExist == false ) {
+              // create the new note
+              const unsigned nPosition = nColumn;
+              const float fVelocity = oldVelocity;
+              const float fPan_L = oldPan_L;
+              const float fPan_R = oldPan_R;
+              int nLength = oldLength;
+              const float fPitch = 0.0f;
+              Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+              pNote->set_note_off( false );
+              pNote->set_lead_lag( oldLeadLag );
+              pNote->set_key_octave( pressednotekey, pressedoctave );
+              pPattern->insert_note( pNote );
+              // hear note
+              Preferences *pref = Preferences::get_instance();
+              if ( pref->getHearNewNotes() ) {
+                     Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+                     pNote2->set_key_octave( pressednotekey, pressedoctave );
+                     AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
+              }
+       }
+       pSong->__is_modified = true;
+       AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+       updateEditor();
+       m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+       m_pPatternEditorPanel->getPanEditor()->updateEditor();
+       m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+       m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+       m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
 }
 
 

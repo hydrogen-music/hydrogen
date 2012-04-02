@@ -1646,6 +1646,13 @@ void MainForm::action_redo(){
         h2app->m_undoStack->redo();
 }
 
+void MainForm::undoRedoActionEvent( int nEvent ){
+       if(nEvent == 0)
+              h2app->m_undoStack->undo();
+       else if(nEvent == 1)
+              h2app->m_undoStack->redo();
+}
+
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
         int playlistSize= Hydrogen::get_instance()->m_PlayList.size();

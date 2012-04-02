@@ -56,6 +56,7 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 		virtual void errorEvent( int nErrorCode );
                 virtual void jacksessionEvent( int nValue);
                 virtual void playlistLoadSongEvent(int nIndex);
+                virtual void undoRedoActionEvent( int nEvent );
 		static void usr1SignalHandler(int unused);
 
 

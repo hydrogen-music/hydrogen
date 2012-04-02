@@ -201,7 +201,10 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
                 oldLeadLag,
                 oldNoteKeyVal,
                 oldOctaveKeyVal,
-                noteExisted);
+                noteExisted,
+                Preferences::get_instance()->getHearNewNotes(),
+                false,
+                false);
 
         HydrogenApp::get_instance()->m_undoStack->push( action );
 
@@ -245,7 +248,10 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 						float oldPan_R,
 						float oldLeadLag,
 						int oldNoteKeyVal,
-						int oldOctaveKeyVal )
+                                               int oldOctaveKeyVal,
+                                               bool listen,
+                                               bool isMidi,
+                                               bool isInstrumentMode)
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -261,28 +267,43 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
+        //int nInstruments = pSong->get_instrument_list()->size();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 	m_bRightBtnPressed = false;
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+        AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	bool bNoteAlreadyExist = false;
-    Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
-    FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
-		Note *pNote = it->second;
-		assert( pNote );
-		if ( pNote->get_instrument() == pSelectedInstrument ) {
-			// the note exists...remove it!
-			bNoteAlreadyExist = true;
-			delete pNote;
-            notes->erase( it );
-			break;
-		}
-	}
+        bool bNoteAlreadyExist = false;
+        if(!isInstrumentMode){
+               Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+               FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+                      Note *pNote = it->second;
+                      assert( pNote );
+                      if ( pNote->get_instrument() == pSelectedInstrument ) {
 
-	if ( bNoteAlreadyExist == false ) {
+                             // the note exists...remove it!
+                             bNoteAlreadyExist = true;
+                             delete pNote;
+                             notes->erase( it );
+                             break;
+                      }
+               }
+        }
+        else
+        {
+               Note* note = pPattern->find_note( nColumn, -1, pSelectedInstrument, (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
+               if( note ) {
+
+                      // the note exists...remove it!
+                      bNoteAlreadyExist = true;
+                      m_pPattern->remove_note( note );
+                      delete note;
+               }
+        }
+
+
+        if ( bNoteAlreadyExist == false ) {
 		// create the new note
 		const unsigned nPosition = nColumn;
 		const float fVelocity = oldVelocity;
@@ -294,12 +315,13 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_note_off( false );
 		pNote->set_lead_lag( oldLeadLag );
-        pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
+               pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
 		pPattern->insert_note( pNote );
-
-		// hear note
-		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() ) {
+               if(isMidi){
+                      pNote->set_just_recorded(true);
+               }
+                // hear note
+                if ( listen ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 		}

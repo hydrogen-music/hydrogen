@@ -74,7 +74,10 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 						float oldPan_R,
 						float oldLeadLag,
 						int oldNoteKeyVal,
-						int oldOctaveKeyVal );
+                                               int oldOctaveKeyVal,
+                                               bool listen,
+                                               bool isMidi,
+                                               bool isInstrumentMode);
 		void addNoteRightClickAction( int nColumn, int nRow, int selectedPatternNumber );
 		void editNoteLenghtAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,

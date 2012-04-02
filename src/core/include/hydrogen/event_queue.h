@@ -24,6 +24,7 @@
 #define EVENT_QUEUE_H
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/note.h>
 #include <cassert>
 
 #define MAX_EVENTS 1024
@@ -46,7 +47,8 @@ enum EventType {
 	EVENT_RECALCULATERUBBERBAND,
         EVENT_PROGRESS,
         EVENT_JACK_SESSION,
-        EVENT_PLAYLIST_LOADSONG
+        EVENT_PLAYLIST_LOADSONG,
+        EVENT_UNDO_REDO
 };
 
 
@@ -70,6 +72,23 @@ public:
 
 	void push_event( EventType type, int nValue );
 	Event pop_event();
+
+        struct AddMidiNoteVector
+        {
+                int m_column;       //position
+                int m_row;          //instrument row
+                int m_pattern;      // pattern number
+                int m_length;
+                float f_velocity;
+                float f_pan_L;
+                float f_pan_R;
+                Note::Key nk_noteKeyVal;
+                Note::Octave no_octaveKeyVal;
+                bool b_isMidi;
+                bool b_isInstrumentMode;
+                bool b_noteExist;
+        };
+        std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 
 private:
 	EventQueue();
