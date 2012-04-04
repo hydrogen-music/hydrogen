@@ -572,7 +572,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	//if we delete the current loaded drumkit we can get truble with some empty pointers
     // TODO this check is really unsafe
     if ( item->text(0) == Hydrogen::get_instance()->getCurrentDrumkitname() ){
-		QMessageBox::warning( this, "Hydrogen", QString( "You try to delet the current loaded drumkit.\nThis is not possible!") );
+		QMessageBox::warning( this, "Hydrogen", QString( "It is not possible to delete the currently loaded drumkit.\nTo delete this drumkit first load another drumkit.") );
 		return;
 	}
 
