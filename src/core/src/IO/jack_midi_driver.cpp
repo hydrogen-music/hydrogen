@@ -331,8 +331,11 @@ JackMidiDriver::JackMidiDriver()
 JackMidiDriver::~JackMidiDriver()
 {
 	if (jack_client != NULL)
+	{
+		jack_port_unregister( jack_client, input_port); 
+		jack_port_unregister( jack_client, output_port); 
 		jack_deactivate(jack_client);
-
+	}
 	pthread_mutex_destroy(&mtx);
 }
 
