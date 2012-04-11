@@ -139,6 +139,10 @@ class Song : public H2Core::Object
         const QString& get_license() {
             return __license;
         }
+	
+	const QString& get_author() {
+            return __author;
+        }
 
         const QString& get_filename() {
             return __filename;

@@ -256,6 +256,8 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 	//LIB_ID just in work to get better usability
 	//writeXmlString( &rootNode, "LIB_ID", "in_work" );
 	writeXmlString( rootNode, "pattern_for_drumkit", drumkit_name );
+	writeXmlString( rootNode, "author", song->get_author() );
+	writeXmlString( rootNode, "license", song->get_license() );
 
 
 	// pattern
