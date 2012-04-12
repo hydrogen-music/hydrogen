@@ -827,7 +827,6 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	int x = 10 + m_nGridWidth * pos;
 	int y = m_nGridHeight * number;
 
-// 	p.setPen( patternColor.light( 120 ) );  // willie - For the bevel - haven't yet figured how it's supposed to work...
 	p.fillRect( x + 1, y + 3, m_nGridWidth - 1, m_nGridHeight - 5, patternColor );
 }
 
@@ -898,13 +897,12 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 
 	m_pPatternPopup = new QMenu( this );
-	//m_pPatternPopup->addAction( trUtf8("Edit"),  this, SLOT( patternPopup_edit() ) );obsolete in >=0.9.4, because the patterneditor switch by clicking an each item to the corresponding pattern
 	m_pPatternPopup->addAction( trUtf8("Copy"),  this, SLOT( patternPopup_copy() ) );
 	m_pPatternPopup->addAction( trUtf8("Delete"),  this, SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( trUtf8("Load Pattern"),  this, SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );	
 	m_pPatternPopup->addAction( trUtf8("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -955,19 +953,6 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 	} else {
 		engine->setSelectedPatternNumber( row );
 		if (ev->button() == Qt::RightButton)  {
-	/*
-			if ( song->getMode() == Song::PATTERN_MODE ) {
-	
-				PatternList *pCurrentPatternList = engine->getCurrentPatternList();
-				if ( pCurrentPatternList->size() == 0 ) {
-					// nessun pattern e' attivo. seleziono subito questo.
-					pCurrentPatternList->add( patternList->get( row ) );
-				}
-				else {
-					engine->setNextPattern( row );
-				}
-			}
-	*/
 			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 		}
 	}
@@ -983,32 +968,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 void SongEditorPatternList::togglePattern( int row ) {
 
 	Hydrogen *engine = Hydrogen::get_instance();
-/*	Song *song = engine->getSong();
-	PatternList *patternList = song->get_pattern_list();*/
-
-// 	PatternList *pCurrentPatternList = engine->getCurrentPatternList();
-
-// 	bool isPatternPlaying = false;
 	engine->sequencer_setNextPattern( row, false, true );
-
-// 	for ( uint i = 0; i < pCurrentPatternList->size(); ++i ) {
-// 		if ( pCurrentPatternList->get( i ) == patternList->get( row ) ) {
-// 			// the pattern is already playing, stop it!
-// 			isPatternPlaying = true;
-// 			break;
-// 		}
-// 	}
-//
-// 	if ( isPatternPlaying ) {
-// 		//pCurrentPatternList->del( patternList->get( row ) );
-// 		engine->sequencer_setNextPattern( row, false, true );	// remove from the playing pattern list
-// 	}
-// 	else {
-// 		// the pattern is not playing, add it to the list
-// 		//pCurrentPatternList->add( patternList->get( row ) );
-// 		engine->sequencer_setNextPattern( row, true, false );	// add to the playing pattern list
-// 	}
-
 	createBackground();
 	update();
 }
