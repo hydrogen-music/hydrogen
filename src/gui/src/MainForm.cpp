@@ -470,6 +470,7 @@ void MainForm::action_file_save_as()
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
         fd->setAcceptMode( QFileDialog::AcceptSave );
         fd->setWindowTitle( trUtf8( "Save song" ) );
+	fd->setSidebarUrls( fd->sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString defaultFilename;
@@ -579,6 +580,7 @@ void MainForm::action_file_export_pattern_as()
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
         fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
 	fd->setDirectory ( dir );
+	fd->setSidebarUrls( fd->sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 
 
 
