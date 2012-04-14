@@ -1372,39 +1372,15 @@
       <para>The name of the instrument depends on the
       drumkit that is loaded. This list below refers to the GMkit that is loaded by default.
       </para>
+      <para>Try to follow the GM midi standard as accurately as possible.  This will ensure that switching between 
+      drumkits goes smoothly.  You are of course free to place your instruments anywhere in your drumkit, and
+      sometimes it isn't even possible to follow the GM standard, but it makes life a lot easier if you do.</para>
       <para>
       Keep in mind that it is the <emphasis>position</emphasis> of the instrument (within the loaded drumkit) that 
       is linked to a MIDI-note/keyboard-key and <emphasis>not the name</emphasis> of the instrument.
       </para>
 
-<!--
-      <itemizedlist>
-        <listitem><para>Z = Kick</para></listitem>
-        <listitem><para>X = Snare Jazz</para></listitem>
-        <listitem><para>C = Snare Rock</para></listitem>
-        <listitem><para>V = Tom Low</para></listitem>
-        <listitem><para>B = Tom Mid</para></listitem>
-        <listitem><para>N = Tom Hi</para></listitem>
-        <listitem><para>M = Cowbell</para></listitem>
-        <listitem><para>Q = Ride Jazz</para></listitem>
-        <listitem><para>W = Ride Rock</para></listitem>
-        <listitem><para>E = Instrument No. 17 (currently not assigned)</para></listitem>
-        <listitem><para>R = Instrument No. 18 (currently not assigned)</para></listitem>
-        <listitem><para>T = Instrument No. 20 (currently not assigned)</para></listitem>
-        <listitem><para>Y = Instrument No. 22 (currently not assigned)</para></listitem>
-        <listitem><para>U = Instrument No. 24 (currently not assigned)</para></listitem>
-        <listitem><para>S = Stick</para></listitem>
-        <listitem><para>D = Hand Clap</para></listitem>
-        <listitem><para>G = Closed HH</para></listitem>
-        <listitem><para>H = Pedal HH</para></listitem>
-        <listitem><para>J = Open HH</para></listitem>
-        <listitem><para>2 = Crash</para></listitem>
-        <listitem><para>3 = Crash Jazz</para></listitem>
-        <listitem><para>5 = Instrument No. 19 (currently not assigned)</para></listitem>
-        <listitem><para>6 = Instrument No. 21 (currently not assigned)</para></listitem>
-        <listitem><para>7 = Instrument No. 23 (currently not assigned)</para></listitem>
-      </itemizedlist>
--->
+
 
       <informalfigure id="fig.InstrumentMapping">
         <mediaobject>
