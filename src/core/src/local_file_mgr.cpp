@@ -640,18 +640,14 @@ int LocalFileMng::savePlayList( const std::string& filename)
 
 	QDomNode rootNode = doc.createElement( "playlist" ); 
 
-	//LIB_ID just in work to get better usability
 	writeXmlString( rootNode, "Name", QString (realname.c_str()) );
-	writeXmlString( rootNode, "LIB_ID", "in_work" );
 		
 	QDomNode playlistNode = doc.createElement( "Songs" );
 	for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
 		QDomNode nextNode = doc.createElement( "next" );
 		
 		LocalFileMng::writeXmlString ( nextNode, "song", Hydrogen::get_instance()->m_PlayList[i].m_hFile );
-		
 		LocalFileMng::writeXmlString ( nextNode, "script", Hydrogen::get_instance()->m_PlayList[i].m_hScript );
-		
 		LocalFileMng::writeXmlString ( nextNode, "enabled", Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled );
 		
 		playlistNode.appendChild( nextNode );
@@ -687,7 +683,6 @@ int LocalFileMng::loadPlayList( const std::string& filename)
         std::string playlistInfoFile = filename;
 	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
 	if ( verify == NULL ) {
-                ERRORLOG( "Load Playlist: Data file " + playlistInfoFile + " not found." );
                 return 1;
 	}
 
@@ -703,7 +698,6 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 	QDomNode playlistNode = rootNode.firstChildElement( "Songs" );
 
 	if ( ! playlistNode.isNull() ) {
-		// new code :)
 		Hydrogen::get_instance()->m_PlayList.clear();
 		QDomNode nextNode = playlistNode.firstChildElement( "next" );
 		while (  ! nextNode.isNull() ) {
@@ -814,12 +808,6 @@ bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool de
 
 void LocalFileMng::writeXmlString( QDomNode parent, const QString& name, const QString& text )
 {
-	/*
-	TiXmlElement versionNode( name.toAscii() );
-	TiXmlText versionText( text.toAscii() );
-	versionNode.appendChild( versionText );
-	parent->appendChild( versionNode );
-	*/
 	QDomDocument doc;
 	QDomElement elem = doc.createElement( name );
 	QDomText t = doc.createTextNode( text );
@@ -938,8 +926,6 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 	    QByteArray buf = QString("<?xml version='1.0' encoding='%1' ?>\n")
 		.arg( enc )
 		.toLocal8Bit();
-
-	    //_INFOLOG( QString("Using '%1' encoding for TinyXML file").arg(enc) );
 
 	    while( !file.atEnd() ) {
 			line = file.readLine();
@@ -1081,12 +1067,6 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( song->get_humanize_time_value() ) );
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( song->get_humanize_velocity_value() ) );
 	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( song->get_swing_factor() ) );
-
-	/*	LocalFileMng::writeXmlBool( &songNode, "delayFXEnabled", song->m_bDelayFXEnabled );
-		LocalFileMng::writeXmlString( &songNode, "delayFXWetLevel", QString("%1").arg( song->m_fDelayFXWetLevel ) );
-		LocalFileMng::writeXmlString( &songNode, "delayFXFeedback", QString("%1").arg( song->m_fDelayFXFeedback ) );
-		LocalFileMng::writeXmlString( &songNode, "delayFXTime", QString("%1").arg( song->m_nDelayFXTime ) );
-	*/
 
 	// instrument list
 	QDomNode instrumentListNode = doc.createElement( "instrumentList" );
