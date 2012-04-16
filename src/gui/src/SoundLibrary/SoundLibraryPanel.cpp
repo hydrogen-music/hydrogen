@@ -253,7 +253,6 @@ void SoundLibraryPanel::updateDrumkitList()
 		
 		//this is the second step to push the mng.funktion 
 		std::vector<QString> allPatternDirList = mng.getallPatternList();
-		std::vector<QString> patternNameList = mng.getAllPatternName();
 		std::vector<QString> allCategoryNameList = mng.getAllCategoriesFromPattern();
 
 		//now sorting via category
