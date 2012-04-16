@@ -164,8 +164,14 @@ bool XMLDoc::write( const QString& filepath )
     }
     QTextStream out( &file );
     out << toString().toUtf8();
+    out.flush();
+
+    bool rv = true;
+    if ( !toString().isEmpty() && file.size() == 0 )
+        rv = false;
+
     file.close();
-    return true;
+    return rv;
 };
 
 void XMLDoc::set_root( const QString& node_name, const QString& xmlns )
