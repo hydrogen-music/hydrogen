@@ -663,7 +663,7 @@ int LocalFileMng::savePlayList( const std::string& filename)
 
         QFile file( filename.c_str() );
 	if ( !file.open(QIODevice::WriteOnly) )
-                return 0;
+                return 1;
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
@@ -687,8 +687,8 @@ int LocalFileMng::loadPlayList( const std::string& filename)
         std::string playlistInfoFile = filename;
 	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
 	if ( verify == NULL ) {
-		//ERRORLOG( "Load Playlist: Data file " + playlistInfoFile + " not found." );
-		return 0;
+                ERRORLOG( "Load Playlist: Data file " + playlistInfoFile + " not found." );
+                return 1;
 	}
 
         QDomDocument doc = LocalFileMng::openXmlDocument( QString( filename.c_str() ) );
@@ -698,7 +698,7 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 	QDomNode rootNode = doc.firstChildElement( "playlist" );	// root element
 	if ( rootNode.isNull() ) {
 		ERRORLOG( "Error reading playlist: playlist node not found" );
-		return 0;
+                return 1;
 	}
 	QDomNode playlistNode = rootNode.firstChildElement( "Songs" );
 
