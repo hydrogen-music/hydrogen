@@ -263,7 +263,15 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 	// pattern
 	QDomNode patternNode = doc.createElement( "pattern" );
 	writeXmlString( patternNode, "pattern_name", realpatternname );
-	writeXmlString( patternNode, "category", pat->get_category() );
+
+        QString category;
+        if ( pat->get_category().isEmpty() )
+            category = "No category";
+        else
+            category = pat->get_category();
+
+
+        writeXmlString( patternNode, "category", category  );
 	writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
@@ -440,7 +448,6 @@ std::vector<QString> LocalFileMng::getAllCategoriesFromPattern()
 	std::vector<QString> categorylist;
 	for (uint i = 0; i < m_allPatternList.size(); ++i) {
 		QString patternInfoFile =  m_allPatternList[i];
-		
 		QDomDocument doc  = LocalFileMng::openXmlDocument( patternInfoFile );
 
 
