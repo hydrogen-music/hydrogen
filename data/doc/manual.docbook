@@ -57,13 +57,13 @@
 
       <para>
         If you want to compile Hydrogen yourself (see <xref linkend="sect.compilation"/>), you can download the latest source files directly from our
-        subversion server with:
+        git repository with:
 
-        <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/trunk</command></screen>
+        <screen><prompt>$</prompt> <command>git clone git://github.com/hydrogen-music/hydrogen.git</command></screen>
 
         A certain release can be fetched with:
 
-        <screen><prompt>$</prompt> <command>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.5</command></screen>
+        <screen><prompt>$</prompt> <command>git checkout tags/0.9.5</command></screen>
       </para>
 
       <para>Compiling Hydrogen depends on the following libraries:</para>
@@ -127,8 +127,8 @@
       <section id="sect.compilation.scons">
         <title>Using scons (pre-0.9.6)</title>
 
-        <para>Decompress the tarball or go to the directory where the subversion copy
-        was checked out:</para>
+        <para>Decompress the tarball or go to the directory where the git repository
+        was cloned:</para>
 
         <screen>
           <prompt>$</prompt> <command>cd hydrogen-*</command>
@@ -167,8 +167,8 @@
       <section id="sect.compilation.cmake">
         <title>Using cmake (0.9.6 and up)</title>
 
-        <para>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the subversion copy
-        was checked out and run the build.sh script without any arguments to display the help :</para>
+        <para>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the git repository
+        was cloned and run the build.sh script without any arguments to display the help :</para>
 
         <screen>
            <prompt>$</prompt> <command>./build.sh</command>
