@@ -303,21 +303,26 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 
 	doc.appendChild( rootNode );
 
+        int rv = 0;
 	QFile file( sPatternXmlFilename );
 	if ( !file.open(QIODevice::WriteOnly) )
-		return 0;
+                rv = 1;
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
+
+
+        if( file.size() == 0)
+            rv = 1;
 
 	file.close();
 
 
 	QFile anotherTestfile( sPatternXmlFilename );
 	if ( !anotherTestfile.exists() )
-		return 1;
+                rv = 1;
 
-	return 0; // ok
+        return rv; // ok
 }
 
 
@@ -656,17 +661,20 @@ int LocalFileMng::savePlayList( const std::string& filename)
 	rootNode.appendChild( playlistNode );
 	doc.appendChild( rootNode );
 
-
+        int rv = 0;
         QFile file( filename.c_str() );
 	if ( !file.open(QIODevice::WriteOnly) )
-                return 1;
+                rv = 1;
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
 
+        if( file.size() == 0)
+            rv = 1;
+
 	file.close();
 
-	return 0; // ok
+        return rv; // ok
 
 }
 
@@ -1289,40 +1297,42 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	songNode.appendChild( ladspaFxNode );
 	doc.appendChild( songNode );
 
+
+        //bpm time line
+        QDomNode bpmTimeLine = doc.createElement( "BPMTimeLine" );
+        if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
+            for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+                QDomNode newBPMNode = doc.createElement( "newBPM" );
+                LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat ));
+                LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm  ) );
+                bpmTimeLine.appendChild( newBPMNode );
+            }
+        }
+        songNode.appendChild( bpmTimeLine );
+
+        //time line tag
+        QDomNode timeLineTag = doc.createElement( "timeLineTag" );
+        if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
+            for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
+                QDomNode newTAGNode = doc.createElement( "newTAG" );
+                LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat ));
+                LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag  ) );
+                timeLineTag.appendChild( newTAGNode );
+            }
+        }
+        songNode.appendChild( timeLineTag );
+
 	QFile file(filename);
 	if ( !file.open(QIODevice::WriteOnly) )
-		rv = 1;
-
-//bpm time line
-	QDomNode bpmTimeLine = doc.createElement( "BPMTimeLine" );
-	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
-			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat ));
-			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm  ) );
-			bpmTimeLine.appendChild( newBPMNode );	
-		}
-	}
-	songNode.appendChild( bpmTimeLine );
-
-//time line tag
-	QDomNode timeLineTag = doc.createElement( "timeLineTag" );
-	if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
-			QDomNode newTAGNode = doc.createElement( "newTAG" );
-			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat ));
-			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag  ) );
-			timeLineTag.appendChild( newTAGNode );	
-		}
-	}
-	songNode.appendChild( timeLineTag );
+            rv = 1;
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
 
-	file.close();
+        if( file.size() == 0)
+            rv = 1;
 
-
+        file.close();
 
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
@@ -1330,6 +1340,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		song->__is_modified = false;
 		INFOLOG("Save was successful.");
 	}
+
 	song->set_filename( filename );
 
 	return rv;
