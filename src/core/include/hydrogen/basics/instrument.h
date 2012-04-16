@@ -100,9 +100,10 @@ class Instrument : public H2Core::Object
          * load an instrument from an XMLNode
          * \param node the XMLDode to read from
          * \param dk_path the directory holding the drumkit data
+         * \param dk_name the name of the drumkit
          * \return a new Instrument instance
          */
-        static Instrument* load_from( XMLNode* node, const QString& dk_path );
+        static Instrument* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
         /**
          * get an instrument layer from  the list
@@ -236,9 +237,16 @@ class Instrument : public H2Core::Object
         /** get the stop notes of the instrument */
         bool is_stop_notes() const;
 
+        ///< set the name of the related drumkit
+        void set_drumkit_name( const QString& name );
+        ///< get the name of the related drumkits
+        const QString& get_drumkit_name() const;
+
+
     private:
         int __id;			                    ///< instrument id, should be unique
         QString __name;			                ///< instrument name
+        QString __drumkit_name;                         ///< the name of the drumkit this instrument belongs tos
         float __gain;                           ///< gain of the instrument
         float __volume;			                ///< volume of the instrument
         float __pan_l;			                ///< left pan of the instrument
@@ -516,7 +524,19 @@ inline void Instrument::set_layer( InstrumentLayer* layer, int idx )
     __layers[ idx ] = layer;
 }
 
+inline void Instrument::set_drumkit_name( const QString& name )
+{
+    __drumkit_name = name;
+}
+
+inline const QString& Instrument::get_drumkit_name() const
+{
+    return __drumkit_name;
+}
+
 };
+
+
 
 #endif // H2C_INSTRUMENT_H
 

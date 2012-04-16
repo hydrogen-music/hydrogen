@@ -140,7 +140,7 @@ class InstrumentList : public H2Core::Object
          * \param dk_path the directory holding the drumkit data
          * \return a new InstrumentList instance
          */
-        static InstrumentList* load_from( XMLNode* node, const QString& dk_path );
+        static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
     private:
         std::vector<Instrument*> __instruments;            ///< the list of instruments
