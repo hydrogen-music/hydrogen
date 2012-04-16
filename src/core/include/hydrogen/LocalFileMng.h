@@ -58,7 +58,7 @@ public:
 	std::vector<QString> getPatternDirList();
 	std::vector<QString> getSongList();
 	std::vector<QString> getPatternsForDrumkit( const QString&  );
-	std::vector<QString> getAllPatternName();
+	std::vector<QString> getAllPatternNames();
 	int getPatternList( const QString& );
 	int mergeAllPatternList( std::vector<QString> );
 

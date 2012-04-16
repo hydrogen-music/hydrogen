@@ -415,7 +415,12 @@ int LocalFileMng::getPatternList( const QString&  sPatternDir)
 }
 
 
-std::vector<QString> LocalFileMng::getAllPatternName()
+/**
+ * Return the names of all patterns in the soundlibrary.
+ * \return A vector of QString elements which represent the pattern names.
+ */
+
+std::vector<QString> LocalFileMng::getAllPatternNames()
 {
 	std::vector<QString> alllist;
 
@@ -438,7 +443,11 @@ std::vector<QString> LocalFileMng::getAllPatternName()
 	return alllist;
 }
 
-
+/**
+ * Generate a list of all used categories. This includes only patterns which are located in
+ * hydrogens soundlibrary.
+ * \return A vector of QString elements which represent the pattern categories.
+ */
 
 std::vector<QString> LocalFileMng::getAllCategoriesFromPattern()
 {
@@ -492,7 +501,11 @@ std::vector<QString> LocalFileMng::getAllCategoriesFromPattern()
 	return categorylist;
 }
 
-
+/**
+ * Generate a list of all patterns for a given drumkit
+ * \param sDrumkit the name of drumkit
+ * \return A vector of QString elements which represent the pattern names.
+ */
 
 std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumkit )
 {
@@ -520,14 +533,14 @@ std::vector<QString> LocalFileMng::getPatternsForDrumkit( const QString& sDrumki
 	return list;
 }
 
-
+/**
+ * Return a list of drumkits that are located inside a directory.
+ * \param sDirectory The directory where the method looks for drumkits
+ * \return A vector of QString elements which represent the drumkits.
+ */
 
 std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory )
 {
-	/*
-		returns a list of all drumkits in the given directory
-	*/
-
 	std::vector<QString> list;
 
 	QDir dir( sDirectory );
@@ -552,12 +565,15 @@ std::vector<QString> LocalFileMng::getDrumkitsFromDirectory( QString sDirectory 
 }
 
 
+/**
+ * Merge two vectors of QStrings.
+ * \param firstVector The first vector.
+ * \param secondVector The second vector.
+ * \return The resulting vector which is a union of firstVector and secondVector.
+ */
 
 std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std::vector<QString> secondVector )
 {
-	/*
-		 merges two vectors ( containing drumkits). Elements of the first vector have priority
-	*/
 
 	if( firstVector.size() == 0 ) return secondVector;
 	if( secondVector.size() == 0 ) return firstVector;
@@ -587,6 +603,11 @@ std::vector<QString> mergeQStringVectors( std::vector<QString> firstVector , std
 }
 
 
+/**
+ * Return a list of directories that may contain patterns
+ * \return A vector of QString elements which represent the directory names.
+ */
+
 std::vector<QString> LocalFileMng::getPatternDirList()
 {
 	return getDrumkitsFromDirectory( Preferences::get_instance()->getDataDirectory() + "patterns" );
@@ -599,10 +620,17 @@ int  LocalFileMng::mergeAllPatternList( std::vector<QString> current )
 	return 0; 
 }
 
-int LocalFileMng::savePlayList( const std::string& patternname)
+
+/**
+ * Save the currently loaded playlist to disk.
+ * \param playlist_name The filename of the output file.
+ * \return Returns an Errorcode.
+ */
+
+int LocalFileMng::savePlayList( const std::string& filename)
 {
 
-	std::string name = patternname.c_str();
+        std::string name = filename.c_str();
 
 	std::string realname = name.substr(name.rfind("/")+1);
 
@@ -632,10 +660,10 @@ int LocalFileMng::savePlayList( const std::string& patternname)
 	rootNode.appendChild( playlistNode );
 	doc.appendChild( rootNode );
 
-	QString filename = QString( patternname.c_str() );
-	QFile file(filename);
+
+        QFile file( filename.c_str() );
 	if ( !file.open(QIODevice::WriteOnly) )
-		return 0;
+                return 0;
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
@@ -646,18 +674,24 @@ int LocalFileMng::savePlayList( const std::string& patternname)
 
 }
 
-int LocalFileMng::loadPlayList( const std::string& patternname)
+/**
+ * Load a playlist from disk.
+ * \param filename The name of the playlist to be saved.
+ * \return Returns an Errorcode.
+ */
+
+int LocalFileMng::loadPlayList( const std::string& filename)
 {
 
 	
-	std::string playlistInfoFile = patternname;
+        std::string playlistInfoFile = filename;
 	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
 	if ( verify == NULL ) {
 		//ERRORLOG( "Load Playlist: Data file " + playlistInfoFile + " not found." );
 		return 0;
 	}
 
-	QDomDocument doc = LocalFileMng::openXmlDocument( QString( patternname.c_str() ) );
+        QDomDocument doc = LocalFileMng::openXmlDocument( QString( filename.c_str() ) );
 	
 	Hydrogen::get_instance()->m_PlayList.clear();
 
