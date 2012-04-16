@@ -459,29 +459,32 @@ std::vector<QString> LocalFileMng::getAllCategoriesFromPattern()
 			QString sCategoryName( LocalFileMng::readXmlString( patternNode,"category", "" ) );
 
 
-			if ( !sCategoryName.isEmpty() ){
-				bool test = true;
-				for (uint i = 0; i < categorylist.size(); ++i){
-					if ( sCategoryName == categorylist[i] ){
-						test = false;
-					}
-				}
-				 if (test == true){
-					categorylist.push_back(sCategoryName);
+                        if ( sCategoryName.isEmpty() ){
+                            sCategoryName = "No category";
+                        }
 
-					//this merge new categories to user categories list
-					bool test2 = true;
-					for( cur_testpatternCategories = pPref->m_patternCategories.begin(); cur_testpatternCategories != pPref->m_patternCategories.end(); ++cur_testpatternCategories ){
-						if ( sCategoryName == *cur_testpatternCategories ){
-							test2 = false;
-						}
-					}
-				
-					if (test2 == true ) {
-						pPref->m_patternCategories.push_back( sCategoryName );
-					}
-				}
-			}
+                        bool test = true;
+                        for (uint i = 0; i < categorylist.size(); ++i){
+                            if ( sCategoryName == categorylist[i] ){
+                                test = false;
+                            }
+                        }
+                        if (test == true){
+                            categorylist.push_back( sCategoryName );
+
+                            //this merge new categories to user categories list
+                            bool test2 = true;
+                            for( cur_testpatternCategories = pPref->m_patternCategories.begin(); cur_testpatternCategories != pPref->m_patternCategories.end(); ++cur_testpatternCategories ){
+                                if ( sCategoryName == *cur_testpatternCategories ){
+                                    test2 = false;
+                                }
+                            }
+
+                            if (test2 == true ) {
+                                pPref->m_patternCategories.push_back( sCategoryName );
+                            }
+                        }
+
 		}
 	}
 

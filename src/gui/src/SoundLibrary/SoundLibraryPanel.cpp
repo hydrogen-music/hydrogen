@@ -266,7 +266,7 @@ void SoundLibraryPanel::updateDrumkitList()
 				for (uint i = 0; i < allPatternDirList.size(); ++i) {
 					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[i]);
 
-					if ( patternCategory == categoryName ){
+                                        if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
 						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 						pPatternItem->setText( 0, mng.getPatternNameFromPatternDir( allPatternDirList[i] ));
 						pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( allPatternDirList[i] ));
