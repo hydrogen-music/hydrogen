@@ -111,7 +111,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
         WARNINGLOG( "instrumentList node not found" );
         drumkit->set_instruments( new InstrumentList() );
     } else {
-        drumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path ) );
+        drumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
     }
     return drumkit;
 }

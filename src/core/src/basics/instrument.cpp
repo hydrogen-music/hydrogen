@@ -155,8 +155,10 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
     }
     if ( is_live )
         AudioEngine::get_instance()->lock( RIGHT_HERE );
+
     this->set_id( instrument->get_id() );
     this->set_name( instrument->get_name() );
+    this->set_drumkit_name( drumkit->get_name() );
     this->set_gain( instrument->get_gain() );
     this->set_volume( instrument->get_volume() );
     this->set_pan_l( instrument->get_pan_l() );
@@ -185,11 +187,12 @@ void Instrument::load_from( const QString& drumkit_name, const QString& instrume
     delete drumkit;
 }
 
-Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path )
+Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
     int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
     if ( id==EMPTY_INSTR_ID ) return 0;
     Instrument* instrument = new Instrument( id, node->read_string( "name", "" ), 0 );
+    instrument->set_drumkit_name( dk_name );
     instrument->set_volume( node->read_float( "volume", 1.0f ) );
     instrument->set_muted( node->read_bool( "isMuted", false ) );
     instrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
