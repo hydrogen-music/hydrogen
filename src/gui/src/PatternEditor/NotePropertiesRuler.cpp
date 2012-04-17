@@ -149,7 +149,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			sprintf( valueChar, "%#.2f",  val);
 			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
-		else if ( m_mode == PAN ){
+                else if ( m_mode == PAN && !pNote->get_note_off() ){
 			float pan_L, pan_R;
 
 			float val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
@@ -263,7 +263,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			__mode = "VELOCITY";
 
 		}
-		else if ( m_mode == PAN ){
+                else if ( m_mode == PAN && !pNote->get_note_off() ){
 
 			__oldPan_L = pNote->get_pan_l();
 			__oldPan_R = pNote->get_pan_r();
@@ -348,7 +348,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				sprintf( valueChar, "%#.2f",  val);
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 			}
-			else if ( m_mode == PAN ){
+                        else if ( m_mode == PAN && !pNote->get_note_off() ){
 				float pan_L, pan_R;
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					val = 0.5;
@@ -762,7 +762,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
             FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+                                if ( pNote->get_note_off() || pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
 				}
 				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
