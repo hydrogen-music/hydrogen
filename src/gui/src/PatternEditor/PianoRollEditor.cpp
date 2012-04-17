@@ -933,7 +933,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
-		SE_editNoteLenghtPianoRollAction *action = new SE_editNoteLenghtPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
+		SE_editNoteLengthPianoRollAction *action = new SE_editNoteLengthPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 		return;
 	}

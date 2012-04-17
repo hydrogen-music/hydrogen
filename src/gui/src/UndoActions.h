@@ -964,10 +964,10 @@ private:
 };
 
 
-class SE_editNoteLenghtPianoRollAction : public QUndoCommand
+class SE_editNoteLengthPianoRollAction : public QUndoCommand
 {
 public:
-	SE_editNoteLenghtPianoRollAction( int nColumn, int nRealColumn, int length, int oldLength, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine){
+        SE_editNoteLengthPianoRollAction( int nColumn, int nRealColumn, int length, int oldLength, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine){
 	setText( QString( "Change piano roll note length " ) );
 	__nColumn = nColumn;
 	__nRealColumn = nRealColumn;
