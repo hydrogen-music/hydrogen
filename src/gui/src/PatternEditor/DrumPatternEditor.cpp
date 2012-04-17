@@ -46,8 +46,6 @@
 #include <cassert>
 #include <algorithm>
 
-#include <QtGui>
-
 using namespace std;
 using namespace H2Core;
 
@@ -63,7 +61,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , m_pPattern( NULL )
  , m_pPatternEditorPanel( panel )
 {
-	//setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy(Qt::ClickFocus);
 
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
@@ -224,7 +221,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
             return;
         }
 
-        // AudioEngine::get_instance()->lock( RIGHT_HERE );
         m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
         // needed for undo note length
         __nRealColumn = nRealColumn;
@@ -235,7 +231,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
         } else {
             __oldLength = -1;
         }
-        // AudioEngine::get_instance()->unlock();
     }
 }
 
@@ -267,7 +262,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-        //int nInstruments = pSong->get_instrument_list()->size();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 	m_bRightBtnPressed = false;
@@ -432,7 +426,6 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 
     Note *pDraggedNote;
     Song *pSong = pEngine->getSong();
-    int nInstruments = pSong->get_instrument_list()->size();
     Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
     AudioEngine::get_instance()->lock( RIGHT_HERE );
     pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
@@ -870,7 +863,6 @@ void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	/// \todo [DrumPatternEditor::setResolution] aggiornare la risoluzione del Ruler in alto."
 }
 
 
@@ -922,7 +914,6 @@ void DrumPatternEditor::patternChangedEvent()
 
 void DrumPatternEditor::selectedPatternChangedEvent()
 {
-	//cout << "selected pattern changed EVENT" << endl;
 	updateEditor();
 }
 
