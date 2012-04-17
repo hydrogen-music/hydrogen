@@ -418,7 +418,7 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 
-void DrumPatternEditor::editNoteLenghtAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber )
+void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber )
 {
     Hydrogen *pEngine = Hydrogen::get_instance();
     PatternList *pPatternList = pEngine->getSong()->get_pattern_list();

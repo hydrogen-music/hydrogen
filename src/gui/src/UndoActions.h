@@ -603,13 +603,13 @@ public:
 	{
 		//qDebug() << "Change note length Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->editNoteLenghtAction( __nColumn,  __nRealColumn, __row, __oldLength, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->editNoteLengthAction( __nColumn,  __nRealColumn, __row, __oldLength, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Change note length Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->editNoteLenghtAction( __nColumn,  __nRealColumn, __row, __length, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->editNoteLengthAction( __nColumn,  __nRealColumn, __row, __length, __selectedPatternNumber );
 	}
 private:
 	int __nColumn;
