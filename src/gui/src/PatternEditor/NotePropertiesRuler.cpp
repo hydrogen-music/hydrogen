@@ -1015,13 +1015,6 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		p.setPen( QPen( res_1, 1, Qt::DashLine ) );
 		if (y == 40) p.setPen( QPen( QColor(0,0,0), 1, Qt::SolidLine ) );
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
-/*		if (y == 20 )p.drawText ( 5, y +2 , QString("O")); 
-		if (y == 30 )p.drawText ( 6, y +2 , QString("c"));
-		if (y == 40 )p.drawText ( 7, y +2 , QString("t"));
-		if (y == 50 )p.drawText ( 5, y +2 , QString("a")); 
-		if (y == 60 )p.drawText ( 6, y +2 , QString("v"));
-		if (y == 70 )p.drawText ( 6, y +2 , QString("e"));
-*/
 	}
 
 	for (unsigned y = 90; y < 210; y = y + 10 ) {
@@ -1029,16 +1022,6 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) 
 			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) ); 
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
-/*		if (y == 100 )p.drawText ( 5, y +2 , QString("H")); 
-		if (y == 110 )p.drawText ( 6, y +2 , QString("a"));
-		if (y == 120 )p.drawText ( 7, y +2 , QString("l"));
-		if (y == 130 )p.drawText ( 5, y +2 , QString("f"));
-		if (y == 150 )p.drawText ( 5, y +2 , QString("s")); 
-		if (y == 160 )p.drawText ( 6, y +2 , QString("t"));
-		if (y == 170 )p.drawText ( 7, y +2 , QString("e"));
-		if (y == 180 )p.drawText ( 5, y +2 , QString("p"));
-		if (y == 190 )p.drawText ( 5, y +2 , QString("s"));
-*/
 	}
 
 	// vertical lines

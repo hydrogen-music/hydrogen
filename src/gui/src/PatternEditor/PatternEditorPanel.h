@@ -24,8 +24,6 @@
 #ifndef PATTERN_EDITOR_PANEL_H
 #define PATTERN_EDITOR_PANEL_H
 
-#include <QtGui>
-
 #include <hydrogen/object.h>
 
 #include "PianoRollEditor.h"

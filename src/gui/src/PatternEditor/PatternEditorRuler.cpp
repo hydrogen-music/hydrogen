@@ -20,19 +20,21 @@
  *
  */
 
-#include <QTimer>
-#include <QPainter>
-
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 using namespace H2Core;
 
+#include <QTimer>
+#include <QPainter>
+
+
 #include "PatternEditorRuler.h"
 #include "PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+
 
 const char* PatternEditorRuler::__class_name = "PatternEditorRuler";
 
@@ -46,7 +48,6 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	Preferences *pPref = Preferences::get_instance();
 
-	//QColor backgroundColor(230, 230, 230);
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 
@@ -58,7 +59,6 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_nRulerHeight = 25;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
-//	setFixedSize( size() );
 
 	bool ok = m_tickPosition.load( Skin::getImagePath() + "/patternEditor/tickPosition.png" );
 	if( ok == false ){
@@ -146,7 +146,6 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	if (oldNTicks != m_nTicks) {
 		// redraw all
 		bRedrawAll = true;
-		//update( 0, 0, width(), height() );
 	}
 	oldNTicks = m_nTicks;
 

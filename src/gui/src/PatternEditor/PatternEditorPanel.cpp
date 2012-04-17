@@ -50,8 +50,6 @@ using namespace H2Core;
 
 #include <cmath>
 
-#include <QtGui>
-
 
 void PatternEditorPanel::updateSLnameLabel( )
 {
@@ -119,7 +117,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	}
 	__pattern_size_combo->update();
 	connect(__pattern_size_combo, SIGNAL( valueChanged( QString ) ), this, SLOT( patternSizeChanged(QString) ) );
-	//editor_top_hbox->addWidget(__pattern_size_combo);
 
 
 	// GRID resolution
@@ -140,7 +137,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->update();
 	__resolution_combo->move( 121, 2 );
 	connect(__resolution_combo, SIGNAL(valueChanged(QString)), this, SLOT(gridResolutionChanged(QString)));
-	//editor_top_hbox->addWidget(__resolution_combo);
 
 
 	PixmapWidget *pRec = new PixmapWidget( NULL );
@@ -254,8 +250,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 	editor_top_hbox_2->addWidget(__show_drum_btn);
 
-// hide the butten during develop on piano roll editor
-//__show_drum_btn->hide();
 
 //---------------------------------------------------------------------------------------
 
@@ -267,11 +261,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/songEditor/btn_new_over.png",
 			QSize(19, 13)
 	);
-// 	zoom_in_btn->move( 51, 3 );
-// 	zoom_in_btn->setText("+");
 	zoom_in_btn->setToolTip( trUtf8( "Zoom in" ) );
 	connect(zoom_in_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomInBtnClicked(Button*) ) );
-	//editor_top_hbox_2->addWidget(zoom_in_btn);
 
 
 	// zoom-out btn
@@ -282,11 +273,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/songEditor/btn_minus_over.png",
 			QSize(19, 13)
 	);
-// 	zoom_out_btn->move( 2, 3 );
-	//zoom_out_btn->setText("-");
 	zoom_out_btn->setToolTip( trUtf8( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomOutBtnClicked(Button*) ) );
-	//editor_top_hbox_2->addWidget(zoom_out_btn);
 
 
 // End Editor TOP
@@ -331,9 +319,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
-
-//	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
-
 
 	m_pPianoRollScrollView->hide();
 
@@ -437,7 +422,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternNameLbl = new QLabel( NULL );
 	m_pPatternNameLbl->setFont( boldFont );
 	m_pPatternNameLbl->setText( "pattern name label" );
-	//m_pPatternNameLbl->setFixedWidth(200);
 	m_pPatternNameLbl->setPalette(label_palette);
 
 
@@ -677,7 +661,6 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name();
 		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg( sCurrentPatternName ) ) );
-		//m_pNameLCD->setText( sCurrentPatternName );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
 		// update pattern size combobox
@@ -694,7 +677,6 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		m_pPattern = NULL;
 
 		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg(QString("No pattern selected.")) ) );
-		//m_pNameLCD->setText( trUtf8( "No pattern selected" ) );
 		m_pPatternNameLbl->setText( trUtf8( "No pattern selected" ) );
 	}
 
@@ -754,12 +736,7 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
 
-//	if ( m_pPianoRollScrollView->isVisible() ) {
-//		pScrollArea = m_pPianoRollScrollView;
-//	}
-//	else {
-		pScrollArea = m_pEditorScrollView;
-//	}
+        pScrollArea = m_pEditorScrollView;
 
 	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
 	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
@@ -778,7 +755,6 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 void PatternEditorPanel::showEvent ( QShowEvent *ev )
 {
 	UNUSED( ev );
-//	m_pPatternEditorVScrollBar->setValue( m_pPatternEditorVScrollBar->maximum() );
 }
 
 
@@ -905,7 +881,6 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 
 	if ( nSelected > 0 && nSelected <= 32 ) {
 		m_pPattern->set_length( nEighth * nSelected );
-		//m_pPatternSizeLCD->setText( QString( "%1" ).arg( nSelected ) );
 	}
 	else {
 		ERRORLOG( QString("[patternSizeChanged] Unhandled case %1").arg( nSelected ) );

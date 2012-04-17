@@ -24,7 +24,6 @@
 #define PATTERN_EDITOR_RULER_H
 
 #include "../EventListener.h"
-
 #include <QtGui>
 #include <hydrogen/object.h>
 
