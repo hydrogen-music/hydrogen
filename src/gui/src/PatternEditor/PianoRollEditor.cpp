@@ -519,7 +519,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
                 if ( ev->modifiers() & Qt::ShiftModifier ){
 
-                    SE_addNoteRightClickPianoRollAction *action = new SE_addNoteRightClickPianoRollAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
+                    SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
                     HydrogenApp::get_instance()->m_undoStack->push( action );
                     return;
                 }
@@ -615,7 +615,8 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 					     float oldPan_R,
 					     float oldLeadLag,
 					     int oldNoteKeyVal,
-					     int oldOctaveKeyVal )
+                                             int oldOctaveKeyVal,
+                                             bool noteOff   )
 {
        Hydrogen *pEngine = Hydrogen::get_instance();
        Song *pSong = pEngine->getSong();
@@ -657,20 +658,31 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 
        if ( bNoteAlreadyExist == false ) {
               // create the new note
-              const unsigned nPosition = nColumn;
-              const float fVelocity = oldVelocity;
-              const float fPan_L = oldPan_L;
-              const float fPan_R = oldPan_R;
+              unsigned nPosition = nColumn;
+              float fVelocity = oldVelocity;
+              float fPan_L = oldPan_L;
+              float fPan_R = oldPan_R;
               int nLength = oldLength;
-              const float fPitch = 0.0f;
+              float fPitch = 0.0f;
+
+              if(noteOff)
+              {
+                  fVelocity = 0.0f;
+                  fPan_L = 0.5f;
+                  fPan_R = 0.5f;
+                  nLength = 1;
+                  fPitch = 0.0f;
+              }
+
+
               Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-              pNote->set_note_off( false );
-              pNote->set_lead_lag( oldLeadLag );
+              pNote->set_note_off( noteOff );
+              if(! noteOff) pNote->set_lead_lag( oldLeadLag );
               pNote->set_key_octave( pressednotekey, pressedoctave );
               pPattern->insert_note( pNote );
               // hear note
               Preferences *pref = Preferences::get_instance();
-              if ( pref->getHearNewNotes() ) {
+              if ( pref->getHearNewNotes() && !noteOff ) {
                      Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
                      pNote2->set_key_octave( pressednotekey, pressedoctave );
                      AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
@@ -690,6 +702,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 
 void PianoRollEditor::addNoteRightClickAction( int nColumn, int pressedLine, int selectedPatternNumber, int selectedinstrument)
 {
+    qDebug() << "addNoteRightClickAction";
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
@@ -925,7 +938,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 
                 if( m_pDraggedNote->get_length() != __oldLength )
                 {
-                    SE_editNoteLengthPianoRollAction *action = new SE_editNoteLengthPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
+                    SE_editPianoRollNoteLengthAction *action = new SE_editPianoRollNoteLengthAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
                     HydrogenApp::get_instance()->m_undoStack->push( action );
                 }
 
