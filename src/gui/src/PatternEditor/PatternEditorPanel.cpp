@@ -955,8 +955,6 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteVelocityScrollView->show();
 
-                Preferences::get_instance()->__rightclickedpattereditor = 2;
-
 		m_pNoteVelocityEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Pan" ) ) {
@@ -965,7 +963,6 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNotePanScrollView->show();
 
-                Preferences::get_instance()->__rightclickedpattereditor = 3;
 
 		m_pNotePanEditor->updateEditor();
 	}
@@ -975,7 +972,6 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
 
-                Preferences::get_instance()->__rightclickedpattereditor = 4;
  
 		m_pNoteLeadLagEditor->updateEditor();
 	}

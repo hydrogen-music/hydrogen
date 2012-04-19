@@ -154,12 +154,6 @@ Preferences::Preferences()
 	__playsamplesonclicking = false; // audio file browser
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
-	//	__rightclickedpattereditor
-	//	2 = edit velocity
-	//	3 = edit pan
-	//	4 = edit lead lag
-        __rightclickedpattereditor = 2;
-
 	recordEvents = false; // not recording by default
  	destructiveRecord = false; // not destructively recording by default
 	punchInPos = 0;
