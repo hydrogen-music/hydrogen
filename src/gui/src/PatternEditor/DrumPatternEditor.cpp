@@ -163,7 +163,15 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
         return;
     }
     Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-    if (ev->button() == Qt::LeftButton ) {
+
+
+    if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
+    {
+        //shift + leftClick: add noteOff note
+        SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
+        HydrogenApp::get_instance()->m_undoStack->push( action );
+    }
+    else if (ev->button() == Qt::LeftButton ) {
 
         H2Core::Note *pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
 
@@ -207,19 +215,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
     } else if (ev->button() == Qt::RightButton ) {
         m_bRightBtnPressed = true;
-
-        // __rightclickedpattereditor
-        // 0 = note length
-        // 1 = note off"
-        // 2 = edit velocity
-        // 3 = edit pan
-        // 4 = edit lead lag
-
-        if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
-            SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
-            HydrogenApp::get_instance()->m_undoStack->push( action );
-            return;
-        }
 
         m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
         // needed for undo note length
