@@ -522,7 +522,8 @@ public:
                                                                                               __oldOctaveKeyVal,
                                                                                               __listen,
                                                                                               __isMidi,
-                                                                                              __isInstrumentMode);
+                                                                                              __isInstrumentMode,
+                                                                                              false  );
 	} 
 	virtual void redo()
 	{
@@ -540,7 +541,8 @@ public:
                                                                                               __oldOctaveKeyVal,
                                                                                               __listen,
                                                                                               __isMidi,
-                                                                                              __isInstrumentMode);
+                                                                                              __isInstrumentMode,
+                                                                                             false  );
 	}
 private:
 	int __nColumn;
@@ -573,13 +575,13 @@ public:
 	{
 		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-                h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false);
+                h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true);
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addNoteRightClickAction( __nColumn, __nRow, __selectedPatternNumber );
+                h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true);
 	}
 private:
 	int __nColumn;

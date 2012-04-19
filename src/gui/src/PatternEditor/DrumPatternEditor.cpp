@@ -241,7 +241,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
                                                int oldOctaveKeyVal,
                                                bool listen,
                                                bool isMidi,
-                                               bool isInstrumentMode)
+                                               bool isInstrumentMode,
+                                               bool isNoteOff)
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -294,23 +295,33 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 
         if ( bNoteAlreadyExist == false ) {
 		// create the new note
-		const unsigned nPosition = nColumn;
-		const float fVelocity = oldVelocity;
-		const float fPan_L = oldPan_L ;
-		const float fPan_R = oldPan_R;
+                unsigned nPosition = nColumn;
+                float fVelocity = oldVelocity;
+                float fPan_L = oldPan_L ;
+                float fPan_R = oldPan_R;
 		int nLength = oldLength;
+
+
+                if( isNoteOff )
+                {
+                    fVelocity = 0.0f;
+                    fPan_L = 0.5f;
+                    fPan_R = 0.5f;
+                    nLength = 1;
+                }
 
 		const float fPitch = 0.0f;
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		pNote->set_note_off( false );
-		pNote->set_lead_lag( oldLeadLag );
-               pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
+                pNote->set_note_off( isNoteOff );
+                if( !isNoteOff ) pNote->set_lead_lag( oldLeadLag );
+                pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
 		pPattern->insert_note( pNote );
-               if(isMidi){
+
+                if(isMidi){
                       pNote->set_just_recorded(true);
                }
                 // hear note
-                if ( listen ) {
+                if ( listen && !isNoteOff ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 		}
@@ -364,7 +375,7 @@ void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row, int selec
 	const float fPan_L = 0.5f;
 	const float fPan_R = 0.5f;
 	const int nLength = 1;
-	const float fPitch = 0.0f;
+        const float fPitch = 0.0f;
 	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 	poffNote->set_note_off( true );
 	pPattern->insert_note( poffNote );
@@ -446,6 +457,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 	if (row >= MAX_INSTRUMENTS) {
 		return;
 	}
+
 
         if ( m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
