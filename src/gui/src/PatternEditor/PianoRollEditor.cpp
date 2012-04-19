@@ -38,6 +38,7 @@ using namespace H2Core;
 
 #include "../HydrogenApp.h"
 
+
 const char* PianoRollEditor::__class_name = "PianoRollEditor";
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel )
@@ -567,13 +568,8 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
 		}
 
-//
-		//	__rightclickedpattereditor
-		//	2 = edit velocity
-		//	3 = edit pan
-		//	4 = edit lead lag
 
-		if ( Preferences::get_instance()->__rightclickedpattereditor == 1){
+                if ( ev->modifiers() & Qt::ShiftModifier ){
 
 			SE_addNoteRightClickPianoRollAction *action = new SE_addNoteRightClickPianoRollAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
 			HydrogenApp::get_instance()->m_undoStack->push( action );
@@ -797,8 +793,10 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	}
 
+        QString selectedProperty = m_pPatternEditorPanel->getPropertiesComboText();
+
 	//edit velocity
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 2 ) ) {
+        if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty == trUtf8( "Velocity" ) ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -832,7 +830,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	//edit pan
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 3 ) ) {
+        if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty == trUtf8( "Pan" ) ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -873,7 +871,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	//edit lead lag
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 4 ) ) {
+        if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty ==  trUtf8( "Lead and Lag" )) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -933,13 +931,8 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 
 		SE_editNoteLengthPianoRollAction *action = new SE_editNoteLengthPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
-		return;
-	}
 
-        if ( m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor >=2 ) ) {
-		if ( m_pDraggedNote->get_note_off() ) return;
-
-		SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
+                SE_editNotePropertiesPianoRollAction *action_2 = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
 													 m_pDraggedNote->get_position(),
 													 __selectedPatternNumber,
 													 __selectedInstrumentnumber,
@@ -952,7 +945,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 													 __leadLag,
 													  __oldLeadLag,
 													 __pressedLine );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+                HydrogenApp::get_instance()->m_undoStack->push( action_2 );
 	}
 }
 

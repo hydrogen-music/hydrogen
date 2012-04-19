@@ -28,6 +28,7 @@
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
+#include "../widgets/LCDCombo.h"
 
 class Button;
 class ToggleButton;
@@ -39,6 +40,8 @@ class LCDCombo;
 class DrumPatternEditor;
 class PianoRollEditor;
 
+
+enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
 namespace H2Core
 {
@@ -64,6 +67,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
+                QString getPropertiesComboText(){ return __pPropertiesCombo->getText(); }
 
 		void updateSLnameLabel();
 		void displayorHidePrePostCB();
@@ -116,7 +120,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		// ~Editor top
 
-		//
+                //note properties combo
 		LCDCombo * __pPropertiesCombo;
 
 		// drum editor
@@ -151,8 +155,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		// note notekey editor
 		QScrollArea* m_pNoteNoteKeyScrollView;
 		NotePropertiesRuler *m_pNoteNoteKeyEditor;
-		
-
 
 		QScrollBar *m_pPatternEditorHScrollBar;
 		QScrollBar *m_pPatternEditorVScrollBar;
