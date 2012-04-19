@@ -929,10 +929,17 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
         if ( m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
-		SE_editNoteLengthPianoRollAction *action = new SE_editNoteLengthPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
 
-                SE_editNotePropertiesPianoRollAction *action_2 = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
+
+                if( m_pDraggedNote->get_length() != __oldLength )
+                {
+                    SE_editNoteLengthPianoRollAction *action = new SE_editNoteLengthPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
+                    HydrogenApp::get_instance()->m_undoStack->push( action );
+                }
+
+
+                if( __velocity == __oldVelocity &&  __oldLeadLag == __leadLag && __oldPan_L == __pan_L && __oldPan_R == __pan_R ) return;
+                SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
 													 m_pDraggedNote->get_position(),
 													 __selectedPatternNumber,
 													 __selectedInstrumentnumber,
@@ -945,7 +952,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 													 __leadLag,
 													  __oldLeadLag,
 													 __pressedLine );
-                HydrogenApp::get_instance()->m_undoStack->push( action_2 );
+                HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 }
 
