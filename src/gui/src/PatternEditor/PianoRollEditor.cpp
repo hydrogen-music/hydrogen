@@ -569,8 +569,6 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
 //
 		//	__rightclickedpattereditor
-		//	0 = note length
-		//	1 = note off"
 		//	2 = edit velocity
 		//	3 = edit pan
 		//	4 = edit lead lag
@@ -767,7 +765,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	//	3 = edit pan
 	//	4 = edit lead lag
 
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
+        if (m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 		int nTickColumn = getColumn( ev );
 
@@ -930,7 +928,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
+        if ( m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		SE_editNoteLengthPianoRollAction *action = new SE_editNoteLengthPianoRollAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
@@ -938,7 +936,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor >=2 ) ) {
+        if ( m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor >=2 ) ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),

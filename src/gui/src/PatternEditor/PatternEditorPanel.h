@@ -97,7 +97,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void moveUpBtnClicked(Button *);
 
 		void playselectedinstrument( QString text );
-		void rightclickSelect( QString text );
 		void recPreDeleteSelect( int index );
 		void recPostDeleteSelect( int index );
 
@@ -169,9 +168,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		Button *sizeDropdownBtn;
 		Button *resDropdownBtn;
-
-
-		QComboBox* __rightclickSelection;
  
 		bool m_bEnablePatternResize;
 

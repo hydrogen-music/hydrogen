@@ -398,7 +398,7 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
+        if ( m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber);
@@ -447,14 +447,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		return;
 	}
 
-	//	__rightclickedpattereditor
-	//	0 = note length
-	//	1 = note off"
-	//	2 = edit velocity
-	//	3 = edit pan
-	//	4 = edit lead lag
-
-	if (m_bRightBtnPressed && m_pDraggedNote && ( Preferences::get_instance()->__rightclickedpattereditor == 0 ) ) {
+        if ( m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 		int nTickColumn = getColumn( ev );
 

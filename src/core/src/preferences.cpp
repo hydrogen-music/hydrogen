@@ -155,12 +155,10 @@ Preferences::Preferences()
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
 	//	__rightclickedpattereditor
-	//	0 = note length
-	//	1 = note off"
 	//	2 = edit velocity
 	//	3 = edit pan
 	//	4 = edit lead lag
-	__rightclickedpattereditor = 0; //right click into pattern editor add note-off-note or edit note-length
+        __rightclickedpattereditor = 2;
 
 	recordEvents = false; // not recording by default
  	destructiveRecord = false; // not destructively recording by default
