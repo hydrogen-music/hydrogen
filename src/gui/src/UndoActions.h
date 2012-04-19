@@ -985,13 +985,13 @@ public:
 	{
 		//qDebug() << "Change note length Piano Roll Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction( __nColumn, __nRealColumn, __oldLength, __selectedPatternNumber, __nSelectedInstrumentnumber,  __pressedLine);
+                h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLengthAction( __nColumn, __nRealColumn, __oldLength, __selectedPatternNumber, __nSelectedInstrumentnumber,  __pressedLine);
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Change note length Piano RollRedo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLenghtAction(    __nColumn,
+                h2app->getPatternEditorPanel()->getPianoRollEditor()->editNoteLengthAction(    __nColumn,
 												__nRealColumn,
 												__length,
 												__selectedPatternNumber,

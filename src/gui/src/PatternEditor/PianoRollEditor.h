@@ -76,7 +76,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 						float pan_R,
 						float leadLag, 
 						int pressedLine );
-		void editNoteLenghtAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
+                void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
 
 	public slots:
 		void updateEditor();

@@ -910,7 +910,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 
-void PianoRollEditor::editNoteLenghtAction( int nColumn,  int nRealColumn,  int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedline)
+void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedline)
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
