@@ -3,7 +3,10 @@
         * new build system (cmake)
         * add undo for song/pattern editor
         * jack-session support
-        * some bug fixes
+	* jack-midi support
+        * several bug fixes
+	* tabbed interface
+	* several small changes to the GUI
         * improve ExportSong add use of TimeLineBPM,
           RubberbandBatch processor and different types of resample interpolation
 
