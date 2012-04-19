@@ -700,58 +700,6 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 }
 
 
-void PianoRollEditor::addNoteRightClickAction( int nColumn, int pressedLine, int selectedPatternNumber, int selectedinstrument)
-{
-    qDebug() << "addNoteRightClickAction";
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	H2Core::Pattern *pPattern;
-
-	Instrument *pSelectedInstrument = NULL;
-	pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
-	assert(pSelectedInstrument);
-
-	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = NULL;
-	}
-
-    Note::Octave pressedoctave = (Note::Octave)(3 - (pressedLine / 12 ));
-    Note::Key pressednotekey;
-	if ( pressedLine < 12 ){
-		pressednotekey = (Note::Key)(11 - pressedLine);
-	}
-	else
-	{
-		pressednotekey = (Note::Key)(11 - pressedLine % 12);
-	}
-
-	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-	// create the new note
-	const unsigned nPosition = nColumn;
-	const float fVelocity = 0.0f;
-	const float fPan_L = 0.5f;
-	const float fPan_R = 0.5f;
-	const int nLength = 1;
-	const float fPitch = 0.0f;
-	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-	poffNote->set_note_off( true );
-    poffNote->set_key_octave( pressednotekey, pressedoctave );
-	pPattern->insert_note( poffNote );
-
-	pSong->__is_modified = true;
-	AudioEngine::get_instance()->unlock(); // unlock the audio engine
-
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
-}
 
 
 

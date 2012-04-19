@@ -345,61 +345,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
 }
 
 
-void DrumPatternEditor::addNoteRightClickAction( int nColumn, int row, int selectedPatternNumber )
-{
-
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-
-	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = NULL;
-	}
-
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-
-
-	m_bRightBtnPressed = true;
-	m_pDraggedNote = NULL;
-
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-	// create the new note
-	const unsigned nPosition = nColumn;
-	const float fVelocity = 0.0f;
-	const float fPan_L = 0.5f;
-	const float fPan_R = 0.5f;
-	const int nLength = 1;
-        const float fPitch = 0.0f;
-	Note *poffNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-	poffNote->set_note_off( true );
-	pPattern->insert_note( poffNote );
-
-	pSong->__is_modified = true;
-
-	AudioEngine::get_instance()->unlock();
-
-	// update the selected line
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	if (nSelectedInstrument != row) {
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
-	}
-	else {
-		update( 0, 0, width(), height() );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-	}
-}
-
-
 void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 {
 	UNUSED( ev );

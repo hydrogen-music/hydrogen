@@ -67,7 +67,6 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
                                              int oldOctaveKeyVal,
                                              bool noteOff);
 
-		void addNoteRightClickAction( int nColumn, int pressedLine, int selectedPatternNumber, int  selectedInstrumentnumber);
 		void editNotePropertiesAction(   int nColumn,
 						int nRealColumn,
 						int selectedPatternNumber,
