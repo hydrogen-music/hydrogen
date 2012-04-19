@@ -517,6 +517,13 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
 	if (ev->button() == Qt::LeftButton ) {
 
+                if ( ev->modifiers() & Qt::ShiftModifier ){
+
+                    SE_addNoteRightClickPianoRollAction *action = new SE_addNoteRightClickPianoRollAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
+                    HydrogenApp::get_instance()->m_undoStack->push( action );
+                    return;
+                }
+
 		unsigned nRealColumn = 0;
 		if( ev->x() > 20 ) {
 			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
@@ -566,14 +573,6 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		unsigned nRealColumn = 0;
 		if( ev->x() > 20 ) {
 			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
-		}
-
-
-                if ( ev->modifiers() & Qt::ShiftModifier ){
-
-			SE_addNoteRightClickPianoRollAction *action = new SE_addNoteRightClickPianoRollAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
-
 		}
 
 
@@ -753,13 +752,6 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	if (row >= (int) m_nOctaves * 12 ) {
 		return;
 	}
-
-	//	__rightclickedpattereditor
-	//	0 = note length
-	//	1 = note off"
-	//	2 = edit velocity
-	//	3 = edit pan
-	//	4 = edit lead lag
 
         if (m_bRightBtnPressed && m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
