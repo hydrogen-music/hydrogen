@@ -1,4 +1,5 @@
 
+#include <unistd.h>
 #include <hydrogen/helpers/filesystem.h>
 
 #include <hydrogen/basics/drumkit.h>
