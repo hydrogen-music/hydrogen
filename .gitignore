@@ -2,6 +2,8 @@
 *.o
 ui_*.h
 moc_*.cc
+CmakeLists.txt
+.gitignore
 /build
 /libs/hydrogen/include/hydrogen/config.h
 /cmake_opts
