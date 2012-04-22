@@ -452,25 +452,33 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	}
 
 	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
+            if( templateCombo->currentIndex() != 9 ){
 		templateCombo->setCurrentIndex( 9 );//ogg
-	}
+            }
+        }
 	else if( filename.endsWith( ".flac" ) || filename.endsWith( ".FLAC" ) ){
 		label->show();
 		label_2->show();
-		templateCombo->setCurrentIndex( 8 );//flac
+                if( templateCombo->currentIndex() != 8 ){
+                    templateCombo->setCurrentIndex( 8 );//flac
+                }
 	}
 	else if( filename.endsWith( ".aiff" ) || filename.endsWith( ".AIFF" ) ){
 		label->show();
 		label_2->show();
-		templateCombo->setCurrentIndex( 5 );//aiff
+                if( templateCombo->currentIndex() < 5 || templateCombo->currentIndex() > 7 ){
+                    templateCombo->setCurrentIndex( 5 );//aiff
+                }
 	}
 	else if( filename.endsWith( ".wav" ) || filename.endsWith( ".WAV" ) ){
 		label->show();
 		label_2->show();
-		templateCombo->setCurrentIndex( 0 );//wav
-	}
-}
+                if( templateCombo->currentIndex() > 4 ){
+                    templateCombo->setCurrentIndex( 0 );//wav
 
+                }
+        }
+}
 
 void ExportSongDialog::progressEvent( int nValue )
 {
