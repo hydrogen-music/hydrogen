@@ -3,8 +3,6 @@
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-set(CMAKE_OSX_ARCHITECTURES "x86_64"
-      CACHE STRING "Build architectures for OSX" FORCE)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.
 # http://www.cmake.org/cmake/help/cmake2.6docs.html#command:cmake_policy
@@ -168,7 +166,7 @@ FIND_HELPER(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
-FIND_HELPER(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
+FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 # CHECK FOR Qt4
 SET(QT_USE_QTNETWORK true)
 SET(QT_USE_QTXML true)
