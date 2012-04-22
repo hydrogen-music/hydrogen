@@ -391,7 +391,7 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
-
+                       m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
 			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
 			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
@@ -743,6 +743,8 @@ void Preferences::savePreferences()
 
         LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
         LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
+
+        LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );

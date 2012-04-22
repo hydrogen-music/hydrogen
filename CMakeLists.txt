@@ -1,6 +1,7 @@
 #
 # CMAKE SETUP
 #
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.

@@ -374,7 +374,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pRubberBPMChange->move( 133, 3 );
 	m_pRubberBPMChange->setToolTip( trUtf8("Recalculate Rubberband modified samples if bpm will change") );
-	m_pRubberBPMChange->setPressed(false);
+        m_pRubberBPMChange->setPressed( Preferences::get_instance()->getRubberBandBatchMode());
 	connect( m_pRubberBPMChange, SIGNAL( clicked( Button* ) ), this, SLOT(rubberbandButtonToggle( Button* ) ) );
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
 	//test the path. if test fails, no button
