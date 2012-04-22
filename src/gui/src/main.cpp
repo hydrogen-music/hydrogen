@@ -411,13 +411,6 @@ int main(int argc, char *argv[])
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );
-		bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
-		if( loadlist ){
-			Playlist::get_instance()->setNextSongByNumber( 0 );
-		}else
-		{
-			___ERRORLOG ( "Error loading the playlist" );
-		}
 
                 if( ! playlistFilename.isEmpty() ){
                     bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
