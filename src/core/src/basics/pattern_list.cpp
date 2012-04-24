@@ -125,8 +125,6 @@ Pattern* PatternList::del( Pattern* pattern )
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
-    ERRORLOG( QString("idx=%1 and __patterns.size()=%2").arg( idx ).arg( __patterns.size() ) );
-
     /*
      * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
      * idx is > __pattern.size(). thats why i add +1 to assert expression
