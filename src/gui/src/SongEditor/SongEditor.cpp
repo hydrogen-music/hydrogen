@@ -885,6 +885,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	line = new QLineEdit( "Inline Pattern Name", this );
 	line->setFrame( false );
 	line->hide();
+        line->setAcceptDrops( false );
 	connect( line, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
 	connect( line, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
 
