@@ -54,6 +54,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_useLashCheckbox_clicked();
                 void onMidiDriverComboBoxIndexChanged( int index );
                 void toggleTrackOutsCheckBox(bool toggled);
+                void metronomeOutputcomboBoxIndexChanged( int index);
 
 	private:
 		bool m_bNeedDriverRestart;

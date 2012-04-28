@@ -220,7 +220,11 @@ class Note : public H2Core::Object
         /** __note_key_pitch accessor (__octave * KEYS_PER_OCTAVE + __key) */
         float get_notekey_pitch() const;
         //* returns octave*12+key+pitch */
-        float get_total_pitch() const;
+        float get_total_pitch() const;       
+        /** set the output of the note */
+        void set_output(int output);
+        /** get the output of the note */
+        int is_output() const;
 
         /** return a string representation of key-actove */
         QString key_to_string();
@@ -269,6 +273,13 @@ class Note : public H2Core::Object
          */
         void compute_lr_values( float* val_l, float* val_r );
 
+        ///< main out, monitor out ore both
+        enum note_output {
+                MAIN_OUT,
+                MONITOR_OUT,
+                BOTH
+        };
+
     private:
         Instrument* __instrument;   ///< the instrument to be played by this note
         int __instrument_id;        ///< the id of the instrument played by this note
@@ -294,6 +305,7 @@ class Note : public H2Core::Object
         int __midi_msg;             ///< TODO
         bool __note_off;            ///< note type on|off
         bool __just_recorded;       ///< used in record+delete
+        int __output;               ///< main out, monitor out ore both
         static const char* __key_str[]; ///< used to build QString from __key an __octave
 };
 
@@ -485,6 +497,16 @@ inline float Note::get_notekey_pitch() const
 inline float Note::get_total_pitch() const
 {
     return __octave * KEYS_PER_OCTAVE + __key + __pitch;
+}
+
+inline void Note::set_output( int output)
+{
+    __output = output;
+}
+
+inline int Note::is_output() const
+{
+    return __output;
 }
 
 inline void Note::set_key_octave( Key key, Octave octave )

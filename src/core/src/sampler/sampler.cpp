@@ -470,16 +470,21 @@ int Sampler::__render_note_no_resample(
 
                 // to main/monitor mix
                 int output = pNote->get_instrument()->is_output();
+                // prior note output settings
+                if( pNote->is_output() > output ){
+                       output = pNote->is_output();
+                }
+
                 switch (output){
-                case 0:
+                case 0: // Main Out
                        __main_out_L[nBufferPos] += fVal_L;
                        __main_out_R[nBufferPos] += fVal_R;
                        break;
-                case 1:
+                case 1: // Monitor Out
                        __monitor_out_L[nBufferPos] += fVal_L;
                        __monitor_out_R[nBufferPos] += fVal_R;
                        break;
-                case 2:
+                case 2: // Both
                        __main_out_L[nBufferPos] += fVal_L;
                        __main_out_R[nBufferPos] += fVal_R;
                        __monitor_out_L[nBufferPos] += fVal_L;
@@ -675,25 +680,29 @@ int Sampler::__render_note_resample(
 			fInstrPeak_R = fVal_R;
 		}
 
-		// to main mix
+                // to main/monitor mix
+                int output = pNote->get_instrument()->is_output();
+                // prior note output settings
+                if( pNote->is_output() > output ){
+                       output = pNote->is_output();
+                }
 
-               int output = pNote->get_instrument()->is_output();
-               switch (output){
-               case 0:
-                      __main_out_L[nBufferPos] += fVal_L;
-                      __main_out_R[nBufferPos] += fVal_R;
-                      break;
-               case 1:
-                      __monitor_out_L[nBufferPos] += fVal_L;
-                      __monitor_out_R[nBufferPos] += fVal_R;
-                      break;
-               case 2:
-                      __main_out_L[nBufferPos] += fVal_L;
-                      __main_out_R[nBufferPos] += fVal_R;
-                      __monitor_out_L[nBufferPos] += fVal_L;
-                      __monitor_out_R[nBufferPos] += fVal_R;
-                      break;
-               }
+                switch (output){
+                case 0: // Main Out
+                       __main_out_L[nBufferPos] += fVal_L;
+                       __main_out_R[nBufferPos] += fVal_R;
+                       break;
+                case 1: // Monito Out
+                       __monitor_out_L[nBufferPos] += fVal_L;
+                       __monitor_out_R[nBufferPos] += fVal_R;
+                       break;
+                case 2: // Both
+                       __main_out_L[nBufferPos] += fVal_L;
+                       __main_out_R[nBufferPos] += fVal_R;
+                       __monitor_out_L[nBufferPos] += fVal_L;
+                       __monitor_out_R[nBufferPos] += fVal_R;
+                       break;
+                }
 
 		fSamplePos += fStep;
 	}
