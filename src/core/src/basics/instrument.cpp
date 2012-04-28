@@ -62,7 +62,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
     , __soloed( false )
     , __muted( false )
     , __mute_group( -1 )
-    , __output( BOTH )
+    , __output( MAIN_OUT )
     , __queued( 0 )
 {
     if ( __adsr==0 ) __adsr = new ADSR();

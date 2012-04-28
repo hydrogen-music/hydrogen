@@ -1312,7 +1312,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
                             m_pMetronomeInstrument->set_volume(
                                                  Preferences::get_instance()->m_fMetronomeVolume
                                                  );
-                            m_pMetronomeInstrument->set_output( 1 ); // read from preferneces here
+                            m_pMetronomeInstrument->set_output( Preferences::get_instance()->getMetronomeOut() );
                             Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
                                                              tick,
                                                              fVelocity,

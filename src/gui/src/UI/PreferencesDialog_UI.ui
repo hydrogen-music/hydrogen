@@ -369,7 +369,7 @@
        <x>10</x>
        <y>10</y>
        <width>333</width>
-       <height>346</height>
+       <height>371</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -608,6 +608,32 @@
           <property name="text">
            <string>Polyphony</string>
           </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Metronome Output</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="metronomeOutputcomboBox">
+          <item>
+           <property name="text">
+            <string>Main Out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Monitor Out</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Both</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>

@@ -200,6 +200,7 @@ public:
 	QString m_sAudioDriver;		///< Audio Driver
 	bool m_bUseMetronome;		///< Use metronome?
 	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
+        int __metronomeOutput;         ///< which output use the metronome
 	unsigned m_nMaxNotes;		///< max notes
 	unsigned m_nBufferSize;		///< Audio buffer size
 	unsigned m_nSampleRate;		///< Audio sample rate
@@ -607,6 +608,14 @@ public:
 	void setLastOpenTab(int n){
 		m_nLastOpenTab = n;
 	}
+
+        void setMetronomeOut( int val){
+            __metronomeOutput = val;
+        }
+
+        int getMetronomeOut(){
+            return __metronomeOutput;
+        }
 
 private:
 	static Preferences *__instance;

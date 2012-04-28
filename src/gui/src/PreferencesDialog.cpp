@@ -122,6 +122,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	uint metronomeVol = (uint)( pPref->m_fMetronomeVolume * 100.0 );
 	metronomeVolumeSpinBox->setValue(metronomeVol);
 
+
 	// max voices
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
 
@@ -153,6 +154,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 
         resampleComboBox->setCurrentIndex( (int) AudioEngine::get_instance()->get_sampler()->getInterpolateMode() );
+        metronomeOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getMetronomeOut() );
 
 	// Appearance tab
 	QString applicationFamily = pPref->getApplicationFontFamily();

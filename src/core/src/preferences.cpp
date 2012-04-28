@@ -183,7 +183,8 @@ Preferences::Preferences()
 	//___ audio engine properties ___
 	m_sAudioDriver = QString("Auto");
 	m_bUseMetronome = false;
-	m_fMetronomeVolume = 0.5;
+        m_fMetronomeVolume = 0.5;
+        __metronomeOutput = 0;
 	m_nMaxNotes = 256;
 	m_nBufferSize = 1024;
 	m_nSampleRate = 44100;
@@ -470,6 +471,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sAudioDriver = LocalFileMng::readXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
 				m_bUseMetronome = LocalFileMng::readXmlBool( audioEngineNode, "use_metronome", m_bUseMetronome );
 				m_fMetronomeVolume = LocalFileMng::readXmlFloat( audioEngineNode, "metronome_volume", 0.5f );
+                               __metronomeOutput = LocalFileMng::readXmlInt( audioEngineNode, "metronomeOutput", __metronomeOutput );
 				m_nMaxNotes = LocalFileMng::readXmlInt( audioEngineNode, "maxNotes", m_nMaxNotes );
 				m_nBufferSize = LocalFileMng::readXmlInt( audioEngineNode, "buffer_size", m_nBufferSize );
 				m_nSampleRate = LocalFileMng::readXmlInt( audioEngineNode, "samplerate", m_nSampleRate );
@@ -822,6 +824,7 @@ void Preferences::savePreferences()
 		// use metronome
 		LocalFileMng::writeXmlString( audioEngineNode, "use_metronome", m_bUseMetronome ? "true": "false" );
 		LocalFileMng::writeXmlString( audioEngineNode, "metronome_volume", QString("%1").arg( m_fMetronomeVolume ) );
+                LocalFileMng::writeXmlString( audioEngineNode, "metronomeOutput", QString("%1").arg( __metronomeOutput) );
 		LocalFileMng::writeXmlString( audioEngineNode, "maxNotes", QString("%1").arg( m_nMaxNotes ) );
 		LocalFileMng::writeXmlString( audioEngineNode, "buffer_size", QString("%1").arg( m_nBufferSize ) );
 		LocalFileMng::writeXmlString( audioEngineNode, "samplerate", QString("%1").arg( m_nSampleRate ) );
