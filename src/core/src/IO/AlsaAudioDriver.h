@@ -58,6 +58,8 @@ public:
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();
+        virtual float* getMonitorOut_L();
+        virtual float* getMonitorOut_R();
 
 	virtual void updateTransportInfo();
 	virtual void play();

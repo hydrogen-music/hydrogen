@@ -158,7 +158,8 @@ Instrument *m_pMetronomeInstrument = NULL;	///< Metronome instrument
 unsigned m_nBufferSize = 0;
 float *m_pMainBuffer_L = NULL;
 float *m_pMainBuffer_R = NULL;
-
+float *m_pMonitorBuffer_L = NULL;
+float *m_pMonitorBuffer_R = NULL;
 
 Hydrogen* hydrogenInstance = NULL;   ///< Hydrogen class instance (used for log)
 
@@ -286,6 +287,8 @@ void audioEngine_init()
 
        m_pMainBuffer_L = NULL;
        m_pMainBuffer_R = NULL;
+       m_pMonitorBuffer_L = NULL;
+       m_pMonitorBuffer_R = NULL;
 
        srand( time( NULL ) );
 
@@ -702,14 +705,19 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
        if ( m_pAudioDriver ) {
               m_pMainBuffer_L = m_pAudioDriver->getOut_L();
               m_pMainBuffer_R = m_pAudioDriver->getOut_R();
+              m_pMonitorBuffer_L = m_pAudioDriver->getMonitorOut_L();
+              m_pMonitorBuffer_R = m_pAudioDriver->getMonitorOut_R();
        } else {
               m_pMainBuffer_L = m_pMainBuffer_R = 0;
+              m_pMonitorBuffer_L = m_pMonitorBuffer_R = 0;
        }
        if ( m_pMainBuffer_L ) {
               memset( m_pMainBuffer_L, 0, nFrames * sizeof( float ) );
+              memset( m_pMonitorBuffer_L, 0, nFrames * sizeof( float ) );
        }
        if ( m_pMainBuffer_R ) {
               memset( m_pMainBuffer_R, 0, nFrames * sizeof( float ) );
+              memset( m_pMonitorBuffer_R, 0, nFrames * sizeof( float ) );
        }
 
 #ifdef H2CORE_HAVE_JACK
@@ -813,13 +821,17 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
        // SAMPLER
        AudioEngine::get_instance()->get_sampler()->process( nframes, m_pSong );
        float* out_L = AudioEngine::get_instance()->get_sampler()->__main_out_L;
-       float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;
+       float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;// hier gehts weiter
+       float* monitor_out_L = AudioEngine::get_instance()->get_sampler()->__monitor_out_L;
+       float* monitor_out_R = AudioEngine::get_instance()->get_sampler()->__monitor_out_R;// hier gehts weiter
        for ( unsigned i = 0; i < nframes; ++i ) {
               m_pMainBuffer_L[ i ] += out_L[ i ];
               m_pMainBuffer_R[ i ] += out_R[ i ];
+              m_pMonitorBuffer_L[ i ] += monitor_out_L[ i ];
+              m_pMonitorBuffer_R[ i ] += monitor_out_R[ i ];
        }
 
-       // SYNTH
+       // SYNTH ..todo: monitor output
        AudioEngine::get_instance()->get_synth()->process( nframes );
        out_L = AudioEngine::get_instance()->get_synth()->m_pOut_L;
        out_R = AudioEngine::get_instance()->get_synth()->m_pOut_R;
@@ -853,6 +865,10 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
                             for ( unsigned i = 0; i < nframes; ++i ) {
                                    m_pMainBuffer_L[ i ] += buf_L[ i ];
                                    m_pMainBuffer_R[ i ] += buf_R[ i ];
+                                   // fx on monitoring need some rewrites because we dont want
+                                   // other instruments effect return signals in pre defined monitor signal path
+                                   // m_pMonitorBuffer_L[ i ] += buf_L[ i ];
+                                   // m_pMonitorBuffer_R[ i ] += buf_R[ i ];
                                    if ( buf_L[ i ] > m_fFXPeak_L[nFX] )
                                           m_fFXPeak_L[nFX] = buf_L[ i ];
                                    if ( buf_R[ i ] > m_fFXPeak_R[nFX] )
@@ -1296,6 +1312,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
                             m_pMetronomeInstrument->set_volume(
                                                  Preferences::get_instance()->m_fMetronomeVolume
                                                  );
+                            m_pMetronomeInstrument->set_output( 1 ); // read from preferneces here
                             Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
                                                              tick,
                                                              fVelocity,

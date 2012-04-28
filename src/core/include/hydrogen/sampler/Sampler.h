@@ -49,6 +49,8 @@ class Sampler : public H2Core::Object
 public:
 	float *__main_out_L;	///< sampler main out (left channel)
 	float *__main_out_R;	///< sampler main out (right channel)
+        float *__monitor_out_L;	///< sampler monitor out (left channel)
+        float *__monitor_out_R;	///< sampler monitor out (right channel)
 
 	Sampler();
 	~Sampler();

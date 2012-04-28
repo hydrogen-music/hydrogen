@@ -77,7 +77,7 @@ public:
 
 
 	void makeTrackOutputs( Song * );
-	void setTrackOutput( int, Instrument * );
+        void setTrackOutput( int, Instrument * );
 
 	void setConnectDefaults( bool flag ) {
 		connect_out_flag = flag;
@@ -88,6 +88,8 @@ public:
 
 	float* getOut_L();
 	float* getOut_R();
+        float* getMonitorOut_L();
+        float* getMonitorOut_R();
 	float* getTrackOut_L( unsigned nTrack );
 	float* getTrackOut_R( unsigned nTrack );
 
@@ -137,6 +139,8 @@ private:
 	JackProcessCallback processCallback;
 	jack_port_t *output_port_1;
 	jack_port_t *output_port_2;
+        jack_port_t *monitor_output_port_3;
+        jack_port_t *monitor_output_port_4;
 	QString output_port_name_1;
 	QString output_port_name_2;
 	int track_port_count;

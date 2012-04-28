@@ -146,6 +146,14 @@ float* PortAudioDriver::getOut_R()
 	return m_pOut_R;
 }
 
+float* PortAudioDriver::getMetronomeOut_L()
+{
+}
+
+float* PortAudioDriver::getMetronomeOut_R()
+{
+}
+
 void PortAudioDriver::updateTransportInfo()
 {
 }

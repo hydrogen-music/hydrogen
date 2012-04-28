@@ -74,6 +74,13 @@ class DiskWriterDriver : public AudioOutput
 		float* getOut_R() {
 			return m_pOut_R;
 		}
+                float* getMonitorOut_L()
+                {
+                }
+
+                float* getMonitorOut_R()
+                {
+                }
 	
 		virtual void play();
 		virtual void stop();

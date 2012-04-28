@@ -48,6 +48,8 @@ public:
 
 	float* getOut_L();
 	float* getOut_R();
+        float* getMonitorOut_L();
+        float* getMonitorOut_R();
 
 	virtual void play();
 	virtual void stop();

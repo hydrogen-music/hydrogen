@@ -305,6 +305,13 @@ float* CoreAudioDriver::getOut_R()
 }
 
 
+float* CoreAudioDriver::getMonitorOut_L()
+{
+}
+
+float* CoreAudioDriver::getMonitorOut_R()
+{
+}
 
 unsigned CoreAudioDriver::getBufferSize()
 {

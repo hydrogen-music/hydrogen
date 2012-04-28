@@ -94,6 +94,14 @@ float* FakeDriver::getOut_R()
 	return m_pOut_R;
 }
 
+float* FakeDriver::getMonitorOut_L()
+{
+}
+
+
+float* FakeDriver::getMonitorOut_R()
+{
+}
 
 void FakeDriver::play()
 {

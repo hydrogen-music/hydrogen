@@ -147,20 +147,24 @@ int JackOutput::connect()
 	if ( connect_output_ports ) {
 //	if ( connect_out_flag ) {
 		// connect the ports
-		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
-		        jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
-			return 0;
-		}
+               if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
+                             jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 &&
+                             jack_connect( client, jack_port_name( monitor_output_port_3 ), output_port_name_1.toLocal8Bit() ) == 0 &&
+                             jack_connect ( client, jack_port_name( monitor_output_port_4 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
+                      return 0;
+               }
 
 		INFOLOG( "Could not connect so saved out-ports. Connecting to first pair of in-ports" );
 		const char ** portnames = jack_get_ports ( client, NULL, NULL, JackPortIsInput );
-		if ( !portnames || !portnames[0] || !portnames[1] ) {
+                if ( !portnames || !portnames[0] || !portnames[1]/*|| !portnames[2] || !portnames[3]*/ ) {
 			ERRORLOG( "Could't locate two Jack input port" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
 		if ( jack_connect( client, jack_port_name( output_port_1 ), portnames[0] ) != 0 ||
-		        jack_connect( client, jack_port_name( output_port_2 ), portnames[1] ) != 0 ) {
+                        jack_connect( client, jack_port_name( output_port_2 ), portnames[1] ) != 0 ||
+                        jack_connect( client, jack_port_name( monitor_output_port_3 ), portnames[0] ) != 0 ||
+                        jack_connect( client, jack_port_name( monitor_output_port_4 ), portnames[1] ) != 0 ) {
 			ERRORLOG( "Could't connect to first pair of Jack input ports" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
@@ -428,7 +432,17 @@ float* JackOutput::getOut_R()
 	return out;
 }
 
+float* JackOutput::getMonitorOut_L()
+{
+        jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( monitor_output_port_3, jack_server_bufferSize );
+        return out;
+}
 
+float* JackOutput::getMonitorOut_R()
+{
+        jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( monitor_output_port_4, jack_server_bufferSize );
+        return out;
+}
 
 float* JackOutput::getTrackOut_L( unsigned nTrack )
 {
@@ -594,8 +608,9 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	/* create two ports */
 	output_port_1 = jack_port_register ( client, "out_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 	output_port_2 = jack_port_register ( client, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-
-	if ( ( output_port_1 == NULL ) || ( output_port_2 == NULL ) ) {
+        monitor_output_port_3 = jack_port_register ( client, "Monitor_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+        monitor_output_port_4 = jack_port_register ( client, "Monitor_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+        if ( ( output_port_1 == NULL ) || ( output_port_2 == NULL ) ||( monitor_output_port_3 == NULL ) || ( monitor_output_port_4 == NULL )) {
 		( Hydrogen::get_instance() )->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 		return 4;
 	}
@@ -638,15 +653,15 @@ void JackOutput::makeTrackOutputs( Song * song )
 
 	InstrumentList * instruments = song->get_instrument_list();
 	Instrument * instr;
-	int nInstruments = ( int )instruments->size();
+        int nInstruments = ( int )instruments->size();
 
 	// create dedicated channel output ports
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
-	for ( int n = nInstruments - 1; n >= 0; n-- ) {
+        for ( int n = nInstruments - 1; n >= 0; n-- ) {
 		instr = instruments->get( n );
-		setTrackOutput( n, instr );
-	}
+                setTrackOutput( n, instr );
+        }
 	// clean up unused ports
 	jack_port_t *p_L, *p_R;
 	for ( int n = nInstruments; n < track_port_count; n++ ) {
@@ -658,7 +673,7 @@ void JackOutput::makeTrackOutputs( Song * song )
 		jack_port_unregister( client, p_R );
 	}
 
-	track_port_count = nInstruments;
+        track_port_count = nInstruments;
 }
 
 /**
@@ -682,7 +697,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 		track_port_count = n + 1;
 	}
 	// Now we're sure there is an n'th port, rename it.
-	chName = QString( "Track_%1_%2_" ).arg( n + 1 ).arg( instr->get_name() );
+        chName = QString( "Track_%1_%2_" ).arg( n + 1 ).arg( instr->get_name() );
 
 	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
 	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );

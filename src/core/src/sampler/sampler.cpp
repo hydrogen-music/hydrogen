@@ -57,12 +57,16 @@ Sampler::Sampler()
 		: Object( __class_name )
 		, __main_out_L( NULL )
 		, __main_out_R( NULL )
+                , __monitor_out_L( NULL )
+                , __monitor_out_R( NULL )
 		, __preview_instrument( NULL )
 {
 	INFOLOG( "INIT" );
         __interpolateMode = LINEAR;
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
+        __monitor_out_L = new float[ MAX_BUFFER_SIZE ];
+        __monitor_out_R = new float[ MAX_BUFFER_SIZE ];
 
 	// instrument used in file preview
 	QString sEmptySampleFilename = Filesystem::empty_sample();
@@ -79,6 +83,8 @@ Sampler::~Sampler()
 
 	delete[] __main_out_L;
 	delete[] __main_out_R;
+        delete[] __monitor_out_L;
+        delete[] __monitor_out_R;
 
 	delete __preview_instrument;
 	__preview_instrument = NULL;
@@ -93,6 +99,8 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
+        memset( __monitor_out_L, 0, nFrames * sizeof( float ) );
+        memset( __monitor_out_R, 0, nFrames * sizeof( float ) );
 
 	// Track output queues are zeroed by 
  	// audioEngine_process_clearAudioBuffers() 
@@ -392,7 +400,7 @@ int Sampler::__render_note_no_resample(
 	int nInitialSamplePos = ( int )pNote->get_sample_position();
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
+        int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
@@ -419,8 +427,8 @@ int Sampler::__render_note_no_resample(
 	float *track_out_R = 0; 
 	if( audio_output->has_track_outs() 
 	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
-		track_out_L = jao->getTrackOut_L( nInstrument ); 
-		track_out_R = jao->getTrackOut_R( nInstrument ); 
+                track_out_L = jao->getTrackOut_L( nInstrument );
+                track_out_R = jao->getTrackOut_R( nInstrument );
 	} 
 #endif 
 	
@@ -460,9 +468,24 @@ int Sampler::__render_note_no_resample(
 			fInstrPeak_R = fVal_R;
 		}
 
-		// to main mix
-		__main_out_L[nBufferPos] += fVal_L;
-		__main_out_R[nBufferPos] += fVal_R;
+                // to main/monitor mix
+                int output = pNote->get_instrument()->is_output();
+                switch (output){
+                case 0:
+                       __main_out_L[nBufferPos] += fVal_L;
+                       __main_out_R[nBufferPos] += fVal_R;
+                       break;
+                case 1:
+                       __monitor_out_L[nBufferPos] += fVal_L;
+                       __monitor_out_R[nBufferPos] += fVal_R;
+                       break;
+                case 2:
+                       __main_out_L[nBufferPos] += fVal_L;
+                       __main_out_R[nBufferPos] += fVal_R;
+                       __monitor_out_L[nBufferPos] += fVal_L;
+                       __monitor_out_R[nBufferPos] += fVal_R;
+                       break;
+                }
 
 		++nSamplePos;
 	}
@@ -653,8 +676,24 @@ int Sampler::__render_note_resample(
 		}
 
 		// to main mix
-		__main_out_L[nBufferPos] += fVal_L;
-		__main_out_R[nBufferPos] += fVal_R;
+
+               int output = pNote->get_instrument()->is_output();
+               switch (output){
+               case 0:
+                      __main_out_L[nBufferPos] += fVal_L;
+                      __main_out_R[nBufferPos] += fVal_R;
+                      break;
+               case 1:
+                      __monitor_out_L[nBufferPos] += fVal_L;
+                      __monitor_out_R[nBufferPos] += fVal_R;
+                      break;
+               case 2:
+                      __main_out_L[nBufferPos] += fVal_L;
+                      __main_out_R[nBufferPos] += fVal_R;
+                      __monitor_out_L[nBufferPos] += fVal_L;
+                      __monitor_out_R[nBufferPos] += fVal_R;
+                      break;
+               }
 
 		fSamplePos += fStep;
 	}

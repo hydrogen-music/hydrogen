@@ -85,10 +85,22 @@ float* NullDriver::getOut_L()
 
 float* NullDriver::getOut_R()
 {
-	INFOLOG( "not implemented yet" );
-	return NULL;
+        INFOLOG( "not implemented yet" );
+        return NULL;
 }
 
+float* NullDriver::getMonitorOut_L()
+{
+        INFOLOG( "not implemented yet" );
+        return NULL;
+}
+
+
+float* NullDriver::getMonitorOut_R()
+{
+        INFOLOG( "not implemented yet" );
+        return NULL;
+}
 
 void NullDriver::play()
 {

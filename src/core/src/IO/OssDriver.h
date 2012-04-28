@@ -78,6 +78,8 @@ public:
 	unsigned getSampleRate();
 	float* getOut_L();
 	float* getOut_R();
+        float* getMetronomeOut_L();
+        float* getMetronomeOut_R();
 
 	virtual void play();
 	virtual void stop();

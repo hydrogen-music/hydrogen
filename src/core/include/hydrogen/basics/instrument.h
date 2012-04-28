@@ -225,6 +225,11 @@ class Instrument : public H2Core::Object
         /** get the soloed status of the instrument */
         bool is_soloed() const;
 
+        /** set the output of the instrument */
+        void set_output(int output);
+        /** get the output of the instrument */
+        int is_output() const;
+
         /** enqueue the instrument */
         void enqueue();
         /** dequeue the instrument */
@@ -242,8 +247,15 @@ class Instrument : public H2Core::Object
         ///< get the name of the related drumkits
         const QString& get_drumkit_name() const;
 
+        ///< main out, monitor out ore both
+        enum instrument_output {
+                MAIN_OUT,
+                MONITOR_OUT,
+                BOTH
+        };
 
     private:
+
         int __id;			                    ///< instrument id, should be unique
         QString __name;			                ///< instrument name
         QString __drumkit_name;                         ///< the name of the drumkit this instrument belongs tos
@@ -265,6 +277,7 @@ class Instrument : public H2Core::Object
         bool __soloed;                          ///< is the instrument in solo mode?
         bool __muted;                           ///< is the instrument muted?
         int __mute_group;		                ///< mute group of the instrument
+        int __output;                           ///< main out, monitor out ore both
         int __queued;                           ///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
         float __fx_level[MAX_FX];	            ///< Ladspa FX level array
         InstrumentLayer* __layers[MAX_LAYERS];  ///< InstrumentLayer array
@@ -478,6 +491,16 @@ inline void Instrument::set_soloed( bool soloed )
 inline bool Instrument::is_soloed() const
 {
     return __soloed;
+}
+
+inline void Instrument::set_output( int output)
+{
+    __output = output;
+}
+
+inline int Instrument::is_output() const
+{
+    return __output;
 }
 
 inline void Instrument::enqueue()

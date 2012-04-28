@@ -293,6 +293,13 @@ float* AlsaAudioDriver::getOut_R()
 	return m_pOut_R;
 }
 
+float* AlsaAudioDriver::getMonitorOut_L()
+{
+}
+
+float* AlsaAudioDriver::getMonitorOut_R()
+{
+}
 
 void AlsaAudioDriver::updateTransportInfo()
 {

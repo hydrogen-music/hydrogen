@@ -294,6 +294,13 @@ float* OssDriver::getOut_R()
 	return out_R;
 }
 
+float* OssDriver::getMetronomeOut_L()
+{
+}
+float* OssDriver::getMetronomeOut_R()
+{
+}
+
 
 void OssDriver::play()
 {

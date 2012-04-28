@@ -73,6 +73,8 @@ public:
 
 	float* getOut_L();
 	float* getOut_R();
+        float* getMonitorOut_L();
+        float* getMonitorOut_R();
 
 	float* m_pOut_L;
 	float* m_pOut_R;

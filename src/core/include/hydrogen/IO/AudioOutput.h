@@ -50,8 +50,11 @@ public:
 	virtual unsigned getBufferSize() = 0;
 	virtual unsigned getSampleRate() = 0;
 	virtual float* getOut_L() = 0;
-	virtual float* getOut_R() = 0;
-
+        virtual float* getOut_R() = 0;
+#ifdef H2CORE_HAVE_JACK
+        virtual float* getMonitorOut_L() = 0;
+        virtual float* getMonitorOut_R() = 0;
+#endif
 	virtual void updateTransportInfo() = 0;
 	virtual void play() = 0;
 	virtual void stop() = 0;
