@@ -540,7 +540,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
         m_pMonitor = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Monitor" ), false, false );
-        m_pMonitor->move( 74, 214 );
+        m_pMonitor->move( 74, 215 );
         connect( m_pMonitor, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Mute btn

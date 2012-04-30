@@ -379,6 +379,7 @@ int Sampler::__render_note_no_resample(
 {
 	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
 	int retValue = 1; // the note is ended
+        float cost_MonitorVolumenLR = pSong->get_monitor_volume();
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
@@ -457,8 +458,11 @@ int Sampler::__render_note_no_resample(
 	}
 #endif
 
+                float fValMon_L = fVal_L * cost_MonitorVolumenLR;
+                float fValMon_R = fVal_R * cost_MonitorVolumenLR;
                 fVal_L = fVal_L * cost_L;
 		fVal_R = fVal_R * cost_R;
+
 
 		// update instr peak
 		if ( fVal_L > fInstrPeak_L ) {
@@ -481,14 +485,14 @@ int Sampler::__render_note_no_resample(
                        __main_out_R[nBufferPos] += fVal_R;
                        break;
                 case 1: // Monitor Out
-                       __monitor_out_L[nBufferPos] += fVal_L;
-                       __monitor_out_R[nBufferPos] += fVal_R;
+                       __monitor_out_L[nBufferPos] += fValMon_L;
+                       __monitor_out_R[nBufferPos] += fValMon_R;
                        break;
                 case 2: // Both
                        __main_out_L[nBufferPos] += fVal_L;
                        __main_out_R[nBufferPos] += fVal_R;
-                       __monitor_out_L[nBufferPos] += fVal_L;
-                       __monitor_out_R[nBufferPos] += fVal_R;
+                       __monitor_out_L[nBufferPos] += fValMon_L;
+                       __monitor_out_R[nBufferPos] += fValMon_R;
                        break;
                 }
 
@@ -549,6 +553,7 @@ int Sampler::__render_note_resample(
 )
 {
 	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
+        float cost_MonitorVolumenLR = pSong->get_monitor_volume();
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
 		nNoteLength = ( int )( pNote->get_length() * audio_output->m_transport.m_nTickSize );
@@ -669,6 +674,8 @@ int Sampler::__render_note_resample(
 	}
 #endif
 
+                float fValMon_L = fVal_L * cost_MonitorVolumenLR;
+                float fValMon_R = fVal_R * cost_MonitorVolumenLR;
 		fVal_L = fVal_L * cost_L;
 		fVal_R = fVal_R * cost_R;
 
@@ -693,14 +700,14 @@ int Sampler::__render_note_resample(
                        __main_out_R[nBufferPos] += fVal_R;
                        break;
                 case 1: // Monito Out
-                       __monitor_out_L[nBufferPos] += fVal_L;
-                       __monitor_out_R[nBufferPos] += fVal_R;
+                       __monitor_out_L[nBufferPos] += fValMon_L;
+                       __monitor_out_R[nBufferPos] += fValMon_R;
                        break;
                 case 2: // Both
                        __main_out_L[nBufferPos] += fVal_L;
                        __main_out_R[nBufferPos] += fVal_R;
-                       __monitor_out_L[nBufferPos] += fVal_L;
-                       __monitor_out_R[nBufferPos] += fVal_R;
+                       __monitor_out_L[nBufferPos] += fValMon_L;
+                       __monitor_out_R[nBufferPos] += fValMon_R;
                        break;
                 }
 
