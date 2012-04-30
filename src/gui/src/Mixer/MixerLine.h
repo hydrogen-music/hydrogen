@@ -174,6 +174,9 @@ class MasterMixerLine: public PixmapWidget
 		float getVolume();
 		void setVolume(float value);
 
+                float getMonitorVolume();
+                void setMonitorVolume(float value);
+
 		void setPeak_L(float peak);
 		float getPeak_L();
 
@@ -203,6 +206,7 @@ class MasterMixerLine: public PixmapWidget
 		LCDDisplay *m_pPeakLCD;
 
 		Rotary *m_pSwingRotary;
+                Rotary *m_pMonitor;
 		Rotary *m_pHumanizeTimeRotary;
 		Rotary *m_pHumanizeVelocityRotary;
 

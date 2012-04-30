@@ -560,6 +560,11 @@ void Mixer::updateMixer()
 	if (oldVolume != newVolume) {
 		m_pMasterLine->setVolume(newVolume);
 	}
+        float newMonitorVolume = pSong->get_monitor_volume();
+        float oldMonitorVolume = m_pMasterLine->getMonitorVolume();
+        if (oldMonitorVolume != newMonitorVolume) {
+                m_pMasterLine->setMonitorVolume(newMonitorVolume);
+        }
 	m_pMasterLine->updateMixerLine();
 
 

@@ -52,7 +52,7 @@ namespace H2Core
 
 const char* Song::__class_name = "Song";
 
-Song::Song( const QString& name, const QString& author, float bpm, float volume )
+Song::Song( const QString& name, const QString& author, float bpm, float volume, float monitor_volume )
     : Object( __class_name )
     , __is_muted( false )
     , __resolution( 48 )
@@ -61,6 +61,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
     , __name( name )
     , __author( author )
     , __volume( volume )
+    , __monitor_volume( monitor_volume )
     , __metronome_volume( 0.5 )
     , __pattern_list( NULL )
     , __pattern_group_sequence( NULL )
@@ -140,7 +141,7 @@ bool Song::save( const QString& filename )
 Song* Song::get_default_song()
 {
 
-    Song* song = new Song( "empty", "hydrogen", 120, 0.5 );
+    Song* song = new Song( "empty", "hydrogen", 120, 0.5, 0.5 );
 
     song->set_metronome_volume( 0.5 );
     song->set_notes( "..." );
@@ -183,6 +184,7 @@ Song* Song::get_empty_song()
 {
 
     Song* song = Song::load( Filesystem::empty_song() );
+    song->set_monitor_volume( 0.5 );
 
     /* if file DefaultSong.h2song not accessible
      * create a simple default song.
@@ -392,6 +394,7 @@ Song* SongReader::readSong( const QString& filename )
     float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
     Hydrogen::get_instance()->setNewBpmJTM( fBpm );
     float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
+    float fmonitorVolume = LocalFileMng::readXmlFloat( songNode, "monitor_volume", 0.5 );
     float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
     QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
     QString sAuthor( LocalFileMng::readXmlString( songNode, "author", "Unknown Author" ) );
@@ -409,7 +412,7 @@ Song* SongReader::readSong( const QString& filename )
     float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
     float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
 
-    song = new Song( sName, sAuthor, fBpm, fVolume );
+    song = new Song( sName, sAuthor, fBpm, fVolume, fmonitorVolume );
     song->set_metronome_volume( fMetronomeVolume );
     song->set_notes( sNotes );
     song->set_license( sLicense );

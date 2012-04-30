@@ -536,8 +536,12 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Swing" ), false, false );
-	m_pSwingRotary->move( 74, 162 );
+        m_pSwingRotary->move( 74, 162 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+
+        m_pMonitor = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Monitor" ), false, false );
+        m_pMonitor->move( 74, 214 );
+        connect( m_pMonitor, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Mute btn
 	m_pMuteBtn = new ToggleButton(
@@ -600,7 +604,17 @@ void MasterMixerLine::setVolume( float value )
 	m_pMasterFader->setValue( value );
 }
 
+float MasterMixerLine::getMonitorVolume()
+{
+        return m_pMonitor->getValue();
+}
 
+
+
+void MasterMixerLine::setMonitorVolume( float value )
+{
+        m_pMonitor->setValue( value );
+}
 
 void MasterMixerLine::setPeak_L(float peak)
 {
@@ -691,7 +705,8 @@ void MasterMixerLine::updateMixerLine()
 	if ( pSong ) {
 		m_pHumanizeTimeRotary->setValue( pSong->get_humanize_time_value() );
 		m_pHumanizeVelocityRotary->setValue( pSong->get_humanize_velocity_value() );
-		m_pSwingRotary->setValue( pSong->get_swing_factor() );
+                m_pSwingRotary->setValue( pSong->get_swing_factor() );
+                m_pMonitor->setValue( pSong->get_monitor_volume() );
 	}
 	else {
 		WARNINGLOG( "pSong == NULL ");
@@ -721,6 +736,10 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 		pEngine->getSong()->set_swing_factor( fVal );
 		sMsg = trUtf8( "Set swing factor [%1]").arg( sVal );
 	}
+        else if ( pRef == m_pMonitor ) {
+                pEngine->getSong()->set_monitor_volume(fVal);
+                sMsg = trUtf8( "Set monitor volume [%1]").arg( sVal );
+        }
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
 	}

@@ -1058,6 +1058,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "version", QString( get_version().c_str() ) );
 	LocalFileMng::writeXmlString( songNode, "bpm", QString("%1").arg( song->__bpm ) );
 	LocalFileMng::writeXmlString( songNode, "volume", QString("%1").arg( song->get_volume() ) );
+        LocalFileMng::writeXmlString( songNode, "monitor_volume",QString("%1").arg( song->get_monitor_volume() ) );
 	LocalFileMng::writeXmlString( songNode, "metronomeVolume", QString("%1").arg( song->get_metronome_volume() ) );
 	LocalFileMng::writeXmlString( songNode, "name", song->__name );
 	LocalFileMng::writeXmlString( songNode, "author", song->__author );

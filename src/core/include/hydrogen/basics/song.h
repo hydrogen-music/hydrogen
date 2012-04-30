@@ -78,7 +78,7 @@ class Song : public H2Core::Object
         static Song* get_empty_song();
         static Song* get_default_song();
 
-        Song( const QString& name, const QString& author, float bpm, float volume );
+        Song( const QString& name, const QString& author, float bpm, float volume, float monitor_volume );
         ~Song();
 
         /**
@@ -92,6 +92,13 @@ class Song : public H2Core::Object
         }
         float get_volume() {
             return __volume;
+        }
+
+        void set_monitor_volume( float val ) {
+            __monitor_volume = val;
+        }
+        float get_monitor_volume() {
+            return __monitor_volume;
         }
 
         void set_metronome_volume( float volume ) {
@@ -190,6 +197,7 @@ class Song : public H2Core::Object
     private:
         float __volume;						///< volume of the song (0.0..1.0)
         float __metronome_volume;				///< Metronome volume
+        float __monitor_volume;                               ///< Monitor volume
         QString __notes;
         PatternList* __pattern_list;				///< Pattern list
         std::vector<PatternList*>* __pattern_group_sequence;	///< Sequence of pattern groups

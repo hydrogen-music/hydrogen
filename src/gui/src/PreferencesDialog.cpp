@@ -123,7 +123,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	metronomeVolumeSpinBox->setValue(metronomeVol);
         metronomeOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getMetronomeOut() );
         connect( metronomeOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( metronomeOutputcomboBoxIndexChanged(int) ) );
-
+        //instrumentPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->instrumentPreviewOut() );
 
 	// max voices
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
