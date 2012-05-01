@@ -124,10 +124,24 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
         metronomeOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getMetronomeOut() );
         connect( metronomeOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( metronomeOutputcomboBoxIndexChanged(int) ) );
 
+        instrumentPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getInstrumentPreviewMonitor() );
+        connect( instrumentPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( instrumentPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        //instrumentPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->instrumentPreviewOut() );
+        patternEditPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternEditPreviewMonitor() );
+        connect( patternEditPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternEditPreviewOutputcomboBoxIndexChanged(int) ) );
+
+        patternPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternMonitor() );
+        connect( patternPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternPreviewOutputcomboBoxIndexChanged(int) ) );
+
+        loadLayerPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getLoadLayerPreviewMonitor() );
+        connect( loadLayerPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( loadLayerPreviewOutputcomboBoxIndexChanged(int) ) );
+
+        sampleEditorPlayButtonOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getSampleEditorPlayBtnMonitor() );
+        connect( sampleEditorPlayButtonOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( sampleEditorPlayButtonOutputcomboBoxIndexChanged(int) ) );
+        //--
         mainMonitorMixdial->setValue( Preferences::get_instance()->getMainToMonitorMixVal() * 100 );
         connect( mainMonitorMixdial, SIGNAL( valueChanged(int) ), this, SLOT( mainMixToMonitorMixDailValueChanged(int) ) );
+
 
 	// max voices
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
@@ -721,14 +735,38 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
         m_bNeedDriverRestart = true;
 }
 
+/// Monitoring tab
 void PreferencesDialog::metronomeOutputcomboBoxIndexChanged( int index )
 {
        Preferences::get_instance()->setMetronomeOut( index );
 }
 
+void PreferencesDialog::instrumentPreviewOutputcomboBoxIndexChanged( int index )
+{
+       Preferences::get_instance()->setInstrumentPreviewMonitor( index );
+}
+
+void PreferencesDialog::patternEditPreviewOutputcomboBoxIndexChanged( int index )
+{
+       Preferences::get_instance()->setPatternEditPreviewMonitor( index );
+}
+
+void PreferencesDialog::patternPreviewOutputcomboBoxIndexChanged( int index )
+{
+       Preferences::get_instance()->setPatternMonitor( index );
+}
+
+void PreferencesDialog::loadLayerPreviewOutputcomboBoxIndexChanged( int index )
+{
+       Preferences::get_instance()->setLoadLayerPreviewMonitor( index );
+}
+
+void PreferencesDialog::sampleEditorPlayButtonOutputcomboBoxIndexChanged( int index )
+{
+       Preferences::get_instance()->setSampleEditorPlayBtnMonitor( index );
+}
+
 void PreferencesDialog::mainMixToMonitorMixDailValueChanged( int val )
 {
        Preferences::get_instance()->setMainToMonitorMixVal( (float)val / 100.0);
-
-       qDebug()<<Preferences::get_instance()->getMainToMonitorMixVal() <<":" <<val;
 }

@@ -184,7 +184,13 @@ Preferences::Preferences()
 	m_sAudioDriver = QString("Auto");
 	m_bUseMetronome = false;
         m_fMetronomeVolume = 0.5;
-        __metronomeOutput = 0;
+        __metronomeOutput = 0;  
+        __instrumentPreviewMonitor = 0;
+        __patternEditPreviewMonitor = 0;
+        __patternMonitor = 0;
+        __loadLayerPreviewMonitor = 0;
+        __sampleEditorPlayBtnMonitor = 0;
+
         __mainToMonitorMixValue = 0.0;
 	m_nMaxNotes = 256;
 	m_nBufferSize = 1024;
@@ -473,6 +479,11 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_bUseMetronome = LocalFileMng::readXmlBool( audioEngineNode, "use_metronome", m_bUseMetronome );
 				m_fMetronomeVolume = LocalFileMng::readXmlFloat( audioEngineNode, "metronome_volume", 0.5f );
                                __metronomeOutput = LocalFileMng::readXmlInt( audioEngineNode, "metronomeOutput", __metronomeOutput );
+                               __instrumentPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "instrumentPreviewMonitor", __instrumentPreviewMonitor );
+                               __patternEditPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "patternEditPreviewMonitor", __patternEditPreviewMonitor );
+                               __patternMonitor = LocalFileMng::readXmlInt( audioEngineNode, "patternMonitor", __patternMonitor );
+                               __loadLayerPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "loadLayerPreviewMonitor", __loadLayerPreviewMonitor );
+                               __sampleEditorPlayBtnMonitor = LocalFileMng::readXmlInt( audioEngineNode, "sampleEditorPlayBtnMonitor", __sampleEditorPlayBtnMonitor );
                                __mainToMonitorMixValue = LocalFileMng::readXmlFloat( audioEngineNode, "main_monitor_mix", 0.0f );
 				m_nMaxNotes = LocalFileMng::readXmlInt( audioEngineNode, "maxNotes", m_nMaxNotes );
 				m_nBufferSize = LocalFileMng::readXmlInt( audioEngineNode, "buffer_size", m_nBufferSize );
@@ -827,6 +838,11 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( audioEngineNode, "use_metronome", m_bUseMetronome ? "true": "false" );
 		LocalFileMng::writeXmlString( audioEngineNode, "metronome_volume", QString("%1").arg( m_fMetronomeVolume ) );
                 LocalFileMng::writeXmlString( audioEngineNode, "metronomeOutput", QString("%1").arg( __metronomeOutput) );
+                LocalFileMng::writeXmlString( audioEngineNode, "instrumentPreviewMonitor", QString("%1").arg(__instrumentPreviewMonitor) );
+                LocalFileMng::writeXmlString( audioEngineNode, "patternEditPreviewMonitor", QString("%1").arg(__patternEditPreviewMonitor) );
+                LocalFileMng::writeXmlString( audioEngineNode, "patternMonitor", QString("%1").arg(__patternMonitor) );
+                LocalFileMng::writeXmlString( audioEngineNode, "loadLayerPreviewMonitor", QString("%1").arg(__loadLayerPreviewMonitor) );
+                LocalFileMng::writeXmlString( audioEngineNode, "sampleEditorPlayBtnMonitor", QString("%1").arg(__sampleEditorPlayBtnMonitor) );
                 LocalFileMng::writeXmlString( audioEngineNode, "main_monitor_mix", QString("%1").arg( __mainToMonitorMixValue) );
 		LocalFileMng::writeXmlString( audioEngineNode, "maxNotes", QString("%1").arg( m_nMaxNotes ) );
 		LocalFileMng::writeXmlString( audioEngineNode, "buffer_size", QString("%1").arg( m_nBufferSize ) );

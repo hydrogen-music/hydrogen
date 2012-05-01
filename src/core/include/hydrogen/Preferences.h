@@ -201,6 +201,11 @@ public:
 	bool m_bUseMetronome;		///< Use metronome?
 	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
         int __metronomeOutput;         ///< which output use the metronome
+        int __instrumentPreviewMonitor; ///< which output use the instrument preview
+        int __patternEditPreviewMonitor; ///< which output use pattern edit add notes
+        int __patternMonitor;          ///< pattern to monitor output
+        int __loadLayerPreviewMonitor;   ///< audio file browser prewiev out to monitor
+        int __sampleEditorPlayBtnMonitor; ///< sample editor preview to monitor
         float __mainToMonitorMixValue; ///< level adjust from main mix to monitor output
 	unsigned m_nMaxNotes;		///< max notes
 	unsigned m_nBufferSize;		///< Audio buffer size
@@ -616,6 +621,46 @@ public:
 
         int getMetronomeOut(){
             return __metronomeOutput;
+        }
+
+        void setInstrumentPreviewMonitor( int val){
+            __instrumentPreviewMonitor = val;
+        }
+
+        int getInstrumentPreviewMonitor(){
+            return __instrumentPreviewMonitor;
+        }
+
+        void setPatternEditPreviewMonitor( int val){
+            __patternEditPreviewMonitor = val;
+        }
+
+        int getPatternEditPreviewMonitor(){
+            return __patternEditPreviewMonitor;
+        }
+
+        void setPatternMonitor( int val){
+            __patternMonitor = val;
+        }
+
+        int getPatternMonitor(){
+            return __patternMonitor;
+        }
+
+        void setLoadLayerPreviewMonitor( int val){
+            __loadLayerPreviewMonitor = val;
+        }
+
+        int getLoadLayerPreviewMonitor(){
+            return __loadLayerPreviewMonitor;
+        }
+
+        void setSampleEditorPlayBtnMonitor( int val){
+            __sampleEditorPlayBtnMonitor = val;
+        }
+
+        int getSampleEditorPlayBtnMonitor(){
+            return __sampleEditorPlayBtnMonitor;
         }
 
         void setMainToMonitorMixVal( float val){
