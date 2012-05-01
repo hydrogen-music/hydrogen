@@ -821,12 +821,15 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
        // SAMPLER
        AudioEngine::get_instance()->get_sampler()->process( nframes, m_pSong );
        float* out_L = AudioEngine::get_instance()->get_sampler()->__main_out_L;
-       float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;// hier gehts weiter
+       float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;
        float* monitor_out_L = AudioEngine::get_instance()->get_sampler()->__monitor_out_L;
-       float* monitor_out_R = AudioEngine::get_instance()->get_sampler()->__monitor_out_R;// hier gehts weiter
+       float* monitor_out_R = AudioEngine::get_instance()->get_sampler()->__monitor_out_R;
+       float main_monitor_mix_amount = Preferences::get_instance()->getMainToMonitorMixVal();
        for ( unsigned i = 0; i < nframes; ++i ) {
               m_pMainBuffer_L[ i ] += out_L[ i ];
               m_pMainBuffer_R[ i ] += out_R[ i ];
+              monitor_out_L[ i ] += out_L[ i ] * main_monitor_mix_amount;
+              monitor_out_R[ i ] += out_R[ i ] * main_monitor_mix_amount;
               m_pMonitorBuffer_L[ i ] += monitor_out_L[ i ];
               m_pMonitorBuffer_R[ i ] += monitor_out_R[ i ];
        }

@@ -55,6 +55,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
                 void onMidiDriverComboBoxIndexChanged( int index );
                 void toggleTrackOutsCheckBox(bool toggled);
                 void metronomeOutputcomboBoxIndexChanged( int index);
+                void mainMixToMonitorMixDailValueChanged( int val);
 
 	private:
 		bool m_bNeedDriverRestart;

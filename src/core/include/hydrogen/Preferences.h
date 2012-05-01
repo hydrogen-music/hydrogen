@@ -201,6 +201,7 @@ public:
 	bool m_bUseMetronome;		///< Use metronome?
 	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
         int __metronomeOutput;         ///< which output use the metronome
+        float __mainToMonitorMixValue; ///< level adjust from main mix to monitor output
 	unsigned m_nMaxNotes;		///< max notes
 	unsigned m_nBufferSize;		///< Audio buffer size
 	unsigned m_nSampleRate;		///< Audio sample rate
@@ -615,6 +616,14 @@ public:
 
         int getMetronomeOut(){
             return __metronomeOutput;
+        }
+
+        void setMainToMonitorMixVal( float val){
+            __mainToMonitorMixValue = val;
+        }
+
+        float getMainToMonitorMixVal(){
+            return __mainToMonitorMixValue;
         }
 
 private:

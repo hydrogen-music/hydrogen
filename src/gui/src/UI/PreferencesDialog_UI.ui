@@ -129,7 +129,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_1">
     <attribute name="title">
@@ -883,7 +883,7 @@
        <x>40</x>
        <y>210</y>
        <width>401</width>
-       <height>26</height>
+       <height>31</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_12">
@@ -914,6 +914,32 @@
           <string>Both</string>
          </property>
         </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>250</y>
+       <width>401</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_13">
+      <item>
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Mix Main Out to Monitor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDial" name="mainMonitorMixdial">
+        <property name="maximum">
+         <number>120</number>
+        </property>
        </widget>
       </item>
      </layout>

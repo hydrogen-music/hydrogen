@@ -123,7 +123,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	metronomeVolumeSpinBox->setValue(metronomeVol);
         metronomeOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getMetronomeOut() );
         connect( metronomeOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( metronomeOutputcomboBoxIndexChanged(int) ) );
+
+
         //instrumentPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->instrumentPreviewOut() );
+        mainMonitorMixdial->setValue( Preferences::get_instance()->getMainToMonitorMixVal() * 100 );
+        connect( mainMonitorMixdial, SIGNAL( valueChanged(int) ), this, SLOT( mainMixToMonitorMixDailValueChanged(int) ) );
 
 	// max voices
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
@@ -720,4 +724,11 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 void PreferencesDialog::metronomeOutputcomboBoxIndexChanged( int index )
 {
        Preferences::get_instance()->setMetronomeOut( index );
+}
+
+void PreferencesDialog::mainMixToMonitorMixDailValueChanged( int val )
+{
+       Preferences::get_instance()->setMainToMonitorMixVal( (float)val / 100.0);
+
+       qDebug()<<Preferences::get_instance()->getMainToMonitorMixVal() <<":" <<val;
 }
