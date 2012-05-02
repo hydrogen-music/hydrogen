@@ -300,9 +300,6 @@ void MainForm::createMenuBar()
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
 
-//	if ( Preferences::get_instance()->getInterfaceMode() == Preferences::SINGLE_PANED ) {
-//		m_pWindowMenu->addAction( trUtf8("Show song editor"), this, SLOT( action_window_showSongEditor() ), QKeySequence( "" ) );
-//	}
 	m_pToolsMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pToolsMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
 
@@ -565,7 +562,6 @@ void MainForm::action_toggle_input_mode()
         Preferences::get_instance()->__playselectedinstrument = true;
         m_pInstrumentAction->setChecked( true );
         m_pDrumkitAction->setChecked (false );
-        qDebug() << "enabling instrument, disabling drumkit";
     } else {
         Preferences::get_instance()->__playselectedinstrument = false;
         m_pInstrumentAction->setChecked( false );
