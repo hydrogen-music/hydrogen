@@ -319,6 +319,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *note = new Note( instrList->get(nLine), 0, 1.0, 0.5f, 0.5f, -1, fPitch );
+        note->set_output( Preferences::get_instance()->getInstrumentPreviewMonitor() );
 	AudioEngine::get_instance()->get_sampler()->note_on(note);
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);

@@ -186,6 +186,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
 		
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
+                pNote->set_output( Preferences::get_instance()->getPatternEditPreviewMonitor() );
 		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {

@@ -323,6 +323,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(  int nColumn,
                 // hear note
                 if ( listen && !isNoteOff ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+                        pNote2->set_output( Preferences::get_instance()->getInstrumentPreviewMonitor() );
 			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 		}
 	}

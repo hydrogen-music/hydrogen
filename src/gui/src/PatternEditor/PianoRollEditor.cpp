@@ -685,6 +685,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
               if ( pref->getHearNewNotes() && !noteOff ) {
                      Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
                      pNote2->set_key_octave( pressednotekey, pressedoctave );
+                     pNote2->set_output( Preferences::get_instance()->getPatternEditPreviewMonitor() );
                      AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
               }
        }
