@@ -114,6 +114,8 @@ public slots:
 		void action_undo();
 		void action_redo();
 
+        void action_toggle_input_mode();
+
 		void handleSigUsr1();
 
 	private slots:
@@ -132,6 +134,9 @@ public slots:
 
                 void functionDeleteInstrument(int instrument);
 
+        QMenu *m_pInputModeMenu;
+        QAction *m_pInstrumentAction;
+        QAction *m_pDrumkitAction;
 
 		QMenu *m_pRecentFilesMenu;
 		QAction *m_pRecentFileAction0;
