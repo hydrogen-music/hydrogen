@@ -133,11 +133,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
         patternPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternMonitor() );
         connect( patternPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        loadLayerPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getLoadLayerPreviewMonitor() );
+        loadLayerPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
         connect( loadLayerPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( loadLayerPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        sampleEditorPlayButtonOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getSampleEditorPlayBtnMonitor() );
-        connect( sampleEditorPlayButtonOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( sampleEditorPlayButtonOutputcomboBoxIndexChanged(int) ) );
         //--
         mainMonitorMixdial->setValue( Preferences::get_instance()->getMainToMonitorMixVal() * 100 );
         connect( mainMonitorMixdial, SIGNAL( valueChanged(int) ), this, SLOT( mainMixToMonitorMixDailValueChanged(int) ) );
@@ -758,13 +756,9 @@ void PreferencesDialog::patternPreviewOutputcomboBoxIndexChanged( int index )
 
 void PreferencesDialog::loadLayerPreviewOutputcomboBoxIndexChanged( int index )
 {
-       Preferences::get_instance()->setLoadLayerPreviewMonitor( index );
+       Preferences::get_instance()->setLayerAndSndLibraryPreviewMonitor( index );
 }
 
-void PreferencesDialog::sampleEditorPlayButtonOutputcomboBoxIndexChanged( int index )
-{
-       Preferences::get_instance()->setSampleEditorPlayBtnMonitor( index );
-}
 
 void PreferencesDialog::mainMixToMonitorMixDailValueChanged( int val )
 {

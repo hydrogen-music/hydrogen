@@ -204,8 +204,7 @@ public:
         int __instrumentPreviewMonitor; ///< which output use the instrument preview
         int __patternEditPreviewMonitor; ///< which output use pattern edit add notes
         int __patternMonitor;          ///< pattern to monitor output
-        int __loadLayerPreviewMonitor;   ///< audio file browser prewiev out to monitor
-        int __sampleEditorPlayBtnMonitor; ///< sample editor preview to monitor
+        int __layerAndSndLibraryPreviewMonitor;   ///< audio file browser prewiev out to monitor
         float __mainToMonitorMixValue; ///< level adjust from main mix to monitor output
 	unsigned m_nMaxNotes;		///< max notes
 	unsigned m_nBufferSize;		///< Audio buffer size
@@ -647,20 +646,12 @@ public:
             return __patternMonitor;
         }
 
-        void setLoadLayerPreviewMonitor( int val){
-            __loadLayerPreviewMonitor = val;
+        void setLayerAndSndLibraryPreviewMonitor( int val){
+            __layerAndSndLibraryPreviewMonitor = val;
         }
 
-        int getLoadLayerPreviewMonitor(){
-            return __loadLayerPreviewMonitor;
-        }
-
-        void setSampleEditorPlayBtnMonitor( int val){
-            __sampleEditorPlayBtnMonitor = val;
-        }
-
-        int getSampleEditorPlayBtnMonitor(){
-            return __sampleEditorPlayBtnMonitor;
+        int getLayerAndSndLibraryPreviewMonitor(){
+            return __layerAndSndLibraryPreviewMonitor;
         }
 
         void setMainToMonitorMixVal( float val){

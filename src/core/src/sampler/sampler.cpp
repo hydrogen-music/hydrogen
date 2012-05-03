@@ -837,6 +837,7 @@ void Sampler::preview_sample( Sample* sample, int length )
 	pLayer->set_sample( sample );
 
 	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
+        previewNote->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
 
 	stop_playing_notes( __preview_instrument );
 	note_on( previewNote );

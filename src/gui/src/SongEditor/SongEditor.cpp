@@ -891,9 +891,12 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	this->resize( m_nWidth, m_nInitialHeight );
 
-	m_labelBackgroundLight.load( Skin::getImagePath() + "/songEditor/songEditorLabelBG.png" );
-	m_labelBackgroundDark.load( Skin::getImagePath() + "/songEditor/songEditorLabelABG.png" );
-	m_labelBackgroundSelected.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBG.png" );
+        m_labelBackgroundLight.load( Skin::getImagePath() + "/songEditor/songEditorLabelBG.png" );
+        m_labelBackgroundLightMonitor.load( Skin::getImagePath() + "/songEditor/songEditorLabelBGM.png" );
+        m_labelBackgroundDark.load( Skin::getImagePath() + "/songEditor/songEditorLabelABG.png" );
+        m_labelBackgroundDarkMonitor.load( Skin::getImagePath() + "/songEditor/songEditorLabelABGM.png" );
+        m_labelBackgroundSelected.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBG.png" );
+        m_labelBackgroundSelectedMonitor.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBGM.png" );
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 
@@ -949,13 +952,17 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
+        if(ev->modifiers() == Qt::ShiftModifier && ev->button() == Qt::LeftButton){
+               H2Core::Pattern *selectedPattern = song->get_pattern_list()->get(row);
+               selectedPattern->set_monitor( !selectedPattern->get_monitor() );
+        }
+        else if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
 		togglePattern( row );
 	} else {
-		engine->setSelectedPatternNumber( row );
+                engine->setSelectedPatternNumber( row );
 		if (ev->button() == Qt::RightButton)  {
 			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
-		}
+                }
 	}
 
 	createBackground();
@@ -1059,6 +1066,8 @@ void SongEditorPatternList::createBackground()
 	int nPatterns = pSong->get_pattern_list()->size();
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 
+
+
 	static int oldHeight = -1;
 	int newHeight = m_nGridHeight * nPatterns;
 
@@ -1077,16 +1086,32 @@ void SongEditorPatternList::createBackground()
 
 	for ( int i = 0; i < nPatterns; i++ ) {
 		uint y = m_nGridHeight * i;
+                H2Core::Pattern *selectedPattern = pSong->get_pattern_list()->get(i);
 		if ( i == nSelectedPattern ) {
-			p.drawPixmap( QPoint( 0, y ), m_labelBackgroundSelected );
+                       if(selectedPattern->get_monitor()){
+                              p.drawPixmap( QPoint( 0, y ), m_labelBackgroundSelectedMonitor );
+                       }else
+                       {
+                              p.drawPixmap( QPoint( 0, y ), m_labelBackgroundSelected );
+                       }
 		}
 		else {
-			if ( ( i % 2) == 0 ) {
-				p.drawPixmap( QPoint( 0, y ), m_labelBackgroundDark );
-			}
-			else {
-				p.drawPixmap( QPoint( 0, y ), m_labelBackgroundLight );
-			}
+                       if ( ( i % 2) == 0 ) {
+                              if(selectedPattern->get_monitor()){
+                                     p.drawPixmap( QPoint( 0, y ), m_labelBackgroundDarkMonitor );
+                              }else
+                              {
+                                     p.drawPixmap( QPoint( 0, y ), m_labelBackgroundDark );
+                              }
+                       }
+                       else {
+                              if(selectedPattern->get_monitor()){
+                                     p.drawPixmap( QPoint( 0, y ), m_labelBackgroundLightMonitor );
+                              }else
+                              {
+                                     p.drawPixmap( QPoint( 0, y ), m_labelBackgroundLight );
+                              }
+                       }
 		}
 	}
 

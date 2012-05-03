@@ -519,6 +519,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 	
 	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedlayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+        pNote->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 
 	setSamplelengthFrames();

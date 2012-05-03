@@ -99,6 +99,8 @@ class Pattern : public H2Core::Object
         const virtual_patterns_t* get_virtual_patterns() const;
         ///< get the flattened virtual pattern set
         const virtual_patterns_t* get_flattened_virtual_patterns() const;
+        void set_monitor( bool val );
+        bool get_monitor() const;
 
         /**
          * insert a new note within __notes
@@ -176,6 +178,7 @@ class Pattern : public H2Core::Object
         void extand_with_flattened_virtual_patterns( PatternList* patterns );
 
     private:
+        bool __monitor;                                         ///< pattern to monitor output
         int __length;                                           ///< the length of the pattern
         QString __name;                                         ///< the name of thepattern
         QString __category;                                     ///< the category of the pattern
@@ -285,6 +288,16 @@ inline void Pattern::virtual_patterns_del( Pattern* pattern )
 inline void Pattern::flattened_virtual_patterns_clear()
 {
     __flattened_virtual_patterns.clear();
+}
+
+inline void Pattern::set_monitor( bool val)
+{
+    __monitor = val;
+}
+
+inline bool Pattern::get_monitor() const
+{
+    return __monitor;
 }
 
 };

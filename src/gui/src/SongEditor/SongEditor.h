@@ -158,8 +158,11 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		QPixmap *m_pBackgroundPixmap;
 
 		QPixmap m_labelBackgroundLight;
+                QPixmap m_labelBackgroundLightMonitor;
 		QPixmap m_labelBackgroundDark;
+                QPixmap m_labelBackgroundDarkMonitor;
 		QPixmap m_labelBackgroundSelected;
+                QPixmap m_labelBackgroundSelectedMonitor;
 		QPixmap m_playingPattern_on_Pixmap;
 		QPixmap m_playingPattern_off_Pixmap;
 

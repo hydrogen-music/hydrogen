@@ -30,6 +30,8 @@
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>
+#include <hydrogen/Preferences.h>
+
 using namespace H2Core;
 
 #include "../Skin.h"
@@ -207,6 +209,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		float fVelocity = (float)ev->x() / (float)width();
 
 		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+                note->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
 		AudioEngine::get_instance()->get_sampler()->note_on(note);
 
 		for ( int i = 0; i < MAX_LAYERS; i++ ) {
@@ -232,6 +235,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 		if ( m_pInstrument->get_layer( m_nSelectedLayer ) ) {
 			Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
+                        note->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
 			AudioEngine::get_instance()->get_sampler()->note_on(note);
 		}
 

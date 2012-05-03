@@ -59,7 +59,6 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
                 void patternEditPreviewOutputcomboBoxIndexChanged(int index);
                 void patternPreviewOutputcomboBoxIndexChanged(int index);
                 void loadLayerPreviewOutputcomboBoxIndexChanged(int index);
-                void sampleEditorPlayButtonOutputcomboBoxIndexChanged(int index);
                 void mainMixToMonitorMixDailValueChanged( int val);
 
 	private:

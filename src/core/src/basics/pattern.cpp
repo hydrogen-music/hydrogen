@@ -42,6 +42,7 @@ Pattern::Pattern( const QString& name, const QString& category, int length )
     , __length( length )
     , __name( name )
     , __category( category )
+    , __monitor( false )
 {
 }
 
@@ -50,6 +51,7 @@ Pattern::Pattern( Pattern* other )
     , __length( other->get_length() )
     , __name( other->get_name() )
     , __category( other->get_category() )
+    , __monitor( other->get_monitor() )
 {
     FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
         __notes.insert( std::make_pair( it->first, new Note( it->second ) ) );

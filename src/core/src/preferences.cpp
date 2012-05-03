@@ -188,8 +188,7 @@ Preferences::Preferences()
         __instrumentPreviewMonitor = 0;
         __patternEditPreviewMonitor = 0;
         __patternMonitor = 0;
-        __loadLayerPreviewMonitor = 0;
-        __sampleEditorPlayBtnMonitor = 0;
+        __layerAndSndLibraryPreviewMonitor = 0;
 
         __mainToMonitorMixValue = 0.0;
 	m_nMaxNotes = 256;
@@ -482,8 +481,7 @@ void Preferences::loadPreferences( bool bGlobal )
                                __instrumentPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "instrumentPreviewMonitor", __instrumentPreviewMonitor );
                                __patternEditPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "patternEditPreviewMonitor", __patternEditPreviewMonitor );
                                __patternMonitor = LocalFileMng::readXmlInt( audioEngineNode, "patternMonitor", __patternMonitor );
-                               __loadLayerPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "loadLayerPreviewMonitor", __loadLayerPreviewMonitor );
-                               __sampleEditorPlayBtnMonitor = LocalFileMng::readXmlInt( audioEngineNode, "sampleEditorPlayBtnMonitor", __sampleEditorPlayBtnMonitor );
+                               __layerAndSndLibraryPreviewMonitor = LocalFileMng::readXmlInt( audioEngineNode, "loadLayerPreviewMonitor", __layerAndSndLibraryPreviewMonitor );
                                __mainToMonitorMixValue = LocalFileMng::readXmlFloat( audioEngineNode, "main_monitor_mix", 0.0f );
 				m_nMaxNotes = LocalFileMng::readXmlInt( audioEngineNode, "maxNotes", m_nMaxNotes );
 				m_nBufferSize = LocalFileMng::readXmlInt( audioEngineNode, "buffer_size", m_nBufferSize );
@@ -841,8 +839,7 @@ void Preferences::savePreferences()
                 LocalFileMng::writeXmlString( audioEngineNode, "instrumentPreviewMonitor", QString("%1").arg(__instrumentPreviewMonitor) );
                 LocalFileMng::writeXmlString( audioEngineNode, "patternEditPreviewMonitor", QString("%1").arg(__patternEditPreviewMonitor) );
                 LocalFileMng::writeXmlString( audioEngineNode, "patternMonitor", QString("%1").arg(__patternMonitor) );
-                LocalFileMng::writeXmlString( audioEngineNode, "loadLayerPreviewMonitor", QString("%1").arg(__loadLayerPreviewMonitor) );
-                LocalFileMng::writeXmlString( audioEngineNode, "sampleEditorPlayBtnMonitor", QString("%1").arg(__sampleEditorPlayBtnMonitor) );
+                LocalFileMng::writeXmlString( audioEngineNode, "loadLayerPreviewMonitor", QString("%1").arg(__layerAndSndLibraryPreviewMonitor) );
                 LocalFileMng::writeXmlString( audioEngineNode, "main_monitor_mix", QString("%1").arg( __mainToMonitorMixValue) );
 		LocalFileMng::writeXmlString( audioEngineNode, "maxNotes", QString("%1").arg( m_nMaxNotes ) );
 		LocalFileMng::writeXmlString( audioEngineNode, "buffer_size", QString("%1").arg( m_nBufferSize ) );

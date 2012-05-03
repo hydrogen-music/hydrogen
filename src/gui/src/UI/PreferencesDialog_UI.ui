@@ -852,7 +852,7 @@
          <string>Pattern Monitoring</string>
         </property>
         <property name="text">
-         <string>Load Layer Prewiew</string>
+         <string>SndLib, Layer, Sample Editor</string>
         </property>
        </widget>
       </item>
@@ -877,48 +877,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget_9">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>210</y>
-       <width>401</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_12">
-      <item>
-       <widget class="QLabel" name="label_8">
-        <property name="toolTip">
-         <string>Pattern Monitoring</string>
-        </property>
-        <property name="text">
-         <string>Sample Editor Play Button</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="sampleEditorPlayButtonOutputcomboBox">
-        <item>
-         <property name="text">
-          <string>Main Out</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Monitor Out</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Both</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>40</x>
