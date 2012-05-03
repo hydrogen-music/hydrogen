@@ -100,7 +100,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
-		void playselectedinstrument( QString text );
 		void recPreDeleteSelect( int index );
 		void recPostDeleteSelect( int index );
 
