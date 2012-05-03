@@ -214,17 +214,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget( __recpostdelete );
 	connect( __recpostdelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPostDeleteSelect( int) ) );
 
-	QComboBox *selInstrument = new QComboBox( NULL );
-	selInstrument->setFixedSize( 100, 20 );
-	selInstrument->move( 2, 1 );
-	selInstrument->addItem ( QString( "drumset" ));
-	selInstrument->addItem ( QString( "instrument" ));
-	selInstrument->update();
-	selInstrument->setToolTip( trUtf8( "Midi keyboard or computer keys play whole drumset or single instruments" ) );
-	editor_top_hbox_2->addWidget( selInstrument );
-	connect( selInstrument, SIGNAL( currentIndexChanged( QString ) ), this, SLOT( playselectedinstrument(QString) ) );
-
-
 //---------------------------experimental pianoroll--------------------------------------
 // show drum editor btn
 	__show_drum_btn = new ToggleButton(
@@ -989,18 +978,6 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 	}
 	else {
 		ERRORLOG( "Unknown text: " + text );
-	}
-}
-
-
-
-void PatternEditorPanel::playselectedinstrument( QString text )
-{
-	if ( text == "drumset" ){
-		Preferences::get_instance()->__playselectedinstrument = false;
-	}else
-	{
-		Preferences::get_instance()->__playselectedinstrument = true;
 	}
 }
 
