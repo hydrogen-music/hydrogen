@@ -825,11 +825,12 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
        float* monitor_out_L = AudioEngine::get_instance()->get_sampler()->__monitor_out_L;
        float* monitor_out_R = AudioEngine::get_instance()->get_sampler()->__monitor_out_R;
        float main_monitor_mix_amount = Preferences::get_instance()->getMainToMonitorMixVal();
+       float const_monito_volLR = Hydrogen::get_instance()->getSong()->get_monitor_volume();
        for ( unsigned i = 0; i < nframes; ++i ) {
               m_pMainBuffer_L[ i ] += out_L[ i ];
               m_pMainBuffer_R[ i ] += out_R[ i ];
-              monitor_out_L[ i ] += out_L[ i ] * main_monitor_mix_amount;
-              monitor_out_R[ i ] += out_R[ i ] * main_monitor_mix_amount;
+              monitor_out_L[ i ] += out_L[ i ] * main_monitor_mix_amount * const_monito_volLR;
+              monitor_out_R[ i ] += out_R[ i ] * main_monitor_mix_amount * const_monito_volLR;
               m_pMonitorBuffer_L[ i ] += monitor_out_L[ i ];
               m_pMonitorBuffer_R[ i ] += monitor_out_R[ i ];
        }
@@ -1401,7 +1402,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
                                           Note *pCopiedNote = new Note( pNote );
                                           if(pPattern->get_monitor()){
                                                  pCopiedNote->set_output(Preferences::get_instance()->getPatternMonitor());
-                                                 qDebug()<<pPattern->get_name()<<pPattern->get_monitor();
+                                                 //qDebug()<<pPattern->get_name()<<pPattern->get_monitor();
                                           }
                                           pCopiedNote->set_position( tick );
 

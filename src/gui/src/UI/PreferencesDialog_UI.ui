@@ -897,7 +897,7 @@
       <item>
        <widget class="QDial" name="mainMonitorMixdial">
         <property name="maximum">
-         <number>120</number>
+         <number>100</number>
         </property>
        </widget>
       </item>
