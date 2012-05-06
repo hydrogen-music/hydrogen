@@ -37,6 +37,8 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+                , m_pMonitorOut_L( NULL )
+                , m_pMonitorOut_R( NULL )
 {
 	INFOLOG( "INIT" );
 	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
@@ -66,6 +68,8 @@ int PortAudioDriver::connect()
 
 	m_pOut_L = new float[ m_nBufferSize ];
 	m_pOut_R = new float[ m_nBufferSize ];
+        m_pMonitorOut_L = new float[ m_nBufferSize ];
+        m_pMonitorOut_R = new float[ m_nBufferSize ];
 
 	int err = Pa_Initialize();
 	
@@ -124,6 +128,12 @@ void PortAudioDriver::disconnect()
 
 	delete[] m_pOut_R;
 	m_pOut_R = NULL;
+
+        delete[] m_pMonitorOut_L;
+        m_pMonitorOut_L = NULL;
+
+        delete[] m_pMonitorOut_R;
+        m_pMonitorOut_R = NULL;
 }
 
 unsigned PortAudioDriver::getBufferSize()
@@ -146,12 +156,14 @@ float* PortAudioDriver::getOut_R()
 	return m_pOut_R;
 }
 
-float* PortAudioDriver::getMetronomeOut_L()
+float* PortAudioDriver::getMonitorOut_L()
 {
+       return m_pMonitorOut_L;
 }
 
-float* PortAudioDriver::getMetronomeOut_R()
+float* PortAudioDriver::getMonitorOut_R()
 {
+       returen m_pMonitorOut_R;
 }
 
 void PortAudioDriver::updateTransportInfo()

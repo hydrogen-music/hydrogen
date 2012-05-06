@@ -104,11 +104,14 @@ int OssDriver::init( unsigned nBufferSize )
 
 	out_L = new float[nBufferSize];
 	out_R = new float[nBufferSize];
+        monitor_Out_L = new float[nBufferSize];
+        monitor_Out_R = new float[nBufferSize];
 
 	// clear buffers
 	memset( out_L, 0, nBufferSize * sizeof( float ) );
 	memset( out_R, 0, nBufferSize * sizeof( float ) );
-
+        memset( monitor_Out_L, 0, nBufferSize * sizeof( float ) );
+        memset( monitor_Out_R, 0, nBufferSize * sizeof( float ) );
 	return 0;
 }
 
@@ -230,6 +233,12 @@ void OssDriver::disconnect()
 	delete [] out_R;
 	out_R = NULL;
 
+        delete [] monitor_Out_L;
+        monitor_Out_L = NULL;
+
+        delete [] monitor_Out_R;
+        monitor_Out_R = NULL;
+
 	delete[] audioBuffer;
 	audioBuffer = NULL;
 }
@@ -294,11 +303,14 @@ float* OssDriver::getOut_R()
 	return out_R;
 }
 
-float* OssDriver::getMetronomeOut_L()
+float* OssDriver::getMonitorOut_L()
 {
+       return monitor_Out_L;
 }
-float* OssDriver::getMetronomeOut_R()
+
+float* OssDriver::getMonitorOut_R()
 {
+       return monitor_Out_R;
 }
 
 

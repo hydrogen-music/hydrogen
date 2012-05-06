@@ -32,6 +32,8 @@ FakeDriver::FakeDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+                , m_pMonitorOut_L( NULL )
+                , m_pMonitorOut_R( NULL )
 {
 	INFOLOG( "INIT" );
 }
@@ -50,6 +52,8 @@ int FakeDriver::init( unsigned nBufferSize )
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];
 	m_pOut_R = new float[nBufferSize];
+        m_pMonitorOut_L =new float[nBufferSize];
+        m_pMonitorOut_R =new float[nBufferSize];
 
 	return 0;
 }
@@ -75,6 +79,12 @@ void FakeDriver::disconnect()
 
 	delete[] m_pOut_R;
 	m_pOut_R = NULL;
+
+        delete[] m_pMonitorOut_L;
+        m_pMonitorOut_L = NULL;
+
+        delete[] m_pMonitorOut_R;
+        m_pMonitorOut_R = NULL;
 }
 
 
@@ -96,11 +106,13 @@ float* FakeDriver::getOut_R()
 
 float* FakeDriver::getMonitorOut_L()
 {
+       return m_pMonitorOut_L;
 }
 
 
 float* FakeDriver::getMonitorOut_R()
 {
+       return m_pMonitorOut_R;
 }
 
 void FakeDriver::play()

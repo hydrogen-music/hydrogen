@@ -65,6 +65,8 @@ private:
 	unsigned m_nBufferSize;
 	float* m_pOut_L;
 	float* m_pOut_R;
+        float* m_pMonitorOut_L;
+        float* m_pMonitorOut_R;
 
 };
 

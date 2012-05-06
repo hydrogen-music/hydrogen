@@ -278,6 +278,8 @@ int DiskWriterDriver::init( unsigned nBufferSize )
 	m_nBufferSize = nBufferSize;
 	m_pOut_L = new float[nBufferSize];
 	m_pOut_R = new float[nBufferSize];
+        m_pMonitorOut_L = new float[nBufferSize];
+        m_pMonitorOut_R = new float[nBufferSize];
 
 	return 0;
 }
@@ -312,6 +314,12 @@ void DiskWriterDriver::disconnect()
 
 	delete[] m_pOut_R;
 	m_pOut_R = NULL;
+
+        delete[] m_pMonitorOut_L;
+        m_pMonitorOut_L = NULL;
+
+        delete[] m_pMonitorOut_R;
+        m_pMonitorOut_R = NULL;
 
 }
 

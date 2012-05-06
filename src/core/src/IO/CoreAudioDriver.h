@@ -78,6 +78,8 @@ public:
 
 	float* m_pOut_L;
 	float* m_pOut_R;
+        float* m_pMonitorOut_L;
+        float* m_pMonitorOut_R;
 
 	virtual void play();
 	virtual void stop();

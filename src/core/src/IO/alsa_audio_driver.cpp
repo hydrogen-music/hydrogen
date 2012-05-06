@@ -76,7 +76,7 @@ void* alsaAudioDriver_processCaller( void* param )
 // 	_INFOLOG( "nFrames: " + to_string( nFrames ) );
 	short pBuffer[ nFrames * 2 ];
 
-	float *pOut_L = pDriver->m_pOut_L;
+        float *pOut_L = pDriver->m_pOut_L;
 	float *pOut_R = pDriver->m_pOut_R;
 
 	while ( pDriver->m_bIsRunning ) {
@@ -116,6 +116,8 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_bIsRunning( false )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+                , m_pMonitorOut_L( NULL )
+                , m_pMonitorOut_R( NULL )
 		, m_nXRuns( 0 )
 		, m_processCallback( processCallback )
 {
@@ -239,9 +241,13 @@ int AlsaAudioDriver::connect()
 
 	m_pOut_L = new float[ m_nBufferSize ];
 	m_pOut_R = new float[ m_nBufferSize ];
+        m_pMonitorOut_L = new float[ m_nBufferSize ];
+        m_pMonitorOut_R = new float[ m_nBufferSize ];
 
 	memset( m_pOut_L, 0, m_nBufferSize * sizeof( float ) );
-	memset( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
+        memset( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
+        memset( m_pMonitorOut_L, 0, m_nBufferSize * sizeof( float ) );
+        memset( m_pMonitorOut_R, 0, m_nBufferSize * sizeof( float ) );
 
 	m_bIsRunning = true;
 
@@ -271,6 +277,12 @@ void AlsaAudioDriver::disconnect()
 
 	delete[] m_pOut_R;
 	m_pOut_R = NULL;
+
+        delete[] m_pMonitorOut_L;
+        m_pMonitorOut_L = NULL;
+
+        delete[] m_pMonitorOut_R;
+        m_pMonitorOut_R = NULL;
 }
 
 unsigned AlsaAudioDriver::getBufferSize()
@@ -295,10 +307,12 @@ float* AlsaAudioDriver::getOut_R()
 
 float* AlsaAudioDriver::getMonitorOut_L()
 {
+       return m_pMonitorOut_L;
 }
 
 float* AlsaAudioDriver::getMonitorOut_R()
 {
+       return m_pMonitorOut_R;
 }
 
 void AlsaAudioDriver::updateTransportInfo()

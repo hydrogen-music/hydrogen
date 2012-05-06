@@ -45,6 +45,9 @@ public:
 	audioProcessCallback m_processCallback;
 	float* m_pOut_L;
 	float* m_pOut_R;
+        float* m_pMonitorOut_L;
+        float* m_pMonitorOut_R;
+
 	unsigned m_nBufferSize;
 
 	PortAudioDriver( audioProcessCallback processCallback );
@@ -57,8 +60,8 @@ public:
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();
-        virtual float* getMetronomeOut_L();
-        virtual float* getMetronomeOut_R();
+        virtual float* getMonitorOut_L();
+        virtual float* getMonitorOut_R();
 
 	virtual void updateTransportInfo();
 	virtual void play();

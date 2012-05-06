@@ -76,6 +76,8 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 		, mProcessCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+                , m_pMonitorOut_L( NULL )
+                , m_pMonitorOut_R( NULL )
 {
 	//INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
@@ -142,9 +144,13 @@ int CoreAudioDriver::init( unsigned bufferSize )
 
 	m_pOut_L = new float[ m_nBufferSize ];
 	m_pOut_R = new float[ m_nBufferSize ];
+        m_pMonitorOut_L = new float[ m_nBufferSize ];
+        m_pMonitorOut_R = new float[ m_nBufferSize ];
 
 	memset ( m_pOut_L, 0, m_nBufferSize * sizeof( float ) );
 	memset ( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
+        memset ( m_pMonitorOut_L, 0, m_nBufferSize * sizeof( float ) );
+        memset ( m_pMonitorOut_R, 0, m_nBufferSize * sizeof( float ) );
 
 // Get Component
         Component compOutput;
@@ -307,10 +313,12 @@ float* CoreAudioDriver::getOut_R()
 
 float* CoreAudioDriver::getMonitorOut_L()
 {
+       return m_pMonitorOut_L;
 }
 
 float* CoreAudioDriver::getMonitorOut_R()
 {
+       return m_pMonitorOut_R;
 }
 
 unsigned CoreAudioDriver::getBufferSize()

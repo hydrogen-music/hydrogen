@@ -78,8 +78,8 @@ public:
 	unsigned getSampleRate();
 	float* getOut_L();
 	float* getOut_R();
-        float* getMetronomeOut_L();
-        float* getMetronomeOut_R();
+        float* getMonitorOut_L();
+        float* getMonitorOut_R();
 
 	virtual void play();
 	virtual void stop();
@@ -94,6 +94,8 @@ private:
 	short* audioBuffer;
 	float* out_L;
 	float* out_R;
+        float* monitor_Out_L;
+        float* monitor_Out_R;
 
 	audioProcessCallback processCallback;
 	int log2( int n );

@@ -44,6 +44,8 @@ public:
 	unsigned long m_nBufferSize;
 	float* m_pOut_L;
 	float* m_pOut_R;
+        float* m_pMonitorOut_L;
+        float* m_pMonitorOut_R;
 	int m_nXRuns;
 	QString m_sAlsaAudioDevice;
 	audioProcessCallback m_processCallback;

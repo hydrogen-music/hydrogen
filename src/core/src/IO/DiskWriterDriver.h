@@ -50,6 +50,8 @@ class DiskWriterDriver : public AudioOutput
 		audioProcessCallback m_processCallback;
 		float* m_pOut_L;
 		float* m_pOut_R;
+                float* m_pMonitorOut_L;
+                float* m_pMonitorOut_R;
 	
 		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename, int nSampleDepth );
 		~DiskWriterDriver();
@@ -76,10 +78,12 @@ class DiskWriterDriver : public AudioOutput
 		}
                 float* getMonitorOut_L()
                 {
+                    return m_pMonitorOut_L;
                 }
 
                 float* getMonitorOut_R()
                 {
+                    return m_pMonitorOut_R;
                 }
 	
 		virtual void play();
