@@ -130,6 +130,7 @@ void setPalette( QApplication *pQApp )
 	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
 
 	pQApp->setPalette( defaultPalette );
+	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}"); 
 }
 
 
