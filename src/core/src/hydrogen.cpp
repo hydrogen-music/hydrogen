@@ -1402,7 +1402,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
                                           Note *pCopiedNote = new Note( pNote );
                                           if(pPattern->get_monitor()){
                                                  pCopiedNote->set_output(Preferences::get_instance()->getPatternMonitor());
-                                                 //qDebug()<<pPattern->get_name()<<pPattern->get_monitor();
                                           }
                                           pCopiedNote->set_position( tick );
 
