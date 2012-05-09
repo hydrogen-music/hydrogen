@@ -63,13 +63,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->clear();
         driverComboBox->addItem( "Auto" );
 #ifdef H2CORE_HAVE_JACK
-	driverComboBox->addItem( "JACK" );
+        driverComboBox->addItem( "Jack" );
 #endif
 #ifdef H2CORE_HAVE_ALSA
-        driverComboBox->addItem( "ALSA" );
+        driverComboBox->addItem( "Alsa" );
 #endif
 #ifdef H2CORE_HAVE_OSS
-        driverComboBox->addItem( "OSS" );
+        driverComboBox->addItem( "Oss" );
 #endif
 #ifdef H2CORE_HAVE_PORTAUDIO
 	driverComboBox->addItem( "PortAudio" );
