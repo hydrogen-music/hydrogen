@@ -104,10 +104,9 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	QString sAuthors;
 	sAuthors += tr( "<b>Main coder and mantainer:</b><br>" );
-	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix)<br>";
-	sAuthors += "<i><comix@users.sourceforge.net></i></p></li></ul>";
-
-	sAuthors += QString( "<b>" ) + trUtf8( "Translator:%1Alessandro Cominu" ).arg( "</b><br><ul><li><p>" ) + QString( "</p></li></ul>" );
+	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2002-2008]</li>";
+	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-now]</li>";
+	sAuthors += "<li><p>Sebastian Moors (aka Mauser) [2008-now]</li></ul>";
 
 	sAuthors += "<b>Thanks to:</b>";
 
