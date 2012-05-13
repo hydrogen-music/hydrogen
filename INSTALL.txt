@@ -44,9 +44,9 @@ These can be accessed on the Hydrogen home page:
 	http://www.hydrogen-music.org/
 
 The source code for the current development version can be checked out
-via Subversion:
+via git:
 
-	$ svn co http://svn.assembla.com/svn/hydrogen/trunk hydrogen
+	$ git clone git://github.com/hydrogen-music/hydrogen.git
 
 3. Binary Packages
 ------------------
