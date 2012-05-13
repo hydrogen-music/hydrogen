@@ -64,8 +64,8 @@ install: build
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
 
 	cd ../builddebian; $(MAKE) install
-	#remove not used .svn dirs 
-	find $(CURDIR)/debian/hydrogen/ -name '.svn' | xargs rm -rf 
+	#remove not used .git dirs 
+	find $(CURDIR)/debian/hydrogen/ -name '.git' | xargs rm -rf 
 
 docs:
 
