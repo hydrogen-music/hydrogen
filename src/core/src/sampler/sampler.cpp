@@ -591,9 +591,21 @@ int Sampler::__render_note_resample(
                 if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
                         //we reach the last audioframe.
 			//set this last frame to zero do nothin wrong.
-			fVal_L = 0.0;
-			fVal_R = 0.0;
+                        fVal_L = 0.0;
+                        fVal_R = 0.0;
                 } else {
+                       // some interpolation methods need 4 frames data.
+                       float last_l;
+                       float last_r;
+                       if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+                              last_l = 0.0;
+                              last_r = 0.0;
+                       }else
+                       {
+                             last_l =  pSample_data_L[nSamplePos + 2];
+                             last_r =  pSample_data_R[nSamplePos + 2];
+                       }
+
                         switch( __interpolateMode ){
                                 
                         case LINEAR:
@@ -607,16 +619,16 @@ int Sampler::__render_note_resample(
                                 fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
                                 break;
                         case THIRD:
-                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
                                 break;
                         case CUBIC:
-                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
                                 break;
                         case HERMITE:
-                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
                                 break;
                         }
                 }
@@ -693,6 +705,18 @@ int Sampler::__render_note_resample(
 					fVal_L = 0.0;
 					fVal_R = 0.0;
                                 } else {
+                                       // some interpolation methods need 4 frames data.
+                                       float last_l;
+                                       float last_r;
+                                       if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+                                              last_l = 0.0;
+                                              last_r = 0.0;
+                                       }else
+                                       {
+                                             last_l =  pSample_data_L[nSamplePos + 2];
+                                             last_r =  pSample_data_R[nSamplePos + 2];
+                                       }
+
                                         switch( __interpolateMode ){
 
                                         case LINEAR:
@@ -706,16 +730,16 @@ int Sampler::__render_note_resample(
                                                 fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
                                                 break;
                                         case THIRD:
-                                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+                                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
                                                 break;
                                         case CUBIC:
-                                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+                                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
                                                 break;
                                         case HERMITE:
-                                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2], fDiff);
+                                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+                                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
                                                 break;
                                         }
                                         // methode Interpolate produce an extra function call and eat much more time here.
