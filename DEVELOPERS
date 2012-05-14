@@ -56,15 +56,14 @@ order to make a release has several, easy-to-forget steps.  They are:
      release.  Remember, after tagging the release you may not
      commit changes to the tag.
 
-        svn cp http://svn.assembla.com/svn/hydrogen/trunk \
-               http://svn.assembla.com/svn/hydrogen/tags/0.9.4
+     git tag -a 0.9.4 -m "Tagging 0.9.4"
 
   9. If this is a major release (e.g. 0.9.4), then make a branch for
      maintenance patches for your release.  If this is a maintenance
      release (e.g. 0.9.4.1) then skip this step.
 
-        svn cp http://svn.assembla.com/svn/hydrogen/trunk \
-               http://svn.assembla.com/svn/hydrogen/branches/0.9.4
+     git branch 0.9.4
+     git push origin 0.9.4
 
   10. Make announcements.
 

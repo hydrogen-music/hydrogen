@@ -5,7 +5,7 @@
     <name>AboutDialog</name>
     <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Page de projet&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Page du projet&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>About</source>
@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>Translator:%1Alessandro Cominu</source>
-        <translation>Traducteur:%1Alessandro Cominu</translation>
+        <translation type="unfinished">Traducteurs:%1Yan Morin, Olivier Humbert, DYP et Fred Courchesne</translation>
     </message>
 </context>
 <context>
@@ -405,7 +405,8 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;consider it more useful to permit linking proprietary applications with the&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;library.  If this is what you want to do, use the GNU Library General&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#ffffff;&quot;&gt;Public License instead of this License.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Ne pas traduire la licence</translatorcomment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -518,7 +519,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation>Taux d&apos;échantillonage: %1</translation>
+        <translation>Fréquence: %1 Hz</translation>
     </message>
     <message>
         <source> s</source>
@@ -538,15 +539,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Taille d&apos;échantillon:</translation>
+        <translation>Durée:</translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation>Merci de ne pas faire des previews sur des échantillons de plus de 10 minutes !</translation>
+        <translation>Merci de ne pas faire des previews sur des échantillons de plus de 10 minutes!</translation>
     </message>
     <message>
         <source>Sample length:</source>
-        <translation>Taille d&apos;échantillon:</translation>
+        <translation>Durée:</translation>
     </message>
 </context>
 <context>
@@ -561,7 +562,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Taux d&apos;échantillonnage:</translation>
+        <translation>Fréquence:</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -569,7 +570,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Length:</source>
-        <translation>Longueur:</translation>
+        <translation>Durée:</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
@@ -585,11 +586,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation>Jouer échantillon (&amp;P)</translation>
+        <translation>&amp;Jouer l&apos;échantillon</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nom de fichier comme nom d&apos;instrument</translation>
     </message>
     <message>
         <source>Open</source>
@@ -601,7 +602,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Stop</source>
-        <translation>&amp;Stop</translation>
+        <translation>&amp;Arrêter</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -613,21 +614,21 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation>Régler automatiquement la vélocité</translation>
+        <translation>Réglage de vélocité auto</translation>
     </message>
 </context>
 <context>
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished">Conducteur</translation>
+        <translation>Directeur</translation>
     </message>
 </context>
 <context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialogue</translation>
+        <translation>Dialogue</translation>
     </message>
 </context>
 <context>
@@ -723,29 +724,29 @@ http://www.hydrogen-music.org
     </message>
     <message>
         <source>Export failed!</source>
-        <translation>Export raté!</translation>
+        <translation>Échec de l&apos;exportation!</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation>Le fichier %1 existe. 
-Remplacer le fichier existant ?</translation>
+        <translation>Le fichier %1 existe déjà. 
+Écraser le fichier existant ?</translation>
     </message>
     <message>
         <source>Export to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode piste unique</translation>
     </message>
     <message>
         <source>Export to seperate tracks</source>
-        <translation type="unfinished">Exporter en pistes séparées</translation>
+        <translation>Mode multipistes</translation>
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode combiné</translation>
     </message>
     <message>
         <source>This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette version d&apos;Hydrogen n&apos;est pas capable d&apos;exporter des morceaux comportant des changements de tempo. Si vous poursuivez, ce morceau sera exporter sans changement de tempo.</translation>
     </message>
 </context>
 <context>
@@ -784,7 +785,8 @@ Remplacer le fichier existant ?</translation>
     </message>
     <message>
         <source>Samplerate in Hz:</source>
-        <translation>Taux d&apos;échantillonnage en Hz:</translation>
+        <translatorcomment>L&apos;ancienne étiquette &quot;Taux d&apos;échantillonnage en Hz:&quot; était beaucoup trop longue</translatorcomment>
+        <translation>Fréquence:</translation>
     </message>
     <message>
         <source>22050</source>
@@ -808,7 +810,8 @@ Remplacer le fichier existant ?</translation>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
-        <translation>Profondeur d&apos;échantillonnage en Bit:</translation>
+        <translatorcomment>L&apos;ancienne étiquette &quot;Profondeur d&apos;échantillonnage en Bit:&quot; était beaucoup trop longue</translatorcomment>
+        <translation>Résolution:</translation>
     </message>
     <message>
         <source>8</source>
@@ -828,7 +831,7 @@ Remplacer le fichier existant ?</translation>
     </message>
     <message>
         <source>Templates: </source>
-        <translation>Gabarits:</translation>
+        <translation>Format:</translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
@@ -1068,7 +1071,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Bibliothèque de sons</translation>
+        <translation>Bibliothèque</translation>
     </message>
 </context>
 <context>
@@ -1118,7 +1121,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Remove FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Retirer l&apos;effet</translation>
     </message>
 </context>
 <context>
@@ -1299,7 +1302,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hydrogen Ready.</source>
-        <translation>Hydrogen est prêt.</translation>
+        <translation>Hydrogen est pret.</translation>
     </message>
     <message>
         <source>&amp;Save</source>
@@ -1343,11 +1346,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open &amp;Demo</source>
-        <translation>Ouvrir une &amp;démo...</translation>
+        <translation>Ouvrir un &amp;demo</translation>
     </message>
     <message>
         <source>Open &amp;recent</source>
-        <translation>Ouvrir un fichier ré&amp;cent</translation>
+        <translation>Ouvrir un fichier ré&amp;cent...</translation>
     </message>
     <message>
         <source>Save &amp;as...</source>
@@ -1379,7 +1382,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
@@ -1439,7 +1442,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Song saved.</source>
-        <translation>&amp;Le morceau a été enregistré.</translation>
+        <translation>Morceau enregistré.</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
@@ -1471,7 +1474,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Motif d&apos;hydrogen (*.h2pattern)</translation>
+        <translation>Motif Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1511,7 +1514,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Clear all</source>
-        <translation>E&amp;ffacer tout</translation>
+        <translation>Effacer &amp;tout</translation>
     </message>
     <message>
         <source>&amp;Save library</source>
@@ -1519,15 +1522,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Export library</source>
-        <translation>&amp;Exporter la bibliothèque...</translation>
+        <translation>&amp;Exporter une bibliothèque...</translation>
     </message>
     <message>
         <source>Playlist &amp;editor</source>
-        <translation>Navigateur de la liste de lecture...</translation>
+        <translation>&amp;Navigateur de liste de lecture...</translation>
     </message>
     <message>
         <source>&amp;Import library</source>
-        <translation>&amp;Importer la bibliothèque...</translation>
+        <translation>&amp;Importer une bibliothèque...</translation>
     </message>
     <message>
         <source></source>
@@ -1558,7 +1561,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Director</source>
-        <translation>Conducteur</translation>
+        <translation>&amp;Directeur</translation>
     </message>
 </context>
 <context>
@@ -1749,7 +1752,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
-        <translation>Charger la bibliothèque de sons</translation>
+        <translation>Bibliothèque chargée</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
@@ -1789,8 +1792,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Right click into pattern editor add note-off-note or edit note-length, velocity or pan</source>
-        <translatorcomment>note-off-note ? c&apos;est quoi ?</translatorcomment>
-        <translation type="unfinished">Un click droit dans l&apos;éditeur de motif ajoute une note-off-note ou édite la profondeur de note; la vélocité ou le panoramique</translation>
+        <translation>Un click droit dans l&apos;éditeur de motif ajoute une note off ou édite la profondeur de note, la vélocité ou la balance</translation>
     </message>
 </context>
 <context>
@@ -1953,7 +1955,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Table de mixage</translation>
+        <translation>Mixage</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -1961,7 +1963,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Instrument rack</source>
-        <translation>Liste des instruments</translation>
+        <translation>Instruments</translation>
     </message>
     <message>
         <source>Pause.</source>
@@ -2045,15 +2047,15 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation type="unfinished">Recalcule l&apos;échantillon modifié par Rubberband si les bpm changent</translation>
+        <translation>Recalcule l&apos;échantillon modifié par Rubberband si le bpm change</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translation type="unfinished">Recalcule tous les échantillons qui utilisent Rubberband ON</translation>
+        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation type="unfinished">Recalcule tous les échantillons qui utilisent Rubberband OFF</translation>
+        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
     </message>
 </context>
 <context>
@@ -2076,7 +2078,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation>Aucun morceau de sélectionné</translation>
+        <translation>Aucun morceau n&apos;est sélectionné!</translation>
     </message>
     <message>
         <source>Load Playlist</source>
@@ -2111,8 +2113,9 @@ Voulez-vous sauvegarder les changements?
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
         <translation>Aucun éditeur par défaut de régler. Veuillez régler l&apos;éditeur par défaut.
+
 N&apos;utiliser pas un éditeur en mode console.
-Désolé, mais un éditeur en mode console ne fonctionne pas présentement.</translation>
+Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
@@ -2120,7 +2123,7 @@ Désolé, mais un éditeur en mode console ne fonctionne pas présentement.</tra
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation>Aucun script de sélectionné</translation>
+        <translation>Aucun script de sélectionné!</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -2152,31 +2155,31 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Playlist</source>
-        <translation>Liste de lecture (&amp;P)</translation>
+        <translation>&amp;Liste de lecture</translation>
     </message>
     <message>
         <source>Add song to Play&amp;list</source>
-        <translation>Ajouter le morceau à la &amp;Liste de lecture</translation>
+        <translation>&amp;Ajouter un morceau à la &amp;liste</translation>
     </message>
     <message>
         <source>Add &amp;current song to Playlist</source>
-        <translation>Ajouter &amp;ce morceau à la Liste de Lecture</translation>
+        <translation>Ajouter &amp;ce morceau à la liste</translation>
     </message>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
-        <translation>Enleve&amp;r le morceau sélectionné de la Liste de Lecture</translation>
+        <translation>&amp;Retirer le morceau sélectionné</translation>
     </message>
     <message>
         <source>&amp;Open Playlist</source>
-        <translation>&amp;Ouvrir la Liste de Lecture</translation>
+        <translation>&amp;Ouvrir une liste de lecture</translation>
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation>&amp;Sauver la Liste de Lecture</translation>
+        <translation>Enregi&amp;strer</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation>S&amp;auver la Liste de Lecture comme</translation>
+        <translation>Enregistrer so&amp;us...</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
@@ -2184,19 +2187,19 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Add Script to selected song</source>
-        <translation>&amp;Ajouter un Script à la chanson sélectionnée</translation>
+        <translation>&amp;Ajouter un script au morceau sélectionné</translation>
     </message>
     <message>
         <source>&amp;Edit selected Script</source>
-        <translation>Édit&amp;er le Script sélectionné</translation>
+        <translation>Édit&amp;er le script sélectionné</translation>
     </message>
     <message>
         <source>&amp;Remove selected Script</source>
-        <translation>Enleve&amp;r le Script sélectionné</translation>
+        <translation>&amp;Retirer le script sélectionné</translation>
     </message>
     <message>
         <source>&amp;Create a new Script</source>
-        <translation>&amp;Créer un nouveau Script</translation>
+        <translation>&amp;Créer un nouveau script</translation>
     </message>
     <message>
         <source>Rewind</source>
@@ -2228,23 +2231,23 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Remove all songs from &amp;Playlist</source>
-        <translation>Efface tous les morceaux depuis la Liste de Lecture (&amp;P)</translation>
+        <translation>&amp;Vider la liste de lecture</translation>
     </message>
     <message>
         <source>Playlist Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Navigateur de liste de lecture</translation>
     </message>
     <message>
         <source>No song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Auncun morceau sélectionné!</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste: choisir le morceau #%1 </translation>
     </message>
     <message>
         <source>no Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun script</translation>
     </message>
 </context>
 <context>
@@ -2608,12 +2611,12 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
 Are you sure?</source>
-        <translation>Fermeture du dialogue! Peut être y a-t&apos;il du travail non sauvegardé sur l&apos;échantillon.
+        <translation>Fermeture de la boite de dialogue! Peut être y a-t&apos;il du travail non sauvegardé sur l&apos;échantillon.
 Êtes-vous sûr ?</translation>
     </message>
 </context>
@@ -2637,11 +2640,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Adjust sample start frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuster le point de départ de l&apos;échantillon</translation>
     </message>
     <message>
         <source>Adjust sample loop begin frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuster le début de la boucle de l&apos;échantillon</translation>
     </message>
     <message>
         <source>set processing</source>
@@ -2665,7 +2668,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Adjust sample end &amp; loop end frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuster le point d&apos;arrivé de l&apos;échantillon</translation>
     </message>
     <message>
         <source>&amp;Play</source>
@@ -2702,7 +2705,20 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more informations about you can find here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;Niveaux de &quot;croustillance&quot; : &lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 0 équivaut à --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 1 équivalent à --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 2 équivalent à --no-transients&lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 3, équivalent à --bl-transients&lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 4 options de traitement par défaut &lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 5 équivalent à --no-lamination --window-short (peut-être bon pour la batterie) &lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty;margin: 0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;Vous pouvez trouver plus d&apos;informations ici (en anglais seulement): &lt;/p&gt;
+&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>0</source>
@@ -2878,11 +2894,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Départ</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Boucle</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2904,15 +2920,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation>Fin</translation>
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Processeur audio Rubberband&quot; : Modifie le tempo et la hauteur de l&apos;échantillon.</translation>
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauteur (Demi-ton, Pourcent)</translation>
     </message>
 </context>
 <context>
@@ -3109,7 +3125,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Motif d&apos;hydrogen (*.h2pattern)</translation>
+        <translation>Motif Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Virtual Pattern</source>
@@ -3126,8 +3142,7 @@ Voulez-vous continuer?</translation>
     <message>
         <source>The pattern-file exists. 
 Overwrite the existing pattern?</source>
-        <translation>Le fichier de motif existe. 
-Remplacer le motif existant ?</translation>
+        <translation>Le fichier de motif existe. Écraser le motif existant ?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -3135,7 +3150,7 @@ Remplacer le motif existant ?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>&amp;Annuler</translation>
     </message>
 </context>
 <context>
@@ -3161,7 +3176,7 @@ Remplacer le motif existant ?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -3203,7 +3218,7 @@ Remplacer le motif existant ?</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation>Naviguer</translation>
+        <translation>Explorer</translation>
     </message>
     <message>
         <source>Export</source>
@@ -3242,7 +3257,7 @@ Remplacer le motif existant ?</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation>Téléchargement de la bibliothèque de sons.</translation>
+        <translation>Téléchargement de la bibliothèque de sons...</translation>
     </message>
     <message>
         <source>Import drumkit</source>
@@ -3321,7 +3336,7 @@ Remplacer le motif existant ?</translation>
     </message>
     <message>
         <source>License...</source>
-        <translation>Licence</translation>
+        <translation>Licence...</translation>
     </message>
     <message>
         <source>Edit server list</source>
@@ -3366,7 +3381,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
         <source>Songs</source>
@@ -3423,7 +3438,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Enregistrer les changements des instruments dans la bibliothèque de sons</translation>
+        <translation>Enregistrer les changements appliqués aux instruments dans la bibliothèque de sons</translation>
     </message>
 </context>
 <context>
@@ -3502,7 +3517,7 @@ Voulez-vous continuer?</translation>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation>Bibliothèque de sons</translation>
+        <translation>Bibliothèque</translation>
     </message>
 </context>
 <context>

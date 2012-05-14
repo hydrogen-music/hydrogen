@@ -188,53 +188,37 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pSongLoopBtn->move(310, 17);
 	m_pSongLoopBtn->setToolTip( trUtf8("Loop song") );
 	connect( m_pSongLoopBtn, SIGNAL( clicked(Button*) ), this, SLOT( songLoopBtnClicked(Button*) ) );
-//~ CONTROLS
 
 
-// MODE
-	PixmapWidget *pModePanel = new PixmapWidget( NULL );
-	pModePanel->setFixedSize( 90, 43 );
-	pModePanel->setPixmap( "/playerControlPanel/background_Mode.png" );
-	hbox->addWidget( pModePanel );
+
 
 	// Live mode button
 	m_pLiveModeBtn = new ToggleButton(
-			pModePanel,
+                        pControlsPanel,
 			"/playerControlPanel/statusLED_on.png",
 			"/playerControlPanel/statusLED_off.png",
 			"/playerControlPanel/statusLED_off.png",
-			QSize(11, 9)
+                        QSize(68, 9)
 	);
-	m_pLiveModeBtn->move(10, 4);
+        m_pLiveModeBtn->move(180, 5);
 	m_pLiveModeBtn->setPressed(true);
 	m_pLiveModeBtn->setToolTip( trUtf8("Pattern Mode") );
 	connect(m_pLiveModeBtn, SIGNAL(clicked(Button*)), this, SLOT(liveModeBtnClicked(Button*)));
 
 	// Song mode button
 	m_pSongModeBtn = new ToggleButton(
-			pModePanel,
+                        pControlsPanel,
 			"/playerControlPanel/statusLED_on.png",
 			"/playerControlPanel/statusLED_off.png",
 			"/playerControlPanel/statusLED_off.png",
-			QSize(11, 9)
+                        QSize(68, 9)
 	);
-	m_pSongModeBtn->move(10, 15);
+        m_pSongModeBtn->move(253, 5);
 	m_pSongModeBtn->setPressed(false);
 	m_pSongModeBtn->setToolTip( trUtf8("Song Mode") );
 	connect(m_pSongModeBtn, SIGNAL(clicked(Button*)), this, SLOT(songModeBtnClicked(Button*)));
 
-	// Switch mode button
-	m_pSwitchModeBtn = new Button(
-			pModePanel,
-			"/playerControlPanel/btn_mode_on.png",
-			"/playerControlPanel/btn_mode_off.png",
-			"/playerControlPanel/btn_mode_over.png",
-			QSize(69, 13)
-	);
-	m_pSwitchModeBtn->move(10, 26);
-	m_pSwitchModeBtn->setToolTip( trUtf8("Switch Song/ Pattern Mode") );
-	connect(m_pSwitchModeBtn, SIGNAL(clicked(Button*)), this, SLOT(switchModeBtnClicked(Button*)));
-//~ MODE
+//~ CONTROLS
 
 // BC on off
 	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( NULL );
@@ -757,32 +741,6 @@ void PlayerControl::stopBtnClicked(Button* ref)
 	m_pEngine->setPatternPos( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Stopped."), 5000);
 	Hydrogen::get_instance()->setTimelineBpm();
-}
-
-
-
-
-/// Switch mode
-void PlayerControl::switchModeBtnClicked(Button* ref)
-{
-	UNUSED( ref );
-
-	Song *song = m_pEngine->getSong();
-
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );	// from start
-	if( song->get_mode() == Song::PATTERN_MODE ) {
-		m_pEngine->getSong()->set_mode( Song::SONG_MODE );
-		m_pSongModeBtn->setPressed(true);
-		m_pLiveModeBtn->setPressed(false);
-		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
-	}
-	else {
-		m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
-		m_pSongModeBtn->setPressed(false);
-		m_pLiveModeBtn->setPressed(true);
-		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
-	}
 }
 
 

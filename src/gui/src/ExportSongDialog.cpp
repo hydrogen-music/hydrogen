@@ -197,13 +197,8 @@ void ExportSongDialog::on_okBtn_clicked()
 	bool warn =  Preferences::get_instance()->getShowExportWarning();
 	
 	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector; 
-/*	if( timelineVector.size() > 0 ){
-		int res = QMessageBox::information( this, "Hydrogen", tr( "This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes."), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll); 
-		if (res == QMessageBox::No ) return; 
-		if (res == QMessageBox::YesToAll ) Preferences::get_instance()->setShowExportWarning(true);
-	} 
-*/
-        /* 0: Export to single track
+        
+	/* 0: Export to single track
         *  1: Export to multiple tracks
         *  2: Export to both
         */
