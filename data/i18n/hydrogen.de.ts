@@ -620,14 +620,14 @@ p, li { white-space: pre-wrap; }
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished">Dirigent</translation>
+        <translation>Dirigent</translation>
     </message>
 </context>
 <context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
 </context>
 <context>
@@ -735,15 +735,15 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>Als einzelne Spur exportieren</translation>
     </message>
     <message>
         <source>Export to seperate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrspur Export</translation>
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation>Beides</translation>
     </message>
     <message>
         <source>This version of hydrogen is not able to export songs with tempo changes. If you proceed, the song will be exported without tempo changes.</source>
@@ -790,23 +790,23 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>22050</source>
-        <translation type="unfinished">22050</translation>
+        <translation>22050</translation>
     </message>
     <message>
         <source>44100</source>
-        <translation type="unfinished">44100</translation>
+        <translation>44100</translation>
     </message>
     <message>
         <source>48000</source>
-        <translation type="unfinished">48000</translation>
+        <translation>48000</translation>
     </message>
     <message>
         <source>96000</source>
-        <translation type="unfinished">96000</translation>
+        <translation>96000</translation>
     </message>
     <message>
         <source>192000</source>
-        <translation type="unfinished">192000</translation>
+        <translation>192000</translation>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
@@ -814,19 +814,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished">16</translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>24</source>
-        <translation type="unfinished">24</translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>32</source>
-        <translation type="unfinished">32</translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Templates: </source>
@@ -834,43 +834,43 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV in CD Qualität  &quot;44,1kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV in ADAT Qualität &quot;48 kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV in besserer Qualität &quot;48 kHz, 24 bit PCM&quot;</translation>
     </message>
     <message>
         <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation type="unfinished"></translation>
+        <translation>WAV in geringster Qualität &quot;22.05kHz, 8 bit PCM</translation>
     </message>
     <message>
         <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV beste Qualität &quot;96 kHz, 32 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>AIFF in CD Qualität &quot;41 kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>AIFF in ADAT Qualität &quot;48 kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>AIFF in besserer Qualität &quot;48 kHz, 24 bit PCM&quot;</translation>
     </message>
     <message>
         <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>FLAC verlustfreie Kompression in guter Qualität &quot;48 kHz&quot;</translation>
     </message>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>OGG Vorbis gering komprimiert in guter Qualität &quot;VBR&quot;</translation>
     </message>
 </context>
 <context>
@@ -895,21 +895,21 @@ Overwrite the existing file?</source>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
         <source>BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>BPM</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
         <source>SoundLibrary Properties</source>
-        <translation type="unfinished">Soundlibrary Eigenschaften</translation>
+        <translation>Soundlibrary Eigenschaften</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -921,12 +921,12 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation type="unfinished">Nicht möglich, es lassen sich nur Änderungen an Instrumenten innerhalb der aktuell verwendeten Soundlibrary speichern.</translation>
+        <translation>Nicht möglich, es lassen sich nur Änderungen an Instrumenten innerhalb der aktuell verwendeten Soundlibrary speichern.</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
-        <translation type="unfinished">Achtung! Bei Änderungen des Drumkit-Namens wird ein neues Drumkit dieses Namens erstellt.
+        <translation>Achtung! Bei Änderungen des Drumkit-Namens wird ein neues Drumkit dieses Namens erstellt.
 Sind sie sicher?
 </translation>
     </message>
@@ -1010,7 +1010,7 @@ Sind sie sicher?
     </message>
     <message>
         <source>Auto-Stop-Note</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto-Stop-Note</translation>
     </message>
 </context>
 <context>
@@ -1729,15 +1729,15 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
-        <translation type="unfinished">Geladene Klangbibliothek</translation>
+        <translation>Geladene Klangbibliothek</translation>
     </message>
     <message>
         <source>Midi keyboard or computer keys play whole drumset or single instruments</source>
-        <translation type="unfinished">Midi-Tatertur oder Tastertur anschläge spielen die geladene Klangbibliothek im Grund-Ton oder das ausgewählte Instrument mit Tonhöhen-Veränderung</translation>
+        <translation>Midi-Tastertur oder Tasterturanschläge spielen die geladene Klangbibliothek im Grund-Ton oder das ausgewählte Instrument mit Tonhöhen-Veränderung</translation>
     </message>
     <message>
         <source>NoteKey</source>
-        <translation type="unfinished">Note</translation>
+        <translation>Note</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
@@ -1749,7 +1749,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Piano</source>
-        <translation type="unfinished"></translation>
+        <translation>Piano</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -2284,15 +2284,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Driver restart required.
  Restart driver?</source>
-        <translation type="unfinished"></translation>
+        <translation>Treiber-Neustart notwendig. Soll der Treiber nun neu gestartet werden?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -2515,7 +2515,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Audio output details</source>
-        <translation type="unfinished"></translation>
+        <translation>Details des Audio Ausgangs</translation>
     </message>
     <message>
         <source>Post-Fader</source>
@@ -2527,7 +2527,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Track output</source>
-        <translation type="unfinished">Spur Ausgang</translation>
+        <translation>Spur Ausgang</translation>
     </message>
     <message>
         <source>Use lash</source>
@@ -2535,35 +2535,35 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
-        <translation type="unfinished">Zuerst, justiere die Zeitdifferenz zwischen Tastatur-/Controller-Anschlägen und den von Hydrogen errechneten BPM-Werten</translation>
+        <translation>Zuerst, justiere die Zeitdifferenz zwischen Tastatur-/Controller-Anschlägen und den von Hydrogen errechneten BPM-Werten</translation>
     </message>
     <message>
         <source>Beat counter drift compensation in 1/10 ms   </source>
-        <translation type="unfinished">Takt-Zähler-Kompensation in 1/10 ms      </translation>
+        <translation>Takt-Zähler-Kompensation in 1/10 ms      </translation>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation type="unfinished">Zweitens, justiere die Zeitdifferenz zwischen letzten Tastatur/Controller Anschlag und dem zeitverzögerten Sequenzer Start. </translation>
+        <translation>Zweitens, justiere die Zeitdifferenz zwischen letzten Tastatur/Controller Anschlag und dem zeitverzögerten Sequenzer Start. </translation>
     </message>
     <message>
         <source>Beat counter start offset in ms    </source>
-        <translation type="unfinished">Takt-Zähler-Startverzögerung in ms           </translation>
+        <translation>Takt-Zähler-Startverzögerung in ms           </translation>
     </message>
     <message>
         <source>create per-instrument outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgänge pro Spur erstellen</translation>
     </message>
     <message>
         <source>Path to the Rubberband command-line utility</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Rubberband Kommondozeilenprogram</translation>
     </message>
     <message>
         <source>Maximum number of bars</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Anzahl an Takten</translation>
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zuletzt benutzte Playlist wiederherstellen</translation>
     </message>
 </context>
 <context>
@@ -2571,21 +2571,21 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Unsaved changes left. This changes will be lost. 
 Are you sure?</source>
-        <translation type="unfinished">Es sind noch nicht gespeicherte änderungen vorhanden. Diese Änderungen werden verloren gehen.
+        <translation>Es sind noch nicht gespeicherte änderungen vorhanden. Diese Änderungen werden verloren gehen.
 Sind sie sicher? </translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
 Are you sure?</source>
-        <translation type="unfinished">Schließe Fenster. Möglicherweise sind noch ungespeicherte änderungen an diesen Sampel.
+        <translation>Schließe Fenster. Möglicherweise sind noch ungespeicherte änderungen an diesen Sampel.
 Sind sie sicher?</translation>
     </message>
 </context>
@@ -2593,71 +2593,71 @@ Sind sie sicher?</translation>
     <name>SampleEditor_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>P&amp;lay original sample</source>
-        <translation type="unfinished">Spie&amp;le Original</translation>
+        <translation>Spie&amp;le Original</translation>
     </message>
     <message>
         <source>&amp;Apply Changes</source>
-        <translation type="unfinished">&amp;Anwenden</translation>
+        <translation>&amp;Anwenden</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Schließen</translation>
+        <translation>&amp;Schließen</translation>
     </message>
     <message>
         <source>Adjust sample start frame</source>
-        <translation type="unfinished">Justiere Sampel-Start</translation>
+        <translation>Justiere Sample-Start</translation>
     </message>
     <message>
         <source>Adjust sample loop begin frame</source>
-        <translation type="unfinished">Justieren den Sampel Loop-Anfang</translation>
+        <translation>Justiere den Sample Loop-Anfang</translation>
     </message>
     <message>
         <source>set processing</source>
-        <translation type="unfinished">Sampleverarbeitung einstellen</translation>
+        <translation>Sampleverarbeitung einstellen</translation>
     </message>
     <message>
         <source>forward</source>
-        <translation type="unfinished">vörwärts</translation>
+        <translation>vorwärts</translation>
     </message>
     <message>
         <source>reverse</source>
-        <translation type="unfinished">rückwärts</translation>
+        <translation>rückwärts</translation>
     </message>
     <message>
         <source>pingpong</source>
-        <translation type="unfinished">hin und her</translation>
+        <translation>hin und her</translation>
     </message>
     <message>
         <source>loops</source>
-        <translation type="unfinished">Wiederholungen</translation>
+        <translation>Wiederholungen</translation>
     </message>
     <message>
         <source>Adjust sample end &amp; loop end frame</source>
-        <translation type="unfinished">Justiere Sampel ende &amp; Wiederholungs-Ende</translation>
+        <translation>Justiere Sample ende &amp; Wiederholungs-Ende</translation>
     </message>
     <message>
         <source>&amp;Play</source>
-        <translation type="unfinished">S&amp;piele</translation>
+        <translation>&amp;Abspielen</translation>
     </message>
     <message>
         <source>new sample length:</source>
-        <translation type="unfinished">Neue Sempellänge:</translation>
+        <translation>Neue Samplelänge:</translation>
     </message>
     <message>
         <source>fade-out type</source>
-        <translation type="unfinished">Art der Ausblendung</translation>
+        <translation>Art der Ausblendung</translation>
     </message>
     <message>
         <source>volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Lautstärke</translation>
     </message>
     <message>
         <source>panorama</source>
-        <translation type="unfinished"></translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>Sample length to beat:</source>
@@ -2669,155 +2669,155 @@ Sind sie sicher?</translation>
     </message>
     <message>
         <source>1/64</source>
-        <translation type="unfinished">1/64</translation>
+        <translation>1/64</translation>
     </message>
     <message>
         <source>1/32</source>
-        <translation type="unfinished">1/32</translation>
+        <translation>1/32</translation>
     </message>
     <message>
         <source>1/16</source>
-        <translation type="unfinished">1/16</translation>
+        <translation>1/16</translation>
     </message>
     <message>
         <source>1/8</source>
-        <translation type="unfinished">1/8</translation>
+        <translation>1/8</translation>
     </message>
     <message>
         <source>1/4</source>
-        <translation type="unfinished">1/4</translation>
+        <translation>1/4</translation>
     </message>
     <message>
         <source>1/2</source>
-        <translation type="unfinished">1/2</translation>
+        <translation>1/2</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>6</source>
-        <translation type="unfinished">6</translation>
+        <translation>6</translation>
     </message>
     <message>
         <source>7</source>
-        <translation type="unfinished">7</translation>
+        <translation>7</translation>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
-        <translation type="unfinished">9</translation>
+        <translation>9</translation>
     </message>
     <message>
         <source>10</source>
-        <translation type="unfinished">10</translation>
+        <translation>10</translation>
     </message>
     <message>
         <source>11</source>
-        <translation type="unfinished">11</translation>
+        <translation>11</translation>
     </message>
     <message>
         <source>12</source>
-        <translation type="unfinished">12</translation>
+        <translation>12</translation>
     </message>
     <message>
         <source>13</source>
-        <translation type="unfinished">13</translation>
+        <translation>13</translation>
     </message>
     <message>
         <source>14</source>
-        <translation type="unfinished">14</translation>
+        <translation>14</translation>
     </message>
     <message>
         <source>15</source>
-        <translation type="unfinished">15</translation>
+        <translation>15</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished">16</translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>17</source>
-        <translation type="unfinished">17</translation>
+        <translation>17</translation>
     </message>
     <message>
         <source>18</source>
-        <translation type="unfinished">18</translation>
+        <translation>18</translation>
     </message>
     <message>
         <source>19</source>
-        <translation type="unfinished">19</translation>
+        <translation>19</translation>
     </message>
     <message>
         <source>20</source>
-        <translation type="unfinished">20</translation>
+        <translation>20</translation>
     </message>
     <message>
         <source>21</source>
-        <translation type="unfinished">21</translation>
+        <translation>21</translation>
     </message>
     <message>
         <source>22</source>
-        <translation type="unfinished">22</translation>
+        <translation>22</translation>
     </message>
     <message>
         <source>23</source>
-        <translation type="unfinished">23</translation>
+        <translation>23</translation>
     </message>
     <message>
         <source>24</source>
-        <translation type="unfinished">24</translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>25</source>
-        <translation type="unfinished">25</translation>
+        <translation>25</translation>
     </message>
     <message>
         <source>26</source>
-        <translation type="unfinished">26</translation>
+        <translation>26</translation>
     </message>
     <message>
         <source>27</source>
-        <translation type="unfinished">27</translation>
+        <translation>27</translation>
     </message>
     <message>
         <source>28</source>
-        <translation type="unfinished">28</translation>
+        <translation>28</translation>
     </message>
     <message>
         <source>29</source>
-        <translation type="unfinished">29</translation>
+        <translation>29</translation>
     </message>
     <message>
         <source>30</source>
-        <translation type="unfinished">30</translation>
+        <translation>30</translation>
     </message>
     <message>
         <source>31</source>
-        <translation type="unfinished">31</translation>
+        <translation>31</translation>
     </message>
     <message>
         <source>32</source>
-        <translation type="unfinished">32</translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
@@ -2846,7 +2846,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Start</source>
@@ -2876,7 +2876,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation>Ende</translation>
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
@@ -2973,11 +2973,11 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Timeline Editor aktivieren</translation>
     </message>
     <message>
         <source>Pattern %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern %1</translation>
     </message>
 </context>
 <context>
@@ -3020,11 +3020,11 @@ Fortsetzen?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -3103,11 +3103,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -3434,7 +3434,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Please supply at least a valid name</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte gültigen Dateinamen angeben!</translation>
     </message>
 </context>
 <context>
@@ -3486,15 +3486,15 @@ Are you sure?</source>
     <name>VirtualPatternDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 </TS>
