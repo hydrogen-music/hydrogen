@@ -198,7 +198,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/statusLED_on.png",
 			"/playerControlPanel/statusLED_off.png",
 			"/playerControlPanel/statusLED_off.png",
-			QSize(11, 9)
+                        QSize(68, 9)
 	);
         m_pLiveModeBtn->move(180, 5);
 	m_pLiveModeBtn->setPressed(true);
@@ -211,7 +211,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/playerControlPanel/statusLED_on.png",
 			"/playerControlPanel/statusLED_off.png",
 			"/playerControlPanel/statusLED_off.png",
-			QSize(11, 9)
+                        QSize(68, 9)
 	);
         m_pSongModeBtn->move(253, 5);
 	m_pSongModeBtn->setPressed(false);

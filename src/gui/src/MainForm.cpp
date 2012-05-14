@@ -1287,7 +1287,6 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
                 //int songnumber = 0;
                 HydrogenApp* app = HydrogenApp::get_instance();
                 Hydrogen* engine = Hydrogen::get_instance();
-
                 switch (k->key()) {
                 case Qt::Key_Space:
                         onPlayStopAccelEvent();
@@ -1323,7 +1322,17 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
                         onSaveAccelEvent();
                         return TRUE;
                         break;
-
+/*
+                case  Qt::Key_T:
+                       if( engine->getSong()->get_mode() == Song::PATTERN_MODE ){
+                           engine->getSong()->set_mode( Song::SONG_MODE);
+                       }
+                       else if ( engine->getSong()->get_mode() == Song::SONG_MODE ) {
+                           engine->getSong()->set_mode( Song::PATTERN_MODE );
+                       }
+                        return TRUE;
+                        break;
+*/
                 case  Qt::Key_F5 :
                         if( engine->m_PlayList.size() == 0)
                                 break;
