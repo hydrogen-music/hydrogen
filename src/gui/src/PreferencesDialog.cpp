@@ -506,7 +506,7 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
 	}
-	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
+    else if ( driverComboBox->currentText() == "Jack" ) {	// JACK
 		info += trUtf8("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
 		if ( !bJack_support ) {
 			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
@@ -519,7 +519,7 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( true );
 	}
-	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
+    else if ( driverComboBox->currentText() == "Alsa" ) {	// ALSA
 		info += trUtf8("<b>ALSA Driver</b><br>");
 		if ( !bAlsa_support ) {
 			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
