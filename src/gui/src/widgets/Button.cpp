@@ -159,11 +159,6 @@ void Button::setPressed(bool pressed)
 	}
 }
 
-
-
-
-
-
 void Button::enterEvent(QEvent *ev)
 {
 	UNUSED( ev );
@@ -284,7 +279,7 @@ void Button::setText( const QString& sText )
 ToggleButton::ToggleButton( QWidget *pParent, const QString& sOnImg, const QString& sOffImg, const QString& sOverImg, QSize size, bool use_skin_style )
  : Button( pParent, sOnImg, sOffImg, sOverImg, size, use_skin_style )
 {
-
+    this->setStyleSheet("font-size: 1px;");
 }
 
 

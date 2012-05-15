@@ -379,6 +379,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			QSize( 20, 13 )
 	);
 	m_pMetronomeBtn->move( 10, 26 );
+    m_pMetronomeBtn->setToolTip( trUtf8("Switch metronome on/off") );
 	connect( m_pMetronomeBtn, SIGNAL( clicked( Button* ) ), this, SLOT(metronomeButtonClicked( Button* ) ) );
         pAction = new MidiAction("TOGGLE_METRONOME");
         m_pMetronomeBtn->setAction( pAction );

@@ -72,6 +72,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	);
 	m_pMuteBtn->move( 145, 5 );
 	m_pMuteBtn->setPressed(false);
+    m_pMuteBtn->setToolTip( trUtf8("Mute instrument") );
 	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
 
 	m_pSoloBtn = new ToggleButton(
@@ -83,6 +84,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	);
 	m_pSoloBtn->move( 163, 5 );
 	m_pSoloBtn->setPressed(false);
+    m_pSoloBtn->setToolTip( trUtf8("Solo") );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
 

@@ -250,7 +250,7 @@ void MainForm::createMenuBar()
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( trUtf8( "&Open" ), this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
-	m_pFileMenu->addAction( trUtf8( "&Open Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
+    m_pFileMenu->addAction( trUtf8( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
 
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( trUtf8( "Open &recent" ) );
 
