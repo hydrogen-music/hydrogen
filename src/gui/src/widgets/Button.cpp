@@ -65,9 +65,7 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 		m_overPixmap.fill( QColor( 0, 180, 0 ) );
 	}
 
-	// default text font
-	m_textFont.setPointSize( 10 );
-	m_textFont.setBold( true );
+    this->setStyleSheet("font-size: 9px; font-weight: bold;");
 }
 
 
@@ -241,7 +239,7 @@ void Button::paintEvent( QPaintEvent* ev)
 
 
 	if ( !m_sText.isEmpty() ) {
-		painter.setFont( m_textFont );
+        painter.setFont( m_textFont );
 
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
@@ -279,7 +277,6 @@ void Button::setText( const QString& sText )
 ToggleButton::ToggleButton( QWidget *pParent, const QString& sOnImg, const QString& sOffImg, const QString& sOverImg, QSize size, bool use_skin_style )
  : Button( pParent, sOnImg, sOffImg, sOverImg, size, use_skin_style )
 {
-    this->setStyleSheet("font-size: 1px;");
 }
 
 
