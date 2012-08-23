@@ -8,13 +8,13 @@
         On the 'Downloads' page you can find several binaries (installers) for Linux, Mac and Windows.  (note that some versions may not be available for Windows and Mac)
       </p><p>
         If you want to compile Hydrogen yourself (see <a class="xref" href="#sect.compilation" title="Build">the section called &#8220;Build&#8221;</a>), you can download the latest source files directly from our
-        subversion server with:
+        git repository with:
 
-        </p><pre class="screen"><code class="prompt">$</code> <span class="command"><strong>svn co http://svn.assembla.com/svn/hydrogen/trunk</strong></span></pre><p>
+        </p><pre class="screen"><code class="prompt">$</code> <span class="command"><strong>git clone git://github.com/hydrogen-music/hydrogen.git</strong></span></pre><p>
 
         A certain release can be fetched with:
 
-        </p><pre class="screen"><code class="prompt">$</code> <span class="command"><strong>svn co http://svn.assembla.com/svn/hydrogen/tags/0.9.5</strong></span></pre><p>
+        </p><pre class="screen"><code class="prompt">$</code> <span class="command"><strong>git checkout tags/0.9.5</strong></span></pre><p>
       </p><p>Compiling Hydrogen depends on the following libraries:</p><div class="itemizedlist"><ul class="itemizedlist" type="opencircle"><li class="listitem" style="list-style-type: circle"><p>qt (&gt;= 4.0) at <a class="ulink" href="http://www.trolltech.com" target="_top">http://www.trolltech.com</a></p></li><li class="listitem" style="list-style-type: circle"><p>libsndfile at <a class="ulink" href="http://www.mega-nerd.com/libsndfile/" target="_top">http://www.mega-nerd.com/libsndfile/</a></p></li><li class="listitem" style="list-style-type: circle"><p>ALSA (&gt;= 1.x) at <a class="ulink" href="http://www.alsa-project.org" target="_top">http://www.alsa-project.org</a>
           (only if you wish to use ALSA as audio driver)</p></li><li class="listitem" style="list-style-type: circle"><p>Jack Audio Connection Kit (&gt;= 0.80) at 
           <a class="ulink" href="http://jackaudio.org/" target="_top">http://jackaudio.org/</a>
@@ -28,8 +28,8 @@
         <code class="prompt">$</code> <span class="command"><strong>apt-get install libqt4-dev g++ libasound2-dev \
         libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
         liblash-dev libportaudio-dev libportmidi-dev </strong></span>
-      </pre></div><div class="section" title="Build"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.compilation"></a>Build</h2></div></div></div><p>Depending on the branch you are compiling you will need to use Scons or Cmake.  Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</p><div class="section" title="Using scons (pre-0.9.6)"><div class="titlepage"><div><div><h3 class="title"><a name="sect.compilation.scons"></a>Using scons (pre-0.9.6)</h3></div></div></div><p>Decompress the tarball or go to the directory where the subversion copy
-        was checked out:</p><pre class="screen">
+      </pre></div><div class="section" title="Build"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="sect.compilation"></a>Build</h2></div></div></div><p>Depending on the branch you are compiling you will need to use Scons or Cmake.  Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</p><div class="section" title="Using scons (pre-0.9.6)"><div class="titlepage"><div><div><h3 class="title"><a name="sect.compilation.scons"></a>Using scons (pre-0.9.6)</h3></div></div></div><p>Decompress the tarball or go to the directory where the git repository
+        was cloned:</p><pre class="screen">
           <code class="prompt">$</code> <span class="command"><strong>cd hydrogen-*</strong></span>
           <code class="prompt">$</code> <span class="command"><strong>scons</strong></span>
           <code class="prompt">$</code> <span class="command"><strong>su -c "scons install"</strong></span>
@@ -43,8 +43,8 @@
           <code class="prompt">$</code> <span class="command"><strong>scons debug=1</strong></span>
         </pre><p>To clean up compiled code:</p><pre class="screen">
           <code class="prompt">$</code> <span class="command"><strong>scons -c</strong></span>
-        </pre></div><div class="section" title="Using cmake (0.9.6 and up)"><div class="titlepage"><div><div><h3 class="title"><a name="sect.compilation.cmake"></a>Using cmake (0.9.6 and up)</h3></div></div></div><p>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the subversion copy
-        was checked out and run the build.sh script without any arguments to display the help :</p><pre class="screen">
+        </pre></div><div class="section" title="Using cmake (0.9.6 and up)"><div class="titlepage"><div><div><h3 class="title"><a name="sect.compilation.cmake"></a>Using cmake (0.9.6 and up)</h3></div></div></div><p>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the git repository
+        was cloned and run the build.sh script without any arguments to display the help :</p><pre class="screen">
            <code class="prompt">$</code> <span class="command"><strong>./build.sh</strong></span>
         </pre><p>The help is now displayed (and is self-explanatory) :
         </p><pre class="screen">
@@ -330,7 +330,8 @@
           </p></li><li class="listitem" style="list-style-type: circle"><p>Properties : will open a window where you can change 
           the name of the pattern and also assign it to a certain category.
            </p><div class="informalfigure"><a name="fig.pattern_properties"></a><div class="mediaobject"><img src="img/pattern_properties.png"></div></div><p>
-          </p></li><li class="listitem" style="list-style-type: circle"><p>Load Pattern : will open the selected pattern in the Pattern Editor.
+          </p><p>Note that you can choose one of the existing categories from the dropdown list,
+          but you can also enter a new category name in the Pattern Category box.</p></li><li class="listitem" style="list-style-type: circle"><p>Load Pattern : will open the selected pattern in the Pattern Editor.
           </p></li><li class="listitem" style="list-style-type: circle"><p>Save Pattern : will open the selected pattern in the Pattern Editor.
           </p></li><li class="listitem" style="list-style-type: circle"><p>Virtual Pattern : will open the selected pattern in the Pattern Editor.
           </p><p>
