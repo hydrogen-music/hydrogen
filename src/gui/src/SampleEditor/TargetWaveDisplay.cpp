@@ -239,12 +239,12 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	int snapradius = 10;
-	QString editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentText();
+        int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
 
 
 	///edit volume points
-	if( editType == "volume" ){
+        if( editType == 0 ){
 		m_pvmove = true;
 	
 		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
@@ -282,7 +282,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 			}
 		}
 	///edit panorama points
-	}else if( editType == "panorama" ){
+        }else if( editType == 1 ){
 		m_pvmove = true;
 	
 		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
@@ -332,11 +332,11 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	bool newpoint = true;
 
 	// add new point
-	QString editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentText();
+        int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
 
 	///edit volume points
-	if( editType == "volume" ){
+        if( editType == 0 ){
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(__velocity.size()); ++i){
 			if ( __velocity[i].frame >= ev->x() - snapradius && __velocity[i].frame <= ev->x() + snapradius ){
@@ -378,7 +378,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		}
 	}
 	///edit panorama points
-	else if( editType == "panorama" ){
+        else if( editType == 1 ){
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(__pan.size()); ++i){
 			if ( __pan[i].frame >= ev->x() - snapradius && __pan[i].frame <= ev->x() + snapradius ){
