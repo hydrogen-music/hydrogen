@@ -39,11 +39,11 @@ pthread_t diskWriterDriverThread;
 void* diskWriterDriver_thread( void* param )
 {
 
-        Object* __object = ( Object* )param;
+		Object* __object = ( Object* )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
-        EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
-        pDriver->setBpm( Hydrogen::get_instance()->getSong()->__bpm );
-        pDriver->audioEngine_process_checkBPMChanged();
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
+		pDriver->setBpm( Hydrogen::get_instance()->getSong()->__bpm );
+		pDriver->audioEngine_process_checkBPMChanged();
 	__INFOLOG( "DiskWriterDriver thread start" );
 
 	// always rolling, no user interaction
@@ -63,10 +63,10 @@ void* diskWriterDriver_thread( void* param )
 	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ){
 		sfformat =  0x170000; //FLAC lossless file format
 	}
-	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){ 
+	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){
 		bits = 0x0001; //Signed 8 bit data works with aiff
 	}
-	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".wav") || pDriver->m_sFilename.endsWith(".WAV") ) ){ 
+	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".wav") || pDriver->m_sFilename.endsWith(".WAV") ) ){
 		bits = 0x0005; //Unsigned 8 bit data needed for Microsoft WAV format
 	}
 	if( pDriver->m_nSampleDepth == 16 ){
@@ -135,106 +135,106 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_R = pDriver->m_pOut_R;
 
 
-        Hydrogen* engine = Hydrogen::get_instance();
+		Hydrogen* engine = Hydrogen::get_instance();
 
 	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 	int nColumns = pPatternColumns->size();
 
 	int nPatternSize;
-        int validBpm = engine->getSong()->__bpm;
-        float oldBPM = 0;
-        float ticksize = 0;
-        for ( int patternposition = 0; patternposition < nColumns; ++patternposition ) {
-                PatternList *pColumn = ( *pPatternColumns )[ patternposition ];
+		int validBpm = engine->getSong()->__bpm;
+		float oldBPM = 0;
+		float ticksize = 0;
+		for ( int patternposition = 0; patternposition < nColumns; ++patternposition ) {
+				PatternList *pColumn = ( *pPatternColumns )[ patternposition ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->get( 0 )->get_length();
 		} else {
 			nPatternSize = MAX_NOTES;
-                }
+				}
 
-                ticksize = pDriver->m_nSampleRate * 60.0 /  engine->getSong()->__bpm / engine->getSong()->__resolution;
-                // check pattern bpm if timeline bpm is in use
-                if(Preferences::get_instance()->getUseTimelineBpm() ){
-                        if( engine->m_timelinevector.size() >= 1 ){
+				ticksize = pDriver->m_nSampleRate * 60.0 /  engine->getSong()->__bpm / engine->getSong()->__resolution;
+				// check pattern bpm if timeline bpm is in use
+				if(Preferences::get_instance()->getUseTimelineBpm() ){
+						if( engine->m_timelinevector.size() >= 1 ){
 
-                                for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-                                        if(engine->m_timelinevector[t].m_htimelinebeat == patternposition && engine->m_timelinevector[t].m_htimelinebpm != validBpm){
-                                                validBpm =  engine->m_timelinevector[t].m_htimelinebpm;
-                                        }
+								for ( int t = 0; t < engine->m_timelinevector.size(); t++){
+										if(engine->m_timelinevector[t].m_htimelinebeat == patternposition && engine->m_timelinevector[t].m_htimelinebpm != validBpm){
+												validBpm =  engine->m_timelinevector[t].m_htimelinebpm;
+										}
 
-                                }
-                        }
-                        pDriver->setBpm(validBpm);
-                        ticksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
-                        pDriver->audioEngine_process_checkBPMChanged();
-                        engine->setPatternPos(patternposition);
+								}
+						}
+						pDriver->setBpm(validBpm);
+						ticksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
+						pDriver->audioEngine_process_checkBPMChanged();
+						engine->setPatternPos(patternposition);
 
-                        // delay needed time to calculate all rubberband samples
-                        if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
-                                EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
-                                int sleepTime = Preferences::get_instance()->getRubberBandCalcTime()+1;
-                                while ((sleepTime = sleep(sleepTime)) > 0);
-                        }
-                        oldBPM = validBpm;
+						// delay needed time to calculate all rubberband samples
+						if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
+								EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+								int sleepTime = Preferences::get_instance()->getRubberBandCalcTime()+1;
+								while ((sleepTime = sleep(sleepTime)) > 0);
+						}
+						oldBPM = validBpm;
 
-                }
-                else
-                {
-                        ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
-                        //pDriver->m_transport.m_nTickSize = ticksize;
-                }
+				}
+				else
+				{
+						ticksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
+						//pDriver->m_transport.m_nTickSize = ticksize;
+				}
 
 
-                 //here we have the pattern length in frames dependent from bpm and samplerate
-                unsigned patternLengthInFrames = ticksize * nPatternSize;
-        
-                unsigned frameNumber = 0;
-                int lastRun = 0;
-                while ( frameNumber < patternLengthInFrames ) {
-        
-                        int usedBuffer = pDriver->m_nBufferSize;
-        
-                        //this will calculate the the size from -last- (end of pattern) used frame buffer,
-                        //which is mostly smaller than pDriver->m_nBufferSize
-                        if( patternLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
-                                lastRun = patternLengthInFrames - frameNumber;
-                                usedBuffer = lastRun;
-                        };
-        
-                        frameNumber += usedBuffer;
-                        int ret = pDriver->m_processCallback( usedBuffer, NULL );
-        
-                        for ( unsigned i = 0; i < usedBuffer; i++ ) {
-                                if(pData_L[i] > 1){
-                                        pData[i * 2] = 1;
-                                }
-                                else if(pData_L[i] < -1){
-                                        pData[i * 2] = -1;
-                                }else
-                                {
-                                        pData[i * 2] = pData_L[i];
-                                }
-        
-                                if(pData_R[i] > 1){
-                                        pData[i * 2 + 1] = 1;
-                                }
-                                else if(pData_R[i] < -1){
-                                        pData[i * 2 + 1] = -1;
-                                }else
-                                {
-                                        pData[i * 2 + 1] = pData_R[i];
-                                }
-                        }
-                        int res = sf_writef_float( m_file, pData, usedBuffer );
-                        if ( res != ( int )usedBuffer ) {
-                                __ERRORLOG( "Error during sf_write_float" );
-                        }
-                }
+				 //here we have the pattern length in frames dependent from bpm and samplerate
+				unsigned patternLengthInFrames = ticksize * nPatternSize;
 
-                // this progress bar methode is not exact but ok enough to give users a usable visible progress feedback
-                float fPercent = ( float )(patternposition +1) / ( float )nColumns * 100.0;
-                EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
-        }
+				unsigned frameNumber = 0;
+				int lastRun = 0;
+				while ( frameNumber < patternLengthInFrames ) {
+
+						int usedBuffer = pDriver->m_nBufferSize;
+
+						//this will calculate the the size from -last- (end of pattern) used frame buffer,
+						//which is mostly smaller than pDriver->m_nBufferSize
+						if( patternLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
+								lastRun = patternLengthInFrames - frameNumber;
+								usedBuffer = lastRun;
+						};
+
+						frameNumber += usedBuffer;
+						int ret = pDriver->m_processCallback( usedBuffer, NULL );
+
+						for ( unsigned i = 0; i < usedBuffer; i++ ) {
+								if(pData_L[i] > 1){
+										pData[i * 2] = 1;
+								}
+								else if(pData_L[i] < -1){
+										pData[i * 2] = -1;
+								}else
+								{
+										pData[i * 2] = pData_L[i];
+								}
+
+								if(pData_R[i] > 1){
+										pData[i * 2 + 1] = 1;
+								}
+								else if(pData_R[i] < -1){
+										pData[i * 2 + 1] = -1;
+								}else
+								{
+										pData[i * 2 + 1] = pData_R[i];
+								}
+						}
+						int res = sf_writef_float( m_file, pData, usedBuffer );
+						if ( res != ( int )usedBuffer ) {
+								__ERRORLOG( "Error during sf_write_float" );
+						}
+				}
+
+				// this progress bar methode is not exact but ok enough to give users a usable visible progress feedback
+				float fPercent = ( float )(patternposition +1) / ( float )nColumns * 100.0;
+				EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
+		}
 
 	delete[] pData;
 	pData = NULL;
@@ -297,7 +297,7 @@ int DiskWriterDriver::connect()
 
 	pthread_create( &diskWriterDriverThread, &attr, diskWriterDriver_thread, this );
 
-        return 0;
+		return 0;
 
 }
 
@@ -306,7 +306,7 @@ int DiskWriterDriver::connect()
 /// disconnect
 void DiskWriterDriver::disconnect()
 {
-        INFOLOG( "[disconnect]" );
+		INFOLOG( "[disconnect]" );
 	delete[] m_pOut_L;
 	m_pOut_L = NULL;
 
@@ -361,29 +361,29 @@ void DiskWriterDriver::setBpm( float fBPM )
 
 void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 {
-        float fNewTickSize =
-                        getSampleRate() * 60.0
-                        / Hydrogen::get_instance()->getSong()->__bpm
-                        / Hydrogen::get_instance()->getSong()->__resolution;
+		float fNewTickSize =
+						getSampleRate() * 60.0
+						/ Hydrogen::get_instance()->getSong()->__bpm
+						/ Hydrogen::get_instance()->getSong()->__resolution;
 
-        if ( fNewTickSize != m_transport.m_nTickSize ) {
-                // cerco di convertire ...
-                float fTickNumber =
-                                ( float )m_transport.m_nFrames
-                                / ( float )m_transport.m_nTickSize;
+		if ( fNewTickSize != m_transport.m_nTickSize ) {
+				// cerco di convertire ...
+				float fTickNumber =
+								( float )m_transport.m_nFrames
+								/ ( float )m_transport.m_nTickSize;
 
-                m_transport.m_nTickSize = fNewTickSize;
+				m_transport.m_nTickSize = fNewTickSize;
 
-                if ( m_transport.m_nTickSize == 0 ) {
-                        return;
-                }
+				if ( m_transport.m_nTickSize == 0 ) {
+						return;
+				}
 
-                // update frame position
-                m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
+				// update frame position
+				m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
 
-                // currently unuseble here
-                //EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
-        }
+				// currently unuseble here
+				//EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+		}
 }
 
 };

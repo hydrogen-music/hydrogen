@@ -52,7 +52,7 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 
 void* alsaAudioDriver_processCaller( void* param )
 {
-    Object *__object = (Object*)param;
+	Object *__object = (Object*)param;
 	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// stolen from amSynth
@@ -157,7 +157,7 @@ int AlsaAudioDriver::connect()
 		// il dispositivo e' occupato..provo con "default"
 		m_sAlsaAudioDevice = "default";
 		if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-		    ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ) .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+			ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ) .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 			return 1;
 		}
 		WARNINGLOG( "Using alsa device: " + m_sAlsaAudioDevice );
@@ -166,7 +166,7 @@ int AlsaAudioDriver::connect()
 
 	// Apro il device ( bloccante )
 	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
-	    ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 

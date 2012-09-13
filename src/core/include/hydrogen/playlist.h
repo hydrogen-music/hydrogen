@@ -34,27 +34,27 @@
 
 
 ///
-/// handle playlist  
+/// handle playlist
 ///
 
 class Playlist :  public H2Core::Object
 
 {
-    H2_OBJECT
-	
+	H2_OBJECT
+
 	public:
 		static void create_instance();
 		static Playlist* get_instance() { assert(__instance); return __instance; }
-		
+
 		~Playlist();
 
 //		std::vector<HPlayListNode> m_PlayList;
-                void setNextSongByNumber(int SongNumber);
+				void setNextSongByNumber(int SongNumber);
 		void setSelectedSongNr( int songNumber);
 
 		int selectedSongNumber;
 		int activeSongNumber;
-		
+
 		int getSelectedSongNr();
 		void setActiveSongNumber( int ActiveSongNumber);
 		int getActiveSongNumber();

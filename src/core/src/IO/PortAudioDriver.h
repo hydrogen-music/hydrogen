@@ -40,7 +40,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class PortAudioDriver : public AudioOutput
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	audioProcessCallback m_processCallback;
 	float* m_pOut_L;
@@ -79,7 +79,7 @@ namespace H2Core
 
 class PortAudioDriver : public NullDriver
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

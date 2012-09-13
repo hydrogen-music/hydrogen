@@ -54,7 +54,7 @@ class Instrument;
 ///
 class JackOutput : public AudioOutput
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	jack_client_t *client;
 
@@ -103,27 +103,27 @@ public:
 
 //jack timebase callback
 	void initTimeMaster();
- 	void com_release();
+	void com_release();
 //~ jack timebase callback
 
 protected:
 //jack timebase callback
 	static void jack_timebase_callback(jack_transport_state_t state,
-                                           jack_nframes_t nframes,
-                                           jack_position_t *pos,
-                                           int new_pos,
-                                           void *arg);
+										   jack_nframes_t nframes,
+										   jack_position_t *pos,
+										   int new_pos,
+										   void *arg);
 
 	void jack_timebase_callback_impl(jack_transport_state_t state,
-                                         jack_nframes_t nframes,
-                                         jack_position_t *pos,
-                                         int new_pos);
+										 jack_nframes_t nframes,
+										 jack_position_t *pos,
+										 int new_pos);
 //~ jack timebase callback
 
 #ifdef H2CORE_HAVE_JACKSESSION
-        static void jack_session_callback(jack_session_event_t *event, void *arg);
+		static void jack_session_callback(jack_session_event_t *event, void *arg);
 
-        void jack_session_callback_impl(jack_session_event_t *event);
+		void jack_session_callback_impl(jack_session_event_t *event);
 #endif
 
 private:
@@ -150,7 +150,7 @@ private:
 
 //jack timebase callback
 	jack_nframes_t m_jack_frame_current,
-       		           m_jack_frame_last;
+					   m_jack_frame_last;
 	jack_transport_state_t m_JackTransportStateLast;
 	double m_jack_tick;
 
@@ -167,7 +167,7 @@ namespace H2Core {
 
 class JackOutput : public NullDriver
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	JackOutput( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

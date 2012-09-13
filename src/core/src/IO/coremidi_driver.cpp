@@ -42,14 +42,14 @@ namespace H2Core
 
 
 static void midiProc ( const MIDIPacketList * pktlist,
-                       void * readProcRefCon,
-                       void * srcConnRefCon )
+					   void * readProcRefCon,
+					   void * srcConnRefCon )
 {
 	UNUSED( srcConnRefCon );
 
 	MIDIPacket* packet = ( MIDIPacket * )pktlist->packet;
 
-        //_ERRORLOG( QString( "MIDIPROC packets # %1" ).arg( pktlist->numPackets ) );
+		//_ERRORLOG( QString( "MIDIPROC packets # %1" ).arg( pktlist->numPackets ) );
 
 	CoreMidiDriver *instance = ( CoreMidiDriver * )readProcRefCon;
 	MidiMessage msg;
@@ -76,14 +76,14 @@ static void midiProc ( const MIDIPacketList * pktlist,
 		} else if ( ( nEventType >= 224 ) && ( nEventType < 240 ) ) {	// Pitch Wheel Change
 			msg.m_nChannel = nEventType - 224;
 			msg.m_type = MidiMessage::PITCH_WHEEL;
-                } else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
-                       msg.m_type = MidiMessage::SYSEX;
-                       for(int i = 0; i< packet->length;i++){
-                              msg.m_sysexData.push_back(packet->data[i]);
-                       }
-                       instance->handleMidiMessage( msg );
-                       packet = MIDIPacketNext( packet );
-                       return;
+				} else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
+					   msg.m_type = MidiMessage::SYSEX;
+					   for(int i = 0; i< packet->length;i++){
+							  msg.m_sysexData.push_back(packet->data[i]);
+					   }
+					   instance->handleMidiMessage( msg );
+					   packet = MIDIPacketNext( packet );
+					   return;
 		} else {
 			___ERRORLOG( QString( "Unhandled midi message type: %1" ).arg( nEventType ) );
 			___INFOLOG( "MIDI msg: " );
@@ -153,7 +153,7 @@ void CoreMidiDriver::open()
 		}
 		CFRelease ( H2MidiNames );
 	}
-	
+
 	int n = MIDIGetNumberOfDestinations();
 	if (n > 0) {
 		cmH2Dst = MIDIGetDestination(0);
@@ -161,13 +161,13 @@ void CoreMidiDriver::open()
 
 	if (cmH2Dst != NULL) {
 		CFStringRef H2MidiNames;
-		
+
 		MIDIObjectGetStringProperty(cmH2Dst, kMIDIPropertyName, &H2MidiNames);
 		//CFStringGetCString(pname, name, sizeof(name), 0);
 		//MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
 		MIDIPortConnectSource ( h2OutputRef, cmH2Dst, NULL );
 		if( H2MidiNames != NULL){
-		    CFRelease( H2MidiNames );
+			CFRelease( H2MidiNames );
 		}
 	}
 }
@@ -214,12 +214,12 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 		}
 		CFRelease( H2MidiNames );
 	}
-		
+
 	return cmPortList;
 }
 
 void CoreMidiDriver::handleQueueNote(Note* pNote)
-{	
+{
 	if (cmH2Dst == NULL ) {
 		ERRORLOG( "cmH2Dst = NULL " );
 		return;
@@ -232,28 +232,28 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 
 	int key = pNote->get_midi_key();
 	int velocity = pNote->get_midi_velocity();
-	
+
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
-	
+
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
 	packetList.packet->data[0] = 0x80 | channel;
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
-	
-	
+
+
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
-	
+
 	packetList.packet->data[0] = 0x90 | channel;
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
-	
+
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
 }
 
 void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
-{	
+{
 	if (cmH2Dst == NULL ) {
 		ERRORLOG( "cmH2Dst = NULL " );
 		return;
@@ -263,20 +263,20 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	if (channel < 0) {
 		return;
 	}
-		
+
 //	int key = pNote->get_instrument()->get_midi_out_note();
 //	int velocity = pNote->get_velocity() * 127;
-	
+
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
-	
+
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
 	packetList.packet->data[0] = 0x80 | channel;
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
-	
-	
+
+
 	MIDISend(h2OutputRef, cmH2Dst, &packetList);
 }
 
@@ -286,30 +286,30 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		ERRORLOG( "cmH2Dst = NULL " );
 		return;
 	}
-	
+
 	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-		
+
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
 		Instrument *curInst = instList->get(index);
-	
+
 		int channel = curInst->get_midi_out_channel();
 		if (channel < 0) {
 			continue;
 		}
 		int key = curInst->get_midi_out_note();
-	
+
 		MIDIPacketList packetList;
 		packetList.numPackets = 1;
-	
+
 		packetList.packet->timeStamp = 0;
 		packetList.packet->length = 3;
 		packetList.packet->data[0] = 0x80 | channel;
 		packetList.packet->data[1] = key;
 		packetList.packet->data[2] = 0;
-	
+
 		MIDISend(h2OutputRef, cmH2Dst, &packetList);
-	
+
 	}
 }
 

@@ -48,7 +48,7 @@ pthread_t PortMidiDriverThread;
 
 void* PortMidiDriver_thread( void* param )
 {
-    Object *__object = (Object*)param;
+	Object *__object = (Object*)param;
 	PortMidiDriver *instance = ( PortMidiDriver* )param;
 	__INFOLOG( "PortMidiDriver_thread starting" );
 
@@ -156,7 +156,7 @@ void PortMidiDriver::open()
 				nDeviceId = i;
 			}
 		}
-		
+
 		if ( info->output == TRUE ) {
 			if ( info->name == sMidiPortName.toStdString() ) {
 				nOutDeviceId = i;
@@ -168,7 +168,7 @@ void PortMidiDriver::open()
 		INFOLOG( "Midi input device not found." );
 		return;
 	}
-	
+
 	if ( nOutDeviceId == -1 ) {
 		INFOLOG( "Midi output device not found." );
 		return;
@@ -183,27 +183,27 @@ void PortMidiDriver::open()
 	TIME_START;
 
 	PmError err = Pm_OpenInput(
-	                  &m_pMidiIn,
-	                  nDeviceId,
-	                  NULL,
-	                  nInputBufferSize,
-	                  TIME_PROC,
-	                  NULL
-	              );
+					  &m_pMidiIn,
+					  nDeviceId,
+					  NULL,
+					  nInputBufferSize,
+					  TIME_PROC,
+					  NULL
+				  );
 
 	if ( err != pmNoError ) {
 		ERRORLOG( "Error in Pm_OpenInput" );
 	}
-	
+
 	err = Pm_OpenOutput(
-	                  &m_pMidiOut,
-	                  nOutDeviceId,
-	                  NULL,
-	                  nInputBufferSize,
-	                  TIME_PROC,
-	                  NULL,
+					  &m_pMidiOut,
+					  nOutDeviceId,
+					  NULL,
+					  nInputBufferSize,
+					  TIME_PROC,
+					  NULL,
 			  0
-	              );
+				  );
 
 	if ( err != pmNoError ) {
 		ERRORLOG( "Error in Pm_OpenInput" );
@@ -253,7 +253,7 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 }
 
 void PortMidiDriver::handleQueueNote(Note* pNote)
-{	
+{
 	if ( m_pMidiOut == NULL ) {
 		ERRORLOG( "m_pMidiOut = NULL " );
 		return;
@@ -263,24 +263,24 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 	if (channel < 0) {
 		return;
 	}
-		
+
 	int key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() -60;
 	int velocity = pNote->get_midi_velocity();
-	
+
 	PmEvent event;
 	event.timestamp = 0;
-	
+
 	//Note off
 	event.message = Pm_Message(0x80 | channel, key, velocity);
 	Pm_Write(m_pMidiOut, &event, 1);
-	
+
 	//Note on
 	event.message = Pm_Message(0x90 | channel, key, velocity);
 	Pm_Write(m_pMidiOut, &event, 1);
 }
 
 void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
-{	
+{
 	if ( m_pMidiOut == NULL ) {
 		ERRORLOG( "m_pMidiOut = NULL " );
 		return;
@@ -290,12 +290,12 @@ void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	if (channel < 0) {
 		return;
 	}
-		
+
 //	int velocity = pNote->get_midi_velocity();
-	
+
 	PmEvent event;
 	event.timestamp = 0;
-	
+
 	//Note off
 	event.message = Pm_Message(0x80 | channel, key, velocity);
 	Pm_Write(m_pMidiOut, &event, 1);
@@ -307,22 +307,22 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		ERRORLOG( "m_pMidiOut = NULL " );
 		return;
 	}
-	
+
 	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-		
+
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
 		Instrument *curInst = instList->get(index);
-	
+
 		int channel = curInst->get_midi_out_channel();
 		if (channel < 0) {
 			continue;
 		}
 		int key = curInst->get_midi_out_note();
-		
+
 		PmEvent event;
 		event.timestamp = 0;
-	
+
 		//Note off
 		event.message = Pm_Message(0x80 | channel, key, 0);
 		Pm_Write(m_pMidiOut, &event, 1);

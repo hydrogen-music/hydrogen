@@ -62,7 +62,7 @@ void SMFBuffer::writeString( const QString& sMsg )
 	writeVarLen( sMsg.length() );
 
 	for ( int i = 0; i < sMsg.length(); i++ ) {
-                writeByte( sMsg.toLocal8Bit().at(i) );
+				writeByte( sMsg.toLocal8Bit().at(i) );
 	}
 }
 

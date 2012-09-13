@@ -60,7 +60,7 @@ Sampler::Sampler()
 		, __preview_instrument( NULL )
 {
 	INFOLOG( "INIT" );
-        __interpolateMode = LINEAR;
+		__interpolateMode = LINEAR;
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
@@ -94,8 +94,8 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
 
-	// Track output queues are zeroed by 
- 	// audioEngine_process_clearAudioBuffers() 
+	// Track output queues are zeroed by
+	// audioEngine_process_clearAudioBuffers()
 
 	// Max notes limit
 	int m_nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
@@ -123,14 +123,14 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 			++i; // carico la prox nota
 		}
 	}
-	
+
 	//Queue midi note off messages for notes that have a length specified for them
 
 	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
 		MidiOutput* midiOut = Hydrogen::get_instance()->getMidiOutput();
-		if( midiOut != NULL ){ 
-		    midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
+		if( midiOut != NULL ){
+			midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
 
 		}
 		__queuedNoteOffs.erase( __queuedNoteOffs.begin() );
@@ -147,44 +147,44 @@ void Sampler::note_on( Note *note )
 	//infoLog( "[noteOn]" );
 	assert( note );
 
-        note->get_adsr()->attack();
+		note->get_adsr()->attack();
 	Instrument *pInstr = note->get_instrument();
 
 	// mute group
-    int mute_grp = pInstr->get_mute_group();
+	int mute_grp = pInstr->get_mute_group();
 	if ( mute_grp != -1 ) {
 		// remove all notes using the same mute group
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
 			Note *pNote = __playing_notes_queue[ j ];
 			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == mute_grp ) ) {
-                                pNote->get_adsr()->release();
+								pNote->get_adsr()->release();
 			}
 		}
 	}
 
-	//note off notes	
+	//note off notes
 	if( note->get_note_off() ){
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
 			Note *pNote = __playing_notes_queue[ j ];
 
 			if ( ( pNote->get_instrument() == pInstr ) ) {
 				//ERRORLOG("note_off");
-                                pNote->get_adsr()->release();
-			}	
+								pNote->get_adsr()->release();
+			}
 		}
 	}
-	
+
 	pInstr->enqueue();
 	if( !note->get_note_off() ){
 		__playing_notes_queue.push_back( note );
 	} else {
 		delete note;
 	}
-	
-        if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
+
+		if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
 		Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( note );
 	}
-	
+
 }
 
 void Sampler::midi_keyboard_note_off( int key )
@@ -193,8 +193,8 @@ void Sampler::midi_keyboard_note_off( int key )
 		Note *pNote = __playing_notes_queue[ j ];
 
 		if ( ( pNote->get_midi_msg() == key) ) {
-                        pNote->get_adsr()->release();
-		}	
+						pNote->get_adsr()->release();
+		}
 	}
 }
 
@@ -210,11 +210,11 @@ void Sampler::note_off( Note* note )
 	Instrument *pInstr = note->get_instrument();
 	// find the notes using the same instrument, and release them
 	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
- 		Note *pNote = __playing_notes_queue[ j ];
+		Note *pNote = __playing_notes_queue[ j ];
 		if ( pNote->get_instrument() == pInstr ) {
-                        pNote->get_adsr()->release();
+						pNote->get_adsr()->release();
 		}
- 	}
+	}
 }
 
 
@@ -292,12 +292,12 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	float cost_L = 1.0f;
 	float cost_R = 1.0f;
 	float cost_track_L = 1.0f;
-        float cost_track_R = 1.0f;
+		float cost_track_R = 1.0f;
 
 	if ( pInstr->is_muted() || pSong->__is_muted ) {	// is instrument muted?
 		cost_L = 0.0;
 		cost_R = 0.0;
-                if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
+				if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
 		// Post-Fader
 			cost_track_L = 0.0;
 			cost_track_R = 0.0;
@@ -308,10 +308,10 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		cost_L = cost_L * pNote->get_pan_l();		// note pan
 		cost_L = cost_L * fLayerGain;				// layer gain
 		cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
-                cost_L = cost_L * pInstr->get_gain();		// instrument gain
+				cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
 		cost_L = cost_L * pInstr->get_volume();		// instrument volume
-                if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
+				if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
 		// Post-Fader
 			cost_track_L = cost_L * 2;
 		}
@@ -323,10 +323,10 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		cost_R = cost_R * pNote->get_pan_r();		// note pan
 		cost_R = cost_R * fLayerGain;				// layer gain
 		cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
-                cost_R = cost_R * pInstr->get_gain();		// instrument gain
+				cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
 		cost_R = cost_R * pInstr->get_volume();		// instrument volume
-                if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
+				if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
 		// Post-Fader
 			cost_track_R = cost_R * 2;
 		}
@@ -351,22 +351,22 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 
 	if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) {	// NO RESAMPLE
-                return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
+				return __render_note_no_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
 	} else {	// RESAMPLE
-                return __render_note_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
+				return __render_note_resample( pSample, pNote, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
 	}
 }
 
 int Sampler::__render_note_no_resample(
-    Sample *pSample,
-    Note *pNote,
-    int nBufferSize,
-    int nInitialSilence,
-    float cost_L,
-    float cost_R,
-    float cost_track_L,
-    float cost_track_R,
-    Song* pSong
+	Sample *pSample,
+	Note *pNote,
+	int nBufferSize,
+	int nInitialSilence,
+	float cost_L,
+	float cost_R,
+	float cost_track_L,
+	float cost_track_R,
+	Song* pSong
 )
 {
 	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
@@ -413,43 +413,43 @@ int Sampler::__render_note_no_resample(
 		nInstrument = 0;
 	}
 
-#ifdef H2CORE_HAVE_JACK 
-	JackOutput* jao = 0; 
-	float *track_out_L = 0; 
-	float *track_out_R = 0; 
-	if( audio_output->has_track_outs() 
-	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
-		track_out_L = jao->getTrackOut_L( nInstrument ); 
-		track_out_R = jao->getTrackOut_R( nInstrument ); 
-	} 
-#endif 
-	
+#ifdef H2CORE_HAVE_JACK
+	JackOutput* jao = 0;
+	float *track_out_L = 0;
+	float *track_out_R = 0;
+	if( audio_output->has_track_outs()
+	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
+		track_out_L = jao->getTrackOut_L( nInstrument );
+		track_out_R = jao->getTrackOut_R( nInstrument );
+	}
+#endif
+
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->get_sample_position() )  ) {
-                        if ( pNote->get_adsr()->release() == 0 ) {
+						if ( pNote->get_adsr()->release() == 0 ) {
 				retValue = 1;	// the note is ended
 			}
 		}
 
-                fADSRValue = pNote->get_adsr()->get_value( 1 );
-                fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
-                fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
+				fADSRValue = pNote->get_adsr()->get_value( 1 );
+				fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
+				fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
 
-                // Low pass resonant filter
+				// Low pass resonant filter
 		if ( pNote->get_instrument()->is_filter_active() ) {
-                     pNote->compute_lr_values( &fVal_L, &fVal_R );
-                }
+					 pNote->compute_lr_values( &fVal_L, &fVal_R );
+				}
 
 #ifdef H2CORE_HAVE_JACK
-	if( track_out_L ) { 
-		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
-	} 
-	if( track_out_R ) { 
-		track_out_R[nBufferPos] += fVal_R * cost_track_R; 
+	if( track_out_L ) {
+		track_out_L[nBufferPos] += fVal_L * cost_track_L;
+	}
+	if( track_out_R ) {
+		track_out_R[nBufferPos] += fVal_R * cost_track_R;
 	}
 #endif
 
-                fVal_L = fVal_L * cost_L;
+				fVal_L = fVal_L * cost_L;
 		fVal_R = fVal_R * cost_R;
 
 		// update instr peak
@@ -472,7 +472,7 @@ int Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_LADSPA
-        float masterVol =  pSong->get_volume();
+		float masterVol =  pSong->get_volume();
 	// LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -486,14 +486,14 @@ int Sampler::__render_note_no_resample(
 
 //			float fFXCost_L = cost_L * fLevel;
 //			float fFXCost_R = cost_R * fLevel;
-                        float fFXCost_L = fLevel * masterVol;
-                        float fFXCost_R = fLevel * masterVol;
+						float fFXCost_L = fLevel * masterVol;
+						float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
 			int nSamplePos = nInitialSamplePos;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
-                                pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L;
-                                pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R;
+								pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L;
+								pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R;
 				++nSamplePos;
 				++nBufferPos;
 			}
@@ -508,16 +508,16 @@ int Sampler::__render_note_no_resample(
 
 
 int Sampler::__render_note_resample(
-    Sample *pSample,
-    Note *pNote,
-    int nBufferSize,
-    int nInitialSilence,
-    float cost_L,
-    float cost_R,
-    float cost_track_L,
-    float cost_track_R,
-    float fLayerPitch,
-    Song* pSong
+	Sample *pSample,
+	Note *pNote,
+	int nBufferSize,
+	int nInitialSilence,
+	float cost_L,
+	float cost_R,
+	float cost_track_L,
+	float cost_track_R,
+	float fLayerPitch,
+	Song* pSong
 )
 {
 	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
@@ -554,7 +554,7 @@ int Sampler::__render_note_resample(
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
 
-        float fADSRValue = 1.0;
+		float fADSRValue = 1.0;
 	float fVal_L;
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
@@ -568,88 +568,88 @@ int Sampler::__render_note_resample(
 		nInstrument = 0;
 	}
 
-#ifdef H2CORE_HAVE_JACK 
-	JackOutput* jao = 0; 
-	float *track_out_L = 0; 
-	float *track_out_R = 0; 
-	if( audio_output->has_track_outs() 
-	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) { 
-		track_out_L = jao->getTrackOut_L( nInstrument ); 
-		track_out_R = jao->getTrackOut_R( nInstrument ); 
-	} 
+#ifdef H2CORE_HAVE_JACK
+	JackOutput* jao = 0;
+	float *track_out_L = 0;
+	float *track_out_R = 0;
+	if( audio_output->has_track_outs()
+	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
+		track_out_L = jao->getTrackOut_L( nInstrument );
+		track_out_R = jao->getTrackOut_R( nInstrument );
+	}
 #endif
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->get_sample_position() )  ) {
-                        if ( pNote->get_adsr()->release() == 0 ) {
+						if ( pNote->get_adsr()->release() == 0 ) {
 				retValue = 1;	// the note is ended
 			}
 		}
 
-                int nSamplePos = ( int )fSamplePos;
-                double fDiff = fSamplePos - nSamplePos;
-                if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-                        //we reach the last audioframe.
+				int nSamplePos = ( int )fSamplePos;
+				double fDiff = fSamplePos - nSamplePos;
+				if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
+						//we reach the last audioframe.
 			//set this last frame to zero do nothin wrong.
-                        fVal_L = 0.0;
-                        fVal_R = 0.0;
-                } else {
-                       // some interpolation methods need 4 frames data.
-                       float last_l;
-                       float last_r;
-                       if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
-                              last_l = 0.0;
-                              last_r = 0.0;
-                       }else
-                       {
-                             last_l =  pSample_data_L[nSamplePos + 2];
-                             last_r =  pSample_data_R[nSamplePos + 2];
-                       }
+						fVal_L = 0.0;
+						fVal_R = 0.0;
+				} else {
+					   // some interpolation methods need 4 frames data.
+					   float last_l;
+					   float last_r;
+					   if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+							  last_l = 0.0;
+							  last_r = 0.0;
+					   }else
+					   {
+							 last_l =  pSample_data_L[nSamplePos + 2];
+							 last_r =  pSample_data_R[nSamplePos + 2];
+					   }
 
-                        switch( __interpolateMode ){
-                                
-                        case LINEAR:
-                                fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-                                fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-                                //fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-                                //fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-                                break;
-                        case COSINE:
-                                fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-                                fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-                                break;
-                        case THIRD:
-                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-                                break;
-                        case CUBIC:
-                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-                                break;
-                        case HERMITE:
-                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-                                break;
-                        }
-                }
+						switch( __interpolateMode ){
+
+						case LINEAR:
+								fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+								fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+								//fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+								//fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+								break;
+						case COSINE:
+								fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+								fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+								break;
+						case THIRD:
+								fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+								break;
+						case CUBIC:
+								fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+								break;
+						case HERMITE:
+								fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+								break;
+						}
+				}
 
 		// ADSR envelope
-                fADSRValue = pNote->get_adsr()->get_value( fStep );
-                fVal_L = fVal_L * fADSRValue;
-                fVal_R = fVal_R * fADSRValue;
+				fADSRValue = pNote->get_adsr()->get_value( fStep );
+				fVal_L = fVal_L * fADSRValue;
+				fVal_R = fVal_R * fADSRValue;
 		// Low pass resonant filter
 		if ( pNote->get_instrument()->is_filter_active() ) {
-                     pNote->compute_lr_values( &fVal_L, &fVal_R );
-                }
+					 pNote->compute_lr_values( &fVal_L, &fVal_R );
+				}
 
 
 
 #ifdef H2CORE_HAVE_JACK
-	if( track_out_L ) { 
-		track_out_L[nBufferPos] += fVal_L * cost_track_L; 
-	} 
-	if( track_out_R ) { 
-		track_out_R[nBufferPos] += fVal_R * cost_track_R; 
+	if( track_out_L ) {
+		track_out_L[nBufferPos] += fVal_L * cost_track_L;
+	}
+	if( track_out_R ) {
+		track_out_R[nBufferPos] += fVal_R * cost_track_R;
 	}
 #endif
 
@@ -678,7 +678,7 @@ int Sampler::__render_note_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
-        float masterVol = pSong->get_volume();
+		float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
@@ -690,8 +690,8 @@ int Sampler::__render_note_resample(
 
 //			float fFXCost_L = cost_L * fLevel;
 //			float fFXCost_R = cost_R * fLevel;
-                        float fFXCost_L = fLevel * masterVol;
-                        float fFXCost_R = fLevel * masterVol;
+						float fFXCost_L = fLevel * masterVol;
+						float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
 			float fSamplePos = fInitialSamplePos;
@@ -699,57 +699,57 @@ int Sampler::__render_note_resample(
 				int nSamplePos = ( int )fSamplePos;
 				double fDiff = fSamplePos - nSamplePos;
 
-                                if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-                                        //we reach the last audioframe.
+								if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
+										//we reach the last audioframe.
 					//set this last frame to zero do nothin wrong.
 					fVal_L = 0.0;
 					fVal_R = 0.0;
-                                } else {
-                                       // some interpolation methods need 4 frames data.
-                                       float last_l;
-                                       float last_r;
-                                       if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
-                                              last_l = 0.0;
-                                              last_r = 0.0;
-                                       }else
-                                       {
-                                             last_l =  pSample_data_L[nSamplePos + 2];
-                                             last_r =  pSample_data_R[nSamplePos + 2];
-                                       }
+								} else {
+									   // some interpolation methods need 4 frames data.
+									   float last_l;
+									   float last_r;
+									   if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+											  last_l = 0.0;
+											  last_r = 0.0;
+									   }else
+									   {
+											 last_l =  pSample_data_L[nSamplePos + 2];
+											 last_r =  pSample_data_R[nSamplePos + 2];
+									   }
 
-                                        switch( __interpolateMode ){
+										switch( __interpolateMode ){
 
-                                        case LINEAR:
-                                                fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-                                                fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-                                                //fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-                                                //fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-                                                break;
-                                        case COSINE:
-                                                fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-                                                fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-                                                break;
-                                        case THIRD:
-                                                fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-                                                fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-                                                break;
-                                        case CUBIC:
-                                                fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-                                                fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-                                                break;
-                                        case HERMITE:
-                                                fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-                                                fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-                                                break;
-                                        }
-                                        // methode Interpolate produce an extra function call and eat much more time here.
-                                        // so i deside to code the switch direct in the resampler methode
-                                        //fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-                                        //fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
+										case LINEAR:
+												fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+												fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+												//fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+												//fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+												break;
+										case COSINE:
+												fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+												fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+												break;
+										case THIRD:
+												fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+												fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+												break;
+										case CUBIC:
+												fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+												fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+												break;
+										case HERMITE:
+												fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+												fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+												break;
+										}
+										// methode Interpolate produce an extra function call and eat much more time here.
+										// so i deside to code the switch direct in the resampler methode
+										//fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
+										//fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
 				}
 
-                                pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L;
-                                pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R;
+								pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L;
+								pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R;
 				fSamplePos += fStep;
 				++nBufferPos;
 			}
@@ -838,7 +838,7 @@ void Sampler::preview_instrument( Instrument* instr )
 void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
 {
 	if ( instrument ) { // stop all notes using this instrument
-		Hydrogen *pEngine = Hydrogen::get_instance();	
+		Hydrogen *pEngine = Hydrogen::get_instance();
 		Song* mSong = pEngine->getSong();
 		int selectedpattern = pEngine->__get_selected_PatterNumber();
 		Pattern* currentPattern = NULL;
@@ -858,25 +858,25 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 			int pos = pEngine->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
-				currentPattern = pColumn->get( 0 );	
+				currentPattern = pColumn->get( 0 );
 			}
 		}
 
-		
+
 		if ( currentPattern ) {
 				int patternsize = currentPattern->get_length();
-	
+
 				for ( unsigned nNote = 0; nNote < currentPattern->get_length(); nNote++ ) {
-                    const Pattern::notes_t* notes = currentPattern->get_notes();
-                    FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+					const Pattern::notes_t* notes = currentPattern->get_notes();
+					FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 						Note *pNote = it->second;
 						if ( pNote!=NULL ) {
 							if( !Preferences::get_instance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == instrument
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
-					
-									if ( ticks >  patternsize ) 
+
+									if ( ticks >  patternsize )
 										ticks = patternsize - noteOnTick;
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->__is_modified = true;
@@ -887,17 +887,17 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
-									if ( ticks >  patternsize ) 
+									if ( ticks >  patternsize )
 										ticks = patternsize - noteOnTick;
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->__is_modified = true;
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine	
-								}	
+									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+								}
 							}
 						}
 					}
 				}
-			}	
+			}
 		}
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
@@ -911,7 +911,7 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 				return true;
 			}
 		}
-		
+
 	}
 }
 

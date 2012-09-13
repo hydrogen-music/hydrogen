@@ -33,7 +33,7 @@ class MidiAction;
 
 class MidiMap : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	public:
 		typedef std::map< QString, MidiAction* > map_t;
 		static MidiMap* __instance;

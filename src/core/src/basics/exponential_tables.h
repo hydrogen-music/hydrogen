@@ -5,7 +5,7 @@
 static inline float compute_exponant( const float input, const float* table, const int table_size ) {
 	int idx = ( int )( input * table_size );
 	if ( idx < 0 ) { idx = 0; }
-    else if ( idx >= table_size ) { idx = table_size-1; }
+	else if ( idx >= table_size ) { idx = table_size-1; }
 	return ( table[idx] * input ) / ( ( float )(idx+1) / ( float )table_size );
 };
 

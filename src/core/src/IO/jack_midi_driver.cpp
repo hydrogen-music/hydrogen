@@ -62,12 +62,12 @@ JackMidiDriver::unlock(void)
 void
 JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 {
-        int error;
+		int error;
 	int events;
 	int i;
 	void *buf;
 	jack_midi_event_t event;
-        uint8_t buffer[13];// 13 is needed if we get sysex goto messages
+		uint8_t buffer[13];// 13 is needed if we get sysex goto messages
 
 	if (input_port == NULL)
 		return;
@@ -114,8 +114,8 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 			msg.m_type = MidiMessage::NOTE_ON;
 			msg.m_nData1 = buffer[1];
 			msg.m_nData2 = buffer[2];
-                        msg.m_nChannel = buffer[0] & 0xF;
-                        handleMidiMessage(msg);
+						msg.m_nChannel = buffer[0] & 0xF;
+						handleMidiMessage(msg);
 			break;
 		case 0xB:	 /* control change */
 			msg.m_type = MidiMessage::CONTROL_CHANGE;
@@ -131,22 +131,22 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 			msg.m_nChannel = buffer[0] & 0xF;
 			handleMidiMessage(msg);
 			break;
-                case 0xF:
-                    switch (buffer[0]) {
-                        case 0xF0:	/* system exclusive */
-                                msg.m_type = MidiMessage::SYSEX;
-                                if(buffer[3] == 06 ){// MMC message
-                                    for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
-                                             msg.m_sysexData.push_back( buffer[i] );
-                                    }
-                                }else
-                                {
-                                    for ( int i = 0; i < sizeof(buffer); i++ ) {
-                                             msg.m_sysexData.push_back( buffer[i] );
-                                    }
-                                }
-                                handleMidiMessage(msg);
-                                break;
+				case 0xF:
+					switch (buffer[0]) {
+						case 0xF0:	/* system exclusive */
+								msg.m_type = MidiMessage::SYSEX;
+								if(buffer[3] == 06 ){// MMC message
+									for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
+											 msg.m_sysexData.push_back( buffer[i] );
+									}
+								}else
+								{
+									for ( int i = 0; i < sizeof(buffer); i++ ) {
+											 msg.m_sysexData.push_back( buffer[i] );
+									}
+								}
+								handleMidiMessage(msg);
+								break;
 			case 0xF1:
 				msg.m_type = MidiMessage::QUARTER_FRAME;
 				msg.m_nData1 = buffer[1];
@@ -216,9 +216,9 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 	t = 0;
 	lock();
 	while ((t < nframes) &&
-	       (rx_out_pos != rx_in_pos)) {
+		   (rx_out_pos != rx_in_pos)) {
 
-                len = jack_buffer[4 * rx_in_pos];
+				len = jack_buffer[4 * rx_in_pos];
 		if (len == 0) {
 			rx_in_pos++;
 			if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
@@ -234,7 +234,7 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 		if (buffer == NULL)
 			break;
 
-                memcpy(buffer, jack_buffer + (4 * rx_in_pos) + 1, len);
+				memcpy(buffer, jack_buffer + (4 * rx_in_pos) + 1, len);
 		t++;
 		rx_in_pos++;
 		if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
@@ -263,10 +263,10 @@ JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
 	if (len > 3)
 		len = 3;
 
-        jack_buffer[(4 * next_pos)] = len;
-        jack_buffer[(4 * next_pos) + 1] = buf[0];
-        jack_buffer[(4 * next_pos) + 2] = buf[1];
-        jack_buffer[(4 * next_pos) + 3] = buf[2];
+		jack_buffer[(4 * next_pos)] = len;
+		jack_buffer[(4 * next_pos) + 1] = buf[0];
+		jack_buffer[(4 * next_pos) + 2] = buf[1];
+		jack_buffer[(4 * next_pos) + 3] = buf[2];
 
 	rx_out_pos = next_pos;
 
@@ -295,7 +295,7 @@ JackMidiShutdown(void *arg)
 }
 
 JackMidiDriver::JackMidiDriver()
-    : MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
+	: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
 {
 	pthread_mutex_init(&mtx, NULL);
 
@@ -306,24 +306,24 @@ JackMidiDriver::JackMidiDriver()
 	input_port = 0;
 
 	jack_client = jack_client_open("hydrogen-midi",
-	    JackNoStartServer, NULL);
+		JackNoStartServer, NULL);
 
 	if (jack_client == NULL)
 		return;
 
 	jack_set_process_callback(jack_client,
-	    JackMidiProcessCallback, this);
+		JackMidiProcessCallback, this);
 
 	jack_on_shutdown(jack_client,
-	    JackMidiShutdown, 0);
+		JackMidiShutdown, 0);
 
 	output_port = jack_port_register(
-	    jack_client, "TX", JACK_DEFAULT_MIDI_TYPE,
-	    JackPortIsOutput, 0);
+		jack_client, "TX", JACK_DEFAULT_MIDI_TYPE,
+		JackPortIsOutput, 0);
 
 	input_port = jack_port_register(
-	    jack_client, "RX", JACK_DEFAULT_MIDI_TYPE,
-	    JackPortIsInput, 0);
+		jack_client, "RX", JACK_DEFAULT_MIDI_TYPE,
+		JackPortIsInput, 0);
 
 	jack_activate(jack_client);
 }
@@ -332,8 +332,8 @@ JackMidiDriver::~JackMidiDriver()
 {
 	if (jack_client != NULL)
 	{
-		jack_port_unregister( jack_client, input_port); 
-		jack_port_unregister( jack_client, output_port); 
+		jack_port_unregister( jack_client, input_port);
+		jack_port_unregister( jack_client, output_port);
 		jack_deactivate(jack_client);
 	}
 	pthread_mutex_destroy(&mtx);
@@ -414,7 +414,7 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 	if (vel < 0 || vel > 127)
 		return;
 
-        buffer[0] = 0x80 | channel;	/* note off */
+		buffer[0] = 0x80 | channel;	/* note off */
 	buffer[1] = key;
 	buffer[2] = 0;
 	buffer[3] = 0;
@@ -433,7 +433,7 @@ void JackMidiDriver::handleQueueAllNoteOff()
 
 	for (i = 0; i < numInstruments; i++) {
 		curInst = instList->get(i);
-	
+
 		channel = curInst->get_midi_out_channel();
 		if (channel < 0 || channel > 15)
 			continue;
@@ -441,7 +441,7 @@ void JackMidiDriver::handleQueueAllNoteOff()
 		if (key < 0 || key > 127)
 			continue;
 
-		handleQueueNoteOff(channel, key, 0);	
+		handleQueueNoteOff(channel, key, 0);
 	}
 }
 

@@ -241,8 +241,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
 	for ( unsigned nPatternList = 0 ;
-	      nPatternList < pSong->get_pattern_group_vector()->size() ;
-	      nPatternList++ ) {
+		  nPatternList < pSong->get_pattern_group_vector()->size() ;
+		  nPatternList++ ) {
 		// infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
 		PatternList *pPatternList =
 			( *(pSong->get_pattern_group_vector()) )[ nPatternList ];
@@ -250,8 +250,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
 		for ( unsigned nPattern = 0 ;
-		      nPattern < pPatternList->size() ;
-		      nPattern++ ) {
+			  nPattern < pPatternList->size() ;
+			  nPattern++ ) {
 			Pattern *pPattern = pPatternList->get( nPattern );
 			// infoLog( "      |-> pattern: " + pPattern->getName() );
 			if ( ( int )pPattern->get_length() > nMaxPatternLength ) {
@@ -259,8 +259,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 			}
 
 			for ( unsigned nNote = 0; nNote < pPattern->get_length(); nNote++ ) {
-                const Pattern::notes_t* notes = pPattern->get_notes();
-                FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+				const Pattern::notes_t* notes = pPattern->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 					Note *pNote = it->second;
 					if ( pNote ) {
 						int nVelocity =
@@ -298,8 +298,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	// awful bubble sort..
 	for ( unsigned i = 0; i < eventList.size(); i++ ) {
 		for ( vector<SMFEvent*>::iterator it = eventList.begin() ;
-		      it != ( eventList.end() - 1 ) ;
-		      it++ ) {
+			  it != ( eventList.end() - 1 ) ;
+			  it++ ) {
 			SMFEvent *pEvent = *it;
 			SMFEvent *pNextEvent = *( it + 1 );
 			if ( pNextEvent->m_nTicks < pEvent->m_nTicks ) {
@@ -312,8 +312,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 
 	unsigned nLastTick = 1;
 	for ( vector<SMFEvent*>::iterator it = eventList.begin() ;
-	      it != eventList.end();
-	      it++ ) {
+		  it != eventList.end();
+		  it++ ) {
 		SMFEvent *pEvent = *it;
 		pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
 		nLastTick = pEvent->m_nTicks;
@@ -326,10 +326,10 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 
 	// save the midi file
 	m_file = fopen( sFilename.toLocal8Bit(), "wb" );
-	
-	if( m_file == NULL ) 
+
+	if( m_file == NULL )
 		return;
-	
+
 	vector<char> smfVect = smf.getBuffer();
 	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
 		fwrite( &smfVect[ i ], 1, 1, m_file );

@@ -42,7 +42,7 @@ unsigned nNextFrames = 0;
 
 void* ossDriver_processCaller( void* param )
 {
-    Object* __object = ( Object* )param;
+	Object* __object = ( Object* )param;
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
@@ -181,13 +181,13 @@ int OssDriver::connect()
 
 	INFOLOG( QString( "Blocksize audio = %1" ).arg( bs ) );
 
-        /* commenting this is a fix against buffersize problems described in ticket 119
+		/* commenting this is a fix against buffersize problems described in ticket 119
 	if ( bs != ( 1 << bufferBits ) ) {
 		ERRORLOG( "ERROR_IOCTL: unable to set BlockSize" );
 		close( fd );
 		return 1;
 	}
-        */// end comment
+		*/// end comment
 
 	int format = AFMT_S16_LE;
 	if ( ioctl( fd, SNDCTL_DSP_SETFMT, &format ) == -1 ) {

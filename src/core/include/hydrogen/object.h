@@ -37,73 +37,73 @@ namespace H2Core {
  * Base class.
  */
 class Object {
-    public:
-        /** destructor */
-        ~Object();
-        /** copy constructor */
-        Object( const Object& obj );
-        /** constructor */
-        Object( const char* class_name );
+	public:
+		/** destructor */
+		~Object();
+		/** copy constructor */
+		Object( const Object& obj );
+		/** constructor */
+		Object( const char* class_name );
 
-        const char* class_name( ) const         { return __class_name; }        ///< return the class name
-        /**
-         * enable/disable class instances counting
-         * \param flag the counting status to set
-         */
-	    static void set_count( bool flag );
-        static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
-        static unsigned objects_count()         { return __objects_count; }     ///< return the number of objects
+		const char* class_name( ) const         { return __class_name; }        ///< return the class name
+		/**
+		 * enable/disable class instances counting
+		 * \param flag the counting status to set
+		 */
+		static void set_count( bool flag );
+		static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
+		static unsigned objects_count()         { return __objects_count; }     ///< return the number of objects
 
-        /**
-         * output the full objects map to a given ostream
-         * \param out the ostream to write to
-         */
-        static void write_objects_map_to( std::ostream& out );
-        static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< ouput objects map to stderr
+		/**
+		 * output the full objects map to a given ostream
+		 * \param out the ostream to write to
+		 */
+		static void write_objects_map_to( std::ostream& out );
+		static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< ouput objects map to stderr
 
-        /**
-         * must be called before any Object instanciation !
-         * \param logger the logger instance used to send messages to
-         * \param count should we count objects instances or not
-         */
-        static int bootstrap( Logger* logger, bool count=false );
-        static Logger* logger()                 { return __logger; }            ///< return the logger instance
+		/**
+		 * must be called before any Object instanciation !
+		 * \param logger the logger instance used to send messages to
+		 * \param count should we count objects instances or not
+		 */
+		static int bootstrap( Logger* logger, bool count=false );
+		static Logger* logger()                 { return __logger; }            ///< return the logger instance
 
-    private:
-        /**
-         * search for the class name within __objects_map, decrease class and global counts
-         * \param obj the object to be taken into account
-         */
-        static void del_object( const Object* obj );
-        /**
-         * search for the clas name within __objects_map, create it if doesn't exists, increase class and global counts
-         * \param obj the object to be taken into account
-         * \param copy is it called from a copy constructor
-         */
-        static void add_object( const Object* obj, bool copy );
+	private:
+		/**
+		 * search for the class name within __objects_map, decrease class and global counts
+		 * \param obj the object to be taken into account
+		 */
+		static void del_object( const Object* obj );
+		/**
+		 * search for the clas name within __objects_map, create it if doesn't exists, increase class and global counts
+		 * \param obj the object to be taken into account
+		 * \param copy is it called from a copy constructor
+		 */
+		static void add_object( const Object* obj, bool copy );
 
-        /** an objects class map item type */
-        typedef struct {
-            unsigned constructed;
-            unsigned destructed;
-        } obj_cpt_t;
-        /** the objects class map type */
-        typedef std::map<const char*, obj_cpt_t> object_map_t;
+		/** an objects class map item type */
+		typedef struct {
+			unsigned constructed;
+			unsigned destructed;
+		} obj_cpt_t;
+		/** the objects class map type */
+		typedef std::map<const char*, obj_cpt_t> object_map_t;
 
-        const char* __class_name;               ///< the object class name
-        static bool __count;                    ///< should we count class instances
-        static unsigned __objects_count;        ///< total objects count
-        static object_map_t __objects_map;      ///< objects classes and instances count structure
-        static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
+		const char* __class_name;               ///< the object class name
+		static bool __count;                    ///< should we count class instances
+		static unsigned __objects_count;        ///< total objects count
+		static object_map_t __objects_map;      ///< objects classes and instances count structure
+		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
 
-    protected:
-        static Logger* __logger;                ///< logger instance pointer
+	protected:
+		static Logger* __logger;                ///< logger instance pointer
 };
 
 // Object inherited class declaration macro
 #define H2_OBJECT                                                       \
-    public: static const char* class_name() { return __class_name; }    \
-    private: static const char* __class_name;                           \
+	public: static const char* class_name() { return __class_name; }    \
+	private: static const char* __class_name;                           \
 
 // LOG MACROS
 #define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, msg ); }

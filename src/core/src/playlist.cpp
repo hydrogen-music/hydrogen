@@ -74,17 +74,17 @@ void Playlist::create_instance()
 
 void Playlist::setNextSongByNumber(int songNumber)
 {
-	
-	
-        if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
-                return;
+
+
+		if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
+				return;
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-        EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
+		EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
 
-        execScript( songNumber );
+		execScript( songNumber );
 }
 
 

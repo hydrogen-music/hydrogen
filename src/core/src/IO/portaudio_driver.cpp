@@ -9,12 +9,12 @@ namespace H2Core
 {
 
 int portAudioCallback(
-    const void *inputBuffer,
-    void *outputBuffer,
-    unsigned long framesPerBuffer,
-    const PaStreamCallbackTimeInfo* timeInfo,
-    PaStreamCallbackFlags statusFlags,
-    void *userData
+	const void *inputBuffer,
+	void *outputBuffer,
+	unsigned long framesPerBuffer,
+	const PaStreamCallbackTimeInfo* timeInfo,
+	PaStreamCallbackFlags statusFlags,
+	void *userData
 )
 {
 	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
@@ -68,32 +68,32 @@ int PortAudioDriver::connect()
 	m_pOut_R = new float[ m_nBufferSize ];
 
 	int err = Pa_Initialize();
-	
-	
+
+
 	if ( err != paNoError ) {
 		ERRORLOG( "Portaudio error in Pa_Initialize: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
 	}
 
 	err = Pa_OpenDefaultStream(
-	          &m_pStream,        /* passes back stream pointer */
-	          0,              /* no input channels */
-	          2,              /* stereo output */
-	          paFloat32,      /* 32 bit floating point output */
-	          m_nSampleRate,          // sample rate
-	          m_nBufferSize,            // frames per buffer
-	          portAudioCallback, /* specify our custom callback */
-	          this );        /* pass our data through to callback */
-	
-	
+			  &m_pStream,        /* passes back stream pointer */
+			  0,              /* no input channels */
+			  2,              /* stereo output */
+			  paFloat32,      /* 32 bit floating point output */
+			  m_nSampleRate,          // sample rate
+			  m_nBufferSize,            // frames per buffer
+			  portAudioCallback, /* specify our custom callback */
+			  this );        /* pass our data through to callback */
+
+
 	if ( err != paNoError ) {
 		ERRORLOG(  "Portaudio error in Pa_OpenDefaultStream: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
 	}
 
 	err = Pa_StartStream( m_pStream );
-	
-	
+
+
 	if ( err != paNoError ) {
 		ERRORLOG(  "Portaudio error in Pa_StartStream: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
@@ -104,15 +104,15 @@ int PortAudioDriver::connect()
 void PortAudioDriver::disconnect()
 {
 	int err = Pa_StopStream( m_pStream );
-	
-	
+
+
 	if ( err != paNoError ) {
 		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
 	}
 
 	err = Pa_CloseStream( m_pStream );
 
-	
+
 	if ( err != paNoError ) {
 		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
 	}

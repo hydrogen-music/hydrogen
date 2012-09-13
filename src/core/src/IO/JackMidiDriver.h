@@ -60,9 +60,9 @@ public:
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
-        virtual void handleQueueNote(Note* pNote);
-        virtual void handleQueueNoteOff( int channel, int key, int velocity );
-        virtual void handleQueueAllNoteOff();
+		virtual void handleQueueNote(Note* pNote);
+		virtual void handleQueueNoteOff( int channel, int key, int velocity );
+		virtual void handleQueueAllNoteOff();
 
 private:
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);
@@ -75,7 +75,7 @@ private:
 	jack_client_t *jack_client;
 	pthread_mutex_t mtx;
 	int running;
-        uint8_t jack_buffer[JACK_MIDI_BUFFER_MAX * 4];
+		uint8_t jack_buffer[JACK_MIDI_BUFFER_MAX * 4];
 	uint32_t rx_in_pos;
 	uint32_t rx_out_pos;
 };
