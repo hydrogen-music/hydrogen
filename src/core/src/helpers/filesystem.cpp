@@ -411,6 +411,31 @@ QStringList Filesystem::usr_drumkits_list( )
 {
 	return drumkits_list( usr_drumkits_dir() ) ;
 }
+
+bool Filesystem::file_is_partof_drumkit( const QString& fname)
+{
+	if( fname.startsWith( usr_drumkits_dir() ) )
+	{
+		int start = usr_drumkits_dir().size();
+		int index = fname.indexOf( "/", start + 1 );
+		QString dkname = fname.midRef( start + 1, index - start - 1).toString();
+		if(drumkit_exists(dkname))
+			return true;
+	}
+
+
+	if( fname.startsWith( sys_drumkits_dir() ) )
+	{
+		int start = sys_drumkits_dir().size();
+		int index = fname.indexOf( "/", start + 1 );
+		QString dkname = fname.midRef( start + 1, index - start - 1).toString();
+		if(drumkit_exists(dkname))
+			return true;
+	}
+	return false;
+}
+
+
 bool Filesystem::drumkit_exists( const QString& dk_name )
 {
 	if( usr_drumkits_list().contains( dk_name ) ) return true;

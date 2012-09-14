@@ -42,6 +42,7 @@
 #include <hydrogen/hydrogen.h>
 
 #include <QDomDocument>
+#include <QDir>
 
 namespace
 {
