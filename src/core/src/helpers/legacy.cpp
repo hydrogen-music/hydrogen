@@ -62,6 +62,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
 				instrument = new Instrument( id, instrument_node.read_string( "name", "" ), 0 );
+				instrument->set_drumkit_name( drumkit_name );
 				instrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				instrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
 				instrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );

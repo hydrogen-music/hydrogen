@@ -89,6 +89,8 @@ class Filesystem : public H2Core::Object
 		static QString tmp_file( const QString& base );
 
 		/* DRUMKIT */
+		/** Checks if a given file is part of a kit in the soundlibrary or external */
+		static bool file_is_partof_drumkit( const QString& fname);
 		/** returns list of usable system drumkits ( see Filesystem::drumkits_list ) */
 		static QStringList sys_drumkits_list( );
 		/** returns list of usable user drumkits ( see Filesystem::drumkits_list ) */
