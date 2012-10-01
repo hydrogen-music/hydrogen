@@ -42,6 +42,7 @@
 #include <hydrogen/hydrogen.h>
 
 #include <QDomDocument>
+#include <QDir>
 
 namespace
 {
@@ -487,7 +488,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_muted( bIsMuted );
 			pInstrument->set_pan_l( fPan_L );
 			pInstrument->set_pan_r( fPan_R );
-			//pInstrument->set_drumkit_name( sDrumkit );
+			pInstrument->set_drumkit_name( sDrumkit );
 			pInstrument->set_fx_level( fFX1Level, 0 );
 			pInstrument->set_fx_level( fFX2Level, 1 );
 			pInstrument->set_fx_level( fFX3Level, 2 );
