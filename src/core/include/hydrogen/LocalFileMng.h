@@ -49,11 +49,11 @@ class Drumkit;
  */
 class LocalFileMng : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	LocalFileMng();
 	~LocalFileMng();
-	
+
 	std::vector<QString> getDrumkitsFromDirectory( QString );
 	std::vector<QString> getPatternDirList();
 	std::vector<QString> getSongList();
@@ -102,7 +102,7 @@ private:
  */
 class SongWriter : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	SongWriter();
 	~SongWriter();

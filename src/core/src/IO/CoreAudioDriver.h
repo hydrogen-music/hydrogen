@@ -50,7 +50,7 @@ namespace H2Core
 
 class CoreAudioDriver : public AudioOutput
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 
 	audioProcessCallback mProcessCallback;
@@ -99,7 +99,7 @@ private:
 
 class CoreAudioDriver : public NullDriver
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
 

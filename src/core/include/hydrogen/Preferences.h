@@ -48,7 +48,7 @@ const float FALLOFF_FAST =	1.5f;
 */
 class WindowProperties : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	int x;
 	int y;
@@ -64,7 +64,7 @@ public:
 		width = _width; height = _height;
 		visible = _visible;
 	}
-		
+
 };
 
 
@@ -73,7 +73,7 @@ public:
 */
 class H2RGBColor : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	H2RGBColor( int r = -1, int g = -1, int b = -1 );
 	H2RGBColor( const QString& sColor );
@@ -105,7 +105,7 @@ private:
 */
 class UIStyle : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	UIStyle();
 	H2RGBColor m_songEditor_backgroundColor;
@@ -137,7 +137,7 @@ public:
 */
 class Preferences : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	enum {
 		USE_JACK_TRANSPORT = 0,
@@ -149,16 +149,16 @@ public:
 		NO_JACK_TIME_MASTER = 1,
 		PRE_FADER = 1,
 		SET_PLAY_OFF = 1,
-                BC_OFF = 1
+				BC_OFF = 1
 	};
 
 
-        enum UI_LAYOUT_TYPES {
-                UI_LAYOUT_SINGLE_PANE,
-                UI_LAYOUT_TABBED
-        };
+		enum UI_LAYOUT_TYPES {
+				UI_LAYOUT_SINGLE_PANE,
+				UI_LAYOUT_TABBED
+		};
 
-        int m_nDefaultUILayout;
+		int m_nDefaultUILayout;
 
 
 	QString m_sPreferencesFilename;
@@ -170,25 +170,25 @@ public:
 
 	bool __playselectedinstrument; // midi keys and keys play instrument or drumset
 
-	int m_nRecPreDelete; //index of record note pre delete function 0 = off  
+	int m_nRecPreDelete; //index of record note pre delete function 0 = off
 	int m_nRecPostDelete;
 
 	bool m_bFollowPlayhead;
 
 
-	
+
 	// switch to enable / disable lash, only on h2 startup
 	bool m_brestartLash;
 	bool m_bsetLash;
 
 	//soundlibrarypanel expand song and pattern item
 	bool __expandSongItem;
-	bool __expandPatternItem; 
+	bool __expandPatternItem;
 
 	//beatcounter
 	bool m_bbc;
 	bool m_mmcsetplay;
-	
+
 	int m_countOffset;
 	int m_startOffset;
 	//~ beatcounter
@@ -261,7 +261,7 @@ public:
 	const QString& getTmpDirectory(){
 		return m_sTmpDirectory;
 	}
-	
+
 	const QString& getDefaultEditor() {
 		return m_sDefaultEditor;
 	}
@@ -270,21 +270,21 @@ public:
 		m_sDefaultEditor = editor;
 	}
 
-        int getDefaultUILayout(){
-            return m_nDefaultUILayout;
-        }
+		int getDefaultUILayout(){
+			return m_nDefaultUILayout;
+		}
 
-        void setDefaultUILayout( int layout){
-                m_nDefaultUILayout = layout;
-        }
+		void setDefaultUILayout( int layout){
+				m_nDefaultUILayout = layout;
+		}
 
-	void setShowExportWarning( bool value ) { 
-		m_bShowExportWarning = value; 
-	} 
-	
-	bool getShowExportWarning() { 
-		return m_bShowExportWarning; 
-  	} 
+	void setShowExportWarning( bool value ) {
+		m_bShowExportWarning = value;
+	}
+
+	bool getShowExportWarning() {
+		return m_bShowExportWarning;
+	}
 
 
 	// General
@@ -537,7 +537,7 @@ public:
 	UIStyle* getDefaultUIStyle() {
 		return m_pDefaultUIStyle;
 	}
-	
+
 	bool patternModePlaysSelected() {
 		return m_bPatternModePlaysSelected;
 	}
@@ -553,59 +553,59 @@ public:
 	}
 
 	void setMaxBars( int bars ){
-	    maxBars = bars;
+		maxBars = bars;
 	}
 
 	int getMaxBars(){
-	    return maxBars;
+		return maxBars;
 	}
 
-        void setWaitForSessionHandler(bool value){
-            waitingForSessionHandler = value;
-        }
+		void setWaitForSessionHandler(bool value){
+			waitingForSessionHandler = value;
+		}
 
-        bool getWaitForSessionHandler(){
-            return waitingForSessionHandler;
-        }
+		bool getWaitForSessionHandler(){
+			return waitingForSessionHandler;
+		}
 
 #ifdef H2CORE_HAVE_JACKSESSION
-        QString getJackSessionUUID(){
-            return jackSessionUUID;
-        }
+		QString getJackSessionUUID(){
+			return jackSessionUUID;
+		}
 
-        void setJackSessionUUID( QString uuid ){
-            jackSessionUUID = uuid;
-        }
-        QString getJackSessionApplicationPath(){
-            return jackSessionApplicationPath;
-        }
+		void setJackSessionUUID( QString uuid ){
+			jackSessionUUID = uuid;
+		}
+		QString getJackSessionApplicationPath(){
+			return jackSessionApplicationPath;
+		}
 
-        void setJackSessionApplicationPath( QString path ){
-            jackSessionApplicationPath = path;
-        }
+		void setJackSessionApplicationPath( QString path ){
+			jackSessionApplicationPath = path;
+		}
 
 #endif
 
-        bool getUseTimelineBpm(){
-            return __useTimelineBpm;
-        }
-        void setUseTimelineBpm( bool val ){
-            __useTimelineBpm = val;
-        }
+		bool getUseTimelineBpm(){
+			return __useTimelineBpm;
+		}
+		void setUseTimelineBpm( bool val ){
+			__useTimelineBpm = val;
+		}
 
-        int getRubberBandCalcTime(){
-                return __rubberBandCalcTime;
-        }
-        void setRubberBandCalcTime( int val ){
-                __rubberBandCalcTime = val;
-        }
+		int getRubberBandCalcTime(){
+				return __rubberBandCalcTime;
+		}
+		void setRubberBandCalcTime( int val ){
+				__rubberBandCalcTime = val;
+		}
 
-        int getRubberBandBatchMode(){
-                return m_useTheRubberbandBpmChangeEvent;
-        }
-        void setRubberBandBatchMode( int val ){
-                m_useTheRubberbandBpmChangeEvent = val;
-        }
+		int getRubberBandBatchMode(){
+				return m_useTheRubberbandBpmChangeEvent;
+		}
+		void setRubberBandBatchMode( int val ){
+				m_useTheRubberbandBpmChangeEvent = val;
+		}
 
 	int getLastOpenTab(){
 		return m_nLastOpenTab;
@@ -672,15 +672,15 @@ private:
 	QString demoPath;
 
 	//___ General properties ___
-        int __rubberBandCalcTime;
-        ///rubberband bpm change queue
-        bool m_useTheRubberbandBpmChangeEvent;
+		int __rubberBandCalcTime;
+		///rubberband bpm change queue
+		bool m_useTheRubberbandBpmChangeEvent;
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
 	bool m_brestoreLastSong;		///< Restore last song?
 	bool m_brestoreLastPlaylist;
 	bool m_bUseLash;
 	bool m_bShowDevelWarning;	///< Show development version warning?
-	bool m_bShowExportWarning; 
+	bool m_bShowExportWarning;
 	QString m_lastSongFilename;	///< Last song used
 	QString m_lastPlaylistFilename;
 	bool hearNewNotes;
@@ -696,11 +696,11 @@ private:
 	QString m_sLastNews;
 	int maxBars;
 #ifdef H2CORE_HAVE_JACKSESSION
-        QString jackSessionUUID;
-        QString jackSessionApplicationPath;
+		QString jackSessionUUID;
+		QString jackSessionApplicationPath;
 #endif
-        bool waitingForSessionHandler;
-        bool __useTimelineBpm;
+		bool waitingForSessionHandler;
+		bool __useTimelineBpm;
 
 	//___ GUI properties ___
 	QString m_sQTStyle;

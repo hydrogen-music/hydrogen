@@ -75,7 +75,7 @@ Effects::~Effects()
 {
 	//INFOLOG( "DESTROY" );
 	if ( m_pRootGroup != NULL ) delete m_pRootGroup;
-	
+
 	//INFOLOG( "destroying " + to_string( m_pluginList.size() ) + " LADSPA plugins" );
 	for ( unsigned i = 0; i < m_pluginList.size(); i++ ) {
 		delete m_pluginList[i];
@@ -111,7 +111,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	}
 
 	m_FXList[ nFX ] = pFX;
-	
+
 	if ( pFX != NULL ) {
 		Preferences::get_instance()->setMostRecentFX( pFX->getPluginName() );
 		updateRecentGroup();
@@ -236,7 +236,7 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	}
 
 	m_pRootGroup = new LadspaFXGroup( "Root" );
-	
+
 	// Adding recent FX.
 	m_pRecentGroup = new LadspaFXGroup( "Recently Used" );
 	m_pRootGroup->addChild( m_pRecentGroup );
@@ -248,7 +248,7 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	char C = 0;
 	LadspaFXGroup* pGroup;
 	for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
-                char ch = (*i)->m_sName.toLocal8Bit().at(0);
+				char ch = (*i)->m_sName.toLocal8Bit().at(0);
 		if ( ch != C ) {
 			C = ch;
 			pGroup = new LadspaFXGroup( QString( C ) );
@@ -271,9 +271,9 @@ void Effects::updateRecentGroup()
 {
 	if ( m_pRecentGroup == NULL )
 		return;  // Too early :s
-	
+
 	m_pRecentGroup->clear();
-	
+
 
 	QString sRecent; // The recent fx names sit in the preferences object
 	foreach ( sRecent, Preferences::get_instance()->getRecentFX() ) {
@@ -372,10 +372,10 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 				// find the ladspaFXInfo
 				for ( unsigned i = 0; i < pluginList.size(); i++ ) {
 					LadspaFXInfo *pInfo = pluginList[i];
-					
+
 					if ( pInfo->m_sID.toInt() == uid  ) {
 						pGroup->addLadspaInfo( pInfo );	// copy the LadspaFXInfo
-					} 
+					}
 				}
 			}
 		}

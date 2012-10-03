@@ -36,160 +36,160 @@ PatternList::PatternList() : Object( __class_name )
 
 PatternList::PatternList( PatternList* other ) : Object( __class_name )
 {
-    assert( __patterns.size() == 0 );
-    for ( int i=0; i<other->size(); i++ ) {
-        ( *this ) << ( new Pattern( ( *other )[i] ) );
-    }
+	assert( __patterns.size() == 0 );
+	for ( int i=0; i<other->size(); i++ ) {
+		( *this ) << ( new Pattern( ( *other )[i] ) );
+	}
 }
 
 PatternList::~PatternList()
 {
-    for ( int i = 0; i < __patterns.size(); ++i ) {
-        delete __patterns[i];
-    }
+	for ( int i = 0; i < __patterns.size(); ++i ) {
+		delete __patterns[i];
+	}
 }
 
 void PatternList::operator<<( Pattern* pattern )
 {
-    // do nothing if already in __patterns
-    for( int i=0; i<__patterns.size(); i++ ) {
-        if( __patterns[i]==pattern ) return;
-    }
-    __patterns.push_back( pattern );
+	// do nothing if already in __patterns
+	for( int i=0; i<__patterns.size(); i++ ) {
+		if( __patterns[i]==pattern ) return;
+	}
+	__patterns.push_back( pattern );
 }
 
 void PatternList::add( Pattern* pattern )
 {
-    // do nothing if already in __patterns
-    for( int i=0; i<__patterns.size(); i++ ) {
-        if( __patterns[i]==pattern ) return;
-    }
-    __patterns.push_back( pattern );
+	// do nothing if already in __patterns
+	for( int i=0; i<__patterns.size(); i++ ) {
+		if( __patterns[i]==pattern ) return;
+	}
+	__patterns.push_back( pattern );
 }
 
 void PatternList::insert( int idx, Pattern* pattern )
 {
-    // do nothing if already in __patterns
-    for( int i=0; i<__patterns.size(); i++ ) {
-        if( __patterns[i]==pattern ) return;
-    }
-    __patterns.insert( __patterns.begin() + idx, pattern );
+	// do nothing if already in __patterns
+	for( int i=0; i<__patterns.size(); i++ ) {
+		if( __patterns[i]==pattern ) return;
+	}
+	__patterns.insert( __patterns.begin() + idx, pattern );
 }
 
 Pattern* PatternList::operator[]( int idx )
 {
-    if ( idx < 0 || idx >= __patterns.size() ) {
-        ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-        return 0;
-    }
-    assert( idx >= 0 && idx < __patterns.size() );
-    return __patterns[idx];
+	if ( idx < 0 || idx >= __patterns.size() ) {
+		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+		return 0;
+	}
+	assert( idx >= 0 && idx < __patterns.size() );
+	return __patterns[idx];
 }
 
 Pattern* PatternList::get( int idx )
 {
-    if ( idx < 0 || idx >= __patterns.size() ) {
-        ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-        return 0;
-    }
-    assert( idx >= 0 && idx < __patterns.size() );
-    return __patterns[idx];
+	if ( idx < 0 || idx >= __patterns.size() ) {
+		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+		return 0;
+	}
+	assert( idx >= 0 && idx < __patterns.size() );
+	return __patterns[idx];
 }
 
 int PatternList::index( Pattern* pattern )
 {
-    for( int i=0; i<__patterns.size(); i++ ) {
-        if ( __patterns[i]==pattern ) return i;
-    }
-    return -1;
+	for( int i=0; i<__patterns.size(); i++ ) {
+		if ( __patterns[i]==pattern ) return i;
+	}
+	return -1;
 }
 
 Pattern* PatternList::del( int idx )
 {
-    assert( idx >= 0 && idx < __patterns.size() );
-    Pattern* pattern = __patterns[idx];
-    __patterns.erase( __patterns.begin() + idx );
-    return pattern;
+	assert( idx >= 0 && idx < __patterns.size() );
+	Pattern* pattern = __patterns[idx];
+	__patterns.erase( __patterns.begin() + idx );
+	return pattern;
 }
 
 Pattern* PatternList::del( Pattern* pattern )
 {
-    for( int i=0; i<__patterns.size(); i++ ) {
-        if( __patterns[i]==pattern ) {
-            __patterns.erase( __patterns.begin() + i );
-            return pattern;
-        }
-    }
-    return 0;
+	for( int i=0; i<__patterns.size(); i++ ) {
+		if( __patterns[i]==pattern ) {
+			__patterns.erase( __patterns.begin() + i );
+			return pattern;
+		}
+	}
+	return 0;
 }
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
-    /*
-     * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
-     * idx is > __pattern.size(). thats why i add +1 to assert expression
-     */
+	/*
+	 * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
+	 * idx is > __pattern.size(). thats why i add +1 to assert expression
+	 */
 
-    assert( idx >= 0 && idx <= __patterns.size() +1 );
-    if( idx < 0 || idx >= __patterns.size() ) {
-        ERRORLOG( QString( "index out of bounds %1 (size:%2)" ).arg( idx ).arg( __patterns.size() ) );
-        return 0;
-    }
+	assert( idx >= 0 && idx <= __patterns.size() +1 );
+	if( idx < 0 || idx >= __patterns.size() ) {
+		ERRORLOG( QString( "index out of bounds %1 (size:%2)" ).arg( idx ).arg( __patterns.size() ) );
+		return 0;
+	}
 
-    __patterns.insert( __patterns.begin() + idx, pattern );
-    __patterns.erase( __patterns.begin() + idx + 1 );
+	__patterns.insert( __patterns.begin() + idx, pattern );
+	__patterns.erase( __patterns.begin() + idx + 1 );
 
-    //create return pattern after patternlist tätatä to return the right one
-    Pattern* ret = __patterns[idx];
-    return ret;
+	//create return pattern after patternlist tätatä to return the right one
+	Pattern* ret = __patterns[idx];
+	return ret;
 }
 
 void PatternList::set_to_old()
 {
-    for( int i=0; i<__patterns.size(); i++ ) {
-        __patterns[i]->set_to_old();
-    }
+	for( int i=0; i<__patterns.size(); i++ ) {
+		__patterns[i]->set_to_old();
+	}
 }
 
 Pattern*  PatternList::find( const QString& name )
 {
-    for( int i=0; i<__patterns.size(); i++ ) {
-        if ( __patterns[i]->get_name()==name ) return __patterns[i];
-    }
-    return 0;
+	for( int i=0; i<__patterns.size(); i++ ) {
+		if ( __patterns[i]->get_name()==name ) return __patterns[i];
+	}
+	return 0;
 }
 
 void PatternList::swap( int idx_a, int idx_b )
 {
-    assert( idx_a >= 0 && idx_a < __patterns.size() );
-    assert( idx_b >= 0 && idx_b < __patterns.size() );
-    if( idx_a == idx_b ) return;
-    //DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
-    Pattern* tmp = __patterns[idx_a];
-    __patterns[idx_a] = __patterns[idx_b];
-    __patterns[idx_b] = tmp;
+	assert( idx_a >= 0 && idx_a < __patterns.size() );
+	assert( idx_b >= 0 && idx_b < __patterns.size() );
+	if( idx_a == idx_b ) return;
+	//DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
+	Pattern* tmp = __patterns[idx_a];
+	__patterns[idx_a] = __patterns[idx_b];
+	__patterns[idx_b] = tmp;
 }
 
 void PatternList::move( int idx_a, int idx_b )
 {
-    assert( idx_a >= 0 && idx_a < __patterns.size() );
-    assert( idx_b >= 0 && idx_b < __patterns.size() );
-    if( idx_a == idx_b ) return;
-    //DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
-    Pattern* tmp = __patterns[idx_a];
-    __patterns.erase( __patterns.begin() + idx_a );
-    __patterns.insert( __patterns.begin() + idx_b, tmp );
+	assert( idx_a >= 0 && idx_a < __patterns.size() );
+	assert( idx_b >= 0 && idx_b < __patterns.size() );
+	if( idx_a == idx_b ) return;
+	//DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
+	Pattern* tmp = __patterns[idx_a];
+	__patterns.erase( __patterns.begin() + idx_a );
+	__patterns.insert( __patterns.begin() + idx_b, tmp );
 }
 
 void PatternList::flattened_virtual_patterns_compute()
 {
-    for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_clear();
-    for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_compute();
+	for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_clear();
+	for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_compute();
 }
 
 void PatternList::virtual_pattern_del( Pattern* pattern )
 {
-    for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
+	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
 };

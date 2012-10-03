@@ -38,238 +38,238 @@ namespace H2Core
 const char* Pattern::__class_name = "Pattern";
 
 Pattern::Pattern( const QString& name, const QString& category, int length )
-    : Object( __class_name )
-    , __length( length )
-    , __name( name )
-    , __category( category )
+	: Object( __class_name )
+	, __length( length )
+	, __name( name )
+	, __category( category )
     , __monitor( false )
 {
 }
 
 Pattern::Pattern( Pattern* other )
-    : Object( __class_name )
-    , __length( other->get_length() )
-    , __name( other->get_name() )
-    , __category( other->get_category() )
+	: Object( __class_name )
+	, __length( other->get_length() )
+	, __name( other->get_name() )
+	, __category( other->get_category() )
     , __monitor( other->get_monitor() )
 {
-    FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
-        __notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
-    }
+	FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
+		__notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
+	}
 }
 
 Pattern::~Pattern()
 {
-    for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-        delete it->second;
-    }
+	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+		delete it->second;
+	}
 }
 
 Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
 {
-    INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
-    if ( !Filesystem::file_readable( pattern_path ) ) return 0;
-    XMLDoc doc;
-    if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
-        return Legacy::load_drumkit_pattern( pattern_path );
-    }
-    XMLNode root = doc.firstChildElement( "drumkit_pattern" );
-    if ( root.isNull() ) {
-        ERRORLOG( "drumkit_pattern node not found" );
-        return 0;
-    }
-    XMLNode pattern_node = root.firstChildElement( "pattern" );
-    if ( pattern_node.isNull() ) {
-        ERRORLOG( "pattern node not found" );
-        return 0;
-    }
-    return load_from( &pattern_node, instruments );
+	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
+	if ( !Filesystem::file_readable( pattern_path ) ) return 0;
+	XMLDoc doc;
+	if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
+		return Legacy::load_drumkit_pattern( pattern_path );
+	}
+	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	if ( root.isNull() ) {
+		ERRORLOG( "drumkit_pattern node not found" );
+		return 0;
+	}
+	XMLNode pattern_node = root.firstChildElement( "pattern" );
+	if ( pattern_node.isNull() ) {
+		ERRORLOG( "pattern node not found" );
+		return 0;
+	}
+	return load_from( &pattern_node, instruments );
 }
 
 Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
-    Pattern* pattern = new Pattern(
-        node->read_string( "name", "unknown", false, false ),
-        node->read_string( "category", "unknown", false, false ),
-        node->read_int( "size", -1, false, false )
-    );
-    XMLNode note_list_node = node->firstChildElement( "noteList" );
-    if ( !note_list_node.isNull() ) {
-        XMLNode note_node = note_list_node.firstChildElement( "note" );
-        while ( !note_node.isNull() ) {
-            Note* note = Note::load_from( &note_node, instruments );
-            if( note ) {
-                pattern->insert_note( note );
-            }
-            note_node = note_node.nextSiblingElement( "note" );
-        }
-    }
-    return pattern;
+	Pattern* pattern = new Pattern(
+		node->read_string( "name", "unknown", false, false ),
+		node->read_string( "category", "unknown", false, false ),
+		node->read_int( "size", -1, false, false )
+	);
+	XMLNode note_list_node = node->firstChildElement( "noteList" );
+	if ( !note_list_node.isNull() ) {
+		XMLNode note_node = note_list_node.firstChildElement( "note" );
+		while ( !note_node.isNull() ) {
+			Note* note = Note::load_from( &note_node, instruments );
+			if( note ) {
+				pattern->insert_note( note );
+			}
+			note_node = note_node.nextSiblingElement( "note" );
+		}
+	}
+	return pattern;
 }
 
 bool Pattern::save_file( const QString& pattern_path, bool overwrite )
 {
-    INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
-    if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
-        ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
-        return false;
-    }
-    XMLDoc doc;
-    doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-    XMLNode root = doc.firstChildElement( "drumkit_pattern" );
-    save_to( &root );
-    return doc.write( pattern_path );
+	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
+	if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
+		ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
+		return false;
+	}
+	XMLDoc doc;
+	doc.set_root( "drumkit_pattern", "drumkit_pattern" );
+	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	save_to( &root );
+	return doc.write( pattern_path );
 }
 
 void Pattern::save_to( XMLNode* node )
 {
-    // TODO drumkit_name !!!!!!
-    node->write_string( "drumkit_name", "TODO" );
-    XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
-    pattern_node.write_string( "name", __name );
-    pattern_node.write_string( "category", __category );
-    pattern_node.write_int( "size", __length );
-    XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );
-    for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
-        Note* note = it->second;
-        if( note ) {
-            XMLNode note_node = node->ownerDocument().createElement( "note" );
-            note->save_to( &note_node );
-            note_list_node.appendChild( note_node );
-        }
-    }
-    pattern_node.appendChild( note_list_node );
-    node->appendChild( pattern_node );
+	// TODO drumkit_name !!!!!!
+	node->write_string( "drumkit_name", "TODO" );
+	XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
+	pattern_node.write_string( "name", __name );
+	pattern_node.write_string( "category", __category );
+	pattern_node.write_int( "size", __length );
+	XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );
+	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
+		Note* note = it->second;
+		if( note ) {
+			XMLNode note_node = node->ownerDocument().createElement( "note" );
+			note->save_to( &note_node );
+			note_list_node.appendChild( note_node );
+		}
+	}
+	pattern_node.appendChild( note_list_node );
+	node->appendChild( pattern_node );
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
 {
-    for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        if ( note->match( instrument, key, octave ) ) return note;
-    }
-    if( idx_b==-1 ) return 0;
-    for( notes_cst_it_t it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        if ( note->match( instrument, key, octave ) ) return note;
-    }
-    if( strict ) return 0;
-    // TODO maybe not start from 0 but idx_b-X
-    for ( int n=0; n<idx_b; n++ ) {
-        for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
-            Note* note = it->second;
-            assert( note );
-            if ( note->match( instrument, key, octave ) && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
-        }
-    }
-    return 0;
+	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->match( instrument, key, octave ) ) return note;
+	}
+	if( idx_b==-1 ) return 0;
+	for( notes_cst_it_t it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->match( instrument, key, octave ) ) return note;
+	}
+	if( strict ) return 0;
+	// TODO maybe not start from 0 but idx_b-X
+	for ( int n=0; n<idx_b; n++ ) {
+		for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
+			Note* note = it->second;
+			assert( note );
+			if ( note->match( instrument, key, octave ) && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
+		}
+	}
+	return 0;
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict )
 {
-    notes_cst_it_t it;
-    for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        if ( note->get_instrument() == instrument ) return note;
-    }
-    if( idx_b==-1 ) return 0;
-    for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        if ( note->get_instrument() == instrument ) return note;
-    }
-    if ( strict ) return 0;
-    // TODO maybe not start from 0 but idx_b-X
-    for ( int n=0; n<idx_b; n++ ) {
-        for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
-            Note* note = it->second;
-            assert( note );
-            if ( note->get_instrument() == instrument && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
-        }
-        return 0;
-    }
+	notes_cst_it_t it;
+	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->get_instrument() == instrument ) return note;
+	}
+	if( idx_b==-1 ) return 0;
+	for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->get_instrument() == instrument ) return note;
+	}
+	if ( strict ) return 0;
+	// TODO maybe not start from 0 but idx_b-X
+	for ( int n=0; n<idx_b; n++ ) {
+		for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
+			Note* note = it->second;
+			assert( note );
+			if ( note->get_instrument() == instrument && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
+		}
+		return 0;
+	}
 }
 
 void Pattern::remove_note( Note* note )
 {
-    for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
-        if( it->second==note ) {
-            __notes.erase( it );
-            break;
-        }
-    }
+	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
+		if( it->second==note ) {
+			__notes.erase( it );
+			break;
+		}
+	}
 }
 
 bool Pattern::references( Instrument* instr )
 {
-    for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        if ( note->get_instrument() == instr ) {
-            return true;
-        }
-    }
-    return false;
+	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->get_instrument() == instr ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void Pattern::purge_instrument( Instrument* instr )
 {
-    bool locked = false;
-    std::list< Note* > slate;
-    for( notes_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        if ( note->get_instrument() == instr ) {
-            if ( !locked ) {
-                H2Core::AudioEngine::get_instance()->lock( RIGHT_HERE );
-                locked = true;
-            }
-            slate.push_back( note );
-            __notes.erase( it );
-        }
-    }
-    if ( locked ) {
-        H2Core::AudioEngine::get_instance()->unlock();
-        while ( slate.size() ) {
-            delete slate.front();
-            slate.pop_front();
-        }
-    }
+	bool locked = false;
+	std::list< Note* > slate;
+	for( notes_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->get_instrument() == instr ) {
+			if ( !locked ) {
+				H2Core::AudioEngine::get_instance()->lock( RIGHT_HERE );
+				locked = true;
+			}
+			slate.push_back( note );
+			__notes.erase( it );
+		}
+	}
+	if ( locked ) {
+		H2Core::AudioEngine::get_instance()->unlock();
+		while ( slate.size() ) {
+			delete slate.front();
+			slate.pop_front();
+		}
+	}
 }
 
 void Pattern::set_to_old()
 {
-    for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-        Note* note = it->second;
-        assert( note );
-        note->set_just_recorded( false );
-    }
+	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		note->set_just_recorded( false );
+	}
 }
 
 void Pattern::flattened_virtual_patterns_compute()
 {
-    // __flattened_virtual_patterns must have been cleared before
-    if( __flattened_virtual_patterns.size() >= __virtual_patterns.size() ) return;
-    // for each virtual pattern
-    for( virtual_patterns_cst_it_t it0=__virtual_patterns.begin(); it0!=__virtual_patterns.end(); ++it0 ) {
-        __flattened_virtual_patterns.insert( *it0 );        // add it
-        ( *it0 )->flattened_virtual_patterns_compute();     // build it's flattened virtual patterns set
-        // for each pattern of it's flattened virtual patern set
-        for( virtual_patterns_cst_it_t it1=( *it0 )->get_flattened_virtual_patterns()->begin(); it1!=( *it0 )->get_flattened_virtual_patterns()->end(); ++it1 ) {
-            // add the pattern
-            __flattened_virtual_patterns.insert( *it1 );
-        }
-    }
+	// __flattened_virtual_patterns must have been cleared before
+	if( __flattened_virtual_patterns.size() >= __virtual_patterns.size() ) return;
+	// for each virtual pattern
+	for( virtual_patterns_cst_it_t it0=__virtual_patterns.begin(); it0!=__virtual_patterns.end(); ++it0 ) {
+		__flattened_virtual_patterns.insert( *it0 );        // add it
+		( *it0 )->flattened_virtual_patterns_compute();     // build it's flattened virtual patterns set
+		// for each pattern of it's flattened virtual patern set
+		for( virtual_patterns_cst_it_t it1=( *it0 )->get_flattened_virtual_patterns()->begin(); it1!=( *it0 )->get_flattened_virtual_patterns()->end(); ++it1 ) {
+			// add the pattern
+			__flattened_virtual_patterns.insert( *it1 );
+		}
+	}
 }
 
 void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 {
-    for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin(); it!=__flattened_virtual_patterns.end(); ++it ) {
-        patterns->add( *it );
-    }
+	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin(); it!=__flattened_virtual_patterns.end(); ++it ) {
+		patterns->add( *it );
+	}
 }
 
 };

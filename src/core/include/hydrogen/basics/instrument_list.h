@@ -38,119 +38,119 @@ class Instrument;
 */
 class InstrumentList : public H2Core::Object
 {
-        H2_OBJECT
-    public:
-        /** constructor */
-        InstrumentList();
-        /** destructor */
-        ~InstrumentList();
-        /**
-         * copy constructor
-         * \param other
-         */
-        InstrumentList( InstrumentList* other );
+		H2_OBJECT
+	public:
+		/** constructor */
+		InstrumentList();
+		/** destructor */
+		~InstrumentList();
+		/**
+		 * copy constructor
+		 * \param other
+		 */
+		InstrumentList( InstrumentList* other );
 
-        /** returns the numbers of instruments */
-        int size() const;
-        /**
-         * add an instrument to the list
-         * \param instrument a pointer to the instrument to add
-         */
-        void operator<<( Instrument* instrument );
-        /**
-         * get an instrument from  the list
-         * \param idx the index to get the instrument from
-         */
-        Instrument* operator[]( int idx );
-        /**
-         * add an instrument to the list
-         * \param instrument a pointer to the instrument to add
-         */
-        void add( Instrument* instrument );
-        /**
-         * insert an instrument into the list
-         * \param idx the index to insert the instrument at
-         * \param instrument a pointer to the instrument to add
-         */
-        void insert( int idx, Instrument* instrument );
-        /**
-         * get an instrument from  the list
-         * \param idx the index to get the instrument from
-         */
-        Instrument* get( int idx );
-        /**
-         * remove the instrument at a given index, does not delete it
-         * \param idx the index
-         * \return a pointer to the removed instrument
-         */
-        Instrument* del( int idx );
-        /**
-         * remove an instrument from the list, does not delete it
-         * \param instrument the instrument to be removed
-         * \return a pointer to the removed instrument, 0 if not found
-         */
-        Instrument* del( Instrument* instrument );
-        /**
-         * get the index of an instrument within the instruments
-         * \param instrument a pointer to the instrument to find
-         * \return -1 if not found
-         */
-        int index( Instrument* instrument );
-        /**
-         * find an instrument within the instruments
-         * \param id the id of the instrument to find
-         * \return 0 if not found
-         */
-        Instrument* find( const int i );
-        /**
-         * find an instrument within the instruments
-         * \param name the name of the instrument to find
-         * \return 0 if not found
-         */
-        Instrument* find( const QString& name );
-        /**
-         * swap the instruments of two different indexes
-         * \param idx_a the first index
-         * \param idx_b the second index
-         */
-        void swap( int idx_a, int idx_b );
-        /**
-         * move an instrument from a position to another
-         * \param idx_a the start index
-         * \param idx_b the finish index
-         */
-        void move( int idx_a, int idx_b );
+		/** returns the numbers of instruments */
+		int size() const;
+		/**
+		 * add an instrument to the list
+		 * \param instrument a pointer to the instrument to add
+		 */
+		void operator<<( Instrument* instrument );
+		/**
+		 * get an instrument from  the list
+		 * \param idx the index to get the instrument from
+		 */
+		Instrument* operator[]( int idx );
+		/**
+		 * add an instrument to the list
+		 * \param instrument a pointer to the instrument to add
+		 */
+		void add( Instrument* instrument );
+		/**
+		 * insert an instrument into the list
+		 * \param idx the index to insert the instrument at
+		 * \param instrument a pointer to the instrument to add
+		 */
+		void insert( int idx, Instrument* instrument );
+		/**
+		 * get an instrument from  the list
+		 * \param idx the index to get the instrument from
+		 */
+		Instrument* get( int idx );
+		/**
+		 * remove the instrument at a given index, does not delete it
+		 * \param idx the index
+		 * \return a pointer to the removed instrument
+		 */
+		Instrument* del( int idx );
+		/**
+		 * remove an instrument from the list, does not delete it
+		 * \param instrument the instrument to be removed
+		 * \return a pointer to the removed instrument, 0 if not found
+		 */
+		Instrument* del( Instrument* instrument );
+		/**
+		 * get the index of an instrument within the instruments
+		 * \param instrument a pointer to the instrument to find
+		 * \return -1 if not found
+		 */
+		int index( Instrument* instrument );
+		/**
+		 * find an instrument within the instruments
+		 * \param id the id of the instrument to find
+		 * \return 0 if not found
+		 */
+		Instrument* find( const int i );
+		/**
+		 * find an instrument within the instruments
+		 * \param name the name of the instrument to find
+		 * \return 0 if not found
+		 */
+		Instrument* find( const QString& name );
+		/**
+		 * swap the instruments of two different indexes
+		 * \param idx_a the first index
+		 * \param idx_b the second index
+		 */
+		void swap( int idx_a, int idx_b );
+		/**
+		 * move an instrument from a position to another
+		 * \param idx_a the start index
+		 * \param idx_b the finish index
+		 */
+		void move( int idx_a, int idx_b );
 
-        /*
-         * load instrument samples
-         */
-        void load_samples();
-        /*
-         * unload instrument samples
-         */
-        void unload_samples();
-        /*
-         * save the intrument list within the given XMLNode
-         * \param node the XMLNode to feed
-         */
-        void save_to( XMLNode* node );
-        /**
-         * load an instrument list from an XMLNode
-         * \param node the XMLDode to read from
-         * \param dk_path the directory holding the drumkit data
-         * \return a new InstrumentList instance
-         */
-        static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+		/*
+		 * load instrument samples
+		 */
+		void load_samples();
+		/*
+		 * unload instrument samples
+		 */
+		void unload_samples();
+		/*
+		 * save the intrument list within the given XMLNode
+		 * \param node the XMLNode to feed
+		 */
+		void save_to( XMLNode* node );
+		/**
+		 * load an instrument list from an XMLNode
+		 * \param node the XMLDode to read from
+		 * \param dk_path the directory holding the drumkit data
+		 * \return a new InstrumentList instance
+		 */
+		static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
-    private:
-        std::vector<Instrument*> __instruments;            ///< the list of instruments
+	private:
+		std::vector<Instrument*> __instruments;            ///< the list of instruments
 };
 
 // DEFINITIONS
 
 inline int InstrumentList::size() const
 {
-    return __instruments.size();
+	return __instruments.size();
 }
 
 };

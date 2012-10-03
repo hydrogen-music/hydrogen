@@ -34,7 +34,7 @@ extern "C"
 	/*****************************************************************************/
 
 	/* Overview:
-	 
+
 	   There is a large number of synthesis packages in use or development
 	   on the Linux platform at this time. This API (`The Linux Audio
 	   Developer's Simple Plugin API') attempts to give programmers the
@@ -42,7 +42,7 @@ extern "C"
 	   them dynamically (`plug') into a range of these packages (`hosts').
 	   It should be possible for any host and any plugin to communicate
 	   completely through this interface.
-	 
+
 	   This API is deliberately short and simple. To achieve compatibility
 	   with a range of promising Linux sound synthesis packages it
 	   attempts to find the `greatest common divisor' in their logical
@@ -50,7 +50,7 @@ extern "C"
 	   implicit, notably the use of a fixed type (LADSPA_Data) for all
 	   data transfer and absence of a parameterised `initialisation'
 	   phase. See below for the LADSPA_Data typedef.
-	 
+
 	   Plugins are expected to distinguish between control and audio
 	   data. Plugins have `ports' that are inputs or outputs for audio or
 	   control data and each plugin is `run' for a `block' corresponding
@@ -63,13 +63,13 @@ extern "C"
 	   duration. The plugin may assume that all its input and output ports
 	   have been connected to the relevant data location (see the
 	   `connect_port()' function below) before it is asked to run.
-	 
+
 	   Plugins will reside in shared object files suitable for dynamic
 	   linking by dlopen() and family. The file will provide a number of
 	   `plugin types' that can be used to instantiate actual plugins
 	   (sometimes known as `plugin instances') that can be connected
 	   together to perform tasks.
-	 
+
 	   This API contains very limited error-handling. */
 
 	/*****************************************************************************/
@@ -78,7 +78,7 @@ extern "C"
 	   is used to communicate audio samples and control values. It is
 	   assumed that the plugin will work sensibly given any numeric input
 	   value although it may have a preferred range (see hints below).
-	 
+
 	   For audio it is generally assumed that 1.0f is the `0dB' reference
 	   amplitude and is a `normal' signal level. */
 
@@ -87,7 +87,7 @@ extern "C"
 	/*****************************************************************************/
 
 	/* Special Plugin Properties:
-	 
+
 	   Optional features of the plugin type are encapsulated in the
 	   LADSPA_Properties type. This is assembled by ORing individual
 	   properties together. */
@@ -110,20 +110,20 @@ extern "C"
 	   is capable of running not only in a conventional host but also in a
 	   `hard real-time' environment. To qualify for this the plugin must
 	   satisfy all of the following:
-	 
+
 	   (1) The plugin must not use malloc(), free() or other heap memory
 	   management within its run() or run_adding() functions. All new
 	   memory used in run() must be managed via the stack. These
 	   restrictions only apply to the run() function.
-	 
+
 	   (2) The plugin will not attempt to make use of any library
 	   functions with the exceptions of functions in the ANSI standard C
 	   and C maths libraries, which the host is expected to provide.
-	 
+
 	   (3) The plugin will not access files, devices, pipes, sockets, IPC
 	   or any other mechanism that might result in process or thread
 	   blocking.
-	    
+
 	   (4) The plugin will take an amount of time to execute a run() or
 	   run_adding() call approximately of form (A+B*SampleCount) where A
 	   and B depend on the machine and host in use. This amount of time
@@ -139,14 +139,14 @@ extern "C"
 	/*****************************************************************************/
 
 	/* Plugin Ports:
-	 
+
 	   Plugins have `ports' that are inputs or outputs for audio or
 	   data. Ports can communicate arrays of LADSPA_Data (for audio
 	   inputs/outputs) or single LADSPA_Data values (for control
 	   input/outputs). This information is encapsulated in the
 	   LADSPA_PortDescriptor type which is assembled by ORing individual
 	   properties together.
-	 
+
 	   Note that a port must be an input or an output port but not both
 	   and that a port must be a control or audio port but not both. */
 
@@ -174,27 +174,27 @@ extern "C"
 	/*****************************************************************************/
 
 	/* Plugin Port Range Hints:
-	 
+
 	   The host may wish to provide a representation of data entering or
 	   leaving a plugin (e.g. to generate a GUI automatically). To make
 	   this more meaningful, the plugin should provide `hints' to the host
 	   describing the usual values taken by the data.
-	   
+
 	   Note that these are only hints. The host may ignore them and the
 	   plugin must not assume that data supplied to it is meaningful. If
 	   the plugin receives invalid input data it is expected to continue
 	   to run without failure and, where possible, produce a sensible
 	   output (e.g. a high-pass filter given a negative cutoff frequency
 	   might switch to an all-pass mode).
-	    
+
 	   Hints are meaningful for all input and output ports but hints for
 	   input control ports are expected to be particularly useful.
-	   
+
 	   More hint information is encapsulated in the
 	   LADSPA_PortRangeHintDescriptor type which is assembled by ORing
 	   individual hint types together. Hints may require further
 	   LowerBound and UpperBound information.
-	 
+
 	   All the hint information for a particular port is aggregated in the
 	   LADSPA_PortRangeHint structure. */
 
@@ -317,23 +317,23 @@ extern "C"
 
 #define LADSPA_IS_HINT_HAS_DEFAULT(x)     ((x) & LADSPA_HINT_DEFAULT_MASK)
 #define LADSPA_IS_HINT_DEFAULT_MINIMUM(x) (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_MINIMUM)
+										   == LADSPA_HINT_DEFAULT_MINIMUM)
 #define LADSPA_IS_HINT_DEFAULT_LOW(x)     (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_LOW)
+										   == LADSPA_HINT_DEFAULT_LOW)
 #define LADSPA_IS_HINT_DEFAULT_MIDDLE(x)  (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_MIDDLE)
+										   == LADSPA_HINT_DEFAULT_MIDDLE)
 #define LADSPA_IS_HINT_DEFAULT_HIGH(x)    (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_HIGH)
+										   == LADSPA_HINT_DEFAULT_HIGH)
 #define LADSPA_IS_HINT_DEFAULT_MAXIMUM(x) (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_MAXIMUM)
+										   == LADSPA_HINT_DEFAULT_MAXIMUM)
 #define LADSPA_IS_HINT_DEFAULT_0(x)       (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_0)
+										   == LADSPA_HINT_DEFAULT_0)
 #define LADSPA_IS_HINT_DEFAULT_1(x)       (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_1)
+										   == LADSPA_HINT_DEFAULT_1)
 #define LADSPA_IS_HINT_DEFAULT_100(x)     (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                           == LADSPA_HINT_DEFAULT_100)
+										   == LADSPA_HINT_DEFAULT_100)
 #define LADSPA_IS_HINT_DEFAULT_440(x)     (((x) & LADSPA_HINT_DEFAULT_MASK)   \
-                                            == LADSPA_HINT_DEFAULT_440)
+											== LADSPA_HINT_DEFAULT_440)
 
 	typedef struct _LADSPA_PortRangeHint {
 
@@ -356,7 +356,7 @@ extern "C"
 	/*****************************************************************************/
 
 	/* Plugin Handles:
-	 
+
 	   This plugin handle indicates a particular instance of the plugin
 	   concerned. It is valid to compare this to NULL (0 for C++) but
 	   otherwise the host should not attempt to interpret it. The plugin
@@ -367,7 +367,7 @@ extern "C"
 	/*****************************************************************************/
 
 	/* Descriptor for a Type of Plugin:
-	 
+
 	   This structure is used to describe a plugin type. It provides a
 	   number of functions to examine the type, instantiate it, link it to
 	   buffers and workspaces and to run it. */
@@ -437,7 +437,7 @@ extern "C"
 		   Note that instance initialisation should generally occur in
 		   activate() rather than here. */
 		LADSPA_Handle ( *instantiate )( const struct _LADSPA_Descriptor * Descriptor,
-		                                unsigned long                     SampleRate );
+										unsigned long                     SampleRate );
 
 		/* This member is a function pointer that connects a port on an
 		   instantiated plugin to a memory location at which a block of data
@@ -466,8 +466,8 @@ extern "C"
 		   However, overlapped buffers or use of a single buffer for both
 		   audio and control data may result in unexpected behaviour. */
 		void ( *connect_port )( LADSPA_Handle Instance,
-		                        unsigned long Port,
-		                        LADSPA_Data * DataLocation );
+								unsigned long Port,
+								LADSPA_Data * DataLocation );
 
 		/* This member is a function pointer that initialises a plugin
 		   instance and activates it for use. This is separated from
@@ -505,7 +505,7 @@ extern "C"
 		   then there are various things that the plugin should not do
 		   within the run() or run_adding() functions (see above). */
 		void ( *run )( LADSPA_Handle Instance,
-		               unsigned long SampleCount );
+					   unsigned long SampleCount );
 
 		/* This method is a function pointer that runs an instance of a
 		   plugin for a block. This has identical behaviour to run() except
@@ -521,7 +521,7 @@ extern "C"
 		   this function pointer must be set to NULL. When it is provided,
 		   the function set_run_adding_gain() must be provided also. */
 		void ( *run_adding )( LADSPA_Handle Instance,
-		                      unsigned long SampleCount );
+							  unsigned long SampleCount );
 
 		/* This method is a function pointer that sets the output gain for
 		   use when run_adding() is called (see above). If this function is
@@ -533,7 +533,7 @@ extern "C"
 		   run_adding() function is provided. When it is absent this
 		   function pointer must be set to NULL. */
 		void ( *set_run_adding_gain )( LADSPA_Handle Instance,
-		                               LADSPA_Data   Gain );
+									   LADSPA_Data   Gain );
 
 		/* This is the counterpart to activate() (see above). If there is
 		   nothing for deactivate() to do then the plugin writer may provide
@@ -573,17 +573,17 @@ extern "C"
 	   variable LADSPA_PATH. If present, this should contain a
 	   colon-separated path indicating directories that should be searched
 	   (in order) when loading plugin types.
-	 
+
 	   A plugin programmer must include a function called
 	   "ladspa_descriptor" with the following function prototype within
 	   the shared object file. This function will have C-style linkage (if
 	   you are using C++ this is taken care of by the `extern "C"' clause
 	   at the top of the file).
-	 
+
 	   A host will find the plugin shared object file by one means or
 	   another, find the ladspa_descriptor() function, call it, and
 	   proceed from there.
-	 
+
 	   Plugin types are accessed by index (not ID) using values from 0
 	   upwards. Out of range indexes must result in this function
 	   returning NULL, so the plugin count can be determined by checking

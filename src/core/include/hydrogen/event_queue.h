@@ -45,10 +45,10 @@ enum EventType {
 	EVENT_ERROR,
 	EVENT_METRONOME,
 	EVENT_RECALCULATERUBBERBAND,
-        EVENT_PROGRESS,
-        EVENT_JACK_SESSION,
-        EVENT_PLAYLIST_LOADSONG,
-        EVENT_UNDO_REDO
+		EVENT_PROGRESS,
+		EVENT_JACK_SESSION,
+		EVENT_PLAYLIST_LOADSONG,
+		EVENT_UNDO_REDO
 };
 
 
@@ -64,7 +64,7 @@ public:
 ///
 class EventQueue : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	static void create_instance();
 	static EventQueue* get_instance() { assert(__instance); return __instance; }
@@ -73,22 +73,22 @@ public:
 	void push_event( EventType type, int nValue );
 	Event pop_event();
 
-        struct AddMidiNoteVector
-        {
-                int m_column;       //position
-                int m_row;          //instrument row
-                int m_pattern;      // pattern number
-                int m_length;
-                float f_velocity;
-                float f_pan_L;
-                float f_pan_R;
-                Note::Key nk_noteKeyVal;
-                Note::Octave no_octaveKeyVal;
-                bool b_isMidi;
-                bool b_isInstrumentMode;
-                bool b_noteExist;
-        };
-        std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+		struct AddMidiNoteVector
+		{
+				int m_column;       //position
+				int m_row;          //instrument row
+				int m_pattern;      // pattern number
+				int m_length;
+				float f_velocity;
+				float f_pan_L;
+				float f_pan_R;
+				Note::Key nk_noteKeyVal;
+				Note::Octave no_octaveKeyVal;
+				bool b_isMidi;
+				bool b_isInstrumentMode;
+				bool b_noteExist;
+		};
+		std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 
 private:
 	EventQueue();

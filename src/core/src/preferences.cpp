@@ -65,7 +65,7 @@ Preferences::Preferences()
 {
 	__instance = this;
 	INFOLOG( "INIT" );
-	
+
 	//Default jack track-outputs are post fader
 	m_nJackTrackOutputMode = POST_FADER;
 	m_bJackTrackOuts = false;
@@ -85,13 +85,13 @@ Preferences::Preferences()
 
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
-        __rubberBandCalcTime = 5;
+		__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
 
 	//find the Rubberband-CLI in system env
-	//if this fails a second test will check individual user settings 
+	//if this fails a second test will check individual user settings
 	for(int i = 0; i < rubberBandCLIPathList.size(); ++i){
 		m_rubberBandCLIexecutable = rubberBandCLIPathList[i] + "/rubberband";
 		if ( QFile( m_rubberBandCLIexecutable ).exists() == true ){
@@ -99,7 +99,7 @@ Preferences::Preferences()
 			break;
 		}else
 		{
-			m_rubberBandCLIexecutable = "Path to Rubberband-CLI";	
+			m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 			readPrefFileforotherplaces = true;
 		}
 	}
@@ -129,11 +129,11 @@ Preferences::Preferences()
 
 	}
 
-	
+
 
 
 	m_pDefaultUIStyle = new UIStyle();
-        m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+		m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
 #ifdef Q_OS_MACX
 	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
@@ -143,11 +143,11 @@ Preferences::Preferences()
 	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
+#endif
 	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
 	if ( !QDir(m_sTmpDirectory).exists() ) {
 		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
 	}
-#endif
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -155,14 +155,14 @@ Preferences::Preferences()
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
 	recordEvents = false; // not recording by default
- 	destructiveRecord = false; // not destructively recording by default
+	destructiveRecord = false; // not destructively recording by default
 	punchInPos = 0;
 	punchOutPos = -1;
 
-	__expandSongItem = true; //SoundLibraryPanel 
-	__expandPatternItem = true; //SoundLibraryPanel 
-        __useTimelineBpm = false;		// use timeline
- 
+	__expandSongItem = true; //SoundLibraryPanel
+	__expandPatternItem = true; //SoundLibraryPanel
+		__useTimelineBpm = false;		// use timeline
+
 
 	/////////////////////////////////////////////////////////////////////////
 	/////////////////// DEFAULT SETTINGS ////////////////////////////////////
@@ -173,7 +173,7 @@ Preferences::Preferences()
 
 	m_bbc = false;
 	m_mmcsetplay = false;
-	
+
 	m_countOffset = 0;  // beatcounter
 	m_startOffset = 0;  // beatcounter
 
@@ -227,7 +227,7 @@ Preferences::Preferences()
 	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
-	m_bShowExportWarning = false; 
+	m_bShowExportWarning = false;
 	// NONE: lastSongFilename;
 	hearNewNotes = true;
 	// NONE: m_recentFiles;
@@ -279,7 +279,7 @@ Preferences::Preferences()
 	uis->m_patternEditor_line3Color = H2RGBColor(115, 115, 115);
 	uis->m_patternEditor_line4Color = H2RGBColor(125, 125, 125);
 	uis->m_patternEditor_line5Color = H2RGBColor(135, 135, 135);
-	
+
 	/////////////////////////////////////////////////////////////////////////
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
@@ -354,20 +354,20 @@ void Preferences::loadPreferences( bool bGlobal )
 	QString sPatternDir;
 
 	INFOLOG( "Creating soundLibrary directories in " + sDir );
-	
+
 	sDrumkitDir = sDir + "/drumkits";
 	sSongDir = sDir + "/songs";
 	sPatternDir = sDir + "/patterns";
-	
+
 	QDir drumkitDir( sDrumkitDir );
 	QDir songDir( sSongDir );
 	QDir patternDir( sPatternDir );
-	
+
 	if ( ! drumkitDir.exists() || ! songDir.exists() || ! patternDir.exists() )
 	{
 		createSoundLibraryDirectories();
 	}
-	
+
 	// pref file exists?
 	std::ifstream input( sPreferencesFilename.toLocal8Bit() , std::ios::in | std::ios::binary );
 	if ( input ) {
@@ -375,7 +375,7 @@ void Preferences::loadPreferences( bool bGlobal )
 		// read preferences file
 		QDomDocument doc = LocalFileMng::openXmlDocument( sPreferencesFilename );
 		QDomNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
-		
+
 		if ( !rootNode.isNull() ) {
 
 			// version
@@ -391,29 +391,29 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
-                        __useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
+						__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-                        m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
-                        m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
+						m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
+						m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
-                       m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
+					   m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
 			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
 			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
-			
+
 			//rubberband
 			if( readPrefFileforotherplaces ){
-				//this scond test will check individual user settings 
+				//this scond test will check individual user settings
 				QString test = LocalFileMng::readXmlString( rootNode, "path_to_rubberband", "");
 				if ( QFile( test ).exists() == true ){
 					m_rubberBandCLIexecutable = test;
 				}else
 				{
-					m_rubberBandCLIexecutable = "Path to Rubberband-CLI";	
+					m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 				}
 			}
 
@@ -424,7 +424,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_recentFiles.push_back( pSongElement.text() );
 					pSongElement = pSongElement.nextSiblingElement( "song" );
 				}
-				
+
 			} else {
 				WARNINGLOG( "recentUsedSongs node not found" );
 			}
@@ -510,7 +510,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( sMode == "USE_JACK_TRANSPORT" ) {
 						m_bJackTransportMode = USE_JACK_TRANSPORT;
 					}
-					
+
 					//jack time master
 					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
@@ -616,14 +616,14 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( setPlay == "SET_PLAY_ON" ) {
 						m_mmcsetplay = SET_PLAY_ON;
 					}
-				
+
 				m_countOffset = LocalFileMng::readXmlInt( guiNode, "countoffset", 0 );
 				m_startOffset = LocalFileMng::readXmlInt( guiNode, "playoffset", 0 );
-				
+
 				//~ beatcounter
 
-				//SoundLibraryPanel expand items 
-				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem ); 
+				//SoundLibraryPanel expand items
+				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem );
 				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem );
 
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
@@ -654,8 +654,8 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			MidiMap::reset_instance();
 			MidiMap* mM = MidiMap::get_instance();
-			
-			
+
+
 			QDomNode pMidiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
 			if ( !pMidiEventMapNode.isNull() ) {
 				QDomNode pMidiEventNode = pMidiEventMapNode.firstChildElement( "midiEvent" );
@@ -665,7 +665,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 
-                                                MidiAction* pAction = new MidiAction( s_action );
+												MidiAction* pAction = new MidiAction( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerMMCEvent(event, pAction);
 					}
@@ -675,7 +675,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-                                                MidiAction* pAction = new MidiAction( s_action );
+												MidiAction* pAction = new MidiAction( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
@@ -685,7 +685,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-                                                MidiAction * pAction = new MidiAction( s_action );
+												MidiAction * pAction = new MidiAction( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
 					}
@@ -697,8 +697,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				WARNINGLOG( "midiMap node not found" );
 			}
-			
-			
+
+
 
 		} // rootNode
 		else {
@@ -746,18 +746,18 @@ void Preferences::savePreferences()
 	////// GENERAL ///////
 	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
-	
+
 	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
-        LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
+		LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
 
-        LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
-        LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
+		LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
+		LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
 
-        LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
+		LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
@@ -790,7 +790,7 @@ void Preferences::savePreferences()
 		}
 	}
 	rootNode.appendChild( recentUsedSongsNode );
-	
+
 	QDomNode recentFXNode = doc.createElement( "recentlyUsedEffects" );
 	{
 		int nFX = 0;
@@ -971,7 +971,7 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
 
 
-		
+
 		QString setPlay;
 			if ( m_mmcsetplay == SET_PLAY_OFF ) {
 				setPlay = "SET_PLAY_OFF";
@@ -1005,50 +1005,50 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-        std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
+		std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
 
-        std::map< QString, MidiAction* >::iterator dIter( mmcMap.begin() );
+		std::map< QString, MidiAction* >::iterator dIter( mmcMap.begin() );
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
-	    QString event = dIter->first;
-            MidiAction * pAction = dIter->second;
-	    if ( pAction->getType() != "NOTHING" ){
-		    QDomNode midiEventNode = doc.createElement( "midiEvent" );
+		QString event = dIter->first;
+			MidiAction * pAction = dIter->second;
+		if ( pAction->getType() != "NOTHING" ){
+			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
-		    LocalFileMng::writeXmlString( midiEventNode, "mmcEvent" , event );
-		    LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType());
-		    LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
+			LocalFileMng::writeXmlString( midiEventNode, "mmcEvent" , event );
+			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType());
+			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
 
-		    midiEventMapNode.appendChild( midiEventNode );
-	    }
+			midiEventMapNode.appendChild( midiEventNode );
+		}
 	}
-		
+
 	for( int note=0; note < 128; note++ ){
-            MidiAction * pAction = mM->getNoteAction( note );
-	    if( pAction != NULL && pAction->getType() != "NOTHING") {
+			MidiAction * pAction = mM->getNoteAction( note );
+		if( pAction != NULL && pAction->getType() != "NOTHING") {
 		QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 		LocalFileMng::writeXmlString( midiEventNode, "noteEvent" , QString("NOTE") );
 		LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( note ) );
 		LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 		LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
-	
+
 
 		midiEventMapNode.appendChild(midiEventNode);
-	    }
+		}
 	}
 
 		for( int parameter=0; parameter < 128; parameter++ ){
-                        MidiAction * pAction = mM->getCCAction( parameter );
+						MidiAction * pAction = mM->getCCAction( parameter );
 			if( pAction != NULL && pAction->getType() != "NOTHING")
 			{
 				QDomNode midiEventNode = doc.createElement( "midiEvent" );
-				
+
 				LocalFileMng::writeXmlString( midiEventNode, "ccEvent" , QString("CC") );
 				LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( parameter ) );
-				
+
 
 				LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 
@@ -1058,11 +1058,11 @@ void Preferences::savePreferences()
 			}
 		}
 
-	
+
 	rootNode.appendChild( midiEventMapNode );
 
 	doc.appendChild( rootNode );
-	
+
 	QFile file( filename );
 	if ( !file.open(QIODevice::WriteOnly) )
 		return;
@@ -1111,7 +1111,7 @@ void Preferences::createSoundLibraryDirectories()
 	QString sPlaylistDir;
 
 	INFOLOG( "Creating soundLibrary directories in " + sDir );
-	
+
 	sDrumkitDir = sDir + "/drumkits";
 	sSongDir = sDir + "/songs";
 	sPatternDir = sDir + "/patterns";
@@ -1128,10 +1128,10 @@ void Preferences::createSoundLibraryDirectories()
 void Preferences::setMostRecentFX( QString FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
-	
+
 	if ( pos != -1 )
 		m_recentFX.removeAt( pos );
-	
+
 	m_recentFX.push_front( FX_name );
 }
 
