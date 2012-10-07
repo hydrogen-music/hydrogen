@@ -44,7 +44,7 @@ namespace H2Core
 ///
 class AudioEngine : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	static void create_instance();
 	static AudioEngine* get_instance() { assert(__instance); return __instance; }
@@ -91,7 +91,7 @@ private:
 		unsigned int line;
 		const char* function;
 	} __locker;
-			
+
 	AudioEngine();
 };
 

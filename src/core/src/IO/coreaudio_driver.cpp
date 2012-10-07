@@ -36,12 +36,12 @@
 /// The Render Callback
 ///
 static OSStatus renderProc(
-    void *inRefCon,
-    AudioUnitRenderActionFlags *ioActionFlags,
-    const AudioTimeStamp *inTimeStamp,
-    UInt32 inBusNumber,
-    UInt32 inNumberFrames,
-    AudioBufferList *ioData
+	void *inRefCon,
+	AudioUnitRenderActionFlags *ioActionFlags,
+	const AudioTimeStamp *inTimeStamp,
+	UInt32 inBusNumber,
+	UInt32 inNumberFrames,
+	AudioBufferList *ioData
 )
 {
 	H2Core::CoreAudioDriver* pDriver = ( H2Core::CoreAudioDriver * )inRefCon;
@@ -86,23 +86,23 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 
 	UInt32 size = sizeof( AudioDeviceID );
 	err = AudioHardwareGetProperty(
-	          kAudioHardwarePropertyDefaultOutputDevice,
-	          &size,
-	          &m_outputDevice
-	      );
+			  kAudioHardwarePropertyDefaultOutputDevice,
+			  &size,
+			  &m_outputDevice
+		  );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not get Default Output Device" );
 	}
 
 	UInt32 dataSize = sizeof( m_nBufferSize );
 	err = AudioDeviceGetProperty(
-	          m_outputDevice,
-	          0,
-	          false,
-	          kAudioDevicePropertyBufferFrameSize,
-	          &dataSize,
-	          ( void * )&m_nBufferSize
-	      );
+			  m_outputDevice,
+			  0,
+			  false,
+			  kAudioDevicePropertyBufferFrameSize,
+			  &dataSize,
+			  ( void * )&m_nBufferSize
+		  );
 
 	if ( err != noErr ) {
 		ERRORLOG( "get BufferSize error" );
@@ -147,8 +147,8 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	memset ( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
 
 // Get Component
-        Component compOutput;
-        ComponentDescription descAUHAL;
+		Component compOutput;
+		ComponentDescription descAUHAL;
 
 	descAUHAL.componentType = kAudioUnitType_Output;
 	descAUHAL.componentSubType = kAudioUnitSubType_HALOutput;
@@ -170,23 +170,23 @@ int CoreAudioDriver::init( unsigned bufferSize )
 // Get Current Output Device
 	UInt32 size = sizeof( AudioDeviceID );
 	err = AudioHardwareGetProperty(
-	          kAudioHardwarePropertyDefaultOutputDevice,
-	          &size,
-	          &m_outputDevice
-	      );
+			  kAudioHardwarePropertyDefaultOutputDevice,
+			  &size,
+			  &m_outputDevice
+		  );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not get Default Output Device" );
 	}
 
 // Set AUHAL to Current Device
 	err = AudioUnitSetProperty(
-	          m_outputUnit,
-	          kAudioOutputUnitProperty_CurrentDevice,
-	          kAudioUnitScope_Global,
-	          0,
-	          &m_outputDevice,
-	          sizeof( m_outputDevice )
-	      );
+			  m_outputUnit,
+			  kAudioOutputUnitProperty_CurrentDevice,
+			  kAudioUnitScope_Global,
+			  0,
+			  &m_outputDevice,
+			  sizeof( m_outputDevice )
+		  );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not set Current Device" );
 	}
@@ -216,13 +216,13 @@ int CoreAudioDriver::init( unsigned bufferSize )
 
 
 	err = AudioUnitSetProperty(
-	          m_outputUnit,
-	          kAudioUnitProperty_StreamFormat,
-	          kAudioUnitScope_Input,
-	          0,
-	          &asbdesc,
-	          sizeof( AudioStreamBasicDescription )
-	      );
+			  m_outputUnit,
+			  kAudioUnitProperty_StreamFormat,
+			  kAudioUnitScope_Input,
+			  0,
+			  &asbdesc,
+			  sizeof( AudioStreamBasicDescription )
+		  );
 
 // Set Render Callback
 	AURenderCallbackStruct out;
@@ -230,13 +230,13 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	out.inputProcRefCon = ( void * )this;
 
 	err = AudioUnitSetProperty(
-	          m_outputUnit,
-	          kAudioUnitProperty_SetRenderCallback,
-	          kAudioUnitScope_Global,
-	          0,
-	          &out,
-	          sizeof( out )
-	      );
+			  m_outputUnit,
+			  kAudioUnitProperty_SetRenderCallback,
+			  kAudioUnitScope_Global,
+			  0,
+			  &out,
+			  sizeof( out )
+		  );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not Set Render Callback" );
 	}

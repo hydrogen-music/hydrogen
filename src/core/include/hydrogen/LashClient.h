@@ -42,12 +42,12 @@ public:
 		int *argc,
 		char ***argv
 		);
-	
+
 	LashClient(const char* lashClass, const char* viewName, int* argc, char ***argv);
 	~LashClient();
 
 	bool isConnected();
-	
+
 	void sendEvent(LASH_Event_Type eventType, const char* value);
 	void sendEvent(LASH_Event_Type eventType);
 

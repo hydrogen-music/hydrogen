@@ -30,22 +30,22 @@ using namespace std;
 
 
 class MidiAction : public H2Core::Object {
-    H2_OBJECT
+	H2_OBJECT
 	public:
 		MidiAction( QString );
-			
+
 		void setParameter1( QString text ){
 			parameter1 = text;
 		}
-		
+
 		void setParameter2( QString text ){
 			parameter2 = text;
 		}
-		
+
 		QString getParameter1(){
 			return parameter1;
 		}
-		
+
 		QString getParameter2(){
 			return parameter2;
 		}
@@ -53,7 +53,7 @@ class MidiAction : public H2Core::Object {
 		QString getType(){
 			return type;
 		}
-		
+
 
 	private:
 		QString type;
@@ -67,7 +67,7 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
 
 class MidiActionManager : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	private:
 		static MidiActionManager *__instance;
 		QStringList actionList;
@@ -77,14 +77,14 @@ class MidiActionManager : public H2Core::Object
 
 	public:
 		bool handleAction( MidiAction * );
-		
+
 		static void create_instance();
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
-		
+
 		QStringList getActionList(){
 			return actionList;
 		}
-		
+
 		QStringList getEventList(){
 			return eventList;
 		}

@@ -45,7 +45,7 @@ class AudioOutput;
 ///
 class Sampler : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	float *__main_out_L;	///< sampler main out (left channel)
 	float *__main_out_R;	///< sampler main out (right channel)
@@ -74,17 +74,17 @@ public:
 	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
 	bool is_instrument_playing( Instrument* pInstr );
 
-        enum InterpolateMode { LINEAR,
-                               COSINE,
-                               THIRD,
-                               CUBIC,
-                               HERMITE };
+		enum InterpolateMode { LINEAR,
+							   COSINE,
+							   THIRD,
+							   CUBIC,
+							   HERMITE };
 
-        void setInterpolateMode( InterpolateMode mode ){
-                 __interpolateMode = mode;
-        }
+		void setInterpolateMode( InterpolateMode mode ){
+				 __interpolateMode = mode;
+		}
 
-        InterpolateMode getInterpolateMode(){ return __interpolateMode; }
+		InterpolateMode getInterpolateMode(){ return __interpolateMode; }
 
 private:
 	std::vector<Note*> __playing_notes_queue;
@@ -95,131 +95,131 @@ private:
 
 	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
-        InterpolateMode __interpolateMode;
+		InterpolateMode __interpolateMode;
 
-        /*
-        double Interpolate( float y0, float y1, float y2, float y3, double mu )
-        {
-                switch( __interpolateMode ){
+		/*
+		double Interpolate( float y0, float y1, float y2, float y3, double mu )
+		{
+				switch( __interpolateMode ){
 
-                case LINEAR:
-                        return linear_Interpolate( y1, y2, (float) mu );
-                case COSINE:
-                        return cosine_Interpolate( y1, y2, mu );
-                case THIRD:
-                        return third_Interpolate( y0, y1, y2, y3, mu );
-                case CUBIC:
-                        return cubic_Interpolate( y0, y1, y2, y3, mu );
-                case HERMITE:
-                        return hermite_Interpolate( y0, y1, y2, y3, mu );
-                }
-        };*/
+				case LINEAR:
+						return linear_Interpolate( y1, y2, (float) mu );
+				case COSINE:
+						return cosine_Interpolate( y1, y2, mu );
+				case THIRD:
+						return third_Interpolate( y0, y1, y2, y3, mu );
+				case CUBIC:
+						return cubic_Interpolate( y0, y1, y2, y3, mu );
+				case HERMITE:
+						return hermite_Interpolate( y0, y1, y2, y3, mu );
+				}
+		};*/
 
-        inline static float linear_Interpolate( float y1, float y2, float mu )
-        {
-                /*
-                 * mu defines where to estimate the value on the interpolated line
-                 * y1 = buffervalue on position
-                 * y2 = buffervalue on position +1
-                 */
-                return y1 * ( 1 - mu ) + y2 * mu;
-        };
+		inline static float linear_Interpolate( float y1, float y2, float mu )
+		{
+				/*
+				 * mu defines where to estimate the value on the interpolated line
+				 * y1 = buffervalue on position
+				 * y2 = buffervalue on position +1
+				 */
+				return y1 * ( 1 - mu ) + y2 * mu;
+		};
 
-        inline static float cosine_Interpolate( float y1, float y2, double mu )
-        {
-                /*
-                 * mu defines where to estimate the value on the interpolated line
-                 * y1 = buffervalue on position
-                 * y2 = buffervalue on position +1
-                 */
-                double mu2;
+		inline static float cosine_Interpolate( float y1, float y2, double mu )
+		{
+				/*
+				 * mu defines where to estimate the value on the interpolated line
+				 * y1 = buffervalue on position
+				 * y2 = buffervalue on position +1
+				 */
+				double mu2;
 
-                mu2 = ( 1 - cos ( mu * 3.14159 ) ) / 2;
-                return( y1 * (1 - mu2 ) + y2 * mu2 );
-        };
+				mu2 = ( 1 - cos ( mu * 3.14159 ) ) / 2;
+				return( y1 * (1 - mu2 ) + y2 * mu2 );
+		};
 
-        inline static float third_Interpolate( float y0, float y1, float y2, float y3, double mu )
-        {
-                /*
-                 * mu defines where to estimate the value on the interpolated line
-                 * y0 = buffervalue on position -1
-                 * y1 = buffervalue on position
-                 * y2 = buffervalue on position +1
-                 * y3 = buffervalue on position +2
-                 */
+		inline static float third_Interpolate( float y0, float y1, float y2, float y3, double mu )
+		{
+				/*
+				 * mu defines where to estimate the value on the interpolated line
+				 * y0 = buffervalue on position -1
+				 * y1 = buffervalue on position
+				 * y2 = buffervalue on position +1
+				 * y3 = buffervalue on position +2
+				 */
 
-                float c0 = y1;
-                float c1 = 0.5f * ( y2 - y0 );
-                float c3 = 1.5f * ( y1 - y2 ) + 0.5f * ( y3 - y0 );
-                float c2 = y0 - y1 + c1 - c3;
-                return ( ( c3 * mu + c2 ) * mu + c1 ) * mu + c0;
-        };
+				float c0 = y1;
+				float c1 = 0.5f * ( y2 - y0 );
+				float c3 = 1.5f * ( y1 - y2 ) + 0.5f * ( y3 - y0 );
+				float c2 = y0 - y1 + c1 - c3;
+				return ( ( c3 * mu + c2 ) * mu + c1 ) * mu + c0;
+		};
 
-        inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, double mu)
-        {
-                /*
-                 * mu defines where to estimate the value on the interpolated line
-                 * y0 = buffervalue on position -1
-                 * y1 = buffervalue on position
-                 * y2 = buffervalue on position +1
-                 * y3 = buffervalue on position +2
-                 */
+		inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, double mu)
+		{
+				/*
+				 * mu defines where to estimate the value on the interpolated line
+				 * y0 = buffervalue on position -1
+				 * y1 = buffervalue on position
+				 * y2 = buffervalue on position +1
+				 * y3 = buffervalue on position +2
+				 */
 
-                double a0, a1, a2, a3, mu2;
+				double a0, a1, a2, a3, mu2;
 
-                mu2 = mu * mu;
-                a0 = y3 - y2 - y0 + y1;
-                a1 = y0 - y1 - a0;
-                a2 = y2 - y0;
-                a3 = y1;
+				mu2 = mu * mu;
+				a0 = y3 - y2 - y0 + y1;
+				a1 = y0 - y1 - a0;
+				a2 = y2 - y0;
+				a3 = y1;
 
-                return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
-        };
+				return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
+		};
 
-        inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, double mu )
-        {
-                /*
-                 * mu defines where to estimate the value on the interpolated line
-                 * y0 = buffervalue on position -1
-                 * y1 = buffervalue on position
-                 * y2 = buffervalue on position +1
-                 * y3 = buffervalue on position +2
-                 */
+		inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, double mu )
+		{
+				/*
+				 * mu defines where to estimate the value on the interpolated line
+				 * y0 = buffervalue on position -1
+				 * y1 = buffervalue on position
+				 * y2 = buffervalue on position +1
+				 * y3 = buffervalue on position +2
+				 */
 
-                double a0, a1, a2, a3, mu2;
+				double a0, a1, a2, a3, mu2;
 
-                mu2 = mu * mu;
-                a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
-                a1 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3;
-                a2 = -0.5 * y0 + 0.5 * y2;
-                a3 = y1;
+				mu2 = mu * mu;
+				a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
+				a1 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3;
+				a2 = -0.5 * y0 + 0.5 * y2;
+				a3 = y1;
 
-                return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
-        };
+				return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
+		};
 
 	int __render_note_no_resample(
-	    Sample *pSample,
-	    Note *pNote,
-	    int nBufferSize,
-	    int nInitialSilence,
-	    float cost_L,
-	    float cost_R,
-	    float cost_track_L,
-            float cost_track_R,
-	    Song* pSong
+		Sample *pSample,
+		Note *pNote,
+		int nBufferSize,
+		int nInitialSilence,
+		float cost_L,
+		float cost_R,
+		float cost_track_L,
+			float cost_track_R,
+		Song* pSong
 	);
 
 	int __render_note_resample(
-	    Sample *pSample,
-	    Note *pNote,
-	    int nBufferSize,
-	    int nInitialSilence,
-	    float cost_L,
-	    float cost_R,
-	    float cost_track_L,
-	    float cost_track_R,
-            float fLayerPitch,
-	    Song* pSong
+		Sample *pSample,
+		Note *pNote,
+		int nBufferSize,
+		int nInitialSilence,
+		float cost_L,
+		float cost_R,
+		float cost_track_L,
+		float cost_track_R,
+			float fLayerPitch,
+		Song* pSong
 	);
 };
 

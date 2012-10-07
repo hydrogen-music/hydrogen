@@ -64,7 +64,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 class OssDriver : public AudioOutput
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	OssDriver( audioProcessCallback processCallback );
 	~OssDriver();
@@ -104,7 +104,7 @@ namespace H2Core {
 
 class OssDriver : public NullDriver
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	OssDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

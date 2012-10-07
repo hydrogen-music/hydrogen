@@ -41,7 +41,7 @@ namespace H2Core
  */
 class Effects : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	static void create_instance();
 	static Effects* get_instance() { assert(__instance); return __instance; }
@@ -59,7 +59,7 @@ private:
 	std::vector<LadspaFXInfo*> m_pluginList;
 	LadspaFXGroup* m_pRootGroup;
 	LadspaFXGroup* m_pRecentGroup;
-	
+
 	void updateRecentGroup();
 
 	LadspaFX* m_FXList[ MAX_FX ];
@@ -68,7 +68,7 @@ private:
 
 	void RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
 	void getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
-	
+
 };
 
 };

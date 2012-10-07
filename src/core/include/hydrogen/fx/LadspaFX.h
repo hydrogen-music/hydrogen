@@ -37,7 +37,7 @@ namespace H2Core
 
 class LadspaFXInfo : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	LadspaFXInfo( const QString& sName );
 	~LadspaFXInfo();
@@ -59,7 +59,7 @@ public:
 
 class LadspaFXGroup : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	LadspaFXGroup( const QString& sName );
 	~LadspaFXGroup();
@@ -77,15 +77,15 @@ public:
 	std::vector<LadspaFXGroup*> getChildList() {
 		return m_childGroups;
 	}
-	
+
 	void clear() {
 		m_childGroups.clear();
 		m_ladspaList.clear();
 	}
-	
+
 	static bool alphabeticOrder( LadspaFXGroup*, LadspaFXGroup* );
 	void sort();
-	
+
 
 private:
 	QString m_sName;
@@ -97,7 +97,7 @@ private:
 
 class LadspaControlPort : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	QString sName;
 	bool isToggle;
@@ -113,7 +113,7 @@ public:
 
 class LadspaFX : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	enum {
 		MONO_FX,

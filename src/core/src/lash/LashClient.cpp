@@ -54,18 +54,18 @@ LashClient::LashClient(const char* lashClass, const char* viewName, int* argc, c
 		newProject = true;
 		lash_args_t *lash_args = lash_extract_args(argc, argv);
 		lashClient = lash_init(lash_args, lashClass, LASH_Config_File, LASH_PROTOCOL(2, 0));
-		
+
 		if (isConnected())
 		{
 			sendEvent(LASH_Client_Name, viewName);
 		}
-	}	
+	}
 
 }
 
 LashClient::~LashClient()
 {
-	
+
 }
 
 bool LashClient::isConnected()

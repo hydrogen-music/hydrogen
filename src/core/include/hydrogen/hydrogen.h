@@ -51,7 +51,7 @@ namespace H2Core
 ///
 class Hydrogen : public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	/// Return the Hydrogen instance
 	static void create_instance();  // Also creates other instances, like AudioEngine
@@ -113,10 +113,10 @@ public:
 
 	long getTickForPosition( int );
 
-        void restartDrivers();
+		void restartDrivers();
 
 	void startExportSong( const QString& filename, int rate, int depth  );
-        void stopExportSong( bool reconnectOldDriver );
+		void stopExportSong( bool reconnectOldDriver );
 
 	AudioOutput* getAudioOutput();
 	MidiInput* getMidiInput();
@@ -128,7 +128,7 @@ public:
 	float getMaxProcessTime();
 
 	int loadDrumkit( Drumkit *drumkitInfo );
-	
+
 	/// delete an instrument. If `conditional` is true, and there are patterns that
 	/// use this instrument, it's not deleted anyway
 	void removeInstrument( int instrumentnumber, bool conditional );
@@ -164,7 +164,7 @@ public:
 	void setBPM( float fBPM );
 
 	void restartLadspaFX();
-        void setSelectedPatternNumberWithoutGuiEvent( int nPat );
+		void setSelectedPatternNumberWithoutGuiEvent( int nPat );
 	int getSelectedPatternNumber();
 	void setSelectedPatternNumber( int nPat );
 
@@ -183,7 +183,7 @@ public:
 	};
 
 	std::vector<HPlayListNode> m_PlayList;
-	
+
 	///beatconter
 	void setbeatsToCount( int beatstocount);
 	int getbeatsToCount();
@@ -216,9 +216,9 @@ public:
 /// timeline vector
 	struct HTimelineVector
 	{
-		int m_htimelinebeat;		//beat position in timeline 
+		int m_htimelinebeat;		//beat position in timeline
 //		int m_htimelinebar;		//bar position from current beat
-		float m_htimelinebpm;		//BPM 
+		float m_htimelinebpm;		//BPM
 //		bool m_htimelineslide;		//true if slide into new tempo
 //		int m_htimelineslidebeatbegin;	//position of slide begin (only beats, no bars)
 //		int m_htimelineslideend;	//position of slide end (only beats, no bars)
@@ -239,7 +239,7 @@ public:
 /// timeline tag vector
 	struct HTimelineTagVector
 	{
-		int m_htimelinetagbeat;		//beat position in timeline 
+		int m_htimelinetagbeat;		//beat position in timeline
 //		int m_htimelineintensity;		//intensity
 		QString m_htimelinetag;		// tag
 	};
@@ -253,9 +253,9 @@ public:
 		}
 	};
 
-        ///midi lookuptable
-        int m_nInstrumentLookupTable[128];
-        //void editInstrumentLookupTable( int instrument, int index);
+		///midi lookuptable
+		int m_nInstrumentLookupTable[128];
+		//void editInstrumentLookupTable( int instrument, int index);
 
 
 private:

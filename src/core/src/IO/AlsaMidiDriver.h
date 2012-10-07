@@ -41,7 +41,7 @@ namespace H2Core
 ///
 class AlsaMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
-    H2_OBJECT
+	H2_OBJECT
 public:
 	AlsaMidiDriver();
 	virtual ~AlsaMidiDriver();
@@ -54,7 +54,7 @@ public:
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	virtual void handleQueueNote(Note* pNote);
 	virtual void handleQueueNoteOff( int channel, int key, int velocity );
-        virtual void handleQueueAllNoteOff();
+		virtual void handleQueueAllNoteOff();
 
 private:
 };

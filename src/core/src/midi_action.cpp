@@ -42,25 +42,25 @@ using namespace H2Core;
 
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 {
-        //helper function to set fx levels
+		//helper function to set fx levels
 
-        Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+		Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-        Hydrogen *engine = Hydrogen::get_instance();
-        Song *song = engine->getSong();
-        InstrumentList *instrList = song->get_instrument_list();
-        Instrument *instr = instrList->get( nLine );
-        if ( instr == NULL) return false;
+		Hydrogen *engine = Hydrogen::get_instance();
+		Song *song = engine->getSong();
+		InstrumentList *instrList = song->get_instrument_list();
+		Instrument *instr = instrList->get( nLine );
+		if ( instr == NULL) return false;
 
-        if( fx_param != 0 ){
-                        instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
-        } else {
-                        instr->set_fx_level( 0 , fx_channel );
-        }
+		if( fx_param != 0 ){
+						instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
+		} else {
+						instr->set_fx_level( 0 , fx_channel );
+		}
 
-        Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 
-        return true;
+		return true;
 
 }
 
@@ -118,20 +118,20 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	__instance = this;
 
 	int lastBpmChangeCCParameter = -1;
-	
+
 	/*
-	    the actionList holds all Action identfiers which hydrogen is able to interpret.
+		the actionList holds all Action identfiers which hydrogen is able to interpret.
 	*/
 	actionList <<""
-	<< "PLAY" 
+	<< "PLAY"
 	<< "PLAY/STOP_TOGGLE"
 	<< "PLAY/PAUSE_TOGGLE"
 	<< "STOP"
 	<< "PAUSE"
-        << "RECORD_READY"
-        << "RECORD/STROBE_TOGGLE"
-        << "RECORD_STROBE"
-        << "RECORD_EXIT"
+		<< "RECORD_READY"
+		<< "RECORD/STROBE_TOGGLE"
+		<< "RECORD_STROBE"
+		<< "RECORD_EXIT"
 	<< "MUTE"
 	<< "UNMUTE"
 	<< "MUTE_TOGGLE"
@@ -140,7 +140,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "BPM_INCR"
 	<< "BPM_DECR"
 	<< "BPM_CC_RELATIVE"
-        << "BPM_FINE_CC_RELATIVE"
+		<< "BPM_FINE_CC_RELATIVE"
 	<< "MASTER_VOLUME_RELATIVE"
 	<< "MASTER_VOLUME_ABSOLUTE"
 	<< "STRIP_VOLUME_RELATIVE"
@@ -154,20 +154,20 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "EFFECT3_LEVEL_ABSOLUTE"
 	<< "EFFECT4_LEVEL_ABSOLUTE"
 	<< "SELECT_NEXT_PATTERN"
-        << "SELECT_NEXT_PATTERN_CC_ABSOLUT"
-        << "SELECT_NEXT_PATTERN_PROMPTLY"
+		<< "SELECT_NEXT_PATTERN_CC_ABSOLUT"
+		<< "SELECT_NEXT_PATTERN_PROMPTLY"
 	<< "SELECT_NEXT_PATTERN_RELATIVE"
-        << "SELECT_AND_PLAY_PATTERN"
+		<< "SELECT_AND_PLAY_PATTERN"
 	<< "PAN_RELATIVE"
 	<< "PAN_ABSOLUTE"
 	<< "BEATCOUNTER"
 	<< "TAP_TEMPO"
-        << "PLAYLIST_NEXT_SONG"
-        << "PLAYLIST_PREV_SONG"
-        << "TOGGLE_METRONOME"
-        << "SELECT_INSTRUMENT"
-        << "UNDO_ACTION"
-        << "REDO_ACTION";
+		<< "PLAYLIST_NEXT_SONG"
+		<< "PLAYLIST_PREV_SONG"
+		<< "TOGGLE_METRONOME"
+		<< "SELECT_INSTRUMENT"
+		<< "UNDO_ACTION"
+		<< "REDO_ACTION";
 
 	eventList << ""
 	<< "MMC_PLAY"
@@ -177,7 +177,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 	<< "MMC_REWIND"
 	<< "MMC_RECORD_STROBE"
 	<< "MMC_RECORD_EXIT"
-        << "MMC_RECORD_READY"
+		<< "MMC_RECORD_READY"
 	<< "MMC_PAUSE"
 	<< "NOTE"
 	<< "CC";
@@ -192,7 +192,7 @@ MidiActionManager::~MidiActionManager(){
 void MidiActionManager::create_instance()
 {
 	if ( __instance == 0 ) {
-                __instance = new MidiActionManager;
+				__instance = new MidiActionManager;
 	}
 }
 
@@ -207,15 +207,15 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	/* 
-		return false if action is null 
+	/*
+		return false if action is null
 		(for example if no Action exists for an event)
 	*/
 	if( pAction == NULL )	return false;
 
 	QString sActionString = pAction->getType();
 
-	
+
 	if( sActionString == "PLAY" )
 	{
 		int nState = pEngine->getState();
@@ -228,7 +228,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	if( sActionString == "PLAY/STOP_TOGGLE" || sActionString == "PLAY/PAUSE_TOGGLE" )
 	{
 		int nState = pEngine->getState();
-		switch ( nState ) 
+		switch ( nState )
 		{
 			case STATE_READY:
 				pEngine->sequencer_play();
@@ -246,16 +246,16 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		return true;
 	}
-	
+
 
 	if( sActionString == "PAUSE" )
-	{	
+	{
 		pEngine->sequencer_stop();
 		return true;
 	}
 
 	if( sActionString == "STOP" )
-	{	
+	{
 		pEngine->sequencer_stop();
 		pEngine->setPatternPos( 0 );
 		pEngine->setTimelineBpm();
@@ -288,75 +288,75 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-        if( sActionString == "SELECT_NEXT_PATTERN" ){
+		if( sActionString == "SELECT_NEXT_PATTERN" ){
 		bool ok;
 		int row = pAction->getParameter1().toInt(&ok,10);
-                if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-                    return false;
-                if(Preferences::get_instance()->patternModePlaysSelected())
-                        pEngine->setSelectedPatternNumber( row );
-                else
-                        pEngine->sequencer_setNextPattern( row, false, true );
-                return true;
-        }
+				if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+					return false;
+				if(Preferences::get_instance()->patternModePlaysSelected())
+						pEngine->setSelectedPatternNumber( row );
+				else
+						pEngine->sequencer_setNextPattern( row, false, true );
+				return true;
+		}
 
-        if( sActionString == "SELECT_NEXT_PATTERN_RELATIVE" ){
+		if( sActionString == "SELECT_NEXT_PATTERN_RELATIVE" ){
 		bool ok;
-                if(!Preferences::get_instance()->patternModePlaysSelected())
-		    return true;
+				if(!Preferences::get_instance()->patternModePlaysSelected())
+			return true;
 		int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-                if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-                    return false;
+				if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+					return false;
 
 		pEngine->setSelectedPatternNumber( row );
 		return true;
-        }
+		}
 
-        if( sActionString == "SELECT_NEXT_PATTERN_CC_ABSOLUT" ){
-                bool ok;
-                int row = pAction->getParameter2().toInt(&ok,10);
-                if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-                    return false;
-                if(Preferences::get_instance()->patternModePlaysSelected())
-                        pEngine->setSelectedPatternNumber( row );
-                else
-                        return true;// only usefully in normal pattern mode
-                return true;
-        }
+		if( sActionString == "SELECT_NEXT_PATTERN_CC_ABSOLUT" ){
+				bool ok;
+				int row = pAction->getParameter2().toInt(&ok,10);
+				if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+					return false;
+				if(Preferences::get_instance()->patternModePlaysSelected())
+						pEngine->setSelectedPatternNumber( row );
+				else
+						return true;// only usefully in normal pattern mode
+				return true;
+		}
 
-        if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY" ){// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
-              bool ok;
-              int row = pAction->getParameter2().toInt(&ok,10);
-              pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
-              return true;
-        }
+		if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY" ){// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
+			  bool ok;
+			  int row = pAction->getParameter2().toInt(&ok,10);
+			  pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
+			  return true;
+		}
 
-          if( sActionString == "SELECT_AND_PLAY_PATTERN"){
-                bool ok;
-                int row = pAction->getParameter1().toInt(&ok,10);
-                pEngine->setSelectedPatternNumber( row );
-                pEngine->sequencer_setNextPattern( row, false, true );
+		  if( sActionString == "SELECT_AND_PLAY_PATTERN"){
+				bool ok;
+				int row = pAction->getParameter1().toInt(&ok,10);
+				pEngine->setSelectedPatternNumber( row );
+				pEngine->sequencer_setNextPattern( row, false, true );
 
-                int nState = pEngine->getState();
-                if ( nState == STATE_READY ){
-                        pEngine->sequencer_play();
-                }
+				int nState = pEngine->getState();
+				if ( nState == STATE_READY ){
+						pEngine->sequencer_play();
+				}
 
-                return true;
-        }
+				return true;
+		}
 
 	if( sActionString == "SELECT_INSTRUMENT" ){
 		bool ok;
 		int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
-		if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number ) 
-			instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;	
+		if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number )
+			instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
 		pEngine->setSelectedInstrumentNumber( instrument_number );
 		return true;
 	}
 
 
 
-	
+
 	if( sActionString == "EFFECT1_LEVEL_ABSOLUTE" ){
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
@@ -384,17 +384,17 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		int fx_param = pAction->getParameter2().toInt(&ok,10);
 		setAbsoluteFXLevel( nLine, 3 , fx_param );
 	}
-	
 
-	
-	
+
+
+
 
 	if( sActionString == "MASTER_VOLUME_RELATIVE" ){
-		//increments/decrements the volume of the whole song	
-		
+		//increments/decrements the volume of the whole song
+
 		bool ok;
 		int vol_param = pAction->getParameter2().toInt(&ok,10);
-			
+
 		Hydrogen *engine = Hydrogen::get_instance();
 		Song *song = engine->getSong();
 
@@ -402,7 +402,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		if( vol_param != 0 ){
 				if ( vol_param == 1 && song->get_volume() < 1.5 ){
-					song->set_volume( song->get_volume() + 0.05 );  
+					song->set_volume( song->get_volume() + 0.05 );
 				}  else  {
 					if( song->get_volume() >= 0.0 ){
 						song->set_volume( song->get_volume() - 0.05 );
@@ -414,14 +414,14 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	}
 
-	
+
 
 	if( sActionString == "MASTER_VOLUME_ABSOLUTE" ){
 		//sets the volume of a master output to a given level (percentage)
 
 		bool ok;
 		int vol_param = pAction->getParameter2().toInt(&ok,10);
-			
+
 
 		Hydrogen *engine = Hydrogen::get_instance();
 		Song *song = engine->getSong();
@@ -435,15 +435,15 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	}
 
-	
+
 
 	if( sActionString == "STRIP_VOLUME_RELATIVE" ){
-		//increments/decrements the volume of one mixer strip	
-		
+		//increments/decrements the volume of one mixer strip
+
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
 		int vol_param = pAction->getParameter2().toInt(&ok,10);
-			
+
 		Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
 		Hydrogen *engine = Hydrogen::get_instance();
@@ -456,7 +456,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		if( vol_param != 0 ){
 				if ( vol_param == 1 && instr->get_volume() < 1.5 ){
-					instr->set_volume( instr->get_volume() + 0.1 );  
+					instr->set_volume( instr->get_volume() + 0.1 );
 				}  else  {
 					if( instr->get_volume() >= 0.0 ){
 						instr->set_volume( instr->get_volume() - 0.1 );
@@ -475,7 +475,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
 		int vol_param = pAction->getParameter2().toInt(&ok,10);
-			
+
 		Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
 		Hydrogen *engine = Hydrogen::get_instance();
@@ -495,17 +495,17 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 	}
 
-	
+
 	if( sActionString == "PAN_ABSOLUTE" ){
-		
+
 		 // sets the absolute panning of a given mixer channel
-		
-		
+
+
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
 		int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-		
+
 		float pan_L;
 		float pan_R;
 
@@ -515,10 +515,10 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		InstrumentList *instrList = song->get_instrument_list();
 
 		Instrument *instr = instrList->get( nLine );
-		
+
 		if( instr == NULL )
 			return false;
-		
+
 		pan_L = instr->get_pan_l();
 		pan_R = instr->get_pan_r();
 
@@ -531,7 +531,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 			fPanValue = pan_R / 2.0;
 		}
 
-		
+
 		fPanValue = 1 * ( ((float) pan_param) / 127.0 );
 
 
@@ -554,16 +554,16 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	}
 
 	if( sActionString == "PAN_RELATIVE" ){
-		
+
 		 // changes the panning of a given mixer channel
 		// this is useful if the panning is set by a rotary control knob
-		
-		
+
+
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
 		int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-		
+
 		float pan_L;
 		float pan_R;
 
@@ -573,10 +573,10 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		InstrumentList *instrList = song->get_instrument_list();
 
 		Instrument *instr = instrList->get( nLine );
-		
+
 		if( instr == NULL )
 			return false;
-		
+
 		pan_L = instr->get_pan_l();
 		pan_R = instr->get_pan_r();
 
@@ -614,7 +614,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		return true;
 	}
-	
+
 
 	if( sActionString == "BPM_CC_RELATIVE" ){
 		/*
@@ -624,7 +624,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		int mult = 1;	
+		int mult = 1;
 
 		//second parameter of cc command
 		//this value should be 1 to decrement and something other then 1 to increment the bpm
@@ -635,10 +635,10 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		bool ok;
 		mult = pAction->getParameter1().toInt(&ok,10);
 		cc_param = pAction->getParameter2().toInt(&ok,10);
-			
+
 		if( lastBpmChangeCCParameter == -1)
 		{
-			lastBpmChangeCCParameter = cc_param;	
+			lastBpmChangeCCParameter = cc_param;
 		}
 
 		Song* pSong = pEngine->getSong();
@@ -658,53 +658,53 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-        if( sActionString == "BPM_FINE_CC_RELATIVE" ){
-               /*
-                * increments/decrements the BPM
-                * this is useful if the bpm is set by a rotary control knob
-               */
+		if( sActionString == "BPM_FINE_CC_RELATIVE" ){
+			   /*
+				* increments/decrements the BPM
+				* this is useful if the bpm is set by a rotary control knob
+			   */
 
-               AudioEngine::get_instance()->lock( RIGHT_HERE );
+			   AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-               int mult = 1;
+			   int mult = 1;
 
-               //second parameter of cc command
-               //this value should be 1 to decrement and something other then 1 to increment the bpm
-               int cc_param = 1;
+			   //second parameter of cc command
+			   //this value should be 1 to decrement and something other then 1 to increment the bpm
+			   int cc_param = 1;
 
-               //this Action should be triggered only by CC commands
+			   //this Action should be triggered only by CC commands
 
-               bool ok;
-               mult = pAction->getParameter1().toInt(&ok,10);
-               cc_param = pAction->getParameter2().toInt(&ok,10);
+			   bool ok;
+			   mult = pAction->getParameter1().toInt(&ok,10);
+			   cc_param = pAction->getParameter2().toInt(&ok,10);
 
-               if( lastBpmChangeCCParameter == -1)
-               {
-                       lastBpmChangeCCParameter = cc_param;
-               }
+			   if( lastBpmChangeCCParameter == -1)
+			   {
+					   lastBpmChangeCCParameter = cc_param;
+			   }
 
-               Song* pSong = pEngine->getSong();
+			   Song* pSong = pEngine->getSong();
 
-               if ( lastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
-                       pEngine->setBPM( pSong->__bpm - 0.01*mult );
-               }
+			   if ( lastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
+					   pEngine->setBPM( pSong->__bpm - 0.01*mult );
+			   }
 
-               if ( lastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
-                       pEngine->setBPM( pSong->__bpm + 0.01*mult );
-               }
+			   if ( lastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+					   pEngine->setBPM( pSong->__bpm + 0.01*mult );
+			   }
 
-               lastBpmChangeCCParameter = cc_param;
+			   lastBpmChangeCCParameter = cc_param;
 
-               AudioEngine::get_instance()->unlock();
+			   AudioEngine::get_instance()->unlock();
 
-               return true;
-        }
+			   return true;
+		}
 
 
 	if( sActionString == "BPM_INCR" ){
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		int mult = 1;	
+		int mult = 1;
 
 		bool ok;
 		mult = pAction->getParameter1().toInt(&ok,10);
@@ -722,7 +722,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	if( sActionString == "BPM_DECR" ){
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		int mult = 1;	
+		int mult = 1;
 
 		bool ok;
 		mult = pAction->getParameter1().toInt(&ok,10);
@@ -732,7 +732,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 			pEngine->setBPM( pSong->__bpm - 1*mult );
 		}
 		AudioEngine::get_instance()->unlock();
-		
+
 		return true;
 	}
 
@@ -748,73 +748,73 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-        if( sActionString == "PLAYLIST_NEXT_SONG"){
-                int songnumber = Playlist::get_instance()->getActiveSongNumber();
-                if(songnumber+1 >= 0 && songnumber+1 <= pEngine->m_PlayList.size()-1){
-                        Playlist::get_instance()->setNextSongByNumber( songnumber + 1 );
-                }
-                return true;
-        }
+		if( sActionString == "PLAYLIST_NEXT_SONG"){
+				int songnumber = Playlist::get_instance()->getActiveSongNumber();
+				if(songnumber+1 >= 0 && songnumber+1 <= pEngine->m_PlayList.size()-1){
+						Playlist::get_instance()->setNextSongByNumber( songnumber + 1 );
+				}
+				return true;
+		}
 
-        if( sActionString == "PLAYLIST_PREV_SONG"){
-                int songnumber = Playlist::get_instance()->getActiveSongNumber();
-                if(songnumber-1 >= 0 && songnumber-1 <= pEngine->m_PlayList.size()-1){
-                        Playlist::get_instance()->setNextSongByNumber( songnumber - 1 );
-                }
-                return true;
-        }
+		if( sActionString == "PLAYLIST_PREV_SONG"){
+				int songnumber = Playlist::get_instance()->getActiveSongNumber();
+				if(songnumber-1 >= 0 && songnumber-1 <= pEngine->m_PlayList.size()-1){
+						Playlist::get_instance()->setNextSongByNumber( songnumber - 1 );
+				}
+				return true;
+		}
 
-        if( sActionString == "RECORD_READY"){
-               if ( pEngine->getState() != STATE_PLAYING ) {
-                       if (!Preferences::get_instance()->getRecordEvents()) {
-                               Preferences::get_instance()->setRecordEvents(true);
-                       }
-                       else {
-                               Preferences::get_instance()->setRecordEvents(false);
-                       }
-               }
-               return true;
-        }
-        if( sActionString == "RECORD/STROBE_TOGGLE"){
-               if (!Preferences::get_instance()->getRecordEvents()) {
-                      Preferences::get_instance()->setRecordEvents(true);
-               }
-               else {
-                      Preferences::get_instance()->setRecordEvents(false);
-               }
-               return true;
-        }
+		if( sActionString == "RECORD_READY"){
+			   if ( pEngine->getState() != STATE_PLAYING ) {
+					   if (!Preferences::get_instance()->getRecordEvents()) {
+							   Preferences::get_instance()->setRecordEvents(true);
+					   }
+					   else {
+							   Preferences::get_instance()->setRecordEvents(false);
+					   }
+			   }
+			   return true;
+		}
+		if( sActionString == "RECORD/STROBE_TOGGLE"){
+			   if (!Preferences::get_instance()->getRecordEvents()) {
+					  Preferences::get_instance()->setRecordEvents(true);
+			   }
+			   else {
+					  Preferences::get_instance()->setRecordEvents(false);
+			   }
+			   return true;
+		}
 
-        if( sActionString == "RECORD_STROBE"){
+		if( sActionString == "RECORD_STROBE"){
 
-               if (!Preferences::get_instance()->getRecordEvents()) {
-                      Preferences::get_instance()->setRecordEvents(true);
-               }
-               return true;
-        }
+			   if (!Preferences::get_instance()->getRecordEvents()) {
+					  Preferences::get_instance()->setRecordEvents(true);
+			   }
+			   return true;
+		}
 
-        if( sActionString == "RECORD_EXIT"){
+		if( sActionString == "RECORD_EXIT"){
 
-               if (Preferences::get_instance()->getRecordEvents()) {
-                      Preferences::get_instance()->setRecordEvents(false);
-               }
-               return true;
-        }
+			   if (Preferences::get_instance()->getRecordEvents()) {
+					  Preferences::get_instance()->setRecordEvents(false);
+			   }
+			   return true;
+		}
 
-        if( sActionString == "TOGGLE_METRONOME"){
+		if( sActionString == "TOGGLE_METRONOME"){
 
-               Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
-               return true;
-        }
+			   Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
+			   return true;
+		}
 
-        if( sActionString == "UNDO_ACTION"){
-                EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
-                return true;
-        }
+		if( sActionString == "UNDO_ACTION"){
+				EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
+				return true;
+		}
 
-        if( sActionString == "REDO_ACTION"){
-                EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
-                return true;
-        }
-        return false;
+		if( sActionString == "REDO_ACTION"){
+				EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
+				return true;
+		}
+		return false;
 }
