@@ -183,11 +183,6 @@ void FileBrowser::updateFileInfo( QString sFilename, unsigned nSampleRate, unsig
 
 	}
 
-	// get sample rate of the file
-
-	//Sample* mySample = Sample::load(sFilename.toLocal8Bit().constData());
-	//int nSamplerate = mySample->m_nSampleRate;
-
 	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) )
 			      .arg( sFilename )
 			      .arg( nSampleRate )

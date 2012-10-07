@@ -240,10 +240,6 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 
 	m_pPluginsListBox->clear(); // ... Why not anyway ? Jakob Lund
 
-// 	while( m_pPluginsListBox->count() != 0) {    // NOTE commented out:
-// 		m_pPluginsListBox->takeItem( 0 );    // This way of clearing the list causes multiple signal emissions,
-// 	}                                            // each time calling pluginSelected().  Jakob.
-
 	H2Core::LadspaFXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
 
 	std::vector<H2Core::LadspaFXInfo*> pluginList = findPluginsInGroup( itemText, pFXGroup );
