@@ -1541,7 +1541,8 @@ Do you want to save the changes?
     <name>MasterMixerLine</name>
     <message>
         <source>Set master volume [%1]</source>
-        <translation>Master-Lautstärke [%1]</translation>
+        <translatorcomment>LCD Panel, do not use any umlaut!</translatorcomment>
+        <translation>Master-Lautstaerke [%1]</translation>
     </message>
     <message>
         <source>Swing</source>
@@ -1611,11 +1612,11 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation>Effekt-Intensität %1</translation>
+        <translation>Effekt-Intensitaet %1</translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation>LADSPA-Effektlautstärke (%1)</translation>
+        <translation>LADSPA-Effektlautstaerke (%1)</translation>
     </message>
 </context>
 <context>
@@ -1642,11 +1643,11 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation>Instrumentlautstärke [%1]</translation>
+        <translation>Instrumentlautstaerke [%1]</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
-        <translation>Panaroma für Instrument [%1] setzen</translation>
+        <translation>Panaroma fuer Instrument [%1] setzen</translation>
     </message>
 </context>
 <context>
