@@ -1115,11 +1115,14 @@ void PlayerControl::onScrollTimerEvent()
 
 void PlayerControl::onStatusTimerEvent()
 {
+	resetStatusLabel();
+}
+
+void PlayerControl::resetStatusLabel()
+{
 	m_pStatusTimer->stop();
 	m_pStatusLabel->setText( "" );
 }
-
-
 
 //::::::::::::::::::::::::::::::::::::::::::::::::
 

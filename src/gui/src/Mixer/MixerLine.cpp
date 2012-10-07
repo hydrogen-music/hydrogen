@@ -255,10 +255,8 @@ void MixerLine::faderChanged(Fader *ref)
 	song->__is_modified = true;
 	emit volumeChanged(this);
 
-	char m_pFaderPos[100];
-	float value = ref->getValue();
-	sprintf( m_pFaderPos, "%#.2f",  value);
-	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( m_pFaderPos ), 2000 );
+	double value = (double) ref->getValue();
+	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
 
 
@@ -579,10 +577,8 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 	Song *song = Hydrogen::get_instance()->getSong();
 	song->__is_modified = true;
 
-	char m_pMasterFaderPos[100];
-	float value = ref->getValue();
-	sprintf( m_pMasterFaderPos, "%#.2f",  value);
-	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set master volume [%1]" ).arg( m_pMasterFaderPos ), 2000 );
+	double value = (double) ref->getValue();
+	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
 
 
@@ -702,24 +698,22 @@ void MasterMixerLine::updateMixerLine()
 void MasterMixerLine::rotaryChanged( Rotary *pRef )
 {
 	QString sMsg;
-	float fVal = pRef->getValue();
-	char sVal[100];
-	sprintf( sVal, "%#.2f", fVal);
+	double fVal = (double) pRef->getValue();
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->set_humanize_time_value( fVal );
-		sMsg = trUtf8( "Set humanize time parameter [%1]").arg( sVal );
+		sMsg = trUtf8( "Set humanize time parameter [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
 		pEngine->getSong()->set_humanize_velocity_value( fVal );
-		sMsg = trUtf8( "Set humanize velocity parameter [%1]").arg( sVal );
+		sMsg = trUtf8( "Set humanize velocity parameter [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pSwingRotary ) {
 		pEngine->getSong()->set_swing_factor( fVal );
-		sMsg = trUtf8( "Set swing factor [%1]").arg( sVal );
+		sMsg = trUtf8( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
