@@ -568,6 +568,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 													   0 );
 							pOffNote->set_note_off( true );
 							AudioEngine::get_instance()->get_sampler()->note_on( pOffNote );
+							delete pOffNote;
 					 }
 
 					 AudioEngine::get_instance()->get_sampler()->note_on( pNote );
@@ -575,8 +576,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 					 pNote->get_instrument()->dequeue();
 					 // raise noteOn event
 					 int nInstrument = m_pSong->get_instrument_list()->index( pNote->get_instrument() );
-					 if( pNote->get_note_off() )
-					 {
+					 if( pNote->get_note_off() ){
 						delete pNote;
 					 }
 
