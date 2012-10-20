@@ -552,6 +552,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 										   - fMaxPitchDeviation / 2.0 )
 									   * pNote->get_instrument()->get_random_pitch_factor() );
 
+
+					 /*
+					  * Check if the current instrument has the property "Stop-Note" set.
+					  * If yes, a NoteOff note is generated automatically after each note.
+					  */
 					 Instrument * noteInstrument = pNote->get_instrument();
 					 if ( noteInstrument->is_stop_notes() ){
 							Note *pOffNote = new Note( noteInstrument,
@@ -566,11 +571,15 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 					 }
 
 					 AudioEngine::get_instance()->get_sampler()->note_on( pNote );
-
 					 m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 					 pNote->get_instrument()->dequeue();
 					 // raise noteOn event
 					 int nInstrument = m_pSong->get_instrument_list()->index( pNote->get_instrument() );
+					 if( pNote->get_note_off() )
+					 {
+						delete pNote;
+					 }
+
 					 EventQueue::get_instance()->push_event( EVENT_NOTEON, nInstrument );
 					 continue;
 			  } else {
