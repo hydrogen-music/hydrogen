@@ -212,6 +212,7 @@ void Sampler::note_off( Note* note )
 						pNote->get_adsr()->release();
 		}
 	}
+	delete note;
 }
 
 
