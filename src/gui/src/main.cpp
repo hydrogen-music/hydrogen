@@ -438,18 +438,15 @@ int main(int argc, char *argv[])
 		delete H2Core::AudioEngine::get_instance();
 
 		delete MidiMap::get_instance();
-                delete MidiActionManager::get_instance();
+		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
 		cout << "\nBye..." << endl;
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Object::count_active()) {
-
-                    H2Core::Object::write_objects_map_to_cerr();
+			H2Core::Object::write_objects_map_to_cerr();
 		}
-
-                //pQApp->dumpObjectTree();
 
 	}
 	catch ( const H2Core::H2Exception& ex ) {
