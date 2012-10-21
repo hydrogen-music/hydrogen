@@ -25,7 +25,6 @@ class SE_addPatternAction : public QUndoCommand
 public:
     SE_addPatternAction( int nColumn, int nRow, unsigned nColumnIndex ){
 	setText( QString( "Add Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-	//setText("add Pattern");
 	__nColumn = nColumn;
 	__nRow = nRow;
 	__nColumnIndex = nColumnIndex;
@@ -54,7 +53,6 @@ class SE_deletePatternAction : public QUndoCommand
 public:
     SE_deletePatternAction( int nColumn, int nRow, unsigned nColumnIndex ){
 	setText( QString( "Delete Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-//	setText("delete Pattern");
 	__nColumn = nColumn;
 	__nRow = nRow;
 	__nColumnIndex = nColumnIndex;
@@ -83,7 +81,6 @@ class SE_movePatternListItemAction : public QUndoCommand
 public:
     SE_movePatternListItemAction(  int nSourcePattern , int nTargetPattern ){
 	setText( QString( "Move pattern list item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
-//	setText("delete Pattern");
 	__nSourcePattern = nSourcePattern;
 	__nTargetPattern = nTargetPattern;
     }
@@ -566,7 +563,6 @@ class SE_addNoteRightClickAction : public QUndoCommand
 public:
 	SE_addNoteRightClickAction( int nColumn, int nRow, int selectedPatternNumber ){
 	setText( QString( "Add pattern editor NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-	//setText("add Pattern");
 	__nColumn = nColumn;
 	__nRow = nRow;
 	__selectedPatternNumber = selectedPatternNumber;
@@ -628,7 +624,6 @@ class SE_clearNotesPatternEditorAction : public QUndoCommand
 public:
 	SE_clearNotesPatternEditorAction(  std::list<  H2Core::Note* > noteList, int nSelectedInstrument, int selectedPatternNumber ){
 	setText( QString( "Clear notes" ) );
-	//setText("add Pattern");
 
 	std::list < H2Core::Note *>::iterator pos;
 	for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
@@ -675,7 +670,6 @@ class SE_fillNotesRightClickAction : public QUndoCommand
 public:
 	SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
 	setText( QString( "Fill notes" ) );
-	//setText("add Pattern");
 	__notePositions = notePositions;
 	__nSelectedInstrument= nSelectedInstrument;
 	__selectedPatternNumber = selectedPatternNumber;
@@ -704,7 +698,6 @@ class SE_randomVelocityRightClickAction : public QUndoCommand
 public:
 	SE_randomVelocityRightClickAction( QStringList noteVeloValue, QStringList oldNoteVeloValue, int nSelectedInstrument, int selectedPatternNumber  ){
 	setText( QString( "Random velocity" ) );
-	//setText("add Pattern");
 	__noteVeloValue = noteVeloValue;
 	__oldNoteVeloValue = oldNoteVeloValue;
 	__nSelectedInstrument= nSelectedInstrument;
@@ -789,7 +782,6 @@ class SE_deleteInstrumentAction : public QUndoCommand
 public:
 	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString drumkitName, QString instrumentName, int nSelectedInstrument ){
 	setText( QString( "Delete instrument " ) );
-	//setText("add Pattern");
 
 	std::list < H2Core::Note *>::iterator pos;
 	for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
@@ -875,7 +867,6 @@ public:
 				   int oldNoteKeyVal,
 				   int oldOctaveKeyVal ){
 	setText( QString( "Add piano roll note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
-	//setText("add Pattern");
 	__nColumn = nColumn;
 	__pressedLine = pressedLine;
 	__selectedPatternNumber = selectedPatternNumber;
