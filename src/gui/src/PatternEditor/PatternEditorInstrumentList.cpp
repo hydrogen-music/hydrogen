@@ -220,12 +220,10 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 
 void InstrumentLine::functionClearNotes()
 {
-// 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-
-	Hydrogen * H = Hydrogen::get_instance();
-	int selectedPatternNr = H->getSelectedPatternNumber();
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	int selectedPatternNr = pEngine->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
-	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
+	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	std::list< Note* > noteList;
     const Pattern::notes_t* notes = pPattern->get_notes();
@@ -348,7 +346,6 @@ void InstrumentLine::functionRandomizeVelocity()
 							fVal = 1;
 						}
 						noteVeloValue << QString("%1").arg(fVal);
-						//pNote->set_velocity(fVal);
 					}
 				}
 			}
@@ -402,8 +399,6 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
  : QWidget( parent )
  , Object( __class_name )
 {
-	//setAttribute(Qt::WA_NoBackground);
-
 	//INFOLOG("INIT");
 	m_pPattern = NULL;
  	m_pPatternEditorPanel = pPatternEditorPanel;
@@ -527,7 +522,6 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
 	QString sText = event->mimeData()->text();
-	//ERRORLOG(sText);
 	
 
 	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
@@ -605,7 +599,6 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 
 	pMimeData->setText( sText );
 	pDrag->setMimeData( pMimeData);
-	//drag->setPixmap(iconPixmap);
 
 	pDrag->start( Qt::CopyAction | Qt::MoveAction );
 

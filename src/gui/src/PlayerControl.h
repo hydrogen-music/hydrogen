@@ -90,6 +90,7 @@ class PlayerControl : public QLabel, public H2Core::Object
 
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
+		void resetStatusLabel();
 
 	private slots:
 		void recBtnClicked(Button* ref);

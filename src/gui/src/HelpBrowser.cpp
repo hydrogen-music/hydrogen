@@ -36,9 +36,6 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
  , m_sDataPath( sDataPath )
  , m_sFilename( sFilename )
 {
-//	INFOLOG( "INIT" );
-//	INFOLOG( "Data path:" + m_sDataPath );
-//	INFOLOG( "Filename:" + m_sFilename );
 	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	if (m_type == MANUAL ) {
@@ -52,8 +49,6 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 		resize( 800, 650 );
 		setMinimumSize( width(), height() );
 		setMaximumSize( width(), height() );
-		// is not present in qt 3.0?
-		//setModal( true );
 	}
 
 	m_pDontShowAnymoreBtn = new QPushButton( trUtf8( "Don't show this message anymore"), this );
@@ -71,13 +66,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 	m_pDocHomeBtn->resize( 300, 25 );
 	m_pDocHomeBtn->hide();
 
-/*	Q3MimeSourceFactory * bodyformat = new Q3MimeSourceFactory;
-	bodyformat->setExtensionType("html", "text/html");
-	bodyformat->setExtensionType( "png", "image/png" );
-	bodyformat->setFilePath( QStringList( m_sDataPath.c_str() ) );
-*/
 	m_pBrowser = new QTextBrowser( this );
-//	m_pBrowser->setMimeSourceFactory( bodyformat );
 	m_pBrowser->setReadOnly( true );
 	m_pBrowser->setSearchPaths( QStringList( m_sDataPath ) );
 	//m_pBrowser->setStyleSheet("background-color:#000000;");

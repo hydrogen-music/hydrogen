@@ -391,6 +391,7 @@ void HydrogenApp::showPreferencesDialog()
 
 void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 {
+	getPlayerControl()->resetStatusLabel();
 	getPlayerControl()->showMessage( msg, msec );
 }
 
