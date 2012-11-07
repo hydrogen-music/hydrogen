@@ -732,7 +732,7 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	}
         else if ( pRef == m_pMonitor ) {
                 pEngine->getSong()->set_monitor_volume(fVal);
-                sMsg = trUtf8( "Set monitor volume [%1]").arg( sVal );
+                sMsg = trUtf8( "Set monitor volume [%1]").arg( fVal );
         }
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
