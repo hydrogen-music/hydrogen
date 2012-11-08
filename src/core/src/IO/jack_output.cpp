@@ -148,9 +148,10 @@ int JackOutput::connect()
 //	if ( connect_out_flag ) {
 		// connect the ports
                if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
-                             jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 &&
+                             jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 /*&&
                              jack_connect( client, jack_port_name( monitor_output_port_3 ), output_port_name_1.toLocal8Bit() ) == 0 &&
-                             jack_connect ( client, jack_port_name( monitor_output_port_4 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
+                             jack_connect ( client, jack_port_name( monitor_output_port_4 ), output_port_name_2.toLocal8Bit() ) == 0 */)
+               {
                       return 0;
                }
 
