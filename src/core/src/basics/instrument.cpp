@@ -170,6 +170,8 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_random_pitch_factor( instrument->get_random_pitch_factor() );
 	this->set_muted( instrument->is_muted() );
 	this->set_mute_group( instrument->get_mute_group() );
+	this->set_midi_out_channel( instrument->get_midi_out_channel() );
+	this->set_midi_out_note( instrument->get_midi_out_note() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
