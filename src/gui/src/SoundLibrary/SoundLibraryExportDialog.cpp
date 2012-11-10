@@ -97,7 +97,7 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 	static QString lastUsedDir = QDir::homePath();
 	QString filename = QFileDialog::getExistingDirectory (this, tr("Directory"), lastUsedDir);
 	if ( filename.isEmpty() ) {
-		drumkitPathTxt->setText( lastUsedDir );
+		drumkitPathTxt->setText( QDir::homePath() );
 	}
 	else
 	{
