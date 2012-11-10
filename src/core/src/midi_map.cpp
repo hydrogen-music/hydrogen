@@ -47,15 +47,15 @@ MidiMap * MidiMap::__instance = 0;
 const char* MidiMap::__class_name = "MidiMap";
 
 MidiMap::MidiMap()
- : Object( __class_name )
+	: Object( __class_name )
 {
 	__instance = this;
 	QMutexLocker mx(&__mutex);
 
 	//constructor
 	for(int note = 0; note < 128; note++ ) {
-				__note_array[ note ] = new MidiAction("NOTHING");
-				__cc_array[ note ] = new MidiAction("NOTHING");
+		__note_array[ note ] = new MidiAction("NOTHING");
+		__cc_array[ note ] = new MidiAction("NOTHING");
 	}
 }
 
@@ -109,8 +109,8 @@ void MidiMap::reset()
 	for( i = 0 ; i < 128 ; ++i ) {
 		delete __note_array[ i ];
 		delete __cc_array[ i ];
-				__note_array[ i ] = new MidiAction("NOTHING");
-				__cc_array[ i ] = new MidiAction("NOTHING");
+		__note_array[ i ] = new MidiAction("NOTHING");
+		__cc_array[ i ] = new MidiAction("NOTHING");
 	}
 
 }
@@ -168,7 +168,7 @@ void MidiMap::registerCCEvent( int parameter , MidiAction * pAction ){
 MidiAction* MidiMap::getMMCAction( QString eventString )
 {
 	QMutexLocker mx(&__mutex);
-		std::map< QString, MidiAction *>::iterator dIter = mmcMap.find( eventString );
+	std::map< QString, MidiAction *>::iterator dIter = mmcMap.find( eventString );
 	if ( dIter == mmcMap.end() ){
 		return NULL;
 	}

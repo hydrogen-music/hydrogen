@@ -39,15 +39,15 @@ using namespace H2Core;
 const char* SoundLibraryExportDialog::__class_name = "SoundLibraryExportDialog";
 
 SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent )
- : QDialog( pParent )
- , Object( __class_name )
+	: QDialog( pParent )
+	, Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( trUtf8( "Export Sound Library" ) );
 	setFixedSize( width(), height() );
 	updateDrumkitList();
-        drumkitPathTxt->setText( QDir::homePath() );
+	drumkitPathTxt->setText( QDir::homePath() );
 }
 
 
@@ -70,11 +70,11 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    QString drumkitName = drumkitList->currentText();
-    QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
-    QString saveDir = drumkitPathTxt->text();
-    QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
-    int ret = system( cmd.toLocal8Bit() );
+	QString drumkitName = drumkitList->currentText();
+	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
+	QString saveDir = drumkitPathTxt->text();
+	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" \"" + drumkitName + "\"";
+	int ret = system( cmd.toLocal8Bit() );
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
@@ -94,22 +94,20 @@ void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
 void SoundLibraryExportDialog::on_browseBtn_clicked()
 {
 	static QString lastUsedDir = QDir::homePath();
-        QString filename = QFileDialog::getExistingDirectory (this, tr("Directory"), lastUsedDir);
-        if ( filename.isEmpty() ) {
-                drumkitPathTxt->setText( lastUsedDir );
-        }
-        else
-        {
-                drumkitPathTxt->setText( filename );
-                lastUsedDir = filename;
-        }
-        //qDebug()<< QString( "Filename: " + filename );
+	QString filename = QFileDialog::getExistingDirectory (this, tr("Directory"), lastUsedDir);
+	if ( filename.isEmpty() ) {
+		drumkitPathTxt->setText( lastUsedDir );
+	}
+	else
+	{
+		drumkitPathTxt->setText( filename );
+		lastUsedDir = filename;
+	}
+	//qDebug()<< QString( "Filename: " + filename );
 }
 
 void SoundLibraryExportDialog::updateDrumkitList()
 {
-
-
 	INFOLOG( "[updateDrumkitList]" );
 
 	drumkitList->clear();
@@ -120,30 +118,30 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 	drumkitInfoList.clear();
 
-        QStringList sysDrumkits = Filesystem::sys_drumkits_list();
-        for (int i = 0; i < sysDrumkits.size(); ++i) {
-            QString absPath = Filesystem::sys_drumkits_dir() + "/" + sysDrumkits.at(i);
-            //qDebug() << absPath;
-            Drumkit *info = Drumkit::load( absPath );
-            if (info) {
-                drumkitInfoList.push_back( info );
-                drumkitList->addItem( info->get_name() );
-            }
-        }
+	QStringList sysDrumkits = Filesystem::sys_drumkits_list();
+	for (int i = 0; i < sysDrumkits.size(); ++i) {
+		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sysDrumkits.at(i);
+		//qDebug() << absPath;
+		Drumkit *info = Drumkit::load( absPath );
+		if (info) {
+			drumkitInfoList.push_back( info );
+			drumkitList->addItem( info->get_name() );
+		}
+	}
 
-        QStringList userDrumkits = Filesystem::usr_drumkits_list();
-        for (int i = 0; i < userDrumkits.size(); ++i) {
-            QString absPath = Filesystem::usr_drumkits_dir() + "/" + userDrumkits.at(i);
-            //qDebug() << absPath;
-            Drumkit *info = Drumkit::load( absPath );
-            if (info) {
-                drumkitInfoList.push_back( info );
-                drumkitList->addItem( info->get_name() );
-            }
-        }
+	QStringList userDrumkits = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < userDrumkits.size(); ++i) {
+		QString absPath = Filesystem::usr_drumkits_dir() + "/" + userDrumkits.at(i);
+		//qDebug() << absPath;
+		Drumkit *info = Drumkit::load( absPath );
+		if (info) {
+			drumkitInfoList.push_back( info );
+			drumkitList->addItem( info->get_name() );
+		}
+	}
 
 	/// \todo sort in exportTab_drumkitList
-//	drumkitList->sort();
+	//	drumkitList->sort();
 
 	drumkitList->setCurrentIndex( 0 );
 }
