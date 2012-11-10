@@ -899,8 +899,8 @@ void MainForm::functionDeleteInstrument(int instrument)
 
 void MainForm::action_instruments_exportLibrary()
 {
-        SoundLibraryExportDialog exportDialog( this );
- 	exportDialog.exec();
+	SoundLibraryExportDialog exportDialog( this, QString() );
+	exportDialog.exec();
 }
 
 

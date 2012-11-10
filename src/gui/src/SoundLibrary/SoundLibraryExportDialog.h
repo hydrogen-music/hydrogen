@@ -39,8 +39,8 @@ class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDia
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryExportDialog( QWidget* pParent );
-	~SoundLibraryExportDialog();
+		SoundLibraryExportDialog( QWidget* pParent, const QString&);
+		~SoundLibraryExportDialog();
 
 private slots:
 	void on_exportBtn_clicked();
@@ -49,6 +49,7 @@ private slots:
 	void updateDrumkitList();
 private:
 	std::vector<H2Core::Drumkit*> drumkitInfoList;
+	QString preselectedKit;
 };
 
 

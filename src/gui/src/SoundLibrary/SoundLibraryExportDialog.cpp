@@ -38,7 +38,7 @@ using namespace H2Core;
 
 const char* SoundLibraryExportDialog::__class_name = "SoundLibraryExportDialog";
 
-SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent )
+SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& selectedKit )
 	: QDialog( pParent )
 	, Object( __class_name )
 {
@@ -46,6 +46,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent )
 	INFOLOG( "INIT" );
 	setWindowTitle( trUtf8( "Export Sound Library" ) );
 	setFixedSize( width(), height() );
+	preselectedKit = selectedKit;
 	updateDrumkitList();
 	drumkitPathTxt->setText( QDir::homePath() );
 }
@@ -103,7 +104,6 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 		drumkitPathTxt->setText( filename );
 		lastUsedDir = filename;
 	}
-	//qDebug()<< QString( "Filename: " + filename );
 }
 
 void SoundLibraryExportDialog::updateDrumkitList()
@@ -121,7 +121,6 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	QStringList sysDrumkits = Filesystem::sys_drumkits_list();
 	for (int i = 0; i < sysDrumkits.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sysDrumkits.at(i);
-		//qDebug() << absPath;
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -132,7 +131,6 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	QStringList userDrumkits = Filesystem::usr_drumkits_list();
 	for (int i = 0; i < userDrumkits.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + userDrumkits.at(i);
-		//qDebug() << absPath;
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -140,8 +138,14 @@ void SoundLibraryExportDialog::updateDrumkitList()
 		}
 	}
 
-	/// \todo sort in exportTab_drumkitList
-	//	drumkitList->sort();
+	/*
+	 * If the export dialog was called from the soundlibrary panel via right click on
+	 * a soundlibrary, the variable preselectedKit holds the name of the selected drumkit
+	 */
 
-	drumkitList->setCurrentIndex( 0 );
+	int index = drumkitList->findText( preselectedKit );
+	if ( index >= 0)
+		drumkitList->setCurrentIndex( index );
+	else
+		drumkitList->setCurrentIndex( 0 );
 }

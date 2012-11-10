@@ -597,7 +597,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 
 void SoundLibraryPanel::on_drumkitExportAction()
 {
-	SoundLibraryExportDialog exportDialog( this );
+	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
+	SoundLibraryExportDialog exportDialog( this, sDrumkitName);
 	exportDialog.exec();
 }
 
