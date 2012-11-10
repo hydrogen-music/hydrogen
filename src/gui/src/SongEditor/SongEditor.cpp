@@ -1224,7 +1224,7 @@ void SongEditorPatternList::patternPopup_load()
 	thetime = time(NULL);
 
     QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
-    SE_loadPatternAction *action = new SE_loadPatternAction(  filename, oldPatternName, sequenceFilename, tmpselectedpatternpos );
+    SE_loadPatternAction *action = new SE_loadPatternAction(  filename, oldPatternName, sequenceFilename, tmpselectedpatternpos, false );
     hydrogenApp->addTemporaryFile( sequenceFilename );
     hydrogenApp->m_undoStack->push( action );
 
@@ -1469,7 +1469,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 }
 
-void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition  )
+void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
 
 	Hydrogen *engine = Hydrogen::get_instance();
@@ -1702,7 +1702,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		//movePatternLine( nSourcePattern , nTargetPattern );
 
 		event->acceptProposedAction();
-	}else {
+            }else {
 
 		PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 
@@ -1711,21 +1711,25 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		int nTargetPattern = event->pos().y() / m_nGridHeight;
 
+                qDebug ()<<tokens.at( 0 );
+
 		//create a unique sequencefilename
 		Song *song = Hydrogen::get_instance()->getSong();
 		Pattern *pat = song->get_pattern_list()->get( nTargetPattern );
-        HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+                HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 
 		QString oldPatternName = pat->get_name();
 
 		time_t thetime;
 		thetime = time(NULL);
-        QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
-        SE_loadPatternAction *action = new SE_loadPatternAction(  sPatternName, oldPatternName, sequenceFilename, nTargetPattern );
+                QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+                bool drag = false;
+                if(QString(tokens.at(0)).contains("drag pattern")) drag = true;
+                SE_loadPatternAction *action = new SE_loadPatternAction(  sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
 
-        hydrogenApp->addTemporaryFile( sequenceFilename);
-        hydrogenApp->m_undoStack->push( action );
-	}
+                hydrogenApp->addTemporaryFile( sequenceFilename);
+                hydrogenApp->m_undoStack->push( action );
+            }
 }
 
 

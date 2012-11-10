@@ -173,7 +173,7 @@
    <property name="readOnly">
     <bool>false</bool>
    </property>
-   <property name="placeholderText">
+   <property name="placeholderText" stdset="0">
     <string notr="true"/>
    </property>
   </widget>
