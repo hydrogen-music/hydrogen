@@ -36,7 +36,7 @@ namespace H2Core
 
 class TargetWaveDisplay : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -49,7 +49,6 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		void paintEvent(QPaintEvent *ev);
         H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
         H2Core::Sample::VelocityEnvelope* get_velocity() { return &__velocity; }
-//		int m_pFadeOutFramePosition;
 
 	private:
 		QPixmap m_background;
@@ -66,8 +65,8 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-        H2Core::Sample::PanEnvelope __pan;
-        H2Core::Sample::VelocityEnvelope __velocity;
+		H2Core::Sample::PanEnvelope __pan;
+		H2Core::Sample::VelocityEnvelope __velocity;
 		
 };
 

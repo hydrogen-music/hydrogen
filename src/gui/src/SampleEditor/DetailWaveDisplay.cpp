@@ -47,9 +47,9 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pnormalimagedetailframes = 180;	
+	m_pNormalImageDetailFrames = 180;
 	m_pDetailSamplePosition = 0;
-	m_pzoomFactor = 1;
+	m_pZoomFactor = 1;
 
 }
 
@@ -67,8 +67,8 @@ DetailWaveDisplay::~DetailWaveDisplay()
 void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor, QString type)
 {
 	m_pDetailSamplePosition = posi ;
-	m_pzoomFactor = zoomfactor;
-	m_ptype = type;
+	m_pZoomFactor = zoomfactor;
+	m_pType = type;
 	update();
 }
 
@@ -83,12 +83,12 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 	int VCenterr = height() / 4 + height() / 2;
 
 //	int imagedetailframes = m_pnormalimagedetailframes / m_pzoomFactor;
-	int startpos = m_pDetailSamplePosition  - m_pnormalimagedetailframes / 2 ;
+	int startpos = m_pDetailSamplePosition  - m_pNormalImageDetailFrames / 2 ;
 
 	for ( int x = 0; x < width() ; x++ ) {
 		if ( (startpos) > 0 ){
-			painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pzoomFactor) +VCenterl, x, (-m_pPeakDatal[startpos ] *m_pzoomFactor)+VCenterl );
-			painter.drawLine( x, (-m_pPeakDatar[startpos -1] *m_pzoomFactor) +VCenterr, x, (-m_pPeakDatar[startpos ] *m_pzoomFactor)+VCenterr );
+			painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pZoomFactor) +VCenterl, x, (-m_pPeakDatal[startpos ] *m_pZoomFactor)+VCenterl );
+			painter.drawLine( x, (-m_pPeakDatar[startpos -1] *m_pZoomFactor) +VCenterr, x, (-m_pPeakDatar[startpos ] *m_pZoomFactor)+VCenterr );
 			//ERRORLOG( QString("startpos: %1").arg(startpos) )
 		}
 		else
@@ -105,11 +105,11 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 0, VCenterl, width(),VCenterl );
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 	QColor _color;
-	if ( m_ptype == "Start" )
+	if ( m_pType == "Start" )
 		 _color = QColor( 32, 173, 0 );
-	else if ( m_ptype == "Loop" )
+	else if ( m_pType == "Loop" )
 		_color = QColor( 93, 170, 254 );
-	else if ( m_ptype == "End" )
+	else if ( m_pType == "End" )
 		_color = QColor( 217, 68, 0 );
 	else 
 		_color = QColor(  255, 255, 255 );
@@ -129,10 +129,10 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 		int mSampleLength = pNewSample->get_frames();
 
-		m_pPeakDatal = new int[ mSampleLength + m_pnormalimagedetailframes /2 ];
-		m_pPeakDatar = new int[ mSampleLength + m_pnormalimagedetailframes /2 ];
+		m_pPeakDatal = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
+		m_pPeakDatar = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
 
-		for ( int i = 0 ; i < mSampleLength + m_pnormalimagedetailframes /2 ; i++){
+		for ( int i = 0 ; i < mSampleLength + m_pNormalImageDetailFrames /2 ; i++){
 			m_pPeakDatal[ i ] = 0;
 			m_pPeakDatar[ i ] = 0;
 		}

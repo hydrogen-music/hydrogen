@@ -72,8 +72,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_ponewayEnd = false;
 	m_pslframes = 0;
 	m_pPositionsRulerPath = NULL;
-        m_pPlayButton = false;
-        m_pratio = 1.0f;
+	m_pPlayButton = false;
+	m_pratio = 1.0f;
 	__rubberband.c_settings = 4;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
@@ -330,7 +330,7 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	getAllLocalFrameInfos();	
 	createNewLayer();
 	m_pSampleEditorStatus = true;
-        QApplication::restoreOverrideCursor();
+	QApplication::restoreOverrideCursor();
 }
 
 
@@ -357,7 +357,7 @@ void SampleEditor::createNewLayer()
 			return;
 		}
 
-                AudioEngine::get_instance()->lock( RIGHT_HERE );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		H2Core::Instrument *pInstrument = NULL;
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -384,7 +384,7 @@ void SampleEditor::createNewLayer()
 		// insert new sample from newInstrument
 		pLayer->set_sample( editSample );
 
-                AudioEngine::get_instance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		m_pTargetSampleView->updateDisplay( pLayer );
 		}
 		
@@ -453,7 +453,6 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 	}
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
-	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
 	setSamplelengthFrames();
 }
 
@@ -536,7 +535,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 	//calculate the new rubberband sample length
 	if( __rubberband.use ){
-                m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
+		m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
 	}else
 	{
 		m_prealtimeframeendfortarget = m_prealtimeframeend;
