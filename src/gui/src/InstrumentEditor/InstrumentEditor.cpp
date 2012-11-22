@@ -288,7 +288,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			QSize( 90, 13 )
 	);
 
-	m_pSamleEditorBtn = new Button(
+	m_pSampleEditorBtn = new Button(
 			m_pLayerProp,
 			"/instrumentEditor/editLayer_on.png",
 			"/instrumentEditor/editLayer_off.png",
@@ -302,11 +302,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pLoadLayerBtn->move( 6, 266 );
 	m_pRemoveLayerBtn->move( 99, 266 );
-	m_pSamleEditorBtn->move( 191, 266 );
+	m_pSampleEditorBtn->move( 191, 266 );
 
 	connect( m_pLoadLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	connect( m_pRemoveLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
-	connect( m_pSamleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
+	connect( m_pSampleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Layer gain" ), false, false );
@@ -486,7 +486,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pInstrument->get_adsr()->set_sustain( fVal );
 		}
 		else if ( ref == m_pReleaseRotary ) {
-                        m_pInstrument->get_adsr()->set_release( 256.0 + fVal * fVal * 100000 );
+			m_pInstrument->get_adsr()->set_release( 256.0 + fVal * fVal * 100000 );
 		}
 		else if ( ref == m_pLayerGainRotary ) {
 			fVal = fVal * 5.0;
@@ -527,7 +527,6 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			char tmp[20];
 			sprintf( tmp, "%#.2f", fVal );
 			m_pInstrumentGainLCD->setText( tmp );
-
 			m_pInstrument->set_gain( fVal );
 		}
 		else {
@@ -584,7 +583,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		selectedInstrumentChangedEvent();    // update all
 		m_pLayerPreview->updateAll();
 	}
-	else if ( pButton == m_pSamleEditorBtn ){
+	else if ( pButton == m_pSampleEditorBtn ){
 		if ( m_pInstrument ) {
 			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
@@ -630,7 +629,7 @@ void InstrumentEditor::loadLayer()
 	if ( filename.size() > 3) filename[1] = "true";
 
 	int selectedLayer =  m_nSelectedLayer;
-	int firstselection = selectedLayer;
+	int firstSelection = selectedLayer;
 	
 	
 
@@ -670,9 +669,9 @@ void InstrumentEditor::loadLayer()
 			}
 	
 			if ( fnc ){
-				QString newfilename = filename[i].section( '/', -1 );
-				newfilename.replace( "." + newfilename.section( '.', -1 ), "");
-				m_pInstrument->set_name( newfilename );
+				QString newFilename = filename[i].section( '/', -1 );
+				newFilename.replace( "." + newFilename.section( '.', -1 ), "");
+				m_pInstrument->set_name( newFilename );
 			}
 	
 			//set automatic velocity
@@ -688,27 +687,27 @@ void InstrumentEditor::loadLayer()
 	}
 
 	selectedInstrumentChangedEvent();    // update all
-	selectLayer( firstselection );
+	selectLayer( firstSelection );
 	m_pLayerPreview->updateAll();
 }
 
 
 void InstrumentEditor::setAutoVelocity()
 {
-	int layerinuse[ MAX_LAYERS ] = {0};
+	int layerInUse[ MAX_LAYERS ] = {0};
 	int layers = 0;
 	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
 		InstrumentLayer *pLayers = m_pInstrument->get_layer( i );
 		if ( pLayers ) {
 			layers++;
-			layerinuse[i] = i;
+			layerInUse[i] = i;
 		}
 	}
 
 	float velocityrange = 1.0 / layers;
 
 	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
-		if ( layerinuse[i] == i ){
+		if ( layerInUse[i] == i ){
 			layers--;
 			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
 			if ( pLayer ) {
@@ -732,12 +731,12 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 			m_pInstrument->set_name( sNewName );
 			selectedInstrumentChangedEvent();
 
-                        #ifdef H2CORE_HAVE_JACK
-                        AudioEngine::get_instance()->lock( RIGHT_HERE );
-                        Hydrogen *engine = Hydrogen::get_instance();
-                        engine->renameJackPorts();
-                        AudioEngine::get_instance()->unlock();
-                        #endif
+			#ifdef H2CORE_HAVE_JACK
+						AudioEngine::get_instance()->lock( RIGHT_HERE );
+						Hydrogen *engine = Hydrogen::get_instance();
+						engine->renameJackPorts();
+						AudioEngine::get_instance()->unlock();
+			#endif
 
 			// this will force an update...
 			EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -768,7 +767,6 @@ void InstrumentEditor::selectLayer( int nLayer )
 		m_pLayerGainLCD->setText( tmp );
 
 		// Layer PITCH
-		//int nCoarsePitch = pLayer->m_fPitch / 24 + 0.5;
 		int nCoarsePitch = (int) ::round(pLayer->get_pitch());
 		float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
 		//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
@@ -798,12 +796,12 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 {
 	assert( m_pInstrument );
 
-    int mute_grp = m_pInstrument->get_mute_group();
+	int mute_grp = m_pInstrument->get_mute_group();
 	if (pRef == m_pAddMuteGroupBtn ) {
-        mute_grp += 1;
+		mute_grp += 1;
 	}
 	else if (pRef == m_pDelMuteGroupBtn ) {
-        mute_grp -= 1;
+		mute_grp -= 1;
 	}
 	m_pInstrument->set_mute_group( mute_grp );
 
@@ -812,8 +810,8 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
-        m_pInstrument->set_stop_notes( on );
-        selectedInstrumentChangedEvent();	// force an update
+	m_pInstrument->set_stop_notes( on );
+	selectedInstrumentChangedEvent();	// force an update
 }
 
 void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)
@@ -847,11 +845,11 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 
  void InstrumentEditor::rubberbandbpmchangeEvent()
 {
-        if( !Preferences::get_instance()->getRubberBandBatchMode() /*&& Preferences::get_instance()->__usetimeline */){
-		//we return also if time-line is activated. this wont work.
-//		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
-		return;
-	}
+	 if( !Preferences::get_instance()->getRubberBandBatchMode() /*&& Preferences::get_instance()->__usetimeline */){
+		 //we return also if time-line is activated. this wont work.
+		 //		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
+		 return;
+	 }
 //	INFOLOG( "Tempo change: Recomputing rubberband samples." );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *song = pEngine->getSong();
@@ -868,15 +866,15 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 					if ( pLayer ) {
 						Sample *pSample = pLayer->get_sample();
 						if ( pSample ) {
-                            if( pSample->get_rubberband().use ) {
+							if( pSample->get_rubberband().use ) {
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
-                                Sample *newSample = Sample::load(
-                                        pSample->get_filepath(),
-                                        pSample->get_loops(),
-                                        pSample->get_rubberband(),
-                                        *pSample->get_velocity_envelope(),
-                                        *pSample->get_pan_envelope()
-                                        );
+								Sample *newSample = Sample::load(
+											pSample->get_filepath(),
+											pSample->get_loops(),
+											pSample->get_rubberband(),
+											*pSample->get_velocity_envelope(),
+											*pSample->get_pan_envelope()
+											);
 								if( !newSample  ){
 									continue;
 								}	
@@ -892,6 +890,6 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 				}
 			}
 		}
-        }
+	}
 
 }

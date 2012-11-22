@@ -61,7 +61,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePostionRuler()));
 
 	m_pSampleEditorStatus = true;
-	m_pSamplefromFile = NULL;
+	m_pSampleFromFile = NULL;
 	m_pSelectedLayer = nSelectedLayer;
 	m_samplename = mSamplefilename;
 	m_pZoomfactor = 1;
@@ -86,11 +86,11 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
 
-//this new sample give us the not changed real samplelength 
-	m_pSamplefromFile = Sample::load( mSamplefilename );
-	if (!m_pSamplefromFile) reject();
+	//this new sample give us the not changed real samplelength
+	m_pSampleFromFile = Sample::load( mSamplefilename );
+	if (!m_pSampleFromFile) reject();
 
-	unsigned slframes = m_pSamplefromFile->get_frames();
+	unsigned slframes = m_pSampleFromFile->get_frames();
 
 	LoopCountSpinBox->setRange(0, 20000 );
 	StartFrameSpinBox->setRange(0, slframes );
@@ -136,8 +136,8 @@ SampleEditor::~SampleEditor()
 	delete m_pTargetSampleView;
 	m_pTargetSampleView = NULL;
 
-	delete m_pSamplefromFile;
-	m_pSamplefromFile = NULL;
+	delete m_pSampleFromFile;
+	m_pSampleFromFile = NULL;
 
 	INFOLOG ( "DESTROY" );
 }
@@ -291,7 +291,7 @@ void SampleEditor::openDisplays()
 
 
 // wavedisplays
-	m_divider = m_pSamplefromFile->get_frames() / 574.0F;
+	m_divider = m_pSampleFromFile->get_frames() / 574.0F;
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
@@ -508,7 +508,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		testpTimer();
 		return;
 	}
-	const int selectedlayer = InstrumentEditorPanel::get_instance()->getselectedLayer();
+	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	const float pan_L = 0.5f;
 	const float pan_R = 0.5f;
 	const int nLength = -1;
@@ -553,7 +553,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		testpTimer();
 		return;
 	}
-	Sample *pNewSample = Sample::load( m_samplename );
+	Sample *pNewSample =  m_pSampleFromFile;
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
@@ -634,7 +634,7 @@ void SampleEditor::createPositionsRulerPath()
 		newLength =oneSampleLength + repeatsLength;
 	}
 
-	unsigned  normalLength = m_pSamplefromFile->get_frames();
+	unsigned  normalLength = m_pSampleFromFile->get_frames();
 
 	unsigned *normalFrames = new unsigned[ normalLength ];
 

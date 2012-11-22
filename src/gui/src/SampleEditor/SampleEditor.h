@@ -82,7 +82,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 	private:
 
-		H2Core::Sample *m_pSamplefromFile;
+		H2Core::Sample *m_pSampleFromFile;
 		int m_pSelectedLayer;
 		QString m_samplename;
 	
