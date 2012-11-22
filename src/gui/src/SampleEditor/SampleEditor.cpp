@@ -557,9 +557,9 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
+		m_pslframes = pNewSample->get_frames();
 	}
 
-	m_pslframes = pNewSample->get_frames();
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pzoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
