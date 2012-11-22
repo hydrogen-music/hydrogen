@@ -345,6 +345,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addAction( trUtf8("&User manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
+	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
 	//~ INFO menu
 }
 
@@ -569,21 +570,21 @@ void MainForm::action_toggle_input_mode()
     }
 }
 
-
 void MainForm::action_help_about() {
 	AboutDialog *dialog = new AboutDialog( NULL );
 	dialog->exec();
 }
 
-
-
+void MainForm::action_report_bug()
+{
+	QDesktopServices::openUrl(QString("https://github.com/hydrogen-music/hydrogen/issues"));
+}
 
 void MainForm::showUserManual()
 {
 	h2app->getHelpBrowser()->hide();
 	h2app->getHelpBrowser()->show();
 }
-
 
 void MainForm::action_file_export_pattern_as()
 {
