@@ -76,7 +76,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		void on_PlayOrigPushButton_clicked();
 		void on_verticalzoomSlider_valueChanged ( int value );
 		void updateMainsamplePositionRuler();
-		void updateTargetsamplePostionRuler();
+		void updateTargetsamplePositionRuler();
 
 
 

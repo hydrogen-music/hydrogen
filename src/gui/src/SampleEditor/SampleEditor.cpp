@@ -58,7 +58,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePositionRuler()));
 	m_pTargetDisplayTimer = new QTimer(this);
-	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePostionRuler()));
+	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
 	m_pSampleEditorStatus = true;
 	m_pSampleFromFile = NULL;
@@ -508,16 +508,16 @@ void SampleEditor::on_PlayPushButton_clicked()
 		testpTimer();
 		return;
 	}
-	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+
 	const float pan_L = 0.5f;
 	const float pan_R = 0.5f;
 	const int nLength = -1;
 	const float fPitch = 0.0f;
+	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	
 	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-	
-	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedlayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 
 	setSamplelengthFrames();
@@ -553,9 +553,21 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		testpTimer();
 		return;
 	}
-	Sample *pNewSample =  m_pSampleFromFile;
+
+	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+
+	/*
+	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
+	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
+	*/
+	Instrument *tmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
+	Sample *pNewSample = Sample::load( pInstr->get_layer( selectedlayer )->get_sample()->get_filepath() );
+
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
+		AudioEngine::get_instance()->get_sampler()->preview_instrument( tmpInstrument );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
 		m_pslframes = pNewSample->get_frames();
 	}
@@ -593,7 +605,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 }
 
 
-void SampleEditor::updateTargetsamplePostionRuler()
+void SampleEditor::updateTargetsamplePositionRuler()
 {
 	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
 	unsigned targetSampleLength;
