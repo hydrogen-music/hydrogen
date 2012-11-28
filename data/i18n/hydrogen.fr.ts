@@ -981,7 +981,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mixage</translation>
     </message>
 </context>
 <context>

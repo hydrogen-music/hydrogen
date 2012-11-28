@@ -360,22 +360,20 @@ void InstrumentLine::functionRandomizeVelocity()
 
 void InstrumentLine::functionDeleteInstrument()
 {
-	Hydrogen * H = Hydrogen::get_instance();
-	int selectedPatternNr = H->getSelectedPatternNumber();
-	Pattern *pPattern = getCurrentPattern();
-	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	std::list< Note* > noteList;
-	Song* song = H->getSong();
+	Song* song = pEngine->getSong();
 	PatternList *patList = song->get_pattern_list();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = H->getCurrentDrumkitname();
+	QString drumkitName = pEngine->getCurrentDrumkitname();
 
 	for ( int i = 0; i < patList->size(); i++ ) {
 		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
-        const Pattern::notes_t* notes = pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pSelectedInstrument ) {

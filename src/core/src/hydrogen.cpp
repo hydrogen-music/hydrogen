@@ -2695,30 +2695,30 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 					 }
 			  }
 	   } else {
-			  getSong()->purge_instrument( pInstr );
+			getSong()->purge_instrument( pInstr );
 	   }
 
 	   Song *pSong = getSong();
 	   InstrumentList* pList = pSong->get_instrument_list();
-	   if(pList->size()==1){
-			  AudioEngine::get_instance()->lock( RIGHT_HERE );
-			  Instrument* pInstr = pList->get( 0 );
-			  pInstr->set_name( (QString( "Instrument 1" )) );
-			  // remove all layers
-			  for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-					 InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
-					 delete pLayer;
-					 pInstr->set_layer( NULL, nLayer );
-			  }
-			  AudioEngine::get_instance()->unlock();
-			  EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-			  INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
-			  return;
+	   if( pList->size()==1 ){
+			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			Instrument* pInstr = pList->get( 0 );
+			pInstr->set_name( (QString( "Instrument 1" )) );
+			// remove all layers
+			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+			   InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
+			   delete pLayer;
+			   pInstr->set_layer( NULL, nLayer );
+		   }
+		   AudioEngine::get_instance()->unlock();
+		   EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+		   INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
+		   return;
 	   }
 
-	   // if the instrument was the last on the instruments list, select the
-	   // next-last
-	   if ( instrumentnumber
+		// if the instrument was the last on the instruments list, select the
+		// next-last
+		if ( instrumentnumber
 					 >= (int)getSong()->get_instrument_list()->size() - 1 ) {
 			  Hydrogen::get_instance()
 							->setSelectedInstrumentNumber(
