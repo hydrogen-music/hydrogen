@@ -220,16 +220,15 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-    QStringList songs = Filesystem::songs_list();
+	QStringList songs = Filesystem::songs_list();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
 		__song_item->setToolTip( 0, "double click to expand the list" );
 		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
 		for (uint i = 0; i < songs.size(); i++) {
-			QString absPath = Filesystem::songs_dir()+"/"+songs[i];
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
-            QString song = songs[i];
+			QString song = songs[i];
 			pSongItem->setText( 0 , song.left( song.indexOf(".")) );
 			pSongItem->setToolTip( 0, song );
 		}
@@ -262,14 +261,13 @@ void SoundLibraryPanel::updateDrumkitList()
 	
 				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
 				pCategoryItem->setText( 0, categoryName  );
-				for (uint i = 0; i < allPatternDirList.size(); ++i) {
-					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[i]);
-
-                                        if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
+				for (uint ii = 0; ii < allPatternDirList.size(); ++ii) {
+					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[ii]);
+					if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
 						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-						pPatternItem->setText( 0, mng.getPatternNameFromPatternDir( allPatternDirList[i] ));
-						pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( allPatternDirList[i] ));
-
+						pPatternItem->setText( 0, mng.getPatternNameFromPatternDir( allPatternDirList[ii] ));
+						pPatternItem->setText( 1, allPatternDirList[ii] );
+						pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( allPatternDirList[ii] ));
 					}
 				}
 			}
@@ -424,40 +422,15 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 		if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item ) {
 
-			LocalFileMng mng;
-		
-			QString patternName = __sound_library_tree->currentItem()->text( 0 ) + ".h2pattern";
-			QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
-			
-			QString sDirectory;
-		
-			std::vector<QString> patternDirList = mng.getPatternDirList();
-		
-				for (uint i = 0; i < patternDirList.size(); ++i) {
-					QString absPath =  patternDirList[i];
-					mng.getPatternList( absPath );
-				}
-		
-			std::vector<QString> allPatternDirList = mng.getallPatternList();
-		
-			for (uint i = 0; i < allPatternDirList.size(); ++i) {
-				QString testName = allPatternDirList[i];
-				if( testName.contains( patternName ) && testName.contains( drumkitname )){
-		
-					sDirectory = allPatternDirList[i];
-				}
-			}
-
+			QString sPatternPath = __sound_library_tree->currentItem()->text( 1 );
 			QString dragtype = "drag pattern";
-			QString sText = dragtype + "::" + sDirectory;
+			QString sText = dragtype + "::" + sPatternPath;
 
 			QDrag *pDrag = new QDrag(this);
 			QMimeData *pMimeData = new QMimeData;
 
 			pMimeData->setText( sText );
 			pDrag->setMimeData( pMimeData);
-			//drag->setPixmap(iconPixmap);
-
 			pDrag->start( Qt::CopyAction | Qt::MoveAction );
 			return;
 		}
@@ -472,7 +445,6 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 		pMimeData->setText( sText );
 		pDrag->setMimeData( pMimeData);
-		//drag->setPixmap(iconPixmap);
 
 		pDrag->start( Qt::CopyAction | Qt::MoveAction );
 	}
