@@ -159,11 +159,13 @@ private:
 class SE_modifyPatternPropertiesAction : public QUndoCommand
 {
 public:
-	SE_modifyPatternPropertiesAction(  QString oldPatternName , QString oldPatternCategory, QString newPatternName , QString newPatternCategory, int patternNr ){
+	SE_modifyPatternPropertiesAction( QString oldPatternName ,QString oldPatternInfo, QString oldPatternCategory, QString newPatternName , QString newPatternInfo, QString newPatternCategory, int patternNr ){
 		setText( QString( "Modify pattern properties" ) );
 		__oldPatternName =  oldPatternName;
 		__oldPatternCategory = oldPatternCategory;
-		__newPatternName =  newPatternName;
+		__oldPatternInfo = oldPatternInfo;
+		__newPatternName = newPatternName;
+		__newPatternInfo = newPatternInfo;
 		__newPatternCategory = newPatternCategory;
 		__patternNr = patternNr;
 	}
@@ -171,19 +173,22 @@ public:
 	{
 		//qDebug() << "Modify pattern properties undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->revertPatternPropertiesDialogSettings( __oldPatternName, __oldPatternCategory, __patternNr );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->revertPatternPropertiesDialogSettings( __oldPatternName, __oldPatternInfo, __oldPatternCategory, __patternNr );
 	}
 
 	virtual void redo()
 	{
 		//qDebug() << "Modify pattern properties redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->acceptPatternPropertiesDialogSettings( __newPatternName, __newPatternCategory, __patternNr );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->acceptPatternPropertiesDialogSettings( __newPatternName, __newPatternInfo, __newPatternCategory, __patternNr );
 	}
 private:
 	QString __oldPatternName;
+	QString __oldPatternInfo;
 	QString __oldPatternCategory;
+
 	QString __newPatternName;
+	QString __newPatternInfo;
 	QString __newPatternCategory;
 	int __patternNr;
 };

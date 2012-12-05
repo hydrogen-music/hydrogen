@@ -129,12 +129,12 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void createBackground();
 		void movePatternLine( int, int );
 		void deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
-                void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
-		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternCategory, int patternNr );
-		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr);
+		void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
+		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr );
+		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
 		void loadPatternAction( QString filename, int position);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
-                void patternPopup_copyAction( QString patternFilename, int patternposition );
+		void patternPopup_copyAction( QString patternFilename, int patternposition );
 
 	public slots:
 		void patternPopup_edit();

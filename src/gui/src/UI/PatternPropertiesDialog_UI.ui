@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
-    <height>165</height>
+    <width>311</width>
+    <height>274</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>291</width>
-     <height>141</height>
+     <height>253</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -34,6 +34,16 @@
       </item>
       <item>
        <widget class="QLineEdit" name="patternNameTxt"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Pattern description</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="patternDescTxt"/>
       </item>
       <item>
        <widget class="QLabel" name="label">

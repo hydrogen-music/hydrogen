@@ -45,6 +45,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
 
+	patternDescTxt->setText( pattern->get_info() );
+
 	QString category = pattern->get_category();
 	__nselectedPattern = nselectedPattern;
 	__savepattern = savepattern;	
@@ -94,6 +96,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 {
 	QString pattName = patternNameTxt->text();
 	QString pattCategory = categoryComboBox->currentText();
+	QString pattInfo = patternDescTxt->toPlainText();
 
 	Preferences *pPref = H2Core::Preferences::get_instance();
 	std::list<QString>::const_iterator cur_testpatternCategories;
@@ -111,12 +114,13 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	}
 
 	if( __savepattern ){
-		pattern->set_name(pattName);
+		pattern->set_name( pattName );
+		pattern->set_info( pattInfo );
 		pattern->set_category( pattCategory );
 	}else
 	{
-		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_category(),
-												  pattName, pattCategory, __nselectedPattern );	
+		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
+												  pattName, pattInfo, pattCategory, __nselectedPattern );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 	accept();

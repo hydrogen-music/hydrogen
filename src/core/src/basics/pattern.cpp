@@ -37,10 +37,11 @@ namespace H2Core
 
 const char* Pattern::__class_name = "Pattern";
 
-Pattern::Pattern( const QString& name, const QString& category, int length )
+Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length )
 	: Object( __class_name )
 	, __length( length )
 	, __name( name )
+	, __info( info )
 	, __category( category )
 {
 }
@@ -49,6 +50,7 @@ Pattern::Pattern( Pattern* other )
 	: Object( __class_name )
 	, __length( other->get_length() )
 	, __name( other->get_name() )
+	, __info( other->get_info() )
 	, __category( other->get_category() )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
@@ -88,6 +90,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Pattern* pattern = new Pattern(
 		node->read_string( "name", "unknown", false, false ),
+		node->read_string( "info", "", false, false ),
 		node->read_string( "category", "unknown", false, false ),
 		node->read_int( "size", -1, false, false )
 	);
@@ -125,6 +128,7 @@ void Pattern::save_to( XMLNode* node )
 	node->write_string( "drumkit_name", "TODO" );
 	XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
 	pattern_node.write_string( "name", __name );
+	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );

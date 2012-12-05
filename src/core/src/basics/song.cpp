@@ -884,13 +884,15 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 	QString sName;	// name
 	sName = LocalFileMng::readXmlString( pattern, "name", sName );
-
-	QString sCategory = ""; // category
+	QString sInfo;
+	sInfo = LocalFileMng::readXmlString( pattern, "info", sInfo ,false ,false );
+	QString sCategory; // category
 	sCategory = LocalFileMng::readXmlString( pattern, "category", sCategory ,false ,false );
+
 	int nSize = -1;
 	nSize = LocalFileMng::readXmlInt( pattern, "size", nSize, false, false );
 
-	pPattern = new Pattern( sName, sCategory, nSize );
+	pPattern = new Pattern( sName, sInfo, sCategory, nSize );
 
 
 

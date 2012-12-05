@@ -1006,8 +1006,8 @@ void SongEditorPatternList::inlineEditingEntered()
 		Hydrogen *pEngine = Hydrogen::get_instance();
 		int nSelectedPattern = pEngine->getSelectedPatternNumber();
 
-		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_category(),
-												  line->text(), patternBeingEdited->get_category(), nSelectedPattern );	
+		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_info(), patternBeingEdited->get_category(),
+												  line->text(), patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 // 	patternBeingEdited = NULL;
@@ -1321,13 +1321,14 @@ void SongEditorPatternList::patternPopup_properties()
 }
 
 
-void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPatternName, QString newPatternCategory, int patternNr)
+void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr)
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->set_name( newPatternName );
+	pattern->set_info( newPatternInfo );
 	pattern->set_category( newPatternCategory );
 	song->__is_modified = true;
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
@@ -1336,7 +1337,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPat
 }
 
 
-void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternCategory, int patternNr)
+void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr)
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
