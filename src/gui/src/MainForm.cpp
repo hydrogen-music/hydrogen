@@ -608,7 +608,7 @@ void MainForm::action_file_export_pattern_as()
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
-        fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
+		fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
 	fd->setDirectory ( dir );
 	fd->setSidebarUrls( fd->sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 
@@ -650,7 +650,6 @@ void MainForm::action_file_export_pattern_as()
 		{
 			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") );
 			_ERRORLOG ( "Error saving the pattern" );
-			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") ); 
 		}
 	}
 	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
