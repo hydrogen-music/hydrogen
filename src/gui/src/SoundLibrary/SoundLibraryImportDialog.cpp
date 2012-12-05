@@ -71,9 +71,6 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 	InstallBtn->setEnabled (false );
 
 	updateRepositoryCombo();
-
-	// force a new update
-	//on_UpdateListBtn_clicked();
 }
 
 
@@ -251,13 +248,13 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.m_sType == "drumkit" ) {
-        if ( H2Core::Filesystem::drumkit_exists(sName) )
-            return true;
+		if ( H2Core::Filesystem::drumkit_exists(sName) )
+			return true;
 	}
 
 	if ( sInfo.m_sType == "pattern" ) {
 		H2Core::LocalFileMng mng;
-                std::vector<QString> patternList = mng.getAllPatternNames();
+		std::vector<QString> patternList = mng.getAllPatternNames();
 		for ( uint i = 0; i < patternList.size(); ++i ) {
 			if ( patternList[ i ] == sName ) {
 				return true;
@@ -266,8 +263,8 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	}
 
 	if ( sInfo.m_sType == "song" ) {
-        if ( H2Core::Filesystem::song_exists(sName) )
-            return true;
+		if ( H2Core::Filesystem::song_exists(sName) )
+			return true;
 	}
 
 	return false;
@@ -359,7 +356,6 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 
 			// install the new soundlibrary
-
 			try {
 				if ( sType == "drumkit" ) {
 					H2Core::Drumkit::install( sLocalFile );
@@ -447,6 +443,3 @@ void SoundLibraryImportDialog::on_close_btn_clicked()
 {
 	accept();
 }
-
-
-
