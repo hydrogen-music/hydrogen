@@ -35,6 +35,7 @@
 using namespace H2Core;
 
 #include "UndoActions.h"
+#include "MainForm.h"
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 #include "SongEditorPanelBpmWidget.h"
@@ -903,7 +904,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( trUtf8("Load Pattern"),  this, SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );	
+	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( trUtf8("Export Pattern"),  this, SLOT( patternPopup_export() ) );
 	m_pPatternPopup->addAction( trUtf8("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -1260,6 +1262,12 @@ void SongEditorPatternList::loadPatternAction( QString afilename, int position)
 
 }
 
+
+void SongEditorPatternList::patternPopup_export()
+{
+	HydrogenApp::get_instance()->getMainForm()->action_file_export_pattern_as();
+	return;
+}
 
 void SongEditorPatternList::patternPopup_save()
 {	

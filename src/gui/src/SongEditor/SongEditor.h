@@ -139,6 +139,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 	public slots:
 		void patternPopup_edit();
 		void patternPopup_save();
+		void patternPopup_export();
 		void patternPopup_load();
 		void patternPopup_properties();
 		void patternPopup_delete();
