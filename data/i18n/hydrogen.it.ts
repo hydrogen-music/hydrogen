@@ -1927,6 +1927,10 @@ Vuoi salvare i cambiamenti?</translation>
         <source>Pattern category</source>
         <translation>Categoria pattern</translation>
     </message>
+    <message>
+        <source>Pattern description</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
@@ -3226,6 +3230,10 @@ Sovrascrivere il modello esistente?</translation>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
+    </message>
+    <message>
+        <source>Export Pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

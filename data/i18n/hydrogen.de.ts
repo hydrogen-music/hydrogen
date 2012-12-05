@@ -1925,6 +1925,10 @@ Do you want to save the changes?
         <source>Pattern category</source>
         <translation>Pattern Kategorie</translation>
     </message>
+    <message>
+        <source>Pattern description</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
@@ -3221,6 +3225,10 @@ Overwrite the existing pattern?</source>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Abbrechen</translation>
+    </message>
+    <message>
+        <source>Export Pattern</source>
+        <translation>Exportiere Pattern</translation>
     </message>
 </context>
 <context>

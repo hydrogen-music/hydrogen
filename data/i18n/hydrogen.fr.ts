@@ -1950,6 +1950,10 @@ Voulez-vous sauvegarder les changements?
         <source>Pattern category</source>
         <translation>Catégorie du motif</translation>
     </message>
+    <message>
+        <source>Pattern description</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
@@ -3262,6 +3266,10 @@ Overwrite the existing pattern?</source>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Annuler</translation>
+    </message>
+    <message>
+        <source>Export Pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

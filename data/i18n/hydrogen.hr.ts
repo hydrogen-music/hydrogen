@@ -1924,6 +1924,10 @@ Do you want to save the changes?
         <source>Pattern category</source>
         <translation>Kategorija uzorka</translation>
     </message>
+    <message>
+        <source>Pattern description</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
@@ -3219,6 +3223,10 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
         <translation>Hydrogen Pattern (*.h2pattern)</translation>
+    </message>
+    <message>
+        <source>Export Pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

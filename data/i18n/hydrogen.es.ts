@@ -1928,6 +1928,10 @@ El documento contiene cambios sin guardar.
         <source>Pattern category</source>
         <translation>Categoría de patrón</translation>
     </message>
+    <message>
+        <source>Pattern description</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
@@ -3226,6 +3230,10 @@ Overwrite the existing pattern?</source>
     <message>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
+    </message>
+    <message>
+        <source>Export Pattern</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
