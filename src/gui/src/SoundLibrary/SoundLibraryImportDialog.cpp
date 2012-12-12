@@ -138,40 +138,40 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 				SoundLibraryInfo soundLibInfo;
 			
 				if ( drumkitNode.toElement().tagName() =="song" ) {
-					soundLibInfo.m_sType = "song";
+					soundLibInfo.setType( "song" );
 				}
 
 				if ( drumkitNode.toElement().tagName() =="drumkit" ) {
-					soundLibInfo.m_sType = "drumkit";
+					soundLibInfo.setType( "drumkit" );
 				}
 
 				if ( drumkitNode.toElement().tagName() =="pattern" ) {
-					soundLibInfo.m_sType = "pattern";
+					soundLibInfo.setType( "pattern" );
 				}
 
 				QDomElement nameNode = drumkitNode.firstChildElement( "name" );
 				if ( !nameNode.isNull() ) {
-					soundLibInfo.m_sName = nameNode.text();
+					soundLibInfo.setName( nameNode.text() );
 				}
 
 				QDomElement urlNode = drumkitNode.firstChildElement( "url" );
 				if ( !urlNode.isNull() ) {
-					soundLibInfo.m_sURL = urlNode.text();
+					soundLibInfo.setUrl( urlNode.text() );
 				}
 
 				QDomElement infoNode = drumkitNode.firstChildElement( "info" );
 				if ( !infoNode.isNull() ) {
-					soundLibInfo.m_sInfo = infoNode.text();
+					soundLibInfo.setInfo( infoNode.text() );
 				}
 
 				QDomElement authorNode = drumkitNode.firstChildElement( "author" );
 				if ( !authorNode.isNull() ) {
-					soundLibInfo.m_sAuthor = authorNode.text();
+					soundLibInfo.setAuthor( authorNode.text() );
 				}
 
 				QDomElement licenseNode = drumkitNode.firstChildElement( "license" );
 				if ( !licenseNode.isNull() ) {
-					soundLibInfo.m_sLicense = licenseNode.text();
+					soundLibInfo.setLicense( licenseNode.text() );
 				}
 
 				m_soundLibraryList.push_back( soundLibInfo );
@@ -206,19 +206,19 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	m_pDrumkitTree->setItemExpanded( m_pPatternItem, true );
 
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
-		QString sLibraryName = m_soundLibraryList[ i ].m_sName;
+		QString sLibraryName = m_soundLibraryList[ i ].getName();
 
 		QTreeWidgetItem* pDrumkitItem = NULL;
 
-		if ( m_soundLibraryList[ i ].m_sType == "song" ) {
+		if ( m_soundLibraryList[ i ].getType() == "song" ) {
 			pDrumkitItem = new QTreeWidgetItem(  m_pSongItem );
 		}
 
-		if ( m_soundLibraryList[ i ].m_sType == "drumkit" ) {
+		if ( m_soundLibraryList[ i ].getType() == "drumkit" ) {
 			pDrumkitItem = new QTreeWidgetItem(  m_pDrumkitsItem );
 		}
 
-		if ( m_soundLibraryList[ i ].m_sType == "pattern" ) {
+		if ( m_soundLibraryList[ i ].getType() == "pattern" ) {
 			pDrumkitItem = new QTreeWidgetItem(  m_pPatternItem );
 		}
 
@@ -244,15 +244,15 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!
 
-	QString sName = QFileInfo( sInfo.m_sURL ).fileName();
+	QString sName = QFileInfo( sInfo.getUrl() ).fileName();
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
-	if ( sInfo.m_sType == "drumkit" ) {
+	if ( sInfo.getType() == "drumkit" ) {
 		if ( H2Core::Filesystem::drumkit_exists(sName) )
 			return true;
 	}
 
-	if ( sInfo.m_sType == "pattern" ) {
+	if ( sInfo.getType() == "pattern" ) {
 		H2Core::LocalFileMng mng;
 		std::vector<QString> patternList = mng.getAllPatternNames();
 		for ( uint i = 0; i < patternList.size(); ++i ) {
@@ -262,7 +262,7 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 		}
 	}
 
-	if ( sInfo.m_sType == "song" ) {
+	if ( sInfo.getType() == "song" ) {
 		if ( H2Core::Filesystem::song_exists(sName) )
 			return true;
 	}
@@ -280,22 +280,22 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 		QString selected = current->text(0);
 		for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
-			if ( m_soundLibraryList[ i ].m_sName == selected ) {
+			if ( m_soundLibraryList[ i ].getName() == selected ) {
 				SoundLibraryInfo info = m_soundLibraryList[ i ];
 
 				//bool alreadyInstalled = isSoundLibraryAlreadyInstalled( info.m_sURL );
 
-				SoundLibraryNameLbl->setText( info.m_sName );
+				SoundLibraryNameLbl->setText( info.getName() );
 				
-				if( info.m_sType == "pattern" ){
+				if( info.getType() == "pattern" ){
 					SoundLibraryInfoLbl->setText("");
 				} else {
-					SoundLibraryInfoLbl->setText( info.m_sInfo );
+					SoundLibraryInfoLbl->setText( info.getInfo() );
 				}
 
-				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.m_sAuthor ) );
+				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.getAuthor() ) );
 
-				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.m_sLicense ) );
+				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.getLicense()) );
 
 
 				DownloadBtn->setEnabled( true );
@@ -319,10 +319,10 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 	QString selected = m_pDrumkitTree->currentItem()->text(0);
 
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
-		if ( m_soundLibraryList[ i ].m_sName == selected ) {
+		if ( m_soundLibraryList[ i ].getName() == selected ) {
 			// Download the sound library
-			QString sURL = m_soundLibraryList[ i ].m_sURL;
-			QString sType = m_soundLibraryList[ i ].m_sType;
+			QString sURL = m_soundLibraryList[ i ].getUrl();
+			QString sType = m_soundLibraryList[ i ].getType();
 			QString sLocalFile;
 
 			QString dataDir = H2Core::Preferences::get_instance()->getDataDirectory();
