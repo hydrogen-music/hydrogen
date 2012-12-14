@@ -548,12 +548,14 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
     if( item->parent() == __system_drumkits_item ) {
-		QMessageBox::warning( this, "Hydrogen", QString( "A system drumkit can't be deleted.") );
-		return;
-	}
+    	QString cnd = itemname + " is a system drumkit and can't be deleted.";
+    	QMessageBox::warning( this, "Hydrogen", cnd );
+    	return;
+   	}
 
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected drumkit will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
-	if ( res == 1 ) {
+    QString deletemsg = "Warning, the \"" + itemname + "\" drumkit will be deleted from disk.\nAre you sure?";
+    int res = QMessageBox::warning( this, "Hydrogen", deletemsg, "&Ok", "&Cancel", 0, 1 );
+    if ( res == 1 ) {
 		return;
 	}
 
