@@ -43,6 +43,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
+#include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
@@ -86,6 +87,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	Hydrogen::create_instance();
 	Hydrogen::get_instance()->setSong( pFirstSong );
 	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
+	SoundLibraryDatabase::create_instance();
 
 	//setup the undo stack
 	m_undoStack = new QUndoStack( this );
@@ -138,6 +140,8 @@ HydrogenApp::~HydrogenApp()
 	delete m_pPlaylistDialog;
 	delete m_pDirector;
 	delete m_pSampleEditor;
+
+	delete SoundLibraryDatabase::get_instance();
 
 	Hydrogen *engine = Hydrogen::get_instance();
 	if (engine) {

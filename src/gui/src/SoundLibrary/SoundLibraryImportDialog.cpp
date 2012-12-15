@@ -20,7 +20,7 @@
  *
  */
 
-
+#include "SoundLibraryDatastructures.h"
 #include "SoundLibraryImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
@@ -427,6 +427,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
 		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( dataDir )  ) );
 		// update the drumkit list
+		SoundLibraryDatabase::get_instance()->update();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 		QApplication::restoreOverrideCursor();

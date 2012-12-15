@@ -4,6 +4,50 @@
 #include <hydrogen/object.h>
 #include <vector>
 
+class SoundLibraryInfo;
+
+/**
+* @class SoundLibraryDatabase
+*
+* @brief This class holds informations about all installed soundlibrary items.
+*
+* This class organizes the metadata of all locally installed soundlibrary items.
+*
+* @author Sebastian Moors
+*
+*/
+
+typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
+
+class SoundLibraryDatabase:  public H2Core::Object
+{
+	H2_OBJECT
+	public:
+		SoundLibraryDatabase();
+		~SoundLibraryDatabase();
+
+		//bool isItemInstalled( const SoundLibraryInfo& item );
+		soundLibraryInfoVector* getAllPatterns() const;
+		QStringList getAllPatternCategories() const {
+			return patternCategories;
+		}
+
+		void update();
+		void updatePatterns();
+		void printPatterns();
+		int getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
+		bool isPatternInstalled( const QString& patternName);
+
+		static void create_instance();
+		static SoundLibraryDatabase* get_instance() { assert(__instance); return __instance; }
+
+
+	private:
+		static SoundLibraryDatabase *__instance;
+		soundLibraryInfoVector* patternVector;
+		QStringList patternCategories;
+};
+
 
 /**
 * @class SoundLibraryInfo
@@ -22,6 +66,7 @@ class SoundLibraryInfo :  public H2Core::Object
 	H2_OBJECT
 	public:
 		SoundLibraryInfo();
+		SoundLibraryInfo( const QString& path);
 		~SoundLibraryInfo();
 
 		QString getName() const {
@@ -38,6 +83,10 @@ class SoundLibraryInfo :  public H2Core::Object
 
 		QString getAuthor() const {
 			return m_sAuthor;
+		}
+
+		QString getCategory() const {
+			return m_sCategory;
 		}
 
 		QString getType() const {
@@ -68,34 +117,13 @@ class SoundLibraryInfo :  public H2Core::Object
 			m_sType = type;
 		}
 
+		void setCategory( const QString& category){
+			m_sCategory = category;
+		}
+
 		void setLicense( const QString& license ){
 			m_sLicense = license;
 		}
-
-	private:
-		QString m_sName;
-		QString m_sURL;
-		QString m_sInfo;
-		QString m_sAuthor;
-		QString m_sType;
-		QString m_sLicense;
-};
-
-/**
-* @class SoundLibraryLocalInfo
-*
-* @brief This class holds informations about a local soundlibrary..
-*
-* This class is used to represent soundlibrary items which are kept on disk.
-*
-* @author Sebastian Moors
-*
-*/
-
-class SoundLibraryLocalInfo : SoundLibraryInfo
-{
-	public:
-		SoundLibraryLocalInfo();
 
 		void setPath( const QString& path){
 			m_sPath = path;
@@ -105,13 +133,16 @@ class SoundLibraryLocalInfo : SoundLibraryInfo
 			return m_sPath;
 		}
 
+
 	private:
+		QString m_sName;
+		QString m_sURL;
+		QString m_sInfo;
+		QString m_sAuthor;
+		QString m_sCategory;
+		QString m_sType;
+		QString m_sLicense;
 		QString m_sPath;
 };
-
-
-
-
-
 
 #endif // SOUNDLIBRARYDATASTRUCTURES_H

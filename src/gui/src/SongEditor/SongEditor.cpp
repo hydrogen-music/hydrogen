@@ -41,6 +41,7 @@ using namespace H2Core;
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanelTagWidget.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
@@ -1299,6 +1300,7 @@ void SongEditorPatternList::patternPopup_save()
 #else
 	usleep ( 10000 );
 #endif 
+	SoundLibraryDatabase::get_instance()->updatePatterns();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }

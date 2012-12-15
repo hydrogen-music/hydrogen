@@ -24,6 +24,7 @@
 
 #include <QtGui>
 
+#include "SoundLibraryDatastructures.h"
 #include "SoundLibraryTree.h"
 #include "FileBrowser.h"
 
@@ -77,6 +78,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
  , __pattern_item( NULL )
  , __pattern_item_list( NULL )
 {
+
 	//INFOLOG( "INIT" );
 	__drumkit_menu = new QMenu( this );
 	__drumkit_menu->addAction( trUtf8( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
@@ -250,25 +252,30 @@ void SoundLibraryPanel::updateDrumkitList()
 			mng.getPatternList( absPath );
 		}
 		
-		//this is the second step to push the mng.funktion 
-		std::vector<QString> allPatternDirList = mng.getallPatternList();
-		std::vector<QString> allCategoryNameList = mng.getAllCategoriesFromPattern();
+		//this is the second step to push the mng.funktion
+		//SoundLibraryDatabase::create_instance();
+		SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
+		soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();
+		QStringList allCategoryNameList = db->getAllPatternCategories();
 
 		//now sorting via category
-		if ( allCategoryNameList.size() > 0 ){
-			for (uint i = 0; i < allCategoryNameList.size(); ++i) {
-				QString categoryName = allCategoryNameList[i];
-	
-				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
-				pCategoryItem->setText( 0, categoryName  );
-				for (uint ii = 0; ii < allPatternDirList.size(); ++ii) {
-					QString patternCategory = mng.getCategoryFromPatternName( allPatternDirList[ii]);
-					if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
-						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-						pPatternItem->setText( 0, mng.getPatternNameFromPatternDir( allPatternDirList[ii] ));
-						pPatternItem->setText( 1, allPatternDirList[ii] );
-						pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( allPatternDirList[ii] ));
-					}
+
+		for (uint i = 0; i < allCategoryNameList.size(); ++i) {
+			QString categoryName = allCategoryNameList[i];
+
+			QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
+			pCategoryItem->setText( 0, categoryName  );
+
+			soundLibraryInfoVector::iterator mapIterator;
+			for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
+			{
+				QString patternCategory = (*mapIterator)->getCategory();
+				if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
+					QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+					pPatternItem->setText( 0, (*mapIterator)->getName());
+					pPatternItem->setText( 1, (*mapIterator)->getPath() );
+					pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( (*mapIterator)->getPath() ));
+					INFOLOG( "Path" +  (*mapIterator)->getPath() );
 				}
 			}
 		}

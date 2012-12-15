@@ -129,7 +129,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	h2app = new HydrogenApp( this, song );
 	h2app->addEventListener( this );
-
 	createMenuBar();
 
 	h2app->setStatusBarMessage( trUtf8("Hydrogen Ready."), 10000 );

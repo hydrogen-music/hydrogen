@@ -54,7 +54,7 @@ public:
 	LocalFileMng();
 	~LocalFileMng();
 
-	std::vector<QString> getDrumkitsFromDirectory( QString );
+	static std::vector<QString> getDrumkitsFromDirectory( QString );
 	std::vector<QString> getPatternDirList();
 	std::vector<QString> getSongList();
 	std::vector<QString> getPatternsForDrumkit( const QString&  );
