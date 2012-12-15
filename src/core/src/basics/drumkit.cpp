@@ -104,7 +104,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__path = dk_path;
 	drumkit->__name = drumkit_name;
 	drumkit->__author = node->read_string( "author", "undefined author" );
-	drumkit->__info = node->read_string( "info", "defaultInfo" );
+	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
 	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
