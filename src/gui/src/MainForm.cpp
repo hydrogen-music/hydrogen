@@ -129,7 +129,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	h2app = new HydrogenApp( this, song );
 	h2app->addEventListener( this );
-
 	createMenuBar();
 
 	h2app->setStatusBarMessage( trUtf8("Hydrogen Ready."), 10000 );
@@ -345,6 +344,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addAction( trUtf8("&User manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
+	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
 	//~ INFO menu
 }
 
@@ -569,21 +569,21 @@ void MainForm::action_toggle_input_mode()
     }
 }
 
-
 void MainForm::action_help_about() {
 	AboutDialog *dialog = new AboutDialog( NULL );
 	dialog->exec();
 }
 
-
-
+void MainForm::action_report_bug()
+{
+	QDesktopServices::openUrl(QString("https://github.com/hydrogen-music/hydrogen/issues"));
+}
 
 void MainForm::showUserManual()
 {
 	h2app->getHelpBrowser()->hide();
 	h2app->getHelpBrowser()->show();
 }
-
 
 void MainForm::action_file_export_pattern_as()
 {
@@ -607,7 +607,7 @@ void MainForm::action_file_export_pattern_as()
 	fd->setFileMode ( QFileDialog::AnyFile );
 	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd->setAcceptMode ( QFileDialog::AcceptSave );
-        fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
+		fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
 	fd->setDirectory ( dir );
 	fd->setSidebarUrls( fd->sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 
@@ -649,7 +649,6 @@ void MainForm::action_file_export_pattern_as()
 		{
 			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") );
 			_ERRORLOG ( "Error saving the pattern" );
-			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") ); 
 		}
 	}
 	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
@@ -899,8 +898,8 @@ void MainForm::functionDeleteInstrument(int instrument)
 
 void MainForm::action_instruments_exportLibrary()
 {
-        SoundLibraryExportDialog exportDialog( this );
- 	exportDialog.exec();
+	SoundLibraryExportDialog exportDialog( this, QString() );
+	exportDialog.exec();
 }
 
 

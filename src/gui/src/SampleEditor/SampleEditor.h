@@ -75,14 +75,14 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		void on_PlayPushButton_clicked();
 		void on_PlayOrigPushButton_clicked();
 		void on_verticalzoomSlider_valueChanged ( int value );
-		void updateMainsamplePostionRuler();
-		void updateTargetsamplePostionRuler();
+		void updateMainsamplePositionRuler();
+		void updateTargetsamplePositionRuler();
 
 
 
 	private:
 
-		H2Core::Sample *m_pSamplefromFile;
+		H2Core::Sample *m_pSampleFromFile;
 		int m_pSelectedLayer;
 		QString m_samplename;
 	
@@ -106,24 +106,23 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView; 
 
-		float m_pzoomfactor;
-		unsigned m_pdetailframe;
-		QString m_plineColor;
-		bool m_ponewayStart;
-		bool m_ponewayLoop;
-		bool m_ponewayEnd;
-		unsigned long m_prealtimeframeend;
+		float m_pZoomfactor;
+		unsigned m_pDetailFrame;
+		QString m_pLineColor;
+		bool m_pOnewayStart;
+		bool m_pOnewayLoop;
+		bool m_pOnewayEnd;
+		unsigned long m_pRealtimeFrameEnd;
 		unsigned long m_prealtimeframeendfortarget;
 		unsigned m_pslframes;
 		unsigned m_pSamplerate;
 		QTimer *m_pTimer;
 		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
-                bool m_pPlayButton;
-                float m_pratio;
-                H2Core::Sample::Loops __loops;
-                H2Core::Sample::Rubberband __rubberband;
-
+		bool m_pPlayButton;
+		float m_pRatio;
+		H2Core::Sample::Loops __loops;
+		H2Core::Sample::Rubberband __rubberband;
 		
 };
 

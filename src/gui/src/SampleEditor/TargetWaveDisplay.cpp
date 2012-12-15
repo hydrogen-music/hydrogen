@@ -298,21 +298,21 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		for ( int i = 0; i < static_cast<int>(__pan.size()); i++){
 			if ( __pan[i].frame >= ev->x() - snapradius && __pan[i].frame <= ev->x() + snapradius ) {
 				__pan.erase( __pan.begin() + i);
-                Sample::EnvelopePoint pt;
-                if ( i == 0 ){
-                    pt.frame = 0;
-                    pt.value = ev->y();
-                } else if ( i == static_cast<int>(__pan.size()) ) {
-                    pt.frame = __pan[i].frame;
-                    pt.value = ev->y();
-                } else {
-                    pt.frame = ev->x();
-                    pt.value = ev->y();
-                }
-                __pan.push_back( pt );
-	            sort( __pan.begin(), __pan.end(), Sample::EnvelopePoint::Comparator() );
-                update();
-                return;
+				Sample::EnvelopePoint pt;
+				if ( i == 0 ){
+					pt.frame = 0;
+					pt.value = ev->y();
+				} else if ( i == static_cast<int>(__pan.size()) ) {
+					pt.frame = __pan[i].frame;
+					pt.value = ev->y();
+				} else {
+					pt.frame = ev->x();
+					pt.value = ev->y();
+				}
+				__pan.push_back( pt );
+				sort( __pan.begin(), __pan.end(), Sample::EnvelopePoint::Comparator() );
+				update();
+				return;
 			}else
 			{
 				m_pvmove = false;	
@@ -355,7 +355,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			if ( ev->x() <= snapradius ) x = snapradius;
 			if ( ev->x() >= UI_WIDTH-snapradius ) x = UI_WIDTH-snapradius;
 			__velocity.push_back( new Sample::EnvelopePoint( x, y ) );
-            sort( __velocity.begin(), __velocity.end(), Sample::EnvelopePoint::Comparator() );
+			sort( __velocity.begin(), __velocity.end(), Sample::EnvelopePoint::Comparator() );
 		}
 	
 	
@@ -378,7 +378,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		}
 	}
 	///edit panorama points
-        else if( editType == 1 ){
+		else if( editType == 1 ){
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(__pan.size()); ++i){
 			if ( __pan[i].frame >= ev->x() - snapradius && __pan[i].frame <= ev->x() + snapradius ){
@@ -397,7 +397,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 			if ( ev->x() <= snapradius ) x = snapradius;
 			if ( ev->x() >= UI_WIDTH-snapradius ) x = UI_WIDTH-snapradius;
 			__pan.push_back( new Sample::EnvelopePoint( x, y ) );
-	        sort( __pan.begin(), __pan.end(), Sample::EnvelopePoint::Comparator() );
+			sort( __pan.begin(), __pan.end(), Sample::EnvelopePoint::Comparator() );
 		}
 	
 	

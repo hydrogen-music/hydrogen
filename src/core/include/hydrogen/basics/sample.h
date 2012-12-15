@@ -206,6 +206,8 @@ class Sample : public H2Core::Object
 		const QString get_filepath() const;
 		/** return filename part of __filepath */
 		const QString get_filename() const;
+		/** set the filename part of __filepath*/
+		void set_filename( const QString& filename );
 		/**
 		 * __frames setter
 		 * \parama value the new value for __frames
@@ -291,6 +293,12 @@ inline const QString Sample::get_filepath() const
 inline const QString Sample::get_filename() const
 {
 	return __filepath.section( "/", -1 );
+}
+
+inline void Sample::set_filename( const QString& filename )
+{
+	__filepath.chop( __filepath.section( "/", -1 ).length());
+	__filepath.append( filename );
 }
 
 inline void Sample::Sample::set_frames( int frames )

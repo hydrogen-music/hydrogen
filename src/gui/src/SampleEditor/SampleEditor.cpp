@@ -56,24 +56,24 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	INFOLOG ( "INIT" );
 
 	m_pTimer = new QTimer(this);
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePostionRuler()));
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePositionRuler()));
 	m_pTargetDisplayTimer = new QTimer(this);
-	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePostionRuler()));
+	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
 	m_pSampleEditorStatus = true;
-	m_pSamplefromFile = NULL;
+	m_pSampleFromFile = NULL;
 	m_pSelectedLayer = nSelectedLayer;
 	m_samplename = mSamplefilename;
-	m_pzoomfactor = 1;
-	m_pdetailframe = 0;
-	m_plineColor = "default";
-	m_ponewayStart = false;
-	m_ponewayLoop = false;
-	m_ponewayEnd = false;
+	m_pZoomfactor = 1;
+	m_pDetailFrame = 0;
+	m_pLineColor = "default";
+	m_pOnewayStart = false;
+	m_pOnewayLoop = false;
+	m_pOnewayEnd = false;
 	m_pslframes = 0;
 	m_pPositionsRulerPath = NULL;
-        m_pPlayButton = false;
-        m_pratio = 1.0f;
+	m_pPlayButton = false;
+	m_pRatio = 1.0f;
 	__rubberband.c_settings = 4;
 
 	QString newfilename = mSamplefilename.section( '/', -1 );
@@ -86,11 +86,11 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
 
-//this new sample give us the not changed real samplelength 
-	m_pSamplefromFile = Sample::load( mSamplefilename );
-	if (!m_pSamplefromFile) reject();
+	//this new sample give us the not changed real samplelength
+	m_pSampleFromFile = Sample::load( mSamplefilename );
+	if (!m_pSampleFromFile) reject();
 
-	unsigned slframes = m_pSamplefromFile->get_frames();
+	unsigned slframes = m_pSampleFromFile->get_frames();
 
 	LoopCountSpinBox->setRange(0, 20000 );
 	StartFrameSpinBox->setRange(0, slframes );
@@ -136,8 +136,8 @@ SampleEditor::~SampleEditor()
 	delete m_pTargetSampleView;
 	m_pTargetSampleView = NULL;
 
-	delete m_pSamplefromFile;
-	m_pSamplefromFile = NULL;
+	delete m_pSampleFromFile;
+	m_pSampleFromFile = NULL;
 
 	INFOLOG ( "DESTROY" );
 }
@@ -291,7 +291,7 @@ void SampleEditor::openDisplays()
 
 
 // wavedisplays
-	m_divider = m_pSamplefromFile->get_frames() / 574.0F;
+	m_divider = m_pSampleFromFile->get_frames() / 574.0F;
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
@@ -330,7 +330,7 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	getAllLocalFrameInfos();	
 	createNewLayer();
 	m_pSampleEditorStatus = true;
-        QApplication::restoreOverrideCursor();
+	QApplication::restoreOverrideCursor();
 }
 
 
@@ -357,7 +357,7 @@ void SampleEditor::createNewLayer()
 			return;
 		}
 
-                AudioEngine::get_instance()->lock( RIGHT_HERE );
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		H2Core::Instrument *pInstrument = NULL;
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -384,7 +384,7 @@ void SampleEditor::createNewLayer()
 		// insert new sample from newInstrument
 		pLayer->set_sample( editSample );
 
-                AudioEngine::get_instance()->unlock();
+		AudioEngine::get_instance()->unlock();
 		m_pTargetSampleView->updateDisplay( pLayer );
 		}
 		
@@ -410,9 +410,9 @@ bool SampleEditor::returnAllMainWaveDisplayValues()
 	StartFrameSpinBox->setValue( __loops.start_frame );
 	LoopFrameSpinBox->setValue( __loops.loop_frame );
 	EndFrameSpinBox->setValue( __loops.end_frame );
-	m_ponewayStart = true;	
-	m_ponewayLoop = true;
-	m_ponewayEnd = true;
+	m_pOnewayStart = true;
+	m_pOnewayLoop = true;
+	m_pOnewayEnd = true;
 	setSamplelengthFrames();
 
 	return true;
@@ -438,22 +438,21 @@ void SampleEditor::setTrue()
 void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
 	testpTimer();
-	m_pdetailframe = StartFrameSpinBox->value();
-	m_plineColor = "Start";
-	if ( !m_ponewayStart ){
+	m_pDetailFrame = StartFrameSpinBox->value();
+	m_pLineColor = "Start";
+	if ( !m_pOnewayStart ){
 		m_pMainSampleWaveDisplay->m_pStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor , m_pLineColor);
 		__loops.start_frame = StartFrameSpinBox->value();
 				
 	}else
 	{
-		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
-		m_ponewayStart = false;
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor , m_pLineColor);
+		m_pOnewayStart = false;
 	}
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
-	//QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(StartFrameSpinBox->value() / m_divider + 25 ));
 	setSamplelengthFrames();
 }
 
@@ -462,17 +461,17 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 void SampleEditor::valueChangedLoopFrameSpinBox( int )
 {
 	testpTimer();	
-	m_pdetailframe = LoopFrameSpinBox->value();
-	m_plineColor = "Loop";
-	if ( !m_ponewayLoop ){
+	m_pDetailFrame = LoopFrameSpinBox->value();
+	m_pLineColor = "Loop";
+	if ( !m_pOnewayLoop ){
 		m_pMainSampleWaveDisplay->m_pLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor , m_pLineColor);
 		__loops.loop_frame = LoopFrameSpinBox->value();
 	}else
 	{
-		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
-		m_ponewayLoop = false;
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor , m_pLineColor);
+		m_pOnewayLoop = false;
 	}
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
@@ -484,17 +483,17 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
 	testpTimer();
-	m_pdetailframe = EndFrameSpinBox->value();
-	m_plineColor = "End";
-	if ( !m_ponewayEnd ){
+	m_pDetailFrame = EndFrameSpinBox->value();
+	m_pLineColor = "End";
+	if ( !m_pOnewayEnd ){
 		m_pMainSampleWaveDisplay->m_pEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor , m_pLineColor);
 		__loops.end_frame = EndFrameSpinBox->value();
 	}else
 	{
-		m_ponewayEnd = false;
-		m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor , m_plineColor);
+		m_pOnewayEnd = false;
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor , m_pLineColor);
 	}
 	testPositionsSpinBoxes();
 	m_pSampleEditorStatus = false;
@@ -509,16 +508,16 @@ void SampleEditor::on_PlayPushButton_clicked()
 		testpTimer();
 		return;
 	}
-	const int selectedlayer = InstrumentEditorPanel::get_instance()->getselectedLayer();
+
 	const float pan_L = 0.5f;
 	const float pan_R = 0.5f;
 	const int nLength = -1;
 	const float fPitch = 0.0f;
+	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	
 	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-	
-	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedlayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+	Note *pNote = new Note( pInstr, 0, pInstr->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
         pNote->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 
@@ -526,21 +525,21 @@ void SampleEditor::on_PlayPushButton_clicked()
 	createPositionsRulerPath();
 	m_pPlayButton = true;
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
-	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pzoomfactor , 0);
+	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pZoomfactor , 0);
 
 	if( __rubberband.use == false ){
 		m_pTimer->start(40);	// update ruler at 25 fps
 	}
 
 
-	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
+	m_pRealtimeFrameEnd = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 
 	//calculate the new rubberband sample length
 	if( __rubberband.use ){
-                m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pratio + 0.1);
+		m_prealtimeframeendfortarget = Hydrogen::get_instance()->getRealtimeFrames() + (m_pslframes * m_pRatio + 0.1);
 	}else
 	{
-		m_prealtimeframeendfortarget = m_prealtimeframeend;
+		m_prealtimeframeendfortarget = m_pRealtimeFrameEnd;
 	}
 	m_pTargetDisplayTimer->start(40);	// update ruler at 25 fps
 	PlayPushButton->setText( QString( "Stop") ); 
@@ -555,33 +554,45 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		testpTimer();
 		return;
 	}
-	Sample *pNewSample = Sample::load( m_samplename );
+
+	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+
+	/*
+	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
+	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
+	*/
+	Instrument *tmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
+	Sample *pNewSample = Sample::load( pInstr->get_layer( selectedlayer )->get_sample()->get_filepath() );
+
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
+		AudioEngine::get_instance()->get_sampler()->preview_instrument( tmpInstrument );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
+		m_pslframes = pNewSample->get_frames();
 	}
 
-	m_pslframes = pNewSample->get_frames();
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
-	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pzoomfactor , 0);
+	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pZoomfactor , 0);
 	m_pTimer->start(40);	// update ruler at 25 fps	
-	m_prealtimeframeend = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
+	m_pRealtimeFrameEnd = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 	PlayOrigPushButton->setText( QString( "Stop") ); 
 }
 
 
 
-void SampleEditor::updateMainsamplePostionRuler()
+void SampleEditor::updateMainsamplePositionRuler()
 {
 	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
-	if ( realpos < m_prealtimeframeend ){
-		unsigned frame = m_pslframes - ( m_prealtimeframeend  - realpos );
+	if ( realpos < m_pRealtimeFrameEnd ){
+		unsigned frame = m_pslframes - ( m_pRealtimeFrameEnd  - realpos );
 		if ( m_pPlayButton == true ){
 			m_pMainSampleWaveDisplay->paintLocatorEvent( m_pPositionsRulerPath[frame] / m_divider + 25 , true);
-			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pzoomfactor , 0);
+			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pZoomfactor , 0);
 		}else{
 			m_pMainSampleWaveDisplay->paintLocatorEvent( frame / m_divider + 25 , true);
-			m_pSampleAdjustView->setDetailSamplePosition( frame, m_pzoomfactor , 0);
+			m_pSampleAdjustView->setDetailSamplePosition( frame, m_pZoomfactor , 0);
 		}
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}else
@@ -595,19 +606,19 @@ void SampleEditor::updateMainsamplePostionRuler()
 }
 
 
-void SampleEditor::updateTargetsamplePostionRuler()
+void SampleEditor::updateTargetsamplePositionRuler()
 {
 	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
-	unsigned targetsamplelength;
+	unsigned targetSampleLength;
 	if( __rubberband.use ){
-                targetsamplelength =  m_pslframes * m_pratio + 0.1;
+		targetSampleLength =  m_pslframes * m_pRatio + 0.1;
 	}else
 	{
-		targetsamplelength =  m_pslframes;
+		targetSampleLength =  m_pslframes;
 	}
 	if ( realpos < m_prealtimeframeendfortarget ){
-		unsigned pos = targetsamplelength - ( m_prealtimeframeendfortarget - realpos );
-		m_pTargetSampleView->paintLocatorEventTargetDisplay( (m_pTargetSampleView->width() * pos /targetsamplelength), true);
+		unsigned pos = targetSampleLength - ( m_prealtimeframeendfortarget - realpos );
+		m_pTargetSampleView->paintLocatorEventTargetDisplay( (m_pTargetSampleView->width() * pos /targetSampleLength), true);
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}else
 	{
@@ -625,79 +636,79 @@ void SampleEditor::createPositionsRulerPath()
 {
 	setSamplelengthFrames();
 
-	unsigned onesamplelength =  __loops.end_frame - __loops.start_frame;
-	unsigned looplength =  __loops.end_frame - __loops.loop_frame;
-	unsigned repeatslength = looplength * __loops.count;
-	unsigned newlength = 0;
-	if (onesamplelength == looplength){	
-		newlength = onesamplelength + onesamplelength * __loops.count ;
+	unsigned oneSampleLength =  __loops.end_frame - __loops.start_frame;
+	unsigned loopLength =  __loops.end_frame - __loops.loop_frame;
+	unsigned repeatsLength = loopLength * __loops.count;
+	unsigned newLength = 0;
+	if (oneSampleLength == loopLength){
+		newLength = oneSampleLength + oneSampleLength * __loops.count ;
 	}else
 	{
-		newlength =onesamplelength + repeatslength;
+		newLength =oneSampleLength + repeatsLength;
 	}
 
-	unsigned  normallength = m_pSamplefromFile->get_frames();
+	unsigned  normalLength = m_pSampleFromFile->get_frames();
 
-	unsigned *normalframes = new unsigned[ normallength ];
+	unsigned *normalFrames = new unsigned[ normalLength ];
 
 
-	for ( unsigned i = 0; i < normallength; i++ ) {
-		normalframes[i] = i;
+	for ( unsigned i = 0; i < normalLength; i++ ) {
+		normalFrames[i] = i;
 	}
 
-	unsigned *tempframes = new unsigned[ newlength ];
-	unsigned *loopframes = new unsigned[ looplength ];
+	unsigned *tempFrames = new unsigned[ newLength ];
+	unsigned *loopFrames = new unsigned[ loopLength ];
 
     Sample::Loops::LoopMode loopmode = __loops.mode;
 	long int z = __loops.loop_frame;
 	long int y = __loops.start_frame;
 
-	for ( unsigned i = 0; i < newlength; i++){ //first vector
-		tempframes[i] = 0;
+	for ( unsigned i = 0; i < newLength; i++){ //first vector
+		tempFrames[i] = 0;
 	}
 
-	for ( unsigned i = 0; i < onesamplelength; i++, y++){ //first vector
+	for ( unsigned i = 0; i < oneSampleLength; i++, y++){ //first vector
 
-		tempframes[i] = normalframes[y];
+		tempFrames[i] = normalFrames[y];
 	}
 
-	for ( unsigned i = 0; i < looplength; i++, z++){ //loop vector
+	for ( unsigned i = 0; i < loopLength; i++, z++){ //loop vector
 
-		loopframes[i] = normalframes[z];
+		loopFrames[i] = normalFrames[z];
 	}
 	
 	if ( loopmode == Sample::Loops::REVERSE ){
-		reverse(loopframes, loopframes + looplength);
+		reverse(loopFrames, loopFrames + loopLength);
 	}
 
 	if ( loopmode == Sample::Loops::REVERSE && __loops.count > 0 && __loops.start_frame == __loops.loop_frame ){
-		reverse( tempframes, tempframes + onesamplelength );
+		reverse( tempFrames, tempFrames + oneSampleLength );
 		}
 
 	if ( loopmode == Sample::Loops::PINGPONG &&  __loops.start_frame == __loops.loop_frame){
-		reverse(loopframes, loopframes + looplength);
+		reverse(loopFrames, loopFrames + loopLength);
 	}
 	
 	for ( int i = 0; i< __loops.count ;i++){
-		unsigned tempdataend = onesamplelength + ( looplength * i );
+		unsigned tempdataend = oneSampleLength + ( loopLength * i );
 		if ( __loops.start_frame == __loops.loop_frame ){
-			copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
+			copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
 		}
 		if ( loopmode == Sample::Loops::PINGPONG && __loops.count > 1){
-			reverse(loopframes, loopframes + looplength);
+			reverse(loopFrames, loopFrames + loopLength);
 		}
 		if ( __loops.start_frame != __loops.loop_frame ){
-			copy( loopframes, loopframes+looplength ,tempframes+ tempdataend );
+			copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
 		}
 
 	}
 
 	
 	if ( __loops.count == 0 && loopmode == Sample::Loops::REVERSE ){
-		reverse( tempframes + __loops.loop_frame, tempframes + newlength);
+		reverse( tempFrames + __loops.loop_frame, tempFrames + newLength);
 	}
 
-	m_pPositionsRulerPath = tempframes;
+	m_pPositionsRulerPath = tempFrames;
 }
 
 
@@ -705,18 +716,20 @@ void SampleEditor::createPositionsRulerPath()
 void SampleEditor::setSamplelengthFrames()
 {
 	getAllLocalFrameInfos();
-	unsigned onesamplelength =  __loops.end_frame - __loops.start_frame;
-	unsigned looplength =  __loops.end_frame - __loops.loop_frame ;
-	unsigned repeatslength = looplength * __loops.count;
-	unsigned newlength = 0;
-	if (onesamplelength == looplength){	
-		newlength = onesamplelength + onesamplelength * __loops.count ;
+	unsigned oneSampleLength =  __loops.end_frame - __loops.start_frame;
+	unsigned loopLength =  __loops.end_frame - __loops.loop_frame ;
+	unsigned repeatsLength = loopLength * __loops.count;
+	unsigned newLength = 0;
+
+	if (oneSampleLength == loopLength){
+		newLength = oneSampleLength + oneSampleLength * __loops.count ;
 	}else
 	{
-		newlength =onesamplelength + repeatslength;
+		newLength =oneSampleLength + repeatsLength;
 	}
-	m_pslframes = newlength;
-	newlengthLabel->setText(QString("new sample length: %1 frames").arg(newlength));
+
+	m_pslframes = newLength;
+	newlengthLabel->setText(QString("new sample length: %1 frames").arg(newLength));
 	checkRatioSettings();
 }
 
@@ -810,7 +823,7 @@ void SampleEditor::checkRatioSettings()
         //calculate ration
         double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
         double induration = (double) m_pslframes / (double) m_pSamplerate;
-        if (induration != 0.0) m_pratio = durationtime / induration;
+		if (induration != 0.0) m_pRatio = durationtime / induration;
 
         //my personal ratio quality settings
         //ratios < 0.1 || > 3.0 are bad (red) or experimental sounds
@@ -819,19 +832,19 @@ void SampleEditor::checkRatioSettings()
 
         bool is_green = false;
         //green ratio
-        if( (m_pratio >= 0.5) && (m_pratio <= 2.0) ){
+		if( (m_pRatio >= 0.5) && (m_pRatio <= 2.0) ){
             rubberComboBox->setStyleSheet("QComboBox { background-color: green; }");
             is_green = true;
         }
         //yellow ratio
-        if( ( (m_pratio > 0.1) || ( m_pratio <=  3.0 ) )&& (!is_green)){
+		if( ( (m_pRatio > 0.1) || ( m_pRatio <=  3.0 ) )&& (!is_green)){
             rubberComboBox->setStyleSheet("QComboBox { background-color: yellow; }");
         }
         //red ratio
-        if( ( m_pratio <= 0.1 ) || ( m_pratio > 3.0 ) && (!is_green) ){
+		if( ( m_pRatio <= 0.1 ) || ( m_pRatio > 3.0 ) && (!is_green) ){
             rubberComboBox->setStyleSheet("QComboBox { background-color: red; }");
         }
-        QString text = QString( " RB-Ratio = %1").arg(m_pratio);
+		QString text = QString( " RB-Ratio = %1").arg(m_pRatio);
         ratiolabel->setText( text );
 
         //no rubberband = default
@@ -864,8 +877,8 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
-	m_pzoomfactor = value / 10 +1;
-	m_pSampleAdjustView->setDetailSamplePosition( m_pdetailframe, m_pzoomfactor, m_plineColor );
+	m_pZoomfactor = value / 10 +1;
+	m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_pZoomfactor, m_pLineColor );
 }
 
 

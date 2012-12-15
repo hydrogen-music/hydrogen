@@ -78,6 +78,7 @@ public slots:
 		void action_file_songProperties();
 
 		void action_help_about();
+		void action_report_bug();
 
 		void action_instruments_addInstrument();
 		void action_instruments_clearAll();

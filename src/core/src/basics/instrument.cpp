@@ -172,7 +172,9 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_random_pitch_factor( instrument->get_random_pitch_factor() );
 	this->set_muted( instrument->is_muted() );
 	this->set_mute_group( instrument->get_mute_group() );
-    this->set_output( instrument->is_output() );
+	this->set_output( instrument->is_output() );
+	this->set_midi_out_channel( instrument->get_midi_out_channel() );
+	this->set_midi_out_note( instrument->get_midi_out_note() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
@@ -212,7 +214,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
 	instrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	instrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
-    instrument->set_output( node->read_int( "output", 0, true, false ) );
+	instrument->set_output( node->read_int( "output", 0, true, false ) );
 	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	instrument->set_midi_out_note( node->read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
 	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
@@ -268,7 +270,7 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_float( "Sustain", __adsr->get_sustain() );
 	instrument_node.write_float( "Release", __adsr->get_release() );
 	instrument_node.write_int( "muteGroup", __mute_group );
-    instrument_node.write_int( "output", __output );
+	instrument_node.write_int( "output", __output );
 	instrument_node.write_int( "midiOutChannel", __midi_out_channel );
 	instrument_node.write_int( "midiOutNote", __midi_out_note );
 	instrument_node.write_bool( "isStopNote", __stop_notes );

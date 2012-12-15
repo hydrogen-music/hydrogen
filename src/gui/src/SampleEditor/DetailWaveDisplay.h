@@ -51,9 +51,9 @@ class DetailWaveDisplay : public QWidget, public H2Core::Object
 		int *m_pPeakDatal;
 		int *m_pPeakDatar;
 		int m_pDetailSamplePosition; 
-		int m_pnormalimagedetailframes;
-		float m_pzoomFactor;
-		QString m_ptype;
+		int m_pNormalImageDetailFrames;
+		float m_pZoomFactor;
+		QString m_pType;
 };
 
 

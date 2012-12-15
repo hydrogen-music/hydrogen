@@ -39,7 +39,7 @@ Playlist* Playlist::__instance = NULL;
 const char* Playlist::__class_name = "Playlist";
 
 Playlist::Playlist()
-		: Object( __class_name )
+	: Object( __class_name )
 {
 	if ( __instance ) {class HydrogenApp;
 
@@ -76,15 +76,15 @@ void Playlist::setNextSongByNumber(int songNumber)
 {
 
 
-		if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
-				return;
+	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
+		return;
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-		EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
 
-		execScript( songNumber );
+	execScript( songNumber );
 }
 
 
@@ -102,7 +102,7 @@ int Playlist::getSelectedSongNr()
 
 void Playlist::setActiveSongNumber( int ActiveSongNumber)
 {
-	 activeSongNumber = ActiveSongNumber ;
+	activeSongNumber = ActiveSongNumber ;
 }
 
 

@@ -509,7 +509,7 @@ void Mixer::updateMixer()
 		}
 	}
 
-	if (nMuteClicked == nInstruments - 1 ) {
+	if (nMuteClicked == nInstruments - 1) {
 		// find the not muted button
 		for (uint i = 0; i < nInstruments; i++) {
 			Instrument *instr = pInstrList->get(i);

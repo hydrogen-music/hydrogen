@@ -233,12 +233,11 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 #endif
 		if (buffer == NULL)
 			break;
-
-				memcpy(buffer, jack_buffer + (4 * rx_in_pos) + 1, len);
 		t++;
 		rx_in_pos++;
 		if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
 			rx_in_pos = 0;
+		memcpy(buffer, jack_buffer + (4 * rx_in_pos) + 1, len);
 	}
 	unlock();
 }
@@ -393,6 +392,13 @@ void JackMidiDriver::handleQueueNote(Note* pNote)
 	vel = pNote->get_midi_velocity();
 	if (vel < 0 || vel > 127)
 		return;
+
+	buffer[0] = 0x80 | channel;	/* note off */
+	buffer[1] = key;
+	buffer[2] = 0;
+	buffer[3] = 0;
+
+	JackMidiOutEvent(buffer, 3);
 
 	buffer[0] = 0x90 | channel;	/* note on */
 	buffer[1] = key;

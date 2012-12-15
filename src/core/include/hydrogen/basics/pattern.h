@@ -61,7 +61,7 @@ class Pattern : public H2Core::Object
 		 * \param category the name of the pattern
 		 * \param length the length of the pattern
 		 */
-		Pattern( const QString& name="Pattern", const QString& category="not_categorized", int length=MAX_NOTES );
+		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized", int length=MAX_NOTES );
 		/** copy constructor */
 		Pattern( Pattern* other );
 		/** destructor */
@@ -87,6 +87,10 @@ class Pattern : public H2Core::Object
 		const QString& get_name() const;
 		///< set the category of the pattern
 		void set_category( const QString& category );
+		///< set the info of the pattern
+		void set_info( const QString& info );
+		///< get the info of the pattern
+		const QString& get_info() const;
 		///< get the category of the pattern
 		const QString& get_category() const;
 		///< set the length of the pattern
@@ -182,6 +186,7 @@ class Pattern : public H2Core::Object
 		int __length;                                           ///< the length of the pattern
 		QString __name;                                         ///< the name of thepattern
 		QString __category;                                     ///< the category of the pattern
+		QString __info;											///< a description of the pattern
 		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
 		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
 		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
@@ -222,6 +227,16 @@ inline void Pattern::set_name( const QString& name )
 inline const QString& Pattern::get_name() const
 {
 	return __name;
+}
+
+inline void Pattern::set_info( const QString& info )
+{
+	__info = info;
+}
+
+inline const QString& Pattern::get_info() const
+{
+	return __info;
 }
 
 inline void Pattern::set_category( const QString& category )

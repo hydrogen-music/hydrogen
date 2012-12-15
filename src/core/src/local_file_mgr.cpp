@@ -82,41 +82,6 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 }
 
 
-QString LocalFileMng::getCategoryFromPatternName( const QString& patternPathName )
-{
-	QDomDocument doc = LocalFileMng::openXmlDocument( patternPathName );
-
-
-	QDomNode rootNode = doc.firstChildElement( "drumkit_pattern" );	// root element
-	if ( rootNode.isNull() ) {
-		ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found ");
-		return NULL;
-	}
-
-	QDomNode patternNode = rootNode.firstChildElement( "pattern" );
-
-	return LocalFileMng::readXmlString( patternNode,"category", "" );
-
-}
-
-QString LocalFileMng::getPatternNameFromPatternDir( const QString& patternDirName)
-{
-	QDomDocument doc = LocalFileMng::openXmlDocument( patternDirName );
-
-
-	QDomNode rootNode =doc.firstChildElement( "drumkit_pattern" );	// root element
-	if ( rootNode.isNull() ) {
-		ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found ");
-		return NULL;
-	}
-
-	QDomNode patternNode = rootNode.firstChildElement( "pattern" );
-
-	return LocalFileMng::readXmlString( patternNode,"pattern_name", "" );
-
-}
-
-
 Pattern* LocalFileMng::loadPattern( const QString& directory )
 {
 
@@ -144,11 +109,13 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 	QDomNode patternNode = rootNode.firstChildElement( "pattern" );
 
 	QString sName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+	QString sInfo( LocalFileMng::readXmlString( patternNode,"info", "" ) );
 	QString sCategory( LocalFileMng::readXmlString( patternNode,"category", "" ) );
+
 
 	int nSize = -1;
 	nSize = LocalFileMng::readXmlInt( patternNode, "size",nSize ,false,false );
-	pPattern = new Pattern( sName, sCategory, nSize );
+	pPattern = new Pattern( sName, sInfo, sCategory, nSize );
 
 
 
@@ -264,7 +231,7 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 	else
 		category = pat->get_category();
 
-
+	writeXmlString( patternNode, "info", pat->get_info() );
 	writeXmlString( patternNode, "category", category  );
 	writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
 

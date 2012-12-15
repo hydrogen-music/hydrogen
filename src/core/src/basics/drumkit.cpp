@@ -104,7 +104,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__path = dk_path;
 	drumkit->__name = drumkit_name;
 	drumkit->__author = node->read_string( "author", "undefined author" );
-	drumkit->__info = node->read_string( "info", "defaultInfo" );
+	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
 	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
@@ -159,9 +159,9 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	if( !Filesystem::mkdir( dk_dir ) ) {
 		return false;
 	}
-	bool ret = save_file( Filesystem::drumkit_file( dk_dir ), overwrite );
+	bool ret = save_samples( dk_dir, overwrite );
 	if ( ret ) {
-		ret = save_samples( dk_dir, overwrite );
+		ret = save_file( Filesystem::drumkit_file( dk_dir ), overwrite );
 	}
 	return ret;
 }
@@ -204,6 +204,21 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 			if( layer ) {
 				QString src =  layer->get_sample()->get_filepath();
 				QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
+
+				//if a file with the filename already exists, try to rename it to filename_1 etc.
+				int tries = 1;
+				while( Filesystem::file_exists( dst )){
+					QString new_name = dst;
+
+					int insertPosition = new_name.length();
+					if( new_name.lastIndexOf(".") > 0 ) insertPosition = new_name.lastIndexOf(".");
+					new_name.insert( insertPosition, QString("_%1").arg(tries) );
+					tries++;
+					dst = new_name;
+				}
+
+				if( dst != layer->get_sample()->get_filename() ) layer->get_sample()->set_filename( dst );
+
 				if( !Filesystem::file_copy( src, dst ) ) {
 					return false;
 				}

@@ -27,20 +27,7 @@
 #include "ui_SoundLibraryImportDialog_UI.h"
 #include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
-
-#include <vector>
-
-
-struct SoundLibraryInfo
-{
-	QString m_sName;
-	QString m_sURL;
-	QString m_sInfo;
-	QString m_sAuthor;
-	QString m_sType;
-	QString m_sLicense;
-};
-
+#include "SoundLibraryDatastructures.h"
 
 ///
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.

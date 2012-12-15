@@ -139,7 +139,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		Button *m_pLoadLayerBtn;
 		Button *m_pRemoveLayerBtn;
-		Button *m_pSamleEditorBtn;
+		Button *m_pSampleEditorBtn;
 		QCheckBox *m_pIsStopNoteCheckBox;
 		//~ Layer properties
 

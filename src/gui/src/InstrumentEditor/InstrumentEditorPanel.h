@@ -41,8 +41,8 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object
 		void updateInstrumentEditor();
 		void selectLayer( int nLayer );
 		
-		int getselectedLayer() {
-			return m_player;
+		int getSelectedLayer() {
+			return m_pLayer;
 		}
 
 	private:
@@ -50,7 +50,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object
 		InstrumentEditor* m_pInstrumentEditor;
 
 		InstrumentEditorPanel( QWidget *pParent );
-		int m_player;
+		int m_pLayer;
 		
 };
 
