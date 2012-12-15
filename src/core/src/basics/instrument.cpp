@@ -175,6 +175,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_output( instrument->is_output() );
 	this->set_midi_out_channel( instrument->get_midi_out_channel() );
 	this->set_midi_out_note( instrument->get_midi_out_note() );
+
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
