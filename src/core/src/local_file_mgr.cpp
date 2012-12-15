@@ -82,41 +82,6 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 }
 
 
-QString LocalFileMng::getCategoryFromPatternName( const QString& patternPathName )
-{
-	QDomDocument doc = LocalFileMng::openXmlDocument( patternPathName );
-
-
-	QDomNode rootNode = doc.firstChildElement( "drumkit_pattern" );	// root element
-	if ( rootNode.isNull() ) {
-		ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found ");
-		return NULL;
-	}
-
-	QDomNode patternNode = rootNode.firstChildElement( "pattern" );
-
-	return LocalFileMng::readXmlString( patternNode,"category", "" );
-
-}
-
-QString LocalFileMng::getPatternNameFromPatternDir( const QString& patternDirName)
-{
-	QDomDocument doc = LocalFileMng::openXmlDocument( patternDirName );
-
-
-	QDomNode rootNode =doc.firstChildElement( "drumkit_pattern" );	// root element
-	if ( rootNode.isNull() ) {
-		ERRORLOG( "Error reading Pattern: Pattern_drumkit_info node not found ");
-		return NULL;
-	}
-
-	QDomNode patternNode = rootNode.firstChildElement( "pattern" );
-
-	return LocalFileMng::readXmlString( patternNode,"pattern_name", "" );
-
-}
-
-
 Pattern* LocalFileMng::loadPattern( const QString& directory )
 {
 
