@@ -253,13 +253,7 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	}
 
 	if ( sInfo.getType() == "pattern" ) {
-		H2Core::LocalFileMng mng;
-		std::vector<QString> patternList = mng.getAllPatternNames();
-		for ( uint i = 0; i < patternList.size(); ++i ) {
-			if ( patternList[ i ] == sName ) {
-				return true;
-			}
-		}
+		return SoundLibraryDatabase::get_instance()->isPatternInstalled( sInfo.getName() );
 	}
 
 	if ( sInfo.getType() == "song" ) {
@@ -380,6 +374,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			}
 
 			// update the drumkit list
+			SoundLibraryDatabase::get_instance()->update();
 			HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 			HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 			updateSoundLibraryList();
