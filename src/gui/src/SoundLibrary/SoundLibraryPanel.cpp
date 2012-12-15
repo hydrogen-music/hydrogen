@@ -728,40 +728,20 @@ void SoundLibraryPanel::on_patternLoadAction()
 
 void SoundLibraryPanel::on_patternDeleteAction()
 {
-	LocalFileMng mng;
-
-	QString patternName = __sound_library_tree->currentItem()->text( 0 ) + ".h2pattern";
-	QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
-	
-	QString sDirectory = "";
-
-	std::vector<QString> patternDirList = mng.getPatternDirList();
-
-	for (uint i = 0; i < patternDirList.size(); ++i) {
-		QString absPath =  patternDirList[i];
-		mng.getPatternList( absPath );
-	}
-
-	std::vector<QString> allPatternDirList = mng.getallPatternList();
-
-	for (uint i = 0; i < allPatternDirList.size(); ++i) {
-		QString testName = allPatternDirList[i];
-		if( testName.contains( patternName ) && testName.contains( drumkitname )){
-			sDirectory = allPatternDirList[i];		
-		} 
-	}
+	QString patternPath = __sound_library_tree->currentItem()->text( 1 );
 
 	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 	if ( res == 1 ) {
 		return;
 	}
 
-	QFile rmfile(sDirectory );
+	QFile rmfile( patternPath );
 	bool err = rmfile.remove();
 	if ( err == false ) {
 		ERRORLOG( "Error removing the pattern" );
 	}
 
+	SoundLibraryDatabase::get_instance()->updatePatterns();
 	test_expandedItems();
 	updateDrumkitList();
 }
