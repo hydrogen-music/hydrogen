@@ -545,23 +545,23 @@ void SoundLibraryPanel::change_background_color()
 
 void SoundLibraryPanel::on_drumkitDeleteAction()
 {
-    QTreeWidgetItem* item = __sound_library_tree->currentItem();
-    QString itemName = QString("%1").arg(__sound_library_tree->currentItem()->text(0))
+	QTreeWidgetItem* item = __sound_library_tree->currentItem();
+	QString itemName = QString("%1").arg(__sound_library_tree->currentItem()->text(0));
 
 	//if we delete the current loaded drumkit we can get trouble with some empty pointers
-    // TODO this check is really unsafe
-    if ( item->text(0) == Hydrogen::get_instance()->getCurrentDrumkitname() ){
+	// TODO this check is really unsafe
+	if ( item->text(0) == Hydrogen::get_instance()->getCurrentDrumkitname() ){
 		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(itemName) );
 		return;
 	}
 
-    if ( item->parent() == __system_drumkits_item ) {
-    	QMessageBox::warning( this, "Hydrogen", tr( "\"%1\"is a system drumkit and can't be deleted.").arg(itemName) );
-    	return;
-   	}
-   	
-    int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(itemName), "&Ok", "&Cancel", 0, 1 );
-    if ( res == 1 ) {
+	if ( item->parent() == __system_drumkits_item ) {
+		QMessageBox::warning( this, "Hydrogen", tr( "\"%1\"is a system drumkit and can't be deleted.").arg(itemName) );
+		return;
+	}
+
+	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(itemName), "&Ok", "&Cancel", 0, 1 );
+	if ( res == 1 ) {
 		return;
 	}
 
@@ -570,7 +570,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	test_expandedItems();
 	updateDrumkitList();
 	QApplication::restoreOverrideCursor();
-    if ( !success) QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
+	if ( !success) QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
 }
 
 
