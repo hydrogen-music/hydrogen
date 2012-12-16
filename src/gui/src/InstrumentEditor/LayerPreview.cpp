@@ -286,11 +286,28 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
 						pLayer->set_start_velocity(fVel);
+
+						/*
+						 * issue #78 : layer info display
+						 *
+						 * in here we are setting a layer's min velocity
+						 * we display it as it is set
+						 */
+						qDebug("Layer #%02d -- min : %f", m_nSelectedLayer, pLayer->get_start_velocity());
+
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
+
+						/*
+						 * issue #78 : layer info display
+						 *
+						 * in here we are setting a layer's max velocity
+						 * we display it as it is set
+						 */
+						qDebug("Layer #%02d -- max : %f", m_nSelectedLayer, pLayer->get_end_velocity());
 					}
 				}
 				update();
@@ -313,6 +330,15 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 				}
 				else {
 					setCursor( QCursor( Qt::ArrowCursor ) );
+
+					/*
+					 * issue #78 : layer info display
+					 *
+					 * in here, mouse pointer is hovering a valid layer
+					 * we display its min & max velocities
+					 *
+					 */
+					qDebug("Layer #%02d -- min : %f, max : %f", m_nSelectedLayer, pLayer->get_start_velocity(), pLayer->get_end_velocity());
 				}
 			}
 			else {
