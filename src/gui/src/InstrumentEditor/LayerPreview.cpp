@@ -62,6 +62,14 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	/**
+	 * Issue #78 : layer info display
+	 *
+	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
+	 */
+	this->setStyleSheet("font-size: 9px; font-weight: bold;");
+
 }
 
 
@@ -243,11 +251,27 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				m_bGrabLeft = true;
 				m_bMouseGrab = true;
+
+				/*
+				 * issue #78 : layer info display
+				 *
+				 * in here we are setting a layer's min velocity
+				 * we display it as it is set
+				 */
+				showLayerStartVelocity(pLayer, ev);
 			}
 			else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				m_bGrabLeft = false;
 				m_bMouseGrab = true;
+
+				/*
+				 * issue #78 : layer info display
+				 *
+				 * in here we are setting a layer's max velocity
+				 * we display it as it is set
+				 */
+				showLayerEndVelocity(pLayer, ev);
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
@@ -293,8 +317,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 						 * in here we are setting a layer's min velocity
 						 * we display it as it is set
 						 */
-						qDebug("Layer #%02d -- min : %f", m_nSelectedLayer, pLayer->get_start_velocity());
-
+						showLayerStartVelocity(pLayer, ev);
 					}
 				}
 				else {
@@ -307,7 +330,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 						 * in here we are setting a layer's max velocity
 						 * we display it as it is set
 						 */
-						qDebug("Layer #%02d -- max : %f", m_nSelectedLayer, pLayer->get_end_velocity());
+						showLayerEndVelocity(pLayer, ev);
 					}
 				}
 				update();
@@ -338,11 +361,24 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 					 * we display its min & max velocities
 					 *
 					 */
-					qDebug("Layer #%02d -- min : %f, max : %f", m_nSelectedLayer, pLayer->get_start_velocity(), pLayer->get_end_velocity());
+					QToolTip::showText( ev->globalPos(),
+					        trUtf8( "Layer %1: Min. velocity = %2, Max. velocity = %3" )
+					            .arg( m_nSelectedLayer +1 )
+					            .arg( getMidiVelocityFromRaw( pLayer->get_start_velocity() ) +1 )
+					            .arg( getMidiVelocityFromRaw( pLayer->get_end_velocity() ) ),
+					        this);
 				}
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
+
+				/*
+				 * issue #78 : layer info display
+				 *
+				 * We are not hovering any valid layer, we hide any previously
+				 * displayed info
+				 */
+				QToolTip::hideText();
 			}
 		}
 	}
@@ -353,4 +389,25 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 void LayerPreview::updateAll()
 {
 	update();
+}
+
+int LayerPreview::getMidiVelocityFromRaw( const float raw )
+{
+    return static_cast<int> (raw * 127);
+}
+
+void LayerPreview::showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
+{
+    QToolTip::showText( pEvent->globalPos(),
+            trUtf8( "Velocity = %1" )
+                .arg( getMidiVelocityFromRaw( pLayer->get_start_velocity() ) +1 ),
+            this);
+}
+
+void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
+{
+    QToolTip::showText( pEvent->globalPos(),
+            trUtf8( "Velocity = %1" )
+                .arg( getMidiVelocityFromRaw( pLayer->get_end_velocity() ) ),
+            this);
 }
