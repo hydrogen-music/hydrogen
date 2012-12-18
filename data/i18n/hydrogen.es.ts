@@ -1328,6 +1328,17 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>LayerPreview</name>
+    <message>
+        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainForm</name>
     <message>
         <source>&amp;Save</source>
@@ -3453,12 +3464,6 @@ Overwrite the existing pattern?</source>
         <translation>Drumkits de usuario</translation>
     </message>
     <message>
-        <source>Warning, the selected drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>Advertencia, el drumkit seleccionado será eliminado del disco.
-¿Desea continuar?</translation>
-    </message>
-    <message>
         <source>&amp;Ok</source>
         <translation>&amp;Aceptar</translation>
     </message>
@@ -3487,6 +3492,25 @@ Are you sure?</source>
 Are you sure?</source>
         <translation>Atención, el patrón seleccionado se borrará del disco.
 ¿Está segur@?</translation>
+    </message>
+    <message>
+        <source>It is not possible to delete the currently loaded drumkit: 
+  &quot;%1&quot;.
+To delete this drumkit first load another drumkit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
