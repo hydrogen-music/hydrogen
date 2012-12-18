@@ -64,8 +64,6 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	/**
-	 * Issue #78 : layer info display
-	 *
 	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
 	 */
 	this->setStyleSheet("font-size: 9px; font-weight: bold;");
@@ -193,9 +191,28 @@ void LayerPreview::selectedInstrumentChangedEvent()
 
 void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 {
-	UNUSED( ev );
 	m_bMouseGrab = false;
 	setCursor( QCursor( Qt::ArrowCursor ) );
+
+	/*
+	 * We want the tooltip to still show if mouse pointer
+	 * is over an active layer's boundary
+	 */
+	InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
+
+	if ( pLayer ) {
+		int x1 = (int)( pLayer->get_start_velocity() * width() );
+		int x2 = (int)( pLayer->get_end_velocity() * width() );
+
+		if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+			setCursor( QCursor( Qt::SizeHorCursor ) );
+			showLayerStartVelocity(pLayer, ev);
+		}
+		else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
+			setCursor( QCursor( Qt::SizeHorCursor ) );
+			showLayerEndVelocity(pLayer, ev);
+		}
+	}
 }
 
 
@@ -251,26 +268,12 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				m_bGrabLeft = true;
 				m_bMouseGrab = true;
-
-				/*
-				 * issue #78 : layer info display
-				 *
-				 * in here we are setting a layer's min velocity
-				 * we display it as it is set
-				 */
 				showLayerStartVelocity(pLayer, ev);
 			}
 			else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				m_bGrabLeft = false;
 				m_bMouseGrab = true;
-
-				/*
-				 * issue #78 : layer info display
-				 *
-				 * in here we are setting a layer's max velocity
-				 * we display it as it is set
-				 */
 				showLayerEndVelocity(pLayer, ev);
 			}
 			else {
@@ -310,26 +313,12 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
 						pLayer->set_start_velocity(fVel);
-
-						/*
-						 * issue #78 : layer info display
-						 *
-						 * in here we are setting a layer's min velocity
-						 * we display it as it is set
-						 */
 						showLayerStartVelocity(pLayer, ev);
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
-
-						/*
-						 * issue #78 : layer info display
-						 *
-						 * in here we are setting a layer's max velocity
-						 * we display it as it is set
-						 */
 						showLayerEndVelocity(pLayer, ev);
 					}
 				}
@@ -347,37 +336,19 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 
 				if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
+					showLayerStartVelocity(pLayer, ev);
 				}
 				else if ( ( x < x2 + 5 ) && ( x > x2 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
+					showLayerEndVelocity(pLayer, ev);
 				}
 				else {
 					setCursor( QCursor( Qt::ArrowCursor ) );
-
-					/*
-					 * issue #78 : layer info display
-					 *
-					 * in here, mouse pointer is hovering a valid layer
-					 * we display its min & max velocities
-					 *
-					 */
-					QToolTip::showText( ev->globalPos(),
-					        trUtf8( "Layer %1: Min. velocity = %2, Max. velocity = %3" )
-					            .arg( m_nSelectedLayer +1 )
-					            .arg( getMidiVelocityFromRaw( pLayer->get_start_velocity() ) +1 )
-					            .arg( getMidiVelocityFromRaw( pLayer->get_end_velocity() ) ),
-					        this);
+					QToolTip::hideText();
 				}
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
-
-				/*
-				 * issue #78 : layer info display
-				 *
-				 * We are not hovering any valid layer, we hide any previously
-				 * displayed info
-				 */
 				QToolTip::hideText();
 			}
 		}
@@ -398,16 +369,22 @@ int LayerPreview::getMidiVelocityFromRaw( const float raw )
 
 void LayerPreview::showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
 {
-    QToolTip::showText( pEvent->globalPos(),
-            trUtf8( "Velocity = %1" )
-                .arg( getMidiVelocityFromRaw( pLayer->get_start_velocity() ) +1 ),
-            this);
+	const float fVelo = pLayer->get_start_velocity();
+
+	QToolTip::showText( pEvent->globalPos(),
+			trUtf8( "Dec. = %1\nMIDI = %2" )
+				.arg( QString::number( fVelo, 'f', 2) )
+				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
+			this);
 }
 
 void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
 {
-    QToolTip::showText( pEvent->globalPos(),
-            trUtf8( "Velocity = %1" )
-                .arg( getMidiVelocityFromRaw( pLayer->get_end_velocity() ) ),
-            this);
+	const float fVelo = pLayer->get_end_velocity();
+
+	QToolTip::showText( pEvent->globalPos(),
+			trUtf8( "Dec. = %1\nMIDI = %2" )
+				.arg( QString::number( fVelo, 'f', 2) )
+				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
+			this);
 }
