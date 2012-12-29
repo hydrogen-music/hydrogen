@@ -1352,12 +1352,10 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LayerPreview</name>
     <message>
-        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
-        <translation>Couche %1: Vélocité min. = %2, vélocité max. = %3</translation>
-    </message>
-    <message>
-        <source>Velocity = %1</source>
-        <translation>Vélocité = %1</translation>
+        <source>Dec. = %1
+MIDI = %2</source>
+        <translation>Déc. = %1
+MIDI = %2</translation>
     </message>
 </context>
 <context>
