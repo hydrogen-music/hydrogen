@@ -1327,6 +1327,17 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>LayerPreview</name>
+    <message>
+        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainForm</name>
     <message>
         <source>&amp;Save</source>
@@ -3448,11 +3459,6 @@ Overwrite the existing pattern?</source>
         <translation>Benutzer Drumkits</translation>
     </message>
     <message>
-        <source>Warning, the selected drumkit will be deleted from disk.
-Are you sure?</source>
-        <translation>Achtung, das ausgewählte Drumkit wird von der Festplatte gelöscht. Sind sie sich sicher ?</translation>
-    </message>
-    <message>
         <source>&amp;Ok</source>
         <translation>&amp;OK</translation>
     </message>
@@ -3480,6 +3486,25 @@ Are you sure?</source>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Achtung! Das ausgewählte Pattern wird von der Festplatte gelöscht werden. Sind sie sicher? </translation>
+    </message>
+    <message>
+        <source>It is not possible to delete the currently loaded drumkit: 
+  &quot;%1&quot;.
+To delete this drumkit first load another drumkit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit deletion failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
