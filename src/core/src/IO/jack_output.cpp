@@ -808,8 +808,6 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 	}
 
 	ev->command_line = strdup(filename.constData());
-	qDebug() << "hallo" << retval;
-	qDebug() << "hey" << filename;
 
 	jack_session_reply(client, ev );
 
