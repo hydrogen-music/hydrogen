@@ -64,6 +64,12 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	/**
+	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
+	 */
+	this->setStyleSheet("font-size: 9px; font-weight: bold;");
+
 }
 
 
@@ -187,9 +193,28 @@ void LayerPreview::selectedInstrumentChangedEvent()
 
 void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 {
-	UNUSED( ev );
 	m_bMouseGrab = false;
 	setCursor( QCursor( Qt::ArrowCursor ) );
+
+	/*
+	 * We want the tooltip to still show if mouse pointer
+	 * is over an active layer's boundary
+	 */
+	InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
+
+	if ( pLayer ) {
+		int x1 = (int)( pLayer->get_start_velocity() * width() );
+		int x2 = (int)( pLayer->get_end_velocity() * width() );
+
+		if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+			setCursor( QCursor( Qt::SizeHorCursor ) );
+			showLayerStartVelocity(pLayer, ev);
+		}
+		else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
+			setCursor( QCursor( Qt::SizeHorCursor ) );
+			showLayerEndVelocity(pLayer, ev);
+		}
+	}
 }
 
 
@@ -247,11 +272,13 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				m_bGrabLeft = true;
 				m_bMouseGrab = true;
+				showLayerStartVelocity(pLayer, ev);
 			}
 			else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				m_bGrabLeft = false;
 				m_bMouseGrab = true;
+				showLayerEndVelocity(pLayer, ev);
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
@@ -290,11 +317,13 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
 						pLayer->set_start_velocity(fVel);
+						showLayerStartVelocity(pLayer, ev);
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
+						showLayerEndVelocity(pLayer, ev);
 					}
 				}
 				update();
@@ -311,16 +340,20 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 
 				if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
+					showLayerStartVelocity(pLayer, ev);
 				}
 				else if ( ( x < x2 + 5 ) && ( x > x2 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
+					showLayerEndVelocity(pLayer, ev);
 				}
 				else {
 					setCursor( QCursor( Qt::ArrowCursor ) );
+					QToolTip::hideText();
 				}
 			}
 			else {
 				setCursor( QCursor( Qt::ArrowCursor ) );
+				QToolTip::hideText();
 			}
 		}
 	}
@@ -331,4 +364,31 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 void LayerPreview::updateAll()
 {
 	update();
+}
+
+int LayerPreview::getMidiVelocityFromRaw( const float raw )
+{
+    return static_cast<int> (raw * 127);
+}
+
+void LayerPreview::showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
+{
+	const float fVelo = pLayer->get_start_velocity();
+
+	QToolTip::showText( pEvent->globalPos(),
+			trUtf8( "Dec. = %1\nMIDI = %2" )
+				.arg( QString::number( fVelo, 'f', 2) )
+				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
+			this);
+}
+
+void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
+{
+	const float fVelo = pLayer->get_end_velocity();
+
+	QToolTip::showText( pEvent->globalPos(),
+			trUtf8( "Dec. = %1\nMIDI = %2" )
+				.arg( QString::number( fVelo, 'f', 2) )
+				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
+			this);
 }

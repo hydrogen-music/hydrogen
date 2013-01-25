@@ -28,6 +28,13 @@
 #include <hydrogen/basics/instrument.h>
 #include "../EventListener.h"
 
+namespace H2Core
+{
+class InstrumentLayer;
+}
+
+using H2Core::InstrumentLayer;
+
 
 class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 {
@@ -52,6 +59,31 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		int m_nSelectedLayer;
 		bool m_bMouseGrab;
 		bool m_bGrabLeft;
+
+		/**
+		 * convert a raw velocity value (0.0 to 1.0)
+		 * into a MIDI velocity value   (0 to 127)
+		 *
+		 * @param raw   Raw velocity value
+		 * @return      MIDI velocity value
+		 */
+		int getMidiVelocityFromRaw( const float raw );
+
+		/**
+		 * display a layer's start velocity in a tooltip
+		 *
+		 * @param pLayer    The layer
+		 * @param pEvent    The event carrying mouse position
+		 */
+		void showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+
+		/**
+		 * display a layer's end velocity in a tooltip
+		 *
+		 * @param pLayer    The layer
+		 * @param pEvent    The event carrying mouse position
+		 */
+		void showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent();
 };
