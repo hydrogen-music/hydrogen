@@ -911,21 +911,24 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 {
 	Preferences *pPref = Preferences::get_instance();
 
+	if (pPref->m_sAudioDriver != "Jack") {
+		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
+		return;
+	}
+
 	if (m_pJackTransportBtn->isPressed()) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
 		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Jack-transport mode = On"), 5000);
+		m_pJackMasterBtn->setDisabled( false );
 	}
 	else {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
 		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Jack-transport mode = Off"), 5000);
-	}
-
-	if (pPref->m_sAudioDriver != "Jack") {
-		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
+		m_pJackMasterBtn->setDisabled( true );
 	}
 }
 
@@ -935,6 +938,11 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 {	
 #ifdef H2CORE_HAVE_JACK
 	Preferences *pPref = Preferences::get_instance();
+
+	if (pPref->m_sAudioDriver != "Jack") {
+		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
+		return;
+	}
 
 	if (m_pJackMasterBtn->isPressed()) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
@@ -951,10 +959,6 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = Off"), 5000);
 		//m_pControlsBBTPanel->hide();
 		Hydrogen::get_instance()->offJackMaster();
-	}
-
-	if (pPref->m_sAudioDriver != "Jack") {
-		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 	}
 #endif
 }
