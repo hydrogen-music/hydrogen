@@ -36,34 +36,34 @@ class Director : public QDialog, public Ui_Director_UI, public H2Core::Object, p
 
 {
 	Q_OBJECT
-	public:
-		
-		Director( QWidget* pParent );
-		~Director();
+public:
 
-		virtual void metronomeEvent( int nValue );	
-		virtual void paintEvent( QPaintEvent*);
+	Director( QWidget* pParent );
+	~Director();
 
-	private slots:
+	virtual void metronomeEvent( int nValue );
+	virtual void paintEvent( QPaintEvent*);
 
-		void updateMetronomBackground();
-		//void updateBackground();
+private slots:
+
+	void updateMetronomBackground();
+	//void updateBackground();
 
 
-	private:
-                QTimer *timer;
-                QColor __color;
-//		QPixmap *m_pBackground;
-                QPalette __blinkerPalette;
-		int p_counter;
-		int p_fadealpha;
-                float f_bpm;
-		int p_bar;
-		int p_wechselblink;
-                QString __TAG;
-                QString __TAG2;
-                QString __songName;
-                int p_tagbeat;
+private:
+	QTimer *timer;
+	QColor __color;
+	//		QPixmap *m_pBackground;
+	QPalette __blinkerPalette;
+	int p_counter;
+	int p_fadealpha;
+	float f_bpm;
+	int p_bar;
+	int p_wechselblink;
+	QString __TAG;
+	QString __TAG2;
+	QString __songName;
+	int p_tagbeat;
 
 };
 

@@ -38,9 +38,9 @@ class EventListener
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void rubberbandbpmchangeEvent() {}
 		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
-                virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
-                virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
-                virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
+		virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
+		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

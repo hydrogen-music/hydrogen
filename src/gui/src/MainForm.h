@@ -54,9 +54,9 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 		void updateRecentUsedSongList();
 
 		virtual void errorEvent( int nErrorCode );
-                virtual void jacksessionEvent( int nValue);
-                virtual void playlistLoadSongEvent(int nIndex);
-                virtual void undoRedoActionEvent( int nEvent );
+		virtual void jacksessionEvent( int nValue);
+		virtual void playlistLoadSongEvent(int nIndex);
+		virtual void undoRedoActionEvent( int nEvent );
 		static void usr1SignalHandler(int unused);
 
 
@@ -67,7 +67,7 @@ public slots:
 		void action_file_new();
 		void action_file_open();
 		void action_file_openDemo();
-                void action_file_save();
+		void action_file_save();
 		void action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as();
@@ -115,7 +115,7 @@ public slots:
 		void action_undo();
 		void action_redo();
 
-        void action_toggle_input_mode();
+		void action_toggle_input_mode();
 
 		void handleSigUsr1();
 
@@ -133,11 +133,11 @@ public slots:
 		static int sigusr1Fd[2];
 		QSocketNotifier *snUsr1;
 
-                void functionDeleteInstrument(int instrument);
+		void functionDeleteInstrument(int instrument);
 
-        QMenu *m_pInputModeMenu;
-        QAction *m_pInstrumentAction;
-        QAction *m_pDrumkitAction;
+		QMenu *m_pInputModeMenu;
+		QAction *m_pInstrumentAction;
+		QAction *m_pDrumkitAction;
 
 		QMenu *m_pRecentFilesMenu;
 		QAction *m_pRecentFileAction0;

@@ -36,9 +36,9 @@ namespace H2Core
 
 struct FillRange {
 
-        int fromVal;
-        int toVal;
-        bool bInsert;
+	int fromVal;
+	int toVal;
+	bool bInsert;
 };
 
 
