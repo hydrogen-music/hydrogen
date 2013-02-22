@@ -307,14 +307,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	if (driverComboBox->currentText() == "Auto" ) {
 		pPref->m_sAudioDriver = "Auto";
 	}
-	else if (driverComboBox->currentText() == "JACK" ) {
+	else if (driverComboBox->currentText() == "Jack" ) {
 		pPref->m_sAudioDriver = "Jack";
 	}
-	else if (driverComboBox->currentText() == "ALSA" ) {
+	else if (driverComboBox->currentText() == "Alsa" ) {
 		pPref->m_sAudioDriver = "Alsa";
 		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
 	}
-	else if (driverComboBox->currentText() == "OSS" ) {
+	else if (driverComboBox->currentText() == "Oss" ) {
 		pPref->m_sAudioDriver = "Oss";
 		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
 	}
@@ -325,7 +325,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_sAudioDriver = "CoreAudio";
 	}
 	else {
-		ERRORLOG( "[okBtnClicked] Invalid audio driver" );
+		ERRORLOG( "[okBtnClicked] Invalid audio driver:" + driverComboBox->currentText() );
 	}
 
 	// JACK
