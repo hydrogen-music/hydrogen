@@ -329,13 +329,28 @@ JackMidiDriver::JackMidiDriver()
 
 JackMidiDriver::~JackMidiDriver()
 {
+
 	if (jack_client != NULL)
 	{
-		jack_port_unregister( jack_client, input_port);
-		jack_port_unregister( jack_client, output_port);
-		jack_deactivate(jack_client);
+		if( jack_port_unregister( jack_client, input_port) != 0){
+			ERRORLOG("Failed to unregister jack midi input out");
+		}
+
+		if( jack_port_unregister( jack_client, output_port) != 0){
+			ERRORLOG("Failed to unregister jack midi input out");
+		}
+
+		//jack_port_unregister( jack_client, output_port);
+		if( jack_deactivate(jack_client) != 0){
+			ERRORLOG("Failed to unregister jack midi input out");
+		}
+
+		if( jack_client_close(jack_client) != 0){
+			ERRORLOG("Failed close jack midi client");
+		}
 	}
 	pthread_mutex_destroy(&mtx);
+
 }
 
 void
