@@ -389,7 +389,6 @@ void PlaylistDialog::loadList()
 	fd->setFileMode ( QFileDialog::ExistingFile );
 	fd->setFilter ( "Hydrogen playlist (*.h2playlist)" );
 	fd->setDirectory ( sDirectory );
-
 	fd->setWindowTitle ( trUtf8 ( "Load Playlist" ) );
 
 	QString filename;
@@ -594,7 +593,6 @@ void PlaylistDialog::loadScript()
 	QString filename;
 	if ( fd->exec() == QDialog::Accepted ){
 		filename = fd->selectedFiles().first();
-//		filename = filename.simplified();
 
 		if( filename.contains(" ", Qt::CaseInsensitive)){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
@@ -957,17 +955,17 @@ void PlaylistDialog::updateActiveSongNumber()
 		( m_pPlaylist->topLevelItem( i ) )->setBackground( 2, QBrush() );
 		
 	}
-		
+
 	int selected = Playlist::get_instance()->getActiveSongNumber();
 	if ( selected == -1 )
 		return;
 	
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );
 	if ( m_pPlaylistItem != NULL ){
-	    //m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
-	    m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
-	    m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
-	    m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
+		//m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
+		m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
 	}
 }
 
@@ -975,38 +973,38 @@ void PlaylistDialog::updateActiveSongNumber()
 bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 {
 
-        UNUSED ( o );
-        if ( e->type() == QEvent::KeyPress )
-        {
-                QKeyEvent *k = ( QKeyEvent * ) e;
+	UNUSED ( o );
+	if ( e->type() == QEvent::KeyPress )
+	{
+		QKeyEvent *k = ( QKeyEvent * ) e;
 
-                switch ( k->key() )
-                {
-                case  Qt::Key_F5 :
-                        if( Hydrogen::get_instance()->m_PlayList.size() == 0
-                            || Playlist::get_instance()->getActiveSongNumber() <=0)
-                                break;
+		switch ( k->key() )
+		{
+		case  Qt::Key_F5 :
+			if( Hydrogen::get_instance()->m_PlayList.size() == 0
+					|| Playlist::get_instance()->getActiveSongNumber() <=0)
+				break;
 
-                        Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()-1);
-                        return TRUE;
-                        break;
+			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()-1);
+			return TRUE;
+			break;
 
-                case  Qt::Key_F6 :
-                        if( Hydrogen::get_instance()->m_PlayList.size() == 0
-                            || Playlist::get_instance()->getActiveSongNumber() >= Hydrogen::get_instance()->m_PlayList.size() -1)
-                                break;
-                        Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
-                        return TRUE;
-                        break;
-                }
+		case  Qt::Key_F6 :
+			if( Hydrogen::get_instance()->m_PlayList.size() == 0
+					|| Playlist::get_instance()->getActiveSongNumber() >= Hydrogen::get_instance()->m_PlayList.size() -1)
+				break;
+			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
+			return TRUE;
+			break;
+		}
 
-        }
-        else
-        {
-                return FALSE; // standard event processing
-        }
+	}
+	else
+	{
+		return FALSE; // standard event processing
+	}
 
-        return NULL;
+	return NULL;
 }
 
 bool PlaylistDialog::loadListByFileName( QString filename )
@@ -1028,12 +1026,7 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 		for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 			m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
-
-			qDebug() << "PlayistItemPath: " << Hydrogen::get_instance()->m_PlayList[i].m_hFile;
-			qDebug() << "PlayistItemFile: " << Hydrogen::get_instance()->m_PlayList[i].m_hScript;
-
 			m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
-
 
 			if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
