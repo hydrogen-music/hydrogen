@@ -28,6 +28,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "widgets/PixmapWidget.h"
 
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
@@ -386,7 +387,7 @@ void PlaylistDialog::loadList()
 
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode ( QFileDialog::ExistingFile );
-        fd->setFilter ( "Hydrogen playlist (*.h2playlist)" );
+	fd->setFilter ( "Hydrogen playlist (*.h2playlist)" );
 	fd->setDirectory ( sDirectory );
 
 	fd->setWindowTitle ( trUtf8 ( "Load Playlist" ) );
@@ -408,8 +409,15 @@ void PlaylistDialog::loadList()
 
 			for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
 				QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
-				m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+
+				if( Hydrogen::get_instance()->m_PlayList[i].m_hFileExists ){
+					m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+				} else {
+					m_pPlaylistItem->setText ( 0, trUtf8("File not found: ") + Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+				}
+
 				m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
+
 				if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
 					m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 				}else{
@@ -767,7 +775,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 	if (ref->isPressed()) {
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 		if ( m_pPlaylistItem == NULL ){
-			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No song selected!" ) );
+			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No valid song selected!" ) );
 			m_pPlayBtn->setPressed(false);
 			return;
 		}
@@ -783,7 +791,6 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			engine->sequencer_stop();
 		}
 	
-		LocalFileMng mng;
 		Song *pSong = Song::load ( selected );
 		if ( pSong == NULL ){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Error loading song." ) );
@@ -1021,7 +1028,13 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 		for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 			m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+
+			qDebug() << "PlayistItemPath: " << Hydrogen::get_instance()->m_PlayList[i].m_hFile;
+			qDebug() << "PlayistItemFile: " << Hydrogen::get_instance()->m_PlayList[i].m_hScript;
+
 			m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
+
+
 			if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			}else{
