@@ -1,20 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleIconFile</key>
-    <string>Hydrogen.icns</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>CFBundleGetInfoString</key>
-    <string>Created by the hydrogen development team</string>
-    <key>CFBundleSignature</key>
-    <string>????</string>
-    <key>CFBundleExecutable</key>
-    <string>Hydrogen</string>
-    <key>CFBundleIdentifier</key>
-    <string>org.hydrogen-music</string>
-    <key>NOTE</key>
-    <string>Created by the hydrogen development team</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>hydrogen</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Hydrogen for Mac</string>
+	<key>CFBundleIconFile</key>
+	<string>icon.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>Hydrogen</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLongVersionString</key>
+	<string>0.9.6</string>
+	<key>CFBundleName</key>
+	<string>Hydrogen</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.9.6-beta1</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>0.9.6-beta1</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>LSRequiresCarbon</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Hydrogen Developers, 2012</string>
+
+	<key>CFBundleDocumentTypes</key>
+	<array>
+        <dict>
+            <key>CFBundleTypeIconFiles</key>
+            <array>
+                <string>icon</string>
+            </array>
+            <key>CFBundleTypeName</key>
+            <string>Hydrogen song file</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.hydrogen.h2song</string>
+            </array>
+        </dict>
+        </array>
+
+        <key>UTExportedTypeDeclarations</key>
+        <array>
+        <dict>
+        <key>UTTypeConformsTo</key>
+        <array>
+            <string>public.data</string> 
+        </array>
+        <key>UTTypeDescription</key>
+        <string>Hydrogen song file</string>
+        <key>UTTypeIdentifier</key>
+        <string>com.hydrogen.h2song</string>
+        <key>UTTypeTagSpecification</key>
+        <dict>
+            <key>public.filename-extension</key>
+            <string>h2song</string>
+            <key>public.mime-type</key>
+            <string>application/octet-stream</string> 
+       </dict>
+    </dict>
+</array>
+
 </dict>
 </plist>
