@@ -43,12 +43,8 @@ public:
 	virtual ~MidiOutput();
 
 	virtual void handleQueueNote(Note* pNote) = 0;
-		virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
-		virtual void handleQueueAllNoteOff() = 0;
-
-//protected:
-//	std::vector<MidiMessage> m_pendingMessages;
-
+	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
+	virtual void handleQueueAllNoteOff() = 0;
 };
 
 };
