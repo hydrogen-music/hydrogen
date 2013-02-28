@@ -183,9 +183,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( fVelocity == 0 ) {
 		handleNoteOffMessage( msg );
 		return;
-		}
+	}
 
-		MidiActionManager * aH = MidiActionManager::get_instance();
+	MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
@@ -202,25 +202,33 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	bool bPatternSelect = false;
 
 
-		if ( bPatternSelect ) {
-				int patternNumber = nNote - 36;
-				//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
+	if ( bPatternSelect ) {
+		int patternNumber = nNote - 36;
+		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
+		pEngine->sequencer_setNextPattern( patternNumber, false, false );
 
-				pEngine->sequencer_setNextPattern( patternNumber, false, false );
-		} else {
-				static const float fPan_L = 1.0f;
-				static const float fPan_R = 1.0f;
+	} else {
+		static const float fPan_L = 1.0f;
+		static const float fPan_R = 1.0f;
 
-				int nInstrument = nNote - 36;
-				if ( nInstrument < 0 ) {
-						nInstrument = 0;
+		int nInstrument = nNote - 36;
+		if ( nInstrument < 0 ) {
+				if(Preferences::get_instance()->__playselectedinstrument)
+				{
+					//we're in instrument mode -> we accept all notes
+				} else {
+					//we're in drumkit mode, lets drop everything < 36
+					nInstrument = 0;
+					return;
 				}
-				if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
-						nInstrument = MAX_INSTRUMENTS - 1;
-				}
 
-				pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
 		}
+		if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
+				nInstrument = MAX_INSTRUMENTS - 1;
+		}
+
+		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
+	}
 
 	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
 }
@@ -318,7 +326,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	*/
 
 
-		MidiActionManager * aH = MidiActionManager::get_instance();
+	MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
@@ -327,7 +335,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 if ( msg.m_sysexData.size() == 6 ) {
 		if (
-					( msg.m_sysexData[0] == 240 ) &&
+			( msg.m_sysexData[0] == 240 ) &&
 			( msg.m_sysexData[1] == 127 ) &&
 					//( msg.m_sysexData[2] == 0 ) &&
 			( msg.m_sysexData[3] == 6 ) ) {
