@@ -77,6 +77,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 #ifdef H2CORE_HAVE_COREAUDIO
 	driverComboBox->addItem( "CoreAudio" );
 #endif
+#ifdef H2CORE_HAVE_PULSEAUDIO
+	driverComboBox->addItem( "PulseAudio" );
+#endif
 
 
 	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
@@ -229,7 +232,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
-	
+
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
@@ -268,7 +271,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 
 PreferencesDialog::~PreferencesDialog()
-{	
+{
 	INFOLOG("~PREFERENCES_DIALOG");
 }
 
@@ -324,6 +327,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
 	}
+	else if (driverComboBox->currentText() == "PulseAudio" ) {
+		pPref->m_sAudioDriver = "PulseAudio";
+	}
 	else {
 		ERRORLOG( "[okBtnClicked] Invalid audio driver:" + driverComboBox->currentText() );
 	}
@@ -331,7 +337,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	// JACK
 	pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
 
-	
+
 	if (trackOutputComboBox->currentText() == "Post-Fader")
 	{
 		pPref->m_nJackTrackOutputMode = Preferences::POST_FADER;
@@ -431,7 +437,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->savePreferences();
 
-	
+
 	if (m_bNeedDriverRestart) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( res == 0 ) {
@@ -482,6 +488,10 @@ void PreferencesDialog::updateDriverInfo()
 	bCoreAudio_support = true;
 #endif
 
+	bool bPulseAudio_support = false;
+#ifdef H2CORE_HAVE_PULSEAUDIO
+	bPulseAudio_support = true;
+#endif
 
 	if ( driverComboBox->currentText() == "Auto" ) {
 		info += trUtf8("<b>Automatic driver selection</b>");
@@ -551,6 +561,19 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
+		bufferSizeSpinBox->setEnabled(true);
+		sampleRateComboBox->setEnabled(true);
+		trackOutputComboBox->setEnabled( false );
+		trackOutsCheckBox->setEnabled( false );
+		connectDefaultsCheckBox->setEnabled(false);
+	}
+	else if ( driverComboBox->currentText() == "PulseAudio" ) {
+		info += trUtf8("<b>PulseAudio Driver</b><br>");
+		if ( !bPulseAudio_support ) {
+			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+		}
+		m_pAudioDeviceTxt->setEnabled(false);
+		m_pAudioDeviceTxt->setText("");
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->setEnabled( false );
