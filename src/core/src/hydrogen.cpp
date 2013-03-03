@@ -80,6 +80,7 @@
 #include "IO/JackMidiDriver.h"
 #include "IO/PortMidiDriver.h"
 #include "IO/CoreAudioDriver.h"
+#include "IO/PulseAudioDriver.h"
 
 namespace H2Core
 {
@@ -1568,6 +1569,13 @@ AudioOutput* createDriver( const QString& sDriver )
 			  }
 	   }
 	   //#endif
+	   else if ( sDriver == "PulseAudio" ) {
+			pDriver = new PulseAudioDriver( audioEngine_process );
+			if ( pDriver->class_name() == NullDriver::class_name() ) {
+				delete pDriver;
+				pDriver = NULL;
+			}
+	   }
 	   else if ( sDriver == "Fake" ) {
 			  ___WARNINGLOG( "*** Using FAKE audio driver ***" );
 			  pDriver = new FakeDriver( audioEngine_process );

@@ -178,23 +178,24 @@ int main(int argc, char *argv[])
 		    exit(0);
 		}
 
-                if (sSelectedDriver == "auto") {
-                        pPref->m_sAudioDriver = "Auto";
-                }
-                else if (sSelectedDriver == "jack") {
-                        pPref->m_sAudioDriver = "Jack";
-                }
-                else if ( sSelectedDriver == "oss" ) {
-                        pPref->m_sAudioDriver = "Oss";
-                }
-                else if ( sSelectedDriver == "alsa" ) {
-                        pPref->m_sAudioDriver = "Alsa";
-                }
-		if (sSelectedDriver == "CoreAudio") {
+		if (sSelectedDriver == "auto") {
+			pPref->m_sAudioDriver = "Auto";
+		}
+		else if (sSelectedDriver == "jack") {
+			pPref->m_sAudioDriver = "Jack";
+		}
+		else if ( sSelectedDriver == "oss" ) {
+			pPref->m_sAudioDriver = "Oss";
+		}
+		else if ( sSelectedDriver == "alsa" ) {
+			pPref->m_sAudioDriver = "Alsa";
+		}
+		else if (sSelectedDriver == "CoreAudio") {
 			pPref->m_sAudioDriver = "CoreAudio";
 		}
-
-
+		else if (sSelectedDriver == "PulseAudio") {
+			pPref->m_sAudioDriver = "PulseAudio";
+		}
 
 
 #ifdef H2CORE_HAVE_LASH

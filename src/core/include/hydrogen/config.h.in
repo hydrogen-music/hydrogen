@@ -65,6 +65,9 @@
 #ifndef H2CORE_HAVE_COREMIDI
 #cmakedefine H2CORE_HAVE_COREMIDI
 #endif
+#ifndef H2CORE_HAVE_PULSEAUDIO
+#cmakedefine H2CORE_HAVE_PULSEAUDIO
+#endif
 #ifndef H2CORE_HAVE_LRDF
 #cmakedefine H2CORE_HAVE_LRDF
 #endif
