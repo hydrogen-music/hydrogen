@@ -137,17 +137,17 @@ void setPalette( QApplication *pQApp )
 static int setup_unix_signal_handlers()
 {
 #ifndef WIN32
-    struct sigaction usr1;
+	struct sigaction usr1;
 
-    usr1.sa_handler = MainForm::usr1SignalHandler;
-    sigemptyset(&usr1.sa_mask);
-    usr1.sa_flags = 0;
-    usr1.sa_flags |= SA_RESTART;
+	usr1.sa_handler = MainForm::usr1SignalHandler;
+	sigemptyset(&usr1.sa_mask);
+	usr1.sa_flags = 0;
+	usr1.sa_flags |= SA_RESTART;
 
-    if (sigaction(SIGUSR1, &usr1, 0) > 0)
-       return 1;
+	if (sigaction(SIGUSR1, &usr1, 0) > 0)
+		return 1;
 
-    return 0;
+	return 0;
 #endif
 }
 
@@ -193,9 +193,9 @@ int main(int argc, char *argv[])
 				break;
 
 			switch(c) {
-                case 'P':
-                    sys_data_path = QString::fromLocal8Bit(optarg);
-                    break;
+			case 'P':
+				sys_data_path = QString::fromLocal8Bit(optarg);
+				break;
 
 				case 'd':
 					sSelectedDriver = QString::fromLocal8Bit(optarg);
@@ -205,9 +205,9 @@ int main(int argc, char *argv[])
 					songFilename = QString::fromLocal8Bit(optarg);
 					break;
 #ifdef H2CORE_HAVE_JACKSESSION
-                                case 'S':
-                                        sessionId = QString::fromLocal8Bit(optarg);
-                                        break;
+			case 'S':
+				sessionId = QString::fromLocal8Bit(optarg);
+				break;
 #endif
 
 				case 'p':
@@ -259,15 +259,15 @@ int main(int argc, char *argv[])
 		}
 
 		// Man your battle stations... this is not a drill.
-        H2Core::Logger::create_instance();
-        H2Core::Logger::set_bit_mask( logLevelOpt );
-        H2Core::Logger* logger = H2Core::Logger::get_instance();
-        H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-        if(sys_data_path.length()==0 ) {
-            H2Core::Filesystem::bootstrap( logger );
-        } else {
-            H2Core::Filesystem::bootstrap( logger, sys_data_path );
-        }
+		H2Core::Logger::create_instance();
+		H2Core::Logger::set_bit_mask( logLevelOpt );
+		H2Core::Logger* logger = H2Core::Logger::get_instance();
+		H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
+		if(sys_data_path.length()==0 ) {
+			H2Core::Filesystem::bootstrap( logger );
+		} else {
+			H2Core::Filesystem::bootstrap( logger, sys_data_path );
+		}
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
@@ -285,8 +285,8 @@ int main(int argc, char *argv[])
 
 #endif
 		if( ! drumkitName.isEmpty() ){
-		    H2Core::Drumkit::install( drumkitName );
-		    exit(0);
+			H2Core::Drumkit::install( drumkitName );
+			exit(0);
 		}
 		
 		if (sSelectedDriver == "auto") {
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
 			if (qttor.load( QString( "qt_" ) + sLocale,
 				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 				pQApp->installTranslator( &qttor );
-                        else
+			else
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(QLocale::system().name()));
 
 
@@ -358,53 +358,53 @@ int main(int argc, char *argv[])
 		}
 
 #ifdef H2CORE_HAVE_LASH
-                if ( H2Core::Preferences::get_instance()->useLash() ){
-                        if (lashClient->isConnected())
-                        {
-                                lash_event_t* lash_event = lashClient->getNextEvent();
-                                if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
-                                {
-                                        // notify client that this project was not a new one
-                                        lashClient->setNewProject(false);
+		if ( H2Core::Preferences::get_instance()->useLash() ){
+			if (lashClient->isConnected())
+			{
+				lash_event_t* lash_event = lashClient->getNextEvent();
+				if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
+				{
+					// notify client that this project was not a new one
+					lashClient->setNewProject(false);
 
-                                        songFilename = "";
-                                        songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
-                                        songFilename.append("/hydrogen.h2song");
+					songFilename = "";
+					songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
+					songFilename.append("/hydrogen.h2song");
 
-//        				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+					//        				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
 
-                                        lash_event_destroy(lash_event);
-                                }
-                                else if (lash_event)
-                                {
-//        				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
-                                        lash_event_destroy(lash_event);
-                                }
-                        }
-                }
+					lash_event_destroy(lash_event);
+				}
+				else if (lash_event)
+				{
+					//        				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+					lash_event_destroy(lash_event);
+				}
+			}
+		}
 #endif
 
 #ifdef H2CORE_HAVE_JACKSESSION
-                if(!sessionId.isEmpty()){
-                    pPref->setJackSessionUUID( sessionId );
+		if(!sessionId.isEmpty()){
+			pPref->setJackSessionUUID( sessionId );
 
-                    /*
-                     * imo, jack sessions use jack as default audio driver.
-                     * hydrogen remember last used audiodriver.
-                     * here we make it save that hydrogen start in a jacksession case
-                     * every time with jack as audio driver
-                     */
-                    pPref->m_sAudioDriver = "Jack";
+			/*
+					 * imo, jack sessions use jack as default audio driver.
+					 * hydrogen remember last used audiodriver.
+					 * here we make it save that hydrogen start in a jacksession case
+					 * every time with jack as audio driver
+					 */
+			pPref->m_sAudioDriver = "Jack";
 
-                }
-                /*
-                 * the use of applicationFilePath() make it
-                 * possible to use different executables.
-                 * for example if you start hydrogen from a local
-                 * build directory.
-                 */
-                QString path = pQApp->applicationFilePath();
-                pPref->setJackSessionApplicationPath( path );
+		}
+		/*
+				 * the use of applicationFilePath() make it
+				 * possible to use different executables.
+				 * for example if you start hydrogen from a local
+				 * build directory.
+				 */
+		QString path = pQApp->applicationFilePath();
+		pPref->setJackSessionApplicationPath( path );
 #endif
 
 		// Hydrogen here to honor all preferences.
@@ -413,20 +413,20 @@ int main(int argc, char *argv[])
 		pMainForm->show();
 		pSplash->finish( pMainForm );
 
-                if( ! playlistFilename.isEmpty() ){
-                    bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
-                    if( loadlist ){
-                            Playlist::get_instance()->setNextSongByNumber( 0 );
-                    } else {
-                            ___ERRORLOG ( "Error loading the playlist" );
-                    }
-                }
+		if( ! playlistFilename.isEmpty() ){
+			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
+			if( loadlist ){
+				Playlist::get_instance()->setNextSongByNumber( 0 );
+			} else {
+				___ERRORLOG ( "Error loading the playlist" );
+			}
+		}
 
 		if( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( drumkitToLoad );
 			H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 		}
-				
+
 
 		pQApp->exec();
 
@@ -468,7 +468,7 @@ void showInfo()
 {
 	cout << "\nHydrogen " + H2Core::get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
-//	___INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
+	//	___INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
 	if ( H2Core::Object::count_active() ) {
 		cout << "\nObject counting = active" << endl;
@@ -492,21 +492,21 @@ void showUsage()
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
 
 #ifdef H2CORE_HAVE_JACKSESSION
-        std::cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << std::endl;
+	std::cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << std::endl;
 #endif
 
-	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;	
+	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
 #ifdef H2CORE_HAVE_LASH
 	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
-		  << "                            it (LASH 0.5.3 and later)." << std::endl;
+			  << "                            it (LASH 0.5.3 and later)." << std::endl;
 	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
-		  << "                          from a crash." << std::endl;
+			  << "                          from a crash." << std::endl;
 #endif
 	std::cout << "   -n, --nosplash - Hide splash screen" << std::endl;
 	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
-        std::cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << std::endl;
+	std::cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << std::endl;
 	std::cout << "   -v, --version - Show version info" << std::endl;
 	std::cout << "   -h, --help - Show this help message" << std::endl;
 }

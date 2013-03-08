@@ -40,7 +40,7 @@ class SampleWaveDisplay;
 class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H2Core::Object
 
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
 		
@@ -63,7 +63,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 		void on_m_pPathUptoolButton_clicked();
 		void on_playSamplescheckBox_clicked();
 		void on_hiddenCB_clicked();
-		
+
 		virtual void keyPressEvent (QKeyEvent *ev);
 		virtual void keyReleaseEvent (QKeyEvent *ev);
 
@@ -74,9 +74,9 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 		QStringList m_pselectedFile;
 
 		void browseTree( const QModelIndex& index );
-		
+
 		void getEnvironment();
-                bool isFileSupported( QString filename );
+		bool isFileSupported( QString filename );
 		bool singleClick;
 		QDirModel *model;
 		QTreeView *tree;
@@ -86,7 +86,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 		SampleWaveDisplay *m_pSampleWaveDisplay;
 		QString sEmptySampleFilename;
 		QStringList filters;
-		
+
 
 
 };

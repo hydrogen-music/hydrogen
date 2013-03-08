@@ -72,7 +72,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 		void showPreferencesDialog();
 		void showMixer(bool bShow);
-        void showInstrumentPanel(bool);
+		void showInstrumentPanel(bool);
 		void showAudioEngineInfoForm();
 		void showPlaylistDialog();
 		void showDirector();
@@ -91,13 +91,13 @@ class HydrogenApp : public QObject, public H2Core::Object
 		InstrumentRack* getInstrumentRack(){	return m_pInstrumentRack;	}
 
 		QUndoStack*  m_undoStack;
-                QTabWidget *pTab;
-                QSplitter *pSplitter;
+		QTabWidget *pTab;
+		QSplitter *pSplitter;
 
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
-                void setWindowTitle( const QString& title);
+		void setWindowTitle( const QString& title);
 
 #ifdef H2CORE_HAVE_LADSPA
 		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}
@@ -109,8 +109,8 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void onDrumkitLoad( QString name );
 		void enableDestructiveRecMode();
 
-        void cleanupTemporaryFiles();
-        void addTemporaryFile( const QString& );
+		void cleanupTemporaryFiles();
+		void addTemporaryFile( const QString& );
 
 	public slots:
 		void onEventQueueTimer();
@@ -137,7 +137,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 		Director *m_pDirector;
 		QTimer *m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;
-        QStringList temporaryFileList;
+		QStringList temporaryFileList;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);

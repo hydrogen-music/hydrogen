@@ -812,7 +812,6 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 	jack_session_reply(client, ev );
 
 	jack_session_event_free (ev);
-
 }
 #endif
 

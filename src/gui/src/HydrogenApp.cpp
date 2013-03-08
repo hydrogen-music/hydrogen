@@ -99,7 +99,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 		qsSongName = qsSongName.section( '/', -1 );
 	}
 
-        setWindowTitle( qsSongName  );
+	setWindowTitle( qsSongName  );
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -132,7 +132,7 @@ HydrogenApp::~HydrogenApp()
 
 
 	//delete the undo tmp directory
-    cleanupTemporaryFiles();
+	cleanupTemporaryFiles();
 
 	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
@@ -175,31 +175,31 @@ HydrogenApp* HydrogenApp::get_instance() {
 void HydrogenApp::setupSinglePanedInterface()
 {
 	Preferences *pPref = Preferences::get_instance();
-        int uiLayout = pPref->getDefaultUILayout();
+	int uiLayout = pPref->getDefaultUILayout();
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
 	m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
 	m_pMainForm->move( mainFormProp.x, mainFormProp.y );
 
-        pSplitter = new QSplitter( NULL );
+	pSplitter = new QSplitter( NULL );
 	pSplitter->setOrientation( Qt::Vertical );
 	pSplitter->setOpaqueResize( true );
 
-        pTab = new QTabWidget( NULL );
-        pTab->setStyleSheet("color: white;");
+	pTab = new QTabWidget( NULL );
+	pTab->setStyleSheet("color: white;");
 
 	// SONG EDITOR
-        if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
-            m_pSongEditorPanel = new SongEditorPanel( pSplitter );
-        else
-            m_pSongEditorPanel = new SongEditorPanel( pTab );
+	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+		m_pSongEditorPanel = new SongEditorPanel( pSplitter );
+	else
+		m_pSongEditorPanel = new SongEditorPanel( pTab );
 
-        WindowProperties songEditorProp = pPref->getSongEditorProperties();
-        m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+	WindowProperties songEditorProp = pPref->getSongEditorProperties();
+	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED)
-            pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED)
+		pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( pSplitter );
@@ -211,11 +211,11 @@ void HydrogenApp::setupSinglePanedInterface()
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( NULL );
 
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
-            pTab->setMovable( false );
-            pTab->setTabsClosable( false );
-            pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
-        }
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
+		pTab->setMovable( false );
+		pTab->setTabsClosable( false );
+		pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
+	}
 
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( NULL );
@@ -238,37 +238,37 @@ void HydrogenApp::setupSinglePanedInterface()
 	pMainVBox->setMargin( 0 );
 	pMainVBox->addWidget( m_pPlayerControl );
 
-        if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
-            pMainVBox->addWidget( pSplitter );
-        else {
-	   pMainVBox->addWidget( pTab );
-            
+	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+		pMainVBox->addWidget( pSplitter );
+	else {
+		pMainVBox->addWidget( pTab );
+
 	}
 
-        mainArea->setLayout( pMainVBox );
+	mainArea->setLayout( pMainVBox );
 
 
 
 
 	// MIXER
 	m_pMixer = new Mixer(0);
-        WindowProperties mixerProp = pPref->getMixerProperties();
+	WindowProperties mixerProp = pPref->getMixerProperties();
 
-        m_pMixer->resize( mixerProp.width, mixerProp.height );
-        m_pMixer->move( mixerProp.x, mixerProp.y );
+	m_pMixer->resize( mixerProp.width, mixerProp.height );
+	m_pMixer->move( mixerProp.x, mixerProp.y );
 
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED){
-                pTab->addTab(m_pMixer,trUtf8("Mixer"));
-        }
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
+		pTab->addTab(m_pMixer,trUtf8("Mixer"));
+	}
 
 	m_pMixer->updateMixer();
 
-        if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
+	if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
 		m_pMixer->show();
-        }
-        else {
-                m_pMixer->hide();
-        }
+	}
+	else {
+		m_pMixer->hide();
+	}
 
 
 	// HELP BROWSER
@@ -292,7 +292,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 #endif
 
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED){
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
 		pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
 		QObject::connect(pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 	}
@@ -338,7 +338,7 @@ void HydrogenApp::setSong(Song* song)
 		songName = song->get_filename();
 		songName = songName.section( '/', -1 );
 	}
-        setWindowTitle( songName  );
+	setWindowTitle( songName  );
 
 	m_pMainForm->updateRecentUsedSongList();
 }
@@ -347,39 +347,39 @@ void HydrogenApp::setSong(Song* song)
 
 void HydrogenApp::showMixer(bool show)
 {
-        /*
-         *   Switch to Mixer tab with alt+m in tabbed mode,
-         *   otherwise open mixer window
-         */
+	/*
+		 *   Switch to Mixer tab with alt+m in tabbed mode,
+		 *   otherwise open mixer window
+		 */
 
-        Preferences *pPref = Preferences::get_instance();
-        int uiLayout = pPref->getDefaultUILayout();
+	Preferences *pPref = Preferences::get_instance();
+	int uiLayout = pPref->getDefaultUILayout();
 
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED )
-        {
-            pTab->setCurrentIndex( 2 );
-        } else {
-            m_pMixer->setVisible( show );
-        }
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED )
+	{
+		pTab->setCurrentIndex( 2 );
+	} else {
+		m_pMixer->setVisible( show );
+	}
 }
 
 void HydrogenApp::showInstrumentPanel(bool show)
 {
-        /*
-         *   Switch to pattern editor/instrument tab in tabbed mode,
-         *   otherwise hide instrument panel
-         */
+	/*
+		 *   Switch to pattern editor/instrument tab in tabbed mode,
+		 *   otherwise hide instrument panel
+		 */
 
-        Preferences *pPref = Preferences::get_instance();
-        int uiLayout = pPref->getDefaultUILayout();
+	Preferences *pPref = Preferences::get_instance();
+	int uiLayout = pPref->getDefaultUILayout();
 
-        if( uiLayout == Preferences::UI_LAYOUT_TABBED )
-        {
-            pTab->setCurrentIndex( 1 );
-            getInstrumentRack()->setHidden( show );
-        } else {
-            getInstrumentRack()->setHidden( show );
-        }
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED )
+	{
+		pTab->setCurrentIndex( 1 );
+		getInstrumentRack()->setHidden( show );
+	} else {
+		getInstrumentRack()->setHidden( show );
+	}
 }
 
 
@@ -400,7 +400,7 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 }
 
 void HydrogenApp::setWindowTitle( const QString& title){
-    m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
+	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
 }
 
 void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
@@ -440,7 +440,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 		m_pSampleEditor = NULL;
 		QApplication::restoreOverrideCursor();
 	}
-	QApplication::setOverrideCursor(Qt::WaitCursor);	
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
@@ -475,7 +475,7 @@ void HydrogenApp::showInfoSplash()
 		if ( nID > nNewsID ) {
 			sFilename = sFile;
 		}
-//		INFOLOG( "news: " + sFilename + " id: " + sNewsID );
+		//		INFOLOG( "news: " + sFilename + " id: " + sNewsID );
 	}
 	INFOLOG( "[showInfoSplash] Selected news: " + sFilename );
 
@@ -511,100 +511,100 @@ void HydrogenApp::onEventQueueTimer()
 			EventListener *pListener = m_eventListeners[ i ];
 
 			switch ( event.type ) {
-				case EVENT_STATE:
-					pListener->stateChangedEvent( event.value );
-					break;
+			case EVENT_STATE:
+				pListener->stateChangedEvent( event.value );
+				break;
 
-				case EVENT_PATTERN_CHANGED:
-					pListener->patternChangedEvent();
-					break;
+			case EVENT_PATTERN_CHANGED:
+				pListener->patternChangedEvent();
+				break;
 
-				case EVENT_PATTERN_MODIFIED:
-					pListener->patternModifiedEvent();
-					break;
+			case EVENT_PATTERN_MODIFIED:
+				pListener->patternModifiedEvent();
+				break;
 
-				case EVENT_SELECTED_PATTERN_CHANGED:
-					pListener->selectedPatternChangedEvent();
-					break;
+			case EVENT_SELECTED_PATTERN_CHANGED:
+				pListener->selectedPatternChangedEvent();
+				break;
 
-				case EVENT_SELECTED_INSTRUMENT_CHANGED:
-					pListener->selectedInstrumentChangedEvent();
-					break;
+			case EVENT_SELECTED_INSTRUMENT_CHANGED:
+				pListener->selectedInstrumentChangedEvent();
+				break;
 
-				case EVENT_MIDI_ACTIVITY:
-					pListener->midiActivityEvent();
-					break;
+			case EVENT_MIDI_ACTIVITY:
+				pListener->midiActivityEvent();
+				break;
 
-				case EVENT_NOTEON:
-					pListener->noteOnEvent( event.value );
-					break;
+			case EVENT_NOTEON:
+				pListener->noteOnEvent( event.value );
+				break;
 
-				case EVENT_ERROR:
-					pListener->errorEvent( event.value );
-					break;
+			case EVENT_ERROR:
+				pListener->errorEvent( event.value );
+				break;
 
-				case EVENT_XRUN:
-					pListener->XRunEvent();
-					break;
+			case EVENT_XRUN:
+				pListener->XRunEvent();
+				break;
 
-				case EVENT_METRONOME:
-					pListener->metronomeEvent( event.value );
-					break;
+			case EVENT_METRONOME:
+				pListener->metronomeEvent( event.value );
+				break;
 
-				case EVENT_RECALCULATERUBBERBAND:
-					pListener->rubberbandbpmchangeEvent();
-					break;
+			case EVENT_RECALCULATERUBBERBAND:
+				pListener->rubberbandbpmchangeEvent();
+				break;
 
-                                case EVENT_PROGRESS:
-					pListener->progressEvent( event.value );
-					break;
+			case EVENT_PROGRESS:
+				pListener->progressEvent( event.value );
+				break;
 
-                                case EVENT_JACK_SESSION:
-                                        pListener->jacksessionEvent( event.value );
-                                        break;
+			case EVENT_JACK_SESSION:
+				pListener->jacksessionEvent( event.value );
+				break;
 
-                                case EVENT_PLAYLIST_LOADSONG:
-                                        pListener->playlistLoadSongEvent( event.value );
-                                        break;
+			case EVENT_PLAYLIST_LOADSONG:
+				pListener->playlistLoadSongEvent( event.value );
+				break;
 
-                                case EVENT_UNDO_REDO:
-                                        pListener->undoRedoActionEvent( event.value );
-                                        break;
+			case EVENT_UNDO_REDO:
+				pListener->undoRedoActionEvent( event.value );
+				break;
 
-                                default:
-					ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
+			default:
+				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
 
 		}
-        }
+	}
 
-        // midi notes
-        while(!pQueue->m_addMidiNoteVector.empty()){
+	// midi notes
+	while(!pQueue->m_addMidiNoteVector.empty()){
 
-               int rounds = 1;
-               if(pQueue->m_addMidiNoteVector[0].b_noteExist)// runn twice, delete old note and add new note. this let the undo stack consistent
-                      rounds = 2;
-               for(int i = 0; i<rounds; i++){
-                      SE_addNoteAction *action = new SE_addNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-                                                                       pQueue->m_addMidiNoteVector[0].m_row,
-                                                                       pQueue->m_addMidiNoteVector[0].m_pattern,
-                                                                       pQueue->m_addMidiNoteVector[0].m_length,
-                                                                       pQueue->m_addMidiNoteVector[0].f_velocity,
-                                                                       pQueue->m_addMidiNoteVector[0].f_pan_L,
-                                                                       pQueue->m_addMidiNoteVector[0].f_pan_R,
-                                                                       0.0,
-                                                                       pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-                                                                       pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-                                                                       false,
-                                                                       false,
-                                                                       pQueue->m_addMidiNoteVector[0].b_isMidi,
-                                                                       pQueue->m_addMidiNoteVector[0].b_isInstrumentMode);
+		int rounds = 1;
+		if(pQueue->m_addMidiNoteVector[0].b_noteExist)// runn twice, delete old note and add new note. this let the undo stack consistent
+			rounds = 2;
+		for(int i = 0; i<rounds; i++){
+			SE_addNoteAction *action = new SE_addNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
+															 pQueue->m_addMidiNoteVector[0].m_row,
+															 pQueue->m_addMidiNoteVector[0].m_pattern,
+															 pQueue->m_addMidiNoteVector[0].m_length,
+															 pQueue->m_addMidiNoteVector[0].f_velocity,
+															 pQueue->m_addMidiNoteVector[0].f_pan_L,
+															 pQueue->m_addMidiNoteVector[0].f_pan_R,
+															 0.0,
+															 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+															 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+															 false,
+															 false,
+															 pQueue->m_addMidiNoteVector[0].b_isMidi,
+															 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode);
 
-                      HydrogenApp::get_instance()->m_undoStack->push( action );
-               }
-               pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
+			HydrogenApp::get_instance()->m_undoStack->push( action );
+		}
+		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
 
-        }
+	}
 }
 
 
@@ -631,7 +631,7 @@ void HydrogenApp::removeEventListener( EventListener* pListener )
  */
 void HydrogenApp::addTemporaryFile( const QString& path)
 {
-    temporaryFileList.append( path );
+	temporaryFileList.append( path );
 }
 
 
@@ -641,10 +641,10 @@ void HydrogenApp::addTemporaryFile( const QString& path)
  */
 void HydrogenApp::cleanupTemporaryFiles()
 {
-    for (int i = 0; i < temporaryFileList.size(); ++i){
-        Filesystem::rm( temporaryFileList[i] );
-    }
+	for (int i = 0; i < temporaryFileList.size(); ++i){
+		Filesystem::rm( temporaryFileList[i] );
+	}
 
-    Filesystem::rm( Preferences::get_instance()->getTmpDirectory() );
+	Filesystem::rm( Preferences::get_instance()->getTmpDirectory() );
 }
 

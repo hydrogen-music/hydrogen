@@ -87,8 +87,8 @@ void PatternFillDialog::__text_changed()
 	int fromVal, toVal;
 
 	if ( ( fromVal = fromText->text().toUInt() ) &&
-	     ( toVal = toText->text().toUInt() )     &&
-	     ( toVal > fromVal ) ) {
+		 ( toVal = toText->text().toUInt() )     &&
+		 ( toVal > fromVal ) ) {
 
 		okBtn->setEnabled(true);
 	}

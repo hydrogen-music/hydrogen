@@ -178,6 +178,7 @@ public:
 	struct HPlayListNode
 	{
 		QString m_hFile;
+		bool m_hFileExists;
 		QString m_hScript;
 		QString m_hScriptEnabled;
 	};

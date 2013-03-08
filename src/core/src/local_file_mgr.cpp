@@ -672,8 +672,10 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 		while (  ! nextNode.isNull() ) {
 			Hydrogen::HPlayListNode playListItem;
 			playListItem.m_hFile = LocalFileMng::readXmlString( nextNode, "song", "" );
+			playListItem.m_hFileExists = Filesystem::file_readable( playListItem.m_hFile );
 			playListItem.m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
 			playListItem.m_hScriptEnabled = LocalFileMng::readXmlString( nextNode, "enabled", "" );
+
 			Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
 			nextNode = nextNode.nextSiblingElement( "next" );
 		}

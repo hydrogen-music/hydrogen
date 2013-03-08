@@ -33,7 +33,7 @@
 ///
 class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
 		PreferencesDialog( QWidget* parent );
@@ -47,11 +47,12 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
-                void on_resampleComboBox_currentIndexChanged ( int index );
+		void on_resampleComboBox_currentIndexChanged ( int index );
 		void on_sampleRateComboBox_editTextChanged( const QString& text );
 		void on_midiPortComboBox_activated( int index );
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
+<<<<<<< HEAD
                 void onMidiDriverComboBoxIndexChanged( int index );
                 void toggleTrackOutsCheckBox(bool toggled);
                 void metronomeOutputcomboBoxIndexChanged( int index);
@@ -60,6 +61,10 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
                 void patternPreviewOutputcomboBoxIndexChanged(int index);
                 void loadLayerPreviewOutputcomboBoxIndexChanged(int index);
                 void mainMixToMonitorMixDailValueChanged( int val);
+=======
+		void onMidiDriverComboBoxIndexChanged( int index );
+		void toggleTrackOutsCheckBox(bool toggled);
+>>>>>>> master
 
 	private:
 		bool m_bNeedDriverRestart;

@@ -1,6 +1,6 @@
-hydrogen (0.9.6svn2332) unstable; urgency=low
+hydrogen (0.9.6-beta3) unstable; urgency=low
 
-  * Release 0.9.6 svn2332
+  * Release 0.9.6 beta3
   * new build system (cmake)
   * add undo for song/pattern editor
   * jack-session support

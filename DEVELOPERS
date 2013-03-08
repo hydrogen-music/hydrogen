@@ -9,14 +9,10 @@ MAKING A RELEASE
 Transitioning the code to remove some of the development hooks in
 order to make a release has several, easy-to-forget steps.  They are:
 
-  1. Remove the developer hook for 'version':
+  1. Set the version
+     a. Configure the correct verion in CMakeLists.txt
 
-     a. Near the end of SConstruct, where it has 'extra_version',
-        remove that.
-
-     b. If you are bumping the revision, also do that in SConstruct.
-
-     c. Update linux/debian/changelog
+     b. Update linux/debian/changelog
 
   2. Remove the 'developer warning': in data/hydrogen.default.conf
      change hydrogen_preferences/showDevelWarning to "false".

@@ -19,9 +19,16 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "6")
+#SET(VERSION_SUFFIX "beta3")
+
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+
+
 IF(VERSION_SUFFIX)
-    SET(VERSION "${VERSION}-${VERSION_SUFFIX}")
+	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
+ELSE() 
+	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
+	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
@@ -51,6 +58,7 @@ OPTION(WANT_ALSA         "Include ALSA (Advanced Linux Sound Architecture) suppo
 OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 OPTION(WANT_PORTAUDIO    "Include PortAudio support" OFF)
 OPTION(WANT_PORTMIDI     "Include PortMidi support" OFF)
+OPTION(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
 OPTION(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
 OPTION(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
 OPTION(WANT_RUBBERBAND   "Include RUbberBand (Audio Time Stretcher Library) support" OFF)
@@ -116,7 +124,6 @@ ELSE(WIN32)
     ENDIF(APPLE)
 ENDIF(WIN32)
 
-EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE REVISION )
 
 #
 # HEADER LIBRARY FUNCTIONS
@@ -164,6 +171,7 @@ IF(APPLE)
 ENDIF()
 FIND_HELPER(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
+FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
@@ -186,7 +194,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI LASH LRDF RUBBERBAND )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -242,7 +250,8 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}
-* ${purple}PortMidi${reset}                     : ${PORTMIDI_STATUS}\n"
+* ${purple}PortMidi${reset}                     : ${PORTMIDI_STATUS}
+* ${purple}PulseAudio${reset}                   : ${PULSEAUDIO_STATUS}\n"
 )
 
 COLOR_MESSAGE("${cyan}Usefull extensions${reset}

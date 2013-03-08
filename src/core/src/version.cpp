@@ -4,7 +4,7 @@
 
 namespace H2Core {
 
-static const std::string version = H2CORE_VERSION_FULL;
+static const std::string version = H2CORE_VERSION;
 
 std::string get_version() {
 	return version;

@@ -80,6 +80,7 @@
 #include "IO/JackMidiDriver.h"
 #include "IO/PortMidiDriver.h"
 #include "IO/CoreAudioDriver.h"
+#include "IO/PulseAudioDriver.h"
 
 namespace H2Core
 {
@@ -502,58 +503,58 @@ inline void audioEngine_process_checkBPMChanged()
 
 inline void audioEngine_process_playNotes( unsigned long nframes )
 {
-	   unsigned int framepos;
+		unsigned int framepos;
 
-	   if (  m_audioEngineState == STATE_PLAYING ) {
-			  framepos = m_pAudioDriver->m_transport.m_nFrames;
-	   } else {
-			  // use this to support realtime events when not playing
-			  framepos = m_nRealtimeFrames;
-	   }
+		if (  m_audioEngineState == STATE_PLAYING ) {
+			framepos = m_pAudioDriver->m_transport.m_nFrames;
+		} else {
+			// use this to support realtime events when not playing
+			framepos = m_nRealtimeFrames;
+		}
 
-	   // reading from m_songNoteQueue
-	   while ( !m_songNoteQueue.empty() ) {
-			  Note *pNote = m_songNoteQueue.top();
+		// reading from m_songNoteQueue
+		while ( !m_songNoteQueue.empty() ) {
+				Note *pNote = m_songNoteQueue.top();
 
-			  // verifico se la nota rientra in questo ciclo
-			  unsigned int noteStartInFrames =
+				// verifico se la nota rientra in questo ciclo
+				unsigned int noteStartInFrames =
 							(int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
 
-			  // if there is a negative Humanize delay, take into account so
-			  // we don't miss the time slice.  ignore positive delay, or we
-			  // might end the queue processing prematurely based on NoteQueue
-			  // placement.  the sampler handles positive delay.
-			  if (pNote->get_humanize_delay() < 0) {
-					 noteStartInFrames += pNote->get_humanize_delay();
-			  }
+				// if there is a negative Humanize delay, take into account so
+				// we don't miss the time slice.  ignore positive delay, or we
+				// might end the queue processing prematurely based on NoteQueue
+				// placement.  the sampler handles positive delay.
+				if (pNote->get_humanize_delay() < 0) {
+					noteStartInFrames += pNote->get_humanize_delay();
+				}
 
-			  // m_nTotalFrames <= NotePos < m_nTotalFrames + bufferSize
-			  bool isNoteStart = ( ( noteStartInFrames >= framepos )
-								   && ( noteStartInFrames < ( framepos + nframes ) ) );
-			  bool isOldNote = noteStartInFrames < framepos;
-			  if ( isNoteStart || isOldNote ) {
+				// m_nTotalFrames <= NotePos < m_nTotalFrames + bufferSize
+				bool isNoteStart = ( ( noteStartInFrames >= framepos )
+									&& ( noteStartInFrames < ( framepos + nframes ) ) );
+				bool isOldNote = noteStartInFrames < framepos;
+
+				if ( isNoteStart || isOldNote ) {
 					 // Humanize - Velocity parameter
 					 if ( m_pSong->get_humanize_velocity_value() != 0 ) {
-							float random = m_pSong->get_humanize_velocity_value()
-										  * getGaussian( 0.2 );
+							float random = m_pSong->get_humanize_velocity_value() * getGaussian( 0.2 );
 							pNote->set_velocity(
 												 pNote->get_velocity()
 												 + ( random
 													 - ( m_pSong->get_humanize_velocity_value() / 2.0 ) )
 												 );
 							if ( pNote->get_velocity() > 1.0 ) {
-								   pNote->set_velocity( 1.0 );
+									pNote->set_velocity( 1.0 );
 							} else if ( pNote->get_velocity() < 0.0 ) {
-								   pNote->set_velocity( 0.0 );
+									pNote->set_velocity( 0.0 );
 							}
 					 }
 
 					 // Random Pitch ;)
 					 const float fMaxPitchDeviation = 2.0;
 					 pNote->set_pitch( pNote->get_pitch()
-									   + ( fMaxPitchDeviation * getGaussian( 0.2 )
-										   - fMaxPitchDeviation / 2.0 )
-									   * pNote->get_instrument()->get_random_pitch_factor() );
+									+ ( fMaxPitchDeviation * getGaussian( 0.2 )
+									- fMaxPitchDeviation / 2.0 )
+									* pNote->get_instrument()->get_random_pitch_factor() );
 
 
 					 /*
@@ -563,12 +564,12 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 					 Instrument * noteInstrument = pNote->get_instrument();
 					 if ( noteInstrument->is_stop_notes() ){
 							Note *pOffNote = new Note( noteInstrument,
-													   0.0,
-													   0.0,
-													   0.0,
-													   0.0,
-													   -1,
-													   0 );
+												0.0,
+												0.0,
+												0.0,
+												0.0,
+												-1,
+												0 );
 							pOffNote->set_note_off( true );
 							AudioEngine::get_instance()->get_sampler()->note_on( pOffNote );
 							delete pOffNote;
@@ -1592,6 +1593,13 @@ AudioOutput* createDriver( const QString& sDriver )
 			  }
 	   }
 	   //#endif
+	   else if ( sDriver == "PulseAudio" ) {
+			pDriver = new PulseAudioDriver( audioEngine_process );
+			if ( pDriver->class_name() == NullDriver::class_name() ) {
+				delete pDriver;
+				pDriver = NULL;
+			}
+	   }
 	   else if ( sDriver == "Fake" ) {
 			  ___WARNINGLOG( "*** Using FAKE audio driver ***" );
 			  pDriver = new FakeDriver( audioEngine_process );
