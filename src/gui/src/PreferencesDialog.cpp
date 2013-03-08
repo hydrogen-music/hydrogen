@@ -81,17 +81,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->addItem( "PulseAudio" );
 #endif
 
-
-<<<<<<< HEAD
-        if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
-              driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
-        }
-        else
-        {
-               driverInfoLbl->setText("Select your Audio Driver");
-               ERRORLOG( "Unknown audio input from preferences [" + pPref->m_sAudioDriver + "]" );
-        }
-=======
 	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
 		driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
 	}
@@ -100,8 +89,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		driverInfoLbl->setText("Select your Audio Driver");
 		ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sAudioDriver + "]" );
 	}
->>>>>>> master
-
 
 	m_pMidiDriverComboBox->clear();
 #ifdef H2CORE_HAVE_ALSA
@@ -135,24 +122,24 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// metronome volume
 	uint metronomeVol = (uint)( pPref->m_fMetronomeVolume * 100.0 );
 	metronomeVolumeSpinBox->setValue(metronomeVol);
-        metronomeOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getMetronomeOut() );
-        connect( metronomeOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( metronomeOutputcomboBoxIndexChanged(int) ) );
+		metronomeOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getMetronomeOut() );
+		connect( metronomeOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( metronomeOutputcomboBoxIndexChanged(int) ) );
 
-        instrumentPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getInstrumentPreviewMonitor() );
-        connect( instrumentPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( instrumentPreviewOutputcomboBoxIndexChanged(int) ) );
+		instrumentPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getInstrumentPreviewMonitor() );
+		connect( instrumentPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( instrumentPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        patternEditPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternEditPreviewMonitor() );
-        connect( patternEditPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternEditPreviewOutputcomboBoxIndexChanged(int) ) );
+		patternEditPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternEditPreviewMonitor() );
+		connect( patternEditPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternEditPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        patternPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternMonitor() );
-        connect( patternPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternPreviewOutputcomboBoxIndexChanged(int) ) );
+		patternPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getPatternMonitor() );
+		connect( patternPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( patternPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        loadLayerPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
-        connect( loadLayerPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( loadLayerPreviewOutputcomboBoxIndexChanged(int) ) );
+		loadLayerPreviewOutputcomboBox->setCurrentIndex( (int) Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
+		connect( loadLayerPreviewOutputcomboBox, SIGNAL( currentIndexChanged (int) ), this, SLOT( loadLayerPreviewOutputcomboBoxIndexChanged(int) ) );
 
-        //--
-        mainMonitorMixdial->setValue( Preferences::get_instance()->getMainToMonitorMixVal() * 100 );
-        connect( mainMonitorMixdial, SIGNAL( valueChanged(int) ), this, SLOT( mainMixToMonitorMixDailValueChanged(int) ) );
+		//--
+		mainMonitorMixdial->setValue( Preferences::get_instance()->getMainToMonitorMixVal() * 100 );
+		connect( mainMonitorMixdial, SIGNAL( valueChanged(int) ), this, SLOT( mainMixToMonitorMixDailValueChanged(int) ) );
 
 
 	// max voices
@@ -340,17 +327,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	if (driverComboBox->currentText() == "Auto" ) {
 		pPref->m_sAudioDriver = "Auto";
 	}
-<<<<<<< HEAD
-        else if (driverComboBox->currentText() == "Jack" ) {
-                pPref->m_sAudioDriver = "Jack";
-	}
-        else if (driverComboBox->currentText() == "Alsa" ) {
-                pPref->m_sAudioDriver = "Alsa";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
-	}
-        else if (driverComboBox->currentText() == "Oss" ) {
-                pPref->m_sAudioDriver = "Oss";
-=======
 	else if (driverComboBox->currentText() == "Jack" ) {
 		pPref->m_sAudioDriver = "Jack";
 	}
@@ -360,7 +336,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	else if (driverComboBox->currentText() == "Oss" ) {
 		pPref->m_sAudioDriver = "Oss";
->>>>>>> master
 		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
@@ -782,31 +757,31 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 /// Monitoring tab
 void PreferencesDialog::metronomeOutputcomboBoxIndexChanged( int index )
 {
-       Preferences::get_instance()->setMetronomeOut( index );
+	   Preferences::get_instance()->setMetronomeOut( index );
 }
 
 void PreferencesDialog::instrumentPreviewOutputcomboBoxIndexChanged( int index )
 {
-       Preferences::get_instance()->setInstrumentPreviewMonitor( index );
+	   Preferences::get_instance()->setInstrumentPreviewMonitor( index );
 }
 
 void PreferencesDialog::patternEditPreviewOutputcomboBoxIndexChanged( int index )
 {
-       Preferences::get_instance()->setPatternEditPreviewMonitor( index );
+	   Preferences::get_instance()->setPatternEditPreviewMonitor( index );
 }
 
 void PreferencesDialog::patternPreviewOutputcomboBoxIndexChanged( int index )
 {
-       Preferences::get_instance()->setPatternMonitor( index );
+	   Preferences::get_instance()->setPatternMonitor( index );
 }
 
 void PreferencesDialog::loadLayerPreviewOutputcomboBoxIndexChanged( int index )
 {
-       Preferences::get_instance()->setLayerAndSndLibraryPreviewMonitor( index );
+	   Preferences::get_instance()->setLayerAndSndLibraryPreviewMonitor( index );
 }
 
 
 void PreferencesDialog::mainMixToMonitorMixDailValueChanged( int val )
 {
-       Preferences::get_instance()->setMainToMonitorMixVal( (float)val / 100.0);
+	   Preferences::get_instance()->setMainToMonitorMixVal( (float)val / 100.0);
 }

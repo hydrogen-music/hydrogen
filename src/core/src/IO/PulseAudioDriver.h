@@ -40,51 +40,55 @@ namespace H2Core
 ///
 class PulseAudioDriver : public AudioOutput
 {
-	H2_OBJECT
+    H2_OBJECT
 public:
-	typedef int (*audioProcessCallback)(uint32_t, void *);
+    typedef int (*audioProcessCallback)(uint32_t, void *);
 
-	PulseAudioDriver(audioProcessCallback processCallback);
-	~PulseAudioDriver();
+    PulseAudioDriver(audioProcessCallback processCallback);
+    ~PulseAudioDriver();
 
-	virtual int init( unsigned nBufferSize );
-	virtual int connect();
-	virtual void disconnect();
-	virtual unsigned getBufferSize();
-	virtual unsigned getSampleRate();
-	virtual float* getOut_L();
-	virtual float* getOut_R();
+    virtual int init( unsigned nBufferSize );
+    virtual int connect();
+    virtual void disconnect();
+    virtual unsigned getBufferSize();
+    virtual unsigned getSampleRate();
+    virtual float* getOut_L();
+    virtual float* getOut_R();
+    virtual float* getMonitorOut_L();
+    virtual float* getMonitorOut_R();
 
-	virtual void updateTransportInfo();
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void setBpm( float fBPM );
+    virtual void updateTransportInfo();
+    virtual void play();
+    virtual void stop();
+    virtual void locate( unsigned long nFrame );
+    virtual void setBpm( float fBPM );
 
 private:
-	pthread_t				m_thread;
-	pthread_mutex_t			m_mutex;
-	pthread_cond_t			m_cond;
-	int						m_pipe[2];
-	audioProcessCallback	m_callback;
-	pa_mainloop*			m_main_loop;
-	pa_context*				m_ctx;
-	pa_stream*				m_stream;
-	bool					m_connected;
-	int						m_ready;
-	unsigned				m_sample_rate;
-	unsigned				m_buffer_size;
-	float*					m_outL;
-	float*					m_outR;
+    pthread_t				m_thread;
+    pthread_mutex_t			m_mutex;
+    pthread_cond_t			m_cond;
+    int						m_pipe[2];
+    audioProcessCallback	m_callback;
+    pa_mainloop*			m_main_loop;
+    pa_context*				m_ctx;
+    pa_stream*				m_stream;
+    bool					m_connected;
+    int						m_ready;
+    unsigned				m_sample_rate;
+    unsigned				m_buffer_size;
+    float*					m_outL;
+    float*					m_outR;
+    float*                  m_pMonitorOut_L;
+    float*                  m_pMonitorOut_R;
 
-	static void* s_thread_body(void*);
-	int thread_body();
+    static void* s_thread_body(void*);
+    int thread_body();
 
-	static void ctx_state_callback(pa_context* ctx, void* udata);
-	static void stream_state_callback(pa_stream* stream, void* udata);
-	static void stream_write_callback(pa_stream* stream, size_t bytes, void* udata);
-	static void pipe_callback(pa_mainloop_api*, pa_io_event*, int fd,
-					pa_io_event_flags_t events, void *udata);
+    static void ctx_state_callback(pa_context* ctx, void* udata);
+    static void stream_state_callback(pa_stream* stream, void* udata);
+    static void stream_write_callback(pa_stream* stream, size_t bytes, void* udata);
+    static void pipe_callback(pa_mainloop_api*, pa_io_event*, int fd,
+                    pa_io_event_flags_t events, void *udata);
 };
 
 } //namespace H2Core
@@ -94,13 +98,13 @@ private:
 #include <hydrogen/IO/NullDriver.h>
 
 namespace H2Core {
-	class PulseAudioDriver : public NullDriver
-	{
-		H2_OBJECT
-	public:
-		PulseAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+    class PulseAudioDriver : public NullDriver
+    {
+        H2_OBJECT
+    public:
+        PulseAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
-	};
+    };
 }
 
 #endif //H2CORE_HAVE_PULSEAUDIO

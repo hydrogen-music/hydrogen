@@ -57,16 +57,16 @@ Sampler::Sampler()
 		: Object( __class_name )
 		, __main_out_L( NULL )
 		, __main_out_R( NULL )
-                , __monitor_out_L( NULL )
-                , __monitor_out_R( NULL )
+				, __monitor_out_L( NULL )
+				, __monitor_out_R( NULL )
 		, __preview_instrument( NULL )
 {
 	INFOLOG( "INIT" );
 		__interpolateMode = LINEAR;
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
-        __monitor_out_L = new float[ MAX_BUFFER_SIZE ];
-        __monitor_out_R = new float[ MAX_BUFFER_SIZE ];
+		__monitor_out_L = new float[ MAX_BUFFER_SIZE ];
+		__monitor_out_R = new float[ MAX_BUFFER_SIZE ];
 
 	// instrument used in file preview
 	QString sEmptySampleFilename = Filesystem::empty_sample();
@@ -83,8 +83,8 @@ Sampler::~Sampler()
 
 	delete[] __main_out_L;
 	delete[] __main_out_R;
-        delete[] __monitor_out_L;
-        delete[] __monitor_out_R;
+		delete[] __monitor_out_L;
+		delete[] __monitor_out_R;
 
 	delete __preview_instrument;
 	__preview_instrument = NULL;
@@ -99,8 +99,8 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 	memset( __main_out_L, 0, nFrames * sizeof( float ) );
 	memset( __main_out_R, 0, nFrames * sizeof( float ) );
-        memset( __monitor_out_L, 0, nFrames * sizeof( float ) );
-        memset( __monitor_out_R, 0, nFrames * sizeof( float ) );
+		memset( __monitor_out_L, 0, nFrames * sizeof( float ) );
+		memset( __monitor_out_R, 0, nFrames * sizeof( float ) );
 
 	// Track output queues are zeroed by
 	// audioEngine_process_clearAudioBuffers()
@@ -185,7 +185,7 @@ void Sampler::note_on( Note *note )
 	pInstr->enqueue();
 	if( !note->get_note_off() ){
 		__playing_notes_queue.push_back( note );
-	} 
+	}
 }
 
 void Sampler::midi_keyboard_note_off( int key )
@@ -379,7 +379,7 @@ int Sampler::__render_note_no_resample(
 {
 	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
 	int retValue = 1; // the note is ended
-        float cost_MonitorVolumenLR = pSong->get_monitor_volume();
+		float cost_MonitorVolumenLR = pSong->get_monitor_volume();
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
@@ -401,7 +401,7 @@ int Sampler::__render_note_no_resample(
 	int nInitialSamplePos = ( int )pNote->get_sample_position();
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-        int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
+		int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
@@ -428,8 +428,8 @@ int Sampler::__render_note_no_resample(
 	float *track_out_R = 0;
 	if( audio_output->has_track_outs()
 	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
-                track_out_L = jao->getTrackOut_L( nInstrument );
-                track_out_R = jao->getTrackOut_R( nInstrument );
+				track_out_L = jao->getTrackOut_L( nInstrument );
+				track_out_R = jao->getTrackOut_R( nInstrument );
 	}
 #endif
 
@@ -458,13 +458,9 @@ int Sampler::__render_note_no_resample(
 		}
 #endif
 
-<<<<<<< HEAD
-                float fValMon_L = fVal_L * cost_MonitorVolumenLR;
-                float fValMon_R = fVal_R * cost_MonitorVolumenLR;
-				fVal_L = fVal_L * cost_L;
-=======
+		float fValMon_L = fVal_L * cost_MonitorVolumenLR;
+		float fValMon_R = fVal_R * cost_MonitorVolumenLR;
 		fVal_L = fVal_L * cost_L;
->>>>>>> master
 		fVal_R = fVal_R * cost_R;
 
 
@@ -476,29 +472,29 @@ int Sampler::__render_note_no_resample(
 			fInstrPeak_R = fVal_R;
 		}
 
-                // to main/monitor mix
-                int output = pNote->get_instrument()->is_output();
-                // prior note output settings
-                if( pNote->is_output() > output ){
-                       output = pNote->is_output();
-                }
+				// to main/monitor mix
+				int output = pNote->get_instrument()->is_output();
+				// prior note output settings
+				if( pNote->is_output() > output ){
+					   output = pNote->is_output();
+				}
 
-                switch (output){
-                case 0: // Main Out
-                       __main_out_L[nBufferPos] += fVal_L;
-                       __main_out_R[nBufferPos] += fVal_R;
-                       break;
-                case 1: // Monitor Out
-                       __monitor_out_L[nBufferPos] += fValMon_L;
-                       __monitor_out_R[nBufferPos] += fValMon_R;
-                       break;
-                case 2: // Both
-                       __main_out_L[nBufferPos] += fVal_L;
-                       __main_out_R[nBufferPos] += fVal_R;
-                       __monitor_out_L[nBufferPos] += fValMon_L;
-                       __monitor_out_R[nBufferPos] += fValMon_R;
-                       break;
-                }
+				switch (output){
+				case 0: // Main Out
+					   __main_out_L[nBufferPos] += fVal_L;
+					   __main_out_R[nBufferPos] += fVal_R;
+					   break;
+				case 1: // Monitor Out
+					   __monitor_out_L[nBufferPos] += fValMon_L;
+					   __monitor_out_R[nBufferPos] += fValMon_R;
+					   break;
+				case 2: // Both
+					   __main_out_L[nBufferPos] += fVal_L;
+					   __main_out_R[nBufferPos] += fVal_R;
+					   __monitor_out_L[nBufferPos] += fValMon_L;
+					   __monitor_out_R[nBufferPos] += fValMon_R;
+					   break;
+				}
 
 		++nSamplePos;
 	}
@@ -557,7 +553,7 @@ int Sampler::__render_note_resample(
 )
 {
 	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
-        float cost_MonitorVolumenLR = pSong->get_monitor_volume();
+		float cost_MonitorVolumenLR = pSong->get_monitor_volume();
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
 		nNoteLength = ( int )( pNote->get_length() * audio_output->m_transport.m_nTickSize );
@@ -691,8 +687,8 @@ int Sampler::__render_note_resample(
 		}
 #endif
 
-                float fValMon_L = fVal_L * cost_MonitorVolumenLR;
-                float fValMon_R = fVal_R * cost_MonitorVolumenLR;
+				float fValMon_L = fVal_L * cost_MonitorVolumenLR;
+				float fValMon_R = fVal_R * cost_MonitorVolumenLR;
 		fVal_L = fVal_L * cost_L;
 		fVal_R = fVal_R * cost_R;
 
@@ -704,29 +700,29 @@ int Sampler::__render_note_resample(
 			fInstrPeak_R = fVal_R;
 		}
 
-                // to main/monitor mix
-                int output = pNote->get_instrument()->is_output();
-                // prior note output settings
-                if( pNote->is_output() > output ){
-                       output = pNote->is_output();
-                }
+				// to main/monitor mix
+				int output = pNote->get_instrument()->is_output();
+				// prior note output settings
+				if( pNote->is_output() > output ){
+					   output = pNote->is_output();
+				}
 
-                switch (output){
-                case 0: // Main Out
-                       __main_out_L[nBufferPos] += fVal_L;
-                       __main_out_R[nBufferPos] += fVal_R;
-                       break;
-                case 1: // Monito Out
-                       __monitor_out_L[nBufferPos] += fValMon_L;
-                       __monitor_out_R[nBufferPos] += fValMon_R;
-                       break;
-                case 2: // Both
-                       __main_out_L[nBufferPos] += fVal_L;
-                       __main_out_R[nBufferPos] += fVal_R;
-                       __monitor_out_L[nBufferPos] += fValMon_L;
-                       __monitor_out_R[nBufferPos] += fValMon_R;
-                       break;
-                }
+				switch (output){
+				case 0: // Main Out
+					   __main_out_L[nBufferPos] += fVal_L;
+					   __main_out_R[nBufferPos] += fVal_R;
+					   break;
+				case 1: // Monito Out
+					   __monitor_out_L[nBufferPos] += fValMon_L;
+					   __monitor_out_R[nBufferPos] += fValMon_R;
+					   break;
+				case 2: // Both
+					   __main_out_L[nBufferPos] += fVal_L;
+					   __main_out_R[nBufferPos] += fVal_R;
+					   __monitor_out_L[nBufferPos] += fValMon_L;
+					   __monitor_out_R[nBufferPos] += fValMon_R;
+					   break;
+				}
 
 		fSamplePos += fStep;
 	}
@@ -866,7 +862,7 @@ void Sampler::preview_sample( Sample* sample, int length )
 	pLayer->set_sample( sample );
 
 	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
-        previewNote->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
+		previewNote->set_output( Preferences::get_instance()->getLayerAndSndLibraryPreviewMonitor() );
 
 	stop_playing_notes( __preview_instrument );
 	note_on( previewNote );

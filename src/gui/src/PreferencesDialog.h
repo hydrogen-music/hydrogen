@@ -52,19 +52,14 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_midiPortComboBox_activated( int index );
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
-<<<<<<< HEAD
-                void onMidiDriverComboBoxIndexChanged( int index );
-                void toggleTrackOutsCheckBox(bool toggled);
-                void metronomeOutputcomboBoxIndexChanged( int index);
-                void instrumentPreviewOutputcomboBoxIndexChanged(int index);
-                void patternEditPreviewOutputcomboBoxIndexChanged(int index);
-                void patternPreviewOutputcomboBoxIndexChanged(int index);
-                void loadLayerPreviewOutputcomboBoxIndexChanged(int index);
-                void mainMixToMonitorMixDailValueChanged( int val);
-=======
 		void onMidiDriverComboBoxIndexChanged( int index );
 		void toggleTrackOutsCheckBox(bool toggled);
->>>>>>> master
+		void metronomeOutputcomboBoxIndexChanged( int index);
+		void instrumentPreviewOutputcomboBoxIndexChanged(int index);
+		void patternEditPreviewOutputcomboBoxIndexChanged(int index);
+		void patternPreviewOutputcomboBoxIndexChanged(int index);
+		void loadLayerPreviewOutputcomboBoxIndexChanged(int index);
+		void mainMixToMonitorMixDailValueChanged( int val);
 
 	private:
 		bool m_bNeedDriverRestart;

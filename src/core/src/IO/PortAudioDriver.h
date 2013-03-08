@@ -40,38 +40,38 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class PortAudioDriver : public AudioOutput
 {
-	H2_OBJECT
+    H2_OBJECT
 public:
-	audioProcessCallback m_processCallback;
-	float* m_pOut_L;
-	float* m_pOut_R;
-        float* m_pMonitorOut_L;
-        float* m_pMonitorOut_R;
+    audioProcessCallback m_processCallback;
+    float* m_pOut_L;
+    float* m_pOut_R;
+    float* m_pMonitorOut_L;
+    float* m_pMonitorOut_R;
 
-	unsigned m_nBufferSize;
+    unsigned m_nBufferSize;
 
-	PortAudioDriver( audioProcessCallback processCallback );
-	virtual ~PortAudioDriver();
+    PortAudioDriver( audioProcessCallback processCallback );
+    virtual ~PortAudioDriver();
 
-	virtual int init( unsigned nBufferSize );
-	virtual int connect();
-	virtual void disconnect();
-	virtual unsigned getBufferSize();
-	virtual unsigned getSampleRate();
-	virtual float* getOut_L();
-	virtual float* getOut_R();
-        virtual float* getMonitorOut_L();
-        virtual float* getMonitorOut_R();
+    virtual int init( unsigned nBufferSize );
+    virtual int connect();
+    virtual void disconnect();
+    virtual unsigned getBufferSize();
+    virtual unsigned getSampleRate();
+    virtual float* getOut_L();
+    virtual float* getOut_R();
+    virtual float* getMonitorOut_L();
+    virtual float* getMonitorOut_R();
 
-	virtual void updateTransportInfo();
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void setBpm( float fBPM );
+    virtual void updateTransportInfo();
+    virtual void play();
+    virtual void stop();
+    virtual void locate( unsigned long nFrame );
+    virtual void setBpm( float fBPM );
 
 private:
-	PaStream *m_pStream;
-	unsigned m_nSampleRate;
+    PaStream *m_pStream;
+    unsigned m_nSampleRate;
 
 };
 
@@ -84,9 +84,9 @@ namespace H2Core
 
 class PortAudioDriver : public NullDriver
 {
-	H2_OBJECT
+    H2_OBJECT
 public:
-	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+    PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
 };
 

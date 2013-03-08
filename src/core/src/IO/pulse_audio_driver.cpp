@@ -139,6 +139,15 @@ float* PulseAudioDriver::getOut_R()
 	return m_outR;
 }
 
+float* PulseAudioDriver::getMonitorOut_L()
+{
+	   return m_pMonitorOut_L;
+}
+
+float* PulseAudioDriver::getMonitorOut_R()
+{
+	   return m_pMonitorOut_R;
+}
 
 void PulseAudioDriver::updateTransportInfo()
 {
