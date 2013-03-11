@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Hydrogen by hydrogen-music</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Hydrogen</h1>
+        <p>The git repository of the advanced drum machine </p>
+
+        <p class="view"><a href="https://github.com/hydrogen-music/hydrogen">View the Project on GitHub <small>hydrogen-music/hydrogen</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/hydrogen-music/hydrogen/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/hydrogen-music/hydrogen/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/hydrogen-music/hydrogen">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>Welcome to Hydrogen on Github.</h3>
+
+<p>Compiling Hydrogen V0.9.6 </p>
+
+<h1>How to compile hydrogen on linux</h1>
+
+<p>These are the instructions for compiling the Hydrogen versions 0.9.6 (all based on QT4) on a debian-based distribution. Hydrogen runs on all kinds of linux distribution, but then the package names and installation tools will differ. </p>
+
+<h1>Required libraries</h1>
+
+<ul>
+<li>libqt4-dev</li>
+<li>libasound-dev</li>
+<li>libsndfile-dev</li>
+<li>libjack-dev</li>
+<li>liblrdf-dev</li>
+<li>libflac++-dev</li>
+<li>libtar-dev</li>
+<li>liblash-dev</li>
+<li>zlib1g-dev </li>
+</ul><p>On a debian based system, you can fetch the mandatory libraries with:
+<code>apt-get install git-core cmake libqt4-dev g++ libasound2-dev libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev</code></p>
+
+<p>You should use QT 4.6 or higher. In addition, you need a libjack &gt; 1.9.7.</p>
+
+<p>If you want to use lash, install additionally: <code>liblash-dev</code></p>
+
+<p>If you want to use rubberband, install additionally: <code>librubberband-dev</code></p>
+
+<p>If you want to use OSS, install additionally: <code>oss4-dev</code></p>
+
+<p>For portaudio / portmidi: <code>libportaudio-dev libportmidi-dev</code></p>
+
+<h2>1. Get the sourcecode</h2>
+
+<p><code>cd /usr/src</code>
+<code>git clone git://github.com/hydrogen-music/hydrogen.git</code></p>
+
+<h2>2. Compile and install hydrogen:</h2>
+
+<p>cd /usr/src/hydrogen
+./build.sh m</p>
+
+<h2>3.  Build a debian package</h2>
+
+<p>If you're using a debian based system, you can build a debian package. This makes it easier to remove hydrogen from your system.</p>
+
+<p>apt-get install fakeroot debhelper build-essential
+cd /usr/src/hydrogen/linux
+fakeroot dpkg-buildpackage</p>
+
+<p>The package appears in /usr/src/hydrogen and can be installed with dpkg ( dpkg -i package_name ) </p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/hydrogen-music">hydrogen-music</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
