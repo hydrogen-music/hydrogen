@@ -62,7 +62,7 @@ static struct option long_opts[] = {
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
 #ifdef H2CORE_HAVE_JACKSESSION
-        {"jacksessionid", required_argument, NULL, 'S'},
+		{"jacksessionid", required_argument, NULL, 'S'},
 #endif
 	{"playlist", required_argument, NULL, 'p'},
 	{"version", 0, NULL, 'v'},
@@ -130,7 +130,7 @@ void setPalette( QApplication *pQApp )
 	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
 
 	pQApp->setPalette( defaultPalette );
-	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}"); 
+	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
 }
 
 
@@ -174,11 +174,11 @@ int main(int argc, char *argv[])
 		// Deal with the options
 		QString songFilename;
 #ifdef H2CORE_HAVE_JACKSESSION
-                QString sessionId;
+				QString sessionId;
 #endif
 		QString playlistFilename;
 		bool bNoSplash = false;
-        QString sys_data_path;
+		QString sys_data_path;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
 		unsigned logLevelOpt = H2Core::Logger::Error;
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
 			H2Core::Drumkit::install( drumkitName );
 			exit(0);
 		}
-		
+
 		if (sSelectedDriver == "auto") {
 			pPref->m_sAudioDriver = "Auto";
 		}

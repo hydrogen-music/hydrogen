@@ -175,13 +175,13 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	}
 #endif
 
-	
+
 	//playlist display timer
 	QTimer *playlistDisplayTimer = new QTimer(this);
 	connect( playlistDisplayTimer, SIGNAL( timeout() ), this, SLOT( onPlaylistDisplayTimer() ) );
 	playlistDisplayTimer->start(30000);	// update player control at
 	// ~ playlist display timer
-	
+
 	//beatcouter
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 	// director
@@ -200,6 +200,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		}
 	}
 }
+
 
 
 MainForm::~MainForm()
@@ -230,6 +231,8 @@ MainForm::~MainForm()
 	}
 
 }
+
+
 
 ///
 /// Create the menubar
@@ -294,8 +297,6 @@ void MainForm::createMenuBar()
 	m_pInstrumentsMenu->addAction( trUtf8( "&Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
 
 
-
-
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
 
@@ -350,10 +351,9 @@ void MainForm::createMenuBar()
 
 
 
-
 void MainForm::onLashPollTimer()
 {
-#ifdef H2CORE_HAVE_LASH	
+#ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* client = LashClient::get_instance();
 
@@ -374,14 +374,14 @@ void MainForm::onLashPollTimer()
 		while ( (event = client->getNextEvent()) ) {
 
 			switch (lash_event_get_type(event)) {
-			
+
 			case LASH_Save_File:
 
 				INFOLOG("[LASH] Save file");
 
 				songFilename.append(lash_event_get_string(event));
 				songFilename.append("/hydrogen.h2song");
-				
+
 				filenameSong = QString::fromLocal8Bit( songFilename.c_str() );
 				song->set_filename( filenameSong );
 				action_file_save();
@@ -394,7 +394,7 @@ void MainForm::onLashPollTimer()
 
 				songFilename.append(lash_event_get_string(event));
 				songFilename.append("/hydrogen.h2song");
-				
+
 				INFOLOG( QString("[LASH] Restore file: %1")
 						 .arg( songFilename.c_str() ) );
 
@@ -410,7 +410,7 @@ void MainForm::onLashPollTimer()
 
 				//				infoLog("[LASH] Quit!");
 				keep_running = false;
-				
+
 				break;
 
 			default:
@@ -431,6 +431,7 @@ void MainForm::onLashPollTimer()
 	}
 #endif
 }
+
 
 
 /// return true if the app needs to be closed.
@@ -534,7 +535,7 @@ void MainForm::action_file_save()
 
 	bool saved = false;
 	saved = song->save( filename );
-	
+
 
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", trUtf8("Could not save song.") );
@@ -555,6 +556,7 @@ void MainForm::action_file_save()
 }
 
 
+
 void MainForm::action_toggle_input_mode()
 {
 	if(  !Preferences::get_instance()->__playselectedinstrument )
@@ -569,21 +571,29 @@ void MainForm::action_toggle_input_mode()
 	}
 }
 
+
+
 void MainForm::action_help_about() {
 	AboutDialog *dialog = new AboutDialog( NULL );
 	dialog->exec();
 }
+
+
 
 void MainForm::action_report_bug()
 {
 	QDesktopServices::openUrl(QString("https://github.com/hydrogen-music/hydrogen/issues"));
 }
 
+
+
 void MainForm::showUserManual()
 {
 	h2app->getHelpBrowser()->hide();
 	h2app->getHelpBrowser()->show();
 }
+
+
 
 void MainForm::action_file_export_pattern_as()
 {
@@ -652,7 +662,7 @@ void MainForm::action_file_export_pattern_as()
 		}
 	}
 	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
-	
+
 	//update SoundlibraryPanel
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
@@ -671,7 +681,7 @@ void MainForm::action_file_open() {
 	}
 
 	static QString lastUsedDir = Preferences::get_instance()->getDataDirectory() + "/songs";
-	
+
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
 	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
@@ -692,6 +702,7 @@ void MainForm::action_file_open() {
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
+
 
 
 void MainForm::action_file_openPattern()
@@ -739,6 +750,8 @@ void MainForm::action_file_openPattern()
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
+
+
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
 void MainForm::action_file_openDemo()
 {
@@ -750,7 +763,7 @@ void MainForm::action_file_openDemo()
 	if(!proceed) {
 		return;
 	}
-	
+
 	h2app->m_undoStack->clear();
 	std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	fd->setFileMode(QFileDialog::ExistingFile);
@@ -788,11 +801,15 @@ void MainForm::action_window_showPlaylistDialog()
 	h2app->showPlaylistDialog();
 }
 
+
+
 void MainForm::action_window_show_DirectorWidget()
 {
 
 	h2app->showDirector();
 }
+
+
 
 void MainForm::action_window_showMixer()
 {
@@ -867,6 +884,8 @@ void MainForm::action_instruments_clearAll()
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
+
+
 void MainForm::functionDeleteInstrument(int instrument)
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -896,12 +915,12 @@ void MainForm::functionDeleteInstrument(int instrument)
 }
 
 
+
 void MainForm::action_instruments_exportLibrary()
 {
 	SoundLibraryExportDialog exportDialog( this, QString() );
 	exportDialog.exec();
 }
-
 
 
 
@@ -960,7 +979,6 @@ void MainForm::action_window_showDrumkitManagerPanel()
 	InstrumentRack *pPanel = HydrogenApp::get_instance()->getInstrumentRack();
 	pPanel->setHidden( pPanel->isVisible() );
 }
-
 
 
 
@@ -1403,17 +1421,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 
 
-
-
 /// print the object map
 void MainForm::action_debug_printObjects()
 {
 	INFOLOG( "[action_debug_printObjects]" );
 	Object::write_objects_map_to_cerr();
 }
-
-
-
 
 
 
@@ -1456,7 +1469,6 @@ void MainForm::action_file_export_midi()
 void MainForm::errorEvent( int nErrorCode )
 {
 	//ERRORLOG( "[errorEvent]" );
-
 	QString msg;
 	switch (nErrorCode) {
 	case Hydrogen::UNKNOWN_DRIVER:
@@ -1489,6 +1501,8 @@ void MainForm::errorEvent( int nErrorCode )
 	QMessageBox::information( this, "Hydrogen", msg );
 }
 
+
+
 void MainForm::playlistLoadSongEvent(int nIndex)
 {
 
@@ -1497,6 +1511,8 @@ void MainForm::playlistLoadSongEvent(int nIndex)
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
 }
+
+
 
 void MainForm::jacksessionEvent( int nEvent )
 {
@@ -1511,6 +1527,8 @@ void MainForm::jacksessionEvent( int nEvent )
 
 }
 
+
+
 void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
@@ -1521,6 +1539,7 @@ void MainForm::action_file_songProperties()
 }
 
 
+
 void MainForm::action_window_showPatternEditor()
 {
 	bool isVisible = HydrogenApp::get_instance()->getPatternEditorPanel()->isVisible();
@@ -1528,9 +1547,9 @@ void MainForm::action_window_showPatternEditor()
 }
 
 
+
 void MainForm::showDevelWarning()
 {
-
 	//set this to 'false' for the case that you want to make a release..
 	if ( true ) {
 		Preferences *pref = Preferences::get_instance();
@@ -1548,8 +1567,6 @@ void MainForm::showDevelWarning()
 				pref->setShowDevelWarning( false );
 			}
 		}
-
-
 	}
 }
 
@@ -1594,6 +1611,7 @@ void MainForm::onAutoSaveTimer()
 }
 
 
+
 void MainForm::onPlaylistDisplayTimer()
 {
 	if( Hydrogen::get_instance()->m_PlayList.size() == 0)
@@ -1612,6 +1630,8 @@ void MainForm::onPlaylistDisplayTimer()
 	QString message = (trUtf8("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( message, 2000 );
 }
+
+
 
 // Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
 // Returns false if not (i.e. Cancel)
@@ -1652,11 +1672,14 @@ bool MainForm::handleUnsavedChanges()
 }
 
 
+
 void MainForm::usr1SignalHandler(int)
 {
 	char a = 1;
 	size_t ret = ::write(sigusr1Fd[0], &a, sizeof(a));
 }
+
+
 
 void MainForm::handleSigUsr1()
 {
@@ -1668,19 +1691,27 @@ void MainForm::handleSigUsr1()
 	snUsr1->setEnabled(true);
 }
 
+
+
 void MainForm::openUndoStack()
 {
 	undoView->show();
 	undoView->setAttribute(Qt::WA_QuitOnClose, false);
 }
 
+
+
 void MainForm::action_undo(){
 	h2app->m_undoStack->undo();
 }
 
+
+
 void MainForm::action_redo(){
 	h2app->m_undoStack->redo();
 }
+
+
 
 void MainForm::undoRedoActionEvent( int nEvent ){
 	if(nEvent == 0)
@@ -1688,6 +1719,8 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	else if(nEvent == 1)
 		h2app->m_undoStack->redo();
 }
+
+
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
@@ -1703,6 +1736,3 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 
 	return TRUE;
 }
-
-
-
