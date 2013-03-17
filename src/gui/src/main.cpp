@@ -61,9 +61,9 @@ static struct option long_opts[] = {
 	{"data", required_argument, NULL, 'P'},
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
-#ifdef H2CORE_HAVE_JACKSESSION
-		{"jacksessionid", required_argument, NULL, 'S'},
-#endif
+	#ifdef H2CORE_HAVE_JACKSESSION
+	{"jacksessionid", required_argument, NULL, 'S'},
+	#endif
 	{"playlist", required_argument, NULL, 'p'},
 	{"version", 0, NULL, 'v'},
 	{"nosplash", 0, NULL, 'n'},
@@ -74,7 +74,10 @@ static struct option long_opts[] = {
 	{0, 0, 0, 0},
 };
 
+
+
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
+
 
 
 //
@@ -134,6 +137,7 @@ void setPalette( QApplication *pQApp )
 }
 
 
+
 static int setup_unix_signal_handlers()
 {
 #ifndef WIN32
@@ -150,6 +154,8 @@ static int setup_unix_signal_handlers()
 	return 0;
 #endif
 }
+
+
 
 int main(int argc, char *argv[])
 {
@@ -174,7 +180,7 @@ int main(int argc, char *argv[])
 		// Deal with the options
 		QString songFilename;
 #ifdef H2CORE_HAVE_JACKSESSION
-				QString sessionId;
+		QString sessionId;
 #endif
 		QString playlistFilename;
 		bool bNoSplash = false;
@@ -197,52 +203,52 @@ int main(int argc, char *argv[])
 				sys_data_path = QString::fromLocal8Bit(optarg);
 				break;
 
-				case 'd':
-					sSelectedDriver = QString::fromLocal8Bit(optarg);
-					break;
+			case 'd':
+				sSelectedDriver = QString::fromLocal8Bit(optarg);
+				break;
 
-				case 's':
-					songFilename = QString::fromLocal8Bit(optarg);
-					break;
+			case 's':
+				songFilename = QString::fromLocal8Bit(optarg);
+				break;
 #ifdef H2CORE_HAVE_JACKSESSION
 			case 'S':
 				sessionId = QString::fromLocal8Bit(optarg);
 				break;
 #endif
 
-				case 'p':
-					playlistFilename = QString::fromLocal8Bit(optarg);
-					break;
+			case 'p':
+				playlistFilename = QString::fromLocal8Bit(optarg);
+				break;
 
-				case 'k':
-					//load Drumkit
-					drumkitToLoad = QString::fromLocal8Bit(optarg);
-					break;
+			case 'k':
+				//load Drumkit
+				drumkitToLoad = QString::fromLocal8Bit(optarg);
+				break;
 
-				case 'v':
-					showVersionOpt = true;
-					break;
+			case 'v':
+				showVersionOpt = true;
+				break;
 
-				case 'i':
-					//install h2drumkit
-					drumkitName = QString::fromLocal8Bit( optarg );
-					break;
+			case 'i':
+				//install h2drumkit
+				drumkitName = QString::fromLocal8Bit( optarg );
+				break;
 
-				case 'V':
-					if( optarg ) {
-						logLevelOpt = H2Core::Logger::parse_log_level( optarg );
-					} else {
-						logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
-					}
-					break;
-				case 'n':
-					bNoSplash = true;
-					break;
+			case 'V':
+				if( optarg ) {
+					logLevelOpt = H2Core::Logger::parse_log_level( optarg );
+				} else {
+					logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+				}
+				break;
+			case 'n':
+				bNoSplash = true;
+				break;
 
-				case 'h':
-				case '?':
-					showHelpOpt = true;
-					break;
+			case 'h':
+			case '?':
+				showHelpOpt = true;
+				break;
 			}
 		}
 
@@ -311,7 +317,7 @@ int main(int argc, char *argv[])
 		QString sLocale = QLocale::system().name();
 		if ( sLocale != "C") {
 			if (qttor.load( QString( "qt_" ) + sLocale,
-				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+							QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 				pQApp->installTranslator( &qttor );
 			else
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(QLocale::system().name()));
@@ -510,4 +516,3 @@ void showUsage()
 	std::cout << "   -v, --version - Show version info" << std::endl;
 	std::cout << "   -h, --help - Show this help message" << std::endl;
 }
-
