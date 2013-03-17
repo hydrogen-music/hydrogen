@@ -942,10 +942,6 @@ void MainForm::action_instruments_saveLibrary()
 
 
 
-
-
-
-
 ///
 /// Window close event
 ///
