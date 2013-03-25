@@ -65,31 +65,31 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
-		void addOrDeleteNoteAction(     int nColumn,
-						int row,
-						int selectedPatternNumber,
-						int oldLength,
-						float oldVelocity,
-						float oldPan_L,
-						float oldPan_R,
-						float oldLeadLag,
-						int oldNoteKeyVal,
-                                               int oldOctaveKeyVal,
-                                               bool listen,
-                                               bool isMidi,
-                                               bool isInstrumentMode,
-                                               bool isNoteOff);
+		void addOrDeleteNoteAction(		int nColumn,
+										int row,
+										int selectedPatternNumber,
+										int oldLength,
+										float oldVelocity,
+										float oldPan_L,
+										float oldPan_R,
+										float oldLeadLag,
+										int oldNoteKeyVal,
+										int oldOctaveKeyVal,
+										bool listen,
+										bool isMidi,
+										bool isInstrumentMode,
+										bool isNoteOff);
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
-					QString mode,
-					int nSelectedPatternNumber,
-					int nSelectedInstrument,
-					float velocity,
-					float pan_L,
-					float pan_R,
-					float leadLag,
-					int noteKeyVal, 
-					int octaveKeyVal );
+								QString mode,
+								int nSelectedPatternNumber,
+								int nSelectedInstrument,
+								float velocity,
+								float pan_L,
+								float pan_R,
+								float leadLag,
+								int noteKeyVal,
+								int octaveKeyVal );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
