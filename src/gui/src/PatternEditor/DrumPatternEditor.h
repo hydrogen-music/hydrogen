@@ -101,6 +101,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
+		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);
+		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
 
 	public slots:
 		void updateEditor();
