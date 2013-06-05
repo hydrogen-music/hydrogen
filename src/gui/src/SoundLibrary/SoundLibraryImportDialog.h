@@ -50,6 +50,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		void on_close_btn_clicked();
 
 		void soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* );
+		void onRepositoryComboBoxIndexChanged(int);
 
 	private:
 		std::vector<SoundLibraryInfo> m_soundLibraryList;
@@ -60,6 +61,10 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		QTreeWidgetItem* m_pPatternItem;
 
 		bool isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo );
+		void writeCachedData(const QString& fileName, const QString& data);
+		QString readCachedData(const QString& fileName);
+		QString getCachedFilename();
+		void reloadRepositoryData();
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();
 };

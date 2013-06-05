@@ -19,6 +19,9 @@
 #define DEMOS           "/demo_songs"
 #define XSD             "/xsd"
 #define TMP             "/hydrogen"
+#define CACHE           "/cache"
+#define REPOSITORIES    "/repositories"
+
 
 // files
 #define GUI_CONFIG      "/gui.conf"
@@ -275,6 +278,8 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( patterns_dir() ) ) return false;
 	if( !path_usable( playlists_dir() ) ) return false;
 	if( !path_usable( usr_drumkits_dir() ) ) return false;
+	if( !path_usable( cache_dir() ) ) return false;
+	if( !path_usable( repositories_cache_dir() ) ) return false;
 	INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
 	return true;
 }
@@ -367,6 +372,14 @@ QString Filesystem::usr_drumkits_dir()
 QString Filesystem::playlists_dir()
 {
 	return __usr_data_path + PLAYLISTS;
+}
+QString Filesystem::cache_dir()
+{
+	return __usr_data_path + CACHE;
+}
+QString Filesystem::repositories_cache_dir()
+{
+	return __usr_data_path + CACHE + REPOSITORIES;
 }
 QString Filesystem::demos_dir()
 {
@@ -502,6 +515,8 @@ void Filesystem::info()
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 	INFOLOG( QString( "Patterns dir               : %1" ).arg( patterns_dir() ) );
 	INFOLOG( QString( "Playlists dir              : %1" ).arg( playlists_dir() ) );
+	INFOLOG( QString( "Cache dir                  : %1" ).arg( cache_dir() ) );
+	INFOLOG( QString( "Repositories cache dir     : %1" ).arg( cache_dir() ) );
 	INFOLOG( QString( "User core cfg file         : %1" ).arg( usr_core_config() ) );
 	INFOLOG( QString( "User gui cfg file          : %1" ).arg( usr_gui_config() ) );
 }

@@ -41,6 +41,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QFileDialog>
+#include <QCryptographicHash>
 
 #include <memory>
 
@@ -62,7 +63,7 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 	m_pDrumkitTree->header()->resizeSection( 0, 200 );
 
 	connect( m_pDrumkitTree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
-
+	connect( repositoryCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( onRepositoryComboBoxIndexChanged(int) ));
 
 	SoundLibraryNameLbl->setText( "" );
 	SoundLibraryInfoLbl->setText( "" );
@@ -101,6 +102,18 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 	for( cur_Server = pref->sServerList.begin(); cur_Server != pref->sServerList.end(); ++cur_Server ) {
 		repositoryCombo->insertItem( 0, *cur_Server );
 	}
+	reloadRepositoryData();
+}
+
+void SoundLibraryImportDialog::onRepositoryComboBoxIndexChanged(int i)
+{
+	UNUSED(i);
+	QString cacheFile = getCachedFilename();
+	if( !H2Core::Filesystem::file_exists( cacheFile ) )
+	{
+		SoundLibraryImportDialog::on_UpdateListBtn_clicked();
+	}
+	reloadRepositoryData();
 }
 
 ///
@@ -113,20 +126,68 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 	updateRepositoryCombo();
 }
 
-
-///
-/// Download and update the drumkit list
-///
-void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
+QString SoundLibraryImportDialog::getCachedFilename()
 {
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-	DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), repositoryCombo->currentText() );
-	drumkitList.exec();
+	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
+	QString serverMd5 = QString(QCryptographicHash::hash(( repositoryCombo->currentText().toLatin1() ),QCryptographicHash::Md5).toHex());
+	QString cacheFile = cacheDir + "/" + serverMd5;
+	return cacheFile;
+}
+
+void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QString& data)
+{
+	if( data.isEmpty() )
+	{
+		return;
+	}
+
+	QFile outFile( fileName );
+	if( !outFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+	{
+		ERRORLOG( "Failed to open file for writing repository cache." );
+		return;
+	}
+
+	QTextStream stream( &outFile );
+	stream << data;
+
+	outFile.close();
+}
+
+QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
+{
+	QString content;
+	QFile inFile( fileName );
+	if( !inFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
+	{
+		ERRORLOG( "Failed to open file for reading." );
+		return content;
+	}
+
+	QDomDocument document;
+	if( !document.setContent( &inFile ) )
+	{
+		inFile.close();
+		return content;
+	}
+	inFile.close();
+
+	content = document.toString();
+
+	return content;
+}
+
+void SoundLibraryImportDialog::reloadRepositoryData()
+{
+	QString sDrumkitXML;
+	QString cacheFile = getCachedFilename();
+
+	if(H2Core::Filesystem::file_exists(cacheFile,true))
+	{
+		sDrumkitXML = readCachedData(cacheFile);
+	}
 
 	m_soundLibraryList.clear();
-
-	QString sDrumkitXML = drumkitList.get_xml_content();
-
 	QDomDocument dom;
 	dom.setContent( sDrumkitXML );
 	QDomNode drumkitNode = dom.documentElement().firstChild();
@@ -136,7 +197,7 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" || drumkitNode.toElement().tagName() == "pattern" ) {
 
 				SoundLibraryInfo soundLibInfo;
-			
+
 				if ( drumkitNode.toElement().tagName() =="song" ) {
 					soundLibInfo.setType( "song" );
 				}
@@ -181,6 +242,37 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	}
 
 	updateSoundLibraryList();
+
+}
+
+///
+/// Download and update the drumkit list
+///
+void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
+{
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), repositoryCombo->currentText() );
+	drumkitList.exec();
+
+	QString sDrumkitXML = drumkitList.get_xml_content();
+
+
+	/*
+	 * Hydrogen creates the following cache hierarchy to cache
+	 * the content of server lists:
+	 *
+	 * CACHE_DIR
+	 *     +-----repositories
+	 *           +-----serverlist_$(md5(SERVER_NAME))
+	 */
+
+
+	QString cacheFile = getCachedFilename();
+
+
+	writeCachedData(cacheFile, sDrumkitXML);
+
+	reloadRepositoryData();
 	QApplication::restoreOverrideCursor();
 }
 
@@ -303,7 +395,6 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 	AuthorLbl->setText( "" );
 	DownloadBtn->setEnabled( false );
 }
-
 
 
 
