@@ -37,6 +37,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
+#include <hydrogen/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
 
 #include <iostream>
@@ -241,17 +242,13 @@ int main(int argc, char *argv[])
 		}
 
 		if (! song) {
-			if ( outFilename.isEmpty() ) {
-				std::cerr << "Can't load song" << endl;
-				exit(4);
-			}
 			___INFOLOG("Starting with empty song");
 			song = H2Core::Song::get_empty_song();
 			song->set_filename( "" );
 		}
 
 		hydrogen->setSong( song );
-		preferences->setLastSongFilename(  songFilename);
+		preferences->setLastSongFilename( songFilename );
 
 		if( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path_search( drumkitToLoad ), true );
@@ -261,11 +258,21 @@ int main(int argc, char *argv[])
 		H2Core::AudioEngine* AudioEngine = H2Core::AudioEngine::get_instance();
 		H2Core::Sampler* sampler = AudioEngine->get_sampler();
 		switch ( interpolation ) {
-		case 1: sampler->setInterpolateMode( H2Core::Sampler::COSINE ); break;
-		case 2: sampler->setInterpolateMode( H2Core::Sampler::THIRD ); break;
-		case 3: sampler->setInterpolateMode( H2Core::Sampler::CUBIC ); break;
-		case 4: sampler->setInterpolateMode( H2Core::Sampler::HERMITE ); break;
-		case 0: default: sampler->setInterpolateMode( H2Core::Sampler::LINEAR );
+			case 1:
+					sampler->setInterpolateMode( H2Core::Sampler::COSINE );
+					break;
+			case 2:
+					sampler->setInterpolateMode( H2Core::Sampler::THIRD );
+					break;
+			case 3:
+					sampler->setInterpolateMode( H2Core::Sampler::CUBIC );
+					break;
+			case 4:
+					sampler->setInterpolateMode( H2Core::Sampler::HERMITE );
+					break;
+			case 0:
+			default:
+					sampler->setInterpolateMode( H2Core::Sampler::LINEAR );
 		}
 
 		// use the timer to do schedule instrument slaughter;
@@ -289,23 +296,27 @@ int main(int argc, char *argv[])
 			signal(SIGINT, signal_handler);
 
 			// Interactive mode
-			std::cout <<  " .. Now we in endless loop ;-)" << std::endl;
 			while ( ! quit ) {
 				/* Someday here will be The Real CLI ;-) */
 			}
 		}
 
+		if ( (hydrogen->getState() == STATE_PLAYING) ) {
+			hydrogen->sequencer_stop();
+		}
+
+		delete Playlist::get_instance();
+		delete song;
+
 		delete eQueue;
+		delete hydrogen;
+		delete preferences;
 		delete AudioEngine;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
-		delete hydrogen;
-		/* FIXME: this throw exception , but why ? */
-		//		delete preferences;
 
 		___INFOLOG( "Quitting..." );
-		cout << "\nBye..." << endl;
 		delete H2Core::Logger::get_instance();
 
 		int nObj = H2Core::Object::objects_count();
@@ -313,6 +324,8 @@ int main(int argc, char *argv[])
 			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
 			H2Core::Object::write_objects_map_to_cerr();
 		}
+
+
 	}
 	catch ( const H2Core::H2Exception& ex ) {
 		std::cerr << "[main] Exception: " << ex.what() << std::endl;
@@ -329,7 +342,6 @@ void showInfo()
 {
 	cout << "\nHydrogen " + H2Core::get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
-	//	_INFOLOG( "Compiled modules: " + QString(COMPILED_FEATURES) << endl;
 
 	if ( H2Core::Object::count_active() ) {
 		cout << "\nObject counting active" << endl;
@@ -348,7 +360,7 @@ void showUsage()
 	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
 	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
-	std::cout << "   -o, --outfile FILE - Output to FILE" << std::endl;
+	std::cout << "   -o, --outfile FILE - Output to file (export)" << std::endl;
 	std::cout << "   -r, --rate RATE - Set bitrate while exporting file" << std::endl;
 	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
