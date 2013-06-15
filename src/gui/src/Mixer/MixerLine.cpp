@@ -207,7 +207,7 @@ void MixerLine::updateMixerLine()
 			m_nPeakTimer = 0;
 		}
 		char tmp[20];
-		snprintf(tmp, 20, "%#.2f", (double)m_fMaxPeak );
+		snprintf(tmp, 19, "%#.2f", (double)m_fMaxPeak );
 		m_pPeakLCD->setText(tmp);
 		if ( m_fMaxPeak > 1.0 ) {
 			m_pPeakLCD->setSmallRed();

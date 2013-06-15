@@ -77,6 +77,9 @@ public:
 
 	int savePlayList( const std::string& patternname );
 	int loadPlayList( const std::string& patternname);
+	
+	static QString copyInstrumentLineToString(Song *song, int selectedPattern, int selectedInstrument);
+	static bool pasteInstrumentLineFromString(Song *song, const QString & serialized, int selectedPattern, int selectedInstrument, std::list< Pattern* > & patterns);
 
 	int writeTempPatternList( Song *song, const QString& filename);//used for undo/redo
 

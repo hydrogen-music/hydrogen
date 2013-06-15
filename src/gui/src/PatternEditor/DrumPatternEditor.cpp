@@ -950,7 +950,7 @@ void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, i
 void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	PatternList *pPatternList = H->getSong()->get_pattern_list();
 	Pattern *pPattern = pPatternList->get( patternNumber );
 
 	std::list < H2Core::Note *>::const_iterator pos;
@@ -968,6 +968,137 @@ void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* >
 	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 
+}
+
+void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList)
+{
+	// Get song's pattern list
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *patternList = H->getSong()->get_pattern_list();
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+	while (appliedList.size() > 0)
+	{
+		// Get next applied pattern
+		Pattern *pApplied = appliedList.front();
+		assert(pApplied);
+		
+		// Find destination pattern to perform undo
+		Pattern *pat = patternList->find(pApplied->get_name());
+
+		if (pat != NULL)
+		{
+			// Remove all notes of applied pattern from destination pattern
+			const Pattern::notes_t* notes = pApplied->get_notes();
+			FOREACH_NOTE_CST_IT_BEGIN_END(notes, it)
+			{
+				// Get note to remove
+				Note *pNote = it->second;
+				assert(pNote);
+				
+				// Check if note is not present
+				Pattern::notes_t* notes = (Pattern::notes_t *)pat->get_notes();
+				FOREACH_NOTE_IT_BOUND(notes, it, pNote->get_position())
+				{
+					Note *pFoundNote = it->second;
+					if (pFoundNote->get_instrument() == pNote->get_instrument())
+					{
+						notes->erase(it);
+						delete pFoundNote;
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		// Remove applied pattern;
+		delete pApplied;
+		appliedList.pop_front();
+	}
+
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+
+	// Update editors
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+}
+
+void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList)
+{
+	Hydrogen * H = Hydrogen::get_instance();
+	PatternList *patternList = H->getSong()->get_pattern_list();
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
+	// Add notes to pattern
+	std::list < H2Core::Pattern *>::iterator pos;
+	for ( pos = changeList.begin(); pos != changeList.end(); ++pos)
+	{
+		Pattern *pPattern = *pos;
+		assert(pPattern);
+
+		Pattern *pat = patternList->find(pPattern->get_name()); // Destination pattern
+
+		if (pat != NULL)
+		{
+			// Create applied pattern
+			Pattern *pApplied = new Pattern(
+					pat->get_name(),
+					pat->get_info(),
+					pat->get_category(),
+					pat->get_length());
+			
+			// Add all notes of source pattern to destination pattern
+			// and store all applied notes in applied pattern
+			const Pattern::notes_t* notes = pPattern->get_notes();
+			FOREACH_NOTE_CST_IT_BEGIN_END(notes, it)
+			{
+				Note *pNote = it->second;
+				assert(pNote);
+				
+				// Check if note is not present
+				bool noteExists = false;
+				const Pattern::notes_t* notes = pat->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND(notes, it, pNote->get_position())
+				{
+					Note *pFoundNote = it->second;
+					if (pFoundNote->get_instrument() == pNote->get_instrument())
+					{
+						// note already exists
+						noteExists = true;
+						break;
+					}
+				}
+				
+				// Apply note and store it as applied
+				if (!noteExists)
+				{
+					pat->insert_note(new Note(pNote));
+					pApplied->insert_note(new Note(pNote));
+				}
+			}
+			
+			// Add applied pattern to applied list
+			appliedList.push_back(pApplied);
+		}
+	}
+	AudioEngine::get_instance()->unlock();	// unlock the audio engine
+
+	// Update editors
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 }
 
 

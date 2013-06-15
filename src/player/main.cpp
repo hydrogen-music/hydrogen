@@ -31,6 +31,7 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/filesystem.h>
 
 using std::cout;
 using std::endl;
@@ -45,10 +46,15 @@ void usage()
 
 int main(int argc, char** argv) {
 
-    int log_level = H2Core::Logger::Debug | H2Core::Logger::Info | H2Core::Logger::Warning | H2Core::Logger::Error;
-    H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
-    H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-	___INFOLOG( "test" );
+	unsigned logLevelOpt = H2Core::Logger::Error;
+	H2Core::Logger::create_instance();
+	H2Core::Logger::set_bit_mask( logLevelOpt );
+	H2Core::Logger* logger = H2Core::Logger::get_instance();
+	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
+
+	H2Core::Filesystem::bootstrap( logger );
+
+
 
 	if (argc != 2) {
 		usage();
@@ -59,8 +65,10 @@ int main(int argc, char** argv) {
 
 	QString filename = argv[1];
 
+
+	H2Core::Preferences::create_instance();
+        H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
-	H2Core::AudioEngine::get_instance();
 
 	H2Core::Song *pSong = H2Core::Song::load( filename );
 	if (pSong == NULL) {

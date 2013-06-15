@@ -32,6 +32,7 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/song.h>
+#include <hydrogen/LocalFileMng.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -42,6 +43,7 @@ using namespace H2Core;
 #include "../widgets/Button.h"
 
 #include <QtGui>
+#include <QClipboard>
 #include <cassert>
 
 using namespace std;
@@ -92,6 +94,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
 	m_pFunctionPopup->addAction( trUtf8( "Clear notes" ), this, SLOT( functionClearNotes() ) );
+
 	m_pFunctionPopupSub = new QMenu( trUtf8( "Fill notes ..." ), m_pFunctionPopup );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
@@ -100,7 +103,20 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
+
 	m_pFunctionPopup->addAction( trUtf8( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
+	m_pFunctionPopup->addSeparator();
+
+	m_pCopyPopupSub = new QMenu( trUtf8( "Copy notes ..." ), m_pFunctionPopup );
+	m_pCopyPopupSub->addAction( trUtf8( "Only for this pattern" ), this, SLOT( functionCopyInstrumentPattern() ) );
+	m_pCopyPopupSub->addAction( trUtf8( "For all patterns" ), this, SLOT( functionCopyAllInstrumentPatterns() ) );
+	m_pFunctionPopup->addMenu( m_pCopyPopupSub );
+	
+	m_pPastePopupSub = new QMenu( trUtf8( "Paste notes ..." ), m_pFunctionPopup );
+	m_pPastePopupSub->addAction( trUtf8( "Only for this pattern" ), this, SLOT( functionPasteInstrumentPattern() ) );
+	m_pPastePopupSub->addAction( trUtf8( "For all patterns" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
+	m_pFunctionPopup->addMenu( m_pPastePopupSub );
+
 	m_pFunctionPopup->addSeparator();
 	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 
@@ -238,6 +254,68 @@ void InstrumentLine::functionClearNotes()
 		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
+}
+
+void InstrumentLine::functionCopyInstrumentPattern()
+{
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	int selectedPatternNr = pEngine->getSelectedPatternNumber();
+	Song *song = pEngine->getSong();
+	assert(song);
+	
+	// Serialize & put to clipboard
+	QString serialized = LocalFileMng::copyInstrumentLineToString(song, selectedPatternNr, m_nInstrumentNumber);
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText(serialized);
+}
+
+void InstrumentLine::functionCopyAllInstrumentPatterns()
+{
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	Song *song = pEngine->getSong();
+	assert(song);
+	
+	// Serialize & put to clipboard
+	QString serialized = LocalFileMng::copyInstrumentLineToString(song, -1, m_nInstrumentNumber);
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText(serialized);
+}
+
+void InstrumentLine::functionPasteInstrumentPattern()
+{
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	int selectedPatternNr = pEngine->getSelectedPatternNumber();
+	
+	functionPasteInstrumentPatternExec(selectedPatternNr);
+}
+
+void InstrumentLine::functionPasteAllInstrumentPatterns()
+{
+	functionPasteInstrumentPatternExec(-1);
+}
+
+void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
+{
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	Song *song = pEngine->getSong();
+	assert(song);
+	
+	// This is a note list for pasted notes collection
+	std::list< Pattern* > patternList;
+	
+	// Get from clipboard & deserialize
+	QClipboard *clipboard = QApplication::clipboard();
+	QString serialized = clipboard->text();
+	if (!LocalFileMng::pasteInstrumentLineFromString(song, serialized, patternID, m_nInstrumentNumber, patternList))
+		return;
+	
+	// Ignore empty result
+	if (patternList.size() <= 0)
+		return;
+	
+	// Create action
+	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
+	HydrogenApp::get_instance()->m_undoStack->push(action);
 }
 
 

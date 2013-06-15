@@ -6,6 +6,7 @@
 #include <QUndoCommand>
 #include <QPoint>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/basics/pattern.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
@@ -676,6 +677,57 @@ private:
 	std::list< H2Core::Note* > __noteList;
 	int __nSelectedInstrument;
 	int __selectedPatternNumber;
+};
+
+class SE_pasteNotesPatternEditorAction : public QUndoCommand
+{
+public:
+	SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
+	{
+		//qDebug() << "paste note sequence Create ";
+		setText( QString( "Paste instrument notes" ) );
+
+		std::list < H2Core::Pattern *>::const_iterator pos;
+		for ( pos = patternList.begin(); pos != patternList.end(); ++pos)
+		{
+			H2Core::Pattern *pPattern = *pos;
+			assert( pPattern );
+			__patternList.push_back(pPattern);
+		}
+	}
+
+	~SE_pasteNotesPatternEditorAction()
+	{
+		//qDebug() << "paste note sequence Destroy ";
+		while ( __patternList.size() > 0)
+		{
+			delete __patternList.front();
+			__patternList.pop_front();
+		}
+		while ( __appliedList.size() > 0)
+		{
+			delete __appliedList.front();
+			__appliedList.pop_front();
+		}
+	}
+
+	virtual void undo()
+	{
+		//qDebug() << "paste note sequence Undo ";
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionPasteNotesUndoAction( __appliedList );
+	}
+	
+	virtual void redo()
+	{
+		//qDebug() << "paste note sequence Redo " ;
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionPasteNotesRedoAction( __patternList, __appliedList );
+	}
+	
+private:
+	std::list< H2Core::Pattern* > __patternList;
+	std::list< H2Core::Pattern* > __appliedList;
 };
 
 

@@ -75,6 +75,10 @@ class Filesystem : public H2Core::Object
 		static QString usr_drumkits_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
+		/** returns user cache path */
+		static QString cache_dir();
+		/** returns user repository cache path */
+		static QString repositories_cache_dir();
 		/** returns system demos path */
 		static QString demos_dir();
 		/** returns system xsd path */
