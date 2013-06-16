@@ -54,16 +54,13 @@ class MidiAction : public H2Core::Object {
 			return type;
 		}
 
-
 	private:
 		QString type;
 		QString parameter1;
 		QString parameter2;
 };
 
-
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
-
 
 class MidiActionManager : public H2Core::Object
 {

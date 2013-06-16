@@ -155,7 +155,6 @@ void MidiTable::setupMidiTable()
 
 	setHorizontalHeaderLabels( items );
 	
-	
 	setFixedWidth( 500 );
 
 	setColumnWidth( 0 , 25 );
@@ -164,11 +163,9 @@ void MidiTable::setupMidiTable()
 	setColumnWidth( 3, 175 );
 	setColumnWidth( 4 , 73 );
 
-
 	bool ok;
 	std::map< QString , MidiAction* > mmcMap = mM->getMMCMap();
 	std::map< QString , MidiAction* >::iterator dIter( mmcMap.begin() );
-
 	
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ) {
 		MidiAction * pAction = dIter->second;
@@ -207,6 +204,15 @@ void MidiTable::setupMidiTable()
 
 		insertNewRow(pAction->getType() , "CC" , parameter , actionParameterInteger );
 	}
+
+	{
+		MidiAction * pAction = mM->getPCAction();
+		if ( pAction->getType() != "NOTHING" ) {
+			QString actionParameter = pAction->getParameter1();
+			int actionParameterInteger = actionParameter.toInt(&ok,10);
+			insertNewRow( pAction->getType() , "PROGRAM_CHANGE" , 0 , actionParameterInteger );
+		}
+	}
 	
 	insertNewRow( "", "", 0, 0 );
 }
@@ -236,17 +242,15 @@ void MidiTable::saveMidiTable()
 			if( actionSpinner->cleanText() != ""){
 				pAction->setParameter1( actionSpinner->cleanText() );
 			}
-	
+
 			if( eventString.left(2) == "CC" ){
 				mM->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
-			}
-
-			if( eventString.left(3) == "MMC" ){
+			} else if( eventString.left(3) == "MMC" ){
 				mM->registerMMCEvent( eventString , pAction );
-			}
-			
-			if( eventString.left(4) == "NOTE" ){
+			} else if( eventString.left(4) == "NOTE" ){
 				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
+			} else if( eventString.left(14) == "PROGRAM_CHANGE" ){
+				mM->registerPCEvent( pAction );
 			}
 		}
 	}
