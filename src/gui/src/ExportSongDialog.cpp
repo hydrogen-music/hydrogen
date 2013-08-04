@@ -132,32 +132,32 @@ void ExportSongDialog::on_browseBtn_clicked()
 	static QString lastUsedDir = QDir::homePath();
 
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode(QFileDialog::AnyFile);
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::AnyFile);
 
 
-	if( templateCombo->currentIndex() <= 4 ) fd->setNameFilter("Microsoft WAV (*.wav *.WAV)");
-	if( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) fd->setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
-	if( templateCombo->currentIndex() == 8) fd->setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
-	if( templateCombo->currentIndex() == 9) fd->setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
+	if( templateCombo->currentIndex() <= 4 ) fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
+	if( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
+	if( templateCombo->currentIndex() == 8) fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
+	if( templateCombo->currentIndex() == 9) fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
 
-	fd->setDirectory( lastUsedDir );
-	fd->setAcceptMode( QFileDialog::AcceptSave );
-	fd->setWindowTitle( trUtf8( "Export song" ) );
+	fd.setDirectory( lastUsedDir );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setWindowTitle( trUtf8( "Export song" ) );
 
 
 	QString defaultFilename = exportNameTxt->text();
 
-	fd->selectFile(defaultFilename);
+	fd.selectFile(defaultFilename);
 
 	QString filename = "";
-	if (fd->exec()) {
-		filename = fd->selectedFiles().first();
+	if (fd.exec()) {
+		filename = fd.selectedFiles().first();
 		b_QfileDialog = true;
 	}
 
 	if ( ! filename.isEmpty() ) {
-		lastUsedDir = fd->directory().absolutePath();
+		lastUsedDir = fd.directory().absolutePath();
 		QString sNewFilename = filename;
 
 		//this second extension check is mostly important if you leave a dot
@@ -193,9 +193,9 @@ void ExportSongDialog::on_okBtn_clicked()
 	 *  tempo changes correctly
 	 **/
 	Hydrogen* engine = Hydrogen::get_instance();
-	
+
 	bool warn =  Preferences::get_instance()->getShowExportWarning();
-	
+
 	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
 
 	/* 0: Export to single track

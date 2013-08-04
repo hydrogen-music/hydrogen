@@ -77,7 +77,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistMenu->addAction( trUtf8( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();				// -----
 	m_pPlaylistMenu->addAction( trUtf8( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence( "" ) );
-        m_pPlaylistMenu->addAction( trUtf8( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
+		m_pPlaylistMenu->addAction( trUtf8( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
 	m_pPlaylistMenu->addAction( trUtf8( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
@@ -104,7 +104,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	pControlsPanel->setFixedSize( 119, 32 );
 	pControlsPanel->setPixmap( "/playerControlPanel/playlist_background_Control.png" );
 	vboxLayout->addWidget( pControlsPanel );
-	
+
 
 
 	// Rewind button
@@ -165,7 +165,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistTree->setHeaderItem ( header );
 	m_pPlaylistTree->setAlternatingRowColors( true );
 
-        /*addSongBTN->setEnabled ( true );
+		/*addSongBTN->setEnabled ( true );
 	loadListBTN->setEnabled ( true );
 	removeFromListBTN->setEnabled ( false );
 	removeFromListBTN->setEnabled ( false );
@@ -175,13 +175,13 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	removeScriptBTN->hide();
 	editScriptBTN->hide();
 	newScriptBTN->hide();
-        clearPlBTN->setEnabled ( false );*/
+		clearPlBTN->setEnabled ( false );*/
 
 	QVBoxLayout *sideBarLayout = new QVBoxLayout(sideBarWidget);
 	sideBarLayout->setSpacing(0);
 	sideBarLayout->setMargin(0);
 
-#else	
+#else
 	QStringList headers;
 	headers << trUtf8 ( "Song list" ) << trUtf8 ( "Script" ) << trUtf8 ( "exec Script" );
 	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
@@ -224,7 +224,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	down_btn->setToolTip( trUtf8( "sort" ) );
 	connect(down_btn, SIGNAL(clicked(Button*)), this, SLOT(o_downBClicked()));
 	sideBarLayout->addWidget(down_btn);
-	
+
 
 //restore the playlist
 	if( Hydrogen::get_instance()->m_PlayList.size() > 0 ){
@@ -240,11 +240,11 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		}
 
 
-		//restore the selected item		
+		//restore the selected item
 		int selected = Playlist::get_instance()->getActiveSongNumber();
 		int Selected = Playlist::get_instance()->getSelectedSongNr();
 		if( selected == -1 && Selected == -1 ) return;
-		
+
 		int aselected = 0;
 		if( selected == -1 ){
 			aselected = Selected;
@@ -276,18 +276,18 @@ void PlaylistDialog::addSong()
 {
 	static QString songDir = Preferences::get_instance()->getDataDirectory()  + "/songs";;
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::ExistingFiles );
-	fd->setFilter ( "Hydrogen song (*.h2song)" );
-	fd->setDirectory ( songDir );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::ExistingFiles );
+	fd.setFilter ( "Hydrogen song (*.h2song)" );
+	fd.setDirectory ( songDir );
 
-	fd->setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
+	fd.setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
 
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted ){
+	if ( fd.exec() == QDialog::Accepted ){
 		int i;
-		for(i=0; i < fd->selectedFiles().size(); i++){ 
-			filename = fd->selectedFiles().at(i);
+		for(i=0; i < fd.selectedFiles().size(); i++){
+			filename = fd.selectedFiles().at(i);
 			updatePlayListNode ( filename );
 		}
 	}
@@ -300,7 +300,7 @@ void PlaylistDialog::addCurrentSong()
 {
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString filename = song->get_filename();
-	
+
 
 	if (filename == "") {
 		// just in case!
@@ -335,7 +335,7 @@ void PlaylistDialog::removeFromList()
 			setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
 			return;
 		}else
-		{	
+		{
 			///avoid segfault if the last item will be removed!!
 			delete m_pPlaylistItem;
 			updatePlayListVector();
@@ -344,7 +344,7 @@ void PlaylistDialog::removeFromList()
 			}else if (  Playlist::get_instance()->getActiveSongNumber() > index  ){
 				Playlist::get_instance()->setActiveSongNumber(  Playlist::get_instance()->getActiveSongNumber() -1 );
 			}
-			
+
 		}
 	}
 }
@@ -353,14 +353,14 @@ void PlaylistDialog::removeFromList()
 void PlaylistDialog::clearPlaylist()
 {
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
-	
+
 	m_pPlaylist->clear();
 	Hydrogen::get_instance()->m_PlayList.clear();
 	Playlist::get_instance()->setSelectedSongNr( -1 );
 	Playlist::get_instance()->setActiveSongNumber( -1 );
 	Playlist::get_instance()->__playlistName = "";
 	setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
-	return;	
+	return;
 }
 
 
@@ -385,22 +385,22 @@ void PlaylistDialog::loadList()
 
 	static QString sDirectory =  Preferences::get_instance()->getDataDirectory()  + "playlists/" ;
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::ExistingFile );
-	fd->setFilter ( "Hydrogen playlist (*.h2playlist)" );
-	fd->setDirectory ( sDirectory );
-	fd->setWindowTitle ( trUtf8 ( "Load Playlist" ) );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::ExistingFile );
+	fd.setFilter ( "Hydrogen playlist (*.h2playlist)" );
+	fd.setDirectory ( sDirectory );
+	fd.setWindowTitle ( trUtf8 ( "Load Playlist" ) );
 
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted ){
-		filename = fd->selectedFiles().first();
+	if ( fd.exec() == QDialog::Accepted ){
+		filename = fd.selectedFiles().first();
 
 		LocalFileMng fileMng;
 		int err = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
 		if ( err != 0 ) {
 			_ERRORLOG( "Error loading the playlist" );
 		}
-	
+
 		if(Hydrogen::get_instance()->m_PlayList.size() > 0){
 
 			QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -441,24 +441,24 @@ void PlaylistDialog::newScript()
 	Preferences *pPref = Preferences::get_instance();
 
 	QString sDirectory = ( Preferences::get_instance()->getDataDirectory()  + "scripts/");
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::AnyFile );
-	fd->setFilter ( trUtf8 ( "Hydrogen Scripts (*.sh)" ) );
-	fd->setAcceptMode ( QFileDialog::AcceptSave );
-	fd->setWindowTitle ( trUtf8 ( "New Script" ) );
-	fd->setDirectory ( sDirectory );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::AnyFile );
+	fd.setFilter ( trUtf8 ( "Hydrogen Scripts (*.sh)" ) );
+	fd.setAcceptMode ( QFileDialog::AcceptSave );
+	fd.setWindowTitle ( trUtf8 ( "New Script" ) );
+	fd.setDirectory ( sDirectory );
 
 	QString defaultFilename;
 
 		defaultFilename += ".sh";
 
 
-	fd->selectFile ( defaultFilename );
+	fd.selectFile ( defaultFilename );
 
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted )
+	if ( fd.exec() == QDialog::Accepted )
 	{
-		filename = fd->selectedFiles().first();
+		filename = fd.selectedFiles().first();
 	}else
 	{
 		return;
@@ -468,7 +468,7 @@ void PlaylistDialog::newScript()
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
 		return;
 	}
-	
+
 
 	QFile chngPerm ( filename );
 	if (!chngPerm.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -483,24 +483,24 @@ void PlaylistDialog::newScript()
 		chngPerm.setPermissions( QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner );
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "WARNING, the new file is executable by the owner of the file!" ) );
 	}
-	
+
 	if( pPref->getDefaultEditor().isEmpty() ){
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Default Editor Set. Please set your Default Editor\nDo not use a console based Editor\nSorry, but this will not work for the moment." ) );
 
 		static QString lastUsedDir = "/usr/bin/";
-	
-		std::auto_ptr<QFileDialog> fd( new QFileDialog );
-		fd->setFileMode ( QFileDialog::ExistingFile );
-		fd->setDirectory ( lastUsedDir );
-	
-		fd->setWindowTitle ( trUtf8 ( "Set your Default Editor" ) );
-	
+
+		QFileDialog fd(this);
+		fd.setFileMode ( QFileDialog::ExistingFile );
+		fd.setDirectory ( lastUsedDir );
+
+		fd.setWindowTitle ( trUtf8 ( "Set your Default Editor" ) );
+
 		QString filename;
-		if ( fd->exec() == QDialog::Accepted ){
-			filename = fd->selectedFiles().first();
-	
+		if ( fd.exec() == QDialog::Accepted ){
+			filename = fd.selectedFiles().first();
+
 			pPref->setDefaultEditor( filename );
-		}		
+		}
 	}
 
 	QString  openfile = pPref->getDefaultEditor() + " " + filename + "&";
@@ -512,7 +512,7 @@ void PlaylistDialog::newScript()
 	delete [] ofile;
 	return;
 
-	
+
 }
 
 
@@ -520,12 +520,12 @@ void PlaylistDialog::saveListAs()
 {
 
 	QString sDirectory =  Preferences::get_instance()->getDataDirectory()  + "playlists/";
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::AnyFile );
-	fd->setFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
-	fd->setAcceptMode ( QFileDialog::AcceptSave );
-	fd->setWindowTitle ( trUtf8 ( "Save Playlist" ) );
-	fd->setDirectory ( sDirectory );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::AnyFile );
+	fd.setFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
+	fd.setAcceptMode ( QFileDialog::AcceptSave );
+	fd.setWindowTitle ( trUtf8 ( "Save Playlist" ) );
+	fd.setDirectory ( sDirectory );
 
 
 	QString defaultFilename;
@@ -533,12 +533,12 @@ void PlaylistDialog::saveListAs()
 		defaultFilename += ".h2playlist";
 
 
-	fd->selectFile ( defaultFilename );
+	fd.selectFile ( defaultFilename );
 
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted )
+	if ( fd.exec() == QDialog::Accepted )
 	{
-		filename = fd->selectedFiles().first();
+		filename = fd.selectedFiles().first();
 	}else
 	{
 		return;
@@ -575,7 +575,7 @@ void PlaylistDialog::saveList()
 
 void PlaylistDialog::loadScript()
 {
-	
+
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 	if ( m_pPlaylistItem == NULL ){
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Song in List or no Song selected!" ) );
@@ -584,15 +584,15 @@ void PlaylistDialog::loadScript()
 
 	static QString lastUsedDir =  Preferences::get_instance()->getDataDirectory()  + "scripts/";
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::ExistingFile );
-	fd->setDirectory ( lastUsedDir );
-	fd->setFilter ( trUtf8 ( "Hydrogen Playlist (*.sh)" ) );
-	fd->setWindowTitle ( trUtf8 ( "Add Script to selected Song" ) );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::ExistingFile );
+	fd.setDirectory ( lastUsedDir );
+	fd.setFilter ( trUtf8 ( "Hydrogen Playlist (*.sh)" ) );
+	fd.setWindowTitle ( trUtf8 ( "Add Script to selected Song" ) );
 
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted ){
-		filename = fd->selectedFiles().first();
+	if ( fd.exec() == QDialog::Accepted ){
+		filename = fd.selectedFiles().first();
 
 		if( filename.contains(" ", Qt::CaseInsensitive)){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
@@ -639,19 +639,19 @@ void PlaylistDialog::editScript()
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "No Default Editor Set. Please set your Default Editor\nDo not use a console based Editor\nSorry, but this will not work for the moment." ) );
 
 		static QString lastUsedDir = "/usr/bin/";
-	
-		std::auto_ptr<QFileDialog> fd( new QFileDialog );
-		fd->setFileMode ( QFileDialog::ExistingFile );
-		fd->setDirectory ( lastUsedDir );
-	
-		fd->setWindowTitle ( trUtf8 ( "Set your Default Editor" ) );
-	
+
+		QFileDialog fd(this);
+		fd.setFileMode ( QFileDialog::ExistingFile );
+		fd.setDirectory ( lastUsedDir );
+
+		fd.setWindowTitle ( trUtf8 ( "Set your Default Editor" ) );
+
 		QString filename;
-		if ( fd->exec() == QDialog::Accepted ){
-			filename = fd->selectedFiles().first();
-	
+		if ( fd.exec() == QDialog::Accepted ){
+			filename = fd.selectedFiles().first();
+
 			pPref->setDefaultEditor( filename );
-		}		
+		}
 	}
 
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
@@ -681,7 +681,7 @@ void PlaylistDialog::editScript()
 
 
 void PlaylistDialog::o_upBClicked()
-{	
+{
 	timer->stop();
 
 	Playlist* pList = Playlist::get_instance();
@@ -691,14 +691,14 @@ void PlaylistDialog::o_upBClicked()
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 
 	if (index == 0 ){
-		timer->start( 1000 ); 
+		timer->start( 1000 );
 		return;
 	}
 
 	QTreeWidgetItem* tmpPlaylistItem = m_pPlaylist->takeTopLevelItem ( index );
 
 	m_pPlaylist->insertTopLevelItem ( index -1, tmpPlaylistItem );
-	m_pPlaylist->setCurrentItem ( tmpPlaylistItem ); 
+	m_pPlaylist->setCurrentItem ( tmpPlaylistItem );
 
 	if ( pList->getSelectedSongNr() >= 0 )
 		pList->setSelectedSongNr( pList->getSelectedSongNr() -1 );
@@ -733,7 +733,7 @@ void PlaylistDialog::o_downBClicked()
 	QTreeWidgetItem* tmpPlaylistItem = m_pPlaylist->takeTopLevelItem ( index );
 
 	m_pPlaylist->insertTopLevelItem ( index +1, tmpPlaylistItem );
-	m_pPlaylist->setCurrentItem ( tmpPlaylistItem ); 
+	m_pPlaylist->setCurrentItem ( tmpPlaylistItem );
 
 	if ( pList->getSelectedSongNr() >= 0 )
 		pList->setSelectedSongNr( pList->getSelectedSongNr() +1 );
@@ -750,7 +750,7 @@ void PlaylistDialog::o_downBClicked()
 
 void PlaylistDialog::on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column )
 {
-	if ( column == 2 ){ 
+	if ( column == 2 ){
 		QString selected;
 		selected = item->text ( 1 );
 
@@ -782,13 +782,13 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 
 		if( selected == engine->getSong()->get_filename()){
 			engine->sequencer_play();
-			return;	
-		}		
-	
+			return;
+		}
+
 		if ( engine->getState() == STATE_PLAYING ){
 			engine->sequencer_stop();
 		}
-	
+
 		Song *pSong = Song::load ( selected );
 		if ( pSong == NULL ){
 			QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Error loading song." ) );
@@ -799,12 +799,12 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 		int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 		Playlist::get_instance()->setActiveSongNumber( index );
-	
+
 		pH2App->setSong ( pSong );
 		engine->setSelectedPatternNumber ( 0 );
-	
+
 		engine->sequencer_play();
-	}else 
+	}else
 	{
 		engine->sequencer_stop();
 		pH2App->setStatusBarMessage(trUtf8("Pause."), 5000);
@@ -852,10 +852,10 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 	Playlist::get_instance()->setSelectedSongNr( index );
 	Playlist::get_instance()->setActiveSongNumber( index );
-	
+
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	Hydrogen *engine = Hydrogen::get_instance();
-	
+
 
 	if ( engine->getState() == STATE_PLAYING ){
 		engine->sequencer_stop();
@@ -923,15 +923,15 @@ void PlaylistDialog::updatePlayListVector()
 
 
 	for (int i = 0 ;i < length; i++){
-		QTreeWidgetItem * m_pPlaylistItem = m_pPlaylist->topLevelItem ( i );	
-		
+		QTreeWidgetItem * m_pPlaylistItem = m_pPlaylist->topLevelItem ( i );
+
 		QString execval;
 		bool execcheckbox = m_pPlaylistItem->checkState ( 2 );
 		if ( execcheckbox == true ) {
 			execval = "Use Script";
 		}else{
 			execval = "Script not used";
-		} 
+		}
 		Hydrogen::HPlayListNode playListItem;
 		playListItem.m_hFile = m_pPlaylistItem->text ( 0 );
 		playListItem.m_hScript = m_pPlaylistItem->text ( 1 );
@@ -953,13 +953,13 @@ void PlaylistDialog::updateActiveSongNumber()
 		( m_pPlaylist->topLevelItem( i ) )->setBackground( 0, QBrush() );
 		( m_pPlaylist->topLevelItem( i ) )->setBackground( 1, QBrush() );
 		( m_pPlaylist->topLevelItem( i ) )->setBackground( 2, QBrush() );
-		
+
 	}
 
 	int selected = Playlist::get_instance()->getActiveSongNumber();
 	if ( selected == -1 )
 		return;
-	
+
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( selected );
 	if ( m_pPlaylistItem != NULL ){
 		//m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
