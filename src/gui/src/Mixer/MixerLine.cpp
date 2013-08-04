@@ -307,7 +307,7 @@ void MixerLine::setPeak_L( float peak ) {
 				peak = 0.0f;
 			}
 			char tmp[20];
-			sprintf(tmp, "%#.2f", peak);
+			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText( tmp );
 			if ( peak > 1.0 ) {
 				m_pPeakLCD->setSmallRed();
@@ -337,7 +337,7 @@ void MixerLine::setPeak_R( float peak ) {
 				peak = 0.0f;
 			}
 			char tmp[20];
-			sprintf(tmp, "%#.2f", peak);
+			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText( tmp );
 			if ( peak > 1.0 ) {
 				m_pPeakLCD->setSmallRed();
@@ -392,7 +392,7 @@ void MixerLine::panChanged(Rotary *ref)
 	}
 
 	char m_pFaderPos[100];
-	sprintf( m_pFaderPos, "%#.2fL, %#.2fR",  pan_L, pan_R);
+	snprintf( m_pFaderPos, 99, "%#.2fL, %#.2fR",  pan_L, pan_R);
 	HydrogenApp::get_instance()->setStatusBarMessage( trUtf8( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
 
 	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
@@ -420,7 +420,7 @@ void MixerLine::setPan(float fValue)
 			pan_R = fValue * 2.0;
 		}
 		char m_pFaderPos[100];
-		sprintf( m_pFaderPos, "Pan %#.2fL, %#.2fR",  pan_L, pan_R);
+		snprintf( m_pFaderPos, 99,"Pan %#.2fL, %#.2fR",  pan_L, pan_R);
 		m_pPanRotary->setToolTip( QString( m_pFaderPos ) );
 	}
 }
@@ -621,7 +621,7 @@ void MasterMixerLine::setPeak_L(float peak)
 				peak = 0.0f;
 			}
 			char tmp[20];
-			sprintf(tmp, "%#.2f", peak);
+			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
 				m_pPeakLCD->setSmallRed();
@@ -652,7 +652,7 @@ void MasterMixerLine::setPeak_R(float peak) {
 				peak = 0.0f;
 			}
 			char tmp[20];
-			sprintf(tmp, "%#.2f", peak);
+			snprintf(tmp, 19,"%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
 				m_pPeakLCD->setSmallRed();
@@ -686,7 +686,7 @@ void MasterMixerLine::updateMixerLine()
 			m_nPeakTimer = 0;
 		}
 		char tmp[20];
-		sprintf(tmp, "%#.2f", m_fMaxPeak );
+		snprintf(tmp, 19, "%#.2f", m_fMaxPeak );
 		m_pPeakLCD->setText(tmp);
 		if ( m_fMaxPeak > 1.0 ) {
 			m_pPeakLCD->setSmallRed();
@@ -839,7 +839,7 @@ void FxMixerLine::faderChanged(Fader *ref)
 
 	m_fMaxPeak = 0.0;
 	char tmp[20];
-	sprintf( tmp, "%#.2f", m_fMaxPeak );
+	snprintf( tmp, 19, "%#.2f", m_fMaxPeak );
 	m_pPeakLCD->setText( tmp );
 	if ( m_fMaxPeak > 1.0 ) {
 		m_pPeakLCD->setSmallRed();
@@ -877,7 +877,7 @@ void FxMixerLine::setPeak_L( float peak )
 		m_pFader->setPeak_L( peak );
 		if (peak > m_fMaxPeak) {
 			char tmp[20];
-			sprintf(tmp, "%#.2f", peak);
+			snprintf(tmp, 19,"%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
 				m_pPeakLCD->setSmallRed();
@@ -907,7 +907,7 @@ void FxMixerLine::setPeak_R(float peak)
 		m_pFader->setPeak_R( peak );
 		if (peak > m_fMaxPeak) {
 			char tmp[20];
-			sprintf(tmp, "%#.2f", peak);
+			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
 				m_pPeakLCD->setSmallRed();

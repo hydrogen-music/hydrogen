@@ -37,8 +37,7 @@
 
 using namespace H2Core;
 
-
-/* Helperfunction */
+/* Helperfunctions */
 
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 {
@@ -61,7 +60,16 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 
 	return true;
+}
 
+bool setSong( int songnumber ) {
+	Hydrogen *pEngine = Hydrogen::get_instance();
+
+	int asn = Playlist::get_instance()->getActiveSongNumber();
+	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1){
+		Playlist::get_instance()->setNextSongByNumber( songnumber );
+	}
+	return true;
 }
 
 /**
@@ -94,8 +102,6 @@ MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
 	QString parameter1 = "0";
 	QString parameter2 = "0" ;
 }
-
-
 
 /**
 * @class MidiActionManager
@@ -162,6 +168,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 			  << "PAN_ABSOLUTE"
 			  << "BEATCOUNTER"
 			  << "TAP_TEMPO"
+			  << "PLAYLIST_SONG"
 			  << "PLAYLIST_NEXT_SONG"
 			  << "PLAYLIST_PREV_SONG"
 			  << "TOGGLE_METRONOME"
@@ -180,7 +187,8 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 			  << "MMC_RECORD_READY"
 			  << "MMC_PAUSE"
 			  << "NOTE"
-			  << "CC";
+			  << "CC"
+			  << "PROGRAM_CHANGE";
 }
 
 
@@ -196,13 +204,10 @@ void MidiActionManager::create_instance()
 	}
 }
 
-
 /**
  * The handleAction method is the heard of the MidiActionManager class.
  * It executes the operations that are needed to carry the desired action.
  */
-
-
 bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -246,7 +251,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		return true;
 	}
-
 
 	if( sActionString == "PAUSE" )
 	{
@@ -354,9 +358,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-
-
-
 	if( sActionString == "EFFECT1_LEVEL_ABSOLUTE" ){
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
@@ -385,10 +386,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		setAbsoluteFXLevel( nLine, 3 , fx_param );
 	}
 
-
-
-
-
 	if( sActionString == "MASTER_VOLUME_RELATIVE" ){
 		//increments/decrements the volume of the whole song
 
@@ -414,8 +411,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	}
 
-
-
 	if( sActionString == "MASTER_VOLUME_ABSOLUTE" ){
 		//sets the volume of a master output to a given level (percentage)
 
@@ -434,8 +429,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		}
 
 	}
-
-
 
 	if( sActionString == "STRIP_VOLUME_RELATIVE" ){
 		//increments/decrements the volume of one mixer strip
@@ -495,11 +488,9 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 	}
 
-
 	if( sActionString == "PAN_ABSOLUTE" ){
 
 		// sets the absolute panning of a given mixer channel
-
 
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
@@ -558,11 +549,9 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		// changes the panning of a given mixer channel
 		// this is useful if the panning is set by a rotary control knob
 
-
 		bool ok;
 		int nLine = pAction->getParameter1().toInt(&ok,10);
 		int pan_param = pAction->getParameter2().toInt(&ok,10);
-
 
 		float pan_L;
 		float pan_R;
@@ -614,7 +603,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		return true;
 	}
-
 
 	if( sActionString == "BPM_CC_RELATIVE" ){
 		/*
@@ -700,7 +688,6 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-
 	if( sActionString == "BPM_INCR" ){
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -748,20 +735,20 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
+	if( sActionString == "PLAYLIST_SONG"){
+		bool ok;
+		int songnumber = pAction->getParameter2().toInt(&ok,10);
+		return setSong( songnumber );
+	}
+
 	if( sActionString == "PLAYLIST_NEXT_SONG"){
 		int songnumber = Playlist::get_instance()->getActiveSongNumber();
-		if(songnumber+1 >= 0 && songnumber+1 <= pEngine->m_PlayList.size()-1){
-			Playlist::get_instance()->setNextSongByNumber( songnumber + 1 );
-		}
-		return true;
+		return setSong( ++songnumber );
 	}
 
 	if( sActionString == "PLAYLIST_PREV_SONG"){
 		int songnumber = Playlist::get_instance()->getActiveSongNumber();
-		if(songnumber-1 >= 0 && songnumber-1 <= pEngine->m_PlayList.size()-1){
-			Playlist::get_instance()->setNextSongByNumber( songnumber - 1 );
-		}
-		return true;
+		return setSong( --songnumber );
 	}
 
 	if( sActionString == "RECORD_READY"){

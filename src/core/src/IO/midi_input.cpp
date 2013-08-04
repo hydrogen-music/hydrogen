@@ -102,7 +102,8 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::PROGRAM_CHANGE:
 				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" ).arg( msg.m_nData1 ) );
-				Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
+//				Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
+				handleProgramChangeMessage( msg );
 				break;
 
 		case MidiMessage::CHANNEL_PRESSURE:
@@ -154,23 +155,34 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 {
-		//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
-
+	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 	Hydrogen *pEngine = Hydrogen::get_instance();
-		MidiActionManager * aH = MidiActionManager::get_instance();
-	MidiMap * mM = MidiMap::get_instance();
+	MidiActionManager *aH = MidiActionManager::get_instance();
+	MidiMap *mM = MidiMap::get_instance();
 
-		MidiAction * pAction;
-
-	pAction = mM->getCCAction( msg.m_nData1 );
+	MidiAction *pAction = mM->getCCAction( msg.m_nData1 );
 	pAction->setParameter2( QString::number( msg.m_nData2 ) );
 
 	aH->handleAction( pAction );
 
 	pEngine->lastMidiEvent = "CC";
 	pEngine->lastMidiEventParameter = msg.m_nData1;
+}
 
+void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
+{
+	INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE Value: %1" ).arg( msg.m_nData1 ) );
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	MidiActionManager *aH = MidiActionManager::get_instance();
+	MidiMap *mM = MidiMap::get_instance();
 
+	MidiAction *pAction = mM->getPCAction();
+	pAction->setParameter2( QString::number( msg.m_nData1 ) );
+
+	aH->handleAction( pAction );
+
+	pEngine->lastMidiEvent = "PROGRAM_CHANGE";
+	pEngine->lastMidiEventParameter = msg.m_nData1;
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
@@ -365,9 +377,8 @@ if ( msg.m_sysexData.size() == 6 ) {
 			}
 
 			case 4:	// FAST FWD
-								pEngine->lastMidiEvent = "MMC_FAST_FORWARD";
-								aH->handleAction(mM->getMMCAction("MMC_FAST_FORWARD"));
-
+				pEngine->lastMidiEvent = "MMC_FAST_FORWARD";
+				aH->handleAction(mM->getMMCAction("MMC_FAST_FORWARD"));
 				break;
 
 			case 5:	// REWIND
@@ -385,10 +396,10 @@ if ( msg.m_sysexData.size() == 6 ) {
 				aH->handleAction(mM->getMMCAction("MMC_RECORD_EXIT"));
 				break;
 
-						case 8:	// RECORD READY
-								pEngine->lastMidiEvent = "MMC_RECORD_READY";
-								aH->handleAction(mM->getMMCAction("MMC_RECORD_READY"));
-								break;
+			case 8:	// RECORD READY
+				pEngine->lastMidiEvent = "MMC_RECORD_READY";
+				aH->handleAction(mM->getMMCAction("MMC_RECORD_READY"));
+				break;
 
 			case 9:	//PAUSE
 				pEngine->lastMidiEvent = "MMC_PAUSE";
