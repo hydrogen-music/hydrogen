@@ -482,12 +482,13 @@ void MainForm::action_file_save_as()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode( QFileDialog::AnyFile );
-	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
-	fd->setAcceptMode( QFileDialog::AcceptSave );
-	fd->setWindowTitle( trUtf8( "Save song" ) );
-	fd->setSidebarUrls( fd->sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
+	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
+	QFileDialog fd(this);
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setWindowTitle( trUtf8( "Save song" ) );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
 	Song *song = Hydrogen::get_instance()->getSong();
 	QString defaultFilename;
@@ -501,11 +502,11 @@ void MainForm::action_file_save_as()
 		defaultFilename = lastFilename;
 	}
 
-	fd->selectFile( defaultFilename );
+	fd.selectFile( defaultFilename );
 
 	QString filename;
-	if (fd->exec() == QDialog::Accepted) {
-		filename = fd->selectedFiles().first();
+	if (fd.exec() == QDialog::Accepted) {
+		filename = fd.selectedFiles().first();
 	}
 
 	if ( !filename.isEmpty() ) {
@@ -613,25 +614,25 @@ void MainForm::action_file_export_pattern_as()
 	QDir dir  = Preferences::get_instance()->__lastspatternDirectory;
 
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::AnyFile );
-	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
-	fd->setAcceptMode ( QFileDialog::AcceptSave );
-	fd->setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
-	fd->setDirectory ( dir );
-	fd->setSidebarUrls( fd->sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::AnyFile );
+	fd.setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
+	fd.setAcceptMode ( QFileDialog::AcceptSave );
+	fd.setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
+	fd.setDirectory ( dir );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 
 
 
 	QString defaultPatternname = QString ( pat->get_name() );
 
-	fd->selectFile ( defaultPatternname );
+	fd.selectFile ( defaultPatternname );
 
 	LocalFileMng fileMng;
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted )
+	if ( fd.exec() == QDialog::Accepted )
 	{
-		filename = fd->selectedFiles().first();
+		filename = fd.selectedFiles().first();
 		QString tmpfilename = filename;
 		QString toremove = tmpfilename.section( '/', -1 );
 		QString newdatapath =  tmpfilename.replace( toremove, "" );
@@ -682,17 +683,18 @@ void MainForm::action_file_open() {
 
 	static QString lastUsedDir = Preferences::get_instance()->getDataDirectory() + "/songs";
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode(QFileDialog::ExistingFile);
-	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
-	fd->setDirectory( lastUsedDir );
+	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::ExistingFile);
+	fd.setFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setDirectory( lastUsedDir );
 
-	fd->setWindowTitle( trUtf8( "Open song" ) );
+	fd.setWindowTitle( trUtf8( "Open song" ) );
 
 	QString filename;
-	if (fd->exec() == QDialog::Accepted) {
-		filename = fd->selectedFiles().first();
-		lastUsedDir = fd->directory().absolutePath();
+	if (fd.exec() == QDialog::Accepted) {
+		filename = fd.selectedFiles().first();
+		lastUsedDir = fd.directory().absolutePath();
 	}
 
 
@@ -716,18 +718,18 @@ void MainForm::action_file_openPattern()
 	assert ( instr );
 
 	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode ( QFileDialog::ExistingFile );
-	fd->setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
-	fd->setDirectory ( dirPattern );
+	QFileDialog fd(this);
+	fd.setFileMode ( QFileDialog::ExistingFile );
+	fd.setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
+	fd.setDirectory ( dirPattern );
 
-	fd->setWindowTitle ( trUtf8 ( "Open Pattern" ) );
+	fd.setWindowTitle ( trUtf8 ( "Open Pattern" ) );
 
 
 	QString filename;
-	if ( fd->exec() == QDialog::Accepted )
+	if ( fd.exec() == QDialog::Accepted )
 	{
-		filename = fd->selectedFiles().first();
+		filename = fd.selectedFiles().first();
 	}
 	QString patternname = filename;
 
@@ -765,19 +767,19 @@ void MainForm::action_file_openDemo()
 	}
 
 	h2app->m_undoStack->clear();
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode(QFileDialog::ExistingFile);
-	fd->setFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::ExistingFile);
+	fd.setFilter( trUtf8("Hydrogen Song (*.h2song)") );
 
-	fd->setWindowTitle( trUtf8( "Open song" ) );
-	fd->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+	fd.setWindowTitle( trUtf8( "Open song" ) );
+	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	fd->setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
+	fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
 
 
 	QString filename;
-	if (fd->exec() == QDialog::Accepted) {
-		filename = fd->selectedFiles().first();
+	if (fd.exec() == QDialog::Accepted) {
+		filename = fd.selectedFiles().first();
 	}
 
 
@@ -1432,17 +1434,17 @@ void MainForm::action_file_export_midi()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode(QFileDialog::AnyFile);
-	fd->setFilter( trUtf8("Midi file (*.mid)") );
-	fd->setDirectory( QDir::homePath() );
-	fd->setWindowTitle( trUtf8( "Export MIDI file" ) );
-	fd->setAcceptMode( QFileDialog::AcceptSave );
-	fd->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::AnyFile);
+	fd.setFilter( trUtf8("Midi file (*.mid)") );
+	fd.setDirectory( QDir::homePath() );
+	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QString sFilename;
-	if ( fd->exec() == QDialog::Accepted ) {
-		sFilename = fd->selectedFiles().first();
+	if ( fd.exec() == QDialog::Accepted ) {
+		sFilename = fd.selectedFiles().first();
 	}
 
 	if ( !sFilename.isEmpty() ) {

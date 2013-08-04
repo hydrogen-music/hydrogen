@@ -91,7 +91,7 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 	/*
 		Read serverList from config and put servers into the comboBox
 	*/
-	
+
 	if( pref->sServerList.size() == 0 ) {
 		pref->sServerList.push_back( "http://www.hydrogen-music.org/feeds/drumkit_list.php" );
 	}
@@ -288,7 +288,7 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	m_pDrumkitsItem->setText( 0, trUtf8( "Drumkits" ) );
 	m_pDrumkitTree->setItemExpanded( m_pDrumkitsItem, true );
 
-	
+
 	m_pSongItem = new QTreeWidgetItem( m_pDrumkitTree );
 	m_pSongItem->setText( 0, trUtf8( "Songs" ) );
 	m_pDrumkitTree->setItemExpanded( m_pSongItem, true );
@@ -372,7 +372,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				//bool alreadyInstalled = isSoundLibraryAlreadyInstalled( info.m_sURL );
 
 				SoundLibraryNameLbl->setText( info.getName() );
-				
+
 				if( info.getType() == "pattern" ){
 					SoundLibraryInfoLbl->setText("");
 				} else {
@@ -482,21 +482,21 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 {
 	static QString lastUsedDir = QDir::homePath();
 
-	std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	fd->setFileMode(QFileDialog::ExistingFile);
-	fd->setFilter( "Hydrogen drumkit (*.h2drumkit)" );
-	fd->setDirectory( lastUsedDir );
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::ExistingFile);
+	fd.setFilter( "Hydrogen drumkit (*.h2drumkit)" );
+	fd.setDirectory( lastUsedDir );
 
-	fd->setWindowTitle( trUtf8( "Import drumkit" ) );
+	fd.setWindowTitle( trUtf8( "Import drumkit" ) );
 
 	QString filename = "";
-	if (fd->exec() == QDialog::Accepted) {
-		filename = fd->selectedFiles().first();
+	if (fd.exec() == QDialog::Accepted) {
+		filename = fd.selectedFiles().first();
 	}
 
 	if (filename != "") {
 		SoundLibraryPathTxt->setText( filename );
-		lastUsedDir = fd->directory().absolutePath();
+		lastUsedDir = fd.directory().absolutePath();
 		InstallBtn->setEnabled ( true );
 	}
 }
