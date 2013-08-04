@@ -482,7 +482,7 @@ inline void audioEngine_process_checkBPMChanged()
 					 }
 
 					 ___WARNINGLOG( "Tempo change: Recomputing ticksize and frame position" );
-					 long long nNewFrames = ( long long )( fTickNumber * fNewTickSize );
+					 long long nNewFrames = ( long long )( ceil(fTickNumber) * fNewTickSize );
 					 // update frame position
 					 m_pAudioDriver->m_transport.m_nFrames = nNewFrames;
 
