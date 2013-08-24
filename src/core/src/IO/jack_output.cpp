@@ -167,6 +167,7 @@ int JackOutput::connect()
 		}
 		free( portnames );
 	}
+
 	return 0;
 }
 
@@ -472,8 +473,9 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 int JackOutput::init( unsigned /*nBufferSize*/ )
 {
 
-	output_port_name_1 = Preferences::get_instance()->m_sJackPortName1;
-	output_port_name_2 = Preferences::get_instance()->m_sJackPortName2;
+	Preferences* pref = Preferences::get_instance();
+	output_port_name_1 = pref->m_sJackPortName1;
+	output_port_name_2 = pref->m_sJackPortName2;
 
 	QString sClientName = "Hydrogen";
 	jack_status_t status;
@@ -483,7 +485,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 
 #ifdef H2CORE_HAVE_JACKSESSION
 
-			if (Preferences::get_instance()->getJackSessionUUID().isEmpty()){
+			if (pref->getJackSessionUUID().isEmpty()){
 				client = jack_client_open(
 							sClientName.toLocal8Bit(),
 							JackNullOption,
@@ -491,7 +493,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 			}
 			else
 			{
-				const QByteArray uuid = Preferences::get_instance()->getJackSessionUUID().toLocal8Bit();
+				const QByteArray uuid = pref->getJackSessionUUID().toLocal8Bit();
 				client = jack_client_open(
 							sClientName.toLocal8Bit(),
 							JackSessionID,
@@ -564,8 +566,8 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	jack_server_sampleRate = jack_get_sample_rate ( client );
 	jack_server_bufferSize = jack_get_buffer_size ( client );
 
-	Preferences::get_instance()->m_nSampleRate = jack_server_sampleRate;
-	Preferences::get_instance()->m_nBufferSize = jack_server_bufferSize;
+	pref->m_nSampleRate = jack_server_sampleRate;
+	pref->m_nBufferSize = jack_server_bufferSize;
 
 
 	/* tell the JACK server to call `process()' whenever
@@ -608,7 +610,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 //	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
 #ifdef H2CORE_HAVE_LASH
-	if ( Preferences::get_instance()->useLash() ){
+	if ( pref->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient->isConnected())
 		{
@@ -846,7 +848,7 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 
 void JackOutput::jack_timebase_callback_impl(jack_transport_state_t
 						 state, jack_nframes_t nframes,
-											 jack_position_t *pos, int
+						 jack_position_t *pos, int
 						 new_pos)
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -857,23 +859,21 @@ void JackOutput::jack_timebase_callback_impl(jack_transport_state_t
 	static jack_transport_state_t state_current;
 	static jack_transport_state_t state_last;
 
-
 	state_current = state;
 
 	current_frame = H->getTimeMasterFrames();
 	nframes = current_frame;
 	int posi =  H->getPatternPos();
 	if (posi <= 0) posi=1;
-	new_pos = posi ;
+	new_pos = posi;
 
+	if ( H->getTickForHumanPosition( posi ) < 1 ) return;
 
 	pos->valid = JackPositionBBT;
 	pos->beats_per_bar = H->getTickForHumanPosition( posi )/48;
 	pos->beat_type = 4;
 	pos->ticks_per_beat = (long)H->getTickForHumanPosition( posi );
 	pos->beats_per_minute = H->getNewBpmJTM();
-
-
 
 	int ticksforbeat = H->getTickForHumanPosition( posi );
 	int beatperbar = H->getTickForHumanPosition( posi )/48 ;
@@ -896,7 +896,7 @@ void JackOutput::jack_timebase_callback_impl(jack_transport_state_t
 	pos->bar_start_tick = pos->bar * pos->beats_per_bar *
 		pos->ticks_per_beat;
 
-	if (Hydrogen::get_instance()->getHumantimeFrames()<= 0){
+	if (H->getHumantimeFrames()<= 0){
 		pos->bar = 1;
 		pos->beat = 1;
 		pos->tick = 0;

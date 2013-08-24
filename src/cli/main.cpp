@@ -215,11 +215,11 @@ int main(int argc, char *argv[])
 				songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
 				songFilename.append("/hydrogen.h2song");
 
-				//				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+				//H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
 
 				lash_event_destroy(lash_event);
 			} else if (lash_event) {
-				//				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+				//H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
 				lash_event_destroy(lash_event);
 			}
 		}
@@ -231,8 +231,7 @@ int main(int argc, char *argv[])
 		H2Core::Song *song = NULL;
 		if ( !songFilename.isEmpty() ) {
 			song = H2Core::Song::load( songFilename );
-		}
-		else {
+		} else {
 			/* Try load last song */
 			bool restoreLastSong = preferences->isRestoreLastSongEnabled();
 			QString filename = preferences->getLastSongFilename();
@@ -250,7 +249,7 @@ int main(int argc, char *argv[])
 		hydrogen->setSong( song );
 		preferences->setLastSongFilename( songFilename );
 
-		if( ! drumkitToLoad.isEmpty() ){
+		if ( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path_search( drumkitToLoad ), true );
 			hydrogen->loadDrumkit( drumkitInfo );
 		}
