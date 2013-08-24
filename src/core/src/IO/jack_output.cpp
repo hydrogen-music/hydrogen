@@ -545,12 +545,10 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	pref->m_nSampleRate = jack_server_sampleRate;
 	pref->m_nBufferSize = jack_server_bufferSize;
 
-
 	/* tell the JACK server to call `process()' whenever
 	   there is work to be done.
 	*/
 	jack_set_process_callback ( client, this->processCallback, 0 );
-
 
 	/* tell the JACK server to call `srate()' whenever
 	   the sample rate of the system changes.
@@ -568,16 +566,15 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	*/
 	jack_on_shutdown ( client, jackDriverShutdown, 0 );
 
-
 	/* create two ports */
 	output_port_1 = jack_port_register ( client, "out_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 	output_port_2 = jack_port_register ( client, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
+	Hydrogen *H = Hydrogen::get_instance();
 	if ( ( output_port_1 == NULL ) || ( output_port_2 == NULL ) ) {
-		( Hydrogen::get_instance() )->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
+		H->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 		return 4;
 	}
-
 
 	// clear buffers
 //	jack_default_audio_sample_t *out_L = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_1, jack_server_bufferSize);
@@ -588,16 +585,18 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 #ifdef H2CORE_HAVE_LASH
 	if ( pref->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
-		if (lashClient->isConnected())
-		{
+		if (lashClient->isConnected()) {
 			lashClient->setJackClientName(sClientName.toLocal8Bit().constData());
 		}
 	}
 #endif
 
 #ifdef H2CORE_HAVE_JACKSESSION
-		jack_set_session_callback (client, jack_session_callback, (void*)this);
+	jack_set_session_callback (client, jack_session_callback, (void*)this);
 #endif
+
+	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER )
+		initTimeMaster();
 
 	return 0;
 }
@@ -775,21 +774,19 @@ void JackOutput::initTimeMaster()
 	if ( client == NULL) return;
 
 	bool cond = false;
-	if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER)
-	{
+	Preferences* pref = Preferences::get_instance();
+	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
 		cond = true;
-	}else{
+	} else {
 		jack_release_timebase(client);
 	}
 
-	if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
-				 jack_set_timebase_callback(client, cond, jack_timebase_callback, this) == 0)
+	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		jack_set_timebase_callback(client, cond, jack_timebase_callback, this) == 0)
 	{
-		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER ;
-		cond = true;
+		pref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER ;
 	} else {
-		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER ;
-		cond = false;
+		pref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER ;
 	}
 }
 

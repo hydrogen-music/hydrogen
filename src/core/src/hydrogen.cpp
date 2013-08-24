@@ -3249,7 +3249,6 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 	std::vector< PatternList* > *columns = m_pSong->get_pattern_group_vector();
 
 	int nPatternGroups = columns->size();
-	printf ( "SIZE: %d\n", nPatternGroups );
 	if ( humanpos >= nPatternGroups ) {
 		if ( m_pSong->is_loop_enabled() ) {
 			humanpos = humanpos % nPatternGroups;
