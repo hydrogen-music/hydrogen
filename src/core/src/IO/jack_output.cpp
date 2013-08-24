@@ -35,7 +35,6 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 
-
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
 #endif
@@ -59,7 +58,6 @@ int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 	jack_server_sampleRate = nframes;
 	return 0;
 }
-
 
 int jackDriverBufferSize( jack_nframes_t nframes, void * /*arg*/ )
 {
@@ -98,15 +96,11 @@ JackOutput::JackOutput( JackProcessCallback processCallback )
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 }
 
-
-
 JackOutput::~JackOutput()
 {
 	INFOLOG( "DESTROY" );
 	disconnect();
 }
-
-
 
 // return 0: ok
 // return 1: cannot activate client
@@ -171,10 +165,6 @@ int JackOutput::connect()
 	return 0;
 }
 
-
-
-
-
 void JackOutput::disconnect()
 {
 	INFOLOG( "disconnect" );
@@ -192,9 +182,6 @@ void JackOutput::disconnect()
 	}
 	client = NULL;
 }
-
-
-
 
 void JackOutput::deactivate()
 {
@@ -415,8 +402,6 @@ void JackOutput::updateTransportInfo()
 		}
 }
 
-
-
 float* JackOutput::getOut_L()
 {
 	jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( output_port_1, jack_server_bufferSize );
@@ -428,8 +413,6 @@ float* JackOutput::getOut_R()
 	jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( output_port_2, jack_server_bufferSize );
 	return out;
 }
-
-
 
 float* JackOutput::getTrackOut_L( unsigned nTrack )
 {
@@ -453,7 +436,6 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 	return out;
 }
 
-
 #define CLIENT_FAILURE(msg) {						\
 		ERRORLOG("Could not connect to JACK server (" msg ")"); \
 		if (client) {						\
@@ -472,7 +454,6 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 
 int JackOutput::init( unsigned /*nBufferSize*/ )
 {
-
 	Preferences* pref = Preferences::get_instance();
 	output_port_name_1 = pref->m_sJackPortName1;
 	output_port_name_2 = pref->m_sJackPortName2;
@@ -484,27 +465,24 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 		--tries;
 
 #ifdef H2CORE_HAVE_JACKSESSION
-
-			if (pref->getJackSessionUUID().isEmpty()){
-				client = jack_client_open(
-							sClientName.toLocal8Bit(),
-							JackNullOption,
-							&status);
-			}
-			else
-			{
-				const QByteArray uuid = pref->getJackSessionUUID().toLocal8Bit();
-				client = jack_client_open(
-							sClientName.toLocal8Bit(),
-							JackSessionID,
-							&status,
-							uuid.constData());
-			}
+		if (pref->getJackSessionUUID().isEmpty()){
+			client = jack_client_open(
+					sClientName.toLocal8Bit(),
+					JackNullOption,
+					&status);
+		} else {
+			const QByteArray uuid = pref->getJackSessionUUID().toLocal8Bit();
+			client = jack_client_open(
+					sClientName.toLocal8Bit(),
+					JackSessionID,
+					&status,
+					uuid.constData());
+		}
 #else
-				client = jack_client_open(
-					   sClientName.toLocal8Bit(),
-					   JackNullOption,
-					   &status);
+		client = jack_client_open(
+			   sClientName.toLocal8Bit(),
+			   JackNullOption,
+			   &status);
 #endif
 		switch(status) {
 		case JackFailure:
@@ -558,9 +536,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 		}
 	}
 
-	if (client == 0) {
-		return -1;
-	}
+	if (client == 0) return -1;
 
 	// Here, client should either be valid, or NULL.
 	jack_server_sampleRate = jack_get_sample_rate ( client );
@@ -625,7 +601,6 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 
 	return 0;
 }
-
 
 /**
  * Make sure the number of track outputs match the instruments in @a song , and name the ports.
@@ -702,8 +677,6 @@ void JackOutput::play()
 	}
 }
 
-
-
 void JackOutput::stop()
 {
 	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
@@ -715,8 +688,6 @@ void JackOutput::stop()
 		m_transport.m_status = TransportInfo::STOPPED;
 	}
 }
-
-
 
 void JackOutput::locate( unsigned long nFrame )
 {
@@ -730,14 +701,11 @@ void JackOutput::locate( unsigned long nFrame )
 	}
 }
 
-
-
 void JackOutput::setBpm( float fBPM )
 {
 	WARNINGLOG( QString( "setBpm: %1" ).arg( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
-
 
 int JackOutput::getNumTracks()
 {
@@ -825,14 +793,12 @@ void JackOutput::initTimeMaster()
 	}
 }
 
-
 void JackOutput::com_release()
 {
 	if ( client == NULL) return;
 
 	jack_release_timebase(client);
 }
-
 
 void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 					jack_nframes_t nframes,
@@ -844,7 +810,6 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 		me->jack_timebase_callback_impl(state, nframes, pos, new_pos);
 	}
 }
-
 
 void JackOutput::jack_timebase_callback_impl(jack_transport_state_t
 						 state, jack_nframes_t nframes,

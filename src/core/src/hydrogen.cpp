@@ -1833,11 +1833,7 @@ Hydrogen::Hydrogen()
 	   for(int i = 0; i<128; i++){
 			  m_nInstrumentLookupTable[i] = i;
 	   }
-
-           onJackMaster();
 }
-
-
 
 Hydrogen::~Hydrogen()
 {
@@ -1851,8 +1847,6 @@ Hydrogen::~Hydrogen()
 	   __kill_instruments();
 	   __instance = NULL;
 }
-
-
 
 void Hydrogen::create_instance()
 {
