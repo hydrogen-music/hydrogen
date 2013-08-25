@@ -1493,9 +1493,25 @@ void MainForm::errorEvent( int nErrorCode )
 
 void MainForm::playlistLoadSongEvent(int nIndex)
 {
+	Hydrogen *engine = Hydrogen::get_instance();
 
-	QString selected = Hydrogen::get_instance()->m_PlayList[ nIndex ].m_hFile;
-	openSongFile(selected);
+	Song *pSong =  engine->getSong();
+	if ( ! pSong ) return;
+
+        h2app->getSongEditorPanel()->updateAll();
+        h2app->getPatternEditorPanel()->updateSLnameLabel();
+
+        QString songName( pSong->__name );
+        if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
+                songName = pSong->get_filename();
+                songName = songName.section( '/', -1 );
+        }
+        setWindowTitle( songName  );
+
+        h2app->getMainForm()->updateRecentUsedSongList();
+	h2app->closeFXProperties();
+	h2app->m_undoStack->clear();
+
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
 }

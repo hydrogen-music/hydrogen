@@ -39,6 +39,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/LocalFileMng.h>
 
 #include <iostream>
 #include <signal.h>
@@ -51,6 +52,7 @@ void showUsage();
 static struct option long_opts[] = {
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
+	{"playlist", required_argument, NULL, 'p'},
 	{"bits", required_argument, NULL, 'b'},
 	{"rate", required_argument, NULL, 'r'},
 	{"outfile", required_argument, NULL, 'o'},
@@ -93,6 +95,7 @@ int main(int argc, char *argv[])
 
 		// Deal with the options
 		QString songFilename;
+		QString playlistFilename;
 		QString outFilename = NULL;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
@@ -105,10 +108,9 @@ int main(int argc, char *argv[])
 		short interpolation = 0;
 
 		int c;
-		for (;;) {
+		while ( 1 ) {
 			c = getopt_long(argc, argv, opts, long_opts, NULL);
-			if (c == -1)
-				break;
+			if ( c == -1 ) break;
 
 			switch(c) {
 			case 'd':
@@ -116,6 +118,9 @@ int main(int argc, char *argv[])
 				break;
 			case 's':
 				songFilename = QString::fromLocal8Bit(optarg);
+				break;
+			case 'p':
+				playlistFilename = QString::fromLocal8Bit(optarg);
 				break;
 			case 'o':
 				outFilename = QString::fromLocal8Bit(optarg);
@@ -138,11 +143,7 @@ int main(int argc, char *argv[])
 				showVersionOpt = true;
 				break;
 			case 'V':
-				if ( optarg ) {
-					logLevelOpt = optarg;
-				} else {
-					logLevelOpt = "Warning";
-				}
+				logLevelOpt = (optarg) ? optarg : "Warning";
 				break;
 			case 'h':
 			case '?':
@@ -240,14 +241,28 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if (! song) {
-			___INFOLOG("Starting with empty song");
-			song = H2Core::Song::get_empty_song();
-			song->set_filename( "" );
-		}
+		// Load song - if wasn't already loaded with playlist
+		if ( ! song ) {
+			if ( !songFilename.isEmpty() ) {
+				song = H2Core::Song::load( songFilename );
+			} else {
+				/* Try load last song */
+				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
+				QString filename = preferences->getLastSongFilename();
+				if ( restoreLastSong && ( !filename.isEmpty() ))
+					song = H2Core::Song::load( filename );
+			}
 
-		hydrogen->setSong( song );
-		preferences->setLastSongFilename( songFilename );
+			/* Still not loaded */
+			if (! song) {
+				___INFOLOG("Starting with empty song");
+				song = H2Core::Song::get_empty_song();
+				song->set_filename( "" );
+			}
+
+			hydrogen->setSong( song );
+			preferences->setLastSongFilename( songFilename );
+		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path_search( drumkitToLoad ), true );
@@ -300,12 +315,11 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( (hydrogen->getState() == STATE_PLAYING) ) {
+		if ( hydrogen->getState() == STATE_PLAYING )
 			hydrogen->sequencer_stop();
-		}
 
-		delete Playlist::get_instance();
 		delete song;
+		delete Playlist::get_instance();
 
 		delete eQueue;
 		delete hydrogen;
@@ -359,6 +373,7 @@ void showUsage()
 	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
 	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
+	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
 	std::cout << "   -o, --outfile FILE - Output to file (export)" << std::endl;
 	std::cout << "   -r, --rate RATE - Set bitrate while exporting file" << std::endl;
 	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
