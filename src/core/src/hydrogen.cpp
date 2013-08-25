@@ -3245,7 +3245,7 @@ unsigned long Hydrogen::getTimeMasterFrames()
 
 long Hydrogen::getTickForHumanPosition( int humanpos )
 {
-	if ( ! m_pSong ) return 0;
+	if ( ! m_pSong ) return -1;
 	std::vector< PatternList* > *columns = m_pSong->get_pattern_group_vector();
 
 	int nPatternGroups = columns->size();
@@ -3253,7 +3253,7 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 		if ( m_pSong->is_loop_enabled() ) {
 			humanpos = humanpos % nPatternGroups;
 		} else {
-			return 0;
+			return MAX_NOTES;
 		}
 	}
 	   // 	std::vector<PatternList*> *pColumns =
@@ -3261,9 +3261,8 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 	   //			.get( 0 )->get_length();
 
 	   // ERRORLOG( "Kick me! " );
-	if ( humanpos < 1 || humanpos >= nPatternGroups ) return 0;
+	if ( humanpos < 1 ) return MAX_NOTES;
 	PatternList* pl = columns->at( humanpos - 1 );
-	if ( ! pl ) return 0;
 	Pattern *pPattern = pl->get( 0 );
 	if ( pPattern ) {
 		return pPattern->get_length();

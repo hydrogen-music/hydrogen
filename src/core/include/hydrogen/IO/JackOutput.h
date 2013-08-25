@@ -113,11 +113,6 @@ protected:
 										   jack_position_t *pos,
 										   int new_pos,
 										   void *arg);
-
-	void jack_timebase_callback_impl(jack_transport_state_t state,
-										 jack_nframes_t nframes,
-										 jack_position_t *pos,
-										 int new_pos);
 //~ jack timebase callback
 
 #ifdef H2CORE_HAVE_JACKSESSION
