@@ -152,13 +152,13 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if( showVersionOpt ) {
+		if ( showVersionOpt ) {
 			std::cout << H2Core::get_version() << std::endl;
 			exit(0);
 		}
 
 		showInfo();
-		if( showHelpOpt ) {
+		if ( showHelpOpt ) {
 			showUsage();
 			exit(0);
 		}
@@ -176,7 +176,6 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 #ifdef H2CORE_HAVE_LASH
-
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
 		LashClient* lashClient = LashClient::get_instance();
 #endif
@@ -227,18 +226,27 @@ int main(int argc, char *argv[])
 #endif
 		H2Core::Hydrogen::create_instance();
 		H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::get_instance();
-
-		// Load default song
 		H2Core::Song *song = NULL;
-		if ( !songFilename.isEmpty() ) {
-			song = H2Core::Song::load( songFilename );
-		} else {
-			/* Try load last song */
-			bool restoreLastSong = preferences->isRestoreLastSongEnabled();
-			QString filename = preferences->getLastSongFilename();
-			if ( restoreLastSong && ( !filename.isEmpty() )) {
-				song = H2Core::Song::load( filename );
+
+		// Load playlist
+		if ( ! playlistFilename.isEmpty() ) {
+			Playlist* PL = Playlist::load ( playlistFilename );
+			if ( ! PL ) {
+				___ERRORLOG( "Error loading the playlist" );
+				return 0;
 			}
+
+			/* Display playlist members */
+			if ( hydrogen->m_PlayList.size() > 0) {
+				for ( uint i = 0; i < hydrogen->m_PlayList.size(); ++i ) {
+					cout << i << "." << hydrogen->m_PlayList[i].m_hFile.toLocal8Bit().constData() << endl;
+				}
+			}
+
+			/* Load first song */
+			preferences->setLastPlaylistFilename( playlistFilename );
+			PL->setNextSongByNumber( 0 );
+			song = hydrogen->getSong();
 		}
 
 		// Load song - if wasn't already loaded with playlist
