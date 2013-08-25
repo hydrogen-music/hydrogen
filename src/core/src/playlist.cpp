@@ -25,14 +25,12 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/event_queue.h>
+#include <hydrogen/LocalFileMng.h>
 
 #include <vector>
 #include <cstdlib>
 
-
-
 using namespace H2Core;
-
 
 Playlist* Playlist::__instance = NULL;
 
@@ -48,20 +46,17 @@ Playlist::Playlist()
 
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
-	__playlistName = "";
+	__filename = "";
+//	__playlistName = "";
 	selectedSongNumber = -1;
 	activeSongNumber = -1;
 }
-
-
 
 Playlist::~Playlist()
 {
 	//_INFOLOG( "[~Playlist]" );
 	__instance = NULL;
 }
-
-
 
 void Playlist::create_instance()
 {
@@ -70,12 +65,32 @@ void Playlist::create_instance()
 	}
 }
 
+bool Playlist::save( const QString& filename )
+{
+	set_filename( filename );
 
+	LocalFileMng fileMng;
+	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 )
+		return true;
+
+	return false;
+}
+
+Playlist* Playlist::load( const QString& filename )
+{
+	LocalFileMng fileMng;
+	int ret = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
+
+	if ( ret == 0 ) {
+		Playlist* P = get_instance();
+		P->set_filename( filename );
+		return P;
+	}
+	return NULL;
+}
 
 void Playlist::setNextSongByNumber(int songNumber)
 {
-
-
 	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
 		return;
 
@@ -86,7 +101,6 @@ void Playlist::setNextSongByNumber(int songNumber)
 
 	execScript( songNumber );
 }
-
 
 void Playlist::setSelectedSongNr( int songNumber )
 {
@@ -99,7 +113,6 @@ int Playlist::getSelectedSongNr()
 	return selectedSongNumber;
 }
 
-
 void Playlist::setActiveSongNumber( int ActiveSongNumber)
 {
 	activeSongNumber = ActiveSongNumber ;
@@ -110,7 +123,6 @@ int Playlist::getActiveSongNumber()
 {
 	return activeSongNumber;
 }
-
 
 void Playlist::execScript( int index)
 {

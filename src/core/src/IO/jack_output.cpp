@@ -34,6 +34,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
+#include <hydrogen/playlist.h>
 
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
@@ -505,8 +506,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 		case JackNameNotUnique:
 			if (client) {
 				sClientName = jack_get_client_name(client);
-				CLIENT_SUCCESS(QString("Jack assigned the client name '%1'")
-						   .arg(sClientName));
+				CLIENT_SUCCESS(QString("Jack assigned the client name '%1'").arg(sClientName));
 			} else {
 				CLIENT_FAILURE("name not unique");
 			}
@@ -654,20 +654,24 @@ void JackOutput::makeTrackOutputs( Song * song )
  */
 void JackOutput::setTrackOutput( int n, Instrument * instr )
 {
-
 	QString chName;
 
 	if ( track_port_count <= n ) { // need to create more ports
 		for ( int m = track_port_count; m <= n; m++ ) {
 			chName = QString( "Track_%1_" ).arg( m + 1 );
-			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toLocal8Bit(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toLocal8Bit(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-			if ( track_output_ports_R[m] == NULL || track_output_ports_L[m] == NULL ) {
+			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toLocal8Bit(),
+				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+
+			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toLocal8Bit(),
+				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+
+			if ( ! track_output_ports_R[m] || ! track_output_ports_L[m] ) {
 				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 			}
 		}
 		track_port_count = n + 1;
 	}
+
 	// Now we're sure there is an n'th port, rename it.
 	chName = QString( "Track_%1_%2_" ).arg( n + 1 ).arg( instr->get_name() );
 
@@ -677,7 +681,10 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 
 void JackOutput::play()
 {
-	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
+	Preferences* P = Preferences::get_instance();
+	if ( P->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ||
+	     P->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
+	) {
 		if ( client ) {
 			INFOLOG( "jack_transport_start()" );
 			jack_transport_start( client );
@@ -727,9 +734,11 @@ int JackOutput::getNumTracks()
 void JackOutput::jack_session_callback(jack_session_event_t *event, void *arg)
 {
 	JackOutput *me = static_cast<JackOutput*>(arg);
-	if(me) {
-			me->jack_session_callback_impl(event);
-	}
+	if(me) me->jack_session_callback_impl(event);
+}
+
+static QString baseName ( QString path ) {
+	return QFileInfo( path ).fileName();
 }
 
 void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
@@ -741,40 +750,74 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 		SAVE_TEMPLATE
 	};
 
+	Hydrogen* H = Hydrogen::get_instance();
+	Song* S = H->getSong();
+	Preferences* P = Preferences::get_instance();
+	EventQueue* EQ = EventQueue::get_instance();
+
 	jack_session_event_t *ev = (jack_session_event_t *) event;
 
-	/* Valid Song is needed */
-	if(Hydrogen::get_instance()->getSong()->get_filename().isEmpty()){
-			Hydrogen::get_instance()->getSong()->set_filename("Untitled_Song");
+	QString jackSessionDirectory = (QString) ev->session_dir;
+	QString retval = P->getJackSessionApplicationPath() + " --jacksessionid " + ev->client_uuid;
+
+	/* Playlist mode */
+	if ( H->m_PlayList.size() > 0 ) {
+		Playlist* PL = Playlist::get_instance();
+
+		if ( PL->get_filename().isEmpty() ) PL->set_filename( "untitled.h2playlist" );
+
+		QString FileName = baseName ( PL->get_filename() );
+		FileName.replace ( QString(" "), QString("_") );
+		retval += " -p \"${SESSION_DIR}" + FileName + "\"";
+
+		/* Copy all songs to Session Directory and update playlist */
+		SongReader reader;
+		for ( uint i = 0; i < H->m_PlayList.size(); ++i ) {
+			QString BaseName = baseName ( H->m_PlayList[i].m_hFile );
+			QString newName = jackSessionDirectory + BaseName;
+			QString SongPath = reader.getPath ( H->m_PlayList[i].m_hFile );
+			if ( SongPath != NULL && QFile::copy ( SongPath, newName ) ) {
+				/* Keep only filename on list for relative read */
+				H->m_PlayList[i].m_hFile = BaseName;
+				//H->m_PlayList[i].m_hScript;
+			} else {
+				/* Note - we leave old path in playlist */
+				ERRORLOG ( "Can't copy " + H->m_PlayList[i].m_hFile + " to " + newName );
+				ev->flags = JackSessionSaveError;
+			}
+		}
+
+		/* Save updated playlist */
+		if ( ! PL->save ( jackSessionDirectory + FileName ) )
+			ev->flags = JackSessionSaveError;
+	/* Song Mode */
+	} else {
+		/* Valid Song is needed */
+		if ( S->get_filename().isEmpty() ) S->set_filename("untitled.h2song");
+
+		QString FileName = baseName ( S->get_filename() );
+		FileName.replace ( QString(" "), QString("_") );
+		S->set_filename(jackSessionDirectory + FileName);
+
+		/* SongReader will look into SESSION DIR anyway */
+		retval += " -s \"" + FileName + "\"";
+
+		switch (ev->type) {
+		case JackSessionSave:
+			EQ->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+			break;
+		case JackSessionSaveAndQuit:
+			EQ->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+			EQ->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
+			break;
+		default:
+			ERRORLOG( "JackSession: Unknown event type" );
+			ev->flags = JackSessionSaveError;
+		}
 	}
-	if(Hydrogen::get_instance()->getSong()->get_filename().contains(" ")){
-			QStringList removeWhiteSpaces = Hydrogen::get_instance()->getSong()->get_filename().split(" ");
-			Hydrogen::get_instance()->getSong()->set_filename( removeWhiteSpaces.join("_") );
-	}
 
-	QString songfilename;
-	QString jackSessionDirectory = (QString)ev->session_dir;
-	QStringList list1 = Hydrogen::get_instance()->getSong()->get_filename().split("/");
-	QString realFillename = list1[list1.size()-1];
-	Hydrogen::get_instance()->getSong()->set_filename(jackSessionDirectory + realFillename);
-	songfilename = "\"${SESSION_DIR}" + realFillename + "\"";
-
-	QString retval = QString(Preferences::get_instance()->getJackSessionApplicationPath() + " -s" + songfilename + " --jacksessionid " + ev->client_uuid);
-
-	const QByteArray filename = retval.toUtf8();
-
-	if (ev->type == JackSessionSave){
-		EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
-	}
-	if (ev->type == JackSessionSaveAndQuit) {
-			EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
-			EventQueue::get_instance()->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
-	}
-
-	ev->command_line = strdup(filename.constData());
-
-	jack_session_reply(client, ev );
-
+	ev->command_line = strdup( retval.toUtf8().constData() );
+	jack_session_reply (client, ev );
 	jack_session_event_free (ev);
 }
 #endif

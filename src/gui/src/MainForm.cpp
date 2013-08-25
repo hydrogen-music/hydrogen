@@ -209,7 +209,7 @@ MainForm::~MainForm()
 	file.remove();
 
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->__playlistName );
+	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->get_filename() );
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
