@@ -775,7 +775,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Samplerate in Hz:</source>
-        <translation>Частота сэмплирования в Гц:</translation>
+        <translation>Частота сэмплирования:</translation>
     </message>
     <message>
         <source>22050</source>
@@ -863,19 +863,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation type="unfinished"></translation>
+        <translation>Интерполяция:</translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите способ интерполяции</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Линейная</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>По косинусу</translation>
     </message>
     <message>
         <source>Third</source>
@@ -883,15 +883,15 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Кубическая</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Эрмита</translation>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Включить смену темпа</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
@@ -899,10 +899,14 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Enable use of rubberband batch processor</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Использовать пакетный обработчик Rubberband</translation>
     </message>
     <message>
-        <source>Rubberbad Batch</source>
+        <source>Enable use of rubberband&apos;s batch processor</source>
+        <translation>Использовать пакетный обработчик Rubberband</translation>
+    </message>
+    <message>
+        <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -975,15 +979,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Редактор композиций</translation>
+        <translation>Редактор композиций</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Инструмент + ритм. рисунок</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Микшер</translation>
+        <translation>Микшер</translation>
     </message>
 </context>
 <context>
@@ -1105,11 +1109,27 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Приглушить инструмент</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Соло</translation>
+        <translation>Соло</translation>
+    </message>
+    <message>
+        <source>Copy notes ...</source>
+        <translation>Скопировать ноты...</translation>
+    </message>
+    <message>
+        <source>Only for this pattern</source>
+        <translation>Только этот ритм. рисунок</translation>
+    </message>
+    <message>
+        <source>For all patterns</source>
+        <translation>Все ритм. рисунки</translation>
+    </message>
+    <message>
+        <source>Paste notes ...</source>
+        <translation>Вставить ноты...</translation>
     </message>
 </context>
 <context>
@@ -1354,11 +1374,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LayerPreview</name>
     <message>
-        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Velocity = %1</source>
+        <source>Dec. = %1
+MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1629,36 +1646,36 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Undo history</source>
-        <translation type="unfinished"></translation>
+        <translation>История действий</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Действия</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>Вернуть</translation>
     </message>
     <message>
         <source>Input mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим ввода</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Инструмент</translation>
+        <translation>Инструмент</translation>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Драмкит</translation>
     </message>
     <message>
         <source>Report bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Сообщить об ошибке</translation>
     </message>
 </context>
 <context>
@@ -1700,7 +1717,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Param.</source>
-        <translation>Параметр</translation>
+        <translation>Парам.</translation>
     </message>
     <message>
         <source>Action</source>
@@ -1961,26 +1978,26 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Pattern category</source>
-        <translation>Категория паттернов</translation>
+        <translation>Категория ритм. рисунков</translation>
     </message>
     <message>
         <source>Pattern description</source>
-        <translation type="unfinished"></translation>
+        <translation>Описание ритм. рисунка</translation>
     </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Сила нажатия</translation>
+        <translation>Сила нажатия</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Панорама</translation>
+        <translation>Панорама</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation type="unfinished">Смещение во времени</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2151,7 +2168,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Switch metronome on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключить слышимость метронома</translation>
     </message>
 </context>
 <context>
@@ -2327,7 +2344,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>No song selected!</source>
-        <translation>Ни одна композиция не выбрана!</translation>
+        <translation type="obsolete">Ни одна композиция не выбрана!</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
@@ -2339,6 +2356,14 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;New Playlist</source>
+        <translation>&amp;Создать список</translation>
+    </message>
+    <message>
+        <source>File not found: </source>
+        <translation>Файл не найден: </translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2416,6 +2441,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&amp;Cancel</source>
         <translation>О&amp;тменить</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Драйвер PulseAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -2690,15 +2719,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Interpolate resampling</source>
-        <translation type="unfinished"></translation>
+        <translation>Интерполяция при ресэмплировании</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Линейная</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>По косинусу</translation>
     </message>
     <message>
         <source>Third</source>
@@ -2706,23 +2735,23 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Кубическая</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Эрмита</translation>
     </message>
     <message>
         <source>Default interface layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Макет интерфейса по умолчанию</translation>
     </message>
     <message>
         <source>Single pane</source>
-        <translation type="unfinished"></translation>
+        <translation>В одну панель</translation>
     </message>
     <message>
         <source>Tabbed</source>
-        <translation type="unfinished"></translation>
+        <translation>Со вкладками</translation>
     </message>
 </context>
 <context>
