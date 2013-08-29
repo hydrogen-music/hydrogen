@@ -342,16 +342,16 @@ const QString SongReader::getPath ( const QString& filename )
 	if ( QFile( filename ).exists() )
 		return QFileInfo ( filename ).absoluteFilePath();
 
-#ifdef H2CORE_HAVE_JACKSESSION
 	/* Try search in Session Directory */
 	char* sesdir = getenv ( "SESSION_DIR" );
 	if ( sesdir ) {
 		INFOLOG ( "Try SessionDirectory " + QString( sesdir ) );
-		QString SesFileName = QString( sesdir ) + QFileInfo( filename ).fileName();
+		QDir SesDir( sesdir );
+		QString BaseFileName = QFileInfo( filename ).fileName();
+		QString SesFileName = SesDir.filePath( BaseFileName );
 		if ( QFile( SesFileName ).exists() )
 			return QFileInfo( SesFileName ).absoluteFilePath();
 	}
-#endif /* H2CORE_HAVE_JACKSESSION */
 
 	ERRORLOG( "Song file " + filename + " not found." );
 	return NULL;
