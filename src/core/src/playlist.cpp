@@ -91,11 +91,39 @@ Playlist* Playlist::load( const QString& filename )
 
 void Playlist::setNextSongByNumber(int songNumber)
 {
-	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
+	Hydrogen* H = Hydrogen::get_instance();
+	Preferences *pPref = Preferences::get_instance();
+
+	int playlist_size = H->m_PlayList.size();
+	if ( songNumber > playlist_size - 1 || playlist_size == 0 )
 		return;
+
+	if ( H->getState() == STATE_PLAYING )
+		H->sequencer_stop();
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
+
+	/* Load Song from file */
+	QString selected = H->m_PlayList[ songNumber ].m_hFile;
+	Song *pSong = Song::load( selected );
+	if ( ! pSong ) return;
+
+	/* Remove current song from memory not from hdd OFC ;-)
+		i.e unload, this must be done after load new song */
+	Song* oldSong = H->getSong();
+	if ( oldSong ) {
+		H->removeSong();
+		delete oldSong;
+	}
+
+	H->setSelectedPatternNumber( 0 );
+	H->setSong( pSong );
+
+	pPref->setLastSongFilename( pSong->get_filename() );
+	vector<QString> recentFiles = pPref->getRecentFiles();
+	recentFiles.insert( recentFiles.begin(), selected );
+	pPref->setRecentFiles( recentFiles );
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
 
