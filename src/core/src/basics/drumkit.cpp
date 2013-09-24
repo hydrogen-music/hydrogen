@@ -197,30 +197,35 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 	}
 
 	InstrumentList* instruments = get_instruments();
-	for( int i=0; i<instruments->size(); i++ ) {
+	for( int i = 0; i < instruments->size(); i++ ) {
 		Instrument* instrument = ( *instruments )[i];
-		for ( int n = 0; n < MAX_LAYERS; n++ ) {
+		for( int n = 0; n < MAX_LAYERS; n++ ) {
 			InstrumentLayer* layer = instrument->get_layer( n );
 			if( layer ) {
-				QString src =  layer->get_sample()->get_filepath();
+				QString src = layer->get_sample()->get_filepath();
 				QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
 
-				//if a file with the filename already exists, try to rename it to filename_1 etc.
-				int tries = 1;
-				while( Filesystem::file_exists( dst )){
-					QString new_name = dst;
+				if( src != dst ) {
+					QString original_dst = dst;
 
-					int insertPosition = new_name.length();
-					if( new_name.lastIndexOf(".") > 0 ) insertPosition = new_name.lastIndexOf(".");
-					new_name.insert( insertPosition, QString("_%1").arg(tries) );
-					tries++;
-					dst = new_name;
-				}
+					// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
+					int insertPosition = original_dst.length();
+					if( original_dst.lastIndexOf(".") > 0 )
+						insertPosition = original_dst.lastIndexOf(".");
 
-				if( dst != layer->get_sample()->get_filename() ) layer->get_sample()->set_filename( dst );
+					// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
+					int tries = 0;
+					while( Filesystem::file_exists( dst )) {
+						tries++;
+						dst = original_dst;
+						dst.insert( insertPosition, QString("_%1").arg(tries) );
+					}
 
-				if( !Filesystem::file_copy( src, dst ) ) {
-					return false;
+					layer->get_sample()->set_filename( dst );
+
+					if( !Filesystem::file_copy( src, dst ) ) {
+						return false;
+					}
 				}
 			}
 		}
