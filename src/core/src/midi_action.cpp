@@ -64,10 +64,11 @@ bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 
 bool setSong( int songnumber ) {
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	Playlist *PL = Playlist::get_instance();
 
-	int asn = Playlist::get_instance()->getActiveSongNumber();
+	int asn = PL->getActiveSongNumber();
 	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1){
-		Playlist::get_instance()->setNextSongByNumber( songnumber );
+		PL->setNextSongByNumber( songnumber );
 	}
 	return true;
 }

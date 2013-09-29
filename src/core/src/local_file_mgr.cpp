@@ -830,8 +830,6 @@ int LocalFileMng::savePlayList( const std::string& filename)
 
 int LocalFileMng::loadPlayList( const std::string& filename)
 {
-
-
 	std::string playlistInfoFile = filename;
 	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
 	if ( verify == NULL ) {
@@ -852,10 +850,12 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 	if ( ! playlistNode.isNull() ) {
 		Hydrogen::get_instance()->m_PlayList.clear();
 		QDomNode nextNode = playlistNode.firstChildElement( "next" );
+		SongReader reader;
 		while (  ! nextNode.isNull() ) {
 			Hydrogen::HPlayListNode playListItem;
 			playListItem.m_hFile = LocalFileMng::readXmlString( nextNode, "song", "" );
-			playListItem.m_hFileExists = Filesystem::file_readable( playListItem.m_hFile );
+			QString FilePath = reader.getPath( playListItem.m_hFile );
+			playListItem.m_hFileExists = Filesystem::file_readable( FilePath );
 			playListItem.m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
 			playListItem.m_hScriptEnabled = LocalFileMng::readXmlString( nextNode, "enabled", "" );
 

@@ -31,8 +31,6 @@
 #include <vector>
 #include <cassert>
 
-
-
 ///
 /// handle playlist
 ///
@@ -49,7 +47,7 @@ class Playlist :  public H2Core::Object
 		~Playlist();
 
 //		std::vector<HPlayListNode> m_PlayList;
-				void setNextSongByNumber(int SongNumber);
+		void setNextSongByNumber(int SongNumber);
 		void setSelectedSongNr( int songNumber);
 
 		int selectedSongNumber;
@@ -59,18 +57,27 @@ class Playlist :  public H2Core::Object
 		void setActiveSongNumber( int ActiveSongNumber);
 		int getActiveSongNumber();
 
-		QString __playlistName;
+//		QString __playlistName;
 
+		const QString& get_filename() {
+			return __filename;
+		}
+
+		void set_filename( const QString& filename ) {
+			__filename = filename;
+		}
+		
+		static Playlist* load( const QString& filename );
+		bool save( const QString& filename );
 
 	private:
-
 		static Playlist* __instance;
+		QString __filename;
 
 		/// Constructor
 		Playlist();
 
 		void execScript( int index);
 };
-
 
 #endif

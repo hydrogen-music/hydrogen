@@ -1833,10 +1833,7 @@ Hydrogen::Hydrogen()
 	   for(int i = 0; i<128; i++){
 			  m_nInstrumentLookupTable[i] = i;
 	   }
-
 }
-
-
 
 Hydrogen::~Hydrogen()
 {
@@ -1850,8 +1847,6 @@ Hydrogen::~Hydrogen()
 	   __kill_instruments();
 	   __instance = NULL;
 }
-
-
 
 void Hydrogen::create_instance()
 {
@@ -3250,29 +3245,30 @@ unsigned long Hydrogen::getTimeMasterFrames()
 
 long Hydrogen::getTickForHumanPosition( int humanpos )
 {
-	   std::vector< PatternList* > * columns = m_pSong->get_pattern_group_vector();
+	if ( ! m_pSong ) return -1;
+	std::vector< PatternList* > *columns = m_pSong->get_pattern_group_vector();
 
-	   int nPatternGroups = columns->size();
-	   if ( humanpos >= nPatternGroups ) {
-			  if ( m_pSong->is_loop_enabled() ) {
-					 humanpos = humanpos % nPatternGroups;
-			  } else {
-					 return -1;
-			  }
-	   }
-
+	int nPatternGroups = columns->size();
+	if ( humanpos >= nPatternGroups ) {
+		if ( m_pSong->is_loop_enabled() ) {
+			humanpos = humanpos % nPatternGroups;
+		} else {
+			return MAX_NOTES;
+		}
+	}
 	   // 	std::vector<PatternList*> *pColumns =
 	   //		m_pSong->get_pattern_group_vector()[ humanpos - 1 ]
 	   //			.get( 0 )->get_length();
 
-	   //	ERRORLOG( "Kick me!" );
-	   if ( humanpos == 0 ) return 0;
-	   Pattern *pPattern = columns->at( humanpos - 1 )->get( 0 );
-	   if ( pPattern ) {
-			  return pPattern->get_length();
-	   } else {
-			  return MAX_NOTES;
-	   }
+	   // ERRORLOG( "Kick me! " );
+	if ( humanpos < 1 ) return MAX_NOTES;
+	PatternList* pl = columns->at( humanpos - 1 );
+	Pattern *pPattern = pl->get( 0 );
+	if ( pPattern ) {
+		return pPattern->get_length();
+	} else {
+		return MAX_NOTES;
+	}
 	   // 	int nPatternSize;
 
 	   // 	pColumns
