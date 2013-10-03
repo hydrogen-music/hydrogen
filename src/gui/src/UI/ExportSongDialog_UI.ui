@@ -523,10 +523,10 @@
     <item>
      <widget class="QCheckBox" name="toggleRubberbandCheckBox">
       <property name="toolTip">
-       <string>Enable use of rubberband batch processor</string>
+       <string>Enable use of rubberband's batch processor</string>
       </property>
       <property name="text">
-       <string>Rubberbad Batch</string>
+       <string>Rubberband Batch</string>
       </property>
      </widget>
     </item>
