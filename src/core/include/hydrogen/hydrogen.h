@@ -76,11 +76,10 @@ public:
 	void togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 
-	/// Set current song
+	/// Set/Get current song
+	Song* getSong() { return __song; }
 	void setSong( Song *newSong );
 
-	/// Return the current song
-	Song* getSong();
 	void removeSong();
 
 	void addRealtimeNote ( int instrument, float velocity, float pan_L=1.0, float pan_R=1.0, float pitch=0.0, bool noteoff=false, bool forcePlay=false, int msg1=0 );
@@ -261,6 +260,8 @@ public:
 
 private:
 	static Hydrogen* __instance;
+
+	Song* __song; /// < Current song
 
 	// used for song export
 	Song::SongMode m_oldEngineMode;
