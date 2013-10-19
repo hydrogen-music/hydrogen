@@ -1865,7 +1865,6 @@ void Hydrogen::sequencer_play()
 	Song* pSong = getSong();
 	pSong->get_pattern_list()->set_to_old();
 	m_pAudioDriver->play();
-	___ERRORLOG ( "CHUJ" );
 }
 
 /// Stop the internal sequencer
