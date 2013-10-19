@@ -21,6 +21,7 @@
  */
 
 #include <QLibraryInfo>
+#include <QThread>
 #include <hydrogen/config.h>
 #include <hydrogen/version.h>
 #include <getopt.h>
@@ -65,6 +66,14 @@ static struct option long_opts[] = {
 	{"install", required_argument, NULL, 'i'},
 	{"drumkit", required_argument, NULL, 'k'},
 	{0, 0, 0, 0},
+};
+
+class Sleeper : public QThread
+{
+public:
+	static void usleep(unsigned long usecs){QThread::usleep(usecs);}
+	static void msleep(unsigned long msecs){QThread::msleep(msecs);}
+	static void sleep(unsigned long secs){QThread::sleep(secs);}
 };
 
 volatile bool quit = false;
@@ -308,30 +317,28 @@ int main(int argc, char *argv[])
 					sampler->setInterpolateMode( Sampler::LINEAR );
 		}
 
-		// use the timer to do schedule instrument slaughter;
 		EventQueue *pQueue = EventQueue::get_instance();
 
 		signal(SIGINT, signal_handler);
 
+		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
 			pHydrogen->startExportSong ( outFilename, rate, bits );
 			cout << "Export Progress ... ";
+			bool ExportMode = true;
 		}
 
 		// Interactive mode
 		while ( ! quit ) {
 			/* FIXME: Someday here will be The Real CLI ;-) */
-
-			// TODO: Move to separate function */
-			/* Event handler */
 			Event event = pQueue->pop_event();
 			// if ( event.type > 0) cout << "EVENT TYPE: " << event.type << endl;
 
+			/* Event handler */
 			switch ( event.type ) {
-			case EVENT_PROGRESS:
-				/* event used only in export mode */
-				if ( outFilename.isEmpty() ) break;
-				
+			case EVENT_PROGRESS: /* event used only in export mode */
+				if ( ! ExportMode ) break;
+	
 				if ( event.value < 100 ) {
 					cout << "\rExport Progress ... " << event.value << "%";
 				} else {
@@ -339,12 +346,14 @@ int main(int argc, char *argv[])
 					quit = true;
 				}
 				break;
-			/* Load new song on MIDI event */
-			case EVENT_PLAYLIST_LOADSONG:
+			case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
 				if ( pPlaylist->loadSong ( event.value ) ) {
 					pSong = pHydrogen->getSong();
 					show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
 				}
+				break;
+			case EVENT_NONE: /* Sleep if there is no more events */
+				Sleeper::msleep ( 100 );
 				break;
 			}
 		}
