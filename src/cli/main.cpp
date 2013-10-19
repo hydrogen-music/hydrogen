@@ -66,11 +66,25 @@ static struct option long_opts[] = {
 };
 
 volatile bool quit = false;
-void signal_handler ( int signum ) {
+void signal_handler ( int signum )
+{
 	if ( signum == SIGINT ) {
 		std::cout << "Terminate signal caught" << endl;
 		quit = true;
 	}
+}
+
+void show_playlist (H2Core::Hydrogen *pHydrogen, uint active )
+{
+	/* Display playlist members */
+	if ( pHydrogen->m_PlayList.size() > 0) {
+		for ( uint i = 0; i < pHydrogen->m_PlayList.size(); ++i ) {
+			cout << ( i + 1 ) << "." << pHydrogen->m_PlayList[i].m_hFile.toLocal8Bit().constData();
+			if ( i == active ) cout << " *";
+			cout << endl;
+		}
+	}
+	cout << endl;
 }
 
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
@@ -225,56 +239,51 @@ int main(int argc, char *argv[])
 		}
 #endif
 		H2Core::Hydrogen::create_instance();
-		H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::get_instance();
-		H2Core::Song *song = NULL;
+		H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+		H2Core::Song *pSong = NULL;
+		Playlist *pPlaylist = NULL;
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
-			Playlist* PL = Playlist::load ( playlistFilename );
-			if ( ! PL ) {
+			pPlaylist = Playlist::load ( playlistFilename );
+			if ( ! pPlaylist ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 0;
 			}
 
-			/* Display playlist members */
-			if ( hydrogen->m_PlayList.size() > 0) {
-				for ( uint i = 0; i < hydrogen->m_PlayList.size(); ++i ) {
-					cout << i << "." << hydrogen->m_PlayList[i].m_hFile.toLocal8Bit().constData() << endl;
-				}
-			}
-
 			/* Load first song */
 			preferences->setLastPlaylistFilename( playlistFilename );
-			PL->setNextSongByNumber( 0 );
-			song = hydrogen->getSong();
+			pPlaylist->loadSong( 0 );
+			pSong = pHydrogen->getSong();
+			show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
 		}
 
 		// Load song - if wasn't already loaded with playlist
-		if ( ! song ) {
+		if ( ! pSong ) {
 			if ( !songFilename.isEmpty() ) {
-				song = H2Core::Song::load( songFilename );
+				pSong = H2Core::Song::load( songFilename );
 			} else {
 				/* Try load last song */
 				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
 				QString filename = preferences->getLastSongFilename();
 				if ( restoreLastSong && ( !filename.isEmpty() ))
-					song = H2Core::Song::load( filename );
+					pSong = H2Core::Song::load( filename );
 			}
 
 			/* Still not loaded */
-			if (! song) {
+			if (! pSong) {
 				___INFOLOG("Starting with empty song");
-				song = H2Core::Song::get_empty_song();
-				song->set_filename( "" );
+				pSong = H2Core::Song::get_empty_song();
+				pSong->set_filename( "" );
 			}
 
-			hydrogen->setSong( song );
+			pHydrogen->setSong( pSong );
 			preferences->setLastSongFilename( songFilename );
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path_search( drumkitToLoad ), true );
-			hydrogen->loadDrumkit( drumkitInfo );
+			pHydrogen->loadDrumkit( drumkitInfo );
 		}
 
 		H2Core::AudioEngine* AudioEngine = H2Core::AudioEngine::get_instance();
@@ -298,39 +307,54 @@ int main(int argc, char *argv[])
 		}
 
 		// use the timer to do schedule instrument slaughter;
-		H2Core::EventQueue *eQueue = H2Core::EventQueue::get_instance();
+		H2Core::EventQueue *pQueue = H2Core::EventQueue::get_instance();
 
-		if ( !outFilename.isEmpty() ) {
-			// Export mode
-			hydrogen->startExportSong ( outFilename, rate, bits );
-			// Actuall export song
-			int progress = 0;
-			std::cout << "\rExporting progress ...";
-			while ( progress < 100 ) {
-				H2Core::Event event = eQueue->pop_event();
-				if ( event.type == H2Core::EVENT_PROGRESS ) {
-					progress = event.value;
-					std::cout << "\rExporting progress ... " << progress << "%";
+		signal(SIGINT, signal_handler);
+
+		if ( ! outFilename.isEmpty() ) {
+			pHydrogen->startExportSong ( outFilename, rate, bits );
+			std::cout << "Export Progress ... ";
+		}
+
+		// Interactive mode
+		while ( ! quit ) {
+			/* FIXME: Someday here will be The Real CLI ;-) */
+
+			// TODO: Move to separate function */
+			/* Event handler */
+			H2Core::Event event = pQueue->pop_event();
+			// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
+
+			switch ( event.type ) {
+			case H2Core::EVENT_PROGRESS:
+				/* event used only in export mode */
+				if ( outFilename.isEmpty() ) break;
+				
+				if ( event.value < 100 ) {
+					std::cout << "\rExport Progress ... " << event.value << "%";
+				} else {
+					std::cout << "\rExport Progress ... DONE" << std::endl;
+					quit = true;
 				}
-			}
-			std::cout << "\rExporting progress ... DONE" << std::endl;
-		} else {
-			signal(SIGINT, signal_handler);
-
-			// Interactive mode
-			while ( ! quit ) {
-				/* Someday here will be The Real CLI ;-) */
+				break;
+			/* Load new song on MIDI event */
+			case H2Core::EVENT_PLAYLIST_LOADSONG:
+				if ( pPlaylist->loadSong ( event.value ) ) {
+					pSong = pHydrogen->getSong();
+					show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+				}
+				break;
 			}
 		}
 
-		if ( hydrogen->getState() == STATE_PLAYING )
-			hydrogen->sequencer_stop();
+		if ( pHydrogen->getState() == STATE_PLAYING )
+			pHydrogen->sequencer_stop();
 
-		delete song;
-		delete Playlist::get_instance();
+		delete pSong;
+		delete pPlaylist;
 
-		delete eQueue;
-		delete hydrogen;
+		delete pQueue;
+		delete pHydrogen;
 		delete preferences;
 		delete AudioEngine;
 
@@ -345,8 +369,6 @@ int main(int argc, char *argv[])
 			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
 			H2Core::Object::write_objects_map_to_cerr();
 		}
-
-
 	}
 	catch ( const H2Core::H2Exception& ex ) {
 		std::cerr << "[main] Exception: " << ex.what() << std::endl;

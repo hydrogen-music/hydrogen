@@ -89,45 +89,46 @@ Playlist* Playlist::load( const QString& filename )
 	return NULL;
 }
 
-void Playlist::setNextSongByNumber(int songNumber)
+/* This method is called by Event dispacher thread ( GUI ) */
+bool Playlist::loadSong (int songNumber)
 {
-	Hydrogen* H = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Preferences *pPref = Preferences::get_instance();
 
-	int playlist_size = H->m_PlayList.size();
-	if ( songNumber > playlist_size - 1 || playlist_size == 0 )
-		return;
+	if ( pHydrogen->getState() == STATE_PLAYING )
+		pHydrogen->sequencer_stop();
 
-	if ( H->getState() == STATE_PLAYING )
-		H->sequencer_stop();
+	/* Load Song from file */
+	QString selected = pHydrogen->m_PlayList[ songNumber ].m_hFile;
+	Song *pSong = Song::load( selected );
+	if ( ! pSong ) return false;
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-	/* Load Song from file */
-	QString selected = H->m_PlayList[ songNumber ].m_hFile;
-	Song *pSong = Song::load( selected );
-	if ( ! pSong ) return;
-
-	/* Remove current song from memory not from hdd OFC ;-)
-		i.e unload, this must be done after load new song */
-	Song* oldSong = H->getSong();
-	if ( oldSong ) {
-		H->removeSong();
-		delete oldSong;
-	}
-
-	H->setSelectedPatternNumber( 0 );
-	H->setSong( pSong );
+	pHydrogen->setSong( pSong );
 
 	pPref->setLastSongFilename( pSong->get_filename() );
 	vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), selected );
 	pPref->setRecentFiles( recentFiles );
 
-	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
-
 	execScript( songNumber );
+
+	return true;
+}
+
+/* This method is called by MIDI thread */
+void Playlist::setNextSongByNumber(int songNumber)
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+
+	int playlist_size = pHydrogen->m_PlayList.size();
+	if ( songNumber > playlist_size - 1 || playlist_size == 0 )
+		return;
+
+	/* NOTE: we are in MIDI thread and can't just call loadSong from here :( */
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
 }
 
 void Playlist::setSelectedSongNr( int songNumber )

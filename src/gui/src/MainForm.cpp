@@ -1491,12 +1491,14 @@ void MainForm::errorEvent( int nErrorCode )
 	QMessageBox::information( this, "Hydrogen", msg );
 }
 
-void MainForm::playlistLoadSongEvent(int nIndex)
+void MainForm::playlistLoadSongEvent (int nIndex)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
+	Playlist* pPlaylist = Playlist::get_instance();
 
-	Song *pSong =  engine->getSong();
-	if ( ! pSong ) return;
+	if ( ! pPlaylist->loadSong ( nIndex ) )
+		return;
+
+	Song* pSong = Hydrogen::get_instance()->getSong();
 
         h2app->getSongEditorPanel()->updateAll();
         h2app->getPatternEditorPanel()->updateSLnameLabel();

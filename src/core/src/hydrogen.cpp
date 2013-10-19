@@ -994,34 +994,17 @@ void audioEngine_renameJackPorts()
 #endif
 }
 
-
-
 void audioEngine_setSong( Song *newSong )
 {
 	   ___WARNINGLOG( QString( "Set song: %1" ).arg( newSong->__name ) );
 
 	   AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	   if ( m_audioEngineState == STATE_PLAYING ) {
-			  m_pAudioDriver->stop();
-			  audioEngine_stop( false );
-	   }
-
 	   // check current state
+	   // should be set by removeSong called earlier
 	   if ( m_audioEngineState != STATE_PREPARED ) {
 			  ___ERRORLOG( "Error the audio engine is not in PREPARED state" );
 	   }
-
-	   m_pPlayingPatterns->clear();
-	   m_pNextPatterns->clear();
-
-	   EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-	   EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	   EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
-	   //sleep( 1 );
-
-	   audioEngine_clearNoteQueue();
 
 	   assert( m_pSong == NULL );
 	   m_pSong = newSong;
@@ -1037,7 +1020,6 @@ void audioEngine_setSong( Song *newSong )
 			  m_pPlayingPatterns->add( m_pSong->get_pattern_list()->get( 0 ) );
 	   }
 
-
 	   audioEngine_renameJackPorts();
 
 	   m_pAudioDriver->setBpm( m_pSong->__bpm );
@@ -1051,8 +1033,6 @@ void audioEngine_setSong( Song *newSong )
 
 	   EventQueue::get_instance()->push_event( EVENT_STATE, STATE_READY );
 }
-
-
 
 void audioEngine_removeSong()
 {
@@ -1069,10 +1049,17 @@ void audioEngine_removeSong()
 			  AudioEngine::get_instance()->unlock();
 			  return;
 	   }
-
+	
 	   m_pSong = NULL;
+
 	   m_pPlayingPatterns->clear();
 	   m_pNextPatterns->clear();
+
+	   EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	   EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
+	   EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+	   //sleep( 1 );
 
 	   audioEngine_clearNoteQueue();
 
@@ -1892,17 +1879,32 @@ void Hydrogen::sequencer_stop()
 
 void Hydrogen::setSong( Song *pSong )
 {
-	   audioEngine_setSong( pSong );
+	assert ( pSong );
+
+	/* Set first pattern */
+	setSelectedPatternNumber( 0 );
+
+	/* Delete previous Song
+	*  NOTE: current approach support only one Song
+	*        loaded at the same time
+	*/
+	Song* oldSong = getSong();
+	if ( oldSong ) {
+		delete oldSong;
+		oldSong = NULL;
+
+		/* NOTE: this is actually some kind of cleanup */
+		removeSong();
+	}
+
+	audioEngine_setSong ( pSong );
 }
 
-
-
+/* Mean: remove current song from memory */
 void Hydrogen::removeSong()
 {
-	   audioEngine_removeSong();
+	audioEngine_removeSong();
 }
-
-
 
 Song* Hydrogen::getSong()
 {

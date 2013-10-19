@@ -47,7 +47,8 @@ class Playlist :  public H2Core::Object
 		~Playlist();
 
 //		std::vector<HPlayListNode> m_PlayList;
-		void setNextSongByNumber(int SongNumber);
+		void setNextSongByNumber(int SongNumber); /* Call from MIDI thread */
+		bool loadSong (int SongNumber); /* Call from main (e.g. GUI) thread */
 		void setSelectedSongNr( int songNumber);
 
 		int selectedSongNumber;
