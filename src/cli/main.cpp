@@ -43,7 +43,9 @@
 
 #include <iostream>
 #include <signal.h>
+
 using namespace std;
+using namespace H2Core;
 
 void showInfo();
 void showUsage();
@@ -69,12 +71,12 @@ volatile bool quit = false;
 void signal_handler ( int signum )
 {
 	if ( signum == SIGINT ) {
-		std::cout << "Terminate signal caught" << endl;
+		cout << "Terminate signal caught" << endl;
 		quit = true;
 	}
 }
 
-void show_playlist (H2Core::Hydrogen *pHydrogen, uint active )
+void show_playlist (Hydrogen *pHydrogen, uint active )
 {
 	/* Display playlist members */
 	if ( pHydrogen->m_PlayList.size() > 0) {
@@ -167,7 +169,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( showVersionOpt ) {
-			std::cout << H2Core::get_version() << std::endl;
+			cout << get_version() << endl;
 			exit(0);
 		}
 
@@ -178,16 +180,16 @@ int main(int argc, char *argv[])
 		}
 
 		// Man your battle stations... this is not a drill.
-		H2Core::Logger* logger = H2Core::Logger::bootstrap( H2Core::Logger::parse_log_level( logLevelOpt ) );
-		H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
-		H2Core::Filesystem::bootstrap( logger );
+		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
+		Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
+		Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
-		H2Core::Preferences::create_instance();
-		H2Core::Preferences* preferences = H2Core::Preferences::get_instance();
-		// See below for H2Core::Hydrogen.
+		Preferences::create_instance();
+		Preferences* preferences = Preferences::get_instance();
+		// See below for Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
+		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
 
 #ifdef H2CORE_HAVE_LASH
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
@@ -195,7 +197,7 @@ int main(int argc, char *argv[])
 #endif
 
 		if( ! drumkitName.isEmpty() ){
-			H2Core::Drumkit::install( drumkitName );
+			Drumkit::install( drumkitName );
 			exit(0);
 		}
 
@@ -229,18 +231,18 @@ int main(int argc, char *argv[])
 				songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
 				songFilename.append("/hydrogen.h2song");
 
-				//H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+				//Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
 
 				lash_event_destroy(lash_event);
 			} else if (lash_event) {
-				//H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+				//Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
 				lash_event_destroy(lash_event);
 			}
 		}
 #endif
-		H2Core::Hydrogen::create_instance();
-		H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-		H2Core::Song *pSong = NULL;
+		Hydrogen::create_instance();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Song *pSong = NULL;
 		Playlist *pPlaylist = NULL;
 
 		// Load playlist
@@ -261,19 +263,19 @@ int main(int argc, char *argv[])
 		// Load song - if wasn't already loaded with playlist
 		if ( ! pSong ) {
 			if ( !songFilename.isEmpty() ) {
-				pSong = H2Core::Song::load( songFilename );
+				pSong = Song::load( songFilename );
 			} else {
 				/* Try load last song */
 				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
 				QString filename = preferences->getLastSongFilename();
 				if ( restoreLastSong && ( !filename.isEmpty() ))
-					pSong = H2Core::Song::load( filename );
+					pSong = Song::load( filename );
 			}
 
 			/* Still not loaded */
 			if (! pSong) {
 				___INFOLOG("Starting with empty song");
-				pSong = H2Core::Song::get_empty_song();
+				pSong = Song::get_empty_song();
 				pSong->set_filename( "" );
 			}
 
@@ -282,38 +284,38 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( H2Core::Filesystem::drumkit_path_search( drumkitToLoad ), true );
+			Drumkit* drumkitInfo = Drumkit::load( Filesystem::drumkit_path_search( drumkitToLoad ), true );
 			pHydrogen->loadDrumkit( drumkitInfo );
 		}
 
-		H2Core::AudioEngine* AudioEngine = H2Core::AudioEngine::get_instance();
-		H2Core::Sampler* sampler = AudioEngine->get_sampler();
+		AudioEngine* AudioEngine = AudioEngine::get_instance();
+		Sampler* sampler = AudioEngine->get_sampler();
 		switch ( interpolation ) {
 			case 1:
-					sampler->setInterpolateMode( H2Core::Sampler::COSINE );
+					sampler->setInterpolateMode( Sampler::COSINE );
 					break;
 			case 2:
-					sampler->setInterpolateMode( H2Core::Sampler::THIRD );
+					sampler->setInterpolateMode( Sampler::THIRD );
 					break;
 			case 3:
-					sampler->setInterpolateMode( H2Core::Sampler::CUBIC );
+					sampler->setInterpolateMode( Sampler::CUBIC );
 					break;
 			case 4:
-					sampler->setInterpolateMode( H2Core::Sampler::HERMITE );
+					sampler->setInterpolateMode( Sampler::HERMITE );
 					break;
 			case 0:
 			default:
-					sampler->setInterpolateMode( H2Core::Sampler::LINEAR );
+					sampler->setInterpolateMode( Sampler::LINEAR );
 		}
 
 		// use the timer to do schedule instrument slaughter;
-		H2Core::EventQueue *pQueue = H2Core::EventQueue::get_instance();
+		EventQueue *pQueue = EventQueue::get_instance();
 
 		signal(SIGINT, signal_handler);
 
 		if ( ! outFilename.isEmpty() ) {
 			pHydrogen->startExportSong ( outFilename, rate, bits );
-			std::cout << "Export Progress ... ";
+			cout << "Export Progress ... ";
 		}
 
 		// Interactive mode
@@ -322,23 +324,23 @@ int main(int argc, char *argv[])
 
 			// TODO: Move to separate function */
 			/* Event handler */
-			H2Core::Event event = pQueue->pop_event();
-			// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
+			Event event = pQueue->pop_event();
+			// if ( event.type > 0) cout << "EVENT TYPE: " << event.type << endl;
 
 			switch ( event.type ) {
-			case H2Core::EVENT_PROGRESS:
+			case EVENT_PROGRESS:
 				/* event used only in export mode */
 				if ( outFilename.isEmpty() ) break;
 				
 				if ( event.value < 100 ) {
-					std::cout << "\rExport Progress ... " << event.value << "%";
+					cout << "\rExport Progress ... " << event.value << "%";
 				} else {
-					std::cout << "\rExport Progress ... DONE" << std::endl;
+					cout << "\rExport Progress ... DONE" << endl;
 					quit = true;
 				}
 				break;
 			/* Load new song on MIDI event */
-			case H2Core::EVENT_PLAYLIST_LOADSONG:
+			case EVENT_PLAYLIST_LOADSONG:
 				if ( pPlaylist->loadSong ( event.value ) ) {
 					pSong = pHydrogen->getSong();
 					show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
@@ -362,19 +364,19 @@ int main(int argc, char *argv[])
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
-		delete H2Core::Logger::get_instance();
+		delete Logger::get_instance();
 
-		int nObj = H2Core::Object::objects_count();
+		int nObj = Object::objects_count();
 		if (nObj != 0) {
-			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
-			H2Core::Object::write_objects_map_to_cerr();
+			cerr << "\n\n\n " << nObj << " alive objects\n\n" << endl << endl;
+			Object::write_objects_map_to_cerr();
 		}
 	}
-	catch ( const H2Core::H2Exception& ex ) {
-		std::cerr << "[main] Exception: " << ex.what() << std::endl;
+	catch ( const H2Exception& ex ) {
+		cerr << "[main] Exception: " << ex.what() << endl;
 	}
 	catch (...) {
-		std::cerr << "[main] Unknown exception X-(" << std::endl;
+		cerr << "[main] Unknown exception X-(" << endl;
 	}
 
 	return 0;
@@ -383,10 +385,10 @@ int main(int argc, char *argv[])
 /* Show some information */
 void showInfo()
 {
-	cout << "\nHydrogen " + H2Core::get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
+	cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
 
-	if ( H2Core::Object::count_active() ) {
+	if ( Object::count_active() ) {
 		cout << "\nObject counting active" << endl;
 	}
 
@@ -400,25 +402,25 @@ void showInfo()
  */
 void showUsage()
 {
-	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
-	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
-	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
-	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
-	std::cout << "   -o, --outfile FILE - Output to file (export)" << std::endl;
-	std::cout << "   -r, --rate RATE - Set bitrate while exporting file" << std::endl;
-	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
-	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
-	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
-	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
-	std::cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << std::endl;
+	cout << "Usage: hydrogen [-v] [-h] -s file" << endl;
+	cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << endl;
+	cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << endl;
+	cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << endl;
+	cout << "   -o, --outfile FILE - Output to file (export)" << endl;
+	cout << "   -r, --rate RATE - Set bitrate while exporting file" << endl;
+	cout << "   -b, --bits BITS - Set bits depth while exporting file" << endl;
+	cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << endl;
+	cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << endl;
+	cout << "   -I, --interpolate INT - Interpolation" << endl;
+	cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << endl;
 #ifdef H2CORE_HAVE_LASH
-	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl
-			  << "                            it (LASH 0.5.3 and later)." << std::endl;
-	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
-			  << "                          from a crash." << std::endl;
+	cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
+			  << "                            it (LASH 0.5.3 and later)." << endl;
+	cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << endl
+			  << "                          from a crash." << endl;
 #endif
-	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
-	std::cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << std::endl;
-	std::cout << "   -v, --version - Show version info" << std::endl;
-	std::cout << "   -h, --help - Show this help message" << std::endl;
+	cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << endl;
+	cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << endl;
+	cout << "   -v, --version - Show version info" << endl;
+	cout << "   -h, --help - Show this help message" << endl;
 }
