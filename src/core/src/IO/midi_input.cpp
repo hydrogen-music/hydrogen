@@ -57,27 +57,31 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 //	infoLog( "[handleMidiMessage] val1: " + to_string( msg.m_nData1 ) );
 //	infoLog( "[handleMidiMessage] val2: " + to_string( msg.m_nData2 ) );
 
-
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
-		if ( Preferences::get_instance()->m_nMidiChannelFilter != -1 ) {
-				bIsChannelValid = ( msg.m_nChannel ==  Preferences::get_instance()->m_nMidiChannelFilter);
+		Preferences* pPref = Preferences::get_instance();
+		if ( pPref->m_nMidiChannelFilter != -1
+		  && pPref->m_nMidiChannelFilter != msg.m_nChannel
+		) {
+			bIsChannelValid = false;
 		}
 
 		// exclude all midi channel filter independent messages
 		int type = msg.m_type;
-		if(MidiMessage::SYSEX == type
-						|| MidiMessage::SYSTEM_EXCLUSIVE == type
-						|| MidiMessage::START == type
-						|| MidiMessage::CONTINUE == type
-						|| MidiMessage::STOP == type
-						|| MidiMessage::SONG_POS == type
-						|| MidiMessage::QUARTER_FRAME == type
-						){
-				bIsChannelValid =true;
+		if (  MidiMessage::SYSEX == type
+		   || MidiMessage::SYSTEM_EXCLUSIVE == type
+		   || MidiMessage::START == type
+		   || MidiMessage::CONTINUE == type
+		   || MidiMessage::STOP == type
+		   || MidiMessage::SONG_POS == type
+		   || MidiMessage::QUARTER_FRAME == type
+		) {
+			bIsChannelValid = true;
 		}
-		if(!bIsChannelValid) return;
 
+		if ( !bIsChannelValid) return;
+
+		Hydrogen* pHydrogen = Hydrogen::get_instance();
 		switch ( type ) {
 		case MidiMessage::SYSEX:
 				handleSysexMessage( msg );
@@ -96,12 +100,14 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::CONTROL_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2").arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
+				INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2")
+					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 				handleControlChangeMessage( msg );
 				break;
 
 		case MidiMessage::PROGRAM_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" ).arg( msg.m_nData1 ) );
+				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" )
+					.arg( msg.m_nData1 ) );
 //				Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
 				handleProgramChangeMessage( msg );
 				break;
@@ -118,22 +124,25 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
 				break;
 
-		case MidiMessage::START:
+		case MidiMessage::START: /* Start from position 0 */
 				INFOLOG( "START event" );
-				if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
-						Hydrogen::get_instance()->sequencer_play();
+				if ( pHydrogen->getState() != STATE_PLAYING ) {
+					pHydrogen->setPatternPos( 0 );
+					pHydrogen->setTimelineBpm();
+					pHydrogen->sequencer_play();
 				}
 				break;
 
-		case MidiMessage::CONTINUE:
-				ERRORLOG( "CONTINUE event not handled yet" );
+		case MidiMessage::CONTINUE: /* Just start */
+				ERRORLOG( "CONTINUE event" );
+				if ( pHydrogen->getState() != STATE_PLAYING )
+					pHydrogen->sequencer_play();
 				break;
 
-		case MidiMessage::STOP:
+		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
 				INFOLOG( "STOP event" );
-				if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
-						Hydrogen::get_instance()->sequencer_stop();
-				}
+				if ( pHydrogen->getState() == STATE_PLAYING )
+					pHydrogen->sequencer_stop();
 				break;
 
 		case MidiMessage::SONG_POS:
@@ -345,7 +354,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	pEngine->lastMidiEventParameter = msg.m_nData1;
 
 
-if ( msg.m_sysexData.size() == 6 ) {
+	if ( msg.m_sysexData.size() == 6 ) {
 		if (
 			( msg.m_sysexData[0] == 240 ) &&
 			( msg.m_sysexData[1] == 127 ) &&
