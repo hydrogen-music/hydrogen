@@ -881,7 +881,6 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 		/* Remove beats from ticks */
 		pos->tick -= pos->ticks_per_beat * pos->beat;
 
-		//pos->tick = T;
 		pos->beat++;
 		pos->bar_start_tick = ppos * pos->beats_per_bar * pos->ticks_per_beat;
 
