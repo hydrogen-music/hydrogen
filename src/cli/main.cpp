@@ -55,6 +55,9 @@ void showUsage();
 static struct option long_opts[] = {
 	{"driver", required_argument, NULL, 'd'},
 	{"song", required_argument, NULL, 's'},
+#ifdef H2CORE_HAVE_JACKSESSION
+	{"jacksessionid", required_argument, NULL, 'S'},
+#endif
 	{"playlist", required_argument, NULL, 'p'},
 	{"bits", required_argument, NULL, 'b'},
 	{"rate", required_argument, NULL, 'r'},
@@ -131,7 +134,9 @@ int main(int argc, char *argv[])
 		short bits = 16;
 		int rate = 44100;
 		short interpolation = 0;
-
+#ifdef H2CORE_HAVE_JACKSESSION
+		QString sessionId;
+#endif
 		int c;
 		while ( 1 ) {
 			c = getopt_long(argc, argv, opts, long_opts, NULL);
@@ -170,6 +175,11 @@ int main(int argc, char *argv[])
 			case 'V':
 				logLevelOpt = (optarg) ? optarg : "Warning";
 				break;
+#ifdef H2CORE_HAVE_JACKSESSION
+			case 'S':
+				sessionId = QString::fromLocal8Bit(optarg);
+				break;
+#endif
 			case 'h':
 			case '?':
 				showHelpOpt = true;
@@ -205,7 +215,7 @@ int main(int argc, char *argv[])
 		LashClient* lashClient = LashClient::get_instance();
 #endif
 
-		if( ! drumkitName.isEmpty() ){
+		if ( ! drumkitName.isEmpty() ){
 			Drumkit::install( drumkitName );
 			exit(0);
 		}
@@ -248,6 +258,25 @@ int main(int argc, char *argv[])
 				lash_event_destroy(lash_event);
 			}
 		}
+#endif
+#ifdef H2CORE_HAVE_JACKSESSION
+		if (!sessionId.isEmpty()) {
+			preferences->setJackSessionUUID ( sessionId );
+			/* imo, jack sessions use jack as default audio driver.
+			 * hydrogen remember last used audiodriver.
+			 * here we make it save that hydrogen start in a jacksession case
+			 * every time with jack as audio driver
+			 */
+			preferences->m_sAudioDriver = "Jack";
+
+		}
+		/* the use of applicationFilePath() make it
+		 * possible to use different executables.
+		 * for example if you start hydrogen from a local
+		 * build directory.
+		 */
+//		QString path = pQApp->applicationFilePath();
+//		preferences->setJackSessionApplicationPath ( path );
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -422,6 +451,11 @@ void showUsage()
 	cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << endl;
 	cout << "   -I, --interpolate INT - Interpolation" << endl;
 	cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << endl;
+
+#ifdef H2CORE_HAVE_JACKSESSION
+	cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << endl;
+#endif
+
 #ifdef H2CORE_HAVE_LASH
 	cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
 			  << "                            it (LASH 0.5.3 and later)." << endl;
