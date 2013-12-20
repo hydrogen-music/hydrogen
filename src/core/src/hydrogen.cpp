@@ -2498,28 +2498,20 @@ MidiOutput* Hydrogen::getMidiOutput()
 	   return m_pMidiDriverOut;
 }
 
-
-
 void Hydrogen::setMasterPeak_L( float value )
 {
 	   m_fMasterPeak_L = value;
 }
-
-
 
 void Hydrogen::setMasterPeak_R( float value )
 {
 	   m_fMasterPeak_R = value;
 }
 
-
-
 int Hydrogen::getState()
 {
 	   return m_audioEngineState;
 }
-
-
 
 void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
 {
@@ -2529,24 +2521,20 @@ void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
 	   AudioEngine::get_instance()->unlock();
 }
 
-
-
 float Hydrogen::getProcessTime()
 {
 	   return m_fProcessTime;
 }
-
-
 
 float Hydrogen::getMaxProcessTime()
 {
 	   return m_fMaxProcessTime;
 }
 
-
-
 int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 {
+	assert ( drumkitInfo );
+
 	   int old_ae_state = m_audioEngineState;
 	   if( m_audioEngineState >= STATE_READY ) {
 			  m_audioEngineState = STATE_PREPARED;

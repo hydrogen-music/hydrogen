@@ -322,8 +322,12 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			Drumkit* drumkitInfo = Drumkit::load( Filesystem::drumkit_path_search( drumkitToLoad ), true );
-			pHydrogen->loadDrumkit( drumkitInfo );
+			Drumkit* drumkitInfo = Drumkit::load_by_name( drumkitToLoad, true );
+			if ( drumkitInfo ) {
+				pHydrogen->loadDrumkit( drumkitInfo );
+			} else {
+				___ERRORLOG ( "Error loading the drumkit" );
+			}
 		}
 
 		AudioEngine* AudioEngine = AudioEngine::get_instance();
