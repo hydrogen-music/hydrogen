@@ -426,6 +426,7 @@ int main(int argc, char *argv[])
 			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( drumkitToLoad, true );
 			if ( drumkitInfo ) {
 				H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+				HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
 			} else {
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
