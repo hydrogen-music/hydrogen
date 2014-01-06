@@ -55,7 +55,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setWindowIcon( QPixmap( Skin::getImagePath()  + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
-	setMaximumSize( width(), height() );
 
 	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences

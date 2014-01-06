@@ -30,6 +30,8 @@
 #include <hydrogen/midi_action.h>
 #include <hydrogen/hydrogen.h>
 
+#include <QHeaderView>
+
 const char* MidiTable::__class_name = "MidiTable";
 
 MidiTable::MidiTable( QWidget *pParent )
@@ -154,8 +156,7 @@ void MidiTable::setupMidiTable()
 	verticalHeader()->hide();
 
 	setHorizontalHeaderLabels( items );
-	
-	setFixedWidth( 500 );
+    horizontalHeader()->setStretchLastSection(true);
 
 	setColumnWidth( 0 , 25 );
 	setColumnWidth( 1 , 155 );
