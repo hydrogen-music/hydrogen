@@ -809,6 +809,8 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	QPainter p( m_pSequencePixmap );
 	QColor patternColor( pStyle->m_songEditor_pattern1Color.getRed(), pStyle->m_songEditor_pattern1Color.getGreen(), pStyle->m_songEditor_pattern1Color.getBlue() );
 
+    patternColor.setHsv(number % 8 < 4 ? number % 4 * 32 : 255 - number % 4 * 32, 255, 200);
+
 	if (true == invertColour) {
 		patternColor = patternColor.darker(200);
 	}//if
