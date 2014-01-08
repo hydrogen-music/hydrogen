@@ -1,8 +1,6 @@
 DEVELOPER INFO
 ==============
 
-TODO FIXME DEPRECATED
-
 MAKING A RELEASE
 ----------------
 
@@ -66,9 +64,52 @@ order to make a release has several, easy-to-forget steps.  They are:
 CODING CONVENTIONS
 ------------------
 
-Use the 'linux' indention.  (i.e. Tabs) Allow extra space within
+We are aware of the fact that not the whole codebase uses the same conventions at the moment.
+But we would like to establish the following rules, based on best practices. The numbering has no deeper meaning,
+its just for referencing the items.
+
+1. Use the 'linux' indention for source code.  (i.e. Tabs)
+
+2. Allow extra space within
 parentheses, like this:
 
      while( !done ) {
              foo();
      }
+
+3. Please don't refactor our code because you just don't like its style or you think that things could be
+just a little bit better if reformat the code to fit your style.
+
+4. Use curly braces for all if statements, even one liners. We don't need to minimize the lines of code :)
+
+Good: if(a){
+        doB();
+      }
+
+Error prone: if(a) doB();
+
+     if(a)
+        doB();
+
+5. Method names follow the camel case naming scheme, starting with a lowercase letter.
+
+  Example: void doB(int* myArgument);
+
+6. Use speaking and self-explaining names for your variables (exception: loop-variables). We don't need to use short
+likes i,n,aux etc...
+
+7. Prepend pointer types with a "p" (for example: pMySample), floats with an "f", integer types with an "n" and members of a class with an "m_" (for example: m_pEngine)
+
+
+COMMITING YOUR CODE
+-------------------
+
+The easiest way to participate in the development of hydrogen is to create a fork at github and create a pull request
+from your changes.
+
+Please take the following things into account:
+
+1. If you want to send us a bug fix, please include only the commits which are part of the bug fix. Do *not* mix in new
+features or refactor code.
+
+2. You can reference the github issue number in your pull request if you want to fix a bug which is already known in our bugtracker
