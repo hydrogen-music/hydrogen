@@ -271,6 +271,8 @@
         <para>Also keep an eye on the value of "Polyphony": depending on your
         CPU you may want to change the max simultaneous notes in order to
         prevent hydrogen from overrunning the audio driver.</para>
+        <para>The "Interpolate resampling" parameter allows you to select your preferred
+        interpolation methode.</para>
 
         <figure id="fig.preferences.audio_tab">
           <title>The Audio System Tab</title>
