@@ -27,6 +27,7 @@
 #include <hydrogen/playlist.h>
 
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/pattern_list.h>
@@ -70,6 +71,64 @@ bool setSong( int songnumber ) {
 	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1){
 		PL->setNextSongByNumber( songnumber );
 	}
+	return true;
+}
+
+bool setAbsoluteGainLevel( int nLine, int layer_id, int gain_param )
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	engine->setSelectedInstrumentNumber( nLine );
+	Song *song = engine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+
+	if( instr == 0 ) {
+		return false;
+	}
+
+	InstrumentLayer* layer = instr->get_layer( layer_id );
+	if( layer == 0 ) {
+		return false;
+	}
+
+	if( gain_param != 0 ) {
+		layer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
+	} else {
+		layer->set_gain( 0 );
+	}
+
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+
+	return true;
+}
+
+bool setAbsolutePitchLevel( int nLine, int layer_id, int pitch_param )
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	engine->setSelectedInstrumentNumber( nLine );
+	Song *song = engine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+
+	if( instr == 0 ) {
+		return false;
+	}
+
+	InstrumentLayer* layer = instr->get_layer( layer_id );
+	if( layer == 0 ) {
+		return false;
+	}
+
+	if( pitch_param != 0 ){
+		layer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
+	} else {
+		layer->set_pitch( -24.5 );
+	}
+
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+
 	return true;
 }
 
@@ -168,6 +227,39 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 			  << "SELECT_AND_PLAY_PATTERN"
 			  << "PAN_RELATIVE"
 			  << "PAN_ABSOLUTE"
+			  << "GAIN1_LEVEL_ABSOLUTE"
+			  << "GAIN2_LEVEL_ABSOLUTE"
+			  << "GAIN3_LEVEL_ABSOLUTE"
+			  << "GAIN4_LEVEL_ABSOLUTE"
+			  << "GAIN5_LEVEL_ABSOLUTE"
+			  << "GAIN6_LEVEL_ABSOLUTE"
+			  << "GAIN7_LEVEL_ABSOLUTE"
+			  << "GAIN8_LEVEL_ABSOLUTE"
+			  << "GAIN9_LEVEL_ABSOLUTE"
+			  << "GAIN10_LEVEL_ABSOLUTE"
+			  << "GAIN11_LEVEL_ABSOLUTE"
+			  << "GAIN12_LEVEL_ABSOLUTE"
+			  << "GAIN13_LEVEL_ABSOLUTE"
+			  << "GAIN14_LEVEL_ABSOLUTE"
+			  << "GAIN15_LEVEL_ABSOLUTE"
+			  << "GAIN16_LEVEL_ABSOLUTE"
+			  << "PITCH1_LEVEL_ABSOLUTE"
+			  << "PITCH2_LEVEL_ABSOLUTE"
+			  << "PITCH3_LEVEL_ABSOLUTE"
+			  << "PITCH4_LEVEL_ABSOLUTE"
+			  << "PITCH5_LEVEL_ABSOLUTE"
+			  << "PITCH6_LEVEL_ABSOLUTE"
+			  << "PITCH7_LEVEL_ABSOLUTE"
+			  << "PITCH8_LEVEL_ABSOLUTE"
+			  << "PITCH9_LEVEL_ABSOLUTE"
+			  << "PITCH10_LEVEL_ABSOLUTE"
+			  << "PITCH11_LEVEL_ABSOLUTE"
+			  << "PITCH12_LEVEL_ABSOLUTE"
+			  << "PITCH13_LEVEL_ABSOLUTE"
+			  << "PITCH14_LEVEL_ABSOLUTE"
+			  << "PITCH15_LEVEL_ABSOLUTE"
+			  << "PITCH16_LEVEL_ABSOLUTE"
+			  << "FILTER_CUTOFF_LEVEL_ABSOLUTE"
 			  << "BEATCOUNTER"
 			  << "TAP_TEMPO"
 			  << "PLAYLIST_SONG"
@@ -627,6 +719,258 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 		instr->set_pan_l( pan_L );
 		instr->set_pan_r( pan_R );
+
+		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+
+		return true;
+	}
+
+	if( sActionString == "GAIN1_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 0, gain_param );
+	}
+
+	if( sActionString == "GAIN2_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 1, gain_param );
+	}
+
+	if( sActionString == "GAIN3_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 2, gain_param );
+	}
+
+	if( sActionString == "GAIN4_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 3, gain_param );
+	}
+
+	if( sActionString == "GAIN5_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 4, gain_param );
+	}
+
+	if( sActionString == "GAIN6_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 5, gain_param );
+	}
+
+	if( sActionString == "GAIN7_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 6, gain_param );
+	}
+
+	if( sActionString == "GAIN8_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 7, gain_param );
+	}
+
+	if( sActionString == "GAIN9_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 8, gain_param );
+	}
+
+	if( sActionString == "GAIN10_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 9, gain_param );
+	}
+
+	if( sActionString == "GAIN11_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 10, gain_param );
+	}
+
+	if( sActionString == "GAIN12_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 11, gain_param );
+	}
+
+	if( sActionString == "GAIN13_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 12, gain_param );
+	}
+
+	if( sActionString == "GAIN14_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 13, gain_param );
+	}
+
+	if( sActionString == "GAIN15_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 14, gain_param );
+	}
+
+	if( sActionString == "GAIN16_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int gain_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsoluteGainLevel( nLine, 15, gain_param );
+	}
+
+	if( sActionString == "PITCH1_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 0, pitch_param );
+	}
+
+	if( sActionString == "PITCH2_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 1, pitch_param );
+	}
+
+	if( sActionString == "PITCH3_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 2, pitch_param );
+	}
+
+	if( sActionString == "PITCH4_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 3, pitch_param );
+	}
+
+	if( sActionString == "PITCH5_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 4, pitch_param );
+	}
+
+	if( sActionString == "PITCH6_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 5, pitch_param );
+	}
+
+	if( sActionString == "PITCH7_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 6, pitch_param );
+	}
+
+	if( sActionString == "PITCH8_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 7, pitch_param );
+	}
+
+	if( sActionString == "PITCH9_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 8, pitch_param );
+	}
+
+	if( sActionString == "PITCH10_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 9, pitch_param );
+	}
+
+	if( sActionString == "PITCH11_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 10, pitch_param );
+	}
+
+	if( sActionString == "PITCH12_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 11, pitch_param );
+	}
+
+	if( sActionString == "PITCH13_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 12, pitch_param );
+	}
+
+	if( sActionString == "PITCH14_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 13, pitch_param );
+	}
+
+	if( sActionString == "PITCH15_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 14, pitch_param );
+	}
+
+	if( sActionString == "PITCH16_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int pitch_param = pAction->getParameter2().toInt(&ok,10);
+		return setAbsolutePitchLevel( nLine, 15, pitch_param );
+	}
+
+	if( sActionString == "FILTER_CUTOFF_LEVEL_ABSOLUTE" ){
+		bool ok;
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
+
+		Hydrogen *engine = Hydrogen::get_instance();
+		engine->setSelectedInstrumentNumber( nLine );
+		Song *song = engine->getSong();
+		InstrumentList *instrList = song->get_instrument_list();
+
+		Instrument *instr = instrList->get( nLine );
+
+		if( instr == 0 ) {
+			return false;
+		}
+
+		instr->set_filter_active( true );
+		if( filter_cutoff_param != 0 ) {
+			instr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
+		} else {
+			instr->set_filter_cutoff( 0 );
+		}
 
 		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 

@@ -29,6 +29,7 @@
 
 #include "InstrumentEditorPanel.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 
 
 InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = NULL;
@@ -63,6 +64,12 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 
 	this->setLayout( vbox );
 	m_pLayer = 0;
+
+	m_pUpdateTimer = new QTimer( this );
+	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateInstrumentEditor() ) );
+	m_pUpdateTimer->start(50);
+
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 

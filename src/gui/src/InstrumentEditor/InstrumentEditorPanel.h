@@ -30,14 +30,13 @@
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
-class InstrumentEditorPanel : public QWidget, private H2Core::Object
+class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
-
 		void notifyOfDrumkitChange();
 		void selectLayer( int nLayer );
 		
@@ -45,13 +44,16 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object
 			return m_pLayer;
 		}
 
+	public slots:
+		void updateInstrumentEditor();
+
 	private:
 		static InstrumentEditorPanel* m_pInstance;
 		InstrumentEditor* m_pInstrumentEditor;
 
 		InstrumentEditorPanel( QWidget *pParent );
 		int m_pLayer;
-		
+		QTimer *m_pUpdateTimer;
 };
 
 #endif
