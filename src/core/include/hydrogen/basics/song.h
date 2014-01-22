@@ -140,7 +140,7 @@ class Song : public H2Core::Object
 			return __license;
 		}
 
-	const QString& get_author() {
+		const QString& get_author() {
 			return __author;
 		}
 
@@ -215,6 +215,7 @@ class SongReader : public H2Core::Object
 	public:
 		SongReader();
 		~SongReader();
+		const QString getPath( const QString& filename );
 		Song* readSong( const QString& filename );
 
 	private:
@@ -224,11 +225,6 @@ class SongReader : public H2Core::Object
 		Pattern* getPattern( QDomNode pattern, InstrumentList* instrList );
 };
 
-
 };
 
-
-
 #endif
-
-

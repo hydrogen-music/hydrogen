@@ -45,6 +45,7 @@ PatternList::PatternList( PatternList* other ) : Object( __class_name )
 PatternList::~PatternList()
 {
 	for ( int i = 0; i < __patterns.size(); ++i ) {
+		assert ( __patterns[i] );
 		delete __patterns[i];
 	}
 }

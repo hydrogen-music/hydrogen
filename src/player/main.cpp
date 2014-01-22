@@ -41,7 +41,7 @@ using std::endl;
 void usage()
 {
 	cout << "Usage: hydrogenPlayer song.h2song" << endl;
-	exit(0);
+	exit(1);
 }
 
 int main(int argc, char** argv) {
@@ -73,6 +73,7 @@ int main(int argc, char** argv) {
 	H2Core::Song *pSong = H2Core::Song::load( filename );
 	if (pSong == NULL) {
 		cout << "Error loading song!" << endl;
+		exit(2);
 	}
 
 	H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::get_instance();

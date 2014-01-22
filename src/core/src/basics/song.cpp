@@ -109,19 +109,12 @@ void Song::purge_instrument( Instrument* I )
 	}
 }
 
-
 ///Load a song from file
 Song* Song::load( const QString& filename )
 {
-	Song* song = NULL;
-
 	SongReader reader;
-	song = reader.readSong( filename );
-
-	return song;
+	return reader.readSong( filename );
 }
-
-
 
 /// Save a song to file
 bool Song::save( const QString& filename )
@@ -217,7 +210,7 @@ void Song::readTempPatternList( QString filename )
 
 	Song* song = engine->getSong();
 
-	if ( QFile( filename ).exists() == false ) {
+	if ( ! QFile( filename ).exists() ) {
 		ERRORLOG( "tep file " + filename + " not found." );
 		return;
 	}
@@ -232,8 +225,6 @@ void Song::readTempPatternList( QString filename )
 	}
 
 	QDomNode songNode = nodeList.at( 0 );
-
-
 
 	// Virtual Patterns
 	QDomNode  virtualPatternListNode = songNode.firstChildElement( "virtualPatternList" );
@@ -327,14 +318,6 @@ void Song::readTempPatternList( QString filename )
 
 }
 
-//::::::::::::::::::::
-
-
-
-
-
-
-
 //-----------------------------------------------------------------------------
 //	Implementation of SongReader class
 //-----------------------------------------------------------------------------
@@ -347,14 +330,32 @@ SongReader::SongReader()
 //	infoLog("init");
 }
 
-
-
 SongReader::~SongReader()
 {
 //	infoLog("destroy");
 }
 
 
+const QString SongReader::getPath ( const QString& filename )
+{
+	/* Try direct path */
+	if ( QFile( filename ).exists() )
+		return QFileInfo ( filename ).absoluteFilePath();
+
+	/* Try search in Session Directory */
+	char* sesdir = getenv ( "SESSION_DIR" );
+	if ( sesdir ) {
+		INFOLOG ( "Try SessionDirectory " + QString( sesdir ) );
+		QDir SesDir( sesdir );
+		QString BaseFileName = QFileInfo( filename ).fileName();
+		QString SesFileName = SesDir.filePath( BaseFileName );
+		if ( QFile( SesFileName ).exists() )
+			return QFileInfo( SesFileName ).absoluteFilePath();
+	}
+
+	ERRORLOG( "Song file " + filename + " not found." );
+	return NULL;
+}
 
 ///
 /// Reads a song.
@@ -362,17 +363,14 @@ SongReader::~SongReader()
 ///
 Song* SongReader::readSong( const QString& filename )
 {
-	INFOLOG( filename );
+	QString FileName = getPath ( filename );
+	if ( FileName.isEmpty() ) return NULL;
+
+	INFOLOG( "Reading " + FileName );
 	Song* song = NULL;
 
-	if ( QFile( filename ).exists() == false ) {
-		ERRORLOG( "Song file " + filename + " not found." );
-		return NULL;
-	}
-
-	QDomDocument doc = LocalFileMng::openXmlDocument( filename );
+	QDomDocument doc = LocalFileMng::openXmlDocument( FileName );
 	QDomNodeList nodeList = doc.elementsByTagName( "song" );
-
 
 	if( nodeList.isEmpty() ) {
 		ERRORLOG( "Error reading song: song node not found" );
@@ -383,12 +381,10 @@ Song* SongReader::readSong( const QString& filename )
 
 	m_sSongVersion = LocalFileMng::readXmlString( songNode , "version", "Unknown version" );
 
-
 	if ( m_sSongVersion != QString( get_version().c_str() ) ) {
 		WARNINGLOG( "Trying to load a song created with a different version of hydrogen." );
-		WARNINGLOG( "Song [" + filename + "] saved with version " + m_sSongVersion );
+		WARNINGLOG( "Song [" + FileName + "] saved with version " + m_sSongVersion );
 	}
-
 
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
 	Hydrogen::get_instance()->setNewBpmJTM( fBpm );
@@ -420,8 +416,6 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
 	song->set_swing_factor( fSwingFactor );
 
-
-
 	/*
 	song->m_bDelayFXEnabled = LocalFileMng::readXmlBool( songNode, "delayFXEnabled", false, false );
 	song->m_fDelayFXWetLevel = LocalFileMng::readXmlFloat( songNode, "delayFXWetLevel", 1.0, false, false );
@@ -429,9 +423,7 @@ Song* SongReader::readSong( const QString& filename )
 	song->m_nDelayFXTime = LocalFileMng::readXmlInt( songNode, "delayFXTime", MAX_NOTES / 4, false, false );
 	*/
 
-
 	//  Instrument List
-
 	InstrumentList* instrumentList = new InstrumentList();
 
 	QDomNode instrumentListNode = songNode.firstChildElement( "instrumentList" );
@@ -510,7 +502,6 @@ Song* SongReader::readSong( const QString& filename )
 
 
 			QDomNode filenameNode = instrumentNode.firstChildElement( "filename" );
-
 
 			// back compatibility code ( song version <= 0.9.0 )
 			if ( ! filenameNode.isNull() ) {
@@ -631,8 +622,6 @@ Song* SongReader::readSong( const QString& filename )
 		delete song;
 		return NULL;
 	}
-
-
 
 	// Pattern list
 	QDomNode patterns = songNode.firstChildElement( "patternList" );
@@ -833,7 +822,6 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "ladspa node not found" );
 	}
 
-
 	Hydrogen::get_instance()->m_timelinevector.clear();
 	Hydrogen::HTimelineVector tlvector;
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
@@ -849,7 +837,6 @@ Song* SongReader::readSong( const QString& filename )
 	} else {
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
-
 
 	Hydrogen::get_instance()->m_timelinetagvector.clear();
 	Hydrogen::HTimelineTagVector tltagvector;
@@ -867,16 +854,11 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
 
-
 	song->__is_modified = false;
-	song->set_filename( filename );
-
+	song->set_filename( FileName );
 
 	return song;
-
 }
-
-
 
 Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 {
@@ -893,8 +875,6 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 	nSize = LocalFileMng::readXmlInt( pattern, "size", nSize, false, false );
 
 	pPattern = new Pattern( sName, sInfo, sCategory, nSize );
-
-
 
 	QDomNode pNoteListNode = pattern.firstChildElement( "noteList" );
 	if ( ! pNoteListNode.isNull() ) {
@@ -972,8 +952,6 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 				pPattern->insert_note( pNote );
 
 				noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
-
-
 			}
 			sequenceNode = ( QDomNode ) sequenceNode.nextSiblingElement( "sequence" );
 		}
@@ -981,9 +959,4 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 	return pPattern;
 }
-
 };
-
-
-
-

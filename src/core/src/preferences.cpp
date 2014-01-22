@@ -320,8 +320,6 @@ void Preferences::loadPreferences( bool bGlobal )
 
 	}
 
-
-
 	// preferences directory exists?
 	QDir prefDir( sPreferencesDirectory );
 	if ( !prefDir.exists() ) {
@@ -858,7 +856,7 @@ void Preferences::savePreferences()
 			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
 				tmMode = "NO_JACK_TIME_MASTER";
 			} else if (  m_bJackMasterMode == USE_JACK_TIME_MASTER ) {
-				tmMode = "NO_JACK_TIME_MASTER";
+				tmMode = "USE_JACK_TIME_MASTER";
 			}
 			LocalFileMng::writeXmlString( jackDriverNode, "jack_transport_mode_master", tmMode );
 			//~ jack time master

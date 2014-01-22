@@ -415,18 +415,22 @@ int main(int argc, char *argv[])
 
 		if( ! playlistFilename.isEmpty() ){
 			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
-			if( loadlist ){
+			if ( loadlist ){
 				Playlist::get_instance()->setNextSongByNumber( 0 );
 			} else {
 				___ERRORLOG ( "Error loading the playlist" );
 			}
 		}
 
-		if( ! drumkitToLoad.isEmpty() ){
-			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load( drumkitToLoad );
-			H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+		if( ! drumkitToLoad.isEmpty() ) {
+			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( drumkitToLoad, true );
+			if ( drumkitInfo ) {
+				H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+				HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
+			} else {
+				___ERRORLOG ( "Error loading the drumkit" );
+			}
 		}
-
 
 		pQApp->exec();
 

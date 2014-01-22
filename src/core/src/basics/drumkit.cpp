@@ -67,12 +67,19 @@ Drumkit::~Drumkit()
 	if( __instruments ) delete __instruments;
 }
 
+Drumkit* Drumkit::load_by_name ( const QString& dk_name, bool load_samples )
+{
+	QString dir = Filesystem::drumkit_path_search( dk_name );
+	if ( dir.isEmpty() ) return NULL;
+	return load( dir, load_samples );
+}
+
 Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
 {
 	INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
 	if( !Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
-		return 0;
+		return NULL;
 	}
 	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples );
 }
@@ -86,7 +93,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
-		return 0;
+		return NULL;
 	}
 	Drumkit* drumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 	if( load_samples ) drumkit->load_samples();
@@ -98,7 +105,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	QString drumkit_name = node->read_string( "name", "", false, false );
 	if ( drumkit_name.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
-		return 0;
+		return NULL;
 	}
 	Drumkit* drumkit = new Drumkit();
 	drumkit->__path = dk_path;

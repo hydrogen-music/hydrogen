@@ -177,11 +177,10 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 		AudioEngine::get_instance()->unlock();
 }
 
-void Instrument::load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live )
+void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live )
 {
-	QString dir = Filesystem::drumkit_path_search( drumkit_name );
-	if ( dir.isEmpty() ) return;
-	Drumkit* drumkit = Drumkit::load( dir );
+	Drumkit* drumkit = Drumkit::load_by_name( dk_name );
+	if ( ! drumkit ) return;
 	assert( drumkit );
 	Instrument* instrument = drumkit->get_instruments()->find( instrument_name );
 	if ( instrument!=0 ) {

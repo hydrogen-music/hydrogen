@@ -25,14 +25,12 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/event_queue.h>
+#include <hydrogen/LocalFileMng.h>
 
 #include <vector>
 #include <cstdlib>
 
-
-
 using namespace H2Core;
-
 
 Playlist* Playlist::__instance = NULL;
 
@@ -48,20 +46,17 @@ Playlist::Playlist()
 
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
-	__playlistName = "";
+	__filename = "";
+//	__playlistName = "";
 	selectedSongNumber = -1;
 	activeSongNumber = -1;
 }
-
-
 
 Playlist::~Playlist()
 {
 	//_INFOLOG( "[~Playlist]" );
 	__instance = NULL;
 }
-
-
 
 void Playlist::create_instance()
 {
@@ -70,23 +65,71 @@ void Playlist::create_instance()
 	}
 }
 
-
-
-void Playlist::setNextSongByNumber(int songNumber)
+bool Playlist::save( const QString& filename )
 {
+	set_filename( filename );
 
+	LocalFileMng fileMng;
+	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 )
+		return true;
 
-	if ( songNumber > (int)Hydrogen::get_instance()->m_PlayList.size() -1 || (int)Hydrogen::get_instance()->m_PlayList.size() == 0 )
-		return;
+	return false;
+}
+
+Playlist* Playlist::load( const QString& filename )
+{
+	LocalFileMng fileMng;
+	int ret = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
+
+	if ( ret == 0 ) {
+		Playlist* P = get_instance();
+		P->set_filename( filename );
+		return P;
+	}
+	return NULL;
+}
+
+/* This method is called by Event dispacher thread ( GUI ) */
+bool Playlist::loadSong (int songNumber)
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Preferences *pPref = Preferences::get_instance();
+
+	if ( pHydrogen->getState() == STATE_PLAYING )
+		pHydrogen->sequencer_stop();
+
+	/* Load Song from file */
+	QString selected = pHydrogen->m_PlayList[ songNumber ].m_hFile;
+	Song *pSong = Song::load( selected );
+	if ( ! pSong ) return false;
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
+	pHydrogen->setSong( pSong );
+
+	pPref->setLastSongFilename( pSong->get_filename() );
+	vector<QString> recentFiles = pPref->getRecentFiles();
+	recentFiles.insert( recentFiles.begin(), selected );
+	pPref->setRecentFiles( recentFiles );
 
 	execScript( songNumber );
+
+	return true;
 }
 
+/* This method is called by MIDI thread */
+void Playlist::setNextSongByNumber(int songNumber)
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+
+	int playlist_size = pHydrogen->m_PlayList.size();
+	if ( songNumber > playlist_size - 1 || playlist_size == 0 )
+		return;
+
+	/* NOTE: we are in MIDI thread and can't just call loadSong from here :( */
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
+}
 
 void Playlist::setSelectedSongNr( int songNumber )
 {
@@ -99,7 +142,6 @@ int Playlist::getSelectedSongNr()
 	return selectedSongNumber;
 }
 
-
 void Playlist::setActiveSongNumber( int ActiveSongNumber)
 {
 	activeSongNumber = ActiveSongNumber ;
@@ -110,7 +152,6 @@ int Playlist::getActiveSongNumber()
 {
 	return activeSongNumber;
 }
-
 
 void Playlist::execScript( int index)
 {

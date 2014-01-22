@@ -314,19 +314,8 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-
-
 void HydrogenApp::setSong(Song* song)
 {
-
-
-	Song* oldSong = (Hydrogen::get_instance())->getSong();
-	if (oldSong != NULL) {
-		(Hydrogen::get_instance())->removeSong();
-		delete oldSong;
-		oldSong = NULL;
-	}
-
 	Hydrogen::get_instance()->setSong( song );
 	Preferences::get_instance()->setLastSongFilename( song->get_filename() );
 
@@ -342,8 +331,6 @@ void HydrogenApp::setSong(Song* song)
 
 	m_pMainForm->updateRecentUsedSongList();
 }
-
-
 
 void HydrogenApp::showMixer(bool show)
 {

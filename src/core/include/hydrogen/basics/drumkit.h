@@ -49,14 +49,18 @@ class Drumkit : public H2Core::Object
 		 * load drumkit information from a directory
 		 * \param dk_dir like one returned by Filesystem::drumkit_path
 		 * \param load_samples automatically load sample data if set to true
-		 * \return a Drumkit on success, 0 otherwise
+		 * \return a Drumkit on success, NULL otherwise
 		 */
 		static Drumkit* load( const QString& dk_dir, bool load_samples=false );
+		/**
+		 * Simple wrapper for 'load' - use Filesystem::drumkit_path_search
+		 */
+		static Drumkit* load_by_name( const QString& dk_name, bool load_samples=false );
 		/**
 		 * load drumkit information from a file
 		 * \param dk_path is a path to an xml file
 		 * \param load_samples automatically load sample data if set to true
-		 * \return a Drumkit on success, 0 otherwise
+		 * \return a Drumkit on success, NULL otherwise
 		 */
 		static Drumkit* load_file( const QString& dk_path, bool load_samples=false );
 		/**

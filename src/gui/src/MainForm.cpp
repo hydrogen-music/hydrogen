@@ -209,7 +209,7 @@ MainForm::~MainForm()
 	file.remove();
 
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->__playlistName );
+	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->get_filename() );
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
@@ -1491,11 +1491,29 @@ void MainForm::errorEvent( int nErrorCode )
 	QMessageBox::information( this, "Hydrogen", msg );
 }
 
-void MainForm::playlistLoadSongEvent(int nIndex)
+void MainForm::playlistLoadSongEvent (int nIndex)
 {
+	Playlist* pPlaylist = Playlist::get_instance();
 
-	QString selected = Hydrogen::get_instance()->m_PlayList[ nIndex ].m_hFile;
-	openSongFile(selected);
+	if ( ! pPlaylist->loadSong ( nIndex ) )
+		return;
+
+	Song* pSong = Hydrogen::get_instance()->getSong();
+
+        h2app->getSongEditorPanel()->updateAll();
+        h2app->getPatternEditorPanel()->updateSLnameLabel();
+
+        QString songName( pSong->__name );
+        if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
+                songName = pSong->get_filename();
+                songName = songName.section( '/', -1 );
+        }
+        setWindowTitle( songName  );
+
+        h2app->getMainForm()->updateRecentUsedSongList();
+	h2app->closeFXProperties();
+	h2app->m_undoStack->clear();
+
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
 }
