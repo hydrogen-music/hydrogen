@@ -62,10 +62,12 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Ben Powers", "", "Docs" ) );
 	authorList.push_back( Author( "Benjamin Flaming", "", "Jack patches, bug fix" ) );
 	authorList.push_back( Author( "Carlo Impagliazzo (aka Truijllo)", "", "Testing, ideas.." ) );
+	authorList.push_back( Author( "Chris Mennie", "http://chrismennie.ca/", "Midi coding" ) );
 	authorList.push_back( Author( "Chris Wareham", "", "NetBSD patch" ) );
 	authorList.push_back( Author( "Christian Vorhof", "", "Interface design concept" ) );
 	authorList.push_back( Author( "Daniil Kolpakov", "", "" ) );
 	authorList.push_back( Author( "Daniel Tonda Castillo", "", "Spanish manual" ) );
+	authorList.push_back( Author( "Daryl Hanlon","darylohara@gmail.com","Spanish translation" ) );
 	authorList.push_back( Author( "Dave Allan", "", "Manual review" ) );
 	authorList.push_back( Author( "Dave Fancella", "", "" ) );
 	authorList.push_back( Author( "Dave Phillips", "", "Bug reports, ideas" ) );
@@ -78,6 +80,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Francesco Cabras", "", "Patches, testing" ) );
 	authorList.push_back( Author( "Gabriel M. Beddingfield", "gabriel@teuton.org", "Patches, ideas" ) );
 	authorList.push_back( Author( "Gene", "", "Patches, testing" ) );
+	authorList.push_back( Author( "Greg Bonik","gregory@bonik.org","Pulseaudio coding" ) );
 	authorList.push_back( Author( "Jakob Lund", "jlund05@imada.sdu.dk", " coding" ) );
 	authorList.push_back( Author( "Jason Schaefer", "schaefer.jason@gmail.com", " Patches, lead/lag feature" ) );
 	authorList.push_back( Author( "Jesse Chappel", "", "Jack patches" ) );
@@ -89,18 +92,21 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Lee Revell", "", "Patches" ) );
 	authorList.push_back( Author( "Matt Walker", "", "" ) );
 	authorList.push_back( Author( "Michael Wolkstein", "m.wolkstein@gmx.de", "coding" ) );
+	authorList.push_back( Author( "Miguel Anxo Bouzada","mbouzada@gmail.com","Galician translation" ) );
 	authorList.push_back( Author( "Nikos Papadopoylos", "", "Greek translation" ) );
 	authorList.push_back( Author( "Noel Darlow", "", "manual reviewing" ) );
 	authorList.push_back( Author( "Paul Dorman", "", "" ) );
+	authorList.push_back( Author( "Pawel Piatek (aka Xj)","xj@wp.pl","Coding, bugfixing" ) );
 	authorList.push_back( Author( "Pieter Van Isacker (aka aikie)", "", "Dutch manual and translation" ) );
 	authorList.push_back( Author( "Samuel Mimram", "", "Packages" ) );
 	authorList.push_back( Author( "Sebastian Moors (aka mauser)", "mauser@smoors.de", "coding" ) );
 	authorList.push_back( Author( "Sergio Gil Perez de la Manga", "", "Spanish translation" ) );
 	authorList.push_back( Author( "Simon Donike", "", "German translation" ) );
-	authorList.push_back( Author( "Thijs Van Severen", "", "manual, website, coding" ) ); 
+	authorList.push_back( Author( "Thijs Van Severen", "http://audio-and-linux.blogspot.be/", "manual, website, coding" ) ); 
 	authorList.push_back( Author( "Torben Hohn", "", "Bug fix, test" ) );
 	authorList.push_back( Author( "Yamasaki Yutaka", "yamasaki@good-day.co.jp", "Japanese translation" ) );
 	authorList.push_back( Author( "Willie Sippel", "willie@zeitgeistmedia.net", "GUI graphics, coding" ) );
+	
 
 	QString sAuthors;
 	sAuthors += tr( "<b>Main coder and mantainer:</b><br>" );
