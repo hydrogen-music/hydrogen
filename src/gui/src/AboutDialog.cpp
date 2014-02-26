@@ -56,7 +56,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 
 	std::vector<Author> authorList;
-	authorList.push_back( Author( "Antonio Piraino", "", "Italian manual" ) );
+	authorList.push_back( Author( "Antonio Piraino (aka Journeyman)", "http://www.storiepvtride.it", "Italian manual" ) );
 	authorList.push_back( Author( "Artemiy Pavlov (aka Artemio)", "www.artemiolabs.com", "Drum kits, demo patterns, web site" ) );
 	authorList.push_back( Author( "Alexandre Prokoudine", "", "Russian translation" ) );
 	authorList.push_back( Author( "Ben Powers", "", "Docs" ) );
@@ -87,7 +87,6 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "J&#233;r&#233;my Zurcher", "", "coding") ); 
 	authorList.push_back( Author( "Jonas Melzer", "", "German manual" ) );
 	authorList.push_back( Author( "Jonathan Dempsey", "jonathandempsey@fastmail.fm", "Mac OSX port" ) );
-	authorList.push_back( Author( "Journeyman", "jman-@masternet.it", " manual") );
 	authorList.push_back( Author( "Kevin Dahan (aka Unet)", "", "French translation" ) );
 	authorList.push_back( Author( "Lee Revell", "", "Patches" ) );
 	authorList.push_back( Author( "Matt Walker", "", "" ) );
