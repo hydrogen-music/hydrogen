@@ -1667,7 +1667,9 @@ void audioEngine_startAudioDrivers()
 #endif
 	   } else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
 #ifdef H2CORE_HAVE_COREMIDI
-			  m_pMidiDriver = new CoreMidiDriver();
+			  CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
+			  m_pMidiDriver = coreMidiDriver;
+			  m_pMidiDriverOut = coreMidiDriver;
 			  m_pMidiDriver->open();
 			  m_pMidiDriver->setActive( true );
 #endif

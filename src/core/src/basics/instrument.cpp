@@ -55,7 +55,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __filter_cutoff( 1.0 )
 	, __filter_resonance( 0.0 )
 	, __random_pitch_factor( 0.0 )
-	, __midi_out_note( MIDI_MIDDLE_C )
+	, __midi_out_note( 36 + id )
 	, __midi_out_channel( -1 )
 	, __stop_notes( false )
 	, __active( true )
@@ -212,7 +212,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	instrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
 	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
-	instrument->set_midi_out_note( node->read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
+	instrument->set_midi_out_note( node->read_int( "midiOutNote", instrument->__midi_out_note, true, false ) );
 	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
 	for ( int i=0; i<MAX_FX; i++ ) {
 		instrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
