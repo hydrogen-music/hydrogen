@@ -63,6 +63,10 @@ public:
 	MIDIPortRef h2OutputRef;
 	MIDIEndpointRef cmH2Dst;
 
+	MIDIEndpointRef h2VirtualOut;
+
+private:
+	void sendMidiPacket (MIDIPacketList *packetList);
 };
 
 }
