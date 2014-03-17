@@ -221,7 +221,7 @@ void Pattern::purge_instrument( Instrument* instr )
 {
 	bool locked = false;
 	std::list< Note* > slate;
-	for( notes_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->get_instrument() == instr ) {
@@ -230,8 +230,10 @@ void Pattern::purge_instrument( Instrument* instr )
 				locked = true;
 			}
 			slate.push_back( note );
-			__notes.erase( it );
-		}
+			__notes.erase( it++ );
+		} else {
+            ++it;
+        }
 	}
 	if ( locked ) {
 		H2Core::AudioEngine::get_instance()->unlock();
