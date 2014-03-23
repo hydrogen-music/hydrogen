@@ -89,8 +89,14 @@ ELSE()
 ENDIF()
 
 #SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
+IF(APPLE)
+	SET(CMAKE_CXX_FLAGS "-O2")
+ELSE()
+	SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
+ENDIF()
+
 SET(CMAKE_CXX_FLAGS_RELEASE "")
+
 SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 
 
