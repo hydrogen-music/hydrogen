@@ -58,6 +58,9 @@ ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
 
 ADSR::~ADSR() { }
 
+//#define convex_exponant
+//#define concave_exponant
+
 float ADSR::get_value( float step )
 {
 	switch ( __state ) {
@@ -78,7 +81,7 @@ float ADSR::get_value( float step )
 		if ( __decay == 0 ) {
 			__value = __sustain;
 		} else {
-			__value = concave_exponant( linear_interpolation( 1.0, __sustain, ( __ticks * 1.0 / __decay ) ) );
+			__value = concave_exponant( linear_interpolation( 1.0, 0.0, ( __ticks * 1.0 / __decay ) ) ) * (1 - __sustain) + __sustain;
 		}
 		__ticks += step;
 		if ( __ticks > __decay ) {
@@ -95,7 +98,7 @@ float ADSR::get_value( float step )
 		if ( __release < 256 ) {
 			__release = 256;
 		}
-		__value = concave_exponant( linear_interpolation( __release_value, 0.0, ( __ticks * 1.0 / __release ) ) );
+		__value = concave_exponant( linear_interpolation( 1.0, 0.0, ( __ticks * 1.0 / __release ) ) ) * __release_value;
 		__ticks += step;
 		if ( __ticks > __release ) {
 			__state = IDLE;
