@@ -1,7 +1,6 @@
 #include "xml_test.h"
 
 #include <unistd.h>
-#include <hydrogen/helpers/filesystem.h>
 
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/pattern.h>
@@ -10,24 +9,10 @@
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
 
+#include <hydrogen/helpers/filesystem.h>
 #define BASE_DIR    "./src/tests/data"
-#include <iostream>
-
 
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
-
-void XmlTest::setUp()
-{
-    int log_level = H2Core::Logger::Debug | H2Core::Logger::Info | H2Core::Logger::Warning | H2Core::Logger::Error;
-    /* Logger */
-    H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
-    /* Object */
-    H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
-    /* Filesystem */
-    H2Core::Filesystem::bootstrap( logger, "./data" );
-    H2Core::Filesystem::info();
-    H2Core::Filesystem::rm( H2Core::Filesystem::tmp_dir(), true );
-}
 
 
 static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
