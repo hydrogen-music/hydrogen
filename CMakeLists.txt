@@ -19,7 +19,7 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "6")
-#SET(VERSION_SUFFIX "beta3")
+#SET(VERSION_SUFFIX "RC1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -89,8 +89,14 @@ ELSE()
 ENDIF()
 
 #SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
+IF(APPLE)
+	SET(CMAKE_CXX_FLAGS "-O2")
+ELSE()
+	SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
+ENDIF()
+
 SET(CMAKE_CXX_FLAGS_RELEASE "")
+
 SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 
 
