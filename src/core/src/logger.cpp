@@ -166,7 +166,7 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 }
 
 unsigned Logger::parse_log_level( const char* level ) {
-	unsigned log_level;
+	unsigned log_level = Logger::None;
 	if( 0 == strncasecmp( level, __levels[0], sizeof( __levels[0] ) ) ) {
 		log_level = Logger::None;
 	} else if ( 0 == strncasecmp( level, __levels[1], sizeof( __levels[1] ) ) ) {

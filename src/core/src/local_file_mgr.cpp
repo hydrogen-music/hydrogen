@@ -491,6 +491,7 @@ void LocalFileMng::fileCopy( const QString& sOrigFilename, const QString& sDestF
 	FILE *outputFile = fopen( sDestFilename.toLocal8Bit(), "wb" );
 	if ( outputFile == NULL ) {
 		ERRORLOG( "Error opening " + sDestFilename );
+		fclose( inputFile );
 		return;
 	}
 
