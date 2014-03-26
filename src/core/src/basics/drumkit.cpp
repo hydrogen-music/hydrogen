@@ -299,12 +299,12 @@ bool Drumkit::install( const QString& path )
 	struct archive_entry* entry;
 	char newpath[1024];
 	arch = archive_read_new();
-	archive_read_support_compression_all( arch );
+	archive_read_support_filter_all( arch );
 	archive_read_support_format_all( arch );
-	if ( ( r = archive_read_open_file( arch, path.toLocal8Bit(), 10240 ) ) ) {
+	if ( ( r = archive_read_open_filename( arch, path.toLocal8Bit(), 10240 ) ) ) {
 		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" ).arg( archive_errno( arch ) ).arg( archive_error_string( arch ) ) );
 		archive_read_close( arch );
-		archive_read_finish( arch );
+		archive_read_free( arch );
 		return false;
 	}
 	bool ret = true;
@@ -328,7 +328,7 @@ bool Drumkit::install( const QString& path )
 		}
 	}
 	archive_read_close( arch );
-	archive_read_finish( arch );
+	archive_read_free( arch );
 	return ret;
 #else // H2CORE_HAVE_LIBARCHIVE
 #ifndef WIN32
