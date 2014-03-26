@@ -418,8 +418,8 @@ void Sample::apply_rubberband( const Rubberband& rb )
 	__data_r = new float[ retrieved ];
 	memcpy( __data_l, out_data_l, retrieved*sizeof( float ) );
 	memcpy( __data_r, out_data_r, retrieved*sizeof( float ) );
-	delete out_data_l;
-	delete out_data_r;
+	delete [] out_data_l;
+	delete [] out_data_r;
 	// update sample
 	__rubberband = rb;
 	__frames = retrieved;
