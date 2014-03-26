@@ -524,19 +524,28 @@ bool Sample::write( const QString& path, int format )
 	sf_info.format = format;
 	if ( !sf_format_check( &sf_info ) ) {
 		___ERRORLOG( "SF_INFO error" );
+		delete[] obuf;
 		return false;
 	}
+
 	SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info ) ;
+
 	if ( sf_file==0 ) {
 		___ERRORLOG( QString( "sf_open error : %1" ).arg( sf_strerror( sf_file ) ) );
+		delete[] obuf;
 		return false;
 	}
+
 	sf_count_t res = sf_writef_float( sf_file, obuf, __frames );
+
 	if ( res<=0 ) {
 		___ERRORLOG( QString( "sf_writef_float error : %1" ).arg( sf_strerror( sf_file ) ) );
+		delete[] obuf;
 		return false;
 	}
+
 	sf_close( sf_file );
+
 	delete[] obuf;
 	return true;
 }
