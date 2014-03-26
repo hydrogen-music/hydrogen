@@ -11,7 +11,7 @@
 
 <!-- PSFLOAT - positive small float [0.0;1.0 ] -->
 <xs:simpleType name='psfloat'>
-    <xs:restriction base='xsd:float'>
+    <xs:restriction base='xs:float'>
         <xs:minInclusive value='0.0'/>
         <xs:maxInclusive value='1.0'/>
     </xs:restriction>
