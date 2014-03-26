@@ -237,8 +237,8 @@ bool Sample::apply_loops( const Loops& lo )
 		assert( x==new_length );
 	}
 	__loops = lo;
-	delete __data_l;
-	delete __data_r;
+	delete [] __data_l;
+	delete [] __data_r;
 	__data_l = new_data_l;
 	__data_r = new_data_r;
 	__frames = new_length;
@@ -412,8 +412,8 @@ void Sample::apply_rubberband( const Rubberband& rb )
 
 	// DEBUGLOG( QString( "%1 frames processed, %2 frames retrieved" ).arg( __frames ).arg( retrieved ) );
 	// final data buffers
-	delete __data_l;
-	delete __data_r;
+	delete [] __data_l;
+	delete [] __data_r;
 	__data_l = new float[ retrieved ];
 	__data_r = new float[ retrieved ];
 	memcpy( __data_l, out_data_l, retrieved*sizeof( float ) );
