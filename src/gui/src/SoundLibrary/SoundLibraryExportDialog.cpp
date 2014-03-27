@@ -33,6 +33,10 @@
 #include <QFileDialog>
 #include <memory>
 #include <QtGui>
+#include <archive.h>
+#include <archive_entry.h>
+#include <fcntl.h>
+#include <cstdio>
 
 using namespace H2Core;
 
@@ -74,8 +78,49 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString drumkitName = drumkitList->currentText();
 	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
-	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" -- \"" + drumkitName + "\"";
-	int ret = system( cmd.toLocal8Bit() );
+
+	QString fullDir = drumkitDir + "/" + drumkitName;
+	QDir sourceDir(fullDir);
+
+	sourceDir.setFilter(QDir::Files);
+	QStringList filesList = sourceDir.entryList();
+
+	QString outname = saveDir + "/" + drumkitName + ".h2drumkit";
+
+	struct archive *a;
+	struct archive_entry *entry;
+	struct stat st;
+	char buff[8192];
+	int len;
+	int fd;
+
+	a = archive_write_new();
+	archive_write_add_filter_gzip(a);
+	archive_write_set_format_pax_restricted(a);
+	archive_write_open_filename(a, outname.toUtf8().constData());
+	for (int i = 0; i < filesList.size(); i++) {
+		QString filename = fullDir + "/" + filesList.at(i);
+		QString targetFilename = drumkitName + "/" + filesList.at(i);
+		stat(filename.toUtf8().constData(), &st);
+		entry = archive_entry_new();
+		archive_entry_set_pathname(entry, targetFilename.toUtf8().constData());
+		archive_entry_set_size(entry, st.st_size);
+		archive_entry_set_filetype(entry, AE_IFREG);
+		archive_entry_set_perm(entry, 0644);
+		archive_write_header(a, entry);
+		fd = ::open(filename.toUtf8().constData(), O_RDONLY);
+		len = read(fd, buff, sizeof(buff));
+		while ( len > 0 ) {
+				archive_write_data(a, buff, len);
+				len = read(fd, buff, sizeof(buff));
+		}
+		::close(fd);
+		archive_entry_free(entry);
+	}
+	archive_write_close(a);
+	archive_write_free(a);
+
+	filesList.clear();
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
