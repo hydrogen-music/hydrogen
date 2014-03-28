@@ -33,10 +33,12 @@
 #include <QFileDialog>
 #include <memory>
 #include <QtGui>
+#if defined(H2CORE_HAVE_LIBARCHIVE)
 #include <archive.h>
 #include <archive_entry.h>
 #include <fcntl.h>
 #include <cstdio>
+#endif
 
 using namespace H2Core;
 
@@ -79,6 +81,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
 
+#if defined(H2CORE_HAVE_LIBARCHIVE)
 	QString fullDir = drumkitDir + "/" + drumkitName;
 	QDir sourceDir(fullDir);
 
@@ -124,6 +127,16 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
+#elif !defined(WIN32)
+	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" -- \"" + drumkitName + "\"";
+	int ret = system( cmd.toLocal8Bit() );
+
+	QApplication::restoreOverrideCursor();
+	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
+#else
+	QApplication::restoreOverrideCursor();
+	QMessageBox::information( this, "Hydrogen", "Drumkit not exported. Operation not supported." );
+#endif
 }
 
 void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
