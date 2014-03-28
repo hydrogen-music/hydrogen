@@ -44,7 +44,7 @@ ELSE()
     OPTION(WANT_SHARED      "Build the core library shared." ON)
 ENDIF()
 
-OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" OFF)
+OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" ON)
 OPTION(WANT_LADSPA       "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
