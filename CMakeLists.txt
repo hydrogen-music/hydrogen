@@ -67,6 +67,7 @@ IF(APPLE)
     OPTION(WANT_COREMIDI    "Include CoreMidi support" ON)
     OPTION(WANT_BUNDLE  "Build a MAC OSX bundle application" ON)
 ENDIF()
+OPTION(WANT_CPPUNIT      "Include CppUnit test suite" ON)
 
 IF(WANT_DEBUG)
     SET(CMAKE_BUILD_TYPE Debug)
@@ -181,6 +182,7 @@ FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
+FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
 # CHECK FOR Qt4
 SET(QT_USE_QTNETWORK true)
 SET(QT_USE_QTXML true)
@@ -201,7 +203,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -273,7 +275,8 @@ IF(WANT_DEBUG)
     COLOR_MESSAGE("${cyan}Miscellaneous capabilities${reset}
 -----------------------------------------
 * realtime clock               : ${HAVE_RTCLOCK}
-* working sscanf               : ${HAVE_SSCANF}\n"
+* working sscanf               : ${HAVE_SSCANF}
+* unit tests                   : ${CPPUNIT_STATUS}\n"
     )
 ENDIF()
 
@@ -298,7 +301,9 @@ ENDIF()
 # SET BUILD INFORMATION
 #
 ADD_SUBDIRECTORY(src/core)
-ADD_SUBDIRECTORY(src/tests)
+IF(H2CORE_HAVE_CPPUNIT)
+    ADD_SUBDIRECTORY(src/tests)
+ENDIF()
 ADD_SUBDIRECTORY(src/cli)
 ADD_SUBDIRECTORY(src/player)
 ADD_SUBDIRECTORY(src/synth)
