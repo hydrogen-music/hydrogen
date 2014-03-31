@@ -576,8 +576,7 @@ void PlayerControl::updatePlayerControl()
 	//~ beatcounter
 
 
-
-
+#ifdef H2CORE_HAVE_JACK
 	if ( pPref->m_sAudioDriver == "Jack" ) {
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
@@ -589,17 +588,10 @@ void PlayerControl::updatePlayerControl()
 
 			case Preferences::USE_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(true);
-				//m_pJackMasterBtn->setPressed(false);
 				break;
 		}
-	}
-	else {
-		m_pJackTransportBtn->hide();
-	}
 
-	//jack transport master
-#ifdef H2CORE_HAVE_JACK
-	if ( pPref->m_sAudioDriver == "Jack" ) {
+
 		m_pJackMasterBtn->show();
 		switch ( pPref->m_bJackMasterMode ) {
 			case Preferences::NO_JACK_TIME_MASTER:
@@ -620,18 +612,20 @@ void PlayerControl::updatePlayerControl()
 		}
 	}
 	else {
+		m_pJackTransportBtn->hide();
 		m_pJackMasterBtn->hide();
 	}
 #endif
-	//~ jack transport master
 
 	// time
 	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
 
-	if ( Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT && pPref->m_sAudioDriver == "Jack" )
+#ifdef H2CORE_HAVE_JACK
+	if ( pPref->m_sAudioDriver == "Jack"  && Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
 	{
 		fFrames =  m_pEngine->getHumantimeFrames();
 	}
+#endif
 
 	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
 	if ( fSampleRate != 0 ) {
