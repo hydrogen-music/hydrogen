@@ -627,8 +627,12 @@ void PlayerControl::updatePlayerControl()
 
 	// time
 	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
-	if ( Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
+
+	if ( Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT && pPref->m_sAudioDriver == "Jack" )
+	{
 		fFrames =  m_pEngine->getHumantimeFrames();
+	}
+
 	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
 	if ( fSampleRate != 0 ) {
 		float fSeconds = fFrames / fSampleRate;
