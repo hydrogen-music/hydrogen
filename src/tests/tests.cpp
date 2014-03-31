@@ -6,6 +6,7 @@
 void rubberband_test( const QString& sample_path );
 int xml_drumkit( int log_level );
 int xml_pattern( int log_level );
+void pattern_run_tests();
 
 int main( int argc, char* argv[] )
 {
@@ -22,6 +23,8 @@ int main( int argc, char* argv[] )
 	rubberband_test( H2Core::Filesystem::drumkit_path_search( "GMkit" )+"/cym_Jazz.flac" );
 	xml_drumkit( log_level );
 	xml_pattern( log_level );
+	
+	pattern_run_tests();
 
 	delete logger;
 

@@ -44,7 +44,7 @@ ELSE()
     OPTION(WANT_SHARED      "Build the core library shared." ON)
 ENDIF()
 
-OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" OFF)
+OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" ON)
 OPTION(WANT_LADSPA       "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
@@ -102,7 +102,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 
 IF(APPLE)
 	#Compile for 32bit and 64bit intel macs
-	SET (CMAKE_OSX_ARCHITECTURES "i386;x86_64;")
+	SET (CMAKE_OSX_ARCHITECTURES "x86_64;")
 ENDIF()
 #
 # MANDATORY PKGS AND DEFAULT OPTIONS
