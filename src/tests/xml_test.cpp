@@ -1,6 +1,6 @@
+#include "xml_test.h"
 
 #include <unistd.h>
-#include <hydrogen/helpers/filesystem.h>
 
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/pattern.h>
@@ -9,16 +9,11 @@
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
 
+#include <hydrogen/helpers/filesystem.h>
 #define BASE_DIR    "./src/tests/data"
 
-static void spec( bool cond, const char* msg )
-{
-    if( !cond ) {
-        ___ERRORLOG( QString( " ** SPEC : %1" ).arg( msg ) );
-        sleep( 1 );
-        exit( EXIT_FAILURE );
-    }
-}
+CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
+
 
 static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 {
@@ -42,11 +37,11 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
     return ( count==4 );
 }
 
-int xml_drumkit( int log_level )
+
+
+void XmlTest::testDrumkit()
 {
     QString dk_path = H2Core::Filesystem::tmp_dir()+"/dk0";
-
-    ___INFOLOG( "test xml drumkit validation, read and write" );
 
     H2Core::Drumkit* dk0 = 0;
     H2Core::Drumkit* dk1 = 0;
@@ -54,73 +49,71 @@ int xml_drumkit( int log_level )
 
     // load without samples
     dk0 = H2Core::Drumkit::load( BASE_DIR"/drumkit" );
-    spec( dk0!=0, "dk0 should not be null" );
-    spec( dk0->samples_loaded()==false, "samples should NOT be loaded" );
-    spec( check_samples_data( dk0, false ), "sample data should be NULL" );
-    spec( dk0->get_instruments()->size()==4, "instruments size should be 4" );
+    CPPUNIT_ASSERT( dk0!=0 );
+    CPPUNIT_ASSERT( dk0->samples_loaded()==false );
+    CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
+    CPPUNIT_ASSERT_EQUAL( 4, dk0->get_instruments()->size() );
     //dk0->dump();
     // manually load samples
     dk0->load_samples();
-    spec( dk0->samples_loaded()==true, "samples should be loaded" );
-    spec( check_samples_data( dk0, true ), "sample data should NOT be NULL" );
+    CPPUNIT_ASSERT( dk0->samples_loaded()==true );
+    CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
     //dk0->dump();
     // load with samples
     dk0 = H2Core::Drumkit::load( BASE_DIR"/drumkit", true );
-    spec( dk0!=0, "dk0 should not be null" );
-    spec( dk0->samples_loaded()==true, "samples should be loaded" );
-    spec( check_samples_data( dk0, true ), "sample data should NOT be NULL" );
+    CPPUNIT_ASSERT( dk0!=0 );
+    CPPUNIT_ASSERT( dk0->samples_loaded()==true );
+    CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
     //dk0->dump();
     // unload samples
     dk0->unload_samples();
-    spec( dk0->samples_loaded()==false, "samples should NOT be loaded" );
-    spec( check_samples_data( dk0, false ), "sample data should be NULL" );
+    CPPUNIT_ASSERT( dk0->samples_loaded()==false );
+    CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
     //dk0->dump();
     // save drumkit elsewhere
     dk0->set_name( "dk0" );
-    spec( dk0->save( dk_path, false ), "should be able to save drumkit" );
-    spec( H2Core::Filesystem::file_readable( dk_path+"/drumkit.xml" ), "dk0/drumkit.xml should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( dk_path+"/crash.wav" ), "dk0/crash.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( dk_path+"/hh.wav" ), "dk0/hh.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( dk_path+"/kick.wav" ), "dk0/kick.wav should exists and be readable" );
-    spec( H2Core::Filesystem::file_readable( dk_path+"/snare.wav" ), "dk0/snare.wav should exists and be readable" );
+    CPPUNIT_ASSERT( dk0->save( dk_path, false ) );
+    CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/drumkit.xml" ) );
+    CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/crash.wav" ) );
+    CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/hh.wav" ) );
+    CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/kick.wav" ) );
+    CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/snare.wav" ) );
     // load file
     dk1 = H2Core::Drumkit::load_file( dk_path+"/drumkit.xml" );
-    spec( dk1!=0, "should be able to reload drumkit" );
+    CPPUNIT_ASSERT( dk1!=0 );
     //dk1->dump();
     // copy constructor
     dk2 = new H2Core::Drumkit( dk1 );
     dk2->set_name( "COPY" );
-    spec( dk2!=0, "should be able to copy a drumkit" );
+    CPPUNIT_ASSERT( dk2!=0 );
     // save file
-    spec( dk2->save_file( dk_path+"/drumkit.xml", true ), "should be able to save drumkit xml file" );;
+    CPPUNIT_ASSERT( dk2->save_file( dk_path+"/drumkit.xml", true ) );;
 
     delete dk0;
     delete dk1;
     delete dk2;
-
-    return EXIT_SUCCESS;
 }
 
-int xml_pattern( int log_level )
+
+void XmlTest::testPattern()
 {
     QString pat_path = H2Core::Filesystem::tmp_dir()+"/pat";
-
-    ___INFOLOG( "test xml drumkit validation, read and write" );
 
     H2Core::Pattern* pat0 = 0;
     H2Core::Drumkit* dk0 = 0;
     H2Core::InstrumentList* instruments = 0;
 
     dk0 = H2Core::Drumkit::load( BASE_DIR"/drumkit" );
-    spec( dk0!=0, "dk0 should not be null" );
+    CPPUNIT_ASSERT( dk0!=0 );
     instruments = dk0->get_instruments();
-    spec( instruments->size()==4, "instruments size should be 4" );
+    CPPUNIT_ASSERT( instruments->size()==4 );
+
     pat0 = H2Core::Pattern::load_file( BASE_DIR"/pattern/pat.h2pattern", instruments );
+	CPPUNIT_ASSERT( pat0 );
 
     pat0->save_file( pat_path );
 
     delete pat0;
     delete dk0;
-
-    return EXIT_SUCCESS;
 }
+
