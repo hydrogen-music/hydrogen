@@ -34,103 +34,10 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/midi_action.h>
-#include <map>
+
+#include <sstream>
 
 using namespace H2Core;
-
-/* Helperfunctions */
-
-bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
-{
-	//helper function to set fx levels
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-	Instrument *instr = instrList->get( nLine );
-	if ( instr == NULL) return false;
-
-	if( fx_param != 0 ){
-		instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
-	} else {
-		instr->set_fx_level( 0 , fx_channel );
-	}
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-
-	return true;
-}
-
-bool setSong( int songnumber ) {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Playlist *PL = Playlist::get_instance();
-
-	int asn = PL->getActiveSongNumber();
-	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1){
-		PL->setNextSongByNumber( songnumber );
-	}
-	return true;
-}
-
-bool setAbsoluteGainLevel( int nLine, int layer_id, int gain_param )
-{
-	Hydrogen *engine = Hydrogen::get_instance();
-	engine->setSelectedInstrumentNumber( nLine );
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-
-	if( instr == 0 ) {
-		return false;
-	}
-
-	InstrumentLayer* layer = instr->get_layer( layer_id );
-	if( layer == 0 ) {
-		return false;
-	}
-
-	if( gain_param != 0 ) {
-		layer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
-	} else {
-		layer->set_gain( 0 );
-	}
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
-	return true;
-}
-
-bool setAbsolutePitchLevel( int nLine, int layer_id, int pitch_param )
-{
-	Hydrogen *engine = Hydrogen::get_instance();
-	engine->setSelectedInstrumentNumber( nLine );
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-
-	if( instr == 0 ) {
-		return false;
-	}
-
-	InstrumentLayer* layer = instr->get_layer( layer_id );
-	if( layer == 0 ) {
-		return false;
-	}
-
-	if( pitch_param != 0 ){
-		layer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
-	} else {
-		layer->set_pitch( -24.5 );
-	}
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
-	return true;
-}
 
 /**
 * @class MidiAction
@@ -157,7 +64,6 @@ bool setAbsolutePitchLevel( int nLine, int layer_id, int pitch_param )
 const char* MidiAction::__class_name = "MidiAction";
 
 MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
-
 	type = typeString;
 	QString parameter1 = "0";
 	QString parameter2 = "0" ;
@@ -179,96 +85,87 @@ MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
 MidiActionManager* MidiActionManager::__instance = NULL;
 const char* MidiActionManager::__class_name = "ActionManager";
 
-MidiActionManager::MidiActionManager() : Object( __class_name )
-{
+MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	__instance = this;
 
 	m_nLastBpmChangeCCParameter = -1;
+	/*
+		the actionMap holds all Action identifiers which hydrogen is able to interpret.
+		it holds pointer to member function
+	*/
+	actionMap.insert(make_pair("PLAY", make_pair(&MidiActionManager::play, 0)));
+	actionMap.insert(make_pair("PLAY/STOP_TOGGLE", make_pair(&MidiActionManager::play_stop_pause_toggle, 0)));
+	actionMap.insert(make_pair("PLAY/PAUSE_TOGGLE", make_pair(&MidiActionManager::play_stop_pause_toggle, 0)));
+	actionMap.insert(make_pair("STOP", make_pair(&MidiActionManager::stop, 0)));
+	actionMap.insert(make_pair("PAUSE", make_pair(&MidiActionManager::pause, 0)));
+	actionMap.insert(make_pair("RECORD_READY", make_pair(&MidiActionManager::record_ready, 0)));
+	actionMap.insert(make_pair("RECORD/STROBE_TOGGLE", make_pair(&MidiActionManager::record_strobe_toggle, 0)));
+	actionMap.insert(make_pair("RECORD_STROBE", make_pair(&MidiActionManager::record_strobe, 0)));
+	actionMap.insert(make_pair("RECORD_EXIT", make_pair(&MidiActionManager::record_exit, 0)));
+	actionMap.insert(make_pair("MUTE", make_pair(&MidiActionManager::mute, 0)));
+	actionMap.insert(make_pair("UNMUTE", make_pair(&MidiActionManager::unmute, 0)));
+	actionMap.insert(make_pair("MUTE_TOGGLE", make_pair(&MidiActionManager::mute_toggle, 0)));
+	actionMap.insert(make_pair(">>_NEXT_BAR", make_pair(&MidiActionManager::next_bar, 0)));
+	actionMap.insert(make_pair("<<_PREVIOUS_BAR", make_pair(&MidiActionManager::previous_bar, 0)));
+	actionMap.insert(make_pair("BPM_INCR", make_pair(&MidiActionManager::bpm_increase, 0)));
+	actionMap.insert(make_pair("BPM_DECR", make_pair(&MidiActionManager::bpm_decrease, 0)));
+	actionMap.insert(make_pair("BPM_CC_RELATIVE", make_pair(&MidiActionManager::bpm_cc_relative, 0)));
+	actionMap.insert(make_pair("BPM_FINE_CC_RELATIVE", make_pair(&MidiActionManager::bpm_fine_cc_relative, 0)));
+	actionMap.insert(make_pair("MASTER_VOLUME_RELATIVE", make_pair(&MidiActionManager::master_volume_relative, 0)));
+	actionMap.insert(make_pair("MASTER_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::master_volume_absolute, 0)));
+	actionMap.insert(make_pair("STRIP_VOLUME_RELATIVE", make_pair(&MidiActionManager::strip_volume_relative, 0)));
+	actionMap.insert(make_pair("STRIP_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::strip_volume_absolute, 0)));
+	for(int i = 0; i < MAX_FX; ++i) {
+		ostringstream toChar;
+		toChar << (i+1);
+		string keyAbsolute("EFFECT");
+		string keyRelative("EFFECT");
+		keyAbsolute += toChar.str();
+		keyRelative += toChar.str();
+		keyAbsolute += "_LEVEL_ABSOLUTE";
+		keyRelative += "_LEVEL_RELATIVE";
+		actionMap.insert(make_pair(keyAbsolute, make_pair(&MidiActionManager::effect_level_absolute, i)));
+		actionMap.insert(make_pair(keyRelative, make_pair(&MidiActionManager::effect_level_relative, i)));
+	}
+	for(int i = 0; i < MAX_LAYERS; ++i) {
+		ostringstream toChar;
+		toChar << (i+1);
+		string keyGain("GAIN");
+		string keyPitch("PITCH");
+		keyGain += toChar.str();
+		keyPitch += toChar.str();
+		keyGain += "_LEVEL_ABSOLUTE";
+		keyPitch += "_LEVEL_ABSOLUTE";
+		actionMap.insert(make_pair(keyGain, make_pair(&MidiActionManager::gain_level_absolute, i)));
+		actionMap.insert(make_pair(keyPitch, make_pair(&MidiActionManager::pitch_level_absolute, i)));
+	}
+	actionMap.insert(make_pair("SELECT_NEXT_PATTERN", make_pair(&MidiActionManager::select_next_pattern, 0)));
+	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", make_pair(&MidiActionManager::select_next_pattern_cc_absolute, 0)));
+	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_PROMPTLY", make_pair(&MidiActionManager::select_next_pattern_promptly, 0)));
+	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_RELATIVE", make_pair(&MidiActionManager::select_next_pattern_relative, 0)));
+	actionMap.insert(make_pair("SELECT_AND_PLAY_PATTERN", make_pair(&MidiActionManager::select_and_play_pattern, 0)));
+	actionMap.insert(make_pair("PAN_RELATIVE", make_pair(&MidiActionManager::pan_relative, 0)));
+	actionMap.insert(make_pair("PAN_ABSOLUTE", make_pair(&MidiActionManager::pan_absolute, 0)));
+	actionMap.insert(make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", make_pair(&MidiActionManager::filter_cutoff_level_absolute, 0)));
+	actionMap.insert(make_pair("BEATCOUNTER", make_pair(&MidiActionManager::beatcounter, 0)));
+	actionMap.insert(make_pair("TAP_TEMPO", make_pair(&MidiActionManager::tap_tempo, 0)));
+	actionMap.insert(make_pair("PLAYLIST_SONG", make_pair(&MidiActionManager::playlist_song, 0)));
+	actionMap.insert(make_pair("PLAYLIST_NEXT_SONG", make_pair(&MidiActionManager::playlist_next_song, 0)));
+	actionMap.insert(make_pair("PLAYLIST_PREV_SONG", make_pair(&MidiActionManager::playlist_previous_song, 0)));
+	actionMap.insert(make_pair("TOGGLE_METRONOME", make_pair(&MidiActionManager::toggle_metronome, 0)));
+	actionMap.insert(make_pair("SELECT_INSTRUMENT", make_pair(&MidiActionManager::select_instrument, 0)));
+	actionMap.insert(make_pair("UNDO_ACTION", make_pair(&MidiActionManager::undo_action, 0)));
+	actionMap.insert(make_pair("REDO_ACTION", make_pair(&MidiActionManager::redo_action, 0)));
 
 	/*
 		the actionList holds all Action identfiers which hydrogen is able to interpret.
 	*/
-	actionList <<""
-			  << "PLAY"
-			  << "PLAY/STOP_TOGGLE"
-			  << "PLAY/PAUSE_TOGGLE"
-			  << "STOP"
-			  << "PAUSE"
-			  << "RECORD_READY"
-			  << "RECORD/STROBE_TOGGLE"
-			  << "RECORD_STROBE"
-			  << "RECORD_EXIT"
-			  << "MUTE"
-			  << "UNMUTE"
-			  << "MUTE_TOGGLE"
-			  << ">>_NEXT_BAR"
-			  << "<<_PREVIOUS_BAR"
-			  << "BPM_INCR"
-			  << "BPM_DECR"
-			  << "BPM_CC_RELATIVE"
-			  << "BPM_FINE_CC_RELATIVE"
-			  << "MASTER_VOLUME_RELATIVE"
-			  << "MASTER_VOLUME_ABSOLUTE"
-			  << "STRIP_VOLUME_RELATIVE"
-			  << "STRIP_VOLUME_ABSOLUTE"
-			  << "EFFECT1_LEVEL_RELATIVE"
-			  << "EFFECT2_LEVEL_RELATIVE"
-			  << "EFFECT3_LEVEL_RELATIVE"
-			  << "EFFECT4_LEVEL_RELATIVE"
-			  << "EFFECT1_LEVEL_ABSOLUTE"
-			  << "EFFECT2_LEVEL_ABSOLUTE"
-			  << "EFFECT3_LEVEL_ABSOLUTE"
-			  << "EFFECT4_LEVEL_ABSOLUTE"
-			  << "SELECT_NEXT_PATTERN"
-			  << "SELECT_NEXT_PATTERN_CC_ABSOLUT"
-			  << "SELECT_NEXT_PATTERN_PROMPTLY"
-			  << "SELECT_NEXT_PATTERN_RELATIVE"
-			  << "SELECT_PREV_PATTERN_RELATIVE"
-			  << "SELECT_AND_PLAY_PATTERN"
-			  << "PAN_RELATIVE"
-			  << "PAN_ABSOLUTE"
-			  << "GAIN1_LEVEL_ABSOLUTE"
-			  << "GAIN2_LEVEL_ABSOLUTE"
-			  << "GAIN3_LEVEL_ABSOLUTE"
-			  << "GAIN4_LEVEL_ABSOLUTE"
-			  << "GAIN5_LEVEL_ABSOLUTE"
-			  << "GAIN6_LEVEL_ABSOLUTE"
-			  << "GAIN7_LEVEL_ABSOLUTE"
-			  << "GAIN8_LEVEL_ABSOLUTE"
-			  << "GAIN9_LEVEL_ABSOLUTE"
-			  << "GAIN10_LEVEL_ABSOLUTE"
-			  << "GAIN11_LEVEL_ABSOLUTE"
-			  << "GAIN12_LEVEL_ABSOLUTE"
-			  << "GAIN13_LEVEL_ABSOLUTE"
-			  << "GAIN14_LEVEL_ABSOLUTE"
-			  << "GAIN15_LEVEL_ABSOLUTE"
-			  << "GAIN16_LEVEL_ABSOLUTE"
-			  << "PITCH1_LEVEL_ABSOLUTE"
-			  << "PITCH2_LEVEL_ABSOLUTE"
-			  << "PITCH3_LEVEL_ABSOLUTE"
-			  << "PITCH4_LEVEL_ABSOLUTE"
-			  << "PITCH5_LEVEL_ABSOLUTE"
-			  << "PITCH6_LEVEL_ABSOLUTE"
-			  << "PITCH7_LEVEL_ABSOLUTE"
-			  << "PITCH8_LEVEL_ABSOLUTE"
-			  << "PITCH9_LEVEL_ABSOLUTE"
-			  << "PITCH10_LEVEL_ABSOLUTE"
-			  << "PITCH11_LEVEL_ABSOLUTE"
-			  << "PITCH12_LEVEL_ABSOLUTE"
-			  << "PITCH13_LEVEL_ABSOLUTE"
-			  << "PITCH14_LEVEL_ABSOLUTE"
-			  << "PITCH15_LEVEL_ABSOLUTE"
-			  << "PITCH16_LEVEL_ABSOLUTE"
-			  << "FILTER_CUTOFF_LEVEL_ABSOLUTE"
-			  << "BEATCOUNTER"
-			  << "TAP_TEMPO"
-			  << "PLAYLIST_SONG"
-			  << "PLAYLIST_NEXT_SONG"
-			  << "PLAYLIST_PREV_SONG"
-			  << "TOGGLE_METRONOME"
-			  << "SELECT_INSTRUMENT"
-			  << "UNDO_ACTION"
-			  << "REDO_ACTION";
+	actionList <<"";
+	for(map<string, pair<action_f, int> >::const_iterator actionIterator = actionMap.begin();
+	    actionIterator != actionMap.end();
+	    ++actionIterator) {
+		actionList << actionIterator->first.c_str();
+	}
 
 	eventList << ""
 			  << "MMC_PLAY"
@@ -286,895 +183,708 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 }
 
 
-MidiActionManager::~MidiActionManager(){
+MidiActionManager::~MidiActionManager() {
 	//INFOLOG( "ActionManager delete" );
 	__instance = NULL;
 }
 
-void MidiActionManager::create_instance()
-{
+void MidiActionManager::create_instance() {
 	if ( __instance == 0 ) {
 		__instance = new MidiActionManager;
 	}
 }
 
+bool MidiActionManager::play(MidiAction * , Hydrogen* pEngine, int ) {
+	int nState = pEngine->getState();
+	if ( nState == STATE_READY ) {
+		pEngine->sequencer_play();
+	}
+	return true;
+}
+
+bool MidiActionManager::pause(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->sequencer_stop();
+	return true;
+}
+
+bool MidiActionManager::stop(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->sequencer_stop();
+	pEngine->setPatternPos( 0 );
+	pEngine->setTimelineBpm();
+	return true;
+}
+
+bool MidiActionManager::play_stop_pause_toggle(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	QString sActionString = pAction->getType();
+	int nState = pEngine->getState();
+	switch ( nState )
+	{
+	case STATE_READY:
+		pEngine->sequencer_play();
+		break;
+
+	case STATE_PLAYING:
+		if( sActionString == "PLAY/STOP_TOGGLE" ) {
+			pEngine->setPatternPos( 0 );
+		}
+		pEngine->sequencer_stop();
+		pEngine->setTimelineBpm();
+		break;
+
+	default:
+		ERRORLOG( "[Hydrogen::ActionManager(PLAY): Unhandled case" );
+		break;
+	}
+
+	return true;
+}
+
+bool MidiActionManager::mute(MidiAction * , Hydrogen* pEngine, int ) {
+	//mutes the master, not a single strip
+	pEngine->getSong()->__is_muted = true;
+	return true;
+}
+
+bool MidiActionManager::unmute(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->getSong()->__is_muted = false;
+	return true;
+}
+
+bool MidiActionManager::mute_toggle(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
+	return true;
+}
+
+bool MidiActionManager::beatcounter(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->handleBeatCounter();
+	return true;
+}
+
+bool MidiActionManager::tap_tempo(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->onTapTempoAccelEvent();
+	return true;
+}
+
+bool MidiActionManager::select_next_pattern(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	int row = pAction->getParameter1().toInt(&ok,10);
+	if( row> pEngine->getSong()->get_pattern_list()->size() -1 ) {
+		return false;
+	}
+	if(Preferences::get_instance()->patternModePlaysSelected()) {
+		pEngine->setSelectedPatternNumber( row );
+	}
+	else {
+		pEngine->sequencer_setNextPattern( row );
+	}
+	return true;
+}
+
+bool MidiActionManager::select_next_pattern_relative(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	if(!Preferences::get_instance()->patternModePlaysSelected()) {
+		return true;
+	}
+	int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
+	if( row> pEngine->getSong()->get_pattern_list()->size() -1 ) {
+		return false;
+	}
+
+	pEngine->setSelectedPatternNumber( row );
+	return true;
+}
+
+bool MidiActionManager::select_next_pattern_cc_absolute(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	int row = pAction->getParameter2().toInt(&ok,10);
+	if( row> pEngine->getSong()->get_pattern_list()->size() -1 ) {
+		return false;
+	}
+	if(Preferences::get_instance()->patternModePlaysSelected()) {
+		pEngine->setSelectedPatternNumber( row );
+	}
+	else {
+		return true;// only usefully in normal pattern mode
+	}
+	return true;
+}
+
+bool MidiActionManager::select_next_pattern_promptly(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
+	bool ok;
+	int row = pAction->getParameter2().toInt(&ok,10);
+	pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
+	return true;
+}
+
+bool MidiActionManager::select_and_play_pattern(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	int row = pAction->getParameter1().toInt(&ok,10);
+	pEngine->setSelectedPatternNumber( row );
+	pEngine->sequencer_setNextPattern( row );
+
+	int nState = pEngine->getState();
+	if ( nState == STATE_READY ) {
+		pEngine->sequencer_play();
+	}
+
+	return true;
+}
+
+bool MidiActionManager::select_instrument(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
+	if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number ) {
+		instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
+	}
+	pEngine->setSelectedInstrumentNumber( instrument_number );
+	return true;
+}
+
+bool MidiActionManager::effect_level_absolute(MidiAction * pAction, Hydrogen* pEngine, int nIndex) {
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int fx_param = pAction->getParameter2().toInt(&ok,10);
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+	Instrument *instr = instrList->get( nLine );
+	if ( instr == NULL)  {
+		return false;
+	}
+
+	if( fx_param != 0 ) {
+		instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), nIndex );
+	} else {
+		instr->set_fx_level( 0 , nIndex );
+	}
+
+	pEngine->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool MidiActionManager::effect_level_relative(MidiAction * , Hydrogen* , int ) {
+	//empty ?
+	return true;
+}
+
+bool MidiActionManager::master_volume_absolute(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	//sets the volume of a master output to a given level (percentage)
+
+	bool ok;
+	int vol_param = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+
+	if( vol_param != 0 ){
+		song->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
+	} else {
+		song->set_volume( 0 );
+	}
+
+	return true;
+}
+
+bool MidiActionManager::master_volume_relative(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	//increments/decrements the volume of the whole song
+
+	bool ok;
+	int vol_param = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+
+	if( vol_param != 0 ) {
+		if ( vol_param == 1 && song->get_volume() < 1.5 ) {
+			song->set_volume( song->get_volume() + 0.05 );
+		} else {
+			if( song->get_volume() >= 0.0 ) {
+				song->set_volume( song->get_volume() - 0.05 );
+			}
+		}
+	} else {
+		song->set_volume( 0 );
+	}
+
+	return true;
+}
+
+bool MidiActionManager::strip_volume_absolute(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	//sets the volume of a mixer strip to a given level (percentage)
+
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int vol_param = pAction->getParameter2().toInt(&ok,10);
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+
+	if ( instr == NULL) {
+		return false;
+	}
+
+	if( vol_param != 0 ) {
+		instr->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
+	} else {
+		instr->set_volume( 0 );
+	}
+
+	pEngine->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool MidiActionManager::strip_volume_relative(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	//increments/decrements the volume of one mixer strip
+
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int vol_param = pAction->getParameter2().toInt(&ok,10);
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+
+	if ( instr == NULL) {
+		return false;
+	}
+
+	if( vol_param != 0 ) {
+		if ( vol_param == 1 && instr->get_volume() < 1.5 ) {
+			instr->set_volume( instr->get_volume() + 0.1 );
+		} else {
+			if( instr->get_volume() >= 0.0 ){
+				instr->set_volume( instr->get_volume() - 0.1 );
+			}
+		}
+	} else {
+		instr->set_volume( 0 );
+	}
+
+	pEngine->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool MidiActionManager::pan_absolute(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	// sets the absolute panning of a given mixer channel
+
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int pan_param = pAction->getParameter2().toInt(&ok,10);
+
+
+	float pan_L;
+	float pan_R;
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+
+	if( instr == NULL ) {
+		return false;
+	}
+
+	pan_L = instr->get_pan_l();
+	pan_R = instr->get_pan_r();
+
+	// pan
+	float fPanValue = 0.0;
+	if (pan_R == 1.0) {
+		fPanValue = 1.0 - (pan_L / 2.0);
+	}
+	else {
+		fPanValue = pan_R / 2.0;
+	}
+
+
+	fPanValue = 1 * ( ((float) pan_param) / 127.0 );
+
+
+	if (fPanValue >= 0.5) {
+		pan_L = (1.0 - fPanValue) * 2;
+		pan_R = 1.0;
+	}
+	else {
+		pan_L = 1.0;
+		pan_R = fPanValue * 2;
+	}
+
+
+	instr->set_pan_l( pan_L );
+	instr->set_pan_r( pan_R );
+
+	pEngine->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool MidiActionManager::pan_relative(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	// changes the panning of a given mixer channel
+	// this is useful if the panning is set by a rotary control knob
+
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int pan_param = pAction->getParameter2().toInt(&ok,10);
+
+	float pan_L;
+	float pan_R;
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+
+	if( instr == NULL ) {
+		return false;
+	}
+
+	pan_L = instr->get_pan_l();
+	pan_R = instr->get_pan_r();
+
+	// pan
+	float fPanValue = 0.0;
+	if (pan_R == 1.0) {
+		fPanValue = 1.0 - (pan_L / 2.0);
+	}
+	else {
+		fPanValue = pan_R / 2.0;
+	}
+
+	if( pan_param == 1 && fPanValue < 1 ) {
+		fPanValue += 0.05;
+	}
+
+	if( pan_param != 1 && fPanValue > 0 ) {
+		fPanValue -= 0.05;
+	}
+
+	if (fPanValue >= 0.5) {
+		pan_L = (1.0 - fPanValue) * 2;
+		pan_R = 1.0;
+	}
+	else {
+		pan_L = 1.0;
+		pan_R = fPanValue * 2;
+	}
+
+
+	instr->set_pan_l( pan_L );
+	instr->set_pan_r( pan_R );
+
+	pEngine->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEngine, int nIndex) {
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int gain_param = pAction->getParameter2().toInt(&ok,10);
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+	if( instr == 0 ) {
+		return false;
+	}
+
+	InstrumentLayer* layer = instr->get_layer( nIndex );
+	if( layer == 0 ) {
+		return false;
+	}
+
+	if( gain_param != 0 ) {
+		layer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
+	} else {
+		layer->set_gain( 0 );
+	}
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	return true;
+}
+
+bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEngine, int nIndex) {
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int pitch_param = pAction->getParameter2().toInt(&ok,10);
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+	if( instr == 0 ) {
+		return false;
+	}
+
+	InstrumentLayer* layer = instr->get_layer( nIndex );
+	if( layer == 0 ) {
+		return false;
+	}
+
+	if( pitch_param != 0 ){
+		layer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
+	} else {
+		layer->set_pitch( -24.5 );
+	}
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	return true;
+}
+
+bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
+
+	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *song = pEngine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+
+	Instrument *instr = instrList->get( nLine );
+	if( instr == 0 ) {
+		return false;
+	}
+
+	instr->set_filter_active( true );
+	if( filter_cutoff_param != 0 ) {
+		instr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
+	} else {
+		instr->set_filter_cutoff( 0 );
+	}
+
+	pEngine->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool MidiActionManager::bpm_cc_relative(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	/*
+	 * increments/decrements the BPM
+	 * this is useful if the bpm is set by a rotary control knob
+	*/
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	//this Action should be triggered only by CC commands
+
+	bool ok;
+	int mult = pAction->getParameter1().toInt(&ok,10);
+	//this value should be 1 to decrement and something other then 1 to increment the bpm
+	int cc_param = pAction->getParameter2().toInt(&ok,10);
+
+	if( m_nLastBpmChangeCCParameter == -1) {
+		m_nLastBpmChangeCCParameter = cc_param;
+	}
+
+	Song* pSong = pEngine->getSong();
+
+	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
+		pEngine->setBPM( pSong->__bpm - 1*mult );
+	}
+
+	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+		pEngine->setBPM( pSong->__bpm + 1*mult );
+	}
+
+	m_nLastBpmChangeCCParameter = cc_param;
+
+	AudioEngine::get_instance()->unlock();
+
+	return true;
+}
+
+bool MidiActionManager::bpm_fine_cc_relative(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	/*
+	 * increments/decrements the BPM
+	 * this is useful if the bpm is set by a rotary control knob
+	*/
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	//this Action should be triggered only by CC commands
+	bool ok;
+	int mult = pAction->getParameter1().toInt(&ok,10);
+	//this value should be 1 to decrement and something other then 1 to increment the bpm
+	int cc_param = pAction->getParameter2().toInt(&ok,10);
+
+	if( m_nLastBpmChangeCCParameter == -1) {
+		m_nLastBpmChangeCCParameter = cc_param;
+	}
+
+	Song* pSong = pEngine->getSong();
+
+	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
+		pEngine->setBPM( pSong->__bpm - 0.01*mult );
+	}
+
+	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+		pEngine->setBPM( pSong->__bpm + 0.01*mult );
+	}
+
+	m_nLastBpmChangeCCParameter = cc_param;
+
+	AudioEngine::get_instance()->unlock();
+
+	return true;
+}
+
+bool MidiActionManager::bpm_increase(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	bool ok;
+	int mult = pAction->getParameter1().toInt(&ok,10);
+
+	Song* pSong = pEngine->getSong();
+	if (pSong->__bpm  < 300) {
+		pEngine->setBPM( pSong->__bpm + 1*mult );
+	}
+	AudioEngine::get_instance()->unlock();
+
+	return true;
+}
+
+bool MidiActionManager::bpm_decrease(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	bool ok;
+	int mult = pAction->getParameter1().toInt(&ok,10);
+
+	Song* pSong = pEngine->getSong();
+	if (pSong->__bpm  > 40 ) {
+		pEngine->setBPM( pSong->__bpm - 1*mult );
+	}
+	AudioEngine::get_instance()->unlock();
+
+	return true;
+}
+
+bool MidiActionManager::next_bar(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->setPatternPos(pEngine->getPatternPos() +1 );
+	pEngine->setTimelineBpm();
+	return true;
+}
+
+bool MidiActionManager::previous_bar(MidiAction * , Hydrogen* pEngine, int ) {
+	pEngine->setPatternPos(pEngine->getPatternPos() -1 );
+	pEngine->setTimelineBpm();
+	return true;
+}
+
+bool setSong( int songnumber, Hydrogen * pEngine ) {
+	int asn = Playlist::get_instance()->getActiveSongNumber();
+	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1) {
+		Playlist::get_instance()->setNextSongByNumber( songnumber );
+	}
+	return true;
+}
+
+bool MidiActionManager::playlist_song(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	bool ok;
+	int songnumber = pAction->getParameter2().toInt(&ok,10);
+	return setSong( songnumber, pEngine );
+}
+
+bool MidiActionManager::playlist_next_song(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	return setSong( ++songnumber, pEngine );
+}
+
+bool MidiActionManager::playlist_previous_song(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	return setSong( --songnumber, pEngine );
+}
+
+bool MidiActionManager::record_ready(MidiAction * pAction, Hydrogen* pEngine, int ) {
+	if ( pEngine->getState() != STATE_PLAYING ) {
+		if (!Preferences::get_instance()->getRecordEvents()) {
+			Preferences::get_instance()->setRecordEvents(true);
+		}
+		else {
+			Preferences::get_instance()->setRecordEvents(false);
+		}
+	}
+	return true;
+}
+
+bool MidiActionManager::record_strobe_toggle(MidiAction * , Hydrogen* , int ) {
+	if (!Preferences::get_instance()->getRecordEvents()) {
+		Preferences::get_instance()->setRecordEvents(true);
+	}
+	else {
+		Preferences::get_instance()->setRecordEvents(false);
+	}
+	return true;
+}
+
+bool MidiActionManager::record_strobe(MidiAction * , Hydrogen* , int ) {
+	if (!Preferences::get_instance()->getRecordEvents()) {
+		Preferences::get_instance()->setRecordEvents(true);
+	}
+	return true;
+}
+
+bool MidiActionManager::record_exit(MidiAction * , Hydrogen* , int ) {
+	if (Preferences::get_instance()->getRecordEvents()) {
+		Preferences::get_instance()->setRecordEvents(false);
+	}
+	return true;
+}
+
+bool MidiActionManager::toggle_metronome(MidiAction * , Hydrogen* , int ) {
+	Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
+	return true;
+}
+
+bool MidiActionManager::undo_action(MidiAction * , Hydrogen* , int ) {
+	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
+	return true;
+}
+
+bool MidiActionManager::redo_action(MidiAction * , Hydrogen* , int ) {
+	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
+	return true;
+}
+
 /**
- * The handleAction method is the heard of the MidiActionManager class.
+ * The handleAction method is the heart of the MidiActionManager class.
  * It executes the operations that are needed to carry the desired action.
  */
-bool MidiActionManager::handleAction( MidiAction * pAction ){
+bool MidiActionManager::handleAction( MidiAction * pAction ) {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-
 	/*
 		return false if action is null
 		(for example if no Action exists for an event)
 	*/
-	if( pAction == NULL )	return false;
+	if( pAction == NULL ) {
+		return false;
+	}
 
 	QString sActionString = pAction->getType();
 
-
-	if( sActionString == "PLAY" )
-	{
-		int nState = pEngine->getState();
-		if ( nState == STATE_READY ){
-			pEngine->sequencer_play();
-		}
-		return true;
-	}
-
-	if( sActionString == "PLAY/STOP_TOGGLE" || sActionString == "PLAY/PAUSE_TOGGLE" )
-	{
-		int nState = pEngine->getState();
-		switch ( nState )
-		{
-		case STATE_READY:
-			pEngine->sequencer_play();
-			break;
-
-		case STATE_PLAYING:
-			if( sActionString == "PLAY/STOP_TOGGLE" ) pEngine->setPatternPos( 0 );
-			pEngine->sequencer_stop();
-			pEngine->setTimelineBpm();
-			break;
-
-		default:
-			ERRORLOG( "[Hydrogen::ActionManager(PLAY): Unhandled case" );
-		}
-
-		return true;
-	}
-
-	if( sActionString == "PAUSE" )
-	{
-		pEngine->sequencer_stop();
-		return true;
-	}
-
-	if( sActionString == "STOP" )
-	{
-		pEngine->sequencer_stop();
-		pEngine->setPatternPos( 0 );
-		pEngine->setTimelineBpm();
-		return true;
-	}
-
-	if( sActionString == "MUTE" ){
-		//mutes the master, not a single strip
-		pEngine->getSong()->__is_muted = true;
-		return true;
-	}
-
-	if( sActionString == "UNMUTE" ){
-		pEngine->getSong()->__is_muted = false;
-		return true;
-	}
-
-	if( sActionString == "MUTE_TOGGLE" ){
-		pEngine->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
-		return true;
-	}
-
-	if( sActionString == "BEATCOUNTER" ){
-		pEngine->handleBeatCounter();
-		return true;
-	}
-
-	if( sActionString == "TAP_TEMPO" ){
-		pEngine->onTapTempoAccelEvent();
-		return true;
-	}
-
-	if( sActionString == "SELECT_NEXT_PATTERN" ){
-		bool ok;
-		int row = pAction->getParameter1().toInt(&ok,10);
-		if( row> pEngine->getSong()->get_pattern_list()->size() -1 ){
-			return false;
-		}
-
-		if(Preferences::get_instance()->patternModePlaysSelected()){
-			pEngine->setSelectedPatternNumber( row );
-		}
-		else
-		{
-			pEngine->sequencer_setNextPattern( row );
-		}
-
-		return true;
-	}
-
-	if( sActionString == "SELECT_NEXT_PATTERN_RELATIVE" ){
-
-		bool ok;
-
-		if(!Preferences::get_instance()->patternModePlaysSelected())
-		{
-			return true;
-		}
-
-		int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-
-		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-		{
-			return false;
-		}
-
-		pEngine->setSelectedPatternNumber( row );
-
-		return true;
-	}
-
-	if( sActionString == "SELECT_PREV_PATTERN_RELATIVE" ){
-		bool ok;
-		if(!Preferences::get_instance()->patternModePlaysSelected())
-			return true;
-		int row = pEngine->getSelectedPatternNumber() - pAction->getParameter1().toInt(&ok,10);
-		if( row < 0 )
-			return false;
-
-		pEngine->setSelectedPatternNumber( row );
-		return true;
-	}
-
-	if( sActionString == "SELECT_NEXT_PATTERN_CC_ABSOLUT" ){
-		bool ok;
-		int row = pAction->getParameter2().toInt(&ok,10);
-		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-			return false;
-		if(Preferences::get_instance()->patternModePlaysSelected())
-			pEngine->setSelectedPatternNumber( row );
-		else
-			return true;// only usefully in normal pattern mode
-		return true;
-	}
-
-	if( sActionString == "SELECT_NEXT_PATTERN_PROMPTLY" ){// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
-		bool ok;
-		int row = pAction->getParameter2().toInt(&ok,10);
-		pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
-		return true;
-	}
-
-	if( sActionString == "SELECT_AND_PLAY_PATTERN"){
-		bool ok;
-		int row = pAction->getParameter1().toInt(&ok,10);
-		pEngine->setSelectedPatternNumber( row );
-		pEngine->sequencer_setNextPattern( row );
-
-		int nState = pEngine->getState();
-		if ( nState == STATE_READY ){
-			pEngine->sequencer_play();
-		}
-
-		return true;
-	}
-
-	if( sActionString == "SELECT_INSTRUMENT" ){
-		bool ok;
-		int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
-		if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number )
-			instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
-		pEngine->setSelectedInstrumentNumber( instrument_number );
-		return true;
-	}
-
-	if( sActionString == "EFFECT1_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int fx_param = pAction->getParameter2().toInt(&ok,10);
-		setAbsoluteFXLevel( nLine, 0 , fx_param );
-	}
-
-	if( sActionString == "EFFECT2_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int fx_param = pAction->getParameter2().toInt(&ok,10);
-		setAbsoluteFXLevel( nLine, 1 , fx_param );
-	}
-
-	if( sActionString == "EFFECT3_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int fx_param = pAction->getParameter2().toInt(&ok,10);
-		setAbsoluteFXLevel( nLine, 2 , fx_param );
-	}
-
-	if( sActionString == "EFFECT4_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int fx_param = pAction->getParameter2().toInt(&ok,10);
-		setAbsoluteFXLevel( nLine, 3 , fx_param );
-	}
-
-	if( sActionString == "MASTER_VOLUME_RELATIVE" ){
-		//increments/decrements the volume of the whole song
-
-		bool ok;
-		int vol_param = pAction->getParameter2().toInt(&ok,10);
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		Song *song = engine->getSong();
-
-
-
-		if( vol_param != 0 ){
-			if ( vol_param == 1 && song->get_volume() < 1.5 ){
-				song->set_volume( song->get_volume() + 0.05 );
-			}  else  {
-				if( song->get_volume() >= 0.0 ){
-					song->set_volume( song->get_volume() - 0.05 );
-				}
-			}
-		} else {
-			song->set_volume( 0 );
-		}
-
-	}
-
-	if( sActionString == "MASTER_VOLUME_ABSOLUTE" ){
-		//sets the volume of a master output to a given level (percentage)
-
-		bool ok;
-		int vol_param = pAction->getParameter2().toInt(&ok,10);
-
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		Song *song = engine->getSong();
-
-
-		if( vol_param != 0 ){
-			song->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
-		} else {
-			song->set_volume( 0 );
-		}
-
-	}
-
-	if( sActionString == "STRIP_VOLUME_RELATIVE" ){
-		//increments/decrements the volume of one mixer strip
-
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int vol_param = pAction->getParameter2().toInt(&ok,10);
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		Song *song = engine->getSong();
-		InstrumentList *instrList = song->get_instrument_list();
-
-		Instrument *instr = instrList->get( nLine );
-
-		if ( instr == NULL) return 0;
-
-		if( vol_param != 0 ){
-			if ( vol_param == 1 && instr->get_volume() < 1.5 ){
-				instr->set_volume( instr->get_volume() + 0.1 );
-			}  else  {
-				if( instr->get_volume() >= 0.0 ){
-					instr->set_volume( instr->get_volume() - 0.1 );
-				}
-			}
-		} else {
-			instr->set_volume( 0 );
-		}
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-	}
-
-	if( sActionString == "STRIP_VOLUME_ABSOLUTE" ){
-		//sets the volume of a mixer strip to a given level (percentage)
-
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int vol_param = pAction->getParameter2().toInt(&ok,10);
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		Song *song = engine->getSong();
-		InstrumentList *instrList = song->get_instrument_list();
-
-		Instrument *instr = instrList->get( nLine );
-
-		if ( instr == NULL) return 0;
-
-		if( vol_param != 0 ){
-			instr->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
-		} else {
-			instr->set_volume( 0 );
-		}
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-	}
-
-	if( sActionString == "PAN_ABSOLUTE" ){
-
-		// sets the absolute panning of a given mixer channel
-
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pan_param = pAction->getParameter2().toInt(&ok,10);
-
-
-		float pan_L;
-		float pan_R;
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		engine->setSelectedInstrumentNumber( nLine );
-		Song *song = engine->getSong();
-		InstrumentList *instrList = song->get_instrument_list();
-
-		Instrument *instr = instrList->get( nLine );
-
-		if( instr == NULL )
-			return false;
-
-		pan_L = instr->get_pan_l();
-		pan_R = instr->get_pan_r();
-
-		// pan
-		float fPanValue = 0.0;
-		if (pan_R == 1.0) {
-			fPanValue = 1.0 - (pan_L / 2.0);
-		}
-		else {
-			fPanValue = pan_R / 2.0;
-		}
-
-
-		fPanValue = 1 * ( ((float) pan_param) / 127.0 );
-
-
-		if (fPanValue >= 0.5) {
-			pan_L = (1.0 - fPanValue) * 2;
-			pan_R = 1.0;
-		}
-		else {
-			pan_L = 1.0;
-			pan_R = fPanValue * 2;
-		}
-
-
-		instr->set_pan_l( pan_L );
-		instr->set_pan_r( pan_R );
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-
-		return true;
-	}
-
-	if( sActionString == "PAN_RELATIVE" ){
-
-		// changes the panning of a given mixer channel
-		// this is useful if the panning is set by a rotary control knob
-
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pan_param = pAction->getParameter2().toInt(&ok,10);
-
-		float pan_L;
-		float pan_R;
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		engine->setSelectedInstrumentNumber( nLine );
-		Song *song = engine->getSong();
-		InstrumentList *instrList = song->get_instrument_list();
-
-		Instrument *instr = instrList->get( nLine );
-
-		if( instr == NULL )
-			return false;
-
-		pan_L = instr->get_pan_l();
-		pan_R = instr->get_pan_r();
-
-		// pan
-		float fPanValue = 0.0;
-		if (pan_R == 1.0) {
-			fPanValue = 1.0 - (pan_L / 2.0);
-		}
-		else {
-			fPanValue = pan_R / 2.0;
-		}
-
-		if( pan_param == 1 && fPanValue < 1 ){
-			fPanValue += 0.05;
-		}
-
-		if( pan_param != 1 && fPanValue > 0 ){
-			fPanValue -= 0.05;
-		}
-
-		if (fPanValue >= 0.5) {
-			pan_L = (1.0 - fPanValue) * 2;
-			pan_R = 1.0;
-		}
-		else {
-			pan_L = 1.0;
-			pan_R = fPanValue * 2;
-		}
-
-
-		instr->set_pan_l( pan_L );
-		instr->set_pan_r( pan_R );
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-
-		return true;
-	}
-
-	if( sActionString == "GAIN1_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 0, gain_param );
-	}
-
-	if( sActionString == "GAIN2_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 1, gain_param );
-	}
-
-	if( sActionString == "GAIN3_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 2, gain_param );
-	}
-
-	if( sActionString == "GAIN4_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 3, gain_param );
-	}
-
-	if( sActionString == "GAIN5_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 4, gain_param );
-	}
-
-	if( sActionString == "GAIN6_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 5, gain_param );
-	}
-
-	if( sActionString == "GAIN7_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 6, gain_param );
-	}
-
-	if( sActionString == "GAIN8_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 7, gain_param );
-	}
-
-	if( sActionString == "GAIN9_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 8, gain_param );
-	}
-
-	if( sActionString == "GAIN10_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 9, gain_param );
-	}
-
-	if( sActionString == "GAIN11_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 10, gain_param );
-	}
-
-	if( sActionString == "GAIN12_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 11, gain_param );
-	}
-
-	if( sActionString == "GAIN13_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 12, gain_param );
-	}
-
-	if( sActionString == "GAIN14_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 13, gain_param );
-	}
-
-	if( sActionString == "GAIN15_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 14, gain_param );
-	}
-
-	if( sActionString == "GAIN16_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int gain_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsoluteGainLevel( nLine, 15, gain_param );
-	}
-
-	if( sActionString == "PITCH1_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 0, pitch_param );
-	}
-
-	if( sActionString == "PITCH2_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 1, pitch_param );
-	}
-
-	if( sActionString == "PITCH3_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 2, pitch_param );
-	}
-
-	if( sActionString == "PITCH4_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 3, pitch_param );
-	}
-
-	if( sActionString == "PITCH5_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 4, pitch_param );
-	}
-
-	if( sActionString == "PITCH6_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 5, pitch_param );
-	}
-
-	if( sActionString == "PITCH7_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 6, pitch_param );
-	}
-
-	if( sActionString == "PITCH8_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 7, pitch_param );
-	}
-
-	if( sActionString == "PITCH9_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 8, pitch_param );
-	}
-
-	if( sActionString == "PITCH10_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 9, pitch_param );
-	}
-
-	if( sActionString == "PITCH11_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 10, pitch_param );
-	}
-
-	if( sActionString == "PITCH12_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 11, pitch_param );
-	}
-
-	if( sActionString == "PITCH13_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 12, pitch_param );
-	}
-
-	if( sActionString == "PITCH14_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 13, pitch_param );
-	}
-
-	if( sActionString == "PITCH15_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 14, pitch_param );
-	}
-
-	if( sActionString == "PITCH16_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int pitch_param = pAction->getParameter2().toInt(&ok,10);
-		return setAbsolutePitchLevel( nLine, 15, pitch_param );
-	}
-
-	if( sActionString == "FILTER_CUTOFF_LEVEL_ABSOLUTE" ){
-		bool ok;
-		int nLine = pAction->getParameter1().toInt(&ok,10);
-		int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
-
-		Hydrogen *engine = Hydrogen::get_instance();
-		engine->setSelectedInstrumentNumber( nLine );
-		Song *song = engine->getSong();
-		InstrumentList *instrList = song->get_instrument_list();
-
-		Instrument *instr = instrList->get( nLine );
-
-		if( instr == 0 ) {
-			return false;
-		}
-
-		instr->set_filter_active( true );
-		if( filter_cutoff_param != 0 ) {
-			instr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
-		} else {
-			instr->set_filter_cutoff( 0 );
-		}
-
-		Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-
-		return true;
+	map<string, pair<action_f, int> >::const_iterator foundAction = actionMap.find(sActionString.toStdString());
+	if( foundAction != actionMap.end() ) {
+		action_f action = foundAction->second.first;
+		int nIndex = foundAction->second.second;
+		return (this->*action)(pAction, pEngine, nIndex);
 	}
 
-	if( sActionString == "BPM_CC_RELATIVE" ){
-		/*
-		 * increments/decrements the BPM
-		 * this is useful if the bpm is set by a rotary control knob
-		*/
-
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		int mult = 1;
-
-		//second parameter of cc command
-		//this value should be 1 to decrement and something other then 1 to increment the bpm
-		int cc_param = 1;
-
-		//this Action should be triggered only by CC commands
-
-		bool ok;
-		mult = pAction->getParameter1().toInt(&ok,10);
-		cc_param = pAction->getParameter2().toInt(&ok,10);
-
-		if( m_nLastBpmChangeCCParameter == -1)
-		{
-			m_nLastBpmChangeCCParameter = cc_param;
-		}
-
-		Song* pSong = pEngine->getSong();
-
-		if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
-			pEngine->setBPM( pSong->__bpm - 1*mult );
-		}
-
-		if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
-			pEngine->setBPM( pSong->__bpm + 1*mult );
-		}
-
-		m_nLastBpmChangeCCParameter = cc_param;
-
-		AudioEngine::get_instance()->unlock();
-
-		return true;
-	}
-
-	if( sActionString == "BPM_FINE_CC_RELATIVE" ){
-		/*
-		 * increments/decrements the BPM
-		 * this is useful if the bpm is set by a rotary control knob
-		 */
-
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		int mult = 1;
-
-		//second parameter of cc command
-		//this value should be 1 to decrement and something other then 1 to increment the bpm
-		int cc_param = 1;
-
-		//this Action should be triggered only by CC commands
-
-		bool ok;
-		mult = pAction->getParameter1().toInt(&ok,10);
-		cc_param = pAction->getParameter2().toInt(&ok,10);
-
-		if( m_nLastBpmChangeCCParameter == -1)
-		{
-			m_nLastBpmChangeCCParameter = cc_param;
-		}
-
-		Song* pSong = pEngine->getSong();
-
-		if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
-			pEngine->setBPM( pSong->__bpm - 0.01*mult );
-		}
-
-		if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
-			pEngine->setBPM( pSong->__bpm + 0.01*mult );
-		}
-
-		m_nLastBpmChangeCCParameter = cc_param;
-
-		AudioEngine::get_instance()->unlock();
-
-		return true;
-	}
-
-	if( sActionString == "BPM_INCR" ){
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		int mult = 1;
-
-		bool ok;
-		mult = pAction->getParameter1().toInt(&ok,10);
-
-
-		Song* pSong = pEngine->getSong();
-		if (pSong->__bpm  < 300) {
-			pEngine->setBPM( pSong->__bpm + 1*mult );
-		}
-		AudioEngine::get_instance()->unlock();
-
-		return true;
-	}
-
-	if( sActionString == "BPM_DECR" ){
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		int mult = 1;
-
-		bool ok;
-		mult = pAction->getParameter1().toInt(&ok,10);
-
-		Song* pSong = pEngine->getSong();
-		if (pSong->__bpm  > 40 ) {
-			pEngine->setBPM( pSong->__bpm - 1*mult );
-		}
-		AudioEngine::get_instance()->unlock();
-
-		return true;
-	}
-
-	if( sActionString == ">>_NEXT_BAR"){
-		pEngine->setPatternPos(pEngine->getPatternPos() +1 );
-		pEngine->setTimelineBpm();
-		return true;
-	}
-
-	if( sActionString == "<<_PREVIOUS_BAR"){
-		pEngine->setPatternPos(pEngine->getPatternPos() -1 );
-		pEngine->setTimelineBpm();
-		return true;
-	}
-
-	if( sActionString == "PLAYLIST_SONG"){
-		bool ok;
-		int songnumber = pAction->getParameter2().toInt(&ok,10);
-		return setSong( songnumber );
-	}
-
-	if( sActionString == "PLAYLIST_NEXT_SONG"){
-		int songnumber = Playlist::get_instance()->getActiveSongNumber();
-		return setSong( ++songnumber );
-	}
-
-	if( sActionString == "PLAYLIST_PREV_SONG"){
-		int songnumber = Playlist::get_instance()->getActiveSongNumber();
-		return setSong( --songnumber );
-	}
-
-	if( sActionString == "RECORD_READY"){
-		if ( pEngine->getState() != STATE_PLAYING ) {
-			if (!Preferences::get_instance()->getRecordEvents()) {
-				Preferences::get_instance()->setRecordEvents(true);
-			}
-			else {
-				Preferences::get_instance()->setRecordEvents(false);
-			}
-		}
-		return true;
-	}
-	if( sActionString == "RECORD/STROBE_TOGGLE"){
-		if (!Preferences::get_instance()->getRecordEvents()) {
-			Preferences::get_instance()->setRecordEvents(true);
-		}
-		else {
-			Preferences::get_instance()->setRecordEvents(false);
-		}
-		return true;
-	}
-
-	if( sActionString == "RECORD_STROBE"){
-
-		if (!Preferences::get_instance()->getRecordEvents()) {
-			Preferences::get_instance()->setRecordEvents(true);
-		}
-		return true;
-	}
-
-	if( sActionString == "RECORD_EXIT"){
-
-		if (Preferences::get_instance()->getRecordEvents()) {
-			Preferences::get_instance()->setRecordEvents(false);
-		}
-		return true;
-	}
-
-	if( sActionString == "TOGGLE_METRONOME"){
-
-		Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
-		return true;
-	}
-
-	if( sActionString == "UNDO_ACTION"){
-		EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
-		return true;
-	}
-
-	if( sActionString == "REDO_ACTION"){
-		EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
-		return true;
-	}
 	return false;
 }
