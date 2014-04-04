@@ -819,38 +819,39 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 
 void SampleEditor::checkRatioSettings()
 {
-        //calculate ration
-        double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
-        double induration = (double) m_pslframes / (double) m_pSamplerate;
-		if (induration != 0.0) m_pRatio = durationtime / induration;
+	//calculate ratio
+	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
+	double induration = (double) m_pslframes / (double) m_pSamplerate;
+	if (induration != 0.0) m_pRatio = durationtime / induration;
 
-        //my personal ratio quality settings
-        //ratios < 0.1 || > 3.0 are bad (red) or experimental sounds
-        //ratios > 0.1 - 0.5 || > 2.0 are middle (yellow)
-        //ratios < 0.5 || < 2.0 are good (green)
+	//my personal ratio quality settings
+	//ratios < 0.1 || > 3.0 are bad (red) or experimental sounds
+	//ratios > 0.1 && < 0.5 || > 2.0 && < 3.0 are mediocre (yellow)
+	//ratios > 0.5 && < 2.0 are good (green)
+	//
+	//         0.1        0.5               2.0            3.0
+	//<---red---[--yellow--[------green------]----yellow----]---red--->
 
-        bool is_green = false;
-        //green ratio
-		if( (m_pRatio >= 0.5) && (m_pRatio <= 2.0) ){
-            rubberComboBox->setStyleSheet("QComboBox { background-color: green; }");
-            is_green = true;
-        }
-        //yellow ratio
-		if( ( (m_pRatio > 0.1) || ( m_pRatio <=  3.0 ) )&& (!is_green)){
-            rubberComboBox->setStyleSheet("QComboBox { background-color: yellow; }");
-        }
-        //red ratio
-		if( ( m_pRatio <= 0.1 ) || ( m_pRatio > 3.0 ) && (!is_green) ){
-            rubberComboBox->setStyleSheet("QComboBox { background-color: red; }");
-        }
-		QString text = QString( " RB-Ratio = %1").arg(m_pRatio);
-        ratiolabel->setText( text );
+	//green ratio
+	if( ( m_pRatio >= 0.5 ) && ( m_pRatio <= 2.0 ) ){
+		rubberComboBox->setStyleSheet("QComboBox { background-color: green; }");
+	}
+	//yellow ratio
+	else if( ( m_pRatio >= 0.1 ) && ( m_pRatio <=  3.0 ) ){
+		rubberComboBox->setStyleSheet("QComboBox { background-color: yellow; }");
+	}
+	//red ratio
+	else{
+		rubberComboBox->setStyleSheet("QComboBox { background-color: red; }");
+	}
+	QString text = QString( " RB-Ratio = %1").arg(m_pRatio);
+	ratiolabel->setText( text );
 
-        //no rubberband = default
-        if( !__rubberband.use ){
-            rubberComboBox->setStyleSheet("QComboBox { background-color: 58, 62, 72; }");
-            ratiolabel->setText( "" );
-        }
+	//no rubberband = default
+	if( !__rubberband.use ){
+		rubberComboBox->setStyleSheet("QComboBox { background-color: 58, 62, 72; }");
+		ratiolabel->setText( "" );
+	}
 }
 
 
