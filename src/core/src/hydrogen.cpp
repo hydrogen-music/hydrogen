@@ -464,6 +464,12 @@ inline void audioEngine_process_checkBPMChanged()
 	if ( ( m_audioEngineState == STATE_READY )
 		 || ( m_audioEngineState == STATE_PLAYING ) )
 	{
+		if ( m_pAudioDriver->m_transport.m_nFrames == 0 )
+		{
+			//Without this check, we would devide 0 by X later..
+			return;
+		}
+
 		float fNewTickSize =
 				m_pAudioDriver->getSampleRate() * 60.0 / pSong->__bpm / pSong->__resolution;
 
@@ -475,7 +481,9 @@ inline void audioEngine_process_checkBPMChanged()
 			m_pAudioDriver->m_transport.m_nTickSize = fNewTickSize;
 
 			if ( m_pAudioDriver->m_transport.m_nTickSize == 0 )
+			{
 				return;
+			}
 
 			___WARNINGLOG( "Tempo change: Recomputing ticksize and frame position" );
 			long long nNewFrames = ( long long )( ceil(fTickNumber) * fNewTickSize );
