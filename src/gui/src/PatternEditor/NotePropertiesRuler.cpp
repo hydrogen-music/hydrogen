@@ -72,7 +72,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
-//m_pBackground->load("/patternEditor/Klaviaturklein.png");
 	updateEditor();
 	show();
 
@@ -125,8 +124,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
-    const Pattern::notes_t* notes = m_pPattern->get_notes();
-    FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 		Note *pNote = it->second;
 		assert( pNote );
 		assert( (int)pNote->get_position() == column );
@@ -249,8 +248,8 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	__nSelectedInstrument = nSelectedInstrument;
 	__undoColumn = 	column;
 
-    const Pattern::notes_t* notes = m_pPattern->get_notes();
-    FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 		Note *pNote = it->second;
 		assert( pNote );
 		assert( (int)pNote->get_position() == column );
@@ -263,7 +262,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			__mode = "VELOCITY";
 
 		}
-                else if ( m_mode == PAN && !pNote->get_note_off() ){
+		else if ( m_mode == PAN && !pNote->get_note_off() ){
 
 			__oldPan_L = pNote->get_pan_l();
 			__oldPan_R = pNote->get_pan_r();
@@ -330,8 +329,8 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = (Hydrogen::get_instance())->getSong();
 
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 			Note *pNote = it->second;
 			assert( pNote );
 			assert( (int)pNote->get_position() == column );
@@ -348,7 +347,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				sprintf( valueChar, "%#.2f",  val);
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 			}
-                        else if ( m_mode == PAN && !pNote->get_note_off() ){
+			else if ( m_mode == PAN && !pNote->get_note_off() ){
 				float pan_L, pan_R;
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					val = 0.5;
@@ -402,15 +401,15 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				} else {
 					//set the note hight
 					//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
-                    int k = 666;
-                    int o = 666;
-                    if(keyval >=6 && keyval<=125) {
-                        k = (keyval-6)/10;
-                    } else if(keyval>=135 && keyval<=205) {
-                        o = (keyval-166)/10;
-                        if(o==-4) o=-3; // 135
-                    }
-                    pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
+					int k = 666;
+					int o = 666;
+					if(keyval >=6 && keyval<=125) {
+						k = (keyval-6)/10;
+					} else if(keyval>=135 && keyval<=205) {
+						o = (keyval-166)/10;
+						if(o==-4) o=-3; // 135
+					}
+					pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
 
 					__octaveKeyVal = pNote->get_octave();
 					__noteKeyVal = pNote->get_key();
@@ -597,13 +596,13 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-            FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
@@ -754,15 +753,15 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-            FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-                                if ( pNote->get_note_off() || pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_note_off() || pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
 				}
 				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
@@ -913,13 +912,13 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-            FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
@@ -1108,18 +1107,18 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
-                uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
-                uint y_pos = (4-pNote->get_octave())*10-3;
-                p.setBrush(QColor( 99, 160, 233 ));
-                p.drawEllipse( x_pos, y_pos, 6, 6);
+				uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
+				uint y_pos = (4-pNote->get_octave())*10-3;
+				p.setBrush(QColor( 99, 160, 233 ));
+				p.drawEllipse( x_pos, y_pos, 6, 6);
 			}
 		}
 	}
@@ -1128,8 +1127,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
-        const Pattern::notes_t* notes = m_pPattern->get_notes();
-        FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
@@ -1137,28 +1136,28 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			}
 
 			if ( !pNote->get_note_off() ) {
-                int d = 6;
-                int k = pNote->get_key();
-                uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
-                uint y_pos = 200-(k*10)-3;
-                if(k<5) {
-                    if(!(k&0x01)) {
-                        x_pos-=1;
-                        y_pos-=1;
-                        d+=2;
-                    }
-                } else {
-                    if(k&0x01) {
-                        x_pos-=1;
-                        y_pos-=1;
-                        d+=2;
-                    }
-                }
-                p.setBrush(QColor( 0, 0, 0));
-                p.drawEllipse( x_pos, y_pos, d, d);
+				int d = 6;
+				int k = pNote->get_key();
+				uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
+				uint y_pos = 200-(k*10)-3;
+				if(k<5) {
+					if(!(k&0x01)) {
+						x_pos-=1;
+						y_pos-=1;
+						d+=2;
+					}
+				} else {
+					if(k&0x01) {
+						x_pos-=1;
+						y_pos-=1;
+						d+=2;
+					}
+				}
+				p.setBrush(QColor( 0, 0, 0));
+				p.drawEllipse( x_pos, y_pos, d, d);
 			}
 		}
-	}	
+	}
 }
 
 
