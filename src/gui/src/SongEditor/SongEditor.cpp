@@ -53,6 +53,10 @@ using namespace H2Core;
 #include "../VirtualPatternDialog.h"
 #include <hydrogen/LocalFileMng.h>
 
+#ifdef WIN32
+#include <time.h>
+#include <windows.h>
+#endif
 
 using namespace std;
 
