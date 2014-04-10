@@ -23,7 +23,7 @@
 #include "hydrogen/config.h"
 
 #ifdef WIN32
-#    include "hydrogen/timeHelper.h"
+#    include "hydrogen/timehelper.h"
 #else
 #    include <unistd.h>
 #    include <sys/time.h>
