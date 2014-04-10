@@ -36,6 +36,9 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#ifdef WIN32
+#include <time.h>
+#endif
 using namespace H2Core;
 using namespace std;
 
