@@ -775,7 +775,16 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	audioEngine_process_clearAudioBuffers( nframes );
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	/*
+	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
+	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
+	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
+	 * audio processing.
+	 */
+
+	if(!AudioEngine::get_instance()->try_lock( RIGHT_HERE )){
+		return 0;
+	}
 
 	if ( m_audioEngineState < STATE_READY) {
 		AudioEngine::get_instance()->unlock();
