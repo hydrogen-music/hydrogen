@@ -140,7 +140,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	PixmapWidget *pRec = new PixmapWidget( NULL );
-    pRec->setFixedSize( 158, 20 );
+	pRec->setFixedSize( 158, 20 );
 	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
 	pRec->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pRec );
@@ -169,22 +169,22 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			QSize(15, 13)
 	);
 	quantizeEventsBtn->move( 90, 3 );
-    quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
+	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
 	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
 
-    // Editor mode
-    __show_drum_btn = new ToggleButton(
-            pRec,
-            "/patternEditor/btn_drum_piano_on.png",
-            "/patternEditor/btn_drum_piano_off.png",
-            "/patternEditor/btn_drum_piano_off.png",
-            QSize(17, 13)
-    );
-    __show_drum_btn->move( 137, 3 );
-    __show_drum_btn->setPressed( false );
-    __show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
-    connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
+	// Editor mode
+	__show_drum_btn = new ToggleButton(
+				pRec,
+				"/patternEditor/btn_drum_piano_on.png",
+				"/patternEditor/btn_drum_piano_off.png",
+				"/patternEditor/btn_drum_piano_off.png",
+				QSize(17, 13)
+				);
+	__show_drum_btn->move( 137, 3 );
+	__show_drum_btn->setPressed( false );
+	__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 
 	__recpredelete = new QComboBox( NULL );
 	__recpredelete->setFixedSize( 130, 20 );
@@ -565,8 +565,6 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 	// piano roll Editor
 	m_pPianoRollScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
-//	m_pPianoRollScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
-
 
 	// Ruler
 	m_pRulerScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
@@ -711,7 +709,7 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
 
-        pScrollArea = m_pEditorScrollView;
+	pScrollArea = m_pEditorScrollView;
 
 	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
 	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
@@ -756,7 +754,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 {
 	UNUSED( ref );
-    if ( !__show_drum_btn->isPressed() ){
+	if ( !__show_drum_btn->isPressed() ){
 		__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
 		m_pPianoRollScrollView->hide();
 		m_pEditorScrollView->show();
@@ -769,7 +767,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 
 	}
 	else
-    {
+	{
 		__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
 		m_pPianoRollScrollView->show();
 		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
