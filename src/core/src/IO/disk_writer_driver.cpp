@@ -31,6 +31,18 @@
 #include <pthread.h>
 #include <cassert>
 
+#ifdef WIN32
+#include <windows.h>
+/*
+ * In Windows the unistd function sleep( seconds ) is not available.
+ * Treat sleep( SECONDS ) as a macro that uses SleepEx.
+ * Convert seconds to milliseconds for the first argument of SleepEx.
+ * Use false for the second argument of SleepEx.
+ * This way SleepEx always returns 0, after the specified time has passed.
+ */
+#define sleep( SECONDS ) SleepEx( SECONDS * 1000, false )
+#endif
+
 namespace H2Core
 {
 

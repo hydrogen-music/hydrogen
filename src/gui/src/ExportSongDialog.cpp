@@ -46,6 +46,10 @@
 
 #include <memory>
 
+#ifdef WIN32
+#include <time.h>
+#endif
+
 using namespace H2Core;
 
 const char* ExportSongDialog::__class_name = "ExportSongDialog";
