@@ -774,6 +774,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pEditorScrollView->show();
 		m_pInstrListScrollView->show();
 	
+		m_pPianoRollEditor->selectedPatternChangedEvent();
 		m_pPianoRollEditor->updateEditor(); // force an update	
 		// force a re-sync of extern scrollbars
 		resizeEvent( NULL );
