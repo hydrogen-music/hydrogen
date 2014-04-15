@@ -177,7 +177,7 @@ void Sampler::note_on( Note *note )
 	pInstr->enqueue();
 	if( !note->get_note_off() ){
 		__playing_notes_queue.push_back( note );
-	} 
+	}
 }
 
 void Sampler::midi_keyboard_note_off( int key )
@@ -905,7 +905,6 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 
 bool Sampler::is_instrument_playing( Instrument* instrument )
 {
-
 	if ( instrument ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
 			if ( instrument->get_name() == __playing_notes_queue[ j ]->get_instrument()->get_name()){
@@ -913,6 +912,7 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 			}
 		}
 	}
+	return false;
 }
 
 };
