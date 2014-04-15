@@ -1329,7 +1329,7 @@ void SongEditorPatternList::patternPopup_properties()
 	H2Core::Pattern *pattern = patternList->get( nSelectedPattern );
 
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, nSelectedPattern, false);
-	if ( dialog->exec() == QDialog::Accepted );
+	dialog->exec();
 	delete dialog;
 	dialog = NULL;
 }
