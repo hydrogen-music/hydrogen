@@ -3275,8 +3275,10 @@ void Hydrogen::setNewBpmJTM( float bpmJTM )
 
 void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
 {
-	if ( ( m_audioEngineState == STATE_PLAYING ) )
+	if ( m_audioEngineState == STATE_PLAYING )
+	{
 		m_nHumantimeFrames = nFrames + m_nHumantimeFrames;
+	}
 }
 
 //~ jack transport master
