@@ -166,7 +166,7 @@ QString LocalFileMng::copyInstrumentLineToString(Song *song, int selectedPattern
 {
 	Instrument *instr = song->get_instrument_list()->get( selectedInstrument );
 	assert( instr );
-	
+
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
 	doc.appendChild( header );
@@ -176,7 +176,7 @@ QString LocalFileMng::copyInstrumentLineToString(Song *song, int selectedPattern
 	//writeXmlString( &rootNode, "LIB_ID", "in_work" );
 	writeXmlString( rootNode, "author", song->get_author() );
 	writeXmlString( rootNode, "license", song->get_license() );
-	
+
 	QDomNode patternList = doc.createElement( "patternList" );
 
 	unsigned nPatterns = song->get_pattern_list()->size();
@@ -184,7 +184,7 @@ QString LocalFileMng::copyInstrumentLineToString(Song *song, int selectedPattern
 	{
 		if ((selectedPattern >= 0) && (selectedPattern != i))
 			continue;
-		
+
 		// Export pattern
 		Pattern *pat = song->get_pattern_list()->get( i );
 
@@ -229,11 +229,11 @@ QString LocalFileMng::copyInstrumentLineToString(Song *song, int selectedPattern
 
 		patternList.appendChild( patternNode );
 	}
-	
+
 	rootNode.appendChild(patternList);
-	
+
 	doc.appendChild( rootNode );
-	
+
 	// Serialize document & return
 	return doc.toString();
 }
@@ -243,18 +243,18 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 	QDomDocument doc;
 	if (!doc.setContent(serialized))
 		return false;
-	
+
 	// Get current instrument
 	Instrument *instr = song->get_instrument_list()->get( selectedInstrument );
 	assert( instr );
-	
+
 	// Get pattern list
 	PatternList *pList = song->get_pattern_list();
 	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : NULL;
-	
+
 	// Check if document has correct structure
 	QDomNode rootNode = doc.firstChildElement( "instrument_line" );	// root element
-	
+
 	if ( rootNode.isNull() )
 	{
 		ERRORLOG( "Error pasting Clipboard:Instrument_line_info node not found ");
@@ -271,17 +271,17 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 	bool is_single = true;
 	if (!patternNode.isNull())
 		is_single = (( QDomNode )patternNode.nextSiblingElement( "pattern" )).isNull();
-	
+
 	while (!patternNode.isNull())
 	{
 		QString patternName(readXmlString(patternNode, "pattern_name", ""));
-		
+
 		// Check if pattern name specified
 		if (patternName.length() > 0)
 		{
 			// Try to find pattern by name
 			Pattern* pat = pList->find(patternName);
-			
+
 			// If OK - check if need to add this pattern to result
 			// If there is only one pattern, we always add it to list
 			// If there is no selected pattern, we add all existing patterns to list (match by name)
@@ -295,13 +295,13 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 				sCategory = LocalFileMng::readXmlString(patternNode, "category", sCategory, false, false);
 				int nSize = -1;
 				nSize = LocalFileMng::readXmlInt(patternNode, "size", nSize, false, false);
-				
+
 				// Change name of pattern to selected pattern
 				if (pSelected != NULL)
 					patternName = pSelected->get_name();
 
 				pat = new Pattern( patternName, sInfo, sCategory, nSize );
-				
+
 				// Parse pattern data
 				QDomNode pNoteListNode = patternNode.firstChildElement( "noteList" );
 				if ( ! pNoteListNode.isNull() )
@@ -333,15 +333,15 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 						noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
 					}
 				}
-				
+
 				// Add loaded pattern to apply-list
 				patterns.push_back(pat);
 			}
 		}
-		
+
 		patternNode = ( QDomNode ) patternNode.nextSiblingElement( "pattern" );
 	}
-	
+
 	return true;
 }
 
@@ -833,7 +833,7 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 {
 	std::string playlistInfoFile = filename;
 	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
-	if ( verify == NULL ) {
+	if ( verify ) {
 		return 1;
 	}
 
