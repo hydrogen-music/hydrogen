@@ -149,16 +149,16 @@ public:
 		NO_JACK_TIME_MASTER = 1,
 		PRE_FADER = 1,
 		SET_PLAY_OFF = 1,
-				BC_OFF = 1
+		BC_OFF = 1
 	};
 
 
-		enum UI_LAYOUT_TYPES {
-				UI_LAYOUT_SINGLE_PANE,
-				UI_LAYOUT_TABBED
-		};
+	enum UI_LAYOUT_TYPES {
+			UI_LAYOUT_SINGLE_PANE,
+			UI_LAYOUT_TABBED
+	};
 
-		int m_nDefaultUILayout;
+	int m_nDefaultUILayout;
 
 
 	QString m_sPreferencesFilename;
@@ -220,12 +220,12 @@ public:
 	//___  jack driver properties ___
 	QString m_sJackPortName1;
 	QString m_sJackPortName2;
-	bool m_bJackTransportMode;
+	int m_bJackTransportMode;
 	bool m_bJackConnectDefaults;
 	bool m_bJackTrackOuts;
 	int m_nJackTrackOutputMode;
 	//jack time master
-	bool m_bJackMasterMode ;
+	int m_bJackMasterMode ;
 	//~ jack time master
 	///Default text editor (used by Playlisteditor)
 	QString m_sDefaultEditor;
@@ -618,9 +618,8 @@ private:
 	QString demoPath;
 
 	//___ General properties ___
-		int __rubberBandCalcTime;
-		///rubberband bpm change queue
-		bool m_useTheRubberbandBpmChangeEvent;
+	int __rubberBandCalcTime;
+	bool m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
 	bool m_brestoreLastSong;		///< Restore last song?
 	bool m_brestoreLastPlaylist;
@@ -645,8 +644,9 @@ private:
 		QString jackSessionUUID;
 		QString jackSessionApplicationPath;
 #endif
-		bool waitingForSessionHandler;
-		bool __useTimelineBpm;
+
+	bool waitingForSessionHandler;
+	bool __useTimelineBpm;
 
 	//___ GUI properties ___
 	QString m_sQTStyle;
