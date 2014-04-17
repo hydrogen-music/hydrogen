@@ -31,7 +31,6 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <zorder>rubberbandLabel</zorder>
   </widget>
   <widget class="QPushButton" name="ClosePushButton">
    <property name="geometry">
@@ -46,7 +45,7 @@
     <string>&amp;Close</string>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="layoutWidget_1">
    <property name="geometry">
     <rect>
      <x>14</x>
@@ -308,7 +307,7 @@ p, li { white-space: pre-wrap; }
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="layoutWidget_3">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -684,7 +683,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="layoutWidget_4">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -787,9 +786,9 @@ p, li { white-space: pre-wrap; }
   </widget>
   <zorder>targetSampleView</zorder>
   <zorder>ClosePushButton</zorder>
-  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget_1</zorder>
   <zorder>layoutWidget_2</zorder>
-  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget_3</zorder>
   <zorder>RubberbandCframe</zorder>
  </widget>
  <tabstops>
