@@ -237,6 +237,15 @@ class Instrument : public H2Core::Object
 		/** get the stop notes of the instrument */
 		bool is_stop_notes() const;
 
+		void set_hihat( bool ishihat );
+		bool is_hihat() const;
+
+		void set_lower_cc( int message );
+		int get_lower_cc() const;
+
+		void set_higher_cc( int message );
+		int get_higher_cc() const;
+
 		///< set the name of the related drumkit
 		void set_drumkit_name( const QString& name );
 		///< get the name of the related drumkits
@@ -268,6 +277,9 @@ class Instrument : public H2Core::Object
 		int __queued;                           ///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
 		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
 		InstrumentLayer* __layers[MAX_LAYERS];  ///< InstrumentLayer array
+		bool __hihat;                           ///< the instrument is a hihat
+		int __lower_cc;                         ///< lower cc level
+        int __higher_cc;                        ///< higher cc level
 };
 
 // DEFINITIONS
@@ -504,6 +516,36 @@ inline void Instrument::set_stop_notes( bool stopnotes )
 inline bool Instrument::is_stop_notes() const
 {
 	return __stop_notes;
+}
+
+inline void Instrument::set_hihat( bool ishihat )
+{
+    __hihat = ishihat;
+}
+
+inline bool Instrument::is_hihat() const
+{
+    return __hihat;
+}
+
+inline void Instrument::set_lower_cc( int message )
+{
+    __lower_cc = message;
+}
+
+inline int Instrument::get_lower_cc() const
+{
+    return __lower_cc;
+}
+
+inline void Instrument::set_higher_cc( int message )
+{
+    __higher_cc = message;
+}
+
+inline int Instrument::get_higher_cc() const
+{
+    return __higher_cc;
 }
 
 inline InstrumentLayer* Instrument::operator[]( int idx )
