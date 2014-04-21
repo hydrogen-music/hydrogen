@@ -101,20 +101,58 @@ void CoreAudioDriver::retrieveBufferSize(void)
 	UInt32 dataSize = 0;
 	OSStatus err = 0;
 
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyBufferFrameSize,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
 	dataSize = sizeof( m_nBufferSize );
-	err = AudioDeviceGetProperty(
-			m_outputDevice,
-			0,
-			false,
-			kAudioDevicePropertyBufferFrameSize,
-			&dataSize,
-			( void * )&m_nBufferSize
-		  );
+
+	err = AudioObjectGetPropertyData(m_outputDevice,
+							&propertyAddress,
+							0,
+							NULL,
+							&dataSize,
+							( void * )&m_nBufferSize
+						);
 
 	if ( err != noErr ) {
 		ERRORLOG( "get BufferSize error" );
 	}
 	INFOLOG( QString( "Buffersize: %1" ).arg( m_nBufferSize ) );
+}
+
+void CoreAudioDriver::printStreamInfo(void)
+{
+	AudioStreamBasicDescription outputStreamBasicDescription;
+	UInt32 propertySize = sizeof( outputStreamBasicDescription );
+	OSStatus err = 0;
+
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyStreamFormat,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
+	err = AudioObjectGetPropertyData(m_outputDevice,
+							&propertyAddress,
+							0,
+							NULL,
+							&propertySize,
+							&outputStreamBasicDescription
+						);
+
+	if ( err ) {
+		ERRORLOG( QString("AudioDeviceGetProperty: returned %1 when getting kAudioDevicePropertyStreamFormat").arg(err) );
+	}
+
+	INFOLOG( QString("SampleRate: %1").arg( outputStreamBasicDescription.mSampleRate ) );
+	INFOLOG( QString("BytesPerPacket: %1").arg( outputStreamBasicDescription.mBytesPerPacket ) );
+	INFOLOG( QString("FramesPerPacket: %1").arg( outputStreamBasicDescription.mFramesPerPacket ) );
+	INFOLOG( QString("BytesPerFrame: %1").arg( outputStreamBasicDescription.mBytesPerFrame ) );
+	INFOLOG( QString("ChannelsPerFrame: %1").arg( outputStreamBasicDescription.mChannelsPerFrame ) );
+	INFOLOG( QString("BitsPerChannel: %1").arg( outputStreamBasicDescription.mBitsPerChannel ) );
 }
 
 
@@ -135,19 +173,7 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 	retrieveBufferSize();
 
 	// print some info
-	AudioStreamBasicDescription outputStreamBasicDescription;
-	UInt32 propertySize = sizeof( outputStreamBasicDescription );
-	OSStatus err = AudioDeviceGetProperty( m_outputDevice, 0, 0, kAudioDevicePropertyStreamFormat, &propertySize, &outputStreamBasicDescription );
-	if ( err ) {
-		ERRORLOG( QString("AudioDeviceGetProperty: returned %1 when getting kAudioDevicePropertyStreamFormat").arg(err) );
-	}
-
-	INFOLOG( QString("SampleRate: %1").arg( outputStreamBasicDescription.mSampleRate ) );
-	INFOLOG( QString("BytesPerPacket: %1").arg( outputStreamBasicDescription.mBytesPerPacket ) );
-	INFOLOG( QString("FramesPerPacket: %1").arg( outputStreamBasicDescription.mFramesPerPacket ) );
-	INFOLOG( QString("BytesPerFrame: %1").arg( outputStreamBasicDescription.mBytesPerFrame ) );
-	INFOLOG( QString("ChannelsPerFrame: %1").arg( outputStreamBasicDescription.mChannelsPerFrame ) );
-	INFOLOG( QString("BitsPerChannel: %1").arg( outputStreamBasicDescription.mBitsPerChannel ) );
+	printStreamInfo();
 }
 
 
