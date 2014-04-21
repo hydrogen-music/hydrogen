@@ -86,6 +86,9 @@ public:
 
 
 private:
+	void retrieveDefaultDevice(void);
+	void retrieveBufferSize(void);
+
 	bool m_bIsRunning;
 	unsigned m_nSampleRate;
 	unsigned oSampleRate;
