@@ -218,15 +218,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	}
 
 	// Get Current Output Device
-	UInt32 size = sizeof( AudioDeviceID );
-	err = AudioHardwareGetProperty(
-			  kAudioHardwarePropertyDefaultOutputDevice,
-			  &size,
-			  &m_outputDevice
-		  );
-	if ( err != noErr ) {
-		ERRORLOG( "Could not get Default Output Device" );
-	}
+	retrieveDefaultDevice();
 
 	// Set AUHAL to Current Device
 	err = AudioUnitSetProperty(
