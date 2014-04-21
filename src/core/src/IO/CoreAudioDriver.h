@@ -35,6 +35,7 @@
 #ifdef H2CORE_HAVE_COREAUDIO
 #include <AudioUnit/AudioUnit.h>
 #include <AudioToolbox/AudioToolbox.h>
+#include <AudioUnit/AudioComponent.h>
 #endif
 
 #include <hydrogen/Preferences.h>

@@ -197,8 +197,8 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	memset ( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
 
 	// Get Component
-	Component compOutput;
-	ComponentDescription descAUHAL;
+	AudioComponent compOutput;
+	AudioComponentDescription descAUHAL;
 
 	descAUHAL.componentType = kAudioUnitType_Output;
 	descAUHAL.componentSubType = kAudioUnitSubType_HALOutput;
@@ -206,13 +206,13 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	descAUHAL.componentFlags = 0;
 	descAUHAL.componentFlagsMask = 0;
 
-	compOutput = FindNextComponent( NULL, &descAUHAL );
+	compOutput = AudioComponentFindNext( NULL, &descAUHAL );
 	if ( compOutput == NULL ) {
 		ERRORLOG( "Error in FindNextComponent" );
 		//exit (-1);
 	}
 
-	err = OpenAComponent( compOutput, &m_outputUnit );
+	err = AudioComponentInstanceNew( compOutput, &m_outputUnit );
 	if ( err != noErr ) {
 		ERRORLOG( "Error Opening Component" );
 	}
@@ -309,7 +309,7 @@ void CoreAudioDriver::disconnect()
 	OSStatus err = noErr;
 	err = AudioOutputUnitStop( m_outputUnit );
 	err = AudioUnitUninitialize( m_outputUnit );
-	err = CloseComponent( m_outputUnit );
+	err = AudioComponentInstanceDispose( m_outputUnit );
 }
 
 
