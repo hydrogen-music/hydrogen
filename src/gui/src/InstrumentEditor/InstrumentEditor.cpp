@@ -239,6 +239,65 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
+	//////////////////////////
+	// HiHat setup
+
+	m_pIsHihat = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pIsHihat->move( 63, 304 );
+	m_pIsHihat->setToolTip( trUtf8( "Set the instrument as part of a hihat set." ) );
+	connect( m_pIsHihat, SIGNAL( toggled( bool ) ), this, SLOT( pIsHihatCheckBoxClicked( bool ) ) );
+
+
+	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatMinRangeLCD->move( 67, 320 );
+
+	m_pAddHihatMinRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize( 16, 8 )
+	);
+	m_pAddHihatMinRangeBtn->move( 109, 319 );
+	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
+
+	m_pDelHihatMinRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16,8)
+	);
+	m_pDelHihatMinRangeBtn->move( 109, 328 );
+	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
+
+
+	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatMaxRangeLCD->move( 160, 320 );
+
+	m_pAddHihatMaxRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize( 16, 8 )
+	);
+	m_pAddHihatMaxRangeBtn->move( 202, 319 );
+	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
+
+	m_pDelHihatMaxRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16,8)
+	);
+	m_pDelHihatMaxRangeBtn->move( 202, 328 );
+	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
+
+	//
+
+
 //~ Instrument properties
 
 
@@ -429,6 +488,13 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			sMidiOutChannel = "Off";
 		}
 		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
+
+		// hihat
+		m_pIsHihat->setChecked( m_pInstrument->is_hihat() );
+		QString sHiHatMinRange = QString("%1").arg( m_pInstrument->get_lower_cc() );
+		m_pHihatMinRangeLCD->setText( sHiHatMinRange );
+		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
+		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
 
 		//Convert note id into notation
 		{
@@ -892,4 +958,36 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 		}
 	}
 
+}
+
+void InstrumentEditor::pIsHihatCheckBoxClicked( bool on )
+{
+    assert( m_pInstrument );
+
+	m_pInstrument->set_hihat( on );
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::hihatMinRangeBtnClicked(Button *pRef)
+{
+	assert( m_pInstrument );
+
+	if ( pRef == m_pAddHihatMinRangeBtn && m_pInstrument->get_lower_cc() < 127 )
+		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() + 1 );
+	else if ( pRef == m_pDelHihatMinRangeBtn && m_pInstrument->get_lower_cc() > 0 )
+		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() - 1 );
+
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::hihatMaxRangeBtnClicked(Button *pRef)
+{
+	assert( m_pInstrument );
+
+	if ( pRef == m_pAddHihatMaxRangeBtn && m_pInstrument->get_higher_cc() < 127 )
+		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() + 1);
+	else if ( pRef == m_pDelHihatMaxRangeBtn && m_pInstrument->get_higher_cc() > 0 )
+		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() - 1);
+
+	selectedInstrumentChangedEvent();	// force an update
 }
