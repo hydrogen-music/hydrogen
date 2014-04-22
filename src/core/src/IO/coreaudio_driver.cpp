@@ -65,10 +65,96 @@ static OSStatus renderProc(
 }
 
 
+
 namespace H2Core
 {
 
 const char* CoreAudioDriver::__class_name = "CoreAudioDriver";
+
+
+void CoreAudioDriver::retrieveDefaultDevice(void)
+{
+	UInt32 dataSize = 0;
+	OSStatus err = 0;
+
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioHardwarePropertyDefaultOutputDevice,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
+	dataSize = sizeof(AudioDeviceID);
+	err = AudioObjectGetPropertyData(kAudioObjectSystemObject,
+											&propertyAddress,
+											0,
+											NULL,
+											&dataSize,
+											&m_outputDevice);
+
+	if ( err != noErr ) {
+		ERRORLOG( "Could not get Default Output Device" );
+	}
+}
+
+void CoreAudioDriver::retrieveBufferSize(void)
+{
+	UInt32 dataSize = 0;
+	OSStatus err = 0;
+
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyBufferFrameSize,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
+	dataSize = sizeof( m_nBufferSize );
+
+	err = AudioObjectGetPropertyData(m_outputDevice,
+							&propertyAddress,
+							0,
+							NULL,
+							&dataSize,
+							( void * )&m_nBufferSize
+						);
+
+	if ( err != noErr ) {
+		ERRORLOG( "get BufferSize error" );
+	}
+	INFOLOG( QString( "Buffersize: %1" ).arg( m_nBufferSize ) );
+}
+
+void CoreAudioDriver::printStreamInfo(void)
+{
+	AudioStreamBasicDescription outputStreamBasicDescription;
+	UInt32 propertySize = sizeof( outputStreamBasicDescription );
+	OSStatus err = 0;
+
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyStreamFormat,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
+	err = AudioObjectGetPropertyData(m_outputDevice,
+							&propertyAddress,
+							0,
+							NULL,
+							&propertySize,
+							&outputStreamBasicDescription
+						);
+
+	if ( err ) {
+		ERRORLOG( QString("AudioDeviceGetProperty: returned %1 when getting kAudioDevicePropertyStreamFormat").arg(err) );
+	}
+
+	INFOLOG( QString("SampleRate: %1").arg( outputStreamBasicDescription.mSampleRate ) );
+	INFOLOG( QString("BytesPerPacket: %1").arg( outputStreamBasicDescription.mBytesPerPacket ) );
+	INFOLOG( QString("FramesPerPacket: %1").arg( outputStreamBasicDescription.mFramesPerPacket ) );
+	INFOLOG( QString("BytesPerFrame: %1").arg( outputStreamBasicDescription.mBytesPerFrame ) );
+	INFOLOG( QString("ChannelsPerFrame: %1").arg( outputStreamBasicDescription.mChannelsPerFrame ) );
+	INFOLOG( QString("BitsPerChannel: %1").arg( outputStreamBasicDescription.mBitsPerChannel ) );
+}
+
 
 CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 		: H2Core::AudioOutput( __class_name )
@@ -79,51 +165,15 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 {
 	//INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
-	//  m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
-	//  BufferSize is currently set to match the default audio device.
 
-	OSStatus err;
+	//Get the default playback device and store it in m_outputDevice
+	retrieveDefaultDevice();
 
-	UInt32 size = sizeof( AudioDeviceID );
-	err = AudioHardwareGetProperty(
-			  kAudioHardwarePropertyDefaultOutputDevice,
-			  &size,
-			  &m_outputDevice
-		  );
-	if ( err != noErr ) {
-		ERRORLOG( "Could not get Default Output Device" );
-	}
-
-	UInt32 dataSize = sizeof( m_nBufferSize );
-	err = AudioDeviceGetProperty(
-			  m_outputDevice,
-			  0,
-			  false,
-			  kAudioDevicePropertyBufferFrameSize,
-			  &dataSize,
-			  ( void * )&m_nBufferSize
-		  );
-
-	if ( err != noErr ) {
-		ERRORLOG( "get BufferSize error" );
-	}
-	INFOLOG( QString( "Buffersize: %1" ).arg( m_nBufferSize ) );
-
+	//Get the buffer size of the previously detected device and store it in m_nBufferSize
+	retrieveBufferSize();
 
 	// print some info
-	AudioStreamBasicDescription outputStreamBasicDescription;
-	UInt32 propertySize = sizeof( outputStreamBasicDescription );
-	err = AudioDeviceGetProperty( m_outputDevice, 0, 0, kAudioDevicePropertyStreamFormat, &propertySize, &outputStreamBasicDescription );
-	if ( err ) {
-		printf( "AudioDeviceGetProperty: returned %d when getting kAudioDevicePropertyStreamFormat", err );
-	}
-
-	INFOLOG( QString("SampleRate: %1").arg( outputStreamBasicDescription.mSampleRate ) );
-	INFOLOG( QString("BytesPerPacket: %1").arg( outputStreamBasicDescription.mBytesPerPacket ) );
-	INFOLOG( QString("FramesPerPacket: %1").arg( outputStreamBasicDescription.mFramesPerPacket ) );
-	INFOLOG( QString("BytesPerFrame: %1").arg( outputStreamBasicDescription.mBytesPerFrame ) );
-	INFOLOG( QString("ChannelsPerFrame: %1").arg( outputStreamBasicDescription.mChannelsPerFrame ) );
-	INFOLOG( QString("BitsPerChannel: %1").arg( outputStreamBasicDescription.mBitsPerChannel ) );
+	printStreamInfo();
 }
 
 
@@ -146,9 +196,9 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	memset ( m_pOut_L, 0, m_nBufferSize * sizeof( float ) );
 	memset ( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
 
-// Get Component
-		Component compOutput;
-		ComponentDescription descAUHAL;
+	// Get Component
+	AudioComponent compOutput;
+	AudioComponentDescription descAUHAL;
 
 	descAUHAL.componentType = kAudioUnitType_Output;
 	descAUHAL.componentSubType = kAudioUnitSubType_HALOutput;
@@ -156,29 +206,21 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	descAUHAL.componentFlags = 0;
 	descAUHAL.componentFlagsMask = 0;
 
-	compOutput = FindNextComponent( NULL, &descAUHAL );
+	compOutput = AudioComponentFindNext( NULL, &descAUHAL );
 	if ( compOutput == NULL ) {
 		ERRORLOG( "Error in FindNextComponent" );
 		//exit (-1);
 	}
 
-	err = OpenAComponent( compOutput, &m_outputUnit );
+	err = AudioComponentInstanceNew( compOutput, &m_outputUnit );
 	if ( err != noErr ) {
 		ERRORLOG( "Error Opening Component" );
 	}
 
-// Get Current Output Device
-	UInt32 size = sizeof( AudioDeviceID );
-	err = AudioHardwareGetProperty(
-			  kAudioHardwarePropertyDefaultOutputDevice,
-			  &size,
-			  &m_outputDevice
-		  );
-	if ( err != noErr ) {
-		ERRORLOG( "Could not get Default Output Device" );
-	}
+	// Get Current Output Device
+	retrieveDefaultDevice();
 
-// Set AUHAL to Current Device
+	// Set AUHAL to Current Device
 	err = AudioUnitSetProperty(
 			  m_outputUnit,
 			  kAudioOutputUnitProperty_CurrentDevice,
@@ -190,18 +232,6 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	if ( err != noErr ) {
 		ERRORLOG( "Could not set Current Device" );
 	}
-
-//	UInt32 dataSize = sizeof(cBufferSize);
-
-	/*	err =   AudioDeviceGetProperty(outputDevice, 0, false, kAudioDevicePropertyBufferFrameSize,
-				&dataSize, (void *) &cBufferSize);
-				if (err != noErr ) {
-				printf( "Coud not get BufferSize" );
-				}
-				else{
-				fprintf(stderr, "%lu\n", cBufferSize);
-				}
-	*/
 
 	AudioStreamBasicDescription asbdesc;
 	asbdesc.mSampleRate = ( Float64 )m_nSampleRate;
@@ -216,13 +246,13 @@ int CoreAudioDriver::init( unsigned bufferSize )
 
 
 	err = AudioUnitSetProperty(
-			  m_outputUnit,
-			  kAudioUnitProperty_StreamFormat,
-			  kAudioUnitScope_Input,
-			  0,
-			  &asbdesc,
-			  sizeof( AudioStreamBasicDescription )
-		  );
+				m_outputUnit,
+				kAudioUnitProperty_StreamFormat,
+				kAudioUnitScope_Input,
+				0,
+				&asbdesc,
+				sizeof( AudioStreamBasicDescription )
+			);
 
 // Set Render Callback
 	AURenderCallbackStruct out;
@@ -230,18 +260,18 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	out.inputProcRefCon = ( void * )this;
 
 	err = AudioUnitSetProperty(
-			  m_outputUnit,
-			  kAudioUnitProperty_SetRenderCallback,
-			  kAudioUnitScope_Global,
-			  0,
-			  &out,
-			  sizeof( out )
-		  );
+				m_outputUnit,
+				kAudioUnitProperty_SetRenderCallback,
+				kAudioUnitScope_Global,
+				0,
+				&out,
+				sizeof( out )
+			);
 	if ( err != noErr ) {
 		ERRORLOG( "Could not Set Render Callback" );
 	}
 
-//Initialize AUHAL
+	//Initialize AUHAL
 	err = AudioUnitInitialize( m_outputUnit );
 	if ( err != noErr ) {
 		ERRORLOG( "Could not Initialize AudioUnit" );
@@ -271,7 +301,7 @@ void CoreAudioDriver::disconnect()
 	OSStatus err = noErr;
 	err = AudioOutputUnitStop( m_outputUnit );
 	err = AudioUnitUninitialize( m_outputUnit );
-	err = CloseComponent( m_outputUnit );
+	err = AudioComponentInstanceDispose( m_outputUnit );
 }
 
 
