@@ -93,11 +93,14 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::NOTE_OFF:
-				handleNoteOffMessage( msg );
+				handleNoteOffMessage( msg, false );
 				break;
 
 		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-				ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
+				//ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
+				INFOLOG( QString( "[handleMidiMessage] POLYPHONIC_KEY_PRESSURE Parameter: %1, Value: %2")
+					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
+				handlePolyphonicKeyPressureMessage( msg );
 				break;
 
 		case MidiMessage::CONTROL_CHANGE:
@@ -206,7 +209,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	float fVelocity = msg.m_nData2 / 127.0;
 
 	if ( fVelocity == 0 ) {
-		handleNoteOffMessage( msg );
+		handleNoteOffMessage( msg, false );
 		return;
 	}
 
@@ -283,12 +286,21 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
 }
 
+/*
+    EDrums (at least Roland TD-6V) uses PolyphonicKeyPressure
+    for cymbal choke.
+    If the message is 127 (choked) we send a NoteOff
+*/
+void MidiInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg )
+{
+    if( msg.m_nData2 == 127 )
+        handleNoteOffMessage( msg, true );
+}
 
-
-void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
+void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 {
 //	INFOLOG( "handleNoteOffMessage" );
-	if ( Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
+	if ( !CymbalChoke && Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
 
