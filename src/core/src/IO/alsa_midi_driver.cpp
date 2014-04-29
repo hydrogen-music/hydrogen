@@ -250,6 +250,13 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 				msg.m_nChannel = ev->data.control.channel;
 				break;
 
+			case SND_SEQ_EVENT_KEYPRESS:
+				msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
+				msg.m_nData1 = ev->data.note.note;
+				msg.m_nData2 = ev->data.note.velocity;
+				msg.m_nChannel = ev->data.control.channel;
+				break;
+
 			case SND_SEQ_EVENT_SYSEX: {
 				msg.m_type = MidiMessage::SYSEX;
 				snd_midi_event_t *seq_midi_parser;
