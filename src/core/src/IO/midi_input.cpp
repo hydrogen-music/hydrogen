@@ -232,8 +232,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		pEngine->sequencer_setNextPattern( patternNumber, false, false );
 
 	} else {
-		static const float fPan_L = 1.0f;
-		static const float fPan_R = 1.0f;
+		static const float fPan_L = 0.5f;
+		static const float fPan_R = 0.5f;
 
 		int nInstrument = nNote - 36;
 		if ( nInstrument < 0 ) {
