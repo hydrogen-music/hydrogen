@@ -1387,8 +1387,8 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			Hydrogen* engine = Hydrogen::get_instance();
 
 			float velocity = 0.8;
-			float pan_L = 1.0;
-			float pan_R = 1.0;
+			float pan_L = 0.5f;
+			float pan_R = 0.5f;
 
 			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, NULL, NULL , row + 36);
 

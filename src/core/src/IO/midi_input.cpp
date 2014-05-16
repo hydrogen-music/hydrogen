@@ -52,10 +52,10 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-//	infoLog( "[handleMidiMessage]" );
-//	infoLog( "[handleMidiMessage] channel: " + to_string( msg.m_nChannel ) );
-//	infoLog( "[handleMidiMessage] val1: " + to_string( msg.m_nData1 ) );
-//	infoLog( "[handleMidiMessage] val2: " + to_string( msg.m_nData2 ) );
+		INFOLOG( "[start of handleMidiMessage]" );
+		INFOLOG( QString("[handleMidiMessage] channel: %1").arg(msg.m_nChannel) );
+		INFOLOG( QString("[handleMidiMessage] val1: %1").arg( msg.m_nData1 ) );
+		INFOLOG( QString("[handleMidiMessage] val2: %1").arg( msg.m_nData2 ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
@@ -88,10 +88,12 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::NOTE_ON:
+				INFOLOG("This is a NOTE ON message.");
 				handleNoteOnMessage( msg );
 				break;
 
 		case MidiMessage::NOTE_OFF:
+				INFOLOG("This is a NOTE OFF message.");
 				handleNoteOffMessage( msg, false );
 				break;
 
@@ -163,6 +165,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		default:
 				ERRORLOG( QString( "unhandled midi message type: %1" ).arg( msg.m_type ) );
 		}
+		INFOLOG("[end of handleMidiMessage]");
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
@@ -232,8 +235,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		pEngine->sequencer_setNextPattern( patternNumber, false, false );
 
 	} else {
-		static const float fPan_L = 1.0f;
-		static const float fPan_R = 1.0f;
+		static const float fPan_L = 0.5f;
+		static const float fPan_R = 0.5f;
 
 		int nInstrument = nNote - 36;
 		if ( nInstrument < 0 ) {
