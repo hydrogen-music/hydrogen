@@ -42,8 +42,8 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __instrument_id( 0 ),
 	  __position( position ),
 	  __velocity( velocity ),
-	  __pan_l( pan_l ),
-	  __pan_r( pan_r ),
+	  __pan_l( PAN_MAX ),
+	  __pan_r( PAN_MAX ),
 	  __length( length ),
 	  __pitch( pitch ),
 	  __key( C ),
@@ -67,6 +67,9 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 	}
+
+	set_pan_l(pan_l);
+	set_pan_r(pan_r);
 }
 
 Note::Note( Note* other, Instrument* instrument )
