@@ -1071,12 +1071,6 @@ void audioEngine_removeSong()
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
-	//sleep( 1 );
-
 	audioEngine_clearNoteQueue();
 
 	// change the current audio engine state
@@ -1914,6 +1908,11 @@ void Hydrogen::setSong( Song *pSong )
 		/* NOTE: this is actually some kind of cleanup */
 		removeSong();
 	}
+
+	/* Reset GUI */
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 	audioEngine_setSong ( pSong );
 
