@@ -448,7 +448,7 @@ inline void audioEngine_process_checkBPMChanged()
 	// update tick size in transport class
 	m_pAudioDriver->m_transport.m_nTickSize = fNewTickSize;
 
-	if ( fNewTickSize == 0 )
+	if ( fNewTickSize == 0 || fOldTickSize == 0 )
 		return;
 
 	___WARNINGLOG( "Tempo change: Recomputing ticksize and frame position" );
