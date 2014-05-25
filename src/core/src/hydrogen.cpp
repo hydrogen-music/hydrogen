@@ -431,42 +431,40 @@ void audioEngine_stop( bool bLockEngine )
 //
 inline void audioEngine_process_checkBPMChanged()
 {
+	if ( m_audioEngineState != STATE_READY
+	  && m_audioEngineState != STATE_PLAYING
+	) return;
+
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
-	if ( ( m_audioEngineState == STATE_READY )
-		 || ( m_audioEngineState == STATE_PLAYING ) )
-	{
-		float fNewTickSize =
-				m_pAudioDriver->getSampleRate() * 60.0 / pSong->__bpm / pSong->__resolution;
+	float fOldTickSize = m_pAudioDriver->m_transport.m_nTickSize;
+	float fNewTickSize = m_pAudioDriver->getSampleRate() * 60.0 / pSong->__bpm / pSong->__resolution;
 
-		if ( fNewTickSize != m_pAudioDriver->m_transport.m_nTickSize ) {
-			// cerco di convertire ...
-			float fTickNumber = ( float ) m_pAudioDriver->m_transport.m_nFrames;
-			fTickNumber /= ( float ) m_pAudioDriver->m_transport.m_nTickSize;
+	// Nothing changed - avoid recomputing
+	if ( fNewTickSize == fOldTickSize )
+		return;
 
-			m_pAudioDriver->m_transport.m_nTickSize = fNewTickSize;
+	// update tick size in transport class
+	m_pAudioDriver->m_transport.m_nTickSize = fNewTickSize;
 
-			if ( m_pAudioDriver->m_transport.m_nTickSize == 0 )
-			{
-				return;
-			}
+	if ( fNewTickSize == 0 )
+		return;
 
-			___WARNINGLOG( "Tempo change: Recomputing ticksize and frame position" );
-			long long nNewFrames = ( long long )( ceil(fTickNumber) * fNewTickSize );
-			// update frame position
-			m_pAudioDriver->m_transport.m_nFrames = nNewFrames;
+	___WARNINGLOG( "Tempo change: Recomputing ticksize and frame position" );
+	float fTickNumber = m_pAudioDriver->m_transport.m_nFrames / fOldTickSize;
+
+	// update frame position in transport class
+	m_pAudioDriver->m_transport.m_nFrames = ceil(fTickNumber) * fNewTickSize;
 
 #ifdef H2CORE_HAVE_JACK
-			if ( JackOutput::class_name() == m_pAudioDriver->class_name()
-				 && m_audioEngineState == STATE_PLAYING )
-			{
-				static_cast< JackOutput* >( m_pAudioDriver )->calculateFrameOffset();
-			}
-#endif
-			EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
-		}
+	if ( JackOutput::class_name() == m_pAudioDriver->class_name()
+		&& m_audioEngineState == STATE_PLAYING )
+	{
+		static_cast< JackOutput* >( m_pAudioDriver )->calculateFrameOffset();
 	}
+#endif
+	EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 }
 
 inline void audioEngine_process_playNotes( unsigned long nframes )
