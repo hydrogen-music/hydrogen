@@ -144,7 +144,6 @@ bool m_bAppendNextPattern;		///< Add the next pattern to the list instead
 /// of replace.
 bool m_bDeleteNextPattern;		///< Delete the next pattern from the list.
 
-
 PatternList* m_pPlayingPatterns;
 int m_nSongPos;				///< Is the position inside the song
 
@@ -153,25 +152,19 @@ int m_nSelectedInstrumentNumber;
 
 Instrument *m_pMetronomeInstrument = NULL;	///< Metronome instrument
 
-
 // Buffers used in the process function
 unsigned m_nBufferSize = 0;
 float *m_pMainBuffer_L = NULL;
 float *m_pMainBuffer_R = NULL;
 
-
 Hydrogen* hydrogenInstance = NULL;   ///< Hydrogen class instance (used for log)
 
-
 int  m_audioEngineState = STATE_UNINITIALIZED;	///< Audio engine state
-
-
 
 #ifdef H2CORE_HAVE_LADSPA
 float m_fFXPeak_L[MAX_FX];
 float m_fFXPeak_R[MAX_FX];
 #endif
-
 
 int m_nPatternStartTick = -1;
 unsigned int m_nPatternTickPosition = 0;
@@ -184,9 +177,6 @@ struct timeval m_currentTickTime;
 
 unsigned long m_nRealtimeFrames = 0;
 unsigned int m_naddrealtimenotetickposition = 0;
-
-
-
 
 // PROTOTYPES
 void		audioEngine_init();
@@ -215,7 +205,6 @@ void		audioEngine_restartAudioDrivers();
 void		audioEngine_startAudioDrivers();
 void		audioEngine_stopAudioDrivers();
 
-
 inline timeval currentTime2()
 {
 	struct timeval now;
@@ -223,13 +212,10 @@ inline timeval currentTime2()
 	return now;
 }
 
-
-
 inline int randomValue( int max )
 {
 	return rand() % max;
 }
-
 
 inline float getGaussian( float z )
 {
@@ -244,8 +230,6 @@ inline float getGaussian( float z )
 	w = sqrtf( ( -2.0 * logf( w ) ) / w );
 	return x1 * w * z + 0.0; // tunable
 }
-
-
 
 void audioEngine_raiseError( unsigned nErrorCode )
 {
@@ -309,8 +293,6 @@ void audioEngine_init()
 
 }
 
-
-
 void audioEngine_destroy()
 {
 	// check current state
@@ -331,9 +313,7 @@ void audioEngine_destroy()
 	}
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
-		Note *note = m_midiNoteQueue[i];
-		delete note;
-		note = NULL;
+		delete m_midiNoteQueue[i];
 	}
 	m_midiNoteQueue.clear();
 
@@ -353,10 +333,6 @@ void audioEngine_destroy()
 
 	AudioEngine::get_instance()->unlock();
 }
-
-
-
-
 
 /// Start playing
 /// return 0 = OK
@@ -398,8 +374,6 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 	}
 	return 0; // per ora restituisco sempre OK
 }
-
-
 
 /// Stop the audio engine
 void audioEngine_stop( bool bLockEngine )
@@ -443,8 +417,7 @@ void audioEngine_stop( bool bLockEngine )
 
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
-		Note *note = m_midiNoteQueue[i];
-		delete note;
+		delete m_midiNoteQueue[i];
 	}
 	m_midiNoteQueue.clear();
 
@@ -464,12 +437,6 @@ inline void audioEngine_process_checkBPMChanged()
 	if ( ( m_audioEngineState == STATE_READY )
 		 || ( m_audioEngineState == STATE_PLAYING ) )
 	{
-		if ( m_pAudioDriver->m_transport.m_nFrames == 0 )
-		{
-			//Without this check, we would devide 0 by X later..
-			return;
-		}
-
 		float fNewTickSize =
 				m_pAudioDriver->getSampleRate() * 60.0 / pSong->__bpm / pSong->__resolution;
 
@@ -513,7 +480,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		framepos = m_pAudioDriver->m_transport.m_nFrames;
 	} else {
 		// use this to support realtime events when not playing
-		framepos = m_nRealtimeFrames;
+		framepos = pHydrogen->getRealtimeFrames();
 	}
 
 	// reading from m_songNoteQueue
@@ -639,8 +606,6 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 	audioEngine_clearNoteQueue();
 }
 
-
-
 inline void audioEngine_process_transport()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -671,7 +636,7 @@ inline void audioEngine_process_transport()
 				pSong->__bpm = m_pAudioDriver->m_transport.m_nBPM;
 			}
 
-			m_nRealtimeFrames = m_pAudioDriver->m_transport.m_nFrames;
+			pHydrogen->setRealtimeFrames( m_pAudioDriver->m_transport.m_nFrames );
 			break;
 		case TransportInfo::STOPPED:
 			if ( m_audioEngineState == STATE_PLAYING ) {
@@ -684,6 +649,7 @@ inline void audioEngine_process_transport()
 
 			// go ahead and increment the realtimeframes by buffersize
 			// to support our realtime keyboard and midi event timing
+			// TODO: use method like setRealtimeFrames
 			m_nRealtimeFrames += m_nBufferSize;
 			break;
 		}
@@ -710,8 +676,6 @@ void audioEngine_clearNoteQueue()
 	m_midiNoteQueue.clear();
 
 }
-
-
 
 /// Clear all audio buffers
 inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
@@ -1084,6 +1048,9 @@ void audioEngine_removeSong()
 // return 2 = send pattern changed event!!
 inline int audioEngine_updateNoteQueue( unsigned nFrames )
 {
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song* pSong = pHydrogen->getSong();
+
 	static int nLastTick = -1;
 	bool bSendPatternChange = false;
 	int nMaxTimeHumanize = 2000;
@@ -1094,7 +1061,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		framepos = m_pAudioDriver->m_transport.m_nFrames;
 	} else {
 		// use this to support realtime events when not playing
-		framepos = m_nRealtimeFrames;
+		framepos = pHydrogen->getRealtimeFrames();
 	}
 
 	int tickNumber_start = 0;
@@ -1107,8 +1074,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
 	m_nLookaheadFrames = lookahead;
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
 	if ( framepos == 0
 		 || ( m_audioEngineState == STATE_PLAYING
 			  && pSong->get_mode() == Song::SONG_MODE
@@ -1412,8 +1377,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	return 0;
 }
 
-
-
 /// restituisce l'indice relativo al patternGroup in base al tick
 inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick )
 {
@@ -1476,8 +1439,6 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 	___ERRORLOG( err );
 	return -1;
 }
-
-
 
 void audioEngine_noteOn( Note *note )
 {
@@ -1599,7 +1560,6 @@ AudioOutput* createDriver( const QString& sDriver )
 
 	return pDriver;
 }
-
 
 /// Start all audio drivers
 void audioEngine_startAudioDrivers()
@@ -1745,8 +1705,6 @@ void audioEngine_startAudioDrivers()
 
 }
 
-
-
 /// Stop all audio drivers
 void audioEngine_stopAudioDrivers()
 {
@@ -1799,11 +1757,6 @@ void audioEngine_restartAudioDrivers()
 	audioEngine_stopAudioDrivers();
 	audioEngine_startAudioDrivers();
 }
-
-
-
-
-
 
 //----------------------------------------------------------------------------
 //
@@ -2308,27 +2261,20 @@ float Hydrogen::getMasterPeak_L()
 	return m_fMasterPeak_L;
 }
 
-
-
 float Hydrogen::getMasterPeak_R()
 {
 	return m_fMasterPeak_R;
 }
-
-
 
 unsigned long Hydrogen::getTickPosition()
 {
 	return m_nPatternTickPosition;
 }
 
-
-
 unsigned long Hydrogen::getRealtimeTickPosition()
 {
 	//unsigned long initTick = audioEngine_getTickPosition();
-	unsigned int initTick = ( unsigned int )( m_nRealtimeFrames
-											  / m_pAudioDriver->m_transport.m_nTickSize );
+	unsigned int initTick = ( unsigned int )( getRealtimeFrames() / m_pAudioDriver->m_transport.m_nTickSize );
 	unsigned long retTick;
 
 	struct timeval currtime;
@@ -2353,8 +2299,6 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 
 	return retTick;
 }
-
-
 
 PatternList* Hydrogen::getCurrentPatternList()
 {
@@ -2404,13 +2348,10 @@ int Hydrogen::getPatternPos()
 	return m_nSongPos;
 }
 
-
-
 void Hydrogen::restartDrivers()
 {
 	audioEngine_restartAudioDrivers();
 }
-
 
 /// Export a song to a wav file, returns the elapsed time in mSec
 void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
@@ -2642,7 +2583,6 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	return 0;	//ok
 }
 
-
 //this is also a new function and will used from the new delete function in
 //Hydrogen::loadDrumkit to delete the instruments by number
 void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
@@ -2715,16 +2655,19 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
-
 void Hydrogen::raiseError( unsigned nErrorCode )
 {
 	audioEngine_raiseError( nErrorCode );
 }
 
-
 unsigned long Hydrogen::getTotalFrames()
 {
 	return m_pAudioDriver->m_transport.m_nFrames;
+}
+
+void Hydrogen::setRealtimeFrames( unsigned long frames )
+{
+	m_nRealtimeFrames = frames;
 }
 
 unsigned long Hydrogen::getRealtimeFrames()
@@ -2805,9 +2748,6 @@ void Hydrogen::setPatternPos( int pos )
 	AudioEngine::get_instance()->unlock();
 }
 
-
-
-
 void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
 {
 #ifdef H2CORE_HAVE_LADSPA
@@ -2819,8 +2759,6 @@ void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
 #endif
 }
 
-
-
 void Hydrogen::setLadspaFXPeak( int nFX, float fL, float fR )
 {
 #ifdef H2CORE_HAVE_LADSPA
@@ -2828,7 +2766,6 @@ void Hydrogen::setLadspaFXPeak( int nFX, float fL, float fR )
 	m_fFXPeak_R[nFX] = fR;
 #endif
 }
-
 
 void Hydrogen::onTapTempoAccelEvent()
 {
@@ -2912,7 +2849,6 @@ void Hydrogen::setTapTempo( float fInterval )
 	AudioEngine::get_instance()->unlock();
 }
 
-
 // Called with audioEngine in LOCKED state.
 void Hydrogen::setBPM( float fBPM )
 {
@@ -2936,8 +2872,6 @@ void Hydrogen::restartLadspaFX()
 		ERRORLOG( "m_pAudioDriver = NULL" );
 	}
 }
-
-
 
 int Hydrogen::getSelectedPatternNumber()
 {
@@ -2981,14 +2915,10 @@ void Hydrogen::setSelectedPatternNumber( int nPat )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
-
-
 int Hydrogen::getSelectedInstrumentNumber()
 {
 	return m_nSelectedInstrumentNumber;
 }
-
-
 
 void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 {
@@ -2997,7 +2927,6 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 	m_nSelectedInstrumentNumber = nInstrument;
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
-
 
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts()
@@ -3008,40 +2937,31 @@ void Hydrogen::renameJackPorts()
 }
 #endif
 
-
 ///BeatCounter
-
 void Hydrogen::setbeatsToCount( int beatstocount)
 {
 	m_nbeatsToCount = beatstocount;
 }
-
 
 int Hydrogen::getbeatsToCount()
 {
 	return m_nbeatsToCount;
 }
 
-
 void Hydrogen::setNoteLength( float notelength)
 {
 	m_ntaktoMeterCompute = notelength;
 }
-
-
 
 float Hydrogen::getNoteLength()
 {
 	return m_ntaktoMeterCompute;
 }
 
-
-
 int Hydrogen::getBcStatus()
 {
 	return eventCount;
 }
-
 
 void Hydrogen::setBcOffsetAdjust()
 {
@@ -3052,7 +2972,6 @@ void Hydrogen::setBcOffsetAdjust()
 	m_nCoutOffset = pref->m_countOffset;
 	m_nStartOffset = pref->m_startOffset;
 }
-
 
 void Hydrogen::handleBeatCounter()
 {
@@ -3170,8 +3089,6 @@ void Hydrogen::setHumantimeFrames(unsigned long hframes)
 	m_nHumantimeFrames = hframes;
 }
 
-
-
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
@@ -3259,8 +3176,6 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
  }*/
 	// 	return humanTick;
 }
-
-
 
 float Hydrogen::getNewBpmJTM()
 {
