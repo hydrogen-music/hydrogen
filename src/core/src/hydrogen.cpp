@@ -2170,63 +2170,38 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 		assert( currentPattern );
 		if ( doRecord ) {
-			bool bNoteAlreadyExist = false;
-			Note::Key myKey = (Note::Key)0;
-			Note::Octave myOctave = (Note::Octave)0;
+			EventQueue::AddMidiNoteVector noteAction;
+			noteAction.m_column = column;
+			noteAction.m_pattern = currentPatternNumber;
+			noteAction.f_velocity = velocity;
+			noteAction.f_pan_L = pan_L;
+			noteAction.f_pan_R = pan_R;
+			noteAction.m_length = -1;
+			noteAction.b_isMidi = true;
 
-			if (pref->__playselectedinstrument) {
+			if ( pref->__playselectedinstrument ) {
 				instrRef = pSong->get_instrument_list()->get( getSelectedInstrumentNumber() );
 				int divider = msg1 / 12;
-				myKey = (Note::Key)(msg1 - (12 * divider));
-				myOctave = (Note::Octave)(divider -3);
-			} else {
-				instrRef = pSong->get_instrument_list()->get( m_nInstrumentLookupTable[ instrument ] );
-			}
-
-			Note* pNoteold = currentPattern->find_note( column, -1, instrRef, myKey, myOctave );
-			if ( pNoteold ) bNoteAlreadyExist = true;
-
-			if ( ! pref->__playselectedinstrument ) {
-				EventQueue::AddMidiNoteVector noteAction;
-				noteAction.m_column = column;
-				noteAction.m_row =  m_nInstrumentLookupTable[ instrument ];
-				noteAction.m_pattern = currentPatternNumber;
-				noteAction.f_velocity = velocity;
-				noteAction.f_pan_L = pan_L;
-				noteAction.f_pan_R = pan_R;
-				noteAction.m_length = -1;
-				noteAction.no_octaveKeyVal = (Note::Octave)0;
-				noteAction.nk_noteKeyVal = (Note::Key)0;
-				noteAction.b_isInstrumentMode = false;
-				noteAction.b_isMidi = true;
-				noteAction.b_noteExist = bNoteAlreadyExist;
-				EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-
-				// hear note if its not in the future
-				if ( pref->getHearNewNotes() && position <= getTickPosition() )
-					hearnote = true;
-			} else if ( pref->__playselectedinstrument ) {
-				EventQueue::AddMidiNoteVector noteAction;
-				noteAction.m_column = column;
 				noteAction.m_row = getSelectedInstrumentNumber();
-				noteAction.m_pattern = currentPatternNumber;
-				noteAction.f_velocity = velocity;
-				noteAction.f_pan_L = pan_L;
-				noteAction.f_pan_R = pan_R;
-				noteAction.m_length = -1;
-
-				int divider = msg1 / 12;
 				noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
 				noteAction.nk_noteKeyVal = (Note::Key)(msg1 - (12 * divider));
 				noteAction.b_isInstrumentMode = true;
-				noteAction.b_isMidi = true;
-				noteAction.b_noteExist = bNoteAlreadyExist;
-				EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-
-				// hear note if its not in the future
-				if ( pref->getHearNewNotes() && position <= getTickPosition() )
-					hearnote = true;
+			} else {
+				instrRef = pSong->get_instrument_list()->get( m_nInstrumentLookupTable[ instrument ] );
+				noteAction.m_row =  m_nInstrumentLookupTable[ instrument ];
+				noteAction.no_octaveKeyVal = (Note::Octave)0;
+				noteAction.nk_noteKeyVal = (Note::Key)0;
+				noteAction.b_isInstrumentMode = false;
 			}
+
+			Note* pNoteold = currentPattern->find_note( noteAction.m_column, -1, instrRef, noteAction.nk_noteKeyVal, noteAction.no_octaveKeyVal );
+			noteAction.b_noteExist = ( pNoteold ) ? true : false;
+
+			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
+
+			// hear note if its not in the future
+			if ( pref->getHearNewNotes() && position <= getTickPosition() )
+				hearnote = true;
 		} /* if doRecord */
 	} else if ( pref->getHearNewNotes() ) {
 			hearnote = true;
