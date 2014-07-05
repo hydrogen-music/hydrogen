@@ -93,12 +93,12 @@ public:
 	void getLadspaFXPeak( int nFX, float *fL, float *fR );
 	void setLadspaFXPeak( int nFX, float fL, float fR );
 
-
 	unsigned long getTickPosition();
 	unsigned long getRealtimeTickPosition();
 	unsigned long getTotalFrames();
-	unsigned long getRealtimeFrames();
 
+	void setRealtimeFrames( unsigned long frames );
+	unsigned long getRealtimeFrames();
 
 	PatternList * getCurrentPatternList();
 	void setCurrentPatternList( PatternList * pPatternList );
