@@ -73,6 +73,10 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void midiOutChannelBtnClicked(Button *pRef);
 		void midiOutNoteBtnClicked(Button *pRef);
 
+		void pIsHihatCheckBoxClicked( bool on);
+		void hihatMinRangeBtnClicked(Button *pRef);
+		void hihatMaxRangeBtnClicked(Button *pRef);
+
 	private:
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
@@ -107,15 +111,27 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		LCDDisplay *m_pMuteGroupLCD;
 		Button *m_pAddMuteGroupBtn;
 		Button *m_pDelMuteGroupBtn;
-		
+
 		// Instrument midi out
 		LCDDisplay *m_pMidiOutChannelLCD;
 		Button *m_pAddMidiOutChannelBtn;
 		Button *m_pDelMidiOutChannelBtn;
-		
+
 		LCDDisplay *m_pMidiOutNoteLCD;
 		Button *m_pAddMidiOutNoteBtn;
-		Button *m_pDelMidiOutNoteBtn;		
+		Button *m_pDelMidiOutNoteBtn;
+
+		// Instrument hihat
+
+		QCheckBox *m_pIsHihat;
+
+		LCDDisplay *m_pHihatMinRangeLCD;
+		Button *m_pAddHihatMinRangeBtn;
+		Button *m_pDelHihatMinRangeBtn;
+
+		LCDDisplay *m_pHihatMaxRangeLCD;
+		Button *m_pAddHihatMaxRangeBtn;
+		Button *m_pDelHihatMaxRangeBtn;
 
 
 		//~ Instrument properties
@@ -123,7 +139,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		// Layer properties
 		LayerPreview *m_pLayerPreview;
 		QScrollArea *m_pLayerScrollArea;
-		
+
 
 		PixmapWidget *m_pLayerProp;
 		Rotary *m_pLayerGainRotary;
