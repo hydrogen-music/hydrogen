@@ -6,3 +6,5 @@ moc_*.cc
 /libs/hydrogen/include/hydrogen/config.h
 /cmake_opts
 /hydrogen
+*.cbp
+*.layout
