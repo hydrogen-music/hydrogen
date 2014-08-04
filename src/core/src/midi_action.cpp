@@ -306,14 +306,23 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	}
 
 	if( sActionString == "SELECT_NEXT_PATTERN_RELATIVE" ){
+
 		bool ok;
+
 		if(!Preferences::get_instance()->patternModePlaysSelected())
+		{
 			return true;
+		}
+
 		int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
+
 		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+		{
 			return false;
+		}
 
 		pEngine->setSelectedPatternNumber( row );
+
 		return true;
 	}
 
@@ -649,9 +658,9 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	if( sActionString == "BPM_FINE_CC_RELATIVE" ){
 		/*
-				* increments/decrements the BPM
-				* this is useful if the bpm is set by a rotary control knob
-			   */
+		 * increments/decrements the BPM
+		 * this is useful if the bpm is set by a rotary control knob
+		 */
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
