@@ -1552,7 +1552,7 @@ void MainForm::showDevelWarning()
 {
 
 	//set this to 'false' for the case that you want to make a release..
-	if ( true ) {
+	if ( false ) {
 		Preferences *pref = Preferences::get_instance();
 		bool isDevelWarningEnabled = pref->getShowDevelWarning();
 		if(isDevelWarningEnabled) {
