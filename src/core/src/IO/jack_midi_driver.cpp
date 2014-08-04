@@ -117,6 +117,13 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 						msg.m_nChannel = buffer[0] & 0xF;
 						handleMidiMessage(msg);
 			break;
+        case 0xA:	 /* aftertouch */
+			msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
+			msg.m_nData1 = buffer[1];
+			msg.m_nData2 = buffer[2];
+			msg.m_nChannel = buffer[0] & 0xF;
+			handleMidiMessage(msg);
+			break;
 		case 0xB:	 /* control change */
 			msg.m_type = MidiMessage::CONTROL_CHANGE;
 			msg.m_nData1 = buffer[1];

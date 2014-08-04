@@ -61,6 +61,9 @@
             <xsd:element name="midiOutChannel"   type="xsd:integer"     default="-1" minOccurs="0"/>
             <xsd:element name="midiOutNote"      type="xsd:integer"     minOccurs="0"/>
             <xsd:element name="isStopNote"       type="h2:bool"         default="false" minOccurs="0"/>
+            <xsd:element name="isHihat"          type="h2:bool"         default="false"/>
+            <xsd:element name="lower_cc"         type="xsd:integer"     default="0"/>
+            <xsd:element name="higher_cc"        type="xsd:integer"     default="0"/>
             <xsd:element name="FX1Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
             <xsd:element name="FX2Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
             <xsd:element name="FX3Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
