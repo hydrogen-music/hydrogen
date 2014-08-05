@@ -98,7 +98,13 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	int fd;
 
 	a = archive_write_new();
-	archive_write_add_filter_gzip(a);
+
+	#if ARCHIVE_VERSION_NUMBER < 3000000
+		archive_write_set_compression_gzip(a);
+	#else
+		archive_write_add_filter_gzip(a);
+	#endif
+
 	archive_write_set_format_pax_restricted(a);
 	archive_write_open_filename(a, outname.toUtf8().constData());
 	for (int i = 0; i < filesList.size(); i++) {
@@ -121,7 +127,12 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		archive_entry_free(entry);
 	}
 	archive_write_close(a);
-	archive_write_free(a);
+
+	#if ARCHIVE_VERSION_NUMBER < 3000000
+		archive_write_finish(a);
+	#else
+		archive_write_free(a);
+	#endif
 
 	filesList.clear();
 
