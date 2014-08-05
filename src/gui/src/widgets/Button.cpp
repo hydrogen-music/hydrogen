@@ -66,10 +66,6 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 	}
 
     this->setStyleSheet("font-size: 9px; font-weight: bold;");
-
-    m_timerTimeout = 0;
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
 }
 
 
@@ -130,14 +126,7 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 
     m_bPressed = true;
     update();
-
     emit mousePress(this);
-
-    if ( ev->button() == Qt::LeftButton )
-    {
-        m_timerTimeout = 2000;
-        buttonPressed_timer_timeout();
-    }
 }
 
 
@@ -147,20 +136,12 @@ void Button::mouseReleaseEvent(QMouseEvent* ev)
 	setPressed( false );
 
 	if (ev->button() == Qt::LeftButton) {
-        m_timer->stop();
+		emit clicked(this);
 	}
 	else if (ev->button() == Qt::RightButton) {
 		emit rightClicked(this);
 	}
-}
 
-void Button::buttonPressed_timer_timeout()
-{
-    emit clicked(this);
-
-    if(m_timerTimeout > 50)
-        m_timerTimeout = m_timerTimeout / 2;
-    m_timer->start(m_timerTimeout);
 }
 
 void Button::setFontSize(int size)
