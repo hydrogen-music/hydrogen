@@ -40,6 +40,9 @@
 #include <hydrogen/LashClient.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>
+#include "SongEditor/SongEditor.h"
+#include "SongEditor/SongEditorPanel.h"
+
 
 using namespace H2Core;
 
@@ -200,6 +203,24 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		}
 		i++;
 	}
+
+	//SongEditor coloring
+	int coloringMethod = pPref->getColoringMethod();
+	int coloringMethodAuxValue = pPref->getColoringMethodAuxValue();
+
+	coloringMethodCombo->clear();
+	coloringMethodCombo->addItem(trUtf8("Automatic"));
+	coloringMethodCombo->addItem(trUtf8("Steps"));
+	coloringMethodCombo->addItem(trUtf8("Fixed"));
+
+	coloringMethodAuxSpinBox->setMaximum(300);
+
+	coloringMethodCombo->setCurrentIndex( coloringMethod );
+	coloringMethodAuxSpinBox->setValue( coloringMethodAuxValue );
+
+	coloringMethodCombo_currentIndexChanged( coloringMethod );
+
+	connect(coloringMethodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( coloringMethodCombo_currentIndexChanged(int) ));
 
 
 	// midi tab
@@ -433,6 +454,28 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->setDefaultUILayout( uiLayoutComboBox->currentIndex() );
 
+	int coloringMethod = coloringMethodCombo->currentIndex();
+
+	pPref->setColoringMethod( coloringMethod );
+
+	switch( coloringMethod )
+	{
+		case 0:
+			//Automatic
+			pPref->setColoringMethodAuxValue(0);
+			break;
+		case 1:
+			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
+			break;
+		case 2:
+			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
+			break;
+	}
+
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
+	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
+	pSongEditor->updateEditorandSetTrue();
 
 	pPref->savePreferences();
 
@@ -445,7 +488,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	accept();
 }
-
 
 
 void PreferencesDialog::on_driverComboBox_activated( int index )
@@ -702,6 +744,26 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
+void PreferencesDialog::coloringMethodCombo_currentIndexChanged (int index)
+{
+	switch(index)
+	{
+		case 0:
+			coloringMethodAuxLabel->setText( "" );
+			coloringMethodAuxSpinBox->hide();
+			break;
+		case 1:
+			coloringMethodAuxLabel->setText( trUtf8("Number of steps") );
+			coloringMethodAuxSpinBox->setMinimum(1);
+			coloringMethodAuxSpinBox->show();
+			break;
+		case 2:
+			coloringMethodAuxLabel->setText( trUtf8("Color (Hue value)") );
+			coloringMethodAuxSpinBox->setMinimum(0);
+			coloringMethodAuxSpinBox->show();
+			break;
+	}
+}
 
 void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
 {
