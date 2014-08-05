@@ -299,12 +299,29 @@ bool Drumkit::install( const QString& path )
 	struct archive_entry* entry;
 	char newpath[1024];
 	arch = archive_read_new();
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_read_support_compression_all( arch );
+#else
 	archive_read_support_filter_all( arch );
+#endif
+
 	archive_read_support_format_all( arch );
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	if ( ( r = archive_read_open_file( arch, path.toLocal8Bit(), 10240 ) ) ) {
+#else
 	if ( ( r = archive_read_open_filename( arch, path.toLocal8Bit(), 10240 ) ) ) {
+#endif
 		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" ).arg( archive_errno( arch ) ).arg( archive_error_string( arch ) ) );
 		archive_read_close( arch );
-		archive_read_free( arch );
+
+		#if ARCHIVE_VERSION_NUMBER < 3000000
+			archive_read_finish( arch );
+		#else
+			archive_read_free( arch );
+		#endif
+
 		return false;
 	}
 	bool ret = true;
@@ -328,7 +345,13 @@ bool Drumkit::install( const QString& path )
 		}
 	}
 	archive_read_close( arch );
-	archive_read_free( arch );
+
+	#if ARCHIVE_VERSION_NUMBER < 3000000
+		archive_read_finish( arch );
+	#else
+		archive_read_free( arch );
+	#endif
+
 	return ret;
 #else // H2CORE_HAVE_LIBARCHIVE
 #ifndef WIN32
