@@ -164,6 +164,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 			  << "SELECT_NEXT_PATTERN_CC_ABSOLUT"
 			  << "SELECT_NEXT_PATTERN_PROMPTLY"
 			  << "SELECT_NEXT_PATTERN_RELATIVE"
+			  << "SELECT_PREV_PATTERN_RELATIVE"
 			  << "SELECT_AND_PLAY_PATTERN"
 			  << "PAN_RELATIVE"
 			  << "PAN_ABSOLUTE"
@@ -306,11 +307,32 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	}
 
 	if( sActionString == "SELECT_NEXT_PATTERN_RELATIVE" ){
+
+		bool ok;
+
+		if(!Preferences::get_instance()->patternModePlaysSelected())
+		{
+			return true;
+		}
+
+		int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
+
+		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+		{
+			return false;
+		}
+
+		pEngine->setSelectedPatternNumber( row );
+
+		return true;
+	}
+
+	if( sActionString == "SELECT_PREV_PATTERN_RELATIVE" ){
 		bool ok;
 		if(!Preferences::get_instance()->patternModePlaysSelected())
 			return true;
-		int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+		int row = pEngine->getSelectedPatternNumber() - pAction->getParameter1().toInt(&ok,10);
+		if( row < 0 )
 			return false;
 
 		pEngine->setSelectedPatternNumber( row );
@@ -649,9 +671,9 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	if( sActionString == "BPM_FINE_CC_RELATIVE" ){
 		/*
-				* increments/decrements the BPM
-				* this is useful if the bpm is set by a rotary control knob
-			   */
+		 * increments/decrements the BPM
+		 * this is useful if the bpm is set by a rotary control knob
+		 */
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 

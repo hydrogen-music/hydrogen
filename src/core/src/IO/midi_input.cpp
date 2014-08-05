@@ -37,6 +37,7 @@ namespace H2Core
 MidiInput::MidiInput( const char* class_name )
 		: Object( class_name )
 		, m_bActive( false )
+		, __hihat_cc_openess ( 127 )
 {
 	//INFOLOG( "INIT" );
 
@@ -94,11 +95,14 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::NOTE_OFF:
 				INFOLOG("This is a NOTE OFF message.");
-				handleNoteOffMessage( msg );
+				handleNoteOffMessage( msg, false );
 				break;
 
 		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-				ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
+				//ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
+				INFOLOG( QString( "[handleMidiMessage] POLYPHONIC_KEY_PRESSURE Parameter: %1, Value: %2")
+					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
+				handlePolyphonicKeyPressureMessage( msg );
 				break;
 
 		case MidiMessage::CONTROL_CHANGE:
@@ -177,6 +181,9 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 	aH->handleAction( pAction );
 
+	if(msg.m_nData1 == 04)
+        __hihat_cc_openess = msg.m_nData2;
+
 	pEngine->lastMidiEvent = "CC";
 	pEngine->lastMidiEventParameter = msg.m_nData1;
 }
@@ -205,7 +212,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	float fVelocity = msg.m_nData2 / 127.0;
 
 	if ( fVelocity == 0 ) {
-		handleNoteOffMessage( msg );
+		handleNoteOffMessage( msg, false );
 		return;
 	}
 
@@ -251,18 +258,52 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				nInstrument = MAX_INSTRUMENTS - 1;
 		}
 
+        InstrumentList *instrList = pEngine->getSong()->get_instrument_list();
+        Instrument *instr = instrList->get( nInstrument );
+        /*
+        Only look to change instrument if the
+        current note is actually of hihat and
+        hihat openess is outside the instrument selected
+        */
+        if ( instr != NULL &&
+            instr->is_hihat() &&
+            ( __hihat_cc_openess < instr->get_lower_cc() || __hihat_cc_openess > instr->get_higher_cc() ) )
+        {
+            for(int i=0 ; i<=instrList->size() ; i++)
+            {
+                Instrument *instr_contestant = instrList->get( i );
+                if( instr_contestant != NULL &&
+                   instr_contestant->is_hihat() &&
+                   __hihat_cc_openess >= instr_contestant->get_lower_cc() &&
+                   __hihat_cc_openess <= instr_contestant->get_higher_cc() )
+                   {
+                       nInstrument = i;
+                       break;
+                   }
+            }
+        }
+
 		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
 	}
 
 	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
 }
 
+/*
+    EDrums (at least Roland TD-6V) uses PolyphonicKeyPressure
+    for cymbal choke.
+    If the message is 127 (choked) we send a NoteOff
+*/
+void MidiInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg )
+{
+    if( msg.m_nData2 == 127 )
+        handleNoteOffMessage( msg, true );
+}
 
-
-void MidiInput::handleNoteOffMessage( const MidiMessage& msg )
+void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 {
 //	INFOLOG( "handleNoteOffMessage" );
-	if ( Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
+	if ( !CymbalChoke && Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
 
