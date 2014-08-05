@@ -205,6 +205,18 @@ void		audioEngine_restartAudioDrivers();
 void		audioEngine_startAudioDrivers();
 void		audioEngine_stopAudioDrivers();
 
+typedef void (*MIDIDriverFactory)(MidiInput*& midi_in,MidiOutput*& midi_out);
+
+struct MIDIDriverDescriptor
+{
+	const char* name;
+	MIDIDriverFactory factory;
+};
+
+bool midi_init(MidiInput*& midi_in,MidiOutput*& midi_out
+	,const MIDIDriverDescriptor* drivers
+	,const QString* priority);
+
 inline timeval currentTime2()
 {
 	struct timeval now;
@@ -846,7 +858,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 					m_pMainBuffer_R[ i ] += buf_R[ i ];
 					if ( buf_L[ i ] > m_fFXPeak_L[nFX] )
 						m_fFXPeak_L[nFX] = buf_L[ i ];
-					
+
 					if ( buf_R[ i ] > m_fFXPeak_R[nFX] )
 						m_fFXPeak_R[nFX] = buf_R[ i ];
 				}
@@ -865,7 +877,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 			if ( val_L > m_fMasterPeak_L )
 				m_fMasterPeak_L = val_L;
-			
+
 			if ( val_R > m_fMasterPeak_R )
 				m_fMasterPeak_R = val_R;
 
@@ -909,7 +921,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 #endif
 
 	AudioEngine::get_instance()->unlock();
-	
+
 	if ( sendPatternChange ) {
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 	}
@@ -1559,6 +1571,79 @@ AudioOutput* createDriver( const QString& sDriver )
 	return pDriver;
 }
 
+#ifdef H2CORE_HAVE_ALSA
+void midiFactory_alsa(MidiInput*& midi_in,MidiOutput*& midi_out) {
+	AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
+	midi_in = alsaMidiDriver;
+	midi_out = alsaMidiDriver;
+	midi_in->open();
+	midi_in->setActive( true );
+}
+#endif
+
+#ifdef H2CORE_HAVE_COREMIDI
+void midiFactory_coremidi(MidiInput*& midi_in,MidiOutput*& midi_out) {
+	midi_in = new CoreMidiDriver();
+	midi_out=NULL;
+	midi_in->open();
+	midi_in->setActive( true );
+}
+#endif
+
+#ifdef H2CORE_HAVE_JACK
+void midiFactory_jackmidi(MidiInput*& midi_in,MidiOutput*& midi_out) {
+	JackMidiDriver *jackMidiDriver = new JackMidiDriver();
+	midi_out = jackMidiDriver;
+	midi_in = jackMidiDriver;
+	midi_in->open();
+	midi_in->setActive( true );
+}
+#endif
+
+#ifdef H2CORE_HAVE_PORTMIDI
+void midiFactory_portmidi(MidiInput*& midi_in,MidiOutput*& midi_out) {
+	midi_in = new PortMidiDriver();
+	midi_out=NULL;
+	midi_in->open();
+	midi_in->setActive( true );
+}
+#endif
+
+const MIDIDriverDescriptor midi_drivers[]= {
+#ifdef H2CORE_HAVE_ALSA
+	{"ALSA", midiFactory_alsa},
+#endif
+#ifdef H2CORE_HAVE_COREMIDI
+	{"CoreMidi", midiFactory_coremidi},
+#endif
+#ifdef H2CORE_HAVE_JACK
+	{"JackMidi", midiFactory_jackmidi},
+#endif
+#ifdef H2CORE_HAVE_PORTMIDI
+	{"PortMidi", midiFactory_portmidi},
+#endif
+	{NULL,NULL}
+};
+
+bool midi_init(MidiInput*& midi_in,MidiOutput*& midi_out
+	,const MIDIDriverDescriptor* drivers
+	,const QString* driver_list) {
+	while(*driver_list!="") {
+	//TODO We can do binary search here, but the list is short.
+		const MIDIDriverDescriptor* drv=drivers;
+		while(drv->name!=NULL && drv->factory!=NULL) {
+			if(*driver_list==drv->name) {
+				printf("got \"%s\"\n",drv->name);
+				drv->factory(midi_in,midi_out);
+				return true;
+			}
+			++drv;
+		}
+		++driver_list;
+	}
+	return false;
+}
+
 /// Start all audio drivers
 void audioEngine_startAudioDrivers()
 {
@@ -1619,35 +1704,17 @@ void audioEngine_startAudioDrivers()
 		}
 	}
 
-	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
-#ifdef H2CORE_HAVE_ALSA
-		// Create MIDI driver
-		AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
-		m_pMidiDriverOut = alsaMidiDriver;
-		m_pMidiDriver = alsaMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
-#ifdef H2CORE_HAVE_PORTMIDI
-		m_pMidiDriver = new PortMidiDriver();
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
-#ifdef H2CORE_HAVE_COREMIDI
-		m_pMidiDriver = new CoreMidiDriver();
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( preferencesMng->m_sMidiDriver == "JackMidi" ) {
-#ifdef H2CORE_HAVE_JACK
-		JackMidiDriver *jackMidiDriver = new JackMidiDriver();
-		m_pMidiDriverOut = jackMidiDriver;
-		m_pMidiDriver = jackMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
+	printf("User wants MIDI driver \"%s\" "
+		,preferencesMng->m_sMidiDriver.toLatin1().data());
+	QString driver_list[]={
+		preferencesMng->m_sMidiDriver
+		,"CoreMidi"
+		,"JackMidi"
+		,"PortMidi"
+		,""
+	};
+	if(!midi_init(m_pMidiDriver,m_pMidiDriverOut,midi_drivers,driver_list)) {
+		___ERRORLOG( "Could not find any MIDI driver") ;
 	}
 
 	// change the current audio engine state
