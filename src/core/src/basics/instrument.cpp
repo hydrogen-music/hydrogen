@@ -63,6 +63,9 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
+	, __hihat( false )
+	, __lower_cc( 0 )
+	, __higher_cc( 127 )
 {
 	if ( __adsr==0 ) __adsr = new ADSR();
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
@@ -92,6 +95,9 @@ Instrument::Instrument( Instrument* other )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
 	, __queued( other->is_queued() )
+	, __hihat( other->is_hihat() )
+	, __lower_cc( other->get_lower_cc() )
+	, __higher_cc( other->get_higher_cc() )
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
@@ -173,6 +179,9 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_midi_out_channel( instrument->get_midi_out_channel() );
 	this->set_midi_out_note( instrument->get_midi_out_note() );
 	this->set_stop_notes( instrument->is_stop_notes() );
+	this->set_hihat( instrument->is_hihat() );
+	this->set_lower_cc( instrument->get_lower_cc() );
+	this->set_higher_cc( instrument->get_higher_cc() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
@@ -214,6 +223,10 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	instrument->set_midi_out_note( node->read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
 	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
+	instrument->set_hihat( node->read_bool( "isHihat", false, true ) );
+	instrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
+	instrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
+
 	for ( int i=0; i<MAX_FX; i++ ) {
 		instrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
 	}
@@ -269,6 +282,9 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_int( "midiOutChannel", __midi_out_channel );
 	instrument_node.write_int( "midiOutNote", __midi_out_note );
 	instrument_node.write_bool( "isStopNote", __stop_notes );
+	instrument_node.write_bool( "isHihat", __hihat );
+	instrument_node.write_int( "lower_cc", __lower_cc );
+	instrument_node.write_int( "higher_cc", __higher_cc );
 	for ( int i=0; i<MAX_FX; i++ ) {
 		instrument_node.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}

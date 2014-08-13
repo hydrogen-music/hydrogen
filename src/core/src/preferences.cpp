@@ -254,6 +254,10 @@ Preferences::Preferences()
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
 
+	m_nColoringMethod = 0;
+	m_nColoringMethodAuxValue = 0;
+
+
 	UIStyle* uis = m_pDefaultUIStyle;
 	uis->m_songEditor_backgroundColor = H2RGBColor(95, 101, 117);
 	uis->m_songEditor_alternateRowColor = H2RGBColor(128, 134, 152);
@@ -623,6 +627,11 @@ void Preferences::loadPreferences( bool bGlobal )
 					WARNINGLOG( "UI_Style node not found" );
 					recreate = true;
 				}
+
+				//SongEditor coloring
+				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 0 );
+				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 0 );
+
 			}
 
 			/////////////// FILES //////////////
@@ -975,6 +984,11 @@ void Preferences::savePreferences()
 
 		// User interface style
 		writeUIStyle( guiNode );
+
+		//SongEditor coloring method
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( m_nColoringMethod ) );
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethodAuxValue", QString::number( m_nColoringMethodAuxValue ) );
+
 	}
 	rootNode.appendChild( guiNode );
 

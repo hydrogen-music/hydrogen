@@ -485,6 +485,22 @@ public:
 		m_nPatternEditorGridWidth = value;
 	}
 
+	void setColoringMethodAuxValue( int value ){
+		m_nColoringMethodAuxValue = value;
+	}
+
+	int getColoringMethodAuxValue() const{
+		return m_nColoringMethodAuxValue;
+	}
+
+	void setColoringMethod( int value ){
+		m_nColoringMethod = value;
+	}
+
+	int getColoringMethod() const{
+		return m_nColoringMethod;
+	}
+
 	WindowProperties getMainFormProperties() {
 		return mainFormProperties;
 	}
@@ -673,6 +689,9 @@ private:
 
 	UIStyle*  m_pDefaultUIStyle;
 
+	//Appearence: SongEditor coloring
+	int m_nColoringMethod;
+	int m_nColoringMethodAuxValue;
 
 	Preferences();
 

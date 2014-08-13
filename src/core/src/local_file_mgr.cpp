@@ -1201,13 +1201,15 @@ QString prepare_filename( QString fname)
 		if( fname.startsWith( Filesystem::usr_drumkits_dir() ) )
 		{
 			fname.remove( 0, Filesystem::usr_drumkits_dir().size() + 1 );
-			return	fname.remove( 0, fname.indexOf(("/")) );
+			fname.remove( 0, fname.indexOf(("/")) + 1);
+			return	fname;
 		}
 
 		if( fname.startsWith( Filesystem::sys_drumkits_dir() ) )
 		{
 			fname.remove( 0, Filesystem::sys_drumkits_dir().size() + 1 );
-			return	fname.remove( 0, fname.indexOf(("/")) );
+			fname.remove( 0, fname.indexOf(("/")) + 1);
+			return	fname;
 		}
 	}
 	return fname;

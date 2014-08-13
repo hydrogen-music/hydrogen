@@ -95,16 +95,16 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 // Instrument properties
 	m_pInstrumentProp = new PixmapWidget( this );
 	m_pInstrumentProp->move(0, 31);
-	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
+	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab_new.png" );
 
 	m_pNameLbl = new ClickableLabel( m_pInstrumentProp );
 	m_pNameLbl->setGeometry( 8, 5, 275, 28 );
-	
+
 	/////////////
 	//Midi Out
-	
+
 	m_pMidiOutChannelLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pMidiOutChannelLCD->move( 67, 243 );
+	m_pMidiOutChannelLCD->move( 67, 261 );
 
 	m_pAddMidiOutChannelBtn = new Button(
 			m_pInstrumentProp,
@@ -114,7 +114,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			QSize( 16, 8 )
 	);
 
-	m_pAddMidiOutChannelBtn->move( 109, 243 );
+	m_pAddMidiOutChannelBtn->move( 109, 260 );
 	connect( m_pAddMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
 
@@ -125,12 +125,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			"/lcd/LCDSpinBox_down_over.png",
 			QSize(16,8)
 	);
-	m_pDelMidiOutChannelBtn->move( 109, 251 );
+	m_pDelMidiOutChannelBtn->move( 109, 269 );
 	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
-	
+
 	///
 	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pMidiOutNoteLCD->move( 160, 243 );
+	m_pMidiOutNoteLCD->move( 160, 261 );
 
 	m_pAddMidiOutNoteBtn = new Button(
 			m_pInstrumentProp,
@@ -140,7 +140,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			QSize( 16, 8 )
 	);
 
-	m_pAddMidiOutNoteBtn->move( 202, 243 );
+	m_pAddMidiOutNoteBtn->move( 202, 260 );
 	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
 
 
@@ -151,9 +151,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 			"/lcd/LCDSpinBox_down_over.png",
 			QSize(16,8)
 	);
-	m_pDelMidiOutNoteBtn->move( 202, 251 );
+	m_pDelMidiOutNoteBtn->move( 202, 269 );
 	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
-	
+
 	/////////////
 
 	QFont boldFont;
@@ -162,7 +162,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
 
 	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Random pitch factor" ), false, true );
-	m_pRandomPitchRotary->move( 117, 192 );
+	m_pRandomPitchRotary->move( 117, 210 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Filter
@@ -181,9 +181,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Filter resonance" ), false, true );
 	connect( m_pResonanceRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pFilterBypassBtn->move( 70, 152 );
-	m_pCutoffRotary->move( 117, 146 );
-	m_pResonanceRotary->move( 170, 146 );
+	m_pFilterBypassBtn->move( 70, 170 );
+	m_pCutoffRotary->move( 117, 164 );
+	m_pResonanceRotary->move( 170, 164 );
 	//~ Filter
 
 	// ADSR
@@ -234,10 +234,69 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
-	m_pIsStopNoteCheckBox = new QCheckBox ( trUtf8( "Auto-Stop-Note" ), m_pInstrumentProp );
-	m_pIsStopNoteCheckBox->move( 15, 300 );
+	m_pIsStopNoteCheckBox = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pIsStopNoteCheckBox->move( 63, 138 );
 	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
+
+	//////////////////////////
+	// HiHat setup
+
+	m_pIsHihat = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pIsHihat->move( 63, 304 );
+	m_pIsHihat->setToolTip( trUtf8( "Set the instrument as part of a hihat set." ) );
+	connect( m_pIsHihat, SIGNAL( toggled( bool ) ), this, SLOT( pIsHihatCheckBoxClicked( bool ) ) );
+
+
+	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatMinRangeLCD->move( 67, 320 );
+
+	m_pAddHihatMinRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize( 16, 8 )
+	);
+	m_pAddHihatMinRangeBtn->move( 109, 319 );
+	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
+
+	m_pDelHihatMinRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16,8)
+	);
+	m_pDelHihatMinRangeBtn->move( 109, 328 );
+	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
+
+
+	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatMaxRangeLCD->move( 160, 320 );
+
+	m_pAddHihatMaxRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_up_on.png",
+			"/lcd/LCDSpinBox_up_off.png",
+			"/lcd/LCDSpinBox_up_over.png",
+			QSize( 16, 8 )
+	);
+	m_pAddHihatMaxRangeBtn->move( 202, 319 );
+	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
+
+	m_pDelHihatMaxRangeBtn = new Button(
+			m_pInstrumentProp,
+			"/lcd/LCDSpinBox_down_on.png",
+			"/lcd/LCDSpinBox_down_off.png",
+			"/lcd/LCDSpinBox_down_over.png",
+			QSize(16,8)
+	);
+	m_pDelHihatMaxRangeBtn->move( 202, 328 );
+	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
+
+	//
+
 
 //~ Instrument properties
 
@@ -255,7 +314,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// Layer preview
 	m_pLayerPreview = new LayerPreview( NULL );
- 
+
 	m_pLayerScrollArea = new QScrollArea( m_pLayerProp);
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->move( 6, 4 );
@@ -421,22 +480,29 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
-                m_pMuteGroupLCD->setText( sMuteGroup );		
-		
+                m_pMuteGroupLCD->setText( sMuteGroup );
+
 		// midi out
 		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1);
 		if (m_pInstrument->get_midi_out_channel() == -1 ) {
 			sMidiOutChannel = "Off";
 		}
 		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
-		
+
+		// hihat
+		m_pIsHihat->setChecked( m_pInstrument->is_hihat() );
+		QString sHiHatMinRange = QString("%1").arg( m_pInstrument->get_lower_cc() );
+		m_pHihatMinRangeLCD->setText( sHiHatMinRange );
+		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
+		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
+
 		//Convert note id into notation
 		{
 			int note = m_pInstrument->get_midi_out_note();
 			int octave = (note / 12) - 2;
 			const char *noteStrs[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 			QString sMidiOutNote = QString(noteStrs[note % 12]) + QString::number(octave);
-			m_pMidiOutNoteLCD->setText( sMidiOutNote );			
+			m_pMidiOutNoteLCD->setText( sMidiOutNote );
 		}
 
 		// select the last valid layer
@@ -593,7 +659,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
 			}
 		}
-		
+
 	}
 	else {
 		ERRORLOG( "[buttonClicked] unhandled button" );
@@ -620,7 +686,7 @@ void InstrumentEditor::loadLayer()
 
 	if ( filename[2].isEmpty() ) return;
 
-	bool fnc = false;	
+	bool fnc = false;
 	if ( filename[0] ==  "true" ){
 		fnc = true;
 	}
@@ -630,36 +696,36 @@ void InstrumentEditor::loadLayer()
 
 	int selectedLayer =  m_nSelectedLayer;
 	int firstSelection = selectedLayer;
-	
-	
+
+
 
 	if (filename.size() > 2) {
-		
-		for(int i=2;i < filename.size();++i) 
+
+		for(int i=2;i < filename.size();++i)
 		{
 			selectedLayer = m_nSelectedLayer + i - 2;
 			if( ( i-2 >= MAX_LAYERS ) || ( selectedLayer + 1  > MAX_LAYERS ) ) break;
 
 			Sample *newSample = Sample::load( filename[i] );
-	
+
 			H2Core::Instrument *pInstr = NULL;
-	
+
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			Song *song = engine->getSong();
 			InstrumentList *instrList = song->get_instrument_list();
 			pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
-	
-			/* 
-				if we're using multiple layers, we start inserting the first layer 
+
+			/*
+				if we're using multiple layers, we start inserting the first layer
 				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
 		 	*/
-			
+
 			H2Core::InstrumentLayer *pLayer = pInstr->get_layer( selectedLayer );
 			if (pLayer != NULL) {
 				// delete old sample
 				Sample *oldSample = pLayer->get_sample();
 				delete oldSample;
-	
+
 				// insert new sample from newInstrument
 				pLayer->set_sample( newSample );
 			}
@@ -667,20 +733,20 @@ void InstrumentEditor::loadLayer()
 				pLayer = new H2Core::InstrumentLayer(newSample);
 				pInstr->set_layer( pLayer, selectedLayer );
 			}
-	
+
 			if ( fnc ){
 				QString newFilename = filename[i].section( '/', -1 );
 				newFilename.replace( "." + newFilename.section( '.', -1 ), "");
 				m_pInstrument->set_name( newFilename );
 			}
-	
+
 			//set automatic velocity
 			if ( filename[1] ==  "true" ){
 				setAutoVelocity();
 			}
-	
+
 			//pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
-	
+
 			AudioEngine::get_instance()->unlock();
 
 		}
@@ -877,13 +943,13 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 											);
 								if( !newSample  ){
 									continue;
-								}	
+								}
 								delete pSample;
 								// insert new sample from newInstrument
 								AudioEngine::get_instance()->lock( RIGHT_HERE );
 								pLayer->set_sample( newSample );
 								AudioEngine::get_instance()->unlock();
-	
+
 							}
 						}
 					}
@@ -892,4 +958,36 @@ void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
 		}
 	}
 
+}
+
+void InstrumentEditor::pIsHihatCheckBoxClicked( bool on )
+{
+    assert( m_pInstrument );
+
+	m_pInstrument->set_hihat( on );
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::hihatMinRangeBtnClicked(Button *pRef)
+{
+	assert( m_pInstrument );
+
+	if ( pRef == m_pAddHihatMinRangeBtn && m_pInstrument->get_lower_cc() < 127 )
+		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() + 1 );
+	else if ( pRef == m_pDelHihatMinRangeBtn && m_pInstrument->get_lower_cc() > 0 )
+		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() - 1 );
+
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::hihatMaxRangeBtnClicked(Button *pRef)
+{
+	assert( m_pInstrument );
+
+	if ( pRef == m_pAddHihatMaxRangeBtn && m_pInstrument->get_higher_cc() < 127 )
+		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() + 1);
+	else if ( pRef == m_pDelHihatMaxRangeBtn && m_pInstrument->get_higher_cc() > 0 )
+		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() - 1);
+
+	selectedInstrumentChangedEvent();	// force an update
 }

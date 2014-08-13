@@ -51,18 +51,21 @@ public:
 	void handleSysexMessage( const MidiMessage& msg );
 	void handleControlChangeMessage( const MidiMessage& msg );
 	void handleProgramChangeMessage( const MidiMessage& msg );
+	void handlePolyphonicKeyPressureMessage( const MidiMessage& msg );
 
 protected:
 	bool m_bActive;
 
 	void handleNoteOnMessage( const MidiMessage& msg );
-	void handleNoteOffMessage( const MidiMessage& msg );
+	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke );
 
 
 private:
 	unsigned long  __noteOnTick;
 	unsigned long  __noteOffTick;
 	unsigned long computeDeltaNoteOnOfftime();
+
+	int __hihat_cc_openess;
 
 
 

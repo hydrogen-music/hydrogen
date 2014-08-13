@@ -813,6 +813,51 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	QPainter p( m_pSequencePixmap );
 	QColor patternColor( pStyle->m_songEditor_pattern1Color.getRed(), pStyle->m_songEditor_pattern1Color.getGreen(), pStyle->m_songEditor_pattern1Color.getBlue() );
 
+	/*
+	 * The following color modes are available:
+	 *
+	 * Fixed: One color. Argument: specified color
+	 * Steps: User defined number of steps.
+	 * Automatic: Steps = Number of pattern in song
+	 */
+
+	int coloringMethod = pref->getColoringMethod();
+	int coloringMethodAuxValue = pref->getColoringMethodAuxValue();
+	int steps = 1;
+
+	//valid values: 0:300, see http://qt-project.org/doc/qt-4.8/qcolor.html#the-hsv-color-model
+	int hue = 0;
+
+	Song* song = Hydrogen::get_instance()->getSong();
+	PatternList *patList = song->get_pattern_list();
+
+	switch(coloringMethod)
+	{
+		case 0:
+			//Automatic
+			steps = patList->size();
+
+			if(steps == 0)
+			{
+				//beware of the division by zero..
+				steps = 1;
+			}
+
+			hue = (number % steps) * (300 / steps);
+			break;
+		case 1:
+			//Steps
+			steps = coloringMethodAuxValue;
+			hue = (number % steps) * (300 / steps);
+			break;
+		case 2:
+			//Fixed color
+			hue = coloringMethodAuxValue;
+			break;
+	}
+
+	patternColor.setHsv( hue , 255, 200);
+
 	if (true == invertColour) {
 		patternColor = patternColor.darker(200);
 	}//if
