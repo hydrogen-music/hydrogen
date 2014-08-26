@@ -1,10 +1,14 @@
-hydrogen (0.9.6-beta3) unstable; urgency=low
+hydrogen (0.9.6) unstable; urgency=low
 
-  * Release 0.9.6 beta3
+  * Release 0.9.6
   * new build system (cmake)
   * add undo for song/pattern editor
   * jack-session support
+  * jack-midi
+  * pulseaudio driver
   * some bug fixes
+  * tabbed interface
+
 
   * Version 0.9.5
   * load playlists at startup
