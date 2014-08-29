@@ -1074,7 +1074,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
 	m_nLookaheadFrames = lookahead;
 
-#if 0
 	int tickNumber_start = 0;
 	if ( framepos == 0
 		 || ( m_audioEngineState == STATE_PLAYING
@@ -1086,13 +1085,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		tickNumber_start = ( framepos + lookahead) / m_pAudioDriver->m_transport.m_nTickSize;
 	}
 	int tickNumber_end = ( framepos + nFrames + lookahead ) / m_pAudioDriver->m_transport.m_nTickSize;
-#else
-	int tickNumber_start = framepos / m_pAudioDriver->m_transport.m_nTickSize;
-	int tickNumber_end = ( framepos + nFrames ) / m_pAudioDriver->m_transport.m_nTickSize;
-#endif
-
-//	printf ( "state %d framepos %d framepos2 %d start %d end %d\n",
-//		m_audioEngineState, framepos, m_pAudioDriver->m_transport.m_nFrames, tickNumber_start, tickNumber_end );
 
 	// 	___WARNINGLOG( "Lookahead: " + to_string( lookahead
 	//	                                        / m_pAudioDriver->m_transport.m_nTickSize ) );
@@ -2296,6 +2288,16 @@ void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool delet
 int Hydrogen::getPatternPos()
 {
 	return m_nSongPos;
+}
+
+/* Return pattern for selected song tick position */
+int Hydrogen::getPosForTick( unsigned long TickPos )
+{
+	Song* pSong = getSong();
+	if ( ! pSong ) return 0;
+
+	int patternStartTick;
+	return findPatternInTick( TickPos, pSong->is_loop_enabled(), &patternStartTick );
 }
 
 void Hydrogen::restartDrivers()

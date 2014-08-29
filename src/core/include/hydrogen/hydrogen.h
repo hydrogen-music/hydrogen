@@ -107,6 +107,7 @@ public:
 
 	int getPatternPos();
 	void setPatternPos( int pos );
+	int getPosForTick( unsigned long TickPos );
 
 	void triggerRelocateDuringPlay();
 

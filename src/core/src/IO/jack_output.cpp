@@ -847,19 +847,23 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 	if (! me) return;
 
 	Hydrogen * H = Hydrogen::get_instance();
+	Song* S = H->getSong();
+	if ( ! S ) return;
 
-	int ppos = H->getPatternPos();
-	if ( ppos < 0 ) ppos = 0;
-	double TPB = H->getTickForHumanPosition( ppos );
+	unsigned long PlayTick = H->getRealtimeTickPosition();
+	pos->bar = H->getPosForTick ( PlayTick );
+
+	double TPB = H->getTickForHumanPosition( pos->bar );
 	if ( TPB < 1 ) return;
-	
-	/* We'll cheat there is ticks_per_beat * beats_per_bar ticks in bar
-	   so every Hydrogen tick will be multipled by beats_per_bar ticks */
+
+	/* We'll cheat there is ticks_per_beat * 4 in bar
+	   so every Hydrogen tick will be multipled by 4 ticks */
 	pos->ticks_per_beat = TPB;
 	pos->valid = JackPositionBBT;
 	pos->beats_per_bar = TPB / 48;
 	pos->beat_type = 4.0;
 	pos->beats_per_minute = H->getNewBpmJTM();
+	pos->bar++;
 
 	// Probably there will never be an offset
 #ifndef JACK_NO_BBT_OFFSET
@@ -868,22 +872,19 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 #endif
 
 	if (H->getHumantimeFrames() < 1) {
-		pos->bar = 1;
 		pos->beat = 1;
 		pos->tick = 0;
 		pos->bar_start_tick = 0;
 	} else {
-		pos->bar = ppos + 1;
-	
-		pos->tick = H->getTickPosition() * pos->beats_per_bar;
-		pos->beat = pos->tick / pos->ticks_per_beat;
+		/* how many ticks elpased from last bar ( where bar == pattern ) */
+		int32_t TicksFromBar = ( PlayTick % (int32_t) pos->ticks_per_beat ) * 4;
 
-		/* Remove beats from ticks */
-		pos->tick -= pos->ticks_per_beat * pos->beat;
+		pos->bar_start_tick = PlayTick - TicksFromBar;
 
+		pos->beat = TicksFromBar / pos->ticks_per_beat;
 		pos->beat++;
-		pos->bar_start_tick = ppos * pos->beats_per_bar * pos->ticks_per_beat;
 
+		pos->tick = TicksFromBar % (int32_t) pos->ticks_per_beat;
 #if 0
 //		printf ( "\e[0K\rBar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g",
 		printf ( "Bar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g\n",
