@@ -1,8 +1,8 @@
 Source: hydrogen
 Section: Multimedia
 Priority: optional
-Maintainer: Alessandro Cominu <comix@users.sf.net>
-Build-Depends: debhelper (>= 4.0.0), libsndfile1-dev, libjack-dev, libasound-dev, libflac++-dev, libtar-dev, libqt4-dev, liblrdf-dev, cmake, librubberband-dev
+Maintainer: Sebastian Moors <smoors@users.sf.net>
+Build-Depends: debhelper (>= 4.0.0), libsndfile1-dev, libjack-dev, libasound-dev, libtar-dev, libqt4-dev, liblrdf-dev, cmake, librubberband-dev
 Standards-Version: 3.6.2
 
 Package: hydrogen

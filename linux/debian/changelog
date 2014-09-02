@@ -1,4 +1,8 @@
-hydrogen (0.9.6) unstable; urgency=low
+hydrogen (0.9.7-alpha) unstable; urgency=low
+  * Release 0.9.7
+  * midi hihat support
+  * midi cymbal choke support
+  * coloring of song editor squares
 
   * Release 0.9.6
   * new build system (cmake)
@@ -8,7 +12,6 @@ hydrogen (0.9.6) unstable; urgency=low
   * pulseaudio driver
   * some bug fixes
   * tabbed interface
-
 
   * Version 0.9.5
   * load playlists at startup
