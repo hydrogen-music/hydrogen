@@ -23,6 +23,7 @@
 #define H2C_GLOBALS_H
 
 #define MAX_INSTRUMENTS         1000
+#define MAX_COMPONENTS          32
 
 #define MAX_NOTES               192
 

@@ -24,8 +24,10 @@
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/h2_exception.h>
+#include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/note.h>
@@ -1253,6 +1255,21 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( song->get_humanize_velocity_value() ) );
 	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( song->get_swing_factor() ) );
 
+    // component List
+    QDomNode componentListNode = doc.createElement( "componentList" );
+    for (std::vector<DrumkitComponent*>::iterator it = song->get_components()->begin() ; it != song->get_components()->end(); ++it) {
+        DrumkitComponent* pCompo = *it;
+
+        QDomNode componentNode = doc.createElement( "drumkitComponent" );
+
+        LocalFileMng::writeXmlString( componentNode, "id", QString("%1").arg( pCompo->get_id() ) );
+        LocalFileMng::writeXmlString( componentNode, "name", pCompo->get_name() );
+        LocalFileMng::writeXmlString( componentNode, "volume", QString("%1").arg( pCompo->get_volume() ) );
+
+        componentListNode.appendChild( componentNode );
+    }
+    songNode.appendChild( componentListNode );
+
 	// instrument list
 	QDomNode instrumentListNode = doc.createElement( "instrumentList" );
 	unsigned nInstrument = song->get_instrument_list()->size();
@@ -1296,54 +1313,65 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( instr->get_midi_out_channel() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( instr->get_midi_out_note() ) );
 
-		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-			InstrumentLayer *pLayer = instr->get_layer( nLayer );
-			if ( pLayer == NULL ) continue;
-			Sample *pSample = pLayer->get_sample();
-			if ( pSample == NULL ) continue;
+        for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
+            InstrumentComponent* pComponent = *it;
 
-			bool sIsModified = pSample->get_is_modified();
-			Sample::Loops lo = pSample->get_loops();
-			Sample::Rubberband ro = pSample->get_rubberband();
-			QString sMode = pSample->get_loop_mode_string();
+            QDomNode componentNode = doc.createElement( "instrumentComponent" );
 
+            LocalFileMng::writeXmlString( componentNode, "component_id", QString("%1").arg( pComponent->get_drumkit_componentID() ) );
+            LocalFileMng::writeXmlString( componentNode, "gain", QString("%1").arg( pComponent->get_gain() ) );
 
-			QDomNode layerNode = doc.createElement( "layer" );
-			LocalFileMng::writeXmlString( layerNode, "filename", prepare_filename( pSample->get_filepath() ) );
-			LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
-			LocalFileMng::writeXmlString( layerNode, "smode", pSample->get_loop_mode_string() );
-			LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( lo.start_frame ) );
-			LocalFileMng::writeXmlString( layerNode, "loopframe", QString("%1").arg( lo.loop_frame ) );
-			LocalFileMng::writeXmlString( layerNode, "loops", QString("%1").arg( lo.count ) );
-			LocalFileMng::writeXmlString( layerNode, "endframe", QString("%1").arg( lo.end_frame ) );
-			LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( ro.use ) );
-			LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( ro.divider ) );
-			LocalFileMng::writeXmlString( layerNode, "rubberCsettings", QString("%1").arg( ro.c_settings ) );
-			LocalFileMng::writeXmlString( layerNode, "rubberPitch", QString("%1").arg( ro.pitch ) );
-			LocalFileMng::writeXmlString( layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
-			LocalFileMng::writeXmlString( layerNode, "max", QString("%1").arg( pLayer->get_end_velocity() ) );
-			LocalFileMng::writeXmlString( layerNode, "gain", QString("%1").arg( pLayer->get_gain() ) );
-			LocalFileMng::writeXmlString( layerNode, "pitch", QString("%1").arg( pLayer->get_pitch() ) );
+            for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
+
+                if ( pLayer == NULL ) continue;
+                Sample *pSample = pLayer->get_sample();
+                if ( pSample == NULL ) continue;
+
+                bool sIsModified = pSample->get_is_modified();
+                Sample::Loops lo = pSample->get_loops();
+                Sample::Rubberband ro = pSample->get_rubberband();
+                QString sMode = pSample->get_loop_mode_string();
 
 
-			Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
-			for (int y = 0; y < velocity->size(); y++){
-				QDomNode volumeNode = doc.createElement( "volume" );
-				LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y).frame ) );
-				LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y).value ) );
-				layerNode.appendChild( volumeNode );
-			}
+                QDomNode layerNode = doc.createElement( "layer" );
+                LocalFileMng::writeXmlString( layerNode, "filename", prepare_filename( pSample->get_filepath() ) );
+                LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
+                LocalFileMng::writeXmlString( layerNode, "smode", pSample->get_loop_mode_string() );
+                LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( lo.start_frame ) );
+                LocalFileMng::writeXmlString( layerNode, "loopframe", QString("%1").arg( lo.loop_frame ) );
+                LocalFileMng::writeXmlString( layerNode, "loops", QString("%1").arg( lo.count ) );
+                LocalFileMng::writeXmlString( layerNode, "endframe", QString("%1").arg( lo.end_frame ) );
+                LocalFileMng::writeXmlString( layerNode, "userubber", QString("%1").arg( ro.use ) );
+                LocalFileMng::writeXmlString( layerNode, "rubberdivider", QString("%1").arg( ro.divider ) );
+                LocalFileMng::writeXmlString( layerNode, "rubberCsettings", QString("%1").arg( ro.c_settings ) );
+                LocalFileMng::writeXmlString( layerNode, "rubberPitch", QString("%1").arg( ro.pitch ) );
+                LocalFileMng::writeXmlString( layerNode, "min", QString("%1").arg( pLayer->get_start_velocity() ) );
+                LocalFileMng::writeXmlString( layerNode, "max", QString("%1").arg( pLayer->get_end_velocity() ) );
+                LocalFileMng::writeXmlString( layerNode, "gain", QString("%1").arg( pLayer->get_gain() ) );
+                LocalFileMng::writeXmlString( layerNode, "pitch", QString("%1").arg( pLayer->get_pitch() ) );
 
-			Sample::PanEnvelope* pan = pSample->get_pan_envelope();
-			for (int y = 0; y < pan->size(); y++){
-				QDomNode panNode = doc.createElement( "pan" );
-				LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y).frame ) );
-				LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y).value ) );
-				layerNode.appendChild( panNode );
-			}
 
-			instrumentNode.appendChild( layerNode );
-		}
+                Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
+                for (int y = 0; y < velocity->size(); y++){
+                    QDomNode volumeNode = doc.createElement( "volume" );
+                    LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y).frame ) );
+                    LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y).value ) );
+                    layerNode.appendChild( volumeNode );
+                }
+
+                Sample::PanEnvelope* pan = pSample->get_pan_envelope();
+                for (int y = 0; y < pan->size(); y++){
+                    QDomNode panNode = doc.createElement( "pan" );
+                    LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y).frame ) );
+                    LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y).value ) );
+                    layerNode.appendChild( panNode );
+                }
+
+                instrumentNode.appendChild( layerNode );
+            }
+            instrumentNode.appendChild( componentNode );
+        }
 
 		instrumentListNode.appendChild( instrumentNode );
 	}

@@ -5,10 +5,12 @@
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/drumkit.h>
+#include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/note.h>
@@ -96,11 +98,21 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						ERRORLOG( "filename back compability node is empty" );
 					} else {
 						Sample* sample = new Sample( dk_path+"/"+sFilename );
+						DrumkitComponent* dmCompo = new DrumkitComponent( 0, "Main" );
+						drumkit->get_components()->push_back(dmCompo);
+						InstrumentComponent* component = new InstrumentComponent( 0 );
+
 						InstrumentLayer* layer = new InstrumentLayer( sample );
-						instrument->set_layer( layer, 0 );
+						component->set_layer( layer, 0 );
+						instrument->get_components()->push_back( component );
+
 					}
 				} else {
 					int n = 0;
+					DrumkitComponent* dmCompo = new DrumkitComponent( 0, "Main" );
+					drumkit->get_components()->push_back(dmCompo);
+					InstrumentComponent* component = new InstrumentComponent( 0 );
+
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
 						if ( n >= MAX_LAYERS ) {
@@ -113,10 +125,11 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						layer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );
 						layer->set_gain( layer_node.read_float( "gain", 1.0, true, false ) );
 						layer->set_pitch( layer_node.read_float( "pitch", 0.0, true, false ) );
-						instrument->set_layer( layer, n );
+						component->set_layer( layer, n );
 						n++;
 						layer_node = layer_node.nextSiblingElement( "layer" );
 					}
+					instrument->get_components()->push_back( component );
 				}
 			}
 			if( instrument ) {

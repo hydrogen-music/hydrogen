@@ -28,7 +28,9 @@
 #include <cstdlib>
 #include <cassert>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
@@ -448,6 +450,27 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 	return out;
 }
 
+float* JackOutput::getTrackOut_L( Instrument * instr, InstrumentComponent * pCompo)
+{
+    map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
+    if(it != track_map.end())
+        return getTrackOut_L(it->second);
+
+    jack_default_audio_sample_t* out = 0;
+    return out;
+}
+
+float* JackOutput::getTrackOut_R( Instrument * instr, InstrumentComponent * pCompo)
+{
+    map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
+    if(it != track_map.end())
+        return getTrackOut_R(it->second);
+
+    jack_default_audio_sample_t* out = 0;
+    return out;
+}
+
+
 #define CLIENT_FAILURE(msg) {						\
 		ERRORLOG("Could not connect to JACK server (" msg ")"); \
 		if (client) {						\
@@ -630,13 +653,21 @@ void JackOutput::makeTrackOutputs( Song * song )
 	// create dedicated channel output ports
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
+    int p_trackCount = 0;
+    track_map.clear();
+
 	for ( int n = nInstruments - 1; n >= 0; n-- ) {
-		instr = instruments->get( n );
-		setTrackOutput( n, instr );
+        instr = instruments->get( n );
+        for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
+            InstrumentComponent* pCompo = *it;
+            setTrackOutput( p_trackCount, instr , pCompo);
+            track_map[instr->get_id() + "_" + pCompo->get_drumkit_componentID()] = p_trackCount;
+            p_trackCount++;
+		}
 	}
 	// clean up unused ports
 	jack_port_t *p_L, *p_R;
-	for ( int n = nInstruments; n < track_port_count; n++ ) {
+	for ( int n = p_trackCount; n < track_port_count; n++ ) {
 		p_L = track_output_ports_L[n];
 		p_R = track_output_ports_R[n];
 		track_output_ports_L[n] = 0;
@@ -645,14 +676,14 @@ void JackOutput::makeTrackOutputs( Song * song )
 		jack_port_unregister( client, p_R );
 	}
 
-	track_port_count = nInstruments;
+	track_port_count = p_trackCount;
 }
 
 /**
  * Give the @a n 'th port the name of @a instr .
  * If the n'th port doesn't exist, new ports up to n are created.
  */
-void JackOutput::setTrackOutput( int n, Instrument * instr )
+void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent * compo )
 {
 	QString chName;
 
@@ -673,7 +704,8 @@ void JackOutput::setTrackOutput( int n, Instrument * instr )
 	}
 
 	// Now we're sure there is an n'th port, rename it.
-	chName = QString( "Track_%1_%2_" ).arg( n + 1 ).arg( instr->get_name() );
+	DrumkitComponent* p_dmCompo = Hydrogen::get_instance()->getSong()->get_component( compo->get_drumkit_componentID() );
+	chName = QString( "Track_%1_%2_%3_" ).arg( n + 1 ).arg( instr->get_name() ).arg( p_dmCompo->get_name() );
 
 	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
 	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
@@ -858,7 +890,7 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 	if ( ppos < 0 ) ppos = 0;
 	double TPB = H->getTickForHumanPosition( ppos );
 	if ( TPB < 1 ) return;
-	
+
 	/* We'll cheat there is ticks_per_beat * beats_per_bar ticks in bar
 	   so every Hydrogen tick will be multipled by beats_per_bar ticks */
 	pos->ticks_per_beat = TPB;
@@ -874,7 +906,7 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 		pos->bar_start_tick = 0;
 	} else {
 		pos->bar = ppos + 1;
-	
+
 		pos->tick = int32_t(H->getTickPosition()) * pos->beats_per_bar;
 		pos->beat = pos->tick / pos->ticks_per_beat;
 

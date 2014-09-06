@@ -20,6 +20,30 @@
     </xsd:restriction>
 </xsd:simpleType>
 
+<!-- INSTRUMENT COMPONENT -->
+<xsd:element name="instrumentComponent">
+    <xsd:complexType>
+        <xsd:sequence>
+            <xsd:element name="component_id"    type="xsd:integer"/>
+            <xsd:element name="gain"  		type="xsd:float" default="1.0"/>
+    <xsd:sequence>
+                <xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:element>
+
+<!-- DRUMKIT COMPONENT -->
+<xsd:element name="drumkitComponent">
+    <xsd:complexType>
+        <xsd:sequence>
+            <xsd:element name="id"    	type="xsd:integer"/>
+            <xsd:element name="name"    type="xsd:string"/>
+            <xsd:element name="volume"  type="xsd:float" default="1.0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:element>
+
 <!-- LAYER -->
 <xsd:element name="layer">
     <xsd:complexType>
@@ -69,7 +93,7 @@
             <xsd:element name="FX3Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
             <xsd:element name="FX4Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
             <xsd:sequence>
-                <xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
         </xsd:sequence>
         <!--</xsd:all>-->
@@ -84,6 +108,13 @@
             <xsd:element name="author"   type="xsd:string"/>
             <xsd:element name="info"     type="xsd:string"/>
             <xsd:element name="license"  type="xsd:string"/>
+            <xsd:element name="componentList">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element ref="h2:drumkitComponent" maxOccurs="1000"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
             <xsd:element name="instrumentList">
                 <xsd:complexType>
                     <xsd:sequence>

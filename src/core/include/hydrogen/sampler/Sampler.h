@@ -38,6 +38,7 @@ class Note;
 class Song;
 class Sample;
 class Instrument;
+class InstrumentComponent;
 class AudioOutput;
 
 ///
@@ -200,6 +201,7 @@ private:
 	int __render_note_no_resample(
 		Sample *pSample,
 		Note *pNote,
+		InstrumentComponent *pCompo,
 		int nBufferSize,
 		int nInitialSilence,
 		float cost_L,
@@ -212,6 +214,7 @@ private:
 	int __render_note_resample(
 		Sample *pSample,
 		Note *pNote,
+		InstrumentComponent *pCompo,
 		int nBufferSize,
 		int nInitialSilence,
 		float cost_L,

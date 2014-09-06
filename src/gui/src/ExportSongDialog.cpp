@@ -33,6 +33,7 @@
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
@@ -580,29 +581,32 @@ void ExportSongDialog::calculateRubberbandTime()
 			Instrument *pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-					InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
-					if ( pLayer ) {
-						Sample *pSample = pLayer->get_sample();
-						if ( pSample ) {
-							if( pSample->get_rubberband().use ) {
-								Sample *newSample = Sample::load(
-											pSample->get_filepath(),
-											pSample->get_loops(),
-											pSample->get_rubberband(),
-											*pSample->get_velocity_envelope(),
-											*pSample->get_pan_envelope()
-											);
-								if( !newSample  ){
-									continue;
-								}
-								delete pSample;
-								// insert new sample from newInstrument
-								AudioEngine::get_instance()->lock( RIGHT_HERE );
-								pLayer->set_sample( newSample );
-								AudioEngine::get_instance()->unlock();
+                for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
+                    InstrumentComponent* pCompo = *it;
+                    for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                        InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+                        if ( pLayer ) {
+                            Sample *pSample = pLayer->get_sample();
+                            if ( pSample ) {
+                                if( pSample->get_rubberband().use ) {
+                                    Sample *newSample = Sample::load(
+                                                pSample->get_filepath(),
+                                                pSample->get_loops(),
+                                                pSample->get_rubberband(),
+                                                *pSample->get_velocity_envelope(),
+                                                *pSample->get_pan_envelope()
+                                                );
+                                    if( !newSample  ){
+                                        continue;
+                                    }
+                                    delete pSample;
+                                    // insert new sample from newInstrument
+                                    AudioEngine::get_instance()->lock( RIGHT_HERE );
+                                    pLayer->set_sample( newSample );
+                                    AudioEngine::get_instance()->unlock();
 
-							}
+                                }
+                            }
 						}
 					}
 				}
@@ -630,15 +634,18 @@ bool ExportSongDialog::checkUseOfRubberband()
 			Instrument *pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-					InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
-					if ( pLayer ) {
-						Sample *pSample = pLayer->get_sample();
-						if ( pSample ) {
-							if( pSample->get_rubberband().use ) {
-								return true;
-							}
-						}
+                for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
+                    InstrumentComponent* pCompo = *it;
+                    for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                        InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+                        if ( pLayer ) {
+                            Sample *pSample = pLayer->get_sample();
+                            if ( pSample ) {
+                                if( pSample->get_rubberband().use ) {
+                                    return true;
+                                }
+                            }
+                        }
 					}
 				}
 			}

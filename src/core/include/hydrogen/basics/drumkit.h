@@ -30,6 +30,7 @@ namespace H2Core
 
 class XMLNode;
 class InstrumentList;
+class DrumkitComponent;
 
 /**
  * Drumkit info
@@ -109,7 +110,7 @@ class Drumkit : public H2Core::Object
 		 * \oaram overwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, bool overwrite=false );
+		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
 		/**
 		 * install a drumkit from a filename
 		 * \param path the path to the new drumkit archive
@@ -153,6 +154,9 @@ class Drumkit : public H2Core::Object
 
 		void dump();
 
+		std::vector<DrumkitComponent*>* get_components();
+		void set_components( std::vector<DrumkitComponent*>* components );
+
 	private:
 		QString __path;                 ///< absolute drumkit path
 		QString __name;                 ///< drumkit name
@@ -172,6 +176,7 @@ class Drumkit : public H2Core::Object
 		 * \param dk_path the directory holding the drumkit data
 		 */
 		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
+    	std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 
 // DEFINITIONS
@@ -234,6 +239,11 @@ inline const QString& Drumkit::get_license() const
 inline const bool Drumkit::samples_loaded() const
 {
 	return __samples_loaded;
+}
+
+inline std::vector<DrumkitComponent*>* Drumkit::get_components()
+{
+    return __components;
 }
 
 };
