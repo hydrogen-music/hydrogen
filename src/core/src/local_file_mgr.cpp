@@ -1368,7 +1368,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
                     layerNode.appendChild( panNode );
                 }
 
-                instrumentNode.appendChild( layerNode );
+                componentNode.appendChild( layerNode );
             }
             instrumentNode.appendChild( componentNode );
         }
