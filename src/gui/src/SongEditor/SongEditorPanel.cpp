@@ -70,7 +70,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-        m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->getUseTimelineBpm() );
+	m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->getUseTimelineBpm() );
 
 
 	// clear sequence button
@@ -359,43 +359,43 @@ void SongEditorPanel::updatePositionRuler()
 ///
 void SongEditorPanel::newPatBtnClicked( Button* btn )
 {
-    UNUSED( btn );
-    Hydrogen *engine = Hydrogen::get_instance();
-    Song *song = engine->getSong();
-    PatternList *patternList = song->get_pattern_list();
-    Pattern *newPattern = new Pattern( trUtf8("Pattern %1").arg(patternList->size()+1), trUtf8("not_categorized") );
-    PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, newPattern, 0, true );
-    if ( dialog->exec() == QDialog::Accepted ) {
-        SE_addEmptyPatternAction*action =
-            new SE_addEmptyPatternAction( newPattern->get_name() , newPattern->get_category(), engine->getSelectedPatternNumber()+1);
-        HydrogenApp::get_instance()->m_undoStack->push( action );
-    }
-    delete newPattern;
-    delete dialog;
+	UNUSED( btn );
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+	Pattern *newPattern = new Pattern( trUtf8("Pattern %1").arg(patternList->size()+1), trUtf8("not_categorized") );
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, newPattern, 0, true );
+	if ( dialog->exec() == QDialog::Accepted ) {
+		SE_addEmptyPatternAction*action =
+				new SE_addEmptyPatternAction( newPattern->get_name() , newPattern->get_category(), engine->getSelectedPatternNumber()+1);
+		HydrogenApp::get_instance()->m_undoStack->push( action );
+	}
+	delete newPattern;
+	delete dialog;
 }
 
 
 void SongEditorPanel::addEmptyPattern( QString newPatternName , QString newPatternCategory, int idx )
 {
-    Hydrogen *engine = Hydrogen::get_instance();
-    Song *song = engine->getSong();
-    PatternList *patternList = song->get_pattern_list();
-    patternList->insert( idx, new Pattern( newPatternName, newPatternCategory ) );
-    song->__is_modified = true;
-    updateAll();
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+	patternList->insert( idx, new Pattern( newPatternName, newPatternCategory ) );
+	song->__is_modified = true;
+	updateAll();
 }
 
 void SongEditorPanel::revertaddEmptyPattern( int idx )
 {
-    Hydrogen *engine = Hydrogen::get_instance();
-    Song *song = engine->getSong();
-    PatternList *patternList = song->get_pattern_list();
-    H2Core::Pattern *pattern = patternList->get( idx );
-    if( idx == engine->getSelectedPatternNumber() ) engine->setSelectedPatternNumber( idx -1 );
-    patternList->del( pattern );
-    delete pattern;
-    song->__is_modified = true;
-    updateAll();
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	PatternList *patternList = song->get_pattern_list();
+	H2Core::Pattern *pattern = patternList->get( idx );
+	if( idx == engine->getSelectedPatternNumber() ) engine->setSelectedPatternNumber( idx -1 );
+	patternList->del( pattern );
+	delete pattern;
+	song->__is_modified = true;
+	updateAll();
 }
 
 ///
@@ -449,10 +449,10 @@ void SongEditorPanel::clearSequence( Button* btn)
 	thetime = time(NULL);
 	QString filename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
 	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
-    HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 
-    hydrogenApp->m_undoStack->push( action );
-     hydrogenApp->addTemporaryFile( filename );
+	hydrogenApp->m_undoStack->push( action );
+	hydrogenApp->addTemporaryFile( filename );
 }
 
 
@@ -517,12 +517,12 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
 	if( m_pTimeLineToggleBtn->isPressed() ){
-                Preferences::get_instance()->setUseTimelineBpm( true );
+		Preferences::get_instance()->setUseTimelineBpm( true );
 		Hydrogen::get_instance()->setTimelineBpm();
 	}
 	else
 	{
-                Preferences::get_instance()->setUseTimelineBpm( false );
+		Preferences::get_instance()->setUseTimelineBpm( false );
 	}
 	m_pPositionRuler->createBackground();
 }
@@ -576,6 +576,6 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 void SongEditorPanel::selectedPatternChangedEvent()
 {
 	resyncExternalScrollBar();
-        m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
-        HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
