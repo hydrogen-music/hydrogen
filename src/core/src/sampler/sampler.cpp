@@ -318,6 +318,9 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
             cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
             cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
+            cost_L = cost_L * pCompo->get_gain();       // Component gain
+            cost_L = cost_L * pMainCompo->get_volume(); // Component volument
+
             cost_L = cost_L * pInstr->get_volume();		// instrument volume
             if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
                 // Post-Fader
@@ -332,6 +335,9 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
             cost_R = cost_R * fLayerGain;				// layer gain
             cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
             cost_R = cost_R * pInstr->get_gain();		// instrument gain
+
+            cost_R = cost_R * pCompo->get_gain();       // Component gain
+            cost_R = cost_R * pMainCompo->get_volume(); // Component volument
 
             cost_R = cost_R * pInstr->get_volume();		// instrument volume
             if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {

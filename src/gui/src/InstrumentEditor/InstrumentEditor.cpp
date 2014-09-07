@@ -165,7 +165,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
 
 	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Random pitch factor" ), false, true );
-	m_pRandomPitchRotary->move( 117, 210 );
+	m_pRandomPitchRotary->move( 117, 192 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Filter
@@ -404,8 +404,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerGainRotary->move( 102, 341 );
 
 
-	m_pLayerGainLCD->move( 54, 341 + 3 );
-	m_pLayerGainRotary->move( 102, 341 );
+	m_pLayerPitchCoarseLCD->move( 54, 400 + 3 );
+	m_pLayerPitchCoarseRotary->move( 102, 400 );
 
 
 	m_pLayerPitchFineLCD->move( 151, 400 + 3 );
