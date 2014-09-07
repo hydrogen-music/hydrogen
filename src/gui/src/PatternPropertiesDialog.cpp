@@ -126,21 +126,15 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	accept();
 }
 
-void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepattern )
+void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepattern)
 {
-
-	PatternList *patternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
-	
-	for (uint i = 0; i < patternList->size(); i++) {
-		if ( patternList->get(i)->get_name() == pattName) {
-			if (savepattern){
-				patternNameTxt->setText( trUtf8( "%1#2").arg(patternList->get(i)->get_name()) );
-			}
-			else
-			{
-				patternNameTxt->setText( trUtf8( "%1").arg(patternList->get(i)->get_name()) );
-			}
-		}
+	if ( savepattern && !nameCheck(pattName) )
+	{
+		defaultNameCheck( trUtf8( "%1#2").arg(pattName), savepattern );
+	}
+	else
+	{
+		patternNameTxt->setText( trUtf8( "%1").arg(pattName) );
 	}
 }
 
