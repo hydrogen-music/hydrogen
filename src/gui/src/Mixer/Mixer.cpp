@@ -277,38 +277,6 @@ void Mixer::soloClicked(ComponentMixerLine* ref)
             p_tmpCompo->set_muted( false );
         }
 	}
-
-
-	/*
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
-	int nInstruments = pInstrList->size();
-
-	int nLine = findMixerLineByRef(ref);
-	pEngine->setSelectedInstrumentNumber( nLine );
-	bool isSoloClicked = ref->isSoloClicked();
-
-	if (isSoloClicked) {
-		for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setSoloClicked( false );
-			m_pMixerLine[i]->setMuteClicked( true );
-			pInstrList->get( i )->set_muted( true );
-		}
-		m_pMixerLine[nLine]->setSoloClicked( true );
-		m_pMixerLine[nLine]->setMuteClicked( false );
-		pInstrList->get( nLine )->set_muted( false );
-	}
-	else {
-		for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setMuteClicked( false );
-			m_pMixerLine[i]->setSoloClicked( false );
-			pInstrList->get( i )->set_muted( false );
-		}
-	}
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
-	*/
 }
 
 void Mixer::volumeChanged(ComponentMixerLine* ref)
