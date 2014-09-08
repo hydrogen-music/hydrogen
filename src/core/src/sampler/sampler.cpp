@@ -302,7 +302,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
         float cost_track_L = 1.0f;
         float cost_track_R = 1.0f;
 
-        if ( pInstr->is_muted() || pSong->__is_muted ) {	// is instrument muted?
+        if ( pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	// is instrument muted?
             cost_L = 0.0;
             cost_R = 0.0;
             if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {

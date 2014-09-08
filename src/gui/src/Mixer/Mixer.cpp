@@ -244,11 +244,71 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
+    Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
+	int nComponents = pCompoList.size();
+
+	bool isSoloClicked = ref->isSoloClicked();
+	int nLine = findCompoMixerLineByRef(ref);
+	//DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	//pCompo->set_soloed( isSoloClicked );
+
+    if ( isSoloClicked ) {
+        for ( int i = 0; i < nComponents ; ++i ) {
+            ComponentMixerLine* p_tmpCompoMixer = m_pComponentMixerLine[i];
+            p_tmpCompoMixer->setSoloClicked( false );
+            p_tmpCompoMixer->setMuteClicked( true );
+            DrumkitComponent* p_tmpCompo = pCompoList[i];
+            p_tmpCompo->set_muted( true );
+        }
+        ComponentMixerLine* p_tmpCompoMixer = m_pComponentMixerLine[nLine];
+        p_tmpCompoMixer->setSoloClicked( true );
+        p_tmpCompoMixer->setMuteClicked( false );
+        DrumkitComponent* p_tmpCompo = pCompoList[nLine];
+        p_tmpCompo->set_muted( false );
+	}
+	else {
+        for ( int i = 0; i < nComponents ; ++i ) {
+            ComponentMixerLine* p_tmpCompoMixer = m_pComponentMixerLine[i];
+            p_tmpCompoMixer->setSoloClicked( false );
+            p_tmpCompoMixer->setMuteClicked( false );
+            DrumkitComponent* p_tmpCompo = pCompoList[i];
+            p_tmpCompo->set_muted( false );
+        }
+	}
+
+
+	/*
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	int nInstruments = pInstrList->size();
+
+	int nLine = findMixerLineByRef(ref);
+	pEngine->setSelectedInstrumentNumber( nLine );
 	bool isSoloClicked = ref->isSoloClicked();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	if (isSoloClicked) {
+		for ( int i = 0; i < nInstruments; ++i ) {
+			m_pMixerLine[i]->setSoloClicked( false );
+			m_pMixerLine[i]->setMuteClicked( true );
+			pInstrList->get( i )->set_muted( true );
+		}
+		m_pMixerLine[nLine]->setSoloClicked( true );
+		m_pMixerLine[nLine]->setMuteClicked( false );
+		pInstrList->get( nLine )->set_muted( false );
+	}
+	else {
+		for ( int i = 0; i < nInstruments; ++i ) {
+			m_pMixerLine[i]->setMuteClicked( false );
+			m_pMixerLine[i]->setSoloClicked( false );
+			pInstrList->get( i )->set_muted( false );
+		}
+	}
 
-	pCompo->set_soloed( isSoloClicked );
+	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	*/
 }
 
 void Mixer::volumeChanged(ComponentMixerLine* ref)
@@ -404,6 +464,18 @@ uint Mixer::findMixerLineByRef(MixerLine* ref)
 	}
 	return 0;
 }
+
+
+uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
+{
+    for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
+        if(it->second == ref)
+            return it->first;
+    }
+
+    return 0;
+}
+
 
 
 

@@ -97,6 +97,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		QTimer *m_pUpdateTimer;
 
 		uint findMixerLineByRef(MixerLine* ref);
+		uint findCompoMixerLineByRef(ComponentMixerLine* ref);
 		MixerLine* createMixerLine( int );
 		ComponentMixerLine* createComponentMixerLine( int );
 
