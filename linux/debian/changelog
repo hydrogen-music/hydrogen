@@ -1,4 +1,4 @@
-hydrogen (0.9.6) unstable; urgency=low
+hydrogen (0.9.6.1) unstable; urgency=low
 
   * Release 0.9.6
   * new build system (cmake)
@@ -112,5 +112,5 @@ hydrogen (0.9.6) unstable; urgency=low
   * new statusbar message to display longer messages than 30 chars
     setScrollStatusBarMessage( QString message, int ms )
 
- -- Alessandro Cominu <comix@users.sf.net>  Mon, 15 Sep 2008 12:00:00 +0200
+ -- Sebastian Moors <smoors@users.sf.net>  Mon, 09 Sep 2014 12:00:00 +0200
 
