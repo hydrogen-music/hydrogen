@@ -648,15 +648,13 @@ void SampleEditor::createPositionsRulerPath()
 
 	unsigned  normalLength = m_pSampleFromFile->get_frames();
 
-	unsigned *normalFrames = new unsigned[ normalLength ];
-
+	unsigned *	normalFrames = new unsigned[ normalLength ];
+	unsigned *	tempFrames = new unsigned[ newLength ];
+	unsigned *	loopFrames = new unsigned[ loopLength ];
 
 	for ( unsigned i = 0; i < normalLength; i++ ) {
 		normalFrames[i] = i;
 	}
-
-	unsigned *tempFrames = new unsigned[ newLength ];
-	unsigned *loopFrames = new unsigned[ loopLength ];
 
 	Sample::Loops::LoopMode loopmode = __loops.mode;
 	long int z = __loops.loop_frame;
@@ -708,6 +706,10 @@ void SampleEditor::createPositionsRulerPath()
 	}
 
 	m_pPositionsRulerPath = tempFrames;
+
+	delete[] tempFrames;
+	delete[] loopFrames;
+	delete[] normalFrames;
 }
 
 
