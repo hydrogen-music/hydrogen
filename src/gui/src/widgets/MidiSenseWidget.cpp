@@ -28,8 +28,8 @@ const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
 MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* midiAction ): QDialog( pParent ) , Object(__class_name)
 {
-	directWrite = directWr;
-	action = midiAction;
+	m_DirectWrite = directWr;
+	m_pAction = midiAction;
 
 
 	setWindowTitle( "Waiting.." );
@@ -38,7 +38,7 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* 
 	m_pURLLabel = new QLabel( this );
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
-	if(action != NULL){
+	if(m_pAction != NULL){
 		m_pURLLabel->setText( "Waiting for midi input..." );
 	} else {
 
@@ -47,10 +47,10 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* 
 		 *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
 		 */
 
-		if(directWrite){
-			m_pURLLabel->setText( "This element is not midi operable." );
+		if(m_DirectWrite){
+			m_pURLLabel->setText( trUtf8("This element is not midi operable.") );
 		} else {
-			m_pURLLabel->setText( "Waiting for midi input..." );
+			m_pURLLabel->setText( trUtf8("Waiting for midi input...") );
 		}
 	}
 	
@@ -82,14 +82,14 @@ void MidiSenseWidget::updateMidi(){
 		lastMidiEventParameter = pEngine->lastMidiEventParameter;
 
 
-		if( directWrite ){
+		if( m_DirectWrite ){
 			//write the action / parameter combination to the midiMap
 			MidiMap *mM = MidiMap::get_instance();
-			assert(action);
-			MidiAction* pAction = new MidiAction( action->getType() );
+			assert(m_pAction);
+			MidiAction* pAction = new MidiAction( m_pAction->getType() );
 
 			//if( action->getParameter1() != 0){
-			pAction->setParameter1( action->getParameter1() );
+			pAction->setParameter1( m_pAction->getParameter1() );
 			//}
 
 			if( lastMidiEvent.left(2) == "CC" ){

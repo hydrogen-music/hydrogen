@@ -1,4 +1,4 @@
-	/*
+/*
 	 * Hydrogen
 	 * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
 	 *
@@ -19,20 +19,21 @@
 	 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	 *
 	 */
-	#ifndef MIDISENSE_WIDGET_H
-	#define MIDISENSE_WIDGET_H
+#ifndef MIDISENSE_WIDGET_H
+#define MIDISENSE_WIDGET_H
 
-	#include <QtGui>
+#include <QtGui>
 
-	#include <hydrogen/object.h>
-        #include <hydrogen/midi_action.h>
+#include <hydrogen/object.h>
+#include <hydrogen/midi_action.h>
 
-	class MidiSenseWidget : public QDialog ,public H2Core::Object
+class MidiSenseWidget : public QDialog ,public H2Core::Object
 	{
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
+
 	public:
-		MidiSenseWidget(QWidget*,bool directWrite = false , MidiAction* action = NULL);
+		MidiSenseWidget(QWidget*,bool m_DirectWrite = false , MidiAction* m_pAction = NULL);
 		~MidiSenseWidget();
 
 		QString lastMidiEvent;
@@ -42,10 +43,10 @@
 		void updateMidi();
 
 	private:
-		QTimer* m_pUpdateTimer;
-		QLabel* m_pURLLabel;
-		MidiAction* action;
-		bool directWrite;
+		QTimer*		m_pUpdateTimer;
+		QLabel*		m_pURLLabel;
+		MidiAction* m_pAction;
+		bool		m_DirectWrite;
 };
 
 #endif
