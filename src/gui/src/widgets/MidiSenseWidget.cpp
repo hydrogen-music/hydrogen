@@ -39,19 +39,19 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* 
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
 	if(action != NULL){
-	    m_pURLLabel->setText( "Waiting for midi input..." );
-	} else{
+		m_pURLLabel->setText( "Waiting for midi input..." );
+	} else {
 
-            /*
-             *   Check if this widget got called from the midiTable in the preferences
-             *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
-             */
+		/*
+		 *   Check if this widget got called from the midiTable in the preferences
+		 *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
+		 */
 
-            if(directWrite){
-                m_pURLLabel->setText( "This element is not midi operable." );
-            } else {
-                m_pURLLabel->setText( "Waiting for midi input..." );
-            }
+		if(directWrite){
+			m_pURLLabel->setText( "This element is not midi operable." );
+		} else {
+			m_pURLLabel->setText( "Waiting for midi input..." );
+		}
 	}
 	
 	QVBoxLayout* pVBox = new QVBoxLayout( this );
@@ -83,26 +83,26 @@ void MidiSenseWidget::updateMidi(){
 
 
 		if( directWrite ){
-		    //write the action / parameter combination to the midiMap
-		    MidiMap *mM = MidiMap::get_instance();
-		    assert(action);
-		    MidiAction* pAction = new MidiAction( action->getType() );
+			//write the action / parameter combination to the midiMap
+			MidiMap *mM = MidiMap::get_instance();
+			assert(action);
+			MidiAction* pAction = new MidiAction( action->getType() );
 
-		    //if( action->getParameter1() != 0){
-		    pAction->setParameter1( action->getParameter1() );
-		    //}
+			//if( action->getParameter1() != 0){
+			pAction->setParameter1( action->getParameter1() );
+			//}
 
-		    if( lastMidiEvent.left(2) == "CC" ){
-			    mM->registerCCEvent( lastMidiEventParameter , pAction );
-		    }
+			if( lastMidiEvent.left(2) == "CC" ){
+				mM->registerCCEvent( lastMidiEventParameter , pAction );
+			}
 
-		    if( lastMidiEvent.left(3) == "MMC" ){
-			    mM->registerMMCEvent( lastMidiEvent , pAction );
-		    }
+			if( lastMidiEvent.left(3) == "MMC" ){
+				mM->registerMMCEvent( lastMidiEvent , pAction );
+			}
 
-		    if( lastMidiEvent.left(4) == "NOTE" ){
-			    mM->registerNoteEvent( lastMidiEvent.toInt() , pAction );
-		    }
+			if( lastMidiEvent.left(4) == "NOTE" ){
+				mM->registerNoteEvent( lastMidiEvent.toInt() , pAction );
+			}
 		}
 
 		close();
