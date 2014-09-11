@@ -44,7 +44,7 @@ class Rotary;
 
 class InstrumentNameWidget : public PixmapWidget
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
 		InstrumentNameWidget(QWidget* parent);

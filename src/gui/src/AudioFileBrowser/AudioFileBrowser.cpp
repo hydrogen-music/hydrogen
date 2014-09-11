@@ -49,28 +49,28 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	setWindowTitle ( trUtf8 ( "Audio File Browser" ) );
 	setFixedSize ( width(), height() );
 
-	model = new QDirModel();
-	model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
-	model->setNameFilters( QStringList() << "*.ogg" << "*.OGG" << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
-	model->setSorting( QDir::DirsFirst |QDir::Name );
-	__index = model->index( QDir::currentPath() );
+	m_pDirModel = new QDirModel();
+	m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+	m_pDirModel->setNameFilters( QStringList() << "*.ogg" << "*.OGG" << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
+	m_pDirModel->setSorting( QDir::DirsFirst |QDir::Name );
+	m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
 	
 	m_pPlayBtn->setEnabled( false );
 	m_pStopBtn->setEnabled( false );
 	openBTN->setEnabled( false );
 
-        tree = new QTreeView( treeView );
-        tree->setModel( model );
-	tree->resize( 799, 310 );
-	tree->header()->resizeSection( 0, 405 );
-	tree->setAlternatingRowColors( true );
-	tree->setRootIndex( model->index( Preferences::get_instance()->__lastsampleDirectory ) );
+	m_pTree = new QTreeView( treeView );
+	m_pTree->setModel( m_pDirModel );
+	m_pTree->resize( 799, 310 );
+	m_pTree->header()->resizeSection( 0, 405 );
+	m_pTree->setAlternatingRowColors( true );
+	m_pTree->setRootIndex( m_pDirModel->index( Preferences::get_instance()->__lastsampleDirectory ) );
 	
 	pathLineEdit->setText( Preferences::get_instance()->__lastsampleDirectory );
-	m_psamplefilename = "";	
-	m_pselectedFile << "false" << "false";
+	m_pSampleFilename = "";
+	m_pSelectedFile << "false" << "false";
 
-	sEmptySampleFilename = Filesystem::empty_sample();
+	m_sEmptySampleFilename = Filesystem::empty_sample();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
 	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));
@@ -83,16 +83,16 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	m_pStopBtn->setToolTip( QString("Stop"));
 
 	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
-	m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
+	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
 	m_pSampleWaveDisplay->move( 3, 3 );
 
 	playSamplescheckBox->setChecked( Preferences::get_instance()->__playsamplesonclicking );
 	//get the kde or gnome environment variable for mouse double or single clicking
-	singleClick = false;
+	m_SingleClick = false;
 	getEnvironment();
 
-	connect( tree, SIGNAL( clicked( const QModelIndex&) ), SLOT( clicked( const QModelIndex& ) ) );
-	connect( tree, SIGNAL( doubleClicked( const QModelIndex&) ), SLOT( doubleClicked( const QModelIndex& ) ) );
+	connect( m_pTree, SIGNAL( clicked( const QModelIndex&) ), SLOT( clicked( const QModelIndex& ) ) );
+	connect( m_pTree, SIGNAL( doubleClicked( const QModelIndex&) ), SLOT( doubleClicked( const QModelIndex& ) ) );
 	connect( pathLineEdit, SIGNAL( returnPressed() ), SLOT( updateModelIndex() ) );	
 }
 
@@ -100,7 +100,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 
 AudioFileBrowser::~AudioFileBrowser()
 {
-	Sample *pNewSample = Sample::load( sEmptySampleFilename );
+	Sample *pNewSample = Sample::load( m_sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
@@ -139,9 +139,9 @@ void AudioFileBrowser::getEnvironment()
 		
 		QTextStream envin( &envfile );
 		while ( !envin.atEnd() ) {
-			QString envline = envin.readLine();
-			if(envline == QString("SingleClick=true") ){
-				singleClick = true;
+			QString envLine = envin.readLine();
+			if(envLine == QString("SingleClick=true") ){
+				m_SingleClick = true;
 				break;
 			}		
 		}
@@ -158,7 +158,7 @@ void AudioFileBrowser::getEnvironment()
 void AudioFileBrowser::keyPressEvent (QKeyEvent *ev)
 {
 	if( ev->modifiers()==Qt::ControlModifier ){
-		tree->setSelectionMode( QAbstractItemView::MultiSelection );
+		m_pTree->setSelectionMode( QAbstractItemView::MultiSelection );
 		openBTN->setEnabled( true );
 	}	
 }
@@ -167,24 +167,24 @@ void AudioFileBrowser::keyPressEvent (QKeyEvent *ev)
 
 void AudioFileBrowser::keyReleaseEvent (QKeyEvent *ev)
 {
-	tree->setSelectionMode( QAbstractItemView::SingleSelection );
+	m_pTree->setSelectionMode( QAbstractItemView::SingleSelection );
 }
 
 
 
 void AudioFileBrowser::updateModelIndex()
 {
-	QString toremove;
-	QString newpath = pathLineEdit->text();
+	QString toRemove;
+	QString newPath = pathLineEdit->text();
 
-	if( QDir( newpath ).exists() ){
-		tree->setRootIndex( model->index( newpath ) );
+	if( QDir( newPath ).exists() ){
+		m_pTree->setRootIndex( m_pDirModel->index( newPath ) );
 	}else
 	{
-		toremove = newpath.section( '/', -1 );
+		toRemove = newPath.section( '/', -1 );
 //		QMessageBox::information ( this, "Hydrogen", newpath + toremove);
-		newpath.replace( toremove, "" );
-		tree->setRootIndex( model->index( newpath ) );
+		newPath.replace( toRemove, "" );
+		m_pTree->setRootIndex( m_pDirModel->index( newPath ) );
 	}
 
 }
@@ -193,9 +193,9 @@ void AudioFileBrowser::updateModelIndex()
 
 void AudioFileBrowser::clicked( const QModelIndex& index )
 {
-	QString path = model->filePath( index );
+	QString path = m_pDirModel->filePath( index );
 
-	if( singleClick ){
+	if( m_SingleClick ){
 		browseTree( index );
 	}
 
@@ -209,7 +209,7 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
-	if(!singleClick)
+	if(!m_SingleClick)
 		browseTree( index );
 }
 
@@ -218,13 +218,13 @@ void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 void AudioFileBrowser::browseTree( const QModelIndex& index )
 {
 
-	QString path = model->filePath( index );
+	QString path = m_pDirModel->filePath( index );
 	pathLineEdit->setText( path );
-	m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
+	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
 
 	updateModelIndex(); //with this you have a navigation like konqueror 
 
-	if ( model->isDir( index ) ){
+	if ( m_pDirModel->isDir( index ) ){
 		m_pPlayBtn->setEnabled( false );
 		openBTN->setEnabled( false );
 		return;
@@ -233,15 +233,15 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 	QString name = path.section( '/', -1 ); 
 	
 	QString path2 = path;
-	QString onlypath = path;
+	QString onlyPath = path;
 	if ( name != "" ){
-		onlypath = path.replace( name, "" );
+		onlyPath = path.replace( name, "" );
 	}
 		
 	name = name.left( '.' );
 
 	QString message = "Name: " + name;
-	pathLineEdit->setText( onlypath );
+	pathLineEdit->setText( onlyPath );
 
 	QStringList path2List = path2.split("/");
 	QString fleTxt = path2List.last();
@@ -263,7 +263,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			m_pLengthLable->setText( trUtf8( "Sample length: " ) + qsec + trUtf8( " s" ) );
 
 			delete pNewSample;
-			m_psamplefilename = path2;
+			m_pSampleFilename = path2;
 
 			m_pSampleWaveDisplay->updateDisplay( path2 );
 			m_pPlayBtn->setEnabled( true );
@@ -287,11 +287,11 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		m_pNBytesLable->setText( trUtf8( "Size:" ) );
 		m_pSamplerateLable->setText( trUtf8( "Samplerate:" ) );
 		m_pLengthLable->setText( trUtf8( "Sample length:" ) );
-		m_pSampleWaveDisplay->updateDisplay( sEmptySampleFilename );
+		m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
 		m_pPlayBtn->setEnabled( false );
 		m_pStopBtn->setEnabled( false );
 		openBTN->setEnabled( false );
-		m_psamplefilename = "";
+		m_pSampleFilename = "";
 	}
 	QApplication::restoreOverrideCursor();
 }
@@ -301,10 +301,10 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 void AudioFileBrowser::on_m_pPlayBtn_clicked()
 {
 
-	if( QFile( m_psamplefilename ).exists() == false )
+	if( QFile( m_pSampleFilename ).exists() == false )
 		return;
 	m_pStopBtn->setEnabled( true );
-	Sample *pNewSample = Sample::load( m_psamplefilename );
+	Sample *pNewSample = Sample::load( m_pSampleFilename );
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
@@ -315,7 +315,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
-	Sample *pNewSample = Sample::load( sEmptySampleFilename );
+	Sample *pNewSample = Sample::load( m_sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }
@@ -325,7 +325,7 @@ void AudioFileBrowser::on_m_pStopBtn_clicked()
 void AudioFileBrowser::on_cancelBTN_clicked()
 {
 	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
-	m_pselectedFile << "false" << "false" << "";
+	m_pSelectedFile << "false" << "false" << "";
 	reject();
 }
 
@@ -333,9 +333,9 @@ void AudioFileBrowser::on_cancelBTN_clicked()
 
 void AudioFileBrowser::on_openBTN_clicked()
 {
-	if( tree->selectionModel()->selectedRows().size() > 0){
+	if( m_pTree->selectionModel()->selectedRows().size() > 0){
 		QList<QModelIndex>::iterator i;
-		QList<QModelIndex> list = tree->selectionModel()->selectedRows();
+		QList<QModelIndex> list = m_pTree->selectionModel()->selectedRows();
 
 		for (i = list.begin(); i != list.end(); ++i){
 			QString path2 = (*i).data().toString();
@@ -346,7 +346,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 					path = path + "/";
 				}
 				QString act_filename = path + path2;
-				m_pselectedFile << act_filename ;
+				m_pSelectedFile << act_filename ;
 			}
 		}
 	}
@@ -367,12 +367,12 @@ void AudioFileBrowser::on_playSamplescheckBox_clicked()
 QStringList AudioFileBrowser::selectedFile()
 {
 	if ( useNameCheckBox->isChecked() ){
-		m_pselectedFile[0] = "true";
+		m_pSelectedFile[0] = "true";
 	}
 	if ( autoVelCheckBox->isChecked() ){
-		m_pselectedFile[1] = "true";
+		m_pSelectedFile[1] = "true";
 	}
-	return m_pselectedFile;
+	return m_pSelectedFile;
 }
 
 
@@ -391,16 +391,16 @@ void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 		QString updir = pathlist.join("/");
 
 		pathLineEdit->setText( updir );
-		tree->setRootIndex( model->index( updir ) );
-		tree->collapse( model->index( updir  ) );
-		tree->setExpanded( model->index(updir), false  );
+		m_pTree->setRootIndex( m_pDirModel->index( updir ) );
+		m_pTree->collapse( m_pDirModel->index( updir  ) );
+		m_pTree->setExpanded( m_pDirModel->index(updir), false  );
 		path = pathLineEdit->text();
 	}
 
 	pathLineEdit->setText( QDir::homePath() );
-	tree->setRootIndex( model->index( QDir::homePath() ) );
+	m_pTree->setRootIndex( m_pDirModel->index( QDir::homePath() ) );
 
-	tree->collapse( model->index( QDir::homePath())  );
+	m_pTree->collapse( m_pDirModel->index( QDir::homePath())  );
 }
 
 
@@ -417,9 +417,9 @@ void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 	if( path.endsWith( "/" ) ){
 		pathlist.removeLast();
 		QString tmpupdir = pathlist.join("/");
-		tree->setRootIndex( model->index( tmpupdir ) );
-		tree->collapse( model->index( tmpupdir  ) );
-		tree->setExpanded( model->index( tmpupdir ), false  );
+		m_pTree->setRootIndex( m_pDirModel->index( tmpupdir ) );
+		m_pTree->collapse( m_pDirModel->index( tmpupdir  ) );
+		m_pTree->setExpanded( m_pDirModel->index( tmpupdir ), false  );
 	}
 
 	pathlist.removeLast();
@@ -432,9 +432,9 @@ void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 		pathLineEdit->setText( updir );
 	}
 
-	tree->setRootIndex( model->index( updir ) );
-	tree->collapse( model->index( updir  ) );
-	tree->setExpanded( model->index(updir), false  );
+	m_pTree->setRootIndex( m_pDirModel->index( updir ) );
+	m_pTree->collapse( m_pDirModel->index( updir  ) );
+	m_pTree->setExpanded( m_pDirModel->index(updir), false  );
 }
 
 
@@ -442,9 +442,9 @@ void AudioFileBrowser::on_m_pPathUptoolButton_clicked()
 void AudioFileBrowser::on_hiddenCB_clicked()
 {
 	if ( hiddenCB->isChecked() ){
-		model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
+		m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden );
 	} else {
-		model->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
-		tree->setRootIndex( model->index( pathLineEdit->text() ) );
+		m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
+		m_pTree->setRootIndex( m_pDirModel->index( pathLineEdit->text() ) );
 	}
 }

@@ -47,27 +47,33 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
-        H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
-        H2Core::Sample::VelocityEnvelope* get_velocity() { return &__velocity; }
+		H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
+		H2Core::Sample::VelocityEnvelope* get_velocity() { return &__velocity; }
 
 	private:
-		QPixmap m_background;
+		QPixmap m_Background;
+
 		QString m_sSampleName;
-		int *m_pPeakDatal;
-		int *m_pPeakDatar;
-		unsigned m_pSampleLength;
-		bool m_pvmove;
-		QString m_info;
-		int m_x;
-		int m_y;
-		int m_plocator;
-		bool m_pupdateposi;
+		QString m_sInfo;
+
+		int m_nX;
+		int m_nY;
+		int m_nLocator;
+
+		int *m_pPeakData_Left;
+		int *m_pPeakData_Right;
+
+		unsigned m_nSampleLength;
+
+		bool m_VMove;
+		bool m_UpdatePosition;
+
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
+
 		H2Core::Sample::PanEnvelope __pan;
 		H2Core::Sample::VelocityEnvelope __velocity;
-		
 };
 
 

@@ -933,9 +933,6 @@ void FxMixerLine::setFxActive( bool active )
 
 ////////////////////////////////
 
-//QPixmap* InstrumentNameWidget::m_pBackground = NULL;
-
-
 InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
  : PixmapWidget( parent, "InstrumentNameWidget" )
 {
@@ -948,8 +945,6 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	int size = pref->getMixerFontPointSize();
 	m_mixerFont.setFamily( family );
 	m_mixerFont.setPointSize( size );
-//	m_mixerFont.setBold( true );
-//	m_mixerFont.setItalic( true );
 
 	setPixmap( "/mixerPanel/mixerline_label_background.png" );
 

@@ -52,19 +52,19 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	int h = UI_HEIGHT;
 	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/targetsamplewavedisplay.png" );
+	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/targetsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakDatal = new int[ w ];
-	m_pPeakDatar = new int[ w ];
-	m_pvmove = false;
-	m_info = "";
-	m_x = -10;
-	m_y = -10;
-	m_plocator = -1;
-	m_pupdateposi = false;
+	m_pPeakData_Left = new int[ w ];
+	m_pPeakData_Right = new int[ w ];
+	m_VMove = false;
+	m_sInfo = "";
+	m_nX = -10;
+	m_nY = -10;
+	m_nLocator = -1;
+	m_UpdatePosition = false;
 }
 
 
@@ -74,8 +74,8 @@ TargetWaveDisplay::~TargetWaveDisplay()
 {
 	//INFOLOG( "DESTROY" );
 
-	delete[] m_pPeakDatal;
-	delete[] m_pPeakDatar;
+	delete[] m_pPeakData_Left;
+	delete[] m_pPeakData_Right;
 }
 
 
@@ -83,29 +83,27 @@ TargetWaveDisplay::~TargetWaveDisplay()
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
+	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
 	painter.setPen( QColor( 252, 142, 73 ));
+
 	int VCenter = height() / 2;
-	int lcenter = VCenter -4;
-	int rcenter = VCenter +4;
+	int LCenter = VCenter -4;
+	int RCenter = VCenter +4;
+
 	for ( int x = 0; x < width(); x++ ) {
-		painter.drawLine( x, lcenter, x, -m_pPeakDatal[x +1] +lcenter  );
+		painter.drawLine( x, LCenter, x, -m_pPeakData_Left[x +1] +LCenter  );
 	}
 
 	painter.setPen( QColor( 116, 186, 255 ));
 	for ( int x = 0; x < width(); x++ ) {
-		painter.drawLine( x, rcenter, x, -m_pPeakDatar[x +1] +rcenter  );
+		painter.drawLine( x, RCenter, x, -m_pPeakData_Right[x +1] +RCenter  );
 	}
 
-	QFont font;
-	font.setWeight( 63 );
-	painter.setFont( font );
-//start frame pointer
-//	painter.setPen( QColor( 99, 175, 254, 200 ) );
-//	painter.drawLine( m_pFadeOutFramePosition, 4, m_pFadeOutFramePosition, height() -4 );	
-//	painter.drawText( m_pFadeOutFramePosition , 1, 10,20, Qt::AlignRight, "F" );
+	QFont Font;
+	Font.setWeight( 63 );
+	painter.setFont( Font );
 
 	for ( int i = 0; i < static_cast<int>(__velocity.size()) -1; i++){
 		//volume line
@@ -126,7 +124,7 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
-	painter.drawLine( m_plocator, 4, m_plocator, height() -4);
+	painter.drawLine( m_nLocator, 4, m_nLocator, height() -4);
 
 	//volume line
 	//first rect 
@@ -146,25 +144,27 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, lcenter, UI_WIDTH, lcenter );
+	painter.drawLine( 0, LCenter, UI_WIDTH, LCenter );
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
-	painter.drawLine( 0, rcenter, UI_WIDTH, rcenter );
+	painter.drawLine( 0, RCenter, UI_WIDTH, RCenter );
 
-	if (m_y < 50){
-		if (m_x < 790){
-			painter.drawText( m_x +5, m_y, 60, 20, Qt::AlignLeft, QString( m_info ) );
-		}else
+	if (m_nY < 50){
+		if (m_nX < 790){
+			painter.drawText( m_nX +5, m_nY, 60, 20, Qt::AlignLeft, QString( m_sInfo ) );
+		}
+		else
 		{
-			painter.drawText( m_x - 65, m_y, 60, 20, Qt::AlignRight, QString( m_info ) );
+			painter.drawText( m_nX - 65, m_nY, 60, 20, Qt::AlignRight, QString( m_sInfo ) );
 		}
 		
 	}else
 	{
-		if (m_x < 790){
-			painter.drawText( m_x +5, m_y -20, 60, 20, Qt::AlignLeft, QString( m_info ) );
-		}else
+		if (m_nX < 790){
+			painter.drawText( m_nX +5, m_nY -20, 60, 20, Qt::AlignLeft, QString( m_sInfo ) );
+		}
+		else
 		{
-			painter.drawText( m_x - 65, m_y -20, 60, 20, Qt::AlignRight, QString( m_info ) );
+			painter.drawText( m_nX - 65, m_nY -20, 60, 20, Qt::AlignRight, QString( m_sInfo ) );
 		}
 	}
 
@@ -178,12 +178,13 @@ void TargetWaveDisplay::updateDisplayPointer()
 
 void TargetWaveDisplay::paintLocatorEventTargetDisplay( int pos, bool updateposi)
 {
-	m_pupdateposi = updateposi;
+	m_UpdatePosition = updateposi;
 	if ( !updateposi ){
-		m_plocator = -1;
-	}else
+		m_nLocator = -1;
+	}
+	else
 	{
-		m_plocator = pos;
+		m_nLocator = pos;
 	}
 	update();
 }
@@ -226,8 +227,8 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 				}
 				++nSamplePos;
 			}
-			m_pPeakDatal[ i ] = nVall;
-			m_pPeakDatar[ i ] = nValr;
+			m_pPeakData_Left[ i ] = nVall;
+			m_pPeakData_Right[ i ] = nValr;
 		}
 	}
 
@@ -239,62 +240,61 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	int snapradius = 10;
-        int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
-
+	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
 
 	///edit volume points
-        if( editType == 0 ){
-		m_pvmove = true;
-	
+	if( editType == 0 ){
+		m_VMove = true;
+
 		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 			update();
-			m_pvmove = false;
+			m_VMove = false;
 			return;
 		}
 		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-		m_info.setNum( info, 'g', 2 );
-		m_x = ev->x();
-		m_y = ev->y();
-	
+		m_sInfo.setNum( info, 'g', 2 );
+		m_nX = ev->x();
+		m_nY = ev->y();
+
 		for ( int i = 0; i < static_cast<int>(__velocity.size()); i++){
 			if ( __velocity[i].frame >= ev->x() - snapradius && __velocity[i].frame <= ev->x() + snapradius ) {
 				__velocity.erase( __velocity.begin() + i);
-                Sample::EnvelopePoint pt;
-                if ( i == 0 ){
-                    pt.frame = 0;
-                    pt.value = ev->y();
-                } else if ( i == static_cast<int>(__velocity.size()) ) {
-                    pt.frame = __velocity[i].frame;
-                    pt.value = ev->y();
+				Sample::EnvelopePoint pt;
+				if ( i == 0 ){
+					pt.frame = 0;
+					pt.value = ev->y();
+				} else if ( i == static_cast<int>(__velocity.size()) ) {
+					pt.frame = __velocity[i].frame;
+					pt.value = ev->y();
 
-                } else {
-                    pt.frame = ev->x();
-                    pt.value = ev->y();
-                }
-                __velocity.push_back( pt );
-                sort( __velocity.begin(), __velocity.end(), Sample::EnvelopePoint::Comparator() );
-                update();
-                return;
+				} else {
+					pt.frame = ev->x();
+					pt.value = ev->y();
+				}
+				__velocity.push_back( pt );
+				sort( __velocity.begin(), __velocity.end(), Sample::EnvelopePoint::Comparator() );
+				update();
+				return;
 			}else
 			{
-				m_pvmove = false;	
+				m_VMove = false;
 			}
 		}
-	///edit panorama points
-        }else if( editType == 1 ){
-		m_pvmove = true;
-	
+		///edit panorama points
+	}else if( editType == 1 ){
+		m_VMove = true;
+
 		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 			update();
-			m_pvmove = false;
+			m_VMove = false;
 			return;
 		}
 		float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
-		m_info.setNum( info, 'g', 2 );
-		m_x = ev->x();
-		m_y = ev->y();
-	
+		m_sInfo.setNum( info, 'g', 2 );
+		m_nX = ev->x();
+		m_nY = ev->y();
+
 		for ( int i = 0; i < static_cast<int>(__pan.size()); i++){
 			if ( __pan[i].frame >= ev->x() - snapradius && __pan[i].frame <= ev->x() + snapradius ) {
 				__pan.erase( __pan.begin() + i);
@@ -315,7 +315,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 				return;
 			}else
 			{
-				m_pvmove = false;	
+				m_VMove = false;
 			}
 		}
 	}
@@ -328,95 +328,97 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
-	int snapradius = 6;
-	bool newpoint = true;
+	int SnapRadius = 6;
+	bool NewPoint = true;
 
 	// add new point
-        int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	int EditType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
 
 	///edit volume points
-        if( editType == 0 ){
+	if( EditType == 0 ){
+
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(__velocity.size()); ++i){
-			if ( __velocity[i].frame >= ev->x() - snapradius && __velocity[i].frame <= ev->x() + snapradius ){
-				newpoint = false;
+			if ( __velocity[i].frame >= ev->x() - SnapRadius && __velocity[i].frame <= ev->x() + SnapRadius ){
+				NewPoint = false;
 			}
 		}
+
 		int x = ev->x();
-		int y = ev->y();	
-		if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
+		int y = ev->y();
+		if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
 			float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-			m_info.setNum( info, 'g', 2 );
-			m_x = ev->x();
-			m_y = ev->y();
+			m_sInfo.setNum( info, 'g', 2 );
+			m_nX = ev->x();
+			m_nY = ev->y();
 			if ( ev->y() <= 0 ) y = 0;
 			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-			if ( ev->x() <= snapradius ) x = snapradius;
-			if ( ev->x() >= UI_WIDTH-snapradius ) x = UI_WIDTH-snapradius;
+			if ( ev->x() <= SnapRadius ) x = SnapRadius;
+			if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
 			__velocity.push_back( new Sample::EnvelopePoint( x, y ) );
 			sort( __velocity.begin(), __velocity.end(), Sample::EnvelopePoint::Comparator() );
 		}
-	
-	
+
+
 		//remove point
-		snapradius = 10;
+		SnapRadius = 10;
 		if (ev->button() == Qt::RightButton ){
-	
+
 			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
 				update();
 				return;
 			}
-			m_info = "";
+			m_sInfo = "";
 
 			for ( int i = 0; i < static_cast<int>(__velocity.size()); i++){
-				if ( __velocity[i].frame >= ev->x() - snapradius && __velocity[i].frame <= ev->x() + snapradius ){
+				if ( __velocity[i].frame >= ev->x() - SnapRadius && __velocity[i].frame <= ev->x() + SnapRadius ){
 					if ( __velocity[i].frame == 0 || __velocity[i].frame == UI_WIDTH) return;
 					__velocity.erase( __velocity.begin() +  i);
 				}
-			}	
+			}
 		}
 	}
 	///edit panorama points
-		else if( editType == 1 ){
+	else if( EditType == 1 ){
 		// test if there is already a point
 		for ( int i = 0; i < static_cast<int>(__pan.size()); ++i){
-			if ( __pan[i].frame >= ev->x() - snapradius && __pan[i].frame <= ev->x() + snapradius ){
-				newpoint = false;
+			if ( __pan[i].frame >= ev->x() - SnapRadius && __pan[i].frame <= ev->x() + SnapRadius ){
+				NewPoint = false;
 			}
 		}
 		int x = ev->x();
-		int y = ev->y();	
-		if (ev->button() == Qt::LeftButton && !m_pvmove && newpoint){
+		int y = ev->y();
+		if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
 			float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
-			m_info.setNum( info, 'g', 2 );
-			m_x = ev->x();
-			m_y = ev->y();
+			m_sInfo.setNum( info, 'g', 2 );
+			m_nX = ev->x();
+			m_nY = ev->y();
 			if ( ev->y() <= 0 ) y = 0;
 			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-			if ( ev->x() <= snapradius ) x = snapradius;
-			if ( ev->x() >= UI_WIDTH-snapradius ) x = UI_WIDTH-snapradius;
+			if ( ev->x() <= SnapRadius ) x = SnapRadius;
+			if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
 			__pan.push_back( new Sample::EnvelopePoint( x, y ) );
 			sort( __pan.begin(), __pan.end(), Sample::EnvelopePoint::Comparator() );
 		}
-	
-	
+
+
 		//remove point
-		snapradius = 10;
+		SnapRadius = 10;
 		if (ev->button() == Qt::RightButton ){
-	
+
 			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
 				update();
 				return;
 			}
-			m_info = "";
+			m_sInfo = "";
 
 			for ( int i = 0; i < static_cast<int>(__pan.size()); i++){
-				if ( __pan[i].frame >= ev->x() - snapradius && __pan[i].frame <= ev->x() + snapradius ){
+				if ( __pan[i].frame >= ev->x() - SnapRadius && __pan[i].frame <= ev->x() + SnapRadius ){
 					if ( __pan[i].frame == 0 || __pan[i].frame == UI_WIDTH) return;
 					__pan.erase( __pan.begin() +  i);
 				}
-			}	
+			}
 		}
 	}
 
