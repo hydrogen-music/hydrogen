@@ -107,16 +107,16 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( QFile( Preferences::get_instance()->m_rubberBandCLIexecutable ).exists() == false ){
-                RubberbandCframe->setDisabled ( true );
+		RubberbandCframe->setDisabled ( true );
 		__rubberband.use = false;
-                m_pSampleEditorStatus = true;
+		m_pSampleEditorStatus = true;
 	}
 #else
-       RubberbandCframe->setDisabled ( false );
-       m_pSampleEditorStatus = true;
+	RubberbandCframe->setDisabled ( false );
+	m_pSampleEditorStatus = true;
 #endif
 
-        __rubberband.pitch = 0.0;
+	__rubberband.pitch = 0.0;
 
 }
 
@@ -189,23 +189,23 @@ void SampleEditor::getAllFrameInfos()
 //this values are needed if we restore a sample from from disk if a new song with sample changes will load 
 	m_sample_is_modified = pSample->get_is_modified();
 	m_pSamplerate = pSample->get_sample_rate();
-    __loops = pSample->get_loops();
-    __rubberband = pSample->get_rubberband();
+	__loops = pSample->get_loops();
+	__rubberband = pSample->get_rubberband();
 
-    if ( pSample->get_velocity_envelope()->size()==0 ) {
-        m_pTargetSampleView->get_velocity()->clear();
-        m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint(   0, 0 ) );
-        m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
+	if ( pSample->get_velocity_envelope()->size()==0 ) {
+		m_pTargetSampleView->get_velocity()->clear();
+		m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint(   0, 0 ) );
+		m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
-        *m_pTargetSampleView->get_velocity() = *pSample->get_velocity_envelope();
+		*m_pTargetSampleView->get_velocity() = *pSample->get_velocity_envelope();
 	}
 
-    if ( pSample->get_pan_envelope()->size()==0 ) {
-        m_pTargetSampleView->get_pan()->clear();
-        m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint(   0, m_pTargetSampleView->height()/2 ) );
-        m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
+	if ( pSample->get_pan_envelope()->size()==0 ) {
+		m_pTargetSampleView->get_pan()->clear();
+		m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint(   0, m_pTargetSampleView->height()/2 ) );
+		m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	} else {
-        *m_pTargetSampleView->get_pan() = *pSample->get_pan_envelope();
+		*m_pTargetSampleView->get_pan() = *pSample->get_pan_envelope();
 	}
 
 	if (m_sample_is_modified) {
@@ -351,7 +351,7 @@ void SampleEditor::createNewLayer()
 
 	if ( !m_pSampleEditorStatus ){
 
-        Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
+		Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
 
 		if( editSample == NULL ){
 			return;
@@ -658,7 +658,7 @@ void SampleEditor::createPositionsRulerPath()
 	unsigned *tempFrames = new unsigned[ newLength ];
 	unsigned *loopFrames = new unsigned[ loopLength ];
 
-    Sample::Loops::LoopMode loopmode = __loops.mode;
+	Sample::Loops::LoopMode loopmode = __loops.mode;
 	long int z = __loops.loop_frame;
 	long int y = __loops.start_frame;
 
