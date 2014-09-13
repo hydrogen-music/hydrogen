@@ -160,7 +160,7 @@ Mixer::Mixer( QWidget* pParent )
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMixer() ) );
 	m_pUpdateTimer->start(50);
 
-        HydrogenApp::get_instance()->addEventListener( this );
+	HydrogenApp::get_instance()->addEventListener( this );
 
 }
 

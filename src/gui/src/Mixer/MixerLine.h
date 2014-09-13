@@ -64,10 +64,10 @@ class InstrumentNameWidget : public PixmapWidget
 		virtual void paintEvent(QPaintEvent *ev);
 
 	private:
-		int m_nWidgetWidth;
-		int m_nWidgetHeight;
-		QString m_sInstrName;
-		QFont m_mixerFont;
+		int			m_nWidgetWidth;
+		int			m_nWidgetHeight;
+		QString		m_sInstrName;
+		QFont		m_mixerFont;
 };
 
 

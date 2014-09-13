@@ -146,9 +146,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	Preferences *pref = Preferences::get_instance();
 
-	QString family = pref->getMixerFontFamily();
-	int size = pref->getMixerFontPointSize();
-	QFont mixerFont( family, size );
 	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
 	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)m_fFalloffTemp;
@@ -377,8 +374,8 @@ void MixerLine::nameSelected() {
 
 void MixerLine::panChanged(Rotary *ref)
 {
-	Song *song = Hydrogen::get_instance()->getSong();
-	song->__is_modified = true;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->__is_modified = true;
 	emit panChanged( this );
 
 	float panValue = ref->getValue();
