@@ -76,14 +76,14 @@ int PortAudioDriver::connect()
 	}
 
 	err = Pa_OpenDefaultStream(
-			  &m_pStream,        /* passes back stream pointer */
-			  0,              /* no input channels */
-			  2,              /* stereo output */
-			  paFloat32,      /* 32 bit floating point output */
-			  m_nSampleRate,          // sample rate
-			  m_nBufferSize,            // frames per buffer
-			  portAudioCallback, /* specify our custom callback */
-			  this );        /* pass our data through to callback */
+				&m_pStream,        /* passes back stream pointer */
+				0,              /* no input channels */
+				2,              /* stereo output */
+				paFloat32,      /* 32 bit floating point output */
+				m_nSampleRate,          // sample rate
+				m_nBufferSize,            // frames per buffer
+				portAudioCallback, /* specify our custom callback */
+				this );        /* pass our data through to callback */
 
 
 	if ( err != paNoError ) {

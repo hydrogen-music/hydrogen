@@ -174,11 +174,11 @@ int main(int argc, char *argv[])
 		// Deal with the options
 		QString songFilename;
 #ifdef H2CORE_HAVE_JACKSESSION
-                QString sessionId;
+		QString sessionId;
 #endif
 		QString playlistFilename;
 		bool bNoSplash = false;
-        QString sys_data_path;
+		QString sys_data_path;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
 		unsigned logLevelOpt = H2Core::Logger::Error;
