@@ -254,7 +254,7 @@ public:
 	};
 
 		///midi lookuptable
-		int m_nInstrumentLookupTable[128];
+		int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 		//void editInstrumentLookupTable( int instrument, int index);
 
 
