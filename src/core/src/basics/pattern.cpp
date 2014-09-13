@@ -233,8 +233,8 @@ void Pattern::purge_instrument( Instrument* instr )
 			slate.push_back( note );
 			__notes.erase( it++ );
 		} else {
-            ++it;
-        }
+			++it;
+		}
 	}
 	if ( locked ) {
 		H2Core::AudioEngine::get_instance()->unlock();
