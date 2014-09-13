@@ -191,8 +191,9 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 			assert( note );
 			if ( note->get_instrument() == instrument && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
 		}
-		return 0;
 	}
+
+	return 0;
 }
 
 void Pattern::remove_note( Note* note )
