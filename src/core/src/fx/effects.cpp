@@ -246,15 +246,18 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	m_pRootGroup->addChild( pUncategorizedGroup );
 
 	char C = 0;
-	LadspaFXGroup* pGroup;
+	LadspaFXGroup* pGroup = 0;
 	for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
-				char ch = (*i)->m_sName.toLocal8Bit().at(0);
+		char ch = (*i)->m_sName.toLocal8Bit().at(0);
 		if ( ch != C ) {
 			C = ch;
 			pGroup = new LadspaFXGroup( QString( C ) );
 			pUncategorizedGroup->addChild( pGroup );
 		}
-		pGroup->addLadspaInfo( *i );
+
+		if(pGroup){
+			pGroup->addLadspaInfo( *i );
+		}
 	}
 
 
