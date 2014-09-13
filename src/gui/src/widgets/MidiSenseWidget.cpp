@@ -26,7 +26,7 @@
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* midiAction ): QDialog( pParent ) , Object(__class_name)
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* midiAction): QDialog( pParent ) , Object(__class_name)
 {
 	m_DirectWrite = directWr;
 	m_pAction = midiAction;
@@ -84,24 +84,24 @@ void MidiSenseWidget::updateMidi(){
 
 		if( m_DirectWrite ){
 			//write the action / parameter combination to the midiMap
-			MidiMap *mM = MidiMap::get_instance();
+			MidiMap *pMidiMap = MidiMap::get_instance();
+
 			assert(m_pAction);
+
 			MidiAction* pAction = new MidiAction( m_pAction->getType() );
 
-			//if( action->getParameter1() != 0){
 			pAction->setParameter1( m_pAction->getParameter1() );
-			//}
 
 			if( lastMidiEvent.left(2) == "CC" ){
-				mM->registerCCEvent( lastMidiEventParameter , pAction );
-			}
+				pMidiMap->registerCCEvent( lastMidiEventParameter , pAction );
+			} else if( lastMidiEvent.left(3) == "MMC" ){
+				pMidiMap->registerMMCEvent( lastMidiEvent , pAction );
+			} else if( lastMidiEvent.left(4) == "NOTE" ){
+				pMidiMap->registerNoteEvent( lastMidiEvent.toInt() , pAction );
+			} else {
+				/* In all other cases, the midiMap cares for deleting the pointer */
 
-			if( lastMidiEvent.left(3) == "MMC" ){
-				mM->registerMMCEvent( lastMidiEvent , pAction );
-			}
-
-			if( lastMidiEvent.left(4) == "NOTE" ){
-				mM->registerNoteEvent( lastMidiEvent.toInt() , pAction );
+				delete pAction;
 			}
 		}
 
