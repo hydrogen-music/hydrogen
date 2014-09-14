@@ -624,6 +624,14 @@ public:
 		m_nLastOpenTab = n;
 	}
 
+	void setH2ProcessName(const QString& processName){
+		m_sH2ProcessName = processName;
+	}
+
+	QString getH2ProcessName() {
+		return m_sH2ProcessName;
+	}
+
 private:
 	static Preferences *__instance;
 
@@ -634,6 +642,7 @@ private:
 	QString demoPath;
 
 	//___ General properties ___
+	QString m_sH2ProcessName; //Name of hydrogen's main process
 	int __rubberBandCalcTime;
 	bool m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
