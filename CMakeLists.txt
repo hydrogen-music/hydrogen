@@ -48,9 +48,11 @@ OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" ON)
 OPTION(WANT_LADSPA       "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
+	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" OFF)
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
 ELSE()
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
+	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" ON)
 ENDIF()
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
@@ -173,6 +175,8 @@ FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
 
+FIND_HELPER(NSMSESSION liblo lo/lo.h lo)
+
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
 	FIND_HELPER(OSS oss sys/soundcard.h ossaudio )
 ELSE()
@@ -220,7 +224,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -273,6 +277,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
 * ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
+* ${purple}NSM Session${reset}                  : ${NSMSESSION_STATUS}   
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}
