@@ -69,8 +69,12 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midi_map.h>
-#include <hydrogen/nsm_client.h>
 #include <hydrogen/playlist.h>
+
+#ifdef H2CORE_HAVE_NSMSESSION
+#include <hydrogen/nsm_client.h>
+#endif
+
 
 #include "IO/OssDriver.h"
 #include "IO/FakeDriver.h"
@@ -1803,8 +1807,13 @@ Hydrogen::~Hydrogen()
 {
 	INFOLOG( "[~Hydrogen]" );
 
+#ifdef H2CORE_HAVE_NSMSESSION
 	NsmClient* pNsmClient = NsmClient::get_instance();
-	pNsmClient->shutdown();
+
+	if(pNsmClient){
+		pNsmClient->shutdown();
+	}
+#endif
 
 
 	if ( m_audioEngineState == STATE_PLAYING ) {
@@ -1826,7 +1835,10 @@ void Hydrogen::create_instance()
 	Preferences::create_instance();
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
+
+#ifdef H2CORE_HAVE_NSMSESSION
 	NsmClient::create_instance();
+#endif
 
 	if ( __instance == 0 ) {
 		__instance = new Hydrogen;
