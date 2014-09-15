@@ -311,7 +311,20 @@ JackMidiDriver::JackMidiDriver()
 	output_port = 0;
 	input_port = 0;
 
-	jack_client = jack_client_open("hydrogen-midi",
+	QString jackMidiClientId = "hydrogen";
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	Preferences* pref = Preferences::get_instance();
+	QString nsmClientId = pref->getNsmClientId();
+
+	if(!nsmClientId.isEmpty()){
+		jackMidiClientId = nsmClientId;
+	}
+#endif
+
+	jackMidiClientId.append("-midi");
+
+	jack_client = jack_client_open(jackMidiClientId.toLocal8Bit(),
 		JackNoStartServer, NULL);
 
 	if (jack_client == NULL)

@@ -69,6 +69,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midi_map.h>
+#include <hydrogen/nsm_client.h>
 #include <hydrogen/playlist.h>
 
 #include "IO/OssDriver.h"
@@ -1782,6 +1783,16 @@ Hydrogen::Hydrogen()
 	audioEngine_init();
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	//NSM has to be started before jack driver gets created
+	NsmClient* pNsmClient = NsmClient::get_instance();
+
+	if(pNsmClient){
+		pNsmClient->createInitialClient();
+	}
+#endif
+
 	audioEngine_startAudioDrivers();
 	for(int i = 0; i<128; i++){
 		m_nInstrumentLookupTable[i] = i;
@@ -1791,6 +1802,11 @@ Hydrogen::Hydrogen()
 Hydrogen::~Hydrogen()
 {
 	INFOLOG( "[~Hydrogen]" );
+
+	NsmClient* pNsmClient = NsmClient::get_instance();
+	pNsmClient->shutdown();
+
+
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		audioEngine_stop();
 	}
@@ -1810,6 +1826,7 @@ void Hydrogen::create_instance()
 	Preferences::create_instance();
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
+	NsmClient::create_instance();
 
 	if ( __instance == 0 ) {
 		__instance = new Hydrogen;

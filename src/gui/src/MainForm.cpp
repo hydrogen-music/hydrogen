@@ -101,12 +101,17 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	// Load default song
 	Song *song = NULL;
+
 	if ( !songFilename.isEmpty() ) {
 		song = Song::load( songFilename );
+
+		/*
+		 * If the song could not be loaded, create
+		 * a new one with the specified filename
+		 */
 		if (song == NULL) {
-			//QMessageBox::warning( this, "Hydrogen", trUtf8("Error loading song.") );
 			song = Song::get_empty_song();
-			song->set_filename( "" );
+			song->set_filename( songFilename );
 		}
 	}
 	else {

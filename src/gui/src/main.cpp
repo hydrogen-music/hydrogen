@@ -277,6 +277,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+		pPref->setH2ProcessName( QString(argv[0]) );
 
 #ifdef H2CORE_HAVE_LASH
 
@@ -409,6 +410,11 @@ int main(int argc, char *argv[])
 
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
+
+#ifdef H2CORE_HAVE_NSMSESSION
+		songFilename = pPref->getNsmSongName();
+#endif
+
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );

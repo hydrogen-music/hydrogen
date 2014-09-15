@@ -471,6 +471,16 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	output_port_name_2 = pref->m_sJackPortName2;
 
 	QString sClientName = "Hydrogen";
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	QString nsmClientId = pref->getNsmClientId();
+
+	if(!nsmClientId.isEmpty()){
+		sClientName = nsmClientId;
+	}
+#endif
+
+
 	jack_status_t status;
 	int tries = 2;  // Sometimes jackd doesn't stop and start fast enough.
 	while ( tries > 0 ) {
