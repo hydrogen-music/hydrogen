@@ -306,6 +306,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 	m_pStopBtn->setEnabled( true );
 	Sample *pNewSample = Sample::load( m_pSampleFilename );
 	if ( pNewSample ){
+		assert(pNewSample->get_sample_rate() != 0);
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
 	}
