@@ -46,9 +46,6 @@
 namespace H2Core
 {
 
-class Song;
-class Instrument;
-
 ///
 /// Jack (Jack Audio Connection Kit) server driver.
 ///
