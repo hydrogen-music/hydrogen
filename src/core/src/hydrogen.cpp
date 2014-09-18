@@ -1789,7 +1789,7 @@ Hydrogen::Hydrogen()
 	__instance = this;
 
 	audioEngine_startAudioDrivers();
-	for(int i = 0; i<128; i++){
+	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
 	}
 }
