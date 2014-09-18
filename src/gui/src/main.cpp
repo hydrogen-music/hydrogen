@@ -398,12 +398,14 @@ int main(int argc, char *argv[])
 			pPref->m_sAudioDriver = "Jack";
 
 		}
+
 		/*
-				 * the use of applicationFilePath() make it
-				 * possible to use different executables.
-				 * for example if you start hydrogen from a local
-				 * build directory.
-				 */
+		 * the use of applicationFilePath() make it
+		 * possible to use different executables.
+		* for example if you start hydrogen from a local
+		* build directory.
+		*/
+
 		QString path = pQApp->applicationFilePath();
 		pPref->setJackSessionApplicationPath( path );
 #endif
@@ -412,6 +414,7 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 
 #ifdef H2CORE_HAVE_NSMSESSION
+		H2Core::Hydrogen::get_instance()->startNsmClient();
 		songFilename = pPref->getNsmSongName();
 #endif
 

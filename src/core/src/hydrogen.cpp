@@ -1788,15 +1788,6 @@ Hydrogen::Hydrogen()
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-#ifdef H2CORE_HAVE_NSMSESSION
-	//NSM has to be started before jack driver gets created
-	NsmClient* pNsmClient = NsmClient::get_instance();
-
-	if(pNsmClient){
-		pNsmClient->createInitialClient();
-	}
-#endif
-
 	audioEngine_startAudioDrivers();
 	for(int i = 0; i<128; i++){
 		m_nInstrumentLookupTable[i] = i;
@@ -3324,5 +3315,17 @@ void Hydrogen::setTimelineBpm()
 			setBPM( bpm );
 	}
 }
+
+#ifdef H2CORE_HAVE_NSMSESSION
+void Hydrogen::startNsmClient()
+{
+	//NSM has to be started before jack driver gets created
+	NsmClient* pNsmClient = NsmClient::get_instance();
+
+	if(pNsmClient){
+		pNsmClient->createInitialClient();
+	}
+}
+#endif
 
 }; /* Namespace */

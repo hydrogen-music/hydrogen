@@ -32,6 +32,10 @@
 #include "hydrogen/nsm_client.h"
 #include "hydrogen/nsm.h"
 #include "hydrogen/event_queue.h"
+#include "hydrogen/hydrogen.h"
+#include "hydrogen/basics/song.h"
+
+
 
 NsmClient * NsmClient::__instance = 0;
 const char* NsmClient::__class_name = "NsmClient";
@@ -70,8 +74,10 @@ static int nsm_open_cb (const char *name,
 
 static int nsm_save_cb ( char **out_msg, void *userdata )
 {
-	H2Core::EventQueue* pEventQueue = H2Core::EventQueue::get_instance();
-	pEventQueue->push_event(H2Core::EVENT_JACK_SESSION, 0);
+	H2Core::Song *pSong = H2Core::Hydrogen::get_instance()->getSong();
+	QString fileName = pSong->get_filename();
+
+	pSong->save( fileName );
 
 	return ERR_OK;
 }
