@@ -20,7 +20,7 @@
  *
  */
 
-#include "FakeDriver.h"
+#include <hydrogen/IO/FakeDriver.h>
 
 namespace H2Core
 {

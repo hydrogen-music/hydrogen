@@ -59,13 +59,7 @@
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/fx/Effects.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/JackOutput.h>
-#include <hydrogen/IO/NullDriver.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
-#include <hydrogen/IO/CoreMidiDriver.h>
-#include <hydrogen/IO/TransportInfo.h>
+
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midi_map.h>
@@ -75,17 +69,23 @@
 #include <hydrogen/nsm_client.h>
 #endif
 
-
-#include "IO/OssDriver.h"
-#include "IO/FakeDriver.h"
-#include "IO/AlsaAudioDriver.h"
-#include "IO/PortAudioDriver.h"
-#include "IO/DiskWriterDriver.h"
-#include "IO/AlsaMidiDriver.h"
-#include "IO/JackMidiDriver.h"
-#include "IO/PortMidiDriver.h"
-#include "IO/CoreAudioDriver.h"
-#include "IO/PulseAudioDriver.h"
+#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/IO/NullDriver.h>
+#include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/CoreMidiDriver.h>
+#include <hydrogen/IO/TransportInfo.h>
+#include <hydrogen/IO/OssDriver.h>
+#include <hydrogen/IO/FakeDriver.h>
+#include <hydrogen/IO/AlsaAudioDriver.h>
+#include <hydrogen/IO/PortAudioDriver.h>
+#include <hydrogen/IO/DiskWriterDriver.h>
+#include <hydrogen/IO/AlsaMidiDriver.h>
+#include <hydrogen/IO/JackMidiDriver.h>
+#include <hydrogen/IO/PortMidiDriver.h>
+#include <hydrogen/IO/CoreAudioDriver.h>
+#include <hydrogen/IO/PulseAudioDriver.h>
 
 namespace H2Core
 {

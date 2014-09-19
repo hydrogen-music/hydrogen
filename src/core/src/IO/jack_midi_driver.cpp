@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-#include "JackMidiDriver.h"
+#include <hydrogen/IO/JackMidiDriver.h>
 
 #ifdef H2CORE_HAVE_JACK
 

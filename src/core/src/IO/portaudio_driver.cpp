@@ -1,5 +1,5 @@
 
-#include "PortAudioDriver.h"
+#include <hydrogen/IO/PortAudioDriver.h>
 #ifdef H2CORE_HAVE_PORTAUDIO
 
 #include <iostream>

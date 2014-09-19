@@ -20,7 +20,7 @@
  *
  */
 
-#include "AlsaAudioDriver.h"
+#include <hydrogen/IO/AlsaAudioDriver.h>
 
 #ifdef H2CORE_HAVE_ALSA
 
