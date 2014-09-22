@@ -19,6 +19,21 @@ ALL_MANUALS = manual_en.html \
 	manual_ca.html \
 	manual_nl.html
 
+
+ALL_DOCBOOKS = manual_en.docbook \
+	manual_es.docbook \
+	manual_fr.docbook \
+	manual_it.docbook \
+	manual_ca.docbook \
+	manual_nl.docbook
+
+ALL_DOCBOOKS_VALIDATED = manual_en.docbook_validated \
+	manual_es.docbook_validated \
+	manual_fr.docbook_validated  \
+	manual_it.docbook_validated \
+	manual_ca.docbook_validated \
+	manual_nl.docbook_validated 
+
 ALL_TUTORIALS = tutorial_en.html \
 	tutorial_fr.html \
 	tutorial_it.html
@@ -46,7 +61,7 @@ all_pot_files: $(ALL_MASTERS)
 	$(XML2POT) tutorial.docbook > tutorial.pot
 
 clean:
-	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS) *_{en,es,it,fr,nl,ca}.docbook *.docbook_validated
+	-rm -f $(ALL_MANUALS) $(ALL_TUTORIALS) $(ALL_DOCBOOKS) $(ALL_DOCBOOKS_VALIDATED)
 
 %.html: %.docbook %.docbook_validated
 	LL=$$(echo -n $< | sed 's/.*_\(..\)\.docbook/\1/') ; \
