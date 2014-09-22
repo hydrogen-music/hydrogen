@@ -358,23 +358,23 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 }
 
 int Sampler::__render_note_no_resample(
-	Sample *pSample,
-	Note *pNote,
-	int nBufferSize,
-	int nInitialSilence,
-	float cost_L,
-	float cost_R,
-	float cost_track_L,
-	float cost_track_R,
-	Song* pSong
+	Sample *	pSample,
+	Note *		pNote,
+	int			nBufferSize,
+	int			nInitialSilence,
+	float		cost_L,
+	float		cost_R,
+	float		cost_track_L,
+	float		cost_track_R,
+	Song*		pSong
 )
 {
-	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
+	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
 	int retValue = 1; // the note is ended
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * audio_output->m_transport.m_nTickSize );
+		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pNote->get_sample_position();	// verifico il numero di frame disponibili ancora da eseguire
@@ -414,13 +414,14 @@ int Sampler::__render_note_no_resample(
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* jao = 0;
-	float *track_out_L = 0;
-	float *track_out_R = 0;
-	if( audio_output->has_track_outs()
-	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
-		track_out_L = jao->getTrackOut_L( nInstrument );
-		track_out_R = jao->getTrackOut_R( nInstrument );
+	JackOutput* pJackOutput = 0;
+	float *		pTrackOutL = 0;
+	float *		pTrackOutR = 0;
+
+	if( pAudioOutput->has_track_outs()
+	&& (pJackOutput = dynamic_cast<JackOutput*>(pAudioOutput)) ) {
+		 pTrackOutL = pJackOutput->getTrackOut_L( nInstrument );
+		pTrackOutR = pJackOutput->getTrackOut_R( nInstrument );
 	}
 #endif
 
@@ -441,11 +442,11 @@ int Sampler::__render_note_no_resample(
 		}
 
 #ifdef H2CORE_HAVE_JACK
-		if( track_out_L ) {
-			track_out_L[nBufferPos] += fVal_L * cost_track_L;
+		if(  pTrackOutL ) {
+			 pTrackOutL[nBufferPos] += fVal_L * cost_track_L;
 		}
-		if( track_out_R ) {
-			track_out_R[nBufferPos] += fVal_R * cost_track_R;
+		if( pTrackOutR ) {
+			pTrackOutR[nBufferPos] += fVal_R * cost_track_R;
 		}
 #endif
 
@@ -508,28 +509,29 @@ int Sampler::__render_note_no_resample(
 
 
 int Sampler::__render_note_resample(
-	Sample *pSample,
-	Note *pNote,
-	int nBufferSize,
-	int nInitialSilence,
-	float cost_L,
-	float cost_R,
-	float cost_track_L,
-	float cost_track_R,
-	float fLayerPitch,
-	Song* pSong
+	Sample *	pSample,
+	Note *		pNote,
+	int			nBufferSize,
+	int			nInitialSilence,
+	float		cost_L,
+	float		cost_R,
+	float		cost_track_L,
+	float		cost_track_R,
+	float		fLayerPitch,
+	Song*		pSong
 )
 {
-	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
+	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
+
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * audio_output->m_transport.m_nTickSize );
+		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
 	}
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 
 	float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 //	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
-	fStep *= ( float )pSample->get_sample_rate() / audio_output->getSampleRate(); // Adjust for audio driver sample rate
+	fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
 
 	// verifico il numero di frame disponibili ancora da eseguire
 	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pNote->get_sample_position() ) / fStep );
@@ -571,13 +573,14 @@ int Sampler::__render_note_resample(
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* jao = 0;
-	float *track_out_L = 0;
-	float *track_out_R = 0;
-	if( audio_output->has_track_outs()
-	&& (jao = dynamic_cast<JackOutput*>(audio_output)) ) {
-		track_out_L = jao->getTrackOut_L( nInstrument );
-		track_out_R = jao->getTrackOut_R( nInstrument );
+	JackOutput* pJackOutput = 0;
+	float *		pTrackOutL = 0;
+	float *		pTrackOutR = 0;
+
+	if( pAudioOutput->has_track_outs()
+	&& (pJackOutput = dynamic_cast<JackOutput*>(pAudioOutput)) ) {
+				pTrackOutL = pJackOutput->getTrackOut_L( nInstrument );
+				pTrackOutR = pJackOutput->getTrackOut_R( nInstrument );
 	}
 #endif
 
@@ -646,11 +649,11 @@ int Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-		if( track_out_L ) {
-			track_out_L[nBufferPos] += fVal_L * cost_track_L;
+		if( 		pTrackOutL ) {
+					pTrackOutL[nBufferPos] += fVal_L * cost_track_L;
 		}
-		if( track_out_R ) {
-			track_out_R[nBufferPos] += fVal_R * cost_track_R;
+		if( 		pTrackOutR ) {
+					pTrackOutR[nBufferPos] += fVal_R * cost_track_R;
 		}
 #endif
 
@@ -723,8 +726,6 @@ int Sampler::__render_note_resample(
 					case LINEAR:
 						fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
 						fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-						//fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-						//fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
 						break;
 					case COSINE:
 						fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
@@ -743,10 +744,6 @@ int Sampler::__render_note_resample(
 						fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 						break;
 					}
-					// methode Interpolate produce an extra function call and eat much more time here.
-					// so i deside to code the switch direct in the resampler methode
-					//fVal_L = Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], pSample_data_L[nSamplePos + 2] ,fDiff);
-					//fVal_L = Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], pSample_data_R[nSamplePos + 2] ,fDiff);
 				}
 
 				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L;
@@ -764,14 +761,6 @@ int Sampler::__render_note_resample(
 
 void Sampler::stop_playing_notes( Instrument* instrument )
 {
-	/*
-	// send a note-off event to all notes present in the playing note queue
-	for ( int i = 0; i < __playing_notes_queue.size(); ++i ) {
-		Note *pNote = __playing_notes_queue[ i ];
-		pNote->m_pADSR->release();
-	}
-	*/
-
 	if ( instrument ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < __playing_notes_queue.size(); ) {
 			Note *pNote = __playing_notes_queue[ i ];
@@ -806,10 +795,10 @@ void Sampler::preview_sample( Sample* sample, int length )
 	Sample *pOldSample = pLayer->get_sample();
 	pLayer->set_sample( sample );
 
-	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
+	Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
 
 	stop_playing_notes( __preview_instrument );
-	note_on( previewNote );
+	note_on( pPreviewNote );
 	delete pOldSample;
 
 	AudioEngine::get_instance()->unlock();
@@ -819,19 +808,19 @@ void Sampler::preview_sample( Sample* sample, int length )
 
 void Sampler::preview_instrument( Instrument* instr )
 {
-	Instrument * old_preview;
+	Instrument * pOldPreview;
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	stop_playing_notes( __preview_instrument );
 
-	old_preview = __preview_instrument;
+	pOldPreview = __preview_instrument;
 	__preview_instrument = instr;
 
-	Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
+	Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
-	note_on( previewNote );	// exclusive note
+	note_on( pPreviewNote );	// exclusive note
 	AudioEngine::get_instance()->unlock();
-	delete old_preview;
+	delete pOldPreview;
 }
 
 
@@ -840,35 +829,35 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 {
 	if ( instrument ) { // stop all notes using this instrument
 		Hydrogen *pEngine = Hydrogen::get_instance();
-		Song* mSong = pEngine->getSong();
+		Song* pSong = pEngine->getSong();
 		int selectedpattern = pEngine->__get_selected_PatterNumber();
-		Pattern* currentPattern = NULL;
+		Pattern* pCurrentPattern = NULL;
 
 
-		if ( mSong->get_mode() == Song::PATTERN_MODE ||
+		if ( pSong->get_mode() == Song::PATTERN_MODE ||
 		( pEngine->getState() != STATE_PLAYING )){
-			PatternList *pPatternList = mSong->get_pattern_list();
+			PatternList *pPatternList = pSong->get_pattern_list();
 			if ( ( selectedpattern != -1 )
 			&& ( selectedpattern < ( int )pPatternList->size() ) ) {
-				currentPattern = pPatternList->get( selectedpattern );
+				pCurrentPattern = pPatternList->get( selectedpattern );
 			}
 		}else
 		{
-			std::vector<PatternList*> *pColumns = mSong->get_pattern_group_vector();
+			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 //			Pattern *pPattern = NULL;
 			int pos = pEngine->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
-				currentPattern = pColumn->get( 0 );
+				pCurrentPattern = pColumn->get( 0 );
 			}
 		}
 
 
-		if ( currentPattern ) {
-				int patternsize = currentPattern->get_length();
+		if ( pCurrentPattern ) {
+				int patternsize = pCurrentPattern->get_length();
 
-				for ( unsigned nNote = 0; nNote < currentPattern->get_length(); nNote++ ) {
-					const Pattern::notes_t* notes = currentPattern->get_notes();
+				for ( unsigned nNote = 0; nNote < pCurrentPattern->get_length(); nNote++ ) {
+					const Pattern::notes_t* notes = pCurrentPattern->get_notes();
 					FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 						Note *pNote = it->second;
 						if ( pNote!=NULL ) {
