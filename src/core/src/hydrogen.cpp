@@ -198,7 +198,7 @@ void		audioEngine_restartAudioDrivers();
 void		audioEngine_startAudioDrivers();
 void		audioEngine_stopAudioDrivers();
 
-inline timeval m_CurrentTime2()
+inline timeval currentTime2()
 {
 	struct timeval now;
 	gettimeofday( &now, NULL );
@@ -726,7 +726,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 /// Main audio processing function. Called by audio drivers.
 int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
-	timeval startTimeval = m_CurrentTime2();
+	timeval startTimeval = currentTime2();
 
 	audioEngine_process_clearAudioBuffers( nframes );
 
@@ -814,7 +814,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		m_pMainBuffer_R[ i ] += out_R[ i ];
 	}
 
-	timeval renderTime_end = m_CurrentTime2();
+	timeval renderTime_end = currentTime2();
 	timeval ladspaTime_start = renderTime_end;
 
 #ifdef H2CORE_HAVE_LADSPA
@@ -847,7 +847,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 	}
 #endif
-	timeval ladspaTime_end = m_CurrentTime2();
+	timeval ladspaTime_end = currentTime2();
 
 	// update master peaks
 	float val_L, val_R;
@@ -878,7 +878,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
 			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
 
-	timeval finishTimeval = m_CurrentTime2();
+	timeval finishTimeval = currentTime2();
 	m_fProcessTime =
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
