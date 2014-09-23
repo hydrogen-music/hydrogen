@@ -179,7 +179,7 @@ void		audioEngine_stop( bool bLockEngine = false );
 void		audioEngine_setSong( Song *newSong );
 void		audioEngine_removeSong();
 static void	audioEngine_noteOn( Note *note );
-//static void	audioEngine_noteOff( Note *note );
+
 int			audioEngine_process( uint32_t nframes, void *arg );
 inline void audioEngine_clearNoteQueue();
 inline void audioEngine_process_checkBPMChanged();
@@ -400,13 +400,6 @@ void audioEngine_stop( bool bLockEngine )
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
-	/*	// delete all copied notes in the playing notes queue
-  for (unsigned i = 0; i < m_playingNotesQueue.size(); ++i) {
-   Note *note = m_playingNotesQueue[i];
-   delete note;
-  }
-  m_playingNotesQueue.clear();
- */
 
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
@@ -870,14 +863,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		m_pAudioDriver->m_transport.m_nFrames += nframes;
 	}
 
-	/* float fRenderTime = (renderTime_end.tv_sec - renderTime_start.tv_sec) * 1000.0
-		+ (renderTime_end.tv_usec - renderTime_start.tv_usec) / 1000.0;
-	*/
-
-	float fLadspaTime =
-			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
-			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
-
 	timeval finishTimeval = currentTime2();
 	m_fProcessTime =
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
@@ -931,16 +916,6 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 		}
 
 		pFX->deactivate();
-
-		//		delete[] pFX->m_pBuffer_L;
-		//		pFX->m_pBuffer_L = NULL;
-		//		delete[] pFX->m_pBuffer_R;
-		//		pFX->m_pBuffer_R = NULL;
-		//		if ( nBufferSize != 0 ) {
-		//pFX->m_nBufferSize = nBufferSize;
-		//pFX->m_pBuffer_L = new float[ nBufferSize ];
-		//pFX->m_pBuffer_R = new float[ nBufferSize ];
-		//		}
 
 		Effects::get_instance()->getLadspaFX( nFX )->connectAudioPorts(
 					pFX->m_pBuffer_L,
@@ -1443,39 +1418,6 @@ void audioEngine_noteOn( Note *note )
 
 	m_midiNoteQueue.push_back( note );
 }
-
-
-/*
-void audioEngine_noteOff( Note *note )
-{
- if ( note == NULL )	{
-  ___ERRORLOG( "Error, note == NULL" );
- }
-
- AudioEngine::get_instance()->lock( RIGHT_HERE );
-
- // check current state
- if ( ( m_audioEngineState != STATE_READY )
-	  && ( m_audioEngineState != STATE_PLAYING ) ) {
-  ___ERRORLOG( "Error the audio engine is not in READY state" );
-  delete note;
-  AudioEngine::get_instance()->unlock();
-  return;
- }
-
-//	AudioEngine::get_instance()->get_sampler()->note_off( note );
- AudioEngine::get_instance()->unlock();
- delete note;
-
-}
-*/
-
-
-// unsigned long audioEngine_getTickPosition()
-// {
-// 	return m_nPatternTickPosition;
-// }
-
 
 AudioOutput* createDriver( const QString& sDriver )
 {
@@ -3165,9 +3107,6 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 			return MAX_NOTES;
 		}
 	}
-	// 	std::vector<PatternList*> *pColumns =
-	//		pSong->get_pattern_group_vector()[ humanpos - 1 ]
-	//			.get( 0 )->get_length();
 
 	// ERRORLOG( "Kick me! " );
 	if ( humanpos < 1 ) return MAX_NOTES;
@@ -3178,23 +3117,6 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 	} else {
 		return MAX_NOTES;
 	}
-	// 	int nPatternSize;
-
-	// 	pColumns
-
-	/*	Pattern *pPattern = NULL;
- for ( int i = 0; i < humanpos; ++i ) {
-  PatternList *pColumn = ( *pColumns )[ i ];
-  pPattern = pColumn->get( 0 );
-  if ( pPattern ) {
-   nPatternSize = pPattern->get_length();
-  } else {
-   nPatternSize = MAX_NOTES;
-  }
-
-  humanTick = nPatternSize;
- }*/
-	// 	return humanTick;
 }
 
 float Hydrogen::getNewBpmJTM()
