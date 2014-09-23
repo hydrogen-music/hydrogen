@@ -297,12 +297,18 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	if( sActionString == "SELECT_NEXT_PATTERN" ){
 		bool ok;
 		int row = pAction->getParameter1().toInt(&ok,10);
-		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+		if( row> pEngine->getSong()->get_pattern_list()->size() -1 ){
 			return false;
-		if(Preferences::get_instance()->patternModePlaysSelected())
+		}
+
+		if(Preferences::get_instance()->patternModePlaysSelected()){
 			pEngine->setSelectedPatternNumber( row );
+		}
 		else
-			pEngine->sequencer_setNextPattern( row, false, true );
+		{
+			pEngine->sequencer_setNextPattern( row );
+		}
+
 		return true;
 	}
 
@@ -362,7 +368,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		bool ok;
 		int row = pAction->getParameter1().toInt(&ok,10);
 		pEngine->setSelectedPatternNumber( row );
-		pEngine->sequencer_setNextPattern( row, false, true );
+		pEngine->sequencer_setNextPattern( row );
 
 		int nState = pEngine->getState();
 		if ( nState == STATE_READY ){

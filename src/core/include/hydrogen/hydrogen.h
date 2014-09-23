@@ -72,7 +72,7 @@ public:
 	QString lastMidiEvent;
 	int lastMidiEventParameter;
 
-	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
+	void sequencer_setNextPattern( int pos );
 	void togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 

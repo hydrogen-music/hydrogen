@@ -2273,28 +2273,25 @@ PatternList * Hydrogen::getNextPatterns()
 }
 
 /// Set the next pattern (Pattern mode only)
-void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern )
+void Hydrogen::sequencer_setNextPattern( int pos )
 {
-	m_bAppendNextPattern = appendPattern;
-	m_bDeleteNextPattern = deletePattern;
-
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song* pSong = getSong();
 	if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
-		PatternList *patternList = pSong->get_pattern_list();
-		Pattern * p = patternList->get( pos );
-		if ( ( pos >= 0 ) && ( pos < ( int )patternList->size() ) ) {
+		PatternList *pPatternList = pSong->get_pattern_list();
+		Pattern * pPattern = pPatternList->get( pos );
+		if ( ( pos >= 0 ) && ( pos < ( int )pPatternList->size() ) ) {
 			// if p is already on the next pattern list, delete it.
-			if ( m_pNextPatterns->del( p ) == NULL ) {
+			if ( m_pNextPatterns->del( pPattern ) == NULL ) {
 				// WARNINGLOG( "Adding to nextPatterns" );
-				m_pNextPatterns->add( p );
+				m_pNextPatterns->add( pPattern );
 			} /* else {
 				// WARNINGLOG( "Removing " + to_string(pos) );
 			}*/
 		} else {
 			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
-					  .arg( pos ).arg( patternList->size() ) );
+					  .arg( pos ).arg( pPatternList->size() ) );
 			m_pNextPatterns->clear();
 		}
 	} else {

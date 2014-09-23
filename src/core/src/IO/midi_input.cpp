@@ -237,7 +237,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bPatternSelect ) {
 		int patternNumber = nNote - 36;
 		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
-		pEngine->sequencer_setNextPattern( patternNumber, false, false );
+		pEngine->sequencer_setNextPattern( patternNumber );
 
 	} else {
 		static const float fPan_L = 0.5f;

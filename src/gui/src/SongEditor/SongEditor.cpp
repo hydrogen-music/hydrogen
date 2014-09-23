@@ -1020,8 +1020,8 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 ///
 void SongEditorPatternList::togglePattern( int row ) {
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	engine->sequencer_setNextPattern( row, false, true );
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	pEngine->sequencer_setNextPattern( row );
 	createBackground();
 	update();
 }
@@ -1440,7 +1440,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
-		pEngine->sequencer_setNextPattern( -1, false, false );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
+		pEngine->sequencer_setNextPattern( -1 );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
 	}
 
 	Song *song = pEngine->getSong();
