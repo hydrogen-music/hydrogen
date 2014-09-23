@@ -267,7 +267,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 							(int)( 127.0 * pNote->get_velocity() );
 						int nInstr =
 							iList->index(pNote->get_instrument());
-						int nPitch = 36 + nInstr;
+						Instrument *pInstr = pNote->get_instrument();
+						int nPitch = pInstr->get_midi_out_note();
 						eventList.push_back(
 							new SMFNoteOnEvent(
 								nStartTicks + nNote,
