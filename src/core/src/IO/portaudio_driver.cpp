@@ -37,6 +37,7 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+		, m_pStream( NULL )
 {
 	INFOLOG( "INIT" );
 	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
