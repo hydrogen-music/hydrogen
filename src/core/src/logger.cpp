@@ -122,7 +122,11 @@ Logger::~Logger() {
 }
 
 void Logger::log( unsigned level, const QString& class_name, const char* func_name, const QString& msg ) {
-	if( level == None ) return;
+
+	if( level == None ){
+		return;
+	}
+
 	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) " };
 #ifdef WIN32
 	const char* color[] = { "", "", "", "", "" };
@@ -132,10 +136,6 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 
 	int i;
 	switch( level ) {
-	case None:
-		assert( false );
-		i = 0;
-		break;
 	case Error:
 		i = 1;
 		break;
