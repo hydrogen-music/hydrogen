@@ -32,6 +32,7 @@ FakeDriver::FakeDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+		, m_nBufferSize( 0 )
 {
 	INFOLOG( "INIT" );
 }

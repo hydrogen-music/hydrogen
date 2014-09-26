@@ -271,6 +271,9 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsign
 		, m_sFilename( sFilename )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
+		, m_nBufferSize( 0 )
+		, m_pOut_L( NULL )
+		, m_pOut_R( NULL )
 {
 	INFOLOG( "INIT" );
 }

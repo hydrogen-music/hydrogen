@@ -38,6 +38,8 @@ MidiInput::MidiInput( const char* class_name )
 		: Object( class_name )
 		, m_bActive( false )
 		, __hihat_cc_openess ( 127 )
+		, __noteOffTick( 0 )
+		, __noteOnTick( 0 )
 {
 	//INFOLOG( "INIT" );
 
