@@ -43,7 +43,8 @@ ADSR::ADSR( float attack, float decay, float sustain, float release ) : Object( 
 	__release( release ),
 	__state( ATTACK ),
 	__ticks( 0.0 ),
-	__value( 0.0 )
+	__value( 0.0 ),
+	__release_value( 0.0 )
 { }
 
 ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
@@ -53,7 +54,8 @@ ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
 	__release( other->__release ),
 	__state( other->__state ),
 	__ticks( other->__ticks ),
-	__value( other->__value )
+	__value( other->__value ),
+	__release_value( other->__release_value )
 { }
 
 ADSR::~ADSR() { }
