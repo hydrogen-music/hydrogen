@@ -36,11 +36,11 @@ class MidiSenseWidget : public QDialog ,public H2Core::Object
 		MidiSenseWidget(QWidget*,bool m_DirectWrite = false , MidiAction* m_pAction = NULL);
 		~MidiSenseWidget();
 
-		QString lastMidiEvent;
-		int lastMidiEventParameter;
+		QString		m_sLastMidiEvent;
+		int			m_LastMidiEventParameter;
 	
 	private slots:
-		void updateMidi();
+		void		updateMidi();
 
 	private:
 		QTimer*		m_pUpdateTimer;

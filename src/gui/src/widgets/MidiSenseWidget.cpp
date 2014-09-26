@@ -61,6 +61,8 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* mi
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	pEngine->lastMidiEvent = "";
 	pEngine->lastMidiEventParameter = 0;
+
+	m_LastMidiEventParameter = 0;
 	
 	m_pUpdateTimer = new QTimer( this );
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() ) );
@@ -78,8 +80,8 @@ MidiSenseWidget::~MidiSenseWidget(){
 void MidiSenseWidget::updateMidi(){
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	if(	!pEngine->lastMidiEvent.isEmpty() ){
-		lastMidiEvent = pEngine->lastMidiEvent;
-		lastMidiEventParameter = pEngine->lastMidiEventParameter;
+		m_sLastMidiEvent = pEngine->lastMidiEvent;
+		m_LastMidiEventParameter = pEngine->lastMidiEventParameter;
 
 
 		if( m_DirectWrite ){
@@ -92,12 +94,12 @@ void MidiSenseWidget::updateMidi(){
 
 			pAction->setParameter1( m_pAction->getParameter1() );
 
-			if( lastMidiEvent.left(2) == "CC" ){
-				pMidiMap->registerCCEvent( lastMidiEventParameter , pAction );
-			} else if( lastMidiEvent.left(3) == "MMC" ){
-				pMidiMap->registerMMCEvent( lastMidiEvent , pAction );
-			} else if( lastMidiEvent.left(4) == "NOTE" ){
-				pMidiMap->registerNoteEvent( lastMidiEvent.toInt() , pAction );
+			if( m_sLastMidiEvent.left(2) == "CC" ){
+				pMidiMap->registerCCEvent( m_LastMidiEventParameter , pAction );
+			} else if( m_sLastMidiEvent.left(3) == "MMC" ){
+				pMidiMap->registerMMCEvent( m_sLastMidiEvent , pAction );
+			} else if( m_sLastMidiEvent.left(4) == "NOTE" ){
+				pMidiMap->registerNoteEvent( m_sLastMidiEvent.toInt() , pAction );
 			} else {
 				/* In all other cases, the midiMap cares for deleting the pointer */
 

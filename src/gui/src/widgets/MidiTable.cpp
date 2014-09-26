@@ -66,8 +66,8 @@ void MidiTable::midiSensePressed( int row ){
 	QSpinBox * eventSpinner = dynamic_cast <QSpinBox *> ( cellWidget( row, 2 ) );
 
 
-	eventCombo->setCurrentIndex( eventCombo->findText( midiSenseWidget.lastMidiEvent ) );
-	eventSpinner->setValue( midiSenseWidget.lastMidiEventParameter );
+	eventCombo->setCurrentIndex( eventCombo->findText( midiSenseWidget.m_sLastMidiEvent ) );
+	eventSpinner->setValue( midiSenseWidget.m_LastMidiEventParameter );
 
 	m_pUpdateTimer->start( 100 );	
 }
