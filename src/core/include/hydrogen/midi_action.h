@@ -70,7 +70,7 @@ class MidiActionManager : public H2Core::Object
 		QStringList actionList;
 		QStringList eventList;
 
-		int lastBpmChangeCCParameter;
+		int m_nLastBpmChangeCCParameter;
 
 	public:
 		bool handleAction( MidiAction * );
