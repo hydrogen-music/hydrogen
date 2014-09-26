@@ -380,9 +380,11 @@ int main(int argc, char *argv[])
 				}
 				break;
 			case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
-				if ( pPlaylist->loadSong ( event.value ) ) {
-					pSong = pHydrogen->getSong();
-					show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+				if( pPlaylist ){
+					if ( pPlaylist->loadSong ( event.value ) ) {
+						pSong = pHydrogen->getSong();
+						show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+					}
 				}
 				break;
 			case EVENT_NONE: /* Sleep if there is no more events */
