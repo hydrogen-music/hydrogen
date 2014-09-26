@@ -89,12 +89,14 @@ void* nsm_processEvent(void* data)
 	while(!NsmShutdown && nsm){
 		nsm_check_wait( nsm, 1000);
 	}
+
+	return 0;
 }
 
 NsmClient::NsmClient()
 	: Object( __class_name )
 {
-
+	m_NsmThread = 0;
 }
 
 void NsmClient::create_instance()
