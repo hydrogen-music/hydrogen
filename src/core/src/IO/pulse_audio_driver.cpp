@@ -20,13 +20,13 @@
  *
  */
 
-
+#include <hydrogen/IO/PulseAudioDriver.h>
 
 #ifdef H2CORE_HAVE_PULSEAUDIO
 
 #include <fcntl.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/IO/PulseAudioDriver.h>
+
 
 namespace H2Core
 {
