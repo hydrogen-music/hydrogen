@@ -24,6 +24,7 @@
 #define H2C_DRUMKITCOMPONENT_H
 
 #include <cassert>
+#include <inttypes.h>
 
 #include <hydrogen/object.h>
 
@@ -68,6 +69,11 @@ class DrumkitComponent : public H2Core::Object
 		void set_peak_r( float val );
 		float get_peak_r() const;
 
+		void reset_outs( uint32_t nFrames );
+		void set_outs( int nBufferPos, float valL, float valR );
+		float get_out_L( int nBufferPos );
+		float get_out_R( int nBufferPos );
+
 	private:
 		int __id;
 		QString __name;
@@ -77,6 +83,9 @@ class DrumkitComponent : public H2Core::Object
 
 		float __peak_l;
 		float __peak_r;
+
+		float *__out_L;
+        float *__out_R;
 };
 
 // DEFINITIONS

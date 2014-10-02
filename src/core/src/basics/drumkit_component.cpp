@@ -47,7 +47,11 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 	, __volume( 1.0 )
 	, __muted( false )
 	, __soloed( false )
+	, __out_L( NULL )
+    , __out_R( NULL )
 {
+    __out_L = new float[ MAX_BUFFER_SIZE ];
+    __out_R = new float[ MAX_BUFFER_SIZE ];
 }
 
 DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
@@ -57,13 +61,39 @@ DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
     , __volume( other->__volume )
     , __muted( other->__muted )
     , __soloed( other->__soloed )
+    , __out_L( NULL )
+    , __out_R( NULL )
 {
-
+    __out_L = new float[ MAX_BUFFER_SIZE ];
+    __out_R = new float[ MAX_BUFFER_SIZE ];
 }
 
 DrumkitComponent::~DrumkitComponent()
 {
+    delete[] __out_L;
+	delete[] __out_R;
+}
 
+void DrumkitComponent::reset_outs( uint32_t nFrames )
+{
+	memset( __out_L, 0, nFrames * sizeof( float ) );
+	memset( __out_R, 0, nFrames * sizeof( float ) );
+}
+
+void DrumkitComponent::set_outs( int nBufferPos, float valL, float valR )
+{
+    __out_L[nBufferPos] += valL;
+    __out_R[nBufferPos] += valR;
+}
+
+float DrumkitComponent::get_out_L( int nBufferPos )
+{
+    return __out_L[nBufferPos];
+}
+
+float DrumkitComponent::get_out_R( int nBufferPos )
+{
+    return __out_R[nBufferPos];
 }
 
 void DrumkitComponent::load_from( Drumkit* drumkit, DrumkitComponent* component, bool is_live )

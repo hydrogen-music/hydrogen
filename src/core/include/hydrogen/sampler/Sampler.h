@@ -37,6 +37,7 @@ namespace H2Core
 class Note;
 class Song;
 class Sample;
+class DrumkitComponent;
 class Instrument;
 class InstrumentComponent;
 class AudioOutput;
@@ -202,6 +203,7 @@ private:
 		Sample *pSample,
 		Note *pNote,
 		InstrumentComponent *pCompo,
+		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
 		float cost_L,
@@ -215,6 +217,7 @@ private:
 		Sample *pSample,
 		Note *pNote,
 		InstrumentComponent *pCompo,
+		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
 		float cost_L,

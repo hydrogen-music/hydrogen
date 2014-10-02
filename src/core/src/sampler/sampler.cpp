@@ -110,6 +110,11 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		delete oldNote;	// FIXME: send note-off instead of removing the note from the list?
 	}
 
+	for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
+        DrumkitComponent* component = *it;
+        component->reset_outs(nFrames);
+    }
+
 
 	// eseguo tutte le note nella lista di note in esecuzione
 	unsigned i = 0;
@@ -371,10 +376,10 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
         }
 
         if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) {	// NO RESAMPLE
-            if ( __render_note_no_resample( pSample, pNote, pCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong ) == 1 )
+            if ( __render_note_no_resample( pSample, pNote, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong ) == 1 )
                 p_returnValue = 1;
         } else {	// RESAMPLE
-            if ( __render_note_resample( pSample, pNote, pCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong ) == 1 )
+            if ( __render_note_resample( pSample, pNote, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong ) == 1 )
                 p_returnValue = 1;
         }
     }
@@ -385,6 +390,7 @@ int Sampler::__render_note_no_resample(
 	Sample *pSample,
 	Note *pNote,
 	InstrumentComponent *pCompo,
+	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
 	float cost_L,
@@ -424,6 +430,7 @@ int Sampler::__render_note_no_resample(
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
+
 
 	float fADSRValue;
 	float fVal_L;
@@ -485,6 +492,8 @@ int Sampler::__render_note_no_resample(
 			fInstrPeak_R = fVal_R;
 		}
 
+		pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
+
 		// to main mix
 		__main_out_L[nBufferPos] += fVal_L;
 		__main_out_R[nBufferPos] += fVal_R;
@@ -536,6 +545,7 @@ int Sampler::__render_note_resample(
 	Sample *pSample,
 	Note *pNote,
 	InstrumentComponent *pCompo,
+	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
 	float cost_L,
@@ -690,6 +700,8 @@ int Sampler::__render_note_resample(
 		if ( fVal_R > fInstrPeak_R ) {
 			fInstrPeak_R = fVal_R;
 		}
+
+		pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
 
 		// to main mix
 		__main_out_L[nBufferPos] += fVal_L;

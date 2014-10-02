@@ -874,6 +874,17 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			if ( val_R > m_fMasterPeak_R )
 				m_fMasterPeak_R = val_R;
 
+            for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
+                DrumkitComponent* drumkit_component = *it;
+
+                float compo_val_L = drumkit_component->get_out_L(i);
+                float compo_val_R = drumkit_component->get_out_R(i);
+
+                if( compo_val_L > drumkit_component->get_peak_l() )
+                    drumkit_component->set_peak_l( compo_val_L );
+                if( compo_val_R > drumkit_component->get_peak_r() )
+                    drumkit_component->set_peak_r( compo_val_R );
+            }
 		}
 	}
 
