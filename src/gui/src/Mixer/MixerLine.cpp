@@ -146,9 +146,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	Preferences *pref = Preferences::get_instance();
 
-	QString family = pref->getMixerFontFamily();
-	int size = pref->getMixerFontPointSize();
-	QFont mixerFont( family, size );
 	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
 	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)m_fFalloffTemp;
@@ -377,8 +374,8 @@ void MixerLine::nameSelected() {
 
 void MixerLine::panChanged(Rotary *ref)
 {
-	Song *song = Hydrogen::get_instance()->getSong();
-	song->__is_modified = true;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->__is_modified = true;
 	emit panChanged( this );
 
 	float panValue = ref->getValue();
@@ -447,6 +444,7 @@ void MixerLine::setFXLevel( uint nFX, float fValue )
 {
 	if (nFX > MAX_FX) {
 		ERRORLOG( QString("[setFXLevel] nFX > MAX_FX (nFX=%1)").arg(nFX) );
+		return;
 	}
 	m_pKnob[nFX]->setValue( fValue );
 }
@@ -455,6 +453,7 @@ float MixerLine::getFXLevel(uint nFX)
 {
 	if (nFX > MAX_FX) {
 		ERRORLOG( QString("[setFXLevel] nFX > MAX_FX (nFX=%1)").arg(nFX) );
+		return 0.0f;
 	}
 	return m_pKnob[nFX]->getValue();
 }
@@ -1176,9 +1175,6 @@ void FxMixerLine::setFxActive( bool active )
 
 ////////////////////////////////
 
-//QPixmap* InstrumentNameWidget::m_pBackground = NULL;
-
-
 InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
  : PixmapWidget( parent, "InstrumentNameWidget" )
 {
@@ -1191,8 +1187,6 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	int size = pref->getMixerFontPointSize();
 	m_mixerFont.setFamily( family );
 	m_mixerFont.setPointSize( size );
-//	m_mixerFont.setBold( true );
-//	m_mixerFont.setItalic( true );
 
 	setPixmap( "/mixerPanel/mixerline_label_background.png" );
 

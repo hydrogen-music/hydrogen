@@ -38,7 +38,7 @@
 #define STATE_UNINITIALIZED	1     // Not even the constructors have been called.
 #define STATE_INITIALIZED	2     // Not ready, but most pointers are now valid or NULL
 #define STATE_PREPARED		3     // Drivers are set up, but not ready to process audio.
-#define STATE_READY		4     // Ready to process audio
+#define STATE_READY			4     // Ready to process audio
 #define STATE_PLAYING		5     // Currently playing a sequence.
 
 inline int randomValue( int max );
@@ -72,7 +72,7 @@ public:
 	QString lastMidiEvent;
 	int lastMidiEventParameter;
 
-	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
+	void sequencer_setNextPattern( int pos );
 	void togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 
@@ -169,8 +169,13 @@ public:
 
 	int getSelectedInstrumentNumber();
 	void setSelectedInstrumentNumber( int nInstrument );
+
 #ifdef H2CORE_HAVE_JACK
 	void renameJackPorts();
+#endif
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	void startNsmClient();
 #endif
 
 	///playlist vector
@@ -254,18 +259,38 @@ public:
 	};
 
 		///midi lookuptable
-		int m_nInstrumentLookupTable[128];
+		int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 		//void editInstrumentLookupTable( int instrument, int index);
 
 
 private:
 	static Hydrogen* __instance;
 
-	Song* __song; /// < Current song
+	Song*	__song; /// < Current song
+
+	void initBeatcounter(void);
+
+	// beatcounter
+	float	m_ntaktoMeterCompute;	///< beatcounter note length
+	int		m_nbeatsToCount;		///< beatcounter beats to count
+	int		m_nEventCount;				///< beatcounter event
+	int		m_nTempoChangeCounter;		///< count tempochanges for timeArray
+	int		m_nBeatCount;				///< beatcounter beat to count
+	double	m_nBeatDiffs[16];				///< beat diff
+	timeval m_CurrentTime;				///< timeval
+	timeval	m_LastTime;					///< timeval
+	double	m_nLastBeatTime;				///< timediff
+	double	m_nCurrentBeatTime;			///< timediff
+	double	m_nBeatDiff;					///< timediff
+	float	m_fBeatCountBpm;				///< bpm
+	int		m_nCoutOffset;			///ms default 0
+	int		m_nStartOffset;			///ms default 0
+	//~ beatcounter
+
 
 	// used for song export
-	Song::SongMode m_oldEngineMode;
-	bool m_bOldLoopEnabled;
+	Song::SongMode	m_oldEngineMode;
+	bool			m_bOldLoopEnabled;
 
 	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
 

@@ -124,7 +124,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 {
 	__instance = this;
 
-	int lastBpmChangeCCParameter = -1;
+	m_nLastBpmChangeCCParameter = -1;
 
 	/*
 		the actionList holds all Action identfiers which hydrogen is able to interpret.
@@ -297,12 +297,18 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 	if( sActionString == "SELECT_NEXT_PATTERN" ){
 		bool ok;
 		int row = pAction->getParameter1().toInt(&ok,10);
-		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+		if( row> pEngine->getSong()->get_pattern_list()->size() -1 ){
 			return false;
-		if(Preferences::get_instance()->patternModePlaysSelected())
+		}
+
+		if(Preferences::get_instance()->patternModePlaysSelected()){
 			pEngine->setSelectedPatternNumber( row );
+		}
 		else
-			pEngine->sequencer_setNextPattern( row, false, true );
+		{
+			pEngine->sequencer_setNextPattern( row );
+		}
+
 		return true;
 	}
 
@@ -362,7 +368,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		bool ok;
 		int row = pAction->getParameter1().toInt(&ok,10);
 		pEngine->setSelectedPatternNumber( row );
-		pEngine->sequencer_setNextPattern( row, false, true );
+		pEngine->sequencer_setNextPattern( row );
 
 		int nState = pEngine->getState();
 		if ( nState == STATE_READY ){
@@ -647,22 +653,22 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		mult = pAction->getParameter1().toInt(&ok,10);
 		cc_param = pAction->getParameter2().toInt(&ok,10);
 
-		if( lastBpmChangeCCParameter == -1)
+		if( m_nLastBpmChangeCCParameter == -1)
 		{
-			lastBpmChangeCCParameter = cc_param;
+			m_nLastBpmChangeCCParameter = cc_param;
 		}
 
 		Song* pSong = pEngine->getSong();
 
-		if ( lastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
+		if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
 			pEngine->setBPM( pSong->__bpm - 1*mult );
 		}
 
-		if ( lastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+		if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
 			pEngine->setBPM( pSong->__bpm + 1*mult );
 		}
 
-		lastBpmChangeCCParameter = cc_param;
+		m_nLastBpmChangeCCParameter = cc_param;
 
 		AudioEngine::get_instance()->unlock();
 
@@ -689,22 +695,22 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		mult = pAction->getParameter1().toInt(&ok,10);
 		cc_param = pAction->getParameter2().toInt(&ok,10);
 
-		if( lastBpmChangeCCParameter == -1)
+		if( m_nLastBpmChangeCCParameter == -1)
 		{
-			lastBpmChangeCCParameter = cc_param;
+			m_nLastBpmChangeCCParameter = cc_param;
 		}
 
 		Song* pSong = pEngine->getSong();
 
-		if ( lastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
+		if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
 			pEngine->setBPM( pSong->__bpm - 0.01*mult );
 		}
 
-		if ( lastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
+		if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
 			pEngine->setBPM( pSong->__bpm + 0.01*mult );
 		}
 
-		lastBpmChangeCCParameter = cc_param;
+		m_nLastBpmChangeCCParameter = cc_param;
 
 		AudioEngine::get_instance()->unlock();
 

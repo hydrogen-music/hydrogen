@@ -42,7 +42,7 @@ SampleWaveDisplay::SampleWaveDisplay(QWidget* pParent)
 	int h = 85;
 	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
+	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
@@ -67,7 +67,7 @@ void SampleWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::Antialiasing );
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
+	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
 
 	painter.setPen( QColor( 102, 150, 205 ) );
 	int VCenter = height() / 2;

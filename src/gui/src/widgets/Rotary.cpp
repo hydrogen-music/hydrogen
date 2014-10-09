@@ -72,6 +72,8 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
  , m_type( type )
  , m_fMin( 0.0 )
  , m_fMax( 1.0 )
+ , m_fMousePressValue( 0.0 )
+ , m_fMousePressY( 0.0 )
  , m_bShowValueToolTip( bUseValueTip )
 {
 	setAttribute(Qt::WA_NoBackground);

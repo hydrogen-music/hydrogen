@@ -358,7 +358,7 @@ bool Drumkit::install( const QString& path )
 	int r;
 	struct archive* arch;
 	struct archive_entry* entry;
-	char newpath[1024];
+
 	arch = archive_read_new();
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
@@ -394,8 +394,10 @@ bool Drumkit::install( const QString& path )
 			break;
 		}
 		QString np = dk_dir + archive_entry_pathname( entry );
-		strncpy( newpath, np.toLocal8Bit(), 1024 );
-		archive_entry_set_pathname( entry, newpath );
+
+		QByteArray newpath = np.toLocal8Bit();
+
+		archive_entry_set_pathname( entry, newpath.data() );
 		r = archive_read_extract( arch, entry, 0 );
 		if ( r == ARCHIVE_WARN ) {
 			_WARNINGLOG( QString( "archive_read_extract() [%1] %2" ).arg( archive_errno( arch ) ).arg( archive_error_string( arch ) ) );
@@ -434,9 +436,10 @@ bool Drumkit::install( const QString& path )
 	fclose( gzd_file );
 	// UNTAR
 	TAR* tar_file;
-	char tar_path[1024];
-	strncpy( tar_path, gzd_name.toLocal8Bit(), 1024 );
-	if ( tar_open( &tar_file, tar_path, NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
+
+	QByteArray tar_path = gzd_name.toLocal8Bit();
+
+	if ( tar_open( &tar_file, tar_path.data(), NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
 		_ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		return false;
 	}

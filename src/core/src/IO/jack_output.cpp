@@ -49,9 +49,9 @@
 namespace H2Core
 {
 
-unsigned long jack_server_sampleRate = 0;
-jack_nframes_t jack_server_bufferSize = 0;
-JackOutput *jackDriverInstance = NULL;
+unsigned long	jack_server_sampleRate = 0;
+jack_nframes_t	jack_server_bufferSize = 0;
+JackOutput *	jackDriverInstance = NULL;
 
 int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 {
@@ -120,7 +120,7 @@ int JackOutput::connect()
 	}
 
 
-	bool connect_output_ports = connect_out_flag;
+	bool connect_output_ports = m_bConnectOutFlag;
 
 	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
@@ -142,7 +142,7 @@ int JackOutput::connect()
 #endif
 
 	if ( connect_output_ports ) {
-//	if ( connect_out_flag ) {
+//	if ( m_bConnectOutFlag ) {
 		// connect the ports
 		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
 				jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
@@ -494,6 +494,16 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	output_port_name_2 = pref->m_sJackPortName2;
 
 	QString sClientName = "Hydrogen";
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	QString nsmClientId = pref->getNsmClientId();
+
+	if(!nsmClientId.isEmpty()){
+		sClientName = nsmClientId;
+	}
+#endif
+
+
 	jack_status_t status;
 	int tries = 2;  // Sometimes jackd doesn't stop and start fast enough.
 	while ( tries > 0 ) {
@@ -861,7 +871,7 @@ void JackOutput::initTimeMaster()
 
 	Preferences* pref = Preferences::get_instance();
 	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
-		int ret = jack_set_timebase_callback(client, cond, jack_timebase_callback, this);
+		int ret = jack_set_timebase_callback(client, m_bCond, jack_timebase_callback, this);
 		if (ret != 0) pref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 	} else {
 		jack_release_timebase(client);

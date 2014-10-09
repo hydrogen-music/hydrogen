@@ -101,12 +101,17 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	// Load default song
 	Song *song = NULL;
+
 	if ( !songFilename.isEmpty() ) {
 		song = Song::load( songFilename );
+
+		/*
+		 * If the song could not be loaded, create
+		 * a new one with the specified filename
+		 */
 		if (song == NULL) {
-			//QMessageBox::warning( this, "Hydrogen", trUtf8("Error loading song.") );
 			song = Song::get_empty_song();
-			song->set_filename( "" );
+			song->set_filename( songFilename );
 		}
 	}
 	else {
@@ -849,23 +854,13 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all layers
-	//	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->get_instrument_list();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
-		/*
-		Instrument* pInstr = pList->get( i );
-		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )) );
-		// remove all layers
-		for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-			InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
-			delete pLayer;
-			pInstr->set_layer( NULL, nLayer );
-				}
-			 */
 	}
-	//	AudioEngine::get_instance()->unlock();
+
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
@@ -1169,7 +1164,6 @@ void MainForm::openSongFile( const QString& sFilename )
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	//	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
@@ -1500,17 +1494,17 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 
 	Song* pSong = Hydrogen::get_instance()->getSong();
 
-        h2app->getSongEditorPanel()->updateAll();
-        h2app->getPatternEditorPanel()->updateSLnameLabel();
+	h2app->getSongEditorPanel()->updateAll();
+	h2app->getPatternEditorPanel()->updateSLnameLabel();
 
-        QString songName( pSong->__name );
-        if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
-                songName = pSong->get_filename();
-                songName = songName.section( '/', -1 );
-        }
-        setWindowTitle( songName  );
+	QString songName( pSong->__name );
+	if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
+		songName = pSong->get_filename();
+		songName = songName.section( '/', -1 );
+	}
+	setWindowTitle( songName  );
 
-        h2app->getMainForm()->updateRecentUsedSongList();
+	h2app->getMainForm()->updateRecentUsedSongList();
 	h2app->closeFXProperties();
 	h2app->m_undoStack->clear();
 
@@ -1601,16 +1595,6 @@ void MainForm::onAutoSaveTimer()
 	pSong->save( getAutoSaveFilename() );
 
 	pSong->set_filename(sOldFilename);
-
-	/*
-	Song *pSong = h2app->getSong();
-	if (pSong->getFilename() == "") {
-		pSong->save( "autosave.h2song" );
-		return;
-	}
-
-	action_file_save();
-*/
 }
 
 

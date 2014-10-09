@@ -95,10 +95,10 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 void Fader::mousePressEvent(QMouseEvent *ev)
 {
-    if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-	MidiSenseWidget midiSense( this, true, this->getAction() );
-	midiSense.exec();
-    }
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+	}
 }
 
 
@@ -210,15 +210,11 @@ void Fader::paintEvent( QPaintEvent *ev)
 	QPainter painter(this);
 
 	// background
-//	painter.drawPixmap( rect(), m_back, QRect( 0, 0, 23, 116 ) );
 	painter.drawPixmap( ev->rect(), m_back, ev->rect() );
 
 
-	// peak leds
-	//float fRange = abs( m_fMaxPeak ) + abs( m_fMinPeak );
 
 	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
-	//int peak_L = 116 - ( realPeak_L / fRange ) * 116.0;
 	int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
 
 	if ( peak_L > 116 ) {
@@ -243,10 +239,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 
 		float realVal = m_fValue - m_fMinValue;
 
-//		uint knob_y = (uint)( 116.0 - ( 86.0 * ( m_fValue / fRange ) ) );
 		uint knob_y = (uint)( 116.0 - ( 86.0 * ( realVal / fRange ) ) );
-
-
 
 		painter.drawPixmap( QRect( 4, knob_y - knob_height, knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
 	}
@@ -366,8 +359,8 @@ void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 void MasterFader::mousePressEvent(QMouseEvent *ev)
 {
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-	    MidiSenseWidget midiSense( this, true, this->getAction() );
-	    midiSense.exec();
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
 	}
 }
 
@@ -461,17 +454,6 @@ void MasterFader::paintEvent( QPaintEvent* ev )
 		uint knob_y = (uint)( 190.0 - ( 159.0 * ( m_fValue / ( m_fMax - m_fMin ) ) ) );
 		painter.drawPixmap( QRect( 19, knob_y - knob_height, knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
 	}
-
-
-/*
-	if ( m_bWithoutKnob == false ) {
-		// knob
-		static const uint knob_height = 29;
-		static const uint knob_width = 15;
-		uint knob_y = (uint)( 116.0 - ( 86.0 * ( m_fValue / ( m_fMax - m_fMin ) ) ) );
-		painter.drawPixmap( QRect( 4, knob_y - knob_height, knob_width, knob_height), knob, QRect( 0, 0, knob_width, knob_height ) );
-	}
-*/
 }
 
 
@@ -515,6 +497,8 @@ Knob::Knob( QWidget* pParent )
 	m_nWidgetWidth = 18;
 	m_nWidgetHeight = 18;
 	m_fValue = 0.0;
+	m_fMousePressValue = 0.0;
+	m_fMousePressY = 0.0;
 
 	if ( m_background == NULL ) {
 		QString sBackground_path = Skin::getImagePath() + "/mixerPanel/knob_images.png";

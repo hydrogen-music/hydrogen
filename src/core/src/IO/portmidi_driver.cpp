@@ -20,14 +20,15 @@
  *
  */
 
-#include "PortMidiDriver.h"
 
+#include <hydrogen/IO/PortMidiDriver.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/globals.h>
+
 
 #ifdef WIN32
 #include <windows.h>

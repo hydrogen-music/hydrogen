@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-#include "JackMidiDriver.h"
+#include <hydrogen/IO/JackMidiDriver.h>
 
 #ifdef H2CORE_HAVE_JACK
 
@@ -117,7 +117,7 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 						msg.m_nChannel = buffer[0] & 0xF;
 						handleMidiMessage(msg);
 			break;
-        case 0xA:	 /* aftertouch */
+		case 0xA:	 /* aftertouch */
 			msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
 			msg.m_nData1 = buffer[1];
 			msg.m_nData2 = buffer[2];
@@ -311,7 +311,20 @@ JackMidiDriver::JackMidiDriver()
 	output_port = 0;
 	input_port = 0;
 
-	jack_client = jack_client_open("hydrogen-midi",
+	QString jackMidiClientId = "hydrogen";
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	Preferences* pref = Preferences::get_instance();
+	QString nsmClientId = pref->getNsmClientId();
+
+	if(!nsmClientId.isEmpty()){
+		jackMidiClientId = nsmClientId;
+	}
+#endif
+
+	jackMidiClientId.append("-midi");
+
+	jack_client = jack_client_open(jackMidiClientId.toLocal8Bit(),
 		JackNoStartServer, NULL);
 
 	if (jack_client == NULL)

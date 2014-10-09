@@ -82,10 +82,10 @@ public:
 	void setTrackOutput( int, Instrument *, InstrumentComponent * );
 
 	void setConnectDefaults( bool flag ) {
-		connect_out_flag = flag;
+		m_bConnectOutFlag = flag;
 	}
 	bool getConnectDefaults() {
-		return connect_out_flag;
+		return m_bConnectOutFlag;
 	}
 
 	float* getOut_L();
@@ -113,10 +113,10 @@ public:
 protected:
 //jack timebase callback
 	static void jack_timebase_callback(jack_transport_state_t state,
-										   jack_nframes_t nframes,
-										   jack_position_t *pos,
-										   int new_pos,
-										   void *arg);
+										jack_nframes_t nframes,
+										jack_position_t *pos,
+										int new_pos,
+										void *arg);
 //~ jack timebase callback
 
 #ifdef H2CORE_HAVE_JACKSESSION
@@ -126,37 +126,33 @@ protected:
 #endif
 
 private:
-	H2Core::Hydrogen *m_pEngine;
 	void relocateBBT();
-	long long bbt_frame_offset;
-	int must_relocate;         	// A countdown to wait for valid information from another Time Master.
-	int locate_countdown;      	// (Unrelated) countdown, for postponing a call to 'locate'.
-	unsigned long locate_frame;	// The frame to locate to (used in 'locateInNCycles'.)
 
-	JackProcessCallback processCallback;
-	jack_port_t *output_port_1;
-	jack_port_t *output_port_2;
-	QString output_port_name_1;
-	QString output_port_name_2;
-	std::map<string,int> track_map;
-	int track_port_count;
-	jack_port_t *track_output_ports_L[MAX_INSTRUMENTS];
-	jack_port_t *track_output_ports_R[MAX_INSTRUMENTS];
 
-	jack_transport_state_t m_JackTransportState;
-	jack_position_t m_JackTransportPos;
+	H2Core::Hydrogen *		m_pEngine;
 
-	bool connect_out_flag;
+	long long				bbt_frame_offset;
+	int						must_relocate;		// A countdown to wait for valid information from another Time Master.
+	int						locate_countdown;	// (Unrelated) countdown, for postponing a call to 'locate'.
+	unsigned long			locate_frame;		// The frame to locate to (used in 'locateInNCycles'.)
+
+	JackProcessCallback		processCallback;
+	jack_port_t *			output_port_1;
+	jack_port_t *			output_port_2;
+	QString					output_port_name_1;
+	QString					output_port_name_2;
+	std::map<string,int> 	track_map;
+	int						track_port_count;
+	jack_port_t *			track_output_ports_L[MAX_INSTRUMENTS];
+	jack_port_t *			track_output_ports_R[MAX_INSTRUMENTS];
+
+	jack_transport_state_t	m_JackTransportState;
+	jack_position_t			m_JackTransportPos;
+
+	bool					m_bConnectOutFlag;
 
 //jack timebase callback
-	jack_nframes_t m_jack_frame_current,
-					   m_jack_frame_last;
-	jack_transport_state_t m_JackTransportStateLast;
-	double m_jack_tick;
-
-	bool m_jack_running;
-	bool m_jack_master;
-	bool cond;
+	bool					m_bCond;
 //~ jack timebase callback
 
 };

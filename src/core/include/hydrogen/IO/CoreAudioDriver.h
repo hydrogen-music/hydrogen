@@ -60,6 +60,9 @@ public:
 	AudioUnit m_outputUnit;
 	AudioDeviceID m_outputDevice;
 
+	float* m_pOut_L;
+	float* m_pOut_R;
+
 	CoreAudioDriver( audioProcessCallback processCallback );
 	virtual ~CoreAudioDriver();
 
@@ -68,15 +71,12 @@ public:
 	unsigned getSampleRate();
 	unsigned getBufferSize();
 
-
 	int connect();
 	void disconnect();
 
 	float* getOut_L();
 	float* getOut_R();
 
-	float* m_pOut_L;
-	float* m_pOut_R;
 
 	virtual void play();
 	virtual void stop();

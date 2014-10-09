@@ -20,7 +20,7 @@
  *
  */
 
-#include "AlsaMidiDriver.h"
+#include <hydrogen/IO/AlsaMidiDriver.h>
 
 #ifdef H2CORE_HAVE_ALSA
 

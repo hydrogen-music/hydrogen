@@ -30,11 +30,11 @@
 
 class SampleWaveDisplay : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
-		SampleWaveDisplay(QWidget* pParent);
+		SampleWaveDisplay( QWidget* pParent );
 		~SampleWaveDisplay();
 
 		void updateDisplay( QString filename );
@@ -42,9 +42,9 @@ class SampleWaveDisplay : public QWidget, public H2Core::Object
 		void paintEvent(QPaintEvent *ev);
 
 	private:
-		QPixmap m_background;
+		QPixmap m_Background;
 		QString m_sSampleName;
-		int *m_pPeakData;
+		int *	m_pPeakData;
 };
 
 

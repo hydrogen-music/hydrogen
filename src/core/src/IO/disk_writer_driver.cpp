@@ -20,13 +20,14 @@
  *
  */
 #include <unistd.h>
-#include "DiskWriterDriver.h"
+
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/IO/DiskWriterDriver.h>
 
 #include <pthread.h>
 #include <cassert>
@@ -270,6 +271,9 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsign
 		, m_sFilename( sFilename )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
+		, m_nBufferSize( 0 )
+		, m_pOut_L( NULL )
+		, m_pOut_R( NULL )
 {
 	INFOLOG( "INIT" );
 }

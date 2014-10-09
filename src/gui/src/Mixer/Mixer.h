@@ -42,7 +42,7 @@ class PixmapWidget;
 
 class Mixer : public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
 		Mixer(QWidget* parent);

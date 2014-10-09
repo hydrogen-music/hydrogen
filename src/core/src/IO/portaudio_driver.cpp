@@ -1,5 +1,5 @@
 
-#include "PortAudioDriver.h"
+#include <hydrogen/IO/PortAudioDriver.h>
 #ifdef H2CORE_HAVE_PORTAUDIO
 
 #include <iostream>
@@ -37,6 +37,7 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
+		, m_pStream( NULL )
 {
 	INFOLOG( "INIT" );
 	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
@@ -76,14 +77,14 @@ int PortAudioDriver::connect()
 	}
 
 	err = Pa_OpenDefaultStream(
-			  &m_pStream,        /* passes back stream pointer */
-			  0,              /* no input channels */
-			  2,              /* stereo output */
-			  paFloat32,      /* 32 bit floating point output */
-			  m_nSampleRate,          // sample rate
-			  m_nBufferSize,            // frames per buffer
-			  portAudioCallback, /* specify our custom callback */
-			  this );        /* pass our data through to callback */
+				&m_pStream,        /* passes back stream pointer */
+				0,              /* no input channels */
+				2,              /* stereo output */
+				paFloat32,      /* 32 bit floating point output */
+				m_nSampleRate,          // sample rate
+				m_nBufferSize,            // frames per buffer
+				portAudioCallback, /* specify our custom callback */
+				this );        /* pass our data through to callback */
 
 
 	if ( err != paNoError ) {

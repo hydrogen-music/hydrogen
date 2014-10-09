@@ -20,55 +20,47 @@
  *
  */
 
-#ifndef PATTERN_FILL_DIALOG_H
-#define PATTERN_FILL_DIALOG_H
+#ifndef NSM_CLIENT_H
+#define NSM_CLIENT_H
 
-
-#include <QtGui>
-#include "ui_PatternFillDialog_UI.h"
+#ifdef H2CORE_HAVE_NSMSESSION
 
 #include <hydrogen/object.h>
-
-namespace H2Core
-{
-	class Pattern;
-}
-
-struct FillRange {
-
-	int fromVal;
-	int toVal;
-	bool bInsert;
-};
+#include <cassert>
 
 
-///
-/// Pattern Fill Dialog
-///
-class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public H2Core::Object
+/**
+* @class NsmClient
+*
+* @brief Non session manager client implementation
+*
+*
+* @author Sebastian Moors
+*
+*/
+
+class NsmClient : public H2Core::Object
 {
 	H2_OBJECT
-	Q_OBJECT
 	public:
-		PatternFillDialog( QWidget* parent, FillRange* range );
-		~PatternFillDialog();
 
-	private slots:
-		void on_cancelBtn_clicked();
-		void on_okBtn_clicked();
-		void on_fromText_textChanged(const QString & text);
-		void on_toText_textChanged(const QString & text);
+		static NsmClient* __instance;
+		~NsmClient();
+
+		pthread_t m_NsmThread;
+
+		static void create_instance();
+		static NsmClient* get_instance() { assert(__instance); return __instance; }
+
+		void createInitialClient();
+
+		void shutdown();
 
 	private:
-		FillRange* __fill_range;
-
-		/// Does some name check
-		void __text_changed();
-
+		NsmClient();
 
 };
 
+#endif /* H2CORE_HAVE_NSMSESSION */
 
-#endif
-
-
+#endif // NSM_CLIENT_H

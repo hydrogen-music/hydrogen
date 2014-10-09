@@ -570,58 +570,87 @@ public:
 		return maxBars;
 	}
 
-		void setWaitForSessionHandler(bool value){
-			waitingForSessionHandler = value;
-		}
+	void setWaitForSessionHandler(bool value){
+		waitingForSessionHandler = value;
+	}
 
-		bool getWaitForSessionHandler(){
+	bool getWaitForSessionHandler(){
 			return waitingForSessionHandler;
-		}
+	}
 
 #ifdef H2CORE_HAVE_JACKSESSION
-		QString getJackSessionUUID(){
-			return jackSessionUUID;
-		}
+	QString getJackSessionUUID(){
+		return jackSessionUUID;
+	}
 
-		void setJackSessionUUID( QString uuid ){
-			jackSessionUUID = uuid;
-		}
-		QString getJackSessionApplicationPath(){
-			return jackSessionApplicationPath;
-		}
+	void setJackSessionUUID( QString uuid ){
+		jackSessionUUID = uuid;
+	}
 
-		void setJackSessionApplicationPath( QString path ){
-			jackSessionApplicationPath = path;
-		}
+	QString getJackSessionApplicationPath(){
+		return jackSessionApplicationPath;
+	}
+
+	void setJackSessionApplicationPath( QString path ){
+		jackSessionApplicationPath = path;
+	}
 
 #endif
 
-		bool getUseTimelineBpm(){
-			return __useTimelineBpm;
-		}
-		void setUseTimelineBpm( bool val ){
-			__useTimelineBpm = val;
-		}
 
-		int getRubberBandCalcTime(){
-				return __rubberBandCalcTime;
-		}
-		void setRubberBandCalcTime( int val ){
-				__rubberBandCalcTime = val;
-		}
+#ifdef H2CORE_HAVE_NSMSESSION
+	void setNsmClientId(const QString& nsmClientId){
+		m_sNsmClientId = nsmClientId;
+	}
 
-		int getRubberBandBatchMode(){
-				return m_useTheRubberbandBpmChangeEvent;
-		}
-		void setRubberBandBatchMode( int val ){
-				m_useTheRubberbandBpmChangeEvent = val;
-		}
+	QString getNsmClientId(void){
+		return m_sNsmClientId;
+	}
+
+	void setNsmSongName(const QString& nsmSongName){
+		m_sNsmSongName = nsmSongName;
+	}
+
+	QString getNsmSongName(void){
+		return m_sNsmSongName;
+	}
+
+#endif
+
+	bool getUseTimelineBpm(){
+		return __useTimelineBpm;
+	}
+	void setUseTimelineBpm( bool val ){
+		__useTimelineBpm = val;
+	}
+
+	int getRubberBandCalcTime(){
+		return __rubberBandCalcTime;
+	}
+	void setRubberBandCalcTime( int val ){
+		__rubberBandCalcTime = val;
+	}
+
+	int getRubberBandBatchMode(){
+		return m_useTheRubberbandBpmChangeEvent;
+	}
+	void setRubberBandBatchMode( int val ){
+		m_useTheRubberbandBpmChangeEvent = val;
+	}
 
 	int getLastOpenTab(){
 		return m_nLastOpenTab;
 	}
 	void setLastOpenTab(int n){
 		m_nLastOpenTab = n;
+	}
+
+	void setH2ProcessName(const QString& processName){
+		m_sH2ProcessName = processName;
+	}
+
+	QString getH2ProcessName() {
+		return m_sH2ProcessName;
 	}
 
 private:
@@ -634,6 +663,7 @@ private:
 	QString demoPath;
 
 	//___ General properties ___
+	QString m_sH2ProcessName; //Name of hydrogen's main process
 	int __rubberBandCalcTime;
 	bool m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
 	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
@@ -656,9 +686,15 @@ private:
 	int punchOutPos;
 	QString m_sLastNews;
 	int maxBars;
+
 #ifdef H2CORE_HAVE_JACKSESSION
 		QString jackSessionUUID;
 		QString jackSessionApplicationPath;
+#endif
+
+#ifdef H2CORE_HAVE_NSMSESSION
+		QString m_sNsmClientId;
+		QString m_sNsmSongName;
 #endif
 
 	bool waitingForSessionHandler;

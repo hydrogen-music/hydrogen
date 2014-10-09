@@ -61,6 +61,16 @@
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/fx/Effects.h>
+
+#include <hydrogen/Preferences.h>
+#include <hydrogen/sampler/Sampler.h>
+#include <hydrogen/midi_map.h>
+#include <hydrogen/playlist.h>
+
+#ifdef H2CORE_HAVE_NSMSESSION
+#include <hydrogen/nsm_client.h>
+#endif
+
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/JackOutput.h>
 #include <hydrogen/IO/NullDriver.h>
@@ -68,21 +78,16 @@
 #include <hydrogen/IO/MidiOutput.h>
 #include <hydrogen/IO/CoreMidiDriver.h>
 #include <hydrogen/IO/TransportInfo.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/midi_map.h>
-#include <hydrogen/playlist.h>
-
-#include "IO/OssDriver.h"
-#include "IO/FakeDriver.h"
-#include "IO/AlsaAudioDriver.h"
-#include "IO/PortAudioDriver.h"
-#include "IO/DiskWriterDriver.h"
-#include "IO/AlsaMidiDriver.h"
-#include "IO/JackMidiDriver.h"
-#include "IO/PortMidiDriver.h"
-#include "IO/CoreAudioDriver.h"
-#include "IO/PulseAudioDriver.h"
+#include <hydrogen/IO/OssDriver.h>
+#include <hydrogen/IO/FakeDriver.h>
+#include <hydrogen/IO/AlsaAudioDriver.h>
+#include <hydrogen/IO/PortAudioDriver.h>
+#include <hydrogen/IO/DiskWriterDriver.h>
+#include <hydrogen/IO/AlsaMidiDriver.h>
+#include <hydrogen/IO/JackMidiDriver.h>
+#include <hydrogen/IO/PortMidiDriver.h>
+#include <hydrogen/IO/CoreAudioDriver.h>
+#include <hydrogen/IO/PulseAudioDriver.h>
 
 namespace H2Core
 {
@@ -97,23 +102,11 @@ float m_fMaxProcessTime = 0.0f;		///< max ms usable in process with no xrun
 //~ info
 
 
-// beatcounter
 
+// m_nBeatCounter
 //100,000 ms in 1 second.
 #define US_DIVIDER .000001
-
-float m_ntaktoMeterCompute = 1;	  	///< beatcounter note length
-int m_nbeatsToCount = 4;		///< beatcounter beats to count
-int eventCount = 1;			///< beatcounter event
-int tempochangecounter = 0;		///< count tempochanges for timeArray
-int beatCount = 1;			///< beatcounter beat to count
-double beatDiffs[16];			///< beat diff
-timeval currentTime, lastTime;		///< timeval
-double lastBeatTime, currentBeatTime, beatDiff;		///< timediff
-float beatCountBpm;			///< bpm
-int m_nCoutOffset = 0;			///ms default 0
-int m_nStartOffset = 0;			///ms default 0
-//~ beatcounter
+// ~m_nBeatCounter
 
 //jack time master
 float m_nNewBpmJTM = 120;
@@ -188,7 +181,7 @@ void		audioEngine_stop( bool bLockEngine = false );
 void		audioEngine_setSong( Song *newSong );
 void		audioEngine_removeSong();
 static void	audioEngine_noteOn( Note *note );
-//static void	audioEngine_noteOff( Note *note );
+
 int			audioEngine_process( uint32_t nframes, void *arg );
 inline void audioEngine_clearNoteQueue();
 inline void audioEngine_process_checkBPMChanged();
@@ -412,13 +405,6 @@ void audioEngine_stop( bool bLockEngine )
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
-	/*	// delete all copied notes in the playing notes queue
-  for (unsigned i = 0; i < m_playingNotesQueue.size(); ++i) {
-   Note *note = m_playingNotesQueue[i];
-   delete note;
-  }
-  m_playingNotesQueue.clear();
- */
 
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
@@ -893,14 +879,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		m_pAudioDriver->m_transport.m_nFrames += nframes;
 	}
 
-	/* float fRenderTime = (renderTime_end.tv_sec - renderTime_start.tv_sec) * 1000.0
-		+ (renderTime_end.tv_usec - renderTime_start.tv_usec) / 1000.0;
-	*/
-
-	float fLadspaTime =
-			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
-			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
-
 	timeval finishTimeval = currentTime2();
 	m_fProcessTime =
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
@@ -954,16 +932,6 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 		}
 
 		pFX->deactivate();
-
-		//		delete[] pFX->m_pBuffer_L;
-		//		pFX->m_pBuffer_L = NULL;
-		//		delete[] pFX->m_pBuffer_R;
-		//		pFX->m_pBuffer_R = NULL;
-		//		if ( nBufferSize != 0 ) {
-		//pFX->m_nBufferSize = nBufferSize;
-		//pFX->m_pBuffer_L = new float[ nBufferSize ];
-		//pFX->m_pBuffer_R = new float[ nBufferSize ];
-		//		}
 
 		Effects::get_instance()->getLadspaFX( nFX )->connectAudioPorts(
 					pFX->m_pBuffer_L,
@@ -1467,39 +1435,6 @@ void audioEngine_noteOn( Note *note )
 	m_midiNoteQueue.push_back( note );
 }
 
-
-/*
-void audioEngine_noteOff( Note *note )
-{
- if ( note == NULL )	{
-  ___ERRORLOG( "Error, note == NULL" );
- }
-
- AudioEngine::get_instance()->lock( RIGHT_HERE );
-
- // check current state
- if ( ( m_audioEngineState != STATE_READY )
-	  && ( m_audioEngineState != STATE_PLAYING ) ) {
-  ___ERRORLOG( "Error the audio engine is not in READY state" );
-  delete note;
-  AudioEngine::get_instance()->unlock();
-  return;
- }
-
-//	AudioEngine::get_instance()->get_sampler()->note_off( note );
- AudioEngine::get_instance()->unlock();
- delete note;
-
-}
-*/
-
-
-// unsigned long audioEngine_getTickPosition()
-// {
-// 	return m_nPatternTickPosition;
-// }
-
-
 AudioOutput* createDriver( const QString& sDriver )
 {
 	___INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
@@ -1794,19 +1729,34 @@ Hydrogen::Hydrogen()
 
 	__song = NULL;
 	hydrogenInstance = this;
+
+	initBeatcounter();
 	// 	__instance = this;
 	audioEngine_init();
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
+
 	audioEngine_startAudioDrivers();
-	for(int i = 0; i<128; i++){
+	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
 	}
+
+
 }
 
 Hydrogen::~Hydrogen()
 {
 	INFOLOG( "[~Hydrogen]" );
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	NsmClient* pNsmClient = NsmClient::get_instance();
+
+	if(pNsmClient){
+		pNsmClient->shutdown();
+	}
+#endif
+
+
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		audioEngine_stop();
 	}
@@ -1827,6 +1777,10 @@ void Hydrogen::create_instance()
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
 
+#ifdef H2CORE_HAVE_NSMSESSION
+	NsmClient::create_instance();
+#endif
+
 	if ( __instance == 0 ) {
 		__instance = new Hydrogen;
 	}
@@ -1835,6 +1789,17 @@ void Hydrogen::create_instance()
 	// AudioEngine::create_instance();
 	// Effects::create_instance();
 	// Playlist::create_instance();
+}
+
+void Hydrogen::initBeatcounter(void)
+{
+	m_ntaktoMeterCompute = 1;
+	m_nbeatsToCount = 4;
+	m_nEventCount = 1;
+	m_nTempoChangeCounter = 0;
+	m_nBeatCount = 1;
+	m_nCoutOffset = 0;
+	m_nStartOffset = 0;
 }
 
 /// Start the internal sequencer
@@ -2324,28 +2289,25 @@ PatternList * Hydrogen::getNextPatterns()
 }
 
 /// Set the next pattern (Pattern mode only)
-void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern )
+void Hydrogen::sequencer_setNextPattern( int pos )
 {
-	m_bAppendNextPattern = appendPattern;
-	m_bDeleteNextPattern = deletePattern;
-
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song* pSong = getSong();
 	if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
-		PatternList *patternList = pSong->get_pattern_list();
-		Pattern * p = patternList->get( pos );
-		if ( ( pos >= 0 ) && ( pos < ( int )patternList->size() ) ) {
+		PatternList *pPatternList = pSong->get_pattern_list();
+		Pattern * pPattern = pPatternList->get( pos );
+		if ( ( pos >= 0 ) && ( pos < ( int )pPatternList->size() ) ) {
 			// if p is already on the next pattern list, delete it.
-			if ( m_pNextPatterns->del( p ) == NULL ) {
+			if ( m_pNextPatterns->del( pPattern ) == NULL ) {
 				// WARNINGLOG( "Adding to nextPatterns" );
-				m_pNextPatterns->add( p );
+				m_pNextPatterns->add( pPattern );
 			} /* else {
 				// WARNINGLOG( "Removing " + to_string(pos) );
 			}*/
 		} else {
 			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
-					  .arg( pos ).arg( patternList->size() ) );
+					  .arg( pos ).arg( pPatternList->size() ) );
 			m_pNextPatterns->clear();
 		}
 	} else {
@@ -2965,7 +2927,7 @@ void Hydrogen::renameJackPorts()
 }
 #endif
 
-///BeatCounter
+///m_nBeatCounter
 void Hydrogen::setbeatsToCount( int beatstocount)
 {
 	m_nbeatsToCount = beatstocount;
@@ -2988,78 +2950,78 @@ float Hydrogen::getNoteLength()
 
 int Hydrogen::getBcStatus()
 {
-	return eventCount;
+	return m_nEventCount;
 }
 
 void Hydrogen::setBcOffsetAdjust()
 {
-	//individual fine tuning for the beatcounter
+	//individual fine tuning for the m_nBeatCounter
 	//to adjust  ms_offset from different people and controller
-	Preferences *pref = Preferences::get_instance();
+	Preferences *pPreferences = Preferences::get_instance();
 
-	m_nCoutOffset = pref->m_countOffset;
-	m_nStartOffset = pref->m_startOffset;
+	m_nCoutOffset = pPreferences->m_countOffset;
+	m_nStartOffset = pPreferences->m_startOffset;
 }
 
 void Hydrogen::handleBeatCounter()
 {
 	// Get first time value:
-	if (beatCount == 1)
-		gettimeofday(&currentTime,NULL);
+	if (m_nBeatCount == 1)
+		gettimeofday(&m_CurrentTime,NULL);
 
-	eventCount++;
+	m_nEventCount++;
 
-	// Set wlastTime to wcurrentTime to remind the time:
-	lastTime = currentTime;
+	// Set wm_LastTime to wm_CurrentTime to remind the time:
+	m_LastTime = m_CurrentTime;
 
 	// Get new time:
-	gettimeofday(&currentTime,NULL);
+	gettimeofday(&m_CurrentTime,NULL);
 
 
 	// Build doubled time difference:
-	lastBeatTime = (double)(
-				lastTime.tv_sec
-				+ (double)(lastTime.tv_usec * US_DIVIDER)
+	m_nLastBeatTime = (double)(
+				m_LastTime.tv_sec
+				+ (double)(m_LastTime.tv_usec * US_DIVIDER)
 				+ (int)m_nCoutOffset * .0001
 				);
-	currentBeatTime = (double)(
-				currentTime.tv_sec
-				+ (double)(currentTime.tv_usec * US_DIVIDER)
+	m_nCurrentBeatTime = (double)(
+				m_CurrentTime.tv_sec
+				+ (double)(m_CurrentTime.tv_usec * US_DIVIDER)
 				);
-	beatDiff = beatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
+	m_nBeatDiff = m_nBeatCount == 1 ? 0 : m_nCurrentBeatTime - m_nLastBeatTime;
 
 	//if differences are to big reset the beatconter
-	if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ){
-		eventCount = 1;
-		beatCount = 1;
+	if( m_nBeatDiff > 3.001 * 1/m_ntaktoMeterCompute ){
+		m_nEventCount = 1;
+		m_nBeatCount = 1;
 		return;
 	}
 	// Only accept differences big enough
-	if (beatCount == 1 || beatDiff > .001) {
-		if (beatCount > 1)
-			beatDiffs[beatCount - 2] = beatDiff ;
+	if (m_nBeatCount == 1 || m_nBeatDiff > .001) {
+		if (m_nBeatCount > 1)
+			m_nBeatDiffs[m_nBeatCount - 2] = m_nBeatDiff ;
 		// Compute and reset:
-		if (beatCount == m_nbeatsToCount){
+		if (m_nBeatCount == m_nbeatsToCount){
 			//				unsigned long currentframe = getRealtimeFrames();
 			double beatTotalDiffs = 0;
 			for(int i = 0; i < (m_nbeatsToCount - 1); i++)
-				beatTotalDiffs += beatDiffs[i];
-			double beatDiffAverage =
+				beatTotalDiffs += m_nBeatDiffs[i];
+			double m_nBeatDiffAverage =
 					beatTotalDiffs
-					/ (beatCount - 1)
+					/ (m_nBeatCount - 1)
 					* m_ntaktoMeterCompute ;
-			beatCountBpm =
-					(float) ((int) (60 / beatDiffAverage * 100))
+			m_fBeatCountBpm	 =
+					(float) ((int) (60 / m_nBeatDiffAverage * 100))
 					/ 100;
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			if ( beatCountBpm > 500)
-				beatCountBpm = 500;
-			setBPM( beatCountBpm );
+			if ( m_fBeatCountBpm > 500)
+				m_fBeatCountBpm = 500;
+			setBPM( m_fBeatCountBpm );
 			AudioEngine::get_instance()->unlock();
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
-				beatCount = 1;
-				eventCount = 1;
+				m_nBeatCount = 1;
+				m_nEventCount = 1;
 			}else{
 				if ( m_audioEngineState != STATE_PLAYING ){
 					unsigned bcsamplerate =
@@ -3068,13 +3030,13 @@ void Hydrogen::handleBeatCounter()
 					if ( m_ntaktoMeterCompute <= 1){
 						rtstartframe =
 								bcsamplerate
-								* beatDiffAverage
+								* m_nBeatDiffAverage
 								* ( 1/ m_ntaktoMeterCompute );
 					}else
 					{
 						rtstartframe =
 								bcsamplerate
-								* beatDiffAverage
+								* m_nBeatDiffAverage
 								/ m_ntaktoMeterCompute ;
 					}
 
@@ -3093,18 +3055,18 @@ void Hydrogen::handleBeatCounter()
 					sequencer_play();
 				}
 
-				beatCount = 1;
-				eventCount = 1;
+				m_nBeatCount = 1;
+				m_nEventCount = 1;
 				return;
 			}
 		}
 		else {
-			beatCount ++;
+			m_nBeatCount ++;
 		}
 	}
 	return;
 }
-//~ beatcounter
+//~ m_nBeatCounter
 
 // jack transport master
 unsigned long Hydrogen::getHumantimeFrames()
@@ -3173,9 +3135,6 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 			return MAX_NOTES;
 		}
 	}
-	// 	std::vector<PatternList*> *pColumns =
-	//		pSong->get_pattern_group_vector()[ humanpos - 1 ]
-	//			.get( 0 )->get_length();
 
 	// ERRORLOG( "Kick me! " );
 	if ( humanpos < 1 ) return MAX_NOTES;
@@ -3186,23 +3145,6 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 	} else {
 		return MAX_NOTES;
 	}
-	// 	int nPatternSize;
-
-	// 	pColumns
-
-	/*	Pattern *pPattern = NULL;
- for ( int i = 0; i < humanpos; ++i ) {
-  PatternList *pColumn = ( *pColumns )[ i ];
-  pPattern = pColumn->get( 0 );
-  if ( pPattern ) {
-   nPatternSize = pPattern->get_length();
-  } else {
-   nPatternSize = MAX_NOTES;
-  }
-
-  humanTick = nPatternSize;
- }*/
-	// 	return humanTick;
 }
 
 float Hydrogen::getNewBpmJTM()
@@ -3326,5 +3268,17 @@ void Hydrogen::setTimelineBpm()
 			setBPM( bpm );
 	}
 }
+
+#ifdef H2CORE_HAVE_NSMSESSION
+void Hydrogen::startNsmClient()
+{
+	//NSM has to be started before jack driver gets created
+	NsmClient* pNsmClient = NsmClient::get_instance();
+
+	if(pNsmClient){
+		pNsmClient->createInitialClient();
+	}
+}
+#endif
 
 }; /* Namespace */

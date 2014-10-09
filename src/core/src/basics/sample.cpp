@@ -449,16 +449,19 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider/*beats*/;
 		double induration = get_sample_duration();
 		if ( induration != 0.0 ) ratio = durationtime / induration;
+
 		rubberoutframes = int( __frames * ratio + 0.1 );
 		_INFOLOG( QString( "ratio: %1, rubberoutframes: %2, rubberinframes: %3" ).arg( ratio ).arg ( rubberoutframes ).arg ( __frames ) );
 
-		QObject* parent = 0;
-		QProcess* rubberband = new QProcess( parent );
+		QObject*	pParent = 0;
+		QProcess*	pRrubberbandProc = new QProcess( pParent );
+
 		QStringList arguments;
 		QString rCs = QString( " %1" ).arg( rb.c_settings );
 		float pitch = pow( 1.0594630943593, ( double )rb.pitch );
 		QString rPs = QString( " %1" ).arg( pitch );
 		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
+
 		arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
 				  << "--threads"					//assume multi-CPU even if only one CPU is identified
 				  << "-P"						//aim for minimal time distortion
@@ -466,8 +469,10 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 				  << "-c" << rCs					//"crispness" levels
 				  << outfilePath 					//infile
 				  << rubberResultPath;					//outfile
-		rubberband->start( program, arguments );
-		while( !rubberband->waitForFinished() ) {
+
+		pRrubberbandProc->start( program, arguments );
+
+		while( !	pRrubberbandProc->waitForFinished() ) {
 			//_ERRORLOG( QString( "prozessing" ));
 		}
 		if ( QFile( rubberResultPath ).exists() == false ) {
@@ -475,22 +480,23 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 			return false;
 		}
 
-		Sample* rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
-		if( rubberbanded==0 ) {
+		Sample* p_Rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
+		if( p_Rubberbanded==0 ) {
 			return false;
 		}
-		if( QFile( outfilePath ).remove() );
-//			_INFOLOG("remove outfile");
-		if( QFile( rubberResultPath ).remove() );
-//			_INFOLOG("remove rubberResultFile");
-		__frames = rubberbanded->get_frames();
-		__data_l = rubberbanded->get_data_l();
-		__data_r = rubberbanded->get_data_r();
-		rubberbanded->__data_l = 0;
-		rubberbanded->__data_r = 0;
+
+		QFile( outfilePath ).remove();
+
+		QFile( rubberResultPath ).remove();
+
+		__frames = p_Rubberbanded->get_frames();
+		__data_l = p_Rubberbanded->get_data_l();
+		__data_r = p_Rubberbanded->get_data_r();
+		p_Rubberbanded->__data_l = 0;
+		p_Rubberbanded->__data_r = 0;
 		__is_modified = true;
 		__rubberband = rb;
-		delete rubberbanded;
+		delete p_Rubberbanded;
 	}
 	return true;
 }

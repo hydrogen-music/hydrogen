@@ -44,7 +44,7 @@ class Rotary;
 
 class InstrumentNameWidget : public PixmapWidget
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
 		InstrumentNameWidget(QWidget* parent);
@@ -64,10 +64,10 @@ class InstrumentNameWidget : public PixmapWidget
 		virtual void paintEvent(QPaintEvent *ev);
 
 	private:
-		int m_nWidgetWidth;
-		int m_nWidgetHeight;
-		QString m_sInstrName;
-		QFont m_mixerFont;
+		int			m_nWidgetWidth;
+		int			m_nWidgetHeight;
+		QString		m_sInstrName;
+		QFont		m_mixerFont;
 };
 
 

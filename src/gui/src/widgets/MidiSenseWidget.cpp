@@ -26,10 +26,10 @@
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* midiAction ): QDialog( pParent ) , Object(__class_name)
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* midiAction): QDialog( pParent ) , Object(__class_name)
 {
-	directWrite = directWr;
-	action = midiAction;
+	m_DirectWrite = directWr;
+	m_pAction = midiAction;
 
 
 	setWindowTitle( "Waiting.." );
@@ -38,20 +38,20 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* 
 	m_pURLLabel = new QLabel( this );
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
-	if(action != NULL){
-	    m_pURLLabel->setText( "Waiting for midi input..." );
-	} else{
+	if(m_pAction != NULL){
+		m_pURLLabel->setText( "Waiting for midi input..." );
+	} else {
 
-            /*
-             *   Check if this widget got called from the midiTable in the preferences
-             *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
-             */
+		/*
+		 *   Check if this widget got called from the midiTable in the preferences
+		 *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
+		 */
 
-            if(directWrite){
-                m_pURLLabel->setText( "This element is not midi operable." );
-            } else {
-                m_pURLLabel->setText( "Waiting for midi input..." );
-            }
+		if(m_DirectWrite){
+			m_pURLLabel->setText( trUtf8("This element is not midi operable.") );
+		} else {
+			m_pURLLabel->setText( trUtf8("Waiting for midi input...") );
+		}
 	}
 	
 	QVBoxLayout* pVBox = new QVBoxLayout( this );
@@ -61,6 +61,8 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr  , MidiAction* 
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	pEngine->lastMidiEvent = "";
 	pEngine->lastMidiEventParameter = 0;
+
+	m_LastMidiEventParameter = 0;
 	
 	m_pUpdateTimer = new QTimer( this );
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() ) );
@@ -78,31 +80,31 @@ MidiSenseWidget::~MidiSenseWidget(){
 void MidiSenseWidget::updateMidi(){
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	if(	!pEngine->lastMidiEvent.isEmpty() ){
-		lastMidiEvent = pEngine->lastMidiEvent;
-		lastMidiEventParameter = pEngine->lastMidiEventParameter;
+		m_sLastMidiEvent = pEngine->lastMidiEvent;
+		m_LastMidiEventParameter = pEngine->lastMidiEventParameter;
 
 
-		if( directWrite ){
-		    //write the action / parameter combination to the midiMap
-		    MidiMap *mM = MidiMap::get_instance();
-		    assert(action);
-		    MidiAction* pAction = new MidiAction( action->getType() );
+		if( m_DirectWrite ){
+			//write the action / parameter combination to the midiMap
+			MidiMap *pMidiMap = MidiMap::get_instance();
 
-		    //if( action->getParameter1() != 0){
-		    pAction->setParameter1( action->getParameter1() );
-		    //}
+			assert(m_pAction);
 
-		    if( lastMidiEvent.left(2) == "CC" ){
-			    mM->registerCCEvent( lastMidiEventParameter , pAction );
-		    }
+			MidiAction* pAction = new MidiAction( m_pAction->getType() );
 
-		    if( lastMidiEvent.left(3) == "MMC" ){
-			    mM->registerMMCEvent( lastMidiEvent , pAction );
-		    }
+			pAction->setParameter1( m_pAction->getParameter1() );
 
-		    if( lastMidiEvent.left(4) == "NOTE" ){
-			    mM->registerNoteEvent( lastMidiEvent.toInt() , pAction );
-		    }
+			if( m_sLastMidiEvent.left(2) == "CC" ){
+				pMidiMap->registerCCEvent( m_LastMidiEventParameter , pAction );
+			} else if( m_sLastMidiEvent.left(3) == "MMC" ){
+				pMidiMap->registerMMCEvent( m_sLastMidiEvent , pAction );
+			} else if( m_sLastMidiEvent.left(4) == "NOTE" ){
+				pMidiMap->registerNoteEvent( m_sLastMidiEvent.toInt() , pAction );
+			} else {
+				/* In all other cases, the midiMap cares for deleting the pointer */
+
+				delete pAction;
+			}
 		}
 
 		close();

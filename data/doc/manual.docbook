@@ -257,7 +257,7 @@
 
         <para>From the "Audio System" tab (<xref
         linkend="fig.preferences.audio_tab"/>) it is possible to modify the
-        audio driver being used (OSS, Jack, ALSA, PortAudio) with its buffer and
+        audio driver being used (OSS, Jack, ALSA, PortAudio, PulseAudio, CoreAudio) with its buffer and
         sampling rate (unless you are using JACK, in this case the audio driver
         configuration should happen before starting the JACK server).</para>
 
@@ -319,7 +319,14 @@
           <listitem>
             <para><emphasis role="bold">CoreAudio</emphasis>: a driver for Mac
             OS X (experimental)</para>
-          </listitem>
+		  </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">PulseAudio</emphasis>: a driver for the cross platform
+            PulseAudio sound server.</para>
+		  </listitem>
+
+
         </itemizedlist>
       </section>
 
