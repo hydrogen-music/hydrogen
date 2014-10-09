@@ -485,7 +485,7 @@ void Mixer::updateMixer()
 			if ( m_pMixerLine[ nInstr ] == NULL ) {
 				// the mixerline doesn't exists..I'll create a new one!
 				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
-				m_pFaderHBox->addWidget( m_pMixerLine[ nInstr ] );
+				m_pFaderHBox->insertWidget( nInstr, m_pMixerLine[ nInstr ] );
 
 				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
