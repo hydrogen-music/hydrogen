@@ -142,6 +142,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		int getColumn(QMouseEvent *ev);
 
 		int findFreeCompoID( int startingPoint = 0 );
+		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
 
 		int __nRealColumn;

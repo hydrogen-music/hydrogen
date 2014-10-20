@@ -1267,29 +1267,32 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
         AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		if ( Merge ) {
+        std::vector<InstrumentComponent*>* p_oldInstrumentComponents = new std::vector<InstrumentComponent*> ( pNewInstrument->get_components()->begin(), pNewInstrument->get_components()->end() );
+        pNewInstrument->get_components()->clear();
 
-		}
-		else {
-            std::vector<InstrumentComponent*>* p_oldInstrumentComponents = new std::vector<InstrumentComponent*> ( pNewInstrument->get_components()->begin(), pNewInstrument->get_components()->end() );
-            pNewInstrument->get_components()->clear();
-            for (std::vector<DrumkitComponent*>::iterator it = pNewDrumkit->get_components()->begin() ; it != pNewDrumkit->get_components()->end(); ++it) {
-                DrumkitComponent* p_compo = *it;
-                int p_oldID = p_compo->get_id();
-                int p_newID = findFreeCompoID();
+        for (std::vector<DrumkitComponent*>::iterator it = pNewDrumkit->get_components()->begin() ; it != pNewDrumkit->get_components()->end(); ++it) {
+            DrumkitComponent* p_compo = *it;
+            int p_oldID = p_compo->get_id();
+            int p_newID = -1;
+
+            if ( Merge )
+                p_newID = findExistingCompo( p_compo->get_name() );
+
+            if ( p_newID == -1 ) {
+                p_newID = findFreeCompoID();
 
                 p_compo->set_id( p_newID );
                 p_compo->set_name( renameCompo( p_compo->get_name() ) );
                 Hydrogen::get_instance()->getSong()->get_components()->push_back( p_compo );
+            }
 
-                for ( std::vector<InstrumentComponent*>::iterator it2 = p_oldInstrumentComponents->begin() ; it2 != p_oldInstrumentComponents->end(); ++it2 ) {
-                    InstrumentComponent* p_oldInstrCompo = *it2;
-                    if( p_oldInstrCompo->get_drumkit_componentID() == p_oldID ) {
-                        InstrumentComponent* p_newInstrCompo = new InstrumentComponent( p_oldInstrCompo );
-                        p_newInstrCompo->set_drumkit_componentID( p_newID );
+            for ( std::vector<InstrumentComponent*>::iterator it2 = p_oldInstrumentComponents->begin() ; it2 != p_oldInstrumentComponents->end(); ++it2 ) {
+                InstrumentComponent* p_oldInstrCompo = *it2;
+                if( p_oldInstrCompo->get_drumkit_componentID() == p_oldID ) {
+                    InstrumentComponent* p_newInstrCompo = new InstrumentComponent( p_oldInstrCompo );
+                    p_newInstrCompo->set_drumkit_componentID( p_newID );
 
-                        pNewInstrument->get_components()->push_back( p_newInstrCompo );
-                    }
+                    pNewInstrument->get_components()->push_back( p_newInstrCompo );
                 }
             }
 		}
@@ -1323,10 +1326,12 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 QString DrumPatternEditor::renameCompo( QString OriginalName )
 {
+    std::string utf8_text = OriginalName.toUtf8().constData();
+    std::cerr<<"renameCompo "<<utf8_text<<std::endl;
     std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
     for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
         DrumkitComponent* p_compo = *it;
-        if( p_compo->get_name().compare( OriginalName ) )
+        if( p_compo->get_name().compare( OriginalName ) == 0 )
             return renameCompo( OriginalName + "_new" );
     }
     return OriginalName;
@@ -1334,6 +1339,7 @@ QString DrumPatternEditor::renameCompo( QString OriginalName )
 
 int DrumPatternEditor::findFreeCompoID( int startingPoint )
 {
+    std::cerr<<"findFreeCompoID "<<startingPoint<<std::endl;
     bool p_foundFreeSlot = true;
     std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
     for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
@@ -1348,6 +1354,17 @@ int DrumPatternEditor::findFreeCompoID( int startingPoint )
         return startingPoint;
     else
         return findFreeCompoID( startingPoint + 1 );
+}
+
+int DrumPatternEditor::findExistingCompo( QString SourceName )
+{
+    std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
+    for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
+        DrumkitComponent* p_compo = *it;
+        if ( p_compo->get_name().compare( SourceName ) == 0 )
+            return p_compo->get_id();
+    }
+    return -1;
 }
 
 
