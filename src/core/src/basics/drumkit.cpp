@@ -144,7 +144,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	}
 	else {
         WARNINGLOG( "componentList node not found" );
-        DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "main" );
+        DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
         drumkit->get_components()->push_back(pDrumkitComponent);
 	}
 

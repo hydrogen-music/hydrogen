@@ -638,6 +638,34 @@ void Mixer::updateMixer()
         pLine->updateMixerLine();
     }
 
+    if( compoList->size() < m_pComponentMixerLine.size() ) {
+        std::vector<int>* p_ids_to_delete = new std::vector<int>();
+        for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
+
+            bool p_foundExistingRelatedComponent = false;
+            for ( std::vector<DrumkitComponent*>::iterator it2 = compoList->begin() ; it2 != compoList->end(); ++it2 ) {
+                DrumkitComponent* p_compo = *it2;
+                if( p_compo->get_id() == it->first ) {
+                    p_foundExistingRelatedComponent = true;
+                    break;
+                }
+            }
+            if( !p_foundExistingRelatedComponent )
+               p_ids_to_delete->push_back( it->first ) ;
+        }
+
+        for ( std::vector<int>::iterator it = p_ids_to_delete->begin() ; it != p_ids_to_delete->end(); ++it ) {
+            int p_compoID = *it;
+            delete m_pComponentMixerLine[p_compoID];
+            m_pComponentMixerLine.erase( p_compoID );
+
+			int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+			if ( m_pFaderPanel->width() != newWidth ) {
+				m_pFaderPanel->resize( newWidth, height() );
+			}
+        }
+	}
+
 	if (nMuteClicked == nInstruments - 1) {
 		// find the not muted button
 		for (uint i = 0; i < nInstruments; i++) {

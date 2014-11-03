@@ -456,7 +456,7 @@ Song* SongReader::readSong( const QString& filename )
 		}
 	}
 	else {
-        DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "main" );
+        DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
         song->get_components()->push_back(pDrumkitComponent);
 	}
 

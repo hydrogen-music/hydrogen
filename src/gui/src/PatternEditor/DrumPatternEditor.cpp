@@ -1327,7 +1327,6 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 QString DrumPatternEditor::renameCompo( QString OriginalName )
 {
     std::string utf8_text = OriginalName.toUtf8().constData();
-    std::cerr<<"renameCompo "<<utf8_text<<std::endl;
     std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
     for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
         DrumkitComponent* p_compo = *it;
@@ -1339,7 +1338,6 @@ QString DrumPatternEditor::renameCompo( QString OriginalName )
 
 int DrumPatternEditor::findFreeCompoID( int startingPoint )
 {
-    std::cerr<<"findFreeCompoID "<<startingPoint<<std::endl;
     bool p_foundFreeSlot = true;
     std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
     for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {

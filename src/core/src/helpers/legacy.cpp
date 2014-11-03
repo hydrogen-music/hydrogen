@@ -97,20 +97,44 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 					if( sFilename.isEmpty() ) {
 						ERRORLOG( "filename back compability node is empty" );
 					} else {
-						Sample* sample = new Sample( dk_path+"/"+sFilename );
-						DrumkitComponent* dmCompo = new DrumkitComponent( 0, "Main" );
-						drumkit->get_components()->push_back(dmCompo);
-						InstrumentComponent* component = new InstrumentComponent( 0 );
 
-						InstrumentLayer* layer = new InstrumentLayer( sample );
+						Sample* sample = new Sample( dk_path+"/"+sFilename );
+
+						bool p_foundMainCompo = false;
+						for (std::vector<DrumkitComponent*>::iterator it = drumkit->get_components()->begin() ; it != drumkit->get_components()->end(); ++it) {
+                            DrumkitComponent* existing_compo = *it;
+                            if( existing_compo->get_name().compare("Main") == 0) {
+                                p_foundMainCompo = true;
+                                break;
+                            }
+                        }
+
+						if ( !p_foundMainCompo ) {
+                            DrumkitComponent* dmCompo = new DrumkitComponent( 0, "Main" );
+                            drumkit->get_components()->push_back(dmCompo);
+                        }
+
+                        InstrumentComponent* component = new InstrumentComponent( 0 );
+                        InstrumentLayer* layer = new InstrumentLayer( sample );
 						component->set_layer( layer, 0 );
 						instrument->get_components()->push_back( component );
 
 					}
 				} else {
 					int n = 0;
-					DrumkitComponent* dmCompo = new DrumkitComponent( 0, "Main" );
-					drumkit->get_components()->push_back(dmCompo);
+					bool p_foundMainCompo = false;
+                    for (std::vector<DrumkitComponent*>::iterator it = drumkit->get_components()->begin() ; it != drumkit->get_components()->end(); ++it) {
+                        DrumkitComponent* existing_compo = *it;
+                        if( existing_compo->get_name().compare("Main") == 0) {
+                            p_foundMainCompo = true;
+                            break;
+                        }
+                    }
+
+                    if ( !p_foundMainCompo ) {
+                        DrumkitComponent* dmCompo = new DrumkitComponent( 0, "Main" );
+                        drumkit->get_components()->push_back(dmCompo);
+                    }
 					InstrumentComponent* component = new InstrumentComponent( 0 );
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );

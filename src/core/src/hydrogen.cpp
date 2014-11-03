@@ -2489,7 +2489,6 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
         songCompoList->push_back( p_newCompo );
 	}
 
-
 	//current instrument list
 	InstrumentList *songInstrList = getSong()->get_instrument_list();
 
