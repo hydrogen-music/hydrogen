@@ -1073,9 +1073,9 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
                 DrumkitComponent* dm_component = new DrumkitComponent( findFreeCompoID(), sNewName );
                 Hydrogen::get_instance()->getSong()->get_components()->push_back( dm_component );
 
-                InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
-                instrument_component->set_gain( 1.0f );
-                m_pInstrument->get_components()->push_back( instrument_component );
+                //InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
+                //instrument_component->set_gain( 1.0f );
+                //m_pInstrument->get_components()->push_back( instrument_component );
 
                 m_nSelectedComponent = dm_component->get_id();
                 m_pLayerPreview->set_selected_component( dm_component->get_id() );
