@@ -708,6 +708,16 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
 				delete pLayer;
 			}
+
+			int p_count = 0;
+			for( int n = 0; n < MAX_LAYERS; n++ ) {
+                InstrumentLayer* layer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
+                if( layer )
+                    p_count++;
+            }
+
+            if( p_count == 0 )
+                m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
 		}
 		AudioEngine::get_instance()->unlock();
 		selectedInstrumentChangedEvent();    // update all
