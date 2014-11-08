@@ -1095,7 +1095,42 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
         }
     }
     else if( p_selected.compare("delete") == 0 ) {
+        std::vector<DrumkitComponent*>* p_components = Hydrogen::get_instance()->getSong()->get_components();
+        if(p_components->size() == 1)
+            return;
 
+        DrumkitComponent* p_dmCompo = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
+
+        InstrumentList* p_instruments = Hydrogen::get_instance()->getSong()->get_instrument_list();
+        for ( int n = ( int )p_instruments->size() - 1; n >= 0; n-- ) {
+            Instrument* p_instr = p_instruments->get( n );
+            for( int o = 0 ; o < p_instr->get_components()->size() ; o++ ) {
+                InstrumentComponent* p_instrCompo = p_instr->get_components()->at( o );
+                if( p_instrCompo->get_drumkit_componentID() == p_dmCompo->get_id() ) {
+                    for( int m = 0; m < MAX_LAYERS; m++ ) {
+                        InstrumentLayer* layer = p_instrCompo->get_layer( m );
+                        if( layer )
+                            delete layer;
+                    }
+                    p_instr->get_components()->erase( p_instr->get_components()->begin() + o );;
+                    break;
+                }
+            }
+        }
+
+        for ( int n = 0 ; n < p_components->size() ; n++ ) {
+            DrumkitComponent* p_compo = p_components->at( n );
+            if( p_compo->get_id() == p_dmCompo->get_id() ) {
+                p_components->erase( p_components->begin() + n );
+                break;
+            }
+        }
+
+        m_nSelectedComponent = 0;
+
+        selectedInstrumentChangedEvent();
+        // this will force an update...
+        EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
     }
     else if( p_selected.compare("rename") == 0 ) {
         labelCompoClicked( NULL );
