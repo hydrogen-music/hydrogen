@@ -28,6 +28,7 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/object.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
@@ -215,46 +216,12 @@ public:
 	int				__get_selected_PatterNumber();
 	unsigned int	__getMidiRealtimeNoteTickPosition();
 
-	///sample editor vectors
-	void			sortTimelineVector();
-	void			sortTimelineTagVector();
+	void			setTimelineBpm();
+	Timeline*		getTimeline() const;
 
-/// timeline vector
-	struct HTimelineVector
-	{
-		int		m_htimelinebeat;		//beat position in timeline
-		float	m_htimelinebpm;		//BPM
-	};
-	std::vector<HTimelineVector> m_timelinevector;
 
-	struct TimelineComparator
-	{
-		bool operator()( HTimelineVector const& lhs, HTimelineVector const& rhs)
-		{
-			return lhs.m_htimelinebeat < rhs.m_htimelinebeat;
-		}
-	};
-
-	void setTimelineBpm();
-
-/// timeline tag vector
-	struct HTimelineTagVector
-	{
-		int		m_htimelinetagbeat;		//beat position in timeline
-		QString m_htimelinetag;		// tag
-	};
-	std::vector<HTimelineTagVector> m_timelinetagvector;
-
-	struct TimelineTagComparator
-	{
-		bool operator()( HTimelineTagVector const& lhs, HTimelineTagVector const& rhs)
-		{
-			return lhs.m_htimelinetagbeat < rhs.m_htimelinetagbeat;
-		}
-	};
-
-		///midi lookuptable
-		int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
+	///midi lookuptable
+	int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
 
 private:
@@ -286,6 +253,9 @@ private:
 	Song::SongMode	m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 
+	//Timline information
+	Timeline*		m_pTimeline;
+
 	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
 
 
@@ -300,6 +270,10 @@ private:
 /*
  * inline methods
  */
+inline Timeline* Hydrogen::getTimeline() const
+{
+	return m_pTimeline;
+}
 
 inline const QString& Hydrogen::getCurrentDrumkitname()
 {

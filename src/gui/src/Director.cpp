@@ -58,6 +58,7 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/timeline.h>
 #include <QRect>
 
 
@@ -79,6 +80,7 @@ Director::Director ( QWidget* pParent )
 	p_wechselblink = width() * 5/100;
 
 	f_bpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_pTimeline = Hydrogen::get_instance()->getTimeline();
 	timer = new QTimer( this );
 	connect( timer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
 }
@@ -144,15 +146,15 @@ void Director::metronomeEvent( int nValue )
 	// get tags
 	__TAG="";
 	__TAG2="";
-	for ( size_t t = 0; t < Hydrogen::get_instance()->m_timelinetagvector.size(); t++){
-		if(t+1<Hydrogen::get_instance()->m_timelinetagvector.size() &&
-				Hydrogen::get_instance()->m_timelinetagvector[t+1].m_htimelinetagbeat == p_bar ){
-			__TAG2 =  Hydrogen::get_instance()->m_timelinetagvector[t+1].m_htimelinetag ;
+	for ( size_t t = 0; t < m_pTimeline->m_timelinetagvector.size(); t++){
+		if(t+1<m_pTimeline->m_timelinetagvector.size() &&
+				m_pTimeline->m_timelinetagvector[t+1].m_htimelinetagbeat == p_bar ){
+			__TAG2 =  m_pTimeline->m_timelinetagvector[t+1].m_htimelinetag ;
 		}
-		if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat <= p_bar-1){
-			__TAG =  Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag ;
+		if ( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat <= p_bar-1){
+			__TAG =  m_pTimeline->m_timelinetagvector[t].m_htimelinetag ;
 		}
-		if( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat > p_bar-1){
+		if( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat > p_bar-1){
 			break;
 		}
 	}

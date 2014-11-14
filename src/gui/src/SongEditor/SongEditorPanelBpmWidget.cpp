@@ -28,6 +28,7 @@
 #include "SongEditorPanel.h"
 #include "SongEditor.h"
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/timeline.h>
 
 namespace H2Core
 {
@@ -48,7 +49,8 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	deleteBtn->setEnabled ( false );
 
 	Hydrogen* engine = Hydrogen::get_instance();
-	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
+	Timeline* pTimeline = engine->getTimeline();
+	std::vector<Timeline::HTimelineVector> timelineVector = pTimeline->m_timelinevector;
 
 	//restore the bpm value
 	if( timelineVector.size() > 0 ){
@@ -90,12 +92,14 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
+
 	float oldBpm = -1.0;	
 	//search for an old entry
-	if( engine->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				oldBpm = engine->m_timelinevector[t].m_htimelinebpm;
+	if( pTimeline->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				oldBpm = pTimeline->m_timelinevector[t].m_htimelinebpm;
 			}
 		}
 	}
@@ -110,12 +114,14 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
+
 	float oldBpm = -1.0;	
 	//search for an old entry
-	if( engine->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-			if ( engine->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				oldBpm = engine->m_timelinevector[t].m_htimelinebpm;
+	if( pTimeline->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				oldBpm = pTimeline->m_timelinevector[t].m_htimelinebpm;
 			}
 		}
 	}

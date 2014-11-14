@@ -20,18 +20,20 @@
  *
  */
 
+#include <hydrogen/event_queue.h>
 #include <hydrogen/version.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/event_queue.h>
+
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
@@ -453,8 +455,9 @@ bool MainForm::action_file_exit()
 
 void MainForm::action_file_new()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	if ( (pEngine->getState() == STATE_PLAYING) ) {
+		pEngine->sequencer_stop();
 	}
 
 	bool proceed = handleUnsavedChanges();
@@ -463,14 +466,14 @@ void MainForm::action_file_new()
 	}
 
 	h2app->m_undoStack->clear();
-	Hydrogen::get_instance()->m_timelinevector.clear();
+	pEngine->getTimeline()->m_timelinevector.clear();
 	Song * song = Song::get_empty_song();
 	song->set_filename( "" );
 	h2app->setSong(song);
-	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	Hydrogen::get_instance()->m_timelinetagvector.clear();
+	pEngine->setSelectedPatternNumber( 0 );
+	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	h2app->getSongEditorPanel()->updatePositionRuler();
+	pEngine->getTimeline()->m_timelinetagvector.clear();
 
 	// update director tags
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
@@ -1142,15 +1145,16 @@ void MainForm::openSongFile( const QString& sFilename )
 		engine->sequencer_stop();
 	}
 
-	engine->m_timelinetagvector.clear();
+	engine->getTimeline()->m_timelinetagvector.clear();
 
 	h2app->closeFXProperties();
-	LocalFileMng mng;
+
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == NULL ) {
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
 		return;
 	}
+
 	h2app->m_undoStack->clear();
 
 	// add the new loaded song in the "last used song" vector

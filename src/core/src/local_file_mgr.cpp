@@ -32,6 +32,7 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/sample.h>
@@ -1476,12 +1477,15 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 
 	//bpm time line
+	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+
 	QDomNode bpmTimeLine = doc.createElement( "BPMTimeLine" );
-	if(Hydrogen::get_instance()->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
+
+	if(pTimeline->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinevector.size()); t++){
 			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat ));
-			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm  ) );
+			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( pTimeline->m_timelinevector[t].m_htimelinebeat ));
+			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( pTimeline->m_timelinevector[t].m_htimelinebpm  ) );
 			bpmTimeLine.appendChild( newBPMNode );
 		}
 	}
@@ -1489,11 +1493,11 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 	//time line tag
 	QDomNode timeLineTag = doc.createElement( "timeLineTag" );
-	if(Hydrogen::get_instance()->m_timelinetagvector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
+	if(pTimeline->m_timelinetagvector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinetagvector.size()); t++){
 			QDomNode newTAGNode = doc.createElement( "newTAG" );
-			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat ));
-			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetag  ) );
+			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( pTimeline->m_timelinetagvector[t].m_htimelinetagbeat ));
+			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( pTimeline->m_timelinetagvector[t].m_htimelinetag  ) );
 			timeLineTag.appendChild( newTAGNode );
 		}
 	}

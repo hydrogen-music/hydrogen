@@ -30,6 +30,7 @@
 
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/globals.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/instrument.h>
@@ -822,32 +823,33 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "ladspa node not found" );
 	}
 
-	Hydrogen::get_instance()->m_timelinevector.clear();
-	Hydrogen::HTimelineVector tlvector;
+	Timeline* pTimeline = Hydrogen::get_instance()->getTimeline();
+	pTimeline->m_timelinevector.clear();
+	Timeline::HTimelineVector tlvector;
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLine.isNull() ) {
 		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
 		while( !newBPMNode.isNull() ) {
 			tlvector.m_htimelinebeat = LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 );
 			tlvector.m_htimelinebpm = LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 );
-			Hydrogen::get_instance()->m_timelinevector.push_back( tlvector );
-			Hydrogen::get_instance()->sortTimelineVector();
+			pTimeline->m_timelinevector.push_back( tlvector );
+			pTimeline->sortTimelineVector();
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
 		}
 	} else {
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
 
-	Hydrogen::get_instance()->m_timelinetagvector.clear();
-	Hydrogen::HTimelineTagVector tltagvector;
+	pTimeline->m_timelinetagvector.clear();
+	Timeline::HTimelineTagVector tltagvector;
 	QDomNode timeLineTag = songNode.firstChildElement( "timeLineTag" );
 	if ( !timeLineTag.isNull() ) {
 		QDomNode newTAGNode = timeLineTag.firstChildElement( "newTAG" );
 		while( !newTAGNode.isNull() ) {
 			tltagvector.m_htimelinetagbeat = LocalFileMng::readXmlInt( newTAGNode, "BAR", 0 );
 			tltagvector.m_htimelinetag = LocalFileMng::readXmlString( newTAGNode, "TAG", "" );
-			Hydrogen::get_instance()->m_timelinetagvector.push_back( tltagvector );
-			Hydrogen::get_instance()->sortTimelineTagVector();
+			pTimeline->m_timelinetagvector.push_back( tltagvector );
+			pTimeline->sortTimelineTagVector();
 			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
 		}
 	} else {

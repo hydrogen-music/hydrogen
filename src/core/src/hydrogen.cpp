@@ -64,6 +64,7 @@
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midi_map.h>
 #include <hydrogen/playlist.h>
+#include <hydrogen/timeline.h>
 
 #ifdef H2CORE_HAVE_NSMSESSION
 #include <hydrogen/nsm_client.h>
@@ -1705,6 +1706,9 @@ Hydrogen::Hydrogen()
 	INFOLOG( "[Hydrogen]" );
 
 	__song = NULL;
+
+	m_pTimeline = new Timeline();
+
 	hydrogenInstance = this;
 
 	initBeatcounter();
@@ -1741,6 +1745,9 @@ Hydrogen::~Hydrogen()
 	audioEngine_stopAudioDrivers();
 	audioEngine_destroy();
 	__kill_instruments();
+
+	delete m_pTimeline;
+
 	__instance = NULL;
 }
 
@@ -3204,17 +3211,6 @@ unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
 	return m_naddrealtimenotetickposition;
 }
 
-void Hydrogen::sortTimelineVector()
-{
-	//sort the timeline vector to beats a < b
-	sort(m_timelinevector.begin(), m_timelinevector.end(), TimelineComparator());
-}
-
-void Hydrogen::sortTimelineTagVector()
-{
-	//sort the timeline vector to beats a < b
-	sort(m_timelinetagvector.begin(), m_timelinetagvector.end(), TimelineTagComparator());
-}
 
 void Hydrogen::setTimelineBpm()
 {
@@ -3223,11 +3219,12 @@ void Hydrogen::setTimelineBpm()
 	//time line test
 	if ( Preferences::get_instance()->getUseTimelineBpm() ) {
 		float bpm = pSong->__bpm;
-		for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++) {
-			if ( m_timelinevector[i].m_htimelinebeat > getPatternPos() )
+
+		for ( int i = 0; i < static_cast<int>(m_pTimeline->m_timelinevector.size() ); i++) {
+			if ( m_pTimeline->m_timelinevector[i].m_htimelinebeat > getPatternPos() )
 				break;
 
-			bpm = m_timelinevector[i].m_htimelinebpm;
+			bpm = m_pTimeline->m_timelinevector[i].m_htimelinebpm;
 		}
 
 		if ( bpm != pSong->__bpm )
