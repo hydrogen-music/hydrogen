@@ -43,4 +43,10 @@
 
 #define UNUSED( v )             (v = v)
 
+// m_nBeatCounter
+//100,000 ms in 1 second.
+#define							US_DIVIDER .000001
+// ~m_nBeatCounter
+
+
 #endif // H2C_GLOBALS_H

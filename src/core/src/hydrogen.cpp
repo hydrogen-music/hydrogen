@@ -100,12 +100,6 @@ float m_fMaxProcessTime = 0.0f;		///< max ms usable in process with no xrun
 //~ info
 
 
-
-// m_nBeatCounter
-//100,000 ms in 1 second.
-#define US_DIVIDER .000001
-// ~m_nBeatCounter
-
 //jack time master
 float m_nNewBpmJTM = 120;
 unsigned long m_nHumantimeFrames = 0;
