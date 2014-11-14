@@ -93,23 +93,23 @@ namespace H2Core
 // GLOBALS
 
 // info
-float m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
-float m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
-float m_fProcessTime = 0.0f;		///< time used in process function
-float m_fMaxProcessTime = 0.0f;		///< max ms usable in process with no xrun
+float					m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
+float					m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
+float					m_fProcessTime = 0.0f;		///< time used in process function
+float					m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
 //~ info
 
 
 //jack time master
-float m_nNewBpmJTM = 120;
-unsigned long m_nHumantimeFrames = 0;
+float					m_nNewBpmJTM = 120;
+unsigned long			m_nHumantimeFrames = 0;
 //~ jack time master
 
-AudioOutput *m_pAudioDriver = NULL;	///< Audio output
-QMutex mutex_OutputPointer;     ///< Mutex for audio output pointer, allows multiple readers
+AudioOutput *			m_pAudioDriver = NULL;	///< Audio output
+QMutex					mutex_OutputPointer;     ///< Mutex for audio output pointer, allows multiple readers
 ///< When locking this AND AudioEngine, always lock AudioEngine first.
-MidiInput *m_pMidiDriver = NULL;	///< MIDI input
-MidiOutput *m_pMidiDriverOut = NULL;	///< MIDI output
+MidiInput *				m_pMidiDriver = NULL;	///< MIDI input
+MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
 
 // overload the the > operator of Note objects for priority_queue
 struct compare_pNotes {
@@ -124,73 +124,72 @@ struct compare_pNotes {
 
 /// Song Note FIFO
 std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
-std::deque<Note*> m_midiNoteQueue;	///< Midi Note FIFO
+std::deque<Note*>		m_midiNoteQueue;	///< Midi Note FIFO
 
-PatternList* m_pNextPatterns;		///< Next pattern (used only in Pattern mode)
-bool m_bAppendNextPattern;		///< Add the next pattern to the list instead
-/// of replace.
-bool m_bDeleteNextPattern;		///< Delete the next pattern from the list.
+PatternList*			m_pNextPatterns;		///< Next pattern (used only in Pattern mode)
+bool					m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
+bool					m_bDeleteNextPattern;		///< Delete the next pattern from the list.
 
-PatternList* m_pPlayingPatterns;
-int m_nSongPos;				///< Is the position inside the song
+PatternList*			m_pPlayingPatterns;
+int						m_nSongPos;				///< Is the position inside the song
 
-int m_nSelectedPatternNumber;
-int m_nSelectedInstrumentNumber;
+int						m_nSelectedPatternNumber;
+int						m_nSelectedInstrumentNumber;
 
-Instrument *m_pMetronomeInstrument = NULL;	///< Metronome instrument
+Instrument *			m_pMetronomeInstrument = NULL;	///< Metronome instrument
 
 // Buffers used in the process function
-unsigned m_nBufferSize = 0;
-float *m_pMainBuffer_L = NULL;
-float *m_pMainBuffer_R = NULL;
+unsigned				m_nBufferSize = 0;
+float *					m_pMainBuffer_L = NULL;
+float *					m_pMainBuffer_R = NULL;
 
-Hydrogen* hydrogenInstance = NULL;   ///< Hydrogen class instance (used for log)
+Hydrogen*				hydrogenInstance = NULL;   ///< Hydrogen class instance (used for log)
 
-int  m_audioEngineState = STATE_UNINITIALIZED;	///< Audio engine state
+int						m_audioEngineState = STATE_UNINITIALIZED;	///< Audio engine state
 
 #ifdef H2CORE_HAVE_LADSPA
-float m_fFXPeak_L[MAX_FX];
-float m_fFXPeak_R[MAX_FX];
+float					m_fFXPeak_L[MAX_FX];
+float					m_fFXPeak_R[MAX_FX];
 #endif
 
-int m_nPatternStartTick = -1;
-unsigned int m_nPatternTickPosition = 0;
-int m_nLookaheadFrames = 0;
+int						m_nPatternStartTick = -1;
+unsigned int			m_nPatternTickPosition = 0;
+int						m_nLookaheadFrames = 0;
 
 // used in findPatternInTick
-int m_nSongSizeInTicks = 0;
+int						m_nSongSizeInTicks = 0;
 
-struct timeval m_currentTickTime;
+struct timeval			m_currentTickTime;
 
-unsigned long m_nRealtimeFrames = 0;
-unsigned int m_naddrealtimenotetickposition = 0;
+unsigned long			m_nRealtimeFrames = 0;
+unsigned int			m_naddrealtimenotetickposition = 0;
 
 // PROTOTYPES
-void		audioEngine_init();
-void		audioEngine_destroy();
-int			audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
-void		audioEngine_stop( bool bLockEngine = false );
-void		audioEngine_setSong( Song *newSong );
-void		audioEngine_removeSong();
-static void	audioEngine_noteOn( Note *note );
+void					audioEngine_init();
+void					audioEngine_destroy();
+int						audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
+void					audioEngine_stop( bool bLockEngine = false );
+void					audioEngine_setSong( Song *newSong );
+void					audioEngine_removeSong();
+static void				audioEngine_noteOn( Note *note );
 
-int			audioEngine_process( uint32_t nframes, void *arg );
-inline void audioEngine_clearNoteQueue();
-inline void audioEngine_process_checkBPMChanged();
-inline void audioEngine_process_playNotes( unsigned long nframes );
-inline void audioEngine_process_transport();
+int						audioEngine_process( uint32_t nframes, void *arg );
+inline void				audioEngine_clearNoteQueue();
+inline void				audioEngine_process_checkBPMChanged();
+inline void				audioEngine_process_playNotes( unsigned long nframes );
+inline void				audioEngine_process_transport();
 
-inline unsigned audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
-inline int audioEngine_updateNoteQueue( unsigned nFrames );
-inline void audioEngine_prepNoteQueue();
+inline unsigned			audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
+inline int				audioEngine_updateNoteQueue( unsigned nFrames );
+inline void				audioEngine_prepNoteQueue();
 
-inline int findPatternInTick( int tick, bool loopMode, int *patternStartTick );
+inline int				findPatternInTick( int tick, bool loopMode, int *patternStartTick );
 
-void		audioEngine_seek( long long nFrames, bool bLoopMode = false );
+void					audioEngine_seek( long long nFrames, bool bLoopMode = false );
 
-void		audioEngine_restartAudioDrivers();
-void		audioEngine_startAudioDrivers();
-void		audioEngine_stopAudioDrivers();
+void					audioEngine_restartAudioDrivers();
+void					audioEngine_startAudioDrivers();
+void					audioEngine_stopAudioDrivers();
 
 inline timeval currentTime2()
 {
@@ -3086,11 +3085,13 @@ unsigned long Hydrogen::getTimeMasterFrames()
 long Hydrogen::getTickForHumanPosition( int humanpos )
 {
 	Song* pSong = getSong();
-	if ( ! pSong ) return -1;
+	if ( ! pSong ){
+		return -1;
+	}
 
-	std::vector< PatternList* > *columns = pSong->get_pattern_group_vector();
+	std::vector< PatternList* > * pColumns = pSong->get_pattern_group_vector();
 
-	int nPatternGroups = columns->size();
+	int nPatternGroups = pColumns->size();
 	if ( humanpos >= nPatternGroups ) {
 		if ( pSong->is_loop_enabled() ) {
 			humanpos = humanpos % nPatternGroups;
@@ -3099,10 +3100,12 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 		}
 	}
 
-	// ERRORLOG( "Kick me! " );
-	if ( humanpos < 1 ) return MAX_NOTES;
-	PatternList* pl = columns->at( humanpos - 1 );
-	Pattern *pPattern = pl->get( 0 );
+	if ( humanpos < 1 ){
+		return MAX_NOTES;
+	}
+
+	PatternList* pPatternList = pColumns->at( humanpos - 1 );
+	Pattern *pPattern = pPatternList->get( 0 );
 	if ( pPattern ) {
 		return pPattern->get_length();
 	} else {
