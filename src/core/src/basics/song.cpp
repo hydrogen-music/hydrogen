@@ -152,7 +152,7 @@ Song* Song::get_default_song()
 	song->set_instrument_list( pList );
 
 #ifdef H2CORE_HAVE_JACK
-	Hydrogen::get_instance()->renameJackPorts();
+	Hydrogen::get_instance()->renameJackPorts( song );
 #endif
 
 	PatternList* patternList = new PatternList();

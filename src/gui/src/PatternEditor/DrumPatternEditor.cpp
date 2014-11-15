@@ -1226,10 +1226,10 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 			return;
 		}
 
-        pInstrumentList->move( nSourceInstrument, nTargetInstrument );
+		pInstrumentList->move( nSourceInstrument, nTargetInstrument );
 
 		#ifdef H2CORE_HAVE_JACK
-		engine->renameJackPorts();
+		engine->renameJackPorts( pSong );
 		#endif
 
 		AudioEngine::get_instance()->unlock();
@@ -1246,7 +1246,8 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 	
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK
-	pEngine->renameJackPorts();
+	Song *pSong = pEngine->getSong();
+	pEngine->renameJackPorts(pSong);
 #endif
 	AudioEngine::get_instance()->unlock();
 	updateEditor();
@@ -1276,7 +1277,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 		pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
 
 		#ifdef H2CORE_HAVE_JACK
-		pEngine->renameJackPorts();
+		pEngine->renameJackPorts( pEngine->getSong() );
 		#endif
 
 		AudioEngine::get_instance()->unlock();
@@ -1320,7 +1321,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	pEngine->getSong()->get_instrument_list()->add( pNewInstrument );
 
 	#ifdef H2CORE_HAVE_JACK
-	pEngine->renameJackPorts();
+	pEngine->renameJackPorts( pEngine->getSong() );
 	#endif
 
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
@@ -1361,7 +1362,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 	
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK
-	pEngine->renameJackPorts();
+	pEngine->renameJackPorts( pEngine->getSong() );
 #endif
 	AudioEngine::get_instance()->unlock();
 	updateEditor();
@@ -1371,7 +1372,8 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	InstrumentList* pList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	InstrumentList* pList = pSong->get_instrument_list();
 
 	// create a new valid ID for this instrument
 	int nID = -1;
@@ -1387,7 +1389,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	pList->add( pNewInstr );
 	
 	#ifdef H2CORE_HAVE_JACK
-	Hydrogen::get_instance()->renameJackPorts();
+	Hydrogen::get_instance()->renameJackPorts( pSong );
 	#endif
 	
 	AudioEngine::get_instance()->unlock();

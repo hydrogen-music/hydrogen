@@ -800,7 +800,7 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 			#ifdef H2CORE_HAVE_JACK
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
 						Hydrogen *engine = Hydrogen::get_instance();
-						engine->renameJackPorts();
+						engine->renameJackPorts(engine->getSong());
 						AudioEngine::get_instance()->unlock();
 			#endif
 
