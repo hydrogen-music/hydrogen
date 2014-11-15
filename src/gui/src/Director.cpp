@@ -74,15 +74,15 @@ Director::Director ( QWidget* pParent )
 	//INFOLOG ( "INIT" );
 	setWindowTitle ( trUtf8 ( "Director" ) );
 
-	p_counter = 1;	// to compute the right beat
-	p_fadealpha = 255;	//default alpha
-	p_bar = 1;	// default bar
-	p_wechselblink = width() * 5/100;
+	m_nCounter = 1;	// to compute the right beat
+	m_nFadeAlpha = 255;	//default alpha
+	m_nBar = 1;	// default bar
+	m_nFlashingArea = width() * 5/100;
 
-	f_bpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
 	m_pTimeline = Hydrogen::get_instance()->getTimeline();
-	timer = new QTimer( this );
-	connect( timer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
+	m_pTimer = new QTimer( this );
+	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
 }
 
 
@@ -105,7 +105,9 @@ void Director::metronomeEvent( int nValue )
 			__songName = list.last().replace( ".h2song", "" );
 
 			// if songname is not set, default on an empty song, we call them "Untitled Song".
-			if( __songName== "" ) __songName = QString("Untitled Song");
+			if( __songName.isEmpty() ){
+				__songName = QString("Untitled Song");
+			}
 		}
 		
 		update();
@@ -114,33 +116,37 @@ void Director::metronomeEvent( int nValue )
 
 
 	//bpm
-	f_bpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
 	//bar
-	p_bar = Hydrogen::get_instance()->getPatternPos() +1;
-	if ( p_bar <= 0 )
-		p_bar = 1;
+	m_nBar = Hydrogen::get_instance()->getPatternPos() + 1;
+
+	if ( m_nBar <= 0 ){
+		m_nBar = 1;
+	}
+
 	// 1000 ms / bpm / 60s
-	timer->start( static_cast<int>( 1000 / ( f_bpm / 60 )) / 2 );
-	p_wechselblink = width() * 5/100;
-	p_fadealpha = 255;
+	m_pTimer->start( static_cast<int>( 1000 / ( m_fBpm / 60 )) / 2 );
+	m_nFlashingArea = width() * 5/100;
+	m_nFadeAlpha = 255;
+
 	if ( nValue == 2 ){
-		p_fadealpha = 0;
+		m_nFadeAlpha = 0;
 		update();
 		__TAG="";
 		__TAG2="";
 		return;
 	}
+
 	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
 		__color = QColor( 255, 50, 1 ,255 );
-		p_counter = 1;
+		m_nCounter = 1;
 	}
 	else {	//foregroundcolor "rect" for all other blinks
-		p_counter++;
-		if( p_counter %2 == 0 )
-			p_wechselblink = width() * 52.5/100;
+		m_nCounter++;
+		if( m_nCounter %2 == 0 )
+			m_nFlashingArea = width() * 52.5/100;
 
 		__color = QColor( 24, 250, 31, 255 );
-
 	}
 
 	// get tags
@@ -148,13 +154,13 @@ void Director::metronomeEvent( int nValue )
 	__TAG2="";
 	for ( size_t t = 0; t < m_pTimeline->m_timelinetagvector.size(); t++){
 		if(t+1<m_pTimeline->m_timelinetagvector.size() &&
-				m_pTimeline->m_timelinetagvector[t+1].m_htimelinetagbeat == p_bar ){
+				m_pTimeline->m_timelinetagvector[t+1].m_htimelinetagbeat == m_nBar ){
 			__TAG2 =  m_pTimeline->m_timelinetagvector[t+1].m_htimelinetag ;
 		}
-		if ( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat <= p_bar-1){
+		if ( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat <= m_nBar-1){
 			__TAG =  m_pTimeline->m_timelinetagvector[t].m_htimelinetag ;
 		}
-		if( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat > p_bar-1){
+		if( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat > m_nBar-1){
 			break;
 		}
 	}
@@ -165,7 +171,7 @@ void Director::metronomeEvent( int nValue )
 void Director::updateMetronomBackground()
 {
 	__color.setAlpha( 0 );
-	timer->stop();
+	m_pTimer->stop();
 	update();
 }
 
@@ -183,18 +189,18 @@ void Director::paintEvent( QPaintEvent* ev )
 	//draw the metronome
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
 	painter.setBrush( __color );
-	painter.drawRect (  p_wechselblink, height() * 25/100, width() * 42.5/100, height() * 35/100);
+	painter.drawRect (  m_nFlashingArea, height() * 25/100, width() * 42.5/100, height() * 35/100);
 
 
 	//draw bars
 	painter.setPen(Qt::white);
 	painter.setFont(QFont("Arial", height() * 25/100 ));
 	QRect r1(QPoint( width() * 5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
-	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( p_bar) );
+	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( m_nBar) );
 
 	//draw beats
 	QRect r2(QPoint( width() * 52.5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
-	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( p_counter) );
+	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( m_nCounter) );
 
 	if( __TAG == __TAG2 )
 		__TAG2 = "";

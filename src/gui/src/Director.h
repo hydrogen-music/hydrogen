@@ -50,19 +50,19 @@ private slots:
 
 
 private:
-	QTimer				*timer;
+	QTimer				*m_pTimer;
 	H2Core::Timeline	*m_pTimeline;
 	QColor				__color;
 	QPalette			__blinkerPalette;
-	int					p_counter;
-	int					p_fadealpha;
-	float				f_bpm;
-	int					p_bar;
-	int					p_wechselblink;
+	int					m_nCounter;
+	int					m_nFadeAlpha;
+	float				m_fBpm;
+	int					m_nBar;
+	int					m_nFlashingArea;
 	QString				__TAG;
 	QString				__TAG2;
 	QString				__songName;
-	int					p_tagbeat;
+	int					m_nTagbeat;
 
 };
 
