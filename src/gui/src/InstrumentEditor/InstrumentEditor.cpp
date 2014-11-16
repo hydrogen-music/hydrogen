@@ -624,33 +624,42 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			sprintf( tmp, "%#.2f", fVal );
 			m_pLayerGainLCD->setText( tmp );
 
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				pLayer->set_gain( fVal );
-				m_pWaveDisplay->updateDisplay( pLayer );
-			}
+            InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+            if( pCompo ) {
+                H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+                if ( pLayer ) {
+                    pLayer->set_gain( fVal );
+                    m_pWaveDisplay->updateDisplay( pLayer );
+                }
+            }
 		}
 		else if ( ref == m_pLayerPitchCoarseRotary ) {
 			//fVal = fVal * 24.0 - 12.0;
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int)fVal ) );
-            H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
-				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->set_pitch( nCoarse + fFine );
-				INFOLOG( QString("pitch: %1").arg( pLayer->get_pitch() ) );
-			}
+
+            InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+            if( pCompo ) {
+                H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+                if ( pLayer ) {
+                    int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
+                    float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
+                    pLayer->set_pitch( nCoarse + fFine );
+                    INFOLOG( QString("pitch: %1").arg( pLayer->get_pitch() ) );
+                }
+            }
 		}
 		else if ( ref == m_pLayerPitchFineRotary ) {
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
-				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->set_pitch( nCoarse + fFine );
-				INFOLOG( QString("pitch: %1").arg( pLayer->get_pitch()) );
-			}
-
+			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+            if( pCompo ) {
+                H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+                if ( pLayer ) {
+                    int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
+                    float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
+                    pLayer->set_pitch( nCoarse + fFine );
+                    INFOLOG( QString("pitch: %1").arg( pLayer->get_pitch()) );
+                }
+            }
 		}
 		else if ( ref == m_pInstrumentGain ) {
 			fVal = fVal * 5.0;
