@@ -712,21 +712,24 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 		if ( m_pInstrument ) {
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
-				delete pLayer;
-			}
+            InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+            if( pCompo ) {
+                H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
+                if ( pLayer ) {
+                    m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
+                    delete pLayer;
+                }
 
-			int p_count = 0;
-			for( int n = 0; n < MAX_LAYERS; n++ ) {
-                InstrumentLayer* layer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
-                if( layer )
-                    p_count++;
+                int p_count = 0;
+                for( int n = 0; n < MAX_LAYERS; n++ ) {
+                    InstrumentLayer* layer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
+                    if( layer )
+                        p_count++;
+                }
+
+                if( p_count == 0 )
+                    m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
             }
-
-            if( p_count == 0 )
-                m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
 		}
 		AudioEngine::get_instance()->unlock();
 		selectedInstrumentChangedEvent();    // update all
@@ -734,12 +737,15 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 	}
 	else if ( pButton == m_pSampleEditorBtn ){
 		if ( m_pInstrument ) {
-			H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				Sample* pSample = pLayer->get_sample();
-				if( pSample == NULL) return;
-				QString name = pSample->get_filepath();
-				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
+            InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+            if( pCompo ) {
+                H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+				if ( pLayer ) {
+                    Sample* pSample = pLayer->get_sample();
+                    if( pSample == NULL) return;
+                    QString name = pSample->get_filepath();
+                    HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
+                }
 			}
 		}
 
