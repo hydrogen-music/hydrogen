@@ -19,35 +19,29 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef H2C_GLOBALS_H
-#define H2C_GLOBALS_H
-
-#define MAX_INSTRUMENTS         1000
-#define MAX_COMPONENTS          32
-
-#define MAX_NOTES               192
-
-#define MAX_LAYERS              16
-
-#define MAX_FX		        4
-
-#define MAX_BUFFER_SIZE         8192
-
-#define MIDI_OUT_NOTE_MIN       0
-#define MIDI_OUT_NOTE_MAX       127
-#define MIDI_OUT_CHANNEL_MIN    -1
-#define MIDI_OUT_CHANNEL_MAX    15
-
-#define SAMPLE_CHANNELS         2
-
-#define TWOPI                   6.28318530717958647692
-
-#define UNUSED( v )             (v = v)
-
-// m_nBeatCounter
-//100,000 ms in 1 second.
-#define							US_DIVIDER .000001
-// ~m_nBeatCounter
 
 
-#endif // H2C_GLOBALS_H
+#include <hydrogen/timeline.h>
+
+namespace H2Core
+{
+	const char* Timeline::__class_name = "Timeline";
+
+	Timeline::Timeline() : Object( __class_name )
+	{
+	}
+
+	void Timeline::sortTimelineVector()
+	{
+		//sort the timeline vector to beats a < b
+		sort(m_timelinevector.begin(), m_timelinevector.end(), TimelineComparator());
+	}
+
+	void Timeline::sortTimelineTagVector()
+	{
+		//sort the timeline vector to beats a < b
+		sort(m_timelinetagvector.begin(), m_timelinetagvector.end(), TimelineTagComparator());
+	}
+
+};
+
