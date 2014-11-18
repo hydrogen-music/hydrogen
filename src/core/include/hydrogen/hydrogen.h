@@ -235,6 +235,7 @@ public:
 		}
 	};
 
+	float getTimelineBpm( int Beat );
 	void setTimelineBpm();
 
 /// timeline tag vector

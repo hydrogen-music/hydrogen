@@ -2233,11 +2233,9 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 			+ ( deltatime.tv_usec / 1000000.0 )
 			+ ( m_pAudioDriver->getBufferSize() / ( double )sampleRate );
 
-	retTick = ( unsigned long ) ( ( sampleRate
-									/ ( double ) m_pAudioDriver->m_transport.m_nTickSize )
-								  * deltaSec );
+	retTick = ( unsigned long ) ( ( sampleRate / ( double ) m_pAudioDriver->m_transport.m_nTickSize ) * deltaSec );
 
-	retTick = initTick + retTick;
+	retTick += initTick;
 
 	return retTick;
 }
@@ -2809,7 +2807,7 @@ void Hydrogen::setBPM( float fBPM )
 
 	m_pAudioDriver->setBpm( fBPM );
 	pSong->__bpm = fBPM;
-	m_nNewBpmJTM = fBPM;
+	setNewBpmJTM ( fBPM );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -3230,23 +3228,39 @@ void Hydrogen::sortTimelineTagVector()
 	sort(m_timelinetagvector.begin(), m_timelinetagvector.end(), TimelineTagComparator());
 }
 
+// Get TimelineBPM for Pos
+float Hydrogen::getTimelineBpm( int Beat ) {
+	Song* pSong = getSong();
+	float bpm = pSong->__bpm;
+	for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++) {
+		if ( m_timelinevector[i].m_htimelinebeat > Beat )
+			break;
+
+		bpm = m_timelinevector[i].m_htimelinebpm;
+	}
+
+	return bpm;
+}
+
 void Hydrogen::setTimelineBpm()
 {
-	Song* pSong = getSong();
-
 	//time line test
-	if ( Preferences::get_instance()->getUseTimelineBpm() ) {
-		float bpm = pSong->__bpm;
-		for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++) {
-			if ( m_timelinevector[i].m_htimelinebeat > getPatternPos() )
-				break;
+	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) return;
 
-			bpm = m_timelinevector[i].m_htimelinebpm;
-		}
+	// Update "engine" BPM
+	Song* pSong = getSong();
+	float BPM = getTimelineBpm ( getPatternPos() );
+	if ( BPM != pSong->__bpm )
+		setBPM( BPM );
 
-		if ( bpm != pSong->__bpm )
-			setBPM( bpm );
-	}
+	// Update "realtime" BPM
+	unsigned long PlayTick = getRealtimeTickPosition();
+	int RealtimePatternPos = getPosForTick ( PlayTick );
+	float RealtimeBPM = getTimelineBpm ( RealtimePatternPos );
+
+	// FIXME: this was already done in setBPM but for "engine" time
+	//        so this is actually forcibly overwritten here
+	setNewBpmJTM( RealtimeBPM );
 }
 
 }; /* Namespace */

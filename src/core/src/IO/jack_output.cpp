@@ -290,7 +290,8 @@ void JackOutput::updateTransportInfo()
 		if ( locate_countdown > 0 )
 				locate_countdown--;
 
-		if ( Preferences::get_instance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
+		if ( Preferences::get_instance()->m_bJackTransportMode !=  Preferences::USE_JACK_TRANSPORT   ) return;
+
 				m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
 
 
@@ -405,7 +406,7 @@ void JackOutput::updateTransportInfo()
 				}
 
 				if ( must_relocate > 0 ) must_relocate--;
-		}
+
 }
 
 float* JackOutput::getOut_L()
@@ -850,7 +851,7 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 	Song* S = H->getSong();
 	if ( ! S ) return;
 
-	unsigned long PlayTick = H->getRealtimeTickPosition();
+	unsigned long PlayTick = ( pos->frame - me->bbt_frame_offset ) / me->m_transport.m_nTickSize;
 	pos->bar = H->getPosForTick ( PlayTick );
 
 	double TPB = H->getTickForHumanPosition( pos->bar );
@@ -862,12 +863,12 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 	pos->valid = JackPositionBBT;
 	pos->beats_per_bar = TPB / 48;
 	pos->beat_type = 4.0;
-	pos->beats_per_minute = H->getNewBpmJTM();
+	pos->beats_per_minute = H->getTimelineBpm ( pos->bar );
 	pos->bar++;
 
-	// Probably there will never be an offset
+	// Probably there will never be an offset, cause we are the master ;-)
 #ifndef JACK_NO_BBT_OFFSET
-//	pos->valid |= JackBBTFrameOffset;
+	pos->valid = static_cast<jack_position_bits_t> ( pos->valid | JackBBTFrameOffset );
 	pos->bbt_offset = 0;
 #endif
 
