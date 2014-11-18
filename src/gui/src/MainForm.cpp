@@ -1374,7 +1374,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			float pan_L = 0.5f;
 			float pan_R = 0.5f;
 
-			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, NULL, NULL , row + 36);
+			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
 
 			return TRUE; // eat event
 		}
