@@ -3229,9 +3229,23 @@ void Hydrogen::sortTimelineTagVector()
 }
 
 // Get TimelineBPM for Pos
-float Hydrogen::getTimelineBpm( int Beat ) {
+float Hydrogen::getTimelineBpm( int Beat )
+{
 	Song* pSong = getSong();
+
+	// We need return something
+	if ( ! pSong ) return getNewBpmJTM();
+
 	float bpm = pSong->__bpm;
+
+	// Pattern mode don't use timeline
+	if ( pSong->get_mode() == Song::PATTERN_MODE )
+		return bpm;
+
+	//time line test
+	if ( ! Preferences::get_instance()->getUseTimelineBpm() )
+		return bpm;
+
 	for ( int i = 0; i < static_cast<int>(m_timelinevector.size() ); i++) {
 		if ( m_timelinevector[i].m_htimelinebeat > Beat )
 			break;
