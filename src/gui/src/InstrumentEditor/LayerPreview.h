@@ -52,11 +52,14 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent ( QMouseEvent *ev );
 
+		void set_selected_component( int SelectedComponent );
+
 	private:
 		static const int m_nLayerHeight = 10;
 		QPixmap m_speakerPixmap;
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
+		int m_nSelectedComponent;
 		bool m_bMouseGrab;
 		bool m_bGrabLeft;
 

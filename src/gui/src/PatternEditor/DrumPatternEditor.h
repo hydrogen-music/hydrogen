@@ -97,7 +97,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument );
-		void functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument );
+		void functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge );
 		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
@@ -140,6 +140,10 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		virtual void paintEvent(QPaintEvent *ev);
 
 		int getColumn(QMouseEvent *ev);
+
+		int findFreeCompoID( int startingPoint = 0 );
+		int findExistingCompo( QString SourceName );
+		QString renameCompo( QString OriginalName );
 
 		int __nRealColumn;
 		int __nColumn;

@@ -29,6 +29,7 @@
 // check if jack support is enabled
 #ifdef H2CORE_HAVE_JACK
 
+#include <map>
 #include <pthread.h>
 #include <jack/jack.h>
 
@@ -45,6 +46,10 @@
 
 namespace H2Core
 {
+
+class Song;
+class Instrument;
+class InstrumentComponent;
 
 ///
 /// Jack (Jack Audio Connection Kit) server driver.
@@ -74,7 +79,7 @@ public:
 
 
 	void makeTrackOutputs( Song * );
-	void setTrackOutput( int, Instrument * );
+	void setTrackOutput( int, Instrument *, InstrumentComponent * );
 
 	void setConnectDefaults( bool flag ) {
 		m_bConnectOutFlag = flag;
@@ -87,6 +92,8 @@ public:
 	float* getOut_R();
 	float* getTrackOut_L( unsigned nTrack );
 	float* getTrackOut_R( unsigned nTrack );
+	float* getTrackOut_L( Instrument *, InstrumentComponent * );
+    float* getTrackOut_R( Instrument *, InstrumentComponent * );
 
 	int init( unsigned bufferSize );
 
@@ -134,6 +141,7 @@ private:
 	jack_port_t *			output_port_2;
 	QString					output_port_name_1;
 	QString					output_port_name_2;
+	std::map<string,int> 	track_map;
 	int						track_port_count;
 	jack_port_t *			track_output_ports_L[MAX_INSTRUMENTS];
 	jack_port_t *			track_output_ports_R[MAX_INSTRUMENTS];

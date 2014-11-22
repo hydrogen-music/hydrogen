@@ -473,7 +473,250 @@ void MixerLine::setSelected( bool bIsSelected )
 
 }
 
+// ::::::::::::::::::::::::::::
 
+
+const char* ComponentMixerLine::__class_name = "ComponentMixerLine";
+
+ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
+ : PixmapWidget( parent, __class_name )
+{
+//	INFOLOG( "INIT" );
+
+    __compoID = CompoID;
+
+	m_nWidth = MIXERLINE_WIDTH;
+	m_nHeight = MIXERLINE_HEIGHT;
+	m_fMaxPeak = 0.0;
+	m_nActivity = 0;
+	m_bIsSelected = false;
+	m_nPeakTimer = 0;
+
+	resize( m_nWidth, m_nHeight );
+	setFixedSize( m_nWidth, m_nHeight );
+
+	setPixmap( "/mixerPanel/componentmixerline_background.png" );
+
+	// Mute button
+	m_pMuteBtn = new ToggleButton(
+			this,
+			"/mixerPanel/btn_mute_on.png",
+			"/mixerPanel/btn_mute_off.png",
+			"/mixerPanel/btn_mute_over.png",
+			QSize( 18, 13 )
+	);
+	m_pMuteBtn->move( 8, 17 );
+	m_pMuteBtn->setToolTip( trUtf8( "Mute" ) );
+	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+
+	// Solo button
+	m_pSoloBtn = new ToggleButton(
+			this,
+			"/mixerPanel/btn_solo_on.png",
+			"/mixerPanel/btn_solo_off.png",
+			"/mixerPanel/btn_solo_over.png",
+			QSize( 18, 13 )
+	);
+	m_pSoloBtn->move( 30, 17);
+	m_pSoloBtn->setToolTip( trUtf8( "Solo" ) );
+	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+
+	Preferences *pref = Preferences::get_instance();
+
+	QString family = pref->getMixerFontFamily();
+	int size = pref->getMixerFontPointSize();
+	QFont mixerFont( family, size );
+	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
+	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
+	m_nFalloff = (int)m_fFalloffTemp;
+
+	QPixmap textBackground;
+	bool ok = textBackground.load( Skin::getImagePath() + "/mixerPanel/mixerline_text_background.png" );
+	if( ok == false ){
+		ERRORLOG( "Error loading pixmap" );
+	}
+
+	// instrument name widget
+	m_pNameWidget = new InstrumentNameWidget( this );
+	m_pNameWidget->move( 6, 128 );
+	m_pNameWidget->setToolTip( trUtf8( "Component name" ) );
+
+	// m_pFader
+	m_pFader = new Fader( this, false, false );
+	m_pFader->move( 23, 128 );
+	m_pFader->setMinValue( 0.0 );
+	m_pFader->setMaxValue( 1.5 );
+	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
+
+	//pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
+	//pAction->setParameter1( QString::number(nInstr) );
+	//m_pFader->setAction( pAction );
+
+
+	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
+	m_pPeakLCD->move( 10, 106 );
+	m_pPeakLCD->setText( "0.00" );
+	QPalette lcdPalette;
+	lcdPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	m_pPeakLCD->setPalette( lcdPalette );
+}
+
+
+
+ComponentMixerLine::~ComponentMixerLine()
+{
+//	INFOLOG( "DESTROY" );
+	//delete m_pFader;
+}
+
+
+
+void ComponentMixerLine::updateMixerLine()
+{
+	if ( m_nPeakTimer > m_nFalloff ) {
+		if ( m_fMaxPeak > 0.05f ) {
+			m_fMaxPeak = m_fMaxPeak - 0.05f;
+		}
+		else {
+			m_fMaxPeak = 0.0f;
+			m_nPeakTimer = 0;
+		}
+		char tmp[20];
+		snprintf(tmp, 19, "%#.2f", (double)m_fMaxPeak );
+		m_pPeakLCD->setText(tmp);
+		if ( m_fMaxPeak > 1.0 ) {
+			m_pPeakLCD->setSmallRed();
+		}
+		else {
+			m_pPeakLCD->setSmallBlue();
+		}
+	}
+	m_nPeakTimer++;
+}
+
+
+
+void ComponentMixerLine::click(Button *ref) {
+	Song *song = (Hydrogen::get_instance())->getSong();
+
+	if (ref == m_pMuteBtn) {
+		song->__is_modified = true;
+		emit muteBtnClicked(this);
+	}
+	else if (ref == m_pSoloBtn) {
+		song->__is_modified = true;
+		emit soloBtnClicked(this);
+	}
+}
+
+
+void ComponentMixerLine::faderChanged(Fader *ref)
+{
+	Song *song = (Hydrogen::get_instance())->getSong();
+	song->__is_modified = true;
+	emit volumeChanged(this);
+
+	double value = (double) ref->getValue();
+	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+}
+
+
+
+bool ComponentMixerLine::isMuteClicked() {
+	return m_pMuteBtn->isPressed();
+}
+
+
+
+void ComponentMixerLine::setMuteClicked(bool isClicked) {
+	m_pMuteBtn->setPressed(isClicked);
+}
+
+
+
+bool ComponentMixerLine::isSoloClicked() {
+	return m_pSoloBtn->isPressed();
+}
+
+
+
+void ComponentMixerLine::setSoloClicked(bool isClicked) {
+	m_pSoloBtn->setPressed(isClicked);
+}
+
+
+
+float ComponentMixerLine::getVolume()
+{
+	return m_pFader->getValue();
+}
+
+
+
+void ComponentMixerLine::setVolume( float value )
+{
+	m_pFader->setValue( value );
+}
+
+
+
+void ComponentMixerLine::setPeak_L( float peak ) {
+	if (peak != getPeak_L() ) {
+		m_pFader->setPeak_L( peak );
+		if (peak > m_fMaxPeak) {
+			if ( peak < 0.1f ) {
+				peak = 0.0f;
+			}
+			char tmp[20];
+			snprintf(tmp, 19, "%#.2f", peak);
+			m_pPeakLCD->setText( tmp );
+			if ( peak > 1.0 ) {
+				m_pPeakLCD->setSmallRed();
+			}
+			else {
+				m_pPeakLCD->setSmallBlue();
+			}
+			m_fMaxPeak = peak;
+			m_nPeakTimer = 0;
+		}
+	}
+}
+
+
+
+float ComponentMixerLine::getPeak_L() {
+	return m_pFader->getPeak_L();
+}
+
+
+
+void ComponentMixerLine::setPeak_R( float peak ) {
+	if (peak != getPeak_R() ) {
+		m_pFader->setPeak_R( peak );
+		if (peak > m_fMaxPeak) {
+			if ( peak < 0.1f ) {
+				peak = 0.0f;
+			}
+			char tmp[20];
+			snprintf(tmp, 19, "%#.2f", peak);
+			m_pPeakLCD->setText( tmp );
+			if ( peak > 1.0 ) {
+				m_pPeakLCD->setSmallRed();
+			}
+			else {
+				m_pPeakLCD->setSmallBlue();
+		}
+			m_fMaxPeak = peak;
+			m_nPeakTimer = 0;
+		}
+	}
+}
+
+
+
+float ComponentMixerLine::getPeak_R() {
+	return m_pFader->getPeak_R();
+}
 
 
 

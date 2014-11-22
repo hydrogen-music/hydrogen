@@ -34,6 +34,7 @@
 class Button;
 class ToggleButton;
 class MixerLine;
+class ComponentMixerLine;
 class FxMixerLine;
 class MasterMixerLine;
 class LadspaFXMixerLine;
@@ -59,10 +60,13 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void noteOnClicked(MixerLine* ref);
 		void noteOffClicked(MixerLine* ref);
 		void muteClicked(MixerLine* ref);
-		void unmuteAll( bool findSelectedInstr);
-		void unmuteAll( int selectedInstr);
+		void muteClicked(ComponentMixerLine* ref);
+                void unmuteAll( bool findSelectedInstr);
+                void unmuteAll( int selectedInstr);
 		void soloClicked(MixerLine* ref);
+		void soloClicked(ComponentMixerLine* ref);
 		void volumeChanged(MixerLine* ref);
+		void volumeChanged(ComponentMixerLine* ref);
 		void panChanged(MixerLine* ref);
 		void knobChanged(MixerLine* ref, int nKnob);
 		void masterVolumeChanged(MasterMixerLine*);
@@ -86,13 +90,16 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 
 		QWidget *m_pFaderPanel;
 		MixerLine *m_pMixerLine[MAX_INSTRUMENTS];
+		std::map<int, ComponentMixerLine*> m_pComponentMixerLine;
 
 		PixmapWidget *m_pFXFrame;
 
 		QTimer *m_pUpdateTimer;
 
 		uint findMixerLineByRef(MixerLine* ref);
+		uint findCompoMixerLineByRef(ComponentMixerLine* ref);
 		MixerLine* createMixerLine( int );
+		ComponentMixerLine* createComponentMixerLine( int );
 
 		// Implements EventListener interface
 		virtual void noteOnEvent( int nInstrument );

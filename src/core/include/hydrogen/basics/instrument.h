@@ -37,7 +37,10 @@ namespace H2Core
 class XMLNode;
 class ADSR;
 class Drumkit;
+class DrumkitComponent;
 class InstrumentLayer;
+class InstrumentComponent;
+
 
 /**
 Instrument class
@@ -104,26 +107,6 @@ class Instrument : public H2Core::Object
 		 * \return a new Instrument instance
 		 */
 		static Instrument* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
-
-		/**
-		 * get an instrument layer from  the list
-		 * \param idx the index to get the layer from
-		 * \return a pointer to the layer
-		 */
-		InstrumentLayer* operator[]( int idx );
-		/**
-		 * get an instrument layer from  the list
-		 * \param idx the index to get the layer from
-		 * \return a pointer to the layer
-		 */
-		InstrumentLayer* get_layer( int idx );
-
-		/**
-		 * set a layer within the instrument's layer list
-		 * \param layer the layer to be set
-		 * \param idx the index within the list
-		 */
-		void set_layer( InstrumentLayer* layer, int idx );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );
@@ -251,6 +234,10 @@ class Instrument : public H2Core::Object
 		///< get the name of the related drumkits
 		const QString& get_drumkit_name() const;
 
+		std::vector<InstrumentComponent*>* get_components();
+		InstrumentComponent* get_component( int DrumkitComponentID );
+
+
 
 	private:
 		int __id;			                    ///< instrument id, should be unique
@@ -276,10 +263,10 @@ class Instrument : public H2Core::Object
 		int __mute_group;		                ///< mute group of the instrument
 		int __queued;                           ///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
 		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
-		InstrumentLayer* __layers[MAX_LAYERS];  ///< InstrumentLayer array
 		bool __hihat;                           ///< the instrument is a hihat
 		int __lower_cc;                         ///< lower cc level
         int __higher_cc;                        ///< higher cc level
+        std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
 };
 
 // DEFINITIONS
@@ -548,23 +535,6 @@ inline int Instrument::get_higher_cc() const
     return __higher_cc;
 }
 
-inline InstrumentLayer* Instrument::operator[]( int idx )
-{
-	assert( idx>=0 && idx <MAX_LAYERS );
-	return __layers[ idx ];
-}
-
-inline InstrumentLayer* Instrument::Instrument::get_layer( int idx )
-{
-	assert( idx>=0 && idx <MAX_LAYERS );
-	return __layers[ idx ];
-}
-
-inline void Instrument::set_layer( InstrumentLayer* layer, int idx )
-{
-	assert( idx>=0 && idx <MAX_LAYERS );
-	__layers[ idx ] = layer;
-}
 
 inline void Instrument::set_drumkit_name( const QString& name )
 {
@@ -575,6 +545,12 @@ inline const QString& Instrument::get_drumkit_name() const
 {
 	return __drumkit_name;
 }
+
+inline std::vector<InstrumentComponent*>* Instrument::get_components()
+{
+    return __components;
+}
+
 
 };
 

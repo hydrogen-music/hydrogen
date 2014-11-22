@@ -189,7 +189,9 @@ class Note : public H2Core::Object
 		/** __just_recorder accessor */
 		bool get_just_recorded() const;
 		/** __sample_position accessor */
-		float get_sample_position() const;
+		float get_sample_position(int CompoID) ;
+		std::map<int, float> get_samples_position();
+
 		/**
 		 * __humanize_delay setter
 		 * \param value the new value
@@ -253,7 +255,7 @@ class Note : public H2Core::Object
 		 * update sample_position with increment
 		 * \param incr the value to add to current sample position
 		 */
-		float update_sample_position( float incr );
+		float update_sample_position( int CompoID, float incr );
 
 		/** return true if instrument, key and octave matches with internal
 		 * \param instrument the instrument to match with __instrument
@@ -285,7 +287,7 @@ class Note : public H2Core::Object
 		float __cut_off;            ///< filter cutoff [0;1]
 		float __resonance;          ///< filter resonant frequency [0;1]
 		int __humanize_delay;       ///< used in "humanize" function
-		float __sample_position;    ///< place marker for overlapping process() cycles
+		std::map< int, float > __samples_position;    ///< place marker for overlapping process() cycles
 		float __bpfb_l;             ///< left band pass filter buffer
 		float __bpfb_r;             ///< right band pass filter buffer
 		float __lpfb_l;             ///< left low pass filter buffer
@@ -384,6 +386,11 @@ inline bool Note::get_note_off() const
 	return __note_off;
 }
 
+inline std::map<int, float> Note::get_samples_position()
+{
+    return __samples_position;
+}
+
 inline int Note::get_midi_msg() const
 {
 	return __midi_msg;
@@ -409,9 +416,9 @@ inline bool Note::get_just_recorded() const
 	return __just_recorded;
 }
 
-inline float Note::get_sample_position() const
+inline float Note::get_sample_position( int CompoID )
 {
-	return __sample_position;
+	return __samples_position[ CompoID ];
 }
 
 inline void Note::set_humanize_delay( int value )
@@ -502,10 +509,10 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 
 
 
-inline float Note::update_sample_position( float incr )
+inline float Note::update_sample_position( int CompoID, float incr )
 {
-	__sample_position += incr;
-	return __sample_position;
+	__samples_position[ CompoID ] += incr;
+	return __samples_position[ CompoID ];
 }
 
 inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const
