@@ -43,6 +43,7 @@ class Instrument;
 class InstrumentList;
 class Pattern;
 class Song;
+class DrumkitComponent;
 class PatternList;
 
 /**
@@ -184,6 +185,12 @@ class Song : public H2Core::Object
 			__song_mode = mode;
 		}
 
+		std::vector<DrumkitComponent*>* get_components() {
+            return __components;
+        }
+
+        DrumkitComponent* get_component( int ID );
+
 		void readTempPatternList( QString filename );
 
 
@@ -194,6 +201,7 @@ class Song : public H2Core::Object
 		PatternList* __pattern_list;				///< Pattern list
 		std::vector<PatternList*>* __pattern_group_sequence;	///< Sequence of pattern groups
 		InstrumentList* __instrument_list;			///< Instrument list
+		std::vector<DrumkitComponent*>* __components;            ///< list of drumkit component
 		QString __filename;
 		bool __is_loop_enabled;
 		float __humanize_time_value;

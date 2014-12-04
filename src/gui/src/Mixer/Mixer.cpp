@@ -33,6 +33,8 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/drumkit_component.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
@@ -194,6 +196,27 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 }
 
 
+ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
+{
+	ComponentMixerLine *pMixerLine = new ComponentMixerLine( 0 , theCompoID);
+	pMixerLine->setVolume( 0.2 );
+	pMixerLine->setMuteClicked( false );
+	pMixerLine->setSoloClicked( false );
+
+	//connect( pMixerLine, SIGNAL( noteOnClicked(MixerLine*) ), this, SLOT( noteOnClicked(MixerLine*) ) );
+	//connect( pMixerLine, SIGNAL( noteOffClicked(MixerLine*) ), this, SLOT( noteOffClicked(MixerLine*) ) );
+	connect( pMixerLine, SIGNAL( muteBtnClicked(ComponentMixerLine*) ), this, SLOT( muteClicked(ComponentMixerLine*) ) );
+	connect( pMixerLine, SIGNAL( soloBtnClicked(ComponentMixerLine*) ), this, SLOT( soloClicked(ComponentMixerLine*) ) );
+	connect( pMixerLine, SIGNAL( volumeChanged(ComponentMixerLine*) ), this, SLOT( volumeChanged(ComponentMixerLine*) ) );
+	//connect( pMixerLine, SIGNAL( instrumentNameClicked(MixerLine*) ), this, SLOT( nameClicked(MixerLine*) ) );
+	//connect( pMixerLine, SIGNAL( instrumentNameSelected(MixerLine*) ), this, SLOT( nameSelected(MixerLine*) ) );
+	//connect( pMixerLine, SIGNAL( panChanged(MixerLine*) ), this, SLOT( panChanged( MixerLine*) ) );
+	//connect( pMixerLine, SIGNAL( knobChanged(MixerLine*, int) ), this, SLOT( knobChanged( MixerLine*, int) ) );
+
+	return pMixerLine;
+}
+
+
 void Mixer::muteClicked(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
@@ -208,6 +231,61 @@ void Mixer::muteClicked(MixerLine* ref)
 	pInstr->set_muted( isMuteClicked);
 	//(HydrogenApp::get_instance())->setSelectedInstrument(nLine);
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+}
+
+void Mixer::muteClicked(ComponentMixerLine* ref)
+{
+	bool isMuteClicked = ref->isMuteClicked();
+
+	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+
+	pCompo->set_muted( isMuteClicked );
+}
+
+void Mixer::soloClicked(ComponentMixerLine* ref)
+{
+    Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
+	int nComponents = pCompoList.size();
+
+	bool isSoloClicked = ref->isSoloClicked();
+	int nLine = findCompoMixerLineByRef(ref);
+	//DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	//pCompo->set_soloed( isSoloClicked );
+
+    if ( isSoloClicked ) {
+        for ( int i = 0; i < nComponents ; ++i ) {
+            ComponentMixerLine* p_tmpCompoMixer = m_pComponentMixerLine[i];
+            p_tmpCompoMixer->setSoloClicked( false );
+            p_tmpCompoMixer->setMuteClicked( true );
+            DrumkitComponent* p_tmpCompo = pCompoList[i];
+            p_tmpCompo->set_muted( true );
+        }
+        ComponentMixerLine* p_tmpCompoMixer = m_pComponentMixerLine[nLine];
+        p_tmpCompoMixer->setSoloClicked( true );
+        p_tmpCompoMixer->setMuteClicked( false );
+        DrumkitComponent* p_tmpCompo = pCompoList[nLine];
+        p_tmpCompo->set_muted( false );
+	}
+	else {
+        for ( int i = 0; i < nComponents ; ++i ) {
+            ComponentMixerLine* p_tmpCompoMixer = m_pComponentMixerLine[i];
+            p_tmpCompoMixer->setSoloClicked( false );
+            p_tmpCompoMixer->setMuteClicked( false );
+            DrumkitComponent* p_tmpCompo = pCompoList[i];
+            p_tmpCompo->set_muted( false );
+        }
+	}
+}
+
+void Mixer::volumeChanged(ComponentMixerLine* ref)
+{
+	float newVolume = ref->getVolume();
+
+	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+
+	pCompo->set_volume( newVolume );
 }
 
 void Mixer::unmuteAll( bool findSelectedInstr )
@@ -331,6 +409,18 @@ uint Mixer::findMixerLineByRef(MixerLine* ref)
 }
 
 
+uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
+{
+    for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
+        if(it->second == ref)
+            return it->first;
+    }
+
+    return 0;
+}
+
+
+
 
 void Mixer::volumeChanged(MixerLine* ref)
 {
@@ -368,13 +458,15 @@ void Mixer::updateMixer()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
+	std::vector<DrumkitComponent*>* compoList = pSong->get_components();
 
 	uint nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
 	float fallOff = pPref->getMixerFalloffSpeed();
 
 	uint nMuteClicked = 0;
-	uint nInstruments = pInstrList->size();
+	int nInstruments = pInstrList->size();
+	int nCompo = compoList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
@@ -382,7 +474,7 @@ void Mixer::updateMixer()
 				delete m_pMixerLine[ nInstr ];
 				m_pMixerLine[ nInstr ] = NULL;
 
-				int newWidth = MIXER_STRIP_WIDTH * nInstruments;
+				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
 					m_pFaderPanel->resize( newWidth, height() );
 				}
@@ -393,9 +485,9 @@ void Mixer::updateMixer()
 			if ( m_pMixerLine[ nInstr ] == NULL ) {
 				// the mixerline doesn't exists..I'll create a new one!
 				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
-				m_pFaderHBox->addWidget( m_pMixerLine[ nInstr ] );
+				m_pFaderHBox->insertWidget( nInstr, m_pMixerLine[ nInstr ] );
 
-				int newWidth = MIXER_STRIP_WIDTH * nInstruments;
+				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
 					m_pFaderPanel->resize( newWidth, height() );
 				}
@@ -481,6 +573,97 @@ void Mixer::updateMixer()
 
 			pLine->updateMixerLine();
 		}
+	}
+
+    for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
+        DrumkitComponent* p_compo = *it;
+
+        if( m_pComponentMixerLine.find(p_compo->get_id()) == m_pComponentMixerLine.end() ) {
+            // the mixerline doesn't exists..I'll create a new one!
+            m_pComponentMixerLine[ p_compo->get_id() ] = createComponentMixerLine( p_compo->get_id() );
+            m_pFaderHBox->addWidget( m_pComponentMixerLine[ p_compo->get_id() ] );
+
+            int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+            if ( m_pFaderPanel->width() != newWidth ) {
+                m_pFaderPanel->resize( newWidth, height() );
+            }
+        }
+
+        ComponentMixerLine *pLine = m_pComponentMixerLine[ p_compo->get_id() ];
+
+        float fNewPeak_L = p_compo->get_peak_l();
+        p_compo->set_peak_l( 0.0f );	// reset instrument peak
+
+        float fNewPeak_R = p_compo->get_peak_r();
+        p_compo->set_peak_r( 0.0f );	// reset instrument peak
+
+        float fNewVolume = p_compo->get_volume();
+        bool bMuted = p_compo->is_muted();
+
+        QString sName = p_compo->get_name();
+
+        float fOldPeak_L = pLine->getPeak_L();
+        float fOldPeak_R = pLine->getPeak_R();
+
+        if (!bShowPeaks) {
+            fNewPeak_L = 0.0f;
+            fNewPeak_R = 0.0f;
+        }
+
+        if ( fNewPeak_L >= fOldPeak_L) {	// LEFT peak
+            pLine->setPeak_L( fNewPeak_L );
+        }
+        else {
+            pLine->setPeak_L( fOldPeak_L / fallOff );
+        }
+        if ( fNewPeak_R >= fOldPeak_R) {	// Right peak
+            pLine->setPeak_R( fNewPeak_R );
+        }
+        else {
+            pLine->setPeak_R( fOldPeak_R / fallOff );
+        }
+
+        // fader position
+        pLine->setVolume( fNewVolume );
+
+        // mute
+        if ( bMuted ) {
+            nMuteClicked++;
+        }
+        pLine->setMuteClicked( bMuted );
+
+        // instr name
+        pLine->setName( sName );
+
+        pLine->updateMixerLine();
+    }
+
+    if( compoList->size() < m_pComponentMixerLine.size() ) {
+        std::vector<int>* p_ids_to_delete = new std::vector<int>();
+        for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
+
+            bool p_foundExistingRelatedComponent = false;
+            for ( std::vector<DrumkitComponent*>::iterator it2 = compoList->begin() ; it2 != compoList->end(); ++it2 ) {
+                DrumkitComponent* p_compo = *it2;
+                if( p_compo->get_id() == it->first ) {
+                    p_foundExistingRelatedComponent = true;
+                    break;
+                }
+            }
+            if( !p_foundExistingRelatedComponent )
+               p_ids_to_delete->push_back( it->first ) ;
+        }
+
+        for ( std::vector<int>::iterator it = p_ids_to_delete->begin() ; it != p_ids_to_delete->end(); ++it ) {
+            int p_compoID = *it;
+            delete m_pComponentMixerLine[p_compoID];
+            m_pComponentMixerLine.erase( p_compoID );
+
+			int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+			if ( m_pFaderPanel->width() != newWidth ) {
+				m_pFaderPanel->resize( newWidth, height() );
+			}
+        }
 	}
 
 	if (nMuteClicked == nInstruments - 1) {
