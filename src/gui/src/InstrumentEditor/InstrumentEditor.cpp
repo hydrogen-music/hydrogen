@@ -924,7 +924,7 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 #ifdef H2CORE_HAVE_JACK
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			Hydrogen *engine = Hydrogen::get_instance();
-			engine->s(engine->getSong());
+			engine->renameJackPorts(engine->getSong());
 			AudioEngine::get_instance()->unlock();
 #endif
 
@@ -1090,13 +1090,15 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 {
 	QString p_selected = pAction->text();
 
+	Hydrogen * pEngine = Hydrogen::get_instance();
+
 	if( p_selected.compare("add") == 0 ) {
 		if ( m_pInstrument ) {
 			bool bIsOkPressed;
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				DrumkitComponent* dm_component = new DrumkitComponent( findFreeCompoID(), sNewName );
-				Hydrogen::get_instance()->getSong()->get_components()->push_back( dm_component );
+				pEngine->getSong()->get_components()->push_back( dm_component );
 
 				//InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
@@ -1111,7 +1113,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 				EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
-				Hydrogen::get_instance()->renameJackPorts();
+				pEngine->renameJackPorts(pEngine->getSong());
 #endif
 			}
 			else {
@@ -1120,13 +1122,13 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( p_selected.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* p_components = Hydrogen::get_instance()->getSong()->get_components();
+		std::vector<DrumkitComponent*>* p_components = pEngine->getSong()->get_components();
 		if(p_components->size() == 1)
 			return;
 
-		DrumkitComponent* p_dmCompo = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* p_dmCompo = pEngine->getSong()->get_component( m_nSelectedComponent );
 
-		InstrumentList* p_instruments = Hydrogen::get_instance()->getSong()->get_instrument_list();
+		InstrumentList* p_instruments = pEngine->getSong()->get_instrument_list();
 		for ( int n = ( int )p_instruments->size() - 1; n >= 0; n-- ) {
 			Instrument* p_instr = p_instruments->get( n );
 			for( int o = 0 ; o < p_instr->get_components()->size() ; o++ ) {
@@ -1162,7 +1164,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
+		std::vector<DrumkitComponent*>* compoList = pEngine->getSong()->get_components();
 		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
 			DrumkitComponent* p_compo = *it;
 			if( p_compo->get_name().compare( p_selected ) == 0) {
@@ -1182,7 +1184,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 
 #ifdef H2CORE_HAVE_JACK
-			Hydrogen::get_instance()->renameJackPorts();
+			pEngine->renameJackPorts(pEngine->getSong());
 #endif
 		}
 
