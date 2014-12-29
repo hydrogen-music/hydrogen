@@ -152,12 +152,6 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		Rotary *m_pLayerGainRotary;
 		LCDDisplay *m_pLayerGainLCD;
 
-		// Component
-        ClickableLabel *m_pCompoNameLbl;
-		Button *m_buttonDropDownCompo;
-		QStringList itemsCompo;
-		QMenu *popCompo;
-
 		Rotary *m_pLayerPitchCoarseRotary;
 		Rotary *m_pLayerPitchFineRotary;
 
@@ -173,7 +167,15 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		//~ Layer properties
 
 
+		// Component
+		ClickableLabel *m_pCompoNameLbl;
+		Button *m_buttonDropDownCompo;
+		QStringList itemsCompo;
+		QMenu *popCompo;
 
+		Rotary *m_pCompoGainRotary;
+		LCDDisplay *m_pCompoGainLCD;
+		//~ Component
 
 		void loadLayer();
 		void setAutoVelocity();

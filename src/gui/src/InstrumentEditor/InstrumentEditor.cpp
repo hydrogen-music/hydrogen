@@ -387,6 +387,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Layer gain" ), false, false );
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
+	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Bank volume" ), false, false );
+	connect( m_pCompoGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 
@@ -402,6 +406,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pLayerGainLCD->move( 54, 341 + 3 );
 	m_pLayerGainRotary->move( 102, 341 );
+
+	m_pCompoGainLCD->move( 151, 341 + 3 );
+	m_pCompoGainRotary->move( 199, 341 );
 
 
 	m_pLayerPitchCoarseLCD->move( 54, 400 + 3 );
@@ -562,7 +569,14 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
         if(m_nSelectedLayer >= 0){
             InstrumentComponent* component = m_pInstrument->get_component( m_nSelectedComponent );
             if(component) {
-                InstrumentLayer* p_layer = component->get_layer( m_nSelectedLayer );
+
+				char tmp[20];
+				sprintf( tmp, "%#.2f", component->get_gain());
+				m_pCompoGainLCD->setText( tmp );
+
+				m_pCompoGainRotary->setValue( component->get_gain() / 5.0 );
+
+				InstrumentLayer* p_layer = component->get_layer( m_nSelectedLayer );
                 if(p_layer) {
                     m_pWaveDisplay->updateDisplay( p_layer );
                 }
@@ -632,6 +646,15 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
                     m_pWaveDisplay->updateDisplay( pLayer );
                 }
             }
+		}
+		else if ( ref == m_pCompoGainRotary ) {
+			fVal = fVal * 5.0;
+			char tmp[20];
+			sprintf( tmp, "%#.2f", fVal );
+			m_pCompoGainLCD->setText( tmp );
+
+			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			pCompo->set_gain( fVal );
 		}
 		else if ( ref == m_pLayerPitchCoarseRotary ) {
 			//fVal = fVal * 24.0 - 12.0;
@@ -1168,7 +1191,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
             if( p_compo->get_name().compare( p_selected ) == 0) {
                 m_nSelectedComponent = p_compo->get_id();
                 m_pCompoNameLbl->setText( p_compo->get_name() );
-                break;
+				break;
             }
         }
 
