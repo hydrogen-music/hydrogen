@@ -21,6 +21,7 @@
  */
 
 
+#include <algorithm>
 #include <hydrogen/timeline.h>
 
 namespace H2Core

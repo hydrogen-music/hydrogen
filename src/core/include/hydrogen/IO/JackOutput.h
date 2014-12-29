@@ -79,7 +79,7 @@ public:
 
 
 	void makeTrackOutputs( Song * );
-	void setTrackOutput( int, Instrument *, InstrumentComponent * );
+	void setTrackOutput( int, Instrument *, InstrumentComponent *, Song * );
 
 	void setConnectDefaults( bool flag ) {
 		m_bConnectOutFlag = flag;

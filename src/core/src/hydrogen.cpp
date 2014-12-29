@@ -172,13 +172,13 @@ void					audioEngine_init();
 void					audioEngine_destroy();
 int						audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
 void					audioEngine_stop( bool bLockEngine = false );
-void					audioEngine_setSong( Song *newSong );
+void					audioEngine_setSong(Song *pNewSong );
 void					audioEngine_removeSong();
 static void				audioEngine_noteOn( Note *note );
 
 int						audioEngine_process( uint32_t nframes, void *arg );
 inline void				audioEngine_clearNoteQueue();
-inline void				audioEngine_process_checkBPMChanged();
+inline void				audioEngine_process_checkBPMChanged(Song *pSong);
 inline void				audioEngine_process_playNotes( unsigned long nframes );
 inline void				audioEngine_process_transport();
 
@@ -414,14 +414,11 @@ void audioEngine_stop( bool bLockEngine )
 //
 ///  Update Tick size and frame position in the audio driver from Song->__bpm
 //
-inline void audioEngine_process_checkBPMChanged()
+inline void audioEngine_process_checkBPMChanged(Song* pSong)
 {
 	if ( m_audioEngineState != STATE_READY
 	  && m_audioEngineState != STATE_PLAYING
 	) return;
-
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
 
 	float fOldTickSize = m_pAudioDriver->m_transport.m_nTickSize;
 	float fNewTickSize = m_pAudioDriver->getSampleRate() * 60.0 / pSong->__bpm / pSong->__resolution;
@@ -747,9 +744,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		m_nBufferSize = nframes;
 	}
 
-	// m_pAudioDriver->bpm updates Song->__bpm. (!!(Calls audioEngine_seek))
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song* pSong = pHydrogen->getSong();
+
 	audioEngine_process_transport();
-	audioEngine_process_checkBPMChanged(); // pSong->__bpm decides tick size
+	audioEngine_process_checkBPMChanged(pSong); // pSong->__bpm decides tick size
 
 	bool sendPatternChange = false;
 	// always update note queue.. could come from pattern or realtime input
@@ -786,9 +785,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	audioEngine_process_playNotes( nframes );
 
 	// SAMPLER
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
-
 	AudioEngine::get_instance()->get_sampler()->process( nframes, pSong );
 	float* out_L = AudioEngine::get_instance()->get_sampler()->__main_out_L;
 	float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;
@@ -938,12 +934,10 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 #endif
 }
 
-void audioEngine_renameJackPorts()
+void audioEngine_renameJackPorts(Song * pSong)
 {
 #ifdef H2CORE_HAVE_JACK
 	// renames jack ports
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
 	if ( ! pSong ) return;
 
 	if ( m_pAudioDriver->class_name() == JackOutput::class_name() ) {
@@ -952,9 +946,9 @@ void audioEngine_renameJackPorts()
 #endif
 }
 
-void audioEngine_setSong( Song *newSong )
+void audioEngine_setSong( Song * pNewSong )
 {
-	___WARNINGLOG( QString( "Set song: %1" ).arg( newSong->__name ) );
+	___WARNINGLOG( QString( "Set song: %1" ).arg( pNewSong->__name ) );
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -964,23 +958,20 @@ void audioEngine_setSong( Song *newSong )
 		___ERRORLOG( "Error the audio engine is not in PREPARED state" );
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	assert( ! pHydrogen->getSong() );
-
 	// setup LADSPA FX
 	audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
 
 	// update ticksize
-	audioEngine_process_checkBPMChanged();
+	audioEngine_process_checkBPMChanged( pNewSong );
 
 	// find the first pattern and set as current
-	if ( newSong->get_pattern_list()->size() > 0 ) {
-		m_pPlayingPatterns->add( newSong->get_pattern_list()->get( 0 ) );
+	if ( pNewSong->get_pattern_list()->size() > 0 ) {
+		m_pPlayingPatterns->add( pNewSong->get_pattern_list()->get( 0 ) );
 	}
 
-	audioEngine_renameJackPorts();
+	audioEngine_renameJackPorts( pNewSong );
 
-	m_pAudioDriver->setBpm( newSong->__bpm );
+	m_pAudioDriver->setBpm( pNewSong->__bpm );
 
 	// change the current audio engine state
 	m_audioEngineState = STATE_READY;
@@ -1639,7 +1630,7 @@ void audioEngine_startAudioDrivers()
 		}
 
 #ifdef H2CORE_HAVE_JACK
-		audioEngine_renameJackPorts();
+		audioEngine_renameJackPorts( pSong );
 #endif
 
 		audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
@@ -2560,7 +2551,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	renameJackPorts();
+	renameJackPorts( getSong() );
 	AudioEngine::get_instance()->unlock();
 #endif
 
@@ -2918,10 +2909,10 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 }
 
 #ifdef H2CORE_HAVE_JACK
-void Hydrogen::renameJackPorts()
+void Hydrogen::renameJackPorts( Song *pSong )
 {
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
-		audioEngine_renameJackPorts();
+		audioEngine_renameJackPorts(pSong);
 	}
 }
 #endif

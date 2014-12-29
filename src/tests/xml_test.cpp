@@ -5,9 +5,9 @@
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/sample.h>
 
 #include <hydrogen/helpers/filesystem.h>
@@ -22,19 +22,20 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 	H2Core::InstrumentList* instruments = dk->get_instruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
-		H2Core::Instrument* instrument = ( *instruments )[i];
-		for (std::vector<H2Core::InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-			H2Core::InstrumentComponent *pCompo = *it;
-			for ( int n = 0; n < MAX_LAYERS; n++ ) {
-				H2Core::InstrumentLayer* layer = pCompo->get_layer( n );
-				if( layer ) {
-					H2Core::Sample* sample = layer->get_sample();
+		H2Core::Instrument* pInstr = ( *instruments )[i];
+		for (std::vector<H2Core::InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
+			H2Core::InstrumentComponent* pComponent = *it;
+			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+				H2Core::InstrumentLayer* pLayer = pComponent->get_layer( nLayer );
+				if( pLayer ) {
+					H2Core::Sample* pSample = pLayer->get_sample();
 					if( loaded ) {
-						if( sample->get_data_l()==0 || sample->get_data_l()==0 ) return false;
+						if( pSample->get_data_l()==0 || pSample->get_data_l()==0 ) return false;
 					} else {
-						if( sample->get_data_l()!=0 || sample->get_data_l()!=0 ) return false;
+						if( pSample->get_data_l()!=0 || pSample->get_data_l()!=0 ) return false;
 					}
 				}
+
 			}
 		}
 	}

@@ -174,7 +174,7 @@ public:
 	void			setSelectedInstrumentNumber( int nInstrument );
 
 #ifdef H2CORE_HAVE_JACK
-	void			renameJackPorts();
+	void			renameJackPorts(Song* pSong);
 #endif
 
 #ifdef H2CORE_HAVE_NSMSESSION
@@ -222,7 +222,6 @@ public:
 
 	///midi lookuptable
 	int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
-
 
 private:
 	static Hydrogen* __instance;

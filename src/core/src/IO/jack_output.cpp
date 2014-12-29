@@ -670,7 +670,7 @@ void JackOutput::makeTrackOutputs( Song * song )
         instr = instruments->get( n );
         for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
             InstrumentComponent* pCompo = *it;
-            setTrackOutput( p_trackCount, instr , pCompo);
+			setTrackOutput( p_trackCount, instr , pCompo, song);
             track_map[instr->get_id() + "_" + pCompo->get_drumkit_componentID()] = p_trackCount;
             p_trackCount++;
 		}
@@ -693,7 +693,7 @@ void JackOutput::makeTrackOutputs( Song * song )
  * Give the @a n 'th port the name of @a instr .
  * If the n'th port doesn't exist, new ports up to n are created.
  */
-void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent * compo )
+void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent * compo, Song * song )
 {
 	QString chName;
 
@@ -714,7 +714,8 @@ void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent 
 	}
 
 	// Now we're sure there is an n'th port, rename it.
-	DrumkitComponent* p_dmCompo = Hydrogen::get_instance()->getSong()->get_component( compo->get_drumkit_componentID() );
+	//DrumkitComponent* p_dmCompo = Hydrogen::get_instance()->getSong()->get_component( compo->get_drumkit_componentID() );
+	DrumkitComponent* p_dmCompo = song->get_component( compo->get_drumkit_componentID() );
 	chName = QString( "Track_%1_%2_%3_" ).arg( n + 1 ).arg( instr->get_name() ).arg( p_dmCompo->get_name() );
 
 	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
