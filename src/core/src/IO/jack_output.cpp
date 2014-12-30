@@ -73,7 +73,7 @@ int jackDriverBufferSize( jack_nframes_t nframes, void * /*arg*/ )
 void jackDriverShutdown( void *arg )
 {
 	UNUSED( arg );
-//	jackDriverInstance->deactivate();
+	//	jackDriverInstance->deactivate();
 	jackDriverInstance->client = NULL;
 	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
@@ -82,7 +82,7 @@ void jackDriverShutdown( void *arg )
 const char* JackOutput::__class_name = "JackOutput";
 
 JackOutput::JackOutput( JackProcessCallback processCallback )
-		: AudioOutput( __class_name )
+	: AudioOutput( __class_name )
 {
 	INFOLOG( "INIT" );
 	__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;	// allow per-track output
@@ -130,7 +130,7 @@ int JackOutput::connect()
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient && lashClient->isConnected())
 		{
-	//		infoLog("[LASH] Sending Jack client name to LASH server");
+			//		infoLog("[LASH] Sending Jack client name to LASH server");
 			lashClient->sendJackClientName();
 
 			if (!lashClient->isNewProject())
@@ -142,10 +142,10 @@ int JackOutput::connect()
 #endif
 
 	if ( connect_output_ports ) {
-//	if ( m_bConnectOutFlag ) {
+		//	if ( m_bConnectOutFlag ) {
 		// connect the ports
 		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
-				jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
+			 jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
 			return 0;
 		}
 
@@ -157,7 +157,7 @@ int JackOutput::connect()
 			return 2;
 		}
 		if ( jack_connect( client, jack_port_name( output_port_1 ), portnames[0] ) != 0 ||
-				jack_connect( client, jack_port_name( output_port_2 ), portnames[1] ) != 0 ) {
+			 jack_connect( client, jack_port_name( output_port_2 ), portnames[1] ) != 0 ) {
 			ERRORLOG( "Could't connect to first pair of Jack input ports" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
@@ -197,7 +197,7 @@ void JackOutput::deactivate()
 		}
 	}
 	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
-		memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
+	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 }
 
 unsigned JackOutput::getBufferSize()
@@ -229,7 +229,7 @@ void JackOutput::relocateBBT()
 {
 	//wolke if hydrogen is jack time master this is not relevant
 	if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
-		m_transport.m_status != TransportInfo::ROLLING)
+		 m_transport.m_status != TransportInfo::ROLLING)
 	{
 		// have absolut nothing to do with the old ardour transport bug
 		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
@@ -239,7 +239,7 @@ void JackOutput::relocateBBT()
 	}
 
 	if ( m_transport.m_status != TransportInfo::ROLLING ||
-		! ( m_JackTransportPos.valid & JackPositionBBT ))
+		 ! ( m_JackTransportPos.valid & JackPositionBBT ))
 	{
 		calculateFrameOffset();
 		return;
@@ -262,7 +262,7 @@ void JackOutput::relocateBBT()
 	}
 
 	float hydrogen_ticks_to_locate = bar_ticks + ( m_JackTransportPos.beat-1 ) * hydrogen_TPB +
-		m_JackTransportPos.tick * ( hydrogen_TPB / m_JackTransportPos.ticks_per_beat );
+									 m_JackTransportPos.tick * ( hydrogen_TPB / m_JackTransportPos.ticks_per_beat );
 
 	// INFOLOG( QString( "Position from Time Master: BBT [%1,%2,%3]" ) . arg( m_JackTransportPos.bar ) . arg( m_JackTransportPos.beat ) . arg( m_JackTransportPos.tick ) );
 	// WARNINGLOG( QString(bbt) + " -- Tx/Beat = "+to_string(m_JackTransportPos.ticks_per_beat)+", Meter "+to_string(m_JackTransportPos.beats_per_bar)+"/"+to_string(m_JackTransportPos.beat_type)+" =>tick " + to_string( hydrogen_ticks_to_locate ) );
@@ -296,124 +296,124 @@ void JackOutput::relocateBBT()
 
 void JackOutput::updateTransportInfo()
 {
-		if ( locate_countdown == 1 )
-				locate( locate_frame );
-		if ( locate_countdown > 0 )
-				locate_countdown--;
+	if ( locate_countdown == 1 )
+		locate( locate_frame );
+	if ( locate_countdown > 0 )
+		locate_countdown--;
 
-		if ( Preferences::get_instance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
-				m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
+	if ( Preferences::get_instance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
+		m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
 
 
-				// update m_transport with jack-transport data
-				switch ( m_JackTransportState ) {
-				case JackTransportStopped:
-						m_transport.m_status = TransportInfo::STOPPED;
-						//infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
-						break;
+		// update m_transport with jack-transport data
+		switch ( m_JackTransportState ) {
+			case JackTransportStopped:
+				m_transport.m_status = TransportInfo::STOPPED;
+				//infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
+				break;
 
-				case JackTransportRolling:
-						if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
-								must_relocate = 2;
-								//WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
-						}
-						m_transport.m_status = TransportInfo::ROLLING;
-						//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
-						break;
-
-				case JackTransportStarting:
-						m_transport.m_status = TransportInfo::STOPPED;
-						//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
-						break;
-
-				default:
-						ERRORLOG( "Unknown jack transport state" );
+			case JackTransportRolling:
+				if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
+					must_relocate = 2;
+					//WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
 				}
+				m_transport.m_status = TransportInfo::ROLLING;
+				//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
+				break;
+
+			case JackTransportStarting:
+				m_transport.m_status = TransportInfo::STOPPED;
+				//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
+				break;
+
+			default:
+				ERRORLOG( "Unknown jack transport state" );
+		}
 
 
-				// FIXME
-				// TickSize and BPM
-				Hydrogen * H = Hydrogen::get_instance();
-				H->setTimelineBpm(); // dlr: fix #168, jack may have re-located us anywhere, check for bpm change every cycle
+		// FIXME
+		// TickSize and BPM
+		Hydrogen * H = Hydrogen::get_instance();
+		H->setTimelineBpm(); // dlr: fix #168, jack may have re-located us anywhere, check for bpm change every cycle
 
-				if ( m_JackTransportPos.valid & JackPositionBBT ) {
-						float bpm = ( float )m_JackTransportPos.beats_per_minute;
-						if ( m_transport.m_nBPM != bpm ) {
+		if ( m_JackTransportPos.valid & JackPositionBBT ) {
+			float bpm = ( float )m_JackTransportPos.beats_per_minute;
+			if ( m_transport.m_nBPM != bpm ) {
 
 
-								if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ){
-										// 					WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
-										m_transport.m_nBPM = bpm;
-										must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
+				if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ){
+					// 					WARNINGLOG( QString( "Tempo change from jack-transport: %1" ).arg( bpm ) );
+					m_transport.m_nBPM = bpm;
+					must_relocate = 1; // The tempo change has happened somewhere during the previous cycle; relocate right away.
 
-										// This commenting out is rude perhaps, but I cant't figure out what this bit is doing.
-										// In any case, setting must_relocate = 1 here causes too many relocates. Jakob Lund
-										/*				} else {
+					// This commenting out is rude perhaps, but I cant't figure out what this bit is doing.
+					// In any case, setting must_relocate = 1 here causes too many relocates. Jakob Lund
+					/*				} else {
 	 if ( m_transport.m_status == TransportInfo::STOPPED ) {
 	  oldpo = H->getPatternPos();
 	  must_relocate = 1;
 	  //changer =1;
 	 }*/
 
-								}
-
-								// Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
-						}
 				}
 
-				if ( m_transport.m_nFrames + bbt_frame_offset != m_JackTransportPos.frame ) {
-						if ( ( m_JackTransportPos.valid & JackPositionBBT ) && must_relocate == 0 ) {
-								WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
-								must_relocate = 2;
-						} else {
-								if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
-										// If There's no timebase_master, and audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match, but hopefully it was calculated correctly:
-
-										//this perform Jakobs mod in pattern mode, but both m_transport.m_nFrames works with the same result in pattern Mode
-										// in songmode the first case dont work.
-										//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames();
-										//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
-										//if we remove this we also can remove *m_pEngine from header
-#if 0 // dlr: fix #169, why do we have a different behaviour for SONG_MODE?
-										if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
-												m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/; ///see comment in svn changeset 753
-										}
-										else
-										{
-												m_transport.m_nFrames = H->getHumantimeFrames();
-										}
-#else
-										m_transport.m_nFrames = m_JackTransportPos.frame;
-										bbt_frame_offset = 0; // dlr: stop re-syncing in every cycle when STOPPED
-#endif
-										// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
-										if ( m_transport.m_status == TransportInfo::ROLLING )
-												H->triggerRelocateDuringPlay();
-								} else {
-										///this is experimantal... but it works for the moment... fix me fix :-) wolke
-										// ... will this actually happen? keeping it for now ( jakob lund )
-										m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();// have nothing to do with the old ardour transport bug
-								}
-						}
-				}
-
-				// humantime fix
-				if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
-
-						H->setHumantimeFrames(m_JackTransportPos.frame);
-						//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
-				}
-
-				if ( must_relocate == 1 ) {
-						//WARNINGLOG( "Resyncing!" );
-						relocateBBT();
-						if ( m_transport.m_status == TransportInfo::ROLLING ) {
-								H->triggerRelocateDuringPlay();
-						}
-				}
-
-				if ( must_relocate > 0 ) must_relocate--;
+				// Hydrogen::get_instance()->setBPM( m_JackTransportPos.beats_per_minute ); // unnecessary, as Song->m_BPM gets updated in audioEngine_process_transport (after calling this function)
+			}
 		}
+
+		if ( m_transport.m_nFrames + bbt_frame_offset != m_JackTransportPos.frame ) {
+			if ( ( m_JackTransportPos.valid & JackPositionBBT ) && must_relocate == 0 ) {
+				WARNINGLOG( "Frame offset mismatch; triggering resync in 2 cycles" );
+				must_relocate = 2;
+			} else {
+				if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::NO_JACK_TIME_MASTER ) {
+					// If There's no timebase_master, and audioEngine_process_checkBPMChanged handled a tempo change during last cycle, the offset doesn't match, but hopefully it was calculated correctly:
+
+					//this perform Jakobs mod in pattern mode, but both m_transport.m_nFrames works with the same result in pattern Mode
+					// in songmode the first case dont work.
+					//so we can remove this "if query" and only use this old mod: m_transport.m_nFrames = H->getHumantimeFrames();
+					//because to get the songmode we have to add this "H2Core::Hydrogen *m_pEngine" to the header file
+					//if we remove this we also can remove *m_pEngine from header
+#if 0 // dlr: fix #169, why do we have a different behaviour for SONG_MODE?
+					if ( m_pEngine->getSong()->get_mode() == Song::PATTERN_MODE  ){
+						m_transport.m_nFrames = m_JackTransportPos.frame/* - bbt_frame_offset*/; ///see comment in svn changeset 753
+					}
+					else
+					{
+						m_transport.m_nFrames = H->getHumantimeFrames();
+					}
+#else
+					m_transport.m_nFrames = m_JackTransportPos.frame;
+					bbt_frame_offset = 0; // dlr: stop re-syncing in every cycle when STOPPED
+#endif
+					// In jack 'slave' mode, if there's no master, the following line is needed to be able to relocate by clicking the song ruler (wierd corner case, but still...)
+					if ( m_transport.m_status == TransportInfo::ROLLING )
+						H->triggerRelocateDuringPlay();
+				} else {
+					///this is experimantal... but it works for the moment... fix me fix :-) wolke
+					// ... will this actually happen? keeping it for now ( jakob lund )
+					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();// have nothing to do with the old ardour transport bug
+				}
+			}
+		}
+
+		// humantime fix
+		if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
+
+			H->setHumantimeFrames(m_JackTransportPos.frame);
+			//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
+		}
+
+		if ( must_relocate == 1 ) {
+			//WARNINGLOG( "Resyncing!" );
+			relocateBBT();
+			if ( m_transport.m_status == TransportInfo::ROLLING ) {
+				H->triggerRelocateDuringPlay();
+			}
+		}
+
+		if ( must_relocate > 0 ) must_relocate--;
+	}
 }
 
 float* JackOutput::getOut_L()
@@ -452,40 +452,40 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 
 float* JackOutput::getTrackOut_L( Instrument * instr, InstrumentComponent * pCompo)
 {
-    map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
-    if(it != track_map.end())
-        return getTrackOut_L(it->second);
+	map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
+	if(it != track_map.end())
+		return getTrackOut_L(it->second);
 
-    jack_default_audio_sample_t* out = 0;
-    return out;
+	jack_default_audio_sample_t* out = 0;
+	return out;
 }
 
 float* JackOutput::getTrackOut_R( Instrument * instr, InstrumentComponent * pCompo)
 {
-    map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
-    if(it != track_map.end())
-        return getTrackOut_R(it->second);
+	map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
+	if(it != track_map.end())
+		return getTrackOut_R(it->second);
 
-    jack_default_audio_sample_t* out = 0;
-    return out;
+	jack_default_audio_sample_t* out = 0;
+	return out;
 }
 
 
 #define CLIENT_FAILURE(msg) {						\
-		ERRORLOG("Could not connect to JACK server (" msg ")"); \
-		if (client) {						\
-			ERRORLOG("...but JACK returned a non-null pointer?"); \
-			(client) = 0;					\
-		}							\
-		if (tries) ERRORLOG("...trying again.");		\
-	}
+	ERRORLOG("Could not connect to JACK server (" msg ")"); \
+	if (client) {						\
+	ERRORLOG("...but JACK returned a non-null pointer?"); \
+	(client) = 0;					\
+}							\
+	if (tries) ERRORLOG("...trying again.");		\
+}
 
 
 #define CLIENT_SUCCESS(msg) {				\
-		assert(client);				\
-		INFOLOG(msg);				\
-		tries = 0;				\
-	}
+	assert(client);				\
+	INFOLOG(msg);				\
+	tries = 0;				\
+}
 
 int JackOutput::init( unsigned /*nBufferSize*/ )
 {
@@ -512,71 +512,71 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 #ifdef H2CORE_HAVE_JACKSESSION
 		if (pref->getJackSessionUUID().isEmpty()){
 			client = jack_client_open(
-					sClientName.toLocal8Bit(),
-					JackNullOption,
-					&status);
+						 sClientName.toLocal8Bit(),
+						 JackNullOption,
+						 &status);
 		} else {
 			const QByteArray uuid = pref->getJackSessionUUID().toLocal8Bit();
 			client = jack_client_open(
-					sClientName.toLocal8Bit(),
-					JackSessionID,
-					&status,
-					uuid.constData());
+						 sClientName.toLocal8Bit(),
+						 JackSessionID,
+						 &status,
+						 uuid.constData());
 		}
 #else
 		client = jack_client_open(
-			   sClientName.toLocal8Bit(),
-			   JackNullOption,
-			   &status);
+					 sClientName.toLocal8Bit(),
+					 JackNullOption,
+					 &status);
 #endif
 		switch(status) {
-		case JackFailure:
-			CLIENT_FAILURE("unknown error");
-			break;
-		case JackInvalidOption:
-			CLIENT_FAILURE("invalid option");
-			break;
-		case JackNameNotUnique:
-			if (client) {
-				sClientName = jack_get_client_name(client);
-				CLIENT_SUCCESS(QString("Jack assigned the client name '%1'").arg(sClientName));
-			} else {
-				CLIENT_FAILURE("name not unique");
-			}
-			break;
-		case JackServerStarted:
-			CLIENT_SUCCESS("JACK Server started for Hydrogen.");
-			break;
-		case JackServerFailed:
-			CLIENT_FAILURE("unable to connect");
-			break;
-		case JackServerError:
-			CLIENT_FAILURE("communication error");
-			break;
-		case JackNoSuchClient:
-			CLIENT_FAILURE("unknown client type");
-			break;
-		case JackLoadFailure:
-			CLIENT_FAILURE("can't load internal client");
-			break;
-		case JackInitFailure:
-			CLIENT_FAILURE("can't initialize client");
-			break;
-		case JackShmFailure:
-			CLIENT_FAILURE("unable to access shared memory");
-			break;
-		case JackVersionError:
-			CLIENT_FAILURE("client/server protocol version mismatch");
-		default:
-			if (status) {
-				ERRORLOG("Unknown status with JACK server.");
+			case JackFailure:
+				CLIENT_FAILURE("unknown error");
+				break;
+			case JackInvalidOption:
+				CLIENT_FAILURE("invalid option");
+				break;
+			case JackNameNotUnique:
 				if (client) {
-					CLIENT_SUCCESS("Client pointer is *not* null..."
-							   " assuming we're OK");
+					sClientName = jack_get_client_name(client);
+					CLIENT_SUCCESS(QString("Jack assigned the client name '%1'").arg(sClientName));
+				} else {
+					CLIENT_FAILURE("name not unique");
 				}
-			} else {
-				CLIENT_SUCCESS("Connected to JACK server");
-			}
+				break;
+			case JackServerStarted:
+				CLIENT_SUCCESS("JACK Server started for Hydrogen.");
+				break;
+			case JackServerFailed:
+				CLIENT_FAILURE("unable to connect");
+				break;
+			case JackServerError:
+				CLIENT_FAILURE("communication error");
+				break;
+			case JackNoSuchClient:
+				CLIENT_FAILURE("unknown client type");
+				break;
+			case JackLoadFailure:
+				CLIENT_FAILURE("can't load internal client");
+				break;
+			case JackInitFailure:
+				CLIENT_FAILURE("can't initialize client");
+				break;
+			case JackShmFailure:
+				CLIENT_FAILURE("unable to access shared memory");
+				break;
+			case JackVersionError:
+				CLIENT_FAILURE("client/server protocol version mismatch");
+			default:
+				if (status) {
+					ERRORLOG("Unknown status with JACK server.");
+					if (client) {
+						CLIENT_SUCCESS("Client pointer is *not* null..."
+									   " assuming we're OK");
+					}
+				} else {
+					CLIENT_SUCCESS("Connected to JACK server");
+				}
 		}
 	}
 
@@ -621,10 +621,10 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 	}
 
 	// clear buffers
-//	jack_default_audio_sample_t *out_L = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_1, jack_server_bufferSize);
-//	jack_default_audio_sample_t *out_R = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_2, jack_server_bufferSize);
-//	memset( out_L, 0, nBufferSize * sizeof( float ) );
-//	memset( out_R, 0, nBufferSize * sizeof( float ) );
+	//	jack_default_audio_sample_t *out_L = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_1, jack_server_bufferSize);
+	//	jack_default_audio_sample_t *out_R = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_2, jack_server_bufferSize);
+	//	memset( out_L, 0, nBufferSize * sizeof( float ) );
+	//	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
 #ifdef H2CORE_HAVE_LASH
 	if ( pref->useLash() ){
@@ -653,7 +653,7 @@ void JackOutput::makeTrackOutputs( Song * song )
 
 	/// Disable Track Outputs
 	if( Preferences::get_instance()->m_bJackTrackOuts == false )
-			return;
+		return;
 	///
 
 	InstrumentList * instruments = song->get_instrument_list();
@@ -663,16 +663,16 @@ void JackOutput::makeTrackOutputs( Song * song )
 	// create dedicated channel output ports
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
-    int p_trackCount = 0;
-    track_map.clear();
+	int p_trackCount = 0;
+	track_map.clear();
 
 	for ( int n = nInstruments - 1; n >= 0; n-- ) {
-        instr = instruments->get( n );
-        for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
-            InstrumentComponent* pCompo = *it;
+		instr = instruments->get( n );
+		for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
+			InstrumentComponent* pCompo = *it;
 			setTrackOutput( p_trackCount, instr , pCompo, song);
-            track_map[instr->get_id() + "_" + pCompo->get_drumkit_componentID()] = p_trackCount;
-            p_trackCount++;
+			track_map[instr->get_id() + "_" + pCompo->get_drumkit_componentID()] = p_trackCount;
+			p_trackCount++;
 		}
 	}
 	// clean up unused ports
@@ -701,10 +701,10 @@ void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent 
 		for ( int m = track_port_count; m <= n; m++ ) {
 			chName = QString( "Track_%1_" ).arg( m + 1 );
 			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toLocal8Bit(),
-				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+														   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
 			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toLocal8Bit(),
-				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+														   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
 			if ( ! track_output_ports_R[m] || ! track_output_ports_L[m] ) {
 				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
@@ -726,8 +726,8 @@ void JackOutput::play()
 {
 	Preferences* P = Preferences::get_instance();
 	if ( P->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ||
-	     P->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
-	) {
+		 P->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
+		 ) {
 		if ( client ) {
 			INFOLOG( "jack_transport_start()" );
 			jack_transport_start( client );
@@ -769,7 +769,7 @@ void JackOutput::setBpm( float fBPM )
 
 int JackOutput::getNumTracks()
 {
-//	INFOLOG( "get num tracks()" );
+	//	INFOLOG( "get num tracks()" );
 	return track_port_count;
 }
 
@@ -833,7 +833,7 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 		/* Save updated playlist */
 		if ( ! PL->save ( jackSessionDirectory + FileName ) )
 			ev->flags = JackSessionSaveError;
-	/* Song Mode */
+		/* Song Mode */
 	} else {
 		/* Valid Song is needed */
 		if ( S->get_filename().isEmpty() ) S->set_filename("untitled.h2song");
@@ -846,16 +846,16 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 		retval += " -s \"" + FileName + "\"";
 
 		switch (ev->type) {
-		case JackSessionSave:
-			EQ->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
-			break;
-		case JackSessionSaveAndQuit:
-			EQ->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
-			EQ->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
-			break;
-		default:
-			ERRORLOG( "JackSession: Unknown event type" );
-			ev->flags = JackSessionSaveError;
+			case JackSessionSave:
+				EQ->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+				break;
+			case JackSessionSaveAndQuit:
+				EQ->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
+				EQ->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
+				break;
+			default:
+				ERRORLOG( "JackSession: Unknown event type" );
+				ev->flags = JackSessionSaveError;
 		}
 	}
 
@@ -887,10 +887,10 @@ void JackOutput::com_release()
 }
 
 void JackOutput::jack_timebase_callback(jack_transport_state_t state,
-					jack_nframes_t nframes,
-					jack_position_t *pos,
-					int new_pos,
-					void *arg)
+										jack_nframes_t nframes,
+										jack_position_t *pos,
+										int new_pos,
+										void *arg)
 {
 	JackOutput *me = static_cast<JackOutput*>(arg);
 	if (! me) return;
@@ -928,7 +928,7 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 		pos->bar_start_tick = ppos * pos->beats_per_bar * pos->ticks_per_beat;
 
 		//printf ( "Bar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g\n", pos->bar, pos->beat,
-			//pos->tick, pos->beats_per_bar, pos->bar_start_tick );
+		//pos->tick, pos->beats_per_bar, pos->bar_start_tick );
 	}
 }
 
