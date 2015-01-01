@@ -67,13 +67,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
 
 	m_pShowInstrumentBtn = new ToggleButton(
-				m_pInstrumentPropTop,
-				"/skin_btn_on.png",
-				"/skin_btn_off.png",
-				"/skin_btn_over.png",
-				QSize( 100, 17 ),
-				true
-				);
+							   m_pInstrumentPropTop,
+							   "/skin_btn_on.png",
+							   "/skin_btn_off.png",
+							   "/skin_btn_over.png",
+							   QSize( 100, 17 ),
+							   true
+							   );
 	m_pShowInstrumentBtn->setText(trUtf8("General"));
 	m_pShowInstrumentBtn->setToolTip( trUtf8( "Show instrument properties" ) );
 	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
@@ -82,13 +82,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 	m_pShowLayersBtn = new ToggleButton(
-				m_pInstrumentPropTop,
-				"/skin_btn_on.png",
-				"/skin_btn_off.png",
-				"/skin_btn_over.png",
-				QSize( 100, 17 ),
-				true
-				);
+						   m_pInstrumentPropTop,
+						   "/skin_btn_on.png",
+						   "/skin_btn_off.png",
+						   "/skin_btn_over.png",
+						   QSize( 100, 17 ),
+						   true
+						   );
 	m_pShowLayersBtn->setText( trUtf8("Layers") );
 	m_pShowLayersBtn->setToolTip( trUtf8( "Show layers properties" ) );
 	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
@@ -110,24 +110,24 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMidiOutChannelLCD->move( 67, 261 );
 
 	m_pAddMidiOutChannelBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_up_on.png",
-				"/lcd/LCDSpinBox_up_off.png",
-				"/lcd/LCDSpinBox_up_over.png",
-				QSize( 16, 8 )
-				);
+								  m_pInstrumentProp,
+								  "/lcd/LCDSpinBox_up_on.png",
+								  "/lcd/LCDSpinBox_up_off.png",
+								  "/lcd/LCDSpinBox_up_over.png",
+								  QSize( 16, 8 )
+								  );
 
 	m_pAddMidiOutChannelBtn->move( 109, 260 );
 	connect( m_pAddMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
 
 	m_pDelMidiOutChannelBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_down_on.png",
-				"/lcd/LCDSpinBox_down_off.png",
-				"/lcd/LCDSpinBox_down_over.png",
-				QSize(16,8)
-				);
+								  m_pInstrumentProp,
+								  "/lcd/LCDSpinBox_down_on.png",
+								  "/lcd/LCDSpinBox_down_off.png",
+								  "/lcd/LCDSpinBox_down_over.png",
+								  QSize(16,8)
+								  );
 	m_pDelMidiOutChannelBtn->move( 109, 269 );
 	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
@@ -136,24 +136,24 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMidiOutNoteLCD->move( 160, 261 );
 
 	m_pAddMidiOutNoteBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_up_on.png",
-				"/lcd/LCDSpinBox_up_off.png",
-				"/lcd/LCDSpinBox_up_over.png",
-				QSize( 16, 8 )
-				);
+							   m_pInstrumentProp,
+							   "/lcd/LCDSpinBox_up_on.png",
+							   "/lcd/LCDSpinBox_up_off.png",
+							   "/lcd/LCDSpinBox_up_over.png",
+							   QSize( 16, 8 )
+							   );
 
 	m_pAddMidiOutNoteBtn->move( 202, 260 );
 	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
 
 
 	m_pDelMidiOutNoteBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_down_on.png",
-				"/lcd/LCDSpinBox_down_off.png",
-				"/lcd/LCDSpinBox_down_over.png",
-				QSize(16,8)
-				);
+							   m_pInstrumentProp,
+							   "/lcd/LCDSpinBox_down_on.png",
+							   "/lcd/LCDSpinBox_down_off.png",
+							   "/lcd/LCDSpinBox_down_over.png",
+							   QSize(16,8)
+							   );
 	m_pDelMidiOutNoteBtn->move( 202, 269 );
 	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
 
@@ -170,12 +170,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// Filter
 	m_pFilterBypassBtn = new ToggleButton(
-				m_pInstrumentProp,
-				"/instrumentEditor/bypass_on.png",
-				"/instrumentEditor/bypass_off.png",
-				"/instrumentEditor/bypass_over.png",
-				QSize( 30, 13 )
-				);
+							 m_pInstrumentProp,
+							 "/instrumentEditor/bypass_on.png",
+							 "/instrumentEditor/bypass_off.png",
+							 "/instrumentEditor/bypass_over.png",
+							 QSize( 30, 13 )
+							 );
 	connect( m_pFilterBypassBtn, SIGNAL( clicked(Button*) ), this, SLOT( filterActiveBtnClicked(Button*) ) );
 
 	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Filter Cutoff" ), false, true );
@@ -216,24 +216,24 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMuteGroupLCD->move( 160, 105 );
 
 	m_pAddMuteGroupBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_up_on.png",
-				"/lcd/LCDSpinBox_up_off.png",
-				"/lcd/LCDSpinBox_up_over.png",
-				QSize( 16, 8 )
-				);
+							 m_pInstrumentProp,
+							 "/lcd/LCDSpinBox_up_on.png",
+							 "/lcd/LCDSpinBox_up_off.png",
+							 "/lcd/LCDSpinBox_up_over.png",
+							 QSize( 16, 8 )
+							 );
 
 	m_pAddMuteGroupBtn->move( 202, 104 );
 	connect( m_pAddMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
 
 	m_pDelMuteGroupBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_down_on.png",
-				"/lcd/LCDSpinBox_down_off.png",
-				"/lcd/LCDSpinBox_down_over.png",
-				QSize(16,8)
-				);
+							 m_pInstrumentProp,
+							 "/lcd/LCDSpinBox_down_on.png",
+							 "/lcd/LCDSpinBox_down_off.png",
+							 "/lcd/LCDSpinBox_down_over.png",
+							 QSize(16,8)
+							 );
 	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
@@ -255,22 +255,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatMinRangeLCD->move( 67, 320 );
 
 	m_pAddHihatMinRangeBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_up_on.png",
-				"/lcd/LCDSpinBox_up_off.png",
-				"/lcd/LCDSpinBox_up_over.png",
-				QSize( 16, 8 )
-				);
+								 m_pInstrumentProp,
+								 "/lcd/LCDSpinBox_up_on.png",
+								 "/lcd/LCDSpinBox_up_off.png",
+								 "/lcd/LCDSpinBox_up_over.png",
+								 QSize( 16, 8 )
+								 );
 	m_pAddHihatMinRangeBtn->move( 109, 319 );
 	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMinRangeBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_down_on.png",
-				"/lcd/LCDSpinBox_down_off.png",
-				"/lcd/LCDSpinBox_down_over.png",
-				QSize(16,8)
-				);
+								 m_pInstrumentProp,
+								 "/lcd/LCDSpinBox_down_on.png",
+								 "/lcd/LCDSpinBox_down_off.png",
+								 "/lcd/LCDSpinBox_down_over.png",
+								 QSize(16,8)
+								 );
 	m_pDelHihatMinRangeBtn->move( 109, 328 );
 	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
@@ -279,22 +279,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatMaxRangeLCD->move( 160, 320 );
 
 	m_pAddHihatMaxRangeBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_up_on.png",
-				"/lcd/LCDSpinBox_up_off.png",
-				"/lcd/LCDSpinBox_up_over.png",
-				QSize( 16, 8 )
-				);
+								 m_pInstrumentProp,
+								 "/lcd/LCDSpinBox_up_on.png",
+								 "/lcd/LCDSpinBox_up_off.png",
+								 "/lcd/LCDSpinBox_up_over.png",
+								 QSize( 16, 8 )
+								 );
 	m_pAddHihatMaxRangeBtn->move( 202, 319 );
 	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMaxRangeBtn = new Button(
-				m_pInstrumentProp,
-				"/lcd/LCDSpinBox_down_on.png",
-				"/lcd/LCDSpinBox_down_off.png",
-				"/lcd/LCDSpinBox_down_over.png",
-				QSize(16,8)
-				);
+								 m_pInstrumentProp,
+								 "/lcd/LCDSpinBox_down_on.png",
+								 "/lcd/LCDSpinBox_down_off.png",
+								 "/lcd/LCDSpinBox_down_over.png",
+								 QSize(16,8)
+								 );
 	m_pDelHihatMaxRangeBtn->move( 202, 328 );
 	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
@@ -348,28 +348,28 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pWaveDisplay->move( 5, 241 );
 
 	m_pLoadLayerBtn = new Button(
-				m_pLayerProp,
-				"/instrumentEditor/loadLayer_on.png",
-				"/instrumentEditor/loadLayer_off.png",
-				"/instrumentEditor/loadLayer_over.png",
-				QSize( 90, 13 )
-				);
+						  m_pLayerProp,
+						  "/instrumentEditor/loadLayer_on.png",
+						  "/instrumentEditor/loadLayer_off.png",
+						  "/instrumentEditor/loadLayer_over.png",
+						  QSize( 90, 13 )
+						  );
 
 	m_pRemoveLayerBtn = new Button(
-				m_pLayerProp,
-				"/instrumentEditor/deleteLayer_on.png",
-				"/instrumentEditor/deleteLayer_off.png",
-				"/instrumentEditor/deleteLayer_over.png",
-				QSize( 90, 13 )
-				);
+							m_pLayerProp,
+							"/instrumentEditor/deleteLayer_on.png",
+							"/instrumentEditor/deleteLayer_off.png",
+							"/instrumentEditor/deleteLayer_over.png",
+							QSize( 90, 13 )
+							);
 
 	m_pSampleEditorBtn = new Button(
-				m_pLayerProp,
-				"/instrumentEditor/editLayer_on.png",
-				"/instrumentEditor/editLayer_off.png",
-				"/instrumentEditor/editLayer_over.png",
-				QSize( 90, 13 )
-				);
+							 m_pLayerProp,
+							 "/instrumentEditor/editLayer_on.png",
+							 "/instrumentEditor/editLayer_off.png",
+							 "/instrumentEditor/editLayer_over.png",
+							 QSize( 90, 13 )
+							 );
 	m_pLoadLayerBtn->move( 48, 267 );
 	m_pRemoveLayerBtn->move( 145, 267 );
 
@@ -387,6 +387,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Layer gain" ), false, false );
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
+	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Bank volume" ), false, false );
+	connect( m_pCompoGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 
@@ -402,6 +406,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pLayerGainLCD->move( 54, 341 + 3 );
 	m_pLayerGainRotary->move( 102, 341 );
+
+	m_pCompoGainLCD->move( 151, 341 + 3 );
+	m_pCompoGainRotary->move( 199, 341 );
 
 
 	m_pLayerPitchCoarseLCD->move( 54, 400 + 3 );
@@ -562,6 +569,13 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		if(m_nSelectedLayer >= 0){
 			InstrumentComponent* component = m_pInstrument->get_component( m_nSelectedComponent );
 			if(component) {
+
+				char tmp[20];
+				sprintf( tmp, "%#.2f", component->get_gain());
+				m_pCompoGainLCD->setText( tmp );
+
+				m_pCompoGainRotary->setValue( component->get_gain() / 5.0 );
+
 				InstrumentLayer* p_layer = component->get_layer( m_nSelectedLayer );
 				if(p_layer) {
 					m_pWaveDisplay->updateDisplay( p_layer );
@@ -632,6 +646,15 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 					m_pWaveDisplay->updateDisplay( pLayer );
 				}
 			}
+		}
+		else if ( ref == m_pCompoGainRotary ) {
+			fVal = fVal * 5.0;
+			char tmp[20];
+			sprintf( tmp, "%#.2f", fVal );
+			m_pCompoGainLCD->setText( tmp );
+
+			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			pCompo->set_gain( fVal );
 		}
 		else if ( ref == m_pLayerPitchCoarseRotary ) {
 			//fVal = fVal * 24.0 - 12.0;
@@ -1183,6 +1206,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			m_pInstrument->get_components()->push_back( instrument_component );
 
 
+
 #ifdef H2CORE_HAVE_JACK
 			pEngine->renameJackPorts(pEngine->getSong());
 #endif
@@ -1224,12 +1248,12 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 							if( pSample->get_rubberband().use ) {
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
 								Sample *newSample = Sample::load(
-											pSample->get_filepath(),
-											pSample->get_loops(),
-											pSample->get_rubberband(),
-											*pSample->get_velocity_envelope(),
-											*pSample->get_pan_envelope()
-											);
+														pSample->get_filepath(),
+														pSample->get_loops(),
+														pSample->get_rubberband(),
+														*pSample->get_velocity_envelope(),
+														*pSample->get_pan_envelope()
+														);
 								if( !newSample  ){
 									continue;
 								}
